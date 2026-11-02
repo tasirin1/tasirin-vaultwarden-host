@@ -146,6 +146,17 @@ def main():
                 and "kunci-terbelah.txt" in out)
         shutil.rmtree(kunciterbelah, ignore_errors=True)
 
+        readmehilang = klon(tmp, "readmehilang")
+        os.remove(os.path.join(readmehilang, "README.id.md"))
+        tanam(readmehilang, "catatan-token.txt",
+              "token uji: " + token_palsu + "\n", "w")
+        rc, out = jalan(readmehilang, ["bash", SKRIP])
+        periksa("README hilang: skrip tetap memindai rahasia "
+                "(Audit 1438)",
+                rc == 1 and "berkas wajib hilang" in out
+                and "pola rahasia" in out)
+        shutil.rmtree(readmehilang, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

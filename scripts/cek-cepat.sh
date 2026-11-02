@@ -36,9 +36,9 @@ struktur_judul() {
 for r in README.md README.id.md README.ru.md; do
   if [ ! -f "$r" ]; then gagal_msg "berkas wajib hilang: $r"; fi
 done
-a=$(struktur_judul README.md)
-b=$(struktur_judul README.id.md)
-c=$(struktur_judul README.ru.md)
+a=$(struktur_judul README.md || true)
+b=$(struktur_judul README.id.md || true)
+c=$(struktur_judul README.ru.md || true)
 if [ "$a" != "$b" ]; then gagal_msg "struktur judul README.md ($a) != README.id.md ($b)"; fi
 if [ "$a" != "$c" ]; then gagal_msg "struktur judul README.md ($a) != README.ru.md ($c)"; fi
 
