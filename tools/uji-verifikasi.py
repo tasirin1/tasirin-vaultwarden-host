@@ -8152,6 +8152,24 @@ def main():
         periksa("less -f --help: "
                 "gerbang lolos (Audit 1216)", rc == 0)
         shutil.rmtree(sub428, ignore_errors=True)
+        sub429 = klon(tmp, "sub429")
+        berkas_aksi429 = os.path.join(
+            sub429, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi429, encoding="utf-8") as f:
+            isi_aksi429 = f.read()
+        baris_aksi429 = [b for b in isi_aksi429.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi429, "w", encoding="utf-8") as f:
+            f.write(isi_aksi429.replace(
+                baris_aksi429,
+                baris_aksi429.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(patch -t --help; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub429, [sys.executable, GERBANG, "--semua"])
+        periksa("patch -t --help: "
+                "gerbang lolos (Audit 1217)", rc == 0)
+        shutil.rmtree(sub429, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

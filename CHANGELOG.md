@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Pemeriksa informasional: -t patch adalah bendera mode batch (Audit 1217)
+
 ## [Belum rilis] — Pemeriksa informasional: -f less adalah bendera, bukan opsi bernilai (Audit 1216)
 
 ## [Belum rilis] — openssl objek tertentu: -in - bukan stdin (Audit 1215)

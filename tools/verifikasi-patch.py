@@ -1655,7 +1655,9 @@ def _menguras_khusus(perintah, toks, awal):
         if perintah == "less":
             # Audit 1216: -f bagi less juga bendera polos.
             pendahulu.discard("-f")
-
+        if perintah == "patch":
+            # Audit 1217: -t bagi patch bendera mode batch.
+            pendahulu.discard("-t")
         if perintah == "sqlite3":
             pendahulu.add("-init")
         for k_i, t_i in enumerate(mentah):
