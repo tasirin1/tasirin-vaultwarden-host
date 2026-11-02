@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Lima id label tak terpakai lain dibuang agar lint hijau (Audit 1009, lanjutan)
+
+- Lanjutan perbaikan build: sesudah labelPinLogin dibuang, lint melaporkan lima id label tak terpakai lain dari commit Audit 977 yang sama — `labelPin` di kartu keamanan serta `labelTgToken`, `labelTgChat`, `labelBackupPass`, dan `labelBinSha` di kartu Telegram. Penelusuran menyeluruh memastikan total 8 id label: 3 terpakai kode (labelAdmin, labelDataDir, labelPort — dipertahankan) dan 5 yang dibuang ini. Kaitan labelFor masing-masing tetap utuh.
+
 ## [Belum rilis] — Id labelPinLogin yang tak terpakai dibuang agar lint hijau (Audit 1009)
 
 - Perbaikan build: commit Audit 977 memberi `android:id` pada TextView label PIN login di kedua layout activity_pin (portrait + land), tetapi id itu tidak direferensikan siapa pun — lint menilainya UnusedIds berlevel Error dan lintDebug menggagalkan Build APK walau kompilasi dan seluruh uji JVM sudah hijau (kegagalan ini tertutup galat kompilasi 978 sampai sekarang). Baris id dibuang dari kedua layout; kaitan labelFor ke pinInput tidak berubah dan tetap bekerja.
