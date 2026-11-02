@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — lzcat: entri tabel ditambahkan (sufiks & kawan-kawan) (Audit 1238)
+
 ## [Belum rilis] — xzcat: -S/--suffix hilang dari entri (Audit 1237)
 
 ## [Belum rilis] — wall: -g/--group bernilai, hilang dari entri (Audit 1236)

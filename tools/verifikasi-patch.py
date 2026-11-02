@@ -800,7 +800,10 @@ _OPSI_BERNILAI = {
     "xzcat": {"-F", "--format", "-T", "--threads",
               # Audit 1237: -S/--suffix hilang dari entri ini.
               "-S", "--suffix"},
-
+    # Audit 1238: lzcat tanpa entri sama sekali (Audit 1199
+    # hanya menambah namanya ke daftar pembaca).
+    "lzcat": {"-F", "--format", "-S", "--suffix", "-T",
+              "--threads", "--block-size", "-C", "--check"},
     "zcat": {"-S", "--suffix"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
