@@ -8134,6 +8134,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl pkcs7 -in -: gerbang gagal (Audit 1215)", rc != 0)
         shutil.rmtree(sub427, ignore_errors=True)
+        sub428 = klon(tmp, "sub428")
+        berkas_aksi428 = os.path.join(
+            sub428, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi428, encoding="utf-8") as f:
+            isi_aksi428 = f.read()
+        baris_aksi428 = [b for b in isi_aksi428.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi428, "w", encoding="utf-8") as f:
+            f.write(isi_aksi428.replace(
+                baris_aksi428,
+                baris_aksi428.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(less -f --help; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub428, [sys.executable, GERBANG, "--semua"])
+        periksa("less -f --help: "
+                "gerbang lolos (Audit 1216)", rc == 0)
+        shutil.rmtree(sub428, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

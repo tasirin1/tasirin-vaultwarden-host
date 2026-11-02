@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Pemeriksa informasional: -f less adalah bendera, bukan opsi bernilai (Audit 1216)
+
 ## [Belum rilis] — openssl objek tertentu: -in - bukan stdin (Audit 1215)
 
 ## [Belum rilis] — bentuk daftar openssl dikenali informasional (Audit 1214)

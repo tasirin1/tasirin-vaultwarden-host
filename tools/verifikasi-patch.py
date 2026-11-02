@@ -1652,6 +1652,10 @@ def _menguras_khusus(perintah, toks, awal):
             pendahulu.discard("-t")
         if perintah == "more":
             pendahulu.discard("-f")
+        if perintah == "less":
+            # Audit 1216: -f bagi less juga bendera polos.
+            pendahulu.discard("-f")
+
         if perintah == "sqlite3":
             pendahulu.add("-init")
         for k_i, t_i in enumerate(mentah):
