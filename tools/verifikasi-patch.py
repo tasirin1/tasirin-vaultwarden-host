@@ -2937,6 +2937,13 @@ def _menguras_khusus(perintah, toks, awal):
                 k_tm += 2
                 continue
             if t_tm.startswith("-"):
+                # Audit 1366: -V (termasuk di dalam bundel
+                # huruf) mencetak versi lalu KELUAR — subperintah
+                # tak pernah berjalan.
+                if (not t_tm.startswith("--")
+                        and t_tm[1:].isalpha()
+                        and "V" in t_tm[1:]):
+                    return False
                 k_tm += 1
                 continue
             break
