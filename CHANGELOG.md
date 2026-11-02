@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — berkas masukan utama dari stdin make/visudo/patch kini dinilai gerbang patch (Audit 1071)
+
 ## [Belum rilis] — systemd-cat tanpa perintah kini dinilai meneruskan stdin oleh gerbang patch (Audit 1070)
 
 ## [Belum rilis] — gpg batch simetris kini dinilai gerbang patch (Audit 1069)

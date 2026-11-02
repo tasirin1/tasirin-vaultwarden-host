@@ -1454,6 +1454,35 @@ def _menguras_khusus(perintah, toks, awal):
         return bool(_operand_sesudah_opsi(
             toks, awal, {"-p", "-s", "-X", "-x", "-w", "-i", "-q",
                          "--proxy", "--proxy-auth"}))
+    if perintah == "make":
+        # Audit 1071: makefile dari stdin lewat -f -.
+        for i, t in enumerate(mentah):
+            if t in ("-f", "--file", "--makefile"):
+                if i + 1 < len(mentah) and mentah[i + 1] == "-":
+                    return True
+            if t in ("-f-", "--file=-", "--makefile=-"):
+                return True
+        return False
+    if perintah == "visudo":
+        # Audit 1071: berkas sudoers dari stdin lewat -f -.
+        for i, t in enumerate(mentah):
+            if t == "-f":
+                if i + 1 < len(mentah) and mentah[i + 1] == "-":
+                    return True
+            if re.fullmatch(r"-[a-z]*f", t):
+                if i + 1 < len(mentah) and mentah[i + 1] == "-":
+                    return True
+        return False
+    if perintah == "patch":
+        # Audit 1071: patch membaca patch dari stdin; operand
+        # kedua (berkas patch) yang menekannya.
+        ops = _operand_sesudah_opsi(
+            toks, awal,
+            {"-i", "--input", "-d", "--directory", "-o", "--output",
+             "-r", "--reject-file", "-p", "--strip", "-F", "--fuzz",
+             "-B", "--prefix", "-Y", "-Z", "--quoting-style",
+             "--suffix", "--basename-prefix"})
+        return len(ops) < 2
     return False
 
 
@@ -1976,7 +2005,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         if perintah in ("sqlite3", "openssl", "tar", "git",
                         "comm", "join", "diff", "diff3", "csplit",
                         "zip", "rsync", "socat", "gpg", "curl",
-                        "wget", "nc"):
+                        "wget", "nc", "make", "visudo", "patch"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
