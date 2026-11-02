@@ -2914,6 +2914,10 @@ def _menguras_khusus(perintah, toks, awal):
             return bool(ops_sc2) and ops_sc2[0] in (
                 "-", "/dev/stdin")
         return False
+    # Audit 1325: debconf-communicate selalu membaca
+    # protokol dari stdin.
+    if perintah == "debconf-communicate":
+        return True
     return False
 
 
@@ -3654,6 +3658,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "systemd-sysusers",
                         "systemd-tmpfiles",
                         "systemd-creds",
+                        "debconf-communicate",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
