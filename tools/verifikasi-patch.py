@@ -660,7 +660,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "sed", "awk", "grep", "jq",
                   # Audit 1067: varian nama keluarga yang sama
                   # (dipetakan ke nama kanonis di penilainya).
-                  "mawk", "nawk", "egrep", "fgrep", "rg"}
+                  "mawk", "nawk", "egrep", "fgrep", "rg",
+                  # Audit 1113: varian awk orisinal.
+                  "original-awk"}
 
 
 _OPSI_BERNILAI = {
@@ -1070,9 +1072,11 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     masukan mengganti stdin (tak menguras); redirect keluaran
     dilompati beserta target terpisahnya."""
     # Audit 1067: varian nama → nama kanonis keluarga.
+    # Audit 1113: original-awk varian awk orisinal.
     nama_asli = perintah
     perintah = {"mawk": "awk", "nawk": "awk", "egrep": "grep",
-                "fgrep": "grep", "rg": "grep"}.get(perintah, perintah)
+                "fgrep": "grep", "rg": "grep",
+                "original-awk": "awk"}.get(perintah, perintah)
     # Audit 1095: mode daftar rg tak membaca stdin sama sekali.
     if nama_asli == "rg" and any(
             t.strip("\"'") == "--files" for t in toks[awal + 1:]):
@@ -2509,7 +2513,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     if xargs_sendiri:
         return True
     if perintah in ("sed", "awk", "grep", "jq",
-                    "mawk", "nawk", "egrep", "fgrep", "rg"):
+                    "mawk", "nawk", "egrep", "fgrep", "rg",
+                    "original-awk"):
         # Audit 1038: semantik operand keluarga skrip/pola.
         # Audit 1067: varian nama dipetakan ke kanonisnya.
         return _menguras_keluarga_skrip(perintah, toks, awal)

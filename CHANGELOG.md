@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — varian nama original-awk kini dipetakan gerbang patch (Audit 1113)
+
 ## [Belum rilis] — pembaca interaktif/kueri kini dimodelkan gerbang patch (Audit 1112)
 
 ## [Belum rilis] — du dan find --files0-from kini dimodelkan gerbang patch (Audit 1111)

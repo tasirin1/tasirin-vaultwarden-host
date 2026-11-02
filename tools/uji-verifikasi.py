@@ -4713,6 +4713,25 @@ def main():
         periksa("nslookup polos: gerbang gagal (Audit 1112)", rc != 0)
         shutil.rmtree(sub237, ignore_errors=True)
 
+        sub238 = klon(tmp, "sub238")
+        berkas_aksi238 = os.path.join(
+            sub238, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi238, encoding="utf-8") as f:
+            isi_aksi238 = f.read()
+        baris_aksi238 = [b for b in isi_aksi238.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi238, "w", encoding="utf-8") as f:
+            f.write(isi_aksi238.replace(
+                baris_aksi238,
+                baris_aksi238.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(original-awk '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub238,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("original-awk: gerbang gagal (Audit 1113)", rc != 0)
+        shutil.rmtree(sub238, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
