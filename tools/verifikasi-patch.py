@@ -1026,8 +1026,13 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     masukan mengganti stdin (tak menguras); redirect keluaran
     dilompati beserta target terpisahnya."""
     # Audit 1067: varian nama → nama kanonis keluarga.
+    nama_asli = perintah
     perintah = {"mawk": "awk", "nawk": "awk", "egrep": "grep",
                 "fgrep": "grep", "rg": "grep"}.get(perintah, perintah)
+    # Audit 1095: mode daftar rg tak membaca stdin sama sekali.
+    if nama_asli == "rg" and any(
+            t.strip("\"'") == "--files" for t in toks[awal + 1:]):
+        return False
     nilai = {
         "sed": {"-e", "-f", "--expression", "--file"},
         "awk": {"-F", "-v", "-f", "-W", "--field-separator",

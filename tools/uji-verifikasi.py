@@ -3744,6 +3744,25 @@ def main():
         periksa("zip -@ tanpa arsip: gerbang lolos (Audit 1094)", rc == 0)
         shutil.rmtree(sub186, ignore_errors=True)
 
+        sub187 = klon(tmp, "sub187")
+        berkas_aksi187 = os.path.join(
+            sub187, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi187, encoding="utf-8") as f:
+            isi_aksi187 = f.read()
+        baris_aksi187 = [b for b in isi_aksi187.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi187, "w", encoding="utf-8") as f:
+            f.write(isi_aksi187.replace(
+                baris_aksi187,
+                baris_aksi187.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(rg --files; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub187,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("rg --files: gerbang lolos (Audit 1095)", rc == 0)
+        shutil.rmtree(sub187, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
