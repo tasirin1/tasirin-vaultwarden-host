@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — perl tanpa berkas skrip kini dinilai gerbang patch membaca skrip dari stdin (Audit 1119)
+
 ## [Belum rilis] — gitleaks tak lagi mengecualikan build-binary.yml dari pindaian (Audit 1118)
 
 ## [Belum rilis] — logika HARUS_BUILD auto-merge selaras saringan path build-apk (Audit 1117)

@@ -1213,9 +1213,14 @@ def _menguras_interpreter(perintah, toks, awal):
     if perintah == "perl":
         pakai_lingkar = False
         ada_berkas = False
+        # Audit 1119: tanpa operand skrip sama sekali, perl
+        # membaca SKRIP-nya dari stdin (telanjang, -w, "-").
+        skrip_terisi = False
+        berkas_stdin = False
         while i < n:
             t = toks[i]
             if t == "-e":
+                skrip_terisi = True
                 i += 2
                 continue
             if t.startswith("-") and t != "-":
@@ -1225,14 +1230,29 @@ def _menguras_interpreter(perintah, toks, awal):
                     pakai_lingkar = True
                 # Bundel berakhiran -e (-ne/-pe): token berikutnya
                 # adalah skripnya, bukan berkas masukan.
-                i += 2 if re.fullmatch(r"[A-Za-z]*e", huruf) else 1
+                if re.fullmatch(r"[A-Za-z]*e", huruf):
+                    skrip_terisi = True
+                    i += 2
+                else:
+                    i += 1
                 continue
-            if t in ("--", "-"):
+            if t == "--":
                 i += 1
                 continue
-            ada_berkas = True
+            if t == "-":
+                if not skrip_terisi:
+                    return True  # skrip dari stdin
+                berkas_stdin = True
+                i += 1
+                continue
+            if not skrip_terisi:
+                skrip_terisi = True
+            else:
+                ada_berkas = True
             i += 1
-        return pakai_lingkar and not ada_berkas
+        if not skrip_terisi:
+            return True
+        return pakai_lingkar and (berkas_stdin or not ada_berkas)
     if perintah in ("bash", "sh", "dash", "zsh"):
         # Audit 1058: shell tanpa skrip membaca perintah dari
         # stdin; -c menekan; operand "-" memintanya eksplisit.
