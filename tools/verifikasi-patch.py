@@ -649,7 +649,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1425-1427/1429: keluarga server
                   # Assuan & pengurai NSS — tanpa operand
                   # membaca protokol/objek dari stdin.
-                  "pinentry", "pinentry-curses",
+                  "pinentry", "pinentry-curses", "dirmngr",
                   "utmpdump",
                   "shuf", "base64", "od", "sha256sum", "md5sum",
                   "gzip", "gunzip",
