@@ -3060,6 +3060,25 @@ def main():
         periksa("pager pada stdin pipa menguras: gerbang gagal (Audit 1072)", rc != 0)
         shutil.rmtree(submore, ignore_errors=True)
 
+        sub151 = klon(tmp, "sub151")
+        berkas_aksi151 = os.path.join(
+            sub151, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi151, encoding="utf-8") as f:
+            isi_aksi151 = f.read()
+        baris_aksi151 = [b for b in isi_aksi151.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi151, "w", encoding="utf-8") as f:
+            f.write(isi_aksi151.replace(
+                baris_aksi151,
+                baris_aksi151.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(comm -1 - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub151,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("comm -1 bendera: gerbang gagal (Audit 1074)", rc != 0)
+        shutil.rmtree(sub151, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

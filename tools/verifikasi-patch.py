@@ -1358,8 +1358,15 @@ def _menguras_khusus(perintah, toks, awal):
         if sub == "fast-import":
             return True
         return False
-    if perintah in ("comm", "join"):
+    if perintah == "comm":
         # Audit 1063: '-' di posisi operand mana pun = stdin.
+        # Audit 1074: -1/-2/-3 pada comm adalah BENDERA penekan
+        # kolom, bukan opsi bernilai — memasukkannya ke tabel
+        # membuat nilai bendera menelan operand '-'.
+        return "-" in _operand_sesudah_opsi(toks, awal, set())
+    if perintah == "join":
+        # Audit 1063: '-' di posisi operand mana pun = stdin
+        # (di join -1/-2 memang bernilai nomor field).
         return "-" in _operand_sesudah_opsi(
             toks, awal, {"-1", "-2", "-o", "-t", "-e", "-a", "-v",
                          "--output", "--separator"})
