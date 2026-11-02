@@ -667,6 +667,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1244: grep terkompresi — pola
                   # pertamanya bukan berkas (penilai keluarga).
                   "zgrep", "bzgrep", "xzgrep", "lzgrep",
+                  # Audit 1306: egrep/fgrep gzip.
+                  "zegrep", "zfgrep",
                   # Audit 1113: varian awk orisinal.
                   "original-awk",
                   # Audit 1196: pemulih tabel firewall membaca
@@ -1267,6 +1269,8 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 # Audit 1244: grep terkompresi sekeluarga grep.
                 "zgrep": "grep", "bzgrep": "grep",
                 "xzgrep": "grep", "lzgrep": "grep",
+                # Audit 1306-1309: egrep/fgrep terkompresi.
+                "zegrep": "grep", "zfgrep": "grep",
                 "original-awk": "awk"}.get(perintah, perintah)
     # Audit 1095: mode daftar rg tak membaca stdin sama sekali.
     if nama_asli == "rg" and any(
@@ -3543,6 +3547,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                   # Audit 1244: grep terkompresi — pola
                   # pertamanya bukan berkas (penilai keluarga).
                   "zgrep", "bzgrep", "xzgrep", "lzgrep",
+                  # Audit 1306: egrep/fgrep gzip.
+                  "zegrep", "zfgrep",
                     "original-awk"):
         # Audit 1038: semantik operand keluarga skrip/pola.
         # Audit 1067: varian nama dipetakan ke kanonisnya.

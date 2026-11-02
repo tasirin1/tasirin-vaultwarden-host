@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Egrep gzip (zegrep/zfgrep) dirutekan (Audit 1306)
+
 ## [Belum rilis] — Pembanding gzip (zcmp/zdiff) dinilai (Audit 1305)
 
 ## [Belum rilis] — As menilai operand '-' (Audit 1304)
