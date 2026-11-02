@@ -671,7 +671,10 @@ _OPSI_BERNILAI = {
              "--max-unchanged-stats"},
     "sort": {"-k", "-o", "-t", "-S", "-T", "--random-source",
              "--parallel", "--buffer-size", "--compress-program",
-             "--files0-from", "--batch-size"},
+             "--files0-from", "--batch-size",
+             # Audit 1164: bentuk panjang yang hilang.
+             "--key", "--field-separator",
+             "--temporary-directory", "--output"},
     "uniq": {"-f", "-s", "-w", "--skip-fields", "--check-chars"},
     # Audit 1141: --group uniq DIBUANG dari tabel — argumennya
     # opsional dan hanya lewat '='; memasukkannya membuat operand

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — opsi panjang bernilai sort dilengkapi di gerbang patch (Audit 1164)
+
 ## [Belum rilis] — bentuk --stdin plumbing git dan credential get kini dimodelkan gerbang patch (Audit 1163)
 
 ## [Belum rilis] — subcommand git pembaca stdin putaran-4 kini dikenali gerbang patch (Audit 1162)
