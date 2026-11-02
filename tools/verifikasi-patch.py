@@ -3213,8 +3213,11 @@ def _menguras_khusus(perintah, toks, awal):
                          "-ss", "-t", "-of", "-print_format",
                          "-select_streams", "-v", "-loglevel",
                          "-f", "-vf", "-af", "-left", "-top"})
-        return any(o_ff in ("-", "pipe:", "pipe:0",
-                            "/dev/stdin") for o_ff in ops_ff)
+        # Audit 1370: ffprobe/ffplay hanya menerima TEPAT
+        # satu masukan — masukan kedua adalah galat sebelum
+        # membaca, jadi hanya operand pertama yang menentukan.
+        return bool(ops_ff) and ops_ff[0] in (
+            "-", "pipe:", "pipe:0", "/dev/stdin")
     return False
 
 

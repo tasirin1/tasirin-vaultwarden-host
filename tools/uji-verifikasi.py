@@ -11020,6 +11020,25 @@ def main():
                 "gerbang lolos (Audit 1369)", rc == 0)
         shutil.rmtree(sub587, ignore_errors=True)
 
+        sub588 = klon(tmp, "sub588")
+        berkas_aksi588 = os.path.join(
+            sub588, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi588, encoding="utf-8") as f:
+            isi_aksi588 = f.read()
+        baris_aksi588 = [b for b in isi_aksi588.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi588, "w", encoding="utf-8") as f:
+            f.write(isi_aksi588.replace(
+                baris_aksi588,
+                baris_aksi588.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(ffprobe berkas.mp4 pipe:; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub588, [sys.executable, GERBANG, "--semua"])
+        periksa("ffprobe berkas.mp4 pipe:: "
+                "gerbang lolos (Audit 1370)", rc == 0)
+        shutil.rmtree(sub588, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

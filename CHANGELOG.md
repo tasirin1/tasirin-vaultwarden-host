@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Ffprobe/ffplay — hanya masukan pertama yang dinilai (masukan kedua adalah galat) (Audit 1370)
 ## [Belum rilis] — Debugfs — -f/-R di dalam bundel (-wf) kini terdeteksi lewat pindaian huruf (Audit 1369)
 ## [Belum rilis] — Tree — -T/-H masuk tabel bernilai dan opsi bernilai di ujung bundel dikenali (Audit 1368)
 ## [Belum rilis] — Tree — pemindai --fromfile kini berhenti di '--' (Audit 1367)
