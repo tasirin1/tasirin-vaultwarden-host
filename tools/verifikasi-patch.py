@@ -2053,6 +2053,17 @@ def _menguras_khusus(perintah, toks, awal):
                  "-strparse", "-genconf", "-config",
                  "-nameopt", "-certopt"})
             return not ops_os
+        # Audit 1403: req -new tanpa -subj/-batch meminta
+        # nama terbilang lewat prompt yang membaca stdin
+        # (jawaban tak sah memicu prompt ulang).
+        if sub == "req":
+            if not any(t == "-new" or t.startswith("-newkey")
+                       for t in mentah):
+                return False
+            if any(t == "-subj" or t.startswith("-subj=")
+                   for t in mentah):
+                return False
+            return "-batch" not in mentah
         if sub == "passwd":
             return "-stdin" in mentah
         if sub == "s_client":

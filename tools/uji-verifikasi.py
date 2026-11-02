@@ -11713,6 +11713,24 @@ def main():
         periksa("openssl asn1parse berkas.der: "
                 "gerbang lolos (Audit 1402)", rc == 0)
         shutil.rmtree(sub625, ignore_errors=True)
+        sub626 = klon(tmp, "sub626")
+        berkas_aksi626 = os.path.join(
+            sub626, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi626, encoding="utf-8") as f:
+            isi_aksi626 = f.read()
+        baris_aksi626 = [b for b in isi_aksi626.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi626, "w", encoding="utf-8") as f:
+            f.write(isi_aksi626.replace(
+                baris_aksi626,
+                baris_aksi626.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl req -new -key kunci.pem; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub626, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl req -new -key kunci.pem: "
+                "gerbang gagal (Audit 1403)", rc != 0)
+        shutil.rmtree(sub626, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
