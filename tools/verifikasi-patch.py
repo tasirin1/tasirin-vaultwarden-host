@@ -3942,6 +3942,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     lewati = False
     # Audit 1286: pr membaca SETIAP operand berurutan.
     ada_stdin_pr = False
+    # Audit 1349: operand berkas pr tak memutuskan vonis.
+    ada_operand_pr = False
     operand_tr = 0  # Audit 1047: penghitung operand himpunan tr.
     # Audit 1087: pada mode hapus (-d tanpa -s) GNU tr menolak
     # himpunan KEDUA — batas operand sah menyusut jadi 1.
@@ -4127,15 +4129,21 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 return False
             if "=" in t:
                 continue
-        # Audit 1286: '-' pr yang sudah terlihat tetap dibaca
-        # walau operand berkas lain menyusul.
-        if perintah == "pr" and ada_stdin_pr:
-            return True
+        # Audit 1349: pr membaca SETIAP operand berurutan —
+        # operand berkas pertama tak boleh memutuskan; catat
+        # dan lanjutkan ('-' bisa muncul sesudah berkas).
+        if perintah == "pr":
+            ada_operand_pr = True
+            continue
         return False
     # Audit 1096: opsi bernilai (atau operator redirect) di token
     # terakhir menggantung — program/shell galat tanpa membaca.
     if lewati:
         return False
+    # Audit 1349: pr beroperand berkas hanya menguras bila
+    # '-' termasuk di antara operandnya.
+    if perintah == "pr" and ada_operand_pr:
+        return ada_stdin_pr
     return True
 
 
