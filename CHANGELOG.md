@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Xvfb-run -p/--xauth-protocol bernilai (Audit 1297)
+
 ## [Belum rilis] — Choom mode pid dikenali di resolver pembungkus (Audit 1296)
 
 ## [Belum rilis] — Uclampset -M dibetulkan sebagai --max (Audit 1295)

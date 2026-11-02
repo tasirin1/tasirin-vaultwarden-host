@@ -965,7 +965,11 @@ _OPSI_PEMBUNGKUS = {
     "uclampset": {"-m", "--min", "-M", "--max", "-p", "--pid"},
     "choom": {"-n", "--adjust", "-p", "--pid"},
     "xvfb-run": {"-n", "--server-num", "-s", "--server-args",
-                 "-f", "--auth-file", "-e", "--error-file"},
+                 "-f", "--auth-file", "-e", "--error-file",
+                 # Audit 1297: -p/--xauth-protocol.
+                 "-p", "--xauth-protocol"},
+    # Audit 1319: systemd-run — anak adalah perintah
+    # sesudah opsi unit/timer.
     # Audit 1084: chroot dikenal resolver sejak 1065 tetapi tabel
     # opsinya kosong — --userspec/--groups bernilai tak dilompati.
     "chroot": {"--userspec", "--groups", "--skip-chdir"},

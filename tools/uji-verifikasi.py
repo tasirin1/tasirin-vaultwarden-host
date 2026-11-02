@@ -9790,6 +9790,24 @@ def main():
         periksa("choom -p 999999 cat: "
                 "gerbang lolos (Audit 1296)", rc == 0)
         shutil.rmtree(sub519, ignore_errors=True)
+        sub520 = klon(tmp, "sub520")
+        berkas_aksi520 = os.path.join(
+            sub520, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi520, encoding="utf-8") as f:
+            isi_aksi520 = f.read()
+        baris_aksi520 = [b for b in isi_aksi520.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi520, "w", encoding="utf-8") as f:
+            f.write(isi_aksi520.replace(
+                baris_aksi520,
+                baris_aksi520.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(xvfb-run -p MIT-MAGIC-COOKIE-1 cat; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub520, [sys.executable, GERBANG, "--semua"])
+        periksa("xvfb-run -p MIT-MAGIC-COOKIE-1 cat: "
+                "gerbang gagal (Audit 1297)", rc != 0)
+        shutil.rmtree(sub520, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
