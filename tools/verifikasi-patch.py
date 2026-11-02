@@ -784,6 +784,8 @@ _OPSI_BERNILAI = {
            "--memlimit-compress", "--memlimit-decompress",
            # Audit 1172: -F/--format bernilai.
            "-F", "--format"},
+    # Audit 1211: wall selama ini tanpa entri — -t bernilai.
+    "wall": {"-t", "--timeout"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait"},
