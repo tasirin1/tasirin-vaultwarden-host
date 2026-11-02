@@ -3110,9 +3110,11 @@ def _menguras_khusus(perintah, toks, awal):
         # opsi sungguhan — sebagai NILAI opsi bernilai (-P
         # menelan token berikutnya walau berawalan --) ia
         # pola nama, bukan mode stdin.
+        # Audit 1385: --gitfile (tree 2.x) juga opsi
+        # bernilai — nilainya menelan token berikutnya.
         bernilai_tr2 = ("-P", "-I", "-L", "-o", "-T", "-H",
                         "--charset", "--filelimit", "--timefmt",
-                        "--sort")
+                        "--sort", "--gitfile")
         k_tr2 = 0
         while k_tr2 < len(mentah):
             t_tr2 = mentah[k_tr2]

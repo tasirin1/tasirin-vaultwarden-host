@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Tree --gitfile masuk tabel opsi bernilai (Audit 1385)
 ## [Belum rilis] — Tree huruf bernilai di tengah bundel menelan token berikutnya (Audit 1384)
 ## [Belum rilis] — Cabang penolakan TlsCert.tokenAman diuji lewat namaBackupCa (Audit 1383)
 ## [Belum rilis] — Uji JVM untuk TgBackup.hex32, gerbang format rahasia alarm (Audit 1382)
