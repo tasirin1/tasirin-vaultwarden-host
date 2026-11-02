@@ -2786,6 +2786,10 @@ def _menguras_khusus(perintah, toks, awal):
                          "-MQ", "-B", "-specs", "-specs="})
         return ("-" in ops_gc or "/dev/stdin" in ops_gc
                 or ("-E" in mentah and not ops_gc))
+    if perintah == "as":
+        ops_as = _operand_sesudah_opsi(
+            toks, awal, {"-o", "-I", "--defsym"})
+        return "-" in ops_as or "/dev/stdin" in ops_as
     return False
 
 

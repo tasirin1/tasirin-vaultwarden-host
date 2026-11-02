@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — As menilai operand '-' (Audit 1304)
+
 ## [Belum rilis] — Driver kompiler menilai operand '-' sesudah -x/-E (Audit 1303)
 
 ## [Belum rilis] — Cpp dan varian berversi/prefix dikenali (Audit 1302)
