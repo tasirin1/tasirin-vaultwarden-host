@@ -1361,6 +1361,19 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"-f", "--prefix", "-n", "--digits", "-b",
                          "--suffix-format"})
         return bool(ops) and ops[0] == "-"
+    if perintah == "zip":
+        # Audit 1064: -@ membaca daftar nama dari stdin.
+        return any(t == "-@" or re.fullmatch(r"-[a-z]*@", t)
+                   for t in mentah)
+    if perintah == "rsync":
+        # Audit 1064: --files-from=- membaca daftar dari stdin.
+        for i, t in enumerate(mentah):
+            if t == "--files-from=-":
+                return True
+            if t == "--files-from" and i + 1 < len(mentah) \
+                    and mentah[i + 1] == "-":
+                return True
+        return False
     return False
 
 
@@ -1868,7 +1881,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)
         if perintah in ("sqlite3", "openssl", "tar", "git",
-                        "comm", "join", "diff", "diff3", "csplit"):
+                        "comm", "join", "diff", "diff3", "csplit",
+                        "zip", "rsync"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

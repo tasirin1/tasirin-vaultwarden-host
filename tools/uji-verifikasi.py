@@ -2889,6 +2889,25 @@ def main():
         periksa("operand '-' diff adalah stdin: penguras — gerbang gagal (Audit 1063)", rc != 0)
         shutil.rmtree(subdiff, ignore_errors=True)
 
+        subziplist = klon(tmp, "subziplist")
+        berkas_aksi142 = os.path.join(
+            subziplist, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi142, encoding="utf-8") as f:
+            isi_aksi142 = f.read()
+        baris_aksi142 = [b for b in isi_aksi142.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi142, "w", encoding="utf-8") as f:
+            f.write(isi_aksi142.replace(
+                baris_aksi142,
+                baris_aksi142.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zip a.zip -@; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subziplist,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zip -@ membaca daftar nama dari stdin: penguras — gerbang gagal (Audit 1064)", rc != 0)
+        shutil.rmtree(subziplist, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

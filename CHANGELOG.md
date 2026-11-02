@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — daftar nama dari stdin zip -@ dan rsync kini dinilai gerbang patch (Audit 1064)
+
 ## [Belum rilis] — operand '-' perintah dua sisi kini dinilai gerbang patch (Audit 1063)
 
 ## [Belum rilis] — subcommand git pembaca stdin kini dinilai gerbang patch (Audit 1062)
