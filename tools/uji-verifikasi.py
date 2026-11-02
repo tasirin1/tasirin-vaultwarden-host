@@ -11058,6 +11058,25 @@ def main():
                 "gerbang gagal (Audit 1371)", rc != 0)
         shutil.rmtree(sub589, ignore_errors=True)
 
+        sub590 = klon(tmp, "sub590")
+        berkas_aksi590 = os.path.join(
+            sub590, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi590, encoding="utf-8") as f:
+            isi_aksi590 = f.read()
+        baris_aksi590 = [b for b in isi_aksi590.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi590, "w", encoding="utf-8") as f:
+            f.write(isi_aksi590.replace(
+                baris_aksi590,
+                baris_aksi590.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(python3 -m sqlite3; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub590, [sys.executable, GERBANG, "--semua"])
+        periksa("python3 -m sqlite3: "
+                "gerbang gagal (Audit 1372)", rc != 0)
+        shutil.rmtree(sub590, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

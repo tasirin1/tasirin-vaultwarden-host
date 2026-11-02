@@ -1707,6 +1707,14 @@ def _menguras_interpreter(perintah, toks, awal):
                 modul = toks[i + 1].strip("\"'")
                 if modul == "pdb" or modul == "asyncio":
                     return True
+                if modul == "sqlite3":
+                    # Audit 1372: shell SQL — operand pertama
+                    # adalah nama basis data (TAK menekan);
+                    # operand SQL kedua (atau perintah -c)
+                    # yang menekan.
+                    ops_sq = _operand_sesudah_opsi(
+                        toks, i + 1, {"-c"})
+                    return len(ops_sq) < 2
                 if modul in ("json.tool", "base64"):
                     return not _operand_sesudah_opsi(
                         toks, i + 1, {"--indent", "--tab"})

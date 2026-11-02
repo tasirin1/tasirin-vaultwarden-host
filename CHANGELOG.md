@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Python3 -m sqlite3 dinilai shell SQL pembaca stdin (operand SQL kedua menekan) (Audit 1372)
 ## [Belum rilis] — Chpasswd — operand asing tak lagi menekan stdin (tak punya operand berkas) (Audit 1371)
 ## [Belum rilis] — Ffprobe/ffplay — hanya masukan pertama yang dinilai (masukan kedua adalah galat) (Audit 1370)
 ## [Belum rilis] — Debugfs — -f/-R di dalam bundel (-wf) kini terdeteksi lewat pindaian huruf (Audit 1369)
