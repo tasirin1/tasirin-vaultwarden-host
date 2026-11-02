@@ -2193,6 +2193,14 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_d:
             return False
         return "-" in ops_d
+    if perintah == "sdiff":
+        # Audit 1249: operand '-' sdiff adalah stdin
+        # (sekelas diff), tak dikenal khusus sebelumnya.
+        ops_sdf = _operand_sesudah_opsi(
+            toks, awal, {"-W", "--width", "-o", "--output"})
+        if "\x00gantung" in ops_sdf:
+            return False
+        return "-" in ops_sdf
     if perintah == "csplit":
         ops = _operand_sesudah_opsi(
             toks, awal, {"-f", "--prefix", "-n", "--digits", "-b",
@@ -3207,7 +3215,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # Audit 1193/1195/1197/1198/1200/1201/
                         # 1202/1204: penilai khusus putaran-7.
                         "pdftotext", "nft", "ip", "tc", "bridge",
-                        "dpkg", "file", "date", "sysctl", "bun"):
+                        "dpkg", "file", "date", "sysctl", "bun",
+                        # Audit 1249/1250/1252/1258/1259:
+                        # penilai khusus putaran-8.
+                        "sdiff"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

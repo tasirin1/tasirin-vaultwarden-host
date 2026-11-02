@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — sdiff: operand '-' adalah stdin (Audit 1249)
+
 ## [Belum rilis] — pod2text dikenal sebagai pembaca stdin (Audit 1248)
 
 ## [Belum rilis] — piconv (Perl) dikenal sebagai pembaca stdin (Audit 1247)
