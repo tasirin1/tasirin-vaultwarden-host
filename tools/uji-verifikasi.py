@@ -11605,6 +11605,24 @@ def main():
         periksa("pl2pm: "
                 "gerbang gagal (Audit 1398)", rc != 0)
         shutil.rmtree(sub619, ignore_errors=True)
+        sub620 = klon(tmp, "sub620")
+        berkas_aksi620 = os.path.join(
+            sub620, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi620, encoding="utf-8") as f:
+            isi_aksi620 = f.read()
+        baris_aksi620 = [b for b in isi_aksi620.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi620, "w", encoding="utf-8") as f:
+            f.write(isi_aksi620.replace(
+                baris_aksi620,
+                baris_aksi620.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git credential approve; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub620, [sys.executable, GERBANG, "--semua"])
+        periksa("git credential approve: "
+                "gerbang gagal (Audit 1399)", rc != 0)
+        shutil.rmtree(sub620, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

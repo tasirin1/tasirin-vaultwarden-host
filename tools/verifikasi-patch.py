@@ -2255,7 +2255,11 @@ def _menguras_khusus(perintah, toks, awal):
         if sub == "fast-import":
             return True
         if sub == "credential":
-            return len(ops_git) > 1 and ops_git[1] == "fill"
+            # Audit 1399: approve/reject membaca deskripsi
+            # protokol persis seperti fill (konsumsi byte
+            # stdin terprobe identik).
+            return len(ops_git) > 1 and ops_git[1] in (
+                "fill", "approve", "reject")
         if sub == "mktree":
             return True
         # Audit 1124: pembaca putaran-3 — stripspace (filter
