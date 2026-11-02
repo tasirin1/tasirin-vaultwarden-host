@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gh bendera global --hostname sebelum subperintah dilompati (Audit 1395)
 ## [Belum rilis] — Debugfs -z bernilai — himpunan lengkap dan telan token berikutnya (Audit 1394)
 ## [Belum rilis] — Ffprobe/ffplay hanya -i pertama yang menentukan (Audit 1393)
 ## [Belum rilis] — Perl huruf argumen opsi bernilai bukan bendera (bundel efektif) (Audit 1392)

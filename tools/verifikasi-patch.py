@@ -3336,8 +3336,21 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1377: gh — hanya 'auth login --with-token' yang
     # membaca stdin (seluruh pipa dibaca untuk token).
     if perintah == "gh":
-        return (len(mentah) >= 2 and mentah[0] == "auth"
-                and mentah[1] == "login"
+        # Audit 1395: bendera global gh (--hostname bernilai)
+        # lazim mendahului subperintah — lompati dulu sebelum
+        # memeriksa 'auth login'.
+        k_gh = 0
+        while k_gh < len(mentah):
+            if mentah[k_gh] == "--hostname":
+                k_gh += 2
+                continue
+            if mentah[k_gh].startswith("--hostname="):
+                k_gh += 1
+                continue
+            break
+        return (len(mentah) - k_gh >= 2
+                and mentah[k_gh] == "auth"
+                and mentah[k_gh + 1] == "login"
                 and "--with-token" in mentah)
     return False
 
