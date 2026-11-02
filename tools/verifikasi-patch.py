@@ -646,6 +646,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "iconv", "logger", "numfmt",
                   # Audit 1057: kompresor saudara gzip + zcat.
                   "xz", "bzip2", "lzma", "zcat",
+                  # Audit 1098: varian nama kompresor yang sama
+                  # perilakunya (dekompresi ke stdout).
+                  "bunzip2", "bzcat", "xzcat", "unxz", "unlzma",
                   # Audit 1038: keluarga beroperand skrip/pola —
                   # operand pertamanya bukan berkas (penilaian
                   # posisinya di _menguras_keluarga_skrip).
@@ -702,6 +705,10 @@ _OPSI_BERNILAI = {
     # Audit 1057: opsi bernilai kompresor.
     "xz": {"-T", "--threads", "-C", "--check", "--block-size",
            "--memlimit-compress", "--memlimit-decompress"},
+    # Audit 1098: saudara kompresor berbagi opsi sufiks.
+    "bunzip2": {"--suffix", "-S"},
+    "unxz": {"--suffix", "-S", "-T", "--threads"},
+    "unlzma": {"--suffix", "-S"},
 }
 
 

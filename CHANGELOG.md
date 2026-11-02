@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — varian nama kompresor kini dikenali gerbang patch (Audit 1098)
+
 ## [Belum rilis] — sudo bundel -si/-is tak lagi divonis mode shell oleh gerbang patch (Audit 1097)
 
 ## [Belum rilis] — opsi bernilai menggantung di token terakhir kini ditolak gerbang patch (Audit 1096)
