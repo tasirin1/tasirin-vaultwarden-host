@@ -261,6 +261,33 @@ public class TgBackupTest {
     }
 
     @Test
+    public void parseFilePathTelegram_kedalamanResult() {
+        // Audit 1177: hanya anggota LANGSUNG result — yang
+        // bersarang di objek/array di dalam result diabaikan,
+        // seperti optString org.json lama.
+        assertEquals("", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":{\"file\":"
+                + "{\"file_path\":\"dalam.jpg\"}}}"));
+        assertEquals("", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":{\"photos\":"
+                + "[{\"file_path\":\"arr.jpg\"}]}}"));
+        assertEquals("", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":{\"a\":{\"b\":"
+                + "{\"file_path\":\"s3.jpg\"}}}}"));
+        assertEquals("langsung.jpg",
+                TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":{\"file\":"
+                + "{\"file_path\":\"dalam.jpg\"},"
+                + "\"file_path\":\"langsung.jpg\"}}"));
+        assertEquals("langsung.jpg",
+                TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":"
+                + "{\"file_path\":\"langsung.jpg\","
+                + "\"file\":{\"file_path\":\"dalam.jpg\"}}"
+                ));
+    }
+
+    @Test
     public void diterimaEntriZip_allowlistPersis() {
         // Audit 1143: keputusan terima/tolak allowlist restore.
         assertTrue(TgBackup.diterimaEntriZip("db.sqlite3"));

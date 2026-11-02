@@ -2784,12 +2784,22 @@ public final class TgBackup {
         if (rentangAwal < 0) {
             return "";  // tak ada objek result
         }
+        // Audit 1177: hanya file_path anggota LANGSUNG result
+        // yang sah — kedalaman posisi kuncinya harus sama
+        // dengan kedalaman isi result; yang bersarang di
+        // objek/array di dalam result bukan milik result
+        // (org.json lama hanya membaca anggota langsung).
+        final int dalamResult = kedalamanPada(body, rentangAwal);
         String kunci = "\"file_path\"";
         int dari = rentangAwal;
         while (true) {
             int i = body.indexOf(kunci, dari);
             if (i < 0 || i > rentangAkhir) {
                 return "";
+            }
+            if (kedalamanPada(body, i) != dalamResult) {
+                dari = i + 1;  // bersarang di dalam result; lanjut
+                continue;
             }
             int j = i + kunci.length();
             while (j < body.length()

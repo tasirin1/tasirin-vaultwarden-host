@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — parser Telegram kini hanya mengambil file_path anggota langsung result (Audit 1177)
+
 ## [Belum rilis] — grep --group-separator masuk set keluarga skrip gerbang patch (Audit 1176)
 
 ## [Belum rilis] — sqlite3 -newline/-nonce masuk set opsi gerbang patch (Audit 1175)
