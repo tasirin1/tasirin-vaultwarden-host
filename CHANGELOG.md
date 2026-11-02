@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — shell bash/sh/dash/zsh kini dinilai pembaca perintah oleh gerbang patch (Audit 1058)
+
 ## [Belum rilis] — kompresor xz/bzip2/lzma dan zcat kini pembaca stdin bagi gerbang patch (Audit 1057)
 
 ## [Belum rilis] — filter teks tingkat-3 kini pembaca stdin bagi gerbang patch (Audit 1056)

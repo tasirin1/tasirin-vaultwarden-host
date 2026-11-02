@@ -1136,6 +1136,31 @@ def _menguras_interpreter(perintah, toks, awal):
             ada_berkas = True
             i += 1
         return pakai_lingkar and not ada_berkas
+    if perintah in ("bash", "sh", "dash", "zsh"):
+        # Audit 1058: shell tanpa skrip membaca perintah dari
+        # stdin; -c menekan; operand "-" memintanya eksplisit.
+        while i < n:
+            t = toks[i]
+            if t == "-c":
+                # String -c shell adalah baris perintah shell —
+                # dinilai rekursif seperti env -S/flock -c (beda
+                # dengan -c interpreter yang kode arbitrer).
+                if i + 1 < n:
+                    return any(
+                        _menguras_stdin(s) for s in
+                        pecah_segmen_shell(toks[i + 1].strip("\"'")))
+                return False
+            if t == "-o":
+                i += 2
+                continue
+            if t == "--":
+                i += 1
+                return toks[i] == "-" if i < n else True
+            if t.startswith("-") and t != "-":
+                i += 1
+                continue
+            return t == "-"
+        return True
     interaktif = False
     while i < n:
         t = toks[i]
@@ -1708,7 +1733,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # Audit 1039/1040: perintah yang menguras hanya pada
         # bentuk tertentu (interpreter skrip-dari-stdin, builtin
         # penampung baris) dinilai penilai khususnya sendiri.
-        if perintah in ("python3", "python", "node", "perl"):
+        if perintah in ("python3", "python", "node", "perl",
+                        # Audit 1058: shell membaca perintah dari
+                        # stdin bila tanpa skrip berkas.
+                        "bash", "sh", "dash", "zsh"):
             return _menguras_interpreter(perintah, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)

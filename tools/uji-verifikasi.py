@@ -2775,6 +2775,25 @@ def main():
         periksa("kompresor saudara gzip adalah penguras — gerbang gagal (Audit 1057)", rc != 0)
         shutil.rmtree(subkompres, ignore_errors=True)
 
+        subshell = klon(tmp, "subshell")
+        berkas_aksi136 = os.path.join(
+            subshell, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi136, encoding="utf-8") as f:
+            isi_aksi136 = f.read()
+        baris_aksi136 = [b for b in isi_aksi136.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi136, "w", encoding="utf-8") as f:
+            f.write(isi_aksi136.replace(
+                baris_aksi136,
+                baris_aksi136.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(bash -s; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subshell,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("shell membaca perintah dari stdin: penguras — gerbang gagal (Audit 1058)", rc != 0)
+        shutil.rmtree(subshell, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
