@@ -10420,6 +10420,24 @@ def main():
         periksa("xkbcomp -xkb - out: "
                 "gerbang gagal (Audit 1331)", rc != 0)
         shutil.rmtree(sub554, ignore_errors=True)
+        sub555 = klon(tmp, "sub555")
+        berkas_aksi555 = os.path.join(
+            sub555, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi555, encoding="utf-8") as f:
+            isi_aksi555 = f.read()
+        baris_aksi555 = [b for b in isi_aksi555.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi555, "w", encoding="utf-8") as f:
+            f.write(isi_aksi555.replace(
+                baris_aksi555,
+                baris_aksi555.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(wayland-scanner client-header /dev/stdin out; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub555, [sys.executable, GERBANG, "--semua"])
+        periksa("wayland-scanner client-header /dev/stdin out: "
+                "gerbang gagal (Audit 1332)", rc != 0)
+        shutil.rmtree(sub555, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

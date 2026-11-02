@@ -2962,6 +2962,12 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"-C", "-o", "-w", "-R"})
         return bool(ops_xk) and ops_xk[0] in (
             "-", "/dev/stdin")
+    # Audit 1332: wayland-scanner — hanya jalur fd-0
+    # ('-' harfiah BUKAN stdin bagi perintah ini).
+    if perintah == "wayland-scanner":
+        ops_ws = _operand_sesudah_opsi(toks, awal + 1, set())
+        return bool(ops_ws) and ops_ws[0] in (
+            "/dev/stdin", "/dev/fd/0", "/proc/self/fd/0")
     return False
 
 
@@ -3709,6 +3715,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "tic",
                         "lesskey",
                         "xkbcomp",
+                        "wayland-scanner",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
