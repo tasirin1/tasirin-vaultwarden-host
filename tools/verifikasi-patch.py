@@ -3071,6 +3071,15 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         j_ch += 2
                     else:
                         j_ch += 1
+            # Audit 1298: alias setarch --list mencetak lalu
+            # keluar — perintah sesudahnya tak berjalan.
+            if t0 in ("linux32", "linux64", "i386", "x86_64"):
+                j_la = awal
+                while (j_la < len(toks)
+                        and toks[j_la].startswith("-")):
+                    if toks[j_la] == "--list":
+                        return False
+                    j_la += 1
             if t0 in ("su", "sg", "newgrp"):
                 # Audit 1107: su/sg — string -c dinilai seperti
                 # flock -c; tanpa -c keduanya menjatuhkan shell
