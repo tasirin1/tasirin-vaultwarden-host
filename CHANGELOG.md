@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bentuk string flock -c/--command dimodelkan (Audit 1023)
+
+### Diperbaiki
+- Perkakas: sesudah operand berkas kunci terlompat, resolver flock di `tools/verifikasi-patch.py` menilai nilai `-c`/`--command` sebagai perintah yang dijalankan lewat /bin/sh -c. Sebelumnya token `-c` terambil sebagai nama perintah dan gugur, sehingga `flock kunci -c cat` lolos sebagai bukan penguras (fail-open). Bentuk `-c` sebelum operand berkas bukan bentuk sah flock dan sengaja tak dimodelkan. Skenario uji-diri aksi109.
+
+
 ## [Belum rilis] — Gerbang: pipa di dalam segmen dinilai dari elemen pertamanya (Audit 1022)
 
 ### Diperbaiki

@@ -1096,6 +1096,21 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     return False
                 if awal < len(toks):
                     awal += 1  # operand durasi/masker/prio
+            if (t0 == "flock" and awal < len(toks)
+                    and toks[awal] in ("-c", "--command")):
+                # Audit 1023: bentuk string flock — nilai -c adalah
+                # perintah yang dijalankan lewat /bin/sh -c sesudah
+                # operand berkas kunci; nilai itulah yang dinilai.
+                # (-c SEBELUM operand berkas bukan bentuk sah flock
+                # dan sengaja tak dimodelkan.)
+                awal += 1
+                awal = _sesudah_redirect_berantai(
+                    toks, awal, _batas_argv)
+                if awal < 0:
+                    return False
+                if awal >= len(toks):
+                    return False
+                return _menguras_stdin(toks[awal].strip("\"'"))
             if t0 == "xargs" and awal < len(toks):
                 awal = _sesudah_redirect_berantai(
                     toks, awal, _batas_argv)

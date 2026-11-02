@@ -2243,6 +2243,27 @@ def main():
                 "gerbang gagal (Audit 1022)", rc != 0)
         shutil.rmtree(subpipa, ignore_errors=True)
 
+        subflockc = klon(tmp, "subflockc")
+        berkas_aksi109 = os.path.join(
+            subflockc, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi109, encoding="utf-8") as f:
+            isi_aksi109 = f.read()
+        baris_tulis109 = [b for b in isi_aksi109.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi109, "w", encoding="utf-8") as f:
+            f.write(isi_aksi109.replace(
+                baris_tulis109,
+                baris_tulis109.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(flock kunci.lock -c cat; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subflockc,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("flock bentuk string -c: nilainya adalah perintah "
+                "penguras — gerbang gagal (Audit 1023)", rc != 0)
+        shutil.rmtree(subflockc, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
