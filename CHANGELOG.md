@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Glib-genmarshal menilai operand '-' (Audit 1334)
+
 ## [Belum rilis] — Localedef menilai masukan '-' (Audit 1333)
 
 ## [Belum rilis] — Wayland-scanner menilai /dev/stdin (Audit 1332)

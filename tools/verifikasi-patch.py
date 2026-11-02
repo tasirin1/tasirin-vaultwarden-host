@@ -2979,6 +2979,11 @@ def _menguras_khusus(perintah, toks, awal):
                 return t_ld.split("=", 1)[1] in (
                     "-", "/dev/stdin")
         return False
+    # Audit 1334: glib-genmarshal — hanya '-' yang membaca.
+    if perintah == "glib-genmarshal":
+        ops_gm2 = _operand_sesudah_opsi(
+            toks, awal, {"--prefix", "--output", "--include"})
+        return "-" in ops_gm2
     return False
 
 
@@ -3728,6 +3733,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "xkbcomp",
                         "wayland-scanner",
                         "localedef",
+                        "glib-genmarshal",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
