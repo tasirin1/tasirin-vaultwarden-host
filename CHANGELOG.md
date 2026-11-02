@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Opsi bernilai Poppler dilengkapi (-enc, -paper, -aaRaster) (Audit 1283)
+
 ## [Belum rilis] — Sdiff -W dibetulkan ke tabel bendera, -w yang bernilai (Audit 1282)
 
 ## [Belum rilis] — Sysctl -f/--file menjadi alias -p (Audit 1281)

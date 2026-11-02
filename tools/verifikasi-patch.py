@@ -2306,7 +2306,13 @@ def _menguras_khusus(perintah, toks, awal):
         ops_pp = _operand_sesudah_opsi(
             toks, awal, {"-f", "-l", "-opw", "-upw", "-r",
                          "-x", "-y", "-W", "-H", "-cfg",
-                         "-subst", "-paperw", "-paperh"})
+                         "-subst", "-paperw", "-paperh",
+                         # Audit 1283: opsi bernilai keluarga
+                         # yang hilang (-enc pdfinfo; -paper/
+                         # -aaRaster/-aa/-aaVector/-pass
+                         # pdftops).
+                         "-enc", "-paper", "-aaRaster", "-aa",
+                         "-aaVector", "-pass"})
         if "\x00gantung" in ops_pp:
             return False
         return bool(ops_pp) and ops_pp[0] == "-"
