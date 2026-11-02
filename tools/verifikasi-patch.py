@@ -2055,23 +2055,36 @@ def _menguras_khusus(perintah, toks, awal):
         if sub == "update-index":
             return "--stdin" in mentah or "--index-info" in mentah
         # Audit 1207: daftar pathspec dari stdin.
-        # Audit 1268: cek ini dihoist SEBELUM cabang
-        # commit/tag — commit ada di allowlist tetapi
-        # cabangnya mengembalikan vonis lebih dulu.
         # Audit 1226: bentuk terpisah '--pathspec-from-file -'
         # juga sah.
         # Audit 1227: hanya subcommand ber-pathspec — cek
         # lintas-subcommand lama membuat rev-list (menolak
         # opsi ini) divonis menguras.
+        # Audit 1268: cek ini dihoist SEBELUM cabang
+        # commit/tag (di bawah gilirannya) — commit ada di
+        # allowlist tetapi cabangnya mengembalikan vonis
+        # lebih dulu sehingga tak pernah terjangkau.
+        # Audit 1269: token yang menjadi NILAI opsi bernilai
+        # (mis. nilai --chmod) bukan opsi pathspec.
         if sub in ("add", "checkout", "commit", "restore",
                    "rm", "reset", "stash"):
-            for k_ps, t_ps in enumerate(mentah):
+            bernilai_ps = {"--chmod", "-F", "--file", "-m",
+                           "--message", "--template", "--author",
+                           "--date", "--cleanup", "--trailer",
+                           "--gpg-sign", "--key-id-format"}
+            k_ps = 0
+            while k_ps < len(mentah):
+                t_ps = mentah[k_ps]
                 if t_ps == "--pathspec-from-file=-":
                     return True
                 if t_ps == "--pathspec-from-file" and (
                         k_ps + 1 < len(mentah)
                         and mentah[k_ps + 1] == "-"):
                     return True
+                if t_ps in bernilai_ps:
+                    k_ps += 2
+                    continue
+                k_ps += 1
         if sub in ("commit", "tag"):
             pesan_stdin = False
             for k_g, t_g in enumerate(mentah):

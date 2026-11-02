@@ -9286,6 +9286,24 @@ def main():
         periksa("git commit --pathspec-from-file=-: "
                 "gerbang gagal (Audit 1268)", rc != 0)
         shutil.rmtree(sub491, ignore_errors=True)
+        sub492 = klon(tmp, "sub492")
+        berkas_aksi492 = os.path.join(
+            sub492, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi492, encoding="utf-8") as f:
+            isi_aksi492 = f.read()
+        baris_aksi492 = [b for b in isi_aksi492.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi492, "w", encoding="utf-8") as f:
+            f.write(isi_aksi492.replace(
+                baris_aksi492,
+                baris_aksi492.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git add --chmod --pathspec-from-file=-; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub492, [sys.executable, GERBANG, "--semua"])
+        periksa("git add --chmod --pathspec-from-file=-: "
+                "gerbang lolos (Audit 1269)", rc == 0)
+        shutil.rmtree(sub492, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

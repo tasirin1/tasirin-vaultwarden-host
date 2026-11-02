@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Token pathspec sesudah opsi bernilai tak lagi tertelan sebagai nilai (Audit 1269)
+
 ## [Belum rilis] — Cek pathspec git kini mendahului cabang commit/tag (Audit 1268)
 
 ## [Belum rilis] — CI: kegagalan menandai rilis sebagai latest kini menggagalkan job sesudah 3 percobaan, bukan peringatan (Audit 1267)
