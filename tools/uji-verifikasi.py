@@ -3364,6 +3364,63 @@ def main():
         periksa("python -i sesudah -c: gerbang gagal (Audit 1081)", rc != 0)
         shutil.rmtree(sub166, ignore_errors=True)
 
+        sub167 = klon(tmp, "sub167")
+        berkas_aksi167 = os.path.join(
+            sub167, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi167, encoding="utf-8") as f:
+            isi_aksi167 = f.read()
+        baris_aksi167 = [b for b in isi_aksi167.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi167, "w", encoding="utf-8") as f:
+            f.write(isi_aksi167.replace(
+                baris_aksi167,
+                baris_aksi167.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(bash -ec cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub167,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel shell -ec: gerbang gagal (Audit 1082)", rc != 0)
+        shutil.rmtree(sub167, ignore_errors=True)
+
+        sub168 = klon(tmp, "sub168")
+        berkas_aksi168 = os.path.join(
+            sub168, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi168, encoding="utf-8") as f:
+            isi_aksi168 = f.read()
+        baris_aksi168 = [b for b in isi_aksi168.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi168, "w", encoding="utf-8") as f:
+            f.write(isi_aksi168.replace(
+                baris_aksi168,
+                baris_aksi168.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -ic pass; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub168,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel python -ic: gerbang gagal (Audit 1082)", rc != 0)
+        shutil.rmtree(sub168, ignore_errors=True)
+
+        sub169 = klon(tmp, "sub169")
+        berkas_aksi169 = os.path.join(
+            sub169, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi169, encoding="utf-8") as f:
+            isi_aksi169 = f.read()
+        baris_aksi169 = [b for b in isi_aksi169.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi169, "w", encoding="utf-8") as f:
+            f.write(isi_aksi169.replace(
+                baris_aksi169,
+                baris_aksi169.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sudo -ns; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub169,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel sudo -ns: gerbang gagal (Audit 1082)", rc != 0)
+        shutil.rmtree(sub169, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

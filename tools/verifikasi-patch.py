@@ -1154,7 +1154,15 @@ def _menguras_interpreter(perintah, toks, awal):
         # stdin; -c menekan; operand "-" memintanya eksplisit.
         while i < n:
             t = toks[i]
-            if t == "-c":
+            bersih_t = t.strip("\"'")
+            if bersih_t == "-c" or (
+                    bersih_t.startswith("-")
+                    and not bersih_t.startswith("--")
+                    and len(bersih_t) > 2
+                    and bersih_t[1] != "-"
+                    and "c" in bersih_t[1:]
+                    and bersih_t.index("c") == len(bersih_t) - 1):
+                # Audit 1082: -c bisa huruf terakhir bundel (-ec).
                 # String -c shell adalah baris perintah shell —
                 # dinilai rekursif seperti env -S/flock -c (beda
                 # dengan -c interpreter yang kode arbitrer).
@@ -1163,13 +1171,13 @@ def _menguras_interpreter(perintah, toks, awal):
                         _menguras_stdin(s) for s in
                         pecah_segmen_shell(toks[i + 1].strip("\"'")))
                 return False
-            if t == "-o":
+            if bersih_t == "-o":
                 i += 2
                 continue
-            if t == "--":
+            if bersih_t == "--":
                 i += 1
                 return toks[i] == "-" if i < n else True
-            if t.startswith("-") and t != "-":
+            if bersih_t.startswith("-") and bersih_t != "-":
                 i += 1
                 continue
             return t == "-"
@@ -1177,23 +1185,53 @@ def _menguras_interpreter(perintah, toks, awal):
     interaktif = False
     while i < n:
         t = toks[i]
-        if perintah.startswith("python") and t == "-i":
-            # Audit 1049: -i menjatuhkan python ke REPL sesudah
-            # skrip jalan — REPL itu menguras stdin.
-            interaktif = True
-            i += 1
-            continue
-        if perintah.startswith("python") and t == "-c":
-            # Audit 1081: -c tidak membatalkan -i — REPL sesudah
-            # kode -c tetap menguras (dulu return False membuang
-            # status interaktif yang sudah tercatat).
-            return interaktif or any(
-                x.strip("\"'") == "-i" for x in toks[i + 1:])
-        if perintah.startswith("python") and t == "-m":
-            # Audit 1049: modul penyaring stdin yang terverifikasi
-            # menguras; modul lain tak dinilai (bawaan: bukan).
-            return (i + 1 < n and toks[i + 1].strip("\"'")
-                    in ("json.tool", "base64"))
+        bersih_t = t.strip("\"'")
+        if perintah.startswith("python"):
+            # Audit 1082: bundel python (-ic/-ci) — huruf i di
+            # bundel tetap menyalakan interaktif; huruf c mengakhiri
+            # penguraian opsi (sisanya string -c itu sendiri).
+            if (bersih_t.startswith("-")
+                    and not bersih_t.startswith("--")
+                    and len(bersih_t) > 2):
+                huruf_py = bersih_t[1:]
+                if "c" in huruf_py:
+                    if "i" in huruf_py[:huruf_py.index("c")]:
+                        interaktif = True
+                    # Audit 1081: -i berlaku juga sesudah -c.
+                    return interaktif or any(
+                        x.strip("\"'") == "-i"
+                        or (x.strip("\"'").startswith("-")
+                            and not x.strip("\"'").startswith("--")
+                            and len(x.strip("\"'")) > 2
+                            and "i" in x.strip("\"'")[1:])
+                        for x in toks[i + 1:])
+                if "m" in huruf_py and huruf_py[-1] == "m":
+                    if "i" in huruf_py[:-1]:
+                        interaktif = True
+                    t = "-m"
+                elif "i" in huruf_py:
+                    interaktif = True
+                    i += 1
+                    continue
+                else:
+                    i += 1
+                    continue
+            if t == "-i":
+                # Audit 1049: -i menjatuhkan python ke REPL sesudah
+                # skrip jalan — REPL itu menguras stdin.
+                interaktif = True
+                i += 1
+                continue
+            if t == "-c":
+                # Audit 1081: -c tidak membatalkan -i — REPL
+                # sesudah kode -c tetap menguras.
+                return interaktif or any(
+                    x.strip("\"'") == "-i" for x in toks[i + 1:])
+            if t == "-m":
+                # Audit 1049: modul penyaring stdin yang terverifikasi
+                # menguras; modul lain tak dinilai (bawaan: bukan).
+                return (i + 1 < n and toks[i + 1].strip("\"'")
+                        in ("json.tool", "base64"))
         if perintah == "node" and t in (
                 "-e", "--eval", "-p", "--print"):
             return False
@@ -1871,13 +1909,23 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 awal += 1
                 if opsi == "--":
                     break
-                if t0 == "sudo" and (
-                        opsi in ("-s", "--shell", "-i", "--login")
-                        or (len(opsi) > 2 and opsi[0] == "-"
-                            and opsi[1] != "-"
-                            and opsi[1] in ("s", "i"))):
+                if t0 == "sudo" and opsi in (
+                        "-s", "--shell", "-i", "--login"):
                     # Audit 1050: mode shell sudo.
                     sudo_shell = True
+                if (t0 == "sudo" and len(opsi) > 2
+                        and opsi[0] == "-" and opsi[1] != "-"):
+                    # Audit 1082: bundel opsi pendek — huruf bendera
+                    # di mana pun dalam bundel berlaku, sampai huruf
+                    # opsi bernilai yang menelan sisa token sebagai
+                    # nilainya.
+                    bendera_sudo = set()
+                    for huruf_sudo in opsi[1:]:
+                        if huruf_sudo in "ughptCTDrR":
+                            break
+                        bendera_sudo.add(huruf_sudo)
+                    if "s" in bendera_sudo or "i" in bendera_sudo:
+                        sudo_shell = True
                 if (t0 == "command" and len(opsi) > 1
                         and all(c in "pvV" for c in opsi[1:])
                         and ("v" in opsi or "V" in opsi)):
