@@ -2720,11 +2720,75 @@ public final class TgBackup {
         if (!telegramOkBenar(body)) {
             return "";
         }
+        // Audit 1142: pencarian "file_path" dibatasi di dalam
+        // objek "result" (semantik optJSONObject lama) — dulu
+        // kemunculan pertama di seluruh body yang menang.
+        int rentangAwal = -1;
+        int rentangAkhir = -1;
+        String kunciResult = "\"result\"";
+        int dariR = 0;
+        while (true) {
+            int iR = body.indexOf(kunciResult, dariR);
+            if (iR < 0) {
+                break;
+            }
+            int jR = iR + kunciResult.length();
+            while (jR < body.length()
+                    && Character.isWhitespace(body.charAt(jR))) {
+                jR++;
+            }
+            if (jR >= body.length() || body.charAt(jR) != ':') {
+                dariR = iR + 1;
+                continue;
+            }
+            if (kedalamanPada(body, iR) != 1) {
+                dariR = iR + 1;
+                continue;
+            }
+            jR++;
+            while (jR < body.length()
+                    && Character.isWhitespace(body.charAt(jR))) {
+                jR++;
+            }
+            if (jR >= body.length() || body.charAt(jR) != '{') {
+                return "";  // result bukan objek
+            }
+            rentangAwal = jR;
+            int dalamR = 0;
+            boolean diStrR = false;
+            for (int kR = jR; kR < body.length(); kR++) {
+                char cR = body.charAt(kR);
+                if (diStrR) {
+                    if (cR == '\\') {
+                        kR++;
+                    } else if (cR == '"') {
+                        diStrR = false;
+                    }
+                } else if (cR == '"') {
+                    diStrR = true;
+                } else if (cR == '{') {
+                    dalamR++;
+                } else if (cR == '}') {
+                    dalamR--;
+                    if (dalamR == 0) {
+                        rentangAkhir = kR;
+                        break;
+                    }
+                }
+            }
+            if (rentangAkhir < 0) {
+                return "";  // objek result tak tertutup
+            }
+            break;
+        }
+        if (rentangAwal < 0) {
+            return "";  // tak ada objek result
+        }
         String kunci = "\"file_path\"";
-        int dari = 0;
+        int dari = rentangAwal;
         while (true) {
             int i = body.indexOf(kunci, dari);
-            if (i < 0) {
+            if (i < 0 || i > rentangAkhir) {
                 return "";
             }
             int j = i + kunci.length();
@@ -2758,18 +2822,21 @@ public final class TgBackup {
                             case 'b': sb.append('\b'); k += 2; break;
                             case 'f': sb.append('\f'); k += 2; break;
                             case 'u':
+                                // Audit 1142: escape \u rusak =
+                                // parse gagal total, seperti
+                                // JSONTokener lama yang melempar —
+                                // dulu huruf 'u' + sisa digit
+                                // dimasukkan sebagai karakter biasa.
                                 if (k + 5 < body.length()) {
                                     try {
                                         sb.append((char) Integer.parseInt(
                                                 body.substring(k + 2, k + 6), 16));
                                         k += 6;
                                     } catch (NumberFormatException nfe) {
-                                        sb.append('u');
-                                        k += 2;
+                                        return "";
                                     }
                                 } else {
-                                    sb.append('u');
-                                    k += 2;
+                                    return "";
                                 }
                                 break;
                             default: sb.append(e); k += 2; break;
@@ -2795,6 +2862,31 @@ public final class TgBackup {
         }
     }
 
+    // Audit 1142: kedalaman kurung kurawal pada posisi tertentu
+    // (sadar string) — kunci di kedalaman 1 adalah kunci level
+    // atas objek JSON; kemunculan bersarang tak dihitung.
+    static int kedalamanPada(String body, int pos) {
+        int dalam = 0;
+        boolean diString = false;
+        for (int i = 0; i < pos && i < body.length(); i++) {
+            char c = body.charAt(i);
+            if (diString) {
+                if (c == '\\') {
+                    i++;
+                } else if (c == '"') {
+                    diString = false;
+                }
+            } else if (c == '"') {
+                diString = true;
+            } else if (c == '{') {
+                dalam++;
+            } else if (c == '}') {
+                dalam--;
+            }
+        }
+        return dalam;
+    }
+
     static boolean telegramOkBenar(String body) {
         String kunci = "\"ok\"";
         int dari = 0;
@@ -2802,6 +2894,13 @@ public final class TgBackup {
             int i = body.indexOf(kunci, dari);
             if (i < 0) {
                 return false;
+            }
+            // Audit 1142: hanya "ok" level atas yang berlaku
+            // (semantik optBoolean lama); "ok" bersarang di dalam
+            // objek lain dilewati.
+            if (kedalamanPada(body, i) != 1) {
+                dari = i + 1;
+                continue;
             }
             int j = i + kunci.length();
             while (j < body.length()

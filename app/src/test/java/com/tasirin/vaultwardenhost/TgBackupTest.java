@@ -222,6 +222,45 @@ public class TgBackupTest {
     }
 
     @Test
+    public void parseFilePathTelegram_cakupanResultDanOk() {
+        // Audit 1142: "ok" bersarang tak menimpa "ok" level atas,
+        // dan file_path hanya dicari di dalam objek result.
+        assertFalse(TgBackup.telegramOkBenar(
+                "{\"result\":{\"ok\":true},\"ok\":false}"));
+        assertTrue(TgBackup.telegramOkBenar(
+                "{\"result\":{\"ok\":false},\"ok\":true}"));
+        assertEquals("", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"file_path\":\"luar.jpg\","
+                + "\"result\":{}}"));
+        assertEquals("", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":{},"
+                + "\"sisa\":{\"file_path\":\"luar.jpg\"}}"));
+        assertEquals("dalam.jpg", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":"
+                + "{\"file_path\":\"dalam.jpg\"},"
+                + "\"sisa\":{\"file_path\":\"luar.jpg\"}}"));
+        // Escape \\u rusak = parse gagal total (semantik lama).
+        assertEquals("", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":"
+                + "{\"file_path\":\"a\\u12xz.jpg\"}}"));
+    }
+
+    @Test
+    public void kedalamanPada_sadarStringDanSarang() {
+        // Audit 1142: kedalaman kunci — level atas 1, bersarang 2,
+        // kurung di dalam string tak dihitung.
+        String datar = "{\"ok\":true}";
+        assertEquals(1, TgBackup.kedalamanPada(datar,
+                datar.indexOf("\"ok\"")));
+        String sarang = "{\"a\":{\"ok\":1}}";
+        assertEquals(2, TgBackup.kedalamanPada(sarang,
+                sarang.indexOf("\"ok\"")));
+        String diString = "{\"a\":\"{\",\"ok\":1}";
+        assertEquals(1, TgBackup.kedalamanPada(diString,
+                diString.indexOf("\"ok\"")));
+    }
+
+    @Test
     public void cleanupOldBackups_nolAman() throws Exception {
         TgBackup.cleanupOldBackups(null);
         java.io.File takAda = new java.io.File("/jalan/tak/ada/vw-uji-nol");

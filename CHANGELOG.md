@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — parser Telegram kini membatasi pencarian kunci pada cakupan yang benar (Audit 1142)
+
 ## [Belum rilis] — uniq --group dibuang dari tabel opsi bernilai gerbang patch (Audit 1141)
 
 ## [Belum rilis] — blok su/sg gerbang patch kini mengenali -c bundel dan merekat (Audit 1140)
