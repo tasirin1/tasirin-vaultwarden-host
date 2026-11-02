@@ -1741,7 +1741,16 @@ public class SettingsActivity extends Activity {
                         .create();
                 DialogAman.tampil(this, dlgWv);
                 if (dlgWv.isShowing()) {
-                    sp.edit().putBoolean(key, true).apply();
+                    // Audit 1019: buang penanda versi lain — penanda
+                    // per-versi yang lama tak pernah dibaca lagi dan
+                    // menumpuk permanen di prefs.
+                    SharedPreferences.Editor ed = sp.edit();
+                    for (String k : sp.getAll().keySet()) {
+                        if (k.startsWith("wv_notified_") && !k.equals(key)) {
+                            ed.remove(k);
+                        }
+                    }
+                    ed.putBoolean(key, true).apply();
                 }
             });
         } catch (Exception ignored) {

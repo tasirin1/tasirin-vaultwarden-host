@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda tawaran web-vault versi lama dibersihkan (Audit 1019)
+
+- Perbaikan kebersihan: penanda "tawaran update web-vault sudah ditampilkan" disimpan per versi server dan tidak pernah dibuang — satu entri mungil per rilis menumpuk permanen di pengaturan. Saat penanda versi baru dicatat, penanda semua versi lain kini ikut dibuang.
+
 ## [Belum rilis] — ID chat tujuan tidak lagi tercatat mentah di log (Audit 1018)
 
 - Perbaikan privasi: dua catatan kegagalan kirim backup/CA lewat file_id menulis ID chat tujuan apa adanya ke log — satu-satunya tempat ID chat tampil terang, padahal di semua tempat lain aplikasi menyamarkannya sebagai rahasia, dan pesan galatnya pun lolos tanpa redaksi. Catatan kini menyebut urutan tujuan saja ("tujuan ke-1", dst.) dan pesan galatnya dilewatkan redaksi yang sama seperti catatan Telegram lain.
