@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Nsupdate dinilai (Audit 1340)
+
 ## [Belum rilis] — Pygettext3 dinilai (Audit 1339)
 
 ## [Belum rilis] — Instmodsh masuk tabel pembaca stdin (Audit 1338)

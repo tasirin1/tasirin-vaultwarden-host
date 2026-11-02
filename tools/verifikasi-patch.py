@@ -3019,6 +3019,11 @@ def _menguras_khusus(perintah, toks, awal):
                          "--default-domain", "-p",
                          "--output-dir", "-k", "--keyword"})
         return "-" in ops_pg or "/dev/stdin" in ops_pg
+    # Audit 1340: nsupdate — tanpa berkas membaca stdin.
+    if perintah == "nsupdate":
+        ops_ns = _operand_sesudah_opsi(
+            toks, awal, {"-k", "-y", "-p", "-t", "-u", "-r"})
+        return not ops_ns or "-" in ops_ns
     return False
 
 
@@ -3771,6 +3776,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "glib-genmarshal",
                         "genrb",
                         "pygettext3",
+                        "nsupdate",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
