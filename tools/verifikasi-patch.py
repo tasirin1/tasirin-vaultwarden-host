@@ -1616,6 +1616,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 continue
             if perintah == "dd":
                 if awalan.startswith("if="):
+                    # Audit 1041: /dev/stdin & keluarga fd 0 adalah
+                    # stdin itu sendiri, bukan berkas lain.
+                    if awalan[3:].strip("\"'") in (
+                            "/dev/stdin", "/dev/fd/0",
+                            "/proc/self/fd/0"):
+                        continue
                     return False
                 if "=" in awalan:
                     continue
@@ -1638,6 +1644,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             continue
         if perintah == "dd":
             if t.startswith("if="):
+                # Audit 1041: /dev/stdin & keluarga fd 0 adalah
+                # stdin itu sendiri, bukan berkas lain.
+                if t[3:].strip("\"'") in (
+                        "/dev/stdin", "/dev/fd/0",
+                        "/proc/self/fd/0"):
+                    continue
                 return False
             if "=" in t:
                 continue

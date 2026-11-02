@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: dd if=/dev/stdin dinilai membaca stdin (Audit 1041)
+
+### Diperbaiki
+- Perkakas: aturan operand `dd` di `tools/verifikasi-patch.py` kini memperlakukan nilai `if=` berupa `/dev/stdin`, `/dev/fd/0`, dan `/proc/self/fd/0` sebagai stdin itu sendiri (menguras), bukan berkas lain — di kedua situs penilaian (awalan merekat dan operand polos). Kontrol `dd if=berkas` tetap tak menguras. Skenario uji-diri aksi122.
+
+
 ## [Belum rilis] — Gerbang: builtin penampung mapfile/readarray dikenal (Audit 1040)
 
 ### Diperbaiki

@@ -2502,6 +2502,25 @@ def main():
         periksa("builtin penampung tanpa batas menguras — gerbang gagal (Audit 1040)", rc != 0)
         shutil.rmtree(submapfile, ignore_errors=True)
 
+        subddstdin = klon(tmp, "subddstdin")
+        berkas_aksi122 = os.path.join(
+            subddstdin, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi122, encoding="utf-8") as f:
+            isi_aksi122 = f.read()
+        baris_aksi122 = [b for b in isi_aksi122.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi122, "w", encoding="utf-8") as f:
+            f.write(isi_aksi122.replace(
+                baris_aksi122,
+                baris_aksi122.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dd if=/dev/stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subddstdin,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("dd if=/dev/stdin membaca stdin itu sendiri — gerbang gagal (Audit 1041)", rc != 0)
+        shutil.rmtree(subddstdin, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
