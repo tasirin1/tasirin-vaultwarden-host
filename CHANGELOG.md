@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — uniq --group dibuang dari tabel opsi bernilai gerbang patch (Audit 1141)
+
 ## [Belum rilis] — blok su/sg gerbang patch kini mengenali -c bundel dan merekat (Audit 1140)
 
 ## [Belum rilis] — sort/wc --files0-from kini dibedakan gerbang patch menurut sumber daftar (Audit 1139)

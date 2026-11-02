@@ -672,8 +672,10 @@ _OPSI_BERNILAI = {
     "sort": {"-k", "-o", "-t", "-S", "-T", "--random-source",
              "--parallel", "--buffer-size", "--compress-program",
              "--files0-from", "--batch-size"},
-    "uniq": {"-f", "-s", "-w", "--skip-fields", "--check-chars",
-             "--group"},
+    "uniq": {"-f", "-s", "-w", "--skip-fields", "--check-chars"},
+    # Audit 1141: --group uniq DIBUANG dari tabel — argumennya
+    # opsional dan hanya lewat '='; memasukkannya membuat operand
+    # berkas tertelan sebagai "nilai".
     # Audit 1100: entri yang dulu absen/sebagian — nilai opsinya
     # terbaca operand berkas (fail-open).
     "wc": {"--total", "--files0-from"},
