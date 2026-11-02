@@ -2654,6 +2654,25 @@ def main():
         periksa("sudo -s menjalankan shell pembaca perintah: penguras — gerbang gagal (Audit 1050)", rc != 0)
         shutil.rmtree(subsudoshell, ignore_errors=True)
 
+        subexeckata = klon(tmp, "subexeckata")
+        berkas_aksi127 = os.path.join(
+            subexeckata, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi127, encoding="utf-8") as f:
+            isi_aksi127 = f.read()
+        baris_aksi127 = [b for b in isi_aksi127.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi127, "w", encoding="utf-8") as f:
+            f.write(isi_aksi127.replace(
+                baris_aksi127,
+                baris_aksi127.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(exec time cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subexeckata,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("kata kunci sesudah exec adalah nama program: bukan penguras — gerbang lolos (Audit 1051)", rc == 0)
+        shutil.rmtree(subexeckata, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

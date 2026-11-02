@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — kata kunci sesudah exec kini bukan pembungkus transparan bagi gerbang patch (Audit 1051)
+
 ## [Belum rilis] — mode shell sudo -s/-i kini dinilai penguras oleh gerbang patch (Audit 1050)
 
 ## [Belum rilis] — REPL python -i dan modul penyaring -m kini dinilai gerbang patch (Audit 1049)

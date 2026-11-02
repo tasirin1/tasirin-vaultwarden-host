@@ -1335,6 +1335,14 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # (exec/eval adalah builtin, tetap transparan).
             if lewat_command and t0 in ("time", "!"):
                 break
+            # Audit 1051: kata kunci/builtin SESUDAH exec juga
+            # nama program untuk execvp — posisi sesudah-exec
+            # diperlakukan sama seperti sesudah command (1034)
+            # dan penetapan sesudah exec (1033): bukan transparan,
+            # karena binary bernama itu tidak ada.
+            if sesudah_exec and t0 in (
+                    "time", "!", "eval", "exec", "command"):
+                break
             awal += 1
             if t0 == "exec":
                 # Audit 1031: opsi milik exec sendiri (-c/-l
@@ -1371,6 +1379,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         if t0 == "timeout" or t0 in ("xargs", "nice", "command",
                 "stdbuf", "setsid", "ionice", "chrt", "taskset",
                 "eatmydata", "nohup", "flock", "sudo"):
+            # Audit 1051: 'command' SESUDAH exec adalah nama program
+            # untuk execvp, bukan pembungkus — jangan transparan.
+            if sesudah_exec and t0 == "command":
+                break
             # Audit 972: sesudah pembungkus mana pun, kata perintah
             # berikutnya adalah program eksternal.
             # Audit 988: kecuali 'command' sendiri — ia builtin yang
