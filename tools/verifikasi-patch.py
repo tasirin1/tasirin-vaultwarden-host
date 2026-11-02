@@ -2956,6 +2956,12 @@ def _menguras_khusus(perintah, toks, awal):
         ops_lk = _operand_sesudah_opsi(
             toks, awal, {"-o", "--output"})
         return "-" in ops_lk
+    # Audit 1331: xkbcomp — sumber pertama '-'//dev/stdin.
+    if perintah == "xkbcomp":
+        ops_xk = _operand_sesudah_opsi(
+            toks, awal, {"-C", "-o", "-w", "-R"})
+        return bool(ops_xk) and ops_xk[0] in (
+            "-", "/dev/stdin")
     return False
 
 
@@ -3702,6 +3708,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "cvtsudoers",
                         "tic",
                         "lesskey",
+                        "xkbcomp",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

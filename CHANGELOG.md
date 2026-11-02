@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Xkbcomp menilai masukan '-' (Audit 1331)
+
 ## [Belum rilis] — Lesskey menilai masukan '-' (Audit 1330)
 
 ## [Belum rilis] — Tic menilai masukan '-' (Audit 1329)
