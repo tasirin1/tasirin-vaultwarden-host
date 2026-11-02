@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Python3 -m code dinilai konsol interaktif pembaca stdin (Audit 1374)
 ## [Belum rilis] — Modul penyaring python3 -m ditambah (tokenize, quopri, gzip, uu, dis) (Audit 1373)
 ## [Belum rilis] — Python3 -m sqlite3 dinilai shell SQL pembaca stdin (operand SQL kedua menekan) (Audit 1372)
 ## [Belum rilis] — Chpasswd — operand asing tak lagi menekan stdin (tak punya operand berkas) (Audit 1371)

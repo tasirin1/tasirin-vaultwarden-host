@@ -1705,7 +1705,9 @@ def _menguras_interpreter(perintah, toks, awal):
                 if i + 1 >= n:
                     return False
                 modul = toks[i + 1].strip("\"'")
-                if modul == "pdb" or modul == "asyncio":
+                if modul in ("pdb", "asyncio",
+                             # Audit 1374: konsol interaktif.
+                             "code"):
                     return True
                 if modul == "sqlite3":
                     # Audit 1372: shell SQL — operand pertama

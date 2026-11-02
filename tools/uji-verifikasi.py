@@ -11096,6 +11096,25 @@ def main():
                 "gerbang gagal (Audit 1373)", rc != 0)
         shutil.rmtree(sub591, ignore_errors=True)
 
+        sub592 = klon(tmp, "sub592")
+        berkas_aksi592 = os.path.join(
+            sub592, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi592, encoding="utf-8") as f:
+            isi_aksi592 = f.read()
+        baris_aksi592 = [b for b in isi_aksi592.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi592, "w", encoding="utf-8") as f:
+            f.write(isi_aksi592.replace(
+                baris_aksi592,
+                baris_aksi592.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(python3 -m code; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub592, [sys.executable, GERBANG, "--semua"])
+        periksa("python3 -m code: "
+                "gerbang gagal (Audit 1374)", rc != 0)
+        shutil.rmtree(sub592, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
