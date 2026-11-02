@@ -6154,6 +6154,60 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("diff - --help: gerbang lolos (Audit 1147)", rc == 0)
         shutil.rmtree(sub317, ignore_errors=True)
+        sub318 = klon(tmp, "sub318")
+        berkas_aksi318 = os.path.join(
+            sub318, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi318, encoding="utf-8") as f:
+            isi_aksi318 = f.read()
+        baris_aksi318 = [b for b in isi_aksi318.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi318, "w", encoding="utf-8") as f:
+            f.write(isi_aksi318.replace(
+                baris_aksi318,
+                baris_aksi318.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl dgst -sha256 -hmac kunci; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub318,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl dgst -sha256 -hmac kunci: gerbang gagal (Audit 1148)", rc != 0)
+        shutil.rmtree(sub318, ignore_errors=True)
+        sub319 = klon(tmp, "sub319")
+        berkas_aksi319 = os.path.join(
+            sub319, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi319, encoding="utf-8") as f:
+            isi_aksi319 = f.read()
+        baris_aksi319 = [b for b in isi_aksi319.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi319, "w", encoding="utf-8") as f:
+            f.write(isi_aksi319.replace(
+                baris_aksi319,
+                baris_aksi319.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl dgst -sha256 -sigopt rsa_padding_mode:pss; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub319,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl dgst -sha256 -sigopt rsa_padding_mode:pss: gerbang gagal (Audit 1148)", rc != 0)
+        shutil.rmtree(sub319, ignore_errors=True)
+        sub320 = klon(tmp, "sub320")
+        berkas_aksi320 = os.path.join(
+            sub320, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi320, encoding="utf-8") as f:
+            isi_aksi320 = f.read()
+        baris_aksi320 = [b for b in isi_aksi320.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi320, "w", encoding="utf-8") as f:
+            f.write(isi_aksi320.replace(
+                baris_aksi320,
+                baris_aksi320.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl dgst -sha256 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub320,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl dgst -sha256 berkas: gerbang lolos (Audit 1148)", rc == 0)
+        shutil.rmtree(sub320, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

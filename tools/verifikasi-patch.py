@@ -1643,7 +1643,9 @@ def _menguras_khusus(perintah, toks, awal):
                  "-engine", "-fipskey", "-provider", "-propquery",
                  # Audit 1129: -mac/-macopt/-prverify bernilai —
                  # nilainya terbaca operand penekan.
-                 "-rand", "-mac", "-macopt", "-prverify"})
+                 # Audit 1148: -hmac/-sigopt ketinggalan.
+                 "-rand", "-mac", "-macopt", "-prverify",
+                 "-hmac", "-sigopt"})
             # Audit 1135: opsi menggantung = program galat.
             if "\x00gantung" in ops:
                 return False

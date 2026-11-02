@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — openssl dgst -hmac/-sigopt masuk tabel bernilai gerbang patch (Audit 1148)
+
 ## [Belum rilis] — cek informasional gerbang patch kini sadar nilai opsi (Audit 1147)
 
 ## [Belum rilis] — nilai opsi expect -D kini dilompati gerbang patch (Audit 1146)
