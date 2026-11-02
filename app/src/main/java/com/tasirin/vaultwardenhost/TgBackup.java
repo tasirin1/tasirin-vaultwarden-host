@@ -2667,36 +2667,67 @@ public final class TgBackup {
     }
 
     static long fileSizeDariRespons(String body) {
-        // Audit 980: dulu pemindai manual hanya menerima digit polos,
-        // jadi file_size bertipe string lolos sebagai -1 (tak
-        // diketahui) dan gerbang 20 MB + cek ruang gugur. Kini dibaca
-        // lewat JSONObject seperti file_path, toleran Number/String.
+        // Audit 980: file_size bertipe string harus terbaca (dulu
+        // lolos sebagai -1 sehingga gerbang 20 MB gugur) — toleran
+        // Number dan String. Audit 1008: dibaca dengan pemindai
+        // manual, BUKAN JSONObject — org.json pada android.jar
+        // adalah stub di uji JVM (konstruktornya melempar) sehingga
+        // versi JSONObject mengembalikan -1 di uji dan membuat
+        // testDebugUnitTest merah walau di perangkat benar.
         if (body == null || body.isEmpty()) {
             return -1;
         }
-        try {
-            JSONObject resp = new JSONObject(body);
-            JSONObject res = resp.optJSONObject("result");
-            Object nilai = res != null ? res.opt("file_size") : null;
-            if (nilai == null) {
-                nilai = resp.opt("file_size");
+        String kunci = "\"file_size\"";
+        int dari = 0;
+        while (true) {
+            int i = body.indexOf(kunci, dari);
+            if (i < 0) {
+                return -1;
             }
-            if (nilai instanceof Number) {
-                return ((Number) nilai).longValue();
+            int j = i + kunci.length();
+            while (j < body.length()
+                    && Character.isWhitespace(body.charAt(j))) {
+                j++;
             }
-            if (nilai instanceof String) {
-                String t = ((String) nilai).trim();
-                if (!t.isEmpty() && t.length() <= 19) {
-                    try {
-                        return Long.parseLong(t);
-                    } catch (NumberFormatException e) {
-                        return -1;
+            if (j >= body.length() || body.charAt(j) != ':') {
+                dari = i + 1;  // kemunculan bukan kunci nilai; lanjut
+                continue;
+            }
+            j++;
+            while (j < body.length()
+                    && Character.isWhitespace(body.charAt(j))) {
+                j++;
+            }
+            if (j >= body.length()) {
+                return -1;
+            }
+            String angka;
+            if (body.charAt(j) == '"') {
+                int k = body.indexOf('"', j + 1);
+                if (k < 0) {
+                    return -1;
+                }
+                angka = body.substring(j + 1, k).trim();
+            } else {
+                int k = j;
+                while (k < body.length()) {
+                    char d = body.charAt(k);
+                    if ((d >= '0' && d <= '9') || d == '-') {
+                        k++;
+                    } else {
+                        break;
                     }
                 }
+                angka = body.substring(j, k);
             }
-            return -1;
-        } catch (Exception e) {
-            return -1;
+            if (angka.isEmpty() || angka.length() > 19) {
+                return -1;
+            }
+            try {
+                return Long.parseLong(angka);
+            } catch (NumberFormatException e) {
+                return -1;
+            }
         }
     }
 

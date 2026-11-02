@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — fileSizeDariRespons kembali ke pemindai manual bebas JSONObject (Audit 1008)
+
+- Perbaikan uji/build: patch Audit 980 membaca `file_size` lewat JSONObject — benar di perangkat, tetapi uji JVM memakai android.jar stub (hanya JUnit di testImplementation) sehingga konstruktornya melempar, fungsi mengembalikan -1, dan uji `fileSizeDariRespons_bacaAngkaAman` gagal deterministik (639 uji, 1 gagal) begitu galat kompilasi Audit 999 sembuh dan tahap uji tercapai. Fungsi kini memakai pemindai manual yang tetap toleran Number dan String seperti tujuan 980 (pola kunci berkutip penuh menyaring `file_size2`, whitespace termasuk baris baru ditoleransi, string bukan angka tetap -1) dan bisa diuji JVM. Terverifikasi dengan porting 1:1 atas seluruh 11 asersi uji.
+
 ## [Belum rilis] — Pengecualian salinan restore-pilih disimpan di Bundle (Audit 1003)
 
 - Perbaikan restore: pengecualian penyapu untuk salinan restore-pilih yang sedang dipakai (Audit 993) adalah satu-satunya keadaan berkas tertunda yang hanya hidup di field per-instance — tiga saudaranya (ekspor plain, impor terenkripsi, restore Telegram) semua disimpan di Bundle mengikuti pelajaran Audit 852. Rekreasi activity (mis. rotasi) saat restore latar berjalan bisa membuat instance baru menyapu salinan yang sedang dibaca begitu umurnya melewati 1 jam. Jalur salinan kini disimpan dan dipulihkan lewat kunci Bundle `restore_pilih_path` dengan pola yang sama persis.
