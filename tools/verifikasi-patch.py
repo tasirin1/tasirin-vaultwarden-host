@@ -1727,9 +1727,15 @@ def _menguras_khusus(perintah, toks, awal):
             # Audit 1078: pada mode buat (-c), '-f -' adalah arsip
             # KELUARAN, bukan masukan — yang menguras hanya -T '-'.
             return mode_tar != "c"
-        # Audit 1120: tanpa -f dan tanpa -T, arsip bawaan GNU tar
-        # untuk mode baca (t/x) adalah stdin.
-        if nilai_f is None and nilai_T is None:
+        # Audit 1152: -f/-T menggantung = galat usage (rc 64),
+        # program berhenti sebelum membaca apa pun.
+        if gantung_f or gantung_T:
+            return False
+        # Audit 1120: tanpa -f, arsip bawaan GNU tar untuk mode
+        # baca (t/x) adalah stdin.
+        # Audit 1151: -T hanya memasok NAMA anggota, bukan sumber
+        # arsip — keberadaannya tak menggugurkan aturan ini.
+        if nilai_f is None:
             return mode_tar in ("t", "x")
         return False
     if perintah == "git":

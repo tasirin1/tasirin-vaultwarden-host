@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — tar -T tak lagi menggugurkan aturan arsip bawaan gerbang patch (Audit 1151)
+
 ## [Belum rilis] — gpg --verify kini mengenali operand '-' di gerbang patch (Audit 1150)
 
 ## [Belum rilis] — opsi bernilai openssl verify dilengkapi di gerbang patch (Audit 1149)

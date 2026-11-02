@@ -6298,6 +6298,60 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg --verify sig.asc data.txt: gerbang lolos (Audit 1150)", rc == 0)
         shutil.rmtree(sub325, ignore_errors=True)
+        sub326 = klon(tmp, "sub326")
+        berkas_aksi326 = os.path.join(
+            sub326, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi326, encoding="utf-8") as f:
+            isi_aksi326 = f.read()
+        baris_aksi326 = [b for b in isi_aksi326.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi326, "w", encoding="utf-8") as f:
+            f.write(isi_aksi326.replace(
+                baris_aksi326,
+                baris_aksi326.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tar -t -T daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub326,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tar -t -T daftar.txt: gerbang gagal (Audit 1151)", rc != 0)
+        shutil.rmtree(sub326, ignore_errors=True)
+        sub327 = klon(tmp, "sub327")
+        berkas_aksi327 = os.path.join(
+            sub327, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi327, encoding="utf-8") as f:
+            isi_aksi327 = f.read()
+        baris_aksi327 = [b for b in isi_aksi327.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi327, "w", encoding="utf-8") as f:
+            f.write(isi_aksi327.replace(
+                baris_aksi327,
+                baris_aksi327.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tar -x -T daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub327,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tar -x -T daftar.txt: gerbang gagal (Audit 1151)", rc != 0)
+        shutil.rmtree(sub327, ignore_errors=True)
+        sub328 = klon(tmp, "sub328")
+        berkas_aksi328 = os.path.join(
+            sub328, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi328, encoding="utf-8") as f:
+            isi_aksi328 = f.read()
+        baris_aksi328 = [b for b in isi_aksi328.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi328, "w", encoding="utf-8") as f:
+            f.write(isi_aksi328.replace(
+                baris_aksi328,
+                baris_aksi328.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tar -t -f arsip.tar -T daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub328,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tar -t -f arsip.tar -T daftar.txt: gerbang lolos (Audit 1151)", rc == 0)
+        shutil.rmtree(sub328, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
