@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Tree --fromfile dinilai sadar opsi bernilai (Audit 1356)
+
 ## [Belum rilis] — Localedef -i<berkas> merekat dikenali (Audit 1355)
 
 ## [Belum rilis] — Tmux mencari subperintah sesudah opsi global (Audit 1354)

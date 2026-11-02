@@ -3053,7 +3053,26 @@ def _menguras_khusus(perintah, toks, awal):
         return False
     # Audit 1342: tree --fromfile membaca daftar dari stdin.
     if perintah == "tree":
-        return "--fromfile" in mentah
+        # Audit 1356: --fromfile hanya berarti sebagai token
+        # opsi sungguhan — sebagai NILAI opsi bernilai (-P
+        # menelan token berikutnya walau berawalan --) ia
+        # pola nama, bukan mode stdin.
+        bernilai_tr2 = ("-P", "-I", "-L", "-o", "--charset",
+                        "--filelimit", "--timefmt", "--sort")
+        k_tr2 = 0
+        while k_tr2 < len(mentah):
+            t_tr2 = mentah[k_tr2]
+            if t_tr2 == "--fromfile":
+                return True
+            if t_tr2 in bernilai_tr2:
+                k_tr2 += 2
+                continue
+            if ("=" in t_tr2 and t_tr2.split("=", 1)[0]
+                    in bernilai_tr2):
+                k_tr2 += 1
+                continue
+            k_tr2 += 1
+        return False
     # Audit 1343: gio save menulis isi stdin ke tujuan.
     if perintah == "gio":
         return bool(mentah) and mentah[0] == "save"

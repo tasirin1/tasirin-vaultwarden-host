@@ -10834,6 +10834,24 @@ def main():
         periksa("localedef --prefix=/tmp -i- -f UTF-8 uji_XX: "
                 "gerbang gagal (Audit 1355)", rc != 0)
         shutil.rmtree(sub577, ignore_errors=True)
+        sub578 = klon(tmp, "sub578")
+        berkas_aksi578 = os.path.join(
+            sub578, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi578, encoding="utf-8") as f:
+            isi_aksi578 = f.read()
+        baris_aksi578 = [b for b in isi_aksi578.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi578, "w", encoding="utf-8") as f:
+            f.write(isi_aksi578.replace(
+                baris_aksi578,
+                baris_aksi578.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(tree -P --fromfile; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub578, [sys.executable, GERBANG, "--semua"])
+        periksa("tree -P --fromfile: "
+                "gerbang lolos (Audit 1356)", rc == 0)
+        shutil.rmtree(sub578, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
