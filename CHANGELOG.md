@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Pembungkus xvfb-run dikenal resolver (Audit 1256)
+
 ## [Belum rilis] — Pembungkus choom dikenal resolver (Audit 1255)
 
 ## [Belum rilis] — Pembungkus uclampset dikenal resolver (Audit 1254)

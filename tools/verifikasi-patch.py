@@ -907,7 +907,8 @@ _OPSI_PEMBUNGKUS = {
     # Audit 1254/1255/1256: pembungkus putaran-8.
     "uclampset": {"-m", "--max"},
     "choom": {"-n", "--adjust", "-p", "--pid"},
-
+    "xvfb-run": {"-n", "--server-num", "-s", "--server-args",
+                 "-f", "--auth-file", "-e", "--error-file"},
     # Audit 1084: chroot dikenal resolver sejak 1065 tetapi tabel
     # opsinya kosong — --userspec/--groups bernilai tak dilompati.
     "chroot": {"--userspec", "--groups", "--skip-chdir"},
@@ -2790,7 +2791,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # Audit 1253/1254/1255/1256: pembungkus
                 # putaran-8 (setarch beroperand arsitektur).
                 "setarch", "linux32", "linux64", "uclampset",
-                "choom"
+                "choom", "xvfb-run",
                 # Audit 1194/1203: newgrp (sekelas sg) dan
                 # ssh-agent.
                 "newgrp", "ssh-agent"):

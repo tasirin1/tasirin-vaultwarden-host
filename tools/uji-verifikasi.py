@@ -9034,6 +9034,24 @@ def main():
         periksa("choom -n 0 -- cat: "
                 "gerbang gagal (Audit 1255)", rc != 0)
         shutil.rmtree(sub477, ignore_errors=True)
+        sub478 = klon(tmp, "sub478")
+        berkas_aksi478 = os.path.join(
+            sub478, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi478, encoding="utf-8") as f:
+            isi_aksi478 = f.read()
+        baris_aksi478 = [b for b in isi_aksi478.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi478, "w", encoding="utf-8") as f:
+            f.write(isi_aksi478.replace(
+                baris_aksi478,
+                baris_aksi478.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(xvfb-run -a cat; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub478, [sys.executable, GERBANG, "--semua"])
+        periksa("xvfb-run -a cat: "
+                "gerbang gagal (Audit 1256)", rc != 0)
+        shutil.rmtree(sub478, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
