@@ -3293,12 +3293,22 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1358: keluarga ffmpeg — masukan '-'/'pipe:'
     # membaca media dari stdin sampai EOF.
     if perintah in ("ffmpeg", "ffprobe", "ffplay"):
-        for k_ff, t_ff in enumerate(mentah):
-            if t_ff == "-i" and k_ff + 1 < len(mentah):
-                if mentah[k_ff + 1] in ("-", "pipe:", "pipe:0",
-                                        "/dev/stdin"):
-                    return True
-        if perintah == "ffmpeg":
+        # Audit 1393: ffprobe/ffplay menerima TEPAT satu
+        # masukan — hanya -i PERTAMA yang menentukan (masukan
+        # kedua ditolak sebelum membaca); ffmpeg boleh banyak
+        # masukan, jadi pindaiannya tetap "ada -i stdin".
+        if perintah != "ffmpeg":
+            for k_ff, t_ff in enumerate(mentah):
+                if t_ff == "-i" and k_ff + 1 < len(mentah):
+                    return mentah[k_ff + 1] in (
+                        "-", "pipe:", "pipe:0", "/dev/stdin")
+        else:
+            for k_ff, t_ff in enumerate(mentah):
+                if t_ff == "-i" and k_ff + 1 < len(mentah):
+                    if mentah[k_ff + 1] in ("-", "pipe:",
+                                            "pipe:0",
+                                            "/dev/stdin"):
+                        return True
             return False
         ops_ff = _operand_sesudah_opsi(
             toks, awal, {"-i", "-x", "-y", "-volume", "-seek",
