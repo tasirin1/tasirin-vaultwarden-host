@@ -2902,6 +2902,15 @@ def _menguras_khusus(perintah, toks, awal):
                          # Audit 1232: -cfg bernilai, hilang.
                          "-cfg"})
         return bool(ops_pd) and ops_pd[0] == "-"
+    # Audit 1404: pdftoppm/pdftocairo — operand masukan
+    # PERTAMA '-' adalah PDF dari stdin (poppler menampung
+    # seluruh masukannya); operand berkas menekan.
+    if perintah in ("pdftoppm", "pdftocairo"):
+        ops_pp = _operand_sesudah_opsi(
+            toks, awal, {"-f", "-l", "-r", "-rx", "-ry", "-x",
+                         "-y", "-W", "-H", "-sz", "-opw",
+                         "-upw"})
+        return bool(ops_pp) and ops_pp[0] == "-"
     # Audit 1195: nft — hanya -f '-' yang membaca dari stdin.
     if perintah == "nft":
         for k_nf, t_nf in enumerate(mentah):
@@ -4145,6 +4154,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
                         "pdffonts", "pdfimages", "pdftops",
+                        # Audit 1404: perender poppler.
+                        "pdftoppm", "pdftocairo",
                         # Audit 1305-1345: penilai khusus putaran-9.
                         "zcmp", "zdiff",
                         "xzcmp", "xzdiff",
