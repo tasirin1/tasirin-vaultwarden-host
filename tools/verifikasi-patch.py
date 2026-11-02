@@ -962,7 +962,7 @@ _OPSI_PEMBUNGKUS = {
     # Audit 1203: ssh-agent pembungkus perintah anak.
     "ssh-agent": {"-a", "-t", "-E", "-P"},
     # Audit 1254/1255/1256: pembungkus putaran-8.
-    "uclampset": {"-m", "--max"},
+    "uclampset": {"-m", "--min", "-M", "--max", "-p", "--pid"},
     "choom": {"-n", "--adjust", "-p", "--pid"},
     "xvfb-run": {"-n", "--server-num", "-s", "--server-args",
                  "-f", "--auth-file", "-e", "--error-file"},

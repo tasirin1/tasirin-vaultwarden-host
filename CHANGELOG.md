@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Uclampset -M dibetulkan sebagai --max (Audit 1295)
+
 ## [Belum rilis] — Numfmt --round bernilai (Audit 1294)
 
 ## [Belum rilis] — Keluarga tables-restore -W/--wait-interval bernilai (Audit 1293)
