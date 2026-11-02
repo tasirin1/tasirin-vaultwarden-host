@@ -8908,6 +8908,24 @@ def main():
         periksa("sdiff berkas.txt -: "
                 "gerbang gagal (Audit 1249)", rc != 0)
         shutil.rmtree(sub470, ignore_errors=True)
+        sub471 = klon(tmp, "sub471")
+        berkas_aksi471 = os.path.join(
+            sub471, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi471, encoding="utf-8") as f:
+            isi_aksi471 = f.read()
+        baris_aksi471 = [b for b in isi_aksi471.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi471, "w", encoding="utf-8") as f:
+            f.write(isi_aksi471.replace(
+                baris_aksi471,
+                baris_aksi471.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(socat1 - -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub471, [sys.executable, GERBANG, "--semua"])
+        periksa("socat1 - -: "
+                "gerbang gagal (Audit 1250)", rc != 0)
+        shutil.rmtree(sub471, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

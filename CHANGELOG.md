@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — socat1 dipetakan ke penilai socat (Audit 1250)
+
 ## [Belum rilis] — sdiff: operand '-' adalah stdin (Audit 1249)
 
 ## [Belum rilis] — pod2text dikenal sebagai pembaca stdin (Audit 1248)

@@ -2229,7 +2229,9 @@ def _menguras_khusus(perintah, toks, awal):
                     and mentah[i + 1] == "-":
                 return True
         return False
-    if perintah == "socat":
+    if perintah in ("socat",
+                    # Audit 1250: nama binary socat sebenarnya.
+                    "socat1"):
         # Audit 1066: alamat '-' / STDIO / STDIN membaca stdin.
         return any(t == "-" or t.startswith("STDIO")
                    or t.startswith("STDIN") for t in mentah
@@ -3218,7 +3220,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "dpkg", "file", "date", "sysctl", "bun",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
-                        "sdiff"):
+                        "sdiff", "socat1"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
