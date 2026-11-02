@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Make himpunan nilai cabang bundel dilengkapi keluarga fd-0 (Audit 1389)
 ## [Belum rilis] — Make bentuk pendek merekat -f<fd-0> diakui (Audit 1388)
 ## [Belum rilis] — Tmux bundel berisi angka (-2V) terdeteksi sebagai -V (Audit 1387)
 ## [Belum rilis] — Tmux nilai merekat opsi global (-LV) bukan bendera -V (Audit 1386)

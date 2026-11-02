@@ -2665,8 +2665,11 @@ def _menguras_khusus(perintah, toks, awal):
                      "--makefile=/proc/self/fd/0"):
                 return True
             if re.fullmatch(r"-[a-z]*f", t):
+                # Audit 1389: himpunan nilai bundel sejajar
+                # cabang terpisah — keluarga fd-0 lengkap.
                 if i + 1 < len(mentah) and mentah[i + 1] in (
-                        "-", "/dev/stdin"):
+                        "-", "/dev/stdin", "/dev/fd/0",
+                        "/proc/self/fd/0"):
                     return True
         return False
     if perintah == "visudo":
