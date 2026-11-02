@@ -1835,6 +1835,11 @@ def _menguras_interpreter(perintah, toks, awal):
                     # yang menekan.
                     if not ops_md:
                         return True
+                    # Audit 1422: gzip memproses banyak
+                    # berkas — '-' di posisi mana pun
+                    # adalah stdin.
+                    if modul == "gzip":
+                        return "-" in ops_md
                     return ops_md[0] == "-"
                 return False
         if perintah == "node" and t in (

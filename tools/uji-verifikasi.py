@@ -14029,6 +14029,27 @@ def main():
         periksa("npm --loglevel warn init: "
                 "gerbang gagal (Audit 1421)", rc != 0)
         shutil.rmtree(sub647, ignore_errors=True)
+        sub648 = klon(tmp, "sub648")
+        berkas_aksi648 = os.path.join(
+            sub648, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi648, encoding="utf-8") as f:
+            isi_aksi648 = f.read()
+        baris_aksi648 = [b for b in isi_aksi648.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru648 = isi_aksi648.replace(
+                baris_aksi648,
+                baris_aksi648.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(python3 -m gzip berkas.gz -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru648 != isi_aksi648, \
+            "suntikan aksi648 tidak menembak"
+        with open(berkas_aksi648, "w", encoding="utf-8") as f:
+            f.write(isi_baru648)
+        rc, out = jalan(sub648, [sys.executable, GERBANG, "--semua"])
+        periksa("python3 -m gzip berkas.gz -: "
+                "gerbang gagal (Audit 1422)", rc != 0)
+        shutil.rmtree(sub648, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
