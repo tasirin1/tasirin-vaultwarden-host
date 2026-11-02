@@ -1657,6 +1657,9 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "nc":
         # Audit 1068: nc dengan target/port meneruskan stdin ke
         # koneksi (atau pendengar) — tanpa operand ia tak jalan.
+        # Audit 1092: mode pindai -z hanya menguji port terbuka.
+        if "-z" in mentah:
+            return False
         return bool(_operand_sesudah_opsi(
             toks, awal, {"-p", "-s", "-X", "-x", "-w", "-i", "-q",
                          "--proxy", "--proxy-auth"}))
