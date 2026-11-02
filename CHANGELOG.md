@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Certutil -A tanpa -i membaca sertifikat dari stdin (Audit 1430)
 ## [Belum rilis] — Derdump telanjang membaca objek DER dari stdin (Audit 1429)
 ## [Belum rilis] — Gpgsm --decrypt/--verify membaca pesan CMS dari stdin (Audit 1428)
 ## [Belum rilis] — Gpg-connect-agent telanjang dikenal (Assuan) (Audit 1427)
