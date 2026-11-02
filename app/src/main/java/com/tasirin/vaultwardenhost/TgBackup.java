@@ -55,6 +55,10 @@ public final class TgBackup {
 
     public static final String KEY_BACKUP_TERTUNDA = "tg_backup_tertunda";
     private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
+    // Audit 1017: stempel peringatan storage terakhir — peringatan
+    // kondisi menetap boleh diulang sesudah 24 jam, bukan satu-tembak.
+    private static final String KEY_TG_LOW_STORAGE_MS =
+            "tg_low_storage_warned_ms";
 
     public static void migrateAutoPref(Context ctx) {
         try {
@@ -1497,13 +1501,29 @@ public final class TgBackup {
                 return;
             }
             boolean low = free < LOW_STORAGE_BYTES;
-            boolean notified = amanBoolean(sp, KEY_TG_LOW_STORAGE, false);
-            if (low && !notified) {
-                sp.edit().putBoolean(KEY_TG_LOW_STORAGE, true).apply();
-                sendMessage(ctx, "Peringatan storage: sisa " + humanBytes(free)
-                        + " di " + dataDir + ". Segera backup & bersihkan!");
-            } else if (!low && notified) {
-                sp.edit().putBoolean(KEY_TG_LOW_STORAGE, false).apply();
+            // Audit 1017: pola satu-tembak lama mencatat bendera
+            // SEBELUM kirim asinkron — satu kegagalan kirim (jaringan
+            // mati sesaat) menghapus peringatan selamanya selama
+            // storage terus rendah. Kini peringatan berbasis stempel
+            // waktu: diulang paling sering 24 jam sekali selama
+            // kondisi rendah menetap, dan stempel dibuang saat pulih.
+            long kiniMs = System.currentTimeMillis();
+            long warnedMs = amanLong(sp, KEY_TG_LOW_STORAGE_MS, 0);
+            if (warnedMs == 0
+                    && amanBoolean(sp, KEY_TG_LOW_STORAGE, false)) {
+                warnedMs = kiniMs; // warisan versi lama: sudah diperingatkan
+            }
+            if (low) {
+                if (warnedMs == 0
+                        || kiniMs - warnedMs >= 24L * 60 * 60 * 1000) {
+                    sp.edit().putLong(KEY_TG_LOW_STORAGE_MS, kiniMs)
+                            .putBoolean(KEY_TG_LOW_STORAGE, true).apply();
+                    sendMessage(ctx, "Peringatan storage: sisa " + humanBytes(free)
+                            + " di " + dataDir + ". Segera backup & bersihkan!");
+                }
+            } else if (warnedMs != 0) {
+                sp.edit().remove(KEY_TG_LOW_STORAGE_MS)
+                        .putBoolean(KEY_TG_LOW_STORAGE, false).apply();
             }
         } catch (Exception ignored) {
         }
@@ -1941,7 +1961,8 @@ public final class TgBackup {
                     BootReceiver.KEY_THROTTLE_BOOT_ELAPSED,
                     BootReceiver.KEY_THROTTLE_BOOT_WALL,
                     BootReceiver.KEY_THROTTLE_BOOT_COUNT,
-                    KEY_TG_LAST_NAME, KEY_TG_LOW_STORAGE));
+                    KEY_TG_LAST_NAME, KEY_TG_LOW_STORAGE,
+                    KEY_TG_LOW_STORAGE_MS));
 
     static boolean kunciDiekspor(String kunci) {
         return kunci != null

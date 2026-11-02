@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Peringatan storage rendah boleh berulang, tidak lagi satu-tembak (Audit 1017)
+
+- Perbaikan bot: peringatan sisa storage rendah dulu ditandai "sudah diberitahu" sebelum pesannya dikirim — satu kegagalan kirim sesaat (jaringan mati, bot terblokir) membuat peringatan hilang selamanya selama storage terus rendah, padahal disk penuh adalah pemicu gagal backup. Peringatan kini berbasis stempel waktu: diulang paling sering 24 jam sekali selama kondisi rendah menetap, dan stempelnya dibuang begitu ruang pulih.
+
 ## [Belum rilis] — Gerbang memodelkan pindah-fd bersumber fd 0 (Audit 1016)
 
 - Perkakas: semantik pindah-fd bash kini dimodelkan dua arah — target duplikasi `0-` sebagai SUMBER ke fd lain (`1<&0-`, `>&0-`, `2>&0-`) memindahkan lalu menutup stdin perintah, jadi segmen seperti itu dinilai tidak menguras (sebelumnya dinilai menguras dan bisa menolak workflow yang sah); pindah ke diri sendiri (`0>&0-`) tetap netral. Skenario uji-diri baru mengunci bentuk ini.
