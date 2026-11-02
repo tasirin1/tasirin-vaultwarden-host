@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — git am/shortlog dikenali gerbang (Audit 1205)
+
 ## [Belum rilis] — bun repl dikenali gerbang (Audit 1204)
 
 ## [Belum rilis] — ssh-agent dikenal gerbang sebagai pembungkus (Audit 1203)

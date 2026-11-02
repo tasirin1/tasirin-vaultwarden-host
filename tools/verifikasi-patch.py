@@ -1969,6 +1969,15 @@ def _menguras_khusus(perintah, toks, awal):
                  # Audit 1184: --indent/--nl bernilai, hilang.
                  "--indent", "--nl"})
             return not ops_co or "-" in ops_co
+        # Audit 1205: pembaca langsung putaran-5.
+        if sub == "am":
+            ops_am = _operand_sesudah_opsi(
+                toks, awal + 1, {"--patch-format"})
+            return not ops_am or "-" in ops_am
+        if sub == "shortlog":
+            ops_sl = _operand_sesudah_opsi(
+                toks, awal + 1, {"-w", "--format"})
+            return not ops_sl
         # Audit 1163: --stdin plumbing & protokol credential.
         if sub in ("rev-list", "log"):
             return "--stdin" in mentah
