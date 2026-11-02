@@ -2783,6 +2783,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 "dbus-run-session", "runuser", "su", "sg",
                 # Audit 1155/1156: pembungkus putaran-6.
                 "setpriv", "prlimit",
+                # Audit 1253/1254/1255/1256: pembungkus
+                # putaran-8 (setarch beroperand arsitektur).
+                "setarch", "linux32", "linux64"
                 # Audit 1194/1203: newgrp (sekelas sg) dan
                 # ssh-agent.
                 "newgrp", "ssh-agent"):
@@ -3046,6 +3049,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # resolusi selesai tanpa perintah.
                 awal = len(toks)
             if (t0 == "timeout" or t0 == "flock" or t0 == "chroot"
+                    # Audit 1253: operand pertama setarch adalah
+                    # nama arsitektur, berposisi seperti dir
+                    # chroot.
+                    or t0 == "setarch"
                     or (t0 in ("taskset", "chrt")
                         and not tanpa_masker)) and awal < len(toks):
                 # Audit 1065: operand pertama chroot adalah
