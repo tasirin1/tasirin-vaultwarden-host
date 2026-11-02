@@ -3469,6 +3469,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         if informasional_ic:
             return False
     lewati = False
+    # Audit 1286: pr membaca SETIAP operand berurutan.
+    ada_stdin_pr = False
     operand_tr = 0  # Audit 1047: penghitung operand himpunan tr.
     # Audit 1087: pada mode hapus (-d tanpa -s) GNU tr menolak
     # himpunan KEDUA — batas operand sah menyusut jadi 1.
@@ -3603,15 +3605,21 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 if "=" in awalan:
                     continue
             return False
+        if t == "-":
+            # Audit 1037: operand "-" adalah stdin itu sendiri
+            # bagi filter coreutils.
+            # Audit 1286: penilaian ini wajib mendahului
+            # cabang opsi di bawah — "-" berawalan "-" dan
+            # tertelan sebagai token opsi sebelum sempat
+            # tercatat.
+            if perintah == "pr":
+                ada_stdin_pr = True
+            continue
         if t.startswith("-"):
             # Audit 938: opsi bernilai tak hanya -n/-c dan -o;
             # nilai opsi yang terpisah bukan operand berkas.
             if t in _OPSI_BERNILAI.get(perintah, ()):
                 lewati = True
-            continue
-        if t == "-":
-            # Audit 1037: operand "-" adalah stdin itu sendiri
-            # bagi filter coreutils.
             continue
         if (perintah in ("tail", "sort", "pr",
                          # Audit 1241: od juga ber-offset usang.
@@ -3648,6 +3656,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 return False
             if "=" in t:
                 continue
+        # Audit 1286: '-' pr yang sudah terlihat tetap dibaca
+        # walau operand berkas lain menyusul.
+        if perintah == "pr" and ada_stdin_pr:
+            return True
         return False
     # Audit 1096: opsi bernilai (atau operator redirect) di token
     # terakhir menggantung — program/shell galat tanpa membaca.

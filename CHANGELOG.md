@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Pr membaca stdin di samping berkas operand (Audit 1286)
+
 ## [Belum rilis] — Gm convert dan gm batch dinilai (Audit 1285)
 
 ## [Belum rilis] — Gm identify menilai '-' sadar opsi (Audit 1284)
