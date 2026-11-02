@@ -1874,7 +1874,9 @@ def _menguras_khusus(perintah, toks, awal):
         # tanda tangan dari stdin.
         if any(t in ("--import", "--dearmor", "--enarmor",
                      "--list-packets", "--verify") for t in mentah):
-            return not ops
+            # Audit 1150: operand "-" adalah stdin juga di sini
+            # (gpg --verify - membaca tanda tangan dari stdin).
+            return not ops or "-" in ops
         if "--print-md" in mentah:
             return len(ops) <= 1
         if ops:

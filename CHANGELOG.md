@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — gpg --verify kini mengenali operand '-' di gerbang patch (Audit 1150)
+
 ## [Belum rilis] — opsi bernilai openssl verify dilengkapi di gerbang patch (Audit 1149)
 
 ## [Belum rilis] — openssl dgst -hmac/-sigopt masuk tabel bernilai gerbang patch (Audit 1148)

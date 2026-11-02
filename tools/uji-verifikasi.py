@@ -6262,6 +6262,42 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl verify -verify_hostname contoh.com sert.pem: gerbang lolos (Audit 1149)", rc == 0)
         shutil.rmtree(sub323, ignore_errors=True)
+        sub324 = klon(tmp, "sub324")
+        berkas_aksi324 = os.path.join(
+            sub324, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi324, encoding="utf-8") as f:
+            isi_aksi324 = f.read()
+        baris_aksi324 = [b for b in isi_aksi324.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi324, "w", encoding="utf-8") as f:
+            f.write(isi_aksi324.replace(
+                baris_aksi324,
+                baris_aksi324.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg --verify - data.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub324,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpg --verify - data.txt: gerbang gagal (Audit 1150)", rc != 0)
+        shutil.rmtree(sub324, ignore_errors=True)
+        sub325 = klon(tmp, "sub325")
+        berkas_aksi325 = os.path.join(
+            sub325, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi325, encoding="utf-8") as f:
+            isi_aksi325 = f.read()
+        baris_aksi325 = [b for b in isi_aksi325.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi325, "w", encoding="utf-8") as f:
+            f.write(isi_aksi325.replace(
+                baris_aksi325,
+                baris_aksi325.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg --verify sig.asc data.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub325,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpg --verify sig.asc data.txt: gerbang lolos (Audit 1150)", rc == 0)
+        shutil.rmtree(sub325, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
