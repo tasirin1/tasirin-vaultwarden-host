@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Bendera info huruf tunggal cpan/utmpdump informasional (Audit 1407)
 ## [Belum rilis] — Strings menolak operand '-' (bukan stdin) (Audit 1406)
 ## [Belum rilis] — Npm init interaktif membaca jawaban prompt (Audit 1405)
 ## [Belum rilis] — Pdftoppm/pdftocairo operand masukan '-' dikenal (Audit 1404)

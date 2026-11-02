@@ -729,6 +729,13 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "funzip", "json_pp"}
 
 
+# Audit 1407: bendera info huruf tunggal per perintah —
+# mencetak versi/bantuan lalu keluar tanpa membaca stdin
+# (penjaga informasional Audit 1102 hanya mengenal bentuk
+# panjang --help/--version).
+_INFO_HURUF = {"cpan": {"-v", "-V", "-h"},
+               "utmpdump": {"-h"}}
+
 _OPSI_BERNILAI = {
     "head": {"-n", "-c", "--lines", "--bytes"},
     "tail": {"-n", "-c", "--lines", "--bytes", "--pid", "--sleep",
@@ -4261,6 +4268,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # tanpa membaca stdin (--help/--version umum; iconv -l/--list).
     if perintah in _PEMBACA_STDIN and any(
             t.strip("\"'") in ("--help", "--version")
+            for t in toks[awal + 1:]):
+        return False
+    # Audit 1407: bendera info huruf tunggal milik perintah
+    # tertentu juga informasional (cpan -v/-V/-h, utmpdump
+    # -h) — penjaga 1102 hanya mengenal bentuk panjang.
+    if perintah in _PEMBACA_STDIN and any(
+            t.strip("\"'") in _INFO_HURUF.get(perintah, ())
             for t in toks[awal + 1:]):
         return False
     if perintah == "iconv":
