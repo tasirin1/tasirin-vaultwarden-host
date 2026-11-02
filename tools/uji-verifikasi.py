@@ -2813,6 +2813,25 @@ def main():
         periksa("sqlite3 membaca SQL dari stdin: penguras — gerbang gagal (Audit 1059)", rc != 0)
         shutil.rmtree(subsqlite, ignore_errors=True)
 
+        subopenssl = klon(tmp, "subopenssl")
+        berkas_aksi138 = os.path.join(
+            subopenssl, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi138, encoding="utf-8") as f:
+            isi_aksi138 = f.read()
+        baris_aksi138 = [b for b in isi_aksi138.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi138, "w", encoding="utf-8") as f:
+            f.write(isi_aksi138.replace(
+                baris_aksi138,
+                baris_aksi138.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl dgst -sha256; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subopenssl,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl dgst tanpa berkas adalah penguras — gerbang gagal (Audit 1060)", rc != 0)
+        shutil.rmtree(subopenssl, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

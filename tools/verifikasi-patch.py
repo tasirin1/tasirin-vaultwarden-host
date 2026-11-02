@@ -1276,6 +1276,28 @@ def _menguras_khusus(perintah, toks, awal):
             {"-cmd", "-init", "-separator", "-nullvalue",
              "-maxwidth", "-vfs", "-pagecache", "-lookaside"})
         return len(ops) < 2
+    if perintah == "openssl":
+        # Audit 1060: hanya subcommand dgst (dan alias nama
+        # digestnya) serta enc yang membaca stdin.
+        if not mentah:
+            return False
+        sub = mentah[0]
+        if sub == "enc":
+            return not any(
+                t == "-in" or t.startswith("-in=")
+                or t.startswith("--in") for t in mentah[1:])
+        if sub == "dgst" or re.fullmatch(
+                r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"
+                r"|blake2b512|blake2s256|sm3|whirlpool)", sub):
+            dasar = awal + 1 if sub == "dgst" else awal
+            ops = _operand_sesudah_opsi(
+                toks, dasar,
+                {"-sign", "-verify", "-keyform", "-out", "-passin",
+                 "-engine", "-fipskey", "-provider", "-propquery"})
+            if sub != "dgst":
+                ops = ops[1:] if ops else []
+            return not ops
+        return False
     return False
 
 
@@ -1782,7 +1804,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return _menguras_interpreter(perintah, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)
-        if perintah in ("sqlite3",):
+        if perintah in ("sqlite3", "openssl"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

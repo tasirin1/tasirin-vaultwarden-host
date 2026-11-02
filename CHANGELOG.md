@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — subcommand openssl dgst/enc kini dinilai gerbang patch (Audit 1060)
+
 ## [Belum rilis] — sqlite3 kini dinilai penilai khusus gerbang patch (Audit 1059)
 
 ## [Belum rilis] — shell bash/sh/dash/zsh kini dinilai pembaca perintah oleh gerbang patch (Audit 1058)
