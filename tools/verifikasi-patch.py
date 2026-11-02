@@ -2439,10 +2439,13 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1200: file — operand '-' = periksa stdin; -f '-' =
     # daftar nama dari stdin.
     if perintah == "file":
+        # Audit 1229: -f berkas tak mengakhiri penilaian —
+        # operand '-' di tempat lain tetap stdin.
         for k_fl, t_fl in enumerate(mentah):
             if t_fl in ("-f", "--files-from"):
-                return (k_fl + 1 < len(mentah)
-                        and mentah[k_fl + 1] == "-")
+                if (k_fl + 1 < len(mentah)
+                        and mentah[k_fl + 1] == "-"):
+                    return True
             if t_fl in ("-f-", "--files-from=-"):
                 return True
         ops_fl = _operand_sesudah_opsi(

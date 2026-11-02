@@ -8404,6 +8404,24 @@ def main():
         periksa("prlimit --pid 999999: "
                 "gerbang lolos (Audit 1228)", rc == 0)
         shutil.rmtree(sub442, ignore_errors=True)
+        sub443 = klon(tmp, "sub443")
+        berkas_aksi443 = os.path.join(
+            sub443, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi443, encoding="utf-8") as f:
+            isi_aksi443 = f.read()
+        baris_aksi443 = [b for b in isi_aksi443.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi443, "w", encoding="utf-8") as f:
+            f.write(isi_aksi443.replace(
+                baris_aksi443,
+                baris_aksi443.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(file - -f daftar.txt; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub443, [sys.executable, GERBANG, "--semua"])
+        periksa("file - -f daftar.txt: "
+                "gerbang gagal (Audit 1229)", rc != 0)
+        shutil.rmtree(sub443, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

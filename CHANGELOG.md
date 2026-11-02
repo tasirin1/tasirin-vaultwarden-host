@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — file: -f berkas tak mengakhiri penilaian operand (Audit 1229)
+
 ## [Belum rilis] — prlimit: pindaian --pid berhenti di perintah anak (Audit 1228)
 
 ## [Belum rilis] — git: cek pathspec hanya untuk subcommand ber-pathspec (Audit 1227)
