@@ -11641,6 +11641,42 @@ def main():
         periksa("git format-patch --stdin: "
                 "gerbang gagal (Audit 1400)", rc != 0)
         shutil.rmtree(sub621, ignore_errors=True)
+        sub622 = klon(tmp, "sub622")
+        berkas_aksi622 = os.path.join(
+            sub622, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi622, encoding="utf-8") as f:
+            isi_aksi622 = f.read()
+        baris_aksi622 = [b for b in isi_aksi622.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi622, "w", encoding="utf-8") as f:
+            f.write(isi_aksi622.replace(
+                baris_aksi622,
+                baris_aksi622.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git add -p; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub622, [sys.executable, GERBANG, "--semua"])
+        periksa("git add -p: "
+                "gerbang gagal (Audit 1401)", rc != 0)
+        shutil.rmtree(sub622, ignore_errors=True)
+        sub623 = klon(tmp, "sub623")
+        berkas_aksi623 = os.path.join(
+            sub623, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi623, encoding="utf-8") as f:
+            isi_aksi623 = f.read()
+        baris_aksi623 = [b for b in isi_aksi623.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi623, "w", encoding="utf-8") as f:
+            f.write(isi_aksi623.replace(
+                baris_aksi623,
+                baris_aksi623.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git clean -i; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub623, [sys.executable, GERBANG, "--semua"])
+        periksa("git clean -i: "
+                "gerbang gagal (Audit 1401)", rc != 0)
+        shutil.rmtree(sub623, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

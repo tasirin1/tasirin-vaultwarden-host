@@ -2306,6 +2306,22 @@ def _menguras_khusus(perintah, toks, awal):
                     k_ps += 2
                     continue
                 k_ps += 1
+        # Audit 1401: mode tambal/interaktif git membaca
+        # jawaban prompt dari stdin sampai EOF (-p/--patch
+        # pada add/checkout/reset/restore/stash; -i/
+        # --interactive pada add/clean) — termasuk di dalam
+        # bundel huruf pendek.
+        if sub in ("add", "checkout", "reset", "restore",
+                   "stash"):
+            for t_in in mentah:
+                if t_in in ("-p", "--patch") or re.fullmatch(
+                        r"-[a-zA-Z]*p[a-zA-Z]*", t_in):
+                    return True
+        if sub in ("add", "clean"):
+            for t_in in mentah:
+                if t_in in ("-i", "--interactive") or re.fullmatch(
+                        r"-[a-zA-Z]*i[a-zA-Z]*", t_in):
+                    return True
         if sub in ("commit", "tag"):
             pesan_stdin = False
             for k_g, t_g in enumerate(mentah):
