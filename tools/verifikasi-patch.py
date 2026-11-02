@@ -2051,7 +2051,9 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1207: catatan dari berkas pesan stdin.
         if sub == "notes":
             for k_nt, t_nt in enumerate(mentah):
-                if t_nt == "--file=-":
+                if t_nt in ("--file=-",
+                            # Audit 1225: -F- merekat.
+                            "-F-"):
                     return True
                 if t_nt in ("-F", "--file") and (
                         k_nt + 1 < len(mentah)

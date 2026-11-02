@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — git notes: bentuk merekat -F- tak dikenal (Audit 1225)
+
 ## [Belum rilis] — check-ignore: --stdin menolak operand jalur (Audit 1224)
 
 ## [Belum rilis] — git shortlog: --group bernilai, hilang (Audit 1223)
