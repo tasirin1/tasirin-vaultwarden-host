@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — pembaca interaktif/kueri kini dimodelkan gerbang patch (Audit 1112)
+
 ## [Belum rilis] — du dan find --files0-from kini dimodelkan gerbang patch (Audit 1111)
 
 ## [Belum rilis] — opsi --output-delimiter comm masuk tabel bernilai gerbang patch (Audit 1110)

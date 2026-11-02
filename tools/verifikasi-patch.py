@@ -649,6 +649,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1098: varian nama kompresor yang sama
                   # perilakunya (dekompresi ke stdout).
                   "bunzip2", "bzcat", "xzcat", "unxz", "unlzma",
+                  # Audit 1112: pembaca interaktif/kueri — operand
+                  # berkas/nama menekan seperti filter biasa.
+                  "wall", "c++filt", "nslookup",
                   # Audit 1101: basenc TIDAK di sini — tanpa mode
                   # ia galat dan tak membaca; cabangnya khusus.
                   # Audit 1038: keluarga beroperand skrip/pola —
@@ -1883,6 +1886,28 @@ def _menguras_khusus(perintah, toks, awal):
                     and mentah[k_f2 + 1] == "-":
                 return True
         return False
+    if perintah == "addr2line":
+        # Audit 1112: tanpa -e tak ada berkas objek (a.out tak
+        # diasumsikan ada) dan ia menolak jalan; ber--e ia membaca
+        # alamat dari stdin kecuali alamat adalah operand.
+        ops = _operand_sesudah_opsi(
+            toks, awal, {"-e", "--exe", "-j", "--section",
+                         "-b", "--base"})
+        if not any(t in ("-e", "--exe") or t.startswith("--exe=")
+                   or t.startswith("-e") and len(t) > 2
+                   for t in mentah):
+            return False
+        return not ops
+    if perintah == "dig":
+        # Audit 1112: berkas batch -f '-' dibaca dari stdin; kueri
+        # biasa tak menyentuh stdin.
+        for k_g2, t_g2 in enumerate(mentah):
+            if t_g2 in ("-f", "--file") and k_g2 + 1 < len(mentah) \
+                    and mentah[k_g2 + 1] == "-":
+                return True
+            if t_g2 in ("-f-", "--file=-"):
+                return True
+        return False
     return False
 
 
@@ -2468,7 +2493,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "zip", "rsync", "socat", "gpg", "curl",
                         "wget", "nc", "make", "visudo", "patch",
                         "more", "less", "vi", "vim", "nvim",
-                        "basenc", "view", "ex", "du", "find"):
+                        "basenc", "view", "ex", "du", "find",
+                        "addr2line", "dig"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
