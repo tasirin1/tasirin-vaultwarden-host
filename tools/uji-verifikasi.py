@@ -2293,6 +2293,25 @@ def main():
                 isi_gerbang_1030.count(
                     "def _substitusi_masukan_menguras") == 1)
 
+        subcmdsub = klon(tmp, "subcmdsub")
+        berkas_aksi116 = os.path.join(
+            subcmdsub, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi116, encoding="utf-8") as f:
+            isi_aksi116 = f.read()
+        baris_aksi116 = [b for b in isi_aksi116.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi116, "w", encoding="utf-8") as f:
+            f.write(isi_aksi116.replace(
+                baris_aksi116,
+                baris_aksi116.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cat $(cat); cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subcmdsub,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("substitusi perintah sebagai operand: isinya menguras — gerbang gagal (Audit 1036)", rc != 0)
+        shutil.rmtree(subcmdsub, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: substitusi perintah $(...) sebagai operand dinilai isinya (Audit 1036)
+
+### Diperbaiki
+- Perkakas: pemindai substitusi di `tools/verifikasi-patch.py` kini juga menilai substitusi perintah `$(...)` (saudara Audit 1024 untuk `<(...)`): perintah di dalamnya mewarisi stdin bersama, jadi `cat $(cat)` adalah penguras sedangkan `cat $(printf x)` bukan. `$((...))` aritmetika dikecualikan, dan substitusi di dalam kutip ganda tetap terdeteksi karena di sana ia sungguh berjalan. Skenario uji-diri aksi116.
+
+
 ## [Belum rilis] — Gerbang: definisi ganda _substitusi_masukan_menguras dihapus (Audit 1030)
 
 ### Diperbaiki

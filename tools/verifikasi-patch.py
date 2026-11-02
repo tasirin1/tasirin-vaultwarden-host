@@ -490,36 +490,54 @@ def _potong_pipa_pertama(bagian):
 
 
 def _substitusi_masukan_menguras(bagian):
-    """Audit 1024: True bila segmen memuat substitusi proses
-    masukan <(...) di luar kutip yang isinya menguras stdin
-    bersama — proses di dalam <(...) mewarisi stdin shell,
-    lepas dari redirect perintah luarnya."""
+    """Audit 1024/1036: True bila segmen memuat substitusi proses
+    masukan <(...) ATAU substitusi perintah $(...) di luar kutip
+    tunggal yang isinya menguras stdin bersama — proses di dalam
+    keduanya mewarisi stdin shell, lepas dari redirect perintah
+    luarnya. $((...)) adalah aritmetika, bukan substitusi. Di
+    dalam kutip ganda substitusi tetap berjalan, jadi pemindaian
+    tidak berhenti di sana."""
     i = 0
     n = len(bagian)
     kutip = ""
     tikus = False
     while i < n:
         c = bagian[i]
-        if kutip:
-            if c == "\\" and kutip == '"' and i + 1 < n:
-                i += 2
-                continue
-            if c == kutip:
+        if kutip == "'":
+            if c == "'":
                 kutip = ""
             i += 1
             continue
-        if c == "\\" and i + 1 < n:
-            i += 2
-            continue
-        if c in ("'", '"'):
-            kutip = c
-            i += 1
-            continue
-        if c == "`":
-            tikus = not tikus
-            i += 1
-            continue
-        if c == "<" and not tikus and i + 1 < n and bagian[i + 1] == "(":
+        if kutip == '"':
+            if c == "\\" and i + 1 < n:
+                i += 2
+                continue
+            if c == '"':
+                kutip = ""
+                i += 1
+                continue
+            if not (c == "$" and i + 1 < n and bagian[i + 1] == "("):
+                i += 1
+                continue
+        else:
+            if c == "\\" and i + 1 < n:
+                i += 2
+                continue
+            if c in ("'", '"'):
+                kutip = c
+                i += 1
+                continue
+            if c == "`":
+                tikus = not tikus
+                i += 1
+                continue
+        pembuka = False
+        if not tikus and i + 1 < n and bagian[i + 1] == "(":
+            if c == "<":
+                pembuka = True
+            elif c == "$" and not (i + 2 < n and bagian[i + 2] == "("):
+                pembuka = True
+        if pembuka:
             dalam = 1
             j = i + 2
             k2 = ""
