@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — subcommand openssl pembaca stdin putaran-2 kini dikenali gerbang patch (Audit 1104)
+
 ## [Belum rilis] — keluarga skrip -f - beroperand kini dinilai gerbang patch (Audit 1103)
 
 ## [Belum rilis] — panggilan informasional kini tak divonis menguras oleh gerbang patch (Audit 1102)

@@ -1455,17 +1455,35 @@ def _menguras_khusus(perintah, toks, awal):
         # digestnya) serta enc yang membaca stdin.
         # Audit 1075: operand "-" adalah stdin juga di sini
         # (konvensi Audit 1037 belum menjangkau penilai khusus).
+        # Audit 1104: subcommand pembaca putaran-2 (base64 = alias
+        # enc; smime/cms/pkeyutl tanpa -in; passwd -stdin;
+        # s_client ber--connect).
         if not mentah:
             return False
         sub = mentah[0]
-        if sub == "enc":
+
+        def _in_non_stdin():
+            for k_in, t_in in enumerate(mentah):
+                if t_in in ("-in", "--in") or t_in.startswith("-in=") \
+                        or t_in.startswith("--in="):
+                    if "=" in t_in:
+                        return t_in.split("=", 1)[1] != "-"
+                    return not (k_in + 1 < len(mentah)
+                                and mentah[k_in + 1] == "-")
+            return False
+
+        if sub == "enc" or sub == "base64":
             if any(t == "-in" and k + 1 < len(mentah)
                    and mentah[k + 1] == "-"
                    for k, t in enumerate(mentah)):
                 return True
-            return not any(
-                t == "-in" or t.startswith("-in=")
-                or t.startswith("--in") for t in mentah[1:])
+            return not _in_non_stdin()
+        if sub in ("smime", "cms", "pkeyutl"):
+            return not _in_non_stdin()
+        if sub == "passwd":
+            return "-stdin" in mentah
+        if sub == "s_client":
+            return "-connect" in mentah
         if sub == "dgst" or re.fullmatch(
                 r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"
                 r"|blake2b512|blake2s256|sm3|whirlpool)", sub):
