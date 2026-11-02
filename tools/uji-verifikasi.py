@@ -2851,6 +2851,25 @@ def main():
         periksa("tar membaca arsip dari stdin: penguras — gerbang gagal (Audit 1061)", rc != 0)
         shutil.rmtree(subtar, ignore_errors=True)
 
+        subgitstdin = klon(tmp, "subgitstdin")
+        berkas_aksi140 = os.path.join(
+            subgitstdin, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi140, encoding="utf-8") as f:
+            isi_aksi140 = f.read()
+        baris_aksi140 = [b for b in isi_aksi140.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi140, "w", encoding="utf-8") as f:
+            f.write(isi_aksi140.replace(
+                baris_aksi140,
+                baris_aksi140.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(git hash-object --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subgitstdin,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("git hash-object --stdin adalah penguras — gerbang gagal (Audit 1062)", rc != 0)
+        shutil.rmtree(subgitstdin, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

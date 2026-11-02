@@ -1323,6 +1323,28 @@ def _menguras_khusus(perintah, toks, awal):
                     return True
             i += 1
         return False
+    if perintah == "git":
+        # Audit 1062: subcommand penyaring stdin.
+        ops_git = _operand_sesudah_opsi(
+            toks, awal, {"-C", "-c", "--git-dir", "--work-tree",
+                         "--namespace"})
+        if not ops_git:
+            return False
+        sub = ops_git[0]
+        if sub == "apply":
+            sisa2 = mentah[mentah.index("apply") + 1:]
+            berkas = [t for t in sisa2
+                      if not t.startswith("-")]
+            return not berkas
+        if sub == "hash-object":
+            return "--stdin" in mentah
+        if sub == "cat-file":
+            return any(t in ("--batch", "--batch-check",
+                             "--batch-command")
+                       for t in mentah)
+        if sub == "fast-import":
+            return True
+        return False
     return False
 
 
@@ -1829,7 +1851,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return _menguras_interpreter(perintah, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)
-        if perintah in ("sqlite3", "openssl", "tar"):
+        if perintah in ("sqlite3", "openssl", "tar", "git"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

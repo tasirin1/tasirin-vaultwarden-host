@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — subcommand git pembaca stdin kini dinilai gerbang patch (Audit 1062)
+
 ## [Belum rilis] — tar dengan arsip/daftar dari stdin kini dinilai gerbang patch (Audit 1061)
 
 ## [Belum rilis] — subcommand openssl dgst/enc kini dinilai gerbang patch (Audit 1060)
