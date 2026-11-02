@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — git shortlog: --group bernilai, hilang (Audit 1223)
+
 ## [Belum rilis] — git shortlog: -w bernilai opsional, bukan terpisah (Audit 1222)
 
 ## [Belum rilis] — git am: opsi bernilai selain --patch-format hilang (Audit 1221)
