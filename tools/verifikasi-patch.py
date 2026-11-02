@@ -2041,13 +2041,14 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     # Audit 1082: bundel opsi pendek — huruf bendera
                     # di mana pun dalam bundel berlaku, sampai huruf
                     # opsi bernilai yang menelan sisa token sebagai
-                    # nilainya.
+                    # nilainya. Audit 1097: bundel yang memuat -s
+                    # DAN -i ditolak sudo — bukan mode shell.
                     bendera_sudo = set()
                     for huruf_sudo in opsi[1:]:
                         if huruf_sudo in "ughptCTDrR":
                             break
                         bendera_sudo.add(huruf_sudo)
-                    if "s" in bendera_sudo or "i" in bendera_sudo:
+                    if ("s" in bendera_sudo) != ("i" in bendera_sudo):
                         sudo_shell = True
                 if (t0 == "command" and len(opsi) > 1
                         and all(c in "pvV" for c in opsi[1:])
