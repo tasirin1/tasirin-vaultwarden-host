@@ -9502,6 +9502,24 @@ def main():
         periksa("date -Rf-: "
                 "gerbang gagal (Audit 1280)", rc != 0)
         shutil.rmtree(sub503, ignore_errors=True)
+        sub504 = klon(tmp, "sub504")
+        berkas_aksi504 = os.path.join(
+            sub504, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi504, encoding="utf-8") as f:
+            isi_aksi504 = f.read()
+        baris_aksi504 = [b for b in isi_aksi504.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi504, "w", encoding="utf-8") as f:
+            f.write(isi_aksi504.replace(
+                baris_aksi504,
+                baris_aksi504.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(sysctl -f -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub504, [sys.executable, GERBANG, "--semua"])
+        periksa("sysctl -f -: "
+                "gerbang gagal (Audit 1281)", rc != 0)
+        shutil.rmtree(sub504, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

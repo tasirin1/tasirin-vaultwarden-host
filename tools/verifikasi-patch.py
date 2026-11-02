@@ -2667,9 +2667,13 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1202: sysctl -p '-' membaca konfigurasi dari stdin.
     if perintah == "sysctl":
         for k_sy, t_sy in enumerate(mentah):
-            if t_sy in ("-p-", "--preload-file=-"):
+            # Audit 1281: -f/--file adalah alias -p pada
+            # sysctl modern.
+            if t_sy in ("-p-", "--preload-file=-", "-f-",
+                        "--file=-"):
                 return True
-            if t_sy in ("-p", "--preload", "--preload-file"):
+            if t_sy in ("-p", "--preload", "--preload-file",
+                        "-f", "--file"):
                 # Audit 1231: -p lain sesudahnya tetap
                 # dinilai — jangan berhenti di yang pertama.
                 # Audit 1279: nilai /dev/stdin juga stdin.
