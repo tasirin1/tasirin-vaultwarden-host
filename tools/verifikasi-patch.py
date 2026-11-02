@@ -3024,6 +3024,17 @@ def _menguras_khusus(perintah, toks, awal):
         ops_ns = _operand_sesudah_opsi(
             toks, awal, {"-k", "-y", "-p", "-t", "-u", "-r"})
         return not ops_ns or "-" in ops_ns
+    # Audit 1341: ssh-keygen -L membaca dari -f '-'.
+    if perintah == "ssh-keygen":
+        if "-L" in mentah:
+            for k_sk, t_sk in enumerate(mentah):
+                if t_sk == "-f":
+                    return (k_sk + 1 < len(mentah)
+                            and mentah[k_sk + 1] in (
+                                "-", "/dev/stdin"))
+                if t_sk.startswith("-f") and len(t_sk) > 2:
+                    return t_sk[2:] in ("-", "/dev/stdin")
+        return False
     return False
 
 
@@ -3777,6 +3788,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "genrb",
                         "pygettext3",
                         "nsupdate",
+                        "ssh-keygen",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

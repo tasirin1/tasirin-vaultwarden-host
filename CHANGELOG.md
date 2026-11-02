@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Ssh-keygen -L -f - dinilai (Audit 1341)
+
 ## [Belum rilis] — Nsupdate dinilai (Audit 1340)
 
 ## [Belum rilis] — Pygettext3 dinilai (Audit 1339)
