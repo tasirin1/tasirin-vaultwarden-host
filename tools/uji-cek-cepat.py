@@ -157,6 +157,16 @@ def main():
                 and "pola rahasia" in out)
         shutil.rmtree(readmehilang, ignore_errors=True)
 
+        takterlacak = klon(tmp, "takterlacak")
+        with open(os.path.join(takterlacak, "catatan-baru.txt"),
+                  "w") as f:
+            f.write("token uji: " + token_palsu + "\n")
+        rc, out = jalan(takterlacak, ["bash", SKRIP])
+        periksa("token di berkas tak terlacak tertangkap (Audit 1439)",
+                rc != 0 and "pola rahasia" in out
+                and "catatan-baru.txt" in out)
+        shutil.rmtree(takterlacak, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
