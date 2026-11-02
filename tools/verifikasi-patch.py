@@ -2024,7 +2024,12 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1205: pembaca langsung putaran-5.
         if sub == "am":
             ops_am = _operand_sesudah_opsi(
-                toks, awal + 1, {"--patch-format"})
+                toks, awal + 1, {"--patch-format",
+                                 # Audit 1221: opsi bernilai am
+                                 # lain yang hilang.
+                                 "--exclude", "--include",
+                                 "--directory", "--quoted-cr",
+                                 "-C"})
             return not ops_am or "-" in ops_am
         if sub == "shortlog":
             ops_sl = _operand_sesudah_opsi(

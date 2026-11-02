@@ -8242,6 +8242,24 @@ def main():
         periksa("git credential-store get: "
                 "gerbang gagal (Audit 1220)", rc != 0)
         shutil.rmtree(sub433, ignore_errors=True)
+        sub434 = klon(tmp, "sub434")
+        berkas_aksi434 = os.path.join(
+            sub434, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi434, encoding="utf-8") as f:
+            isi_aksi434 = f.read()
+        baris_aksi434 = [b for b in isi_aksi434.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi434, "w", encoding="utf-8") as f:
+            f.write(isi_aksi434.replace(
+                baris_aksi434,
+                baris_aksi434.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git am --exclude foo; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub434, [sys.executable, GERBANG, "--semua"])
+        periksa("git am --exclude foo: "
+                "gerbang gagal (Audit 1221)", rc != 0)
+        shutil.rmtree(sub434, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

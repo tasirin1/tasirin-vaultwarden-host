@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — git am: opsi bernilai selain --patch-format hilang (Audit 1221)
+
 ## [Belum rilis] — credential: kata aksi sebagai nilai --file bukan aksi (Audit 1220)
 
 ## [Belum rilis] — check-mailmap: --stdin menolak operand kontak (Audit 1219)
