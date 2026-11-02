@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Gm identify menilai '-' sadar opsi (Audit 1284)
+
 ## [Belum rilis] — Opsi bernilai Poppler dilengkapi (-enc, -paper, -aaRaster) (Audit 1283)
 
 ## [Belum rilis] — Sdiff -W dibetulkan ke tabel bendera, -w yang bernilai (Audit 1282)

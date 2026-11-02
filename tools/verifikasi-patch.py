@@ -2319,8 +2319,23 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "gm":
         # Audit 1259: gm identify '-' membaca gambar dari
         # stdin; subcommand lain tak dinilai di sini.
+        # Audit 1284: '-' sebagai NILAI opsi (mis. -format -)
+        # bukan operand — penilaian wajib sadar opsi.
         if mentah and mentah[0] == "identify":
-            return "-" in mentah[1:]
+            ops_gm = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-format", "-define", "-density", "-label",
+                 "-limit", "-sampling-factor", "-size",
+                 "-geometry", "-frame", "-tile", "-bordercolor",
+                 "-font", "-fill", "-stroke", "-draw",
+                 "-background", "-gravity", "-channel",
+                 "-colorspace", "-depth", "-quality", "-rotate",
+                 "-scale", "-resize", "-crop", "-extent",
+                 "-compose", "-delay", "-dispose", "-output",
+                 "-type", "-encoding", "-pointsize", "-stroke",
+                 "-strokewidth", "-box", "-comment", "-caption",
+                 "-texture", "-affine", "-append", "-average"})
+            return "-" in ops_gm or "/dev/stdin" in ops_gm
         return False
     if perintah == "zip":
         # Audit 1064: -@ membaca daftar nama dari stdin.
