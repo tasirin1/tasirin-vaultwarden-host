@@ -3136,6 +3136,25 @@ def main():
         periksa("openssl enc -in '-': gerbang gagal (Audit 1075)", rc != 0)
         shutil.rmtree(sub154, ignore_errors=True)
 
+        sub155 = klon(tmp, "sub155")
+        berkas_aksi155 = os.path.join(
+            sub155, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi155, encoding="utf-8") as f:
+            isi_aksi155 = f.read()
+        baris_aksi155 = [b for b in isi_aksi155.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi155, "w", encoding="utf-8") as f:
+            f.write(isi_aksi155.replace(
+                baris_aksi155,
+                baris_aksi155.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl dgst -rand berkas -sha256; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub155,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl -rand bernilai: gerbang gagal (Audit 1076)", rc != 0)
+        shutil.rmtree(sub155, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

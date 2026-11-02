@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — opsi -rand masuk tabel bernilai openssl dgst di gerbang patch (Audit 1076)
+
 ## [Belum rilis] — operand '-' kini dikenali penilai openssl gerbang patch (Audit 1075)
 
 ## [Belum rilis] — bendera comm -1/-2/-3 tak lagi menelan operand '-' di gerbang patch (Audit 1074)

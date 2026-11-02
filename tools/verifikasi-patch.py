@@ -1309,10 +1309,13 @@ def _menguras_khusus(perintah, toks, awal):
                 r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"
                 r"|blake2b512|blake2s256|sm3|whirlpool)", sub):
             dasar = awal + 1 if sub == "dgst" else awal
+            # Audit 1076: -rand bernilai — dulu hilang dari tabel
+            # sehingga nilai berkasnya terhitung operand penekan.
             ops = _operand_sesudah_opsi(
                 toks, dasar,
                 {"-sign", "-verify", "-keyform", "-out", "-passin",
-                 "-engine", "-fipskey", "-provider", "-propquery"})
+                 "-engine", "-fipskey", "-provider", "-propquery",
+                 "-rand"})
             if sub != "dgst":
                 ops = ops[1:] if ops else []
             return not ops or "-" in ops
