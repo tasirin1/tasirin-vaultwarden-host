@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Uji JVM baru untuk bacaResponsBatas dan sufiksPrerelease (Audit 1363)
 ## [Belum rilis] — Pencatatan hasil PIN kini selalu sinkron agar percobaan gagal tak bisa hilang (Audit 1362)
 ## [Belum rilis] — CI: resolve-vw mencoba ulang gh dan jatuh ke curl juga saat jawaban gh kosong (Audit 1361)
 ## [Belum rilis] — CI: kegagalan llvm-strip kini menggagalkan build agar binary tak-terstrip tak diterbitkan (Audit 1360)

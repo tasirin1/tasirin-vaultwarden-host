@@ -1219,4 +1219,23 @@ public class ServerServiceTest {
         // Proses mati dan tidak sedang start: mulai server.
         assertEquals(2, ServerService.putusanStartTunda(true, true, false, false));
     }
+
+    // Audit 1363: sufiksPrerelease sebelumnya tak terjangkau uji JVM.
+    // Nilai harapan diporting 1:1 dari pola POLA_SUFIKS_VERSI + find().
+    @Test
+    public void sufiksPrerelease_mengekstrakSufiksPrerelease() {
+        assertEquals("", ServerService.sufiksPrerelease(null));
+        assertEquals("", ServerService.sufiksPrerelease(""));
+        assertEquals("", ServerService.sufiksPrerelease("1.37.5"));
+        assertEquals("-alpha", ServerService.sufiksPrerelease("1.37.5-alpha"));
+        assertEquals("-beta.2",
+                ServerService.sufiksPrerelease(" 1.37.5-beta.2 "));
+        assertEquals("", ServerService.sufiksPrerelease("v1.37.5"));
+        assertEquals("", ServerService.sufiksPrerelease("1.37"));
+        assertEquals("", ServerService.sufiksPrerelease("1.37.5-"));
+        assertEquals("-RC.1", ServerService.sufiksPrerelease("10.0.1-RC.1"));
+        assertEquals("-alpha",
+                ServerService.sufiksPrerelease("1.37.5-alpha+x"));
+        assertEquals("", ServerService.sufiksPrerelease("1.37.5.6"));
+    }
 }

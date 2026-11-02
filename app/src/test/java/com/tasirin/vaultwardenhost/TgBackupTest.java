@@ -2325,5 +2325,38 @@ public class TgBackupTest {
         assertNotNull(hasil);
         assertFalse(TgBackup.dbSibuk(hasil));
     }
-}
 
+    // Audit 1363: bacaResponsBatas sebelumnya tak terjangkau uji JVM.
+    @Test
+    public void bacaResponsBatas_teksKecilKembaliUtuh() {
+        java.io.ByteArrayInputStream in = new java.io.ByteArrayInputStream(
+                "halo \u2014 dunia".getBytes(
+                        java.nio.charset.StandardCharsets.UTF_8));
+        assertEquals("halo \u2014 dunia", TgBackup.bacaResponsBatas(in));
+    }
+
+    @Test
+    public void bacaResponsBatas_aliranKosongDanGalatMenjadiKosong() {
+        assertEquals("", TgBackup.bacaResponsBatas(
+                new java.io.ByteArrayInputStream(new byte[0])));
+        java.io.InputStream rusak = new java.io.InputStream() {
+            @Override
+            public int read() throws java.io.IOException {
+                throw new java.io.IOException("putus");
+            }
+        };
+        assertEquals("", TgBackup.bacaResponsBatas(rusak));
+    }
+
+    @Test
+    public void bacaResponsBatas_tepatSatuMbLolosLebihMenjadiKosong() {
+        byte[] pas = new byte[1024 * 1024];
+        java.util.Arrays.fill(pas, (byte) 'a');
+        assertEquals(1024 * 1024, TgBackup.bacaResponsBatas(
+                new java.io.ByteArrayInputStream(pas)).length());
+        byte[] lebih = new byte[1024 * 1024 + 1];
+        java.util.Arrays.fill(lebih, (byte) 'a');
+        assertEquals("", TgBackup.bacaResponsBatas(
+                new java.io.ByteArrayInputStream(lebih)));
+    }
+}
