@@ -1805,21 +1805,26 @@ def _menguras_khusus(perintah, toks, awal):
             return False
 
         def _in_non_stdin():
+            # Audit 1278: openssl memakai -in TERAKHIR — vonis
+            # dari kemunculan terakhir, bukan pertama.
+            hasil_in = None
             for k_in, t_in in enumerate(mentah):
                 if t_in in ("-in", "--in") or t_in.startswith("-in=") \
                         or t_in.startswith("--in="):
                     # Audit 1239: /dev/stdin & keluarga fd 0
                     # sebagai nilai -in ADALAH stdin.
                     if "=" in t_in:
-                        return t_in.split("=", 1)[1] not in (
+                        hasil_in = t_in.split("=", 1)[1] not in (
                             "-", "/dev/stdin", "/dev/fd/0",
                             "/proc/self/fd/0")
-                    return not (k_in + 1 < len(mentah)
-                                and mentah[k_in + 1] in (
-                                    "-", "/dev/stdin",
-                                    "/dev/fd/0",
-                                    "/proc/self/fd/0"))
-            return False
+                    else:
+                        hasil_in = not (
+                            k_in + 1 < len(mentah)
+                            and mentah[k_in + 1] in (
+                                "-", "/dev/stdin",
+                                "/dev/fd/0",
+                                "/proc/self/fd/0"))
+            return bool(hasil_in)
 
         if sub == "enc" or sub == "base64":
             if any(t == "-in" and k + 1 < len(mentah)
@@ -1844,24 +1849,25 @@ def _menguras_khusus(perintah, toks, awal):
             # Audit 1239: -in /dev/stdin justru menguras —
             # jalur fd di pemuat objek adalah stdin itu
             # sendiri (terprobe dengan PEM sungguhan).
+            # Audit 1278: -in terakhir yang dipakai openssl.
             ada_in = False
+            in_terakhir_stdin = False
             for k_i2, t_i2 in enumerate(mentah):
                 if t_i2 in ("-in", "--in"):
                     ada_in = True
-                    if (k_i2 + 1 < len(mentah)
-                            and mentah[k_i2 + 1] in (
-                                "/dev/stdin", "/dev/fd/0",
-                                "/proc/self/fd/0")):
-                        return True
+                    in_terakhir_stdin = (
+                        k_i2 + 1 < len(mentah)
+                        and mentah[k_i2 + 1] in (
+                            "/dev/stdin", "/dev/fd/0",
+                            "/proc/self/fd/0"))
                 elif (t_i2.startswith("-in=")
                       or t_i2.startswith("--in=")):
                     ada_in = True
-                    if t_i2.split("=", 1)[1] in (
-                            "/dev/stdin", "/dev/fd/0",
-                            "/proc/self/fd/0"):
-                        return True
+                    in_terakhir_stdin = t_i2.split("=", 1)[1] in (
+                        "/dev/stdin", "/dev/fd/0",
+                        "/proc/self/fd/0")
             if ada_in:
-                return False
+                return in_terakhir_stdin
             return True
         if sub in ("pkcs7",
                    # Audit 1160: objek-tunggal putaran-3.

@@ -9448,6 +9448,24 @@ def main():
         periksa("prlimit -p=999999 cat: "
                 "gerbang lolos (Audit 1277)", rc == 0)
         shutil.rmtree(sub500, ignore_errors=True)
+        sub501 = klon(tmp, "sub501")
+        berkas_aksi501 = os.path.join(
+            sub501, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi501, encoding="utf-8") as f:
+            isi_aksi501 = f.read()
+        baris_aksi501 = [b for b in isi_aksi501.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi501, "w", encoding="utf-8") as f:
+            f.write(isi_aksi501.replace(
+                baris_aksi501,
+                baris_aksi501.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl x509 -in /dev/stdin -in /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub501, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl x509 -in /dev/stdin -in /dev/null: "
+                "gerbang lolos (Audit 1278)", rc == 0)
+        shutil.rmtree(sub501, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

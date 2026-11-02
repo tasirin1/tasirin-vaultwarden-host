@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Openssl memakai -in terakhir untuk vonis stdin (Audit 1278)
+
 ## [Belum rilis] — Prlimit bentuk -p= dan -p<angka> dikenali sebagai mode pid (Audit 1277)
 
 ## [Belum rilis] — Iconv menilai opsi informasional sadar posisi (Audit 1276)
