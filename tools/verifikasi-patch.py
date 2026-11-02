@@ -706,12 +706,17 @@ _OPSI_BERNILAI = {
                "--size", "--journald",
                # Audit 1170: opsi sd/journal bernilai.
                "--msgid", "--sd-id", "--sd-param"},
-    "ptx": {"-W", "--width", "-G", "--gap-size", "-M", "--macro-name",
+    "ptx": {"-M", "--macro-name",
             "-S", "--sentence-regexp", "-T", "--format",
-            "--word-regexp", "-b", "--break-file", "-f",
-            "--ignore-file", "-i", "--ignore-file",
+            "-b", "--break-file", "-i", "--ignore-file",
             # Audit 1174: -o/--only-file hilang.
-            "-o", "--only-file"},
+            "-o", "--only-file",
+            # Audit 1210: pasangan tertukar dibetulkan — gap =
+            # -g, width = -w, word-regexp = -W (bernilai);
+            # -G/--traditional dan -f/--ignore-case adalah
+            # BENDERA, bukan bernilai.
+            "-g", "--gap-size", "-w", "--width",
+            "-W", "--word-regexp"},
     # Audit 1037: opsi bernilai filter aliran.
     "cut": {"-d", "-f", "-c", "--delimiter", "--fields",
             "--characters", "--bytes", "--output-delimiter"},

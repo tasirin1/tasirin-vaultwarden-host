@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — entri tabel ptx gerbang dibetulkan (Audit 1210)
+
 ## [Belum rilis] — entri tabel nl gerbang memakai nama resmi (Audit 1209)
 
 ## [Belum rilis] — entri tabel pr gerbang dibetulkan dua arah (Audit 1208)
