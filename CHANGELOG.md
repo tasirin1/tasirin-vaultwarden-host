@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — notifyLowStorage disinkronkan lintas pool (Audit 1043)
+
+### Diperbaiki
+- `TgBackup.notifyLowStorage` kini `synchronized`: metode ini dipanggil dari dua pool thread berbeda (BG_CEK lewat AutoUpdate dan BG_LAMA lewat ServerService) dan rantai baca-stempel → putuskan → tulis → kirimnya harus atomik — dua pemanggil bersamaan saat peringatan jatuh tempo bisa sama-sama mengirim sehingga pemilik menerima peringatan storage ganda. (Peringatan gerbang "metode baru tanpa jejak uji" diterima sadar: yang berubah hanya penanda synchronized pada metode terikat Context/jaringan yang memang sudah ada, bukan logika murni baru.)
+
+
 ## [Belum rilis] — Pin versi disimpan di dalam tugas unduhan (Audit 1042)
 
 ### Diperbaiki

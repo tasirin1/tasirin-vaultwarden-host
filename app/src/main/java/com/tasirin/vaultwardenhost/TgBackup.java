@@ -1497,7 +1497,13 @@ public final class TgBackup {
         }
     }
 
-    public static void notifyLowStorage(Context ctx) {
+    // Audit 1043: synchronized — metode ini dipanggil dari dua
+    // pool berbeda (BG_CEK lewat AutoUpdate dan BG_LAMA lewat
+    // ServerService) dan rantai baca-stempel → putuskan → tulis →
+    // kirimnya harus atomik, kalau tidak dua pemanggil yang
+    // bersamaan bisa sama-sama lolos jatuh tempo dan mengirim
+    // peringatan ganda.
+    public static synchronized void notifyLowStorage(Context ctx) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
