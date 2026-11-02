@@ -1152,6 +1152,9 @@ def _menguras_interpreter(perintah, toks, awal):
     if perintah in ("bash", "sh", "dash", "zsh"):
         # Audit 1058: shell tanpa skrip membaca perintah dari
         # stdin; -c menekan; operand "-" memintanya eksplisit.
+        # Audit 1083: sesudah -s, operand pertama adalah $0 (nama
+        # program), bukan berkas skrip — stdin tetap dibaca.
+        dari_stdin = False
         while i < n:
             t = toks[i]
             bersih_t = t.strip("\"'")
@@ -1174,12 +1177,27 @@ def _menguras_interpreter(perintah, toks, awal):
             if bersih_t == "-o":
                 i += 2
                 continue
-            if bersih_t == "--":
-                i += 1
-                return toks[i] == "-" if i < n else True
-            if bersih_t.startswith("-") and bersih_t != "-":
+            if bersih_t == "-s":
+                dari_stdin = True
                 i += 1
                 continue
+            if bersih_t == "--":
+                i += 1
+                if i >= n:
+                    return True
+                if dari_stdin:
+                    return True
+                return toks[i] == "-"
+            if bersih_t.startswith("-") and bersih_t != "-":
+                # Audit 1082: bundel berisi s (-ns/-es) = mode -s.
+                if (not bersih_t.startswith("--")
+                        and "s" in bersih_t[1:]
+                        and "c" not in bersih_t[1:]):
+                    dari_stdin = True
+                i += 1
+                continue
+            if dari_stdin:
+                return True
             return t == "-"
         return True
     interaktif = False

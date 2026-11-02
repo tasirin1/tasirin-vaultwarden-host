@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — shell -s beroperand kini dinilai gerbang patch (Audit 1083)
+
 ## [Belum rilis] — bundel opsi pendek kini terdeteksi gerbang patch (Audit 1082)
 
 ## [Belum rilis] — python -i tak lagi kalah oleh -c di gerbang patch (Audit 1081)

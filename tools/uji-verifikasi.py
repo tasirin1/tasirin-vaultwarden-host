@@ -3421,6 +3421,25 @@ def main():
         periksa("bundel sudo -ns: gerbang gagal (Audit 1082)", rc != 0)
         shutil.rmtree(sub169, ignore_errors=True)
 
+        sub170 = klon(tmp, "sub170")
+        berkas_aksi170 = os.path.join(
+            sub170, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi170, encoding="utf-8") as f:
+            isi_aksi170 = f.read()
+        baris_aksi170 = [b for b in isi_aksi170.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi170, "w", encoding="utf-8") as f:
+            f.write(isi_aksi170.replace(
+                baris_aksi170,
+                baris_aksi170.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(bash -s berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub170,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("shell -s operand $0: gerbang gagal (Audit 1083)", rc != 0)
+        shutil.rmtree(sub170, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
