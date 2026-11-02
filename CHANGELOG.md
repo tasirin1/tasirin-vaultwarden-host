@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Pl2pm -v/-h informasional terjaga (Audit 1423)
 ## [Belum rilis] — Python3 -m gzip — operand '-' di posisi mana pun adalah stdin (Audit 1422)
 ## [Belum rilis] — Npm bendera global bernilai dilengkapi (--loglevel/--otp/dkk.) (Audit 1421)
 ## [Belum rilis] — Pdftoppm/pdftocairo himpunan opsi bernilai dilengkapi per perintah (Audit 1420)

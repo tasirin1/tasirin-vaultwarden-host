@@ -734,7 +734,10 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
 # (penjaga informasional Audit 1102 hanya mengenal bentuk
 # panjang --help/--version).
 _INFO_HURUF = {"cpan": {"-v", "-V", "-h"},
-               "utmpdump": {"-h"}}
+               "utmpdump": {"-h"},
+               # Audit 1423: pl2pm (Audit 1398) ketinggalan
+               # dari tabel ini.
+               "pl2pm": {"-v", "-h"}}
 
 _OPSI_BERNILAI = {
     "head": {"-n", "-c", "--lines", "--bytes"},

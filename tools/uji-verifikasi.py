@@ -14050,6 +14050,27 @@ def main():
         periksa("python3 -m gzip berkas.gz -: "
                 "gerbang gagal (Audit 1422)", rc != 0)
         shutil.rmtree(sub648, ignore_errors=True)
+        sub649 = klon(tmp, "sub649")
+        berkas_aksi649 = os.path.join(
+            sub649, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi649, encoding="utf-8") as f:
+            isi_aksi649 = f.read()
+        baris_aksi649 = [b for b in isi_aksi649.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru649 = isi_aksi649.replace(
+                baris_aksi649,
+                baris_aksi649.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(pl2pm -v; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru649 != isi_aksi649, \
+            "suntikan aksi649 tidak menembak"
+        with open(berkas_aksi649, "w", encoding="utf-8") as f:
+            f.write(isi_baru649)
+        rc, out = jalan(sub649, [sys.executable, GERBANG, "--semua"])
+        periksa("pl2pm -v: "
+                "gerbang lolos (Audit 1423)", rc == 0)
+        shutil.rmtree(sub649, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
