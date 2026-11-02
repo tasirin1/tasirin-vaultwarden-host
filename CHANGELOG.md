@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Git shortlog menelan nilai opsi revisi bernilai (Audit 1272)
+
 ## [Belum rilis] — Parser git credential sadar subperintah dan opsi global (Audit 1271)
 
 ## [Belum rilis] — Check-mailmap --stdin menguras hanya untuk operand kontak (Audit 1270)

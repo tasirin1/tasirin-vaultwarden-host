@@ -2162,7 +2162,13 @@ def _menguras_khusus(perintah, toks, awal):
             ops_sl = _operand_sesudah_opsi(
                 toks, awal + 1, {"--format",
                                  # Audit 1223: --group bernilai.
-                                 "--group"})
+                                 "--group",
+                                 # Audit 1272: opsi revisi
+                                 # bernilai lain — nilainya
+                                 # terbaca operand revisi.
+                                 "--since", "--until", "--before",
+                                 "--after", "--author",
+                                 "--committer"})
             # Audit 1222: -w shortlog bernilai OPSIONAL
             # (hanya merekat) — diperlakukan bendera.
             return not ops_sl

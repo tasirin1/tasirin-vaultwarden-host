@@ -9340,6 +9340,24 @@ def main():
         periksa("git credential-cache --timeout 300 get: "
                 "gerbang gagal (Audit 1271)", rc != 0)
         shutil.rmtree(sub494, ignore_errors=True)
+        sub495 = klon(tmp, "sub495")
+        berkas_aksi495 = os.path.join(
+            sub495, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi495, encoding="utf-8") as f:
+            isi_aksi495 = f.read()
+        baris_aksi495 = [b for b in isi_aksi495.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi495, "w", encoding="utf-8") as f:
+            f.write(isi_aksi495.replace(
+                baris_aksi495,
+                baris_aksi495.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git shortlog --since yesterday; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub495, [sys.executable, GERBANG, "--semua"])
+        periksa("git shortlog --since yesterday: "
+                "gerbang gagal (Audit 1272)", rc != 0)
+        shutil.rmtree(sub495, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
