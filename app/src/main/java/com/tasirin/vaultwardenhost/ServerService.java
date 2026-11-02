@@ -4719,7 +4719,7 @@ public class ServerService extends Service {
         }
     }
 
-    private static String shorten(String s, int max) {
+    static String shorten(String s, int max) {
         if (s == null || s.length() <= max) {
             return s == null ? "" : s;
         }

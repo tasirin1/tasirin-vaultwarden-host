@@ -1238,4 +1238,22 @@ public class ServerServiceTest {
                 ServerService.sufiksPrerelease("1.37.5-alpha+x"));
         assertEquals("", ServerService.sufiksPrerelease("1.37.5.6"));
     }
+
+    // Audit 1381: shorten dibuka package-private agar terjangkau uji JVM.
+    // Nilai harapan diporting 1:1 dari badan shorten (satuan UTF-16,
+    // pasangan surrogate tidak boleh terbelah).
+    @Test
+    public void shorten_memotongEkorDenganAman() {
+        assertEquals("", ServerService.shorten(null, 5));
+        assertEquals("", ServerService.shorten("", 3));
+        assertEquals("abc", ServerService.shorten("abc", 5));
+        assertEquals("abcdef", ServerService.shorten("abcdef", 6));
+        assertEquals("def", ServerService.shorten("abcdef", 3));
+        assertEquals("cdef", ServerService.shorten("a\uD83D\uDE00bcdef", 4));
+        assertEquals("\uD83D\uDE00cdef",
+                ServerService.shorten("ab\uD83D\uDE00cdef", 6));
+        assertEquals("cdef", ServerService.shorten("ab\uD83D\uDE00cdef", 5));
+        assertEquals("b\uD83D\uDE00cdef",
+                ServerService.shorten("ab\uD83D\uDE00cdef", 7));
+    }
 }
