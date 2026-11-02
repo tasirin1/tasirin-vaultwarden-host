@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — git column mengenal --indent/--nl (Audit 1184)
+
 ## [Belum rilis] — tclsh mengenal opsi -encoding bernilai (Audit 1183)
 
 ## [Belum rilis] — expect mengenali operand '-' sebagai skrip stdin (Audit 1182)

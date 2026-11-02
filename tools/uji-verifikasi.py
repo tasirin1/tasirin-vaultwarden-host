@@ -7342,6 +7342,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tclsh8.6 -encoding utf-8: gerbang gagal (Audit 1183)", rc != 0)
         shutil.rmtree(sub383, ignore_errors=True)
+        sub384 = klon(tmp, "sub384")
+        berkas_aksi384 = os.path.join(
+            sub384, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi384, encoding="utf-8") as f:
+            isi_aksi384 = f.read()
+        baris_aksi384 = [b for b in isi_aksi384.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi384, "w", encoding="utf-8") as f:
+            f.write(isi_aksi384.replace(
+                baris_aksi384,
+                baris_aksi384.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(git column --indent xx; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub384,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("git column --indent xx: gerbang gagal (Audit 1184)", rc != 0)
+        shutil.rmtree(sub384, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

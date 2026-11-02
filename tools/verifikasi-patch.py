@@ -1940,7 +1940,9 @@ def _menguras_khusus(perintah, toks, awal):
             ops_co = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--mode", "--width", "--separator",
-                 "--output-width", "--padding"})
+                 "--output-width", "--padding",
+                 # Audit 1184: --indent/--nl bernilai, hilang.
+                 "--indent", "--nl"})
             return not ops_co or "-" in ops_co
         # Audit 1163: --stdin plumbing & protokol credential.
         if sub in ("rev-list", "log"):
