@@ -1519,15 +1519,26 @@ def _menguras_interpreter(perintah, toks, awal):
                 continue
             if t.startswith("-") and t != "-":
                 huruf = t[1:]
-                if (re.fullmatch(r"[A-Za-z]+", huruf)
-                        and ("n" in huruf or "p" in huruf)):
-                    pakai_lingkar = True
+                # Audit 1392: huruf-huruf bundel dinilai
+                # sebagai jalan huruf EFEKTIF yang berhenti
+                # SEBELUM huruf bernilai pertama (I/m/M/e
+                # menelan sisa bundel sebagai argumennya) —
+                # huruf di wilayah argumen (mis. 'd'/'n' pada
+                # -Id, -mdiagnostics) bukan bendera.
+                if re.fullmatch(r"[A-Za-z]+", huruf):
+                    efektif = ""
+                    for h_x in huruf:
+                        if h_x in "IMme":
+                            break
+                        efektif += h_x
+                    if "n" in efektif or "p" in efektif:
+                        pakai_lingkar = True
+                    if "d" in efektif:
+                        debugger = True
                 # Audit 1375: -d (termasuk bundel huruf dan
                 # bentuk -d:Modul) menyalakan debugger, yang
                 # membaca PERINTAH dari stdin.
-                if ((re.fullmatch(r"[A-Za-z]+", huruf)
-                        and "d" in huruf)
-                        or t.startswith("-d:")):
+                if t.startswith("-d:"):
                     debugger = True
                 # Bundel berakhiran -e (-ne/-pe): token berikutnya
                 # adalah skripnya, bukan berkas masukan.

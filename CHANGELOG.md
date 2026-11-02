@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Perl huruf argumen opsi bernilai bukan bendera (bundel efektif) (Audit 1392)
 ## [Belum rilis] — Modul penyaring python3 -m — operand '-' adalah stdin (Audit 1391)
 ## [Belum rilis] — Python3 -m sqlite3 -c menekan dan --version informasional (Audit 1390)
 ## [Belum rilis] — Make himpunan nilai cabang bundel dilengkapi keluarga fd-0 (Audit 1389)
