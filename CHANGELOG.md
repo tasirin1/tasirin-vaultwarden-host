@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — interpreter nama berversi dan tclsh kini dikenal gerbang patch (Audit 1159)
+
 ## [Belum rilis] — rbash/rzsh kini dipetakan ke penilai shell gerbang patch (Audit 1158)
 
 ## [Belum rilis] — nama varian netcat/nc.openbsd dipetakan ke nc di gerbang patch (Audit 1157)

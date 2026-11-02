@@ -1332,6 +1332,17 @@ def _menguras_interpreter(perintah, toks, awal):
                 continue
             return False
         return not ada_c
+    if perintah == "tclsh":
+        # Audit 1159: tclsh tanpa berkas skrip membaca skrip
+        # dari stdin; operand "-" juga stdin; token lain =
+        # nama skrip (argumen sesudahnya argv skrip).
+        while i < n:
+            t = toks[i].strip("\"'")
+            if t.startswith("-") and t != "-":
+                i += 1
+                continue
+            return t == "-"
+        return True
     if perintah in ("bash", "sh", "dash", "zsh", "rbash",
                     "rzsh"):
         # Audit 1058: shell tanpa skrip membaca perintah dari
@@ -2746,12 +2757,22 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # Audit 1039/1040: perintah yang menguras hanya pada
         # bentuk tertentu (interpreter skrip-dari-stdin, builtin
         # penampung baris) dinilai penilai khususnya sendiri.
-        if perintah in ("python3", "python", "node", "perl",
-                        # Audit 1058: shell membaca perintah dari
-                        # stdin bila tanpa skrip berkas.
-                        # Audit 1122: expect pembaca skrip stdin.
-                        "bash", "sh", "dash", "zsh", "expect"):
-            return _menguras_interpreter(perintah, toks, awal)
+        # Audit 1159: nama interpreter berversi dipetakan ke
+        # nama kanonisnya (python3.12 → python3; tclsh8.6 →
+        # tclsh, keluarga yang baru dikenal putaran ini).
+        nama_interp = perintah
+        if re.fullmatch(r"python3(\.\d+)?", perintah):
+            nama_interp = "python3"
+        elif re.fullmatch(r"tclsh(\d+(\.\d+)?)?", perintah):
+            nama_interp = "tclsh"
+        if nama_interp in ("python3", "python", "node", "perl",
+                           # Audit 1058: shell membaca perintah
+                           # dari stdin bila tanpa skrip berkas.
+                           # Audit 1122: expect pembaca skrip.
+                           # Audit 1158: shell terbatas rbash/rzsh.
+                           "bash", "sh", "dash", "zsh", "expect",
+                           "rbash", "rzsh", "tclsh"):
+            return _menguras_interpreter(nama_interp, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)
         if perintah in ("sqlite3", "openssl", "tar", "git",
