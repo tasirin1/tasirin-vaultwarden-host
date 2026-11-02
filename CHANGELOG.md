@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — sisa keluarga checksum GNU kini pembaca stdin bagi gerbang patch (Audit 1055)
+
 ## [Belum rilis] — duplikat blok komentar Audit 987 di gerbang patch dihapus (Audit 1054)
 
 ## [Belum rilis] — redirect sesudah mapfile kini terlihat oleh penilai khusus gerbang patch (Audit 1053)

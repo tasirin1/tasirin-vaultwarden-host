@@ -634,6 +634,10 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "cut", "tr", "paste", "fold", "nl", "tac", "rev",
                   "shuf", "base64", "od", "sha256sum", "md5sum",
                   "gzip", "gunzip",
+                  # Audit 1055: sisa keluarga checksum GNU (aturan
+                  # operand sama dengan sha256sum/md5sum).
+                  "sha1sum", "sha224sum", "sha384sum", "sha512sum",
+                  "b2sum", "cksum", "sum",
                   # Audit 1038: keluarga beroperand skrip/pola —
                   # operand pertamanya bukan berkas (penilaian
                   # posisinya di _menguras_keluarga_skrip).

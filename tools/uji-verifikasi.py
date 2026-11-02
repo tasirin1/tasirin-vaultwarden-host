@@ -2718,6 +2718,25 @@ def main():
                 isi_gerbang_1054.count(
                     "# Audit 987: isi string env -S") == 1)
 
+        subchecksum = klon(tmp, "subchecksum")
+        berkas_aksi133 = os.path.join(
+            subchecksum, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi133, encoding="utf-8") as f:
+            isi_aksi133 = f.read()
+        baris_aksi133 = [b for b in isi_aksi133.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi133, "w", encoding="utf-8") as f:
+            f.write(isi_aksi133.replace(
+                baris_aksi133,
+                baris_aksi133.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sha1sum; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subchecksum,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sisa keluarga checksum adalah penguras — gerbang gagal (Audit 1055)", rc != 0)
+        shutil.rmtree(subchecksum, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
