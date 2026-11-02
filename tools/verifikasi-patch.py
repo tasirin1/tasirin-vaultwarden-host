@@ -2888,6 +2888,13 @@ def _menguras_khusus(perintah, toks, awal):
                     return _menguras_stdin(segmen_sc[0])
                 return False
         return True
+    # Audit 1320: tmux load-buffer dari stdin.
+    if perintah == "tmux":
+        if mentah and mentah[0] == "load-buffer":
+            ops_tm = _operand_sesudah_opsi(
+                toks, awal + 1, {"-b", "-t"})
+            return "-" in ops_tm or "/dev/stdin" in ops_tm
+        return False
     return False
 
 
@@ -3624,6 +3631,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "vim.tiny", "rview", "editor",
                         "sensible-editor",
                         "script",
+                        "tmux",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
