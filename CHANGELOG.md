@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — CI: kegagalan llvm-strip kini menggagalkan build agar binary tak-terstrip tak diterbitkan (Audit 1360)
 ## [Belum rilis] — Chpasswd dan newusers masuk tabel pembaca stdin (Audit 1359)
 
 ## [Belum rilis] — Keluarga ffmpeg (ffmpeg/ffprobe/ffplay) dinilai (Audit 1358)

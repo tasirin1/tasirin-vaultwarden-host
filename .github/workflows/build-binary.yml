@@ -315,7 +315,7 @@ jobs:
           ls -lh "$BIN"
 
           UKURAN_SEBELUM=$(stat -c%s "$BIN")
-          "$TOOLCHAIN/llvm-strip" -s "$BIN" || echo "::warning::llvm-strip gagal untuk binary vaultwarden; build tetap lanjut tanpa strip"
+          "$TOOLCHAIN/llvm-strip" -s "$BIN" || { echo "::error::llvm-strip gagal untuk binary vaultwarden; build digagalkan agar binary tak-terstrip tidak diterbitkan (Audit 1360)"; exit 1; }
           UKURAN_SESUDAH=$(stat -c%s "$BIN")
           echo "Ukuran binary: $UKURAN_SEBELUM -> $UKURAN_SESUDAH byte (sesudah strip)"
           mkdir -p ../app/src/main/assets/bin/armeabi-v7a
@@ -339,7 +339,7 @@ jobs:
           TOOLCHAIN="$SDK/ndk/${{ env.NDK_VERSION }}/toolchains/llvm/prebuilt/linux-x86_64/bin"
           "$TOOLCHAIN/armv7a-linux-androideabi21-clang" -shared -fPIC -Os \
             -o libgetrandom-shim-armeabi-v7a.so shim/getrandom_shim.c
-          "$TOOLCHAIN/llvm-strip" -s libgetrandom-shim-armeabi-v7a.so || echo "::warning::llvm-strip gagal untuk shim getrandom; build tetap lanjut tanpa strip"
+          "$TOOLCHAIN/llvm-strip" -s libgetrandom-shim-armeabi-v7a.so || { echo "::error::llvm-strip gagal untuk shim getrandom; build digagalkan agar shim tak-terstrip tidak diterbitkan (Audit 1360)"; exit 1; }
           file libgetrandom-shim-armeabi-v7a.so
           ls -lh libgetrandom-shim-armeabi-v7a.so
 
