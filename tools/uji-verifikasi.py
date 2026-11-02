@@ -3554,6 +3554,25 @@ def main():
         periksa("curl --data-raw '-' harfiah: gerbang lolos (Audit 1086)", rc == 0)
         shutil.rmtree(sub176, ignore_errors=True)
 
+        sub177 = klon(tmp, "sub177")
+        berkas_aksi177 = os.path.join(
+            sub177, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi177, encoding="utf-8") as f:
+            isi_aksi177 = f.read()
+        baris_aksi177 = [b for b in isi_aksi177.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi177, "w", encoding="utf-8") as f:
+            f.write(isi_aksi177.replace(
+                baris_aksi177,
+                baris_aksi177.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tr -d a b; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub177,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tr -d dua himpunan galat: gerbang lolos (Audit 1087)", rc == 0)
+        shutil.rmtree(sub177, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

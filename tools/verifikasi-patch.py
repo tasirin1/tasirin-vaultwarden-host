@@ -2239,6 +2239,20 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         return False
     lewati = False
     operand_tr = 0  # Audit 1047: penghitung operand himpunan tr.
+    # Audit 1087: pada mode hapus (-d tanpa -s) GNU tr menolak
+    # himpunan KEDUA — batas operand sah menyusut jadi 1.
+    batas_tr = 2
+    if perintah == "tr":
+        huruf_tr = ""
+        for t_tr in toks[awal + 1:]:
+            b_tr = t_tr.strip("\"'")
+            if b_tr == "--":
+                break
+            if b_tr.startswith("-") and b_tr != "-":
+                huruf_tr += b_tr.lstrip("-")
+        if ("d" in huruf_tr or "--delete" in huruf_tr) and not (
+                "s" in huruf_tr or "--squeeze-repeats" in huruf_tr):
+            batas_tr = 1
     for pos in range(awal + 1, len(toks)):
         t = toks[pos]
         if lewati:
@@ -2322,7 +2336,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # sebelum vonis operand-data.
             if perintah == "tr":
                 operand_tr += 1
-                if operand_tr > 2:
+                if operand_tr > batas_tr:
                     return False
                 continue
             return False
@@ -2380,7 +2394,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # Audit 1047: GNU tr menolak operand KETIGA dan tidak
             # membaca apa pun — model tanpa batas salah arah.
             operand_tr += 1
-            if operand_tr > 2:
+            if operand_tr > batas_tr:
                 return False
             continue
         if perintah == "tee":

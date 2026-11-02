@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — penghitung operand tr sadar aturan -d di gerbang patch (Audit 1087)
+
 ## [Belum rilis] — curl --data-raw tak lagi divonis membaca stdin oleh gerbang patch (Audit 1086)
 
 ## [Belum rilis] — bentuk data curl merekat kini terdeteksi gerbang patch (Audit 1085)
