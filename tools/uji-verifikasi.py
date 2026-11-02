@@ -3003,6 +3003,25 @@ def main():
         periksa("gpg batch simetris membaca plaintext dari stdin: penguras — gerbang gagal (Audit 1069)", rc != 0)
         shutil.rmtree(subgpg, ignore_errors=True)
 
+        subsyscat = klon(tmp, "subsyscat")
+        berkas_aksi148 = os.path.join(
+            subsyscat, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi148, encoding="utf-8") as f:
+            isi_aksi148 = f.read()
+        baris_aksi148 = [b for b in isi_aksi148.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi148, "w", encoding="utf-8") as f:
+            f.write(isi_aksi148.replace(
+                baris_aksi148,
+                baris_aksi148.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(systemd-cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subsyscat,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("systemd-cat tanpa perintah meneruskan stdin: penguras — gerbang gagal (Audit 1070)", rc != 0)
+        shutil.rmtree(subsyscat, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

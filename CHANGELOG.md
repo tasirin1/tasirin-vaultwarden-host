@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — systemd-cat tanpa perintah kini dinilai meneruskan stdin oleh gerbang patch (Audit 1070)
+
 ## [Belum rilis] — gpg batch simetris kini dinilai gerbang patch (Audit 1069)
 
 ## [Belum rilis] — jaringan dari stdin curl/wget/nc kini dinilai gerbang patch (Audit 1068)

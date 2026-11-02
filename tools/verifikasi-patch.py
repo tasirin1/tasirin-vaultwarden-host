@@ -1495,6 +1495,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # Audit 1050: mode shell sudo (-s/-i) tanpa perintah = shell
     # membaca perintah dari stdin.
     sudo_shell = False
+    # Audit 1070: pembungkus terakhir — systemd-cat tanpa operand
+    # meneruskan stdin-nya sendiri.
+    pembungkus_terakhir = ""
     # Audit 987: isi string env -S di-exec env sebagai program
     # eksternal — kata pertamanya tidak pernah builtin shell,
     # jadi rekursi -S berjalan dengan _posisi_awal=False.
@@ -1668,9 +1671,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         if t0 == "timeout" or t0 in ("xargs", "nice", "command",
                 "stdbuf", "setsid", "ionice", "chrt", "taskset",
                 "eatmydata", "nohup", "flock", "sudo",
-                # Audit 1065: pembungkus baru — unshare dan
-                # chroot (operand direktori ditangani di bawah).
-                "unshare", "chroot"):
+                # Audit 1065/1070: pembungkus baru — unshare dan
+                # chroot (operand direktori ditangani di bawah),
+                # systemd-cat (operand perintah/penyalur stdin).
+                "unshare", "chroot", "systemd-cat"):
             # Audit 1051: 'command' SESUDAH exec adalah nama program
             # untuk execvp, bukan pembungkus — jangan transparan.
             if sesudah_exec and t0 == "command":
@@ -1694,6 +1698,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # Audit 966: sesudah pembungkus non-env, penetapan tak
             # lagi transparan.
             lewat_pembungkus = True
+            pembungkus_terakhir = t0
             if t0 == "sudo":
                 # Audit 1044: sudo menerima penetapan lingkungan
                 # sebagai bagian sintaksnya sendiri (VAR=nilai
@@ -1951,7 +1956,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     if awal >= len(toks):
         # Audit 1050: sudo -s/-i tanpa perintah menjalankan shell
         # yang membaca perintah dari stdin sampai EOF.
-        if sudo_shell:
+        # Audit 1070: systemd-cat tanpa perintah meneruskan
+        # stdin-nya sendiri ke jurnal.
+        if sudo_shell or pembungkus_terakhir == "systemd-cat":
             return True
         return xargs_sendiri
     perintah = _kata_shell(toks[awal])
