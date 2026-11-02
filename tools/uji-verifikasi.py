@@ -10276,6 +10276,24 @@ def main():
         periksa("systemd-creds encrypt --name=uji - out: "
                 "gerbang gagal (Audit 1323)", rc != 0)
         shutil.rmtree(sub546, ignore_errors=True)
+        sub547 = klon(tmp, "sub547")
+        berkas_aksi547 = os.path.join(
+            sub547, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi547, encoding="utf-8") as f:
+            isi_aksi547 = f.read()
+        baris_aksi547 = [b for b in isi_aksi547.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi547, "w", encoding="utf-8") as f:
+            f.write(isi_aksi547.replace(
+                baris_aksi547,
+                baris_aksi547.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(debconf-set-selections --checkonly; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub547, [sys.executable, GERBANG, "--semua"])
+        periksa("debconf-set-selections --checkonly: "
+                "gerbang gagal (Audit 1324)", rc != 0)
+        shutil.rmtree(sub547, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

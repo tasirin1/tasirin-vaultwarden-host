@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Debconf-set-selections masuk tabel pembaca stdin (Audit 1324)
+
 ## [Belum rilis] — Systemd-creds encrypt menilai operand '-' (Audit 1323)
 
 ## [Belum rilis] — Systemd-tmpfiles operand '-' dinilai (Audit 1322)
