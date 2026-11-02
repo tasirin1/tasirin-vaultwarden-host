@@ -850,7 +850,9 @@ _OPSI_BERNILAI = {
                 "-t", "-json_opt"},
     # Audit 1246/1247/1248: konverter & pembaca POD.
     "uconv": {"-f", "--from-code", "-t", "--to-code", "-o",
-              "--output", "-x", "--translit"},
+              "--output", "-x", "--translit",
+              # Audit 1288: -b/--block-size & --callback.
+              "-b", "--block-size", "--callback"},
     "piconv": {"-f", "--from", "-t", "--to", "-o", "--output"},
     "pod2text": {"-o", "--output", "-w", "--width", "-i",
                  "--indent", "-q", "--quotes", "--errors"},

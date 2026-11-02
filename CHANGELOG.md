@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Uconv -b/--callback bernilai (Audit 1288)
+
 ## [Belum rilis] — Json_pp -t dan -json_opt bernilai (Audit 1287)
 
 ## [Belum rilis] — Pr membaca stdin di samping berkas operand (Audit 1286)
