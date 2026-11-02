@@ -864,6 +864,8 @@ _OPSI_BERNILAI = {
                  "--margin"},
     # Audit 1291: shasum selama ini tanpa entri — nilai -a
     # terbaca operand.
+    "shasum": {"-a", "--algorithm"},
+    # Audit 1336: keluarga POD lain.
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",

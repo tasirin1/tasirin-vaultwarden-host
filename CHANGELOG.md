@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Shasum masuk tabel pembaca stdin (Audit 1291)
+
 ## [Belum rilis] — Pod2text -e/--guesswork/-m bernilai (Audit 1290)
 
 ## [Belum rilis] — Piconv -S/--scheme bernilai (Audit 1289)
