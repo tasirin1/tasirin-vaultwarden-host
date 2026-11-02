@@ -10150,6 +10150,24 @@ def main():
         periksa("vim.tiny -n: "
                 "gerbang gagal (Audit 1316)", rc != 0)
         shutil.rmtree(sub539, ignore_errors=True)
+        sub540 = klon(tmp, "sub540")
+        berkas_aksi540 = os.path.join(
+            sub540, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi540, encoding="utf-8") as f:
+            isi_aksi540 = f.read()
+        baris_aksi540 = [b for b in isi_aksi540.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi540, "w", encoding="utf-8") as f:
+            f.write(isi_aksi540.replace(
+                baris_aksi540,
+                baris_aksi540.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(script -qec cat /dev/null; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub540, [sys.executable, GERBANG, "--semua"])
+        periksa("script -qec cat /dev/null: "
+                "gerbang gagal (Audit 1317)", rc != 0)
+        shutil.rmtree(sub540, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

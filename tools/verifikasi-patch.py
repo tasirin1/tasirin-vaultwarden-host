@@ -2860,6 +2860,24 @@ def _menguras_khusus(perintah, toks, awal):
             if t_pt.startswith("-f") and len(t_pt) > 2:
                 return t_pt[2:] in ("-", "/dev/stdin")
         return False
+    # Audit 1317: script — perintah anak adalah nilai -c
+    # (string shell); tanpa -c ia shell interaktif.
+    if perintah == "script":
+        for k_sc, t_sc in enumerate(mentah):
+            if t_sc in ("-c", "--command") or re.fullmatch(
+                    r"-[a-zA-Z]*c", t_sc):
+                if k_sc + 1 < len(mentah):
+                    segmen_sc = pecah_segmen_shell(
+                        mentah[k_sc + 1])
+                    if segmen_sc:
+                        return _menguras_stdin(segmen_sc[0])
+                return False
+            if t_sc.startswith("-c") and len(t_sc) > 2:
+                segmen_sc = pecah_segmen_shell(t_sc[2:])
+                if segmen_sc:
+                    return _menguras_stdin(segmen_sc[0])
+                return False
+        return True
     return False
 
 
@@ -3592,6 +3610,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "ptar",
                         "vim.tiny", "rview", "editor",
                         "sensible-editor",
+                        "script",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
