@@ -117,6 +117,73 @@ public class TgBackupTest {
     }
 
     @Test
+    public void layakSapuBasi_umurDanBatas() throws Exception {
+        // Audit 1114: penentu delete() dua penyapu temp — cabang
+        // umur (termasuk batas persis) dan penjaga isFile.
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwlayak").toFile();
+        try {
+            long kini = 1_800_000_000_000L;
+            java.io.File pas = new java.io.File(dir, "pas.tmp");
+            assertTrue(pas.createNewFile());
+            assertTrue(pas.setLastModified(kini - TgBackup.UMUR_DEC_TMP_MS));
+            assertTrue("umur persis UMUR wajib layak sapu (>=)",
+                    TgBackup.layakSapuBasi(pas, kini));
+            java.io.File muda = new java.io.File(dir, "muda.tmp");
+            assertTrue(muda.createNewFile());
+            assertTrue(muda.setLastModified(kini - TgBackup.UMUR_DEC_TMP_MS + 1));
+            assertFalse("umur UMUR-1 belum layak",
+                    TgBackup.layakSapuBasi(muda, kini));
+            java.io.File folder = new java.io.File(dir, "folder.tmp");
+            assertTrue(folder.mkdir());
+            assertTrue(folder.setLastModified(kini - TgBackup.UMUR_DEC_TMP_MS * 2));
+            assertFalse("direktori tak pernah layak (isFile)",
+                    TgBackup.layakSapuBasi(folder, kini));
+            assertFalse("berkas tak ada tak layak walau stempelnya 0",
+                    TgBackup.layakSapuBasi(new java.io.File(dir, "hantu.tmp"), kini));
+        } finally {
+            java.io.File[] sisa = dir.listFiles();
+            if (sisa != null) {
+                for (java.io.File f : sisa) {
+                    f.delete();
+                }
+            }
+            dir.delete();
+        }
+    }
+
+    @Test
+    public void layakSapuBasi_stempelMasaDepanPerluStabil() throws Exception {
+        // Audit 1114: cabang masa-depan (jam perangkat melompat) —
+        // penampakan pertama menunggu, kedua (cap sama) menyapu;
+        // di bawah ambang masa-depan tak layak sama sekali.
+        TgBackup.resetCapDepanUntukUji();
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwlayakdepan").toFile();
+        try {
+            long kini = 1_800_000_000_000L;
+            java.io.File depan = new java.io.File(dir, "depan.tmp");
+            assertTrue(depan.createNewFile());
+            assertTrue(depan.setLastModified(kini + TgBackup.UMUR_DEC_TMP_MS));
+            assertFalse("penampakan pertama cap masa-depan belum layak",
+                    TgBackup.layakSapuBasi(depan, kini));
+            assertTrue("cap masa-depan yang stabil layak sapu",
+                    TgBackup.layakSapuBasi(depan, kini));
+            java.io.File hampir = new java.io.File(dir, "hampir.tmp");
+            assertTrue(hampir.createNewFile());
+            assertTrue(hampir.setLastModified(kini + TgBackup.UMUR_DEC_TMP_MS - 1));
+            assertFalse("masa-depan di bawah ambang tak layak",
+                    TgBackup.layakSapuBasi(hampir, kini));
+        } finally {
+            java.io.File[] sisa = dir.listFiles();
+            if (sisa != null) {
+                for (java.io.File f : sisa) {
+                    f.delete();
+                }
+            }
+            dir.delete();
+        }
+    }
+
+    @Test
     public void cleanupOldBackups_nolAman() throws Exception {
         TgBackup.cleanupOldBackups(null);
         java.io.File takAda = new java.io.File("/jalan/tak/ada/vw-uji-nol");

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — penentu sapu basi TgBackup kini teruji JVM (Audit 1114)
+
 ## [Belum rilis] — varian nama original-awk kini dipetakan gerbang patch (Audit 1113)
 
 ## [Belum rilis] — pembaca interaktif/kueri kini dimodelkan gerbang patch (Audit 1112)
