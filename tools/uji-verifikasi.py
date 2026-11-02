@@ -2540,6 +2540,25 @@ def main():
         periksa("substitusi backtick dinilai isinya: penguras — gerbang gagal (Audit 1045)", rc != 0)
         shutil.rmtree(subbacktick, ignore_errors=True)
 
+        subkutipgabung = klon(tmp, "subkutipgabung")
+        berkas_aksi124 = os.path.join(
+            subkutipgabung, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi124, encoding="utf-8") as f:
+            isi_aksi124 = f.read()
+        baris_aksi124 = [b for b in isi_aksi124.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi124, "w", encoding="utf-8") as f:
+            f.write(isi_aksi124.replace(
+                baris_aksi124,
+                baris_aksi124.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(c''at; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subkutipgabung,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("penggabungan kutip bersebelahan membentuk nama perintah — gerbang gagal (Audit 1046)", rc != 0)
+        shutil.rmtree(subkutipgabung, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

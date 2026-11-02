@@ -877,6 +877,46 @@ def _sesudah_redirect_berantai(toks, i, batas):
     return i
 
 
+def _kata_shell(token):
+    """Audit 1046: kata shell dari satu token — fragmen berkutip
+    dan telanjang yang bersebelahan digabungkan dan tanda
+    kutipnya dibuang, persis pembentukan kata shell (c''at →
+    cat). Dipakai untuk resolusi nama perintah; token operand
+    tetap mentah (sinyal berkutip-penuh Audit 939 utuh)."""
+    hasil = []
+    i = 0
+    n = len(token)
+    while i < n:
+        c = token[i]
+        if c == "'":
+            j = token.find("'", i + 1)
+            if j < 0:
+                hasil.append(token[i + 1:])
+                break
+            hasil.append(token[i + 1:j])
+            i = j + 1
+        elif c == '"':
+            j = i + 1
+            buf = []
+            while j < n and token[j] != '"':
+                if (token[j] == "\\" and j + 1 < n
+                        and token[j + 1] in '$`"\\'):
+                    buf.append(token[j + 1])
+                    j += 2
+                else:
+                    buf.append(token[j])
+                    j += 1
+            hasil.append("".join(buf))
+            i = j + 1
+        elif c == "\\" and i + 1 < n:
+            hasil.append(token[i + 1])
+            i += 2
+        else:
+            hasil.append(c)
+            i += 1
+    return "".join(hasil)
+
+
 def _menguras_keluarga_skrip(perintah, toks, awal):
     """Audit 1038: bagi sed/awk/grep/jq operand pertama adalah
     skrip/pola/filter, BUKAN berkas masukan. Menguras bila tak ada
@@ -1109,7 +1149,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             if sesudah != awal:
                 awal = sesudah
                 continue
-        t0 = toks[awal].strip("\"'")
+        t0 = _kata_shell(toks[awal])
         if (not lewat_pembungkus and not sesudah_exec
                 and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t0)):
             # Audit 966: penetapan hanya transparan di awal segmen
@@ -1522,7 +1562,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return False
     if awal >= len(toks):
         return xargs_sendiri
-    perintah = toks[awal].strip("\"'")
+    perintah = _kata_shell(toks[awal])
     if perintah not in _PEMBACA_STDIN:
         # Audit 1039/1040: perintah yang menguras hanya pada
         # bentuk tertentu (interpreter skrip-dari-stdin, builtin

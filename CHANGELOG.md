@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — nama perintah hasil penggabungan kutip bersebelahan kini dikenali gerbang patch (Audit 1046)
+
 ## [Belum rilis] — substitusi perintah backtick kini dinilai isinya oleh gerbang patch (Audit 1045)
 
 ## [Belum rilis] — notifyLowStorage disinkronkan lintas pool (Audit 1043)
