@@ -5776,6 +5776,60 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("vim telanjang kontrol: gerbang gagal (Audit 1136)", rc != 0)
         shutil.rmtree(sub296, ignore_errors=True)
+        sub297 = klon(tmp, "sub297")
+        berkas_aksi297 = os.path.join(
+            sub297, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi297, encoding="utf-8") as f:
+            isi_aksi297 = f.read()
+        baris_aksi297 = [b for b in isi_aksi297.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi297, "w", encoding="utf-8") as f:
+            f.write(isi_aksi297.replace(
+                baris_aksi297,
+                baris_aksi297.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(basenc --base64 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub297,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("basenc beroperand: gerbang lolos (Audit 1137)", rc == 0)
+        shutil.rmtree(sub297, ignore_errors=True)
+        sub298 = klon(tmp, "sub298")
+        berkas_aksi298 = os.path.join(
+            sub298, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi298, encoding="utf-8") as f:
+            isi_aksi298 = f.read()
+        baris_aksi298 = [b for b in isi_aksi298.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi298, "w", encoding="utf-8") as f:
+            f.write(isi_aksi298.replace(
+                baris_aksi298,
+                baris_aksi298.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(basenc --base64; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub298,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("basenc polos bermode: gerbang gagal (Audit 1137)", rc != 0)
+        shutil.rmtree(sub298, ignore_errors=True)
+        sub299 = klon(tmp, "sub299")
+        berkas_aksi299 = os.path.join(
+            sub299, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi299, encoding="utf-8") as f:
+            isi_aksi299 = f.read()
+        baris_aksi299 = [b for b in isi_aksi299.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi299, "w", encoding="utf-8") as f:
+            f.write(isi_aksi299.replace(
+                baris_aksi299,
+                baris_aksi299.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(basenc --base64 -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub299,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("basenc operand -: gerbang gagal (Audit 1137)", rc != 0)
+        shutil.rmtree(sub299, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

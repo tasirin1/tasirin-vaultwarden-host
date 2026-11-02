@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — basenc kini menghormati operand berkas dan '-' di gerbang patch (Audit 1137)
+
 ## [Belum rilis] — panggilan informasional kini menjangkau penilai khusus gerbang patch (Audit 1136)
 
 ## [Belum rilis] — penanda opsi menggantung gerbang patch kini diperiksa semua penilai khusus (Audit 1135)

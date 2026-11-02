@@ -1980,6 +1980,12 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "basenc":
         # Audit 1101: tanpa bendera mode basenc galat dan tak
         # membaca; bermode ia filter stdin biasa.
+        # Audit 1137: operand berkas menekan seperti filter lain;
+        # operand "-" justru stdin itu sendiri.
+        if any(t == "-" for t in mentah):
+            return True
+        if _operand_sesudah_opsi(toks, awal, {"-w", "--wrap"}):
+            return False
         return any(t in ("--base64", "--base64url", "--base32",
                          "--base32hex", "--base16", "--base2msbf",
                          "--base2lsbf", "--z85")
