@@ -1715,7 +1715,12 @@ def _menguras_interpreter(perintah, toks, awal):
                     ops_sq = _operand_sesudah_opsi(
                         toks, i + 1, {"-c"})
                     return len(ops_sq) < 2
-                if modul in ("json.tool", "base64"):
+                if modul in ("json.tool", "base64",
+                             # Audit 1373: modul penyaring lain
+                             # — operand berkas menekan seperti
+                             # json.tool/base64.
+                             "tokenize", "quopri", "gzip", "uu",
+                             "dis"):
                     return not _operand_sesudah_opsi(
                         toks, i + 1, {"--indent", "--tab"})
                 return False
