@@ -8458,6 +8458,24 @@ def main():
         periksa("sysctl -p berkas.conf -p -: "
                 "gerbang gagal (Audit 1231)", rc != 0)
         shutil.rmtree(sub445, ignore_errors=True)
+        sub446 = klon(tmp, "sub446")
+        berkas_aksi446 = os.path.join(
+            sub446, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi446, encoding="utf-8") as f:
+            isi_aksi446 = f.read()
+        baris_aksi446 = [b for b in isi_aksi446.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi446, "w", encoding="utf-8") as f:
+            f.write(isi_aksi446.replace(
+                baris_aksi446,
+                baris_aksi446.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(pdftotext -cfg - berkas.pdf; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub446, [sys.executable, GERBANG, "--semua"])
+        periksa("pdftotext -cfg - berkas.pdf: "
+                "gerbang lolos (Audit 1232)", rc == 0)
+        shutil.rmtree(sub446, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

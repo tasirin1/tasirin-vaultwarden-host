@@ -2412,7 +2412,9 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "pdftotext":
         ops_pd = _operand_sesudah_opsi(
             toks, awal, {"-f", "-l", "-r", "-x", "-y", "-W", "-H",
-                         "-opw", "-upw", "-enc", "-eol"})
+                         "-opw", "-upw", "-enc", "-eol",
+                         # Audit 1232: -cfg bernilai, hilang.
+                         "-cfg"})
         return bool(ops_pd) and ops_pd[0] == "-"
     # Audit 1195: nft — hanya -f '-' yang membaca dari stdin.
     if perintah == "nft":
