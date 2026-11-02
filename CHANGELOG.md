@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Keluarga Poppler dikenal (pdfinfo/pdffonts/pdfimages/pdftops) (Audit 1258)
+
 ## [Belum rilis] — Varian *tables-restore dikenal sebagai pembaca stdin (Audit 1257)
 
 ## [Belum rilis] — Pembungkus xvfb-run dikenal resolver (Audit 1256)

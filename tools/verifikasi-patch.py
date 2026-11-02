@@ -2235,7 +2235,19 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops:
             return False
         return bool(ops) and ops[0] == "-"
-    if perintah == "zip":
+    if perintah in ("pdfinfo", "pdffonts", "pdfimages",
+                    "pdftops"):
+        # Audit 1258: keluarga Poppler — operand masukan
+        # pertama '-' = PDF dari stdin (pdftops beroperand
+        # keluaran kedua; '-' pertama tetap masukan).
+        ops_pp = _operand_sesudah_opsi(
+            toks, awal, {"-f", "-l", "-opw", "-upw", "-r",
+                         "-x", "-y", "-W", "-H", "-cfg",
+                         "-subst", "-paperw", "-paperh"})
+        if "\x00gantung" in ops_pp:
+            return False
+        return bool(ops_pp) and ops_pp[0] == "-"
+
         # Audit 1064: -@ membaca daftar nama dari stdin.
         # Audit 1094: tanpa operand arsip, zip galat sebelum
         # membaca daftar — -@ saja tidak menguras.
@@ -3259,7 +3271,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "dpkg", "file", "date", "sysctl", "bun",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
-                        "sdiff", "socat1", "gmake"):
+                        "sdiff", "socat1", "gmake", "pdfinfo",
+                        "pdffonts", "pdfimages", "pdftops",
+                        "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
