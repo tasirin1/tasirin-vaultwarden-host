@@ -1393,6 +1393,9 @@ def _menguras_khusus(perintah, toks, awal):
         return False
     if perintah == "git":
         # Audit 1062: subcommand penyaring stdin.
+        # Audit 1079: pembaca putaran-2 — hash-object --stdin-paths,
+        # credential fill, mktree, update-index --stdin, dan
+        # berkas pesan '-' pada commit/tag (-F -).
         ops_git = _operand_sesudah_opsi(
             toks, awal, {"-C", "-c", "--git-dir", "--work-tree",
                          "--namespace"})
@@ -1405,13 +1408,35 @@ def _menguras_khusus(perintah, toks, awal):
                       if not t.startswith("-")]
             return not berkas
         if sub == "hash-object":
-            return "--stdin" in mentah
+            return "--stdin" in mentah or "--stdin-paths" in mentah
         if sub == "cat-file":
             return any(t in ("--batch", "--batch-check",
                              "--batch-command")
                        for t in mentah)
         if sub == "fast-import":
             return True
+        if sub == "credential":
+            return len(ops_git) > 1 and ops_git[1] == "fill"
+        if sub == "mktree":
+            return True
+        if sub == "update-index":
+            return "--stdin" in mentah
+        if sub in ("commit", "tag"):
+            pesan_stdin = False
+            for k_g, t_g in enumerate(mentah):
+                if t_g in ("-F", "--file") and k_g + 1 < len(mentah) \
+                        and mentah[k_g + 1] == "-":
+                    pesan_stdin = True
+                if t_g in ("-F-", "--file=-"):
+                    pesan_stdin = True
+            if not pesan_stdin:
+                return False
+            if sub == "commit":
+                return True
+            # git tag tanpa nama tag = galat usage SEBELUM membaca
+            # pesan (terverifikasi) — nama tag adalah operand
+            # selain '-' itu sendiri.
+            return any(o != "-" for o in ops_git[1:])
         return False
     if perintah == "comm":
         # Audit 1063: '-' di posisi operand mana pun = stdin.

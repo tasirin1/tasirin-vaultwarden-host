@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — subcommand git pembaca stdin putaran-2 kini dikenali gerbang patch (Audit 1079)
+
 ## [Belum rilis] — mode buat tar — '-f -' arsip keluaran, bukan masukan, di gerbang patch (Audit 1078)
 
 ## [Belum rilis] — bundel tar gaya lama dan nilai -f merekat kini dikenali gerbang patch (Audit 1077)
