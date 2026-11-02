@@ -2330,7 +2330,27 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1400: format-patch --stdin membaca daftar
         # revisi dari stdin sampai EOF.
         if sub == "format-patch":
-            return "--stdin" in mentah
+            # Audit 1416: --stdin hanya berarti bila ia
+            # bukan NILAI opsi lain (mis. nilai
+            # --output-directory — terbukti token itu
+            # menjadi nama direktori keluaran).
+            k_fp = 0
+            while k_fp < len(mentah):
+                t_fp = mentah[k_fp]
+                if t_fp == "--":
+                    break
+                if t_fp == "--stdin":
+                    return True
+                if t_fp in ("-o", "--output-directory",
+                            "--subject-prefix", "--base",
+                            "--reroll-count", "--to", "--cc",
+                            "--from", "--in-reply-to",
+                            "--signature-file",
+                            "--cover-from-description"):
+                    k_fp += 2
+                    continue
+                k_fp += 1
+            return False
         if sub == "mktree":
             return True
         # Audit 1124: pembaca putaran-3 — stripspace (filter

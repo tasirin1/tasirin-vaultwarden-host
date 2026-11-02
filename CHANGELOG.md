@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Git format-patch --stdin sadar nilai opsi (Audit 1416)
 ## [Belum rilis] — Git keluarga -p/-i — pindaian sadar nilai opsi dan -- (Audit 1415)
 ## [Belum rilis] — Debugfs -f - membaca berkas perintah dari stdin (Audit 1414)
 ## [Belum rilis] — Debugfs opsi bernilai menggantung di akhir argv adalah galat (Audit 1413)
