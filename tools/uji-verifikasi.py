@@ -7072,6 +7072,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("strings -T elf64-x86-64: gerbang gagal (Audit 1168)", rc != 0)
         shutil.rmtree(sub368, ignore_errors=True)
+        sub369 = klon(tmp, "sub369")
+        berkas_aksi369 = os.path.join(
+            sub369, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi369, encoding="utf-8") as f:
+            isi_aksi369 = f.read()
+        baris_aksi369 = [b for b in isi_aksi369.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi369, "w", encoding="utf-8") as f:
+            f.write(isi_aksi369.replace(
+                baris_aksi369,
+                baris_aksi369.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(split --filter cat -l 1 -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub369,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("split --filter cat -l 1 -: gerbang gagal (Audit 1169)", rc != 0)
+        shutil.rmtree(sub369, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

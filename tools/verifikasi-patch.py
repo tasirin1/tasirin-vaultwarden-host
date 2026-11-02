@@ -729,7 +729,10 @@ _OPSI_BERNILAI = {
     "unexpand": {"-t", "--tabs"},
     "split": {"-l", "--lines", "-b", "--bytes", "-C",
               "--line-bytes", "-n", "--number", "-a",
-              "--suffix-length", "-t", "--separator"},
+              "--suffix-length", "-t", "--separator",
+              # Audit 1169: --filter (perintah per potongan!)
+              # dan --additional-suffix bernilai.
+              "--filter", "--additional-suffix"},
     "strings": {"-n", "--bytes", "-t", "--radix", "-e",
                 "--encoding",
                 # Audit 1168: -T/--target bernilai.

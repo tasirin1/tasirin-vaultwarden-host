@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — split --filter/--additional-suffix masuk tabel bernilai gerbang patch (Audit 1169)
+
 ## [Belum rilis] — strings -T/--target masuk tabel bernilai gerbang patch (Audit 1168)
 
 ## [Belum rilis] — tabel pr gerbang patch diluruskan: -d bendera, -D bernilai (Audit 1167)
