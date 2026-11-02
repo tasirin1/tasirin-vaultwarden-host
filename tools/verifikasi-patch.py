@@ -641,6 +641,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1376: shell CPAN tanpa argumen
                   # membaca perintah dari stdin.
                   "cpan",
+                  # Audit 1398: pl2pm tanpa operand menerjemahkan
+                  # stdin ke stdout (operand berkas menekan).
+                  "pl2pm",
                   # Audit 1378: utmpdump tanpa operand
                   # membaca rekaman dari stdin.
                   "utmpdump",

@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Pl2pm telanjang masuk tabel pembaca stdin (Audit 1398)
 ## [Belum rilis] — Chgpasswd dikenal — cermin chpasswd untuk grup (Audit 1397)
 ## [Belum rilis] — Nama perintah berjalur dinilai dari nama dasarnya (Audit 1396)
 ## [Belum rilis] — Gh bendera global --hostname sebelum subperintah dilompati (Audit 1395)
