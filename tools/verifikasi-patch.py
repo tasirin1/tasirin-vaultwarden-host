@@ -3349,6 +3349,11 @@ def _menguras_khusus(perintah, toks, awal):
                     telan_df = pos_df == len(t_df) - 2
                     break
             if telan_df:
+                # Audit 1413: opsi bernilai menggantung di
+                # akhir argv = galat getopt; debugfs keluar
+                # tanpa membaca apa pun.
+                if k_df >= len(mentah):
+                    return False
                 k_df += 1
         return True
     # Audit 1345: xauth tanpa subcommand membaca perintah
