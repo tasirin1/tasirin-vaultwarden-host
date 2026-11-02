@@ -18,7 +18,9 @@ jobs:
   verifikasi:
     name: Cek patch yang berubah
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    # Audit 1380: suite uji-diri kini berjalan +-19-25 menit;
+    # batas lama 15 menit membunuh job di tengah suite.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:

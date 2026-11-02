@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — CI: timeout job verifikasi dinaikkan 15 ke 45 menit agar suite uji-diri selesai (Audit 1380)
 ## [Belum rilis] — Komentar berisi escape \u mentah di TgBackup dibetulkan — aplikasi bisa dikompilasi lagi (Audit 1379)
 ## [Belum rilis] — Utmpdump telanjang masuk tabel pembaca stdin (Audit 1378)
 ## [Belum rilis] — Gh auth login --with-token dinilai menguras stdin (Audit 1377)
