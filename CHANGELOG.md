@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Gmake -f menerima stdin dan /dev/stdin (Audit 1300)
+
 ## [Belum rilis] — Penilai nodejs menelan nilai opsi bernilai (Audit 1299)
 
 ## [Belum rilis] — Alias linux --list dikenali di resolver pembungkus (Audit 1298)

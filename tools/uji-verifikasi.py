@@ -9844,6 +9844,24 @@ def main():
         periksa("nodejs -r fs: "
                 "gerbang gagal (Audit 1299)", rc != 0)
         shutil.rmtree(sub522, ignore_errors=True)
+        sub523 = klon(tmp, "sub523")
+        berkas_aksi523 = os.path.join(
+            sub523, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi523, encoding="utf-8") as f:
+            isi_aksi523 = f.read()
+        baris_aksi523 = [b for b in isi_aksi523.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi523, "w", encoding="utf-8") as f:
+            f.write(isi_aksi523.replace(
+                baris_aksi523,
+                baris_aksi523.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gmake -f /dev/stdin; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub523, [sys.executable, GERBANG, "--semua"])
+        periksa("gmake -f /dev/stdin: "
+                "gerbang gagal (Audit 1300)", rc != 0)
+        shutil.rmtree(sub523, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

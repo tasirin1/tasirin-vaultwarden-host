@@ -2529,12 +2529,22 @@ def _menguras_khusus(perintah, toks, awal):
                     # Audit 1252: alias GNU make.
                     "gmake"):
         # Audit 1071: makefile dari stdin lewat -f -.
+        # Audit 1300: nilai /dev/stdin juga stdin; bundel
+        # berakhiran f (-nf) menelan operand berikutnya
+        # sebagai makefile; -f<berkas> merekat.
         for i, t in enumerate(mentah):
             if t in ("-f", "--file", "--makefile"):
-                if i + 1 < len(mentah) and mentah[i + 1] == "-":
+                if i + 1 < len(mentah) and mentah[i + 1] in (
+                        "-", "/dev/stdin", "/dev/fd/0",
+                        "/proc/self/fd/0"):
                     return True
-            if t in ("-f-", "--file=-", "--makefile=-"):
+            if t in ("-f-", "--file=-", "--makefile=-",
+                     "-f/dev/stdin"):
                 return True
+            if re.fullmatch(r"-[a-z]*f", t):
+                if i + 1 < len(mentah) and mentah[i + 1] in (
+                        "-", "/dev/stdin"):
+                    return True
         return False
     if perintah == "visudo":
         # Audit 1071: berkas sudoers dari stdin lewat -f -.
