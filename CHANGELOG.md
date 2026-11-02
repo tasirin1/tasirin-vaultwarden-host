@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gh auth login --with-token dinilai menguras stdin (Audit 1377)
 ## [Belum rilis] — Cpan telanjang masuk tabel pembaca stdin (Audit 1376)
 ## [Belum rilis] — Perl -d dinilai menguras (kanal perintah debugger membaca stdin) (Audit 1375)
 ## [Belum rilis] — Python3 -m code dinilai konsol interaktif pembaca stdin (Audit 1374)

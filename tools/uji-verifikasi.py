@@ -11153,6 +11153,25 @@ def main():
                 "gerbang gagal (Audit 1376)", rc != 0)
         shutil.rmtree(sub594, ignore_errors=True)
 
+        sub595 = klon(tmp, "sub595")
+        berkas_aksi595 = os.path.join(
+            sub595, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi595, encoding="utf-8") as f:
+            isi_aksi595 = f.read()
+        baris_aksi595 = [b for b in isi_aksi595.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi595, "w", encoding="utf-8") as f:
+            f.write(isi_aksi595.replace(
+                baris_aksi595,
+                baris_aksi595.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gh auth login --with-token; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub595, [sys.executable, GERBANG, "--semua"])
+        periksa("gh auth login --with-token: "
+                "gerbang gagal (Audit 1377)", rc != 0)
+        shutil.rmtree(sub595, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

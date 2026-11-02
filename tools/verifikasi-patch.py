@@ -3248,6 +3248,12 @@ def _menguras_khusus(perintah, toks, awal):
         # membaca, jadi hanya operand pertama yang menentukan.
         return bool(ops_ff) and ops_ff[0] in (
             "-", "pipe:", "pipe:0", "/dev/stdin")
+    # Audit 1377: gh — hanya 'auth login --with-token' yang
+    # membaca stdin (seluruh pipa dibaca untuk token).
+    if perintah == "gh":
+        return (len(mentah) >= 2 and mentah[0] == "auth"
+                and mentah[1] == "login"
+                and "--with-token" in mentah)
     return False
 
 
@@ -4013,6 +4019,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # Audit 1358: keluarga ffmpeg.
                         "systemd-run", "ffmpeg", "ffprobe",
                         "ffplay",
+                        # Audit 1377: gh (auth login
+                        # --with-token membaca token).
+                        "gh",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
