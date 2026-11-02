@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — pemeriksa informasional gerbang sadar perintah (Audit 1180)
+
 ## [Belum rilis] — parseFilePathTelegram selalu kosong — regresi Audit 1177 diperbaiki (acuan kedalaman = isi result) (Audit 1179)
 
 ## [Belum rilis] — TgBackup.magicDikenal kini teruji JVM (Audit 1178)

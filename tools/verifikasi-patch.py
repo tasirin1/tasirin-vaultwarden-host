@@ -1588,13 +1588,21 @@ def _menguras_khusus(perintah, toks, awal):
     # panggilan bantuan — lewati yang didahului opsi bernilai
     # khas penilai khusus.
     def _ada_informatif(tanda):
+        # Audit 1180: himpunan pendahulu wajib sadar perintah —
+        # '-t' bagi tar adalah MODE dan '-f' bagi more bendera
+        # polos, bukan opsi bernilai.
+        # Audit 1181: -init bernilai hanya untuk sqlite3.
+        pendahulu = {"--label", "--output-delimiter", "-f",
+                     "--prefix", "--suffix-format", "-o",
+                     "--output", "--homedir", "-t",
+                     "--separator", "-in"}
+        if perintah == "tar":
+            pendahulu.discard("-t")
+        if perintah == "more":
+            pendahulu.discard("-f")
         for k_i, t_i in enumerate(mentah):
             if t_i in tanda:
-                if k_i > 0 and mentah[k_i - 1] in (
-                        "--label", "--output-delimiter", "-f",
-                        "--prefix", "--suffix-format", "-o",
-                        "--output", "--homedir", "-t",
-                        "--separator", "-in"):
+                if k_i > 0 and mentah[k_i - 1] in pendahulu:
                     continue
                 return True
         return False
