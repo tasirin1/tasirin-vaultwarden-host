@@ -1629,7 +1629,11 @@ def _menguras_khusus(perintah, toks, awal):
                 {"-CAfile", "-CApath", "-trusted", "-untrusted",
                  "-attime", "-policy", "-purpose", "-verify_depth",
                  "-auth_level", "-engine", "-provider", "-propquery",
-                 "-nameopt"})
+                 "-nameopt",
+                 # Audit 1149: opsi verifikasi bernilai lain —
+                 # nilainya terhitung operand sertifikat.
+                 "-verify_hostname", "-verify_email", "-verify_ip",
+                 "-CRLfile", "-CAstore", "-policy_oids"})
             return not ops_v
         if sub == "dgst" or re.fullmatch(
                 r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"

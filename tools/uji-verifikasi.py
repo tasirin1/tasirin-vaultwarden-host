@@ -6208,6 +6208,60 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl dgst -sha256 berkas: gerbang lolos (Audit 1148)", rc == 0)
         shutil.rmtree(sub320, ignore_errors=True)
+        sub321 = klon(tmp, "sub321")
+        berkas_aksi321 = os.path.join(
+            sub321, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi321, encoding="utf-8") as f:
+            isi_aksi321 = f.read()
+        baris_aksi321 = [b for b in isi_aksi321.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi321, "w", encoding="utf-8") as f:
+            f.write(isi_aksi321.replace(
+                baris_aksi321,
+                baris_aksi321.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl verify -verify_hostname contoh.com; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub321,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl verify -verify_hostname contoh.com: gerbang gagal (Audit 1149)", rc != 0)
+        shutil.rmtree(sub321, ignore_errors=True)
+        sub322 = klon(tmp, "sub322")
+        berkas_aksi322 = os.path.join(
+            sub322, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi322, encoding="utf-8") as f:
+            isi_aksi322 = f.read()
+        baris_aksi322 = [b for b in isi_aksi322.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi322, "w", encoding="utf-8") as f:
+            f.write(isi_aksi322.replace(
+                baris_aksi322,
+                baris_aksi322.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl verify -CAfile ca.pem -verify_email a@b.c; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub322,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl verify -CAfile ca.pem -verify_email a@b.c: gerbang gagal (Audit 1149)", rc != 0)
+        shutil.rmtree(sub322, ignore_errors=True)
+        sub323 = klon(tmp, "sub323")
+        berkas_aksi323 = os.path.join(
+            sub323, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi323, encoding="utf-8") as f:
+            isi_aksi323 = f.read()
+        baris_aksi323 = [b for b in isi_aksi323.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi323, "w", encoding="utf-8") as f:
+            f.write(isi_aksi323.replace(
+                baris_aksi323,
+                baris_aksi323.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl verify -verify_hostname contoh.com sert.pem; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub323,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl verify -verify_hostname contoh.com sert.pem: gerbang lolos (Audit 1149)", rc == 0)
+        shutil.rmtree(sub323, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — opsi bernilai openssl verify dilengkapi di gerbang patch (Audit 1149)
+
 ## [Belum rilis] — openssl dgst -hmac/-sigopt masuk tabel bernilai gerbang patch (Audit 1148)
 
 ## [Belum rilis] — cek informasional gerbang patch kini sadar nilai opsi (Audit 1147)
