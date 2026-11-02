@@ -3343,7 +3343,19 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             telan_df = False
             for pos_df, huruf_df in enumerate(t_df[1:]):
-                if huruf_df in ("f", "R"):
+                if huruf_df == "f":
+                    # Audit 1414: nilai -f berupa stdin
+                    # (-f -) berarti berkas perintahnya
+                    # adalah stdin itu sendiri (-R tidak:
+                    # nilai '-' baginya string permintaan,
+                    # terprobe tidak membaca).
+                    sisa_df = t_df[pos_df + 2:]
+                    if not sisa_df and k_df < len(mentah):
+                        sisa_df = mentah[k_df]
+                    return sisa_df in (
+                        "-", "/dev/stdin", "/dev/fd/0",
+                        "/proc/self/fd/0")
+                if huruf_df == "R":
                     return False
                 if huruf_df in ("b", "s", "d", "z"):
                     telan_df = pos_df == len(t_df) - 2

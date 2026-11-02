@@ -13840,6 +13840,27 @@ def main():
         periksa("debugfs -z: "
                 "gerbang lolos (Audit 1413)", rc == 0)
         shutil.rmtree(sub638, ignore_errors=True)
+        sub639 = klon(tmp, "sub639")
+        berkas_aksi639 = os.path.join(
+            sub639, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi639, encoding="utf-8") as f:
+            isi_aksi639 = f.read()
+        baris_aksi639 = [b for b in isi_aksi639.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru639 = isi_aksi639.replace(
+                baris_aksi639,
+                baris_aksi639.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(debugfs -f -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru639 != isi_aksi639, \
+            "suntikan aksi639 tidak menembak"
+        with open(berkas_aksi639, "w", encoding="utf-8") as f:
+            f.write(isi_baru639)
+        rc, out = jalan(sub639, [sys.executable, GERBANG, "--semua"])
+        periksa("debugfs -f -: "
+                "gerbang gagal (Audit 1414)", rc != 0)
+        shutil.rmtree(sub639, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
