@@ -2620,7 +2620,13 @@ def _menguras_khusus(perintah, toks, awal):
                      "-f/dev/stdin",
                      # Audit 1350: bentuk panjang merekat.
                      "--file=/dev/stdin",
-                     "--makefile=/dev/stdin"):
+                     "--makefile=/dev/stdin",
+                     # Audit 1365: ejaan fd-0 lain untuk bentuk
+                     # panjang merekat (nilai terpisah di cabang
+                     # yang sama sudah menerimanya).
+                     "--file=/dev/fd/0", "--file=/proc/self/fd/0",
+                     "--makefile=/dev/fd/0",
+                     "--makefile=/proc/self/fd/0"):
                 return True
             if re.fullmatch(r"-[a-z]*f", t):
                 if i + 1 < len(mentah) and mentah[i + 1] in (

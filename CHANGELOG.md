@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Make --file=/--makefile= merekat kini menerima ejaan /dev/fd/0 dan /proc/self/fd/0 (Audit 1365)
 ## [Belum rilis] — Systemd-run — --on-clock-change/--on-timezone-change masuk set penolakan timer mode --scope (Audit 1364)
 ## [Belum rilis] — Uji JVM baru untuk bacaResponsBatas dan sufiksPrerelease (Audit 1363)
 ## [Belum rilis] — Pencatatan hasil PIN kini selalu sinkron agar percobaan gagal tak bisa hilang (Audit 1362)
