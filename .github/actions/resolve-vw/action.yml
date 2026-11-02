@@ -20,8 +20,18 @@ runs:
       run: |
         HDR=()
         if [ -n "${GH_TOKEN:-}" ]; then HDR=(-H "Authorization: Bearer ${GH_TOKEN}"); fi
-        TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name // empty' 2>/dev/null \
-          || curl -sf --retry 3 --retry-delay 5 "${HDR[@]}" https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty')
+        # Audit 1361: dulu cadangan curl hanya berjalan bila gh keluar
+        # non-nol; gh yang berhasil tetapi menjawab kosong membuat TAG
+        # kosong dan langkah langsung gagal tanpa ulang. Kini seluruh
+        # pengambilan dicoba ulang dan kekosongan juga jatuh ke curl.
+        TAG=""
+        for PERCOBAAN in 1 2 3 4; do
+          TAG=$(gh api repos/dani-garcia/vaultwarden/releases/latest --jq '.tag_name // empty' 2>/dev/null || true)
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
+            TAG=$(curl -sf --retry 3 --retry-delay 5 "${HDR[@]}" https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest | jq -r '.tag_name // empty' 2>/dev/null || true)
+          fi
+          case "$TAG" in ""|null) TAG=""; echo "Percobaan $PERCOBAAN ambil versi Vaultwarden belum berhasil; mencoba lagi..."; sleep 5;; *) break;; esac
+        done
         case "$TAG" in ""|null) echo "Gagal ambil versi Vaultwarden terbaru"; exit 1;; esac
 
         NORM="${TAG#[vV]}"
