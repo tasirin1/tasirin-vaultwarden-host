@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Localedef menilai masukan '-' (Audit 1333)
+
 ## [Belum rilis] — Wayland-scanner menilai /dev/stdin (Audit 1332)
 
 ## [Belum rilis] — Xkbcomp menilai masukan '-' (Audit 1331)

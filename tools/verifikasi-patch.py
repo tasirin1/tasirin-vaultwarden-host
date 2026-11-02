@@ -2968,6 +2968,17 @@ def _menguras_khusus(perintah, toks, awal):
         ops_ws = _operand_sesudah_opsi(toks, awal + 1, set())
         return bool(ops_ws) and ops_ws[0] in (
             "/dev/stdin", "/dev/fd/0", "/proc/self/fd/0")
+    # Audit 1333: localedef — definisi dari -i.
+    if perintah == "localedef":
+        for k_ld, t_ld in enumerate(mentah):
+            if t_ld in ("-i", "--inputfile"):
+                return (k_ld + 1 < len(mentah)
+                        and mentah[k_ld + 1] in (
+                            "-", "/dev/stdin"))
+            if t_ld.startswith("--inputfile="):
+                return t_ld.split("=", 1)[1] in (
+                    "-", "/dev/stdin")
+        return False
     return False
 
 
@@ -3716,6 +3727,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "lesskey",
                         "xkbcomp",
                         "wayland-scanner",
+                        "localedef",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
