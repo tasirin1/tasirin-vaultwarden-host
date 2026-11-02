@@ -9574,6 +9574,24 @@ def main():
         periksa("gm identify -format - /tmp/p81.png: "
                 "gerbang lolos (Audit 1284)", rc == 0)
         shutil.rmtree(sub507, ignore_errors=True)
+        sub508 = klon(tmp, "sub508")
+        berkas_aksi508 = os.path.join(
+            sub508, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi508, encoding="utf-8") as f:
+            isi_aksi508 = f.read()
+        baris_aksi508 = [b for b in isi_aksi508.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi508, "w", encoding="utf-8") as f:
+            f.write(isi_aksi508.replace(
+                baris_aksi508,
+                baris_aksi508.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gm convert - -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub508, [sys.executable, GERBANG, "--semua"])
+        periksa("gm convert - -: "
+                "gerbang gagal (Audit 1285)", rc != 0)
+        shutil.rmtree(sub508, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

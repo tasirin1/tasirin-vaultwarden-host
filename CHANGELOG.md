@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Gm convert dan gm batch dinilai (Audit 1285)
+
 ## [Belum rilis] — Gm identify menilai '-' sadar opsi (Audit 1284)
 
 ## [Belum rilis] — Opsi bernilai Poppler dilengkapi (-enc, -paper, -aaRaster) (Audit 1283)

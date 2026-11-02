@@ -2321,7 +2321,9 @@ def _menguras_khusus(perintah, toks, awal):
         # stdin; subcommand lain tak dinilai di sini.
         # Audit 1284: '-' sebagai NILAI opsi (mis. -format -)
         # bukan operand — penilaian wajib sadar opsi.
-        if mentah and mentah[0] == "identify":
+        # Audit 1285: convert beroperand '-' juga menguras,
+        # dan batch tanpa berkas membaca perintah dari stdin.
+        if mentah and mentah[0] in ("identify", "convert"):
             ops_gm = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-format", "-define", "-density", "-label",
@@ -2336,6 +2338,8 @@ def _menguras_khusus(perintah, toks, awal):
                  "-strokewidth", "-box", "-comment", "-caption",
                  "-texture", "-affine", "-append", "-average"})
             return "-" in ops_gm or "/dev/stdin" in ops_gm
+        if mentah and mentah[0] == "batch":
+            return len(mentah) == 1
         return False
     if perintah == "zip":
         # Audit 1064: -@ membaca daftar nama dari stdin.
