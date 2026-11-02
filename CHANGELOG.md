@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — tabel opsi bernilai gerbang patch dilengkapi putaran-2 (Audit 1100)
+
 ## [Belum rilis] — operand jalur /dev/stdin dan fd-0 kini dinilai stdin oleh gerbang patch (Audit 1099)
 
 ## [Belum rilis] — varian nama kompresor kini dikenali gerbang patch (Audit 1098)

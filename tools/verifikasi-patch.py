@@ -659,10 +659,27 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
 
 
 _OPSI_BERNILAI = {
-    "head": {"-n", "-c"},
-    "tail": {"-n", "-c"},
-    "sort": {"-k", "-o", "-t", "-S", "-T"},
-    "uniq": {"-f", "-s"},
+    "head": {"-n", "-c", "--lines", "--bytes"},
+    "tail": {"-n", "-c", "--lines", "--bytes", "--pid", "--sleep",
+             "--max-unchanged-stats"},
+    "sort": {"-k", "-o", "-t", "-S", "-T", "--random-source",
+             "--parallel", "--buffer-size", "--compress-program",
+             "--files0-from", "--batch-size"},
+    "uniq": {"-f", "-s", "-w", "--skip-fields", "--check-chars",
+             "--group"},
+    # Audit 1100: entri yang dulu absen/sebagian — nilai opsinya
+    # terbaca operand berkas (fail-open).
+    "wc": {"--total", "--files0-from"},
+    "cksum": {"-a", "--algorithm"},
+    "b2sum": {"-l", "--length"},
+    "base32": {"-w", "--wrap"},
+    "logger": {"-t", "--tag", "-p", "--priority", "--id", "-u",
+               "--socket", "-n", "--server", "-P", "--port", "-S",
+               "--size", "--journald"},
+    "ptx": {"-W", "--width", "-G", "--gap-size", "-M", "--macro-name",
+            "-S", "--sentence-regexp", "-T", "--format",
+            "--word-regexp", "-b", "--break-file", "-f",
+            "--ignore-file", "-i", "--ignore-file"},
     # Audit 1037: opsi bernilai filter aliran.
     "cut": {"-d", "-f", "-c", "--delimiter", "--fields",
             "--characters", "--bytes", "--output-delimiter"},
@@ -685,7 +702,8 @@ _OPSI_BERNILAI = {
     "shuf": {"-n", "--head-count", "-o", "--output",
              "--random-source", "-i", "--input-range"},
     # Audit 1056: opsi bernilai filter tingkat-3.
-    "fmt": {"-w", "--width", "-g", "--goal"},
+    # Audit 1100: fmt -p/--prefix tertinggal.
+    "fmt": {"-w", "--width", "-g", "--goal", "-p", "--prefix"},
     "pr": {"-w", "--width", "-l", "--length", "-n", "--number-width",
            "-o", "--indent", "-s", "--sep-string", "-h", "--header",
            "-d", "--date-format"},
@@ -701,7 +719,7 @@ _OPSI_BERNILAI = {
               "--unicode-subst"},
     "numfmt": {"-d", "--delimiter", "--field", "--format",
                "--padding", "--grouping"},
-    "basenc": {},
+    "basenc": {"-w", "--wrap"},
     # Audit 1057: opsi bernilai kompresor.
     "xz": {"-T", "--threads", "-C", "--check", "--block-size",
            "--memlimit-compress", "--memlimit-decompress"},
