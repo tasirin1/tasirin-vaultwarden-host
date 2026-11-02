@@ -845,7 +845,9 @@ _OPSI_BERNILAI = {
                          "-w", "--wait"},
     # Audit 1243: json_pp tanpa entri (Audit 1192 hanya
     # menambah namanya ke daftar pembaca).
-    "json_pp": {"-f", "--format"},
+    "json_pp": {"-f", "--format",
+                # Audit 1287: -t/-json_opt bernilai.
+                "-t", "-json_opt"},
     # Audit 1246/1247/1248: konverter & pembaca POD.
     "uconv": {"-f", "--from-code", "-t", "--to-code", "-o",
               "--output", "-x", "--translit"},
