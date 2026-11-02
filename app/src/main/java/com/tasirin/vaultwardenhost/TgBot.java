@@ -350,7 +350,11 @@ public final class TgBot {
     }
 
     private static volatile String galatPollTercatat = "";
-    private static volatile long hapusWebhookTerakhirMs = 0L;
+    // Audit 1010: sentinel negatif sebesar jendela jepit — nilai 0
+    // bertabrakan dengan elapsedRealtime pada 10 menit pertama
+    // sesudah boot sehingga upaya pulih pertama tertelan.
+    private static volatile long hapusWebhookTerakhirMs =
+            -10L * 60L * 1000L;
 
     static void refreshMenuAsync(Context ctx) {
         if (ctx == null) {

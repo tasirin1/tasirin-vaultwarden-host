@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penjepit deleteWebhook tidak lagi buta sesudah boot (Audit 1010)
+
+- Perbaikan bot: nilai awal stempel upaya hapus webhook terakhir adalah 0, yang bertabrakan dengan `elapsedRealtime()` pada 10 menit pertama sesudah boot — syarat penjepit selalu terpenuhi sehingga upaya pulih pertama dari konflik 409 (dan log penjelasannya) tertelan diam-diam tepat pada jendela sesudah reboot. Nilai awal kini sentinel negatif sebesar jendela jepit itu sendiri, jadi upaya pertama selalu boleh berjalan kapan pun perangkat menyala.
+
 ## [Belum rilis] — Lima id label tak terpakai lain dibuang agar lint hijau (Audit 1009, lanjutan)
 
 - Lanjutan perbaikan build: sesudah labelPinLogin dibuang, lint melaporkan lima id label tak terpakai lain dari commit Audit 977 yang sama — `labelPin` di kartu keamanan serta `labelTgToken`, `labelTgChat`, `labelBackupPass`, dan `labelBinSha` di kartu Telegram. Penelusuran menyeluruh memastikan total 8 id label: 3 terpakai kode (labelAdmin, labelDataDir, labelPort — dipertahankan) dan 5 yang dibuang ini. Kaitan labelFor masing-masing tetap utuh.
