@@ -1833,6 +1833,10 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1152: -f/-T menggantung = galat usage (rc 64).
         if gantung_f or gantung_T:
             return False
+        # Audit 1188: daftar -T KOSONG membuat tar gagal membuka
+        # daftar nama sebelum membaca arsip.
+        if nilai_T == "":
+            return False
         if nilai_T == "-":
             return True
         if nilai_f == "-":
