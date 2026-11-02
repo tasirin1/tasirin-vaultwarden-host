@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — prlimit: pindaian --pid berhenti di perintah anak (Audit 1228)
+
 ## [Belum rilis] — git: cek pathspec hanya untuk subcommand ber-pathspec (Audit 1227)
 
 ## [Belum rilis] — git: --pathspec-from-file bentuk terpisah tak dikenal (Audit 1226)

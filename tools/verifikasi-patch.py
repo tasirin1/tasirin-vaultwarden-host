@@ -2747,11 +2747,23 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # perintah sesudahnya BUKAN anak (nyata: galat
             # 'mutually exclusive' bila keduanya ada), dan
             # stdin tak dibaca.
-            if t0 == "prlimit" and any(
-                    t_pid == "--pid"
-                    or t_pid.startswith("--pid=")
-                    for t_pid in toks[awal:]):
-                return False
+            if t0 == "prlimit":
+                # Audit 1228: pindaian --pid berhenti di
+                # perintah anak — --pid sesudahnya milik anak.
+                j_pr = awal
+                while j_pr < len(toks):
+                    t_pr = toks[j_pr]
+                    if not t_pr.startswith("-"):
+                        break
+                    if (t_pr == "--pid"
+                            or t_pr.startswith("--pid=")):
+                        return False
+                    if ("=" not in t_pr and t_pr
+                            in _OPSI_PEMBUNGKUS.get(
+                                "prlimit", ())):
+                        j_pr += 2
+                    else:
+                        j_pr += 1
             if t0 in ("su", "sg", "newgrp"):
                 # Audit 1107: su/sg — string -c dinilai seperti
                 # flock -c; tanpa -c keduanya menjatuhkan shell
