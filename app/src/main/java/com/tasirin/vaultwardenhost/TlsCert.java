@@ -198,6 +198,7 @@ public final class TlsCert {
             pulihkanTukarTersisa(dir, LEAF_CERT_FILE, LEAF_KEY_FILE);
 
             boolean caBaru = false;
+            boolean caLamaAda = caCert.exists() || caKey.exists();
             if (!caOk(caCert, caKey, dir)) {
 
                 File caCertBaru = new File(dir, CA_CERT_FILE + ".baru");
@@ -220,6 +221,19 @@ public final class TlsCert {
                 keyFile.delete();
                 caBaru = true;
                 writeVersion(dir);
+                if (caLamaAda) {
+                    // Audit 1028: CA pengganti berarti sidik jari
+                    // berubah — tanpa catatan ini, semua klien yang
+                    // memasang CA lama putus diam-diam dan gejalanya
+                    // hanya "vault tak bisa dibuka".
+                    try {
+                        ServerService.catatLog("[tls] CA DIGANTI dengan"
+                                + " yang baru (kedaluwarsa/versi/pasangan)"
+                                + " - sidik jari berubah, semua klien wajib"
+                                + " memasang ulang CA dari aplikasi");
+                    } catch (Exception ignored) {
+                    }
+                }
             }
             if (sisaMs(caCert) == -2) {
 

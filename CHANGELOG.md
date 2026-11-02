@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Penggantian CA kini tercatat jelas di log (Audit 1028)
+
+### Diperbaiki
+- `TlsCert.ensure` mencatat baris khusus "[tls] CA DIGANTI ..." setiap kali CA lama diganti CA baru (kedaluwarsa/versi/pasangan tak cocok). Sebelumnya pergantian sebab kedaluwarsa/versi senyap total — sidik jari berubah, semua klien yang memasang CA lama putus tanpa satu pun catatan penyebabnya. Pembuatan CA pertama kali tidak dicatat sebagai penggantian.
+
+
 ## [Belum rilis] — Jalur perubahan waktu menolak jam yang dimundurkan (Audit 1027)
 
 ### Diperbaiki
