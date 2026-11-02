@@ -124,6 +124,16 @@ def main():
         periksa("path vektor tanpa nol depan tertangkap",
                 rc != 0 and "tanpa nol depan" in out)
 
+        terabaikan = klon(tmp, "terabaikan")
+        tanam(terabaikan, ".gitignore", "rahasia-terabaikan.txt\n", "w")
+        with open(os.path.join(terabaikan, "rahasia-terabaikan.txt"),
+                  "w") as f:
+            f.write("token uji: " + token_palsu + "\n")
+        rc, out = jalan(terabaikan, ["bash", SKRIP])
+        periksa("token di berkas ter-.gitignore tertangkap (Audit 1436)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(terabaikan, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
