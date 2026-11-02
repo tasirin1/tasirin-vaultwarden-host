@@ -638,6 +638,12 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # operand sama dengan sha256sum/md5sum).
                   "sha1sum", "sha224sum", "sha384sum", "sha512sum",
                   "b2sum", "cksum", "sum",
+                  # Audit 1056: filter teks tingkat-3 (operand
+                  # berkas menekan; factor/logger operandnya nilai/
+                  # pesan sehingga vonis operand generik selaras).
+                  "fmt", "pr", "expand", "unexpand", "tsort", "ptx",
+                  "split", "factor", "strings", "base32", "basenc",
+                  "iconv", "logger", "numfmt",
                   # Audit 1038: keluarga beroperand skrip/pola —
                   # operand pertamanya bukan berkas (penilaian
                   # posisinya di _menguras_keluarga_skrip).
@@ -670,6 +676,24 @@ _OPSI_BERNILAI = {
     "tac": {"-s", "--separator"},
     "shuf": {"-n", "--head-count", "-o", "--output",
              "--random-source", "-i", "--input-range"},
+    # Audit 1056: opsi bernilai filter tingkat-3.
+    "fmt": {"-w", "--width", "-g", "--goal"},
+    "pr": {"-w", "--width", "-l", "--length", "-n", "--number-width",
+           "-o", "--indent", "-s", "--sep-string", "-h", "--header",
+           "-d", "--date-format"},
+    "expand": {"-t", "--tabs"},
+    "unexpand": {"-t", "--tabs"},
+    "split": {"-l", "--lines", "-b", "--bytes", "-C",
+              "--line-bytes", "-n", "--number", "-a",
+              "--suffix-length", "-t", "--separator"},
+    "strings": {"-n", "--bytes", "-t", "--radix", "-e",
+                "--encoding"},
+    "iconv": {"-f", "--from-code", "-t", "--to-code", "-o",
+              "--output", "--byte-subst", "--widechar-subst",
+              "--unicode-subst"},
+    "numfmt": {"-d", "--delimiter", "--field", "--format",
+               "--padding", "--grouping"},
+    "basenc": {},
 }
 
 

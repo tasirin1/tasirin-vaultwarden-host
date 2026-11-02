@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — filter teks tingkat-3 kini pembaca stdin bagi gerbang patch (Audit 1056)
+
 ## [Belum rilis] — sisa keluarga checksum GNU kini pembaca stdin bagi gerbang patch (Audit 1055)
 
 ## [Belum rilis] — duplikat blok komentar Audit 987 di gerbang patch dihapus (Audit 1054)

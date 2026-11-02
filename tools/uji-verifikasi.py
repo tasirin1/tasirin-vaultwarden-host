@@ -2737,6 +2737,25 @@ def main():
         periksa("sisa keluarga checksum adalah penguras — gerbang gagal (Audit 1055)", rc != 0)
         shutil.rmtree(subchecksum, ignore_errors=True)
 
+        subfilter3 = klon(tmp, "subfilter3")
+        berkas_aksi134 = os.path.join(
+            subfilter3, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi134, encoding="utf-8") as f:
+            isi_aksi134 = f.read()
+        baris_aksi134 = [b for b in isi_aksi134.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi134, "w", encoding="utf-8") as f:
+            f.write(isi_aksi134.replace(
+                baris_aksi134,
+                baris_aksi134.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(fmt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subfilter3,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("filter teks tingkat-3 adalah penguras — gerbang gagal (Audit 1056)", rc != 0)
+        shutil.rmtree(subfilter3, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
