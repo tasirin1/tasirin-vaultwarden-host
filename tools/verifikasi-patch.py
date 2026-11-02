@@ -1332,7 +1332,8 @@ def _menguras_interpreter(perintah, toks, awal):
                 continue
             return False
         return not ada_c
-    if perintah in ("bash", "sh", "dash", "zsh"):
+    if perintah in ("bash", "sh", "dash", "zsh", "rbash",
+                    "rzsh"):
         # Audit 1058: shell tanpa skrip membaca perintah dari
         # stdin; -c menekan; operand "-" memintanya eksplisit.
         # Audit 1083: sesudah -s, operand pertama adalah $0 (nama
