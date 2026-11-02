@@ -264,6 +264,26 @@ public class TlsCertTest {
         assertTrue(sisa > 0 && sisa <= 3_600_000);
     }
 
+    // Audit 1383: cabang penolakan tokenAman (char terlarang dan
+    // panjang >64) diuji lewat namaBackupCa. Nilai harapan diporting
+    // 1:1 dari tokenAman + amanTs (trim, lalu tepat [a-zA-Z0-9_-]{1,64}).
+    @Test
+    public void namaBackupCa_menolakTimestampKotor() {
+        assertEquals("ca-cadangan-2026-11-02_101500.pem",
+                TlsCert.namaBackupCa("2026-11-02_101500"));
+        assertEquals("ca-cadangan-tanpa-waktu.pem",
+                TlsCert.namaBackupCa("2026/11/02"));
+        assertEquals("ca-cadangan-tanpa-waktu.pem",
+                TlsCert.namaBackupCa("waktu jahat"));
+        assertEquals("ca-cadangan-tanpa-waktu.pem",
+                TlsCert.namaBackupCa("titik.dua"));
+        assertEquals("ca-cadangan-tanpa-waktu.pem",
+                TlsCert.namaBackupCa("a".repeat(65)));
+        assertEquals("ca-cadangan-" + "a".repeat(64) + ".pem",
+                TlsCert.namaBackupCa("a".repeat(64)));
+        assertEquals("ca-cadangan-spasi.pem", TlsCert.namaBackupCa(" spasi "));
+    }
+
     @Test
     public void namaBackupCa_pakaiTimestamp() {
         assertEquals("ca-cadangan-20260929-120000.pem", TlsCert.namaBackupCa("20260929-120000"));
