@@ -1753,8 +1753,19 @@ def _menguras_interpreter(perintah, toks, awal):
                              # json.tool/base64.
                              "tokenize", "quopri", "gzip", "uu",
                              "dis"):
-                    return not _operand_sesudah_opsi(
+                    ops_md = _operand_sesudah_opsi(
                         toks, i + 1, {"--indent", "--tab"})
+                    if modul == "tokenize":
+                        # tokenize: '-' nama berkas harfiah,
+                        # bukan stdin (aturan lama utuh).
+                        return not ops_md
+                    # Audit 1391: bagi modul penyaring lain,
+                    # operand PERTAMA '-' adalah stdin itu
+                    # sendiri (masukan modulnya), bukan berkas
+                    # yang menekan.
+                    if not ops_md:
+                        return True
+                    return ops_md[0] == "-"
                 return False
         if perintah == "node" and t in (
                 "-e", "--eval", "-p", "--print"):
