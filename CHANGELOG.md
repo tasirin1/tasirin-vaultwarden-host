@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — panggilan informasional kini tak divonis menguras oleh gerbang patch (Audit 1102)
+
 ## [Belum rilis] — basenc polos tak lagi divonis menguras oleh gerbang patch (Audit 1101)
 
 ## [Belum rilis] — tabel opsi bernilai gerbang patch dilengkapi putaran-2 (Audit 1100)

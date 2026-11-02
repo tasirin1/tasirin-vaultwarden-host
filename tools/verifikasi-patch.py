@@ -2353,6 +2353,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # Audit 1037: shuf -e/-i mengambil masukan dari argumen/
         # rentang, bukan stdin.
         return False
+    # Audit 1102: panggilan informasional mencetak dan keluar
+    # tanpa membaca stdin (--help/--version umum; iconv -l/--list).
+    if perintah in _PEMBACA_STDIN and any(
+            t.strip("\"'") in ("--help", "--version")
+            for t in toks[awal + 1:]):
+        return False
+    if perintah == "iconv" and any(
+            t.strip("\"'") in ("-l", "--list")
+            for t in toks[awal + 1:]):
+        return False
     lewati = False
     operand_tr = 0  # Audit 1047: penghitung operand himpunan tr.
     # Audit 1087: pada mode hapus (-d tanpa -s) GNU tr menolak
