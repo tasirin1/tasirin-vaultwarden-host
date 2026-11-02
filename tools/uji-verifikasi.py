@@ -10510,6 +10510,24 @@ def main():
         periksa("pod2man: "
                 "gerbang gagal (Audit 1336)", rc != 0)
         shutil.rmtree(sub559, ignore_errors=True)
+        sub560 = klon(tmp, "sub560")
+        berkas_aksi560 = os.path.join(
+            sub560, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi560, encoding="utf-8") as f:
+            isi_aksi560 = f.read()
+        baris_aksi560 = [b for b in isi_aksi560.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi560, "w", encoding="utf-8") as f:
+            f.write(isi_aksi560.replace(
+                baris_aksi560,
+                baris_aksi560.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(splain; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub560, [sys.executable, GERBANG, "--semua"])
+        periksa("splain: "
+                "gerbang gagal (Audit 1337)", rc != 0)
+        shutil.rmtree(sub560, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Splain masuk tabel pembaca stdin (Audit 1337)
+
 ## [Belum rilis] — Keluarga POD (pod2html/pod2man/pod2usage/podchecker) masuk tabel (Audit 1336)
 
 ## [Belum rilis] — Genrb menilai operand '-' (Audit 1335)

@@ -689,6 +689,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1336: keluarga POD lain.
                   "pod2html", "pod2man", "pod2usage",
                   "podchecker",
+                  # Audit 1337: penjelas galat Perl.
+                  "splain",
                   # Audit 1113: varian awk orisinal.
                   "original-awk",
                   # Audit 1196: pemulih tabel firewall membaca
@@ -943,6 +945,8 @@ _OPSI_BERNILAI = {
                   "-pathlist", "-formatter", "-msg"},
     "podchecker": {"--warnings", "-warnings"},
     # Audit 1314/1315: pager (opsi lazim less yang bernilai).
+    # Audit 1337: splain tanpa opsi bernilai.
+    "splain": set(),
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",
