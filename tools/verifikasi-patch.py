@@ -2137,6 +2137,10 @@ def _menguras_khusus(perintah, toks, awal):
         # permintaan stempel waktu DER yang sah).
         if sub == "ts":
             return "-query" in mentah and "-data" not in mentah
+        # Audit 1433: ca dengan -in - membaca CSR dari
+        # stdin (dengan konfigurasi CA lengkap).
+        if sub == "ca":
+            return "-in" in mentah and not _in_non_stdin()
         if sub == "passwd":
             return "-stdin" in mentah
         if sub == "s_client":

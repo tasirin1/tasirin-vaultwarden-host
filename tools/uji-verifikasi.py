@@ -14260,6 +14260,27 @@ def main():
         periksa("openssl ts -query: "
                 "gerbang gagal (Audit 1432)", rc != 0)
         shutil.rmtree(sub658, ignore_errors=True)
+        sub659 = klon(tmp, "sub659")
+        berkas_aksi659 = os.path.join(
+            sub659, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi659, encoding="utf-8") as f:
+            isi_aksi659 = f.read()
+        baris_aksi659 = [b for b in isi_aksi659.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru659 = isi_aksi659.replace(
+                baris_aksi659,
+                baris_aksi659.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl ca -in -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru659 != isi_aksi659, \
+            "suntikan aksi659 tidak menembak"
+        with open(berkas_aksi659, "w", encoding="utf-8") as f:
+            f.write(isi_baru659)
+        rc, out = jalan(sub659, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl ca -in -: "
+                "gerbang gagal (Audit 1433)", rc != 0)
+        shutil.rmtree(sub659, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
