@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang membedakan duplikasi fd dari redirect berkas di posisi operand (Audit 1014)
+
+- Perkakas: blok awalan fd di pemindaian operand gerbang kini membedakan operator `<` (redirect berkas, stdin sungguh diganti) dari `<&` (duplikasi) — ejaan `0<&0`/`0<&00`/`0<&0-` adalah duplikasi-diri yang menguras stdin sama seperti `<&0`, bukan pengalihan dari berkas seperti yang dinilai sebelumnya (posisi awalan dan jalur xargs sudah benar). Skenario uji-diri baru mengunci bentuk ini.
+
 ## [Belum rilis] — Pengecualian salinan restore dibatasi umur, bukan dihapus membabi buta (Audit 1013)
 
 - Perbaikan: perbaikan Audit 1012 terlalu jauh — menghapus salinan restore dari pemilih saat layar dibuat ulang bisa membatalkan restore yang sebenarnya masih berjalan di latar (restore berjalan di thread pekerja, bukan di layar pembuatnya). Kini pengecualian salinan aktif dihidupkan lagi seperti Audit 1003 agar restore yang berjalan tetap terlindungi, tetapi pengecualian di penyapu cache dibatasi umur yang sama seperti berkas sementara lain (1 jam): salinan basi sisa proses yang mati di tengah restore akhirnya tetap tersapu, tidak terlindungi selamanya.

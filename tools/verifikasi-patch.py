@@ -1029,9 +1029,25 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # posisi operand tidak. fd 0 sungguh mengganti stdin;
             # fd lain tak menyentuh stdin bersama, jadi token ini
             # (dan targetnya bila terpisah) dilompati saja.
+            sisa_fd = t[m_fd_lt.end():]
             if _fd_norm(m_fd_lt.group(1)) == "0":
+                # Audit 1014: bedakan "<" (redirect berkas — stdin
+                # sungguh diganti) dari "<&" (duplikasi — target 0
+                # adalah duplikasi-diri yang netral, sama seperti
+                # cabang "<&" tanpa awalan fd di bawah).
+                if sisa_fd.startswith("&"):
+                    target = sisa_fd[1:]
+                    if _fd_norm(target) == "0":
+                        continue
+                    if target == "":
+                        if (pos + 1 < len(toks)
+                                and _fd_norm(
+                                    toks[pos + 1].strip("\"'")) == "0"):
+                            lewati = True
+                            continue
+                    return False
                 return False
-            if t[m_fd_lt.end():] in ("", "&"):
+            if sisa_fd in ("", "&"):
                 lewati = True
             continue
         if t.startswith("<") and not argv_saja:

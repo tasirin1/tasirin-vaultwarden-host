@@ -2115,6 +2115,27 @@ def main():
                 "penguras: gerbang gagal (Audit 1011)", rc != 0)
         shutil.rmtree(subpindahfd, ignore_errors=True)
 
+        subdupnol = klon(tmp, "subdupnol")
+        berkas_aksi103 = os.path.join(
+            subdupnol, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi103, encoding="utf-8") as f:
+            isi_aksi103 = f.read()
+        baris_tulis103 = [b for b in isi_aksi103.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi103, "w", encoding="utf-8") as f:
+            f.write(isi_aksi103.replace(
+                baris_tulis103,
+                baris_tulis103.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cat 0<&0; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subdupnol,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("duplikasi berawalan fd 0<&0 adalah penguras: "
+                "gerbang gagal (Audit 1014)", rc != 0)
+        shutil.rmtree(subdupnol, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
