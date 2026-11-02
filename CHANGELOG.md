@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — ID chat tujuan tidak lagi tercatat mentah di log (Audit 1018)
+
+- Perbaikan privasi: dua catatan kegagalan kirim backup/CA lewat file_id menulis ID chat tujuan apa adanya ke log — satu-satunya tempat ID chat tampil terang, padahal di semua tempat lain aplikasi menyamarkannya sebagai rahasia, dan pesan galatnya pun lolos tanpa redaksi. Catatan kini menyebut urutan tujuan saja ("tujuan ke-1", dst.) dan pesan galatnya dilewatkan redaksi yang sama seperti catatan Telegram lain.
+
 ## [Belum rilis] — Peringatan storage rendah boleh berulang, tidak lagi satu-tembak (Audit 1017)
 
 - Perbaikan bot: peringatan sisa storage rendah dulu ditandai "sudah diberitahu" sebelum pesannya dikirim — satu kegagalan kirim sesaat (jaringan mati, bot terblokir) membuat peringatan hilang selamanya selama storage terus rendah, padahal disk penuh adalah pemicu gagal backup. Peringatan kini berbasis stempel waktu: diulang paling sering 24 jam sekali selama kondisi rendah menetap, dan stempelnya dibuang begitu ruang pulih.

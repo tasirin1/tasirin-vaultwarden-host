@@ -655,8 +655,13 @@ public final class TgBackup {
                         // Audit 795: kegagalan jalur cepat jangan ditelan
                         // diam-diam — catat agar penyebabnya terlihat di log
                         // (hasil akhir tetap unggahan penuh di bawah).
+                        // Audit 1018: ID chat adalah rahasia menurut
+                        // penyamaran aplikasi sendiri — jangan catat
+                        // mentah; pesan galat lewat redaksi seperti
+                        // situs log Telegram lain.
                         ServerService.catatLog("[tg] Kirim by-id gagal ke "
-                                + tujuan.get(ci) + " (" + eById.getMessage()
+                                + "tujuan ke-" + (ci + 1) + " ("
+                                + redaksiDetailGalat(eById.getMessage())
                                 + ") - coba unggah penuh.");
                         resp = null;
                     }
@@ -2160,8 +2165,11 @@ public final class TgBackup {
                             resp = kirimDokumenById(ctx, token, tujuanCa.get(ci),
                                     fileIdCa);
                         } catch (Exception eById) {
+                            // Audit 1018: sama seperti situs by-id
+                            // backup — tanpa ID mentah, galat teredaksi.
                             ServerService.catatLog("[tg] Kirim CA by-id gagal ke "
-                                    + tujuanCa.get(ci) + " (" + eById.getMessage()
+                                    + "tujuan ke-" + (ci + 1) + " ("
+                                    + redaksiDetailGalat(eById.getMessage())
                                     + ") - coba unggah penuh.");
                             resp = null;
                         }
