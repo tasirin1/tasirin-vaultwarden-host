@@ -3012,6 +3012,10 @@ def _menguras_khusus(perintah, toks, awal):
                     nilai_ld = mentah[k_ld + 1]
             elif t_ld.startswith("--inputfile="):
                 nilai_ld = t_ld.split("=", 1)[1]
+            # Audit 1355: bentuk merekat -i<berkas> sah pada
+            # getopt ('-i-' = stdin).
+            elif t_ld.startswith("-i") and len(t_ld) > 2:
+                nilai_ld = t_ld[2:]
         return nilai_ld in ("-", "/dev/stdin")
     # Audit 1334: glib-genmarshal — hanya '-' yang membaca.
     if perintah == "glib-genmarshal":

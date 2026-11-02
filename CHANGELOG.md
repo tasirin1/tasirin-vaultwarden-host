@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Localedef -i<berkas> merekat dikenali (Audit 1355)
+
 ## [Belum rilis] — Tmux mencari subperintah sesudah opsi global (Audit 1354)
 
 ## [Belum rilis] — Ptar/dpkg-parsechangelog/localedef memakai kemunculan opsi terakhir (Audit 1353)

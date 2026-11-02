@@ -10816,6 +10816,24 @@ def main():
         periksa("tmux -S /tmp/sok load-buffer -: "
                 "gerbang gagal (Audit 1354)", rc != 0)
         shutil.rmtree(sub576, ignore_errors=True)
+        sub577 = klon(tmp, "sub577")
+        berkas_aksi577 = os.path.join(
+            sub577, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi577, encoding="utf-8") as f:
+            isi_aksi577 = f.read()
+        baris_aksi577 = [b for b in isi_aksi577.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi577, "w", encoding="utf-8") as f:
+            f.write(isi_aksi577.replace(
+                baris_aksi577,
+                baris_aksi577.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(localedef --prefix=/tmp -i- -f UTF-8 uji_XX; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub577, [sys.executable, GERBANG, "--semua"])
+        periksa("localedef --prefix=/tmp -i- -f UTF-8 uji_XX: "
+                "gerbang gagal (Audit 1355)", rc != 0)
+        shutil.rmtree(sub577, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
