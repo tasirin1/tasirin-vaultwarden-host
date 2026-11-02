@@ -671,6 +671,20 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     stdin; tee selalu membaca stdin walau berargumen berkas keluaran;
     dd membaca berkas bila ada if=."""
     toks = bagian.strip().lstrip("({ ").split()
+    # Audit 1021: kupas kurung tutup grup yang menempel di token
+    # terakhir ("(cat)" menyisakan "cat)") atau berdiri sendiri
+    # ("( cat )") — keduanya sisa grup subshell, bukan operand.
+    while toks and toks[-1] in (")", "}"):
+        toks.pop()
+    if toks and toks[-1][-1:] in (")", "}"):
+        # Tepat SATU penutup: "((cat))" adalah aritmetika shell,
+        # bukan grup ganda — mengupas dua penutup mengarang
+        # perintah yang tak pernah berjalan.
+        inti = toks[-1][:-1]
+        if inti:
+            toks[-1] = inti
+        else:
+            toks.pop()
     if not toks:
         return False
     # Audit 937: perintah sungguhan bisa tersembunyi di balik

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: grup subshell ( ... ) terurai (Audit 1021)
+
+### Diperbaiki
+- Perkakas: tokenisasi segmen di `tools/verifikasi-patch.py` kini mengupas kurung tutup grup yang menempel di token terakhir atau berdiri sendiri — `(cat)` dan `( cat )` dinilai dari perintah di dalamnya. Tepat satu penutup yang dikupas: `((cat))` adalah aritmetika shell, bukan grup ganda. Sebelumnya `(cat)` terbaca sebagai perintah semu `cat)` sehingga dinilai bukan penguras (fail-open). Skenario uji-diri aksi107.
+
+
 ## [Belum rilis] — Gerbang: awalan kata kunci exec/time/eval/! transparan (Audit 1020)
 
 ### Diperbaiki
