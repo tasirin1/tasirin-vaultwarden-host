@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — cksum -l/--length masuk tabel bernilai gerbang patch (Audit 1171)
+
 ## [Belum rilis] — logger --msgid/--sd-id/--sd-param masuk tabel bernilai gerbang patch (Audit 1170)
 
 ## [Belum rilis] — split --filter/--additional-suffix masuk tabel bernilai gerbang patch (Audit 1169)
