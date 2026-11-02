@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Git format-patch --stdin membaca daftar revisi (Audit 1400)
 ## [Belum rilis] — Git credential approve/reject setara fill (Audit 1399)
 ## [Belum rilis] — Pl2pm telanjang masuk tabel pembaca stdin (Audit 1398)
 ## [Belum rilis] — Chgpasswd dikenal — cermin chpasswd untuk grup (Audit 1397)

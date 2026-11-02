@@ -2260,6 +2260,10 @@ def _menguras_khusus(perintah, toks, awal):
             # stdin terprobe identik).
             return len(ops_git) > 1 and ops_git[1] in (
                 "fill", "approve", "reject")
+        # Audit 1400: format-patch --stdin membaca daftar
+        # revisi dari stdin sampai EOF.
+        if sub == "format-patch":
+            return "--stdin" in mentah
         if sub == "mktree":
             return True
         # Audit 1124: pembaca putaran-3 — stripspace (filter
