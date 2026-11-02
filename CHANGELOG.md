@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — numfmt: --grouping adalah bendera (Audit 1265)
+
 ## [Belum rilis] — wc: --total bernilai opsional, bukan terpisah (Audit 1264)
 
 ## [Belum rilis] — iconv: --usage informasional (Audit 1263)

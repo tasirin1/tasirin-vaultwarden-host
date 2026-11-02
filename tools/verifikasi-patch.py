@@ -799,7 +799,8 @@ _OPSI_BERNILAI = {
               "--output", "--byte-subst", "--widechar-subst",
               "--unicode-subst"},
     "numfmt": {"-d", "--delimiter", "--field", "--format",
-               "--padding", "--grouping",
+               "--padding",
+               # Audit 1265: --grouping numfmt adalah BENDERA.
                # Audit 1125: opsi konversi bernilai yang hilang.
                "--from", "--to", "--from-unit", "--to-unit",
                "--invalid", "--suffix"},

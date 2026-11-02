@@ -9232,6 +9232,24 @@ def main():
         periksa("wc --total berkas.txt: "
                 "gerbang lolos (Audit 1264)", rc == 0)
         shutil.rmtree(sub488, ignore_errors=True)
+        sub489 = klon(tmp, "sub489")
+        berkas_aksi489 = os.path.join(
+            sub489, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi489, encoding="utf-8") as f:
+            isi_aksi489 = f.read()
+        baris_aksi489 = [b for b in isi_aksi489.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi489, "w", encoding="utf-8") as f:
+            f.write(isi_aksi489.replace(
+                baris_aksi489,
+                baris_aksi489.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(numfmt --grouping 123; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub489, [sys.executable, GERBANG, "--semua"])
+        periksa("numfmt --grouping 123: "
+                "gerbang lolos (Audit 1265)", rc == 0)
+        shutil.rmtree(sub489, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
