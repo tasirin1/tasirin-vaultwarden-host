@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Git am menilai --whitespace sebagai opsi bernilai (Audit 1273)
+
 ## [Belum rilis] — Git shortlog menelan nilai opsi revisi bernilai (Audit 1272)
 
 ## [Belum rilis] — Parser git credential sadar subperintah dan opsi global (Audit 1271)

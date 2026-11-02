@@ -2156,6 +2156,8 @@ def _menguras_khusus(perintah, toks, awal):
                                  # lain yang hilang.
                                  "--exclude", "--include",
                                  "--directory", "--quoted-cr",
+                                 # Audit 1273: --whitespace.
+                                 "--whitespace",
                                  "-C"})
             return not ops_am or "-" in ops_am
         if sub == "shortlog":
