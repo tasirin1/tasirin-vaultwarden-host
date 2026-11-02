@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — pra-pindai redirect ekor gerbang patch kini sadar kutip (Audit 1133)
+
 ## [Belum rilis] — addr2line --target masuk tabel bernilai gerbang patch (Audit 1132)
 
 ## [Belum rilis] — patch -i- merekat kini dikenali gerbang patch (Audit 1131)

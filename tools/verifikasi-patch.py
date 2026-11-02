@@ -1492,7 +1492,12 @@ def _menguras_khusus(perintah, toks, awal):
     # menutup stdin sebelum perintah berjalan — cabang khusus dulu
     # lolos dari pemeriksaannya (resolver hanya menangani redirect
     # sebelum nama perintah). "<&0"/"<&0-" netral seperti di 1053.
-    for t_r in mentah:
+    for t_asli_r in sisa:
+        # Audit 1133: token berawalan kutip adalah DATA berkutip,
+        # bukan redirect (mis. label diff '<a>').
+        if t_asli_r[:1] in ("\"", "'"):
+            continue
+        t_r = t_asli_r.strip("\"'")
         s_r = t_r
         nomor_r = ""
         while s_r[:1].isdigit():
