@@ -1838,9 +1838,11 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "less":
         # Audit 1072: pager pada stdin pipa menyangga/menyaring
         # seluruh aliran bila tanpa operand berkas.
+        # Audit 1109: -p/--pattern bernilai (pola lompatan).
         ops = _operand_sesudah_opsi(
             toks, awal, {"-n", "--lines", "-P", "--prompt", "-o",
-                         "--log-file", "-O", "--logfile", "-#"})
+                         "--log-file", "-O", "--logfile", "-#",
+                         "-p", "--pattern"})
         if not ops:
             return True
         # Audit 1080: operand +N (posisi awal) bukan berkas.

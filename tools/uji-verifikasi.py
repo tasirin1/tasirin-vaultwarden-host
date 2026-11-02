@@ -4542,6 +4542,25 @@ def main():
         periksa("ex polos: gerbang gagal (Audit 1108)", rc != 0)
         shutil.rmtree(sub228, ignore_errors=True)
 
+        sub229 = klon(tmp, "sub229")
+        berkas_aksi229 = os.path.join(
+            sub229, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi229, encoding="utf-8") as f:
+            isi_aksi229 = f.read()
+        baris_aksi229 = [b for b in isi_aksi229.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi229, "w", encoding="utf-8") as f:
+            f.write(isi_aksi229.replace(
+                baris_aksi229,
+                baris_aksi229.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(less -p UTUH; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub229,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("less -p pola bernilai: gerbang gagal (Audit 1109)", rc != 0)
+        shutil.rmtree(sub229, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — opsi pola less -p/--pattern masuk tabel bernilai gerbang patch (Audit 1109)
+
 ## [Belum rilis] — keluarga vi/view/ex kini dinilai menguras oleh gerbang patch (Audit 1108)
 
 ## [Belum rilis] — pembungkus strace/dbus-run-session/runuser/su/sg kini dimodelkan gerbang patch (Audit 1107)
