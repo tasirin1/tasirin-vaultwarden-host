@@ -2286,6 +2286,13 @@ def main():
                 "(Audit 1024)", rc != 0)
         shutil.rmtree(suboperand, ignore_errors=True)
 
+        with open(GERBANG, encoding="utf-8") as f:
+            isi_gerbang_1030 = f.read()
+        periksa("definisi _substitusi_masukan_menguras tunggal "
+                "(Audit 1030)",
+                isi_gerbang_1030.count(
+                    "def _substitusi_masukan_menguras") == 1)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

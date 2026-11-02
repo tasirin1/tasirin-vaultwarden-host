@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: definisi ganda _substitusi_masukan_menguras dihapus (Audit 1030)
+
+### Diperbaiki
+- Perkakas: `tools/verifikasi-patch.py` kini memuat tepat satu definisi `_substitusi_masukan_menguras`. Salinan pertama adalah kode mati bayangan (definisi kedua yang hidup) — jebakan pemeliharaan: suntingan pada salinan pertama tak akan pernah berakibat. Suite uji-diri kini memeriksa langsung ketunggalan definisi ini.
+
+
 ## [Belum rilis] — Gerbang: isi substitusi masukan <(...) sebagai operand dinilai (Audit 1024)
 
 ### Diperbaiki
