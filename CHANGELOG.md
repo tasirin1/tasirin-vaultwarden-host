@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — panggilan informasional kini menjangkau penilai khusus gerbang patch (Audit 1136)
+
 ## [Belum rilis] — penanda opsi menggantung gerbang patch kini diperiksa semua penilai khusus (Audit 1135)
 
 ## [Belum rilis] — xargs -a - kini dinilai gerbang patch membaca dari stdin (Audit 1134)

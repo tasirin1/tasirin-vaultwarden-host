@@ -1488,6 +1488,13 @@ def _menguras_khusus(perintah, toks, awal):
     dinilai aturan operand generik."""
     sisa = toks[awal + 1:]
     mentah = [t.strip("\"'") for t in sisa]
+    # Audit 1136: panggilan informasional juga tak membaca pada
+    # penilai khusus (celah 1102; untuk vi ini regresi dari 1108).
+    if any(t in ("--help", "--version") for t in mentah):
+        return False
+    if perintah == "openssl" and any(
+            t in ("-help", "-version") for t in mentah):
+        return False
     # Audit 1088: redirect masukan di EKOR perintah mengganti atau
     # menutup stdin sebelum perintah berjalan — cabang khusus dulu
     # lolos dari pemeriksaannya (resolver hanya menangani redirect

@@ -5686,6 +5686,96 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("dgst - kontrol: gerbang gagal (Audit 1135)", rc != 0)
         shutil.rmtree(sub291, ignore_errors=True)
+        sub292 = klon(tmp, "sub292")
+        berkas_aksi292 = os.path.join(
+            sub292, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi292, encoding="utf-8") as f:
+            isi_aksi292 = f.read()
+        baris_aksi292 = [b for b in isi_aksi292.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi292, "w", encoding="utf-8") as f:
+            f.write(isi_aksi292.replace(
+                baris_aksi292,
+                baris_aksi292.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(vim --help; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub292,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("vim --help: gerbang lolos (Audit 1136)", rc == 0)
+        shutil.rmtree(sub292, ignore_errors=True)
+        sub293 = klon(tmp, "sub293")
+        berkas_aksi293 = os.path.join(
+            sub293, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi293, encoding="utf-8") as f:
+            isi_aksi293 = f.read()
+        baris_aksi293 = [b for b in isi_aksi293.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi293, "w", encoding="utf-8") as f:
+            f.write(isi_aksi293.replace(
+                baris_aksi293,
+                baris_aksi293.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 --version; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub293,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sqlite3 --version: gerbang lolos (Audit 1136)", rc == 0)
+        shutil.rmtree(sub293, ignore_errors=True)
+        sub294 = klon(tmp, "sub294")
+        berkas_aksi294 = os.path.join(
+            sub294, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi294, encoding="utf-8") as f:
+            isi_aksi294 = f.read()
+        baris_aksi294 = [b for b in isi_aksi294.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi294, "w", encoding="utf-8") as f:
+            f.write(isi_aksi294.replace(
+                baris_aksi294,
+                baris_aksi294.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(patch --help; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub294,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("patch --help: gerbang lolos (Audit 1136)", rc == 0)
+        shutil.rmtree(sub294, ignore_errors=True)
+        sub295 = klon(tmp, "sub295")
+        berkas_aksi295 = os.path.join(
+            sub295, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi295, encoding="utf-8") as f:
+            isi_aksi295 = f.read()
+        baris_aksi295 = [b for b in isi_aksi295.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi295, "w", encoding="utf-8") as f:
+            f.write(isi_aksi295.replace(
+                baris_aksi295,
+                baris_aksi295.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl x509 -help; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub295,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl x509 -help: gerbang lolos (Audit 1136)", rc == 0)
+        shutil.rmtree(sub295, ignore_errors=True)
+        sub296 = klon(tmp, "sub296")
+        berkas_aksi296 = os.path.join(
+            sub296, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi296, encoding="utf-8") as f:
+            isi_aksi296 = f.read()
+        baris_aksi296 = [b for b in isi_aksi296.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi296, "w", encoding="utf-8") as f:
+            f.write(isi_aksi296.replace(
+                baris_aksi296,
+                baris_aksi296.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(vim; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub296,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("vim telanjang kontrol: gerbang gagal (Audit 1136)", rc != 0)
+        shutil.rmtree(sub296, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
