@@ -2060,8 +2060,20 @@ def _menguras_khusus(perintah, toks, awal):
             # protokol helper membaca deskripsi dari stdin
             # untuk semua aksinya (get/store/erase).
             # Audit 1186: TANPA aksi = galat usage, tak membaca.
-            return any(t in ("get", "store", "erase")
-                       for t in mentah)
+            # Audit 1220: kata aksi yang menjadi NILAI opsi
+            # (--file get) bukan aksi — lewati nilai opsi.
+            i_cr = 1
+            while i_cr < len(mentah):
+                t_cr = mentah[i_cr]
+                if t_cr == "--file":
+                    i_cr += 2
+                    continue
+                if t_cr.startswith("--file=") or (
+                        t_cr.startswith("-") and t_cr != "-"):
+                    i_cr += 1
+                    continue
+                return t_cr in ("get", "store", "erase")
+            return False
         return False
     if perintah == "comm":
         # Audit 1063: '-' di posisi operand mana pun = stdin.

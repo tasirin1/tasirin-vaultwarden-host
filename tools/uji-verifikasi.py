@@ -8206,6 +8206,42 @@ def main():
         periksa("git check-mailmap --stdin -: "
                 "gerbang lolos (Audit 1219)", rc == 0)
         shutil.rmtree(sub431, ignore_errors=True)
+        sub432 = klon(tmp, "sub432")
+        berkas_aksi432 = os.path.join(
+            sub432, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi432, encoding="utf-8") as f:
+            isi_aksi432 = f.read()
+        baris_aksi432 = [b for b in isi_aksi432.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi432, "w", encoding="utf-8") as f:
+            f.write(isi_aksi432.replace(
+                baris_aksi432,
+                baris_aksi432.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git credential-store --file get; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub432, [sys.executable, GERBANG, "--semua"])
+        periksa("git credential-store --file get: "
+                "gerbang lolos (Audit 1220)", rc == 0)
+        shutil.rmtree(sub432, ignore_errors=True)
+        sub433 = klon(tmp, "sub433")
+        berkas_aksi433 = os.path.join(
+            sub433, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi433, encoding="utf-8") as f:
+            isi_aksi433 = f.read()
+        baris_aksi433 = [b for b in isi_aksi433.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi433, "w", encoding="utf-8") as f:
+            f.write(isi_aksi433.replace(
+                baris_aksi433,
+                baris_aksi433.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git credential-store get; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub433, [sys.executable, GERBANG, "--semua"])
+        periksa("git credential-store get: "
+                "gerbang gagal (Audit 1220)", rc != 0)
+        shutil.rmtree(sub433, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

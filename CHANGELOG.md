@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — credential: kata aksi sebagai nilai --file bukan aksi (Audit 1220)
+
 ## [Belum rilis] — check-mailmap: --stdin menolak operand kontak (Audit 1219)
 
 ## [Belum rilis] — check-mailmap: operand '-' bukan stdin (Audit 1218)
