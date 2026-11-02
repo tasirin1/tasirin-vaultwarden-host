@@ -1745,7 +1745,10 @@ def _menguras_khusus(perintah, toks, awal):
         if not any(t == "-@" or re.fullmatch(r"-[a-z]*@", t)
                    for t in mentah):
             return False
-        return any(not t.startswith("-") for t in mentah)
+        # Audit 1130: arsip "-" (ditulis ke stdout) adalah operand
+        # arsip yang sah — dulu tak terhitung karena berawalan '-'.
+        return any(not t.startswith("-") or t == "-"
+                   for t in mentah)
     if perintah == "rsync":
         # Audit 1064: --files-from=- membaca daftar dari stdin.
         for i, t in enumerate(mentah):

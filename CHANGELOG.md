@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — zip berarsip '-' kini dihitung operand oleh gerbang patch (Audit 1130)
+
 ## [Belum rilis] — openssl dgst -mac/-macopt/-prverify masuk tabel bernilai gerbang patch (Audit 1129)
 
 ## [Belum rilis] — subcommand objek-tunggal openssl putaran-2 kini dikenali gerbang patch (Audit 1128)
