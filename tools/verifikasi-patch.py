@@ -847,6 +847,8 @@ _OPSI_PEMBUNGKUS = {
     "sg": set(),
     # Audit 1194: newgrp sekelas sg.
     "newgrp": set(),
+    # Audit 1203: ssh-agent pembungkus perintah anak.
+    "ssh-agent": {"-a", "-t", "-E", "-P"},
     # Audit 1084: chroot dikenal resolver sejak 1065 tetapi tabel
     # opsinya kosong — --userspec/--groups bernilai tak dilompati.
     "chroot": {"--userspec", "--groups", "--skip-chdir"},
@@ -2581,7 +2583,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 "setpriv", "prlimit",
                 # Audit 1194/1203: newgrp (sekelas sg) dan
                 # ssh-agent.
-                "newgrp"):
+                "newgrp", "ssh-agent"):
             # Audit 1051: 'command' SESUDAH exec adalah nama program
             # untuk execvp, bukan pembungkus — jangan transparan.
             if sesudah_exec and t0 == "command":

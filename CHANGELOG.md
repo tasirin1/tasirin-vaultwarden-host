@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — ssh-agent dikenal gerbang sebagai pembungkus (Audit 1203)
+
 ## [Belum rilis] — sysctl -p - dikenali gerbang (Audit 1202)
 
 ## [Belum rilis] — date -f - dikenali gerbang (Audit 1201)
