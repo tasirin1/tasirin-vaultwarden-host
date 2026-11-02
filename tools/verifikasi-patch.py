@@ -663,6 +663,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "mawk", "nawk", "egrep", "fgrep", "rg",
                   # Audit 1113: varian awk orisinal.
                   "original-awk",
+                  # Audit 1196: pemulih tabel firewall membaca
+                  # aturannya dari stdin secara bawaan.
+                  "iptables-restore", "ip6tables-restore",
                   # Audit 1191/1192: funzip mengekstrak anggota
                   # pertama arsip zip dari stdin; json_pp
                   # memformat JSON dari stdin.
@@ -763,6 +766,11 @@ _OPSI_BERNILAI = {
            "--memlimit-compress", "--memlimit-decompress",
            # Audit 1172: -F/--format bernilai.
            "-F", "--format"},
+    # Audit 1196: opsi bernilai pemulih tabel firewall.
+    "iptables-restore": {"-T", "--table", "-M", "--modprobe",
+                         "-w", "--wait"},
+    "ip6tables-restore": {"-T", "--table", "-M", "--modprobe",
+                          "-w", "--wait"},
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — iptables-restore dikenal gerbang sebagai pembaca stdin (Audit 1196)
+
 ## [Belum rilis] — nft -f - dikenali gerbang (Audit 1195)
 
 ## [Belum rilis] — newgrp dikenal gerbang sebagai pembungkus (Audit 1194)
