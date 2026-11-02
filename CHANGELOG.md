@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — pembungkus strace/dbus-run-session/runuser/su/sg kini dimodelkan gerbang patch (Audit 1107)
+
 ## [Belum rilis] — operasi stdin gpg di luar enkripsi kini dikenali gerbang patch (Audit 1106)
 
 ## [Belum rilis] — subcommand objek-tunggal openssl kini dinilai gerbang patch (Audit 1105)

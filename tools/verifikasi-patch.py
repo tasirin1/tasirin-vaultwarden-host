@@ -763,6 +763,20 @@ _OPSI_PEMBUNGKUS = {
     # Audit 1070: systemd-cat — operandnya perintah (pembungkus);
     # tanpa operand ia meneruskan stdin-nya sendiri ke jurnal.
     "systemd-cat": {"-t", "--identifier", "-p", "--priority"},
+    # Audit 1107: pembungkus putaran-2 — strace (perintah di
+    # belakang opsi pelacak), dbus-run-session (sesi baru lalu
+    # perintah operand), runuser (perintah operand sesudah -u).
+    "strace": {"-o", "--output", "-p", "--attach", "-e", "--trace",
+               "-s", "--string-limit", "-u", "--runas", "-E", "--env",
+               "-a", "--align", "-I", "--interruptible", "-b",
+               "--detach-on", "--trace-path", "--env"},
+    "dbus-run-session": {"--config-file", "--dbus-daemon"},
+    "runuser": {"-u", "--user", "-g", "--group", "-G",
+                "--supp-group", "-s", "--shell"},
+    # Audit 1107: su/sg ditangani blok khusus resolver (string -c
+    # dinilai seperti flock); entri ini hanya untuk opsi lain.
+    "su": {"-s", "--shell", "-g", "--group", "-G", "--supp-group"},
+    "sg": set(),
     # Audit 1084: chroot dikenal resolver sejak 1065 tetapi tabel
     # opsinya kosong — --userspec/--groups bernilai tak dilompati.
     "chroot": {"--userspec", "--groups", "--skip-chdir"},
@@ -2066,7 +2080,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # Audit 1065/1070: pembungkus baru — unshare dan
                 # chroot (operand direktori ditangani di bawah),
                 # systemd-cat (operand perintah/penyalur stdin).
-                "unshare", "chroot", "systemd-cat"):
+                # Audit 1107: pembungkus putaran-2 — strace,
+                # dbus-run-session, runuser (perintah operand);
+                # su/sg (string -c / shell interaktif, blok khusus).
+                "unshare", "chroot", "systemd-cat", "strace",
+                "dbus-run-session", "runuser", "su", "sg"):
             # Audit 1051: 'command' SESUDAH exec adalah nama program
             # untuk execvp, bukan pembungkus — jangan transparan.
             if sesudah_exec and t0 == "command":
@@ -2107,6 +2125,52 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # perintah — lompatan wajib melewatinya juga, kalau
             # tidak nilai itu yang dinilai sebagai perintah.
             bernilai = _OPSI_PEMBUNGKUS.get(t0, ())
+            if t0 in ("su", "sg"):
+                # Audit 1107: su/sg — string -c dinilai seperti
+                # flock -c; tanpa -c keduanya menjatuhkan shell
+                # interaktif yang membaca perintah dari stdin.
+                # Operand pertama adalah pengguna (su) / grup (sg).
+                bernilai_su = {"-s", "--shell", "-g", "--group",
+                               "-G", "--supp-group"}
+                j_su = awal
+                operand_su = False
+                while j_su < len(toks):
+                    t_su = toks[j_su]
+                    if t_su in ("-c", "--command"):
+                        j_su += 1
+                        j_su = _sesudah_redirect_berantai(
+                            toks, j_su, _batas_argv)
+                        if j_su < 0 or j_su >= len(toks):
+                            return False
+                        nilai_su = toks[j_su]
+                        if (len(nilai_su) >= 1
+                                and nilai_su[0] in "\"'"
+                                and not (len(nilai_su) >= 2
+                                         and nilai_su[-1]
+                                         == nilai_su[0])):
+                            kutip_su = nilai_su[0]
+                            kumpul_su = [nilai_su]
+                            k_su = j_su + 1
+                            while k_su < len(toks):
+                                kumpul_su.append(toks[k_su])
+                                if toks[k_su].endswith(kutip_su):
+                                    break
+                                k_su += 1
+                            nilai_su = " ".join(kumpul_su)
+                        return _menguras_stdin(
+                            nilai_su.strip("\"'"))
+                    if t_su in bernilai_su:
+                        j_su += 2
+                        continue
+                    if t_su == "--" or t_su.startswith("-"):
+                        j_su += 1
+                        continue
+                    if not operand_su:
+                        operand_su = True
+                        j_su += 1
+                        continue
+                    break
+                return True
             while awal < len(toks):
                 if awal >= _batas_argv:
                     # Audit 965: redirect bisa menyela daftar opsi
