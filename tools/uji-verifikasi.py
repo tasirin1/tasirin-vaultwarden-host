@@ -3535,6 +3535,25 @@ def main():
         periksa("curl urlencode name@-: gerbang gagal (Audit 1085)", rc != 0)
         shutil.rmtree(sub175, ignore_errors=True)
 
+        sub176 = klon(tmp, "sub176")
+        berkas_aksi176 = os.path.join(
+            sub176, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi176, encoding="utf-8") as f:
+            isi_aksi176 = f.read()
+        baris_aksi176 = [b for b in isi_aksi176.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi176, "w", encoding="utf-8") as f:
+            f.write(isi_aksi176.replace(
+                baris_aksi176,
+                baris_aksi176.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --data-raw - http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub176,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("curl --data-raw '-' harfiah: gerbang lolos (Audit 1086)", rc == 0)
+        shutil.rmtree(sub176, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

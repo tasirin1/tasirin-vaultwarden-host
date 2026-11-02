@@ -1565,10 +1565,12 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1068: data/unggah/konfigurasi dari stdin.
         # Audit 1085: bentuk merekat (-d@-, -T-, nilai = pada --form)
         # dan bagian-berkas -F/--data-urlencode (name@-).
+        # Audit 1086: --data-raw TIDAK pernah membaca stdin — '@'
+        # dan '-' di nilainya data harfiah.
         i = 0
         while i < len(mentah):
             t = mentah[i]
-            if t in ("-d", "--data", "--data-ascii", "--data-raw",
+            if t in ("-d", "--data", "--data-ascii",
                      "--data-binary", "--data-urlencode", "-T",
                      "--upload-file", "-K", "--config", "-F",
                      "--form"):
@@ -1592,6 +1594,9 @@ def _menguras_khusus(perintah, toks, awal):
                     elif v == "-":
                         return True
                 i += 2
+                continue
+            if t == "--data-raw" or t.startswith("--data-raw="):
+                i += 2 if t == "--data-raw" else 1
                 continue
             if (t.startswith("--data") and "@-" in t) or (
                     t.startswith("--form") and "@-" in t

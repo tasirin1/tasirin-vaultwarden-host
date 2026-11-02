@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — curl --data-raw tak lagi divonis membaca stdin oleh gerbang patch (Audit 1086)
+
 ## [Belum rilis] — bentuk data curl merekat kini terdeteksi gerbang patch (Audit 1085)
 
 ## [Belum rilis] — tabel opsi pembungkus chroot dilengkapi di gerbang patch (Audit 1084)
