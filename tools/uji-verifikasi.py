@@ -11115,6 +11115,25 @@ def main():
                 "gerbang gagal (Audit 1374)", rc != 0)
         shutil.rmtree(sub592, ignore_errors=True)
 
+        sub593 = klon(tmp, "sub593")
+        berkas_aksi593 = os.path.join(
+            sub593, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi593, encoding="utf-8") as f:
+            isi_aksi593 = f.read()
+        baris_aksi593 = [b for b in isi_aksi593.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi593, "w", encoding="utf-8") as f:
+            f.write(isi_aksi593.replace(
+                baris_aksi593,
+                baris_aksi593.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(perl -d skrip.pl; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub593, [sys.executable, GERBANG, "--semua"])
+        periksa("perl -d skrip.pl: "
+                "gerbang gagal (Audit 1375)", rc != 0)
+        shutil.rmtree(sub593, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

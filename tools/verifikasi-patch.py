@@ -1500,6 +1500,7 @@ def _menguras_interpreter(perintah, toks, awal):
     if perintah == "perl":
         pakai_lingkar = False
         ada_berkas = False
+        debugger = False
         # Audit 1119: tanpa operand skrip sama sekali, perl
         # membaca SKRIP-nya dari stdin (telanjang, -w, "-").
         skrip_terisi = False
@@ -1515,6 +1516,13 @@ def _menguras_interpreter(perintah, toks, awal):
                 if (re.fullmatch(r"[A-Za-z]+", huruf)
                         and ("n" in huruf or "p" in huruf)):
                     pakai_lingkar = True
+                # Audit 1375: -d (termasuk bundel huruf dan
+                # bentuk -d:Modul) menyalakan debugger, yang
+                # membaca PERINTAH dari stdin.
+                if ((re.fullmatch(r"[A-Za-z]+", huruf)
+                        and "d" in huruf)
+                        or t.startswith("-d:")):
+                    debugger = True
                 # Bundel berakhiran -e (-ne/-pe): token berikutnya
                 # adalah skripnya, bukan berkas masukan.
                 if re.fullmatch(r"[A-Za-z]*e", huruf):
@@ -1538,6 +1546,10 @@ def _menguras_interpreter(perintah, toks, awal):
                 ada_berkas = True
             i += 1
         if not skrip_terisi:
+            return True
+        # Audit 1375: kanal perintah debugger membaca stdin
+        # apa pun mode lingkar/operand skripnya.
+        if debugger:
             return True
         return pakai_lingkar and (berkas_stdin or not ada_berkas)
     if perintah == "expect":
