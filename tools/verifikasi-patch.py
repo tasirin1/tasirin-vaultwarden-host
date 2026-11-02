@@ -3598,6 +3598,10 @@ def _menguras_khusus(perintah, toks, awal):
     # sertifikat dari stdin (dengan basis data NSS sah).
     if perintah == "certutil":
         return "-A" in mentah and "-i" not in mentah
+    # Audit 1431: cmsutil -D tanpa -i membaca pesan
+    # dari stdin.
+    if perintah == "cmsutil":
+        return "-D" in mentah and "-i" not in mentah
     return False
 
 
@@ -4334,7 +4338,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "pdffonts", "pdfimages", "pdftops",
                         # Audit 1404: perender poppler.
                         "pdftoppm", "pdftocairo",
-                        "certutil",
+                        "certutil", "cmsutil",
                         # Audit 1305-1345: penilai khusus putaran-9.
                         "zcmp", "zdiff",
                         "xzcmp", "xzdiff",

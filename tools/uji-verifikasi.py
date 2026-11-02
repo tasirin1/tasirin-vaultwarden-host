@@ -14218,6 +14218,27 @@ def main():
         periksa("certutil -A -n nama -t ,, -d db: "
                 "gerbang gagal (Audit 1430)", rc != 0)
         shutil.rmtree(sub656, ignore_errors=True)
+        sub657 = klon(tmp, "sub657")
+        berkas_aksi657 = os.path.join(
+            sub657, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi657, encoding="utf-8") as f:
+            isi_aksi657 = f.read()
+        baris_aksi657 = [b for b in isi_aksi657.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru657 = isi_aksi657.replace(
+                baris_aksi657,
+                baris_aksi657.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(cmsutil -D; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru657 != isi_aksi657, \
+            "suntikan aksi657 tidak menembak"
+        with open(berkas_aksi657, "w", encoding="utf-8") as f:
+            f.write(isi_baru657)
+        rc, out = jalan(sub657, [sys.executable, GERBANG, "--semua"])
+        periksa("cmsutil -D: "
+                "gerbang gagal (Audit 1431)", rc != 0)
+        shutil.rmtree(sub657, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
