@@ -9322,6 +9322,24 @@ def main():
         periksa("git check-mailmap --stdin 'A <a@b.c>': "
                 "gerbang gagal (Audit 1270)", rc != 0)
         shutil.rmtree(sub493, ignore_errors=True)
+        sub494 = klon(tmp, "sub494")
+        berkas_aksi494 = os.path.join(
+            sub494, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi494, encoding="utf-8") as f:
+            isi_aksi494 = f.read()
+        baris_aksi494 = [b for b in isi_aksi494.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi494, "w", encoding="utf-8") as f:
+            f.write(isi_aksi494.replace(
+                baris_aksi494,
+                baris_aksi494.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git credential-cache --timeout 300 get; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub494, [sys.executable, GERBANG, "--semua"])
+        periksa("git credential-cache --timeout 300 get: "
+                "gerbang gagal (Audit 1271)", rc != 0)
+        shutil.rmtree(sub494, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

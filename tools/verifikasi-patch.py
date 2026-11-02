@@ -2209,10 +2209,15 @@ def _menguras_khusus(perintah, toks, awal):
             # Audit 1186: TANPA aksi = galat usage, tak membaca.
             # Audit 1220: kata aksi yang menjadi NILAI opsi
             # (--file get) bukan aksi — lewati nilai opsi.
-            i_cr = 1
+            # Audit 1271: mulai SESUDAH token subcommand —
+            # opsi global git (-C <path> dsb.) sebelumnya
+            # menggeser posisi; nilai opsi helper lain
+            # (--timeout/--socket cache) juga ditelan.
+            i_cr = (mentah.index(sub) + 1 if sub in mentah
+                    else 1)
             while i_cr < len(mentah):
                 t_cr = mentah[i_cr]
-                if t_cr == "--file":
+                if t_cr in ("--file", "--timeout", "--socket"):
                     i_cr += 2
                     continue
                 if t_cr.startswith("--file=") or (
