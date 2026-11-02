@@ -1685,6 +1685,19 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "patch":
         # Audit 1071: patch membaca patch dari stdin; operand
         # kedua (berkas patch) yang menekannya.
+        # Audit 1093: -i/--input memasok berkas patch itu sendiri
+        # (kecuali nilainya '-' = stdin).
+        for k_p, t_p in enumerate(mentah):
+            if t_p in ("-i", "--input"):
+                return k_p + 1 < len(mentah) \
+                    and mentah[k_p + 1] == "-"
+            if t_p.startswith("--input="):
+                return t_p.split("=", 1)[1] == "-"
+            if re.fullmatch(r"-[a-z]*i", t_p):
+                return k_p + 1 < len(mentah) \
+                    and mentah[k_p + 1] == "-"
+            if re.fullmatch(r"-[a-z]*i.+", t_p):
+                return False
         ops = _operand_sesudah_opsi(
             toks, awal,
             {"-i", "--input", "-d", "--directory", "-o", "--output",

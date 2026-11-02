@@ -3706,6 +3706,25 @@ def main():
         periksa("nc -z pindai: gerbang lolos (Audit 1092)", rc == 0)
         shutil.rmtree(sub184, ignore_errors=True)
 
+        sub185 = klon(tmp, "sub185")
+        berkas_aksi185 = os.path.join(
+            sub185, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi185, encoding="utf-8") as f:
+            isi_aksi185 = f.read()
+        baris_aksi185 = [b for b in isi_aksi185.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi185, "w", encoding="utf-8") as f:
+            f.write(isi_aksi185.replace(
+                baris_aksi185,
+                baris_aksi185.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(patch -i berkas2 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub185,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("patch -i sumber berkas: gerbang lolos (Audit 1093)", rc == 0)
+        shutil.rmtree(sub185, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
