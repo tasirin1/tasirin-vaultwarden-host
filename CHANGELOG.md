@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Id labelPinLogin yang tak terpakai dibuang agar lint hijau (Audit 1009)
+
+- Perbaikan build: commit Audit 977 memberi `android:id` pada TextView label PIN login di kedua layout activity_pin (portrait + land), tetapi id itu tidak direferensikan siapa pun — lint menilainya UnusedIds berlevel Error dan lintDebug menggagalkan Build APK walau kompilasi dan seluruh uji JVM sudah hijau (kegagalan ini tertutup galat kompilasi 978 sampai sekarang). Baris id dibuang dari kedua layout; kaitan labelFor ke pinInput tidak berubah dan tetap bekerja.
+
 ## [Belum rilis] — Gerbang: target duplikasi bersufiks huruf di pemindaian xargs ditolak (Audit 1007)
 
 - Perbaikan perkakas: pemindaian titik-akhir xargs membaca target duplikasi dengan regex awalan digit, sehingga `xargs cat <&0x` dan `<&0abc` dinilai duplikasi-diri netral — padahal bash menolak target itu sebagai ambiguous redirect dan perintah batal sebelum berjalan (pipa tak tersentuh, fail-closed). Target kini wajib cocok penuh (`\d+` dengan sufiks `-` yang memang ditoleransi bash, atau `-`); sufiks lain membuat segmen dinilai bukan penguras. Skenario uji-diri baru (aksi 101) mengunci bentuk itu sebagai segmen bukan-penguras — gerbang wajib LOLOS. Probe dua arah gabungan seluruh temuan gerbang putaran ini: 0 selisih.
