@@ -7450,6 +7450,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("prlimit --pid 1 cat: gerbang lolos (Audit 1189)", rc == 0)
         shutil.rmtree(sub389, ignore_errors=True)
+        sub390 = klon(tmp, "sub390")
+        berkas_aksi390 = os.path.join(
+            sub390, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi390, encoding="utf-8") as f:
+            isi_aksi390 = f.read()
+        baris_aksi390 = [b for b in isi_aksi390.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi390, "w", encoding="utf-8") as f:
+            f.write(isi_aksi390.replace(
+                baris_aksi390,
+                baris_aksi390.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(funzip; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub390,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("funzip: gerbang gagal (Audit 1191)", rc != 0)
+        shutil.rmtree(sub390, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

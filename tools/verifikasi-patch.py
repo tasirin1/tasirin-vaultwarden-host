@@ -662,7 +662,11 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # (dipetakan ke nama kanonis di penilainya).
                   "mawk", "nawk", "egrep", "fgrep", "rg",
                   # Audit 1113: varian awk orisinal.
-                  "original-awk"}
+                  "original-awk",
+                  # Audit 1191/1192: funzip mengekstrak anggota
+                  # pertama arsip zip dari stdin; json_pp
+                  # memformat JSON dari stdin.
+                  "funzip"}
 
 
 _OPSI_BERNILAI = {
