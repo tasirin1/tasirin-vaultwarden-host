@@ -1301,6 +1301,23 @@ public class TgBackupTest {
     }
 
     @Test
+    public void gabungGagalChat_pemisahDanNull() {
+        // Audit 1190: gabungGagalChat sebelumnya tanpa uji
+        // langsung — fungsi murni penentu teks ringkasan.
+        assertEquals("", TgBackup.gabungGagalChat(null));
+        assertEquals("",
+                TgBackup.gabungGagalChat(java.util.List.of()));
+        assertEquals("satu",
+                TgBackup.gabungGagalChat(java.util.List.of("satu")));
+        assertEquals("a; b",
+                TgBackup.gabungGagalChat(
+                        java.util.List.of("a", "b")));
+        assertEquals("a; ; b",
+                TgBackup.gabungGagalChat(java.util.Arrays.asList(
+                        "a", null, "b")));
+    }
+
+    @Test
     public void sudahGantiHari_bedaHariKalender() {
         java.util.Calendar c = java.util.Calendar.getInstance();
         c.set(2026, java.util.Calendar.SEPTEMBER, 21, 23, 59, 0);

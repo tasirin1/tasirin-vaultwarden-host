@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — uji JVM untuk TgBackup.gabungGagalChat (Audit 1190)
+
 ## [Belum rilis] — prlimit mode --pid tak lagi dinilai pembungkus (Audit 1189)
 
 ## [Belum rilis] — tar -T kosong tak lagi divonis menguras (Audit 1188)
