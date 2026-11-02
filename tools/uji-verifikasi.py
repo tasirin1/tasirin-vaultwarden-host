@@ -9430,6 +9430,24 @@ def main():
         periksa("iconv -o --usage: "
                 "gerbang gagal (Audit 1276)", rc != 0)
         shutil.rmtree(sub499, ignore_errors=True)
+        sub500 = klon(tmp, "sub500")
+        berkas_aksi500 = os.path.join(
+            sub500, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi500, encoding="utf-8") as f:
+            isi_aksi500 = f.read()
+        baris_aksi500 = [b for b in isi_aksi500.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi500, "w", encoding="utf-8") as f:
+            f.write(isi_aksi500.replace(
+                baris_aksi500,
+                baris_aksi500.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(prlimit -p=999999 cat; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub500, [sys.executable, GERBANG, "--semua"])
+        periksa("prlimit -p=999999 cat: "
+                "gerbang lolos (Audit 1277)", rc == 0)
+        shutil.rmtree(sub500, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

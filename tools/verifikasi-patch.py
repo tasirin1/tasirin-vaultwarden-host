@@ -2942,7 +2942,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     if not t_pr.startswith("-"):
                         break
                     if (t_pr == "--pid"
-                            or t_pr.startswith("--pid=")):
+                            or t_pr.startswith("--pid=")
+                            # Audit 1277: bentuk pendek -p.
+                            or t_pr == "-p"
+                            or t_pr.startswith("-p=")
+                            or re.fullmatch(r"-p\d+", t_pr)):
                         return False
                     if ("=" not in t_pr and t_pr
                             in _OPSI_PEMBUNGKUS.get(
