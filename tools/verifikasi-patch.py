@@ -1103,6 +1103,9 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     nilai2 = {"--arg", "--argjson", "--rawfile", "--slurpfile"}
     skrip_dari_opsi = False
     skrip_terisi = False
+    # Audit 1138: sed -i (edit di tempat) tanpa operand berkas
+    # adalah galat ("no input files"), bukan pembaca stdin.
+    sed_i = False
     i = awal + 1
     n = len(toks)
     while i < n:
@@ -1184,6 +1187,12 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                     skrip_dari_opsi = True
                 i += 1
                 continue
+            if perintah == "sed" and (
+                    bersih == "--in-place"
+                    or bersih.startswith("--in-place=")
+                    or re.fullmatch(r"-[a-z]*i[a-z]*(\..*)?",
+                                    bersih)):
+                sed_i = True
             i += 1  # bendera polos
             continue
         if bersih == "-":
@@ -1206,6 +1215,11 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             skrip_terisi = True
             i += 1
             continue
+        return False
+    # Audit 1138: lingkar habis tanpa operand berkas — sed -i
+    # galat dan tak membaca (operand berkas akan return False
+    # di dalam lingkar).
+    if perintah == "sed" and sed_i:
         return False
     return True
 

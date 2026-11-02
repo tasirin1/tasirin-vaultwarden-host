@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — sed -i tanpa operand berkas kini dinilai gerbang patch sebagai galat (Audit 1138)
+
 ## [Belum rilis] — basenc kini menghormati operand berkas dan '-' di gerbang patch (Audit 1137)
 
 ## [Belum rilis] — panggilan informasional kini menjangkau penilai khusus gerbang patch (Audit 1136)
