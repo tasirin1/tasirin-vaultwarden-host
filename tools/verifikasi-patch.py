@@ -858,6 +858,29 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     # Audit 970: bentuk daftar/pid — tak ada
                     # operand masker/prio yang perlu dilompati.
                     tanpa_masker = True
+                if (t0 == "ionice" and len(opsi) > 2
+                        and opsi.startswith("-")
+                        and not opsi.startswith("--")):
+                    # Audit 1006: bundel opsi — getopt menguraikan
+                    # token gabungan huruf demi huruf; opsi bernilai
+                    # (c/n/u) menelan sisa token sebagai nilainya,
+                    # atau token berikutnya bila ia huruf terakhir
+                    # ("-tc 2" = -t + -c 2). Bendera lain yang
+                    # dikenal hanya -t; huruf tak dikenal menghentikan
+                    # penguraian (perilaku lama dipertahankan).
+                    for j_b in range(1, len(opsi)):
+                        ch_b = opsi[j_b]
+                        if ch_b in "cnu":
+                            if j_b == len(opsi) - 1:
+                                awal = _sesudah_redirect_berantai(
+                                    toks, awal, _batas_argv)
+                                if awal < 0:
+                                    return False
+                                if awal < len(toks):
+                                    awal += 1
+                            break
+                        if ch_b != "t":
+                            break
                 if opsi in bernilai:
                     # Audit 968: redirect yang menyela bukan nilai
                     # opsi — lompati dulu, baru telan nilainya.

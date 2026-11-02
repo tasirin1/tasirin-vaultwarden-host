@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bundel opsi ionice bernilai-terpisah diuraikan (Audit 1006)
+
+- Perbaikan perkakas: lingkar opsi pembungkus hanya mencocokkan opsi bernilai secara persis, sehingga bundel getopt seperti `ionice -tc 2 cat` dan `ionice -tn 3 cat` (bendera -t digabung opsi bernilai -c/-n yang nilainya token berikutnya) berhenti dinilai pada token nilainya — perintah di baliknya tak terlihat dan bentuk penguras dinilai aman (fail-open). Kini token bundel ionice diuraikan huruf demi huruf mengikuti getopt: opsi bernilai menelan sisa token, atau token berikutnya bila ia huruf terakhir; huruf tak dikenal selain -t menghentikan penguraian seperti perilaku lama. Skenario uji-diri baru (aksi 100) mengunci `ionice -tc 2 cat` sebagai penguras di segmen pertama substitusi proses — gerbang wajib GAGAL. Probe dua arah: kedua bentuk selisih tertutup, bentuk merekat dan kontrol tetap benar.
+
 ## [Belum rilis] — Gerbang: token redirect sesudah opsi bernilai bukan nilai opsi (Audit 1005)
 
 - Perbaikan perkakas: lingkar operand `_menguras_stdin` menelan token apa pun sesudah opsi bernilai sebagai nilainya, termasuk token redirect — padahal shell memproses redirect sebelum program berjalan, jadi `head -n 3<berkas`, `sort -t <berkas`, dan kawanannya membuat program keluar dengan galat "option requires an argument" tanpa membaca stdin. Model menilai bentuk-bentuk itu menguras (fail-closed). Cabang penelan kini memeriksa bentuk redirect lebih dulu dan menilai perintah tak menguras. Skenario uji-diri baru (aksi 99) mengunci `head -n 3<...` sebagai segmen bukan-penguras — gerbang wajib LOLOS. Probe dua arah: ketujuh bentuk selisih tertutup, kontrol opsi terpenuhi tetap benar.

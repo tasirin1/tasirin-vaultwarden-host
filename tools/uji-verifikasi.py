@@ -2051,6 +2051,27 @@ def main():
                 "lolos (Audit 1005)", rc == 0)
         shutil.rmtree(subopsiredirect, ignore_errors=True)
 
+        subionicebundel = klon(tmp, "subionicebundel")
+        berkas_aksi100 = os.path.join(
+            subionicebundel, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi100, encoding="utf-8") as f:
+            isi_aksi100 = f.read()
+        baris_tulis100 = [b for b in isi_aksi100.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi100, "w", encoding="utf-8") as f:
+            f.write(isi_aksi100.replace(
+                baris_tulis100,
+                baris_tulis100.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ionice -tc 2 cat; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subionicebundel,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel ionice -tc bernilai-terpisah adalah "
+                "penguras: gerbang gagal (Audit 1006)", rc != 0)
+        shutil.rmtree(subionicebundel, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
