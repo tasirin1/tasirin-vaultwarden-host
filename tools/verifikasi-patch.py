@@ -2040,6 +2040,19 @@ def _menguras_khusus(perintah, toks, awal):
             # Audit 1161: rsautl (deprecated) membaca masukan
             # dari stdin tanpa -in, seperti pkeyutl.
             return not _in_non_stdin()
+        # Audit 1402: sess_id/asn1parse pembaca objek juga —
+        # tanpa -in DAN tanpa operand posisi membaca objek
+        # sesi/DER dari stdin (operand posisi adalah berkas
+        # masukannya, terprobe).
+        if sub in ("sess_id", "asn1parse"):
+            if _in_non_stdin():
+                return False
+            ops_os = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-in", "-inform", "-outform", "-out",
+                 "-strparse", "-genconf", "-config",
+                 "-nameopt", "-certopt"})
+            return not ops_os
         if sub == "passwd":
             return "-stdin" in mentah
         if sub == "s_client":

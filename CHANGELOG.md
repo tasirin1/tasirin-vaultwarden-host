@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Openssl sess_id/asn1parse membaca objek dari stdin (Audit 1402)
 ## [Belum rilis] — Keluarga interaktif git -p/-i membaca jawaban prompt (Audit 1401)
 ## [Belum rilis] — Git format-patch --stdin membaca daftar revisi (Audit 1400)
 ## [Belum rilis] — Git credential approve/reject setara fill (Audit 1399)
