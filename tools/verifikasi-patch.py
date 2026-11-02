@@ -1117,6 +1117,11 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
         if bersih == "-":
             i += 1
             continue
+        if (bersih in ("/dev/stdin", "/dev/fd/0", "/proc/self/fd/0")
+                and (skrip_terisi or skrip_dari_opsi)):
+            # Audit 1099: jalur fd-0 di posisi berkas adalah stdin.
+            i += 1
+            continue
         if (perintah == "awk" and (skrip_terisi or skrip_dari_opsi)
                 and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", bersih)):
             # Audit 1052: penetapan awk hanya sah SESUDAH slot
@@ -2470,6 +2475,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # Audit 1080: operand usang +N (mulai dari baris N)
             # bukan berkas — hanya perintah yang masih
             # mendukungnya (head modern menolaknya: bukan temuan).
+            continue
+        if t.strip("\"'") in ("/dev/stdin", "/dev/fd/0",
+                              "/proc/self/fd/0"):
+            # Audit 1099: jalur fd-0 sebagai operand ADALAH stdin
+            # itu sendiri (pengecualian 1041 diperluas dari dd).
             continue
         if perintah == "tr":
             # Audit 1037: operand tr adalah himpunan karakter,

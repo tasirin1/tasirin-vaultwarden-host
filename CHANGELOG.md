@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — operand jalur /dev/stdin dan fd-0 kini dinilai stdin oleh gerbang patch (Audit 1099)
+
 ## [Belum rilis] — varian nama kompresor kini dikenali gerbang patch (Audit 1098)
 
 ## [Belum rilis] — sudo bundel -si/-is tak lagi divonis mode shell oleh gerbang patch (Audit 1097)
