@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — pagar kejar-waktu AlarmReceiver diekstrak ke fungsi murni teruji JVM (Audit 1073)
+
 ## [Belum rilis] — pager/editor stdin pipa more/less/vi kini dinilai gerbang patch (Audit 1072)
 
 ## [Belum rilis] — berkas masukan utama dari stdin make/visudo/patch kini dinilai gerbang patch (Audit 1071)

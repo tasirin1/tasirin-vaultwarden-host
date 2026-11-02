@@ -813,6 +813,27 @@ public class TgBackupTest {
     }
 
     @Test
+    public void bolehKejarBackupWaktu_throttleJamMundurDanHariBaru() {
+        long sehari = 24L * 3600 * 1000;
+        long wajar = TgBackup.BATAS_JAM_WAJAR_MS + 10L * sehari;
+
+        // Belum pernah backup: hari "baru" sejak epoch prefs.
+        assertTrue(TgBackup.bolehKejarBackupWaktu(0, wajar));
+
+        // Throttle: kurang dari 1 jam sejak backup terakhir.
+        assertFalse(TgBackup.bolehKejarBackupWaktu(wajar, wajar + 1800_000L));
+
+        // Tepat 1 jam: lolos throttle, tetapi hari yang sama.
+        assertFalse(TgBackup.bolehKejarBackupWaktu(wajar, wajar + 3600_000L));
+
+        // Hari berikutnya: kejar.
+        assertTrue(TgBackup.bolehKejarBackupWaktu(wajar, wajar + sehari));
+
+        // Audit 1027: jam dimundurkan — jangan kejar.
+        assertFalse(TgBackup.bolehKejarBackupWaktu(wajar + sehari, wajar));
+    }
+
+    @Test
     public void siapkanFileKirimCa_namaUnikDanIsiSama() throws Exception {
         File ca = File.createTempFile("ca-asli", ".pem");
         File cache = new File(System.getProperty("java.io.tmpdir"),

@@ -181,18 +181,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
             long kini = System.currentTimeMillis();
 
-            if (last > 0 && kini >= last && kini - last < 3600_000L) {
-                return;
-            }
-            if (last > 0 && kini < last) {
-                // Audit 1027: jam dimundurkan — jangan kejar backup:
-                // tanggal lokal yang mundur bukan hari baru, dan
-                // stempel backup terakhir tak boleh ikut mundur.
-                // Selaras pagar jalur susulan boot
-                // (bolehBackupSusulanBoot).
-                return;
-            }
-            if (TgBackup.sudahGantiHari(last, kini)) {
+            // Audit 1073: keputusan diekstrak ke fungsi murni
+            // TgBackup.bolehKejarBackupWaktu (pagar Audit 1027
+            // kini teruji JVM).
+            if (TgBackup.bolehKejarBackupWaktu(last, kini)) {
                 mulaiBackup(context);
             }
             return;

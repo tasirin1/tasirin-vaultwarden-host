@@ -290,6 +290,25 @@ public final class TgBackup {
         return sudahGantiHari(lastBackupMs, sekarangMs);
     }
 
+    // Audit 1073: keputusan jalur kejar-waktu AlarmReceiver
+    // (peristiwa jam/tanggal berubah) sebagai fungsi murni —
+    // sebelumnya inline di onReceive sehingga pagar Audit 1027
+    // tak teruji. True = mulai backup sekarang.
+    static boolean bolehKejarBackupWaktu(long lastBackupMs, long sekarangMs) {
+        if (lastBackupMs > 0 && sekarangMs >= lastBackupMs
+                && sekarangMs - lastBackupMs < 3600_000L) {
+            // Terlalu dekat dengan backup terakhir.
+            return false;
+        }
+        if (lastBackupMs > 0 && sekarangMs < lastBackupMs) {
+            // Audit 1027: jam dimundurkan — jangan kejar backup:
+            // tanggal lokal yang mundur bukan hari baru, dan
+            // stempel backup terakhir tak boleh ikut mundur.
+            return false;
+        }
+        return sudahGantiHari(lastBackupMs, sekarangMs);
+    }
+
     public static long sisaTungguBootMs(long elapsedMs) {
         long sisa = TUNGGU_BOOT_MS - Math.max(0, elapsedMs);
         return sisa > 0 ? sisa : 0;
