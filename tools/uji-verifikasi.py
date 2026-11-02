@@ -9412,6 +9412,24 @@ def main():
         periksa("patch -f --help: "
                 "gerbang lolos (Audit 1275)", rc == 0)
         shutil.rmtree(sub498, ignore_errors=True)
+        sub499 = klon(tmp, "sub499")
+        berkas_aksi499 = os.path.join(
+            sub499, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi499, encoding="utf-8") as f:
+            isi_aksi499 = f.read()
+        baris_aksi499 = [b for b in isi_aksi499.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi499, "w", encoding="utf-8") as f:
+            f.write(isi_aksi499.replace(
+                baris_aksi499,
+                baris_aksi499.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(iconv -o --usage; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub499, [sys.executable, GERBANG, "--semua"])
+        periksa("iconv -o --usage: "
+                "gerbang gagal (Audit 1276)", rc != 0)
+        shutil.rmtree(sub499, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

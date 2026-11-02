@@ -3382,11 +3382,28 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             t.strip("\"'") in ("--help", "--version")
             for t in toks[awal + 1:]):
         return False
-    if perintah == "iconv" and any(
-            # Audit 1263: --usage juga informasional.
-            t.strip("\"'") in ("-l", "--list", "--usage")
-            for t in toks[awal + 1:]):
-        return False
+    if perintah == "iconv":
+        # Audit 1263: --usage juga informasional.
+        # Audit 1276: token yang menjadi NILAI opsi bernilai
+        # iconv (mis. berkas keluaran -o bernama --usage)
+        # bukan panggilan informasional.
+        bernilai_ic = _OPSI_BERNILAI.get("iconv", set())
+        k_ic = awal + 1
+        informasional_ic = False
+        while k_ic < len(toks):
+            t_ic = toks[k_ic].strip("\"'")
+            if t_ic in bernilai_ic:
+                k_ic += 2
+                continue
+            if "=" in t_ic and t_ic.split("=", 1)[0] in bernilai_ic:
+                k_ic += 1
+                continue
+            if t_ic in ("-l", "--list", "--usage"):
+                informasional_ic = True
+                break
+            k_ic += 1
+        if informasional_ic:
+            return False
     lewati = False
     operand_tr = 0  # Audit 1047: penghitung operand himpunan tr.
     # Audit 1087: pada mode hapus (-d tanpa -s) GNU tr menolak
