@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Ptar -f - dinilai (Audit 1312)
+
 ## [Belum rilis] — Cmp menilai operand '-' (Audit 1311)
 
 ## [Belum rilis] — Uncompress masuk tabel pembaca stdin (Audit 1310)

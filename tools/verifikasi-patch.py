@@ -2816,6 +2816,20 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"-i", "--ignore-initial", "-n",
                          "--bytes"})
         return "-" in ops_cm or "/dev/stdin" in ops_cm
+    # Audit 1312: ptar — berkas arsip dari -f.
+    if perintah == "ptar":
+        for k_pt, t_pt in enumerate(mentah):
+            if t_pt in ("-f", "--file"):
+                return (k_pt + 1 < len(mentah)
+                        and mentah[k_pt + 1] in (
+                            "-", "/dev/stdin"))
+            if re.fullmatch(r"-[a-z]*f", t_pt):
+                return (k_pt + 1 < len(mentah)
+                        and mentah[k_pt + 1] in (
+                            "-", "/dev/stdin"))
+            if t_pt.startswith("-f") and len(t_pt) > 2:
+                return t_pt[2:] in ("-", "/dev/stdin")
+        return False
     return False
 
 
@@ -3545,6 +3559,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "xzcmp", "xzdiff",
                         "lzcmp", "lzdiff",
                         "cmp",
+                        "ptar",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
