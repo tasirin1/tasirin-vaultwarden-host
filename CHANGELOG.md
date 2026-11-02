@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — check-mailmap: --stdin menolak operand kontak (Audit 1219)
+
 ## [Belum rilis] — check-mailmap: operand '-' bukan stdin (Audit 1218)
 
 ## [Belum rilis] — Pemeriksa informasional: -t patch adalah bendera mode batch (Audit 1217)

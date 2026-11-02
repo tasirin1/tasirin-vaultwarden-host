@@ -2048,13 +2048,13 @@ def _menguras_khusus(perintah, toks, awal):
         if sub in ("rev-list", "log"):
             return "--stdin" in mentah
         if sub == "check-mailmap":
-            if "--stdin" in mentah:
-                return True
             # Audit 1185: telanjang = fatal 'no contacts
-            # specified' — tak membaca; operand kontak biasa
-            # juga bukan stdin.
-            # Audit 1218: operand '-' BUKAN stdin
-            # (fatal parse kontak).
+            # specified' — tak membaca.
+            # Audit 1218/1219: operand '-' BUKAN stdin
+            # (fatal parse) dan --stdin menolak operand
+            # kontak sama sekali.
+            if "--stdin" in mentah:
+                return not ops_git[1:]
             return False
         if sub in ("credential-store", "credential-cache"):
             # protokol helper membaca deskripsi dari stdin

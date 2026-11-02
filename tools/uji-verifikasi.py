@@ -8188,6 +8188,24 @@ def main():
         periksa("git check-mailmap -: "
                 "gerbang lolos (Audit 1218)", rc == 0)
         shutil.rmtree(sub430, ignore_errors=True)
+        sub431 = klon(tmp, "sub431")
+        berkas_aksi431 = os.path.join(
+            sub431, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi431, encoding="utf-8") as f:
+            isi_aksi431 = f.read()
+        baris_aksi431 = [b for b in isi_aksi431.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi431, "w", encoding="utf-8") as f:
+            f.write(isi_aksi431.replace(
+                baris_aksi431,
+                baris_aksi431.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git check-mailmap --stdin -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub431, [sys.executable, GERBANG, "--semua"])
+        periksa("git check-mailmap --stdin -: "
+                "gerbang lolos (Audit 1219)", rc == 0)
+        shutil.rmtree(sub431, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
