@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — penanda opsi menggantung gerbang patch kini diperiksa semua penilai khusus (Audit 1135)
+
 ## [Belum rilis] — xargs -a - kini dinilai gerbang patch membaca dari stdin (Audit 1134)
 
 ## [Belum rilis] — pra-pindai redirect ekor gerbang patch kini sadar kutip (Audit 1133)

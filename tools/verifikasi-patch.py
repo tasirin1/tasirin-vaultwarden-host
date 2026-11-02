@@ -1585,6 +1585,9 @@ def _menguras_khusus(perintah, toks, awal):
                  # Audit 1129: -mac/-macopt/-prverify bernilai —
                  # nilainya terbaca operand penekan.
                  "-rand", "-mac", "-macopt", "-prverify"})
+            # Audit 1135: opsi menggantung = program galat.
+            if "\x00gantung" in ops:
+                return False
             if sub != "dgst":
                 ops = ops[1:] if ops else []
             return not ops or "-" in ops
@@ -1724,24 +1727,39 @@ def _menguras_khusus(perintah, toks, awal):
         # kolom, bukan opsi bernilai — memasukkannya ke tabel
         # membuat nilai bendera menelan operand '-'.
         # Audit 1110: --output-delimiter bernilai baru ditambah.
-        return "-" in _operand_sesudah_opsi(
+        ops_c = _operand_sesudah_opsi(
             toks, awal, {"--output-delimiter"})
+        # Audit 1135: opsi menggantung = program galat.
+        if "\x00gantung" in ops_c:
+            return False
+        return "-" in ops_c
     if perintah == "join":
         # Audit 1063: '-' di posisi operand mana pun = stdin
         # (di join -1/-2 memang bernilai nomor field).
-        return "-" in _operand_sesudah_opsi(
+        ops_j = _operand_sesudah_opsi(
             toks, awal, {"-1", "-2", "-o", "-t", "-e", "-a", "-v",
                          "--output", "--separator"})
+        # Audit 1135: opsi menggantung = program galat.
+        if "\x00gantung" in ops_j:
+            return False
+        return "-" in ops_j
     if perintah in ("diff", "diff3"):
-        return "-" in _operand_sesudah_opsi(
+        ops_d = _operand_sesudah_opsi(
             toks, awal, {"-U", "-C", "-A", "--unified", "--context",
                          "--width", "-D", "--ifdef", "--label",
                          "--line-format", "--GTYPE-group-format",
                          "--LTYPE-line-format"})
+        # Audit 1135: opsi menggantung = program galat.
+        if "\x00gantung" in ops_d:
+            return False
+        return "-" in ops_d
     if perintah == "csplit":
         ops = _operand_sesudah_opsi(
             toks, awal, {"-f", "--prefix", "-n", "--digits", "-b",
                          "--suffix-format"})
+        # Audit 1135: opsi menggantung = program galat.
+        if "\x00gantung" in ops:
+            return False
         return bool(ops) and ops[0] == "-"
     if perintah == "zip":
         # Audit 1064: -@ membaca daftar nama dari stdin.
@@ -1781,6 +1799,9 @@ def _menguras_khusus(perintah, toks, awal):
              "--cipher-algo", "--digest-algo", "--compress-algo",
              "--cert-digest-algo", "--s2k-cipher-algo",
              "--s2k-digest-algo", "--agent-program"})
+        # Audit 1135: opsi menggantung = program galat.
+        if "\x00gantung" in ops:
+            return False
         # Audit 1106: operasi stdin di luar mode kripto — import/
         # dearmor/enarmor/list-packets tanpa operand berkas, dan
         # print-md yang operand tunggalnya nama algoritma.
