@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — duplikat blok komentar Audit 987 di gerbang patch dihapus (Audit 1054)
+
 ## [Belum rilis] — redirect sesudah mapfile kini terlihat oleh penilai khusus gerbang patch (Audit 1053)
 
 ## [Belum rilis] — penetapan awk sebelum program kini membatalkan vonis gerbang patch (Audit 1052)

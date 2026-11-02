@@ -2711,6 +2711,13 @@ def main():
         periksa("redirect sesudah mapfile mengganti stdin: bukan penguras — gerbang lolos (Audit 1053)", rc == 0)
         shutil.rmtree(submapredir, ignore_errors=True)
 
+        with open(GERBANG, encoding="utf-8") as f:
+            isi_gerbang_1054 = f.read()
+        periksa("komentar Audit 987 tunggal "
+                "(Audit 1054)",
+                isi_gerbang_1054.count(
+                    "# Audit 987: isi string env -S") == 1)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

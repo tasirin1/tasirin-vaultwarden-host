@@ -1220,9 +1220,6 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # Audit 987: isi string env -S di-exec env sebagai program
     # eksternal — kata pertamanya tidak pernah builtin shell,
     # jadi rekursi -S berjalan dengan _posisi_awal=False.
-    # Audit 987: isi string env -S di-exec env sebagai program
-    # eksternal — kata pertamanya tidak pernah builtin shell,
-    # jadi rekursi -S berjalan dengan _posisi_awal=False.
     masih_awal = _posisi_awal
     while awal < len(toks):
         if awal >= _batas_argv:
