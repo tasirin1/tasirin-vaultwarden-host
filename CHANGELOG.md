@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — tar mode baca tanpa -f kini dinilai gerbang patch membaca dari stdin (Audit 1120)
+
 ## [Belum rilis] — perl tanpa berkas skrip kini dinilai gerbang patch membaca skrip dari stdin (Audit 1119)
 
 ## [Belum rilis] — gitleaks tak lagi mengecualikan build-binary.yml dari pindaian (Audit 1118)
