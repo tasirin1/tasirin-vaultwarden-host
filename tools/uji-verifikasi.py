@@ -7612,6 +7612,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tc -batch daftar.txt: gerbang lolos (Audit 1197)", rc == 0)
         shutil.rmtree(sub398, ignore_errors=True)
+        sub399 = klon(tmp, "sub399")
+        berkas_aksi399 = os.path.join(
+            sub399, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi399, encoding="utf-8") as f:
+            isi_aksi399 = f.read()
+        baris_aksi399 = [b for b in isi_aksi399.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi399, "w", encoding="utf-8") as f:
+            f.write(isi_aksi399.replace(
+                baris_aksi399,
+                baris_aksi399.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dpkg --set-selections; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub399,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("dpkg --set-selections: gerbang gagal (Audit 1198)", rc != 0)
+        shutil.rmtree(sub399, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -2314,6 +2314,9 @@ def _menguras_khusus(perintah, toks, awal):
                 return (k_bt + 1 < len(mentah)
                         and mentah[k_bt + 1] == "-")
         return False
+    # Audit 1198: dpkg --set-selections membaca pilihan paket.
+    if perintah == "dpkg":
+        return "--set-selections" in mentah
     return False
 
 
@@ -2964,7 +2967,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "addr2line", "dig",
                         # Audit 1193/1195/1197/1198/1200/1201/
                         # 1202/1204: penilai khusus putaran-7.
-                        "pdftotext", "nft", "ip", "tc", "bridge"):
+                        "pdftotext", "nft", "ip", "tc", "bridge",
+                        "dpkg"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

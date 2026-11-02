@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — dpkg --set-selections dikenali gerbang (Audit 1198)
+
 ## [Belum rilis] — mode batch iproute2 dikenali gerbang (Audit 1197)
 
 ## [Belum rilis] — iptables-restore dikenal gerbang sebagai pembaca stdin (Audit 1196)
