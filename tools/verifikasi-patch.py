@@ -691,7 +691,9 @@ _OPSI_BERNILAI = {
     "base32": {"-w", "--wrap"},
     "logger": {"-t", "--tag", "-p", "--priority", "--id", "-u",
                "--socket", "-n", "--server", "-P", "--port", "-S",
-               "--size", "--journald"},
+               "--size", "--journald",
+               # Audit 1170: opsi sd/journal bernilai.
+               "--msgid", "--sd-id", "--sd-param"},
     "ptx": {"-W", "--width", "-G", "--gap-size", "-M", "--macro-name",
             "-S", "--sentence-regexp", "-T", "--format",
             "--word-regexp", "-b", "--break-file", "-f",
