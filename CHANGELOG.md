@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — sqlite3 -init dikenali pemeriksa informasional gerbang (Audit 1181)
+
 ## [Belum rilis] — pemeriksa informasional gerbang sadar perintah (Audit 1180)
 
 ## [Belum rilis] — parseFilePathTelegram selalu kosong — regresi Audit 1177 diperbaiki (acuan kedalaman = isi result) (Audit 1179)

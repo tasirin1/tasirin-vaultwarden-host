@@ -7288,6 +7288,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("more -f --help: gerbang lolos (Audit 1180)", rc == 0)
         shutil.rmtree(sub380, ignore_errors=True)
+        sub381 = klon(tmp, "sub381")
+        berkas_aksi381 = os.path.join(
+            sub381, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi381, encoding="utf-8") as f:
+            isi_aksi381 = f.read()
+        baris_aksi381 = [b for b in isi_aksi381.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi381, "w", encoding="utf-8") as f:
+            f.write(isi_aksi381.replace(
+                baris_aksi381,
+                baris_aksi381.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 -init --help contoh.db; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub381,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sqlite3 -init --help contoh.db: gerbang gagal (Audit 1181)", rc != 0)
+        shutil.rmtree(sub381, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

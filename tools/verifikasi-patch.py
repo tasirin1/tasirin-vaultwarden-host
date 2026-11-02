@@ -1600,6 +1600,8 @@ def _menguras_khusus(perintah, toks, awal):
             pendahulu.discard("-t")
         if perintah == "more":
             pendahulu.discard("-f")
+        if perintah == "sqlite3":
+            pendahulu.add("-init")
         for k_i, t_i in enumerate(mentah):
             if t_i in tanda:
                 if k_i > 0 and mentah[k_i - 1] in pendahulu:
