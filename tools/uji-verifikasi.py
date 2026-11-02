@@ -8422,6 +8422,24 @@ def main():
         periksa("file - -f daftar.txt: "
                 "gerbang gagal (Audit 1229)", rc != 0)
         shutil.rmtree(sub443, ignore_errors=True)
+        sub444 = klon(tmp, "sub444")
+        berkas_aksi444 = os.path.join(
+            sub444, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi444, encoding="utf-8") as f:
+            isi_aksi444 = f.read()
+        baris_aksi444 = [b for b in isi_aksi444.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi444, "w", encoding="utf-8") as f:
+            f.write(isi_aksi444.replace(
+                baris_aksi444,
+                baris_aksi444.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(date -f-; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub444, [sys.executable, GERBANG, "--semua"])
+        periksa("date -f-: "
+                "gerbang gagal (Audit 1230)", rc != 0)
+        shutil.rmtree(sub444, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

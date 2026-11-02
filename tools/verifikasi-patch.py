@@ -2456,7 +2456,9 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1201: date -f '-' membaca daftar tanggal.
     if perintah == "date":
         for k_dt, t_dt in enumerate(mentah):
-            if t_dt == "--file=-":
+            if t_dt in ("--file=-",
+                        # Audit 1230: -f- merekat.
+                        "-f-"):
                 return True
             if t_dt in ("-f", "--file"):
                 return (k_dt + 1 < len(mentah)
