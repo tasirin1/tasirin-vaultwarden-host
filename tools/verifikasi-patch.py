@@ -540,6 +540,16 @@ def _awalan_sebelum_gt(token):
     return None
 
 
+def _fd_norm(fd):
+    # Audit 1004: shell menilai nomor fd secara numerik — ejaan
+    # "00"/"000" adalah fd 0 dan "01" adalah fd 1. Normalkan digit
+    # murni dengan membuang nol di depan; nilai lain ("", "-",
+    # nama berkas) dikembalikan apa adanya.
+    if fd and fd.isdigit():
+        return fd.lstrip("0") or "0"
+    return fd
+
+
 def _indeks_sesudah_redirect(toks, i):
     """Audit 965: indeks sesudah token redirect KELUARAN pada
     posisi i — bentuk murni ('>' dsb.) melompati targetnya juga,
@@ -558,7 +568,7 @@ def _indeks_sesudah_redirect(toks, i):
     j = 0
     while j < len(t) and t[j].isdigit():
         j += 1
-    fd = t[:j]
+    fd = _fd_norm(t[:j])
     sisa = t[j:]
     if sisa.startswith("<"):
         if sisa.startswith("<&"):
@@ -566,12 +576,12 @@ def _indeks_sesudah_redirect(toks, i):
                 # Duplikasi ke fd lain: stdin bersama tak tersentuh.
                 return (min(i + 2, len(toks)) if sisa == "<&"
                         else i + 1)
-            target = sisa[2:]
+            target = _fd_norm(sisa[2:])
             if target == "-":
                 return -1  # stdin ditutup: perintah tak menguras
             if target == "":
                 berikut = (toks[i + 1] if i + 1 < len(toks) else "")
-                if berikut in ("", "0"):
+                if _fd_norm(berikut) in ("", "0"):
                     return min(i + 2, len(toks))
                 return -1  # '<& -' tutup, '<& N' alihkan dari fd lain
             if target == "0":
@@ -923,7 +933,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # redirect fd 0 milik xargs; awalan bukan fd.
                 fd_lt = "0"
             else:
-                fd_lt = awalan_lt
+                fd_lt = _fd_norm(awalan_lt)
             # Audit 995: semantik fd yang sama dengan
             # _indeks_sesudah_redirect — hanya redirect yang
             # MENGGANTI stdin (fd 0 ke berkas/fd lain, atau
@@ -939,7 +949,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 target = m_t.group(1) if m_t else None
                 if target is None and pos + 1 < len(toks):
                     target = toks[pos + 1].strip("\"'")
-                if target == "0":
+                if _fd_norm(target or "") == "0":
                     continue
                 return False
             return False
@@ -976,7 +986,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # posisi operand tidak. fd 0 sungguh mengganti stdin;
             # fd lain tak menyentuh stdin bersama, jadi token ini
             # (dan targetnya bila terpisah) dilompati saja.
-            if m_fd_lt.group(1) == "0":
+            if _fd_norm(m_fd_lt.group(1)) == "0":
                 return False
             if t[m_fd_lt.end():] in ("", "&"):
                 lewati = True
@@ -985,11 +995,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # Audit 997: <&0 adalah duplikasi-diri yang netral —
             # stdin perintah tetap pipa bersama. Target "0" yang
             # terpisah sesudah "<&" telanjang juga netral.
-            if t == "<&0":
+            if (t.startswith("<&") and len(t) > 2
+                    and _fd_norm(t[2:]) == "0"):
                 continue
             if t == "<&":
                 if (pos + 1 < len(toks)
-                        and toks[pos + 1].strip("\"'") == "0"):
+                        and _fd_norm(toks[pos + 1].strip("\"'")) == "0"):
                     lewati = True
                     continue
                 return False

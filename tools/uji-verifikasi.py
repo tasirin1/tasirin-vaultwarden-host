@@ -2009,6 +2009,26 @@ def main():
                 rc == 0)
         shutil.rmtree(subtasksetgabung, ignore_errors=True)
 
+        subfdnol = klon(tmp, "subfdnol")
+        berkas_aksi98 = os.path.join(
+            subfdnol, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi98, encoding="utf-8") as f:
+            isi_aksi98 = f.read()
+        baris_tulis98 = [b for b in isi_aksi98.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi98, "w", encoding="utf-8") as f:
+            f.write(isi_aksi98.replace(
+                baris_tulis98,
+                baris_tulis98.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(00<berkasKeluaran cat; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subfdnol,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("redirect fd 00 adalah fd 0: segmen pertama bukan "
+                "penguras — gerbang lolos (Audit 1004)", rc == 0)
+        shutil.rmtree(subfdnol, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

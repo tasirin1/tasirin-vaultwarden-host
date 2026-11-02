@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nomor fd dinormalkan numerik, ejaan 00/000 adalah fd 0 (Audit 1004)
+
+- Perbaikan perkakas: ketiga pemindai redirect (`_indeks_sesudah_redirect`, titik-akhir xargs Audit 995, operand Audit 997) membandingkan nomor fd sebagai string persis, padahal shell menilainya numerik — `<&00` dinilai stdin dari fd lain (fail-open) dan `00<berkas` dinilai fd-lain netral (fail-closed). Kini ada penormal `_fd_norm` (digit murni dibuang nol depannya) yang diterapkan di ketiga situs termasuk target duplikasi dan token target terpisah. Skenario uji-diri baru (aksi 98) mengunci `00<... cat` sebagai segmen bukan-penguras — gerbang wajib LOLOS. Probe dua arah: 9 selisih fd-nol-ganda tertutup, kontrol `007<`/`<&01` tetap benar.
+
 ## [Belum rilis] — fileSizeDariRespons kembali ke pemindai manual bebas JSONObject (Audit 1008)
 
 - Perbaikan uji/build: patch Audit 980 membaca `file_size` lewat JSONObject — benar di perangkat, tetapi uji JVM memakai android.jar stub (hanya JUnit di testImplementation) sehingga konstruktornya melempar, fungsi mengembalikan -1, dan uji `fileSizeDariRespons_bacaAngkaAman` gagal deterministik (639 uji, 1 gagal) begitu galat kompilasi Audit 999 sembuh dan tahap uji tercapai. Fungsi kini memakai pemindai manual yang tetap toleran Number dan String seperti tujuan 980 (pola kunci berkutip penuh menyaring `file_size2`, whitespace termasuk baris baru ditoleransi, string bukan angka tetap -1) dan bisa diuji JVM. Terverifikasi dengan porting 1:1 atas seluruh 11 asersi uji.
