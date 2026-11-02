@@ -1526,10 +1526,26 @@ def _menguras_khusus(perintah, toks, awal):
     mentah = [t.strip("\"'") for t in sisa]
     # Audit 1136: panggilan informasional juga tak membaca pada
     # penilai khusus (celah 1102; untuk vi ini regresi dari 1108).
-    if any(t in ("--help", "--version") for t in mentah):
+    # Audit 1147: token informasional yang menjadi NILAI opsi
+    # perintah itu sendiri (mis. label diff '--help') bukan
+    # panggilan bantuan — lewati yang didahului opsi bernilai
+    # khas penilai khusus.
+    def _ada_informatif(tanda):
+        for k_i, t_i in enumerate(mentah):
+            if t_i in tanda:
+                if k_i > 0 and mentah[k_i - 1] in (
+                        "--label", "--output-delimiter", "-f",
+                        "--prefix", "--suffix-format", "-o",
+                        "--output", "--homedir", "-t",
+                        "--separator", "-in"):
+                    continue
+                return True
         return False
-    if perintah == "openssl" and any(
-            t in ("-help", "-version") for t in mentah):
+
+    if _ada_informatif(("--help", "--version")):
+        return False
+    if perintah == "openssl" and _ada_informatif(
+            ("-help", "-version")):
         return False
     # Audit 1088: redirect masukan di EKOR perintah mengganti atau
     # menutup stdin sebelum perintah berjalan — cabang khusus dulu

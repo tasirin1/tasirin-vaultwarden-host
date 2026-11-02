@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — cek informasional gerbang patch kini sadar nilai opsi (Audit 1147)
+
 ## [Belum rilis] — nilai opsi expect -D kini dilompati gerbang patch (Audit 1146)
 
 ## [Belum rilis] — expect -c kini hanya perintah awalan di gerbang patch (Audit 1145)
