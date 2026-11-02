@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Openssl ts -query tanpa -data membaca data dari stdin (Audit 1432)
 ## [Belum rilis] — Cmsutil -D tanpa -i membaca pesan dari stdin (Audit 1431)
 ## [Belum rilis] — Certutil -A tanpa -i membaca sertifikat dari stdin (Audit 1430)
 ## [Belum rilis] — Derdump telanjang membaca objek DER dari stdin (Audit 1429)

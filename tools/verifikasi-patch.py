@@ -2132,6 +2132,11 @@ def _menguras_khusus(perintah, toks, awal):
                     return False
                 return "-batch" not in mentah
             return True
+        # Audit 1432: ts -query tanpa -data membaca
+        # data yang di-hash dari stdin (keluarannya
+        # permintaan stempel waktu DER yang sah).
+        if sub == "ts":
+            return "-query" in mentah and "-data" not in mentah
         if sub == "passwd":
             return "-stdin" in mentah
         if sub == "s_client":
