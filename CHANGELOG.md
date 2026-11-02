@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Penanda start tertunda dibersihkan oleh start/stop yang berhasil (Audit 1026)
+
+### Diperbaiki
+- `mulaiService` kini menghapus penanda `auto_start_tertunda` setiap kali pengiriman ACTION_START atau ACTION_STOP berhasil. Sebelumnya penanda hanya dibersihkan MainActivity saat mengonsumsinya: start yang berhasil lewat BootReceiver/Settings/bot membiarkannya basi, dan MainActivity berikutnya menyalakan lagi server yang sudah sengaja dimatikan dari jalur lain.
+
+
 ## [Belum rilis] — Penyemaian warisan stempel storage kini disimpan (Audit 1025)
 
 ### Diperbaiki

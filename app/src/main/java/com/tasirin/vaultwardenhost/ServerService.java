@@ -511,6 +511,18 @@ public class ServerService extends Service {
             } else {
                 context.startService(i);
             }
+            if (ACTION_START.equals(aksi) || ACTION_STOP.equals(aksi)) {
+                // Audit 1026: start yang berhasil memenuhi niat
+                // tertunda dan stop yang disengaja membatalkannya —
+                // penanda tak boleh hidup lebih lama dari keduanya,
+                // kalau tidak MainActivity menyalakan lagi server
+                // yang sudah sengaja dimatikan lewat jalur lain.
+                try {
+                    context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                            .edit().remove(KEY_START_TERTUNDA).apply();
+                } catch (Exception ignored) {
+                }
+            }
             return true;
         } catch (Exception e) {
             catatLog("[app] Gagal start service (" + aksi + "): " + e);
