@@ -3133,10 +3133,16 @@ def _menguras_khusus(perintah, toks, awal):
             # Audit 1368: opsi bernilai di UJUNG bundel pendek
             # (-aP) menelan token berikutnya sebagai nilainya,
             # sama seperti token persisnya.
+            # Audit 1384: huruf bernilai di TENGAH bundel
+            # (-Pa, -aPx) juga menelan token berikutnya —
+            # pengurai tree mengambil nilai dari token
+            # sesudahnya begitu huruf bernilai apa pun
+            # ditemui di dalam bundel.
             if (t_tr2.startswith("-")
                     and not t_tr2.startswith("--")
                     and len(t_tr2) > 2
-                    and t_tr2[-1] in "PILOTH"):
+                    and any(h_tr2 in "PILOTH"
+                            for h_tr2 in t_tr2[1:])):
                 k_tr2 += 2
                 continue
             k_tr2 += 1
