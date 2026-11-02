@@ -2283,8 +2283,10 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "sdiff":
         # Audit 1249: operand '-' sdiff adalah stdin
         # (sekelas diff), tak dikenal khusus sebelumnya.
+        # Audit 1282: -W adalah BENDERA abaikan-spasi; yang
+        # bernilai -w/--width (tertulis terbalik sebelumnya).
         ops_sdf = _operand_sesudah_opsi(
-            toks, awal, {"-W", "--width", "-o", "--output"})
+            toks, awal, {"-w", "--width", "-o", "--output"})
         if "\x00gantung" in ops_sdf:
             return False
         return "-" in ops_sdf
