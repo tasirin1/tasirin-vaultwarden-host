@@ -1864,6 +1864,25 @@ def _menguras_khusus(perintah, toks, awal):
                          "--base32hex", "--base16", "--base2msbf",
                          "--base2lsbf", "--z85")
                    or t.startswith("--base") for t in mentah)
+    if perintah == "du":
+        # Audit 1111: --files0-from membaca daftar nama dari stdin.
+        for k_d, t_d in enumerate(mentah):
+            if t_d == "--files0-from=-":
+                return True
+            if t_d == "--files0-from" and k_d + 1 < len(mentah) \
+                    and mentah[k_d + 1] == "-":
+                return True
+        return False
+    if perintah == "find":
+        # Audit 1111: -files0-from membaca daftar jalur awal dari
+        # stdin ('-' atau '=-').
+        for k_f2, t_f2 in enumerate(mentah):
+            if t_f2 == "-files0-from=-":
+                return True
+            if t_f2 == "-files0-from" and k_f2 + 1 < len(mentah) \
+                    and mentah[k_f2 + 1] == "-":
+                return True
+        return False
     return False
 
 
@@ -2449,7 +2468,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "zip", "rsync", "socat", "gpg", "curl",
                         "wget", "nc", "make", "visudo", "patch",
                         "more", "less", "vi", "vim", "nvim",
-                        "basenc", "view", "ex"):
+                        "basenc", "view", "ex", "du", "find"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — du dan find --files0-from kini dimodelkan gerbang patch (Audit 1111)
+
 ## [Belum rilis] — opsi --output-delimiter comm masuk tabel bernilai gerbang patch (Audit 1110)
 
 ## [Belum rilis] — opsi pola less -p/--pattern masuk tabel bernilai gerbang patch (Audit 1109)
