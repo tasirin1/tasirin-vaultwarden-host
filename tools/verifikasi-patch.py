@@ -632,6 +632,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1037: filter aliran murni — tanpa operand
                   # berkas membaca stdin sampai habis.
                   "cut", "tr", "paste", "fold", "nl", "tac", "rev",
+                  # Audit 1359: alat akun shadow-utils — tanpa
+                  # operand berkas membaca daftar dari stdin.
+                  "chpasswd", "newusers",
                   "shuf", "base64", "od", "sha256sum", "md5sum",
                   "gzip", "gunzip",
                   # Audit 1055: sisa keluarga checksum GNU (aturan
@@ -911,6 +914,10 @@ _OPSI_BERNILAI = {
     # Audit 1291: shasum selama ini tanpa entri — nilai -a
     # terbaca operand.
     "shasum": {"-a", "--algorithm"},
+    # Audit 1359: opsi bernilai alat akun shadow-utils.
+    "chpasswd": {"-c", "--crypt-method", "-s", "--sha-rounds",
+                 "-R", "--root", "--prefix"},
+    "newusers": {"-R", "--root", "--prefix"},
     # Audit 1336: keluarga POD lain.
     # Audit 1310: uncompress tanpa opsi bernilai.
     "uncompress": set(),

@@ -10888,6 +10888,24 @@ def main():
         periksa("ffmpeg -i - -f null -: "
                 "gerbang gagal (Audit 1358)", rc != 0)
         shutil.rmtree(sub580, ignore_errors=True)
+        sub581 = klon(tmp, "sub581")
+        berkas_aksi581 = os.path.join(
+            sub581, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi581, encoding="utf-8") as f:
+            isi_aksi581 = f.read()
+        baris_aksi581 = [b for b in isi_aksi581.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi581, "w", encoding="utf-8") as f:
+            f.write(isi_aksi581.replace(
+                baris_aksi581,
+                baris_aksi581.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(chpasswd; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub581, [sys.executable, GERBANG, "--semua"])
+        periksa("chpasswd: "
+                "gerbang gagal (Audit 1359)", rc != 0)
+        shutil.rmtree(sub581, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Chpasswd dan newusers masuk tabel pembaca stdin (Audit 1359)
+
 ## [Belum rilis] — Keluarga ffmpeg (ffmpeg/ffprobe/ffplay) dinilai (Audit 1358)
 
 ## [Belum rilis] — Debugfs -R<perintah>/-f<berkas> merekat dikenali (Audit 1357)
