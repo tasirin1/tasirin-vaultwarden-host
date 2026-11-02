@@ -2937,6 +2937,15 @@ def _menguras_khusus(perintah, toks, awal):
             if t_dc.startswith("-l") and len(t_dc) > 2:
                 return t_dc[2:] in ("-", "/dev/stdin")
         return False
+    # Audit 1328: cvtsudoers — tanpa berkas membaca stdin.
+    if perintah == "cvtsudoers":
+        ops_cv = _operand_sesudah_opsi(
+            toks, awal, {"-b", "--base", "-c", "--config",
+                         "-d", "--defaults", "-f", "--format",
+                         "-i", "--input-format", "-o",
+                         "--output", "-O", "--output-format"})
+        return (not ops_cv or "-" in ops_cv
+                or "/dev/stdin" in ops_cv)
     return False
 
 
@@ -3680,6 +3689,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "debconf-communicate",
                         "dpkg-deb",
                         "dpkg-parsechangelog",
+                        "cvtsudoers",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

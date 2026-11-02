@@ -10348,6 +10348,24 @@ def main():
         periksa("dpkg-parsechangelog -l -: "
                 "gerbang gagal (Audit 1327)", rc != 0)
         shutil.rmtree(sub550, ignore_errors=True)
+        sub551 = klon(tmp, "sub551")
+        berkas_aksi551 = os.path.join(
+            sub551, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi551, encoding="utf-8") as f:
+            isi_aksi551 = f.read()
+        baris_aksi551 = [b for b in isi_aksi551.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi551, "w", encoding="utf-8") as f:
+            f.write(isi_aksi551.replace(
+                baris_aksi551,
+                baris_aksi551.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(cvtsudoers -f json; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub551, [sys.executable, GERBANG, "--semua"])
+        periksa("cvtsudoers -f json: "
+                "gerbang gagal (Audit 1328)", rc != 0)
+        shutil.rmtree(sub551, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
