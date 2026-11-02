@@ -3038,6 +3038,9 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1342: tree --fromfile membaca daftar dari stdin.
     if perintah == "tree":
         return "--fromfile" in mentah
+    # Audit 1343: gio save menulis isi stdin ke tujuan.
+    if perintah == "gio":
+        return bool(mentah) and mentah[0] == "save"
     return False
 
 
@@ -3793,6 +3796,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "nsupdate",
                         "ssh-keygen",
                         "tree",
+                        "gio",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

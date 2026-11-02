@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Gio save dinilai (Audit 1343)
+
 ## [Belum rilis] — Tree --fromfile dinilai (Audit 1342)
 
 ## [Belum rilis] — Ssh-keygen -L -f - dinilai (Audit 1341)
