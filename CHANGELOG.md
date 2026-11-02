@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — logika HARUS_BUILD auto-merge selaras saringan path build-apk (Audit 1117)
+
 ## [Belum rilis] — validator PIN remote Util kini teruji JVM (Audit 1116)
 
 ## [Belum rilis] — parser file_path Telegram ditulis ulang pemindai manual teruji (Audit 1115)

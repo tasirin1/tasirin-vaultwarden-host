@@ -39,7 +39,14 @@ jobs:
           if echo "$FILES" | grep -qE '^(\.github/workflows/build-binary\.yml|shim/)'; then
             echo "BINARY_PR=true" >> "$GITHUB_ENV"
           fi
-          if echo "$FILES" | grep -qvE '^(\.github/workflows/build-binary\.yml|\.gitignore|shim/.*|.*\.md)$'; then
+          # Audit 1117: HARUS_BUILD wajib selaras dengan saringan
+          # paths pull_request di build-apk.yml — logika lama
+          # (semua berkas di luar pengecualian) menyalakan
+          # HARUS_BUILD untuk PR yang HANYA menyentuh workflow lain
+          # (stale/labeler/gitleaks/codeql), padahal Build APK
+          # memang tak pernah terpicu untuk path itu, sehingga
+          # langkah tunggu selalu batal sesudah ±3 menit.
+          if echo "$FILES" | grep -qE '^(app/|build\.gradle\.kts$|settings\.gradle\.kts$|gradle\.properties$|gradle/|gradlew$|gradlew\.bat$|tools/verifikasi-patch\.py$|tools/uji-verifikasi\.py$|tools/uji-cek-cepat\.py$|scripts/cek-cepat\.sh$|\.github/workflows/build-apk\.yml$|\.github/actions/resolve-vw/)'; then
             echo "HARUS_BUILD=true" >> "$GITHUB_ENV"
           fi
 
