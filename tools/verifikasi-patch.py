@@ -1641,7 +1641,11 @@ def _menguras_khusus(perintah, toks, awal):
         ops = _operand_sesudah_opsi(
             toks, awal,
             {"-cmd", "-init", "-separator", "-nullvalue",
-             "-maxwidth", "-vfs", "-pagecache", "-lookaside"})
+             "-maxwidth", "-vfs", "-pagecache", "-lookaside",
+             # Audit 1175: -newline/-nonce bernilai — vonis
+             # sqlite3 menghitung jumlah operand, jadi nilai
+             # yang tertelan langsung membalikkan vonis.
+             "-newline", "-nonce"})
         # Audit 1096: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False

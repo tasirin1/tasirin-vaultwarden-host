@@ -7198,6 +7198,42 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("ptx -o daftar: gerbang gagal (Audit 1174)", rc != 0)
         shutil.rmtree(sub375, ignore_errors=True)
+        sub376 = klon(tmp, "sub376")
+        berkas_aksi376 = os.path.join(
+            sub376, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi376, encoding="utf-8") as f:
+            isi_aksi376 = f.read()
+        baris_aksi376 = [b for b in isi_aksi376.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi376, "w", encoding="utf-8") as f:
+            f.write(isi_aksi376.replace(
+                baris_aksi376,
+                baris_aksi376.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 -newline X berkas.db; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub376,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sqlite3 -newline X berkas.db: gerbang gagal (Audit 1175)", rc != 0)
+        shutil.rmtree(sub376, ignore_errors=True)
+        sub377 = klon(tmp, "sub377")
+        berkas_aksi377 = os.path.join(
+            sub377, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi377, encoding="utf-8") as f:
+            isi_aksi377 = f.read()
+        baris_aksi377 = [b for b in isi_aksi377.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi377, "w", encoding="utf-8") as f:
+            f.write(isi_aksi377.replace(
+                baris_aksi377,
+                baris_aksi377.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 berkas.db 'select 1'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub377,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sqlite3 berkas.db 'select 1': gerbang lolos (Audit 1175)", rc == 0)
+        shutil.rmtree(sub377, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
