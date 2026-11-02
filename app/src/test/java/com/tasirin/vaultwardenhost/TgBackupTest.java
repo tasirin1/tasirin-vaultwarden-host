@@ -288,6 +288,20 @@ public class TgBackupTest {
     }
 
     @Test
+    public void magicDikenal_tigaGenerasi() {
+        // Audit 1178: magic backup terenkripsi yang dikenal
+        // persis tiga generasi; sisanya ditolak.
+        assertTrue(TgBackup.magicDikenal("VWB1"));
+        assertTrue(TgBackup.magicDikenal("VWB2"));
+        assertTrue(TgBackup.magicDikenal("VWB3"));
+        assertFalse(TgBackup.magicDikenal("VWB4"));
+        assertFalse(TgBackup.magicDikenal("vwb1"));
+        assertFalse(TgBackup.magicDikenal("VWB1 "));
+        assertFalse(TgBackup.magicDikenal(""));
+        assertFalse(TgBackup.magicDikenal(null));
+    }
+
+    @Test
     public void diterimaEntriZip_allowlistPersis() {
         // Audit 1143: keputusan terima/tolak allowlist restore.
         assertTrue(TgBackup.diterimaEntriZip("db.sqlite3"));
