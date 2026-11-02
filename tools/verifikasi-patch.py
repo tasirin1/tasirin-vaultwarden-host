@@ -2503,6 +2503,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # stdin-nya sendiri ke jurnal.
         if sudo_shell or pembungkus_terakhir == "systemd-cat":
             return True
+        # Audit 1121: unshare/chroot tanpa perintah menjalankan
+        # shell interaktif yang membaca perintah dari stdin.
+        if pembungkus_terakhir in ("unshare", "chroot"):
+            return True
         return xargs_sendiri
     perintah = _kata_shell(toks[awal])
     if perintah not in _PEMBACA_STDIN:

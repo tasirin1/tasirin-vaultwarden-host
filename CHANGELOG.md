@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — unshare/chroot tanpa perintah kini dinilai gerbang patch menjatuhkan shell (Audit 1121)
+
 ## [Belum rilis] — tar mode baca tanpa -f kini dinilai gerbang patch membaca dari stdin (Audit 1120)
 
 ## [Belum rilis] — perl tanpa berkas skrip kini dinilai gerbang patch membaca skrip dari stdin (Audit 1119)

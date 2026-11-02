@@ -4876,6 +4876,60 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar c tanpa operand: gerbang lolos (Audit 1120)", rc == 0)
         shutil.rmtree(sub246, ignore_errors=True)
+        sub247 = klon(tmp, "sub247")
+        berkas_aksi247 = os.path.join(
+            sub247, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi247, encoding="utf-8") as f:
+            isi_aksi247 = f.read()
+        baris_aksi247 = [b for b in isi_aksi247.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi247, "w", encoding="utf-8") as f:
+            f.write(isi_aksi247.replace(
+                baris_aksi247,
+                baris_aksi247.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unshare -r; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub247,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("unshare tanpa perintah: gerbang gagal (Audit 1121)", rc != 0)
+        shutil.rmtree(sub247, ignore_errors=True)
+        sub248 = klon(tmp, "sub248")
+        berkas_aksi248 = os.path.join(
+            sub248, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi248, encoding="utf-8") as f:
+            isi_aksi248 = f.read()
+        baris_aksi248 = [b for b in isi_aksi248.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi248, "w", encoding="utf-8") as f:
+            f.write(isi_aksi248.replace(
+                baris_aksi248,
+                baris_aksi248.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(chroot /baru; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub248,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("chroot tanpa perintah: gerbang gagal (Audit 1121)", rc != 0)
+        shutil.rmtree(sub248, ignore_errors=True)
+        sub249 = klon(tmp, "sub249")
+        berkas_aksi249 = os.path.join(
+            sub249, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi249, encoding="utf-8") as f:
+            isi_aksi249 = f.read()
+        baris_aksi249 = [b for b in isi_aksi249.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi249, "w", encoding="utf-8") as f:
+            f.write(isi_aksi249.replace(
+                baris_aksi249,
+                baris_aksi249.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unshare -r cat berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub249,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("unshare berperintah: gerbang lolos (Audit 1121)", rc == 0)
+        shutil.rmtree(sub249, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
