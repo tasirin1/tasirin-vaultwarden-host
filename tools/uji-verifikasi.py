@@ -9970,6 +9970,24 @@ def main():
         periksa("zegrep UTUH: "
                 "gerbang gagal (Audit 1306)", rc != 0)
         shutil.rmtree(sub529, ignore_errors=True)
+        sub530 = klon(tmp, "sub530")
+        berkas_aksi530 = os.path.join(
+            sub530, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi530, encoding="utf-8") as f:
+            isi_aksi530 = f.read()
+        baris_aksi530 = [b for b in isi_aksi530.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi530, "w", encoding="utf-8") as f:
+            f.write(isi_aksi530.replace(
+                baris_aksi530,
+                baris_aksi530.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(bzegrep UTUH; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub530, [sys.executable, GERBANG, "--semua"])
+        periksa("bzegrep UTUH: "
+                "gerbang gagal (Audit 1307)", rc != 0)
+        shutil.rmtree(sub530, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

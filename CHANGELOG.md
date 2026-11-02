@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Egrep bzip2 (bzegrep/bzfgrep) dirutekan (Audit 1307)
+
 ## [Belum rilis] — Egrep gzip (zegrep/zfgrep) dirutekan (Audit 1306)
 
 ## [Belum rilis] — Pembanding gzip (zcmp/zdiff) dinilai (Audit 1305)
