@@ -10312,6 +10312,24 @@ def main():
         periksa("debconf-communicate paketuji: "
                 "gerbang gagal (Audit 1325)", rc != 0)
         shutil.rmtree(sub548, ignore_errors=True)
+        sub549 = klon(tmp, "sub549")
+        berkas_aksi549 = os.path.join(
+            sub549, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi549, encoding="utf-8") as f:
+            isi_aksi549 = f.read()
+        baris_aksi549 = [b for b in isi_aksi549.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi549, "w", encoding="utf-8") as f:
+            f.write(isi_aksi549.replace(
+                baris_aksi549,
+                baris_aksi549.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(dpkg-deb --contents -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub549, [sys.executable, GERBANG, "--semua"])
+        periksa("dpkg-deb --contents -: "
+                "gerbang gagal (Audit 1326)", rc != 0)
+        shutil.rmtree(sub549, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -2918,6 +2918,12 @@ def _menguras_khusus(perintah, toks, awal):
     # protokol dari stdin.
     if perintah == "debconf-communicate":
         return True
+    # Audit 1326: dpkg-deb — arsip dari operand '-'.
+    if perintah == "dpkg-deb":
+        ops_dd2 = _operand_sesudah_opsi(
+            toks, awal, {"--root", "--admindir", "--instdir",
+                         "--path-exclude", "--path-include"})
+        return "-" in ops_dd2 or "/dev/stdin" in ops_dd2
     return False
 
 
@@ -3659,6 +3665,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "systemd-tmpfiles",
                         "systemd-creds",
                         "debconf-communicate",
+                        "dpkg-deb",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
