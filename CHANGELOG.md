@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — subcommand git pembaca stdin putaran-3 kini dikenali gerbang patch (Audit 1124)
+
 ## [Belum rilis] — gpg --verify tanpa operand kini dinilai gerbang patch membaca stdin (Audit 1123)
 
 ## [Belum rilis] — expect telanjang dan -f - kini dimodelkan gerbang patch (Audit 1122)

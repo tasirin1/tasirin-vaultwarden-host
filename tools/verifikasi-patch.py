@@ -1666,8 +1666,15 @@ def _menguras_khusus(perintah, toks, awal):
             return len(ops_git) > 1 and ops_git[1] == "fill"
         if sub == "mktree":
             return True
-        if sub == "update-index":
+        # Audit 1124: pembaca putaran-3 — stripspace (filter
+        # murni), patch-id, mktag, update-index --index-info,
+        # index-pack --stdin.
+        if sub in ("stripspace", "patch-id", "mktag"):
+            return True
+        if sub == "index-pack":
             return "--stdin" in mentah
+        if sub == "update-index":
+            return "--stdin" in mentah or "--index-info" in mentah
         if sub in ("commit", "tag"):
             pesan_stdin = False
             for k_g, t_g in enumerate(mentah):
