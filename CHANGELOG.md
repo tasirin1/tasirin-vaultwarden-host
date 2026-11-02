@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Piconv -S/--scheme bernilai (Audit 1289)
+
 ## [Belum rilis] — Uconv -b/--callback bernilai (Audit 1288)
 
 ## [Belum rilis] — Json_pp -t dan -json_opt bernilai (Audit 1287)

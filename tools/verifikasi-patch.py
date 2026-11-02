@@ -853,7 +853,9 @@ _OPSI_BERNILAI = {
               "--output", "-x", "--translit",
               # Audit 1288: -b/--block-size & --callback.
               "-b", "--block-size", "--callback"},
-    "piconv": {"-f", "--from", "-t", "--to", "-o", "--output"},
+    "piconv": {"-f", "--from", "-t", "--to", "-o", "--output",
+               # Audit 1289: -S/--scheme (juga -C & -s).
+               "-S", "--scheme", "-C", "-s", "--string"},
     "pod2text": {"-o", "--output", "-w", "--width", "-i",
                  "--indent", "-q", "--quotes", "--errors"},
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
