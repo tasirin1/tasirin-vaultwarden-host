@@ -2354,6 +2354,11 @@ def _menguras_khusus(perintah, toks, awal):
                 return (k_sy + 1 < len(mentah)
                         and mentah[k_sy + 1] == "-")
         return False
+    # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
+    # lain (skrip/bantuan) tak membaca stdin.
+    if perintah == "bun":
+        ops_bn = _operand_sesudah_opsi(toks, awal, {"-e", "--eval"})
+        return bool(ops_bn) and ops_bn[0] == "repl"
     return False
 
 
@@ -3005,7 +3010,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # Audit 1193/1195/1197/1198/1200/1201/
                         # 1202/1204: penilai khusus putaran-7.
                         "pdftotext", "nft", "ip", "tc", "bridge",
-                        "dpkg", "file", "date", "sysctl"):
+                        "dpkg", "file", "date", "sysctl", "bun"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
