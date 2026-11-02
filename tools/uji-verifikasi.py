@@ -3649,6 +3649,25 @@ def main():
         periksa("more beroperand tetap menguras: gerbang gagal (Audit 1089)", rc != 0)
         shutil.rmtree(sub181, ignore_errors=True)
 
+        sub182 = klon(tmp, "sub182")
+        berkas_aksi182 = os.path.join(
+            sub182, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi182, encoding="utf-8") as f:
+            isi_aksi182 = f.read()
+        baris_aksi182 = [b for b in isi_aksi182.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi182, "w", encoding="utf-8") as f:
+            f.write(isi_aksi182.replace(
+                baris_aksi182,
+                baris_aksi182.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -m json.tool berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub182,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python -m operand berkas: gerbang lolos (Audit 1090)", rc == 0)
+        shutil.rmtree(sub182, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

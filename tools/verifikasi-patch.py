@@ -1251,8 +1251,15 @@ def _menguras_interpreter(perintah, toks, awal):
             if t == "-m":
                 # Audit 1049: modul penyaring stdin yang terverifikasi
                 # menguras; modul lain tak dinilai (bawaan: bukan).
-                return (i + 1 < n and toks[i + 1].strip("\"'")
-                        in ("json.tool", "base64"))
+                # Audit 1090: operand berkas SESUDAH nama modul
+                # adalah masukan modul penyaring — menekan stdin.
+                if i + 1 >= n:
+                    return False
+                modul = toks[i + 1].strip("\"'")
+                if modul in ("json.tool", "base64"):
+                    return not _operand_sesudah_opsi(
+                        toks, i + 1, {"--indent", "--tab"})
+                return False
         if perintah == "node" and t in (
                 "-e", "--eval", "-p", "--print"):
             return False

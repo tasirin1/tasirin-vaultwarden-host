@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — python -m beroperand berkas tak lagi divonis menguras gerbang patch (Audit 1090)
+
 ## [Belum rilis] — more beroperand berkas kini dinilai menguras oleh gerbang patch (Audit 1089)
 
 ## [Belum rilis] — penilai khusus gerbang patch sadar redirect masukan di ekor (Audit 1088)
