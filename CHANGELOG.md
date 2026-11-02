@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Check-mailmap --stdin menguras hanya untuk operand kontak (Audit 1270)
+
 ## [Belum rilis] — Token pathspec sesudah opsi bernilai tak lagi tertelan sebagai nilai (Audit 1269)
 
 ## [Belum rilis] — Cek pathspec git kini mendahului cabang commit/tag (Audit 1268)

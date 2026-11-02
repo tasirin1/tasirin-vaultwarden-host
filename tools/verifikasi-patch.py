@@ -2194,10 +2194,14 @@ def _menguras_khusus(perintah, toks, awal):
             # Audit 1185: telanjang = fatal 'no contacts
             # specified' — tak membaca.
             # Audit 1218/1219: operand '-' BUKAN stdin
-            # (fatal parse) dan --stdin menolak operand
-            # kontak sama sekali.
+            # (fatal parse).
+            # Audit 1270: --stdin bersama kontak argv yang SAH
+            # tetap menguras — yang fatal hanya kontak tak
+            # sah (kata polos/'-'/email polos tanpa kurung
+            # sudut, semua terprobe fatal sebelum membaca).
             if "--stdin" in mentah:
-                return not ops_git[1:]
+                return all("<" in o and ">" in o
+                           for o in ops_git[1:])
             return False
         if sub in ("credential-store", "credential-cache"):
             # protokol helper membaca deskripsi dari stdin

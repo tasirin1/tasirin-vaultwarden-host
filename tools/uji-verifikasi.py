@@ -9304,6 +9304,24 @@ def main():
         periksa("git add --chmod --pathspec-from-file=-: "
                 "gerbang lolos (Audit 1269)", rc == 0)
         shutil.rmtree(sub492, ignore_errors=True)
+        sub493 = klon(tmp, "sub493")
+        berkas_aksi493 = os.path.join(
+            sub493, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi493, encoding="utf-8") as f:
+            isi_aksi493 = f.read()
+        baris_aksi493 = [b for b in isi_aksi493.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi493, "w", encoding="utf-8") as f:
+            f.write(isi_aksi493.replace(
+                baris_aksi493,
+                baris_aksi493.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(git check-mailmap --stdin 'A <a@b.c>'; cat "
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub493, [sys.executable, GERBANG, "--semua"])
+        periksa("git check-mailmap --stdin 'A <a@b.c>': "
+                "gerbang gagal (Audit 1270)", rc != 0)
+        shutil.rmtree(sub493, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
