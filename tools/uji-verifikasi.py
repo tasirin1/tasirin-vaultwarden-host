@@ -2094,6 +2094,27 @@ def main():
                 "(Audit 1007)", rc == 0)
         shutil.rmtree(subdupambig, ignore_errors=True)
 
+        subpindahfd = klon(tmp, "subpindahfd")
+        berkas_aksi102 = os.path.join(
+            subpindahfd, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi102, encoding="utf-8") as f:
+            isi_aksi102 = f.read()
+        baris_tulis102 = [b for b in isi_aksi102.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi102, "w", encoding="utf-8") as f:
+            f.write(isi_aksi102.replace(
+                baris_tulis102,
+                baris_tulis102.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cat <&0-; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subpindahfd,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("duplikasi bersufiks pindah-fd <&0- adalah "
+                "penguras: gerbang gagal (Audit 1011)", rc != 0)
+        shutil.rmtree(subpindahfd, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

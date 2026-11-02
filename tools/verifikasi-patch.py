@@ -544,7 +544,12 @@ def _fd_norm(fd):
     # Audit 1004: shell menilai nomor fd secara numerik — ejaan
     # "00"/"000" adalah fd 0 dan "01" adalah fd 1. Normalkan digit
     # murni dengan membuang nol di depan; nilai lain ("", "-",
-    # nama berkas) dikembalikan apa adanya.
+    # nama berkas) dikembalikan apa adanya. Audit 1011: sufiks "-"
+    # sesudah nomor fd adalah semantik pindah-fd bash — untuk
+    # menilai SUMBER duplikasi ia setara nomornya saja ("0-" =
+    # fd 0, sumber yang sama); "-" polos tetap penutup fd.
+    if fd and len(fd) > 1 and fd.endswith("-") and fd[:-1].isdigit():
+        fd = fd[:-1]
     if fd and fd.isdigit():
         return fd.lstrip("0") or "0"
     return fd

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang mengenali sufiks pindah-fd pada target duplikasi (Audit 1011)
+
+- Perkakas: normalisasi nomor fd di gerbang kini memahami sufiks `-` semantik pindah-fd bash — target duplikasi `<&0-`/`<&00-` adalah duplikasi-diri yang menguras stdin sama seperti `<&0`, bukan "stdin dari fd lain" seperti yang dinilai sebelumnya di pemindaian operand dan posisi awalan (jalur xargs sudah benar sejak Audit 1007). Skenario uji-diri baru mengunci bentuk ini.
+
 ## [Belum rilis] — Penjepit deleteWebhook tidak lagi buta sesudah boot (Audit 1010)
 
 - Perbaikan bot: nilai awal stempel upaya hapus webhook terakhir adalah 0, yang bertabrakan dengan `elapsedRealtime()` pada 10 menit pertama sesudah boot — syarat penjepit selalu terpenuhi sehingga upaya pulih pertama dari konflik 409 (dan log penjelasannya) tertelan diam-diam tepat pada jendela sesudah reboot. Nilai awal kini sentinel negatif sebesar jendela jepit itu sendiri, jadi upaya pertama selalu boleh berjalan kapan pun perangkat menyala.
