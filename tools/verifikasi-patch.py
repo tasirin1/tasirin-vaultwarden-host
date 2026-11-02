@@ -2099,7 +2099,9 @@ def _menguras_khusus(perintah, toks, awal):
                  # yang hilang — nilai angkanya sempat
                  # dinilai operand penekan.
                  "-length", "-offset", "-depth", "-dlimit",
-                 "-oid", "-genstr"})
+                 "-oid", "-genstr",
+                 # Audit 1418: -context (sess_id).
+                 "-context"})
             return not ops_os
         # Audit 1403: req -new tanpa -subj/-batch meminta
         # nama terbilang lewat prompt yang membaca stdin
