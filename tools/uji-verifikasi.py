@@ -2521,6 +2521,25 @@ def main():
         periksa("dd if=/dev/stdin membaca stdin itu sendiri — gerbang gagal (Audit 1041)", rc != 0)
         shutil.rmtree(subddstdin, ignore_errors=True)
 
+        subbacktick = klon(tmp, "subbacktick")
+        berkas_aksi123 = os.path.join(
+            subbacktick, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi123, encoding="utf-8") as f:
+            isi_aksi123 = f.read()
+        baris_aksi123 = [b for b in isi_aksi123.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi123, "w", encoding="utf-8") as f:
+            f.write(isi_aksi123.replace(
+                baris_aksi123,
+                baris_aksi123.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cat `cat`; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subbacktick,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("substitusi backtick dinilai isinya: penguras — gerbang gagal (Audit 1045)", rc != 0)
+        shutil.rmtree(subbacktick, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

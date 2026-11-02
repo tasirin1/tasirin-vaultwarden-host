@@ -496,7 +496,9 @@ def _substitusi_masukan_menguras(bagian):
     keduanya mewarisi stdin shell, lepas dari redirect perintah
     luarnya. $((...)) adalah aritmetika, bukan substitusi. Di
     dalam kutip ganda substitusi tetap berjalan, jadi pemindaian
-    tidak berhenti di sana."""
+    tidak berhenti di sana. Audit 1045: substitusi backtick
+    dinilai dengan cara yang sama — isinya perintah yang berjalan
+    dengan stdin warisan."""
     i = 0
     n = len(bagian)
     kutip = ""
@@ -516,6 +518,23 @@ def _substitusi_masukan_menguras(bagian):
                 kutip = ""
                 i += 1
                 continue
+            if c == "`":
+                # Audit 1045: backtick juga hidup di kutip ganda.
+                j = i + 1
+                while j < n:
+                    if bagian[j] == "\\" and j + 1 < n:
+                        j += 2
+                        continue
+                    if bagian[j] == "`":
+                        break
+                    j += 1
+                isi = bagian[i + 1:j]
+                if isi.strip() and any(
+                        _menguras_stdin(s)
+                        for s in pecah_segmen_shell(isi)):
+                    return True
+                i = j + 1 if j < n else n
+                continue
             if not (c == "$" and i + 1 < n and bagian[i + 1] == "("):
                 i += 1
                 continue
@@ -526,6 +545,25 @@ def _substitusi_masukan_menguras(bagian):
             if c in ("'", '"'):
                 kutip = c
                 i += 1
+                continue
+            if c == "`" and not tikus:
+                # Audit 1045: substitusi backtick — nilai isinya
+                # sampai backtick penutup (yang ter-escape dengan
+                # \ di dalam tidak menutup).
+                j = i + 1
+                while j < n:
+                    if bagian[j] == "\\" and j + 1 < n:
+                        j += 2
+                        continue
+                    if bagian[j] == "`":
+                        break
+                    j += 1
+                isi = bagian[i + 1:j]
+                if isi.strip() and any(
+                        _menguras_stdin(s)
+                        for s in pecah_segmen_shell(isi)):
+                    return True
+                i = j + 1 if j < n else n
                 continue
             if c == "`":
                 tikus = not tikus
