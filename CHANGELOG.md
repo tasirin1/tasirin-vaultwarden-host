@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — tar -f/-T menggantung kini divonis gerbang patch sebagai galat (Audit 1152)
+
 ## [Belum rilis] — tar -T tak lagi menggugurkan aturan arsip bawaan gerbang patch (Audit 1151)
 
 ## [Belum rilis] — gpg --verify kini mengenali operand '-' di gerbang patch (Audit 1150)

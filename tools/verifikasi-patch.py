@@ -1665,6 +1665,9 @@ def _menguras_khusus(perintah, toks, awal):
         mode_tar = None
         nilai_f = None
         nilai_T = None
+        # Audit 1152: -f/-T di ujung tanpa nilai = galat usage.
+        gantung_f = False
+        gantung_T = False
         i = 0
         while i < len(mentah):
             t = mentah[i]
@@ -1677,11 +1680,15 @@ def _menguras_khusus(perintah, toks, awal):
             if t in ("-f", "--file"):
                 if i + 1 < len(mentah):
                     nilai_f = mentah[i + 1]
+                else:
+                    gantung_f = True
                 i += 2
                 continue
             if t in ("-T", "--files-from"):
                 if i + 1 < len(mentah):
                     nilai_T = mentah[i + 1]
+                else:
+                    gantung_T = True
                 i += 2
                 continue
             if (t.startswith("--file=")
@@ -1720,6 +1727,10 @@ def _menguras_khusus(perintah, toks, awal):
                         else:
                             nilai_T = mentah[i + 1]
                         i += 1
+                    elif bundel[-1] == "f":
+                        gantung_f = True
+                    else:
+                        gantung_T = True
             i += 1
         if nilai_T == "-":
             return True
