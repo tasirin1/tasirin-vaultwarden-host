@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Apt-key add - membaca materi kunci dari stdin (Audit 1435)
 ## [Belum rilis] — Git fmt-merge-msg membaca log gabungan dari stdin (Audit 1434)
 ## [Belum rilis] — Openssl ca dengan -in - membaca CSR dari stdin (Audit 1433)
 ## [Belum rilis] — Openssl ts -query tanpa -data membaca data dari stdin (Audit 1432)
