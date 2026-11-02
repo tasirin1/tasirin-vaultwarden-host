@@ -672,6 +672,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1196: pemulih tabel firewall membaca
                   # aturannya dari stdin secara bawaan.
                   "iptables-restore", "ip6tables-restore",
+                  # Audit 1245/1246/1247/1248/1260: alias
+                  # checksum, konverter, POD, penebak encoding.
+                  "shasum", "md5sum.textutils", 
                   # Audit 1191/1192: funzip mengekstrak anggota
                   # pertama arsip zip dari stdin; json_pp
                   # memformat JSON dari stdin.

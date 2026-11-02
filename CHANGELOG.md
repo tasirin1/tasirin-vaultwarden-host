@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Alias checksum dikenal (shasum, md5sum.textutils) (Audit 1245)
+
 ## [Belum rilis] — Keluarga grep terkompresi dikenal (zgrep/bzgrep/xzgrep/lzgrep) (Audit 1244)
 
 ## [Belum rilis] — json_pp: entri tabel -f/--format ditambahkan (Audit 1243)
