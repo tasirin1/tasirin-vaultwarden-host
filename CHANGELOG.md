@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Make --file=/dev/stdin dan --makefile=/dev/stdin dikenali (Audit 1350)
+
 ## [Belum rilis] — Pr menilai '-' di antara semua operand, bukan berhenti di berkas pertama (Audit 1349)
 
 ## [Belum rilis] — Gm -append/-average operator tanpa nilai, bukan opsi bernilai (Audit 1348)

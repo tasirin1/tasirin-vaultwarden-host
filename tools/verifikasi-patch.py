@@ -2610,7 +2610,10 @@ def _menguras_khusus(perintah, toks, awal):
                         "/proc/self/fd/0"):
                     return True
             if t in ("-f-", "--file=-", "--makefile=-",
-                     "-f/dev/stdin"):
+                     "-f/dev/stdin",
+                     # Audit 1350: bentuk panjang merekat.
+                     "--file=/dev/stdin",
+                     "--makefile=/dev/stdin"):
                 return True
             if re.fullmatch(r"-[a-z]*f", t):
                 if i + 1 < len(mentah) and mentah[i + 1] in (
