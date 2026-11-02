@@ -2437,6 +2437,9 @@ def _menguras_khusus(perintah, toks, awal):
         # bukan operand — penilaian wajib sadar opsi.
         # Audit 1285: convert beroperand '-' juga menguras,
         # dan batch tanpa berkas membaca perintah dari stdin.
+        # Audit 1348: -append/-average adalah operator daftar
+        # gambar TANPA nilai (bukan opsi bernilai); entri
+        # -stroke ganda dibersihkan.
         if mentah and mentah[0] in ("identify", "convert"):
             ops_gm = _operand_sesudah_opsi(
                 toks, awal + 1,
@@ -2448,9 +2451,9 @@ def _menguras_khusus(perintah, toks, awal):
                  "-colorspace", "-depth", "-quality", "-rotate",
                  "-scale", "-resize", "-crop", "-extent",
                  "-compose", "-delay", "-dispose", "-output",
-                 "-type", "-encoding", "-pointsize", "-stroke",
+                 "-type", "-encoding", "-pointsize",
                  "-strokewidth", "-box", "-comment", "-caption",
-                 "-texture", "-affine", "-append", "-average"})
+                 "-texture", "-affine"})
             return "-" in ops_gm or "/dev/stdin" in ops_gm
         if mentah and mentah[0] == "batch":
             return len(mentah) == 1

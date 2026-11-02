@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Gm -append/-average operator tanpa nilai, bukan opsi bernilai (Audit 1348)
+
 ## [Belum rilis] — Systemd-run menjadi cabang khusus semantik mode --scope (tabel resolver dibetulkan) (Audit 1347)
 
 ## [Belum rilis] — CI: cek skip jadwal kini juga memeriksa status latest — flip latest yang gagal tak lagi terkubur oleh skip (Audit 1346)
