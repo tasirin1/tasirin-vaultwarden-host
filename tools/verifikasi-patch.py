@@ -3555,7 +3555,12 @@ def _menguras_khusus(perintah, toks, awal):
         ops_npm = _operand_sesudah_opsi(
             toks, awal, {"--prefix", "--userconfig",
                          "--globalconfig", "--cache",
-                         "--registry", "--workspace", "-w"})
+                         "--registry", "--workspace", "-w",
+                         # Audit 1421: bendera global
+                         # bernilai yang hilang — nilainya
+                         # sempat menggeser operand init.
+                         "--loglevel", "--otp", "--proxy",
+                         "--https-proxy", "--cafile"})
         if not ops_npm or ops_npm[0] != "init":
             return False
         return "-y" not in mentah and "--yes" not in mentah

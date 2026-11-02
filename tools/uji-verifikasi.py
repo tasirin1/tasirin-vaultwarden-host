@@ -14008,6 +14008,27 @@ def main():
         periksa("pdftoppm -scale-to 800 - hasil: "
                 "gerbang gagal (Audit 1420)", rc != 0)
         shutil.rmtree(sub646, ignore_errors=True)
+        sub647 = klon(tmp, "sub647")
+        berkas_aksi647 = os.path.join(
+            sub647, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi647, encoding="utf-8") as f:
+            isi_aksi647 = f.read()
+        baris_aksi647 = [b for b in isi_aksi647.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru647 = isi_aksi647.replace(
+                baris_aksi647,
+                baris_aksi647.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(npm --loglevel warn init; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru647 != isi_aksi647, \
+            "suntikan aksi647 tidak menembak"
+        with open(berkas_aksi647, "w", encoding="utf-8") as f:
+            f.write(isi_baru647)
+        rc, out = jalan(sub647, [sys.executable, GERBANG, "--semua"])
+        periksa("npm --loglevel warn init: "
+                "gerbang gagal (Audit 1421)", rc != 0)
+        shutil.rmtree(sub647, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
