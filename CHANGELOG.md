@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Pembungkus uclampset dikenal resolver (Audit 1254)
+
 ## [Belum rilis] — Pembungkus arsitektur dikenal (setarch/linux32/linux64) (Audit 1253)
 
 ## [Belum rilis] — gmake dipetakan ke penilai make (Audit 1252)

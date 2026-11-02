@@ -904,6 +904,9 @@ _OPSI_PEMBUNGKUS = {
     "newgrp": set(),
     # Audit 1203: ssh-agent pembungkus perintah anak.
     "ssh-agent": {"-a", "-t", "-E", "-P"},
+    # Audit 1254/1255/1256: pembungkus putaran-8.
+    "uclampset": {"-m", "--max"},
+
     # Audit 1084: chroot dikenal resolver sejak 1065 tetapi tabel
     # opsinya kosong — --userspec/--groups bernilai tak dilompati.
     "chroot": {"--userspec", "--groups", "--skip-chdir"},
@@ -2785,7 +2788,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 "setpriv", "prlimit",
                 # Audit 1253/1254/1255/1256: pembungkus
                 # putaran-8 (setarch beroperand arsitektur).
-                "setarch", "linux32", "linux64"
+                "setarch", "linux32", "linux64", "uclampset",
                 # Audit 1194/1203: newgrp (sekelas sg) dan
                 # ssh-agent.
                 "newgrp", "ssh-agent"):
