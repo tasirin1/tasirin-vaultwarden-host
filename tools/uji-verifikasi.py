@@ -10186,6 +10186,24 @@ def main():
         periksa("i386 cat: "
                 "gerbang gagal (Audit 1318)", rc != 0)
         shutil.rmtree(sub541, ignore_errors=True)
+        sub542 = klon(tmp, "sub542")
+        berkas_aksi542 = os.path.join(
+            sub542, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi542, encoding="utf-8") as f:
+            isi_aksi542 = f.read()
+        baris_aksi542 = [b for b in isi_aksi542.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi542, "w", encoding="utf-8") as f:
+            f.write(isi_aksi542.replace(
+                baris_aksi542,
+                baris_aksi542.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(systemd-run --scope --quiet cat; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub542, [sys.executable, GERBANG, "--semua"])
+        periksa("systemd-run --scope --quiet cat: "
+                "gerbang gagal (Audit 1319)", rc != 0)
+        shutil.rmtree(sub542, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1009,6 +1009,16 @@ _OPSI_PEMBUNGKUS = {
                  "-p", "--xauth-protocol"},
     # Audit 1319: systemd-run — anak adalah perintah
     # sesudah opsi unit/timer.
+    "systemd-run": {"--unit", "--description", "--property",
+                    "-p", "--setenv", "-E",
+                    "--working-directory", "--machine", "-M",
+                    "--host", "-H", "--on-calendar",
+                    "--on-active", "--on-boot", "--on-startup",
+                    "--on-unit-active", "--on-unit-inactive",
+                    "--timer-property", "--path-property",
+                    "--socket-property", "--uid", "--gid",
+                    "--nice", "--limit", "--slice", "--service",
+                    "--remain-after-exit"},
     # Audit 1084: chroot dikenal resolver sejak 1065 tetapi tabel
     # opsinya kosong — --userspec/--groups bernilai tak dilompati.
     "chroot": {"--userspec", "--groups", "--skip-chdir"},
@@ -3110,7 +3120,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 "setarch", "linux32", "linux64", "uclampset",
                 "choom", "xvfb-run",
                 # Audit 1318: alias personalitas langsung.
-                "i386", "x86_64",
+                # Audit 1319: pembungkus systemd-run.
+                "i386", "x86_64", "systemd-run",
                 # Audit 1194/1203: newgrp (sekelas sg) dan
                 # ssh-agent.
                 "newgrp", "ssh-agent"):

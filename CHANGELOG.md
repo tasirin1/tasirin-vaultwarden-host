@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Systemd-run menjadi pembungkus beropsi (Audit 1319)
+
 ## [Belum rilis] — Alias setarch i386/x86_64 menjadi pembungkus (Audit 1318)
 
 ## [Belum rilis] — Script -c menilai perintah anak (Audit 1317)
