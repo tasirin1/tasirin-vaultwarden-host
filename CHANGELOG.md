@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — opsi --output-delimiter comm masuk tabel bernilai gerbang patch (Audit 1110)
+
 ## [Belum rilis] — opsi pola less -p/--pattern masuk tabel bernilai gerbang patch (Audit 1109)
 
 ## [Belum rilis] — keluarga vi/view/ex kini dinilai menguras oleh gerbang patch (Audit 1108)

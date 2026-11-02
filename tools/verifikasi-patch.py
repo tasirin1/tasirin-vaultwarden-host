@@ -1641,7 +1641,9 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1074: -1/-2/-3 pada comm adalah BENDERA penekan
         # kolom, bukan opsi bernilai — memasukkannya ke tabel
         # membuat nilai bendera menelan operand '-'.
-        return "-" in _operand_sesudah_opsi(toks, awal, set())
+        # Audit 1110: --output-delimiter bernilai baru ditambah.
+        return "-" in _operand_sesudah_opsi(
+            toks, awal, {"--output-delimiter"})
     if perintah == "join":
         # Audit 1063: '-' di posisi operand mana pun = stdin
         # (di join -1/-2 memang bernilai nomor field).
