@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — pdftotext '-' dikenali gerbang (Audit 1193)
+
 ## [Belum rilis] — json_pp dikenal gerbang sebagai pembaca stdin (Audit 1192)
 
 ## [Belum rilis] — funzip dikenal gerbang sebagai pembaca stdin (Audit 1191)

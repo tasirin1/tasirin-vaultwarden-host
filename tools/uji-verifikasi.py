@@ -7486,6 +7486,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("json_pp: gerbang gagal (Audit 1192)", rc != 0)
         shutil.rmtree(sub391, ignore_errors=True)
+        sub392 = klon(tmp, "sub392")
+        berkas_aksi392 = os.path.join(
+            sub392, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi392, encoding="utf-8") as f:
+            isi_aksi392 = f.read()
+        baris_aksi392 = [b for b in isi_aksi392.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi392, "w", encoding="utf-8") as f:
+            f.write(isi_aksi392.replace(
+                baris_aksi392,
+                baris_aksi392.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pdftotext - -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub392,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pdftotext - -: gerbang gagal (Audit 1193)", rc != 0)
+        shutil.rmtree(sub392, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

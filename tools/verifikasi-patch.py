@@ -2279,6 +2279,12 @@ def _menguras_khusus(perintah, toks, awal):
             if t_g2 in ("-f-", "--file=-"):
                 return True
         return False
+    # Audit 1193: pdftotext — operand masukan '-' = stdin.
+    if perintah == "pdftotext":
+        ops_pd = _operand_sesudah_opsi(
+            toks, awal, {"-f", "-l", "-r", "-x", "-y", "-W", "-H",
+                         "-opw", "-upw", "-enc", "-eol"})
+        return bool(ops_pd) and ops_pd[0] == "-"
     return False
 
 
@@ -2923,7 +2929,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "make", "visudo", "patch",
                         "more", "less", "vi", "vim", "nvim",
                         "basenc", "view", "ex", "du", "find",
-                        "addr2line", "dig"):
+                        "addr2line", "dig",
+                        # Audit 1193/1195/1197/1198/1200/1201/
+                        # 1202/1204: penilai khusus putaran-7.
+                        "pdftotext"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
