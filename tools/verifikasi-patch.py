@@ -642,13 +642,15 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # berkas menekan; factor/logger operandnya nilai/
                   # pesan sehingga vonis operand generik selaras).
                   "fmt", "pr", "expand", "unexpand", "tsort", "ptx",
-                  "split", "factor", "strings", "base32", "basenc",
+                  "split", "factor", "strings", "base32",
                   "iconv", "logger", "numfmt",
                   # Audit 1057: kompresor saudara gzip + zcat.
                   "xz", "bzip2", "lzma", "zcat",
                   # Audit 1098: varian nama kompresor yang sama
                   # perilakunya (dekompresi ke stdout).
                   "bunzip2", "bzcat", "xzcat", "unxz", "unlzma",
+                  # Audit 1101: basenc TIDAK di sini — tanpa mode
+                  # ia galat dan tak membaca; cabangnya khusus.
                   # Audit 1038: keluarga beroperand skrip/pola —
                   # operand pertamanya bukan berkas (penilaian
                   # posisinya di _menguras_keluarga_skrip).
@@ -1783,6 +1785,13 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"-c", "-S", "--cmd", "-u", "-i", "-s",
                          "--listen", "--servername"})
         return bool(ops) and ops[0] == "-"
+    if perintah == "basenc":
+        # Audit 1101: tanpa bendera mode basenc galat dan tak
+        # membaca; bermode ia filter stdin biasa.
+        return any(t in ("--base64", "--base64url", "--base32",
+                         "--base32hex", "--base16", "--base2msbf",
+                         "--base2lsbf", "--z85")
+                   or t.startswith("--base") for t in mentah)
     return False
 
 
@@ -2317,7 +2326,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "comm", "join", "diff", "diff3", "csplit",
                         "zip", "rsync", "socat", "gpg", "curl",
                         "wget", "nc", "make", "visudo", "patch",
-                        "more", "less", "vi", "vim", "nvim"):
+                        "more", "less", "vi", "vim", "nvim",
+                        "basenc"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — basenc polos tak lagi divonis menguras oleh gerbang patch (Audit 1101)
+
 ## [Belum rilis] — tabel opsi bernilai gerbang patch dilengkapi putaran-2 (Audit 1100)
 
 ## [Belum rilis] — operand jalur /dev/stdin dan fd-0 kini dinilai stdin oleh gerbang patch (Audit 1099)
