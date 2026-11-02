@@ -2021,8 +2021,12 @@ def _menguras_khusus(perintah, toks, awal):
         if sub == "hash-object":
             return "--stdin" in mentah or "--stdin-paths" in mentah
         if sub == "cat-file":
+            # Audit 1261: bentuk berformat '=' juga batch.
             return any(t in ("--batch", "--batch-check",
                              "--batch-command")
+                       or t.startswith("--batch=")
+                       or t.startswith("--batch-check=")
+                       or t.startswith("--batch-command=")
                        for t in mentah)
         if sub == "fast-import":
             return True

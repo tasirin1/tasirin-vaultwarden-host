@@ -9160,6 +9160,24 @@ def main():
         periksa("chardetect: "
                 "gerbang gagal (Audit 1260)", rc != 0)
         shutil.rmtree(sub484, ignore_errors=True)
+        sub485 = klon(tmp, "sub485")
+        berkas_aksi485 = os.path.join(
+            sub485, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi485, encoding="utf-8") as f:
+            isi_aksi485 = f.read()
+        baris_aksi485 = [b for b in isi_aksi485.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi485, "w", encoding="utf-8") as f:
+            f.write(isi_aksi485.replace(
+                baris_aksi485,
+                baris_aksi485.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git cat-file --batch-check=%(objectname); cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub485, [sys.executable, GERBANG, "--semua"])
+        periksa("git cat-file --batch-check=%(objectname): "
+                "gerbang gagal (Audit 1261)", rc != 0)
+        shutil.rmtree(sub485, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

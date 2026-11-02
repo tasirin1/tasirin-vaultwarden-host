@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — git cat-file: bentuk --batch/--batch-check '=' dikenal (Audit 1261)
+
 ## [Belum rilis] — chardetect dikenal sebagai pembaca stdin (Audit 1260)
 
 ## [Belum rilis] — gm identify '-' membaca gambar dari stdin (Audit 1259)
