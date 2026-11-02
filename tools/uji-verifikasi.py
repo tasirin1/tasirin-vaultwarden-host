@@ -9394,6 +9394,24 @@ def main():
         periksa("git notes add -fF- HEAD: "
                 "gerbang gagal (Audit 1274)", rc != 0)
         shutil.rmtree(sub497, ignore_errors=True)
+        sub498 = klon(tmp, "sub498")
+        berkas_aksi498 = os.path.join(
+            sub498, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi498, encoding="utf-8") as f:
+            isi_aksi498 = f.read()
+        baris_aksi498 = [b for b in isi_aksi498.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi498, "w", encoding="utf-8") as f:
+            f.write(isi_aksi498.replace(
+                baris_aksi498,
+                baris_aksi498.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(patch -f --help; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub498, [sys.executable, GERBANG, "--semua"])
+        periksa("patch -f --help: "
+                "gerbang lolos (Audit 1275)", rc == 0)
+        shutil.rmtree(sub498, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Patch -f bukan lagi petunjuk informatif (Audit 1275)
+
 ## [Belum rilis] — Git notes -fF- dikenali membaca stdin (Audit 1274)
 
 ## [Belum rilis] — Git am menilai --whitespace sebagai opsi bernilai (Audit 1273)
