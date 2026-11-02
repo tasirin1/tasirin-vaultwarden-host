@@ -2635,6 +2635,25 @@ def main():
         periksa("python3 -i jatuh ke REPL sesudah skrip: penguras — gerbang gagal (Audit 1049)", rc != 0)
         shutil.rmtree(subpyi, ignore_errors=True)
 
+        subsudoshell = klon(tmp, "subsudoshell")
+        berkas_aksi130 = os.path.join(
+            subsudoshell, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi130, encoding="utf-8") as f:
+            isi_aksi130 = f.read()
+        baris_aksi130 = [b for b in isi_aksi130.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi130, "w", encoding="utf-8") as f:
+            f.write(isi_aksi130.replace(
+                baris_aksi130,
+                baris_aksi130.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sudo -s; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subsudoshell,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sudo -s menjalankan shell pembaca perintah: penguras — gerbang gagal (Audit 1050)", rc != 0)
+        shutil.rmtree(subsudoshell, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

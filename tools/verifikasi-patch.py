@@ -1200,6 +1200,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # Audit 1033/1034: keadaan posisi perintah untuk kata kunci.
     sesudah_exec = False
     lewat_command = False
+    # Audit 1050: mode shell sudo (-s/-i) tanpa perintah = shell
+    # membaca perintah dari stdin.
+    sudo_shell = False
     # Audit 987: isi string env -S di-exec env sebagai program
     # eksternal — kata pertamanya tidak pernah builtin shell,
     # jadi rekursi -S berjalan dengan _posisi_awal=False.
@@ -1421,6 +1424,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 awal += 1
                 if opsi == "--":
                     break
+                if t0 == "sudo" and (
+                        opsi in ("-s", "--shell", "-i", "--login")
+                        or (len(opsi) > 2 and opsi[0] == "-"
+                            and opsi[1] != "-"
+                            and opsi[1] in ("s", "i"))):
+                    # Audit 1050: mode shell sudo.
+                    sudo_shell = True
                 if (t0 == "command" and len(opsi) > 1
                         and all(c in "pvV" for c in opsi[1:])
                         and ("v" in opsi or "V" in opsi)):
@@ -1632,6 +1642,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 return False
             return False
     if awal >= len(toks):
+        # Audit 1050: sudo -s/-i tanpa perintah menjalankan shell
+        # yang membaca perintah dari stdin sampai EOF.
+        if sudo_shell:
+            return True
         return xargs_sendiri
     perintah = _kata_shell(toks[awal])
     if perintah not in _PEMBACA_STDIN:

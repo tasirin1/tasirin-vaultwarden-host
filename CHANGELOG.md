@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — mode shell sudo -s/-i kini dinilai penguras oleh gerbang patch (Audit 1050)
+
 ## [Belum rilis] — REPL python -i dan modul penyaring -m kini dinilai gerbang patch (Audit 1049)
 
 ## [Belum rilis] — opsi bernilai tac kini dikenali gerbang patch (Audit 1048)
