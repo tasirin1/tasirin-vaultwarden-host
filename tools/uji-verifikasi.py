@@ -2832,6 +2832,25 @@ def main():
         periksa("openssl dgst tanpa berkas adalah penguras — gerbang gagal (Audit 1060)", rc != 0)
         shutil.rmtree(subopenssl, ignore_errors=True)
 
+        subtar = klon(tmp, "subtar")
+        berkas_aksi139 = os.path.join(
+            subtar, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi139, encoding="utf-8") as f:
+            isi_aksi139 = f.read()
+        baris_aksi139 = [b for b in isi_aksi139.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi139, "w", encoding="utf-8") as f:
+            f.write(isi_aksi139.replace(
+                baris_aksi139,
+                baris_aksi139.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tar -tf -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subtar,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tar membaca arsip dari stdin: penguras — gerbang gagal (Audit 1061)", rc != 0)
+        shutil.rmtree(subtar, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

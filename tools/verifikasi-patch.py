@@ -1298,6 +1298,31 @@ def _menguras_khusus(perintah, toks, awal):
                 ops = ops[1:] if ops else []
             return not ops
         return False
+    if perintah == "tar":
+        # Audit 1061: arsip '-' (nilai -f) atau daftar -T '-'.
+        i = 0
+        while i < len(mentah):
+            t = mentah[i]
+            if t in ("-f", "--file", "-T", "--files-from"):
+                if i + 1 < len(mentah) and mentah[i + 1] == "-":
+                    return True
+                i += 2
+                continue
+            if (t.startswith("--file=")
+                    or t.startswith("--files-from=")):
+                if t.split("=", 1)[1] == "-":
+                    return True
+                i += 1
+                continue
+            if re.fullmatch(r"-[a-z]*[fT][a-z]*", t):
+                # bundel berakhiran f/T merekat: -cf- / -f-
+                if t.endswith("-") or (
+                        i + 1 < len(mentah)
+                        and mentah[i + 1] == "-"
+                        and t[-1] in "fT"):
+                    return True
+            i += 1
+        return False
     return False
 
 
@@ -1804,7 +1829,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return _menguras_interpreter(perintah, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)
-        if perintah in ("sqlite3", "openssl"):
+        if perintah in ("sqlite3", "openssl", "tar"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

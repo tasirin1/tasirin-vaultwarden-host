@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — tar dengan arsip/daftar dari stdin kini dinilai gerbang patch (Audit 1061)
+
 ## [Belum rilis] — subcommand openssl dgst/enc kini dinilai gerbang patch (Audit 1060)
 
 ## [Belum rilis] — sqlite3 kini dinilai penilai khusus gerbang patch (Audit 1059)
