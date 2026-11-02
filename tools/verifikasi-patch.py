@@ -2419,7 +2419,9 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1195: nft — hanya -f '-' yang membaca dari stdin.
     if perintah == "nft":
         for k_nf, t_nf in enumerate(mentah):
-            if t_nf == "--file=-":
+            if t_nf in ("--file=-",
+                        # Audit 1233: -f- merekat.
+                        "-f-"):
                 return True
             if t_nf in ("-f", "--file"):
                 return (k_nf + 1 < len(mentah)

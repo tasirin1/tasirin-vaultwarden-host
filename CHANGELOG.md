@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — nft: bentuk merekat -f- tak dikenal (Audit 1233)
+
 ## [Belum rilis] — pdftotext: -cfg bernilai hilang dari set cabang (Audit 1232)
 
 ## [Belum rilis] — sysctl: semua -p dinilai, bukan yang pertama saja (Audit 1231)
