@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Jalur perubahan waktu menolak jam yang dimundurkan (Audit 1027)
+
+### Diperbaiki
+- Pengejaran backup di `AlarmReceiver` (DATE_CHANGED/TIME_SET/TIMEZONE_CHANGED) kini menolak keadaan jam mundur (`kini < backup terakhir`) — selaras pagar yang sudah ada di jalur susulan boot. Sebelumnya tanggal lokal yang mundur dinilai "ganti hari" sehingga backup terdobel terunggah dan stempel backup terakhir ikut mundur.
+
+
 ## [Belum rilis] — Penanda start tertunda dibersihkan oleh start/stop yang berhasil (Audit 1026)
 
 ### Diperbaiki

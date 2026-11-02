@@ -184,6 +184,14 @@ public class AlarmReceiver extends BroadcastReceiver {
             if (last > 0 && kini >= last && kini - last < 3600_000L) {
                 return;
             }
+            if (last > 0 && kini < last) {
+                // Audit 1027: jam dimundurkan — jangan kejar backup:
+                // tanggal lokal yang mundur bukan hari baru, dan
+                // stempel backup terakhir tak boleh ikut mundur.
+                // Selaras pagar jalur susulan boot
+                // (bolehBackupSusulanBoot).
+                return;
+            }
             if (TgBackup.sudahGantiHari(last, kini)) {
                 mulaiBackup(context);
             }
