@@ -8530,6 +8530,24 @@ def main():
         periksa("pr --separator berkas.txt: "
                 "gerbang lolos (Audit 1234)", rc == 0)
         shutil.rmtree(sub449, ignore_errors=True)
+        sub450 = klon(tmp, "sub450")
+        berkas_aksi450 = os.path.join(
+            sub450, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi450, encoding="utf-8") as f:
+            isi_aksi450 = f.read()
+        baris_aksi450 = [b for b in isi_aksi450.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi450, "w", encoding="utf-8") as f:
+            f.write(isi_aksi450.replace(
+                baris_aksi450,
+                baris_aksi450.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(ptx -F xx; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub450, [sys.executable, GERBANG, "--semua"])
+        periksa("ptx -F xx: "
+                "gerbang gagal (Audit 1235)", rc != 0)
+        shutil.rmtree(sub450, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

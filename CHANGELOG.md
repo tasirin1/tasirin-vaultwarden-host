@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — ptx: -F/--flag-truncation bernilai, hilang dari tabel (Audit 1235)
+
 ## [Belum rilis] — pr: -s/--separator bernilai opsional juga (Audit 1234)
 
 ## [Belum rilis] — nft: bentuk merekat -f- tak dikenal (Audit 1233)

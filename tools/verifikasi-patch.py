@@ -711,6 +711,8 @@ _OPSI_BERNILAI = {
     "ptx": {"-M", "--macro-name",
             "-S", "--sentence-regexp", "-T", "--format",
             "-b", "--break-file", "-i", "--ignore-file",
+            # Audit 1235: -F/--flag-truncation ptx bernilai.
+            "-F", "--flag-truncation",
             # Audit 1174: -o/--only-file hilang.
             "-o", "--only-file",
             # Audit 1210: pasangan tertukar dibetulkan — gap =
