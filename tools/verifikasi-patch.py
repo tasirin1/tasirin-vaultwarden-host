@@ -1577,7 +1577,9 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, dasar,
                 {"-sign", "-verify", "-keyform", "-out", "-passin",
                  "-engine", "-fipskey", "-provider", "-propquery",
-                 "-rand"})
+                 # Audit 1129: -mac/-macopt/-prverify bernilai —
+                 # nilainya terbaca operand penekan.
+                 "-rand", "-mac", "-macopt", "-prverify"})
             if sub != "dgst":
                 ops = ops[1:] if ops else []
             return not ops or "-" in ops
