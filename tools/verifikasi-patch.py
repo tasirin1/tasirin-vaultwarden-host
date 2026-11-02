@@ -1370,6 +1370,11 @@ def _menguras_interpreter(perintah, toks, awal):
         # nama skrip (argumen sesudahnya argv skrip).
         while i < n:
             t = toks[i].strip("\"'")
+            # Audit 1183: -encoding bernilai — nilainya bukan
+            # nama skrip.
+            if t == "-encoding":
+                i += 2
+                continue
             if t.startswith("-") and t != "-":
                 i += 1
                 continue

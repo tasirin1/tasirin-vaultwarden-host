@@ -7324,6 +7324,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("expect -c 'puts x' -: gerbang gagal (Audit 1182)", rc != 0)
         shutil.rmtree(sub382, ignore_errors=True)
+        sub383 = klon(tmp, "sub383")
+        berkas_aksi383 = os.path.join(
+            sub383, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi383, encoding="utf-8") as f:
+            isi_aksi383 = f.read()
+        baris_aksi383 = [b for b in isi_aksi383.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi383, "w", encoding="utf-8") as f:
+            f.write(isi_aksi383.replace(
+                baris_aksi383,
+                baris_aksi383.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tclsh8.6 -encoding utf-8; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub383,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tclsh8.6 -encoding utf-8: gerbang gagal (Audit 1183)", rc != 0)
+        shutil.rmtree(sub383, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
