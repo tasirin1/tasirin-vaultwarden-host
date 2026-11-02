@@ -10240,6 +10240,24 @@ def main():
         periksa("systemd-sysusers --root=/tmp -: "
                 "gerbang gagal (Audit 1321)", rc != 0)
         shutil.rmtree(sub544, ignore_errors=True)
+        sub545 = klon(tmp, "sub545")
+        berkas_aksi545 = os.path.join(
+            sub545, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi545, encoding="utf-8") as f:
+            isi_aksi545 = f.read()
+        baris_aksi545 = [b for b in isi_aksi545.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi545, "w", encoding="utf-8") as f:
+            f.write(isi_aksi545.replace(
+                baris_aksi545,
+                baris_aksi545.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(systemd-tmpfiles --root=/tmp --create -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub545, [sys.executable, GERBANG, "--semua"])
+        periksa("systemd-tmpfiles --root=/tmp --create -: "
+                "gerbang gagal (Audit 1322)", rc != 0)
+        shutil.rmtree(sub545, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

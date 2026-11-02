@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Systemd-tmpfiles operand '-' dinilai (Audit 1322)
+
 ## [Belum rilis] — Systemd-sysusers operand '-' dinilai (Audit 1321)
 
 ## [Belum rilis] — Tmux load-buffer '-' dinilai (Audit 1320)
