@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — As tanpa operand berkas membaca stdin (Audit 1352)
+
 ## [Belum rilis] — Normalisasi kompiler menerima triple mesin generik (Audit 1351)
 
 ## [Belum rilis] — Make --file=/dev/stdin dan --makefile=/dev/stdin dikenali (Audit 1350)

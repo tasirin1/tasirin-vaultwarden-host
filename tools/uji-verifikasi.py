@@ -10762,6 +10762,24 @@ def main():
         periksa("aarch64-linux-gnu-gcc -x c -E -: "
                 "gerbang gagal (Audit 1351)", rc != 0)
         shutil.rmtree(sub573, ignore_errors=True)
+        sub574 = klon(tmp, "sub574")
+        berkas_aksi574 = os.path.join(
+            sub574, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi574, encoding="utf-8") as f:
+            isi_aksi574 = f.read()
+        baris_aksi574 = [b for b in isi_aksi574.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi574, "w", encoding="utf-8") as f:
+            f.write(isi_aksi574.replace(
+                baris_aksi574,
+                baris_aksi574.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(as -o out.o; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub574, [sys.executable, GERBANG, "--semua"])
+        periksa("as -o out.o: "
+                "gerbang gagal (Audit 1352)", rc != 0)
+        shutil.rmtree(sub574, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

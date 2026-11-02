@@ -2866,7 +2866,10 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "as":
         ops_as = _operand_sesudah_opsi(
             toks, awal, {"-o", "-I", "--defsym"})
-        return "-" in ops_as or "/dev/stdin" in ops_as
+        # Audit 1352: tanpa operand berkas, as membaca
+        # sumber dari stdin (seperti cpp).
+        return ("-" in ops_as or "/dev/stdin" in ops_as
+                or not ops_as)
     # Audit 1311/1305/1308/1309: banding beroperand '-' —
     # cmp sendiri dan keluarga terkompresinya (bzcmp/bzdiff
     # SENGAJA tak ikut: '-' mereka nama berkas harfiah).
