@@ -1748,8 +1748,10 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1106: operasi stdin di luar mode kripto — import/
         # dearmor/enarmor/list-packets tanpa operand berkas, dan
         # print-md yang operand tunggalnya nama algoritma.
+        # Audit 1123: --verify tanpa operand membaca bahan
+        # tanda tangan dari stdin.
         if any(t in ("--import", "--dearmor", "--enarmor",
-                     "--list-packets") for t in mentah):
+                     "--list-packets", "--verify") for t in mentah):
             return not ops
         if "--print-md" in mentah:
             return len(ops) <= 1
