@@ -9772,6 +9772,24 @@ def main():
         periksa("uclampset -M 0 cat: "
                 "gerbang gagal (Audit 1295)", rc != 0)
         shutil.rmtree(sub518, ignore_errors=True)
+        sub519 = klon(tmp, "sub519")
+        berkas_aksi519 = os.path.join(
+            sub519, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi519, encoding="utf-8") as f:
+            isi_aksi519 = f.read()
+        baris_aksi519 = [b for b in isi_aksi519.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi519, "w", encoding="utf-8") as f:
+            f.write(isi_aksi519.replace(
+                baris_aksi519,
+                baris_aksi519.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(choom -p 999999 cat; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub519, [sys.executable, GERBANG, "--semua"])
+        periksa("choom -p 999999 cat: "
+                "gerbang lolos (Audit 1296)", rc == 0)
+        shutil.rmtree(sub519, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

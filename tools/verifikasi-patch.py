@@ -3048,6 +3048,25 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         j_pr += 2
                     else:
                         j_pr += 1
+            # Audit 1296: choom mode -p/--pid — perintah
+            # sesudahnya bukan anak (saling meniadakan).
+            if t0 == "choom":
+                j_ch = awal
+                while j_ch < len(toks):
+                    t_ch = toks[j_ch]
+                    if not t_ch.startswith("-"):
+                        break
+                    if (t_ch in ("-p", "--pid")
+                            or t_ch.startswith("--pid=")
+                            or t_ch.startswith("-p=")
+                            or re.fullmatch(r"-p\d+", t_ch)):
+                        return False
+                    if ("=" not in t_ch and t_ch
+                            in _OPSI_PEMBUNGKUS.get(
+                                "choom", ())):
+                        j_ch += 2
+                    else:
+                        j_ch += 1
             if t0 in ("su", "sg", "newgrp"):
                 # Audit 1107: su/sg — string -c dinilai seperti
                 # flock -c; tanpa -c keduanya menjatuhkan shell

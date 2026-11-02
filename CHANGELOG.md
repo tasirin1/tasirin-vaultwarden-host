@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Choom mode pid dikenali di resolver pembungkus (Audit 1296)
+
 ## [Belum rilis] — Uclampset -M dibetulkan sebagai --max (Audit 1295)
 
 ## [Belum rilis] — Numfmt --round bernilai (Audit 1294)
