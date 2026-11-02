@@ -4314,6 +4314,63 @@ def main():
         periksa("openssl x509 tanpa -in: gerbang gagal (Audit 1105)", rc != 0)
         shutil.rmtree(sub216, ignore_errors=True)
 
+        sub217 = klon(tmp, "sub217")
+        berkas_aksi217 = os.path.join(
+            sub217, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi217, encoding="utf-8") as f:
+            isi_aksi217 = f.read()
+        baris_aksi217 = [b for b in isi_aksi217.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi217, "w", encoding="utf-8") as f:
+            f.write(isi_aksi217.replace(
+                baris_aksi217,
+                baris_aksi217.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg --batch --import; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub217,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpg --import: gerbang gagal (Audit 1106)", rc != 0)
+        shutil.rmtree(sub217, ignore_errors=True)
+
+        sub218 = klon(tmp, "sub218")
+        berkas_aksi218 = os.path.join(
+            sub218, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi218, encoding="utf-8") as f:
+            isi_aksi218 = f.read()
+        baris_aksi218 = [b for b in isi_aksi218.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi218, "w", encoding="utf-8") as f:
+            f.write(isi_aksi218.replace(
+                baris_aksi218,
+                baris_aksi218.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg --batch --dearmor; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub218,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpg --dearmor: gerbang gagal (Audit 1106)", rc != 0)
+        shutil.rmtree(sub218, ignore_errors=True)
+
+        sub219 = klon(tmp, "sub219")
+        berkas_aksi219 = os.path.join(
+            sub219, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi219, encoding="utf-8") as f:
+            isi_aksi219 = f.read()
+        baris_aksi219 = [b for b in isi_aksi219.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi219, "w", encoding="utf-8") as f:
+            f.write(isi_aksi219.replace(
+                baris_aksi219,
+                baris_aksi219.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg --batch --print-md SHA256; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub219,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpg --print-md: gerbang gagal (Audit 1106)", rc != 0)
+        shutil.rmtree(sub219, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

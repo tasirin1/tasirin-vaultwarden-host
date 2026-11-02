@@ -1680,6 +1680,14 @@ def _menguras_khusus(perintah, toks, awal):
              "--cipher-algo", "--digest-algo", "--compress-algo",
              "--cert-digest-algo", "--s2k-cipher-algo",
              "--s2k-digest-algo", "--agent-program"})
+        # Audit 1106: operasi stdin di luar mode kripto — import/
+        # dearmor/enarmor/list-packets tanpa operand berkas, dan
+        # print-md yang operand tunggalnya nama algoritma.
+        if any(t in ("--import", "--dearmor", "--enarmor",
+                     "--list-packets") for t in mentah):
+            return not ops
+        if "--print-md" in mentah:
+            return len(ops) <= 1
         if ops:
             return False
         return any(t in ("-c", "--symmetric", "-e", "--encrypt",

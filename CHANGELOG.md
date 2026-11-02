@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — operasi stdin gpg di luar enkripsi kini dikenali gerbang patch (Audit 1106)
+
 ## [Belum rilis] — subcommand objek-tunggal openssl kini dinilai gerbang patch (Audit 1105)
 
 ## [Belum rilis] — subcommand openssl pembaca stdin putaran-2 kini dikenali gerbang patch (Audit 1104)
