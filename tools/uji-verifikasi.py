@@ -11882,6 +11882,27 @@ def main():
         periksa("FOO=/bin/cat: "
                 "gerbang lolos (Audit 1408)", rc == 0)
         shutil.rmtree(sub634, ignore_errors=True)
+        sub635 = klon(tmp, "sub635")
+        berkas_aksi635 = os.path.join(
+            sub635, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi635, encoding="utf-8") as f:
+            isi_aksi635 = f.read()
+        baris_aksi635 = [b for b in isi_aksi635.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru635 = isi_aksi635.replace(
+                baris_aksi635,
+                baris_aksi635.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl asn1parse; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru635 != isi_aksi635, \
+            "suntikan aksi635 tidak menembak"
+        with open(berkas_aksi635, "w", encoding="utf-8") as f:
+            f.write(isi_baru635)
+        rc, out = jalan(sub635, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl asn1parse: "
+                "gerbang gagal (Audit 1409)", rc != 0)
+        shutil.rmtree(sub635, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
