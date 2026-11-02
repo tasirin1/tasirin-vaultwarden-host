@@ -691,6 +691,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "podchecker",
                   # Audit 1337: penjelas galat Perl.
                   "splain",
+                  # Audit 1338: shell modul Perl.
+                  "instmodsh",
                   # Audit 1113: varian awk orisinal.
                   "original-awk",
                   # Audit 1196: pemulih tabel firewall membaca
@@ -947,6 +949,8 @@ _OPSI_BERNILAI = {
     # Audit 1314/1315: pager (opsi lazim less yang bernilai).
     # Audit 1337: splain tanpa opsi bernilai.
     "splain": set(),
+    # Audit 1338: instmodsh tanpa opsi bernilai.
+    "instmodsh": set(),
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",
