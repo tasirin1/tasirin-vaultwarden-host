@@ -671,6 +671,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "zegrep", "zfgrep",
                   # Audit 1307: egrep/fgrep bzip2.
                   "bzegrep", "bzfgrep",
+                  # Audit 1308: keluarga xz.
+                  "xzegrep", "xzfgrep",
                   # Audit 1113: varian awk orisinal.
                   "original-awk",
                   # Audit 1196: pemulih tabel firewall membaca
@@ -1274,6 +1276,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 # Audit 1306-1309: egrep/fgrep terkompresi.
                 "zegrep": "grep", "zfgrep": "grep",
                 "bzegrep": "grep", "bzfgrep": "grep",
+                "xzegrep": "grep", "xzfgrep": "grep",
                 "original-awk": "awk"}.get(perintah, perintah)
     # Audit 1095: mode daftar rg tak membaca stdin sama sekali.
     if nama_asli == "rg" and any(
@@ -2800,7 +2803,7 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1311/1305/1308/1309: banding beroperand '-' —
     # cmp sendiri dan keluarga terkompresinya (bzcmp/bzdiff
     # SENGAJA tak ikut: '-' mereka nama berkas harfiah).
-    if perintah in ("zcmp", "zdiff"):
+    if perintah in ("zcmp", "zdiff", "xzcmp", "xzdiff"):
         ops_cm = _operand_sesudah_opsi(
             toks, awal, {"-i", "--ignore-initial", "-n",
                          "--bytes"})
@@ -3531,6 +3534,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "pdffonts", "pdfimages", "pdftops",
                         # Audit 1305-1345: penilai khusus putaran-9.
                         "zcmp", "zdiff",
+                        "xzcmp", "xzdiff",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
@@ -3554,6 +3558,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                   "zegrep", "zfgrep",
                   # Audit 1307: egrep/fgrep bzip2.
                   "bzegrep", "bzfgrep",
+                  # Audit 1308: keluarga xz.
+                  "xzegrep", "xzfgrep",
                     "original-awk"):
         # Audit 1038: semantik operand keluarga skrip/pola.
         # Audit 1067: varian nama dipetakan ke kanonisnya.

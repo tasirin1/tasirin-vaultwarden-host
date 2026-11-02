@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Keluarga xz (xzcmp/xzdiff/xzegrep/xzfgrep) dinilai (Audit 1308)
+
 ## [Belum rilis] — Egrep bzip2 (bzegrep/bzfgrep) dirutekan (Audit 1307)
 
 ## [Belum rilis] — Egrep gzip (zegrep/zfgrep) dirutekan (Audit 1306)
