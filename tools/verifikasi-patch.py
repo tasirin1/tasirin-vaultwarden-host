@@ -465,6 +465,10 @@ _OPSI_PEMBUNGKUS = {
     "nice": {"-n", "--adjustment"},
     "stdbuf": {"-i", "--input", "-o", "--output", "-e", "--error"},
     "timeout": {"-s", "--signal", "-k", "--kill-after"},
+    # Audit 1015: flock menjalankan perintah sesudah operand berkas
+    # kunci; opsi bernilainya waktu tunggu dan kode keluar konflik.
+    "flock": {"-w", "--timeout", "--wait", "-E",
+              "--conflict-exit-code"},
     "xargs": {"-a", "--arg-file", "-E", "-I", "-L", "-n", "-P",
               "-s", "-d", "--eof", "--max-lines", "--max-args",
               "--max-procs", "--max-chars", "--delimiter"},
@@ -768,7 +772,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             break
         if t0 == "timeout" or t0 in ("xargs", "nice", "command",
                 "stdbuf", "setsid", "ionice", "chrt", "taskset",
-                "eatmydata", "nohup"):
+                "eatmydata", "nohup", "flock"):
             # Audit 972: sesudah pembungkus mana pun, kata perintah
             # berikutnya adalah program eksternal.
             # Audit 988: kecuali 'command' sendiri — ia builtin yang
@@ -899,8 +903,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # Audit 989: mode pid — sisa token adalah pid-pid,
                 # resolusi selesai tanpa perintah.
                 awal = len(toks)
-            if (t0 == "timeout" or (t0 in ("taskset", "chrt")
-                    and not tanpa_masker)) and awal < len(toks):
+            if (t0 == "timeout" or t0 == "flock"
+                    or (t0 in ("taskset", "chrt")
+                        and not tanpa_masker)) and awal < len(toks):
+                # Audit 1015: operand pertama flock (berkas kunci /
+                # nomor fd) berposisi seperti durasi timeout.
                 # Audit 968: redirect sebelum durasi (mis. sesudah
                 # '--') dilompati dulu, jangan ditelan sebagai
                 # operand durasi.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang mengenal pembungkus flock (Audit 1015)
+
+- Perkakas: resolver perintah gerbang kini mengenal `flock` sebagai pembungkus perintah — operand berkas kuncinya dilompati seperti durasi pada `timeout`, dan opsi bernilainya (waktu tunggu, kode keluar konflik) dipahami, jadi pembaca di balik flock (`flock kunci.lock cat`) dinilai menguras stdin sebagaimana kenyataannya, bukan lolos sebagai perintah tak dikenal. Skenario uji-diri baru mengunci bentuk ini.
+
 ## [Belum rilis] — Gerbang membedakan duplikasi fd dari redirect berkas di posisi operand (Audit 1014)
 
 - Perkakas: blok awalan fd di pemindaian operand gerbang kini membedakan operator `<` (redirect berkas, stdin sungguh diganti) dari `<&` (duplikasi) — ejaan `0<&0`/`0<&00`/`0<&0-` adalah duplikasi-diri yang menguras stdin sama seperti `<&0`, bukan pengalihan dari berkas seperti yang dinilai sebelumnya (posisi awalan dan jalur xargs sudah benar). Skenario uji-diri baru mengunci bentuk ini.
