@@ -2559,6 +2559,44 @@ def main():
         periksa("penggabungan kutip bersebelahan membentuk nama perintah — gerbang gagal (Audit 1046)", rc != 0)
         shutil.rmtree(subkutipgabung, ignore_errors=True)
 
+        subsettr = klon(tmp, "subsettr")
+        berkas_aksi125 = os.path.join(
+            subsettr, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi125, encoding="utf-8") as f:
+            isi_aksi125 = f.read()
+        baris_aksi125 = [b for b in isi_aksi125.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi125, "w", encoding="utf-8") as f:
+            f.write(isi_aksi125.replace(
+                baris_aksi125,
+                baris_aksi125.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tr 'a-z' 'A-Z'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subsettr,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("set tr berkutip adalah operand himpunan: tetap menguras — gerbang gagal (Audit 1047)", rc != 0)
+        shutil.rmtree(subsettr, ignore_errors=True)
+
+        subspasikutip = klon(tmp, "subspasikutip")
+        berkas_aksi126 = os.path.join(
+            subspasikutip, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi126, encoding="utf-8") as f:
+            isi_aksi126 = f.read()
+        baris_aksi126 = [b for b in isi_aksi126.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi126, "w", encoding="utf-8") as f:
+            f.write(isi_aksi126.replace(
+                baris_aksi126,
+                baris_aksi126.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(grep 'UT UH'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subspasikutip,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("operand berkutip berisi spasi satu token: pola grep menguras — gerbang gagal (Audit 1047)", rc != 0)
+        shutil.rmtree(subspasikutip, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -877,6 +877,58 @@ def _sesudah_redirect_berantai(toks, i, batas):
     return i
 
 
+def _token_shell(teks):
+    """Audit 1047: tokenisasi sadar-kutip — spasi di dalam kutip
+    TIDAK memecah token (tr '\\n' ' ', grep 'a b'). Tanda kutip
+    dipertahankan di token karena logika hilir memakai sinyal
+    berkutip (Audit 939); penggabungan fragmen bersebelahan
+    ditangani _kata_shell di resolusi nama."""
+    hasil = []
+    kini = []
+    kutip = ""
+    i = 0
+    n = len(teks)
+    while i < n:
+        c = teks[i]
+        if kutip == "'":
+            kini.append(c)
+            if c == "'":
+                kutip = ""
+            i += 1
+            continue
+        if kutip == '"':
+            kini.append(c)
+            if c == "\\" and i + 1 < n:
+                kini.append(teks[i + 1])
+                i += 2
+                continue
+            if c == '"':
+                kutip = ""
+            i += 1
+            continue
+        if c in ("'", '"'):
+            kutip = c
+            kini.append(c)
+            i += 1
+            continue
+        if c == "\\" and i + 1 < n:
+            kini.append(c)
+            kini.append(teks[i + 1])
+            i += 2
+            continue
+        if c.isspace():
+            if kini:
+                hasil.append("".join(kini))
+                kini = []
+            i += 1
+            continue
+        kini.append(c)
+        i += 1
+    if kini:
+        hasil.append("".join(kini))
+    return hasil
+
+
 def _kata_shell(token):
     """Audit 1046: kata shell dari satu token — fragmen berkutip
     dan telanjang yang bersebelahan digabungkan dan tanda
@@ -1103,7 +1155,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     bagian = _potong_pipa_pertama(bagian)
     if _substitusi_masukan_menguras(bagian):
         return True
-    toks = bagian.strip().lstrip("({ ").split()
+    toks = _token_shell(bagian.strip().lstrip("({ "))
     # Audit 1021: kupas kurung tutup grup yang menempel di token
     # terakhir ("(cat)" menyisakan "cat)") atau berdiri sendiri
     # ("( cat )") — keduanya sisa grup subshell, bukan operand.
@@ -1593,6 +1645,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # rentang, bukan stdin.
         return False
     lewati = False
+    operand_tr = 0  # Audit 1047: penghitung operand himpunan tr.
     for pos in range(awal + 1, len(toks)):
         t = toks[pos]
         if lewati:
@@ -1671,6 +1724,14 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # tetap menguras stdin walau operand-nya berkutip.
             if perintah == "tee":
                 continue
+            # Audit 1047: set tr yang berkutip adalah idiom lazim
+            # (tr '\n' ' ') — pengecualian tr harus menjangkaunya
+            # sebelum vonis operand-data.
+            if perintah == "tr":
+                operand_tr += 1
+                if operand_tr > 2:
+                    return False
+                continue
             return False
         if ">" in t and _gt_di_luar_kutip(t) and not argv_saja:
             # Audit 1016: "N>&0-" merekat di posisi operand —
@@ -1717,6 +1778,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         if perintah == "tr":
             # Audit 1037: operand tr adalah himpunan karakter,
             # tak pernah berkas masukan.
+            # Audit 1047: GNU tr menolak operand KETIGA dan tidak
+            # membaca apa pun — model tanpa batas salah arah.
+            operand_tr += 1
+            if operand_tr > 2:
+                return False
             continue
         if perintah == "tee":
             continue
