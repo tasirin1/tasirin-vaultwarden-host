@@ -2895,6 +2895,12 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, awal + 1, {"-b", "-t"})
             return "-" in ops_tm or "/dev/stdin" in ops_tm
         return False
+    # Audit 1321/1322: konfigurasi systemd dari operand '-'.
+    if perintah == "systemd-sysusers":
+        ops_sy2 = _operand_sesudah_opsi(
+            toks, awal, {"--root", "--image", "--prefix",
+                         "--exclude-prefix", "--replace"})
+        return "-" in ops_sy2
     return False
 
 
@@ -3632,6 +3638,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "sensible-editor",
                         "script",
                         "tmux",
+                        "systemd-sysusers",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

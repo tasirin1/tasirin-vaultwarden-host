@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Systemd-sysusers operand '-' dinilai (Audit 1321)
+
 ## [Belum rilis] — Tmux load-buffer '-' dinilai (Audit 1320)
 
 ## [Belum rilis] — Systemd-run menjadi pembungkus beropsi (Audit 1319)

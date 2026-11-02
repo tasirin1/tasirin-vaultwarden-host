@@ -10222,6 +10222,24 @@ def main():
         periksa("tmux load-buffer -: "
                 "gerbang gagal (Audit 1320)", rc != 0)
         shutil.rmtree(sub543, ignore_errors=True)
+        sub544 = klon(tmp, "sub544")
+        berkas_aksi544 = os.path.join(
+            sub544, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi544, encoding="utf-8") as f:
+            isi_aksi544 = f.read()
+        baris_aksi544 = [b for b in isi_aksi544.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi544, "w", encoding="utf-8") as f:
+            f.write(isi_aksi544.replace(
+                baris_aksi544,
+                baris_aksi544.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(systemd-sysusers --root=/tmp -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub544, [sys.executable, GERBANG, "--semua"])
+        periksa("systemd-sysusers --root=/tmp -: "
+                "gerbang gagal (Audit 1321)", rc != 0)
+        shutil.rmtree(sub544, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
