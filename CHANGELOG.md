@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Alias interpreter berversi (perl5.x, zshN) dikenali (Audit 1301)
+
 ## [Belum rilis] — Gmake -f menerima stdin dan /dev/stdin (Audit 1300)
 
 ## [Belum rilis] — Penilai nodejs menelan nilai opsi bernilai (Audit 1299)

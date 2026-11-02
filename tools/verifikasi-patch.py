@@ -3452,6 +3452,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             nama_interp = "python3"
         elif re.fullmatch(r"tclsh(\d+(\.\d+)?)?", perintah):
             nama_interp = "tclsh"
+        # Audit 1301: alias berversi perl/zsh.
+        elif re.fullmatch(r"perl5(\.\d+)*(-\S+)?", perintah):
+            nama_interp = "perl"
+        elif re.fullmatch(r"zsh\d+", perintah):
+            nama_interp = "zsh"
         elif perintah == "nodejs":
             # Audit 1251: alias Debian untuk node.
             nama_interp = "node"
