@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — subcommand objek-tunggal openssl putaran-3 kini dikenali gerbang patch (Audit 1160)
+
 ## [Belum rilis] — interpreter nama berversi dan tclsh kini dikenal gerbang patch (Audit 1159)
 
 ## [Belum rilis] — rbash/rzsh kini dipetakan ke penilai shell gerbang patch (Audit 1158)

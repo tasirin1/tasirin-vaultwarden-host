@@ -6640,6 +6640,78 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tclsh8.6 skrip.tcl: gerbang lolos (Audit 1159)", rc == 0)
         shutil.rmtree(sub344, ignore_errors=True)
+        sub345 = klon(tmp, "sub345")
+        berkas_aksi345 = os.path.join(
+            sub345, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi345, encoding="utf-8") as f:
+            isi_aksi345 = f.read()
+        baris_aksi345 = [b for b in isi_aksi345.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi345, "w", encoding="utf-8") as f:
+            f.write(isi_aksi345.replace(
+                baris_aksi345,
+                baris_aksi345.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl dsa; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub345,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl dsa: gerbang gagal (Audit 1160)", rc != 0)
+        shutil.rmtree(sub345, ignore_errors=True)
+        sub346 = klon(tmp, "sub346")
+        berkas_aksi346 = os.path.join(
+            sub346, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi346, encoding="utf-8") as f:
+            isi_aksi346 = f.read()
+        baris_aksi346 = [b for b in isi_aksi346.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi346, "w", encoding="utf-8") as f:
+            f.write(isi_aksi346.replace(
+                baris_aksi346,
+                baris_aksi346.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl pkcs12; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub346,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl pkcs12: gerbang gagal (Audit 1160)", rc != 0)
+        shutil.rmtree(sub346, ignore_errors=True)
+        sub347 = klon(tmp, "sub347")
+        berkas_aksi347 = os.path.join(
+            sub347, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi347, encoding="utf-8") as f:
+            isi_aksi347 = f.read()
+        baris_aksi347 = [b for b in isi_aksi347.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi347, "w", encoding="utf-8") as f:
+            f.write(isi_aksi347.replace(
+                baris_aksi347,
+                baris_aksi347.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl crl2pkcs7; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub347,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl crl2pkcs7: gerbang gagal (Audit 1160)", rc != 0)
+        shutil.rmtree(sub347, ignore_errors=True)
+        sub348 = klon(tmp, "sub348")
+        berkas_aksi348 = os.path.join(
+            sub348, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi348, encoding="utf-8") as f:
+            isi_aksi348 = f.read()
+        baris_aksi348 = [b for b in isi_aksi348.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi348, "w", encoding="utf-8") as f:
+            f.write(isi_aksi348.replace(
+                baris_aksi348,
+                baris_aksi348.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl dsa -in kunci.pem; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub348,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl dsa -in kunci.pem: gerbang lolos (Audit 1160)", rc == 0)
+        shutil.rmtree(sub348, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

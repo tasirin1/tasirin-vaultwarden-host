@@ -1654,7 +1654,10 @@ def _menguras_khusus(perintah, toks, awal):
             return "-stdin" in mentah
         if sub == "s_client":
             return "-connect" in mentah
-        if sub in ("x509", "pkey", "rsa", "crl", "pkcs7"):
+        if sub in ("x509", "pkey", "rsa", "crl", "pkcs7",
+                   # Audit 1160: objek-tunggal putaran-3.
+                   "dsa", "ec", "pkcs8", "pkcs12", "crl2pkcs7",
+                   "nseq"):
             # Audit 1105: subcommand objek-tunggal tanpa -in
             # membaca satu objek dari stdin (pembaca sebagian —
             # kelas read-ahead yang diterima Audit 1057).
