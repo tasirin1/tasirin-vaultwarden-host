@@ -11263,6 +11263,24 @@ def main():
         periksa("tmux -LV load-buffer -: "
                 "gerbang gagal (Audit 1386)", rc != 0)
         shutil.rmtree(sub600, ignore_errors=True)
+        sub601 = klon(tmp, "sub601")
+        berkas_aksi601 = os.path.join(
+            sub601, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi601, encoding="utf-8") as f:
+            isi_aksi601 = f.read()
+        baris_aksi601 = [b for b in isi_aksi601.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi601, "w", encoding="utf-8") as f:
+            f.write(isi_aksi601.replace(
+                baris_aksi601,
+                baris_aksi601.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(tmux -2V load-buffer -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub601, [sys.executable, GERBANG, "--semua"])
+        periksa("tmux -2V load-buffer -: "
+                "gerbang lolos (Audit 1387)", rc == 0)
+        shutil.rmtree(sub601, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

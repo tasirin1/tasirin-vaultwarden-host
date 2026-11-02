@@ -2980,8 +2980,12 @@ def _menguras_khusus(perintah, toks, awal):
                 # Audit 1366: -V (termasuk di dalam bundel
                 # huruf) mencetak versi lalu KELUAR — subperintah
                 # tak pernah berjalan.
+                # Audit 1387: bundel boleh berisi angka
+                # (-2V) — syarat huruf-murni lama
+                # melewatkannya dari deteksi -V.
                 if (not t_tm.startswith("--")
-                        and t_tm[1:].isalpha()
+                        and re.fullmatch(r"[A-Za-z0-9]+",
+                                          t_tm[1:])
                         and "V" in t_tm[1:]):
                     return False
                 k_tm += 1
