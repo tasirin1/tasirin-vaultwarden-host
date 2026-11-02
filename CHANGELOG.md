@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Debugfs -R<perintah>/-f<berkas> merekat dikenali (Audit 1357)
+
 ## [Belum rilis] — Tree --fromfile dinilai sadar opsi bernilai (Audit 1356)
 
 ## [Belum rilis] — Localedef -i<berkas> merekat dikenali (Audit 1355)

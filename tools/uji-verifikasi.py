@@ -10852,6 +10852,24 @@ def main():
         periksa("tree -P --fromfile: "
                 "gerbang lolos (Audit 1356)", rc == 0)
         shutil.rmtree(sub578, ignore_errors=True)
+        sub579 = klon(tmp, "sub579")
+        berkas_aksi579 = os.path.join(
+            sub579, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi579, encoding="utf-8") as f:
+            isi_aksi579 = f.read()
+        baris_aksi579 = [b for b in isi_aksi579.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi579, "w", encoding="utf-8") as f:
+            f.write(isi_aksi579.replace(
+                baris_aksi579,
+                baris_aksi579.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(debugfs -Rstats citra.img; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub579, [sys.executable, GERBANG, "--semua"])
+        periksa("debugfs -Rstats citra.img: "
+                "gerbang lolos (Audit 1357)", rc == 0)
+        shutil.rmtree(sub579, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

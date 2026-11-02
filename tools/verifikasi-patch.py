@@ -3079,7 +3079,11 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1344: debugfs membaca perintah dari stdin,
     # kecuali daftar perintah datang dari -f/-R.
     if perintah == "debugfs":
-        return "-f" not in mentah and "-R" not in mentah
+        # Audit 1357: bentuk merekat -R<perintah>/-f<berkas>
+        # juga menekan stdin.
+        return not any(
+            t_df.startswith("-R") or t_df.startswith("-f")
+            for t_df in mentah if t_df.startswith("-"))
     # Audit 1345: xauth tanpa subcommand membaca perintah
     # dari stdin.
     if perintah == "xauth":
