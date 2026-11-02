@@ -2470,8 +2470,11 @@ def _menguras_khusus(perintah, toks, awal):
             if t_sy in ("-p-", "--preload-file=-"):
                 return True
             if t_sy in ("-p", "--preload", "--preload-file"):
-                return (k_sy + 1 < len(mentah)
-                        and mentah[k_sy + 1] == "-")
+                # Audit 1231: -p lain sesudahnya tetap
+                # dinilai — jangan berhenti di yang pertama.
+                if (k_sy + 1 < len(mentah)
+                        and mentah[k_sy + 1] == "-"):
+                    return True
         return False
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.

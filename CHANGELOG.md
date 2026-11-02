@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — sysctl: semua -p dinilai, bukan yang pertama saja (Audit 1231)
+
 ## [Belum rilis] — date: bentuk merekat -f- tak dikenal (Audit 1230)
 
 ## [Belum rilis] — file: -f berkas tak mengakhiri penilaian operand (Audit 1229)

@@ -8440,6 +8440,24 @@ def main():
         periksa("date -f-: "
                 "gerbang gagal (Audit 1230)", rc != 0)
         shutil.rmtree(sub444, ignore_errors=True)
+        sub445 = klon(tmp, "sub445")
+        berkas_aksi445 = os.path.join(
+            sub445, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi445, encoding="utf-8") as f:
+            isi_aksi445 = f.read()
+        baris_aksi445 = [b for b in isi_aksi445.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi445, "w", encoding="utf-8") as f:
+            f.write(isi_aksi445.replace(
+                baris_aksi445,
+                baris_aksi445.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(sysctl -p berkas.conf -p -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub445, [sys.executable, GERBANG, "--semua"])
+        periksa("sysctl -p berkas.conf -p -: "
+                "gerbang gagal (Audit 1231)", rc != 0)
+        shutil.rmtree(sub445, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
