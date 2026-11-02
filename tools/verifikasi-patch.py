@@ -738,9 +738,12 @@ _OPSI_BERNILAI = {
     "paste": {"-d", "--delimiters"},
     "base64": {"-w", "--wrap", "-b", "--break"},
     "od": {"-A", "--address-radix", "-j", "--skip-bytes", "-N",
-           "--read-bytes", "-t", "--format", "-w", "--width",
+           "--read-bytes", "-t", "--format",
            # Audit 1173: --endian bernilai.
-           "--endian"},
+           "--endian",
+           # Audit 1241: -S bernilai terpisah; -w/--width
+           # bernilai OPSIONAL (hanya merekat/=) = bendera.
+           "-S"},
     "gzip": {"--suffix", "-S"},
     "gunzip": {"--suffix", "-S"},
     # Audit 1048: tac tertinggal dari tabel saat ditambahkan
@@ -3379,7 +3382,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # Audit 1037: operand "-" adalah stdin itu sendiri
             # bagi filter coreutils.
             continue
-        if (perintah in ("tail", "sort", "pr")
+        if (perintah in ("tail", "sort", "pr",
+                         # Audit 1241: od juga ber-offset usang.
+                         "od")
                 and re.fullmatch(r"\+\d+", t.strip("\"'"))):
             # Audit 1080: operand usang +N (mulai dari baris N)
             # bukan berkas — hanya perintah yang masih

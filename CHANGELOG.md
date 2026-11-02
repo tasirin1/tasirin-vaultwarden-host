@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — od: -S terpisah, offset usang +N, -w opsional (Audit 1241)
+
 ## [Belum rilis] — openssl: --list/--ciphers strip-ganda informasional (Audit 1240)
 
 ## [Belum rilis] — openssl: -in /dev/stdin adalah stdin di semua kelompok (Audit 1239)
