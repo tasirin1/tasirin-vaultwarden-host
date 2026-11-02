@@ -3725,6 +3725,25 @@ def main():
         periksa("patch -i sumber berkas: gerbang lolos (Audit 1093)", rc == 0)
         shutil.rmtree(sub185, ignore_errors=True)
 
+        sub186 = klon(tmp, "sub186")
+        berkas_aksi186 = os.path.join(
+            sub186, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi186, encoding="utf-8") as f:
+            isi_aksi186 = f.read()
+        baris_aksi186 = [b for b in isi_aksi186.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi186, "w", encoding="utf-8") as f:
+            f.write(isi_aksi186.replace(
+                baris_aksi186,
+                baris_aksi186.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zip -@; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub186,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zip -@ tanpa arsip: gerbang lolos (Audit 1094)", rc == 0)
+        shutil.rmtree(sub186, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

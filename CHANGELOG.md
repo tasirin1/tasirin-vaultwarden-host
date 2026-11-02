@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — zip -@ tanpa arsip tak lagi divonis menguras oleh gerbang patch (Audit 1094)
+
 ## [Belum rilis] — patch -i kini dikenali gerbang patch sebagai sumber berkas (Audit 1093)
 
 ## [Belum rilis] — nc mode pindai -z tak lagi divonis menguras oleh gerbang patch (Audit 1092)

@@ -1555,8 +1555,12 @@ def _menguras_khusus(perintah, toks, awal):
         return bool(ops) and ops[0] == "-"
     if perintah == "zip":
         # Audit 1064: -@ membaca daftar nama dari stdin.
-        return any(t == "-@" or re.fullmatch(r"-[a-z]*@", t)
-                   for t in mentah)
+        # Audit 1094: tanpa operand arsip, zip galat sebelum
+        # membaca daftar — -@ saja tidak menguras.
+        if not any(t == "-@" or re.fullmatch(r"-[a-z]*@", t)
+                   for t in mentah):
+            return False
+        return any(not t.startswith("-") for t in mentah)
     if perintah == "rsync":
         # Audit 1064: --files-from=- membaca daftar dari stdin.
         for i, t in enumerate(mentah):
