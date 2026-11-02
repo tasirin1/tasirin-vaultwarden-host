@@ -1130,7 +1130,24 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     return False
                 if awal >= len(toks):
                     return False
-                return _menguras_stdin(toks[awal].strip("\"'"))
+                nilai = toks[awal]
+                if (len(nilai) >= 1 and nilai[0] in "\"'"
+                        and not (len(nilai) >= 2
+                                 and nilai[-1] == nilai[0])):
+                    # Audit 1035: string -c berkutip multi-kata
+                    # terpecah tokenizer menjadi banyak token —
+                    # kumpulkan sampai token yang menutup kutipnya,
+                    # seperti rentang string env -S (Audit 963).
+                    kutip_c = nilai[0]
+                    kumpul = [nilai]
+                    j = awal + 1
+                    while j < len(toks):
+                        kumpul.append(toks[j])
+                        if toks[j].endswith(kutip_c):
+                            break
+                        j += 1
+                    nilai = " ".join(kumpul)
+                return _menguras_stdin(nilai.strip("\"'"))
             if t0 == "xargs" and awal < len(toks):
                 awal = _sesudah_redirect_berantai(
                     toks, awal, _batas_argv)

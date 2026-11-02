@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: string flock -c multi-kata dinilai utuh (Audit 1035)
+
+### Diperbaiki
+- Perkakas: nilai `-c`/`--command` flock yang berkutip multi-kata kini dikumpulkan sampai token penutup kutipnya sebelum dinilai (meniru rentang string `env -S`). Sebelumnya hanya token pertama yang dinilai sesudah kupas-kutip sepotong, sehingga `flock kunci -c 'cat berkas'` dinilai menguras padahal perintah stringnya membaca berkas (fail-closed pada bentuk lazim). Skenario uji-diri aksi115.
+
+
 ## [Belum rilis] — Gerbang: substitusi perintah $(...) sebagai operand dinilai isinya (Audit 1036)
 
 ### Diperbaiki

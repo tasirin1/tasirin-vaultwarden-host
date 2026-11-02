@@ -2312,6 +2312,25 @@ def main():
         periksa("substitusi perintah sebagai operand: isinya menguras — gerbang gagal (Audit 1036)", rc != 0)
         shutil.rmtree(subcmdsub, ignore_errors=True)
 
+        subflockstr = klon(tmp, "subflockstr")
+        berkas_aksi115 = os.path.join(
+            subflockstr, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi115, encoding="utf-8") as f:
+            isi_aksi115 = f.read()
+        baris_aksi115 = [b for b in isi_aksi115.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi115, "w", encoding="utf-8") as f:
+            f.write(isi_aksi115.replace(
+                baris_aksi115,
+                baris_aksi115.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(flock kunci.lock -c 'cat berkasLain'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subflockstr,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("string flock -c multi-kata dinilai utuh: cat berkas bukan penguras — gerbang lolos (Audit 1035)", rc == 0)
+        shutil.rmtree(subflockstr, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
