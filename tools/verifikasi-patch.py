@@ -1846,6 +1846,51 @@ def _menguras_khusus(perintah, toks, awal):
             # pesan (terverifikasi) — nama tag adalah operand
             # selain '-' itu sendiri.
             return any(o != "-" for o in ops_git[1:])
+        # Audit 1162: pembaca putaran-4 — pesan commit tanpa
+        # -m/-F dari stdin; trailer & kolom & belah mbox tanpa
+        # operand berkas; mailinfo/pack/unpack/imap selalu.
+        if sub == "commit-tree":
+            for t_ct in mentah:
+                if t_ct in ("-F", "--file"):
+                    k_ct = mentah.index(t_ct)
+                    return (k_ct + 1 < len(mentah)
+                            and mentah[k_ct + 1] == "-")
+                if t_ct.startswith("--file="):
+                    return t_ct.split("=", 1)[1] == "-"
+                if (t_ct.startswith("-F")
+                        and not t_ct.startswith("--")
+                        and len(t_ct) > 2):
+                    return t_ct[2:] == "-"
+                if t_ct in ("-m", "--message") or (
+                        t_ct.startswith("--message")) or (
+                        t_ct.startswith("-m")
+                        and not t_ct.startswith("--")
+                        and len(t_ct) > 2):
+                    return False
+            return True
+        if sub == "interpret-trailers":
+            ops_it = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--trailer", "--where", "--if-exists",
+                 "--if-missing"})
+            return not ops_it or "-" in ops_it
+        if sub in ("mailinfo", "pack-objects", "unpack-objects",
+                   "imap-send"):
+            return True
+        if sub == "mailsplit":
+            # -o wajib di git modern: tanpanya galat usage
+            # sebelum membaca (terverifikasi rc 129).
+            ada_o = any(t == "-o" or t.startswith("-o")
+                        for t in mentah)
+            ops_ms = _operand_sesudah_opsi(
+                toks, awal + 1, {"-o", "-d", "-f"})
+            return ada_o and (not ops_ms or "-" in ops_ms)
+        if sub == "column":
+            ops_co = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--mode", "--width", "--separator",
+                 "--output-width", "--padding"})
+            return not ops_co or "-" in ops_co
         return False
     if perintah == "comm":
         # Audit 1063: '-' di posisi operand mana pun = stdin.
