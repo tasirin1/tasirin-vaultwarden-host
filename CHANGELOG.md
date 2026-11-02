@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — grep --group-separator masuk set keluarga skrip gerbang patch (Audit 1176)
+
 ## [Belum rilis] — sqlite3 -newline/-nonce masuk set opsi gerbang patch (Audit 1175)
 
 ## [Belum rilis] — ptx -o/--only-file masuk tabel bernilai gerbang patch (Audit 1174)

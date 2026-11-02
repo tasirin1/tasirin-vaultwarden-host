@@ -7234,6 +7234,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sqlite3 berkas.db 'select 1': gerbang lolos (Audit 1175)", rc == 0)
         shutil.rmtree(sub377, ignore_errors=True)
+        sub378 = klon(tmp, "sub378")
+        berkas_aksi378 = os.path.join(
+            sub378, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi378, encoding="utf-8") as f:
+            isi_aksi378 = f.read()
+        baris_aksi378 = [b for b in isi_aksi378.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi378, "w", encoding="utf-8") as f:
+            f.write(isi_aksi378.replace(
+                baris_aksi378,
+                baris_aksi378.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(grep --group-separator SEP pola; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub378,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("grep --group-separator SEP pola: gerbang gagal (Audit 1176)", rc != 0)
+        shutil.rmtree(sub378, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

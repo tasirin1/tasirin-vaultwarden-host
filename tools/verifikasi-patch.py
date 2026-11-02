@@ -1139,7 +1139,9 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                  "--devices", "--directories",
                  # Audit 1127: opsi penyaring berkas bernilai.
                  "--exclude-from", "--exclude", "--include",
-                 "--exclude-dir", "--label", "--binary-files"},
+                 "--exclude-dir", "--label", "--binary-files",
+                 # Audit 1176: --group-separator ketinggalan.
+                 "--group-separator"},
         "jq": {"-L", "--library-path", "-f", "--from-file",
                "--arg", "--argjson", "--rawfile", "--slurpfile",
                # Audit 1126: --indent bernilai.
