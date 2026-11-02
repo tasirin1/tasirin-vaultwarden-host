@@ -2287,6 +2287,15 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"-f", "-l", "-r", "-x", "-y", "-W", "-H",
                          "-opw", "-upw", "-enc", "-eol"})
         return bool(ops_pd) and ops_pd[0] == "-"
+    # Audit 1195: nft — hanya -f '-' yang membaca dari stdin.
+    if perintah == "nft":
+        for k_nf, t_nf in enumerate(mentah):
+            if t_nf == "--file=-":
+                return True
+            if t_nf in ("-f", "--file"):
+                return (k_nf + 1 < len(mentah)
+                        and mentah[k_nf + 1] == "-")
+        return False
     return False
 
 
@@ -2937,7 +2946,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "addr2line", "dig",
                         # Audit 1193/1195/1197/1198/1200/1201/
                         # 1202/1204: penilai khusus putaran-7.
-                        "pdftotext"):
+                        "pdftotext", "nft"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

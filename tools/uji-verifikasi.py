@@ -7522,6 +7522,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("newgrp: gerbang gagal (Audit 1194)", rc != 0)
         shutil.rmtree(sub393, ignore_errors=True)
+        sub394 = klon(tmp, "sub394")
+        berkas_aksi394 = os.path.join(
+            sub394, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi394, encoding="utf-8") as f:
+            isi_aksi394 = f.read()
+        baris_aksi394 = [b for b in isi_aksi394.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi394, "w", encoding="utf-8") as f:
+            f.write(isi_aksi394.replace(
+                baris_aksi394,
+                baris_aksi394.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(nft -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub394,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nft -f -: gerbang gagal (Audit 1195)", rc != 0)
+        shutil.rmtree(sub394, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
