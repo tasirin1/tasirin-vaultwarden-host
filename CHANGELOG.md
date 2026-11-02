@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Pinentry/pinentry-curses dikenal sebagai pembaca Assuan (Audit 1425)
 ## [Belum rilis] — Gh --with-token hanya dihitung sesudah subperintah (Audit 1424)
 ## [Belum rilis] — Pl2pm -v/-h informasional terjaga (Audit 1423)
 ## [Belum rilis] — Python3 -m gzip — operand '-' di posisi mana pun adalah stdin (Audit 1422)
