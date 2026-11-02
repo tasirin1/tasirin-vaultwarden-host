@@ -13861,6 +13861,48 @@ def main():
         periksa("debugfs -f -: "
                 "gerbang gagal (Audit 1414)", rc != 0)
         shutil.rmtree(sub639, ignore_errors=True)
+        sub640 = klon(tmp, "sub640")
+        berkas_aksi640 = os.path.join(
+            sub640, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi640, encoding="utf-8") as f:
+            isi_aksi640 = f.read()
+        baris_aksi640 = [b for b in isi_aksi640.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru640 = isi_aksi640.replace(
+                baris_aksi640,
+                baris_aksi640.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git stash push -m -p; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru640 != isi_aksi640, \
+            "suntikan aksi640 tidak menembak"
+        with open(berkas_aksi640, "w", encoding="utf-8") as f:
+            f.write(isi_baru640)
+        rc, out = jalan(sub640, [sys.executable, GERBANG, "--semua"])
+        periksa("git stash push -m -p: "
+                "gerbang lolos (Audit 1415)", rc == 0)
+        shutil.rmtree(sub640, ignore_errors=True)
+        sub641 = klon(tmp, "sub641")
+        berkas_aksi641 = os.path.join(
+            sub641, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi641, encoding="utf-8") as f:
+            isi_aksi641 = f.read()
+        baris_aksi641 = [b for b in isi_aksi641.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru641 = isi_aksi641.replace(
+                baris_aksi641,
+                baris_aksi641.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git add -- -patch; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru641 != isi_aksi641, \
+            "suntikan aksi641 tidak menembak"
+        with open(berkas_aksi641, "w", encoding="utf-8") as f:
+            f.write(isi_baru641)
+        rc, out = jalan(sub641, [sys.executable, GERBANG, "--semua"])
+        periksa("git add -- -patch: "
+                "gerbang lolos (Audit 1415)", rc == 0)
+        shutil.rmtree(sub641, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

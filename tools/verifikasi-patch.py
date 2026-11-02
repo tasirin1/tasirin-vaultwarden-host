@@ -2378,14 +2378,34 @@ def _menguras_khusus(perintah, toks, awal):
         # pada add/checkout/reset/restore/stash; -i/
         # --interactive pada add/clean) — termasuk di dalam
         # bundel huruf pendek.
+        # Audit 1415: pindaian -p/-i wajib sadar posisi —
+        # token yang menjadi NILAI opsi lain (mis. -p
+        # sebagai pesan -m) dan token sesudah -- (nama
+        # berkas harfiah) bukan bendera.
+        bernilai_in = {"-m", "--message", "-F", "--file",
+                       "--pathspec-from-file", "--source",
+                       "-b", "-B", "--orphan", "-t", "--track",
+                       "--onto", "--strategy", "-s",
+                       "--strategy-option", "-X"}
+        token_in = []
+        k_in = 0
+        while k_in < len(mentah):
+            t_k = mentah[k_in]
+            if t_k == "--":
+                break
+            if t_k in bernilai_in:
+                k_in += 2
+                continue
+            token_in.append(t_k)
+            k_in += 1
         if sub in ("add", "checkout", "reset", "restore",
                    "stash"):
-            for t_in in mentah:
+            for t_in in token_in:
                 if t_in in ("-p", "--patch") or re.fullmatch(
                         r"-[a-zA-Z]*p[a-zA-Z]*", t_in):
                     return True
         if sub in ("add", "clean"):
-            for t_in in mentah:
+            for t_in in token_in:
                 if t_in in ("-i", "--interactive") or re.fullmatch(
                         r"-[a-zA-Z]*i[a-zA-Z]*", t_in):
                     return True
