@@ -10078,6 +10078,24 @@ def main():
         periksa("ptar -t -f -: "
                 "gerbang gagal (Audit 1312)", rc != 0)
         shutil.rmtree(sub535, ignore_errors=True)
+        sub536 = klon(tmp, "sub536")
+        berkas_aksi536 = os.path.join(
+            sub536, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi536, encoding="utf-8") as f:
+            isi_aksi536 = f.read()
+        baris_aksi536 = [b for b in isi_aksi536.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi536, "w", encoding="utf-8") as f:
+            f.write(isi_aksi536.replace(
+                baris_aksi536,
+                baris_aksi536.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(streamzip; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub536, [sys.executable, GERBANG, "--semua"])
+        periksa("streamzip: "
+                "gerbang gagal (Audit 1313)", rc != 0)
+        shutil.rmtree(sub536, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
