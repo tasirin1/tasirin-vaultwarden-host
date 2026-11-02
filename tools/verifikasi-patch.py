@@ -1147,6 +1147,17 @@ def _menguras_mapfile(toks, awal):
     n = len(toks)
     while i < n:
         t = toks[i]
+        # Audit 1053: redirect masukan SESUDAH nama builtin —
+        # resolver hanya memproses redirect sebelum perintah.
+        # "< berkas" / "<berkas" / "0<..." mengganti stdin;
+        # "<&0" duplikasi-diri netral; "<&-" / "<&N" lain membaca
+        # bukan-stdin. Semuanya membuat stdin bersama tak dibaca.
+        if (t.startswith("<") and not t.startswith("<<")
+                and _fd_norm(t[1:].lstrip("&")) != "0"):
+            return False
+        if (t.startswith("<&") and t[2:].strip("\"'")
+                not in ("0", "0-")):
+            return False
         if t in ("-n", "-N"):
             if i + 1 < n:
                 try:

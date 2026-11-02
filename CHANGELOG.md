@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — redirect sesudah mapfile kini terlihat oleh penilai khusus gerbang patch (Audit 1053)
+
 ## [Belum rilis] — penetapan awk sebelum program kini membatalkan vonis gerbang patch (Audit 1052)
 
 ## [Belum rilis] — kata kunci sesudah exec kini bukan pembungkus transparan bagi gerbang patch (Audit 1051)

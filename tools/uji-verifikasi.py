@@ -2692,6 +2692,25 @@ def main():
         periksa("penetapan awk sebelum program membatalkan perintah: bukan penguras — gerbang lolos (Audit 1052)", rc == 0)
         shutil.rmtree(subawkset, ignore_errors=True)
 
+        submapredir = klon(tmp, "submapredir")
+        berkas_aksi129 = os.path.join(
+            submapredir, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi129, encoding="utf-8") as f:
+            isi_aksi129 = f.read()
+        baris_aksi129 = [b for b in isi_aksi129.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi129, "w", encoding="utf-8") as f:
+            f.write(isi_aksi129.replace(
+                baris_aksi129,
+                baris_aksi129.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mapfile < berkasIn; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(submapredir,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("redirect sesudah mapfile mengganti stdin: bukan penguras — gerbang lolos (Audit 1053)", rc == 0)
+        shutil.rmtree(submapredir, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
