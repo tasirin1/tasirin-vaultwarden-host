@@ -1387,7 +1387,9 @@ def _menguras_khusus(perintah, toks, awal):
         if nilai_T == "-":
             return True
         if nilai_f == "-":
-            return True
+            # Audit 1078: pada mode buat (-c), '-f -' adalah arsip
+            # KELUARAN, bukan masukan — yang menguras hanya -T '-'.
+            return mode_tar != "c"
         return False
     if perintah == "git":
         # Audit 1062: subcommand penyaring stdin.

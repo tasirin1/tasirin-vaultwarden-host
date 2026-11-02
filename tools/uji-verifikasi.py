@@ -3193,6 +3193,25 @@ def main():
         periksa("tar nilai -f merekat: gerbang gagal (Audit 1077)", rc != 0)
         shutil.rmtree(sub157, ignore_errors=True)
 
+        sub158 = klon(tmp, "sub158")
+        berkas_aksi158 = os.path.join(
+            sub158, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi158, encoding="utf-8") as f:
+            isi_aksi158 = f.read()
+        baris_aksi158 = [b for b in isi_aksi158.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi158, "w", encoding="utf-8") as f:
+            f.write(isi_aksi158.replace(
+                baris_aksi158,
+                baris_aksi158.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tar -cf - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub158,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tar mode buat '-f -' keluaran: gerbang lolos (Audit 1078)", rc == 0)
+        shutil.rmtree(sub158, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

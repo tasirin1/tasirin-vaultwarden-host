@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — mode buat tar — '-f -' arsip keluaran, bukan masukan, di gerbang patch (Audit 1078)
+
 ## [Belum rilis] — bundel tar gaya lama dan nilai -f merekat kini dikenali gerbang patch (Audit 1077)
 
 ## [Belum rilis] — opsi -rand masuk tabel bernilai openssl dgst di gerbang patch (Audit 1076)
