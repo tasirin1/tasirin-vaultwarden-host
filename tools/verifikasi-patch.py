@@ -559,6 +559,76 @@ def _substitusi_masukan_menguras(bagian):
     return False
 
 
+def _substitusi_masukan_menguras(bagian):
+    """Audit 1024: True bila segmen memuat substitusi proses
+    masukan <(...) di luar kutip yang isinya menguras stdin
+    bersama — proses di dalam <(...) mewarisi stdin shell,
+    lepas dari redirect perintah luarnya."""
+    i = 0
+    n = len(bagian)
+    kutip = ""
+    tikus = False
+    while i < n:
+        c = bagian[i]
+        if kutip:
+            if c == "\\" and kutip == '"' and i + 1 < n:
+                i += 2
+                continue
+            if c == kutip:
+                kutip = ""
+            i += 1
+            continue
+        if c == "\\" and i + 1 < n:
+            i += 2
+            continue
+        if c in ("'", '"'):
+            kutip = c
+            i += 1
+            continue
+        if c == "`":
+            tikus = not tikus
+            i += 1
+            continue
+        if c == "<" and not tikus and i + 1 < n and bagian[i + 1] == "(":
+            dalam = 1
+            j = i + 2
+            k2 = ""
+            t2 = False
+            while j < n and dalam > 0:
+                cj = bagian[j]
+                if k2:
+                    if cj == "\\" and k2 == '"' and j + 1 < n:
+                        j += 2
+                        continue
+                    if cj == k2:
+                        k2 = ""
+                    j += 1
+                    continue
+                if cj in ("'", '"'):
+                    k2 = cj
+                    j += 1
+                    continue
+                if cj == "`":
+                    t2 = not t2
+                    j += 1
+                    continue
+                if cj == "(":
+                    dalam += 1
+                elif cj == ")":
+                    dalam -= 1
+                    if dalam == 0:
+                        break
+                j += 1
+            isi = bagian[i + 2:j]
+            for seg in pecah_segmen_shell(isi):
+                if _menguras_stdin(seg):
+                    return True
+            i = j + 1
+            continue
+        i += 1
+    return False
+
+
 def _potong_komentar_sisa(sisa):
     """Potong sisa segmen pada `#` yang mengawali kata saja (posisi
     awal atau sesudah spasi/tab) — `#` yang menempel pada kata
@@ -795,6 +865,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     stdin; tee selalu membaca stdin walau berargumen berkas keluaran;
     dd membaca berkas bila ada if=."""
     bagian = _potong_pipa_pertama(bagian)
+    if _substitusi_masukan_menguras(bagian):
+        return True
     toks = bagian.strip().lstrip("({ ").split()
     # Audit 1021: kupas kurung tutup grup yang menempel di token
     # terakhir ("(cat)" menyisakan "cat)") atau berdiri sendiri

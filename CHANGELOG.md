@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: isi substitusi masukan <(...) sebagai operand dinilai (Audit 1024)
+
+### Diperbaiki
+- Perkakas: `_substitusi_masukan_menguras` memindai segmen untuk substitusi proses masukan `<(...)` di luar kutip dan menilai isinya — proses di dalamnya mewarisi stdin bersama lepas dari redirect perintah luarnya, jadi `cat <(cat)` adalah penguras sedangkan `cat <(printf x)` bukan. Sebelumnya token berawalan `<` langsung dinilai redirect biasa (fail-open); target `>(...)` sudah dinilai rekursif sejak Audit 911. Skenario uji-diri aksi110.
+
+
 ## [Belum rilis] — Gerbang: bentuk string flock -c/--command dimodelkan (Audit 1023)
 
 ### Diperbaiki

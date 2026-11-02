@@ -2264,6 +2264,28 @@ def main():
                 "penguras — gerbang gagal (Audit 1023)", rc != 0)
         shutil.rmtree(subflockc, ignore_errors=True)
 
+        suboperand = klon(tmp, "suboperand")
+        berkas_aksi110 = os.path.join(
+            suboperand, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi110, encoding="utf-8") as f:
+            isi_aksi110 = f.read()
+        baris_tulis110 = [b for b in isi_aksi110.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi110, "w", encoding="utf-8") as f:
+            f.write(isi_aksi110.replace(
+                baris_tulis110,
+                baris_tulis110.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cat <(cat); "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(suboperand,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("substitusi masukan sebagai operand: isinya "
+                "menguras stdin bersama — gerbang gagal "
+                "(Audit 1024)", rc != 0)
+        shutil.rmtree(suboperand, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
