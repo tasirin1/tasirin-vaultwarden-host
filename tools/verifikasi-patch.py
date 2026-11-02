@@ -635,6 +635,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1359: alat akun shadow-utils — tanpa
                   # operand berkas membaca daftar dari stdin.
                   "chpasswd", "newusers",
+                  # Audit 1376: shell CPAN tanpa argumen
+                  # membaca perintah dari stdin.
+                  "cpan",
                   "shuf", "base64", "od", "sha256sum", "md5sum",
                   "gzip", "gunzip",
                   # Audit 1055: sisa keluarga checksum GNU (aturan
