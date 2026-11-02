@@ -3573,6 +3573,63 @@ def main():
         periksa("tr -d dua himpunan galat: gerbang lolos (Audit 1087)", rc == 0)
         shutil.rmtree(sub177, ignore_errors=True)
 
+        sub178 = klon(tmp, "sub178")
+        berkas_aksi178 = os.path.join(
+            sub178, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi178, encoding="utf-8") as f:
+            isi_aksi178 = f.read()
+        baris_aksi178 = [b for b in isi_aksi178.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi178, "w", encoding="utf-8") as f:
+            f.write(isi_aksi178.replace(
+                baris_aksi178,
+                baris_aksi178.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tar -tf - < berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub178,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("khusus buta redirect ekor tar: gerbang lolos (Audit 1088)", rc == 0)
+        shutil.rmtree(sub178, ignore_errors=True)
+
+        sub179 = klon(tmp, "sub179")
+        berkas_aksi179 = os.path.join(
+            sub179, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi179, encoding="utf-8") as f:
+            isi_aksi179 = f.read()
+        baris_aksi179 = [b for b in isi_aksi179.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi179, "w", encoding="utf-8") as f:
+            f.write(isi_aksi179.replace(
+                baris_aksi179,
+                baris_aksi179.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(git hash-object --stdin < berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub179,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("khusus buta redirect ekor git: gerbang lolos (Audit 1088)", rc == 0)
+        shutil.rmtree(sub179, ignore_errors=True)
+
+        sub180 = klon(tmp, "sub180")
+        berkas_aksi180 = os.path.join(
+            sub180, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi180, encoding="utf-8") as f:
+            isi_aksi180 = f.read()
+        baris_aksi180 = [b for b in isi_aksi180.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi180, "w", encoding="utf-8") as f:
+            f.write(isi_aksi180.replace(
+                baris_aksi180,
+                baris_aksi180.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(socat - /dev/null < berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub180,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("khusus buta redirect ekor socat: gerbang lolos (Audit 1088)", rc == 0)
+        shutil.rmtree(sub180, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

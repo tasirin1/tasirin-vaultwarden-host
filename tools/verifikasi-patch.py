@@ -1344,6 +1344,24 @@ def _menguras_khusus(perintah, toks, awal):
     dinilai aturan operand generik."""
     sisa = toks[awal + 1:]
     mentah = [t.strip("\"'") for t in sisa]
+    # Audit 1088: redirect masukan di EKOR perintah mengganti atau
+    # menutup stdin sebelum perintah berjalan — cabang khusus dulu
+    # lolos dari pemeriksaannya (resolver hanya menangani redirect
+    # sebelum nama perintah). "<&0"/"<&0-" netral seperti di 1053.
+    for t_r in mentah:
+        s_r = t_r
+        nomor_r = ""
+        while s_r[:1].isdigit():
+            nomor_r, s_r = nomor_r + s_r[0], s_r[1:]
+        if s_r.startswith("<") and nomor_r in ("", "0"):
+            if s_r.startswith("<<<") or s_r.startswith("<<"):
+                return False
+            badan_r = s_r[1:]
+            if badan_r.startswith("&"):
+                if badan_r[1:].strip("\"'") not in ("0", "0-"):
+                    return False
+                continue
+            return False
     if perintah == "sqlite3":
         # Audit 1059: operand pertama = berkas db (bukan sumber
         # perintah); operand kedua = string SQL yang menekan.
