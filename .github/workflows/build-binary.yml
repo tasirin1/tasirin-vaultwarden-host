@@ -500,5 +500,17 @@ jobs:
           done
           [ "$OK" = true ]
 
-          gh release edit "$TAG" --latest || \
-            echo "::warning::Gagal menandai $TAG sebagai latest (aset tetap lengkap)."
+          # Penanda latest WAJIB berhasil (Audit 1267): aplikasi
+          # mengunduh lewat alias releases/latest/download/, jadi
+          # kegagalan di sini menggagalkan job — bukan peringatan —
+          # sesudah 3 percobaan, sama seperti verifikasi aset di atas.
+          LATEST=false
+          for t in 1 2 3; do
+            if gh release edit "$TAG" --latest; then
+              LATEST=true
+              break
+            fi
+            echo "Tandai $TAG sebagai latest percobaan $t gagal; mengulang."
+            sleep 10
+          done
+          [ "$LATEST" = true ]

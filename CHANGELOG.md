@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — CI: kegagalan menandai rilis sebagai latest kini menggagalkan job sesudah 3 percobaan, bukan peringatan (Audit 1267)
+
 ## [Belum rilis] — git cat-file: --batch-all-objects tak membaca stdin (Audit 1266)
 
 ## [Belum rilis] — numfmt: --grouping adalah bendera (Audit 1265)
