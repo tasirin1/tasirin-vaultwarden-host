@@ -7378,6 +7378,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("git check-mailmap: gerbang lolos (Audit 1185)", rc == 0)
         shutil.rmtree(sub385, ignore_errors=True)
+        sub386 = klon(tmp, "sub386")
+        berkas_aksi386 = os.path.join(
+            sub386, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi386, encoding="utf-8") as f:
+            isi_aksi386 = f.read()
+        baris_aksi386 = [b for b in isi_aksi386.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi386, "w", encoding="utf-8") as f:
+            f.write(isi_aksi386.replace(
+                baris_aksi386,
+                baris_aksi386.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(git credential-store; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub386,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("git credential-store: gerbang lolos (Audit 1186)", rc == 0)
+        shutil.rmtree(sub386, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

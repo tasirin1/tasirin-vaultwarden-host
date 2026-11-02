@@ -1959,7 +1959,9 @@ def _menguras_khusus(perintah, toks, awal):
         if sub in ("credential-store", "credential-cache"):
             # protokol helper membaca deskripsi dari stdin
             # untuk semua aksinya (get/store/erase).
-            return True
+            # Audit 1186: TANPA aksi = galat usage, tak membaca.
+            return any(t in ("get", "store", "erase")
+                       for t in mentah)
         return False
     if perintah == "comm":
         # Audit 1063: '-' di posisi operand mana pun = stdin.
