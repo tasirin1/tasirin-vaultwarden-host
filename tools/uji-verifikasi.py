@@ -10006,6 +10006,24 @@ def main():
         periksa("xzcmp - -: "
                 "gerbang gagal (Audit 1308)", rc != 0)
         shutil.rmtree(sub531, ignore_errors=True)
+        sub532 = klon(tmp, "sub532")
+        berkas_aksi532 = os.path.join(
+            sub532, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi532, encoding="utf-8") as f:
+            isi_aksi532 = f.read()
+        baris_aksi532 = [b for b in isi_aksi532.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi532, "w", encoding="utf-8") as f:
+            f.write(isi_aksi532.replace(
+                baris_aksi532,
+                baris_aksi532.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(lzcmp - -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub532, [sys.executable, GERBANG, "--semua"])
+        periksa("lzcmp - -: "
+                "gerbang gagal (Audit 1309)", rc != 0)
+        shutil.rmtree(sub532, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
