@@ -131,8 +131,20 @@ def main():
             f.write("token uji: " + token_palsu + "\n")
         rc, out = jalan(terabaikan, ["bash", SKRIP])
         periksa("token di berkas ter-.gitignore tertangkap (Audit 1436)",
-                rc != 0 and "pola rahasia" in out)
+                rc != 0 and "pola rahasia" in out
+                and "rahasia-terabaikan.txt" in out)
         shutil.rmtree(terabaikan, ignore_errors=True)
+
+        kunciterbelah = klon(tmp, "kunciterbelah")
+        tanam(kunciterbelah, "kunci-terbelah.txt",
+              "-----BEGIN OPENSSH\nPRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciterbelah, ["bash", SKRIP])
+        periksa("header private key terbelah tertangkap "
+                "(cabang bungkus) (Audit 1437)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-terbelah.txt" in out)
+        shutil.rmtree(kunciterbelah, ignore_errors=True)
 
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"

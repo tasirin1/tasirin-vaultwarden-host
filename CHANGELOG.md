@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: header PRIVATE KEY terbelah tertangkap cabang bungkus (Audit 1437)
 ## [Belum rilis] — Cek-cepat: berkas ter-.gitignore ikut dipindai pola rahasia (Audit 1436)
 ## [Belum rilis] — Apt-key add - membaca materi kunci dari stdin (Audit 1435)
 ## [Belum rilis] — Git fmt-merge-msg membaca log gabungan dari stdin (Audit 1434)
