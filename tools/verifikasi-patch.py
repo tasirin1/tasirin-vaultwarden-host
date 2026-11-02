@@ -3808,7 +3808,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # Audit 1302-1304: nama kompiler bertriple/bersufiks
         # versi dinormalkan ke nama kanonisnya.
         m_komp = re.fullmatch(
-            r"(?:x86_64-linux-gnu-)?"
+            # Audit 1351: triple mesin lain (aarch64-linux-gnu-,
+            # arm-linux-gnueabihf-, riscv64-linux-gnu-) juga
+            # dinormalkan — pola triple generik berdash.
+            r"(?:[a-zA-Z0-9_]+(?:-[a-zA-Z0-9_]+)+-)?"
             r"(gcc|g\+\+|cc|c\+\+|cpp|as)"
             r"(?:-\d+(?:\.\d+)?)?", perintah)
         if m_komp:
