@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Suite — suntikan skenario kini diverifikasi mengubah berkas (assert per blok) (Audit 1410)
 ## [Belum rilis] — Suite — skenario openssl asn1parse telanjang ditambahkan (Audit 1409)
 ## [Belum rilis] — Regresi 1396 — penetapan variabel bernilai jalur merusak resolusi perintah (Audit 1408)
 ## [Belum rilis] — Bendera info huruf tunggal cpan/utmpdump informasional (Audit 1407)

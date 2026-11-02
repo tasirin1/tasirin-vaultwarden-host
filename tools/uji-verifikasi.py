@@ -248,9 +248,12 @@ def main():
             isi_aksi8 = f.read()
         baris_tulis8 = [b for b in isi_aksi8.splitlines()
                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru8 = isi_aksi8.replace(
+                baris_tulis8, baris_tulis8 + " # tulis keluaran", 1)
+        assert isi_baru8 != isi_aksi8, \
+            "suntikan aksi8 tidak menembak"
         with open(berkas_aksi8, "w", encoding="utf-8") as f:
-            f.write(isi_aksi8.replace(
-                baris_tulis8, baris_tulis8 + " # tulis keluaran", 1))
+            f.write(isi_baru8)
         rc, out = jalan(prodkom, [sys.executable, GERBANG, "--semua"])
         periksa("produsen ber-komentar akhir baris: gerbang lolos (Audit 878)",
                 rc == 0)
@@ -284,11 +287,14 @@ def main():
             isi_aksi10 = f.read()
         baris_tulis10 = [b for b in isi_aksi10.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi10, "w", encoding="utf-8") as f:
-            f.write(isi_aksi10.replace(
+        isi_baru10 = isi_aksi10.replace(
                 baris_tulis10,
                 baris_tulis10.replace('>> "$GITHUB_OUTPUT"',
-                                      '>> "$GITHUB_OUTPUT"#semu'), 1))
+                                      '>> "$GITHUB_OUTPUT"#semu'), 1)
+        assert isi_baru10 != isi_aksi10, \
+            "suntikan aksi10 tidak menembak"
+        with open(berkas_aksi10, "w", encoding="utf-8") as f:
+            f.write(isi_baru10)
         rc, out = jalan(tempel, [sys.executable, GERBANG, "--semua"])
         periksa("target redirect berekor # menempel: gerbang gagal (Audit 882)",
                 rc != 0 and "tag_mentah" in out)
@@ -322,12 +328,15 @@ def main():
             isi_aksi12 = f.read()
         baris_tulis12 = [b for b in isi_aksi12.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi12, "w", encoding="utf-8") as f:
-            f.write(isi_aksi12.replace(
+        isi_baru12 = isi_aksi12.replace(
                 baris_tulis12,
                 baris_tulis12.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '>> "$GITHUB_OUTPUT.bak" >> "$GITHUB_OUTPUT"'), 1))
+                    '>> "$GITHUB_OUTPUT.bak" >> "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru12 != isi_aksi12, \
+            "suntikan aksi12 tidak menembak"
+        with open(berkas_aksi12, "w", encoding="utf-8") as f:
+            f.write(isi_baru12)
         rc, out = jalan(dualredir, [sys.executable, GERBANG, "--semua"])
         periksa("redirect ganda target terakhir keluaran: gerbang lolos (Audit 885)",
                 rc == 0)
@@ -342,10 +351,13 @@ def main():
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
         indent13 = baris_tulis13[:len(baris_tulis13)
                                   - len(baris_tulis13.lstrip())]
-        with open(berkas_aksi13, "w", encoding="utf-8") as f:
-            f.write(isi_aksi13.replace(
+        isi_baru13 = isi_aksi13.replace(
                 baris_tulis13,
-                indent13 + "{ " + baris_tulis13.strip() + "; }", 1))
+                indent13 + "{ " + baris_tulis13.strip() + "; }", 1)
+        assert isi_baru13 != isi_aksi13, \
+            "suntikan aksi13 tidak menembak"
+        with open(berkas_aksi13, "w", encoding="utf-8") as f:
+            f.write(isi_baru13)
         rc, out = jalan(bungkus, [sys.executable, GERBANG, "--semua"])
         periksa("produsen dibungkus grup shell: gerbang lolos (Audit 886)",
                 rc == 0)
@@ -360,10 +372,13 @@ def main():
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
         indent14 = baris_tulis14[:len(baris_tulis14)
                                   - len(baris_tulis14.lstrip())]
-        with open(berkas_aksi14, "w", encoding="utf-8") as f:
-            f.write(isi_aksi14.replace(
+        isi_baru14 = isi_aksi14.replace(
                 baris_tulis14,
-                indent14 + "(" + baris_tulis14.strip() + ")", 1))
+                indent14 + "(" + baris_tulis14.strip() + ")", 1)
+        assert isi_baru14 != isi_aksi14, \
+            "suntikan aksi14 tidak menembak"
+        with open(berkas_aksi14, "w", encoding="utf-8") as f:
+            f.write(isi_baru14)
         rc, out = jalan(subkulit, [sys.executable, GERBANG, "--semua"])
         periksa("produsen dibungkus subshell: gerbang lolos (Audit 887)",
                 rc == 0)
@@ -378,11 +393,14 @@ def main():
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
         indent15 = baris_tulis15[:len(baris_tulis15)
                                   - len(baris_tulis15.lstrip())]
-        with open(berkas_aksi15, "w", encoding="utf-8") as f:
-            f.write(isi_aksi15.replace(
+        isi_baru15 = isi_aksi15.replace(
                 baris_tulis15,
                 indent15 + 'test -n "$TAG" || '
-                + baris_tulis15.strip(), 1))
+                + baris_tulis15.strip(), 1)
+        assert isi_baru15 != isi_aksi15, \
+            "suntikan aksi15 tidak menembak"
+        with open(berkas_aksi15, "w", encoding="utf-8") as f:
+            f.write(isi_baru15)
         rc, out = jalan(rantaiatau, [sys.executable, GERBANG, "--semua"])
         periksa("produsen sesudah operator ||: gerbang lolos (Audit 888)",
                 rc == 0)
@@ -395,12 +413,15 @@ def main():
             isi_aksi16 = f.read()
         baris_tulis16 = [b for b in isi_aksi16.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi16, "w", encoding="utf-8") as f:
-            f.write(isi_aksi16.replace(
+        isi_baru16 = isi_aksi16.replace(
                 baris_tulis16,
                 baris_tulis16.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '>> "$GITHUB_OUTPUT.bak" > "$GITHUB_OUTPUT"'), 1))
+                    '>> "$GITHUB_OUTPUT.bak" > "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru16 != isi_aksi16, \
+            "suntikan aksi16 tidak menembak"
+        with open(berkas_aksi16, "w", encoding="utf-8") as f:
+            f.write(isi_baru16)
         rc, out = jalan(potongakhir, [sys.executable, GERBANG, "--semua"])
         periksa("redirect terakhir > tunggal ke keluaran: gerbang lolos (Audit 889)",
                 rc == 0)
@@ -413,11 +434,14 @@ def main():
             isi_aksi17 = f.read()
         baris_tulis17 = [b for b in isi_aksi17.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi17, "w", encoding="utf-8") as f:
-            f.write(isi_aksi17.replace(
+        isi_baru17 = isi_aksi17.replace(
                 baris_tulis17,
                 baris_tulis17.replace('>> "$GITHUB_OUTPUT"',
-                                      '2>> "$GITHUB_OUTPUT"'), 1))
+                                      '2>> "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru17 != isi_aksi17, \
+            "suntikan aksi17 tidak menembak"
+        with open(berkas_aksi17, "w", encoding="utf-8") as f:
+            f.write(isi_baru17)
         rc, out = jalan(fddua, [sys.executable, GERBANG, "--semua"])
         periksa("redirect stderr 2>> bukan produsen: gerbang gagal (Audit 890)",
                 rc != 0 and "tag_mentah" in out
@@ -431,11 +455,14 @@ def main():
             isi_aksi18 = f.read()
         baris_tulis18 = [b for b in isi_aksi18.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi18, "w", encoding="utf-8") as f:
-            f.write(isi_aksi18.replace(
+        isi_baru18 = isi_aksi18.replace(
                 baris_tulis18,
                 baris_tulis18.replace('>> "$GITHUB_OUTPUT"',
-                                      '>> ${GITHUB_OUTPUT}'), 1))
+                                      '>> ${GITHUB_OUTPUT}'), 1)
+        assert isi_baru18 != isi_aksi18, \
+            "suntikan aksi18 tidak menembak"
+        with open(berkas_aksi18, "w", encoding="utf-8") as f:
+            f.write(isi_baru18)
         rc, out = jalan(targetpolos, [sys.executable, GERBANG, "--semua"])
         periksa("target polos kurung tanpa kutip: gerbang lolos (Audit 891)",
                 rc == 0)
@@ -448,11 +475,14 @@ def main():
             isi_aksi19 = f.read()
         baris_tulis19 = [b for b in isi_aksi19.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi19, "w", encoding="utf-8") as f:
-            f.write(isi_aksi19.replace(
+        isi_baru19 = isi_aksi19.replace(
                 baris_tulis19,
                 baris_tulis19.replace('>> "$GITHUB_OUTPUT"',
-                                      '>| "$GITHUB_OUTPUT"'), 1))
+                                      '>| "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru19 != isi_aksi19, \
+            "suntikan aksi19 tidak menembak"
+        with open(berkas_aksi19, "w", encoding="utf-8") as f:
+            f.write(isi_baru19)
         rc, out = jalan(paksa, [sys.executable, GERBANG, "--semua"])
         periksa("redirect clobber >|: gerbang lolos (Audit 892)",
                 rc == 0)
@@ -465,11 +495,14 @@ def main():
             isi_aksi20 = f.read()
         baris_tulis20 = [b for b in isi_aksi20.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi20, "w", encoding="utf-8") as f:
-            f.write(isi_aksi20.replace(
+        isi_baru20 = isi_aksi20.replace(
                 baris_tulis20,
                 baris_tulis20.replace('>> "$GITHUB_OUTPUT"',
-                                      '>& "$GITHUB_OUTPUT"'), 1))
+                                      '>& "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru20 != isi_aksi20, \
+            "suntikan aksi20 tidak menembak"
+        with open(berkas_aksi20, "w", encoding="utf-8") as f:
+            f.write(isi_baru20)
         rc, out = jalan(keduafd, [sys.executable, GERBANG, "--semua"])
         periksa("redirect >& ke berkas: gerbang lolos (Audit 893)",
                 rc == 0)
@@ -482,11 +515,14 @@ def main():
             isi_aksi21 = f.read()
         baris_tulis21 = [b for b in isi_aksi21.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi21, "w", encoding="utf-8") as f:
-            f.write(isi_aksi21.replace(
+        isi_baru21 = isi_aksi21.replace(
                 baris_tulis21,
                 baris_tulis21.replace('>> "$GITHUB_OUTPUT"',
-                                      '<> "$GITHUB_OUTPUT"'), 1))
+                                      '<> "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru21 != isi_aksi21, \
+            "suntikan aksi21 tidak menembak"
+        with open(berkas_aksi21, "w", encoding="utf-8") as f:
+            f.write(isi_baru21)
         rc, out = jalan(bacatulis, [sys.executable, GERBANG, "--semua"])
         periksa("redirect <> stdin bukan produsen: gerbang gagal (Audit 894)",
                 rc != 0 and "tag_mentah" in out
@@ -500,11 +536,14 @@ def main():
             isi_aksi22 = f.read()
         baris_tulis22 = [b for b in isi_aksi22.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi22, "w", encoding="utf-8") as f:
-            f.write(isi_aksi22.replace(
+        isi_baru22 = isi_aksi22.replace(
                 baris_tulis22,
                 baris_tulis22.replace('>> "$GITHUB_OUTPUT"',
-                                      '>> > "$GITHUB_OUTPUT"'), 1))
+                                      '>> > "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru22 != isi_aksi22, \
+            "suntikan aksi22 tidak menembak"
+        with open(berkas_aksi22, "w", encoding="utf-8") as f:
+            f.write(isi_baru22)
         rc, out = jalan(opganda, [sys.executable, GERBANG, "--semua"])
         periksa("operator ganda >> > bukan produsen: gerbang gagal (Audit 895)",
                 rc != 0 and "tag_mentah" in out
@@ -518,11 +557,14 @@ def main():
             isi_aksi23 = f.read()
         baris_tulis23 = [b for b in isi_aksi23.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi23, "w", encoding="utf-8") as f:
-            f.write(isi_aksi23.replace(
+        isi_baru23 = isi_aksi23.replace(
                 baris_tulis23,
                 baris_tulis23.replace('>> "$GITHUB_OUTPUT"',
-                                      '>>| "$GITHUB_OUTPUT"'), 1))
+                                      '>>| "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru23 != isi_aksi23, \
+            "suntikan aksi23 tidak menembak"
+        with open(berkas_aksi23, "w", encoding="utf-8") as f:
+            f.write(isi_baru23)
         rc, out = jalan(lampau, [sys.executable, GERBANG, "--semua"])
         periksa("append+clobber >>| bukan produsen: gerbang gagal (Audit 896)",
                 rc != 0 and "tag_mentah" in out
@@ -536,11 +578,14 @@ def main():
             isi_aksi24 = f.read()
         baris_tulis24 = [b for b in isi_aksi24.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi24, "w", encoding="utf-8") as f:
-            f.write(isi_aksi24.replace(
+        isi_baru24 = isi_aksi24.replace(
                 baris_tulis24,
                 baris_tulis24.replace('>> "$GITHUB_OUTPUT"',
-                                      '>> $GITHUB_OUTPUT}'), 1))
+                                      '>> $GITHUB_OUTPUT}'), 1)
+        assert isi_baru24 != isi_aksi24, \
+            "suntikan aksi24 tidak menembak"
+        with open(berkas_aksi24, "w", encoding="utf-8") as f:
+            f.write(isi_baru24)
         rc, out = jalan(sufiks, [sys.executable, GERBANG, "--semua"])
         periksa("sufiks kurung nama berkas bukan produsen: gerbang gagal (Audit 897)",
                 rc != 0 and "tag_mentah" in out
@@ -554,11 +599,14 @@ def main():
             isi_aksi25 = f.read()
         baris_tulis25 = [b for b in isi_aksi25.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi25, "w", encoding="utf-8") as f:
-            f.write(isi_aksi25.replace(
+        isi_baru25 = isi_aksi25.replace(
                 baris_tulis25,
                 baris_tulis25.replace('>> "$GITHUB_OUTPUT"',
-                                      '< > "$GITHUB_OUTPUT"'), 1))
+                                      '< > "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru25 != isi_aksi25, \
+            "suntikan aksi25 tidak menembak"
+        with open(berkas_aksi25, "w", encoding="utf-8") as f:
+            f.write(isi_baru25)
         rc, out = jalan(kurangspasi, [sys.executable, GERBANG, "--semua"])
         periksa("bentuk < > berjarak bukan produsen: gerbang gagal (Audit 898)",
                 rc != 0 and "tag_mentah" in out
@@ -572,10 +620,13 @@ def main():
             isi_aksi26 = f.read()
         baris_tulis26 = [b for b in isi_aksi26.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi26, "w", encoding="utf-8") as f:
-            f.write(isi_aksi26.replace(
+        isi_baru26 = isi_aksi26.replace(
                 baris_tulis26,
-                baris_tulis26 + " $(true > /dev/null)", 1))
+                baris_tulis26 + " $(true > /dev/null)", 1)
+        assert isi_baru26 != isi_aksi26, \
+            "suntikan aksi26 tidak menembak"
+        with open(berkas_aksi26, "w", encoding="utf-8") as f:
+            f.write(isi_baru26)
         rc, out = jalan(subekor, [sys.executable, GERBANG, "--semua"])
         periksa("redirect dalam substitusi ekor tak menimpa: gerbang lolos (Audit 899)",
                 rc == 0)
@@ -588,12 +639,15 @@ def main():
             isi_aksi27 = f.read()
         baris_tulis27 = [b for b in isi_aksi27.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi27, "w", encoding="utf-8") as f:
-            f.write(isi_aksi27.replace(
+        isi_baru27 = isi_aksi27.replace(
                 baris_tulis27,
                 baris_tulis27.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '$(true >> "$GITHUB_OUTPUT")'), 1))
+                    '$(true >> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru27 != isi_aksi27, \
+            "suntikan aksi27 tidak menembak"
+        with open(berkas_aksi27, "w", encoding="utf-8") as f:
+            f.write(isi_baru27)
         rc, out = jalan(subarg, [sys.executable, GERBANG, "--semua"])
         periksa("redirect dalam substitusi argumen bukan produsen: gerbang gagal (Audit 900)",
                 rc != 0 and "tag_mentah" in out
@@ -607,12 +661,15 @@ def main():
             isi_aksi28 = f.read()
         baris_tulis28 = [b for b in isi_aksi28.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi28, "w", encoding="utf-8") as f:
-            f.write(isi_aksi28.replace(
+        isi_baru28 = isi_aksi28.replace(
                 baris_tulis28,
                 baris_tulis28.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '>(cat >> "$GITHUB_OUTPUT")'), 1))
+                    '>(cat >> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru28 != isi_aksi28, \
+            "suntikan aksi28 tidak menembak"
+        with open(berkas_aksi28, "w", encoding="utf-8") as f:
+            f.write(isi_baru28)
         rc, out = jalan(proses, [sys.executable, GERBANG, "--semua"])
         periksa("substitusi proses bukan produsen: gerbang gagal (Audit 901)",
                 rc != 0 and "tag_mentah" in out
@@ -626,10 +683,13 @@ def main():
             isi_aksi29 = f.read()
         baris_tulis29 = [b for b in isi_aksi29.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi29, "w", encoding="utf-8") as f:
-            f.write(isi_aksi29.replace(
+        isi_baru29 = isi_aksi29.replace(
                 baris_tulis29,
-                baris_tulis29 + " >(cat > /dev/null)", 1))
+                baris_tulis29 + " >(cat > /dev/null)", 1)
+        assert isi_baru29 != isi_aksi29, \
+            "suntikan aksi29 tidak menembak"
+        with open(berkas_aksi29, "w", encoding="utf-8") as f:
+            f.write(isi_baru29)
         rc, out = jalan(proekor, [sys.executable, GERBANG, "--semua"])
         periksa("substitusi proses ekor tak menimpa: gerbang lolos (Audit 902)",
                 rc == 0)
@@ -642,12 +702,15 @@ def main():
             isi_aksi30 = f.read()
         baris_tulis30 = [b for b in isi_aksi30.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi30, "w", encoding="utf-8") as f:
-            f.write(isi_aksi30.replace(
+        isi_baru30 = isi_aksi30.replace(
                 baris_tulis30,
                 baris_tulis30.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '`true >> "$GITHUB_OUTPUT" `'), 1))
+                    '`true >> "$GITHUB_OUTPUT" `'), 1)
+        assert isi_baru30 != isi_aksi30, \
+            "suntikan aksi30 tidak menembak"
+        with open(berkas_aksi30, "w", encoding="utf-8") as f:
+            f.write(isi_baru30)
         rc, out = jalan(purba, [sys.executable, GERBANG, "--semua"])
         periksa("substitusi backtick bukan produsen: gerbang gagal (Audit 903)",
                 rc != 0 and "tag_mentah" in out
@@ -661,10 +724,13 @@ def main():
             isi_aksi31 = f.read()
         baris_tulis31 = [b for b in isi_aksi31.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi31, "w", encoding="utf-8") as f:
-            f.write(isi_aksi31.replace(
+        isi_baru31 = isi_aksi31.replace(
                 baris_tulis31,
-                baris_tulis31 + " `true > /dev/null`", 1))
+                baris_tulis31 + " `true > /dev/null`", 1)
+        assert isi_baru31 != isi_aksi31, \
+            "suntikan aksi31 tidak menembak"
+        with open(berkas_aksi31, "w", encoding="utf-8") as f:
+            f.write(isi_baru31)
         rc, out = jalan(purbaekor, [sys.executable, GERBANG, "--semua"])
         periksa("backtick ekor tak menimpa: gerbang lolos (Audit 904)",
                 rc == 0)
@@ -679,10 +745,13 @@ def main():
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
         indentasi32 = baris_tulis32[:len(baris_tulis32)
                                      - len(baris_tulis32.lstrip())]
-        with open(berkas_aksi32, "w", encoding="utf-8") as f:
-            f.write(isi_aksi32.replace(
+        isi_baru32 = isi_aksi32.replace(
                 baris_tulis32,
-                indentasi32 + "{ " + baris_tulis32.strip() + " }", 1))
+                indentasi32 + "{ " + baris_tulis32.strip() + " }", 1)
+        assert isi_baru32 != isi_aksi32, \
+            "suntikan aksi32 tidak menembak"
+        with open(berkas_aksi32, "w", encoding="utf-8") as f:
+            f.write(isi_baru32)
         rc, out = jalan(grupcacat, [sys.executable, GERBANG, "--semua"])
         periksa("grup tanpa titik-koma bukan produsen: gerbang gagal "
                 "(Audit 905)",
@@ -697,12 +766,15 @@ def main():
             isi_aksi33 = f.read()
         baris_tulis33 = [b for b in isi_aksi33.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi33, "w", encoding="utf-8") as f:
-            f.write(isi_aksi33.replace(
+        isi_baru33 = isi_aksi33.replace(
                 baris_tulis33,
                 baris_tulis33.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '`echo x; echo y` >> "$GITHUB_OUTPUT"'), 1))
+                    '`echo x; echo y` >> "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru33 != isi_aksi33, \
+            "suntikan aksi33 tidak menembak"
+        with open(berkas_aksi33, "w", encoding="utf-8") as f:
+            f.write(isi_baru33)
         rc, out = jalan(pecahsub, [sys.executable, GERBANG, "--semua"])
         periksa("pemisah dalam substitusi tak memecah: gerbang lolos "
                 "(Audit 906)", rc == 0)
@@ -715,12 +787,15 @@ def main():
             isi_aksi34 = f.read()
         baris_tulis34 = [b for b in isi_aksi34.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi34, "w", encoding="utf-8") as f:
-            f.write(isi_aksi34.replace(
+        isi_baru34 = isi_aksi34.replace(
                 baris_tulis34,
                 baris_tulis34.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '`echo #` >> "$GITHUB_OUTPUT"'), 1))
+                    '`echo #` >> "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru34 != isi_aksi34, \
+            "suntikan aksi34 tidak menembak"
+        with open(berkas_aksi34, "w", encoding="utf-8") as f:
+            f.write(isi_baru34)
         rc, out = jalan(pagartikus, [sys.executable, GERBANG, "--semua"])
         periksa("pagar dalam backtick bukan komentar: gerbang lolos "
                 "(Audit 907)", rc == 0)
@@ -733,12 +808,15 @@ def main():
             isi_aksi35 = f.read()
         baris_tulis35 = [b for b in isi_aksi35.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi35, "w", encoding="utf-8") as f:
-            f.write(isi_aksi35.replace(
+        isi_baru35 = isi_aksi35.replace(
                 baris_tulis35,
                 baris_tulis35.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '\\` >> "$GITHUB_OUTPUT"'), 1))
+                    '\\` >> "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru35 != isi_aksi35, \
+            "suntikan aksi35 tidak menembak"
+        with open(berkas_aksi35, "w", encoding="utf-8") as f:
+            f.write(isi_baru35)
         rc, out = jalan(luput, [sys.executable, GERBANG, "--semua"])
         periksa("backtick ter-escape literal: gerbang lolos (Audit 908)",
                 rc == 0)
@@ -751,12 +829,15 @@ def main():
             isi_aksi36 = f.read()
         baris_tulis36 = [b for b in isi_aksi36.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi36, "w", encoding="utf-8") as f:
-            f.write(isi_aksi36.replace(
+        isi_baru36 = isi_aksi36.replace(
                 baris_tulis36,
                 baris_tulis36.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '> /dev/null \\> "$GITHUB_OUTPUT"'), 1))
+                    '> /dev/null \\> "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru36 != isi_aksi36, \
+            "suntikan aksi36 tidak menembak"
+        with open(berkas_aksi36, "w", encoding="utf-8") as f:
+            f.write(isi_baru36)
         rc, out = jalan(luputpanah, [sys.executable, GERBANG, "--semua"])
         periksa("panah ter-escape bukan penulisan: gerbang gagal "
                 "(Audit 909)",
@@ -771,12 +852,15 @@ def main():
             isi_aksi37 = f.read()
         baris_tulis37 = [b for b in isi_aksi37.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi37, "w", encoding="utf-8") as f:
-            f.write(isi_aksi37.replace(
+        isi_baru37 = isi_aksi37.replace(
                 baris_tulis37,
                 baris_tulis37.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '>>(cat >> "$GITHUB_OUTPUT")'), 1))
+                    '>>(cat >> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru37 != isi_aksi37, \
+            "suntikan aksi37 tidak menembak"
+        with open(berkas_aksi37, "w", encoding="utf-8") as f:
+            f.write(isi_baru37)
         rc, out = jalan(tempelpro, [sys.executable, GERBANG, "--semua"])
         periksa("target subshell menempel bukan produsen: gerbang gagal "
                 "(Audit 910)",
@@ -791,12 +875,15 @@ def main():
             isi_aksi38 = f.read()
         baris_tulis38 = [b for b in isi_aksi38.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi38, "w", encoding="utf-8") as f:
-            f.write(isi_aksi38.replace(
+        isi_baru38 = isi_aksi38.replace(
                 baris_tulis38,
                 baris_tulis38.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '> >(cat >> "$GITHUB_OUTPUT")'), 1))
+                    '> >(cat >> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru38 != isi_aksi38, \
+            "suntikan aksi38 tidak menembak"
+        with open(berkas_aksi38, "w", encoding="utf-8") as f:
+            f.write(isi_baru38)
         rc, out = jalan(jarakpro, [sys.executable, GERBANG, "--semua"])
         periksa("target substitusi proses berjarak produsen: gerbang "
                 "lolos (Audit 911)", rc == 0)
@@ -813,11 +900,14 @@ def main():
                                     - len(baris_tulis39.lstrip())]
         inti39 = baris_tulis39.strip().replace(
             ' >> "$GITHUB_OUTPUT"', "")
-        with open(berkas_aksi39, "w", encoding="utf-8") as f:
-            f.write(isi_aksi39.replace(
+        isi_baru39 = isi_aksi39.replace(
                 baris_tulis39,
                 indentasi39 + "{ " + inti39
-                + "; } >> \"$GITHUB_OUTPUT\"", 1))
+                + "; } >> \"$GITHUB_OUTPUT\"", 1)
+        assert isi_baru39 != isi_aksi39, \
+            "suntikan aksi39 tidak menembak"
+        with open(berkas_aksi39, "w", encoding="utf-8") as f:
+            f.write(isi_baru39)
         rc, out = jalan(grupredir, [sys.executable, GERBANG, "--semua"])
         periksa("redirect tingkat grup produsen: gerbang lolos "
                 "(Audit 912)", rc == 0)
@@ -832,10 +922,13 @@ def main():
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
         indentasi40 = baris_tulis40[:len(baris_tulis40)
                                     - len(baris_tulis40.lstrip())]
-        with open(berkas_aksi40, "w", encoding="utf-8") as f:
-            f.write(isi_aksi40.replace(
+        isi_baru40 = isi_aksi40.replace(
                 baris_tulis40,
-                indentasi40 + "{" + baris_tulis40.strip() + "; }", 1))
+                indentasi40 + "{" + baris_tulis40.strip() + "; }", 1)
+        assert isi_baru40 != isi_aksi40, \
+            "suntikan aksi40 tidak menembak"
+        with open(berkas_aksi40, "w", encoding="utf-8") as f:
+            f.write(isi_baru40)
         rc, out = jalan(kurungtempel, [sys.executable, GERBANG, "--semua"])
         periksa("kurung menempel bukan grup: gerbang gagal (Audit 913)",
                 rc != 0 and "tag_mentah" in out
@@ -853,11 +946,14 @@ def main():
                                     - len(baris_tulis41.lstrip())]
         inti41 = baris_tulis41.strip().replace(
             '>> "$GITHUB_OUTPUT"', '> /dev/null')
-        with open(berkas_aksi41, "w", encoding="utf-8") as f:
-            f.write(isi_aksi41.replace(
+        isi_baru41 = isi_aksi41.replace(
                 baris_tulis41,
                 indentasi41 + "{ " + inti41
-                + "; } >> \"$GITHUB_OUTPUT\"", 1))
+                + "; } >> \"$GITHUB_OUTPUT\"", 1)
+        assert isi_baru41 != isi_aksi41, \
+            "suntikan aksi41 tidak menembak"
+        with open(berkas_aksi41, "w", encoding="utf-8") as f:
+            f.write(isi_baru41)
         rc, out = jalan(grupsendiri, [sys.executable, GERBANG, "--semua"])
         periksa("echo grup ber-redirect sendiri bukan kandidat: gerbang "
                 "gagal (Audit 914)",
@@ -876,11 +972,14 @@ def main():
                                     - len(baris_tulis42.lstrip())]
         inti42 = baris_tulis42.strip().replace(
             ' >> "$GITHUB_OUTPUT"', "")
-        with open(berkas_aksi42, "w", encoding="utf-8") as f:
-            f.write(isi_aksi42.replace(
+        isi_baru42 = isi_aksi42.replace(
                 baris_tulis42,
                 indentasi42 + "( " + inti42
-                + "; ) >> \"$GITHUB_OUTPUT\"", 1))
+                + "; ) >> \"$GITHUB_OUTPUT\"", 1)
+        assert isi_baru42 != isi_aksi42, \
+            "suntikan aksi42 tidak menembak"
+        with open(berkas_aksi42, "w", encoding="utf-8") as f:
+            f.write(isi_baru42)
         rc, out = jalan(kulitredir, [sys.executable, GERBANG, "--semua"])
         periksa("redirect tingkat subshell produsen: gerbang lolos "
                 "(Audit 915)", rc == 0)
@@ -893,12 +992,15 @@ def main():
             isi_aksi43 = f.read()
         baris_tulis43 = [b for b in isi_aksi43.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi43, "w", encoding="utf-8") as f:
-            f.write(isi_aksi43.replace(
+        isi_baru43 = isi_aksi43.replace(
                 baris_tulis43,
                 baris_tulis43.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '> >(cat >> "$GITHUB_OUTPUT"'), 1))
+                    '> >(cat >> "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru43 != isi_aksi43, \
+            "suntikan aksi43 tidak menembak"
+        with open(berkas_aksi43, "w", encoding="utf-8") as f:
+            f.write(isi_baru43)
         rc, out = jalan(proseimbang, [sys.executable, GERBANG, "--semua"])
         periksa("target substitusi tak seimbang bukan produsen: gerbang "
                 "gagal (Audit 916)",
@@ -913,12 +1015,15 @@ def main():
             isi_aksi44 = f.read()
         baris_tulis44 = [b for b in isi_aksi44.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi44, "w", encoding="utf-8") as f:
-            f.write(isi_aksi44.replace(
+        isi_baru44 = isi_aksi44.replace(
                 baris_tulis44,
                 baris_tulis44.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '> >(cat > /tmp/lain) >> "$GITHUB_OUTPUT"'), 1))
+                    '> >(cat > /tmp/lain) >> "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru44 != isi_aksi44, \
+            "suntikan aksi44 tidak menembak"
+        with open(berkas_aksi44, "w", encoding="utf-8") as f:
+            f.write(isi_baru44)
         rc, out = jalan(prosisa, [sys.executable, GERBANG, "--semua"])
         periksa("redirect sah sesudah target substitusi: gerbang lolos "
                 "(Audit 917)", rc == 0)
@@ -931,12 +1036,15 @@ def main():
             isi_aksi45 = f.read()
         baris_tulis45 = [b for b in isi_aksi45.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi45, "w", encoding="utf-8") as f:
-            f.write(isi_aksi45.replace(
+        isi_baru45 = isi_aksi45.replace(
                 baris_tulis45,
                 baris_tulis45.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '\\` >> "$GITHUB_OUTPUT" # dulu > /tmp/lain'), 1))
+                    '\\` >> "$GITHUB_OUTPUT" # dulu > /tmp/lain'), 1)
+        assert isi_baru45 != isi_aksi45, \
+            "suntikan aksi45 tidak menembak"
+        with open(berkas_aksi45, "w", encoding="utf-8") as f:
+            f.write(isi_baru45)
         rc, out = jalan(potongluput, [sys.executable, GERBANG, "--semua"])
         periksa("komentar sesudah backtick literal terpotong: gerbang "
                 "lolos (Audit 918)", rc == 0)
@@ -949,12 +1057,15 @@ def main():
             isi_aksi46 = f.read()
         baris_tulis46 = [b for b in isi_aksi46.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi46, "w", encoding="utf-8") as f:
-            f.write(isi_aksi46.replace(
+        isi_baru46 = isi_aksi46.replace(
                 baris_tulis46,
                 baris_tulis46.replace(
                     'echo "tag_mentah=$TAG"',
-                    '{ echo "tag_mentah=$TAG" ${x:-a>b}; }'), 1))
+                    '{ echo "tag_mentah=$TAG" ${x:-a>b}; }'), 1)
+        assert isi_baru46 != isi_aksi46, \
+            "suntikan aksi46 tidak menembak"
+        with open(berkas_aksi46, "w", encoding="utf-8") as f:
+            f.write(isi_baru46)
         rc, out = jalan(parameter, [sys.executable, GERBANG, "--semua"])
         periksa("panah di nilai bawaan ekspansi tak menyaring kandidat: "
                 "gerbang lolos (Audit 919)", rc == 0)
@@ -967,13 +1078,16 @@ def main():
             isi_aksi47 = f.read()
         baris_tulis47 = [b for b in isi_aksi47.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi47, "w", encoding="utf-8") as f:
-            f.write(isi_aksi47.replace(
+        isi_baru47 = isi_aksi47.replace(
                 baris_tulis47,
                 '        run: |\n'
                 '          TAG="v1"\n'
                 '          { ( echo "tag_mentah=$TAG"; ) > /dev/null; } '
-                '>> "$GITHUB_OUTPUT"\n', 1))
+                '>> "$GITHUB_OUTPUT"\n', 1)
+        assert isi_baru47 != isi_aksi47, \
+            "suntikan aksi47 tidak menembak"
+        with open(berkas_aksi47, "w", encoding="utf-8") as f:
+            f.write(isi_baru47)
         rc, out = jalan(sarang, [sys.executable, GERBANG, "--semua"])
         periksa("redirect dalam mengalahkan kredit luar: gerbang gagal "
                 "(Audit 920)", rc != 0)
@@ -984,8 +1098,7 @@ def main():
             sarangbalik, ".github", "actions", "resolve-vw", "action.yml")
         with open(berkas_aksi48, encoding="utf-8") as f:
             isi_aksi48 = f.read()
-        with open(berkas_aksi48, "w", encoding="utf-8") as f:
-            f.write(isi_aksi48.replace(
+        isi_baru48 = isi_aksi48.replace(
                 '        run: |\n'
                 '          TAG="v1"\n'
                 '          { ( echo "tag_mentah=$TAG"; ) > /dev/null; } '
@@ -993,7 +1106,11 @@ def main():
                 '        run: |\n'
                 '          TAG="v1"\n'
                 '          { ( echo "tag_mentah=$TAG"; ) '
-                '>> "$GITHUB_OUTPUT"; } > /dev/null\n', 1))
+                '>> "$GITHUB_OUTPUT"; } > /dev/null\n', 1)
+        assert isi_baru48 != isi_aksi48, \
+            "suntikan aksi48 tidak menembak"
+        with open(berkas_aksi48, "w", encoding="utf-8") as f:
+            f.write(isi_baru48)
         rc, out = jalan(sarangbalik, [sys.executable, GERBANG, "--semua"])
         periksa("redirect subshell-dalam mengesahkan kandidat: gerbang "
                 "lolos (Audit 921)", rc == 0)
@@ -1006,12 +1123,15 @@ def main():
             isi_aksi49 = f.read()
         baris_tulis49 = [b for b in isi_aksi49.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi49, "w", encoding="utf-8") as f:
-            f.write(isi_aksi49.replace(
+        isi_baru49 = isi_aksi49.replace(
                 baris_tulis49,
                 baris_tulis49.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '> >(echo "("; cat >> "$GITHUB_OUTPUT")'), 1))
+                    '> >(echo "("; cat >> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru49 != isi_aksi49, \
+            "suntikan aksi49 tidak menembak"
+        with open(berkas_aksi49, "w", encoding="utf-8") as f:
+            f.write(isi_baru49)
         rc, out = jalan(kurungutip, [sys.executable, GERBANG, "--semua"])
         periksa("kurung berkutip di target substitusi tak membatalkan "
                 "vonis: gerbang lolos (Audit 922)", rc == 0)
@@ -1024,12 +1144,15 @@ def main():
             isi_aksi50 = f.read()
         baris_tulis50 = [b for b in isi_aksi50.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi50, "w", encoding="utf-8") as f:
-            f.write(isi_aksi50.replace(
+        isi_baru50 = isi_aksi50.replace(
                 baris_tulis50,
                 baris_tulis50.replace(
                     'echo "tag_mentah=$TAG"',
-                    'echo "tag_mentah=$TAG" x\\ #'), 1))
+                    'echo "tag_mentah=$TAG" x\\ #'), 1)
+        assert isi_baru50 != isi_aksi50, \
+            "suntikan aksi50 tidak menembak"
+        with open(berkas_aksi50, "w", encoding="utf-8") as f:
+            f.write(isi_baru50)
         rc, out = jalan(pagarkata, [sys.executable, GERBANG, "--semua"])
         periksa("pagar tengah kata sesudah spasi ter-escape bukan "
                 "komentar: gerbang lolos (Audit 923)", rc == 0)
@@ -1042,12 +1165,15 @@ def main():
             isi_aksi51 = f.read()
         baris_tulis51 = [b for b in isi_aksi51.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi51, "w", encoding="utf-8") as f:
-            f.write(isi_aksi51.replace(
+        isi_baru51 = isi_aksi51.replace(
                 baris_tulis51,
                 baris_tulis51.replace(
                     'echo "tag_mentah=$TAG"',
-                    '{ echo "tag_mentah=$TAG" }'), 1))
+                    '{ echo "tag_mentah=$TAG" }'), 1)
+        assert isi_baru51 != isi_aksi51, \
+            "suntikan aksi51 tidak menembak"
+        with open(berkas_aksi51, "w", encoding="utf-8") as f:
+            f.write(isi_baru51)
         rc, out = jalan(grupgeser, [sys.executable, GERBANG, "--semua"])
         periksa("grup tak sah bergeser redirect tetap ditolak: gerbang "
                 "gagal (Audit 924)", rc != 0)
@@ -1060,12 +1186,15 @@ def main():
             isi_aksi52 = f.read()
         baris_tulis52 = [b for b in isi_aksi52.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi52, "w", encoding="utf-8") as f:
-            f.write(isi_aksi52.replace(
+        isi_baru52 = isi_aksi52.replace(
                 baris_tulis52,
                 baris_tulis52.replace(
                     'echo "tag_mentah=$TAG"',
-                    '{ echo "tag_mentah=$TAG" ${x:-$(echo })>y}; }'), 1))
+                    '{ echo "tag_mentah=$TAG" ${x:-$(echo })>y}; }'), 1)
+        assert isi_baru52 != isi_aksi52, \
+            "suntikan aksi52 tidak menembak"
+        with open(berkas_aksi52, "w", encoding="utf-8") as f:
+            f.write(isi_baru52)
         rc, out = jalan(paramsub, [sys.executable, GERBANG, "--semua"])
         periksa("kurung isi substitusi tak menutup ekspansi: gerbang "
                 "lolos (Audit 925)", rc == 0)
@@ -1078,12 +1207,15 @@ def main():
             isi_aksi53 = f.read()
         baris_tulis53 = [b for b in isi_aksi53.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi53, "w", encoding="utf-8") as f:
-            f.write(isi_aksi53.replace(
+        isi_baru53 = isi_aksi53.replace(
                 baris_tulis53,
                 baris_tulis53.replace(
                     'echo "tag_mentah=$TAG"',
-                    '{ (( 1 > 0 )); echo "tag_mentah=$TAG"; }'), 1))
+                    '{ (( 1 > 0 )); echo "tag_mentah=$TAG"; }'), 1)
+        assert isi_baru53 != isi_aksi53, \
+            "suntikan aksi53 tidak menembak"
+        with open(berkas_aksi53, "w", encoding="utf-8") as f:
+            f.write(isi_baru53)
         rc, out = jalan(aritmetika, [sys.executable, GERBANG, "--semua"])
         periksa("operator aritmetika bukan subshell gadungan: gerbang "
                 "lolos (Audit 926)", rc == 0)
@@ -1096,12 +1228,15 @@ def main():
             isi_aksi54 = f.read()
         baris_tulis54 = [b for b in isi_aksi54.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi54, "w", encoding="utf-8") as f:
-            f.write(isi_aksi54.replace(
+        isi_baru54 = isi_aksi54.replace(
                 baris_tulis54,
                 baris_tulis54.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    '> >(echo \\(; cat >> "$GITHUB_OUTPUT")'), 1))
+                    '> >(echo \\(; cat >> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru54 != isi_aksi54, \
+            "suntikan aksi54 tidak menembak"
+        with open(berkas_aksi54, "w", encoding="utf-8") as f:
+            f.write(isi_baru54)
         rc, out = jalan(kurungluput, [sys.executable, GERBANG, "--semua"])
         periksa("kurung ter-escape di target substitusi tak membatalkan "
                 "vonis: gerbang lolos (Audit 927)", rc == 0)
@@ -1114,12 +1249,15 @@ def main():
             isi_aksi55 = f.read()
         baris_tulis55 = [b for b in isi_aksi55.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi55, "w", encoding="utf-8") as f:
-            f.write(isi_aksi55.replace(
+        isi_baru55 = isi_aksi55.replace(
                 baris_tulis55,
                 baris_tulis55.replace(
                     'echo "tag_mentah=$TAG"',
-                    '{ echo "tag_mentah=$TAG } >> x"; }'), 1))
+                    '{ echo "tag_mentah=$TAG } >> x"; }'), 1)
+        assert isi_baru55 != isi_aksi55, \
+            "suntikan aksi55 tidak menembak"
+        with open(berkas_aksi55, "w", encoding="utf-8") as f:
+            f.write(isi_baru55)
         rc, out = jalan(polakutip, [sys.executable, GERBANG, "--semua"])
         periksa("pola kurung di dalam string argumen bukan kurung "
                 "argumen: gerbang lolos (Audit 928)", rc == 0)
@@ -1132,13 +1270,16 @@ def main():
             isi_aksi56 = f.read()
         baris_tulis56 = [b for b in isi_aksi56.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi56, "w", encoding="utf-8") as f:
-            f.write(isi_aksi56.replace(
+        isi_baru56 = isi_aksi56.replace(
                 baris_tulis56,
                 baris_tulis56.replace(
                     'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
                     '{ echo "tag_mentah=$TAG" } | cat '
-                    '>> "$GITHUB_OUTPUT"'), 1))
+                    '>> "$GITHUB_OUTPUT"'), 1)
+        assert isi_baru56 != isi_aksi56, \
+            "suntikan aksi56 tidak menembak"
+        with open(berkas_aksi56, "w", encoding="utf-8") as f:
+            f.write(isi_baru56)
         rc, out = jalan(grupgeser2, [sys.executable, GERBANG, "--semua"])
         periksa("grup tak sah bergeser pipa tetap ditolak: gerbang "
                 "gagal (Audit 929)", rc != 0)
@@ -1151,12 +1292,15 @@ def main():
             isi_aksi57 = f.read()
         baris_tulis57 = [b for b in isi_aksi57.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi57, "w", encoding="utf-8") as f:
-            f.write(isi_aksi57.replace(
+        isi_baru57 = isi_aksi57.replace(
                 baris_tulis57,
                 baris_tulis57.replace(
                     'echo "tag_mentah=$TAG"',
-                    '(( echo "tag_mentah=$TAG"))'), 1))
+                    '(( echo "tag_mentah=$TAG"))'), 1)
+        assert isi_baru57 != isi_aksi57, \
+            "suntikan aksi57 tidak menembak"
+        with open(berkas_aksi57, "w", encoding="utf-8") as f:
+            f.write(isi_baru57)
         rc, out = jalan(hitung, [sys.executable, GERBANG, "--semua"])
         periksa("teks mirip echo di dalam aritmetika tak terkredit: "
                 "gerbang gagal (Audit 930)", rc != 0)
@@ -1169,13 +1313,16 @@ def main():
             isi_aksi58 = f.read()
         baris_tulis58 = [b for b in isi_aksi58.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi58, "w", encoding="utf-8") as f:
-            f.write(isi_aksi58.replace(
+        isi_baru58 = isi_aksi58.replace(
                 baris_tulis58,
                 baris_tulis58.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cat >> "$GITHUB_OUTPUT"; echo x '
-                    '> /dev/null)'), 1))
+                    '> /dev/null)'), 1)
+        assert isi_baru58 != isi_aksi58, \
+            "suntikan aksi58 tidak menembak"
+        with open(berkas_aksi58, "w", encoding="utf-8") as f:
+            f.write(isi_baru58)
         rc, out = jalan(subbanyak, [sys.executable, GERBANG, "--semua"])
         periksa("penulis pertama isi substitusi yang berlaku: gerbang "
                 "lolos (Audit 931)", rc == 0)
@@ -1188,13 +1335,16 @@ def main():
             isi_aksi59 = f.read()
         baris_tulis59 = [b for b in isi_aksi59.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi59, "w", encoding="utf-8") as f:
-            f.write(isi_aksi59.replace(
+        isi_baru59 = isi_aksi59.replace(
                 baris_tulis59,
                 baris_tulis59.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cat > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru59 != isi_aksi59, \
+            "suntikan aksi59 tidak menembak"
+        with open(berkas_aksi59, "w", encoding="utf-8") as f:
+            f.write(isi_baru59)
         rc, out = jalan(subkuras, [sys.executable, GERBANG, "--semua"])
         periksa("penulis kedua kehabisan stdin tak terkredit: gerbang "
                 "gagal (Audit 931)", rc != 0)
@@ -1208,12 +1358,15 @@ def main():
             isi_aksi60 = f.read()
         baris_tulis60 = [b for b in isi_aksi60.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi60, "w", encoding="utf-8") as f:
-            f.write(isi_aksi60.replace(
+        isi_baru60 = isi_aksi60.replace(
                 baris_tulis60,
                 baris_tulis60.replace(
                     'echo "tag_mentah=$TAG"',
-                    '{ echo "tag_mentah=$TAG" {a,b}c; }'), 1))
+                    '{ echo "tag_mentah=$TAG" {a,b}c; }'), 1)
+        assert isi_baru60 != isi_aksi60, \
+            "suntikan aksi60 tidak menembak"
+        with open(berkas_aksi60, "w", encoding="utf-8") as f:
+            f.write(isi_baru60)
         rc, out = jalan(kurungekspansi,
                         [sys.executable, GERBANG, "--semua"])
         periksa("kurung tutup ekspansi kurung bukan kurung argumen "
@@ -1228,12 +1381,15 @@ def main():
             isi_aksi61 = f.read()
         baris_tulis61 = [b for b in isi_aksi61.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi61, "w", encoding="utf-8") as f:
-            f.write(isi_aksi61.replace(
+        isi_baru61 = isi_aksi61.replace(
                 baris_tulis61,
                 baris_tulis61.replace(
                     'echo "tag_mentah=$TAG"',
-                    '{ echo "tag_mentah=$TAG" x}; }'), 1))
+                    '{ echo "tag_mentah=$TAG" x}; }'), 1)
+        assert isi_baru61 != isi_aksi61, \
+            "suntikan aksi61 tidak menembak"
+        with open(berkas_aksi61, "w", encoding="utf-8") as f:
+            f.write(isi_baru61)
         rc, out = jalan(kurungtempel,
                         [sys.executable, GERBANG, "--semua"])
         periksa("kurung menempel kata tanpa redirect sendiri sah "
@@ -1248,13 +1404,16 @@ def main():
             isi_aksi62 = f.read()
         baris_tulis62 = [b for b in isi_aksi62.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi62, "w", encoding="utf-8") as f:
-            f.write(isi_aksi62.replace(
+        isi_baru62 = isi_aksi62.replace(
                 baris_tulis62,
                 baris_tulis62.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cat /tmp/berkas > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru62 != isi_aksi62, \
+            "suntikan aksi62 tidak menembak"
+        with open(berkas_aksi62, "w", encoding="utf-8") as f:
+            f.write(isi_baru62)
         rc, out = jalan(subberkas, [sys.executable, GERBANG, "--semua"])
         periksa("pembaca berargumen berkas tak menguras stdin: "
                 "gerbang lolos (Audit 934)", rc == 0)
@@ -1268,13 +1427,16 @@ def main():
             isi_aksi63 = f.read()
         baris_tulis63 = [b for b in isi_aksi63.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi63, "w", encoding="utf-8") as f:
-            f.write(isi_aksi63.replace(
+        isi_baru63 = isi_aksi63.replace(
                 baris_tulis63,
                 baris_tulis63.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(while read l; do echo "$l" > /dev/null; '
-                    'done; cat >> "$GITHUB_OUTPUT")'), 1))
+                    'done; cat >> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru63 != isi_aksi63, \
+            "suntikan aksi63 tidak menembak"
+        with open(berkas_aksi63, "w", encoding="utf-8") as f:
+            f.write(isi_baru63)
         rc, out = jalan(sublingkar, [sys.executable, GERBANG, "--semua"])
         periksa("lingkar while-read menguras stdin: penulis pembaca "
                 "sesudahnya tak terkredit (Audit 935)", rc != 0)
@@ -1288,12 +1450,15 @@ def main():
             isi_aksi64 = f.read()
         baris_tulis64 = [b for b in isi_aksi64.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi64, "w", encoding="utf-8") as f:
-            f.write(isi_aksi64.replace(
+        isi_baru64 = isi_aksi64.replace(
                 baris_tulis64,
                 baris_tulis64.replace(
                     'echo "tag_mentah=$TAG"',
-                    '{ echo "tag_mentah=$TAG" {a`echo }` }'), 1))
+                    '{ echo "tag_mentah=$TAG" {a`echo }` }'), 1)
+        assert isi_baru64 != isi_aksi64, \
+            "suntikan aksi64 tidak menembak"
+        with open(berkas_aksi64, "w", encoding="utf-8") as f:
+            f.write(isi_baru64)
         rc, out = jalan(kurungtikus, [sys.executable, GERBANG, "--semua"])
         periksa("kurung buka kata sebelumnya tak menyerap kurung "
                 "yatim sesudah backtick: gerbang gagal (Audit 936)",
@@ -1308,13 +1473,16 @@ def main():
             isi_aksi65 = f.read()
         baris_tulis65 = [b for b in isi_aksi65.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi65, "w", encoding="utf-8") as f:
-            f.write(isi_aksi65.replace(
+        isi_baru65 = isi_aksi65.replace(
                 baris_tulis65,
                 baris_tulis65.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(LC_ALL=C cat > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru65 != isi_aksi65, \
+            "suntikan aksi65 tidak menembak"
+        with open(berkas_aksi65, "w", encoding="utf-8") as f:
+            f.write(isi_baru65)
         rc, out = jalan(subbungkus, [sys.executable, GERBANG, "--semua"])
         periksa("penguras berawalan variabel lingkungan tetap "
                 "menguras: gerbang gagal (Audit 937)", rc != 0)
@@ -1327,13 +1495,16 @@ def main():
             isi_aksi66 = f.read()
         baris_tulis66 = [b for b in isi_aksi66.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi66, "w", encoding="utf-8") as f:
-            f.write(isi_aksi66.replace(
+        isi_baru66 = isi_aksi66.replace(
                 baris_tulis66,
                 baris_tulis66.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(sort -k 2 > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru66 != isi_aksi66, \
+            "suntikan aksi66 tidak menembak"
+        with open(berkas_aksi66, "w", encoding="utf-8") as f:
+            f.write(isi_baru66)
         rc, out = jalan(subopsi, [sys.executable, GERBANG, "--semua"])
         periksa("nilai opsi sort -k bukan operand berkas: gerbang "
                 "gagal (Audit 938)", rc != 0)
@@ -1346,13 +1517,16 @@ def main():
             isi_aksi67 = f.read()
         baris_tulis67 = [b for b in isi_aksi67.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi67, "w", encoding="utf-8") as f:
-            f.write(isi_aksi67.replace(
+        isi_baru67 = isi_aksi67.replace(
                 baris_tulis67,
                 baris_tulis67.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cat "a>b" > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru67 != isi_aksi67, \
+            "suntikan aksi67 tidak menembak"
+        with open(berkas_aksi67, "w", encoding="utf-8") as f:
+            f.write(isi_baru67)
         rc, out = jalan(subkutip, [sys.executable, GERBANG, "--semua"])
         periksa("operand berkutip memuat > adalah berkas, bukan "
                 "redirect: gerbang lolos (Audit 939)", rc == 0)
@@ -1365,13 +1539,16 @@ def main():
             isi_aksi68 = f.read()
         baris_tulis68 = [b for b in isi_aksi68.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi68, "w", encoding="utf-8") as f:
-            f.write(isi_aksi68.replace(
+        isi_baru68 = isi_aksi68.replace(
                 baris_tulis68,
                 baris_tulis68.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(for i in 1; do cat > /dev/null; done; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru68 != isi_aksi68, \
+            "suntikan aksi68 tidak menembak"
+        with open(berkas_aksi68, "w", encoding="utf-8") as f:
+            f.write(isi_baru68)
         rc, out = jalan(subkunci, [sys.executable, GERBANG, "--semua"])
         periksa("penguras di badan lingkar sesudah do tetap "
                 "menguras: gerbang gagal (Audit 940)", rc != 0)
@@ -1384,13 +1561,16 @@ def main():
             isi_aksi69 = f.read()
         baris_tulis69 = [b for b in isi_aksi69.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi69, "w", encoding="utf-8") as f:
-            f.write(isi_aksi69.replace(
+        isi_baru69 = isi_aksi69.replace(
                 baris_tulis69,
                 baris_tulis69.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(while read l; do break; done; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru69 != isi_aksi69, \
+            "suntikan aksi69 tidak menembak"
+        with open(berkas_aksi69, "w", encoding="utf-8") as f:
+            f.write(isi_baru69)
         rc, out = jalan(subputus, [sys.executable, GERBANG, "--semua"])
         periksa("break mengakhiri lingkar baca lebih awal: penulis "
                 "tetap menulis sisa stdin (Audit 941)", rc == 0)
@@ -1403,13 +1583,16 @@ def main():
             isi_aksi70 = f.read()
         baris_tulis70 = [b for b in isi_aksi70.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi70, "w", encoding="utf-8") as f:
-            f.write(isi_aksi70.replace(
+        isi_baru70 = isi_aksi70.replace(
                 baris_tulis70,
                 baris_tulis70.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(while read l; do echo "$l" > /dev/null; '
-                    "'done'; cat >> \"$GITHUB_OUTPUT\"; done)"), 1))
+                    "'done'; cat >> \"$GITHUB_OUTPUT\"; done)"), 1)
+        assert isi_baru70 != isi_aksi70, \
+            "suntikan aksi70 tidak menembak"
+        with open(berkas_aksi70, "w", encoding="utf-8") as f:
+            f.write(isi_baru70)
         rc, out = jalan(subdone, [sys.executable, GERBANG, "--semua"])
         periksa("'done' berkutip adalah perintah biasa di badan "
                 "lingkar: gerbang lolos (Audit 942)", rc == 0)
@@ -1422,13 +1605,16 @@ def main():
             isi_aksi71 = f.read()
         baris_tulis71 = [b for b in isi_aksi71.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi71, "w", encoding="utf-8") as f:
-            f.write(isi_aksi71.replace(
+        isi_baru71 = isi_aksi71.replace(
                 baris_tulis71,
                 baris_tulis71.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(env -i cat > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru71 != isi_aksi71, \
+            "suntikan aksi71 tidak menembak"
+        with open(berkas_aksi71, "w", encoding="utf-8") as f:
+            f.write(isi_baru71)
         rc, out = jalan(subenv, [sys.executable, GERBANG, "--semua"])
         periksa("penguras di balik opsi env tetap menguras: gerbang "
                 "gagal (Audit 951)", rc != 0)
@@ -1442,13 +1628,16 @@ def main():
             isi_aksi72 = f.read()
         baris_tulis72 = [b for b in isi_aksi72.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi72, "w", encoding="utf-8") as f:
-            f.write(isi_aksi72.replace(
+        isi_baru72 = isi_aksi72.replace(
                 baris_tulis72,
                 baris_tulis72.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cat a">b" > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru72 != isi_aksi72, \
+            "suntikan aksi72 tidak menembak"
+        with open(berkas_aksi72, "w", encoding="utf-8") as f:
+            f.write(isi_baru72)
         rc, out = jalan(subkutipsebagian, [sys.executable, GERBANG,
                                            "--semua"])
         periksa("operand berkutip sebagian memuat > adalah berkas, "
@@ -1475,13 +1664,16 @@ def main():
             isi_aksi73 = f.read()
         baris_tulis73 = [b for b in isi_aksi73.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi73, "w", encoding="utf-8") as f:
-            f.write(isi_aksi73.replace(
+        isi_baru73 = isi_aksi73.replace(
                 baris_tulis73,
                 baris_tulis73.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(nice -n 5 cat > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru73 != isi_aksi73, \
+            "suntikan aksi73 tidak menembak"
+        with open(berkas_aksi73, "w", encoding="utf-8") as f:
+            f.write(isi_baru73)
         rc, out = jalan(subbungkusnilai,
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai opsi pembungkus bukan perintah: penguras di "
@@ -1497,13 +1689,16 @@ def main():
             isi_aksi74 = f.read()
         baris_tulis74 = [b for b in isi_aksi74.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi74, "w", encoding="utf-8") as f:
-            f.write(isi_aksi74.replace(
+        isi_baru74 = isi_aksi74.replace(
                 baris_tulis74,
                 baris_tulis74.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tee "keluaran.txt" > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru74 != isi_aksi74, \
+            "suntikan aksi74 tidak menembak"
+        with open(berkas_aksi74, "w", encoding="utf-8") as f:
+            f.write(isi_baru74)
         rc, out = jalan(subteekutip,
                         [sys.executable, GERBANG, "--semua"])
         periksa("operand tee berkutip tetap keluaran: tee tetap "
@@ -1518,13 +1713,16 @@ def main():
             isi_aksi75 = f.read()
         baris_tulis75 = [b for b in isi_aksi75.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi75, "w", encoding="utf-8") as f:
-            f.write(isi_aksi75.replace(
+        isi_baru75 = isi_aksi75.replace(
                 baris_tulis75,
                 baris_tulis75.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cat keluaran.txt>log1; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru75 != isi_aksi75, \
+            "suntikan aksi75 tidak menembak"
+        with open(berkas_aksi75, "w", encoding="utf-8") as f:
+            f.write(isi_baru75)
         rc, out = jalan(submerekat,
                         [sys.executable, GERBANG, "--semua"])
         periksa("operand merekat ke redirect adalah berkas yang "
@@ -1540,13 +1738,16 @@ def main():
             isi_aksi76 = f.read()
         baris_tulis76 = [b for b in isi_aksi76.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi76, "w", encoding="utf-8") as f:
-            f.write(isi_aksi76.replace(
+        isi_baru76 = isi_aksi76.replace(
                 baris_tulis76,
                 baris_tulis76.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(env -S cat > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru76 != isi_aksi76, \
+            "suntikan aksi76 tidak menembak"
+        with open(berkas_aksi76, "w", encoding="utf-8") as f:
+            f.write(isi_baru76)
         rc, out = jalan(subenvs, [sys.executable, GERBANG, "--semua"])
         periksa("nilai env -S adalah perintah yang dijalankan: "
                 "tetap menguras, gerbang gagal (Audit 960)", rc != 0)
@@ -1560,13 +1761,16 @@ def main():
             isi_aksi77 = f.read()
         baris_tulis77 = [b for b in isi_aksi77.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi77, "w", encoding="utf-8") as f:
-            f.write(isi_aksi77.replace(
+        isi_baru77 = isi_aksi77.replace(
                 baris_tulis77,
                 baris_tulis77.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(command -v cat > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru77 != isi_aksi77, \
+            "suntikan aksi77 tidak menembak"
+        with open(berkas_aksi77, "w", encoding="utf-8") as f:
+            f.write(isi_baru77)
         rc, out = jalan(subcommandv,
                         [sys.executable, GERBANG, "--semua"])
         periksa("command -v hanya bertanya, tak menjalankan: "
@@ -1582,13 +1786,16 @@ def main():
             isi_aksi78 = f.read()
         baris_tulis78 = [b for b in isi_aksi78.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi78, "w", encoding="utf-8") as f:
-            f.write(isi_aksi78.replace(
+        isi_baru78 = isi_aksi78.replace(
                 baris_tulis78,
                 baris_tulis78.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(xargs -a daftar cat > /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru78 != isi_aksi78, \
+            "suntikan aksi78 tidak menembak"
+        with open(berkas_aksi78, "w", encoding="utf-8") as f:
+            f.write(isi_baru78)
         rc, out = jalan(subxargsa, [sys.executable, GERBANG, "--semua"])
         periksa("item xargs -a adalah operand anak, bukan stdin: "
                 "penulis tetap menerima stdin, gerbang lolos "
@@ -1603,13 +1810,16 @@ def main():
             isi_aksi79 = f.read()
         baris_tulis79 = [b for b in isi_aksi79.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi79, "w", encoding="utf-8") as f:
-            f.write(isi_aksi79.replace(
+        isi_baru79 = isi_aksi79.replace(
                 baris_tulis79,
                 baris_tulis79.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(env -S 'cat > /dev/null'; cat "
-                    ">> \"$GITHUB_OUTPUT\")"), 1))
+                    ">> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru79 != isi_aksi79, \
+            "suntikan aksi79 tidak menembak"
+        with open(berkas_aksi79, "w", encoding="utf-8") as f:
+            f.write(isi_baru79)
         rc, out = jalan(subenvsredir,
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect di dalam string env -S adalah operand "
@@ -1625,13 +1835,16 @@ def main():
             isi_aksi80 = f.read()
         baris_tulis80 = [b for b in isi_aksi80.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi80, "w", encoding="utf-8") as f:
-            f.write(isi_aksi80.replace(
+        isi_baru80 = isi_aksi80.replace(
                 baris_tulis80,
                 baris_tulis80.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(env -S 'env -S cat > x'; cat "
-                    ">> \"$GITHUB_OUTPUT\")"), 1))
+                    ">> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru80 != isi_aksi80, \
+            "suntikan aksi80 tidak menembak"
+        with open(berkas_aksi80, "w", encoding="utf-8") as f:
+            f.write(isi_baru80)
         rc, out = jalan(subenvsarang,
                         [sys.executable, GERBANG, "--semua"])
         periksa("batas argv diwariskan di env -S bersarang: "
@@ -1647,13 +1860,16 @@ def main():
             isi_aksi81 = f.read()
         baris_tulis81 = [b for b in isi_aksi81.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi81, "w", encoding="utf-8") as f:
-            f.write(isi_aksi81.replace(
+        isi_baru81 = isi_aksi81.replace(
                 baris_tulis81,
                 baris_tulis81.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(> /dev/null cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru81 != isi_aksi81, \
+            "suntikan aksi81 tidak menembak"
+        with open(berkas_aksi81, "w", encoding="utf-8") as f:
+            f.write(isi_baru81)
         rc, out = jalan(subredirdepan,
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect di depan perintah tidak lagi menyembunyikan "
@@ -1669,13 +1885,16 @@ def main():
             isi_aksi82 = f.read()
         baris_tulis82 = [b for b in isi_aksi82.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi82, "w", encoding="utf-8") as f:
-            f.write(isi_aksi82.replace(
+        isi_baru82 = isi_aksi82.replace(
                 baris_tulis82,
                 baris_tulis82.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(nice A=1 cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru82 != isi_aksi82, \
+            "suntikan aksi82 tidak menembak"
+        with open(berkas_aksi82, "w", encoding="utf-8") as f:
+            f.write(isi_baru82)
         rc, out = jalan(subtawar,
                         [sys.executable, GERBANG, "--semua"])
         periksa("penetapan sesudah pembungkus non-env adalah nama "
@@ -1690,13 +1909,16 @@ def main():
             isi_aksi83 = f.read()
         baris_tulis83 = [b for b in isi_aksi83.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi83, "w", encoding="utf-8") as f:
-            f.write(isi_aksi83.replace(
+        isi_baru83 = isi_aksi83.replace(
                 baris_tulis83,
                 baris_tulis83.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(3> /dev/null cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru83 != isi_aksi83, \
+            "suntikan aksi83 tidak menembak"
+        with open(berkas_aksi83, "w", encoding="utf-8") as f:
+            f.write(isi_baru83)
         rc, out = jalan(subredfd,
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect ber-fd di depan perintah tidak lagi "
@@ -1712,13 +1934,16 @@ def main():
             isi_aksi84 = f.read()
         baris_tulis84 = [b for b in isi_aksi84.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi84, "w", encoding="utf-8") as f:
-            f.write(isi_aksi84.replace(
+        isi_baru84 = isi_aksi84.replace(
                 baris_tulis84,
                 baris_tulis84.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(timeout -s > /dev/null KILL 5 cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru84 != isi_aksi84, \
+            "suntikan aksi84 tidak menembak"
+        with open(berkas_aksi84, "w", encoding="utf-8") as f:
+            f.write(isi_baru84)
         rc, out = jalan(subrednilai,
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect yang menyela nilai opsi tidak lagi "
@@ -1734,13 +1959,16 @@ def main():
             isi_aksi85 = f.read()
         baris_tulis85 = [b for b in isi_aksi85.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi85, "w", encoding="utf-8") as f:
-            f.write(isi_aksi85.replace(
+        isi_baru85 = isi_aksi85.replace(
                 baris_tulis85,
                 baris_tulis85.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(nice env A=1 cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru85 != isi_aksi85, \
+            "suntikan aksi85 tidak menembak"
+        with open(berkas_aksi85, "w", encoding="utf-8") as f:
+            f.write(isi_baru85)
         rc, out = jalan(subenvtawar,
                         [sys.executable, GERBANG, "--semua"])
         periksa("env sesudah pembungkus memulihkan penetapan: "
@@ -1756,13 +1984,16 @@ def main():
             isi_aksi86 = f.read()
         baris_tulis86 = [b for b in isi_aksi86.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi86, "w", encoding="utf-8") as f:
-            f.write(isi_aksi86.replace(
+        isi_baru86 = isi_aksi86.replace(
                 baris_tulis86,
                 baris_tulis86.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(setsid cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru86 != isi_aksi86, \
+            "suntikan aksi86 tidak menembak"
+        with open(berkas_aksi86, "w", encoding="utf-8") as f:
+            f.write(isi_baru86)
         rc, out = jalan(subbungkusbaru,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pembungkus setsid kini dikenal resolver: penulis "
@@ -1778,13 +2009,16 @@ def main():
             isi_aksi87 = f.read()
         baris_tulis87 = [b for b in isi_aksi87.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi87, "w", encoding="utf-8") as f:
-            f.write(isi_aksi87.replace(
+        isi_baru87 = isi_aksi87.replace(
                 baris_tulis87,
                 baris_tulis87.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(xargs echo; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru87 != isi_aksi87, \
+            "suntikan aksi87 tidak menembak"
+        with open(berkas_aksi87, "w", encoding="utf-8") as f:
+            f.write(isi_baru87)
         rc, out = jalan(subxargssendiri,
                         [sys.executable, GERBANG, "--semua"])
         periksa("xargs tanpa -a menguras stdin sendiri walau "
@@ -1800,13 +2034,16 @@ def main():
             isi_aksi88 = f.read()
         baris_tulis88 = [b for b in isi_aksi88.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi88, "w", encoding="utf-8") as f:
-            f.write(isi_aksi88.replace(
+        isi_baru88 = isi_aksi88.replace(
                 baris_tulis88,
                 baris_tulis88.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(nice command cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru88 != isi_aksi88, \
+            "suntikan aksi88 tidak menembak"
+        with open(berkas_aksi88, "w", encoding="utf-8") as f:
+            f.write(isi_baru88)
         rc, out = jalan(subcommandprog,
                         [sys.executable, GERBANG, "--semua"])
         periksa("'command' di balik pembungkus adalah program tak "
@@ -1822,13 +2059,16 @@ def main():
             isi_aksi89 = f.read()
         baris_tulis89 = [b for b in isi_aksi89.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi89, "w", encoding="utf-8") as f:
-            f.write(isi_aksi89.replace(
+        isi_baru89 = isi_aksi89.replace(
                 baris_tulis89,
                 baris_tulis89.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(&>- wc -l; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru89 != isi_aksi89, \
+            "suntikan aksi89 tidak menembak"
+        with open(berkas_aksi89, "w", encoding="utf-8") as f:
+            f.write(isi_baru89)
         rc, out = jalan(subtutupout,
                         [sys.executable, GERBANG, "--semua"])
         periksa("stdout ditutup di awalan tidak menyembunyikan "
@@ -1843,13 +2083,16 @@ def main():
             isi_aksi90 = f.read()
         baris_tulis90 = [b for b in isi_aksi90.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi90, "w", encoding="utf-8") as f:
-            f.write(isi_aksi90.replace(
+        isi_baru90 = isi_aksi90.replace(
                 baris_tulis90,
                 baris_tulis90.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(xargs cat < /dev/null; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru90 != isi_aksi90, \
+            "suntikan aksi90 tidak menembak"
+        with open(berkas_aksi90, "w", encoding="utf-8") as f:
+            f.write(isi_baru90)
         rc, out = jalan(subxargsredir,
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect masukan sesudah anak xargs milik xargs "
@@ -1864,13 +2107,16 @@ def main():
             isi_aksi91 = f.read()
         baris_tulis91 = [b for b in isi_aksi91.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi91, "w", encoding="utf-8") as f:
-            f.write(isi_aksi91.replace(
+        isi_baru91 = isi_aksi91.replace(
                 baris_tulis91,
                 baris_tulis91.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(env -S 'command cat'; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru91 != isi_aksi91, \
+            "suntikan aksi91 tidak menembak"
+        with open(berkas_aksi91, "w", encoding="utf-8") as f:
+            f.write(isi_baru91)
         rc, out = jalan(subcommandstr,
                         [sys.executable, GERBANG, "--semua"])
         periksa("'command' di dalam string env -S adalah program "
@@ -1885,13 +2131,16 @@ def main():
             isi_aksi92 = f.read()
         baris_tulis92 = [b for b in isi_aksi92.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi92, "w", encoding="utf-8") as f:
-            f.write(isi_aksi92.replace(
+        isi_baru92 = isi_aksi92.replace(
                 baris_tulis92,
                 baris_tulis92.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(command command wc -l; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru92 != isi_aksi92, \
+            "suntikan aksi92 tidak menembak"
+        with open(berkas_aksi92, "w", encoding="utf-8") as f:
+            f.write(isi_baru92)
         rc, out = jalan(subcommandganda,
                         [sys.executable, GERBANG, "--semua"])
         periksa("'command' sesudah 'command' tetap transparan: "
@@ -1906,13 +2155,16 @@ def main():
             isi_aksi93 = f.read()
         baris_tulis93 = [b for b in isi_aksi93.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi93, "w", encoding="utf-8") as f:
-            f.write(isi_aksi93.replace(
+        isi_baru93 = isi_aksi93.replace(
                 baris_tulis93,
                 baris_tulis93.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(ionice -p 1234 wc -l; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru93 != isi_aksi93, \
+            "suntikan aksi93 tidak menembak"
+        with open(berkas_aksi93, "w", encoding="utf-8") as f:
+            f.write(isi_baru93)
         rc, out = jalan(subpidpalsu,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bentuk pid ionice adalah mode pid, bukan perintah: "
@@ -1927,13 +2179,16 @@ def main():
             isi_aksi94 = f.read()
         baris_tulis94 = [b for b in isi_aksi94.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi94, "w", encoding="utf-8") as f:
-            f.write(isi_aksi94.replace(
+        isi_baru94 = isi_aksi94.replace(
                 baris_tulis94,
                 baris_tulis94.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(xargs cat 3<berkasKeluaran; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru94 != isi_aksi94, \
+            "suntikan aksi94 tidak menembak"
+        with open(berkas_aksi94, "w", encoding="utf-8") as f:
+            f.write(isi_baru94)
         rc, out = jalan(subxargsfd,
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect fd bukan-0 sesudah anak xargs tak "
@@ -1950,13 +2205,16 @@ def main():
             isi_aksi95 = f.read()
         baris_tulis95 = [b for b in isi_aksi95.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi95, "w", encoding="utf-8") as f:
-            f.write(isi_aksi95.replace(
+        isi_baru95 = isi_aksi95.replace(
                 baris_tulis95,
                 baris_tulis95.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(xargs cat a<berkasKeluaran; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru95 != isi_aksi95, \
+            "suntikan aksi95 tidak menembak"
+        with open(berkas_aksi95, "w", encoding="utf-8") as f:
+            f.write(isi_baru95)
         rc, out = jalan(subxargslekat,
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect masukan merekat di tengah kata sesudah "
@@ -1972,13 +2230,16 @@ def main():
             isi_aksi96 = f.read()
         baris_tulis96 = [b for b in isi_aksi96.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi96, "w", encoding="utf-8") as f:
-            f.write(isi_aksi96.replace(
+        isi_baru96 = isi_aksi96.replace(
                 baris_tulis96,
                 baris_tulis96.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(cat 3<berkasKeluaran; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru96 != isi_aksi96, \
+            "suntikan aksi96 tidak menembak"
+        with open(berkas_aksi96, "w", encoding="utf-8") as f:
+            f.write(isi_baru96)
         rc, out = jalan(suboperandfd,
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect fd bukan-0 di posisi operand tak "
@@ -1995,13 +2256,16 @@ def main():
             isi_aksi97 = f.read()
         baris_tulis97 = [b for b in isi_aksi97.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi97, "w", encoding="utf-8") as f:
-            f.write(isi_aksi97.replace(
+        isi_baru97 = isi_aksi97.replace(
                 baris_tulis97,
                 baris_tulis97.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(taskset -pc 0 wc -l; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru97 != isi_aksi97, \
+            "suntikan aksi97 tidak menembak"
+        with open(berkas_aksi97, "w", encoding="utf-8") as f:
+            f.write(isi_baru97)
         rc, out = jalan(subtasksetgabung,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bendera gabungan taskset -pc adalah mode pid, "
@@ -2016,13 +2280,16 @@ def main():
             isi_aksi98 = f.read()
         baris_tulis98 = [b for b in isi_aksi98.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi98, "w", encoding="utf-8") as f:
-            f.write(isi_aksi98.replace(
+        isi_baru98 = isi_aksi98.replace(
                 baris_tulis98,
                 baris_tulis98.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(00<berkasKeluaran cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru98 != isi_aksi98, \
+            "suntikan aksi98 tidak menembak"
+        with open(berkas_aksi98, "w", encoding="utf-8") as f:
+            f.write(isi_baru98)
         rc, out = jalan(subfdnol,
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect fd 00 adalah fd 0: segmen pertama bukan "
@@ -2037,13 +2304,16 @@ def main():
             isi_aksi99 = f.read()
         baris_tulis99 = [b for b in isi_aksi99.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi99, "w", encoding="utf-8") as f:
-            f.write(isi_aksi99.replace(
+        isi_baru99 = isi_aksi99.replace(
                 baris_tulis99,
                 baris_tulis99.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(head -n 3<berkasKeluaran; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru99 != isi_aksi99, \
+            "suntikan aksi99 tidak menembak"
+        with open(berkas_aksi99, "w", encoding="utf-8") as f:
+            f.write(isi_baru99)
         rc, out = jalan(subopsiredirect,
                         [sys.executable, GERBANG, "--semua"])
         periksa("token redirect sesudah opsi bernilai bukan nilai "
@@ -2059,13 +2329,16 @@ def main():
             isi_aksi100 = f.read()
         baris_tulis100 = [b for b in isi_aksi100.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi100, "w", encoding="utf-8") as f:
-            f.write(isi_aksi100.replace(
+        isi_baru100 = isi_aksi100.replace(
                 baris_tulis100,
                 baris_tulis100.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(ionice -tc 2 cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru100 != isi_aksi100, \
+            "suntikan aksi100 tidak menembak"
+        with open(berkas_aksi100, "w", encoding="utf-8") as f:
+            f.write(isi_baru100)
         rc, out = jalan(subionicebundel,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bundel ionice -tc bernilai-terpisah adalah "
@@ -2080,13 +2353,16 @@ def main():
             isi_aksi101 = f.read()
         baris_tulis101 = [b for b in isi_aksi101.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi101, "w", encoding="utf-8") as f:
-            f.write(isi_aksi101.replace(
+        isi_baru101 = isi_aksi101.replace(
                 baris_tulis101,
                 baris_tulis101.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(xargs cat <&0x; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru101 != isi_aksi101, \
+            "suntikan aksi101 tidak menembak"
+        with open(berkas_aksi101, "w", encoding="utf-8") as f:
+            f.write(isi_baru101)
         rc, out = jalan(subdupambig,
                         [sys.executable, GERBANG, "--semua"])
         periksa("target duplikasi bersufiks huruf ditolak bash: "
@@ -2102,13 +2378,16 @@ def main():
             isi_aksi102 = f.read()
         baris_tulis102 = [b for b in isi_aksi102.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi102, "w", encoding="utf-8") as f:
-            f.write(isi_aksi102.replace(
+        isi_baru102 = isi_aksi102.replace(
                 baris_tulis102,
                 baris_tulis102.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(cat <&0-; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru102 != isi_aksi102, \
+            "suntikan aksi102 tidak menembak"
+        with open(berkas_aksi102, "w", encoding="utf-8") as f:
+            f.write(isi_baru102)
         rc, out = jalan(subpindahfd,
                         [sys.executable, GERBANG, "--semua"])
         periksa("duplikasi bersufiks pindah-fd <&0- adalah "
@@ -2123,13 +2402,16 @@ def main():
             isi_aksi103 = f.read()
         baris_tulis103 = [b for b in isi_aksi103.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi103, "w", encoding="utf-8") as f:
-            f.write(isi_aksi103.replace(
+        isi_baru103 = isi_aksi103.replace(
                 baris_tulis103,
                 baris_tulis103.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(cat 0<&0; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru103 != isi_aksi103, \
+            "suntikan aksi103 tidak menembak"
+        with open(berkas_aksi103, "w", encoding="utf-8") as f:
+            f.write(isi_baru103)
         rc, out = jalan(subdupnol,
                         [sys.executable, GERBANG, "--semua"])
         periksa("duplikasi berawalan fd 0<&0 adalah penguras: "
@@ -2144,13 +2426,16 @@ def main():
             isi_aksi104 = f.read()
         baris_tulis104 = [b for b in isi_aksi104.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi104, "w", encoding="utf-8") as f:
-            f.write(isi_aksi104.replace(
+        isi_baru104 = isi_aksi104.replace(
                 baris_tulis104,
                 baris_tulis104.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(flock kunci.lock cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru104 != isi_aksi104, \
+            "suntikan aksi104 tidak menembak"
+        with open(berkas_aksi104, "w", encoding="utf-8") as f:
+            f.write(isi_baru104)
         rc, out = jalan(subflock,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pembaca terbungkus flock adalah penguras: "
@@ -2165,13 +2450,16 @@ def main():
             isi_aksi105 = f.read()
         baris_tulis105 = [b for b in isi_aksi105.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi105, "w", encoding="utf-8") as f:
-            f.write(isi_aksi105.replace(
+        isi_baru105 = isi_aksi105.replace(
                 baris_tulis105,
                 baris_tulis105.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(cat 1<&0-; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru105 != isi_aksi105, \
+            "suntikan aksi105 tidak menembak"
+        with open(berkas_aksi105, "w", encoding="utf-8") as f:
+            f.write(isi_baru105)
         rc, out = jalan(subpindahbatal,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pindah-fd bersumber 0 menutup stdin: segmen "
@@ -2187,13 +2475,16 @@ def main():
             isi_aksi106 = f.read()
         baris_tulis106 = [b for b in isi_aksi106.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi106, "w", encoding="utf-8") as f:
-            f.write(isi_aksi106.replace(
+        isi_baru106 = isi_aksi106.replace(
                 baris_tulis106,
                 baris_tulis106.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(exec cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru106 != isi_aksi106, \
+            "suntikan aksi106 tidak menembak"
+        with open(berkas_aksi106, "w", encoding="utf-8") as f:
+            f.write(isi_baru106)
         rc, out = jalan(subkata,
                         [sys.executable, GERBANG, "--semua"])
         periksa("awalan kata kunci exec transparan: pembaca di "
@@ -2209,13 +2500,16 @@ def main():
             isi_aksi107 = f.read()
         baris_tulis107 = [b for b in isi_aksi107.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi107, "w", encoding="utf-8") as f:
-            f.write(isi_aksi107.replace(
+        isi_baru107 = isi_aksi107.replace(
                 baris_tulis107,
                 baris_tulis107.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >((cat); "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru107 != isi_aksi107, \
+            "suntikan aksi107 tidak menembak"
+        with open(berkas_aksi107, "w", encoding="utf-8") as f:
+            f.write(isi_baru107)
         rc, out = jalan(subgrup,
                         [sys.executable, GERBANG, "--semua"])
         periksa("grup subshell terurai: (cat) adalah penguras — "
@@ -2230,13 +2524,16 @@ def main():
             isi_aksi108 = f.read()
         baris_tulis108 = [b for b in isi_aksi108.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi108, "w", encoding="utf-8") as f:
-            f.write(isi_aksi108.replace(
+        isi_baru108 = isi_aksi108.replace(
                 baris_tulis108,
                 baris_tulis108.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(cat | tee log.txt; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru108 != isi_aksi108, \
+            "suntikan aksi108 tidak menembak"
+        with open(berkas_aksi108, "w", encoding="utf-8") as f:
+            f.write(isi_baru108)
         rc, out = jalan(subpipa,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pipa dalam segmen: elemen pertama yang dinilai — "
@@ -2251,13 +2548,16 @@ def main():
             isi_aksi109 = f.read()
         baris_tulis109 = [b for b in isi_aksi109.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi109, "w", encoding="utf-8") as f:
-            f.write(isi_aksi109.replace(
+        isi_baru109 = isi_aksi109.replace(
                 baris_tulis109,
                 baris_tulis109.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(flock kunci.lock -c cat; "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru109 != isi_aksi109, \
+            "suntikan aksi109 tidak menembak"
+        with open(berkas_aksi109, "w", encoding="utf-8") as f:
+            f.write(isi_baru109)
         rc, out = jalan(subflockc,
                         [sys.executable, GERBANG, "--semua"])
         periksa("flock bentuk string -c: nilainya adalah perintah "
@@ -2272,13 +2572,16 @@ def main():
             isi_aksi110 = f.read()
         baris_tulis110 = [b for b in isi_aksi110.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi110, "w", encoding="utf-8") as f:
-            f.write(isi_aksi110.replace(
+        isi_baru110 = isi_aksi110.replace(
                 baris_tulis110,
                 baris_tulis110.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(cat <(cat); "
-                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru110 != isi_aksi110, \
+            "suntikan aksi110 tidak menembak"
+        with open(berkas_aksi110, "w", encoding="utf-8") as f:
+            f.write(isi_baru110)
         rc, out = jalan(suboperand,
                         [sys.executable, GERBANG, "--semua"])
         periksa("substitusi masukan sebagai operand: isinya "
@@ -2301,12 +2604,15 @@ def main():
             isi_aksi116 = f.read()
         baris_aksi116 = [b for b in isi_aksi116.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi116, "w", encoding="utf-8") as f:
-            f.write(isi_aksi116.replace(
+        isi_baru116 = isi_aksi116.replace(
                 baris_aksi116,
                 baris_aksi116.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(cat $(cat); cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(cat $(cat); cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru116 != isi_aksi116, \
+            "suntikan aksi116 tidak menembak"
+        with open(berkas_aksi116, "w", encoding="utf-8") as f:
+            f.write(isi_baru116)
         rc, out = jalan(subcmdsub,
                         [sys.executable, GERBANG, "--semua"])
         periksa("substitusi perintah sebagai operand: isinya menguras — gerbang gagal (Audit 1036)", rc != 0)
@@ -2320,12 +2626,15 @@ def main():
             isi_aksi115 = f.read()
         baris_aksi115 = [b for b in isi_aksi115.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi115, "w", encoding="utf-8") as f:
-            f.write(isi_aksi115.replace(
+        isi_baru115 = isi_aksi115.replace(
                 baris_aksi115,
                 baris_aksi115.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(flock kunci.lock -c 'cat berkasLain'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(flock kunci.lock -c 'cat berkasLain'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru115 != isi_aksi115, \
+            "suntikan aksi115 tidak menembak"
+        with open(berkas_aksi115, "w", encoding="utf-8") as f:
+            f.write(isi_baru115)
         rc, out = jalan(subflockstr,
                         [sys.executable, GERBANG, "--semua"])
         periksa("string flock -c multi-kata dinilai utuh: cat berkas bukan penguras — gerbang lolos (Audit 1035)", rc == 0)
@@ -2339,12 +2648,15 @@ def main():
             isi_aksi117 = f.read()
         baris_aksi117 = [b for b in isi_aksi117.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi117, "w", encoding="utf-8") as f:
-            f.write(isi_aksi117.replace(
+        isi_baru117 = isi_aksi117.replace(
                 baris_aksi117,
                 baris_aksi117.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sudo cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sudo cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru117 != isi_aksi117, \
+            "suntikan aksi117 tidak menembak"
+        with open(berkas_aksi117, "w", encoding="utf-8") as f:
+            f.write(isi_baru117)
         rc, out = jalan(subsudo,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pembungkus sudo transparan: pembaca di baliknya penguras — gerbang gagal (Audit 1044)", rc != 0)
@@ -2358,12 +2670,15 @@ def main():
             isi_aksi111 = f.read()
         baris_aksi111 = [b for b in isi_aksi111.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi111, "w", encoding="utf-8") as f:
-            f.write(isi_aksi111.replace(
+        isi_baru111 = isi_aksi111.replace(
                 baris_aksi111,
                 baris_aksi111.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(exec -c cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(exec -c cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru111 != isi_aksi111, \
+            "suntikan aksi111 tidak menembak"
+        with open(berkas_aksi111, "w", encoding="utf-8") as f:
+            f.write(isi_baru111)
         rc, out = jalan(subexecopsi,
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi milik exec dilompati: exec -c cat adalah penguras — gerbang gagal (Audit 1031)", rc != 0)
@@ -2377,12 +2692,15 @@ def main():
             isi_aksi112 = f.read()
         baris_aksi112 = [b for b in isi_aksi112.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi112, "w", encoding="utf-8") as f:
-            f.write(isi_aksi112.replace(
+        isi_baru112 = isi_aksi112.replace(
                 baris_aksi112,
                 baris_aksi112.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(time -- cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(time -- cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru112 != isi_aksi112, \
+            "suntikan aksi112 tidak menembak"
+        with open(berkas_aksi112, "w", encoding="utf-8") as f:
+            f.write(isi_baru112)
         rc, out = jalan(subtimeakh,
                         [sys.executable, GERBANG, "--semua"])
         periksa("time -- adalah akhir opsi: pembaca sesudahnya penguras — gerbang gagal (Audit 1032)", rc != 0)
@@ -2396,12 +2714,15 @@ def main():
             isi_aksi113 = f.read()
         baris_aksi113 = [b for b in isi_aksi113.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi113, "w", encoding="utf-8") as f:
-            f.write(isi_aksi113.replace(
+        isi_baru113 = isi_aksi113.replace(
                 baris_aksi113,
                 baris_aksi113.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(exec A=1 cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(exec A=1 cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru113 != isi_aksi113, \
+            "suntikan aksi113 tidak menembak"
+        with open(berkas_aksi113, "w", encoding="utf-8") as f:
+            f.write(isi_baru113)
         rc, out = jalan(subexecset,
                         [sys.executable, GERBANG, "--semua"])
         periksa("penetapan sesudah exec adalah nama program: bukan penguras — gerbang lolos (Audit 1033)", rc == 0)
@@ -2415,12 +2736,15 @@ def main():
             isi_aksi114 = f.read()
         baris_aksi114 = [b for b in isi_aksi114.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi114, "w", encoding="utf-8") as f:
-            f.write(isi_aksi114.replace(
+        isi_baru114 = isi_aksi114.replace(
                 baris_aksi114,
                 baris_aksi114.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(command time cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(command time cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru114 != isi_aksi114, \
+            "suntikan aksi114 tidak menembak"
+        with open(berkas_aksi114, "w", encoding="utf-8") as f:
+            f.write(isi_baru114)
         rc, out = jalan(subcmdkata,
                         [sys.executable, GERBANG, "--semua"])
         periksa("kata kunci di balik command tak transparan: bukan penguras — gerbang lolos (Audit 1034)", rc == 0)
@@ -2434,12 +2758,15 @@ def main():
             isi_aksi118 = f.read()
         baris_aksi118 = [b for b in isi_aksi118.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi118, "w", encoding="utf-8") as f:
-            f.write(isi_aksi118.replace(
+        isi_baru118 = isi_aksi118.replace(
                 baris_aksi118,
                 baris_aksi118.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sha256sum; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sha256sum; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru118 != isi_aksi118, \
+            "suntikan aksi118 tidak menembak"
+        with open(berkas_aksi118, "w", encoding="utf-8") as f:
+            f.write(isi_baru118)
         rc, out = jalan(subfilter,
                         [sys.executable, GERBANG, "--semua"])
         periksa("filter aliran murni tanpa operand adalah penguras — gerbang gagal (Audit 1037)", rc != 0)
@@ -2453,12 +2780,15 @@ def main():
             isi_aksi119 = f.read()
         baris_aksi119 = [b for b in isi_aksi119.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi119, "w", encoding="utf-8") as f:
-            f.write(isi_aksi119.replace(
+        isi_baru119 = isi_aksi119.replace(
                 baris_aksi119,
                 baris_aksi119.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(jq -r .tag; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(jq -r .tag; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru119 != isi_aksi119, \
+            "suntikan aksi119 tidak menembak"
+        with open(berkas_aksi119, "w", encoding="utf-8") as f:
+            f.write(isi_baru119)
         rc, out = jalan(subskrip,
                         [sys.executable, GERBANG, "--semua"])
         periksa("perintah beroperand filter: jq tanpa berkas adalah penguras — gerbang gagal (Audit 1038)", rc != 0)
@@ -2472,12 +2802,15 @@ def main():
             isi_aksi120 = f.read()
         baris_aksi120 = [b for b in isi_aksi120.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi120, "w", encoding="utf-8") as f:
-            f.write(isi_aksi120.replace(
+        isi_baru120 = isi_aksi120.replace(
                 baris_aksi120,
                 baris_aksi120.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(python3 -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(python3 -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru120 != isi_aksi120, \
+            "suntikan aksi120 tidak menembak"
+        with open(berkas_aksi120, "w", encoding="utf-8") as f:
+            f.write(isi_baru120)
         rc, out = jalan(subinterp,
                         [sys.executable, GERBANG, "--semua"])
         periksa("interpreter membaca skrip dari stdin: python3 - adalah penguras — gerbang gagal (Audit 1039)", rc != 0)
@@ -2491,12 +2824,15 @@ def main():
             isi_aksi121 = f.read()
         baris_aksi121 = [b for b in isi_aksi121.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi121, "w", encoding="utf-8") as f:
-            f.write(isi_aksi121.replace(
+        isi_baru121 = isi_aksi121.replace(
                 baris_aksi121,
                 baris_aksi121.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(mapfile; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(mapfile; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru121 != isi_aksi121, \
+            "suntikan aksi121 tidak menembak"
+        with open(berkas_aksi121, "w", encoding="utf-8") as f:
+            f.write(isi_baru121)
         rc, out = jalan(submapfile,
                         [sys.executable, GERBANG, "--semua"])
         periksa("builtin penampung tanpa batas menguras — gerbang gagal (Audit 1040)", rc != 0)
@@ -2510,12 +2846,15 @@ def main():
             isi_aksi122 = f.read()
         baris_aksi122 = [b for b in isi_aksi122.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi122, "w", encoding="utf-8") as f:
-            f.write(isi_aksi122.replace(
+        isi_baru122 = isi_aksi122.replace(
                 baris_aksi122,
                 baris_aksi122.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(dd if=/dev/stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(dd if=/dev/stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru122 != isi_aksi122, \
+            "suntikan aksi122 tidak menembak"
+        with open(berkas_aksi122, "w", encoding="utf-8") as f:
+            f.write(isi_baru122)
         rc, out = jalan(subddstdin,
                         [sys.executable, GERBANG, "--semua"])
         periksa("dd if=/dev/stdin membaca stdin itu sendiri — gerbang gagal (Audit 1041)", rc != 0)
@@ -2529,12 +2868,15 @@ def main():
             isi_aksi123 = f.read()
         baris_aksi123 = [b for b in isi_aksi123.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi123, "w", encoding="utf-8") as f:
-            f.write(isi_aksi123.replace(
+        isi_baru123 = isi_aksi123.replace(
                 baris_aksi123,
                 baris_aksi123.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(cat `cat`; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(cat `cat`; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru123 != isi_aksi123, \
+            "suntikan aksi123 tidak menembak"
+        with open(berkas_aksi123, "w", encoding="utf-8") as f:
+            f.write(isi_baru123)
         rc, out = jalan(subbacktick,
                         [sys.executable, GERBANG, "--semua"])
         periksa("substitusi backtick dinilai isinya: penguras — gerbang gagal (Audit 1045)", rc != 0)
@@ -2548,12 +2890,15 @@ def main():
             isi_aksi124 = f.read()
         baris_aksi124 = [b for b in isi_aksi124.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi124, "w", encoding="utf-8") as f:
-            f.write(isi_aksi124.replace(
+        isi_baru124 = isi_aksi124.replace(
                 baris_aksi124,
                 baris_aksi124.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(c''at; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(c''at; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru124 != isi_aksi124, \
+            "suntikan aksi124 tidak menembak"
+        with open(berkas_aksi124, "w", encoding="utf-8") as f:
+            f.write(isi_baru124)
         rc, out = jalan(subkutipgabung,
                         [sys.executable, GERBANG, "--semua"])
         periksa("penggabungan kutip bersebelahan membentuk nama perintah — gerbang gagal (Audit 1046)", rc != 0)
@@ -2567,12 +2912,15 @@ def main():
             isi_aksi125 = f.read()
         baris_aksi125 = [b for b in isi_aksi125.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi125, "w", encoding="utf-8") as f:
-            f.write(isi_aksi125.replace(
+        isi_baru125 = isi_aksi125.replace(
                 baris_aksi125,
                 baris_aksi125.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tr 'a-z' 'A-Z'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tr 'a-z' 'A-Z'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru125 != isi_aksi125, \
+            "suntikan aksi125 tidak menembak"
+        with open(berkas_aksi125, "w", encoding="utf-8") as f:
+            f.write(isi_baru125)
         rc, out = jalan(subsettr,
                         [sys.executable, GERBANG, "--semua"])
         periksa("set tr berkutip adalah operand himpunan: tetap menguras — gerbang gagal (Audit 1047)", rc != 0)
@@ -2586,12 +2934,15 @@ def main():
             isi_aksi126 = f.read()
         baris_aksi126 = [b for b in isi_aksi126.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi126, "w", encoding="utf-8") as f:
-            f.write(isi_aksi126.replace(
+        isi_baru126 = isi_aksi126.replace(
                 baris_aksi126,
                 baris_aksi126.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(grep 'UT UH'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(grep 'UT UH'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru126 != isi_aksi126, \
+            "suntikan aksi126 tidak menembak"
+        with open(berkas_aksi126, "w", encoding="utf-8") as f:
+            f.write(isi_baru126)
         rc, out = jalan(subspasikutip,
                         [sys.executable, GERBANG, "--semua"])
         periksa("operand berkutip berisi spasi satu token: pola grep menguras — gerbang gagal (Audit 1047)", rc != 0)
@@ -2605,12 +2956,15 @@ def main():
             isi_aksi132 = f.read()
         baris_aksi132 = [b for b in isi_aksi132.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi132, "w", encoding="utf-8") as f:
-            f.write(isi_aksi132.replace(
+        isi_baru132 = isi_aksi132.replace(
                 baris_aksi132,
                 baris_aksi132.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tac -s .; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tac -s .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru132 != isi_aksi132, \
+            "suntikan aksi132 tidak menembak"
+        with open(berkas_aksi132, "w", encoding="utf-8") as f:
+            f.write(isi_baru132)
         rc, out = jalan(subtac,
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai -s tac adalah opsi: tac tetap penguras — gerbang gagal (Audit 1048)", rc != 0)
@@ -2624,12 +2978,15 @@ def main():
             isi_aksi131 = f.read()
         baris_aksi131 = [b for b in isi_aksi131.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi131, "w", encoding="utf-8") as f:
-            f.write(isi_aksi131.replace(
+        isi_baru131 = isi_aksi131.replace(
                 baris_aksi131,
                 baris_aksi131.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(python3 -i skrip.py; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(python3 -i skrip.py; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru131 != isi_aksi131, \
+            "suntikan aksi131 tidak menembak"
+        with open(berkas_aksi131, "w", encoding="utf-8") as f:
+            f.write(isi_baru131)
         rc, out = jalan(subpyi,
                         [sys.executable, GERBANG, "--semua"])
         periksa("python3 -i jatuh ke REPL sesudah skrip: penguras — gerbang gagal (Audit 1049)", rc != 0)
@@ -2643,12 +3000,15 @@ def main():
             isi_aksi130 = f.read()
         baris_aksi130 = [b for b in isi_aksi130.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi130, "w", encoding="utf-8") as f:
-            f.write(isi_aksi130.replace(
+        isi_baru130 = isi_aksi130.replace(
                 baris_aksi130,
                 baris_aksi130.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sudo -s; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sudo -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru130 != isi_aksi130, \
+            "suntikan aksi130 tidak menembak"
+        with open(berkas_aksi130, "w", encoding="utf-8") as f:
+            f.write(isi_baru130)
         rc, out = jalan(subsudoshell,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sudo -s menjalankan shell pembaca perintah: penguras — gerbang gagal (Audit 1050)", rc != 0)
@@ -2662,12 +3022,15 @@ def main():
             isi_aksi127 = f.read()
         baris_aksi127 = [b for b in isi_aksi127.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi127, "w", encoding="utf-8") as f:
-            f.write(isi_aksi127.replace(
+        isi_baru127 = isi_aksi127.replace(
                 baris_aksi127,
                 baris_aksi127.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(exec time cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(exec time cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru127 != isi_aksi127, \
+            "suntikan aksi127 tidak menembak"
+        with open(berkas_aksi127, "w", encoding="utf-8") as f:
+            f.write(isi_baru127)
         rc, out = jalan(subexeckata,
                         [sys.executable, GERBANG, "--semua"])
         periksa("kata kunci sesudah exec adalah nama program: bukan penguras — gerbang lolos (Audit 1051)", rc == 0)
@@ -2681,12 +3044,15 @@ def main():
             isi_aksi128 = f.read()
         baris_aksi128 = [b for b in isi_aksi128.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi128, "w", encoding="utf-8") as f:
-            f.write(isi_aksi128.replace(
+        isi_baru128 = isi_aksi128.replace(
                 baris_aksi128,
                 baris_aksi128.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(awk FS=: '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(awk FS=: '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru128 != isi_aksi128, \
+            "suntikan aksi128 tidak menembak"
+        with open(berkas_aksi128, "w", encoding="utf-8") as f:
+            f.write(isi_baru128)
         rc, out = jalan(subawkset,
                         [sys.executable, GERBANG, "--semua"])
         periksa("penetapan awk sebelum program membatalkan perintah: bukan penguras — gerbang lolos (Audit 1052)", rc == 0)
@@ -2700,12 +3066,15 @@ def main():
             isi_aksi129 = f.read()
         baris_aksi129 = [b for b in isi_aksi129.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi129, "w", encoding="utf-8") as f:
-            f.write(isi_aksi129.replace(
+        isi_baru129 = isi_aksi129.replace(
                 baris_aksi129,
                 baris_aksi129.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(mapfile < berkasIn; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(mapfile < berkasIn; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru129 != isi_aksi129, \
+            "suntikan aksi129 tidak menembak"
+        with open(berkas_aksi129, "w", encoding="utf-8") as f:
+            f.write(isi_baru129)
         rc, out = jalan(submapredir,
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect sesudah mapfile mengganti stdin: bukan penguras — gerbang lolos (Audit 1053)", rc == 0)
@@ -2726,12 +3095,15 @@ def main():
             isi_aksi133 = f.read()
         baris_aksi133 = [b for b in isi_aksi133.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi133, "w", encoding="utf-8") as f:
-            f.write(isi_aksi133.replace(
+        isi_baru133 = isi_aksi133.replace(
                 baris_aksi133,
                 baris_aksi133.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sha1sum; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sha1sum; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru133 != isi_aksi133, \
+            "suntikan aksi133 tidak menembak"
+        with open(berkas_aksi133, "w", encoding="utf-8") as f:
+            f.write(isi_baru133)
         rc, out = jalan(subchecksum,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sisa keluarga checksum adalah penguras — gerbang gagal (Audit 1055)", rc != 0)
@@ -2745,12 +3117,15 @@ def main():
             isi_aksi134 = f.read()
         baris_aksi134 = [b for b in isi_aksi134.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi134, "w", encoding="utf-8") as f:
-            f.write(isi_aksi134.replace(
+        isi_baru134 = isi_aksi134.replace(
                 baris_aksi134,
                 baris_aksi134.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(fmt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(fmt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru134 != isi_aksi134, \
+            "suntikan aksi134 tidak menembak"
+        with open(berkas_aksi134, "w", encoding="utf-8") as f:
+            f.write(isi_baru134)
         rc, out = jalan(subfilter3,
                         [sys.executable, GERBANG, "--semua"])
         periksa("filter teks tingkat-3 adalah penguras — gerbang gagal (Audit 1056)", rc != 0)
@@ -2764,12 +3139,15 @@ def main():
             isi_aksi135 = f.read()
         baris_aksi135 = [b for b in isi_aksi135.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi135, "w", encoding="utf-8") as f:
-            f.write(isi_aksi135.replace(
+        isi_baru135 = isi_aksi135.replace(
                 baris_aksi135,
                 baris_aksi135.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(xz; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(xz; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru135 != isi_aksi135, \
+            "suntikan aksi135 tidak menembak"
+        with open(berkas_aksi135, "w", encoding="utf-8") as f:
+            f.write(isi_baru135)
         rc, out = jalan(subkompres,
                         [sys.executable, GERBANG, "--semua"])
         periksa("kompresor saudara gzip adalah penguras — gerbang gagal (Audit 1057)", rc != 0)
@@ -2783,12 +3161,15 @@ def main():
             isi_aksi136 = f.read()
         baris_aksi136 = [b for b in isi_aksi136.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi136, "w", encoding="utf-8") as f:
-            f.write(isi_aksi136.replace(
+        isi_baru136 = isi_aksi136.replace(
                 baris_aksi136,
                 baris_aksi136.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(bash -s; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(bash -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru136 != isi_aksi136, \
+            "suntikan aksi136 tidak menembak"
+        with open(berkas_aksi136, "w", encoding="utf-8") as f:
+            f.write(isi_baru136)
         rc, out = jalan(subshell,
                         [sys.executable, GERBANG, "--semua"])
         periksa("shell membaca perintah dari stdin: penguras — gerbang gagal (Audit 1058)", rc != 0)
@@ -2802,12 +3183,15 @@ def main():
             isi_aksi137 = f.read()
         baris_aksi137 = [b for b in isi_aksi137.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi137, "w", encoding="utf-8") as f:
-            f.write(isi_aksi137.replace(
+        isi_baru137 = isi_aksi137.replace(
                 baris_aksi137,
                 baris_aksi137.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sqlite3; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sqlite3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru137 != isi_aksi137, \
+            "suntikan aksi137 tidak menembak"
+        with open(berkas_aksi137, "w", encoding="utf-8") as f:
+            f.write(isi_baru137)
         rc, out = jalan(subsqlite,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sqlite3 membaca SQL dari stdin: penguras — gerbang gagal (Audit 1059)", rc != 0)
@@ -2821,12 +3205,15 @@ def main():
             isi_aksi138 = f.read()
         baris_aksi138 = [b for b in isi_aksi138.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi138, "w", encoding="utf-8") as f:
-            f.write(isi_aksi138.replace(
+        isi_baru138 = isi_aksi138.replace(
                 baris_aksi138,
                 baris_aksi138.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -sha256; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -sha256; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru138 != isi_aksi138, \
+            "suntikan aksi138 tidak menembak"
+        with open(berkas_aksi138, "w", encoding="utf-8") as f:
+            f.write(isi_baru138)
         rc, out = jalan(subopenssl,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl dgst tanpa berkas adalah penguras — gerbang gagal (Audit 1060)", rc != 0)
@@ -2840,12 +3227,15 @@ def main():
             isi_aksi139 = f.read()
         baris_aksi139 = [b for b in isi_aksi139.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi139, "w", encoding="utf-8") as f:
-            f.write(isi_aksi139.replace(
+        isi_baru139 = isi_aksi139.replace(
                 baris_aksi139,
                 baris_aksi139.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -tf -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -tf -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru139 != isi_aksi139, \
+            "suntikan aksi139 tidak menembak"
+        with open(berkas_aksi139, "w", encoding="utf-8") as f:
+            f.write(isi_baru139)
         rc, out = jalan(subtar,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar membaca arsip dari stdin: penguras — gerbang gagal (Audit 1061)", rc != 0)
@@ -2859,12 +3249,15 @@ def main():
             isi_aksi140 = f.read()
         baris_aksi140 = [b for b in isi_aksi140.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi140, "w", encoding="utf-8") as f:
-            f.write(isi_aksi140.replace(
+        isi_baru140 = isi_aksi140.replace(
                 baris_aksi140,
                 baris_aksi140.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git hash-object --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git hash-object --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru140 != isi_aksi140, \
+            "suntikan aksi140 tidak menembak"
+        with open(berkas_aksi140, "w", encoding="utf-8") as f:
+            f.write(isi_baru140)
         rc, out = jalan(subgitstdin,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git hash-object --stdin adalah penguras — gerbang gagal (Audit 1062)", rc != 0)
@@ -2878,12 +3271,15 @@ def main():
             isi_aksi141 = f.read()
         baris_aksi141 = [b for b in isi_aksi141.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi141, "w", encoding="utf-8") as f:
-            f.write(isi_aksi141.replace(
+        isi_baru141 = isi_aksi141.replace(
                 baris_aksi141,
                 baris_aksi141.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(diff - berkasIn; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(diff - berkasIn; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru141 != isi_aksi141, \
+            "suntikan aksi141 tidak menembak"
+        with open(berkas_aksi141, "w", encoding="utf-8") as f:
+            f.write(isi_baru141)
         rc, out = jalan(subdiff,
                         [sys.executable, GERBANG, "--semua"])
         periksa("operand '-' diff adalah stdin: penguras — gerbang gagal (Audit 1063)", rc != 0)
@@ -2897,12 +3293,15 @@ def main():
             isi_aksi142 = f.read()
         baris_aksi142 = [b for b in isi_aksi142.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi142, "w", encoding="utf-8") as f:
-            f.write(isi_aksi142.replace(
+        isi_baru142 = isi_aksi142.replace(
                 baris_aksi142,
                 baris_aksi142.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(zip a.zip -@; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(zip a.zip -@; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru142 != isi_aksi142, \
+            "suntikan aksi142 tidak menembak"
+        with open(berkas_aksi142, "w", encoding="utf-8") as f:
+            f.write(isi_baru142)
         rc, out = jalan(subziplist,
                         [sys.executable, GERBANG, "--semua"])
         periksa("zip -@ membaca daftar nama dari stdin: penguras — gerbang gagal (Audit 1064)", rc != 0)
@@ -2916,12 +3315,15 @@ def main():
             isi_aksi143 = f.read()
         baris_aksi143 = [b for b in isi_aksi143.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi143, "w", encoding="utf-8") as f:
-            f.write(isi_aksi143.replace(
+        isi_baru143 = isi_aksi143.replace(
                 baris_aksi143,
                 baris_aksi143.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(unshare -Ur cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(unshare -Ur cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru143 != isi_aksi143, \
+            "suntikan aksi143 tidak menembak"
+        with open(berkas_aksi143, "w", encoding="utf-8") as f:
+            f.write(isi_baru143)
         rc, out = jalan(subunshare,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pembungkus unshare transparan: pembaca di baliknya penguras — gerbang gagal (Audit 1065)", rc != 0)
@@ -2935,12 +3337,15 @@ def main():
             isi_aksi144 = f.read()
         baris_aksi144 = [b for b in isi_aksi144.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi144, "w", encoding="utf-8") as f:
-            f.write(isi_aksi144.replace(
+        isi_baru144 = isi_aksi144.replace(
                 baris_aksi144,
                 baris_aksi144.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(socat - /dev/null; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(socat - /dev/null; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru144 != isi_aksi144, \
+            "suntikan aksi144 tidak menembak"
+        with open(berkas_aksi144, "w", encoding="utf-8") as f:
+            f.write(isi_baru144)
         rc, out = jalan(subsocat,
                         [sys.executable, GERBANG, "--semua"])
         periksa("alamat STDIO socat membaca stdin: penguras — gerbang gagal (Audit 1066)", rc != 0)
@@ -2954,12 +3359,15 @@ def main():
             isi_aksi145 = f.read()
         baris_aksi145 = [b for b in isi_aksi145.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi145, "w", encoding="utf-8") as f:
-            f.write(isi_aksi145.replace(
+        isi_baru145 = isi_aksi145.replace(
                 baris_aksi145,
                 baris_aksi145.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(mawk '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(mawk '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru145 != isi_aksi145, \
+            "suntikan aksi145 tidak menembak"
+        with open(berkas_aksi145, "w", encoding="utf-8") as f:
+            f.write(isi_baru145)
         rc, out = jalan(submawk,
                         [sys.executable, GERBANG, "--semua"])
         periksa("varian nama awk dinilai keluarga skrip: penguras — gerbang gagal (Audit 1067)", rc != 0)
@@ -2973,12 +3381,15 @@ def main():
             isi_aksi146 = f.read()
         baris_aksi146 = [b for b in isi_aksi146.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi146, "w", encoding="utf-8") as f:
-            f.write(isi_aksi146.replace(
+        isi_baru146 = isi_aksi146.replace(
                 baris_aksi146,
                 baris_aksi146.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(curl -d @- https://contoh.invalid/; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(curl -d @- https://contoh.invalid/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru146 != isi_aksi146, \
+            "suntikan aksi146 tidak menembak"
+        with open(berkas_aksi146, "w", encoding="utf-8") as f:
+            f.write(isi_baru146)
         rc, out = jalan(subcurl,
                         [sys.executable, GERBANG, "--semua"])
         periksa("curl -d @- membaca data dari stdin: penguras — gerbang gagal (Audit 1068)", rc != 0)
@@ -2992,12 +3403,15 @@ def main():
             isi_aksi147 = f.read()
         baris_aksi147 = [b for b in isi_aksi147.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi147, "w", encoding="utf-8") as f:
-            f.write(isi_aksi147.replace(
+        isi_baru147 = isi_aksi147.replace(
                 baris_aksi147,
                 baris_aksi147.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(gpg --batch --pinentry-mode loopback --passphrase x -c; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(gpg --batch --pinentry-mode loopback --passphrase x -c; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru147 != isi_aksi147, \
+            "suntikan aksi147 tidak menembak"
+        with open(berkas_aksi147, "w", encoding="utf-8") as f:
+            f.write(isi_baru147)
         rc, out = jalan(subgpg,
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg batch simetris membaca plaintext dari stdin: penguras — gerbang gagal (Audit 1069)", rc != 0)
@@ -3011,12 +3425,15 @@ def main():
             isi_aksi148 = f.read()
         baris_aksi148 = [b for b in isi_aksi148.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi148, "w", encoding="utf-8") as f:
-            f.write(isi_aksi148.replace(
+        isi_baru148 = isi_aksi148.replace(
                 baris_aksi148,
                 baris_aksi148.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(systemd-cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(systemd-cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru148 != isi_aksi148, \
+            "suntikan aksi148 tidak menembak"
+        with open(berkas_aksi148, "w", encoding="utf-8") as f:
+            f.write(isi_baru148)
         rc, out = jalan(subsyscat,
                         [sys.executable, GERBANG, "--semua"])
         periksa("systemd-cat tanpa perintah meneruskan stdin: penguras — gerbang gagal (Audit 1070)", rc != 0)
@@ -3030,12 +3447,15 @@ def main():
             isi_aksi149 = f.read()
         baris_aksi149 = [b for b in isi_aksi149.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi149, "w", encoding="utf-8") as f:
-            f.write(isi_aksi149.replace(
+        isi_baru149 = isi_aksi149.replace(
                 baris_aksi149,
                 baris_aksi149.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(make -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(make -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru149 != isi_aksi149, \
+            "suntikan aksi149 tidak menembak"
+        with open(berkas_aksi149, "w", encoding="utf-8") as f:
+            f.write(isi_baru149)
         rc, out = jalan(submake,
                         [sys.executable, GERBANG, "--semua"])
         periksa("make -f - membaca makefile dari stdin: penguras — gerbang gagal (Audit 1071)", rc != 0)
@@ -3049,12 +3469,15 @@ def main():
             isi_aksi150 = f.read()
         baris_aksi150 = [b for b in isi_aksi150.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi150, "w", encoding="utf-8") as f:
-            f.write(isi_aksi150.replace(
+        isi_baru150 = isi_aksi150.replace(
                 baris_aksi150,
                 baris_aksi150.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(more; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(more; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru150 != isi_aksi150, \
+            "suntikan aksi150 tidak menembak"
+        with open(berkas_aksi150, "w", encoding="utf-8") as f:
+            f.write(isi_baru150)
         rc, out = jalan(submore,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pager pada stdin pipa menguras: gerbang gagal (Audit 1072)", rc != 0)
@@ -3068,12 +3491,15 @@ def main():
             isi_aksi151 = f.read()
         baris_aksi151 = [b for b in isi_aksi151.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi151, "w", encoding="utf-8") as f:
-            f.write(isi_aksi151.replace(
+        isi_baru151 = isi_aksi151.replace(
                 baris_aksi151,
                 baris_aksi151.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(comm -1 - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(comm -1 - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru151 != isi_aksi151, \
+            "suntikan aksi151 tidak menembak"
+        with open(berkas_aksi151, "w", encoding="utf-8") as f:
+            f.write(isi_baru151)
         rc, out = jalan(sub151,
                         [sys.executable, GERBANG, "--semua"])
         periksa("comm -1 bendera: gerbang gagal (Audit 1074)", rc != 0)
@@ -3087,12 +3513,15 @@ def main():
             isi_aksi152 = f.read()
         baris_aksi152 = [b for b in isi_aksi152.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi152, "w", encoding="utf-8") as f:
-            f.write(isi_aksi152.replace(
+        isi_baru152 = isi_aksi152.replace(
                 baris_aksi152,
                 baris_aksi152.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -sha256 -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -sha256 -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru152 != isi_aksi152, \
+            "suntikan aksi152 tidak menembak"
+        with open(berkas_aksi152, "w", encoding="utf-8") as f:
+            f.write(isi_baru152)
         rc, out = jalan(sub152,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl dgst operand '-': gerbang gagal (Audit 1075)", rc != 0)
@@ -3106,12 +3535,15 @@ def main():
             isi_aksi153 = f.read()
         baris_aksi153 = [b for b in isi_aksi153.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi153, "w", encoding="utf-8") as f:
-            f.write(isi_aksi153.replace(
+        isi_baru153 = isi_aksi153.replace(
                 baris_aksi153,
                 baris_aksi153.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl sha256 -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl sha256 -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru153 != isi_aksi153, \
+            "suntikan aksi153 tidak menembak"
+        with open(berkas_aksi153, "w", encoding="utf-8") as f:
+            f.write(isi_baru153)
         rc, out = jalan(sub153,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl alias digest '-': gerbang gagal (Audit 1075)", rc != 0)
@@ -3125,12 +3557,15 @@ def main():
             isi_aksi154 = f.read()
         baris_aksi154 = [b for b in isi_aksi154.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi154, "w", encoding="utf-8") as f:
-            f.write(isi_aksi154.replace(
+        isi_baru154 = isi_aksi154.replace(
                 baris_aksi154,
                 baris_aksi154.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl enc -base64 -in -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl enc -base64 -in -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru154 != isi_aksi154, \
+            "suntikan aksi154 tidak menembak"
+        with open(berkas_aksi154, "w", encoding="utf-8") as f:
+            f.write(isi_baru154)
         rc, out = jalan(sub154,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl enc -in '-': gerbang gagal (Audit 1075)", rc != 0)
@@ -3144,12 +3579,15 @@ def main():
             isi_aksi155 = f.read()
         baris_aksi155 = [b for b in isi_aksi155.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi155, "w", encoding="utf-8") as f:
-            f.write(isi_aksi155.replace(
+        isi_baru155 = isi_aksi155.replace(
                 baris_aksi155,
                 baris_aksi155.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -rand berkas -sha256; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -rand berkas -sha256; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru155 != isi_aksi155, \
+            "suntikan aksi155 tidak menembak"
+        with open(berkas_aksi155, "w", encoding="utf-8") as f:
+            f.write(isi_baru155)
         rc, out = jalan(sub155,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl -rand bernilai: gerbang gagal (Audit 1076)", rc != 0)
@@ -3163,12 +3601,15 @@ def main():
             isi_aksi156 = f.read()
         baris_aksi156 = [b for b in isi_aksi156.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi156, "w", encoding="utf-8") as f:
-            f.write(isi_aksi156.replace(
+        isi_baru156 = isi_aksi156.replace(
                 baris_aksi156,
                 baris_aksi156.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar tf -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar tf -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru156 != isi_aksi156, \
+            "suntikan aksi156 tidak menembak"
+        with open(berkas_aksi156, "w", encoding="utf-8") as f:
+            f.write(isi_baru156)
         rc, out = jalan(sub156,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar bundel gaya lama: gerbang gagal (Audit 1077)", rc != 0)
@@ -3182,12 +3623,15 @@ def main():
             isi_aksi157 = f.read()
         baris_aksi157 = [b for b in isi_aksi157.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi157, "w", encoding="utf-8") as f:
-            f.write(isi_aksi157.replace(
+        isi_baru157 = isi_aksi157.replace(
                 baris_aksi157,
                 baris_aksi157.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -tf-; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -tf-; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru157 != isi_aksi157, \
+            "suntikan aksi157 tidak menembak"
+        with open(berkas_aksi157, "w", encoding="utf-8") as f:
+            f.write(isi_baru157)
         rc, out = jalan(sub157,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar nilai -f merekat: gerbang gagal (Audit 1077)", rc != 0)
@@ -3201,12 +3645,15 @@ def main():
             isi_aksi158 = f.read()
         baris_aksi158 = [b for b in isi_aksi158.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi158, "w", encoding="utf-8") as f:
-            f.write(isi_aksi158.replace(
+        isi_baru158 = isi_aksi158.replace(
                 baris_aksi158,
                 baris_aksi158.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -cf - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -cf - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru158 != isi_aksi158, \
+            "suntikan aksi158 tidak menembak"
+        with open(berkas_aksi158, "w", encoding="utf-8") as f:
+            f.write(isi_baru158)
         rc, out = jalan(sub158,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar mode buat '-f -' keluaran: gerbang lolos (Audit 1078)", rc == 0)
@@ -3220,12 +3667,15 @@ def main():
             isi_aksi159 = f.read()
         baris_aksi159 = [b for b in isi_aksi159.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi159, "w", encoding="utf-8") as f:
-            f.write(isi_aksi159.replace(
+        isi_baru159 = isi_aksi159.replace(
                 baris_aksi159,
                 baris_aksi159.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git hash-object --stdin-paths; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git hash-object --stdin-paths; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru159 != isi_aksi159, \
+            "suntikan aksi159 tidak menembak"
+        with open(berkas_aksi159, "w", encoding="utf-8") as f:
+            f.write(isi_baru159)
         rc, out = jalan(sub159,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git hash-object --stdin-paths: gerbang gagal (Audit 1079)", rc != 0)
@@ -3239,12 +3689,15 @@ def main():
             isi_aksi160 = f.read()
         baris_aksi160 = [b for b in isi_aksi160.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi160, "w", encoding="utf-8") as f:
-            f.write(isi_aksi160.replace(
+        isi_baru160 = isi_aksi160.replace(
                 baris_aksi160,
                 baris_aksi160.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git credential fill; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git credential fill; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru160 != isi_aksi160, \
+            "suntikan aksi160 tidak menembak"
+        with open(berkas_aksi160, "w", encoding="utf-8") as f:
+            f.write(isi_baru160)
         rc, out = jalan(sub160,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git credential fill: gerbang gagal (Audit 1079)", rc != 0)
@@ -3258,12 +3711,15 @@ def main():
             isi_aksi161 = f.read()
         baris_aksi161 = [b for b in isi_aksi161.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi161, "w", encoding="utf-8") as f:
-            f.write(isi_aksi161.replace(
+        isi_baru161 = isi_aksi161.replace(
                 baris_aksi161,
                 baris_aksi161.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git mktree; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git mktree; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru161 != isi_aksi161, \
+            "suntikan aksi161 tidak menembak"
+        with open(berkas_aksi161, "w", encoding="utf-8") as f:
+            f.write(isi_baru161)
         rc, out = jalan(sub161,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git mktree: gerbang gagal (Audit 1079)", rc != 0)
@@ -3277,12 +3733,15 @@ def main():
             isi_aksi162 = f.read()
         baris_aksi162 = [b for b in isi_aksi162.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi162, "w", encoding="utf-8") as f:
-            f.write(isi_aksi162.replace(
+        isi_baru162 = isi_aksi162.replace(
                 baris_aksi162,
                 baris_aksi162.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git commit -F -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git commit -F -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru162 != isi_aksi162, \
+            "suntikan aksi162 tidak menembak"
+        with open(berkas_aksi162, "w", encoding="utf-8") as f:
+            f.write(isi_baru162)
         rc, out = jalan(sub162,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git commit -F '-': gerbang gagal (Audit 1079)", rc != 0)
@@ -3296,12 +3755,15 @@ def main():
             isi_aksi163 = f.read()
         baris_aksi163 = [b for b in isi_aksi163.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi163, "w", encoding="utf-8") as f:
-            f.write(isi_aksi163.replace(
+        isi_baru163 = isi_aksi163.replace(
                 baris_aksi163,
                 baris_aksi163.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(pr +3; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(pr +3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru163 != isi_aksi163, \
+            "suntikan aksi163 tidak menembak"
+        with open(berkas_aksi163, "w", encoding="utf-8") as f:
+            f.write(isi_baru163)
         rc, out = jalan(sub163,
                         [sys.executable, GERBANG, "--semua"])
         periksa("operand +N pr: gerbang gagal (Audit 1080)", rc != 0)
@@ -3315,12 +3777,15 @@ def main():
             isi_aksi164 = f.read()
         baris_aksi164 = [b for b in isi_aksi164.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi164, "w", encoding="utf-8") as f:
-            f.write(isi_aksi164.replace(
+        isi_baru164 = isi_aksi164.replace(
                 baris_aksi164,
                 baris_aksi164.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tail +2; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tail +2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru164 != isi_aksi164, \
+            "suntikan aksi164 tidak menembak"
+        with open(berkas_aksi164, "w", encoding="utf-8") as f:
+            f.write(isi_baru164)
         rc, out = jalan(sub164,
                         [sys.executable, GERBANG, "--semua"])
         periksa("operand +N tail: gerbang gagal (Audit 1080)", rc != 0)
@@ -3334,12 +3799,15 @@ def main():
             isi_aksi165 = f.read()
         baris_aksi165 = [b for b in isi_aksi165.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi165, "w", encoding="utf-8") as f:
-            f.write(isi_aksi165.replace(
+        isi_baru165 = isi_aksi165.replace(
                 baris_aksi165,
                 baris_aksi165.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sort +2; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sort +2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru165 != isi_aksi165, \
+            "suntikan aksi165 tidak menembak"
+        with open(berkas_aksi165, "w", encoding="utf-8") as f:
+            f.write(isi_baru165)
         rc, out = jalan(sub165,
                         [sys.executable, GERBANG, "--semua"])
         periksa("operand +N sort: gerbang gagal (Audit 1080)", rc != 0)
@@ -3353,12 +3821,15 @@ def main():
             isi_aksi166 = f.read()
         baris_aksi166 = [b for b in isi_aksi166.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi166, "w", encoding="utf-8") as f:
-            f.write(isi_aksi166.replace(
+        isi_baru166 = isi_aksi166.replace(
                 baris_aksi166,
                 baris_aksi166.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(python3 -i -c pass; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(python3 -i -c pass; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru166 != isi_aksi166, \
+            "suntikan aksi166 tidak menembak"
+        with open(berkas_aksi166, "w", encoding="utf-8") as f:
+            f.write(isi_baru166)
         rc, out = jalan(sub166,
                         [sys.executable, GERBANG, "--semua"])
         periksa("python -i sesudah -c: gerbang gagal (Audit 1081)", rc != 0)
@@ -3372,12 +3843,15 @@ def main():
             isi_aksi167 = f.read()
         baris_aksi167 = [b for b in isi_aksi167.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi167, "w", encoding="utf-8") as f:
-            f.write(isi_aksi167.replace(
+        isi_baru167 = isi_aksi167.replace(
                 baris_aksi167,
                 baris_aksi167.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(bash -ec cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(bash -ec cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru167 != isi_aksi167, \
+            "suntikan aksi167 tidak menembak"
+        with open(berkas_aksi167, "w", encoding="utf-8") as f:
+            f.write(isi_baru167)
         rc, out = jalan(sub167,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bundel shell -ec: gerbang gagal (Audit 1082)", rc != 0)
@@ -3391,12 +3865,15 @@ def main():
             isi_aksi168 = f.read()
         baris_aksi168 = [b for b in isi_aksi168.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi168, "w", encoding="utf-8") as f:
-            f.write(isi_aksi168.replace(
+        isi_baru168 = isi_aksi168.replace(
                 baris_aksi168,
                 baris_aksi168.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(python3 -ic pass; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(python3 -ic pass; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru168 != isi_aksi168, \
+            "suntikan aksi168 tidak menembak"
+        with open(berkas_aksi168, "w", encoding="utf-8") as f:
+            f.write(isi_baru168)
         rc, out = jalan(sub168,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bundel python -ic: gerbang gagal (Audit 1082)", rc != 0)
@@ -3410,12 +3887,15 @@ def main():
             isi_aksi169 = f.read()
         baris_aksi169 = [b for b in isi_aksi169.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi169, "w", encoding="utf-8") as f:
-            f.write(isi_aksi169.replace(
+        isi_baru169 = isi_aksi169.replace(
                 baris_aksi169,
                 baris_aksi169.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sudo -ns; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sudo -ns; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru169 != isi_aksi169, \
+            "suntikan aksi169 tidak menembak"
+        with open(berkas_aksi169, "w", encoding="utf-8") as f:
+            f.write(isi_baru169)
         rc, out = jalan(sub169,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bundel sudo -ns: gerbang gagal (Audit 1082)", rc != 0)
@@ -3429,12 +3909,15 @@ def main():
             isi_aksi170 = f.read()
         baris_aksi170 = [b for b in isi_aksi170.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi170, "w", encoding="utf-8") as f:
-            f.write(isi_aksi170.replace(
+        isi_baru170 = isi_aksi170.replace(
                 baris_aksi170,
                 baris_aksi170.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(bash -s berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(bash -s berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru170 != isi_aksi170, \
+            "suntikan aksi170 tidak menembak"
+        with open(berkas_aksi170, "w", encoding="utf-8") as f:
+            f.write(isi_baru170)
         rc, out = jalan(sub170,
                         [sys.executable, GERBANG, "--semua"])
         periksa("shell -s operand $0: gerbang gagal (Audit 1083)", rc != 0)
@@ -3448,12 +3931,15 @@ def main():
             isi_aksi171 = f.read()
         baris_aksi171 = [b for b in isi_aksi171.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi171, "w", encoding="utf-8") as f:
-            f.write(isi_aksi171.replace(
+        isi_baru171 = isi_aksi171.replace(
                 baris_aksi171,
                 baris_aksi171.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(chroot --userspec root / cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(chroot --userspec root / cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru171 != isi_aksi171, \
+            "suntikan aksi171 tidak menembak"
+        with open(berkas_aksi171, "w", encoding="utf-8") as f:
+            f.write(isi_baru171)
         rc, out = jalan(sub171,
                         [sys.executable, GERBANG, "--semua"])
         periksa("chroot tabel opsi: gerbang gagal (Audit 1084)", rc != 0)
@@ -3467,12 +3953,15 @@ def main():
             isi_aksi172 = f.read()
         baris_aksi172 = [b for b in isi_aksi172.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi172, "w", encoding="utf-8") as f:
-            f.write(isi_aksi172.replace(
+        isi_baru172 = isi_aksi172.replace(
                 baris_aksi172,
                 baris_aksi172.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(curl -d@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(curl -d@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru172 != isi_aksi172, \
+            "suntikan aksi172 tidak menembak"
+        with open(berkas_aksi172, "w", encoding="utf-8") as f:
+            f.write(isi_baru172)
         rc, out = jalan(sub172,
                         [sys.executable, GERBANG, "--semua"])
         periksa("curl -d@- merekat: gerbang gagal (Audit 1085)", rc != 0)
@@ -3486,12 +3975,15 @@ def main():
             isi_aksi173 = f.read()
         baris_aksi173 = [b for b in isi_aksi173.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi173, "w", encoding="utf-8") as f:
-            f.write(isi_aksi173.replace(
+        isi_baru173 = isi_aksi173.replace(
                 baris_aksi173,
                 baris_aksi173.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(curl -F a=@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(curl -F a=@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru173 != isi_aksi173, \
+            "suntikan aksi173 tidak menembak"
+        with open(berkas_aksi173, "w", encoding="utf-8") as f:
+            f.write(isi_baru173)
         rc, out = jalan(sub173,
                         [sys.executable, GERBANG, "--semua"])
         periksa("curl -F a=@-: gerbang gagal (Audit 1085)", rc != 0)
@@ -3505,12 +3997,15 @@ def main():
             isi_aksi174 = f.read()
         baris_aksi174 = [b for b in isi_aksi174.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi174, "w", encoding="utf-8") as f:
-            f.write(isi_aksi174.replace(
+        isi_baru174 = isi_aksi174.replace(
                 baris_aksi174,
                 baris_aksi174.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(curl --form a=@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(curl --form a=@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru174 != isi_aksi174, \
+            "suntikan aksi174 tidak menembak"
+        with open(berkas_aksi174, "w", encoding="utf-8") as f:
+            f.write(isi_baru174)
         rc, out = jalan(sub174,
                         [sys.executable, GERBANG, "--semua"])
         periksa("curl --form a=@-: gerbang gagal (Audit 1085)", rc != 0)
@@ -3524,12 +4019,15 @@ def main():
             isi_aksi175 = f.read()
         baris_aksi175 = [b for b in isi_aksi175.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi175, "w", encoding="utf-8") as f:
-            f.write(isi_aksi175.replace(
+        isi_baru175 = isi_aksi175.replace(
                 baris_aksi175,
                 baris_aksi175.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(curl --data-urlencode name@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(curl --data-urlencode name@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru175 != isi_aksi175, \
+            "suntikan aksi175 tidak menembak"
+        with open(berkas_aksi175, "w", encoding="utf-8") as f:
+            f.write(isi_baru175)
         rc, out = jalan(sub175,
                         [sys.executable, GERBANG, "--semua"])
         periksa("curl urlencode name@-: gerbang gagal (Audit 1085)", rc != 0)
@@ -3543,12 +4041,15 @@ def main():
             isi_aksi176 = f.read()
         baris_aksi176 = [b for b in isi_aksi176.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi176, "w", encoding="utf-8") as f:
-            f.write(isi_aksi176.replace(
+        isi_baru176 = isi_aksi176.replace(
                 baris_aksi176,
                 baris_aksi176.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(curl --data-raw - http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(curl --data-raw - http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru176 != isi_aksi176, \
+            "suntikan aksi176 tidak menembak"
+        with open(berkas_aksi176, "w", encoding="utf-8") as f:
+            f.write(isi_baru176)
         rc, out = jalan(sub176,
                         [sys.executable, GERBANG, "--semua"])
         periksa("curl --data-raw '-' harfiah: gerbang lolos (Audit 1086)", rc == 0)
@@ -3562,12 +4063,15 @@ def main():
             isi_aksi177 = f.read()
         baris_aksi177 = [b for b in isi_aksi177.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi177, "w", encoding="utf-8") as f:
-            f.write(isi_aksi177.replace(
+        isi_baru177 = isi_aksi177.replace(
                 baris_aksi177,
                 baris_aksi177.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tr -d a b; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tr -d a b; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru177 != isi_aksi177, \
+            "suntikan aksi177 tidak menembak"
+        with open(berkas_aksi177, "w", encoding="utf-8") as f:
+            f.write(isi_baru177)
         rc, out = jalan(sub177,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tr -d dua himpunan galat: gerbang lolos (Audit 1087)", rc == 0)
@@ -3581,12 +4085,15 @@ def main():
             isi_aksi178 = f.read()
         baris_aksi178 = [b for b in isi_aksi178.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi178, "w", encoding="utf-8") as f:
-            f.write(isi_aksi178.replace(
+        isi_baru178 = isi_aksi178.replace(
                 baris_aksi178,
                 baris_aksi178.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -tf - < berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -tf - < berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru178 != isi_aksi178, \
+            "suntikan aksi178 tidak menembak"
+        with open(berkas_aksi178, "w", encoding="utf-8") as f:
+            f.write(isi_baru178)
         rc, out = jalan(sub178,
                         [sys.executable, GERBANG, "--semua"])
         periksa("khusus buta redirect ekor tar: gerbang lolos (Audit 1088)", rc == 0)
@@ -3600,12 +4107,15 @@ def main():
             isi_aksi179 = f.read()
         baris_aksi179 = [b for b in isi_aksi179.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi179, "w", encoding="utf-8") as f:
-            f.write(isi_aksi179.replace(
+        isi_baru179 = isi_aksi179.replace(
                 baris_aksi179,
                 baris_aksi179.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git hash-object --stdin < berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git hash-object --stdin < berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru179 != isi_aksi179, \
+            "suntikan aksi179 tidak menembak"
+        with open(berkas_aksi179, "w", encoding="utf-8") as f:
+            f.write(isi_baru179)
         rc, out = jalan(sub179,
                         [sys.executable, GERBANG, "--semua"])
         periksa("khusus buta redirect ekor git: gerbang lolos (Audit 1088)", rc == 0)
@@ -3619,12 +4129,15 @@ def main():
             isi_aksi180 = f.read()
         baris_aksi180 = [b for b in isi_aksi180.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi180, "w", encoding="utf-8") as f:
-            f.write(isi_aksi180.replace(
+        isi_baru180 = isi_aksi180.replace(
                 baris_aksi180,
                 baris_aksi180.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(socat - /dev/null < berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(socat - /dev/null < berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru180 != isi_aksi180, \
+            "suntikan aksi180 tidak menembak"
+        with open(berkas_aksi180, "w", encoding="utf-8") as f:
+            f.write(isi_baru180)
         rc, out = jalan(sub180,
                         [sys.executable, GERBANG, "--semua"])
         periksa("khusus buta redirect ekor socat: gerbang lolos (Audit 1088)", rc == 0)
@@ -3638,12 +4151,15 @@ def main():
             isi_aksi181 = f.read()
         baris_aksi181 = [b for b in isi_aksi181.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi181, "w", encoding="utf-8") as f:
-            f.write(isi_aksi181.replace(
+        isi_baru181 = isi_aksi181.replace(
                 baris_aksi181,
                 baris_aksi181.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(more berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(more berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru181 != isi_aksi181, \
+            "suntikan aksi181 tidak menembak"
+        with open(berkas_aksi181, "w", encoding="utf-8") as f:
+            f.write(isi_baru181)
         rc, out = jalan(sub181,
                         [sys.executable, GERBANG, "--semua"])
         periksa("more beroperand tetap menguras: gerbang gagal (Audit 1089)", rc != 0)
@@ -3657,12 +4173,15 @@ def main():
             isi_aksi182 = f.read()
         baris_aksi182 = [b for b in isi_aksi182.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi182, "w", encoding="utf-8") as f:
-            f.write(isi_aksi182.replace(
+        isi_baru182 = isi_aksi182.replace(
                 baris_aksi182,
                 baris_aksi182.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(python3 -m json.tool berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(python3 -m json.tool berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru182 != isi_aksi182, \
+            "suntikan aksi182 tidak menembak"
+        with open(berkas_aksi182, "w", encoding="utf-8") as f:
+            f.write(isi_baru182)
         rc, out = jalan(sub182,
                         [sys.executable, GERBANG, "--semua"])
         periksa("python -m operand berkas: gerbang lolos (Audit 1090)", rc == 0)
@@ -3676,12 +4195,15 @@ def main():
             isi_aksi183 = f.read()
         baris_aksi183 = [b for b in isi_aksi183.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi183, "w", encoding="utf-8") as f:
-            f.write(isi_aksi183.replace(
+        isi_baru183 = isi_aksi183.replace(
                 baris_aksi183,
                 baris_aksi183.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(python3 -m asyncio; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(python3 -m asyncio; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru183 != isi_aksi183, \
+            "suntikan aksi183 tidak menembak"
+        with open(berkas_aksi183, "w", encoding="utf-8") as f:
+            f.write(isi_baru183)
         rc, out = jalan(sub183,
                         [sys.executable, GERBANG, "--semua"])
         periksa("python -m asyncio REPL: gerbang gagal (Audit 1091)", rc != 0)
@@ -3695,12 +4217,15 @@ def main():
             isi_aksi184 = f.read()
         baris_aksi184 = [b for b in isi_aksi184.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi184, "w", encoding="utf-8") as f:
-            f.write(isi_aksi184.replace(
+        isi_baru184 = isi_aksi184.replace(
                 baris_aksi184,
                 baris_aksi184.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(nc -z 127.0.0.1 9; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(nc -z 127.0.0.1 9; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru184 != isi_aksi184, \
+            "suntikan aksi184 tidak menembak"
+        with open(berkas_aksi184, "w", encoding="utf-8") as f:
+            f.write(isi_baru184)
         rc, out = jalan(sub184,
                         [sys.executable, GERBANG, "--semua"])
         periksa("nc -z pindai: gerbang lolos (Audit 1092)", rc == 0)
@@ -3714,12 +4239,15 @@ def main():
             isi_aksi185 = f.read()
         baris_aksi185 = [b for b in isi_aksi185.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi185, "w", encoding="utf-8") as f:
-            f.write(isi_aksi185.replace(
+        isi_baru185 = isi_aksi185.replace(
                 baris_aksi185,
                 baris_aksi185.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(patch -i berkas2 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(patch -i berkas2 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru185 != isi_aksi185, \
+            "suntikan aksi185 tidak menembak"
+        with open(berkas_aksi185, "w", encoding="utf-8") as f:
+            f.write(isi_baru185)
         rc, out = jalan(sub185,
                         [sys.executable, GERBANG, "--semua"])
         periksa("patch -i sumber berkas: gerbang lolos (Audit 1093)", rc == 0)
@@ -3733,12 +4261,15 @@ def main():
             isi_aksi186 = f.read()
         baris_aksi186 = [b for b in isi_aksi186.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi186, "w", encoding="utf-8") as f:
-            f.write(isi_aksi186.replace(
+        isi_baru186 = isi_aksi186.replace(
                 baris_aksi186,
                 baris_aksi186.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(zip -@; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(zip -@; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru186 != isi_aksi186, \
+            "suntikan aksi186 tidak menembak"
+        with open(berkas_aksi186, "w", encoding="utf-8") as f:
+            f.write(isi_baru186)
         rc, out = jalan(sub186,
                         [sys.executable, GERBANG, "--semua"])
         periksa("zip -@ tanpa arsip: gerbang lolos (Audit 1094)", rc == 0)
@@ -3752,12 +4283,15 @@ def main():
             isi_aksi187 = f.read()
         baris_aksi187 = [b for b in isi_aksi187.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi187, "w", encoding="utf-8") as f:
-            f.write(isi_aksi187.replace(
+        isi_baru187 = isi_aksi187.replace(
                 baris_aksi187,
                 baris_aksi187.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(rg --files; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(rg --files; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru187 != isi_aksi187, \
+            "suntikan aksi187 tidak menembak"
+        with open(berkas_aksi187, "w", encoding="utf-8") as f:
+            f.write(isi_baru187)
         rc, out = jalan(sub187,
                         [sys.executable, GERBANG, "--semua"])
         periksa("rg --files: gerbang lolos (Audit 1095)", rc == 0)
@@ -3771,12 +4305,15 @@ def main():
             isi_aksi188 = f.read()
         baris_aksi188 = [b for b in isi_aksi188.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi188, "w", encoding="utf-8") as f:
-            f.write(isi_aksi188.replace(
+        isi_baru188 = isi_aksi188.replace(
                 baris_aksi188,
                 baris_aksi188.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -sign; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -sign; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru188 != isi_aksi188, \
+            "suntikan aksi188 tidak menembak"
+        with open(berkas_aksi188, "w", encoding="utf-8") as f:
+            f.write(isi_baru188)
         rc, out = jalan(sub188,
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi menggantung openssl: gerbang lolos (Audit 1096)", rc == 0)
@@ -3790,12 +4327,15 @@ def main():
             isi_aksi189 = f.read()
         baris_aksi189 = [b for b in isi_aksi189.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi189, "w", encoding="utf-8") as f:
-            f.write(isi_aksi189.replace(
+        isi_baru189 = isi_aksi189.replace(
                 baris_aksi189,
                 baris_aksi189.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sqlite3 -cmd; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sqlite3 -cmd; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru189 != isi_aksi189, \
+            "suntikan aksi189 tidak menembak"
+        with open(berkas_aksi189, "w", encoding="utf-8") as f:
+            f.write(isi_baru189)
         rc, out = jalan(sub189,
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi menggantung sqlite3: gerbang lolos (Audit 1096)", rc == 0)
@@ -3809,12 +4349,15 @@ def main():
             isi_aksi190 = f.read()
         baris_aksi190 = [b for b in isi_aksi190.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi190, "w", encoding="utf-8") as f:
-            f.write(isi_aksi190.replace(
+        isi_baru190 = isi_aksi190.replace(
                 baris_aksi190,
                 baris_aksi190.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(head -n; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(head -n; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru190 != isi_aksi190, \
+            "suntikan aksi190 tidak menembak"
+        with open(berkas_aksi190, "w", encoding="utf-8") as f:
+            f.write(isi_baru190)
         rc, out = jalan(sub190,
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi menggantung head: gerbang lolos (Audit 1096)", rc == 0)
@@ -3828,12 +4371,15 @@ def main():
             isi_aksi191 = f.read()
         baris_aksi191 = [b for b in isi_aksi191.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi191, "w", encoding="utf-8") as f:
-            f.write(isi_aksi191.replace(
+        isi_baru191 = isi_aksi191.replace(
                 baris_aksi191,
                 baris_aksi191.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sudo -si; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sudo -si; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru191 != isi_aksi191, \
+            "suntikan aksi191 tidak menembak"
+        with open(berkas_aksi191, "w", encoding="utf-8") as f:
+            f.write(isi_baru191)
         rc, out = jalan(sub191,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sudo -si ditolak: gerbang lolos (Audit 1097)", rc == 0)
@@ -3847,12 +4393,15 @@ def main():
             isi_aksi192 = f.read()
         baris_aksi192 = [b for b in isi_aksi192.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi192, "w", encoding="utf-8") as f:
-            f.write(isi_aksi192.replace(
+        isi_baru192 = isi_aksi192.replace(
                 baris_aksi192,
                 baris_aksi192.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(bunzip2; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(bunzip2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru192 != isi_aksi192, \
+            "suntikan aksi192 tidak menembak"
+        with open(berkas_aksi192, "w", encoding="utf-8") as f:
+            f.write(isi_baru192)
         rc, out = jalan(sub192,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bunzip2: gerbang gagal (Audit 1098)", rc != 0)
@@ -3866,12 +4415,15 @@ def main():
             isi_aksi193 = f.read()
         baris_aksi193 = [b for b in isi_aksi193.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi193, "w", encoding="utf-8") as f:
-            f.write(isi_aksi193.replace(
+        isi_baru193 = isi_aksi193.replace(
                 baris_aksi193,
                 baris_aksi193.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(bzcat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(bzcat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru193 != isi_aksi193, \
+            "suntikan aksi193 tidak menembak"
+        with open(berkas_aksi193, "w", encoding="utf-8") as f:
+            f.write(isi_baru193)
         rc, out = jalan(sub193,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bzcat: gerbang gagal (Audit 1098)", rc != 0)
@@ -3885,12 +4437,15 @@ def main():
             isi_aksi194 = f.read()
         baris_aksi194 = [b for b in isi_aksi194.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi194, "w", encoding="utf-8") as f:
-            f.write(isi_aksi194.replace(
+        isi_baru194 = isi_aksi194.replace(
                 baris_aksi194,
                 baris_aksi194.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(xzcat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(xzcat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru194 != isi_aksi194, \
+            "suntikan aksi194 tidak menembak"
+        with open(berkas_aksi194, "w", encoding="utf-8") as f:
+            f.write(isi_baru194)
         rc, out = jalan(sub194,
                         [sys.executable, GERBANG, "--semua"])
         periksa("xzcat: gerbang gagal (Audit 1098)", rc != 0)
@@ -3904,12 +4459,15 @@ def main():
             isi_aksi195 = f.read()
         baris_aksi195 = [b for b in isi_aksi195.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi195, "w", encoding="utf-8") as f:
-            f.write(isi_aksi195.replace(
+        isi_baru195 = isi_aksi195.replace(
                 baris_aksi195,
                 baris_aksi195.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(unxz; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(unxz; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru195 != isi_aksi195, \
+            "suntikan aksi195 tidak menembak"
+        with open(berkas_aksi195, "w", encoding="utf-8") as f:
+            f.write(isi_baru195)
         rc, out = jalan(sub195,
                         [sys.executable, GERBANG, "--semua"])
         periksa("unxz: gerbang gagal (Audit 1098)", rc != 0)
@@ -3923,12 +4481,15 @@ def main():
             isi_aksi196 = f.read()
         baris_aksi196 = [b for b in isi_aksi196.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi196, "w", encoding="utf-8") as f:
-            f.write(isi_aksi196.replace(
+        isi_baru196 = isi_aksi196.replace(
                 baris_aksi196,
                 baris_aksi196.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(unlzma; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(unlzma; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru196 != isi_aksi196, \
+            "suntikan aksi196 tidak menembak"
+        with open(berkas_aksi196, "w", encoding="utf-8") as f:
+            f.write(isi_baru196)
         rc, out = jalan(sub196,
                         [sys.executable, GERBANG, "--semua"])
         periksa("unlzma: gerbang gagal (Audit 1098)", rc != 0)
@@ -3942,12 +4503,15 @@ def main():
             isi_aksi197 = f.read()
         baris_aksi197 = [b for b in isi_aksi197.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi197, "w", encoding="utf-8") as f:
-            f.write(isi_aksi197.replace(
+        isi_baru197 = isi_aksi197.replace(
                 baris_aksi197,
                 baris_aksi197.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(cat /dev/stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(cat /dev/stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru197 != isi_aksi197, \
+            "suntikan aksi197 tidak menembak"
+        with open(berkas_aksi197, "w", encoding="utf-8") as f:
+            f.write(isi_baru197)
         rc, out = jalan(sub197,
                         [sys.executable, GERBANG, "--semua"])
         periksa("operand /dev/stdin: gerbang gagal (Audit 1099)", rc != 0)
@@ -3961,12 +4525,15 @@ def main():
             isi_aksi198 = f.read()
         baris_aksi198 = [b for b in isi_aksi198.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi198, "w", encoding="utf-8") as f:
-            f.write(isi_aksi198.replace(
+        isi_baru198 = isi_aksi198.replace(
                 baris_aksi198,
                 baris_aksi198.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(head /dev/fd/0; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(head /dev/fd/0; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru198 != isi_aksi198, \
+            "suntikan aksi198 tidak menembak"
+        with open(berkas_aksi198, "w", encoding="utf-8") as f:
+            f.write(isi_baru198)
         rc, out = jalan(sub198,
                         [sys.executable, GERBANG, "--semua"])
         periksa("operand /dev/fd/0: gerbang gagal (Audit 1099)", rc != 0)
@@ -3980,12 +4547,15 @@ def main():
             isi_aksi199 = f.read()
         baris_aksi199 = [b for b in isi_aksi199.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi199, "w", encoding="utf-8") as f:
-            f.write(isi_aksi199.replace(
+        isi_baru199 = isi_aksi199.replace(
                 baris_aksi199,
                 baris_aksi199.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(grep UTUH /dev/stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(grep UTUH /dev/stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru199 != isi_aksi199, \
+            "suntikan aksi199 tidak menembak"
+        with open(berkas_aksi199, "w", encoding="utf-8") as f:
+            f.write(isi_baru199)
         rc, out = jalan(sub199,
                         [sys.executable, GERBANG, "--semua"])
         periksa("grep berkas /dev/stdin: gerbang gagal (Audit 1099)", rc != 0)
@@ -3999,12 +4569,15 @@ def main():
             isi_aksi200 = f.read()
         baris_aksi200 = [b for b in isi_aksi200.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi200, "w", encoding="utf-8") as f:
-            f.write(isi_aksi200.replace(
+        isi_baru200 = isi_aksi200.replace(
                 baris_aksi200,
                 baris_aksi200.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sort --random-source berkas2 -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sort --random-source berkas2 -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru200 != isi_aksi200, \
+            "suntikan aksi200 tidak menembak"
+        with open(berkas_aksi200, "w", encoding="utf-8") as f:
+            f.write(isi_baru200)
         rc, out = jalan(sub200,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sort --random-source bernilai: gerbang gagal (Audit 1100)", rc != 0)
@@ -4018,12 +4591,15 @@ def main():
             isi_aksi201 = f.read()
         baris_aksi201 = [b for b in isi_aksi201.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi201, "w", encoding="utf-8") as f:
-            f.write(isi_aksi201.replace(
+        isi_baru201 = isi_aksi201.replace(
                 baris_aksi201,
                 baris_aksi201.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(wc --total -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(wc --total -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru201 != isi_aksi201, \
+            "suntikan aksi201 tidak menembak"
+        with open(berkas_aksi201, "w", encoding="utf-8") as f:
+            f.write(isi_baru201)
         rc, out = jalan(sub201,
                         [sys.executable, GERBANG, "--semua"])
         periksa("wc --total bernilai: gerbang gagal (Audit 1100)", rc != 0)
@@ -4037,12 +4613,15 @@ def main():
             isi_aksi202 = f.read()
         baris_aksi202 = [b for b in isi_aksi202.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi202, "w", encoding="utf-8") as f:
-            f.write(isi_aksi202.replace(
+        isi_baru202 = isi_aksi202.replace(
                 baris_aksi202,
                 baris_aksi202.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(fmt -p x -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(fmt -p x -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru202 != isi_aksi202, \
+            "suntikan aksi202 tidak menembak"
+        with open(berkas_aksi202, "w", encoding="utf-8") as f:
+            f.write(isi_baru202)
         rc, out = jalan(sub202,
                         [sys.executable, GERBANG, "--semua"])
         periksa("fmt -p bernilai: gerbang gagal (Audit 1100)", rc != 0)
@@ -4056,12 +4635,15 @@ def main():
             isi_aksi203 = f.read()
         baris_aksi203 = [b for b in isi_aksi203.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi203, "w", encoding="utf-8") as f:
-            f.write(isi_aksi203.replace(
+        isi_baru203 = isi_aksi203.replace(
                 baris_aksi203,
                 baris_aksi203.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(basenc; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(basenc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru203 != isi_aksi203, \
+            "suntikan aksi203 tidak menembak"
+        with open(berkas_aksi203, "w", encoding="utf-8") as f:
+            f.write(isi_baru203)
         rc, out = jalan(sub203,
                         [sys.executable, GERBANG, "--semua"])
         periksa("basenc polos galat: gerbang lolos (Audit 1101)", rc == 0)
@@ -4075,12 +4657,15 @@ def main():
             isi_aksi204 = f.read()
         baris_aksi204 = [b for b in isi_aksi204.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi204, "w", encoding="utf-8") as f:
-            f.write(isi_aksi204.replace(
+        isi_baru204 = isi_aksi204.replace(
                 baris_aksi204,
                 baris_aksi204.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(basenc --base64; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(basenc --base64; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru204 != isi_aksi204, \
+            "suntikan aksi204 tidak menembak"
+        with open(berkas_aksi204, "w", encoding="utf-8") as f:
+            f.write(isi_baru204)
         rc, out = jalan(sub204,
                         [sys.executable, GERBANG, "--semua"])
         periksa("basenc bermode: gerbang gagal (Audit 1101)", rc != 0)
@@ -4094,12 +4679,15 @@ def main():
             isi_aksi205 = f.read()
         baris_aksi205 = [b for b in isi_aksi205.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi205, "w", encoding="utf-8") as f:
-            f.write(isi_aksi205.replace(
+        isi_baru205 = isi_aksi205.replace(
                 baris_aksi205,
                 baris_aksi205.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(cat --version; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(cat --version; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru205 != isi_aksi205, \
+            "suntikan aksi205 tidak menembak"
+        with open(berkas_aksi205, "w", encoding="utf-8") as f:
+            f.write(isi_baru205)
         rc, out = jalan(sub205,
                         [sys.executable, GERBANG, "--semua"])
         periksa("cat --version informasional: gerbang lolos (Audit 1102)", rc == 0)
@@ -4113,12 +4701,15 @@ def main():
             isi_aksi206 = f.read()
         baris_aksi206 = [b for b in isi_aksi206.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi206, "w", encoding="utf-8") as f:
-            f.write(isi_aksi206.replace(
+        isi_baru206 = isi_aksi206.replace(
                 baris_aksi206,
                 baris_aksi206.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sort --help; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sort --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru206 != isi_aksi206, \
+            "suntikan aksi206 tidak menembak"
+        with open(berkas_aksi206, "w", encoding="utf-8") as f:
+            f.write(isi_baru206)
         rc, out = jalan(sub206,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sort --help informasional: gerbang lolos (Audit 1102)", rc == 0)
@@ -4132,12 +4723,15 @@ def main():
             isi_aksi207 = f.read()
         baris_aksi207 = [b for b in isi_aksi207.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi207, "w", encoding="utf-8") as f:
-            f.write(isi_aksi207.replace(
+        isi_baru207 = isi_aksi207.replace(
                 baris_aksi207,
                 baris_aksi207.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(iconv -l; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(iconv -l; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru207 != isi_aksi207, \
+            "suntikan aksi207 tidak menembak"
+        with open(berkas_aksi207, "w", encoding="utf-8") as f:
+            f.write(isi_baru207)
         rc, out = jalan(sub207,
                         [sys.executable, GERBANG, "--semua"])
         periksa("iconv -l informasional: gerbang lolos (Audit 1102)", rc == 0)
@@ -4151,12 +4745,15 @@ def main():
             isi_aksi208 = f.read()
         baris_aksi208 = [b for b in isi_aksi208.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi208, "w", encoding="utf-8") as f:
-            f.write(isi_aksi208.replace(
+        isi_baru208 = isi_aksi208.replace(
                 baris_aksi208,
                 baris_aksi208.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(grep -f - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(grep -f - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru208 != isi_aksi208, \
+            "suntikan aksi208 tidak menembak"
+        with open(berkas_aksi208, "w", encoding="utf-8") as f:
+            f.write(isi_baru208)
         rc, out = jalan(sub208,
                         [sys.executable, GERBANG, "--semua"])
         periksa("grep -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0)
@@ -4170,12 +4767,15 @@ def main():
             isi_aksi209 = f.read()
         baris_aksi209 = [b for b in isi_aksi209.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi209, "w", encoding="utf-8") as f:
-            f.write(isi_aksi209.replace(
+        isi_baru209 = isi_aksi209.replace(
                 baris_aksi209,
                 baris_aksi209.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sed -f - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sed -f - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru209 != isi_aksi209, \
+            "suntikan aksi209 tidak menembak"
+        with open(berkas_aksi209, "w", encoding="utf-8") as f:
+            f.write(isi_baru209)
         rc, out = jalan(sub209,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sed -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0)
@@ -4189,12 +4789,15 @@ def main():
             isi_aksi210 = f.read()
         baris_aksi210 = [b for b in isi_aksi210.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi210, "w", encoding="utf-8") as f:
-            f.write(isi_aksi210.replace(
+        isi_baru210 = isi_aksi210.replace(
                 baris_aksi210,
                 baris_aksi210.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(awk -f - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(awk -f - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru210 != isi_aksi210, \
+            "suntikan aksi210 tidak menembak"
+        with open(berkas_aksi210, "w", encoding="utf-8") as f:
+            f.write(isi_baru210)
         rc, out = jalan(sub210,
                         [sys.executable, GERBANG, "--semua"])
         periksa("awk -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0)
@@ -4208,12 +4811,15 @@ def main():
             isi_aksi211 = f.read()
         baris_aksi211 = [b for b in isi_aksi211.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi211, "w", encoding="utf-8") as f:
-            f.write(isi_aksi211.replace(
+        isi_baru211 = isi_aksi211.replace(
                 baris_aksi211,
                 baris_aksi211.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(jq -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(jq -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru211 != isi_aksi211, \
+            "suntikan aksi211 tidak menembak"
+        with open(berkas_aksi211, "w", encoding="utf-8") as f:
+            f.write(isi_baru211)
         rc, out = jalan(sub211,
                         [sys.executable, GERBANG, "--semua"])
         periksa("jq -f '-' ditolak: gerbang lolos (Audit 1103)", rc == 0)
@@ -4227,12 +4833,15 @@ def main():
             isi_aksi212 = f.read()
         baris_aksi212 = [b for b in isi_aksi212.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi212, "w", encoding="utf-8") as f:
-            f.write(isi_aksi212.replace(
+        isi_baru212 = isi_aksi212.replace(
                 baris_aksi212,
                 baris_aksi212.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl base64; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl base64; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru212 != isi_aksi212, \
+            "suntikan aksi212 tidak menembak"
+        with open(berkas_aksi212, "w", encoding="utf-8") as f:
+            f.write(isi_baru212)
         rc, out = jalan(sub212,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl base64: gerbang gagal (Audit 1104)", rc != 0)
@@ -4246,12 +4855,15 @@ def main():
             isi_aksi213 = f.read()
         baris_aksi213 = [b for b in isi_aksi213.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi213, "w", encoding="utf-8") as f:
-            f.write(isi_aksi213.replace(
+        isi_baru213 = isi_aksi213.replace(
                 baris_aksi213,
                 baris_aksi213.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl smime -encrypt sert.pem; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl smime -encrypt sert.pem; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru213 != isi_aksi213, \
+            "suntikan aksi213 tidak menembak"
+        with open(berkas_aksi213, "w", encoding="utf-8") as f:
+            f.write(isi_baru213)
         rc, out = jalan(sub213,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl smime: gerbang gagal (Audit 1104)", rc != 0)
@@ -4265,12 +4877,15 @@ def main():
             isi_aksi214 = f.read()
         baris_aksi214 = [b for b in isi_aksi214.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi214, "w", encoding="utf-8") as f:
-            f.write(isi_aksi214.replace(
+        isi_baru214 = isi_aksi214.replace(
                 baris_aksi214,
                 baris_aksi214.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl passwd -stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl passwd -stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru214 != isi_aksi214, \
+            "suntikan aksi214 tidak menembak"
+        with open(berkas_aksi214, "w", encoding="utf-8") as f:
+            f.write(isi_baru214)
         rc, out = jalan(sub214,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl passwd -stdin: gerbang gagal (Audit 1104)", rc != 0)
@@ -4284,12 +4899,15 @@ def main():
             isi_aksi215 = f.read()
         baris_aksi215 = [b for b in isi_aksi215.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi215, "w", encoding="utf-8") as f:
-            f.write(isi_aksi215.replace(
+        isi_baru215 = isi_aksi215.replace(
                 baris_aksi215,
                 baris_aksi215.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl pkeyutl -inkey kunci.pem -sign; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl pkeyutl -inkey kunci.pem -sign; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru215 != isi_aksi215, \
+            "suntikan aksi215 tidak menembak"
+        with open(berkas_aksi215, "w", encoding="utf-8") as f:
+            f.write(isi_baru215)
         rc, out = jalan(sub215,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl pkeyutl: gerbang gagal (Audit 1104)", rc != 0)
@@ -4303,12 +4921,15 @@ def main():
             isi_aksi216 = f.read()
         baris_aksi216 = [b for b in isi_aksi216.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi216, "w", encoding="utf-8") as f:
-            f.write(isi_aksi216.replace(
+        isi_baru216 = isi_aksi216.replace(
                 baris_aksi216,
                 baris_aksi216.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl x509; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl x509; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru216 != isi_aksi216, \
+            "suntikan aksi216 tidak menembak"
+        with open(berkas_aksi216, "w", encoding="utf-8") as f:
+            f.write(isi_baru216)
         rc, out = jalan(sub216,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl x509 tanpa -in: gerbang gagal (Audit 1105)", rc != 0)
@@ -4322,12 +4943,15 @@ def main():
             isi_aksi217 = f.read()
         baris_aksi217 = [b for b in isi_aksi217.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi217, "w", encoding="utf-8") as f:
-            f.write(isi_aksi217.replace(
+        isi_baru217 = isi_aksi217.replace(
                 baris_aksi217,
                 baris_aksi217.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(gpg --batch --import; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(gpg --batch --import; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru217 != isi_aksi217, \
+            "suntikan aksi217 tidak menembak"
+        with open(berkas_aksi217, "w", encoding="utf-8") as f:
+            f.write(isi_baru217)
         rc, out = jalan(sub217,
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg --import: gerbang gagal (Audit 1106)", rc != 0)
@@ -4341,12 +4965,15 @@ def main():
             isi_aksi218 = f.read()
         baris_aksi218 = [b for b in isi_aksi218.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi218, "w", encoding="utf-8") as f:
-            f.write(isi_aksi218.replace(
+        isi_baru218 = isi_aksi218.replace(
                 baris_aksi218,
                 baris_aksi218.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(gpg --batch --dearmor; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(gpg --batch --dearmor; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru218 != isi_aksi218, \
+            "suntikan aksi218 tidak menembak"
+        with open(berkas_aksi218, "w", encoding="utf-8") as f:
+            f.write(isi_baru218)
         rc, out = jalan(sub218,
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg --dearmor: gerbang gagal (Audit 1106)", rc != 0)
@@ -4360,12 +4987,15 @@ def main():
             isi_aksi219 = f.read()
         baris_aksi219 = [b for b in isi_aksi219.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi219, "w", encoding="utf-8") as f:
-            f.write(isi_aksi219.replace(
+        isi_baru219 = isi_aksi219.replace(
                 baris_aksi219,
                 baris_aksi219.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(gpg --batch --print-md SHA256; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(gpg --batch --print-md SHA256; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru219 != isi_aksi219, \
+            "suntikan aksi219 tidak menembak"
+        with open(berkas_aksi219, "w", encoding="utf-8") as f:
+            f.write(isi_baru219)
         rc, out = jalan(sub219,
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg --print-md: gerbang gagal (Audit 1106)", rc != 0)
@@ -4379,12 +5009,15 @@ def main():
             isi_aksi220 = f.read()
         baris_aksi220 = [b for b in isi_aksi220.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi220, "w", encoding="utf-8") as f:
-            f.write(isi_aksi220.replace(
+        isi_baru220 = isi_aksi220.replace(
                 baris_aksi220,
                 baris_aksi220.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(strace cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(strace cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru220 != isi_aksi220, \
+            "suntikan aksi220 tidak menembak"
+        with open(berkas_aksi220, "w", encoding="utf-8") as f:
+            f.write(isi_baru220)
         rc, out = jalan(sub220,
                         [sys.executable, GERBANG, "--semua"])
         periksa("strace pembungkus: gerbang gagal (Audit 1107)", rc != 0)
@@ -4398,12 +5031,15 @@ def main():
             isi_aksi221 = f.read()
         baris_aksi221 = [b for b in isi_aksi221.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi221, "w", encoding="utf-8") as f:
-            f.write(isi_aksi221.replace(
+        isi_baru221 = isi_aksi221.replace(
                 baris_aksi221,
                 baris_aksi221.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(strace -f -o jejak cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(strace -f -o jejak cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru221 != isi_aksi221, \
+            "suntikan aksi221 tidak menembak"
+        with open(berkas_aksi221, "w", encoding="utf-8") as f:
+            f.write(isi_baru221)
         rc, out = jalan(sub221,
                         [sys.executable, GERBANG, "--semua"])
         periksa("strace beropsi: gerbang gagal (Audit 1107)", rc != 0)
@@ -4417,12 +5053,15 @@ def main():
             isi_aksi222 = f.read()
         baris_aksi222 = [b for b in isi_aksi222.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi222, "w", encoding="utf-8") as f:
-            f.write(isi_aksi222.replace(
+        isi_baru222 = isi_aksi222.replace(
                 baris_aksi222,
                 baris_aksi222.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(dbus-run-session cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(dbus-run-session cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru222 != isi_aksi222, \
+            "suntikan aksi222 tidak menembak"
+        with open(berkas_aksi222, "w", encoding="utf-8") as f:
+            f.write(isi_baru222)
         rc, out = jalan(sub222,
                         [sys.executable, GERBANG, "--semua"])
         periksa("dbus-run-session: gerbang gagal (Audit 1107)", rc != 0)
@@ -4436,12 +5075,15 @@ def main():
             isi_aksi223 = f.read()
         baris_aksi223 = [b for b in isi_aksi223.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi223, "w", encoding="utf-8") as f:
-            f.write(isi_aksi223.replace(
+        isi_baru223 = isi_aksi223.replace(
                 baris_aksi223,
                 baris_aksi223.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(runuser -u root -- cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(runuser -u root -- cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru223 != isi_aksi223, \
+            "suntikan aksi223 tidak menembak"
+        with open(berkas_aksi223, "w", encoding="utf-8") as f:
+            f.write(isi_baru223)
         rc, out = jalan(sub223,
                         [sys.executable, GERBANG, "--semua"])
         periksa("runuser: gerbang gagal (Audit 1107)", rc != 0)
@@ -4455,12 +5097,15 @@ def main():
             isi_aksi224 = f.read()
         baris_aksi224 = [b for b in isi_aksi224.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi224, "w", encoding="utf-8") as f:
-            f.write(isi_aksi224.replace(
+        isi_baru224 = isi_aksi224.replace(
                 baris_aksi224,
                 baris_aksi224.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(su -c cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(su -c cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru224 != isi_aksi224, \
+            "suntikan aksi224 tidak menembak"
+        with open(berkas_aksi224, "w", encoding="utf-8") as f:
+            f.write(isi_baru224)
         rc, out = jalan(sub224,
                         [sys.executable, GERBANG, "--semua"])
         periksa("su -c string: gerbang gagal (Audit 1107)", rc != 0)
@@ -4474,12 +5119,15 @@ def main():
             isi_aksi225 = f.read()
         baris_aksi225 = [b for b in isi_aksi225.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi225, "w", encoding="utf-8") as f:
-            f.write(isi_aksi225.replace(
+        isi_baru225 = isi_aksi225.replace(
                 baris_aksi225,
                 baris_aksi225.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sg root -c cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sg root -c cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru225 != isi_aksi225, \
+            "suntikan aksi225 tidak menembak"
+        with open(berkas_aksi225, "w", encoding="utf-8") as f:
+            f.write(isi_baru225)
         rc, out = jalan(sub225,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sg -c string: gerbang gagal (Audit 1107)", rc != 0)
@@ -4493,12 +5141,15 @@ def main():
             isi_aksi226 = f.read()
         baris_aksi226 = [b for b in isi_aksi226.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi226, "w", encoding="utf-8") as f:
-            f.write(isi_aksi226.replace(
+        isi_baru226 = isi_aksi226.replace(
                 baris_aksi226,
                 baris_aksi226.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(vi berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(vi berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru226 != isi_aksi226, \
+            "suntikan aksi226 tidak menembak"
+        with open(berkas_aksi226, "w", encoding="utf-8") as f:
+            f.write(isi_baru226)
         rc, out = jalan(sub226,
                         [sys.executable, GERBANG, "--semua"])
         periksa("vi beroperand: gerbang gagal (Audit 1108)", rc != 0)
@@ -4512,12 +5163,15 @@ def main():
             isi_aksi227 = f.read()
         baris_aksi227 = [b for b in isi_aksi227.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi227, "w", encoding="utf-8") as f:
-            f.write(isi_aksi227.replace(
+        isi_baru227 = isi_aksi227.replace(
                 baris_aksi227,
                 baris_aksi227.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(view berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(view berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru227 != isi_aksi227, \
+            "suntikan aksi227 tidak menembak"
+        with open(berkas_aksi227, "w", encoding="utf-8") as f:
+            f.write(isi_baru227)
         rc, out = jalan(sub227,
                         [sys.executable, GERBANG, "--semua"])
         periksa("view beroperand: gerbang gagal (Audit 1108)", rc != 0)
@@ -4531,12 +5185,15 @@ def main():
             isi_aksi228 = f.read()
         baris_aksi228 = [b for b in isi_aksi228.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi228, "w", encoding="utf-8") as f:
-            f.write(isi_aksi228.replace(
+        isi_baru228 = isi_aksi228.replace(
                 baris_aksi228,
                 baris_aksi228.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(ex; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(ex; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru228 != isi_aksi228, \
+            "suntikan aksi228 tidak menembak"
+        with open(berkas_aksi228, "w", encoding="utf-8") as f:
+            f.write(isi_baru228)
         rc, out = jalan(sub228,
                         [sys.executable, GERBANG, "--semua"])
         periksa("ex polos: gerbang gagal (Audit 1108)", rc != 0)
@@ -4550,12 +5207,15 @@ def main():
             isi_aksi229 = f.read()
         baris_aksi229 = [b for b in isi_aksi229.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi229, "w", encoding="utf-8") as f:
-            f.write(isi_aksi229.replace(
+        isi_baru229 = isi_aksi229.replace(
                 baris_aksi229,
                 baris_aksi229.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(less -p UTUH; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(less -p UTUH; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru229 != isi_aksi229, \
+            "suntikan aksi229 tidak menembak"
+        with open(berkas_aksi229, "w", encoding="utf-8") as f:
+            f.write(isi_baru229)
         rc, out = jalan(sub229,
                         [sys.executable, GERBANG, "--semua"])
         periksa("less -p pola bernilai: gerbang gagal (Audit 1109)", rc != 0)
@@ -4569,12 +5229,15 @@ def main():
             isi_aksi230 = f.read()
         baris_aksi230 = [b for b in isi_aksi230.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi230, "w", encoding="utf-8") as f:
-            f.write(isi_aksi230.replace(
+        isi_baru230 = isi_aksi230.replace(
                 baris_aksi230,
                 baris_aksi230.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(comm --output-delimiter - berkas berkas2; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(comm --output-delimiter - berkas berkas2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru230 != isi_aksi230, \
+            "suntikan aksi230 tidak menembak"
+        with open(berkas_aksi230, "w", encoding="utf-8") as f:
+            f.write(isi_baru230)
         rc, out = jalan(sub230,
                         [sys.executable, GERBANG, "--semua"])
         periksa("comm --output-delimiter '-': gerbang lolos (Audit 1110)", rc == 0)
@@ -4588,12 +5251,15 @@ def main():
             isi_aksi231 = f.read()
         baris_aksi231 = [b for b in isi_aksi231.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi231, "w", encoding="utf-8") as f:
-            f.write(isi_aksi231.replace(
+        isi_baru231 = isi_aksi231.replace(
                 baris_aksi231,
                 baris_aksi231.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(du --files0-from=-; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(du --files0-from=-; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru231 != isi_aksi231, \
+            "suntikan aksi231 tidak menembak"
+        with open(berkas_aksi231, "w", encoding="utf-8") as f:
+            f.write(isi_baru231)
         rc, out = jalan(sub231,
                         [sys.executable, GERBANG, "--semua"])
         periksa("du --files0-from=-: gerbang gagal (Audit 1111)", rc != 0)
@@ -4607,12 +5273,15 @@ def main():
             isi_aksi232 = f.read()
         baris_aksi232 = [b for b in isi_aksi232.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi232, "w", encoding="utf-8") as f:
-            f.write(isi_aksi232.replace(
+        isi_baru232 = isi_aksi232.replace(
                 baris_aksi232,
                 baris_aksi232.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(find -files0-from - -maxdepth 0; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(find -files0-from - -maxdepth 0; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru232 != isi_aksi232, \
+            "suntikan aksi232 tidak menembak"
+        with open(berkas_aksi232, "w", encoding="utf-8") as f:
+            f.write(isi_baru232)
         rc, out = jalan(sub232,
                         [sys.executable, GERBANG, "--semua"])
         periksa("find -files0-from: gerbang gagal (Audit 1111)", rc != 0)
@@ -4626,12 +5295,15 @@ def main():
             isi_aksi233 = f.read()
         baris_aksi233 = [b for b in isi_aksi233.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi233, "w", encoding="utf-8") as f:
-            f.write(isi_aksi233.replace(
+        isi_baru233 = isi_aksi233.replace(
                 baris_aksi233,
                 baris_aksi233.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(wall; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(wall; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru233 != isi_aksi233, \
+            "suntikan aksi233 tidak menembak"
+        with open(berkas_aksi233, "w", encoding="utf-8") as f:
+            f.write(isi_baru233)
         rc, out = jalan(sub233,
                         [sys.executable, GERBANG, "--semua"])
         periksa("wall polos: gerbang gagal (Audit 1112)", rc != 0)
@@ -4645,12 +5317,15 @@ def main():
             isi_aksi234 = f.read()
         baris_aksi234 = [b for b in isi_aksi234.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi234, "w", encoding="utf-8") as f:
-            f.write(isi_aksi234.replace(
+        isi_baru234 = isi_aksi234.replace(
                 baris_aksi234,
                 baris_aksi234.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(c++filt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(c++filt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru234 != isi_aksi234, \
+            "suntikan aksi234 tidak menembak"
+        with open(berkas_aksi234, "w", encoding="utf-8") as f:
+            f.write(isi_baru234)
         rc, out = jalan(sub234,
                         [sys.executable, GERBANG, "--semua"])
         periksa("c++filt polos: gerbang gagal (Audit 1112)", rc != 0)
@@ -4664,12 +5339,15 @@ def main():
             isi_aksi235 = f.read()
         baris_aksi235 = [b for b in isi_aksi235.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi235, "w", encoding="utf-8") as f:
-            f.write(isi_aksi235.replace(
+        isi_baru235 = isi_aksi235.replace(
                 baris_aksi235,
                 baris_aksi235.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(addr2line -e /usr/bin/cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(addr2line -e /usr/bin/cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru235 != isi_aksi235, \
+            "suntikan aksi235 tidak menembak"
+        with open(berkas_aksi235, "w", encoding="utf-8") as f:
+            f.write(isi_baru235)
         rc, out = jalan(sub235,
                         [sys.executable, GERBANG, "--semua"])
         periksa("addr2line -e: gerbang gagal (Audit 1112)", rc != 0)
@@ -4683,12 +5361,15 @@ def main():
             isi_aksi236 = f.read()
         baris_aksi236 = [b for b in isi_aksi236.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi236, "w", encoding="utf-8") as f:
-            f.write(isi_aksi236.replace(
+        isi_baru236 = isi_aksi236.replace(
                 baris_aksi236,
                 baris_aksi236.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(dig -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(dig -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru236 != isi_aksi236, \
+            "suntikan aksi236 tidak menembak"
+        with open(berkas_aksi236, "w", encoding="utf-8") as f:
+            f.write(isi_baru236)
         rc, out = jalan(sub236,
                         [sys.executable, GERBANG, "--semua"])
         periksa("dig -f '-': gerbang gagal (Audit 1112)", rc != 0)
@@ -4702,12 +5383,15 @@ def main():
             isi_aksi237 = f.read()
         baris_aksi237 = [b for b in isi_aksi237.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi237, "w", encoding="utf-8") as f:
-            f.write(isi_aksi237.replace(
+        isi_baru237 = isi_aksi237.replace(
                 baris_aksi237,
                 baris_aksi237.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(nslookup; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(nslookup; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru237 != isi_aksi237, \
+            "suntikan aksi237 tidak menembak"
+        with open(berkas_aksi237, "w", encoding="utf-8") as f:
+            f.write(isi_baru237)
         rc, out = jalan(sub237,
                         [sys.executable, GERBANG, "--semua"])
         periksa("nslookup polos: gerbang gagal (Audit 1112)", rc != 0)
@@ -4721,12 +5405,15 @@ def main():
             isi_aksi238 = f.read()
         baris_aksi238 = [b for b in isi_aksi238.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi238, "w", encoding="utf-8") as f:
-            f.write(isi_aksi238.replace(
+        isi_baru238 = isi_aksi238.replace(
                 baris_aksi238,
                 baris_aksi238.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(original-awk '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(original-awk '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru238 != isi_aksi238, \
+            "suntikan aksi238 tidak menembak"
+        with open(berkas_aksi238, "w", encoding="utf-8") as f:
+            f.write(isi_baru238)
         rc, out = jalan(sub238,
                         [sys.executable, GERBANG, "--semua"])
         periksa("original-awk: gerbang gagal (Audit 1113)", rc != 0)
@@ -4740,12 +5427,15 @@ def main():
             isi_aksi239 = f.read()
         baris_aksi239 = [b for b in isi_aksi239.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi239, "w", encoding="utf-8") as f:
-            f.write(isi_aksi239.replace(
+        isi_baru239 = isi_aksi239.replace(
                 baris_aksi239,
                 baris_aksi239.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(perl; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(perl; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru239 != isi_aksi239, \
+            "suntikan aksi239 tidak menembak"
+        with open(berkas_aksi239, "w", encoding="utf-8") as f:
+            f.write(isi_baru239)
         rc, out = jalan(sub239,
                         [sys.executable, GERBANG, "--semua"])
         periksa("perl telanjang: gerbang gagal (Audit 1119)", rc != 0)
@@ -4758,12 +5448,15 @@ def main():
             isi_aksi240 = f.read()
         baris_aksi240 = [b for b in isi_aksi240.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi240, "w", encoding="utf-8") as f:
-            f.write(isi_aksi240.replace(
+        isi_baru240 = isi_aksi240.replace(
                 baris_aksi240,
                 baris_aksi240.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(perl -w; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(perl -w; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru240 != isi_aksi240, \
+            "suntikan aksi240 tidak menembak"
+        with open(berkas_aksi240, "w", encoding="utf-8") as f:
+            f.write(isi_baru240)
         rc, out = jalan(sub240,
                         [sys.executable, GERBANG, "--semua"])
         periksa("perl -w: gerbang gagal (Audit 1119)", rc != 0)
@@ -4776,12 +5469,15 @@ def main():
             isi_aksi241 = f.read()
         baris_aksi241 = [b for b in isi_aksi241.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi241, "w", encoding="utf-8") as f:
-            f.write(isi_aksi241.replace(
+        isi_baru241 = isi_aksi241.replace(
                 baris_aksi241,
                 baris_aksi241.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(perl skrip.pl; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(perl skrip.pl; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru241 != isi_aksi241, \
+            "suntikan aksi241 tidak menembak"
+        with open(berkas_aksi241, "w", encoding="utf-8") as f:
+            f.write(isi_baru241)
         rc, out = jalan(sub241,
                         [sys.executable, GERBANG, "--semua"])
         periksa("perl berkas skrip: gerbang lolos (Audit 1119)", rc == 0)
@@ -4794,12 +5490,15 @@ def main():
             isi_aksi242 = f.read()
         baris_aksi242 = [b for b in isi_aksi242.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi242, "w", encoding="utf-8") as f:
-            f.write(isi_aksi242.replace(
+        isi_baru242 = isi_aksi242.replace(
                 baris_aksi242,
                 baris_aksi242.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(perl -e print; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(perl -e print; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru242 != isi_aksi242, \
+            "suntikan aksi242 tidak menembak"
+        with open(berkas_aksi242, "w", encoding="utf-8") as f:
+            f.write(isi_baru242)
         rc, out = jalan(sub242,
                         [sys.executable, GERBANG, "--semua"])
         periksa("perl -e: gerbang lolos (Audit 1119)", rc == 0)
@@ -4812,12 +5511,15 @@ def main():
             isi_aksi243 = f.read()
         baris_aksi243 = [b for b in isi_aksi243.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi243, "w", encoding="utf-8") as f:
-            f.write(isi_aksi243.replace(
+        isi_baru243 = isi_aksi243.replace(
                 baris_aksi243,
                 baris_aksi243.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar t; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar t; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru243 != isi_aksi243, \
+            "suntikan aksi243 tidak menembak"
+        with open(berkas_aksi243, "w", encoding="utf-8") as f:
+            f.write(isi_baru243)
         rc, out = jalan(sub243,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar t tanpa -f: gerbang gagal (Audit 1120)", rc != 0)
@@ -4830,12 +5532,15 @@ def main():
             isi_aksi244 = f.read()
         baris_aksi244 = [b for b in isi_aksi244.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi244, "w", encoding="utf-8") as f:
-            f.write(isi_aksi244.replace(
+        isi_baru244 = isi_aksi244.replace(
                 baris_aksi244,
                 baris_aksi244.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru244 != isi_aksi244, \
+            "suntikan aksi244 tidak menembak"
+        with open(berkas_aksi244, "w", encoding="utf-8") as f:
+            f.write(isi_baru244)
         rc, out = jalan(sub244,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar x tanpa -f: gerbang gagal (Audit 1120)", rc != 0)
@@ -4848,12 +5553,15 @@ def main():
             isi_aksi245 = f.read()
         baris_aksi245 = [b for b in isi_aksi245.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi245, "w", encoding="utf-8") as f:
-            f.write(isi_aksi245.replace(
+        isi_baru245 = isi_aksi245.replace(
                 baris_aksi245,
                 baris_aksi245.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar tf contoh.tar; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar tf contoh.tar; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru245 != isi_aksi245, \
+            "suntikan aksi245 tidak menembak"
+        with open(berkas_aksi245, "w", encoding="utf-8") as f:
+            f.write(isi_baru245)
         rc, out = jalan(sub245,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar tf berarsip: gerbang lolos (Audit 1120)", rc == 0)
@@ -4866,12 +5574,15 @@ def main():
             isi_aksi246 = f.read()
         baris_aksi246 = [b for b in isi_aksi246.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi246, "w", encoding="utf-8") as f:
-            f.write(isi_aksi246.replace(
+        isi_baru246 = isi_aksi246.replace(
                 baris_aksi246,
                 baris_aksi246.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar c; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar c; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru246 != isi_aksi246, \
+            "suntikan aksi246 tidak menembak"
+        with open(berkas_aksi246, "w", encoding="utf-8") as f:
+            f.write(isi_baru246)
         rc, out = jalan(sub246,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar c tanpa operand: gerbang lolos (Audit 1120)", rc == 0)
@@ -4884,12 +5595,15 @@ def main():
             isi_aksi247 = f.read()
         baris_aksi247 = [b for b in isi_aksi247.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi247, "w", encoding="utf-8") as f:
-            f.write(isi_aksi247.replace(
+        isi_baru247 = isi_aksi247.replace(
                 baris_aksi247,
                 baris_aksi247.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(unshare -r; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(unshare -r; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru247 != isi_aksi247, \
+            "suntikan aksi247 tidak menembak"
+        with open(berkas_aksi247, "w", encoding="utf-8") as f:
+            f.write(isi_baru247)
         rc, out = jalan(sub247,
                         [sys.executable, GERBANG, "--semua"])
         periksa("unshare tanpa perintah: gerbang gagal (Audit 1121)", rc != 0)
@@ -4902,12 +5616,15 @@ def main():
             isi_aksi248 = f.read()
         baris_aksi248 = [b for b in isi_aksi248.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi248, "w", encoding="utf-8") as f:
-            f.write(isi_aksi248.replace(
+        isi_baru248 = isi_aksi248.replace(
                 baris_aksi248,
                 baris_aksi248.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(chroot /baru; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(chroot /baru; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru248 != isi_aksi248, \
+            "suntikan aksi248 tidak menembak"
+        with open(berkas_aksi248, "w", encoding="utf-8") as f:
+            f.write(isi_baru248)
         rc, out = jalan(sub248,
                         [sys.executable, GERBANG, "--semua"])
         periksa("chroot tanpa perintah: gerbang gagal (Audit 1121)", rc != 0)
@@ -4920,12 +5637,15 @@ def main():
             isi_aksi249 = f.read()
         baris_aksi249 = [b for b in isi_aksi249.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi249, "w", encoding="utf-8") as f:
-            f.write(isi_aksi249.replace(
+        isi_baru249 = isi_aksi249.replace(
                 baris_aksi249,
                 baris_aksi249.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(unshare -r cat berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(unshare -r cat berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru249 != isi_aksi249, \
+            "suntikan aksi249 tidak menembak"
+        with open(berkas_aksi249, "w", encoding="utf-8") as f:
+            f.write(isi_baru249)
         rc, out = jalan(sub249,
                         [sys.executable, GERBANG, "--semua"])
         periksa("unshare berperintah: gerbang lolos (Audit 1121)", rc == 0)
@@ -4938,12 +5658,15 @@ def main():
             isi_aksi250 = f.read()
         baris_aksi250 = [b for b in isi_aksi250.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi250, "w", encoding="utf-8") as f:
-            f.write(isi_aksi250.replace(
+        isi_baru250 = isi_aksi250.replace(
                 baris_aksi250,
                 baris_aksi250.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(expect; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(expect; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru250 != isi_aksi250, \
+            "suntikan aksi250 tidak menembak"
+        with open(berkas_aksi250, "w", encoding="utf-8") as f:
+            f.write(isi_baru250)
         rc, out = jalan(sub250,
                         [sys.executable, GERBANG, "--semua"])
         periksa("expect telanjang: gerbang gagal (Audit 1122)", rc != 0)
@@ -4956,12 +5679,15 @@ def main():
             isi_aksi251 = f.read()
         baris_aksi251 = [b for b in isi_aksi251.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi251, "w", encoding="utf-8") as f:
-            f.write(isi_aksi251.replace(
+        isi_baru251 = isi_aksi251.replace(
                 baris_aksi251,
                 baris_aksi251.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(expect -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(expect -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru251 != isi_aksi251, \
+            "suntikan aksi251 tidak menembak"
+        with open(berkas_aksi251, "w", encoding="utf-8") as f:
+            f.write(isi_baru251)
         rc, out = jalan(sub251,
                         [sys.executable, GERBANG, "--semua"])
         periksa("expect -f -: gerbang gagal (Audit 1122)", rc != 0)
@@ -4974,12 +5700,15 @@ def main():
             isi_aksi252 = f.read()
         baris_aksi252 = [b for b in isi_aksi252.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi252, "w", encoding="utf-8") as f:
-            f.write(isi_aksi252.replace(
+        isi_baru252 = isi_aksi252.replace(
                 baris_aksi252,
                 baris_aksi252.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(expect -f skrip.exp; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(expect -f skrip.exp; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru252 != isi_aksi252, \
+            "suntikan aksi252 tidak menembak"
+        with open(berkas_aksi252, "w", encoding="utf-8") as f:
+            f.write(isi_baru252)
         rc, out = jalan(sub252,
                         [sys.executable, GERBANG, "--semua"])
         periksa("expect -f berkas: gerbang lolos (Audit 1122)", rc == 0)
@@ -4992,12 +5721,15 @@ def main():
             isi_aksi253 = f.read()
         baris_aksi253 = [b for b in isi_aksi253.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi253, "w", encoding="utf-8") as f:
-            f.write(isi_aksi253.replace(
+        isi_baru253 = isi_aksi253.replace(
                 baris_aksi253,
                 baris_aksi253.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(gpg --verify; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(gpg --verify; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru253 != isi_aksi253, \
+            "suntikan aksi253 tidak menembak"
+        with open(berkas_aksi253, "w", encoding="utf-8") as f:
+            f.write(isi_baru253)
         rc, out = jalan(sub253,
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg --verify: gerbang gagal (Audit 1123)", rc != 0)
@@ -5010,12 +5742,15 @@ def main():
             isi_aksi254 = f.read()
         baris_aksi254 = [b for b in isi_aksi254.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi254, "w", encoding="utf-8") as f:
-            f.write(isi_aksi254.replace(
+        isi_baru254 = isi_aksi254.replace(
                 baris_aksi254,
                 baris_aksi254.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(gpg --verify berkas.sig; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(gpg --verify berkas.sig; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru254 != isi_aksi254, \
+            "suntikan aksi254 tidak menembak"
+        with open(berkas_aksi254, "w", encoding="utf-8") as f:
+            f.write(isi_baru254)
         rc, out = jalan(sub254,
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg --verify beroperand: gerbang lolos (Audit 1123)", rc == 0)
@@ -5028,12 +5763,15 @@ def main():
             isi_aksi255 = f.read()
         baris_aksi255 = [b for b in isi_aksi255.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi255, "w", encoding="utf-8") as f:
-            f.write(isi_aksi255.replace(
+        isi_baru255 = isi_aksi255.replace(
                 baris_aksi255,
                 baris_aksi255.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git stripspace; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git stripspace; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru255 != isi_aksi255, \
+            "suntikan aksi255 tidak menembak"
+        with open(berkas_aksi255, "w", encoding="utf-8") as f:
+            f.write(isi_baru255)
         rc, out = jalan(sub255,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git stripspace: gerbang gagal (Audit 1124)", rc != 0)
@@ -5046,12 +5784,15 @@ def main():
             isi_aksi256 = f.read()
         baris_aksi256 = [b for b in isi_aksi256.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi256, "w", encoding="utf-8") as f:
-            f.write(isi_aksi256.replace(
+        isi_baru256 = isi_aksi256.replace(
                 baris_aksi256,
                 baris_aksi256.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git patch-id; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git patch-id; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru256 != isi_aksi256, \
+            "suntikan aksi256 tidak menembak"
+        with open(berkas_aksi256, "w", encoding="utf-8") as f:
+            f.write(isi_baru256)
         rc, out = jalan(sub256,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git patch-id: gerbang gagal (Audit 1124)", rc != 0)
@@ -5064,12 +5805,15 @@ def main():
             isi_aksi257 = f.read()
         baris_aksi257 = [b for b in isi_aksi257.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi257, "w", encoding="utf-8") as f:
-            f.write(isi_aksi257.replace(
+        isi_baru257 = isi_aksi257.replace(
                 baris_aksi257,
                 baris_aksi257.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git mktag; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git mktag; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru257 != isi_aksi257, \
+            "suntikan aksi257 tidak menembak"
+        with open(berkas_aksi257, "w", encoding="utf-8") as f:
+            f.write(isi_baru257)
         rc, out = jalan(sub257,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git mktag: gerbang gagal (Audit 1124)", rc != 0)
@@ -5082,12 +5826,15 @@ def main():
             isi_aksi258 = f.read()
         baris_aksi258 = [b for b in isi_aksi258.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi258, "w", encoding="utf-8") as f:
-            f.write(isi_aksi258.replace(
+        isi_baru258 = isi_aksi258.replace(
                 baris_aksi258,
                 baris_aksi258.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git update-index --index-info; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git update-index --index-info; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru258 != isi_aksi258, \
+            "suntikan aksi258 tidak menembak"
+        with open(berkas_aksi258, "w", encoding="utf-8") as f:
+            f.write(isi_baru258)
         rc, out = jalan(sub258,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git update-index --index-info: gerbang gagal (Audit 1124)", rc != 0)
@@ -5100,12 +5847,15 @@ def main():
             isi_aksi259 = f.read()
         baris_aksi259 = [b for b in isi_aksi259.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi259, "w", encoding="utf-8") as f:
-            f.write(isi_aksi259.replace(
+        isi_baru259 = isi_aksi259.replace(
                 baris_aksi259,
                 baris_aksi259.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git index-pack --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git index-pack --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru259 != isi_aksi259, \
+            "suntikan aksi259 tidak menembak"
+        with open(berkas_aksi259, "w", encoding="utf-8") as f:
+            f.write(isi_baru259)
         rc, out = jalan(sub259,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git index-pack --stdin: gerbang gagal (Audit 1124)", rc != 0)
@@ -5118,12 +5868,15 @@ def main():
             isi_aksi260 = f.read()
         baris_aksi260 = [b for b in isi_aksi260.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi260, "w", encoding="utf-8") as f:
-            f.write(isi_aksi260.replace(
+        isi_baru260 = isi_aksi260.replace(
                 baris_aksi260,
                 baris_aksi260.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git index-pack berkas.pack; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git index-pack berkas.pack; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru260 != isi_aksi260, \
+            "suntikan aksi260 tidak menembak"
+        with open(berkas_aksi260, "w", encoding="utf-8") as f:
+            f.write(isi_baru260)
         rc, out = jalan(sub260,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git index-pack beroperand: gerbang lolos (Audit 1124)", rc == 0)
@@ -5136,12 +5889,15 @@ def main():
             isi_aksi261 = f.read()
         baris_aksi261 = [b for b in isi_aksi261.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi261, "w", encoding="utf-8") as f:
-            f.write(isi_aksi261.replace(
+        isi_baru261 = isi_aksi261.replace(
                 baris_aksi261,
                 baris_aksi261.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(numfmt --from auto; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(numfmt --from auto; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru261 != isi_aksi261, \
+            "suntikan aksi261 tidak menembak"
+        with open(berkas_aksi261, "w", encoding="utf-8") as f:
+            f.write(isi_baru261)
         rc, out = jalan(sub261,
                         [sys.executable, GERBANG, "--semua"])
         periksa("numfmt --from: gerbang gagal (Audit 1125)", rc != 0)
@@ -5154,12 +5910,15 @@ def main():
             isi_aksi262 = f.read()
         baris_aksi262 = [b for b in isi_aksi262.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi262, "w", encoding="utf-8") as f:
-            f.write(isi_aksi262.replace(
+        isi_baru262 = isi_aksi262.replace(
                 baris_aksi262,
                 baris_aksi262.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(numfmt --to si; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(numfmt --to si; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru262 != isi_aksi262, \
+            "suntikan aksi262 tidak menembak"
+        with open(berkas_aksi262, "w", encoding="utf-8") as f:
+            f.write(isi_baru262)
         rc, out = jalan(sub262,
                         [sys.executable, GERBANG, "--semua"])
         periksa("numfmt --to: gerbang gagal (Audit 1125)", rc != 0)
@@ -5172,12 +5931,15 @@ def main():
             isi_aksi263 = f.read()
         baris_aksi263 = [b for b in isi_aksi263.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi263, "w", encoding="utf-8") as f:
-            f.write(isi_aksi263.replace(
+        isi_baru263 = isi_aksi263.replace(
                 baris_aksi263,
                 baris_aksi263.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(numfmt --from-unit 1000; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(numfmt --from-unit 1000; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru263 != isi_aksi263, \
+            "suntikan aksi263 tidak menembak"
+        with open(berkas_aksi263, "w", encoding="utf-8") as f:
+            f.write(isi_baru263)
         rc, out = jalan(sub263,
                         [sys.executable, GERBANG, "--semua"])
         periksa("numfmt --from-unit: gerbang gagal (Audit 1125)", rc != 0)
@@ -5190,12 +5952,15 @@ def main():
             isi_aksi264 = f.read()
         baris_aksi264 = [b for b in isi_aksi264.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi264, "w", encoding="utf-8") as f:
-            f.write(isi_aksi264.replace(
+        isi_baru264 = isi_aksi264.replace(
                 baris_aksi264,
                 baris_aksi264.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(numfmt berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(numfmt berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru264 != isi_aksi264, \
+            "suntikan aksi264 tidak menembak"
+        with open(berkas_aksi264, "w", encoding="utf-8") as f:
+            f.write(isi_baru264)
         rc, out = jalan(sub264,
                         [sys.executable, GERBANG, "--semua"])
         periksa("numfmt beroperand: gerbang lolos (Audit 1125)", rc == 0)
@@ -5208,12 +5973,15 @@ def main():
             isi_aksi265 = f.read()
         baris_aksi265 = [b for b in isi_aksi265.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi265, "w", encoding="utf-8") as f:
-            f.write(isi_aksi265.replace(
+        isi_baru265 = isi_aksi265.replace(
                 baris_aksi265,
                 baris_aksi265.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(jq --indent 2 .; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(jq --indent 2 .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru265 != isi_aksi265, \
+            "suntikan aksi265 tidak menembak"
+        with open(berkas_aksi265, "w", encoding="utf-8") as f:
+            f.write(isi_baru265)
         rc, out = jalan(sub265,
                         [sys.executable, GERBANG, "--semua"])
         periksa("jq --indent: gerbang gagal (Audit 1126)", rc != 0)
@@ -5226,12 +5994,15 @@ def main():
             isi_aksi266 = f.read()
         baris_aksi266 = [b for b in isi_aksi266.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi266, "w", encoding="utf-8") as f:
-            f.write(isi_aksi266.replace(
+        isi_baru266 = isi_aksi266.replace(
                 baris_aksi266,
                 baris_aksi266.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(jq . berkas.json; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(jq . berkas.json; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru266 != isi_aksi266, \
+            "suntikan aksi266 tidak menembak"
+        with open(berkas_aksi266, "w", encoding="utf-8") as f:
+            f.write(isi_baru266)
         rc, out = jalan(sub266,
                         [sys.executable, GERBANG, "--semua"])
         periksa("jq beroperand: gerbang lolos (Audit 1126)", rc == 0)
@@ -5244,12 +6015,15 @@ def main():
             isi_aksi267 = f.read()
         baris_aksi267 = [b for b in isi_aksi267.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi267, "w", encoding="utf-8") as f:
-            f.write(isi_aksi267.replace(
+        isi_baru267 = isi_aksi267.replace(
                 baris_aksi267,
                 baris_aksi267.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(grep --exclude-from daftar pola; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(grep --exclude-from daftar pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru267 != isi_aksi267, \
+            "suntikan aksi267 tidak menembak"
+        with open(berkas_aksi267, "w", encoding="utf-8") as f:
+            f.write(isi_baru267)
         rc, out = jalan(sub267,
                         [sys.executable, GERBANG, "--semua"])
         periksa("grep --exclude-from: gerbang gagal (Audit 1127)", rc != 0)
@@ -5262,12 +6036,15 @@ def main():
             isi_aksi268 = f.read()
         baris_aksi268 = [b for b in isi_aksi268.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi268, "w", encoding="utf-8") as f:
-            f.write(isi_aksi268.replace(
+        isi_baru268 = isi_aksi268.replace(
                 baris_aksi268,
                 baris_aksi268.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(grep --label nama pola; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(grep --label nama pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru268 != isi_aksi268, \
+            "suntikan aksi268 tidak menembak"
+        with open(berkas_aksi268, "w", encoding="utf-8") as f:
+            f.write(isi_baru268)
         rc, out = jalan(sub268,
                         [sys.executable, GERBANG, "--semua"])
         periksa("grep --label: gerbang gagal (Audit 1127)", rc != 0)
@@ -5280,12 +6057,15 @@ def main():
             isi_aksi269 = f.read()
         baris_aksi269 = [b for b in isi_aksi269.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi269, "w", encoding="utf-8") as f:
-            f.write(isi_aksi269.replace(
+        isi_baru269 = isi_aksi269.replace(
                 baris_aksi269,
                 baris_aksi269.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(grep --exclude x pola berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(grep --exclude x pola berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru269 != isi_aksi269, \
+            "suntikan aksi269 tidak menembak"
+        with open(berkas_aksi269, "w", encoding="utf-8") as f:
+            f.write(isi_baru269)
         rc, out = jalan(sub269,
                         [sys.executable, GERBANG, "--semua"])
         periksa("grep beroperand berkas: gerbang lolos (Audit 1127)", rc == 0)
@@ -5298,12 +6078,15 @@ def main():
             isi_aksi270 = f.read()
         baris_aksi270 = [b for b in isi_aksi270.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi270, "w", encoding="utf-8") as f:
-            f.write(isi_aksi270.replace(
+        isi_baru270 = isi_aksi270.replace(
                 baris_aksi270,
                 baris_aksi270.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl crl; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl crl; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru270 != isi_aksi270, \
+            "suntikan aksi270 tidak menembak"
+        with open(berkas_aksi270, "w", encoding="utf-8") as f:
+            f.write(isi_baru270)
         rc, out = jalan(sub270,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl crl: gerbang gagal (Audit 1128)", rc != 0)
@@ -5316,12 +6099,15 @@ def main():
             isi_aksi271 = f.read()
         baris_aksi271 = [b for b in isi_aksi271.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi271, "w", encoding="utf-8") as f:
-            f.write(isi_aksi271.replace(
+        isi_baru271 = isi_aksi271.replace(
                 baris_aksi271,
                 baris_aksi271.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl pkcs7; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl pkcs7; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru271 != isi_aksi271, \
+            "suntikan aksi271 tidak menembak"
+        with open(berkas_aksi271, "w", encoding="utf-8") as f:
+            f.write(isi_baru271)
         rc, out = jalan(sub271,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl pkcs7: gerbang gagal (Audit 1128)", rc != 0)
@@ -5334,12 +6120,15 @@ def main():
             isi_aksi272 = f.read()
         baris_aksi272 = [b for b in isi_aksi272.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi272, "w", encoding="utf-8") as f:
-            f.write(isi_aksi272.replace(
+        isi_baru272 = isi_aksi272.replace(
                 baris_aksi272,
                 baris_aksi272.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl verify; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl verify; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru272 != isi_aksi272, \
+            "suntikan aksi272 tidak menembak"
+        with open(berkas_aksi272, "w", encoding="utf-8") as f:
+            f.write(isi_baru272)
         rc, out = jalan(sub272,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl verify: gerbang gagal (Audit 1128)", rc != 0)
@@ -5352,12 +6141,15 @@ def main():
             isi_aksi273 = f.read()
         baris_aksi273 = [b for b in isi_aksi273.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi273, "w", encoding="utf-8") as f:
-            f.write(isi_aksi273.replace(
+        isi_baru273 = isi_aksi273.replace(
                 baris_aksi273,
                 baris_aksi273.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl verify sert.pem; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl verify sert.pem; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru273 != isi_aksi273, \
+            "suntikan aksi273 tidak menembak"
+        with open(berkas_aksi273, "w", encoding="utf-8") as f:
+            f.write(isi_baru273)
         rc, out = jalan(sub273,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl verify beroperand: gerbang lolos (Audit 1128)", rc == 0)
@@ -5370,12 +6162,15 @@ def main():
             isi_aksi274 = f.read()
         baris_aksi274 = [b for b in isi_aksi274.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi274, "w", encoding="utf-8") as f:
-            f.write(isi_aksi274.replace(
+        isi_baru274 = isi_aksi274.replace(
                 baris_aksi274,
                 baris_aksi274.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl crl -in berkas.pem; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl crl -in berkas.pem; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru274 != isi_aksi274, \
+            "suntikan aksi274 tidak menembak"
+        with open(berkas_aksi274, "w", encoding="utf-8") as f:
+            f.write(isi_baru274)
         rc, out = jalan(sub274,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl crl -in: gerbang lolos (Audit 1128)", rc == 0)
@@ -5388,12 +6183,15 @@ def main():
             isi_aksi275 = f.read()
         baris_aksi275 = [b for b in isi_aksi275.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi275, "w", encoding="utf-8") as f:
-            f.write(isi_aksi275.replace(
+        isi_baru275 = isi_aksi275.replace(
                 baris_aksi275,
                 baris_aksi275.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -sha256 -mac hmac -macopt key:abc; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -sha256 -mac hmac -macopt key:abc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru275 != isi_aksi275, \
+            "suntikan aksi275 tidak menembak"
+        with open(berkas_aksi275, "w", encoding="utf-8") as f:
+            f.write(isi_baru275)
         rc, out = jalan(sub275,
                         [sys.executable, GERBANG, "--semua"])
         periksa("dgst -mac: gerbang gagal (Audit 1129)", rc != 0)
@@ -5406,12 +6204,15 @@ def main():
             isi_aksi276 = f.read()
         baris_aksi276 = [b for b in isi_aksi276.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi276, "w", encoding="utf-8") as f:
-            f.write(isi_aksi276.replace(
+        isi_baru276 = isi_aksi276.replace(
                 baris_aksi276,
                 baris_aksi276.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -sha256 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -sha256 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru276 != isi_aksi276, \
+            "suntikan aksi276 tidak menembak"
+        with open(berkas_aksi276, "w", encoding="utf-8") as f:
+            f.write(isi_baru276)
         rc, out = jalan(sub276,
                         [sys.executable, GERBANG, "--semua"])
         periksa("dgst beroperand: gerbang lolos (Audit 1129)", rc == 0)
@@ -5424,12 +6225,15 @@ def main():
             isi_aksi277 = f.read()
         baris_aksi277 = [b for b in isi_aksi277.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi277, "w", encoding="utf-8") as f:
-            f.write(isi_aksi277.replace(
+        isi_baru277 = isi_aksi277.replace(
                 baris_aksi277,
                 baris_aksi277.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(zip -@ -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(zip -@ -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru277 != isi_aksi277, \
+            "suntikan aksi277 tidak menembak"
+        with open(berkas_aksi277, "w", encoding="utf-8") as f:
+            f.write(isi_baru277)
         rc, out = jalan(sub277,
                         [sys.executable, GERBANG, "--semua"])
         periksa("zip -@ -: gerbang gagal (Audit 1130)", rc != 0)
@@ -5442,12 +6246,15 @@ def main():
             isi_aksi278 = f.read()
         baris_aksi278 = [b for b in isi_aksi278.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi278, "w", encoding="utf-8") as f:
-            f.write(isi_aksi278.replace(
+        isi_baru278 = isi_aksi278.replace(
                 baris_aksi278,
                 baris_aksi278.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(zip - -@; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(zip - -@; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru278 != isi_aksi278, \
+            "suntikan aksi278 tidak menembak"
+        with open(berkas_aksi278, "w", encoding="utf-8") as f:
+            f.write(isi_baru278)
         rc, out = jalan(sub278,
                         [sys.executable, GERBANG, "--semua"])
         periksa("zip - -@: gerbang gagal (Audit 1130)", rc != 0)
@@ -5460,12 +6267,15 @@ def main():
             isi_aksi279 = f.read()
         baris_aksi279 = [b for b in isi_aksi279.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi279, "w", encoding="utf-8") as f:
-            f.write(isi_aksi279.replace(
+        isi_baru279 = isi_aksi279.replace(
                 baris_aksi279,
                 baris_aksi279.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(zip -@; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(zip -@; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru279 != isi_aksi279, \
+            "suntikan aksi279 tidak menembak"
+        with open(berkas_aksi279, "w", encoding="utf-8") as f:
+            f.write(isi_baru279)
         rc, out = jalan(sub279,
                         [sys.executable, GERBANG, "--semua"])
         periksa("zip -@ tanpa arsip: gerbang lolos (Audit 1130)", rc == 0)
@@ -5478,12 +6288,15 @@ def main():
             isi_aksi280 = f.read()
         baris_aksi280 = [b for b in isi_aksi280.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi280, "w", encoding="utf-8") as f:
-            f.write(isi_aksi280.replace(
+        isi_baru280 = isi_aksi280.replace(
                 baris_aksi280,
                 baris_aksi280.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(patch -i-; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(patch -i-; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru280 != isi_aksi280, \
+            "suntikan aksi280 tidak menembak"
+        with open(berkas_aksi280, "w", encoding="utf-8") as f:
+            f.write(isi_baru280)
         rc, out = jalan(sub280,
                         [sys.executable, GERBANG, "--semua"])
         periksa("patch -i-: gerbang gagal (Audit 1131)", rc != 0)
@@ -5496,12 +6309,15 @@ def main():
             isi_aksi281 = f.read()
         baris_aksi281 = [b for b in isi_aksi281.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi281, "w", encoding="utf-8") as f:
-            f.write(isi_aksi281.replace(
+        isi_baru281 = isi_aksi281.replace(
                 baris_aksi281,
                 baris_aksi281.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(patch -i tambal.patch; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(patch -i tambal.patch; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru281 != isi_aksi281, \
+            "suntikan aksi281 tidak menembak"
+        with open(berkas_aksi281, "w", encoding="utf-8") as f:
+            f.write(isi_baru281)
         rc, out = jalan(sub281,
                         [sys.executable, GERBANG, "--semua"])
         periksa("patch -i berkas: gerbang lolos (Audit 1131)", rc == 0)
@@ -5514,12 +6330,15 @@ def main():
             isi_aksi282 = f.read()
         baris_aksi282 = [b for b in isi_aksi282.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi282, "w", encoding="utf-8") as f:
-            f.write(isi_aksi282.replace(
+        isi_baru282 = isi_aksi282.replace(
                 baris_aksi282,
                 baris_aksi282.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(addr2line --target elf64-x86-64 -e /bin/true; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(addr2line --target elf64-x86-64 -e /bin/true; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru282 != isi_aksi282, \
+            "suntikan aksi282 tidak menembak"
+        with open(berkas_aksi282, "w", encoding="utf-8") as f:
+            f.write(isi_baru282)
         rc, out = jalan(sub282,
                         [sys.executable, GERBANG, "--semua"])
         periksa("addr2line --target: gerbang gagal (Audit 1132)", rc != 0)
@@ -5532,12 +6351,15 @@ def main():
             isi_aksi283 = f.read()
         baris_aksi283 = [b for b in isi_aksi283.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi283, "w", encoding="utf-8") as f:
-            f.write(isi_aksi283.replace(
+        isi_baru283 = isi_aksi283.replace(
                 baris_aksi283,
                 baris_aksi283.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(addr2line -e /bin/true 0x1234; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(addr2line -e /bin/true 0x1234; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru283 != isi_aksi283, \
+            "suntikan aksi283 tidak menembak"
+        with open(berkas_aksi283, "w", encoding="utf-8") as f:
+            f.write(isi_baru283)
         rc, out = jalan(sub283,
                         [sys.executable, GERBANG, "--semua"])
         periksa("addr2line beralamat: gerbang lolos (Audit 1132)", rc == 0)
@@ -5550,12 +6372,15 @@ def main():
             isi_aksi284 = f.read()
         baris_aksi284 = [b for b in isi_aksi284.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi284, "w", encoding="utf-8") as f:
-            f.write(isi_aksi284.replace(
+        isi_baru284 = isi_aksi284.replace(
                 baris_aksi284,
                 baris_aksi284.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(diff --label '<a>' --label '<b>' berkas.txt -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(diff --label '<a>' --label '<b>' berkas.txt -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru284 != isi_aksi284, \
+            "suntikan aksi284 tidak menembak"
+        with open(berkas_aksi284, "w", encoding="utf-8") as f:
+            f.write(isi_baru284)
         rc, out = jalan(sub284,
                         [sys.executable, GERBANG, "--semua"])
         periksa("diff label berkutip <: gerbang gagal (Audit 1133)", rc != 0)
@@ -5568,12 +6393,15 @@ def main():
             isi_aksi285 = f.read()
         baris_aksi285 = [b for b in isi_aksi285.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi285, "w", encoding="utf-8") as f:
-            f.write(isi_aksi285.replace(
+        isi_baru285 = isi_aksi285.replace(
                 baris_aksi285,
                 baris_aksi285.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(diff berkas.txt berkas2.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(diff berkas.txt berkas2.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru285 != isi_aksi285, \
+            "suntikan aksi285 tidak menembak"
+        with open(berkas_aksi285, "w", encoding="utf-8") as f:
+            f.write(isi_baru285)
         rc, out = jalan(sub285,
                         [sys.executable, GERBANG, "--semua"])
         periksa("diff dua berkas: gerbang lolos (Audit 1133)", rc == 0)
@@ -5586,12 +6414,15 @@ def main():
             isi_aksi286 = f.read()
         baris_aksi286 = [b for b in isi_aksi286.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi286, "w", encoding="utf-8") as f:
-            f.write(isi_aksi286.replace(
+        isi_baru286 = isi_aksi286.replace(
                 baris_aksi286,
                 baris_aksi286.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(xargs -a - echo; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(xargs -a - echo; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru286 != isi_aksi286, \
+            "suntikan aksi286 tidak menembak"
+        with open(berkas_aksi286, "w", encoding="utf-8") as f:
+            f.write(isi_baru286)
         rc, out = jalan(sub286,
                         [sys.executable, GERBANG, "--semua"])
         periksa("xargs -a -: gerbang gagal (Audit 1134)", rc != 0)
@@ -5604,12 +6435,15 @@ def main():
             isi_aksi287 = f.read()
         baris_aksi287 = [b for b in isi_aksi287.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi287, "w", encoding="utf-8") as f:
-            f.write(isi_aksi287.replace(
+        isi_baru287 = isi_aksi287.replace(
                 baris_aksi287,
                 baris_aksi287.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(xargs -a daftar echo; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(xargs -a daftar echo; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru287 != isi_aksi287, \
+            "suntikan aksi287 tidak menembak"
+        with open(berkas_aksi287, "w", encoding="utf-8") as f:
+            f.write(isi_baru287)
         rc, out = jalan(sub287,
                         [sys.executable, GERBANG, "--semua"])
         periksa("xargs -a berkas: gerbang lolos (Audit 1134)", rc == 0)
@@ -5622,12 +6456,15 @@ def main():
             isi_aksi288 = f.read()
         baris_aksi288 = [b for b in isi_aksi288.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi288, "w", encoding="utf-8") as f:
-            f.write(isi_aksi288.replace(
+        isi_baru288 = isi_aksi288.replace(
                 baris_aksi288,
                 baris_aksi288.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst - -sign; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst - -sign; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru288 != isi_aksi288, \
+            "suntikan aksi288 tidak menembak"
+        with open(berkas_aksi288, "w", encoding="utf-8") as f:
+            f.write(isi_baru288)
         rc, out = jalan(sub288,
                         [sys.executable, GERBANG, "--semua"])
         periksa("dgst opsi menggantung: gerbang lolos (Audit 1135)", rc == 0)
@@ -5640,12 +6477,15 @@ def main():
             isi_aksi289 = f.read()
         baris_aksi289 = [b for b in isi_aksi289.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi289, "w", encoding="utf-8") as f:
-            f.write(isi_aksi289.replace(
+        isi_baru289 = isi_aksi289.replace(
                 baris_aksi289,
                 baris_aksi289.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(comm - --output-delimiter; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(comm - --output-delimiter; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru289 != isi_aksi289, \
+            "suntikan aksi289 tidak menembak"
+        with open(berkas_aksi289, "w", encoding="utf-8") as f:
+            f.write(isi_baru289)
         rc, out = jalan(sub289,
                         [sys.executable, GERBANG, "--semua"])
         periksa("comm opsi menggantung: gerbang lolos (Audit 1135)", rc == 0)
@@ -5658,12 +6498,15 @@ def main():
             isi_aksi290 = f.read()
         baris_aksi290 = [b for b in isi_aksi290.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi290, "w", encoding="utf-8") as f:
-            f.write(isi_aksi290.replace(
+        isi_baru290 = isi_aksi290.replace(
                 baris_aksi290,
                 baris_aksi290.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(gpg --print-md --homedir; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(gpg --print-md --homedir; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru290 != isi_aksi290, \
+            "suntikan aksi290 tidak menembak"
+        with open(berkas_aksi290, "w", encoding="utf-8") as f:
+            f.write(isi_baru290)
         rc, out = jalan(sub290,
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg opsi menggantung: gerbang lolos (Audit 1135)", rc == 0)
@@ -5676,12 +6519,15 @@ def main():
             isi_aksi291 = f.read()
         baris_aksi291 = [b for b in isi_aksi291.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi291, "w", encoding="utf-8") as f:
-            f.write(isi_aksi291.replace(
+        isi_baru291 = isi_aksi291.replace(
                 baris_aksi291,
                 baris_aksi291.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru291 != isi_aksi291, \
+            "suntikan aksi291 tidak menembak"
+        with open(berkas_aksi291, "w", encoding="utf-8") as f:
+            f.write(isi_baru291)
         rc, out = jalan(sub291,
                         [sys.executable, GERBANG, "--semua"])
         periksa("dgst - kontrol: gerbang gagal (Audit 1135)", rc != 0)
@@ -5694,12 +6540,15 @@ def main():
             isi_aksi292 = f.read()
         baris_aksi292 = [b for b in isi_aksi292.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi292, "w", encoding="utf-8") as f:
-            f.write(isi_aksi292.replace(
+        isi_baru292 = isi_aksi292.replace(
                 baris_aksi292,
                 baris_aksi292.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(vim --help; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(vim --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru292 != isi_aksi292, \
+            "suntikan aksi292 tidak menembak"
+        with open(berkas_aksi292, "w", encoding="utf-8") as f:
+            f.write(isi_baru292)
         rc, out = jalan(sub292,
                         [sys.executable, GERBANG, "--semua"])
         periksa("vim --help: gerbang lolos (Audit 1136)", rc == 0)
@@ -5712,12 +6561,15 @@ def main():
             isi_aksi293 = f.read()
         baris_aksi293 = [b for b in isi_aksi293.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi293, "w", encoding="utf-8") as f:
-            f.write(isi_aksi293.replace(
+        isi_baru293 = isi_aksi293.replace(
                 baris_aksi293,
                 baris_aksi293.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sqlite3 --version; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sqlite3 --version; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru293 != isi_aksi293, \
+            "suntikan aksi293 tidak menembak"
+        with open(berkas_aksi293, "w", encoding="utf-8") as f:
+            f.write(isi_baru293)
         rc, out = jalan(sub293,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sqlite3 --version: gerbang lolos (Audit 1136)", rc == 0)
@@ -5730,12 +6582,15 @@ def main():
             isi_aksi294 = f.read()
         baris_aksi294 = [b for b in isi_aksi294.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi294, "w", encoding="utf-8") as f:
-            f.write(isi_aksi294.replace(
+        isi_baru294 = isi_aksi294.replace(
                 baris_aksi294,
                 baris_aksi294.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(patch --help; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(patch --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru294 != isi_aksi294, \
+            "suntikan aksi294 tidak menembak"
+        with open(berkas_aksi294, "w", encoding="utf-8") as f:
+            f.write(isi_baru294)
         rc, out = jalan(sub294,
                         [sys.executable, GERBANG, "--semua"])
         periksa("patch --help: gerbang lolos (Audit 1136)", rc == 0)
@@ -5748,12 +6603,15 @@ def main():
             isi_aksi295 = f.read()
         baris_aksi295 = [b for b in isi_aksi295.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi295, "w", encoding="utf-8") as f:
-            f.write(isi_aksi295.replace(
+        isi_baru295 = isi_aksi295.replace(
                 baris_aksi295,
                 baris_aksi295.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl x509 -help; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl x509 -help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru295 != isi_aksi295, \
+            "suntikan aksi295 tidak menembak"
+        with open(berkas_aksi295, "w", encoding="utf-8") as f:
+            f.write(isi_baru295)
         rc, out = jalan(sub295,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl x509 -help: gerbang lolos (Audit 1136)", rc == 0)
@@ -5766,12 +6624,15 @@ def main():
             isi_aksi296 = f.read()
         baris_aksi296 = [b for b in isi_aksi296.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi296, "w", encoding="utf-8") as f:
-            f.write(isi_aksi296.replace(
+        isi_baru296 = isi_aksi296.replace(
                 baris_aksi296,
                 baris_aksi296.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(vim; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(vim; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru296 != isi_aksi296, \
+            "suntikan aksi296 tidak menembak"
+        with open(berkas_aksi296, "w", encoding="utf-8") as f:
+            f.write(isi_baru296)
         rc, out = jalan(sub296,
                         [sys.executable, GERBANG, "--semua"])
         periksa("vim telanjang kontrol: gerbang gagal (Audit 1136)", rc != 0)
@@ -5784,12 +6645,15 @@ def main():
             isi_aksi297 = f.read()
         baris_aksi297 = [b for b in isi_aksi297.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi297, "w", encoding="utf-8") as f:
-            f.write(isi_aksi297.replace(
+        isi_baru297 = isi_aksi297.replace(
                 baris_aksi297,
                 baris_aksi297.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(basenc --base64 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(basenc --base64 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru297 != isi_aksi297, \
+            "suntikan aksi297 tidak menembak"
+        with open(berkas_aksi297, "w", encoding="utf-8") as f:
+            f.write(isi_baru297)
         rc, out = jalan(sub297,
                         [sys.executable, GERBANG, "--semua"])
         periksa("basenc beroperand: gerbang lolos (Audit 1137)", rc == 0)
@@ -5802,12 +6666,15 @@ def main():
             isi_aksi298 = f.read()
         baris_aksi298 = [b for b in isi_aksi298.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi298, "w", encoding="utf-8") as f:
-            f.write(isi_aksi298.replace(
+        isi_baru298 = isi_aksi298.replace(
                 baris_aksi298,
                 baris_aksi298.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(basenc --base64; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(basenc --base64; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru298 != isi_aksi298, \
+            "suntikan aksi298 tidak menembak"
+        with open(berkas_aksi298, "w", encoding="utf-8") as f:
+            f.write(isi_baru298)
         rc, out = jalan(sub298,
                         [sys.executable, GERBANG, "--semua"])
         periksa("basenc polos bermode: gerbang gagal (Audit 1137)", rc != 0)
@@ -5820,12 +6687,15 @@ def main():
             isi_aksi299 = f.read()
         baris_aksi299 = [b for b in isi_aksi299.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi299, "w", encoding="utf-8") as f:
-            f.write(isi_aksi299.replace(
+        isi_baru299 = isi_aksi299.replace(
                 baris_aksi299,
                 baris_aksi299.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(basenc --base64 -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(basenc --base64 -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru299 != isi_aksi299, \
+            "suntikan aksi299 tidak menembak"
+        with open(berkas_aksi299, "w", encoding="utf-8") as f:
+            f.write(isi_baru299)
         rc, out = jalan(sub299,
                         [sys.executable, GERBANG, "--semua"])
         periksa("basenc operand -: gerbang gagal (Audit 1137)", rc != 0)
@@ -5838,12 +6708,15 @@ def main():
             isi_aksi300 = f.read()
         baris_aksi300 = [b for b in isi_aksi300.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi300, "w", encoding="utf-8") as f:
-            f.write(isi_aksi300.replace(
+        isi_baru300 = isi_aksi300.replace(
                 baris_aksi300,
                 baris_aksi300.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sed -i s/a/b/; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sed -i s/a/b/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru300 != isi_aksi300, \
+            "suntikan aksi300 tidak menembak"
+        with open(berkas_aksi300, "w", encoding="utf-8") as f:
+            f.write(isi_baru300)
         rc, out = jalan(sub300,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sed -i tanpa berkas: gerbang lolos (Audit 1138)", rc == 0)
@@ -5856,12 +6729,15 @@ def main():
             isi_aksi301 = f.read()
         baris_aksi301 = [b for b in isi_aksi301.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi301, "w", encoding="utf-8") as f:
-            f.write(isi_aksi301.replace(
+        isi_baru301 = isi_aksi301.replace(
                 baris_aksi301,
                 baris_aksi301.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sed -i s/a/b/ berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sed -i s/a/b/ berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru301 != isi_aksi301, \
+            "suntikan aksi301 tidak menembak"
+        with open(berkas_aksi301, "w", encoding="utf-8") as f:
+            f.write(isi_baru301)
         rc, out = jalan(sub301,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sed -i berberkas: gerbang lolos (Audit 1138)", rc == 0)
@@ -5874,12 +6750,15 @@ def main():
             isi_aksi302 = f.read()
         baris_aksi302 = [b for b in isi_aksi302.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi302, "w", encoding="utf-8") as f:
-            f.write(isi_aksi302.replace(
+        isi_baru302 = isi_aksi302.replace(
                 baris_aksi302,
                 baris_aksi302.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sed s/a/b/; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sed s/a/b/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru302 != isi_aksi302, \
+            "suntikan aksi302 tidak menembak"
+        with open(berkas_aksi302, "w", encoding="utf-8") as f:
+            f.write(isi_baru302)
         rc, out = jalan(sub302,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sed polos kontrol: gerbang gagal (Audit 1138)", rc != 0)
@@ -5892,12 +6771,15 @@ def main():
             isi_aksi303 = f.read()
         baris_aksi303 = [b for b in isi_aksi303.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi303, "w", encoding="utf-8") as f:
-            f.write(isi_aksi303.replace(
+        isi_baru303 = isi_aksi303.replace(
                 baris_aksi303,
                 baris_aksi303.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sort --files0-from=daftar; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sort --files0-from=daftar; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru303 != isi_aksi303, \
+            "suntikan aksi303 tidak menembak"
+        with open(berkas_aksi303, "w", encoding="utf-8") as f:
+            f.write(isi_baru303)
         rc, out = jalan(sub303,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sort --files0-from berkas: gerbang lolos (Audit 1139)", rc == 0)
@@ -5910,12 +6792,15 @@ def main():
             isi_aksi304 = f.read()
         baris_aksi304 = [b for b in isi_aksi304.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi304, "w", encoding="utf-8") as f:
-            f.write(isi_aksi304.replace(
+        isi_baru304 = isi_aksi304.replace(
                 baris_aksi304,
                 baris_aksi304.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(wc --files0-from daftar; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(wc --files0-from daftar; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru304 != isi_aksi304, \
+            "suntikan aksi304 tidak menembak"
+        with open(berkas_aksi304, "w", encoding="utf-8") as f:
+            f.write(isi_baru304)
         rc, out = jalan(sub304,
                         [sys.executable, GERBANG, "--semua"])
         periksa("wc --files0-from berkas: gerbang lolos (Audit 1139)", rc == 0)
@@ -5928,12 +6813,15 @@ def main():
             isi_aksi305 = f.read()
         baris_aksi305 = [b for b in isi_aksi305.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi305, "w", encoding="utf-8") as f:
-            f.write(isi_aksi305.replace(
+        isi_baru305 = isi_aksi305.replace(
                 baris_aksi305,
                 baris_aksi305.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sort --files0-from=-; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sort --files0-from=-; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru305 != isi_aksi305, \
+            "suntikan aksi305 tidak menembak"
+        with open(berkas_aksi305, "w", encoding="utf-8") as f:
+            f.write(isi_baru305)
         rc, out = jalan(sub305,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sort --files0-from=-: gerbang gagal (Audit 1139)", rc != 0)
@@ -5946,12 +6834,15 @@ def main():
             isi_aksi306 = f.read()
         baris_aksi306 = [b for b in isi_aksi306.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi306, "w", encoding="utf-8") as f:
-            f.write(isi_aksi306.replace(
+        isi_baru306 = isi_aksi306.replace(
                 baris_aksi306,
                 baris_aksi306.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(su -mc 'sort berkas'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(su -mc 'sort berkas'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru306 != isi_aksi306, \
+            "suntikan aksi306 tidak menembak"
+        with open(berkas_aksi306, "w", encoding="utf-8") as f:
+            f.write(isi_baru306)
         rc, out = jalan(sub306,
                         [sys.executable, GERBANG, "--semua"])
         periksa("su -mc sort: gerbang lolos (Audit 1140)", rc == 0)
@@ -5964,12 +6855,15 @@ def main():
             isi_aksi307 = f.read()
         baris_aksi307 = [b for b in isi_aksi307.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi307, "w", encoding="utf-8") as f:
-            f.write(isi_aksi307.replace(
+        isi_baru307 = isi_aksi307.replace(
                 baris_aksi307,
                 baris_aksi307.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(su -mc 'cat'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(su -mc 'cat'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru307 != isi_aksi307, \
+            "suntikan aksi307 tidak menembak"
+        with open(berkas_aksi307, "w", encoding="utf-8") as f:
+            f.write(isi_baru307)
         rc, out = jalan(sub307,
                         [sys.executable, GERBANG, "--semua"])
         periksa("su -mc cat: gerbang gagal (Audit 1140)", rc != 0)
@@ -5982,12 +6876,15 @@ def main():
             isi_aksi308 = f.read()
         baris_aksi308 = [b for b in isi_aksi308.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi308, "w", encoding="utf-8") as f:
-            f.write(isi_aksi308.replace(
+        isi_baru308 = isi_aksi308.replace(
                 baris_aksi308,
                 baris_aksi308.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(su -c 'sort berkas'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(su -c 'sort berkas'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru308 != isi_aksi308, \
+            "suntikan aksi308 tidak menembak"
+        with open(berkas_aksi308, "w", encoding="utf-8") as f:
+            f.write(isi_baru308)
         rc, out = jalan(sub308,
                         [sys.executable, GERBANG, "--semua"])
         periksa("su -c sort kontrol: gerbang lolos (Audit 1140)", rc == 0)
@@ -6000,12 +6897,15 @@ def main():
             isi_aksi309 = f.read()
         baris_aksi309 = [b for b in isi_aksi309.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi309, "w", encoding="utf-8") as f:
-            f.write(isi_aksi309.replace(
+        isi_baru309 = isi_aksi309.replace(
                 baris_aksi309,
                 baris_aksi309.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(uniq --group berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(uniq --group berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru309 != isi_aksi309, \
+            "suntikan aksi309 tidak menembak"
+        with open(berkas_aksi309, "w", encoding="utf-8") as f:
+            f.write(isi_baru309)
         rc, out = jalan(sub309,
                         [sys.executable, GERBANG, "--semua"])
         periksa("uniq --group beroperand: gerbang lolos (Audit 1141)", rc == 0)
@@ -6018,12 +6918,15 @@ def main():
             isi_aksi310 = f.read()
         baris_aksi310 = [b for b in isi_aksi310.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi310, "w", encoding="utf-8") as f:
-            f.write(isi_aksi310.replace(
+        isi_baru310 = isi_aksi310.replace(
                 baris_aksi310,
                 baris_aksi310.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(uniq --group; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(uniq --group; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru310 != isi_aksi310, \
+            "suntikan aksi310 tidak menembak"
+        with open(berkas_aksi310, "w", encoding="utf-8") as f:
+            f.write(isi_baru310)
         rc, out = jalan(sub310,
                         [sys.executable, GERBANG, "--semua"])
         periksa("uniq --group polos: gerbang gagal (Audit 1141)", rc != 0)
@@ -6036,12 +6939,15 @@ def main():
             isi_aksi311 = f.read()
         baris_aksi311 = [b for b in isi_aksi311.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi311, "w", encoding="utf-8") as f:
-            f.write(isi_aksi311.replace(
+        isi_baru311 = isi_aksi311.replace(
                 baris_aksi311,
                 baris_aksi311.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(expect -c 'puts x' -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(expect -c 'puts x' -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru311 != isi_aksi311, \
+            "suntikan aksi311 tidak menembak"
+        with open(berkas_aksi311, "w", encoding="utf-8") as f:
+            f.write(isi_baru311)
         rc, out = jalan(sub311,
                         [sys.executable, GERBANG, "--semua"])
         periksa("expect -c 'puts x' -f -: gerbang gagal (Audit 1145)", rc != 0)
@@ -6054,12 +6960,15 @@ def main():
             isi_aksi312 = f.read()
         baris_aksi312 = [b for b in isi_aksi312.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi312, "w", encoding="utf-8") as f:
-            f.write(isi_aksi312.replace(
+        isi_baru312 = isi_aksi312.replace(
                 baris_aksi312,
                 baris_aksi312.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(expect -c 'puts x'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(expect -c 'puts x'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru312 != isi_aksi312, \
+            "suntikan aksi312 tidak menembak"
+        with open(berkas_aksi312, "w", encoding="utf-8") as f:
+            f.write(isi_baru312)
         rc, out = jalan(sub312,
                         [sys.executable, GERBANG, "--semua"])
         periksa("expect -c 'puts x': gerbang lolos (Audit 1145)", rc == 0)
@@ -6072,12 +6981,15 @@ def main():
             isi_aksi313 = f.read()
         baris_aksi313 = [b for b in isi_aksi313.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi313, "w", encoding="utf-8") as f:
-            f.write(isi_aksi313.replace(
+        isi_baru313 = isi_aksi313.replace(
                 baris_aksi313,
                 baris_aksi313.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(expect -D 0 -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(expect -D 0 -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru313 != isi_aksi313, \
+            "suntikan aksi313 tidak menembak"
+        with open(berkas_aksi313, "w", encoding="utf-8") as f:
+            f.write(isi_baru313)
         rc, out = jalan(sub313,
                         [sys.executable, GERBANG, "--semua"])
         periksa("expect -D 0 -f -: gerbang gagal (Audit 1146)", rc != 0)
@@ -6090,12 +7002,15 @@ def main():
             isi_aksi314 = f.read()
         baris_aksi314 = [b for b in isi_aksi314.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi314, "w", encoding="utf-8") as f:
-            f.write(isi_aksi314.replace(
+        isi_baru314 = isi_aksi314.replace(
                 baris_aksi314,
                 baris_aksi314.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(expect -D 0 -f skrip.exp; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(expect -D 0 -f skrip.exp; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru314 != isi_aksi314, \
+            "suntikan aksi314 tidak menembak"
+        with open(berkas_aksi314, "w", encoding="utf-8") as f:
+            f.write(isi_baru314)
         rc, out = jalan(sub314,
                         [sys.executable, GERBANG, "--semua"])
         periksa("expect -D 0 -f skrip.exp: gerbang lolos (Audit 1146)", rc == 0)
@@ -6108,12 +7023,15 @@ def main():
             isi_aksi315 = f.read()
         baris_aksi315 = [b for b in isi_aksi315.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi315, "w", encoding="utf-8") as f:
-            f.write(isi_aksi315.replace(
+        isi_baru315 = isi_aksi315.replace(
                 baris_aksi315,
                 baris_aksi315.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(diff - --label --help berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(diff - --label --help berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru315 != isi_aksi315, \
+            "suntikan aksi315 tidak menembak"
+        with open(berkas_aksi315, "w", encoding="utf-8") as f:
+            f.write(isi_baru315)
         rc, out = jalan(sub315,
                         [sys.executable, GERBANG, "--semua"])
         periksa("diff - --label --help berkas: gerbang gagal (Audit 1147)", rc != 0)
@@ -6126,12 +7044,15 @@ def main():
             isi_aksi316 = f.read()
         baris_aksi316 = [b for b in isi_aksi316.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi316, "w", encoding="utf-8") as f:
-            f.write(isi_aksi316.replace(
+        isi_baru316 = isi_aksi316.replace(
                 baris_aksi316,
                 baris_aksi316.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(csplit - -f --help 2; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(csplit - -f --help 2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru316 != isi_aksi316, \
+            "suntikan aksi316 tidak menembak"
+        with open(berkas_aksi316, "w", encoding="utf-8") as f:
+            f.write(isi_baru316)
         rc, out = jalan(sub316,
                         [sys.executable, GERBANG, "--semua"])
         periksa("csplit - -f --help 2: gerbang gagal (Audit 1147)", rc != 0)
@@ -6144,12 +7065,15 @@ def main():
             isi_aksi317 = f.read()
         baris_aksi317 = [b for b in isi_aksi317.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi317, "w", encoding="utf-8") as f:
-            f.write(isi_aksi317.replace(
+        isi_baru317 = isi_aksi317.replace(
                 baris_aksi317,
                 baris_aksi317.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(diff - --help; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(diff - --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru317 != isi_aksi317, \
+            "suntikan aksi317 tidak menembak"
+        with open(berkas_aksi317, "w", encoding="utf-8") as f:
+            f.write(isi_baru317)
         rc, out = jalan(sub317,
                         [sys.executable, GERBANG, "--semua"])
         periksa("diff - --help: gerbang lolos (Audit 1147)", rc == 0)
@@ -6162,12 +7086,15 @@ def main():
             isi_aksi318 = f.read()
         baris_aksi318 = [b for b in isi_aksi318.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi318, "w", encoding="utf-8") as f:
-            f.write(isi_aksi318.replace(
+        isi_baru318 = isi_aksi318.replace(
                 baris_aksi318,
                 baris_aksi318.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -sha256 -hmac kunci; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -sha256 -hmac kunci; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru318 != isi_aksi318, \
+            "suntikan aksi318 tidak menembak"
+        with open(berkas_aksi318, "w", encoding="utf-8") as f:
+            f.write(isi_baru318)
         rc, out = jalan(sub318,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl dgst -sha256 -hmac kunci: gerbang gagal (Audit 1148)", rc != 0)
@@ -6180,12 +7107,15 @@ def main():
             isi_aksi319 = f.read()
         baris_aksi319 = [b for b in isi_aksi319.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi319, "w", encoding="utf-8") as f:
-            f.write(isi_aksi319.replace(
+        isi_baru319 = isi_aksi319.replace(
                 baris_aksi319,
                 baris_aksi319.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -sha256 -sigopt rsa_padding_mode:pss; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -sha256 -sigopt rsa_padding_mode:pss; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru319 != isi_aksi319, \
+            "suntikan aksi319 tidak menembak"
+        with open(berkas_aksi319, "w", encoding="utf-8") as f:
+            f.write(isi_baru319)
         rc, out = jalan(sub319,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl dgst -sha256 -sigopt rsa_padding_mode:pss: gerbang gagal (Audit 1148)", rc != 0)
@@ -6198,12 +7128,15 @@ def main():
             isi_aksi320 = f.read()
         baris_aksi320 = [b for b in isi_aksi320.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi320, "w", encoding="utf-8") as f:
-            f.write(isi_aksi320.replace(
+        isi_baru320 = isi_aksi320.replace(
                 baris_aksi320,
                 baris_aksi320.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -sha256 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -sha256 berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru320 != isi_aksi320, \
+            "suntikan aksi320 tidak menembak"
+        with open(berkas_aksi320, "w", encoding="utf-8") as f:
+            f.write(isi_baru320)
         rc, out = jalan(sub320,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl dgst -sha256 berkas: gerbang lolos (Audit 1148)", rc == 0)
@@ -6216,12 +7149,15 @@ def main():
             isi_aksi321 = f.read()
         baris_aksi321 = [b for b in isi_aksi321.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi321, "w", encoding="utf-8") as f:
-            f.write(isi_aksi321.replace(
+        isi_baru321 = isi_aksi321.replace(
                 baris_aksi321,
                 baris_aksi321.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl verify -verify_hostname contoh.com; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl verify -verify_hostname contoh.com; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru321 != isi_aksi321, \
+            "suntikan aksi321 tidak menembak"
+        with open(berkas_aksi321, "w", encoding="utf-8") as f:
+            f.write(isi_baru321)
         rc, out = jalan(sub321,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl verify -verify_hostname contoh.com: gerbang gagal (Audit 1149)", rc != 0)
@@ -6234,12 +7170,15 @@ def main():
             isi_aksi322 = f.read()
         baris_aksi322 = [b for b in isi_aksi322.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi322, "w", encoding="utf-8") as f:
-            f.write(isi_aksi322.replace(
+        isi_baru322 = isi_aksi322.replace(
                 baris_aksi322,
                 baris_aksi322.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl verify -CAfile ca.pem -verify_email a@b.c; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl verify -CAfile ca.pem -verify_email a@b.c; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru322 != isi_aksi322, \
+            "suntikan aksi322 tidak menembak"
+        with open(berkas_aksi322, "w", encoding="utf-8") as f:
+            f.write(isi_baru322)
         rc, out = jalan(sub322,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl verify -CAfile ca.pem -verify_email a@b.c: gerbang gagal (Audit 1149)", rc != 0)
@@ -6252,12 +7191,15 @@ def main():
             isi_aksi323 = f.read()
         baris_aksi323 = [b for b in isi_aksi323.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi323, "w", encoding="utf-8") as f:
-            f.write(isi_aksi323.replace(
+        isi_baru323 = isi_aksi323.replace(
                 baris_aksi323,
                 baris_aksi323.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl verify -verify_hostname contoh.com sert.pem; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl verify -verify_hostname contoh.com sert.pem; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru323 != isi_aksi323, \
+            "suntikan aksi323 tidak menembak"
+        with open(berkas_aksi323, "w", encoding="utf-8") as f:
+            f.write(isi_baru323)
         rc, out = jalan(sub323,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl verify -verify_hostname contoh.com sert.pem: gerbang lolos (Audit 1149)", rc == 0)
@@ -6270,12 +7212,15 @@ def main():
             isi_aksi324 = f.read()
         baris_aksi324 = [b for b in isi_aksi324.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi324, "w", encoding="utf-8") as f:
-            f.write(isi_aksi324.replace(
+        isi_baru324 = isi_aksi324.replace(
                 baris_aksi324,
                 baris_aksi324.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(gpg --verify - data.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(gpg --verify - data.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru324 != isi_aksi324, \
+            "suntikan aksi324 tidak menembak"
+        with open(berkas_aksi324, "w", encoding="utf-8") as f:
+            f.write(isi_baru324)
         rc, out = jalan(sub324,
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg --verify - data.txt: gerbang gagal (Audit 1150)", rc != 0)
@@ -6288,12 +7233,15 @@ def main():
             isi_aksi325 = f.read()
         baris_aksi325 = [b for b in isi_aksi325.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi325, "w", encoding="utf-8") as f:
-            f.write(isi_aksi325.replace(
+        isi_baru325 = isi_aksi325.replace(
                 baris_aksi325,
                 baris_aksi325.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(gpg --verify sig.asc data.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(gpg --verify sig.asc data.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru325 != isi_aksi325, \
+            "suntikan aksi325 tidak menembak"
+        with open(berkas_aksi325, "w", encoding="utf-8") as f:
+            f.write(isi_baru325)
         rc, out = jalan(sub325,
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg --verify sig.asc data.txt: gerbang lolos (Audit 1150)", rc == 0)
@@ -6306,12 +7254,15 @@ def main():
             isi_aksi326 = f.read()
         baris_aksi326 = [b for b in isi_aksi326.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi326, "w", encoding="utf-8") as f:
-            f.write(isi_aksi326.replace(
+        isi_baru326 = isi_aksi326.replace(
                 baris_aksi326,
                 baris_aksi326.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -t -T daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -t -T daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru326 != isi_aksi326, \
+            "suntikan aksi326 tidak menembak"
+        with open(berkas_aksi326, "w", encoding="utf-8") as f:
+            f.write(isi_baru326)
         rc, out = jalan(sub326,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar -t -T daftar.txt: gerbang gagal (Audit 1151)", rc != 0)
@@ -6324,12 +7275,15 @@ def main():
             isi_aksi327 = f.read()
         baris_aksi327 = [b for b in isi_aksi327.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi327, "w", encoding="utf-8") as f:
-            f.write(isi_aksi327.replace(
+        isi_baru327 = isi_aksi327.replace(
                 baris_aksi327,
                 baris_aksi327.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -x -T daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -x -T daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru327 != isi_aksi327, \
+            "suntikan aksi327 tidak menembak"
+        with open(berkas_aksi327, "w", encoding="utf-8") as f:
+            f.write(isi_baru327)
         rc, out = jalan(sub327,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar -x -T daftar.txt: gerbang gagal (Audit 1151)", rc != 0)
@@ -6342,12 +7296,15 @@ def main():
             isi_aksi328 = f.read()
         baris_aksi328 = [b for b in isi_aksi328.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi328, "w", encoding="utf-8") as f:
-            f.write(isi_aksi328.replace(
+        isi_baru328 = isi_aksi328.replace(
                 baris_aksi328,
                 baris_aksi328.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -t -f arsip.tar -T daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -t -f arsip.tar -T daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru328 != isi_aksi328, \
+            "suntikan aksi328 tidak menembak"
+        with open(berkas_aksi328, "w", encoding="utf-8") as f:
+            f.write(isi_baru328)
         rc, out = jalan(sub328,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar -t -f arsip.tar -T daftar.txt: gerbang lolos (Audit 1151)", rc == 0)
@@ -6360,12 +7317,15 @@ def main():
             isi_aksi329 = f.read()
         baris_aksi329 = [b for b in isi_aksi329.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi329, "w", encoding="utf-8") as f:
-            f.write(isi_aksi329.replace(
+        isi_baru329 = isi_aksi329.replace(
                 baris_aksi329,
                 baris_aksi329.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -t -f; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -t -f; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru329 != isi_aksi329, \
+            "suntikan aksi329 tidak menembak"
+        with open(berkas_aksi329, "w", encoding="utf-8") as f:
+            f.write(isi_baru329)
         rc, out = jalan(sub329,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar -t -f: gerbang lolos (Audit 1152)", rc == 0)
@@ -6378,12 +7338,15 @@ def main():
             isi_aksi330 = f.read()
         baris_aksi330 = [b for b in isi_aksi330.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi330, "w", encoding="utf-8") as f:
-            f.write(isi_aksi330.replace(
+        isi_baru330 = isi_aksi330.replace(
                 baris_aksi330,
                 baris_aksi330.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -tf; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -tf; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru330 != isi_aksi330, \
+            "suntikan aksi330 tidak menembak"
+        with open(berkas_aksi330, "w", encoding="utf-8") as f:
+            f.write(isi_baru330)
         rc, out = jalan(sub330,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar -tf: gerbang lolos (Audit 1152)", rc == 0)
@@ -6396,12 +7359,15 @@ def main():
             isi_aksi331 = f.read()
         baris_aksi331 = [b for b in isi_aksi331.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi331, "w", encoding="utf-8") as f:
-            f.write(isi_aksi331.replace(
+        isi_baru331 = isi_aksi331.replace(
                 baris_aksi331,
                 baris_aksi331.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(unshare --propagation private; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(unshare --propagation private; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru331 != isi_aksi331, \
+            "suntikan aksi331 tidak menembak"
+        with open(berkas_aksi331, "w", encoding="utf-8") as f:
+            f.write(isi_baru331)
         rc, out = jalan(sub331,
                         [sys.executable, GERBANG, "--semua"])
         periksa("unshare --propagation private: gerbang gagal (Audit 1153)", rc != 0)
@@ -6414,12 +7380,15 @@ def main():
             isi_aksi332 = f.read()
         baris_aksi332 = [b for b in isi_aksi332.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi332, "w", encoding="utf-8") as f:
-            f.write(isi_aksi332.replace(
+        isi_baru332 = isi_aksi332.replace(
                 baris_aksi332,
                 baris_aksi332.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(unshare --propagation private sort berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(unshare --propagation private sort berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru332 != isi_aksi332, \
+            "suntikan aksi332 tidak menembak"
+        with open(berkas_aksi332, "w", encoding="utf-8") as f:
+            f.write(isi_baru332)
         rc, out = jalan(sub332,
                         [sys.executable, GERBANG, "--semua"])
         periksa("unshare --propagation private sort berkas: gerbang lolos (Audit 1153)", rc == 0)
@@ -6432,12 +7401,15 @@ def main():
             isi_aksi333 = f.read()
         baris_aksi333 = [b for b in isi_aksi333.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi333, "w", encoding="utf-8") as f:
-            f.write(isi_aksi333.replace(
+        isi_baru333 = isi_aksi333.replace(
                 baris_aksi333,
                 baris_aksi333.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(diff - berkas ''<pengganti.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(diff - berkas ''<pengganti.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru333 != isi_aksi333, \
+            "suntikan aksi333 tidak menembak"
+        with open(berkas_aksi333, "w", encoding="utf-8") as f:
+            f.write(isi_baru333)
         rc, out = jalan(sub333,
                         [sys.executable, GERBANG, "--semua"])
         periksa("diff - berkas ''<pengganti.txt: gerbang lolos (Audit 1154)", rc == 0)
@@ -6450,12 +7422,15 @@ def main():
             isi_aksi334 = f.read()
         baris_aksi334 = [b for b in isi_aksi334.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi334, "w", encoding="utf-8") as f:
-            f.write(isi_aksi334.replace(
+        isi_baru334 = isi_aksi334.replace(
                 baris_aksi334,
                 baris_aksi334.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(setpriv --reuid=1000 --regid=1000 --clear-groups cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(setpriv --reuid=1000 --regid=1000 --clear-groups cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru334 != isi_aksi334, \
+            "suntikan aksi334 tidak menembak"
+        with open(berkas_aksi334, "w", encoding="utf-8") as f:
+            f.write(isi_baru334)
         rc, out = jalan(sub334,
                         [sys.executable, GERBANG, "--semua"])
         periksa("setpriv --reuid=1000 --regid=1000 --clear-groups cat: gerbang gagal (Audit 1155)", rc != 0)
@@ -6468,12 +7443,15 @@ def main():
             isi_aksi335 = f.read()
         baris_aksi335 = [b for b in isi_aksi335.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi335, "w", encoding="utf-8") as f:
-            f.write(isi_aksi335.replace(
+        isi_baru335 = isi_aksi335.replace(
                 baris_aksi335,
                 baris_aksi335.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(setpriv --reuid=1000 sort berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(setpriv --reuid=1000 sort berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru335 != isi_aksi335, \
+            "suntikan aksi335 tidak menembak"
+        with open(berkas_aksi335, "w", encoding="utf-8") as f:
+            f.write(isi_baru335)
         rc, out = jalan(sub335,
                         [sys.executable, GERBANG, "--semua"])
         periksa("setpriv --reuid=1000 sort berkas: gerbang lolos (Audit 1155)", rc == 0)
@@ -6486,12 +7464,15 @@ def main():
             isi_aksi336 = f.read()
         baris_aksi336 = [b for b in isi_aksi336.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi336, "w", encoding="utf-8") as f:
-            f.write(isi_aksi336.replace(
+        isi_baru336 = isi_aksi336.replace(
                 baris_aksi336,
                 baris_aksi336.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(prlimit --nproc=100 cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(prlimit --nproc=100 cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru336 != isi_aksi336, \
+            "suntikan aksi336 tidak menembak"
+        with open(berkas_aksi336, "w", encoding="utf-8") as f:
+            f.write(isi_baru336)
         rc, out = jalan(sub336,
                         [sys.executable, GERBANG, "--semua"])
         periksa("prlimit --nproc=100 cat: gerbang gagal (Audit 1156)", rc != 0)
@@ -6504,12 +7485,15 @@ def main():
             isi_aksi337 = f.read()
         baris_aksi337 = [b for b in isi_aksi337.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi337, "w", encoding="utf-8") as f:
-            f.write(isi_aksi337.replace(
+        isi_baru337 = isi_aksi337.replace(
                 baris_aksi337,
                 baris_aksi337.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(prlimit --pid 123; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(prlimit --pid 123; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru337 != isi_aksi337, \
+            "suntikan aksi337 tidak menembak"
+        with open(berkas_aksi337, "w", encoding="utf-8") as f:
+            f.write(isi_baru337)
         rc, out = jalan(sub337,
                         [sys.executable, GERBANG, "--semua"])
         periksa("prlimit --pid 123: gerbang lolos (Audit 1156)", rc == 0)
@@ -6522,12 +7506,15 @@ def main():
             isi_aksi338 = f.read()
         baris_aksi338 = [b for b in isi_aksi338.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi338, "w", encoding="utf-8") as f:
-            f.write(isi_aksi338.replace(
+        isi_baru338 = isi_aksi338.replace(
                 baris_aksi338,
                 baris_aksi338.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(netcat contoh.com 80; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(netcat contoh.com 80; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru338 != isi_aksi338, \
+            "suntikan aksi338 tidak menembak"
+        with open(berkas_aksi338, "w", encoding="utf-8") as f:
+            f.write(isi_baru338)
         rc, out = jalan(sub338,
                         [sys.executable, GERBANG, "--semua"])
         periksa("netcat contoh.com 80: gerbang gagal (Audit 1157)", rc != 0)
@@ -6540,12 +7527,15 @@ def main():
             isi_aksi339 = f.read()
         baris_aksi339 = [b for b in isi_aksi339.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi339, "w", encoding="utf-8") as f:
-            f.write(isi_aksi339.replace(
+        isi_baru339 = isi_aksi339.replace(
                 baris_aksi339,
                 baris_aksi339.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(nc.openbsd contoh.com 80; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(nc.openbsd contoh.com 80; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru339 != isi_aksi339, \
+            "suntikan aksi339 tidak menembak"
+        with open(berkas_aksi339, "w", encoding="utf-8") as f:
+            f.write(isi_baru339)
         rc, out = jalan(sub339,
                         [sys.executable, GERBANG, "--semua"])
         periksa("nc.openbsd contoh.com 80: gerbang gagal (Audit 1157)", rc != 0)
@@ -6558,12 +7548,15 @@ def main():
             isi_aksi340 = f.read()
         baris_aksi340 = [b for b in isi_aksi340.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi340, "w", encoding="utf-8") as f:
-            f.write(isi_aksi340.replace(
+        isi_baru340 = isi_aksi340.replace(
                 baris_aksi340,
                 baris_aksi340.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(rbash; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(rbash; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru340 != isi_aksi340, \
+            "suntikan aksi340 tidak menembak"
+        with open(berkas_aksi340, "w", encoding="utf-8") as f:
+            f.write(isi_baru340)
         rc, out = jalan(sub340,
                         [sys.executable, GERBANG, "--semua"])
         periksa("rbash: gerbang gagal (Audit 1158)", rc != 0)
@@ -6576,12 +7569,15 @@ def main():
             isi_aksi341 = f.read()
         baris_aksi341 = [b for b in isi_aksi341.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi341, "w", encoding="utf-8") as f:
-            f.write(isi_aksi341.replace(
+        isi_baru341 = isi_aksi341.replace(
                 baris_aksi341,
                 baris_aksi341.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(rzsh; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(rzsh; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru341 != isi_aksi341, \
+            "suntikan aksi341 tidak menembak"
+        with open(berkas_aksi341, "w", encoding="utf-8") as f:
+            f.write(isi_baru341)
         rc, out = jalan(sub341,
                         [sys.executable, GERBANG, "--semua"])
         periksa("rzsh: gerbang gagal (Audit 1158)", rc != 0)
@@ -6594,12 +7590,15 @@ def main():
             isi_aksi342 = f.read()
         baris_aksi342 = [b for b in isi_aksi342.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi342, "w", encoding="utf-8") as f:
-            f.write(isi_aksi342.replace(
+        isi_baru342 = isi_aksi342.replace(
                 baris_aksi342,
                 baris_aksi342.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(python3.12; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(python3.12; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru342 != isi_aksi342, \
+            "suntikan aksi342 tidak menembak"
+        with open(berkas_aksi342, "w", encoding="utf-8") as f:
+            f.write(isi_baru342)
         rc, out = jalan(sub342,
                         [sys.executable, GERBANG, "--semua"])
         periksa("python3.12: gerbang gagal (Audit 1159)", rc != 0)
@@ -6612,12 +7611,15 @@ def main():
             isi_aksi343 = f.read()
         baris_aksi343 = [b for b in isi_aksi343.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi343, "w", encoding="utf-8") as f:
-            f.write(isi_aksi343.replace(
+        isi_baru343 = isi_aksi343.replace(
                 baris_aksi343,
                 baris_aksi343.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tclsh8.6; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tclsh8.6; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru343 != isi_aksi343, \
+            "suntikan aksi343 tidak menembak"
+        with open(berkas_aksi343, "w", encoding="utf-8") as f:
+            f.write(isi_baru343)
         rc, out = jalan(sub343,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tclsh8.6: gerbang gagal (Audit 1159)", rc != 0)
@@ -6630,12 +7632,15 @@ def main():
             isi_aksi344 = f.read()
         baris_aksi344 = [b for b in isi_aksi344.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi344, "w", encoding="utf-8") as f:
-            f.write(isi_aksi344.replace(
+        isi_baru344 = isi_aksi344.replace(
                 baris_aksi344,
                 baris_aksi344.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tclsh8.6 skrip.tcl; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tclsh8.6 skrip.tcl; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru344 != isi_aksi344, \
+            "suntikan aksi344 tidak menembak"
+        with open(berkas_aksi344, "w", encoding="utf-8") as f:
+            f.write(isi_baru344)
         rc, out = jalan(sub344,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tclsh8.6 skrip.tcl: gerbang lolos (Audit 1159)", rc == 0)
@@ -6648,12 +7653,15 @@ def main():
             isi_aksi345 = f.read()
         baris_aksi345 = [b for b in isi_aksi345.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi345, "w", encoding="utf-8") as f:
-            f.write(isi_aksi345.replace(
+        isi_baru345 = isi_aksi345.replace(
                 baris_aksi345,
                 baris_aksi345.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dsa; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dsa; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru345 != isi_aksi345, \
+            "suntikan aksi345 tidak menembak"
+        with open(berkas_aksi345, "w", encoding="utf-8") as f:
+            f.write(isi_baru345)
         rc, out = jalan(sub345,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl dsa: gerbang gagal (Audit 1160)", rc != 0)
@@ -6666,12 +7674,15 @@ def main():
             isi_aksi346 = f.read()
         baris_aksi346 = [b for b in isi_aksi346.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi346, "w", encoding="utf-8") as f:
-            f.write(isi_aksi346.replace(
+        isi_baru346 = isi_aksi346.replace(
                 baris_aksi346,
                 baris_aksi346.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl pkcs12; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl pkcs12; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru346 != isi_aksi346, \
+            "suntikan aksi346 tidak menembak"
+        with open(berkas_aksi346, "w", encoding="utf-8") as f:
+            f.write(isi_baru346)
         rc, out = jalan(sub346,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl pkcs12: gerbang gagal (Audit 1160)", rc != 0)
@@ -6684,12 +7695,15 @@ def main():
             isi_aksi347 = f.read()
         baris_aksi347 = [b for b in isi_aksi347.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi347, "w", encoding="utf-8") as f:
-            f.write(isi_aksi347.replace(
+        isi_baru347 = isi_aksi347.replace(
                 baris_aksi347,
                 baris_aksi347.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl crl2pkcs7; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl crl2pkcs7; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru347 != isi_aksi347, \
+            "suntikan aksi347 tidak menembak"
+        with open(berkas_aksi347, "w", encoding="utf-8") as f:
+            f.write(isi_baru347)
         rc, out = jalan(sub347,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl crl2pkcs7: gerbang gagal (Audit 1160)", rc != 0)
@@ -6702,12 +7716,15 @@ def main():
             isi_aksi348 = f.read()
         baris_aksi348 = [b for b in isi_aksi348.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi348, "w", encoding="utf-8") as f:
-            f.write(isi_aksi348.replace(
+        isi_baru348 = isi_aksi348.replace(
                 baris_aksi348,
                 baris_aksi348.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dsa -in kunci.pem; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dsa -in kunci.pem; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru348 != isi_aksi348, \
+            "suntikan aksi348 tidak menembak"
+        with open(berkas_aksi348, "w", encoding="utf-8") as f:
+            f.write(isi_baru348)
         rc, out = jalan(sub348,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl dsa -in kunci.pem: gerbang lolos (Audit 1160)", rc == 0)
@@ -6720,12 +7737,15 @@ def main():
             isi_aksi349 = f.read()
         baris_aksi349 = [b for b in isi_aksi349.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi349, "w", encoding="utf-8") as f:
-            f.write(isi_aksi349.replace(
+        isi_baru349 = isi_aksi349.replace(
                 baris_aksi349,
                 baris_aksi349.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl rsautl -sign -inkey k.pem; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl rsautl -sign -inkey k.pem; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru349 != isi_aksi349, \
+            "suntikan aksi349 tidak menembak"
+        with open(berkas_aksi349, "w", encoding="utf-8") as f:
+            f.write(isi_baru349)
         rc, out = jalan(sub349,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl rsautl -sign -inkey k.pem: gerbang gagal (Audit 1161)", rc != 0)
@@ -6738,12 +7758,15 @@ def main():
             isi_aksi350 = f.read()
         baris_aksi350 = [b for b in isi_aksi350.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi350, "w", encoding="utf-8") as f:
-            f.write(isi_aksi350.replace(
+        isi_baru350 = isi_aksi350.replace(
                 baris_aksi350,
                 baris_aksi350.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl rsautl -sign -inkey k.pem -in data.bin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl rsautl -sign -inkey k.pem -in data.bin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru350 != isi_aksi350, \
+            "suntikan aksi350 tidak menembak"
+        with open(berkas_aksi350, "w", encoding="utf-8") as f:
+            f.write(isi_baru350)
         rc, out = jalan(sub350,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl rsautl -sign -inkey k.pem -in data.bin: gerbang lolos (Audit 1161)", rc == 0)
@@ -6756,12 +7779,15 @@ def main():
             isi_aksi351 = f.read()
         baris_aksi351 = [b for b in isi_aksi351.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi351, "w", encoding="utf-8") as f:
-            f.write(isi_aksi351.replace(
+        isi_baru351 = isi_aksi351.replace(
                 baris_aksi351,
                 baris_aksi351.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git commit-tree abc123; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git commit-tree abc123; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru351 != isi_aksi351, \
+            "suntikan aksi351 tidak menembak"
+        with open(berkas_aksi351, "w", encoding="utf-8") as f:
+            f.write(isi_baru351)
         rc, out = jalan(sub351,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git commit-tree abc123: gerbang gagal (Audit 1162)", rc != 0)
@@ -6774,12 +7800,15 @@ def main():
             isi_aksi352 = f.read()
         baris_aksi352 = [b for b in isi_aksi352.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi352, "w", encoding="utf-8") as f:
-            f.write(isi_aksi352.replace(
+        isi_baru352 = isi_aksi352.replace(
                 baris_aksi352,
                 baris_aksi352.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git interpret-trailers; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git interpret-trailers; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru352 != isi_aksi352, \
+            "suntikan aksi352 tidak menembak"
+        with open(berkas_aksi352, "w", encoding="utf-8") as f:
+            f.write(isi_baru352)
         rc, out = jalan(sub352,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git interpret-trailers: gerbang gagal (Audit 1162)", rc != 0)
@@ -6792,12 +7821,15 @@ def main():
             isi_aksi353 = f.read()
         baris_aksi353 = [b for b in isi_aksi353.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi353, "w", encoding="utf-8") as f:
-            f.write(isi_aksi353.replace(
+        isi_baru353 = isi_aksi353.replace(
                 baris_aksi353,
                 baris_aksi353.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git mailinfo msg patch; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git mailinfo msg patch; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru353 != isi_aksi353, \
+            "suntikan aksi353 tidak menembak"
+        with open(berkas_aksi353, "w", encoding="utf-8") as f:
+            f.write(isi_baru353)
         rc, out = jalan(sub353,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git mailinfo msg patch: gerbang gagal (Audit 1162)", rc != 0)
@@ -6810,12 +7842,15 @@ def main():
             isi_aksi354 = f.read()
         baris_aksi354 = [b for b in isi_aksi354.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi354, "w", encoding="utf-8") as f:
-            f.write(isi_aksi354.replace(
+        isi_baru354 = isi_aksi354.replace(
                 baris_aksi354,
                 baris_aksi354.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git mailsplit -o/tmp/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git mailsplit -o/tmp/x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru354 != isi_aksi354, \
+            "suntikan aksi354 tidak menembak"
+        with open(berkas_aksi354, "w", encoding="utf-8") as f:
+            f.write(isi_baru354)
         rc, out = jalan(sub354,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git mailsplit -o/tmp/x: gerbang gagal (Audit 1162)", rc != 0)
@@ -6828,12 +7863,15 @@ def main():
             isi_aksi355 = f.read()
         baris_aksi355 = [b for b in isi_aksi355.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi355, "w", encoding="utf-8") as f:
-            f.write(isi_aksi355.replace(
+        isi_baru355 = isi_aksi355.replace(
                 baris_aksi355,
                 baris_aksi355.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git mailsplit; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git mailsplit; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru355 != isi_aksi355, \
+            "suntikan aksi355 tidak menembak"
+        with open(berkas_aksi355, "w", encoding="utf-8") as f:
+            f.write(isi_baru355)
         rc, out = jalan(sub355,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git mailsplit: gerbang lolos (Audit 1162)", rc == 0)
@@ -6846,12 +7884,15 @@ def main():
             isi_aksi356 = f.read()
         baris_aksi356 = [b for b in isi_aksi356.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi356, "w", encoding="utf-8") as f:
-            f.write(isi_aksi356.replace(
+        isi_baru356 = isi_aksi356.replace(
                 baris_aksi356,
                 baris_aksi356.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git pack-objects dasar; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git pack-objects dasar; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru356 != isi_aksi356, \
+            "suntikan aksi356 tidak menembak"
+        with open(berkas_aksi356, "w", encoding="utf-8") as f:
+            f.write(isi_baru356)
         rc, out = jalan(sub356,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git pack-objects dasar: gerbang gagal (Audit 1162)", rc != 0)
@@ -6864,12 +7905,15 @@ def main():
             isi_aksi357 = f.read()
         baris_aksi357 = [b for b in isi_aksi357.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi357, "w", encoding="utf-8") as f:
-            f.write(isi_aksi357.replace(
+        isi_baru357 = isi_aksi357.replace(
                 baris_aksi357,
                 baris_aksi357.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git column --mode=column; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git column --mode=column; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru357 != isi_aksi357, \
+            "suntikan aksi357 tidak menembak"
+        with open(berkas_aksi357, "w", encoding="utf-8") as f:
+            f.write(isi_baru357)
         rc, out = jalan(sub357,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git column --mode=column: gerbang gagal (Audit 1162)", rc != 0)
@@ -6882,12 +7926,15 @@ def main():
             isi_aksi358 = f.read()
         baris_aksi358 = [b for b in isi_aksi358.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi358, "w", encoding="utf-8") as f:
-            f.write(isi_aksi358.replace(
+        isi_baru358 = isi_aksi358.replace(
                 baris_aksi358,
                 baris_aksi358.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git imap-send; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git imap-send; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru358 != isi_aksi358, \
+            "suntikan aksi358 tidak menembak"
+        with open(berkas_aksi358, "w", encoding="utf-8") as f:
+            f.write(isi_baru358)
         rc, out = jalan(sub358,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git imap-send: gerbang gagal (Audit 1162)", rc != 0)
@@ -6900,12 +7947,15 @@ def main():
             isi_aksi359 = f.read()
         baris_aksi359 = [b for b in isi_aksi359.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi359, "w", encoding="utf-8") as f:
-            f.write(isi_aksi359.replace(
+        isi_baru359 = isi_aksi359.replace(
                 baris_aksi359,
                 baris_aksi359.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git rev-list --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git rev-list --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru359 != isi_aksi359, \
+            "suntikan aksi359 tidak menembak"
+        with open(berkas_aksi359, "w", encoding="utf-8") as f:
+            f.write(isi_baru359)
         rc, out = jalan(sub359,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git rev-list --stdin: gerbang gagal (Audit 1163)", rc != 0)
@@ -6918,12 +7968,15 @@ def main():
             isi_aksi360 = f.read()
         baris_aksi360 = [b for b in isi_aksi360.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi360, "w", encoding="utf-8") as f:
-            f.write(isi_aksi360.replace(
+        isi_baru360 = isi_aksi360.replace(
                 baris_aksi360,
                 baris_aksi360.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git check-mailmap --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git check-mailmap --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru360 != isi_aksi360, \
+            "suntikan aksi360 tidak menembak"
+        with open(berkas_aksi360, "w", encoding="utf-8") as f:
+            f.write(isi_baru360)
         rc, out = jalan(sub360,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git check-mailmap --stdin: gerbang gagal (Audit 1163)", rc != 0)
@@ -6936,12 +7989,15 @@ def main():
             isi_aksi361 = f.read()
         baris_aksi361 = [b for b in isi_aksi361.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi361, "w", encoding="utf-8") as f:
-            f.write(isi_aksi361.replace(
+        isi_baru361 = isi_aksi361.replace(
                 baris_aksi361,
                 baris_aksi361.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git credential-store get; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git credential-store get; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru361 != isi_aksi361, \
+            "suntikan aksi361 tidak menembak"
+        with open(berkas_aksi361, "w", encoding="utf-8") as f:
+            f.write(isi_baru361)
         rc, out = jalan(sub361,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git credential-store get: gerbang gagal (Audit 1163)", rc != 0)
@@ -6954,12 +8010,15 @@ def main():
             isi_aksi362 = f.read()
         baris_aksi362 = [b for b in isi_aksi362.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi362, "w", encoding="utf-8") as f:
-            f.write(isi_aksi362.replace(
+        isi_baru362 = isi_aksi362.replace(
                 baris_aksi362,
                 baris_aksi362.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git rev-list HEAD; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git rev-list HEAD; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru362 != isi_aksi362, \
+            "suntikan aksi362 tidak menembak"
+        with open(berkas_aksi362, "w", encoding="utf-8") as f:
+            f.write(isi_baru362)
         rc, out = jalan(sub362,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git rev-list HEAD: gerbang lolos (Audit 1163)", rc == 0)
@@ -6972,12 +8031,15 @@ def main():
             isi_aksi363 = f.read()
         baris_aksi363 = [b for b in isi_aksi363.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi363, "w", encoding="utf-8") as f:
-            f.write(isi_aksi363.replace(
+        isi_baru363 = isi_aksi363.replace(
                 baris_aksi363,
                 baris_aksi363.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sort --key 2; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sort --key 2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru363 != isi_aksi363, \
+            "suntikan aksi363 tidak menembak"
+        with open(berkas_aksi363, "w", encoding="utf-8") as f:
+            f.write(isi_baru363)
         rc, out = jalan(sub363,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sort --key 2: gerbang gagal (Audit 1164)", rc != 0)
@@ -6990,12 +8052,15 @@ def main():
             isi_aksi364 = f.read()
         baris_aksi364 = [b for b in isi_aksi364.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi364, "w", encoding="utf-8") as f:
-            f.write(isi_aksi364.replace(
+        isi_baru364 = isi_aksi364.replace(
                 baris_aksi364,
                 baris_aksi364.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(uniq --skip-chars 2; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(uniq --skip-chars 2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru364 != isi_aksi364, \
+            "suntikan aksi364 tidak menembak"
+        with open(berkas_aksi364, "w", encoding="utf-8") as f:
+            f.write(isi_baru364)
         rc, out = jalan(sub364,
                         [sys.executable, GERBANG, "--semua"])
         periksa("uniq --skip-chars 2: gerbang gagal (Audit 1165)", rc != 0)
@@ -7008,12 +8073,15 @@ def main():
             isi_aksi365 = f.read()
         baris_aksi365 = [b for b in isi_aksi365.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi365, "w", encoding="utf-8") as f:
-            f.write(isi_aksi365.replace(
+        isi_baru365 = isi_aksi365.replace(
                 baris_aksi365,
                 baris_aksi365.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tail --sleep-interval 1; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tail --sleep-interval 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru365 != isi_aksi365, \
+            "suntikan aksi365 tidak menembak"
+        with open(berkas_aksi365, "w", encoding="utf-8") as f:
+            f.write(isi_baru365)
         rc, out = jalan(sub365,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tail --sleep-interval 1: gerbang gagal (Audit 1166)", rc != 0)
@@ -7026,12 +8094,15 @@ def main():
             isi_aksi366 = f.read()
         baris_aksi366 = [b for b in isi_aksi366.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi366, "w", encoding="utf-8") as f:
-            f.write(isi_aksi366.replace(
+        isi_baru366 = isi_aksi366.replace(
                 baris_aksi366,
                 baris_aksi366.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(pr -d berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(pr -d berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru366 != isi_aksi366, \
+            "suntikan aksi366 tidak menembak"
+        with open(berkas_aksi366, "w", encoding="utf-8") as f:
+            f.write(isi_baru366)
         rc, out = jalan(sub366,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pr -d berkas: gerbang lolos (Audit 1167)", rc == 0)
@@ -7044,12 +8115,15 @@ def main():
             isi_aksi367 = f.read()
         baris_aksi367 = [b for b in isi_aksi367.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi367, "w", encoding="utf-8") as f:
-            f.write(isi_aksi367.replace(
+        isi_baru367 = isi_aksi367.replace(
                 baris_aksi367,
                 baris_aksi367.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(pr -D %Y; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(pr -D %Y; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru367 != isi_aksi367, \
+            "suntikan aksi367 tidak menembak"
+        with open(berkas_aksi367, "w", encoding="utf-8") as f:
+            f.write(isi_baru367)
         rc, out = jalan(sub367,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pr -D %Y: gerbang gagal (Audit 1167)", rc != 0)
@@ -7062,12 +8136,15 @@ def main():
             isi_aksi368 = f.read()
         baris_aksi368 = [b for b in isi_aksi368.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi368, "w", encoding="utf-8") as f:
-            f.write(isi_aksi368.replace(
+        isi_baru368 = isi_aksi368.replace(
                 baris_aksi368,
                 baris_aksi368.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(strings -T elf64-x86-64; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(strings -T elf64-x86-64; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru368 != isi_aksi368, \
+            "suntikan aksi368 tidak menembak"
+        with open(berkas_aksi368, "w", encoding="utf-8") as f:
+            f.write(isi_baru368)
         rc, out = jalan(sub368,
                         [sys.executable, GERBANG, "--semua"])
         periksa("strings -T elf64-x86-64: gerbang gagal (Audit 1168)", rc != 0)
@@ -7080,12 +8157,15 @@ def main():
             isi_aksi369 = f.read()
         baris_aksi369 = [b for b in isi_aksi369.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi369, "w", encoding="utf-8") as f:
-            f.write(isi_aksi369.replace(
+        isi_baru369 = isi_aksi369.replace(
                 baris_aksi369,
                 baris_aksi369.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(split --filter cat -l 1 -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(split --filter cat -l 1 -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru369 != isi_aksi369, \
+            "suntikan aksi369 tidak menembak"
+        with open(berkas_aksi369, "w", encoding="utf-8") as f:
+            f.write(isi_baru369)
         rc, out = jalan(sub369,
                         [sys.executable, GERBANG, "--semua"])
         periksa("split --filter cat -l 1 -: gerbang gagal (Audit 1169)", rc != 0)
@@ -7098,12 +8178,15 @@ def main():
             isi_aksi370 = f.read()
         baris_aksi370 = [b for b in isi_aksi370.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi370, "w", encoding="utf-8") as f:
-            f.write(isi_aksi370.replace(
+        isi_baru370 = isi_aksi370.replace(
                 baris_aksi370,
                 baris_aksi370.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(logger --msgid abc; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(logger --msgid abc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru370 != isi_aksi370, \
+            "suntikan aksi370 tidak menembak"
+        with open(berkas_aksi370, "w", encoding="utf-8") as f:
+            f.write(isi_baru370)
         rc, out = jalan(sub370,
                         [sys.executable, GERBANG, "--semua"])
         periksa("logger --msgid abc: gerbang gagal (Audit 1170)", rc != 0)
@@ -7116,12 +8199,15 @@ def main():
             isi_aksi371 = f.read()
         baris_aksi371 = [b for b in isi_aksi371.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi371, "w", encoding="utf-8") as f:
-            f.write(isi_aksi371.replace(
+        isi_baru371 = isi_aksi371.replace(
                 baris_aksi371,
                 baris_aksi371.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(cksum -a blake2b -l 32; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(cksum -a blake2b -l 32; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru371 != isi_aksi371, \
+            "suntikan aksi371 tidak menembak"
+        with open(berkas_aksi371, "w", encoding="utf-8") as f:
+            f.write(isi_baru371)
         rc, out = jalan(sub371,
                         [sys.executable, GERBANG, "--semua"])
         periksa("cksum -a blake2b -l 32: gerbang gagal (Audit 1171)", rc != 0)
@@ -7134,12 +8220,15 @@ def main():
             isi_aksi372 = f.read()
         baris_aksi372 = [b for b in isi_aksi372.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi372, "w", encoding="utf-8") as f:
-            f.write(isi_aksi372.replace(
+        isi_baru372 = isi_aksi372.replace(
                 baris_aksi372,
                 baris_aksi372.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(xz -F lzma -c; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(xz -F lzma -c; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru372 != isi_aksi372, \
+            "suntikan aksi372 tidak menembak"
+        with open(berkas_aksi372, "w", encoding="utf-8") as f:
+            f.write(isi_baru372)
         rc, out = jalan(sub372,
                         [sys.executable, GERBANG, "--semua"])
         periksa("xz -F lzma -c: gerbang gagal (Audit 1172)", rc != 0)
@@ -7152,12 +8241,15 @@ def main():
             isi_aksi373 = f.read()
         baris_aksi373 = [b for b in isi_aksi373.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi373, "w", encoding="utf-8") as f:
-            f.write(isi_aksi373.replace(
+        isi_baru373 = isi_aksi373.replace(
                 baris_aksi373,
                 baris_aksi373.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(unxz -F lzma; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(unxz -F lzma; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru373 != isi_aksi373, \
+            "suntikan aksi373 tidak menembak"
+        with open(berkas_aksi373, "w", encoding="utf-8") as f:
+            f.write(isi_baru373)
         rc, out = jalan(sub373,
                         [sys.executable, GERBANG, "--semua"])
         periksa("unxz -F lzma: gerbang gagal (Audit 1172)", rc != 0)
@@ -7170,12 +8262,15 @@ def main():
             isi_aksi374 = f.read()
         baris_aksi374 = [b for b in isi_aksi374.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi374, "w", encoding="utf-8") as f:
-            f.write(isi_aksi374.replace(
+        isi_baru374 = isi_aksi374.replace(
                 baris_aksi374,
                 baris_aksi374.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(od --endian little; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(od --endian little; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru374 != isi_aksi374, \
+            "suntikan aksi374 tidak menembak"
+        with open(berkas_aksi374, "w", encoding="utf-8") as f:
+            f.write(isi_baru374)
         rc, out = jalan(sub374,
                         [sys.executable, GERBANG, "--semua"])
         periksa("od --endian little: gerbang gagal (Audit 1173)", rc != 0)
@@ -7188,12 +8283,15 @@ def main():
             isi_aksi375 = f.read()
         baris_aksi375 = [b for b in isi_aksi375.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi375, "w", encoding="utf-8") as f:
-            f.write(isi_aksi375.replace(
+        isi_baru375 = isi_aksi375.replace(
                 baris_aksi375,
                 baris_aksi375.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(ptx -o daftar; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(ptx -o daftar; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru375 != isi_aksi375, \
+            "suntikan aksi375 tidak menembak"
+        with open(berkas_aksi375, "w", encoding="utf-8") as f:
+            f.write(isi_baru375)
         rc, out = jalan(sub375,
                         [sys.executable, GERBANG, "--semua"])
         periksa("ptx -o daftar: gerbang gagal (Audit 1174)", rc != 0)
@@ -7206,12 +8304,15 @@ def main():
             isi_aksi376 = f.read()
         baris_aksi376 = [b for b in isi_aksi376.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi376, "w", encoding="utf-8") as f:
-            f.write(isi_aksi376.replace(
+        isi_baru376 = isi_aksi376.replace(
                 baris_aksi376,
                 baris_aksi376.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sqlite3 -newline X berkas.db; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sqlite3 -newline X berkas.db; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru376 != isi_aksi376, \
+            "suntikan aksi376 tidak menembak"
+        with open(berkas_aksi376, "w", encoding="utf-8") as f:
+            f.write(isi_baru376)
         rc, out = jalan(sub376,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sqlite3 -newline X berkas.db: gerbang gagal (Audit 1175)", rc != 0)
@@ -7224,12 +8325,15 @@ def main():
             isi_aksi377 = f.read()
         baris_aksi377 = [b for b in isi_aksi377.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi377, "w", encoding="utf-8") as f:
-            f.write(isi_aksi377.replace(
+        isi_baru377 = isi_aksi377.replace(
                 baris_aksi377,
                 baris_aksi377.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sqlite3 berkas.db 'select 1'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sqlite3 berkas.db 'select 1'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru377 != isi_aksi377, \
+            "suntikan aksi377 tidak menembak"
+        with open(berkas_aksi377, "w", encoding="utf-8") as f:
+            f.write(isi_baru377)
         rc, out = jalan(sub377,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sqlite3 berkas.db 'select 1': gerbang lolos (Audit 1175)", rc == 0)
@@ -7242,12 +8346,15 @@ def main():
             isi_aksi378 = f.read()
         baris_aksi378 = [b for b in isi_aksi378.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi378, "w", encoding="utf-8") as f:
-            f.write(isi_aksi378.replace(
+        isi_baru378 = isi_aksi378.replace(
                 baris_aksi378,
                 baris_aksi378.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(grep --group-separator SEP pola; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(grep --group-separator SEP pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru378 != isi_aksi378, \
+            "suntikan aksi378 tidak menembak"
+        with open(berkas_aksi378, "w", encoding="utf-8") as f:
+            f.write(isi_baru378)
         rc, out = jalan(sub378,
                         [sys.executable, GERBANG, "--semua"])
         periksa("grep --group-separator SEP pola: gerbang gagal (Audit 1176)", rc != 0)
@@ -7260,12 +8367,15 @@ def main():
             isi_aksi379 = f.read()
         baris_aksi379 = [b for b in isi_aksi379.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi379, "w", encoding="utf-8") as f:
-            f.write(isi_aksi379.replace(
+        isi_baru379 = isi_aksi379.replace(
                 baris_aksi379,
                 baris_aksi379.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -t --help; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -t --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru379 != isi_aksi379, \
+            "suntikan aksi379 tidak menembak"
+        with open(berkas_aksi379, "w", encoding="utf-8") as f:
+            f.write(isi_baru379)
         rc, out = jalan(sub379,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar -t --help: gerbang lolos (Audit 1180)", rc == 0)
@@ -7278,12 +8388,15 @@ def main():
             isi_aksi380 = f.read()
         baris_aksi380 = [b for b in isi_aksi380.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi380, "w", encoding="utf-8") as f:
-            f.write(isi_aksi380.replace(
+        isi_baru380 = isi_aksi380.replace(
                 baris_aksi380,
                 baris_aksi380.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(more -f --help; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(more -f --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru380 != isi_aksi380, \
+            "suntikan aksi380 tidak menembak"
+        with open(berkas_aksi380, "w", encoding="utf-8") as f:
+            f.write(isi_baru380)
         rc, out = jalan(sub380,
                         [sys.executable, GERBANG, "--semua"])
         periksa("more -f --help: gerbang lolos (Audit 1180)", rc == 0)
@@ -7296,12 +8409,15 @@ def main():
             isi_aksi381 = f.read()
         baris_aksi381 = [b for b in isi_aksi381.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi381, "w", encoding="utf-8") as f:
-            f.write(isi_aksi381.replace(
+        isi_baru381 = isi_aksi381.replace(
                 baris_aksi381,
                 baris_aksi381.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sqlite3 -init --help contoh.db; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sqlite3 -init --help contoh.db; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru381 != isi_aksi381, \
+            "suntikan aksi381 tidak menembak"
+        with open(berkas_aksi381, "w", encoding="utf-8") as f:
+            f.write(isi_baru381)
         rc, out = jalan(sub381,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sqlite3 -init --help contoh.db: gerbang gagal (Audit 1181)", rc != 0)
@@ -7314,12 +8430,15 @@ def main():
             isi_aksi382 = f.read()
         baris_aksi382 = [b for b in isi_aksi382.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi382, "w", encoding="utf-8") as f:
-            f.write(isi_aksi382.replace(
+        isi_baru382 = isi_aksi382.replace(
                 baris_aksi382,
                 baris_aksi382.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(expect -c 'puts x' -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(expect -c 'puts x' -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru382 != isi_aksi382, \
+            "suntikan aksi382 tidak menembak"
+        with open(berkas_aksi382, "w", encoding="utf-8") as f:
+            f.write(isi_baru382)
         rc, out = jalan(sub382,
                         [sys.executable, GERBANG, "--semua"])
         periksa("expect -c 'puts x' -: gerbang gagal (Audit 1182)", rc != 0)
@@ -7332,12 +8451,15 @@ def main():
             isi_aksi383 = f.read()
         baris_aksi383 = [b for b in isi_aksi383.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi383, "w", encoding="utf-8") as f:
-            f.write(isi_aksi383.replace(
+        isi_baru383 = isi_aksi383.replace(
                 baris_aksi383,
                 baris_aksi383.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tclsh8.6 -encoding utf-8; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tclsh8.6 -encoding utf-8; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru383 != isi_aksi383, \
+            "suntikan aksi383 tidak menembak"
+        with open(berkas_aksi383, "w", encoding="utf-8") as f:
+            f.write(isi_baru383)
         rc, out = jalan(sub383,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tclsh8.6 -encoding utf-8: gerbang gagal (Audit 1183)", rc != 0)
@@ -7350,12 +8472,15 @@ def main():
             isi_aksi384 = f.read()
         baris_aksi384 = [b for b in isi_aksi384.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi384, "w", encoding="utf-8") as f:
-            f.write(isi_aksi384.replace(
+        isi_baru384 = isi_aksi384.replace(
                 baris_aksi384,
                 baris_aksi384.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git column --indent xx; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git column --indent xx; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru384 != isi_aksi384, \
+            "suntikan aksi384 tidak menembak"
+        with open(berkas_aksi384, "w", encoding="utf-8") as f:
+            f.write(isi_baru384)
         rc, out = jalan(sub384,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git column --indent xx: gerbang gagal (Audit 1184)", rc != 0)
@@ -7368,12 +8493,15 @@ def main():
             isi_aksi385 = f.read()
         baris_aksi385 = [b for b in isi_aksi385.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi385, "w", encoding="utf-8") as f:
-            f.write(isi_aksi385.replace(
+        isi_baru385 = isi_aksi385.replace(
                 baris_aksi385,
                 baris_aksi385.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git check-mailmap; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git check-mailmap; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru385 != isi_aksi385, \
+            "suntikan aksi385 tidak menembak"
+        with open(berkas_aksi385, "w", encoding="utf-8") as f:
+            f.write(isi_baru385)
         rc, out = jalan(sub385,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git check-mailmap: gerbang lolos (Audit 1185)", rc == 0)
@@ -7386,12 +8514,15 @@ def main():
             isi_aksi386 = f.read()
         baris_aksi386 = [b for b in isi_aksi386.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi386, "w", encoding="utf-8") as f:
-            f.write(isi_aksi386.replace(
+        isi_baru386 = isi_aksi386.replace(
                 baris_aksi386,
                 baris_aksi386.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git credential-store; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git credential-store; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru386 != isi_aksi386, \
+            "suntikan aksi386 tidak menembak"
+        with open(berkas_aksi386, "w", encoding="utf-8") as f:
+            f.write(isi_baru386)
         rc, out = jalan(sub386,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git credential-store: gerbang lolos (Audit 1186)", rc == 0)
@@ -7404,12 +8535,15 @@ def main():
             isi_aksi387 = f.read()
         baris_aksi387 = [b for b in isi_aksi387.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi387, "w", encoding="utf-8") as f:
-            f.write(isi_aksi387.replace(
+        isi_baru387 = isi_aksi387.replace(
                 baris_aksi387,
                 baris_aksi387.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -t -f - -T; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -t -f - -T; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru387 != isi_aksi387, \
+            "suntikan aksi387 tidak menembak"
+        with open(berkas_aksi387, "w", encoding="utf-8") as f:
+            f.write(isi_baru387)
         rc, out = jalan(sub387,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar -t -f - -T: gerbang lolos (Audit 1187)", rc == 0)
@@ -7422,12 +8556,15 @@ def main():
             isi_aksi388 = f.read()
         baris_aksi388 = [b for b in isi_aksi388.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi388, "w", encoding="utf-8") as f:
-            f.write(isi_aksi388.replace(
+        isi_baru388 = isi_aksi388.replace(
                 baris_aksi388,
                 baris_aksi388.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tar -t --files-from=; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tar -t --files-from=; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru388 != isi_aksi388, \
+            "suntikan aksi388 tidak menembak"
+        with open(berkas_aksi388, "w", encoding="utf-8") as f:
+            f.write(isi_baru388)
         rc, out = jalan(sub388,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar -t --files-from=: gerbang lolos (Audit 1188)", rc == 0)
@@ -7440,12 +8577,15 @@ def main():
             isi_aksi389 = f.read()
         baris_aksi389 = [b for b in isi_aksi389.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi389, "w", encoding="utf-8") as f:
-            f.write(isi_aksi389.replace(
+        isi_baru389 = isi_aksi389.replace(
                 baris_aksi389,
                 baris_aksi389.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(prlimit --pid 1 cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(prlimit --pid 1 cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru389 != isi_aksi389, \
+            "suntikan aksi389 tidak menembak"
+        with open(berkas_aksi389, "w", encoding="utf-8") as f:
+            f.write(isi_baru389)
         rc, out = jalan(sub389,
                         [sys.executable, GERBANG, "--semua"])
         periksa("prlimit --pid 1 cat: gerbang lolos (Audit 1189)", rc == 0)
@@ -7458,12 +8598,15 @@ def main():
             isi_aksi390 = f.read()
         baris_aksi390 = [b for b in isi_aksi390.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi390, "w", encoding="utf-8") as f:
-            f.write(isi_aksi390.replace(
+        isi_baru390 = isi_aksi390.replace(
                 baris_aksi390,
                 baris_aksi390.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(funzip; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(funzip; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru390 != isi_aksi390, \
+            "suntikan aksi390 tidak menembak"
+        with open(berkas_aksi390, "w", encoding="utf-8") as f:
+            f.write(isi_baru390)
         rc, out = jalan(sub390,
                         [sys.executable, GERBANG, "--semua"])
         periksa("funzip: gerbang gagal (Audit 1191)", rc != 0)
@@ -7476,12 +8619,15 @@ def main():
             isi_aksi391 = f.read()
         baris_aksi391 = [b for b in isi_aksi391.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi391, "w", encoding="utf-8") as f:
-            f.write(isi_aksi391.replace(
+        isi_baru391 = isi_aksi391.replace(
                 baris_aksi391,
                 baris_aksi391.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(json_pp; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(json_pp; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru391 != isi_aksi391, \
+            "suntikan aksi391 tidak menembak"
+        with open(berkas_aksi391, "w", encoding="utf-8") as f:
+            f.write(isi_baru391)
         rc, out = jalan(sub391,
                         [sys.executable, GERBANG, "--semua"])
         periksa("json_pp: gerbang gagal (Audit 1192)", rc != 0)
@@ -7494,12 +8640,15 @@ def main():
             isi_aksi392 = f.read()
         baris_aksi392 = [b for b in isi_aksi392.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi392, "w", encoding="utf-8") as f:
-            f.write(isi_aksi392.replace(
+        isi_baru392 = isi_aksi392.replace(
                 baris_aksi392,
                 baris_aksi392.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(pdftotext - -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(pdftotext - -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru392 != isi_aksi392, \
+            "suntikan aksi392 tidak menembak"
+        with open(berkas_aksi392, "w", encoding="utf-8") as f:
+            f.write(isi_baru392)
         rc, out = jalan(sub392,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pdftotext - -: gerbang gagal (Audit 1193)", rc != 0)
@@ -7512,12 +8661,15 @@ def main():
             isi_aksi393 = f.read()
         baris_aksi393 = [b for b in isi_aksi393.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi393, "w", encoding="utf-8") as f:
-            f.write(isi_aksi393.replace(
+        isi_baru393 = isi_aksi393.replace(
                 baris_aksi393,
                 baris_aksi393.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(newgrp; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(newgrp; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru393 != isi_aksi393, \
+            "suntikan aksi393 tidak menembak"
+        with open(berkas_aksi393, "w", encoding="utf-8") as f:
+            f.write(isi_baru393)
         rc, out = jalan(sub393,
                         [sys.executable, GERBANG, "--semua"])
         periksa("newgrp: gerbang gagal (Audit 1194)", rc != 0)
@@ -7530,12 +8682,15 @@ def main():
             isi_aksi394 = f.read()
         baris_aksi394 = [b for b in isi_aksi394.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi394, "w", encoding="utf-8") as f:
-            f.write(isi_aksi394.replace(
+        isi_baru394 = isi_aksi394.replace(
                 baris_aksi394,
                 baris_aksi394.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(nft -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(nft -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru394 != isi_aksi394, \
+            "suntikan aksi394 tidak menembak"
+        with open(berkas_aksi394, "w", encoding="utf-8") as f:
+            f.write(isi_baru394)
         rc, out = jalan(sub394,
                         [sys.executable, GERBANG, "--semua"])
         periksa("nft -f -: gerbang gagal (Audit 1195)", rc != 0)
@@ -7548,12 +8703,15 @@ def main():
             isi_aksi395 = f.read()
         baris_aksi395 = [b for b in isi_aksi395.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi395, "w", encoding="utf-8") as f:
-            f.write(isi_aksi395.replace(
+        isi_baru395 = isi_aksi395.replace(
                 baris_aksi395,
                 baris_aksi395.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(iptables-restore; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(iptables-restore; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru395 != isi_aksi395, \
+            "suntikan aksi395 tidak menembak"
+        with open(berkas_aksi395, "w", encoding="utf-8") as f:
+            f.write(isi_baru395)
         rc, out = jalan(sub395,
                         [sys.executable, GERBANG, "--semua"])
         periksa("iptables-restore: gerbang gagal (Audit 1196)", rc != 0)
@@ -7566,12 +8724,15 @@ def main():
             isi_aksi396 = f.read()
         baris_aksi396 = [b for b in isi_aksi396.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi396, "w", encoding="utf-8") as f:
-            f.write(isi_aksi396.replace(
+        isi_baru396 = isi_aksi396.replace(
                 baris_aksi396,
                 baris_aksi396.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(ip6tables-restore --table filter; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(ip6tables-restore --table filter; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru396 != isi_aksi396, \
+            "suntikan aksi396 tidak menembak"
+        with open(berkas_aksi396, "w", encoding="utf-8") as f:
+            f.write(isi_baru396)
         rc, out = jalan(sub396,
                         [sys.executable, GERBANG, "--semua"])
         periksa("ip6tables-restore --table filter: gerbang gagal (Audit 1196)", rc != 0)
@@ -7584,12 +8745,15 @@ def main():
             isi_aksi397 = f.read()
         baris_aksi397 = [b for b in isi_aksi397.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi397, "w", encoding="utf-8") as f:
-            f.write(isi_aksi397.replace(
+        isi_baru397 = isi_aksi397.replace(
                 baris_aksi397,
                 baris_aksi397.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(ip -batch -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(ip -batch -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru397 != isi_aksi397, \
+            "suntikan aksi397 tidak menembak"
+        with open(berkas_aksi397, "w", encoding="utf-8") as f:
+            f.write(isi_baru397)
         rc, out = jalan(sub397,
                         [sys.executable, GERBANG, "--semua"])
         periksa("ip -batch -: gerbang gagal (Audit 1197)", rc != 0)
@@ -7602,12 +8766,15 @@ def main():
             isi_aksi398 = f.read()
         baris_aksi398 = [b for b in isi_aksi398.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi398, "w", encoding="utf-8") as f:
-            f.write(isi_aksi398.replace(
+        isi_baru398 = isi_aksi398.replace(
                 baris_aksi398,
                 baris_aksi398.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tc -batch daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(tc -batch daftar.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru398 != isi_aksi398, \
+            "suntikan aksi398 tidak menembak"
+        with open(berkas_aksi398, "w", encoding="utf-8") as f:
+            f.write(isi_baru398)
         rc, out = jalan(sub398,
                         [sys.executable, GERBANG, "--semua"])
         periksa("tc -batch daftar.txt: gerbang lolos (Audit 1197)", rc == 0)
@@ -7620,12 +8787,15 @@ def main():
             isi_aksi399 = f.read()
         baris_aksi399 = [b for b in isi_aksi399.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi399, "w", encoding="utf-8") as f:
-            f.write(isi_aksi399.replace(
+        isi_baru399 = isi_aksi399.replace(
                 baris_aksi399,
                 baris_aksi399.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(dpkg --set-selections; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(dpkg --set-selections; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru399 != isi_aksi399, \
+            "suntikan aksi399 tidak menembak"
+        with open(berkas_aksi399, "w", encoding="utf-8") as f:
+            f.write(isi_baru399)
         rc, out = jalan(sub399,
                         [sys.executable, GERBANG, "--semua"])
         periksa("dpkg --set-selections: gerbang gagal (Audit 1198)", rc != 0)
@@ -7638,12 +8808,15 @@ def main():
             isi_aksi400 = f.read()
         baris_aksi400 = [b for b in isi_aksi400.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi400, "w", encoding="utf-8") as f:
-            f.write(isi_aksi400.replace(
+        isi_baru400 = isi_aksi400.replace(
                 baris_aksi400,
                 baris_aksi400.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(lzcat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(lzcat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru400 != isi_aksi400, \
+            "suntikan aksi400 tidak menembak"
+        with open(berkas_aksi400, "w", encoding="utf-8") as f:
+            f.write(isi_baru400)
         rc, out = jalan(sub400,
                         [sys.executable, GERBANG, "--semua"])
         periksa("lzcat: gerbang gagal (Audit 1199)", rc != 0)
@@ -7656,12 +8829,15 @@ def main():
             isi_aksi401 = f.read()
         baris_aksi401 = [b for b in isi_aksi401.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi401, "w", encoding="utf-8") as f:
-            f.write(isi_aksi401.replace(
+        isi_baru401 = isi_aksi401.replace(
                 baris_aksi401,
                 baris_aksi401.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(file -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(file -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru401 != isi_aksi401, \
+            "suntikan aksi401 tidak menembak"
+        with open(berkas_aksi401, "w", encoding="utf-8") as f:
+            f.write(isi_baru401)
         rc, out = jalan(sub401,
                         [sys.executable, GERBANG, "--semua"])
         periksa("file -: gerbang gagal (Audit 1200)", rc != 0)
@@ -7674,12 +8850,15 @@ def main():
             isi_aksi402 = f.read()
         baris_aksi402 = [b for b in isi_aksi402.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi402, "w", encoding="utf-8") as f:
-            f.write(isi_aksi402.replace(
+        isi_baru402 = isi_aksi402.replace(
                 baris_aksi402,
                 baris_aksi402.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(file -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(file -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru402 != isi_aksi402, \
+            "suntikan aksi402 tidak menembak"
+        with open(berkas_aksi402, "w", encoding="utf-8") as f:
+            f.write(isi_baru402)
         rc, out = jalan(sub402,
                         [sys.executable, GERBANG, "--semua"])
         periksa("file -f -: gerbang gagal (Audit 1200)", rc != 0)
@@ -7692,12 +8871,15 @@ def main():
             isi_aksi403 = f.read()
         baris_aksi403 = [b for b in isi_aksi403.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi403, "w", encoding="utf-8") as f:
-            f.write(isi_aksi403.replace(
+        isi_baru403 = isi_aksi403.replace(
                 baris_aksi403,
                 baris_aksi403.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(date -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(date -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru403 != isi_aksi403, \
+            "suntikan aksi403 tidak menembak"
+        with open(berkas_aksi403, "w", encoding="utf-8") as f:
+            f.write(isi_baru403)
         rc, out = jalan(sub403,
                         [sys.executable, GERBANG, "--semua"])
         periksa("date -f -: gerbang gagal (Audit 1201)", rc != 0)
@@ -7710,12 +8892,15 @@ def main():
             isi_aksi404 = f.read()
         baris_aksi404 = [b for b in isi_aksi404.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi404, "w", encoding="utf-8") as f:
-            f.write(isi_aksi404.replace(
+        isi_baru404 = isi_aksi404.replace(
                 baris_aksi404,
                 baris_aksi404.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(sysctl -p -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(sysctl -p -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru404 != isi_aksi404, \
+            "suntikan aksi404 tidak menembak"
+        with open(berkas_aksi404, "w", encoding="utf-8") as f:
+            f.write(isi_baru404)
         rc, out = jalan(sub404,
                         [sys.executable, GERBANG, "--semua"])
         periksa("sysctl -p -: gerbang gagal (Audit 1202)", rc != 0)
@@ -7728,12 +8913,15 @@ def main():
             isi_aksi405 = f.read()
         baris_aksi405 = [b for b in isi_aksi405.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi405, "w", encoding="utf-8") as f:
-            f.write(isi_aksi405.replace(
+        isi_baru405 = isi_aksi405.replace(
                 baris_aksi405,
                 baris_aksi405.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(ssh-agent cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(ssh-agent cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru405 != isi_aksi405, \
+            "suntikan aksi405 tidak menembak"
+        with open(berkas_aksi405, "w", encoding="utf-8") as f:
+            f.write(isi_baru405)
         rc, out = jalan(sub405,
                         [sys.executable, GERBANG, "--semua"])
         periksa("ssh-agent cat: gerbang gagal (Audit 1203)", rc != 0)
@@ -7746,12 +8934,15 @@ def main():
             isi_aksi406 = f.read()
         baris_aksi406 = [b for b in isi_aksi406.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi406, "w", encoding="utf-8") as f:
-            f.write(isi_aksi406.replace(
+        isi_baru406 = isi_aksi406.replace(
                 baris_aksi406,
                 baris_aksi406.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(bun repl; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(bun repl; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru406 != isi_aksi406, \
+            "suntikan aksi406 tidak menembak"
+        with open(berkas_aksi406, "w", encoding="utf-8") as f:
+            f.write(isi_baru406)
         rc, out = jalan(sub406,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bun repl: gerbang gagal (Audit 1204)", rc != 0)
@@ -7764,12 +8955,15 @@ def main():
             isi_aksi407 = f.read()
         baris_aksi407 = [b for b in isi_aksi407.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi407, "w", encoding="utf-8") as f:
-            f.write(isi_aksi407.replace(
+        isi_baru407 = isi_aksi407.replace(
                 baris_aksi407,
                 baris_aksi407.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(bun; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(bun; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru407 != isi_aksi407, \
+            "suntikan aksi407 tidak menembak"
+        with open(berkas_aksi407, "w", encoding="utf-8") as f:
+            f.write(isi_baru407)
         rc, out = jalan(sub407,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bun: gerbang lolos (Audit 1204)", rc == 0)
@@ -7782,12 +8976,15 @@ def main():
             isi_aksi408 = f.read()
         baris_aksi408 = [b for b in isi_aksi408.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi408, "w", encoding="utf-8") as f:
-            f.write(isi_aksi408.replace(
+        isi_baru408 = isi_aksi408.replace(
                 baris_aksi408,
                 baris_aksi408.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git am; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git am; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru408 != isi_aksi408, \
+            "suntikan aksi408 tidak menembak"
+        with open(berkas_aksi408, "w", encoding="utf-8") as f:
+            f.write(isi_baru408)
         rc, out = jalan(sub408,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git am: gerbang gagal (Audit 1205)", rc != 0)
@@ -7800,12 +8997,15 @@ def main():
             isi_aksi409 = f.read()
         baris_aksi409 = [b for b in isi_aksi409.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi409, "w", encoding="utf-8") as f:
-            f.write(isi_aksi409.replace(
+        isi_baru409 = isi_aksi409.replace(
                 baris_aksi409,
                 baris_aksi409.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git shortlog; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git shortlog; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru409 != isi_aksi409, \
+            "suntikan aksi409 tidak menembak"
+        with open(berkas_aksi409, "w", encoding="utf-8") as f:
+            f.write(isi_baru409)
         rc, out = jalan(sub409,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git shortlog: gerbang gagal (Audit 1205)", rc != 0)
@@ -7818,12 +9018,15 @@ def main():
             isi_aksi410 = f.read()
         baris_aksi410 = [b for b in isi_aksi410.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi410, "w", encoding="utf-8") as f:
-            f.write(isi_aksi410.replace(
+        isi_baru410 = isi_aksi410.replace(
                 baris_aksi410,
                 baris_aksi410.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git update-ref --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git update-ref --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru410 != isi_aksi410, \
+            "suntikan aksi410 tidak menembak"
+        with open(berkas_aksi410, "w", encoding="utf-8") as f:
+            f.write(isi_baru410)
         rc, out = jalan(sub410,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git update-ref --stdin: gerbang gagal (Audit 1206)", rc != 0)
@@ -7836,12 +9039,15 @@ def main():
             isi_aksi411 = f.read()
         baris_aksi411 = [b for b in isi_aksi411.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi411, "w", encoding="utf-8") as f:
-            f.write(isi_aksi411.replace(
+        isi_baru411 = isi_aksi411.replace(
                 baris_aksi411,
                 baris_aksi411.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git name-rev --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git name-rev --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru411 != isi_aksi411, \
+            "suntikan aksi411 tidak menembak"
+        with open(berkas_aksi411, "w", encoding="utf-8") as f:
+            f.write(isi_baru411)
         rc, out = jalan(sub411,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git name-rev --stdin: gerbang gagal (Audit 1206)", rc != 0)
@@ -7854,12 +9060,15 @@ def main():
             isi_aksi412 = f.read()
         baris_aksi412 = [b for b in isi_aksi412.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi412, "w", encoding="utf-8") as f:
-            f.write(isi_aksi412.replace(
+        isi_baru412 = isi_aksi412.replace(
                 baris_aksi412,
                 baris_aksi412.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git notes add -F - HEAD; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git notes add -F - HEAD; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru412 != isi_aksi412, \
+            "suntikan aksi412 tidak menembak"
+        with open(berkas_aksi412, "w", encoding="utf-8") as f:
+            f.write(isi_baru412)
         rc, out = jalan(sub412,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git notes add -F - HEAD: gerbang gagal (Audit 1207)", rc != 0)
@@ -7872,12 +9081,15 @@ def main():
             isi_aksi413 = f.read()
         baris_aksi413 = [b for b in isi_aksi413.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi413, "w", encoding="utf-8") as f:
-            f.write(isi_aksi413.replace(
+        isi_baru413 = isi_aksi413.replace(
                 baris_aksi413,
                 baris_aksi413.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(git add --pathspec-from-file=-; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(git add --pathspec-from-file=-; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru413 != isi_aksi413, \
+            "suntikan aksi413 tidak menembak"
+        with open(berkas_aksi413, "w", encoding="utf-8") as f:
+            f.write(isi_baru413)
         rc, out = jalan(sub413,
                         [sys.executable, GERBANG, "--semua"])
         periksa("git add --pathspec-from-file=-: gerbang gagal (Audit 1207)", rc != 0)
@@ -7890,12 +9102,15 @@ def main():
             isi_aksi414 = f.read()
         baris_aksi414 = [b for b in isi_aksi414.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi414, "w", encoding="utf-8") as f:
-            f.write(isi_aksi414.replace(
+        isi_baru414 = isi_aksi414.replace(
                 baris_aksi414,
                 baris_aksi414.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(pr --columns 2; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(pr --columns 2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru414 != isi_aksi414, \
+            "suntikan aksi414 tidak menembak"
+        with open(berkas_aksi414, "w", encoding="utf-8") as f:
+            f.write(isi_baru414)
         rc, out = jalan(sub414,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pr --columns 2: gerbang gagal (Audit 1208)", rc != 0)
@@ -7908,12 +9123,15 @@ def main():
             isi_aksi415 = f.read()
         baris_aksi415 = [b for b in isi_aksi415.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi415, "w", encoding="utf-8") as f:
-            f.write(isi_aksi415.replace(
+        isi_baru415 = isi_aksi415.replace(
                 baris_aksi415,
                 baris_aksi415.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(pr -n berkas.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(pr -n berkas.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru415 != isi_aksi415, \
+            "suntikan aksi415 tidak menembak"
+        with open(berkas_aksi415, "w", encoding="utf-8") as f:
+            f.write(isi_baru415)
         rc, out = jalan(sub415,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pr -n berkas.txt: gerbang lolos (Audit 1208)", rc == 0)
@@ -7926,12 +9144,15 @@ def main():
             isi_aksi416 = f.read()
         baris_aksi416 = [b for b in isi_aksi416.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi416, "w", encoding="utf-8") as f:
-            f.write(isi_aksi416.replace(
+        isi_baru416 = isi_aksi416.replace(
                 baris_aksi416,
                 baris_aksi416.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(nl --section-delimiter xx; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(nl --section-delimiter xx; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru416 != isi_aksi416, \
+            "suntikan aksi416 tidak menembak"
+        with open(berkas_aksi416, "w", encoding="utf-8") as f:
+            f.write(isi_baru416)
         rc, out = jalan(sub416,
                         [sys.executable, GERBANG, "--semua"])
         periksa("nl --section-delimiter xx: gerbang gagal (Audit 1209)", rc != 0)
@@ -7944,12 +9165,15 @@ def main():
             isi_aksi417 = f.read()
         baris_aksi417 = [b for b in isi_aksi417.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi417, "w", encoding="utf-8") as f:
-            f.write(isi_aksi417.replace(
+        isi_baru417 = isi_aksi417.replace(
                 baris_aksi417,
                 baris_aksi417.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(ptx -g 3; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(ptx -g 3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru417 != isi_aksi417, \
+            "suntikan aksi417 tidak menembak"
+        with open(berkas_aksi417, "w", encoding="utf-8") as f:
+            f.write(isi_baru417)
         rc, out = jalan(sub417,
                         [sys.executable, GERBANG, "--semua"])
         periksa("ptx -g 3: gerbang gagal (Audit 1210)", rc != 0)
@@ -7962,12 +9186,15 @@ def main():
             isi_aksi418 = f.read()
         baris_aksi418 = [b for b in isi_aksi418.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi418, "w", encoding="utf-8") as f:
-            f.write(isi_aksi418.replace(
+        isi_baru418 = isi_aksi418.replace(
                 baris_aksi418,
                 baris_aksi418.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(ptx -G berkas.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(ptx -G berkas.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru418 != isi_aksi418, \
+            "suntikan aksi418 tidak menembak"
+        with open(berkas_aksi418, "w", encoding="utf-8") as f:
+            f.write(isi_baru418)
         rc, out = jalan(sub418,
                         [sys.executable, GERBANG, "--semua"])
         periksa("ptx -G berkas.txt: gerbang lolos (Audit 1210)", rc == 0)
@@ -7980,12 +9207,15 @@ def main():
             isi_aksi419 = f.read()
         baris_aksi419 = [b for b in isi_aksi419.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi419, "w", encoding="utf-8") as f:
-            f.write(isi_aksi419.replace(
+        isi_baru419 = isi_aksi419.replace(
                 baris_aksi419,
                 baris_aksi419.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(wall -t 5; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(wall -t 5; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru419 != isi_aksi419, \
+            "suntikan aksi419 tidak menembak"
+        with open(berkas_aksi419, "w", encoding="utf-8") as f:
+            f.write(isi_baru419)
         rc, out = jalan(sub419,
                         [sys.executable, GERBANG, "--semua"])
         periksa("wall -t 5: gerbang gagal (Audit 1211)", rc != 0)
@@ -7998,12 +9228,15 @@ def main():
             isi_aksi420 = f.read()
         baris_aksi420 = [b for b in isi_aksi420.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi420, "w", encoding="utf-8") as f:
-            f.write(isi_aksi420.replace(
+        isi_baru420 = isi_aksi420.replace(
                 baris_aksi420,
                 baris_aksi420.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(logger --id pesan; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(logger --id pesan; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru420 != isi_aksi420, \
+            "suntikan aksi420 tidak menembak"
+        with open(berkas_aksi420, "w", encoding="utf-8") as f:
+            f.write(isi_baru420)
         rc, out = jalan(sub420,
                         [sys.executable, GERBANG, "--semua"])
         periksa("logger --id pesan: gerbang lolos (Audit 1212)", rc == 0)
@@ -8016,12 +9249,15 @@ def main():
             isi_aksi421 = f.read()
         baris_aksi421 = [b for b in isi_aksi421.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi421, "w", encoding="utf-8") as f:
-            f.write(isi_aksi421.replace(
+        isi_baru421 = isi_aksi421.replace(
                 baris_aksi421,
                 baris_aksi421.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(lzma -F lzma -c; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(lzma -F lzma -c; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru421 != isi_aksi421, \
+            "suntikan aksi421 tidak menembak"
+        with open(berkas_aksi421, "w", encoding="utf-8") as f:
+            f.write(isi_baru421)
         rc, out = jalan(sub421,
                         [sys.executable, GERBANG, "--semua"])
         periksa("lzma -F lzma -c: gerbang gagal (Audit 1213)", rc != 0)
@@ -8034,12 +9270,15 @@ def main():
             isi_aksi422 = f.read()
         baris_aksi422 = [b for b in isi_aksi422.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi422, "w", encoding="utf-8") as f:
-            f.write(isi_aksi422.replace(
+        isi_baru422 = isi_aksi422.replace(
                 baris_aksi422,
                 baris_aksi422.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(zcat --suffix .zz; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(zcat --suffix .zz; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru422 != isi_aksi422, \
+            "suntikan aksi422 tidak menembak"
+        with open(berkas_aksi422, "w", encoding="utf-8") as f:
+            f.write(isi_baru422)
         rc, out = jalan(sub422,
                         [sys.executable, GERBANG, "--semua"])
         periksa("zcat --suffix .zz: gerbang gagal (Audit 1213)", rc != 0)
@@ -8052,12 +9291,15 @@ def main():
             isi_aksi423 = f.read()
         baris_aksi423 = [b for b in isi_aksi423.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi423, "w", encoding="utf-8") as f:
-            f.write(isi_aksi423.replace(
+        isi_baru423 = isi_aksi423.replace(
                 baris_aksi423,
                 baris_aksi423.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl dgst -list; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl dgst -list; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru423 != isi_aksi423, \
+            "suntikan aksi423 tidak menembak"
+        with open(berkas_aksi423, "w", encoding="utf-8") as f:
+            f.write(isi_baru423)
         rc, out = jalan(sub423,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl dgst -list: gerbang lolos (Audit 1214)", rc == 0)
@@ -8070,12 +9312,15 @@ def main():
             isi_aksi424 = f.read()
         baris_aksi424 = [b for b in isi_aksi424.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi424, "w", encoding="utf-8") as f:
-            f.write(isi_aksi424.replace(
+        isi_baru424 = isi_aksi424.replace(
                 baris_aksi424,
                 baris_aksi424.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl enc -ciphers; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl enc -ciphers; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru424 != isi_aksi424, \
+            "suntikan aksi424 tidak menembak"
+        with open(berkas_aksi424, "w", encoding="utf-8") as f:
+            f.write(isi_baru424)
         rc, out = jalan(sub424,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl enc -ciphers: gerbang lolos (Audit 1214)", rc == 0)
@@ -8088,12 +9333,15 @@ def main():
             isi_aksi425 = f.read()
         baris_aksi425 = [b for b in isi_aksi425.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi425, "w", encoding="utf-8") as f:
-            f.write(isi_aksi425.replace(
+        isi_baru425 = isi_aksi425.replace(
                 baris_aksi425,
                 baris_aksi425.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl x509 -in -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl x509 -in -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru425 != isi_aksi425, \
+            "suntikan aksi425 tidak menembak"
+        with open(berkas_aksi425, "w", encoding="utf-8") as f:
+            f.write(isi_baru425)
         rc, out = jalan(sub425,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl x509 -in -: gerbang lolos (Audit 1215)", rc == 0)
@@ -8106,12 +9354,15 @@ def main():
             isi_aksi426 = f.read()
         baris_aksi426 = [b for b in isi_aksi426.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi426, "w", encoding="utf-8") as f:
-            f.write(isi_aksi426.replace(
+        isi_baru426 = isi_aksi426.replace(
                 baris_aksi426,
                 baris_aksi426.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl x509; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl x509; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru426 != isi_aksi426, \
+            "suntikan aksi426 tidak menembak"
+        with open(berkas_aksi426, "w", encoding="utf-8") as f:
+            f.write(isi_baru426)
         rc, out = jalan(sub426,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl x509: gerbang gagal (Audit 1215)", rc != 0)
@@ -8124,12 +9375,15 @@ def main():
             isi_aksi427 = f.read()
         baris_aksi427 = [b for b in isi_aksi427.splitlines()
                           if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi427, "w", encoding="utf-8") as f:
-            f.write(isi_aksi427.replace(
+        isi_baru427 = isi_aksi427.replace(
                 baris_aksi427,
                 baris_aksi427.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(openssl pkcs7 -in -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+                    "> >(openssl pkcs7 -in -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru427 != isi_aksi427, \
+            "suntikan aksi427 tidak menembak"
+        with open(berkas_aksi427, "w", encoding="utf-8") as f:
+            f.write(isi_baru427)
         rc, out = jalan(sub427,
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl pkcs7 -in -: gerbang gagal (Audit 1215)", rc != 0)
@@ -8141,13 +9395,16 @@ def main():
             isi_aksi428 = f.read()
         baris_aksi428 = [b for b in isi_aksi428.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi428, "w", encoding="utf-8") as f:
-            f.write(isi_aksi428.replace(
+        isi_baru428 = isi_aksi428.replace(
                 baris_aksi428,
                 baris_aksi428.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(less -f --help; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru428 != isi_aksi428, \
+            "suntikan aksi428 tidak menembak"
+        with open(berkas_aksi428, "w", encoding="utf-8") as f:
+            f.write(isi_baru428)
         rc, out = jalan(sub428, [sys.executable, GERBANG, "--semua"])
         periksa("less -f --help: "
                 "gerbang lolos (Audit 1216)", rc == 0)
@@ -8159,13 +9416,16 @@ def main():
             isi_aksi429 = f.read()
         baris_aksi429 = [b for b in isi_aksi429.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi429, "w", encoding="utf-8") as f:
-            f.write(isi_aksi429.replace(
+        isi_baru429 = isi_aksi429.replace(
                 baris_aksi429,
                 baris_aksi429.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(patch -t --help; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru429 != isi_aksi429, \
+            "suntikan aksi429 tidak menembak"
+        with open(berkas_aksi429, "w", encoding="utf-8") as f:
+            f.write(isi_baru429)
         rc, out = jalan(sub429, [sys.executable, GERBANG, "--semua"])
         periksa("patch -t --help: "
                 "gerbang lolos (Audit 1217)", rc == 0)
@@ -8177,13 +9437,16 @@ def main():
             isi_aksi430 = f.read()
         baris_aksi430 = [b for b in isi_aksi430.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi430, "w", encoding="utf-8") as f:
-            f.write(isi_aksi430.replace(
+        isi_baru430 = isi_aksi430.replace(
                 baris_aksi430,
                 baris_aksi430.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git check-mailmap -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru430 != isi_aksi430, \
+            "suntikan aksi430 tidak menembak"
+        with open(berkas_aksi430, "w", encoding="utf-8") as f:
+            f.write(isi_baru430)
         rc, out = jalan(sub430, [sys.executable, GERBANG, "--semua"])
         periksa("git check-mailmap -: "
                 "gerbang lolos (Audit 1218)", rc == 0)
@@ -8195,13 +9458,16 @@ def main():
             isi_aksi431 = f.read()
         baris_aksi431 = [b for b in isi_aksi431.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi431, "w", encoding="utf-8") as f:
-            f.write(isi_aksi431.replace(
+        isi_baru431 = isi_aksi431.replace(
                 baris_aksi431,
                 baris_aksi431.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git check-mailmap --stdin -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru431 != isi_aksi431, \
+            "suntikan aksi431 tidak menembak"
+        with open(berkas_aksi431, "w", encoding="utf-8") as f:
+            f.write(isi_baru431)
         rc, out = jalan(sub431, [sys.executable, GERBANG, "--semua"])
         periksa("git check-mailmap --stdin -: "
                 "gerbang lolos (Audit 1219)", rc == 0)
@@ -8213,13 +9479,16 @@ def main():
             isi_aksi432 = f.read()
         baris_aksi432 = [b for b in isi_aksi432.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi432, "w", encoding="utf-8") as f:
-            f.write(isi_aksi432.replace(
+        isi_baru432 = isi_aksi432.replace(
                 baris_aksi432,
                 baris_aksi432.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git credential-store --file get; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru432 != isi_aksi432, \
+            "suntikan aksi432 tidak menembak"
+        with open(berkas_aksi432, "w", encoding="utf-8") as f:
+            f.write(isi_baru432)
         rc, out = jalan(sub432, [sys.executable, GERBANG, "--semua"])
         periksa("git credential-store --file get: "
                 "gerbang lolos (Audit 1220)", rc == 0)
@@ -8231,13 +9500,16 @@ def main():
             isi_aksi433 = f.read()
         baris_aksi433 = [b for b in isi_aksi433.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi433, "w", encoding="utf-8") as f:
-            f.write(isi_aksi433.replace(
+        isi_baru433 = isi_aksi433.replace(
                 baris_aksi433,
                 baris_aksi433.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git credential-store get; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru433 != isi_aksi433, \
+            "suntikan aksi433 tidak menembak"
+        with open(berkas_aksi433, "w", encoding="utf-8") as f:
+            f.write(isi_baru433)
         rc, out = jalan(sub433, [sys.executable, GERBANG, "--semua"])
         periksa("git credential-store get: "
                 "gerbang gagal (Audit 1220)", rc != 0)
@@ -8249,13 +9521,16 @@ def main():
             isi_aksi434 = f.read()
         baris_aksi434 = [b for b in isi_aksi434.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi434, "w", encoding="utf-8") as f:
-            f.write(isi_aksi434.replace(
+        isi_baru434 = isi_aksi434.replace(
                 baris_aksi434,
                 baris_aksi434.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git am --exclude foo; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru434 != isi_aksi434, \
+            "suntikan aksi434 tidak menembak"
+        with open(berkas_aksi434, "w", encoding="utf-8") as f:
+            f.write(isi_baru434)
         rc, out = jalan(sub434, [sys.executable, GERBANG, "--semua"])
         periksa("git am --exclude foo: "
                 "gerbang gagal (Audit 1221)", rc != 0)
@@ -8267,13 +9542,16 @@ def main():
             isi_aksi435 = f.read()
         baris_aksi435 = [b for b in isi_aksi435.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi435, "w", encoding="utf-8") as f:
-            f.write(isi_aksi435.replace(
+        isi_baru435 = isi_aksi435.replace(
                 baris_aksi435,
                 baris_aksi435.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git shortlog -w HEAD; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru435 != isi_aksi435, \
+            "suntikan aksi435 tidak menembak"
+        with open(berkas_aksi435, "w", encoding="utf-8") as f:
+            f.write(isi_baru435)
         rc, out = jalan(sub435, [sys.executable, GERBANG, "--semua"])
         periksa("git shortlog -w HEAD: "
                 "gerbang lolos (Audit 1222)", rc == 0)
@@ -8285,13 +9563,16 @@ def main():
             isi_aksi436 = f.read()
         baris_aksi436 = [b for b in isi_aksi436.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi436, "w", encoding="utf-8") as f:
-            f.write(isi_aksi436.replace(
+        isi_baru436 = isi_aksi436.replace(
                 baris_aksi436,
                 baris_aksi436.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git shortlog --group author; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru436 != isi_aksi436, \
+            "suntikan aksi436 tidak menembak"
+        with open(berkas_aksi436, "w", encoding="utf-8") as f:
+            f.write(isi_baru436)
         rc, out = jalan(sub436, [sys.executable, GERBANG, "--semua"])
         periksa("git shortlog --group author: "
                 "gerbang gagal (Audit 1223)", rc != 0)
@@ -8303,13 +9584,16 @@ def main():
             isi_aksi437 = f.read()
         baris_aksi437 = [b for b in isi_aksi437.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi437, "w", encoding="utf-8") as f:
-            f.write(isi_aksi437.replace(
+        isi_baru437 = isi_aksi437.replace(
                 baris_aksi437,
                 baris_aksi437.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git check-ignore --stdin berkas.txt; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru437 != isi_aksi437, \
+            "suntikan aksi437 tidak menembak"
+        with open(berkas_aksi437, "w", encoding="utf-8") as f:
+            f.write(isi_baru437)
         rc, out = jalan(sub437, [sys.executable, GERBANG, "--semua"])
         periksa("git check-ignore --stdin berkas.txt: "
                 "gerbang lolos (Audit 1224)", rc == 0)
@@ -8321,13 +9605,16 @@ def main():
             isi_aksi438 = f.read()
         baris_aksi438 = [b for b in isi_aksi438.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi438, "w", encoding="utf-8") as f:
-            f.write(isi_aksi438.replace(
+        isi_baru438 = isi_aksi438.replace(
                 baris_aksi438,
                 baris_aksi438.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git notes add -F- HEAD; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru438 != isi_aksi438, \
+            "suntikan aksi438 tidak menembak"
+        with open(berkas_aksi438, "w", encoding="utf-8") as f:
+            f.write(isi_baru438)
         rc, out = jalan(sub438, [sys.executable, GERBANG, "--semua"])
         periksa("git notes add -F- HEAD: "
                 "gerbang gagal (Audit 1225)", rc != 0)
@@ -8339,13 +9626,16 @@ def main():
             isi_aksi439 = f.read()
         baris_aksi439 = [b for b in isi_aksi439.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi439, "w", encoding="utf-8") as f:
-            f.write(isi_aksi439.replace(
+        isi_baru439 = isi_aksi439.replace(
                 baris_aksi439,
                 baris_aksi439.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git add --pathspec-from-file -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru439 != isi_aksi439, \
+            "suntikan aksi439 tidak menembak"
+        with open(berkas_aksi439, "w", encoding="utf-8") as f:
+            f.write(isi_baru439)
         rc, out = jalan(sub439, [sys.executable, GERBANG, "--semua"])
         periksa("git add --pathspec-from-file -: "
                 "gerbang gagal (Audit 1226)", rc != 0)
@@ -8357,13 +9647,16 @@ def main():
             isi_aksi440 = f.read()
         baris_aksi440 = [b for b in isi_aksi440.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi440, "w", encoding="utf-8") as f:
-            f.write(isi_aksi440.replace(
+        isi_baru440 = isi_aksi440.replace(
                 baris_aksi440,
                 baris_aksi440.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git rev-list --pathspec-from-file=-; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru440 != isi_aksi440, \
+            "suntikan aksi440 tidak menembak"
+        with open(berkas_aksi440, "w", encoding="utf-8") as f:
+            f.write(isi_baru440)
         rc, out = jalan(sub440, [sys.executable, GERBANG, "--semua"])
         periksa("git rev-list --pathspec-from-file=-: "
                 "gerbang lolos (Audit 1227)", rc == 0)
@@ -8375,13 +9668,16 @@ def main():
             isi_aksi441 = f.read()
         baris_aksi441 = [b for b in isi_aksi441.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi441, "w", encoding="utf-8") as f:
-            f.write(isi_aksi441.replace(
+        isi_baru441 = isi_aksi441.replace(
                 baris_aksi441,
                 baris_aksi441.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(prlimit tail --pid 999999; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru441 != isi_aksi441, \
+            "suntikan aksi441 tidak menembak"
+        with open(berkas_aksi441, "w", encoding="utf-8") as f:
+            f.write(isi_baru441)
         rc, out = jalan(sub441, [sys.executable, GERBANG, "--semua"])
         periksa("prlimit tail --pid 999999: "
                 "gerbang gagal (Audit 1228)", rc != 0)
@@ -8393,13 +9689,16 @@ def main():
             isi_aksi442 = f.read()
         baris_aksi442 = [b for b in isi_aksi442.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi442, "w", encoding="utf-8") as f:
-            f.write(isi_aksi442.replace(
+        isi_baru442 = isi_aksi442.replace(
                 baris_aksi442,
                 baris_aksi442.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(prlimit --pid 999999; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru442 != isi_aksi442, \
+            "suntikan aksi442 tidak menembak"
+        with open(berkas_aksi442, "w", encoding="utf-8") as f:
+            f.write(isi_baru442)
         rc, out = jalan(sub442, [sys.executable, GERBANG, "--semua"])
         periksa("prlimit --pid 999999: "
                 "gerbang lolos (Audit 1228)", rc == 0)
@@ -8411,13 +9710,16 @@ def main():
             isi_aksi443 = f.read()
         baris_aksi443 = [b for b in isi_aksi443.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi443, "w", encoding="utf-8") as f:
-            f.write(isi_aksi443.replace(
+        isi_baru443 = isi_aksi443.replace(
                 baris_aksi443,
                 baris_aksi443.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(file - -f daftar.txt; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru443 != isi_aksi443, \
+            "suntikan aksi443 tidak menembak"
+        with open(berkas_aksi443, "w", encoding="utf-8") as f:
+            f.write(isi_baru443)
         rc, out = jalan(sub443, [sys.executable, GERBANG, "--semua"])
         periksa("file - -f daftar.txt: "
                 "gerbang gagal (Audit 1229)", rc != 0)
@@ -8429,13 +9731,16 @@ def main():
             isi_aksi444 = f.read()
         baris_aksi444 = [b for b in isi_aksi444.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi444, "w", encoding="utf-8") as f:
-            f.write(isi_aksi444.replace(
+        isi_baru444 = isi_aksi444.replace(
                 baris_aksi444,
                 baris_aksi444.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(date -f-; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru444 != isi_aksi444, \
+            "suntikan aksi444 tidak menembak"
+        with open(berkas_aksi444, "w", encoding="utf-8") as f:
+            f.write(isi_baru444)
         rc, out = jalan(sub444, [sys.executable, GERBANG, "--semua"])
         periksa("date -f-: "
                 "gerbang gagal (Audit 1230)", rc != 0)
@@ -8447,13 +9752,16 @@ def main():
             isi_aksi445 = f.read()
         baris_aksi445 = [b for b in isi_aksi445.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi445, "w", encoding="utf-8") as f:
-            f.write(isi_aksi445.replace(
+        isi_baru445 = isi_aksi445.replace(
                 baris_aksi445,
                 baris_aksi445.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(sysctl -p berkas.conf -p -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru445 != isi_aksi445, \
+            "suntikan aksi445 tidak menembak"
+        with open(berkas_aksi445, "w", encoding="utf-8") as f:
+            f.write(isi_baru445)
         rc, out = jalan(sub445, [sys.executable, GERBANG, "--semua"])
         periksa("sysctl -p berkas.conf -p -: "
                 "gerbang gagal (Audit 1231)", rc != 0)
@@ -8465,13 +9773,16 @@ def main():
             isi_aksi446 = f.read()
         baris_aksi446 = [b for b in isi_aksi446.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi446, "w", encoding="utf-8") as f:
-            f.write(isi_aksi446.replace(
+        isi_baru446 = isi_aksi446.replace(
                 baris_aksi446,
                 baris_aksi446.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pdftotext -cfg - berkas.pdf; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru446 != isi_aksi446, \
+            "suntikan aksi446 tidak menembak"
+        with open(berkas_aksi446, "w", encoding="utf-8") as f:
+            f.write(isi_baru446)
         rc, out = jalan(sub446, [sys.executable, GERBANG, "--semua"])
         periksa("pdftotext -cfg - berkas.pdf: "
                 "gerbang lolos (Audit 1232)", rc == 0)
@@ -8483,13 +9794,16 @@ def main():
             isi_aksi447 = f.read()
         baris_aksi447 = [b for b in isi_aksi447.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi447, "w", encoding="utf-8") as f:
-            f.write(isi_aksi447.replace(
+        isi_baru447 = isi_aksi447.replace(
                 baris_aksi447,
                 baris_aksi447.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(nft -f-; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru447 != isi_aksi447, \
+            "suntikan aksi447 tidak menembak"
+        with open(berkas_aksi447, "w", encoding="utf-8") as f:
+            f.write(isi_baru447)
         rc, out = jalan(sub447, [sys.executable, GERBANG, "--semua"])
         periksa("nft -f-: "
                 "gerbang gagal (Audit 1233)", rc != 0)
@@ -8501,13 +9815,16 @@ def main():
             isi_aksi448 = f.read()
         baris_aksi448 = [b for b in isi_aksi448.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi448, "w", encoding="utf-8") as f:
-            f.write(isi_aksi448.replace(
+        isi_baru448 = isi_aksi448.replace(
                 baris_aksi448,
                 baris_aksi448.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pr -s berkas.txt; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru448 != isi_aksi448, \
+            "suntikan aksi448 tidak menembak"
+        with open(berkas_aksi448, "w", encoding="utf-8") as f:
+            f.write(isi_baru448)
         rc, out = jalan(sub448, [sys.executable, GERBANG, "--semua"])
         periksa("pr -s berkas.txt: "
                 "gerbang lolos (Audit 1234)", rc == 0)
@@ -8519,13 +9836,16 @@ def main():
             isi_aksi449 = f.read()
         baris_aksi449 = [b for b in isi_aksi449.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi449, "w", encoding="utf-8") as f:
-            f.write(isi_aksi449.replace(
+        isi_baru449 = isi_aksi449.replace(
                 baris_aksi449,
                 baris_aksi449.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pr --separator berkas.txt; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru449 != isi_aksi449, \
+            "suntikan aksi449 tidak menembak"
+        with open(berkas_aksi449, "w", encoding="utf-8") as f:
+            f.write(isi_baru449)
         rc, out = jalan(sub449, [sys.executable, GERBANG, "--semua"])
         periksa("pr --separator berkas.txt: "
                 "gerbang lolos (Audit 1234)", rc == 0)
@@ -8537,13 +9857,16 @@ def main():
             isi_aksi450 = f.read()
         baris_aksi450 = [b for b in isi_aksi450.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi450, "w", encoding="utf-8") as f:
-            f.write(isi_aksi450.replace(
+        isi_baru450 = isi_aksi450.replace(
                 baris_aksi450,
                 baris_aksi450.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(ptx -F xx; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru450 != isi_aksi450, \
+            "suntikan aksi450 tidak menembak"
+        with open(berkas_aksi450, "w", encoding="utf-8") as f:
+            f.write(isi_baru450)
         rc, out = jalan(sub450, [sys.executable, GERBANG, "--semua"])
         periksa("ptx -F xx: "
                 "gerbang gagal (Audit 1235)", rc != 0)
@@ -8555,13 +9878,16 @@ def main():
             isi_aksi451 = f.read()
         baris_aksi451 = [b for b in isi_aksi451.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi451, "w", encoding="utf-8") as f:
-            f.write(isi_aksi451.replace(
+        isi_baru451 = isi_aksi451.replace(
                 baris_aksi451,
                 baris_aksi451.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(wall -g users; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru451 != isi_aksi451, \
+            "suntikan aksi451 tidak menembak"
+        with open(berkas_aksi451, "w", encoding="utf-8") as f:
+            f.write(isi_baru451)
         rc, out = jalan(sub451, [sys.executable, GERBANG, "--semua"])
         periksa("wall -g users: "
                 "gerbang gagal (Audit 1236)", rc != 0)
@@ -8573,13 +9899,16 @@ def main():
             isi_aksi452 = f.read()
         baris_aksi452 = [b for b in isi_aksi452.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi452, "w", encoding="utf-8") as f:
-            f.write(isi_aksi452.replace(
+        isi_baru452 = isi_aksi452.replace(
                 baris_aksi452,
                 baris_aksi452.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(xzcat --suffix .zz; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru452 != isi_aksi452, \
+            "suntikan aksi452 tidak menembak"
+        with open(berkas_aksi452, "w", encoding="utf-8") as f:
+            f.write(isi_baru452)
         rc, out = jalan(sub452, [sys.executable, GERBANG, "--semua"])
         periksa("xzcat --suffix .zz: "
                 "gerbang gagal (Audit 1237)", rc != 0)
@@ -8591,13 +9920,16 @@ def main():
             isi_aksi453 = f.read()
         baris_aksi453 = [b for b in isi_aksi453.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi453, "w", encoding="utf-8") as f:
-            f.write(isi_aksi453.replace(
+        isi_baru453 = isi_aksi453.replace(
                 baris_aksi453,
                 baris_aksi453.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(lzcat --suffix .zz; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru453 != isi_aksi453, \
+            "suntikan aksi453 tidak menembak"
+        with open(berkas_aksi453, "w", encoding="utf-8") as f:
+            f.write(isi_baru453)
         rc, out = jalan(sub453, [sys.executable, GERBANG, "--semua"])
         periksa("lzcat --suffix .zz: "
                 "gerbang gagal (Audit 1238)", rc != 0)
@@ -8609,13 +9941,16 @@ def main():
             isi_aksi454 = f.read()
         baris_aksi454 = [b for b in isi_aksi454.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi454, "w", encoding="utf-8") as f:
-            f.write(isi_aksi454.replace(
+        isi_baru454 = isi_aksi454.replace(
                 baris_aksi454,
                 baris_aksi454.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(openssl x509 -in /dev/stdin; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru454 != isi_aksi454, \
+            "suntikan aksi454 tidak menembak"
+        with open(berkas_aksi454, "w", encoding="utf-8") as f:
+            f.write(isi_baru454)
         rc, out = jalan(sub454, [sys.executable, GERBANG, "--semua"])
         periksa("openssl x509 -in /dev/stdin: "
                 "gerbang gagal (Audit 1239)", rc != 0)
@@ -8627,13 +9962,16 @@ def main():
             isi_aksi455 = f.read()
         baris_aksi455 = [b for b in isi_aksi455.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi455, "w", encoding="utf-8") as f:
-            f.write(isi_aksi455.replace(
+        isi_baru455 = isi_aksi455.replace(
                 baris_aksi455,
                 baris_aksi455.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(openssl pkcs7 -in /dev/stdin; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru455 != isi_aksi455, \
+            "suntikan aksi455 tidak menembak"
+        with open(berkas_aksi455, "w", encoding="utf-8") as f:
+            f.write(isi_baru455)
         rc, out = jalan(sub455, [sys.executable, GERBANG, "--semua"])
         periksa("openssl pkcs7 -in /dev/stdin: "
                 "gerbang gagal (Audit 1239)", rc != 0)
@@ -8645,13 +9983,16 @@ def main():
             isi_aksi456 = f.read()
         baris_aksi456 = [b for b in isi_aksi456.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi456, "w", encoding="utf-8") as f:
-            f.write(isi_aksi456.replace(
+        isi_baru456 = isi_aksi456.replace(
                 baris_aksi456,
                 baris_aksi456.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(openssl dgst --list; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru456 != isi_aksi456, \
+            "suntikan aksi456 tidak menembak"
+        with open(berkas_aksi456, "w", encoding="utf-8") as f:
+            f.write(isi_baru456)
         rc, out = jalan(sub456, [sys.executable, GERBANG, "--semua"])
         periksa("openssl dgst --list: "
                 "gerbang lolos (Audit 1240)", rc == 0)
@@ -8663,13 +10004,16 @@ def main():
             isi_aksi457 = f.read()
         baris_aksi457 = [b for b in isi_aksi457.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi457, "w", encoding="utf-8") as f:
-            f.write(isi_aksi457.replace(
+        isi_baru457 = isi_aksi457.replace(
                 baris_aksi457,
                 baris_aksi457.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(od -S 3; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru457 != isi_aksi457, \
+            "suntikan aksi457 tidak menembak"
+        with open(berkas_aksi457, "w", encoding="utf-8") as f:
+            f.write(isi_baru457)
         rc, out = jalan(sub457, [sys.executable, GERBANG, "--semua"])
         periksa("od -S 3: "
                 "gerbang gagal (Audit 1241)", rc != 0)
@@ -8681,13 +10025,16 @@ def main():
             isi_aksi458 = f.read()
         baris_aksi458 = [b for b in isi_aksi458.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi458, "w", encoding="utf-8") as f:
-            f.write(isi_aksi458.replace(
+        isi_baru458 = isi_aksi458.replace(
                 baris_aksi458,
                 baris_aksi458.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(od -w berkas.txt; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru458 != isi_aksi458, \
+            "suntikan aksi458 tidak menembak"
+        with open(berkas_aksi458, "w", encoding="utf-8") as f:
+            f.write(isi_baru458)
         rc, out = jalan(sub458, [sys.executable, GERBANG, "--semua"])
         periksa("od -w berkas.txt: "
                 "gerbang lolos (Audit 1241)", rc == 0)
@@ -8699,13 +10046,16 @@ def main():
             isi_aksi459 = f.read()
         baris_aksi459 = [b for b in isi_aksi459.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi459, "w", encoding="utf-8") as f:
-            f.write(isi_aksi459.replace(
+        isi_baru459 = isi_aksi459.replace(
                 baris_aksi459,
                 baris_aksi459.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(od +16; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru459 != isi_aksi459, \
+            "suntikan aksi459 tidak menembak"
+        with open(berkas_aksi459, "w", encoding="utf-8") as f:
+            f.write(isi_baru459)
         rc, out = jalan(sub459, [sys.executable, GERBANG, "--semua"])
         periksa("od +16: "
                 "gerbang gagal (Audit 1241)", rc != 0)
@@ -8717,13 +10067,16 @@ def main():
             isi_aksi460 = f.read()
         baris_aksi460 = [b for b in isi_aksi460.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi460, "w", encoding="utf-8") as f:
-            f.write(isi_aksi460.replace(
+        isi_baru460 = isi_aksi460.replace(
                 baris_aksi460,
                 baris_aksi460.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(strings -s X; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru460 != isi_aksi460, \
+            "suntikan aksi460 tidak menembak"
+        with open(berkas_aksi460, "w", encoding="utf-8") as f:
+            f.write(isi_baru460)
         rc, out = jalan(sub460, [sys.executable, GERBANG, "--semua"])
         periksa("strings -s X: "
                 "gerbang gagal (Audit 1242)", rc != 0)
@@ -8735,13 +10088,16 @@ def main():
             isi_aksi461 = f.read()
         baris_aksi461 = [b for b in isi_aksi461.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi461, "w", encoding="utf-8") as f:
-            f.write(isi_aksi461.replace(
+        isi_baru461 = isi_aksi461.replace(
                 baris_aksi461,
                 baris_aksi461.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(strings -U d; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru461 != isi_aksi461, \
+            "suntikan aksi461 tidak menembak"
+        with open(berkas_aksi461, "w", encoding="utf-8") as f:
+            f.write(isi_baru461)
         rc, out = jalan(sub461, [sys.executable, GERBANG, "--semua"])
         periksa("strings -U d: "
                 "gerbang gagal (Audit 1242)", rc != 0)
@@ -8753,13 +10109,16 @@ def main():
             isi_aksi462 = f.read()
         baris_aksi462 = [b for b in isi_aksi462.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi462, "w", encoding="utf-8") as f:
-            f.write(isi_aksi462.replace(
+        isi_baru462 = isi_aksi462.replace(
                 baris_aksi462,
                 baris_aksi462.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(json_pp -f json; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru462 != isi_aksi462, \
+            "suntikan aksi462 tidak menembak"
+        with open(berkas_aksi462, "w", encoding="utf-8") as f:
+            f.write(isi_baru462)
         rc, out = jalan(sub462, [sys.executable, GERBANG, "--semua"])
         periksa("json_pp -f json: "
                 "gerbang gagal (Audit 1243)", rc != 0)
@@ -8771,13 +10130,16 @@ def main():
             isi_aksi463 = f.read()
         baris_aksi463 = [b for b in isi_aksi463.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi463, "w", encoding="utf-8") as f:
-            f.write(isi_aksi463.replace(
+        isi_baru463 = isi_aksi463.replace(
                 baris_aksi463,
                 baris_aksi463.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(zgrep pola; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru463 != isi_aksi463, \
+            "suntikan aksi463 tidak menembak"
+        with open(berkas_aksi463, "w", encoding="utf-8") as f:
+            f.write(isi_baru463)
         rc, out = jalan(sub463, [sys.executable, GERBANG, "--semua"])
         periksa("zgrep pola: "
                 "gerbang gagal (Audit 1244)", rc != 0)
@@ -8789,13 +10151,16 @@ def main():
             isi_aksi464 = f.read()
         baris_aksi464 = [b for b in isi_aksi464.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi464, "w", encoding="utf-8") as f:
-            f.write(isi_aksi464.replace(
+        isi_baru464 = isi_aksi464.replace(
                 baris_aksi464,
                 baris_aksi464.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(xzgrep pola; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru464 != isi_aksi464, \
+            "suntikan aksi464 tidak menembak"
+        with open(berkas_aksi464, "w", encoding="utf-8") as f:
+            f.write(isi_baru464)
         rc, out = jalan(sub464, [sys.executable, GERBANG, "--semua"])
         periksa("xzgrep pola: "
                 "gerbang gagal (Audit 1244)", rc != 0)
@@ -8807,13 +10172,16 @@ def main():
             isi_aksi465 = f.read()
         baris_aksi465 = [b for b in isi_aksi465.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi465, "w", encoding="utf-8") as f:
-            f.write(isi_aksi465.replace(
+        isi_baru465 = isi_aksi465.replace(
                 baris_aksi465,
                 baris_aksi465.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(shasum; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru465 != isi_aksi465, \
+            "suntikan aksi465 tidak menembak"
+        with open(berkas_aksi465, "w", encoding="utf-8") as f:
+            f.write(isi_baru465)
         rc, out = jalan(sub465, [sys.executable, GERBANG, "--semua"])
         periksa("shasum: "
                 "gerbang gagal (Audit 1245)", rc != 0)
@@ -8825,13 +10193,16 @@ def main():
             isi_aksi466 = f.read()
         baris_aksi466 = [b for b in isi_aksi466.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi466, "w", encoding="utf-8") as f:
-            f.write(isi_aksi466.replace(
+        isi_baru466 = isi_aksi466.replace(
                 baris_aksi466,
                 baris_aksi466.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(md5sum.textutils; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru466 != isi_aksi466, \
+            "suntikan aksi466 tidak menembak"
+        with open(berkas_aksi466, "w", encoding="utf-8") as f:
+            f.write(isi_baru466)
         rc, out = jalan(sub466, [sys.executable, GERBANG, "--semua"])
         periksa("md5sum.textutils: "
                 "gerbang gagal (Audit 1245)", rc != 0)
@@ -8843,13 +10214,16 @@ def main():
             isi_aksi467 = f.read()
         baris_aksi467 = [b for b in isi_aksi467.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi467, "w", encoding="utf-8") as f:
-            f.write(isi_aksi467.replace(
+        isi_baru467 = isi_aksi467.replace(
                 baris_aksi467,
                 baris_aksi467.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(uconv -f UTF-8 -t UTF-8; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru467 != isi_aksi467, \
+            "suntikan aksi467 tidak menembak"
+        with open(berkas_aksi467, "w", encoding="utf-8") as f:
+            f.write(isi_baru467)
         rc, out = jalan(sub467, [sys.executable, GERBANG, "--semua"])
         periksa("uconv -f UTF-8 -t UTF-8: "
                 "gerbang gagal (Audit 1246)", rc != 0)
@@ -8861,13 +10235,16 @@ def main():
             isi_aksi468 = f.read()
         baris_aksi468 = [b for b in isi_aksi468.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi468, "w", encoding="utf-8") as f:
-            f.write(isi_aksi468.replace(
+        isi_baru468 = isi_aksi468.replace(
                 baris_aksi468,
                 baris_aksi468.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(piconv -f utf8 -t utf8; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru468 != isi_aksi468, \
+            "suntikan aksi468 tidak menembak"
+        with open(berkas_aksi468, "w", encoding="utf-8") as f:
+            f.write(isi_baru468)
         rc, out = jalan(sub468, [sys.executable, GERBANG, "--semua"])
         periksa("piconv -f utf8 -t utf8: "
                 "gerbang gagal (Audit 1247)", rc != 0)
@@ -8879,13 +10256,16 @@ def main():
             isi_aksi469 = f.read()
         baris_aksi469 = [b for b in isi_aksi469.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi469, "w", encoding="utf-8") as f:
-            f.write(isi_aksi469.replace(
+        isi_baru469 = isi_aksi469.replace(
                 baris_aksi469,
                 baris_aksi469.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pod2text; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru469 != isi_aksi469, \
+            "suntikan aksi469 tidak menembak"
+        with open(berkas_aksi469, "w", encoding="utf-8") as f:
+            f.write(isi_baru469)
         rc, out = jalan(sub469, [sys.executable, GERBANG, "--semua"])
         periksa("pod2text: "
                 "gerbang gagal (Audit 1248)", rc != 0)
@@ -8897,13 +10277,16 @@ def main():
             isi_aksi470 = f.read()
         baris_aksi470 = [b for b in isi_aksi470.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi470, "w", encoding="utf-8") as f:
-            f.write(isi_aksi470.replace(
+        isi_baru470 = isi_aksi470.replace(
                 baris_aksi470,
                 baris_aksi470.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(sdiff berkas.txt -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru470 != isi_aksi470, \
+            "suntikan aksi470 tidak menembak"
+        with open(berkas_aksi470, "w", encoding="utf-8") as f:
+            f.write(isi_baru470)
         rc, out = jalan(sub470, [sys.executable, GERBANG, "--semua"])
         periksa("sdiff berkas.txt -: "
                 "gerbang gagal (Audit 1249)", rc != 0)
@@ -8915,13 +10298,16 @@ def main():
             isi_aksi471 = f.read()
         baris_aksi471 = [b for b in isi_aksi471.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi471, "w", encoding="utf-8") as f:
-            f.write(isi_aksi471.replace(
+        isi_baru471 = isi_aksi471.replace(
                 baris_aksi471,
                 baris_aksi471.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(socat1 - -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru471 != isi_aksi471, \
+            "suntikan aksi471 tidak menembak"
+        with open(berkas_aksi471, "w", encoding="utf-8") as f:
+            f.write(isi_baru471)
         rc, out = jalan(sub471, [sys.executable, GERBANG, "--semua"])
         periksa("socat1 - -: "
                 "gerbang gagal (Audit 1250)", rc != 0)
@@ -8933,13 +10319,16 @@ def main():
             isi_aksi472 = f.read()
         baris_aksi472 = [b for b in isi_aksi472.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi472, "w", encoding="utf-8") as f:
-            f.write(isi_aksi472.replace(
+        isi_baru472 = isi_aksi472.replace(
                 baris_aksi472,
                 baris_aksi472.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(nodejs; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru472 != isi_aksi472, \
+            "suntikan aksi472 tidak menembak"
+        with open(berkas_aksi472, "w", encoding="utf-8") as f:
+            f.write(isi_baru472)
         rc, out = jalan(sub472, [sys.executable, GERBANG, "--semua"])
         periksa("nodejs: "
                 "gerbang gagal (Audit 1251)", rc != 0)
@@ -8951,13 +10340,16 @@ def main():
             isi_aksi473 = f.read()
         baris_aksi473 = [b for b in isi_aksi473.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi473, "w", encoding="utf-8") as f:
-            f.write(isi_aksi473.replace(
+        isi_baru473 = isi_aksi473.replace(
                 baris_aksi473,
                 baris_aksi473.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(gmake -f -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru473 != isi_aksi473, \
+            "suntikan aksi473 tidak menembak"
+        with open(berkas_aksi473, "w", encoding="utf-8") as f:
+            f.write(isi_baru473)
         rc, out = jalan(sub473, [sys.executable, GERBANG, "--semua"])
         periksa("gmake -f -: "
                 "gerbang gagal (Audit 1252)", rc != 0)
@@ -8969,13 +10361,16 @@ def main():
             isi_aksi474 = f.read()
         baris_aksi474 = [b for b in isi_aksi474.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi474, "w", encoding="utf-8") as f:
-            f.write(isi_aksi474.replace(
+        isi_baru474 = isi_aksi474.replace(
                 baris_aksi474,
                 baris_aksi474.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(setarch x86_64 cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru474 != isi_aksi474, \
+            "suntikan aksi474 tidak menembak"
+        with open(berkas_aksi474, "w", encoding="utf-8") as f:
+            f.write(isi_baru474)
         rc, out = jalan(sub474, [sys.executable, GERBANG, "--semua"])
         periksa("setarch x86_64 cat: "
                 "gerbang gagal (Audit 1253)", rc != 0)
@@ -8987,13 +10382,16 @@ def main():
             isi_aksi475 = f.read()
         baris_aksi475 = [b for b in isi_aksi475.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi475, "w", encoding="utf-8") as f:
-            f.write(isi_aksi475.replace(
+        isi_baru475 = isi_aksi475.replace(
                 baris_aksi475,
                 baris_aksi475.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(linux64 cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru475 != isi_aksi475, \
+            "suntikan aksi475 tidak menembak"
+        with open(berkas_aksi475, "w", encoding="utf-8") as f:
+            f.write(isi_baru475)
         rc, out = jalan(sub475, [sys.executable, GERBANG, "--semua"])
         periksa("linux64 cat: "
                 "gerbang gagal (Audit 1253)", rc != 0)
@@ -9005,13 +10403,16 @@ def main():
             isi_aksi476 = f.read()
         baris_aksi476 = [b for b in isi_aksi476.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi476, "w", encoding="utf-8") as f:
-            f.write(isi_aksi476.replace(
+        isi_baru476 = isi_aksi476.replace(
                 baris_aksi476,
                 baris_aksi476.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(uclampset -m 0 cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru476 != isi_aksi476, \
+            "suntikan aksi476 tidak menembak"
+        with open(berkas_aksi476, "w", encoding="utf-8") as f:
+            f.write(isi_baru476)
         rc, out = jalan(sub476, [sys.executable, GERBANG, "--semua"])
         periksa("uclampset -m 0 cat: "
                 "gerbang gagal (Audit 1254)", rc != 0)
@@ -9023,13 +10424,16 @@ def main():
             isi_aksi477 = f.read()
         baris_aksi477 = [b for b in isi_aksi477.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi477, "w", encoding="utf-8") as f:
-            f.write(isi_aksi477.replace(
+        isi_baru477 = isi_aksi477.replace(
                 baris_aksi477,
                 baris_aksi477.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(choom -n 0 -- cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru477 != isi_aksi477, \
+            "suntikan aksi477 tidak menembak"
+        with open(berkas_aksi477, "w", encoding="utf-8") as f:
+            f.write(isi_baru477)
         rc, out = jalan(sub477, [sys.executable, GERBANG, "--semua"])
         periksa("choom -n 0 -- cat: "
                 "gerbang gagal (Audit 1255)", rc != 0)
@@ -9041,13 +10445,16 @@ def main():
             isi_aksi478 = f.read()
         baris_aksi478 = [b for b in isi_aksi478.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi478, "w", encoding="utf-8") as f:
-            f.write(isi_aksi478.replace(
+        isi_baru478 = isi_aksi478.replace(
                 baris_aksi478,
                 baris_aksi478.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(xvfb-run -a cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru478 != isi_aksi478, \
+            "suntikan aksi478 tidak menembak"
+        with open(berkas_aksi478, "w", encoding="utf-8") as f:
+            f.write(isi_baru478)
         rc, out = jalan(sub478, [sys.executable, GERBANG, "--semua"])
         periksa("xvfb-run -a cat: "
                 "gerbang gagal (Audit 1256)", rc != 0)
@@ -9059,13 +10466,16 @@ def main():
             isi_aksi479 = f.read()
         baris_aksi479 = [b for b in isi_aksi479.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi479, "w", encoding="utf-8") as f:
-            f.write(isi_aksi479.replace(
+        isi_baru479 = isi_aksi479.replace(
                 baris_aksi479,
                 baris_aksi479.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(iptables-nft-restore; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru479 != isi_aksi479, \
+            "suntikan aksi479 tidak menembak"
+        with open(berkas_aksi479, "w", encoding="utf-8") as f:
+            f.write(isi_baru479)
         rc, out = jalan(sub479, [sys.executable, GERBANG, "--semua"])
         periksa("iptables-nft-restore: "
                 "gerbang gagal (Audit 1257)", rc != 0)
@@ -9077,13 +10487,16 @@ def main():
             isi_aksi480 = f.read()
         baris_aksi480 = [b for b in isi_aksi480.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi480, "w", encoding="utf-8") as f:
-            f.write(isi_aksi480.replace(
+        isi_baru480 = isi_aksi480.replace(
                 baris_aksi480,
                 baris_aksi480.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(ebtables-restore; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru480 != isi_aksi480, \
+            "suntikan aksi480 tidak menembak"
+        with open(berkas_aksi480, "w", encoding="utf-8") as f:
+            f.write(isi_baru480)
         rc, out = jalan(sub480, [sys.executable, GERBANG, "--semua"])
         periksa("ebtables-restore: "
                 "gerbang gagal (Audit 1257)", rc != 0)
@@ -9095,13 +10508,16 @@ def main():
             isi_aksi481 = f.read()
         baris_aksi481 = [b for b in isi_aksi481.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi481, "w", encoding="utf-8") as f:
-            f.write(isi_aksi481.replace(
+        isi_baru481 = isi_aksi481.replace(
                 baris_aksi481,
                 baris_aksi481.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pdfinfo -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru481 != isi_aksi481, \
+            "suntikan aksi481 tidak menembak"
+        with open(berkas_aksi481, "w", encoding="utf-8") as f:
+            f.write(isi_baru481)
         rc, out = jalan(sub481, [sys.executable, GERBANG, "--semua"])
         periksa("pdfinfo -: "
                 "gerbang gagal (Audit 1258)", rc != 0)
@@ -9113,13 +10529,16 @@ def main():
             isi_aksi482 = f.read()
         baris_aksi482 = [b for b in isi_aksi482.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi482, "w", encoding="utf-8") as f:
-            f.write(isi_aksi482.replace(
+        isi_baru482 = isi_aksi482.replace(
                 baris_aksi482,
                 baris_aksi482.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pdftops - -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru482 != isi_aksi482, \
+            "suntikan aksi482 tidak menembak"
+        with open(berkas_aksi482, "w", encoding="utf-8") as f:
+            f.write(isi_baru482)
         rc, out = jalan(sub482, [sys.executable, GERBANG, "--semua"])
         periksa("pdftops - -: "
                 "gerbang gagal (Audit 1258)", rc != 0)
@@ -9131,13 +10550,16 @@ def main():
             isi_aksi483 = f.read()
         baris_aksi483 = [b for b in isi_aksi483.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi483, "w", encoding="utf-8") as f:
-            f.write(isi_aksi483.replace(
+        isi_baru483 = isi_aksi483.replace(
                 baris_aksi483,
                 baris_aksi483.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(gm identify -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru483 != isi_aksi483, \
+            "suntikan aksi483 tidak menembak"
+        with open(berkas_aksi483, "w", encoding="utf-8") as f:
+            f.write(isi_baru483)
         rc, out = jalan(sub483, [sys.executable, GERBANG, "--semua"])
         periksa("gm identify -: "
                 "gerbang gagal (Audit 1259)", rc != 0)
@@ -9149,13 +10571,16 @@ def main():
             isi_aksi484 = f.read()
         baris_aksi484 = [b for b in isi_aksi484.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi484, "w", encoding="utf-8") as f:
-            f.write(isi_aksi484.replace(
+        isi_baru484 = isi_aksi484.replace(
                 baris_aksi484,
                 baris_aksi484.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(chardetect; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru484 != isi_aksi484, \
+            "suntikan aksi484 tidak menembak"
+        with open(berkas_aksi484, "w", encoding="utf-8") as f:
+            f.write(isi_baru484)
         rc, out = jalan(sub484, [sys.executable, GERBANG, "--semua"])
         periksa("chardetect: "
                 "gerbang gagal (Audit 1260)", rc != 0)
@@ -9167,13 +10592,16 @@ def main():
             isi_aksi485 = f.read()
         baris_aksi485 = [b for b in isi_aksi485.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi485, "w", encoding="utf-8") as f:
-            f.write(isi_aksi485.replace(
+        isi_baru485 = isi_aksi485.replace(
                 baris_aksi485,
                 baris_aksi485.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git cat-file --batch-check=%(objectname); cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru485 != isi_aksi485, \
+            "suntikan aksi485 tidak menembak"
+        with open(berkas_aksi485, "w", encoding="utf-8") as f:
+            f.write(isi_baru485)
         rc, out = jalan(sub485, [sys.executable, GERBANG, "--semua"])
         periksa("git cat-file --batch-check=%(objectname): "
                 "gerbang gagal (Audit 1261)", rc != 0)
@@ -9185,13 +10613,16 @@ def main():
             isi_aksi486 = f.read()
         baris_aksi486 = [b for b in isi_aksi486.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi486, "w", encoding="utf-8") as f:
-            f.write(isi_aksi486.replace(
+        isi_baru486 = isi_aksi486.replace(
                 baris_aksi486,
                 baris_aksi486.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git apply --build-fake-ancestor idx; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru486 != isi_aksi486, \
+            "suntikan aksi486 tidak menembak"
+        with open(berkas_aksi486, "w", encoding="utf-8") as f:
+            f.write(isi_baru486)
         rc, out = jalan(sub486, [sys.executable, GERBANG, "--semua"])
         periksa("git apply --build-fake-ancestor idx: "
                 "gerbang gagal (Audit 1262)", rc != 0)
@@ -9203,13 +10634,16 @@ def main():
             isi_aksi487 = f.read()
         baris_aksi487 = [b for b in isi_aksi487.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi487, "w", encoding="utf-8") as f:
-            f.write(isi_aksi487.replace(
+        isi_baru487 = isi_aksi487.replace(
                 baris_aksi487,
                 baris_aksi487.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(iconv --usage; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru487 != isi_aksi487, \
+            "suntikan aksi487 tidak menembak"
+        with open(berkas_aksi487, "w", encoding="utf-8") as f:
+            f.write(isi_baru487)
         rc, out = jalan(sub487, [sys.executable, GERBANG, "--semua"])
         periksa("iconv --usage: "
                 "gerbang lolos (Audit 1263)", rc == 0)
@@ -9221,13 +10655,16 @@ def main():
             isi_aksi488 = f.read()
         baris_aksi488 = [b for b in isi_aksi488.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi488, "w", encoding="utf-8") as f:
-            f.write(isi_aksi488.replace(
+        isi_baru488 = isi_aksi488.replace(
                 baris_aksi488,
                 baris_aksi488.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(wc --total berkas.txt; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru488 != isi_aksi488, \
+            "suntikan aksi488 tidak menembak"
+        with open(berkas_aksi488, "w", encoding="utf-8") as f:
+            f.write(isi_baru488)
         rc, out = jalan(sub488, [sys.executable, GERBANG, "--semua"])
         periksa("wc --total berkas.txt: "
                 "gerbang lolos (Audit 1264)", rc == 0)
@@ -9239,13 +10676,16 @@ def main():
             isi_aksi489 = f.read()
         baris_aksi489 = [b for b in isi_aksi489.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi489, "w", encoding="utf-8") as f:
-            f.write(isi_aksi489.replace(
+        isi_baru489 = isi_aksi489.replace(
                 baris_aksi489,
                 baris_aksi489.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(numfmt --grouping 123; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru489 != isi_aksi489, \
+            "suntikan aksi489 tidak menembak"
+        with open(berkas_aksi489, "w", encoding="utf-8") as f:
+            f.write(isi_baru489)
         rc, out = jalan(sub489, [sys.executable, GERBANG, "--semua"])
         periksa("numfmt --grouping 123: "
                 "gerbang lolos (Audit 1265)", rc == 0)
@@ -9257,13 +10697,16 @@ def main():
             isi_aksi490 = f.read()
         baris_aksi490 = [b for b in isi_aksi490.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi490, "w", encoding="utf-8") as f:
-            f.write(isi_aksi490.replace(
+        isi_baru490 = isi_aksi490.replace(
                 baris_aksi490,
                 baris_aksi490.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git cat-file --batch-all-objects --batch; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru490 != isi_aksi490, \
+            "suntikan aksi490 tidak menembak"
+        with open(berkas_aksi490, "w", encoding="utf-8") as f:
+            f.write(isi_baru490)
         rc, out = jalan(sub490, [sys.executable, GERBANG, "--semua"])
         periksa("git cat-file --batch-all-objects --batch: "
                 "gerbang lolos (Audit 1266)", rc == 0)
@@ -9275,13 +10718,16 @@ def main():
             isi_aksi491 = f.read()
         baris_aksi491 = [b for b in isi_aksi491.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi491, "w", encoding="utf-8") as f:
-            f.write(isi_aksi491.replace(
+        isi_baru491 = isi_aksi491.replace(
                 baris_aksi491,
                 baris_aksi491.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git commit --pathspec-from-file=-; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru491 != isi_aksi491, \
+            "suntikan aksi491 tidak menembak"
+        with open(berkas_aksi491, "w", encoding="utf-8") as f:
+            f.write(isi_baru491)
         rc, out = jalan(sub491, [sys.executable, GERBANG, "--semua"])
         periksa("git commit --pathspec-from-file=-: "
                 "gerbang gagal (Audit 1268)", rc != 0)
@@ -9293,13 +10739,16 @@ def main():
             isi_aksi492 = f.read()
         baris_aksi492 = [b for b in isi_aksi492.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi492, "w", encoding="utf-8") as f:
-            f.write(isi_aksi492.replace(
+        isi_baru492 = isi_aksi492.replace(
                 baris_aksi492,
                 baris_aksi492.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git add --chmod --pathspec-from-file=-; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru492 != isi_aksi492, \
+            "suntikan aksi492 tidak menembak"
+        with open(berkas_aksi492, "w", encoding="utf-8") as f:
+            f.write(isi_baru492)
         rc, out = jalan(sub492, [sys.executable, GERBANG, "--semua"])
         periksa("git add --chmod --pathspec-from-file=-: "
                 "gerbang lolos (Audit 1269)", rc == 0)
@@ -9311,13 +10760,16 @@ def main():
             isi_aksi493 = f.read()
         baris_aksi493 = [b for b in isi_aksi493.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi493, "w", encoding="utf-8") as f:
-            f.write(isi_aksi493.replace(
+        isi_baru493 = isi_aksi493.replace(
                 baris_aksi493,
                 baris_aksi493.replace(
                     '>> "$GITHUB_OUTPUT"',
                     "> >(git check-mailmap --stdin 'A <a@b.c>'; cat "
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru493 != isi_aksi493, \
+            "suntikan aksi493 tidak menembak"
+        with open(berkas_aksi493, "w", encoding="utf-8") as f:
+            f.write(isi_baru493)
         rc, out = jalan(sub493, [sys.executable, GERBANG, "--semua"])
         periksa("git check-mailmap --stdin 'A <a@b.c>': "
                 "gerbang gagal (Audit 1270)", rc != 0)
@@ -9329,13 +10781,16 @@ def main():
             isi_aksi494 = f.read()
         baris_aksi494 = [b for b in isi_aksi494.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi494, "w", encoding="utf-8") as f:
-            f.write(isi_aksi494.replace(
+        isi_baru494 = isi_aksi494.replace(
                 baris_aksi494,
                 baris_aksi494.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git credential-cache --timeout 300 get; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru494 != isi_aksi494, \
+            "suntikan aksi494 tidak menembak"
+        with open(berkas_aksi494, "w", encoding="utf-8") as f:
+            f.write(isi_baru494)
         rc, out = jalan(sub494, [sys.executable, GERBANG, "--semua"])
         periksa("git credential-cache --timeout 300 get: "
                 "gerbang gagal (Audit 1271)", rc != 0)
@@ -9347,13 +10802,16 @@ def main():
             isi_aksi495 = f.read()
         baris_aksi495 = [b for b in isi_aksi495.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi495, "w", encoding="utf-8") as f:
-            f.write(isi_aksi495.replace(
+        isi_baru495 = isi_aksi495.replace(
                 baris_aksi495,
                 baris_aksi495.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git shortlog --since yesterday; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru495 != isi_aksi495, \
+            "suntikan aksi495 tidak menembak"
+        with open(berkas_aksi495, "w", encoding="utf-8") as f:
+            f.write(isi_baru495)
         rc, out = jalan(sub495, [sys.executable, GERBANG, "--semua"])
         periksa("git shortlog --since yesterday: "
                 "gerbang gagal (Audit 1272)", rc != 0)
@@ -9365,13 +10823,16 @@ def main():
             isi_aksi496 = f.read()
         baris_aksi496 = [b for b in isi_aksi496.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi496, "w", encoding="utf-8") as f:
-            f.write(isi_aksi496.replace(
+        isi_baru496 = isi_aksi496.replace(
                 baris_aksi496,
                 baris_aksi496.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git am --whitespace fix; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru496 != isi_aksi496, \
+            "suntikan aksi496 tidak menembak"
+        with open(berkas_aksi496, "w", encoding="utf-8") as f:
+            f.write(isi_baru496)
         rc, out = jalan(sub496, [sys.executable, GERBANG, "--semua"])
         periksa("git am --whitespace fix: "
                 "gerbang gagal (Audit 1273)", rc != 0)
@@ -9383,13 +10844,16 @@ def main():
             isi_aksi497 = f.read()
         baris_aksi497 = [b for b in isi_aksi497.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi497, "w", encoding="utf-8") as f:
-            f.write(isi_aksi497.replace(
+        isi_baru497 = isi_aksi497.replace(
                 baris_aksi497,
                 baris_aksi497.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git notes add -fF- HEAD; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru497 != isi_aksi497, \
+            "suntikan aksi497 tidak menembak"
+        with open(berkas_aksi497, "w", encoding="utf-8") as f:
+            f.write(isi_baru497)
         rc, out = jalan(sub497, [sys.executable, GERBANG, "--semua"])
         periksa("git notes add -fF- HEAD: "
                 "gerbang gagal (Audit 1274)", rc != 0)
@@ -9401,13 +10865,16 @@ def main():
             isi_aksi498 = f.read()
         baris_aksi498 = [b for b in isi_aksi498.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi498, "w", encoding="utf-8") as f:
-            f.write(isi_aksi498.replace(
+        isi_baru498 = isi_aksi498.replace(
                 baris_aksi498,
                 baris_aksi498.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(patch -f --help; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru498 != isi_aksi498, \
+            "suntikan aksi498 tidak menembak"
+        with open(berkas_aksi498, "w", encoding="utf-8") as f:
+            f.write(isi_baru498)
         rc, out = jalan(sub498, [sys.executable, GERBANG, "--semua"])
         periksa("patch -f --help: "
                 "gerbang lolos (Audit 1275)", rc == 0)
@@ -9419,13 +10886,16 @@ def main():
             isi_aksi499 = f.read()
         baris_aksi499 = [b for b in isi_aksi499.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi499, "w", encoding="utf-8") as f:
-            f.write(isi_aksi499.replace(
+        isi_baru499 = isi_aksi499.replace(
                 baris_aksi499,
                 baris_aksi499.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(iconv -o --usage; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru499 != isi_aksi499, \
+            "suntikan aksi499 tidak menembak"
+        with open(berkas_aksi499, "w", encoding="utf-8") as f:
+            f.write(isi_baru499)
         rc, out = jalan(sub499, [sys.executable, GERBANG, "--semua"])
         periksa("iconv -o --usage: "
                 "gerbang gagal (Audit 1276)", rc != 0)
@@ -9437,13 +10907,16 @@ def main():
             isi_aksi500 = f.read()
         baris_aksi500 = [b for b in isi_aksi500.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi500, "w", encoding="utf-8") as f:
-            f.write(isi_aksi500.replace(
+        isi_baru500 = isi_aksi500.replace(
                 baris_aksi500,
                 baris_aksi500.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(prlimit -p=999999 cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru500 != isi_aksi500, \
+            "suntikan aksi500 tidak menembak"
+        with open(berkas_aksi500, "w", encoding="utf-8") as f:
+            f.write(isi_baru500)
         rc, out = jalan(sub500, [sys.executable, GERBANG, "--semua"])
         periksa("prlimit -p=999999 cat: "
                 "gerbang lolos (Audit 1277)", rc == 0)
@@ -9455,13 +10928,16 @@ def main():
             isi_aksi501 = f.read()
         baris_aksi501 = [b for b in isi_aksi501.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi501, "w", encoding="utf-8") as f:
-            f.write(isi_aksi501.replace(
+        isi_baru501 = isi_aksi501.replace(
                 baris_aksi501,
                 baris_aksi501.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(openssl x509 -in /dev/stdin -in /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru501 != isi_aksi501, \
+            "suntikan aksi501 tidak menembak"
+        with open(berkas_aksi501, "w", encoding="utf-8") as f:
+            f.write(isi_baru501)
         rc, out = jalan(sub501, [sys.executable, GERBANG, "--semua"])
         periksa("openssl x509 -in /dev/stdin -in /dev/null: "
                 "gerbang lolos (Audit 1278)", rc == 0)
@@ -9473,13 +10949,16 @@ def main():
             isi_aksi502 = f.read()
         baris_aksi502 = [b for b in isi_aksi502.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi502, "w", encoding="utf-8") as f:
-            f.write(isi_aksi502.replace(
+        isi_baru502 = isi_aksi502.replace(
                 baris_aksi502,
                 baris_aksi502.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(file -f /dev/stdin; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru502 != isi_aksi502, \
+            "suntikan aksi502 tidak menembak"
+        with open(berkas_aksi502, "w", encoding="utf-8") as f:
+            f.write(isi_baru502)
         rc, out = jalan(sub502, [sys.executable, GERBANG, "--semua"])
         periksa("file -f /dev/stdin: "
                 "gerbang gagal (Audit 1279)", rc != 0)
@@ -9491,13 +10970,16 @@ def main():
             isi_aksi503 = f.read()
         baris_aksi503 = [b for b in isi_aksi503.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi503, "w", encoding="utf-8") as f:
-            f.write(isi_aksi503.replace(
+        isi_baru503 = isi_aksi503.replace(
                 baris_aksi503,
                 baris_aksi503.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(date -Rf-; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru503 != isi_aksi503, \
+            "suntikan aksi503 tidak menembak"
+        with open(berkas_aksi503, "w", encoding="utf-8") as f:
+            f.write(isi_baru503)
         rc, out = jalan(sub503, [sys.executable, GERBANG, "--semua"])
         periksa("date -Rf-: "
                 "gerbang gagal (Audit 1280)", rc != 0)
@@ -9509,13 +10991,16 @@ def main():
             isi_aksi504 = f.read()
         baris_aksi504 = [b for b in isi_aksi504.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi504, "w", encoding="utf-8") as f:
-            f.write(isi_aksi504.replace(
+        isi_baru504 = isi_aksi504.replace(
                 baris_aksi504,
                 baris_aksi504.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(sysctl -f -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru504 != isi_aksi504, \
+            "suntikan aksi504 tidak menembak"
+        with open(berkas_aksi504, "w", encoding="utf-8") as f:
+            f.write(isi_baru504)
         rc, out = jalan(sub504, [sys.executable, GERBANG, "--semua"])
         periksa("sysctl -f -: "
                 "gerbang gagal (Audit 1281)", rc != 0)
@@ -9527,13 +11012,16 @@ def main():
             isi_aksi505 = f.read()
         baris_aksi505 = [b for b in isi_aksi505.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi505, "w", encoding="utf-8") as f:
-            f.write(isi_aksi505.replace(
+        isi_baru505 = isi_aksi505.replace(
                 baris_aksi505,
                 baris_aksi505.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(sdiff -W - target.txt; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru505 != isi_aksi505, \
+            "suntikan aksi505 tidak menembak"
+        with open(berkas_aksi505, "w", encoding="utf-8") as f:
+            f.write(isi_baru505)
         rc, out = jalan(sub505, [sys.executable, GERBANG, "--semua"])
         periksa("sdiff -W - target.txt: "
                 "gerbang gagal (Audit 1282)", rc != 0)
@@ -9545,13 +11033,16 @@ def main():
             isi_aksi506 = f.read()
         baris_aksi506 = [b for b in isi_aksi506.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi506, "w", encoding="utf-8") as f:
-            f.write(isi_aksi506.replace(
+        isi_baru506 = isi_aksi506.replace(
                 baris_aksi506,
                 baris_aksi506.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pdfinfo -enc UTF-8 -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru506 != isi_aksi506, \
+            "suntikan aksi506 tidak menembak"
+        with open(berkas_aksi506, "w", encoding="utf-8") as f:
+            f.write(isi_baru506)
         rc, out = jalan(sub506, [sys.executable, GERBANG, "--semua"])
         periksa("pdfinfo -enc UTF-8 -: "
                 "gerbang gagal (Audit 1283)", rc != 0)
@@ -9563,13 +11054,16 @@ def main():
             isi_aksi507 = f.read()
         baris_aksi507 = [b for b in isi_aksi507.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi507, "w", encoding="utf-8") as f:
-            f.write(isi_aksi507.replace(
+        isi_baru507 = isi_aksi507.replace(
                 baris_aksi507,
                 baris_aksi507.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(gm identify -format - /tmp/p81.png; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru507 != isi_aksi507, \
+            "suntikan aksi507 tidak menembak"
+        with open(berkas_aksi507, "w", encoding="utf-8") as f:
+            f.write(isi_baru507)
         rc, out = jalan(sub507, [sys.executable, GERBANG, "--semua"])
         periksa("gm identify -format - /tmp/p81.png: "
                 "gerbang lolos (Audit 1284)", rc == 0)
@@ -9581,13 +11075,16 @@ def main():
             isi_aksi508 = f.read()
         baris_aksi508 = [b for b in isi_aksi508.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi508, "w", encoding="utf-8") as f:
-            f.write(isi_aksi508.replace(
+        isi_baru508 = isi_aksi508.replace(
                 baris_aksi508,
                 baris_aksi508.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(gm convert - -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru508 != isi_aksi508, \
+            "suntikan aksi508 tidak menembak"
+        with open(berkas_aksi508, "w", encoding="utf-8") as f:
+            f.write(isi_baru508)
         rc, out = jalan(sub508, [sys.executable, GERBANG, "--semua"])
         periksa("gm convert - -: "
                 "gerbang gagal (Audit 1285)", rc != 0)
@@ -9599,13 +11096,16 @@ def main():
             isi_aksi509 = f.read()
         baris_aksi509 = [b for b in isi_aksi509.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi509, "w", encoding="utf-8") as f:
-            f.write(isi_aksi509.replace(
+        isi_baru509 = isi_aksi509.replace(
                 baris_aksi509,
                 baris_aksi509.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pr --separator - berkas.txt; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru509 != isi_aksi509, \
+            "suntikan aksi509 tidak menembak"
+        with open(berkas_aksi509, "w", encoding="utf-8") as f:
+            f.write(isi_baru509)
         rc, out = jalan(sub509, [sys.executable, GERBANG, "--semua"])
         periksa("pr --separator - berkas.txt: "
                 "gerbang gagal (Audit 1286)", rc != 0)
@@ -9617,13 +11117,16 @@ def main():
             isi_aksi510 = f.read()
         baris_aksi510 = [b for b in isi_aksi510.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi510, "w", encoding="utf-8") as f:
-            f.write(isi_aksi510.replace(
+        isi_baru510 = isi_aksi510.replace(
                 baris_aksi510,
                 baris_aksi510.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(json_pp -t json; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru510 != isi_aksi510, \
+            "suntikan aksi510 tidak menembak"
+        with open(berkas_aksi510, "w", encoding="utf-8") as f:
+            f.write(isi_baru510)
         rc, out = jalan(sub510, [sys.executable, GERBANG, "--semua"])
         periksa("json_pp -t json: "
                 "gerbang gagal (Audit 1287)", rc != 0)
@@ -9635,13 +11138,16 @@ def main():
             isi_aksi511 = f.read()
         baris_aksi511 = [b for b in isi_aksi511.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi511, "w", encoding="utf-8") as f:
-            f.write(isi_aksi511.replace(
+        isi_baru511 = isi_aksi511.replace(
                 baris_aksi511,
                 baris_aksi511.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(uconv -b 4096 -f UTF-8 -t UTF-8; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru511 != isi_aksi511, \
+            "suntikan aksi511 tidak menembak"
+        with open(berkas_aksi511, "w", encoding="utf-8") as f:
+            f.write(isi_baru511)
         rc, out = jalan(sub511, [sys.executable, GERBANG, "--semua"])
         periksa("uconv -b 4096 -f UTF-8 -t UTF-8: "
                 "gerbang gagal (Audit 1288)", rc != 0)
@@ -9653,13 +11159,16 @@ def main():
             isi_aksi512 = f.read()
         baris_aksi512 = [b for b in isi_aksi512.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi512, "w", encoding="utf-8") as f:
-            f.write(isi_aksi512.replace(
+        isi_baru512 = isi_aksi512.replace(
                 baris_aksi512,
                 baris_aksi512.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(piconv -S scheme -f utf8 -t utf8; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru512 != isi_aksi512, \
+            "suntikan aksi512 tidak menembak"
+        with open(berkas_aksi512, "w", encoding="utf-8") as f:
+            f.write(isi_baru512)
         rc, out = jalan(sub512, [sys.executable, GERBANG, "--semua"])
         periksa("piconv -S scheme -f utf8 -t utf8: "
                 "gerbang gagal (Audit 1289)", rc != 0)
@@ -9671,13 +11180,16 @@ def main():
             isi_aksi513 = f.read()
         baris_aksi513 = [b for b in isi_aksi513.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi513, "w", encoding="utf-8") as f:
-            f.write(isi_aksi513.replace(
+        isi_baru513 = isi_aksi513.replace(
                 baris_aksi513,
                 baris_aksi513.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pod2text -e utf8; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru513 != isi_aksi513, \
+            "suntikan aksi513 tidak menembak"
+        with open(berkas_aksi513, "w", encoding="utf-8") as f:
+            f.write(isi_baru513)
         rc, out = jalan(sub513, [sys.executable, GERBANG, "--semua"])
         periksa("pod2text -e utf8: "
                 "gerbang gagal (Audit 1290)", rc != 0)
@@ -9689,13 +11201,16 @@ def main():
             isi_aksi514 = f.read()
         baris_aksi514 = [b for b in isi_aksi514.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi514, "w", encoding="utf-8") as f:
-            f.write(isi_aksi514.replace(
+        isi_baru514 = isi_aksi514.replace(
                 baris_aksi514,
                 baris_aksi514.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(shasum -a 256; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru514 != isi_aksi514, \
+            "suntikan aksi514 tidak menembak"
+        with open(berkas_aksi514, "w", encoding="utf-8") as f:
+            f.write(isi_baru514)
         rc, out = jalan(sub514, [sys.executable, GERBANG, "--semua"])
         periksa("shasum -a 256: "
                 "gerbang gagal (Audit 1291)", rc != 0)
@@ -9707,13 +11222,16 @@ def main():
             isi_aksi515 = f.read()
         baris_aksi515 = [b for b in isi_aksi515.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi515, "w", encoding="utf-8") as f:
-            f.write(isi_aksi515.replace(
+        isi_baru515 = isi_aksi515.replace(
                 baris_aksi515,
                 baris_aksi515.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(xzcat --block-size 1MiB; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru515 != isi_aksi515, \
+            "suntikan aksi515 tidak menembak"
+        with open(berkas_aksi515, "w", encoding="utf-8") as f:
+            f.write(isi_baru515)
         rc, out = jalan(sub515, [sys.executable, GERBANG, "--semua"])
         periksa("xzcat --block-size 1MiB: "
                 "gerbang gagal (Audit 1292)", rc != 0)
@@ -9725,13 +11243,16 @@ def main():
             isi_aksi516 = f.read()
         baris_aksi516 = [b for b in isi_aksi516.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi516, "w", encoding="utf-8") as f:
-            f.write(isi_aksi516.replace(
+        isi_baru516 = isi_aksi516.replace(
                 baris_aksi516,
                 baris_aksi516.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(iptables-nft-restore -W 1000; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru516 != isi_aksi516, \
+            "suntikan aksi516 tidak menembak"
+        with open(berkas_aksi516, "w", encoding="utf-8") as f:
+            f.write(isi_baru516)
         rc, out = jalan(sub516, [sys.executable, GERBANG, "--semua"])
         periksa("iptables-nft-restore -W 1000: "
                 "gerbang gagal (Audit 1293)", rc != 0)
@@ -9743,13 +11264,16 @@ def main():
             isi_aksi517 = f.read()
         baris_aksi517 = [b for b in isi_aksi517.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi517, "w", encoding="utf-8") as f:
-            f.write(isi_aksi517.replace(
+        isi_baru517 = isi_aksi517.replace(
                 baris_aksi517,
                 baris_aksi517.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(numfmt --round up; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru517 != isi_aksi517, \
+            "suntikan aksi517 tidak menembak"
+        with open(berkas_aksi517, "w", encoding="utf-8") as f:
+            f.write(isi_baru517)
         rc, out = jalan(sub517, [sys.executable, GERBANG, "--semua"])
         periksa("numfmt --round up: "
                 "gerbang gagal (Audit 1294)", rc != 0)
@@ -9761,13 +11285,16 @@ def main():
             isi_aksi518 = f.read()
         baris_aksi518 = [b for b in isi_aksi518.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi518, "w", encoding="utf-8") as f:
-            f.write(isi_aksi518.replace(
+        isi_baru518 = isi_aksi518.replace(
                 baris_aksi518,
                 baris_aksi518.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(uclampset -M 0 cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru518 != isi_aksi518, \
+            "suntikan aksi518 tidak menembak"
+        with open(berkas_aksi518, "w", encoding="utf-8") as f:
+            f.write(isi_baru518)
         rc, out = jalan(sub518, [sys.executable, GERBANG, "--semua"])
         periksa("uclampset -M 0 cat: "
                 "gerbang gagal (Audit 1295)", rc != 0)
@@ -9779,13 +11306,16 @@ def main():
             isi_aksi519 = f.read()
         baris_aksi519 = [b for b in isi_aksi519.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi519, "w", encoding="utf-8") as f:
-            f.write(isi_aksi519.replace(
+        isi_baru519 = isi_aksi519.replace(
                 baris_aksi519,
                 baris_aksi519.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(choom -p 999999 cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru519 != isi_aksi519, \
+            "suntikan aksi519 tidak menembak"
+        with open(berkas_aksi519, "w", encoding="utf-8") as f:
+            f.write(isi_baru519)
         rc, out = jalan(sub519, [sys.executable, GERBANG, "--semua"])
         periksa("choom -p 999999 cat: "
                 "gerbang lolos (Audit 1296)", rc == 0)
@@ -9797,13 +11327,16 @@ def main():
             isi_aksi520 = f.read()
         baris_aksi520 = [b for b in isi_aksi520.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi520, "w", encoding="utf-8") as f:
-            f.write(isi_aksi520.replace(
+        isi_baru520 = isi_aksi520.replace(
                 baris_aksi520,
                 baris_aksi520.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(xvfb-run -p MIT-MAGIC-COOKIE-1 cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru520 != isi_aksi520, \
+            "suntikan aksi520 tidak menembak"
+        with open(berkas_aksi520, "w", encoding="utf-8") as f:
+            f.write(isi_baru520)
         rc, out = jalan(sub520, [sys.executable, GERBANG, "--semua"])
         periksa("xvfb-run -p MIT-MAGIC-COOKIE-1 cat: "
                 "gerbang gagal (Audit 1297)", rc != 0)
@@ -9815,13 +11348,16 @@ def main():
             isi_aksi521 = f.read()
         baris_aksi521 = [b for b in isi_aksi521.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi521, "w", encoding="utf-8") as f:
-            f.write(isi_aksi521.replace(
+        isi_baru521 = isi_aksi521.replace(
                 baris_aksi521,
                 baris_aksi521.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(linux64 --list cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru521 != isi_aksi521, \
+            "suntikan aksi521 tidak menembak"
+        with open(berkas_aksi521, "w", encoding="utf-8") as f:
+            f.write(isi_baru521)
         rc, out = jalan(sub521, [sys.executable, GERBANG, "--semua"])
         periksa("linux64 --list cat: "
                 "gerbang lolos (Audit 1298)", rc == 0)
@@ -9833,13 +11369,16 @@ def main():
             isi_aksi522 = f.read()
         baris_aksi522 = [b for b in isi_aksi522.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi522, "w", encoding="utf-8") as f:
-            f.write(isi_aksi522.replace(
+        isi_baru522 = isi_aksi522.replace(
                 baris_aksi522,
                 baris_aksi522.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(nodejs -r fs; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru522 != isi_aksi522, \
+            "suntikan aksi522 tidak menembak"
+        with open(berkas_aksi522, "w", encoding="utf-8") as f:
+            f.write(isi_baru522)
         rc, out = jalan(sub522, [sys.executable, GERBANG, "--semua"])
         periksa("nodejs -r fs: "
                 "gerbang gagal (Audit 1299)", rc != 0)
@@ -9851,13 +11390,16 @@ def main():
             isi_aksi523 = f.read()
         baris_aksi523 = [b for b in isi_aksi523.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi523, "w", encoding="utf-8") as f:
-            f.write(isi_aksi523.replace(
+        isi_baru523 = isi_aksi523.replace(
                 baris_aksi523,
                 baris_aksi523.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(gmake -f /dev/stdin; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru523 != isi_aksi523, \
+            "suntikan aksi523 tidak menembak"
+        with open(berkas_aksi523, "w", encoding="utf-8") as f:
+            f.write(isi_baru523)
         rc, out = jalan(sub523, [sys.executable, GERBANG, "--semua"])
         periksa("gmake -f /dev/stdin: "
                 "gerbang gagal (Audit 1300)", rc != 0)
@@ -9869,13 +11411,16 @@ def main():
             isi_aksi524 = f.read()
         baris_aksi524 = [b for b in isi_aksi524.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi524, "w", encoding="utf-8") as f:
-            f.write(isi_aksi524.replace(
+        isi_baru524 = isi_aksi524.replace(
                 baris_aksi524,
                 baris_aksi524.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(perl5.38.2; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru524 != isi_aksi524, \
+            "suntikan aksi524 tidak menembak"
+        with open(berkas_aksi524, "w", encoding="utf-8") as f:
+            f.write(isi_baru524)
         rc, out = jalan(sub524, [sys.executable, GERBANG, "--semua"])
         periksa("perl5.38.2: "
                 "gerbang gagal (Audit 1301)", rc != 0)
@@ -9887,13 +11432,16 @@ def main():
             isi_aksi525 = f.read()
         baris_aksi525 = [b for b in isi_aksi525.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi525, "w", encoding="utf-8") as f:
-            f.write(isi_aksi525.replace(
+        isi_baru525 = isi_aksi525.replace(
                 baris_aksi525,
                 baris_aksi525.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cpp; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru525 != isi_aksi525, \
+            "suntikan aksi525 tidak menembak"
+        with open(berkas_aksi525, "w", encoding="utf-8") as f:
+            f.write(isi_baru525)
         rc, out = jalan(sub525, [sys.executable, GERBANG, "--semua"])
         periksa("cpp: "
                 "gerbang gagal (Audit 1302)", rc != 0)
@@ -9905,13 +11453,16 @@ def main():
             isi_aksi526 = f.read()
         baris_aksi526 = [b for b in isi_aksi526.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi526, "w", encoding="utf-8") as f:
-            f.write(isi_aksi526.replace(
+        isi_baru526 = isi_aksi526.replace(
                 baris_aksi526,
                 baris_aksi526.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(gcc -x c -E -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru526 != isi_aksi526, \
+            "suntikan aksi526 tidak menembak"
+        with open(berkas_aksi526, "w", encoding="utf-8") as f:
+            f.write(isi_baru526)
         rc, out = jalan(sub526, [sys.executable, GERBANG, "--semua"])
         periksa("gcc -x c -E -: "
                 "gerbang gagal (Audit 1303)", rc != 0)
@@ -9923,13 +11474,16 @@ def main():
             isi_aksi527 = f.read()
         baris_aksi527 = [b for b in isi_aksi527.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi527, "w", encoding="utf-8") as f:
-            f.write(isi_aksi527.replace(
+        isi_baru527 = isi_aksi527.replace(
                 baris_aksi527,
                 baris_aksi527.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(as -o out -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru527 != isi_aksi527, \
+            "suntikan aksi527 tidak menembak"
+        with open(berkas_aksi527, "w", encoding="utf-8") as f:
+            f.write(isi_baru527)
         rc, out = jalan(sub527, [sys.executable, GERBANG, "--semua"])
         periksa("as -o out -: "
                 "gerbang gagal (Audit 1304)", rc != 0)
@@ -9941,13 +11495,16 @@ def main():
             isi_aksi528 = f.read()
         baris_aksi528 = [b for b in isi_aksi528.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi528, "w", encoding="utf-8") as f:
-            f.write(isi_aksi528.replace(
+        isi_baru528 = isi_aksi528.replace(
                 baris_aksi528,
                 baris_aksi528.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(zcmp - -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru528 != isi_aksi528, \
+            "suntikan aksi528 tidak menembak"
+        with open(berkas_aksi528, "w", encoding="utf-8") as f:
+            f.write(isi_baru528)
         rc, out = jalan(sub528, [sys.executable, GERBANG, "--semua"])
         periksa("zcmp - -: "
                 "gerbang gagal (Audit 1305)", rc != 0)
@@ -9959,13 +11516,16 @@ def main():
             isi_aksi529 = f.read()
         baris_aksi529 = [b for b in isi_aksi529.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi529, "w", encoding="utf-8") as f:
-            f.write(isi_aksi529.replace(
+        isi_baru529 = isi_aksi529.replace(
                 baris_aksi529,
                 baris_aksi529.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(zegrep UTUH; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru529 != isi_aksi529, \
+            "suntikan aksi529 tidak menembak"
+        with open(berkas_aksi529, "w", encoding="utf-8") as f:
+            f.write(isi_baru529)
         rc, out = jalan(sub529, [sys.executable, GERBANG, "--semua"])
         periksa("zegrep UTUH: "
                 "gerbang gagal (Audit 1306)", rc != 0)
@@ -9977,13 +11537,16 @@ def main():
             isi_aksi530 = f.read()
         baris_aksi530 = [b for b in isi_aksi530.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi530, "w", encoding="utf-8") as f:
-            f.write(isi_aksi530.replace(
+        isi_baru530 = isi_aksi530.replace(
                 baris_aksi530,
                 baris_aksi530.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(bzegrep UTUH; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru530 != isi_aksi530, \
+            "suntikan aksi530 tidak menembak"
+        with open(berkas_aksi530, "w", encoding="utf-8") as f:
+            f.write(isi_baru530)
         rc, out = jalan(sub530, [sys.executable, GERBANG, "--semua"])
         periksa("bzegrep UTUH: "
                 "gerbang gagal (Audit 1307)", rc != 0)
@@ -9995,13 +11558,16 @@ def main():
             isi_aksi531 = f.read()
         baris_aksi531 = [b for b in isi_aksi531.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi531, "w", encoding="utf-8") as f:
-            f.write(isi_aksi531.replace(
+        isi_baru531 = isi_aksi531.replace(
                 baris_aksi531,
                 baris_aksi531.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(xzcmp - -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru531 != isi_aksi531, \
+            "suntikan aksi531 tidak menembak"
+        with open(berkas_aksi531, "w", encoding="utf-8") as f:
+            f.write(isi_baru531)
         rc, out = jalan(sub531, [sys.executable, GERBANG, "--semua"])
         periksa("xzcmp - -: "
                 "gerbang gagal (Audit 1308)", rc != 0)
@@ -10013,13 +11579,16 @@ def main():
             isi_aksi532 = f.read()
         baris_aksi532 = [b for b in isi_aksi532.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi532, "w", encoding="utf-8") as f:
-            f.write(isi_aksi532.replace(
+        isi_baru532 = isi_aksi532.replace(
                 baris_aksi532,
                 baris_aksi532.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(lzcmp - -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru532 != isi_aksi532, \
+            "suntikan aksi532 tidak menembak"
+        with open(berkas_aksi532, "w", encoding="utf-8") as f:
+            f.write(isi_baru532)
         rc, out = jalan(sub532, [sys.executable, GERBANG, "--semua"])
         periksa("lzcmp - -: "
                 "gerbang gagal (Audit 1309)", rc != 0)
@@ -10031,13 +11600,16 @@ def main():
             isi_aksi533 = f.read()
         baris_aksi533 = [b for b in isi_aksi533.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi533, "w", encoding="utf-8") as f:
-            f.write(isi_aksi533.replace(
+        isi_baru533 = isi_aksi533.replace(
                 baris_aksi533,
                 baris_aksi533.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(uncompress; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru533 != isi_aksi533, \
+            "suntikan aksi533 tidak menembak"
+        with open(berkas_aksi533, "w", encoding="utf-8") as f:
+            f.write(isi_baru533)
         rc, out = jalan(sub533, [sys.executable, GERBANG, "--semua"])
         periksa("uncompress: "
                 "gerbang gagal (Audit 1310)", rc != 0)
@@ -10049,13 +11621,16 @@ def main():
             isi_aksi534 = f.read()
         baris_aksi534 = [b for b in isi_aksi534.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi534, "w", encoding="utf-8") as f:
-            f.write(isi_aksi534.replace(
+        isi_baru534 = isi_aksi534.replace(
                 baris_aksi534,
                 baris_aksi534.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cmp berkas -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru534 != isi_aksi534, \
+            "suntikan aksi534 tidak menembak"
+        with open(berkas_aksi534, "w", encoding="utf-8") as f:
+            f.write(isi_baru534)
         rc, out = jalan(sub534, [sys.executable, GERBANG, "--semua"])
         periksa("cmp berkas -: "
                 "gerbang gagal (Audit 1311)", rc != 0)
@@ -10067,13 +11642,16 @@ def main():
             isi_aksi535 = f.read()
         baris_aksi535 = [b for b in isi_aksi535.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi535, "w", encoding="utf-8") as f:
-            f.write(isi_aksi535.replace(
+        isi_baru535 = isi_aksi535.replace(
                 baris_aksi535,
                 baris_aksi535.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(ptar -t -f -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru535 != isi_aksi535, \
+            "suntikan aksi535 tidak menembak"
+        with open(berkas_aksi535, "w", encoding="utf-8") as f:
+            f.write(isi_baru535)
         rc, out = jalan(sub535, [sys.executable, GERBANG, "--semua"])
         periksa("ptar -t -f -: "
                 "gerbang gagal (Audit 1312)", rc != 0)
@@ -10085,13 +11663,16 @@ def main():
             isi_aksi536 = f.read()
         baris_aksi536 = [b for b in isi_aksi536.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi536, "w", encoding="utf-8") as f:
-            f.write(isi_aksi536.replace(
+        isi_baru536 = isi_aksi536.replace(
                 baris_aksi536,
                 baris_aksi536.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(streamzip; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru536 != isi_aksi536, \
+            "suntikan aksi536 tidak menembak"
+        with open(berkas_aksi536, "w", encoding="utf-8") as f:
+            f.write(isi_baru536)
         rc, out = jalan(sub536, [sys.executable, GERBANG, "--semua"])
         periksa("streamzip: "
                 "gerbang gagal (Audit 1313)", rc != 0)
@@ -10103,13 +11684,16 @@ def main():
             isi_aksi537 = f.read()
         baris_aksi537 = [b for b in isi_aksi537.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi537, "w", encoding="utf-8") as f:
-            f.write(isi_aksi537.replace(
+        isi_baru537 = isi_aksi537.replace(
                 baris_aksi537,
                 baris_aksi537.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(zless; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru537 != isi_aksi537, \
+            "suntikan aksi537 tidak menembak"
+        with open(berkas_aksi537, "w", encoding="utf-8") as f:
+            f.write(isi_baru537)
         rc, out = jalan(sub537, [sys.executable, GERBANG, "--semua"])
         periksa("zless: "
                 "gerbang gagal (Audit 1314)", rc != 0)
@@ -10121,13 +11705,16 @@ def main():
             isi_aksi538 = f.read()
         baris_aksi538 = [b for b in isi_aksi538.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi538, "w", encoding="utf-8") as f:
-            f.write(isi_aksi538.replace(
+        isi_baru538 = isi_aksi538.replace(
                 baris_aksi538,
                 baris_aksi538.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(sensible-pager; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru538 != isi_aksi538, \
+            "suntikan aksi538 tidak menembak"
+        with open(berkas_aksi538, "w", encoding="utf-8") as f:
+            f.write(isi_baru538)
         rc, out = jalan(sub538, [sys.executable, GERBANG, "--semua"])
         periksa("sensible-pager: "
                 "gerbang gagal (Audit 1315)", rc != 0)
@@ -10139,13 +11726,16 @@ def main():
             isi_aksi539 = f.read()
         baris_aksi539 = [b for b in isi_aksi539.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi539, "w", encoding="utf-8") as f:
-            f.write(isi_aksi539.replace(
+        isi_baru539 = isi_aksi539.replace(
                 baris_aksi539,
                 baris_aksi539.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(vim.tiny -n; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru539 != isi_aksi539, \
+            "suntikan aksi539 tidak menembak"
+        with open(berkas_aksi539, "w", encoding="utf-8") as f:
+            f.write(isi_baru539)
         rc, out = jalan(sub539, [sys.executable, GERBANG, "--semua"])
         periksa("vim.tiny -n: "
                 "gerbang gagal (Audit 1316)", rc != 0)
@@ -10157,13 +11747,16 @@ def main():
             isi_aksi540 = f.read()
         baris_aksi540 = [b for b in isi_aksi540.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi540, "w", encoding="utf-8") as f:
-            f.write(isi_aksi540.replace(
+        isi_baru540 = isi_aksi540.replace(
                 baris_aksi540,
                 baris_aksi540.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(script -qec cat /dev/null; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru540 != isi_aksi540, \
+            "suntikan aksi540 tidak menembak"
+        with open(berkas_aksi540, "w", encoding="utf-8") as f:
+            f.write(isi_baru540)
         rc, out = jalan(sub540, [sys.executable, GERBANG, "--semua"])
         periksa("script -qec cat /dev/null: "
                 "gerbang gagal (Audit 1317)", rc != 0)
@@ -10175,13 +11768,16 @@ def main():
             isi_aksi541 = f.read()
         baris_aksi541 = [b for b in isi_aksi541.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi541, "w", encoding="utf-8") as f:
-            f.write(isi_aksi541.replace(
+        isi_baru541 = isi_aksi541.replace(
                 baris_aksi541,
                 baris_aksi541.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(i386 cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru541 != isi_aksi541, \
+            "suntikan aksi541 tidak menembak"
+        with open(berkas_aksi541, "w", encoding="utf-8") as f:
+            f.write(isi_baru541)
         rc, out = jalan(sub541, [sys.executable, GERBANG, "--semua"])
         periksa("i386 cat: "
                 "gerbang gagal (Audit 1318)", rc != 0)
@@ -10193,13 +11789,16 @@ def main():
             isi_aksi542 = f.read()
         baris_aksi542 = [b for b in isi_aksi542.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi542, "w", encoding="utf-8") as f:
-            f.write(isi_aksi542.replace(
+        isi_baru542 = isi_aksi542.replace(
                 baris_aksi542,
                 baris_aksi542.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(systemd-run --scope --quiet cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru542 != isi_aksi542, \
+            "suntikan aksi542 tidak menembak"
+        with open(berkas_aksi542, "w", encoding="utf-8") as f:
+            f.write(isi_baru542)
         rc, out = jalan(sub542, [sys.executable, GERBANG, "--semua"])
         periksa("systemd-run --scope --quiet cat: "
                 "gerbang gagal (Audit 1319)", rc != 0)
@@ -10211,13 +11810,16 @@ def main():
             isi_aksi543 = f.read()
         baris_aksi543 = [b for b in isi_aksi543.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi543, "w", encoding="utf-8") as f:
-            f.write(isi_aksi543.replace(
+        isi_baru543 = isi_aksi543.replace(
                 baris_aksi543,
                 baris_aksi543.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tmux load-buffer -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru543 != isi_aksi543, \
+            "suntikan aksi543 tidak menembak"
+        with open(berkas_aksi543, "w", encoding="utf-8") as f:
+            f.write(isi_baru543)
         rc, out = jalan(sub543, [sys.executable, GERBANG, "--semua"])
         periksa("tmux load-buffer -: "
                 "gerbang gagal (Audit 1320)", rc != 0)
@@ -10229,13 +11831,16 @@ def main():
             isi_aksi544 = f.read()
         baris_aksi544 = [b for b in isi_aksi544.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi544, "w", encoding="utf-8") as f:
-            f.write(isi_aksi544.replace(
+        isi_baru544 = isi_aksi544.replace(
                 baris_aksi544,
                 baris_aksi544.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(systemd-sysusers --root=/tmp -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru544 != isi_aksi544, \
+            "suntikan aksi544 tidak menembak"
+        with open(berkas_aksi544, "w", encoding="utf-8") as f:
+            f.write(isi_baru544)
         rc, out = jalan(sub544, [sys.executable, GERBANG, "--semua"])
         periksa("systemd-sysusers --root=/tmp -: "
                 "gerbang gagal (Audit 1321)", rc != 0)
@@ -10247,13 +11852,16 @@ def main():
             isi_aksi545 = f.read()
         baris_aksi545 = [b for b in isi_aksi545.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi545, "w", encoding="utf-8") as f:
-            f.write(isi_aksi545.replace(
+        isi_baru545 = isi_aksi545.replace(
                 baris_aksi545,
                 baris_aksi545.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(systemd-tmpfiles --root=/tmp --create -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru545 != isi_aksi545, \
+            "suntikan aksi545 tidak menembak"
+        with open(berkas_aksi545, "w", encoding="utf-8") as f:
+            f.write(isi_baru545)
         rc, out = jalan(sub545, [sys.executable, GERBANG, "--semua"])
         periksa("systemd-tmpfiles --root=/tmp --create -: "
                 "gerbang gagal (Audit 1322)", rc != 0)
@@ -10265,13 +11873,16 @@ def main():
             isi_aksi546 = f.read()
         baris_aksi546 = [b for b in isi_aksi546.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi546, "w", encoding="utf-8") as f:
-            f.write(isi_aksi546.replace(
+        isi_baru546 = isi_aksi546.replace(
                 baris_aksi546,
                 baris_aksi546.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(systemd-creds encrypt --name=uji - out; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru546 != isi_aksi546, \
+            "suntikan aksi546 tidak menembak"
+        with open(berkas_aksi546, "w", encoding="utf-8") as f:
+            f.write(isi_baru546)
         rc, out = jalan(sub546, [sys.executable, GERBANG, "--semua"])
         periksa("systemd-creds encrypt --name=uji - out: "
                 "gerbang gagal (Audit 1323)", rc != 0)
@@ -10283,13 +11894,16 @@ def main():
             isi_aksi547 = f.read()
         baris_aksi547 = [b for b in isi_aksi547.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi547, "w", encoding="utf-8") as f:
-            f.write(isi_aksi547.replace(
+        isi_baru547 = isi_aksi547.replace(
                 baris_aksi547,
                 baris_aksi547.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(debconf-set-selections --checkonly; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru547 != isi_aksi547, \
+            "suntikan aksi547 tidak menembak"
+        with open(berkas_aksi547, "w", encoding="utf-8") as f:
+            f.write(isi_baru547)
         rc, out = jalan(sub547, [sys.executable, GERBANG, "--semua"])
         periksa("debconf-set-selections --checkonly: "
                 "gerbang gagal (Audit 1324)", rc != 0)
@@ -10301,13 +11915,16 @@ def main():
             isi_aksi548 = f.read()
         baris_aksi548 = [b for b in isi_aksi548.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi548, "w", encoding="utf-8") as f:
-            f.write(isi_aksi548.replace(
+        isi_baru548 = isi_aksi548.replace(
                 baris_aksi548,
                 baris_aksi548.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(debconf-communicate paketuji; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru548 != isi_aksi548, \
+            "suntikan aksi548 tidak menembak"
+        with open(berkas_aksi548, "w", encoding="utf-8") as f:
+            f.write(isi_baru548)
         rc, out = jalan(sub548, [sys.executable, GERBANG, "--semua"])
         periksa("debconf-communicate paketuji: "
                 "gerbang gagal (Audit 1325)", rc != 0)
@@ -10319,13 +11936,16 @@ def main():
             isi_aksi549 = f.read()
         baris_aksi549 = [b for b in isi_aksi549.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi549, "w", encoding="utf-8") as f:
-            f.write(isi_aksi549.replace(
+        isi_baru549 = isi_aksi549.replace(
                 baris_aksi549,
                 baris_aksi549.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(dpkg-deb --contents -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru549 != isi_aksi549, \
+            "suntikan aksi549 tidak menembak"
+        with open(berkas_aksi549, "w", encoding="utf-8") as f:
+            f.write(isi_baru549)
         rc, out = jalan(sub549, [sys.executable, GERBANG, "--semua"])
         periksa("dpkg-deb --contents -: "
                 "gerbang gagal (Audit 1326)", rc != 0)
@@ -10337,13 +11957,16 @@ def main():
             isi_aksi550 = f.read()
         baris_aksi550 = [b for b in isi_aksi550.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi550, "w", encoding="utf-8") as f:
-            f.write(isi_aksi550.replace(
+        isi_baru550 = isi_aksi550.replace(
                 baris_aksi550,
                 baris_aksi550.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(dpkg-parsechangelog -l -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru550 != isi_aksi550, \
+            "suntikan aksi550 tidak menembak"
+        with open(berkas_aksi550, "w", encoding="utf-8") as f:
+            f.write(isi_baru550)
         rc, out = jalan(sub550, [sys.executable, GERBANG, "--semua"])
         periksa("dpkg-parsechangelog -l -: "
                 "gerbang gagal (Audit 1327)", rc != 0)
@@ -10355,13 +11978,16 @@ def main():
             isi_aksi551 = f.read()
         baris_aksi551 = [b for b in isi_aksi551.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi551, "w", encoding="utf-8") as f:
-            f.write(isi_aksi551.replace(
+        isi_baru551 = isi_aksi551.replace(
                 baris_aksi551,
                 baris_aksi551.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cvtsudoers -f json; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru551 != isi_aksi551, \
+            "suntikan aksi551 tidak menembak"
+        with open(berkas_aksi551, "w", encoding="utf-8") as f:
+            f.write(isi_baru551)
         rc, out = jalan(sub551, [sys.executable, GERBANG, "--semua"])
         periksa("cvtsudoers -f json: "
                 "gerbang gagal (Audit 1328)", rc != 0)
@@ -10373,13 +11999,16 @@ def main():
             isi_aksi552 = f.read()
         baris_aksi552 = [b for b in isi_aksi552.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi552, "w", encoding="utf-8") as f:
-            f.write(isi_aksi552.replace(
+        isi_baru552 = isi_aksi552.replace(
                 baris_aksi552,
                 baris_aksi552.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tic -o out -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru552 != isi_aksi552, \
+            "suntikan aksi552 tidak menembak"
+        with open(berkas_aksi552, "w", encoding="utf-8") as f:
+            f.write(isi_baru552)
         rc, out = jalan(sub552, [sys.executable, GERBANG, "--semua"])
         periksa("tic -o out -: "
                 "gerbang gagal (Audit 1329)", rc != 0)
@@ -10391,13 +12020,16 @@ def main():
             isi_aksi553 = f.read()
         baris_aksi553 = [b for b in isi_aksi553.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi553, "w", encoding="utf-8") as f:
-            f.write(isi_aksi553.replace(
+        isi_baru553 = isi_aksi553.replace(
                 baris_aksi553,
                 baris_aksi553.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(lesskey -o out -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru553 != isi_aksi553, \
+            "suntikan aksi553 tidak menembak"
+        with open(berkas_aksi553, "w", encoding="utf-8") as f:
+            f.write(isi_baru553)
         rc, out = jalan(sub553, [sys.executable, GERBANG, "--semua"])
         periksa("lesskey -o out -: "
                 "gerbang gagal (Audit 1330)", rc != 0)
@@ -10409,13 +12041,16 @@ def main():
             isi_aksi554 = f.read()
         baris_aksi554 = [b for b in isi_aksi554.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi554, "w", encoding="utf-8") as f:
-            f.write(isi_aksi554.replace(
+        isi_baru554 = isi_aksi554.replace(
                 baris_aksi554,
                 baris_aksi554.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(xkbcomp -xkb - out; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru554 != isi_aksi554, \
+            "suntikan aksi554 tidak menembak"
+        with open(berkas_aksi554, "w", encoding="utf-8") as f:
+            f.write(isi_baru554)
         rc, out = jalan(sub554, [sys.executable, GERBANG, "--semua"])
         periksa("xkbcomp -xkb - out: "
                 "gerbang gagal (Audit 1331)", rc != 0)
@@ -10427,13 +12062,16 @@ def main():
             isi_aksi555 = f.read()
         baris_aksi555 = [b for b in isi_aksi555.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi555, "w", encoding="utf-8") as f:
-            f.write(isi_aksi555.replace(
+        isi_baru555 = isi_aksi555.replace(
                 baris_aksi555,
                 baris_aksi555.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(wayland-scanner client-header /dev/stdin out; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru555 != isi_aksi555, \
+            "suntikan aksi555 tidak menembak"
+        with open(berkas_aksi555, "w", encoding="utf-8") as f:
+            f.write(isi_baru555)
         rc, out = jalan(sub555, [sys.executable, GERBANG, "--semua"])
         periksa("wayland-scanner client-header /dev/stdin out: "
                 "gerbang gagal (Audit 1332)", rc != 0)
@@ -10445,13 +12083,16 @@ def main():
             isi_aksi556 = f.read()
         baris_aksi556 = [b for b in isi_aksi556.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi556, "w", encoding="utf-8") as f:
-            f.write(isi_aksi556.replace(
+        isi_baru556 = isi_aksi556.replace(
                 baris_aksi556,
                 baris_aksi556.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(localedef --prefix=/tmp -i - -f UTF-8 uji_XX; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru556 != isi_aksi556, \
+            "suntikan aksi556 tidak menembak"
+        with open(berkas_aksi556, "w", encoding="utf-8") as f:
+            f.write(isi_baru556)
         rc, out = jalan(sub556, [sys.executable, GERBANG, "--semua"])
         periksa("localedef --prefix=/tmp -i - -f UTF-8 uji_XX: "
                 "gerbang gagal (Audit 1333)", rc != 0)
@@ -10463,13 +12104,16 @@ def main():
             isi_aksi557 = f.read()
         baris_aksi557 = [b for b in isi_aksi557.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi557, "w", encoding="utf-8") as f:
-            f.write(isi_aksi557.replace(
+        isi_baru557 = isi_aksi557.replace(
                 baris_aksi557,
                 baris_aksi557.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(glib-genmarshal -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru557 != isi_aksi557, \
+            "suntikan aksi557 tidak menembak"
+        with open(berkas_aksi557, "w", encoding="utf-8") as f:
+            f.write(isi_baru557)
         rc, out = jalan(sub557, [sys.executable, GERBANG, "--semua"])
         periksa("glib-genmarshal -: "
                 "gerbang gagal (Audit 1334)", rc != 0)
@@ -10481,13 +12125,16 @@ def main():
             isi_aksi558 = f.read()
         baris_aksi558 = [b for b in isi_aksi558.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi558, "w", encoding="utf-8") as f:
-            f.write(isi_aksi558.replace(
+        isi_baru558 = isi_aksi558.replace(
                 baris_aksi558,
                 baris_aksi558.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(genrb -d outdir -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru558 != isi_aksi558, \
+            "suntikan aksi558 tidak menembak"
+        with open(berkas_aksi558, "w", encoding="utf-8") as f:
+            f.write(isi_baru558)
         rc, out = jalan(sub558, [sys.executable, GERBANG, "--semua"])
         periksa("genrb -d outdir -: "
                 "gerbang gagal (Audit 1335)", rc != 0)
@@ -10499,13 +12146,16 @@ def main():
             isi_aksi559 = f.read()
         baris_aksi559 = [b for b in isi_aksi559.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi559, "w", encoding="utf-8") as f:
-            f.write(isi_aksi559.replace(
+        isi_baru559 = isi_aksi559.replace(
                 baris_aksi559,
                 baris_aksi559.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pod2man; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru559 != isi_aksi559, \
+            "suntikan aksi559 tidak menembak"
+        with open(berkas_aksi559, "w", encoding="utf-8") as f:
+            f.write(isi_baru559)
         rc, out = jalan(sub559, [sys.executable, GERBANG, "--semua"])
         periksa("pod2man: "
                 "gerbang gagal (Audit 1336)", rc != 0)
@@ -10517,13 +12167,16 @@ def main():
             isi_aksi560 = f.read()
         baris_aksi560 = [b for b in isi_aksi560.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi560, "w", encoding="utf-8") as f:
-            f.write(isi_aksi560.replace(
+        isi_baru560 = isi_aksi560.replace(
                 baris_aksi560,
                 baris_aksi560.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(splain; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru560 != isi_aksi560, \
+            "suntikan aksi560 tidak menembak"
+        with open(berkas_aksi560, "w", encoding="utf-8") as f:
+            f.write(isi_baru560)
         rc, out = jalan(sub560, [sys.executable, GERBANG, "--semua"])
         periksa("splain: "
                 "gerbang gagal (Audit 1337)", rc != 0)
@@ -10535,13 +12188,16 @@ def main():
             isi_aksi561 = f.read()
         baris_aksi561 = [b for b in isi_aksi561.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi561, "w", encoding="utf-8") as f:
-            f.write(isi_aksi561.replace(
+        isi_baru561 = isi_aksi561.replace(
                 baris_aksi561,
                 baris_aksi561.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(instmodsh; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru561 != isi_aksi561, \
+            "suntikan aksi561 tidak menembak"
+        with open(berkas_aksi561, "w", encoding="utf-8") as f:
+            f.write(isi_baru561)
         rc, out = jalan(sub561, [sys.executable, GERBANG, "--semua"])
         periksa("instmodsh: "
                 "gerbang gagal (Audit 1338)", rc != 0)
@@ -10553,13 +12209,16 @@ def main():
             isi_aksi562 = f.read()
         baris_aksi562 = [b for b in isi_aksi562.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi562, "w", encoding="utf-8") as f:
-            f.write(isi_aksi562.replace(
+        isi_baru562 = isi_aksi562.replace(
                 baris_aksi562,
                 baris_aksi562.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pygettext3 -o out -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru562 != isi_aksi562, \
+            "suntikan aksi562 tidak menembak"
+        with open(berkas_aksi562, "w", encoding="utf-8") as f:
+            f.write(isi_baru562)
         rc, out = jalan(sub562, [sys.executable, GERBANG, "--semua"])
         periksa("pygettext3 -o out -: "
                 "gerbang gagal (Audit 1339)", rc != 0)
@@ -10571,13 +12230,16 @@ def main():
             isi_aksi563 = f.read()
         baris_aksi563 = [b for b in isi_aksi563.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi563, "w", encoding="utf-8") as f:
-            f.write(isi_aksi563.replace(
+        isi_baru563 = isi_aksi563.replace(
                 baris_aksi563,
                 baris_aksi563.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(nsupdate; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru563 != isi_aksi563, \
+            "suntikan aksi563 tidak menembak"
+        with open(berkas_aksi563, "w", encoding="utf-8") as f:
+            f.write(isi_baru563)
         rc, out = jalan(sub563, [sys.executable, GERBANG, "--semua"])
         periksa("nsupdate: "
                 "gerbang gagal (Audit 1340)", rc != 0)
@@ -10589,13 +12251,16 @@ def main():
             isi_aksi564 = f.read()
         baris_aksi564 = [b for b in isi_aksi564.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi564, "w", encoding="utf-8") as f:
-            f.write(isi_aksi564.replace(
+        isi_baru564 = isi_aksi564.replace(
                 baris_aksi564,
                 baris_aksi564.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(ssh-keygen -L -f -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru564 != isi_aksi564, \
+            "suntikan aksi564 tidak menembak"
+        with open(berkas_aksi564, "w", encoding="utf-8") as f:
+            f.write(isi_baru564)
         rc, out = jalan(sub564, [sys.executable, GERBANG, "--semua"])
         periksa("ssh-keygen -L -f -: "
                 "gerbang gagal (Audit 1341)", rc != 0)
@@ -10607,13 +12272,16 @@ def main():
             isi_aksi565 = f.read()
         baris_aksi565 = [b for b in isi_aksi565.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi565, "w", encoding="utf-8") as f:
-            f.write(isi_aksi565.replace(
+        isi_baru565 = isi_aksi565.replace(
                 baris_aksi565,
                 baris_aksi565.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tree --fromfile; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru565 != isi_aksi565, \
+            "suntikan aksi565 tidak menembak"
+        with open(berkas_aksi565, "w", encoding="utf-8") as f:
+            f.write(isi_baru565)
         rc, out = jalan(sub565, [sys.executable, GERBANG, "--semua"])
         periksa("tree --fromfile: "
                 "gerbang gagal (Audit 1342)", rc != 0)
@@ -10625,13 +12293,16 @@ def main():
             isi_aksi566 = f.read()
         baris_aksi566 = [b for b in isi_aksi566.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi566, "w", encoding="utf-8") as f:
-            f.write(isi_aksi566.replace(
+        isi_baru566 = isi_aksi566.replace(
                 baris_aksi566,
                 baris_aksi566.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(gio save tujuan; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru566 != isi_aksi566, \
+            "suntikan aksi566 tidak menembak"
+        with open(berkas_aksi566, "w", encoding="utf-8") as f:
+            f.write(isi_baru566)
         rc, out = jalan(sub566, [sys.executable, GERBANG, "--semua"])
         periksa("gio save tujuan: "
                 "gerbang gagal (Audit 1343)", rc != 0)
@@ -10643,13 +12314,16 @@ def main():
             isi_aksi567 = f.read()
         baris_aksi567 = [b for b in isi_aksi567.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi567, "w", encoding="utf-8") as f:
-            f.write(isi_aksi567.replace(
+        isi_baru567 = isi_aksi567.replace(
                 baris_aksi567,
                 baris_aksi567.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(debugfs /tmp/citra.img; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru567 != isi_aksi567, \
+            "suntikan aksi567 tidak menembak"
+        with open(berkas_aksi567, "w", encoding="utf-8") as f:
+            f.write(isi_baru567)
         rc, out = jalan(sub567, [sys.executable, GERBANG, "--semua"])
         periksa("debugfs /tmp/citra.img: "
                 "gerbang gagal (Audit 1344)", rc != 0)
@@ -10661,13 +12335,16 @@ def main():
             isi_aksi568 = f.read()
         baris_aksi568 = [b for b in isi_aksi568.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi568, "w", encoding="utf-8") as f:
-            f.write(isi_aksi568.replace(
+        isi_baru568 = isi_aksi568.replace(
                 baris_aksi568,
                 baris_aksi568.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(xauth -f berkas; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru568 != isi_aksi568, \
+            "suntikan aksi568 tidak menembak"
+        with open(berkas_aksi568, "w", encoding="utf-8") as f:
+            f.write(isi_baru568)
         rc, out = jalan(sub568, [sys.executable, GERBANG, "--semua"])
         periksa("xauth -f berkas: "
                 "gerbang gagal (Audit 1345)", rc != 0)
@@ -10679,13 +12356,16 @@ def main():
             isi_aksi569 = f.read()
         baris_aksi569 = [b for b in isi_aksi569.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi569, "w", encoding="utf-8") as f:
-            f.write(isi_aksi569.replace(
+        isi_baru569 = isi_aksi569.replace(
                 baris_aksi569,
                 baris_aksi569.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(systemd-run --remain-after-exit --scope cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru569 != isi_aksi569, \
+            "suntikan aksi569 tidak menembak"
+        with open(berkas_aksi569, "w", encoding="utf-8") as f:
+            f.write(isi_baru569)
         rc, out = jalan(sub569, [sys.executable, GERBANG, "--semua"])
         periksa("systemd-run --remain-after-exit --scope cat: "
                 "gerbang lolos (Audit 1347)", rc == 0)
@@ -10697,13 +12377,16 @@ def main():
             isi_aksi570 = f.read()
         baris_aksi570 = [b for b in isi_aksi570.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi570, "w", encoding="utf-8") as f:
-            f.write(isi_aksi570.replace(
+        isi_baru570 = isi_aksi570.replace(
                 baris_aksi570,
                 baris_aksi570.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(gm convert -append - gabung.png; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru570 != isi_aksi570, \
+            "suntikan aksi570 tidak menembak"
+        with open(berkas_aksi570, "w", encoding="utf-8") as f:
+            f.write(isi_baru570)
         rc, out = jalan(sub570, [sys.executable, GERBANG, "--semua"])
         periksa("gm convert -append - gabung.png: "
                 "gerbang gagal (Audit 1348)", rc != 0)
@@ -10715,13 +12398,16 @@ def main():
             isi_aksi571 = f.read()
         baris_aksi571 = [b for b in isi_aksi571.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi571, "w", encoding="utf-8") as f:
-            f.write(isi_aksi571.replace(
+        isi_baru571 = isi_aksi571.replace(
                 baris_aksi571,
                 baris_aksi571.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pr berkas.txt -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru571 != isi_aksi571, \
+            "suntikan aksi571 tidak menembak"
+        with open(berkas_aksi571, "w", encoding="utf-8") as f:
+            f.write(isi_baru571)
         rc, out = jalan(sub571, [sys.executable, GERBANG, "--semua"])
         periksa("pr berkas.txt -: "
                 "gerbang gagal (Audit 1349)", rc != 0)
@@ -10733,13 +12419,16 @@ def main():
             isi_aksi572 = f.read()
         baris_aksi572 = [b for b in isi_aksi572.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi572, "w", encoding="utf-8") as f:
-            f.write(isi_aksi572.replace(
+        isi_baru572 = isi_aksi572.replace(
                 baris_aksi572,
                 baris_aksi572.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(make --file=/dev/stdin; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru572 != isi_aksi572, \
+            "suntikan aksi572 tidak menembak"
+        with open(berkas_aksi572, "w", encoding="utf-8") as f:
+            f.write(isi_baru572)
         rc, out = jalan(sub572, [sys.executable, GERBANG, "--semua"])
         periksa("make --file=/dev/stdin: "
                 "gerbang gagal (Audit 1350)", rc != 0)
@@ -10751,13 +12440,16 @@ def main():
             isi_aksi573 = f.read()
         baris_aksi573 = [b for b in isi_aksi573.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi573, "w", encoding="utf-8") as f:
-            f.write(isi_aksi573.replace(
+        isi_baru573 = isi_aksi573.replace(
                 baris_aksi573,
                 baris_aksi573.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(aarch64-linux-gnu-gcc -x c -E -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru573 != isi_aksi573, \
+            "suntikan aksi573 tidak menembak"
+        with open(berkas_aksi573, "w", encoding="utf-8") as f:
+            f.write(isi_baru573)
         rc, out = jalan(sub573, [sys.executable, GERBANG, "--semua"])
         periksa("aarch64-linux-gnu-gcc -x c -E -: "
                 "gerbang gagal (Audit 1351)", rc != 0)
@@ -10769,13 +12461,16 @@ def main():
             isi_aksi574 = f.read()
         baris_aksi574 = [b for b in isi_aksi574.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi574, "w", encoding="utf-8") as f:
-            f.write(isi_aksi574.replace(
+        isi_baru574 = isi_aksi574.replace(
                 baris_aksi574,
                 baris_aksi574.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(as -o out.o; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru574 != isi_aksi574, \
+            "suntikan aksi574 tidak menembak"
+        with open(berkas_aksi574, "w", encoding="utf-8") as f:
+            f.write(isi_baru574)
         rc, out = jalan(sub574, [sys.executable, GERBANG, "--semua"])
         periksa("as -o out.o: "
                 "gerbang gagal (Audit 1352)", rc != 0)
@@ -10787,13 +12482,16 @@ def main():
             isi_aksi575 = f.read()
         baris_aksi575 = [b for b in isi_aksi575.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi575, "w", encoding="utf-8") as f:
-            f.write(isi_aksi575.replace(
+        isi_baru575 = isi_aksi575.replace(
                 baris_aksi575,
                 baris_aksi575.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(ptar -t -f - -f arsip.tar; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru575 != isi_aksi575, \
+            "suntikan aksi575 tidak menembak"
+        with open(berkas_aksi575, "w", encoding="utf-8") as f:
+            f.write(isi_baru575)
         rc, out = jalan(sub575, [sys.executable, GERBANG, "--semua"])
         periksa("ptar -t -f - -f arsip.tar: "
                 "gerbang lolos (Audit 1353)", rc == 0)
@@ -10805,13 +12503,16 @@ def main():
             isi_aksi576 = f.read()
         baris_aksi576 = [b for b in isi_aksi576.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi576, "w", encoding="utf-8") as f:
-            f.write(isi_aksi576.replace(
+        isi_baru576 = isi_aksi576.replace(
                 baris_aksi576,
                 baris_aksi576.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tmux -S /tmp/sok load-buffer -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru576 != isi_aksi576, \
+            "suntikan aksi576 tidak menembak"
+        with open(berkas_aksi576, "w", encoding="utf-8") as f:
+            f.write(isi_baru576)
         rc, out = jalan(sub576, [sys.executable, GERBANG, "--semua"])
         periksa("tmux -S /tmp/sok load-buffer -: "
                 "gerbang gagal (Audit 1354)", rc != 0)
@@ -10823,13 +12524,16 @@ def main():
             isi_aksi577 = f.read()
         baris_aksi577 = [b for b in isi_aksi577.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi577, "w", encoding="utf-8") as f:
-            f.write(isi_aksi577.replace(
+        isi_baru577 = isi_aksi577.replace(
                 baris_aksi577,
                 baris_aksi577.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(localedef --prefix=/tmp -i- -f UTF-8 uji_XX; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru577 != isi_aksi577, \
+            "suntikan aksi577 tidak menembak"
+        with open(berkas_aksi577, "w", encoding="utf-8") as f:
+            f.write(isi_baru577)
         rc, out = jalan(sub577, [sys.executable, GERBANG, "--semua"])
         periksa("localedef --prefix=/tmp -i- -f UTF-8 uji_XX: "
                 "gerbang gagal (Audit 1355)", rc != 0)
@@ -10841,13 +12545,16 @@ def main():
             isi_aksi578 = f.read()
         baris_aksi578 = [b for b in isi_aksi578.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi578, "w", encoding="utf-8") as f:
-            f.write(isi_aksi578.replace(
+        isi_baru578 = isi_aksi578.replace(
                 baris_aksi578,
                 baris_aksi578.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tree -P --fromfile; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru578 != isi_aksi578, \
+            "suntikan aksi578 tidak menembak"
+        with open(berkas_aksi578, "w", encoding="utf-8") as f:
+            f.write(isi_baru578)
         rc, out = jalan(sub578, [sys.executable, GERBANG, "--semua"])
         periksa("tree -P --fromfile: "
                 "gerbang lolos (Audit 1356)", rc == 0)
@@ -10859,13 +12566,16 @@ def main():
             isi_aksi579 = f.read()
         baris_aksi579 = [b for b in isi_aksi579.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi579, "w", encoding="utf-8") as f:
-            f.write(isi_aksi579.replace(
+        isi_baru579 = isi_aksi579.replace(
                 baris_aksi579,
                 baris_aksi579.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(debugfs -Rstats citra.img; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru579 != isi_aksi579, \
+            "suntikan aksi579 tidak menembak"
+        with open(berkas_aksi579, "w", encoding="utf-8") as f:
+            f.write(isi_baru579)
         rc, out = jalan(sub579, [sys.executable, GERBANG, "--semua"])
         periksa("debugfs -Rstats citra.img: "
                 "gerbang lolos (Audit 1357)", rc == 0)
@@ -10877,13 +12587,16 @@ def main():
             isi_aksi580 = f.read()
         baris_aksi580 = [b for b in isi_aksi580.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi580, "w", encoding="utf-8") as f:
-            f.write(isi_aksi580.replace(
+        isi_baru580 = isi_aksi580.replace(
                 baris_aksi580,
                 baris_aksi580.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(ffmpeg -i - -f null -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru580 != isi_aksi580, \
+            "suntikan aksi580 tidak menembak"
+        with open(berkas_aksi580, "w", encoding="utf-8") as f:
+            f.write(isi_baru580)
         rc, out = jalan(sub580, [sys.executable, GERBANG, "--semua"])
         periksa("ffmpeg -i - -f null -: "
                 "gerbang gagal (Audit 1358)", rc != 0)
@@ -10895,13 +12608,16 @@ def main():
             isi_aksi581 = f.read()
         baris_aksi581 = [b for b in isi_aksi581.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi581, "w", encoding="utf-8") as f:
-            f.write(isi_aksi581.replace(
+        isi_baru581 = isi_aksi581.replace(
                 baris_aksi581,
                 baris_aksi581.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(chpasswd; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru581 != isi_aksi581, \
+            "suntikan aksi581 tidak menembak"
+        with open(berkas_aksi581, "w", encoding="utf-8") as f:
+            f.write(isi_baru581)
         rc, out = jalan(sub581, [sys.executable, GERBANG, "--semua"])
         periksa("chpasswd: "
                 "gerbang gagal (Audit 1359)", rc != 0)
@@ -10913,13 +12629,16 @@ def main():
             isi_aksi582 = f.read()
         baris_aksi582 = [b for b in isi_aksi582.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi582, "w", encoding="utf-8") as f:
-            f.write(isi_aksi582.replace(
+        isi_baru582 = isi_aksi582.replace(
                 baris_aksi582,
                 baris_aksi582.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(systemd-run --scope --on-clock-change cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru582 != isi_aksi582, \
+            "suntikan aksi582 tidak menembak"
+        with open(berkas_aksi582, "w", encoding="utf-8") as f:
+            f.write(isi_baru582)
         rc, out = jalan(sub582, [sys.executable, GERBANG, "--semua"])
         periksa("systemd-run --scope --on-clock-change cat: "
                 "gerbang lolos (Audit 1364)", rc == 0)
@@ -10932,13 +12651,16 @@ def main():
             isi_aksi583 = f.read()
         baris_aksi583 = [b for b in isi_aksi583.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi583, "w", encoding="utf-8") as f:
-            f.write(isi_aksi583.replace(
+        isi_baru583 = isi_aksi583.replace(
                 baris_aksi583,
                 baris_aksi583.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(make --file=/dev/fd/0; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru583 != isi_aksi583, \
+            "suntikan aksi583 tidak menembak"
+        with open(berkas_aksi583, "w", encoding="utf-8") as f:
+            f.write(isi_baru583)
         rc, out = jalan(sub583, [sys.executable, GERBANG, "--semua"])
         periksa("make --file=/dev/fd/0: "
                 "gerbang gagal (Audit 1365)", rc != 0)
@@ -10951,13 +12673,16 @@ def main():
             isi_aksi584 = f.read()
         baris_aksi584 = [b for b in isi_aksi584.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi584, "w", encoding="utf-8") as f:
-            f.write(isi_aksi584.replace(
+        isi_baru584 = isi_aksi584.replace(
                 baris_aksi584,
                 baris_aksi584.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tmux -V load-buffer -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru584 != isi_aksi584, \
+            "suntikan aksi584 tidak menembak"
+        with open(berkas_aksi584, "w", encoding="utf-8") as f:
+            f.write(isi_baru584)
         rc, out = jalan(sub584, [sys.executable, GERBANG, "--semua"])
         periksa("tmux -V load-buffer -: "
                 "gerbang lolos (Audit 1366)", rc == 0)
@@ -10970,13 +12695,16 @@ def main():
             isi_aksi585 = f.read()
         baris_aksi585 = [b for b in isi_aksi585.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi585, "w", encoding="utf-8") as f:
-            f.write(isi_aksi585.replace(
+        isi_baru585 = isi_aksi585.replace(
                 baris_aksi585,
                 baris_aksi585.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tree -- --fromfile; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru585 != isi_aksi585, \
+            "suntikan aksi585 tidak menembak"
+        with open(berkas_aksi585, "w", encoding="utf-8") as f:
+            f.write(isi_baru585)
         rc, out = jalan(sub585, [sys.executable, GERBANG, "--semua"])
         periksa("tree -- --fromfile: "
                 "gerbang lolos (Audit 1367)", rc == 0)
@@ -10989,13 +12717,16 @@ def main():
             isi_aksi586 = f.read()
         baris_aksi586 = [b for b in isi_aksi586.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi586, "w", encoding="utf-8") as f:
-            f.write(isi_aksi586.replace(
+        isi_baru586 = isi_aksi586.replace(
                 baris_aksi586,
                 baris_aksi586.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tree -aP --fromfile; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru586 != isi_aksi586, \
+            "suntikan aksi586 tidak menembak"
+        with open(berkas_aksi586, "w", encoding="utf-8") as f:
+            f.write(isi_baru586)
         rc, out = jalan(sub586, [sys.executable, GERBANG, "--semua"])
         periksa("tree -aP --fromfile: "
                 "gerbang lolos (Audit 1368)", rc == 0)
@@ -11008,13 +12739,16 @@ def main():
             isi_aksi587 = f.read()
         baris_aksi587 = [b for b in isi_aksi587.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi587, "w", encoding="utf-8") as f:
-            f.write(isi_aksi587.replace(
+        isi_baru587 = isi_aksi587.replace(
                 baris_aksi587,
                 baris_aksi587.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(debugfs -wf perintah.txt citra.img; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru587 != isi_aksi587, \
+            "suntikan aksi587 tidak menembak"
+        with open(berkas_aksi587, "w", encoding="utf-8") as f:
+            f.write(isi_baru587)
         rc, out = jalan(sub587, [sys.executable, GERBANG, "--semua"])
         periksa("debugfs -wf perintah.txt citra.img: "
                 "gerbang lolos (Audit 1369)", rc == 0)
@@ -11027,13 +12761,16 @@ def main():
             isi_aksi588 = f.read()
         baris_aksi588 = [b for b in isi_aksi588.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi588, "w", encoding="utf-8") as f:
-            f.write(isi_aksi588.replace(
+        isi_baru588 = isi_aksi588.replace(
                 baris_aksi588,
                 baris_aksi588.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(ffprobe berkas.mp4 pipe:; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru588 != isi_aksi588, \
+            "suntikan aksi588 tidak menembak"
+        with open(berkas_aksi588, "w", encoding="utf-8") as f:
+            f.write(isi_baru588)
         rc, out = jalan(sub588, [sys.executable, GERBANG, "--semua"])
         periksa("ffprobe berkas.mp4 pipe:: "
                 "gerbang lolos (Audit 1370)", rc == 0)
@@ -11046,13 +12783,16 @@ def main():
             isi_aksi589 = f.read()
         baris_aksi589 = [b for b in isi_aksi589.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi589, "w", encoding="utf-8") as f:
-            f.write(isi_aksi589.replace(
+        isi_baru589 = isi_aksi589.replace(
                 baris_aksi589,
                 baris_aksi589.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(chpasswd berkasuji; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru589 != isi_aksi589, \
+            "suntikan aksi589 tidak menembak"
+        with open(berkas_aksi589, "w", encoding="utf-8") as f:
+            f.write(isi_baru589)
         rc, out = jalan(sub589, [sys.executable, GERBANG, "--semua"])
         periksa("chpasswd berkasuji: "
                 "gerbang gagal (Audit 1371)", rc != 0)
@@ -11065,13 +12805,16 @@ def main():
             isi_aksi590 = f.read()
         baris_aksi590 = [b for b in isi_aksi590.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi590, "w", encoding="utf-8") as f:
-            f.write(isi_aksi590.replace(
+        isi_baru590 = isi_aksi590.replace(
                 baris_aksi590,
                 baris_aksi590.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(python3 -m sqlite3; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru590 != isi_aksi590, \
+            "suntikan aksi590 tidak menembak"
+        with open(berkas_aksi590, "w", encoding="utf-8") as f:
+            f.write(isi_baru590)
         rc, out = jalan(sub590, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m sqlite3: "
                 "gerbang gagal (Audit 1372)", rc != 0)
@@ -11084,13 +12827,16 @@ def main():
             isi_aksi591 = f.read()
         baris_aksi591 = [b for b in isi_aksi591.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi591, "w", encoding="utf-8") as f:
-            f.write(isi_aksi591.replace(
+        isi_baru591 = isi_aksi591.replace(
                 baris_aksi591,
                 baris_aksi591.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(python3 -m tokenize; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru591 != isi_aksi591, \
+            "suntikan aksi591 tidak menembak"
+        with open(berkas_aksi591, "w", encoding="utf-8") as f:
+            f.write(isi_baru591)
         rc, out = jalan(sub591, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m tokenize: "
                 "gerbang gagal (Audit 1373)", rc != 0)
@@ -11103,13 +12849,16 @@ def main():
             isi_aksi592 = f.read()
         baris_aksi592 = [b for b in isi_aksi592.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi592, "w", encoding="utf-8") as f:
-            f.write(isi_aksi592.replace(
+        isi_baru592 = isi_aksi592.replace(
                 baris_aksi592,
                 baris_aksi592.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(python3 -m code; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru592 != isi_aksi592, \
+            "suntikan aksi592 tidak menembak"
+        with open(berkas_aksi592, "w", encoding="utf-8") as f:
+            f.write(isi_baru592)
         rc, out = jalan(sub592, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m code: "
                 "gerbang gagal (Audit 1374)", rc != 0)
@@ -11122,13 +12871,16 @@ def main():
             isi_aksi593 = f.read()
         baris_aksi593 = [b for b in isi_aksi593.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi593, "w", encoding="utf-8") as f:
-            f.write(isi_aksi593.replace(
+        isi_baru593 = isi_aksi593.replace(
                 baris_aksi593,
                 baris_aksi593.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(perl -d skrip.pl; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru593 != isi_aksi593, \
+            "suntikan aksi593 tidak menembak"
+        with open(berkas_aksi593, "w", encoding="utf-8") as f:
+            f.write(isi_baru593)
         rc, out = jalan(sub593, [sys.executable, GERBANG, "--semua"])
         periksa("perl -d skrip.pl: "
                 "gerbang gagal (Audit 1375)", rc != 0)
@@ -11141,13 +12893,16 @@ def main():
             isi_aksi594 = f.read()
         baris_aksi594 = [b for b in isi_aksi594.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi594, "w", encoding="utf-8") as f:
-            f.write(isi_aksi594.replace(
+        isi_baru594 = isi_aksi594.replace(
                 baris_aksi594,
                 baris_aksi594.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cpan; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru594 != isi_aksi594, \
+            "suntikan aksi594 tidak menembak"
+        with open(berkas_aksi594, "w", encoding="utf-8") as f:
+            f.write(isi_baru594)
         rc, out = jalan(sub594, [sys.executable, GERBANG, "--semua"])
         periksa("cpan: "
                 "gerbang gagal (Audit 1376)", rc != 0)
@@ -11160,13 +12915,16 @@ def main():
             isi_aksi595 = f.read()
         baris_aksi595 = [b for b in isi_aksi595.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi595, "w", encoding="utf-8") as f:
-            f.write(isi_aksi595.replace(
+        isi_baru595 = isi_aksi595.replace(
                 baris_aksi595,
                 baris_aksi595.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(gh auth login --with-token; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru595 != isi_aksi595, \
+            "suntikan aksi595 tidak menembak"
+        with open(berkas_aksi595, "w", encoding="utf-8") as f:
+            f.write(isi_baru595)
         rc, out = jalan(sub595, [sys.executable, GERBANG, "--semua"])
         periksa("gh auth login --with-token: "
                 "gerbang gagal (Audit 1377)", rc != 0)
@@ -11179,13 +12937,16 @@ def main():
             isi_aksi596 = f.read()
         baris_aksi596 = [b for b in isi_aksi596.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi596, "w", encoding="utf-8") as f:
-            f.write(isi_aksi596.replace(
+        isi_baru596 = isi_aksi596.replace(
                 baris_aksi596,
                 baris_aksi596.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(utmpdump; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru596 != isi_aksi596, \
+            "suntikan aksi596 tidak menembak"
+        with open(berkas_aksi596, "w", encoding="utf-8") as f:
+            f.write(isi_baru596)
         rc, out = jalan(sub596, [sys.executable, GERBANG, "--semua"])
         periksa("utmpdump: "
                 "gerbang gagal (Audit 1378)", rc != 0)
@@ -11198,13 +12959,16 @@ def main():
             isi_aksi597 = f.read()
         baris_aksi597 = [b for b in isi_aksi597.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi597, "w", encoding="utf-8") as f:
-            f.write(isi_aksi597.replace(
+        isi_baru597 = isi_aksi597.replace(
                 baris_aksi597,
                 baris_aksi597.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tree -Pa --fromfile; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru597 != isi_aksi597, \
+            "suntikan aksi597 tidak menembak"
+        with open(berkas_aksi597, "w", encoding="utf-8") as f:
+            f.write(isi_baru597)
         rc, out = jalan(sub597, [sys.executable, GERBANG, "--semua"])
         periksa("tree -Pa --fromfile: "
                 "gerbang lolos (Audit 1384)", rc == 0)
@@ -11216,13 +12980,16 @@ def main():
             isi_aksi598 = f.read()
         baris_aksi598 = [b for b in isi_aksi598.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi598, "w", encoding="utf-8") as f:
-            f.write(isi_aksi598.replace(
+        isi_baru598 = isi_aksi598.replace(
                 baris_aksi598,
                 baris_aksi598.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tree -aPx --fromfile; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru598 != isi_aksi598, \
+            "suntikan aksi598 tidak menembak"
+        with open(berkas_aksi598, "w", encoding="utf-8") as f:
+            f.write(isi_baru598)
         rc, out = jalan(sub598, [sys.executable, GERBANG, "--semua"])
         periksa("tree -aPx --fromfile: "
                 "gerbang lolos (Audit 1384)", rc == 0)
@@ -11234,13 +13001,16 @@ def main():
             isi_aksi599 = f.read()
         baris_aksi599 = [b for b in isi_aksi599.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi599, "w", encoding="utf-8") as f:
-            f.write(isi_aksi599.replace(
+        isi_baru599 = isi_aksi599.replace(
                 baris_aksi599,
                 baris_aksi599.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tree --gitfile --fromfile; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru599 != isi_aksi599, \
+            "suntikan aksi599 tidak menembak"
+        with open(berkas_aksi599, "w", encoding="utf-8") as f:
+            f.write(isi_baru599)
         rc, out = jalan(sub599, [sys.executable, GERBANG, "--semua"])
         periksa("tree --gitfile --fromfile: "
                 "gerbang lolos (Audit 1385)", rc == 0)
@@ -11252,13 +13022,16 @@ def main():
             isi_aksi600 = f.read()
         baris_aksi600 = [b for b in isi_aksi600.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi600, "w", encoding="utf-8") as f:
-            f.write(isi_aksi600.replace(
+        isi_baru600 = isi_aksi600.replace(
                 baris_aksi600,
                 baris_aksi600.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tmux -LV load-buffer -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru600 != isi_aksi600, \
+            "suntikan aksi600 tidak menembak"
+        with open(berkas_aksi600, "w", encoding="utf-8") as f:
+            f.write(isi_baru600)
         rc, out = jalan(sub600, [sys.executable, GERBANG, "--semua"])
         periksa("tmux -LV load-buffer -: "
                 "gerbang gagal (Audit 1386)", rc != 0)
@@ -11270,13 +13043,16 @@ def main():
             isi_aksi601 = f.read()
         baris_aksi601 = [b for b in isi_aksi601.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi601, "w", encoding="utf-8") as f:
-            f.write(isi_aksi601.replace(
+        isi_baru601 = isi_aksi601.replace(
                 baris_aksi601,
                 baris_aksi601.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(tmux -2V load-buffer -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru601 != isi_aksi601, \
+            "suntikan aksi601 tidak menembak"
+        with open(berkas_aksi601, "w", encoding="utf-8") as f:
+            f.write(isi_baru601)
         rc, out = jalan(sub601, [sys.executable, GERBANG, "--semua"])
         periksa("tmux -2V load-buffer -: "
                 "gerbang lolos (Audit 1387)", rc == 0)
@@ -11288,13 +13064,16 @@ def main():
             isi_aksi602 = f.read()
         baris_aksi602 = [b for b in isi_aksi602.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi602, "w", encoding="utf-8") as f:
-            f.write(isi_aksi602.replace(
+        isi_baru602 = isi_aksi602.replace(
                 baris_aksi602,
                 baris_aksi602.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(make -f/dev/fd/0; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru602 != isi_aksi602, \
+            "suntikan aksi602 tidak menembak"
+        with open(berkas_aksi602, "w", encoding="utf-8") as f:
+            f.write(isi_baru602)
         rc, out = jalan(sub602, [sys.executable, GERBANG, "--semua"])
         periksa("make -f/dev/fd/0: "
                 "gerbang gagal (Audit 1388)", rc != 0)
@@ -11306,13 +13085,16 @@ def main():
             isi_aksi603 = f.read()
         baris_aksi603 = [b for b in isi_aksi603.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi603, "w", encoding="utf-8") as f:
-            f.write(isi_aksi603.replace(
+        isi_baru603 = isi_aksi603.replace(
                 baris_aksi603,
                 baris_aksi603.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(make -nf /dev/fd/0; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru603 != isi_aksi603, \
+            "suntikan aksi603 tidak menembak"
+        with open(berkas_aksi603, "w", encoding="utf-8") as f:
+            f.write(isi_baru603)
         rc, out = jalan(sub603, [sys.executable, GERBANG, "--semua"])
         periksa("make -nf /dev/fd/0: "
                 "gerbang gagal (Audit 1389)", rc != 0)
@@ -11324,13 +13106,16 @@ def main():
             isi_aksi604 = f.read()
         baris_aksi604 = [b for b in isi_aksi604.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi604, "w", encoding="utf-8") as f:
-            f.write(isi_aksi604.replace(
+        isi_baru604 = isi_aksi604.replace(
                 baris_aksi604,
                 baris_aksi604.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(python3 -m sqlite3 -c select :memory:; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru604 != isi_aksi604, \
+            "suntikan aksi604 tidak menembak"
+        with open(berkas_aksi604, "w", encoding="utf-8") as f:
+            f.write(isi_baru604)
         rc, out = jalan(sub604, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m sqlite3 -c select :memory:: "
                 "gerbang lolos (Audit 1390)", rc == 0)
@@ -11342,13 +13127,16 @@ def main():
             isi_aksi605 = f.read()
         baris_aksi605 = [b for b in isi_aksi605.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi605, "w", encoding="utf-8") as f:
-            f.write(isi_aksi605.replace(
+        isi_baru605 = isi_aksi605.replace(
                 baris_aksi605,
                 baris_aksi605.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(python3 -m sqlite3 --version; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru605 != isi_aksi605, \
+            "suntikan aksi605 tidak menembak"
+        with open(berkas_aksi605, "w", encoding="utf-8") as f:
+            f.write(isi_baru605)
         rc, out = jalan(sub605, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m sqlite3 --version: "
                 "gerbang lolos (Audit 1390)", rc == 0)
@@ -11360,13 +13148,16 @@ def main():
             isi_aksi606 = f.read()
         baris_aksi606 = [b for b in isi_aksi606.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi606, "w", encoding="utf-8") as f:
-            f.write(isi_aksi606.replace(
+        isi_baru606 = isi_aksi606.replace(
                 baris_aksi606,
                 baris_aksi606.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(python3 -m gzip -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru606 != isi_aksi606, \
+            "suntikan aksi606 tidak menembak"
+        with open(berkas_aksi606, "w", encoding="utf-8") as f:
+            f.write(isi_baru606)
         rc, out = jalan(sub606, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m gzip -: "
                 "gerbang gagal (Audit 1391)", rc != 0)
@@ -11378,13 +13169,16 @@ def main():
             isi_aksi607 = f.read()
         baris_aksi607 = [b for b in isi_aksi607.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi607, "w", encoding="utf-8") as f:
-            f.write(isi_aksi607.replace(
+        isi_baru607 = isi_aksi607.replace(
                 baris_aksi607,
                 baris_aksi607.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(python3 -m json.tool -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru607 != isi_aksi607, \
+            "suntikan aksi607 tidak menembak"
+        with open(berkas_aksi607, "w", encoding="utf-8") as f:
+            f.write(isi_baru607)
         rc, out = jalan(sub607, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m json.tool -: "
                 "gerbang gagal (Audit 1391)", rc != 0)
@@ -11396,13 +13190,16 @@ def main():
             isi_aksi608 = f.read()
         baris_aksi608 = [b for b in isi_aksi608.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi608, "w", encoding="utf-8") as f:
-            f.write(isi_aksi608.replace(
+        isi_baru608 = isi_aksi608.replace(
                 baris_aksi608,
                 baris_aksi608.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(perl -Id skrip.pl; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru608 != isi_aksi608, \
+            "suntikan aksi608 tidak menembak"
+        with open(berkas_aksi608, "w", encoding="utf-8") as f:
+            f.write(isi_baru608)
         rc, out = jalan(sub608, [sys.executable, GERBANG, "--semua"])
         periksa("perl -Id skrip.pl: "
                 "gerbang lolos (Audit 1392)", rc == 0)
@@ -11414,13 +13211,16 @@ def main():
             isi_aksi609 = f.read()
         baris_aksi609 = [b for b in isi_aksi609.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi609, "w", encoding="utf-8") as f:
-            f.write(isi_aksi609.replace(
+        isi_baru609 = isi_aksi609.replace(
                 baris_aksi609,
                 baris_aksi609.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(perl -mdiagnostics skrip.pl; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru609 != isi_aksi609, \
+            "suntikan aksi609 tidak menembak"
+        with open(berkas_aksi609, "w", encoding="utf-8") as f:
+            f.write(isi_baru609)
         rc, out = jalan(sub609, [sys.executable, GERBANG, "--semua"])
         periksa("perl -mdiagnostics skrip.pl: "
                 "gerbang lolos (Audit 1392)", rc == 0)
@@ -11432,13 +13232,16 @@ def main():
             isi_aksi610 = f.read()
         baris_aksi610 = [b for b in isi_aksi610.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi610, "w", encoding="utf-8") as f:
-            f.write(isi_aksi610.replace(
+        isi_baru610 = isi_aksi610.replace(
                 baris_aksi610,
                 baris_aksi610.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(ffprobe -i berkas.mp4 -i pipe:; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru610 != isi_aksi610, \
+            "suntikan aksi610 tidak menembak"
+        with open(berkas_aksi610, "w", encoding="utf-8") as f:
+            f.write(isi_baru610)
         rc, out = jalan(sub610, [sys.executable, GERBANG, "--semua"])
         periksa("ffprobe -i berkas.mp4 -i pipe:: "
                 "gerbang lolos (Audit 1393)", rc == 0)
@@ -11450,13 +13253,16 @@ def main():
             isi_aksi611 = f.read()
         baris_aksi611 = [b for b in isi_aksi611.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi611, "w", encoding="utf-8") as f:
-            f.write(isi_aksi611.replace(
+        isi_baru611 = isi_aksi611.replace(
                 baris_aksi611,
                 baris_aksi611.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(debugfs -z -f citra.img; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru611 != isi_aksi611, \
+            "suntikan aksi611 tidak menembak"
+        with open(berkas_aksi611, "w", encoding="utf-8") as f:
+            f.write(isi_baru611)
         rc, out = jalan(sub611, [sys.executable, GERBANG, "--semua"])
         periksa("debugfs -z -f citra.img: "
                 "gerbang gagal (Audit 1394)", rc != 0)
@@ -11468,13 +13274,16 @@ def main():
             isi_aksi612 = f.read()
         baris_aksi612 = [b for b in isi_aksi612.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi612, "w", encoding="utf-8") as f:
-            f.write(isi_aksi612.replace(
+        isi_baru612 = isi_aksi612.replace(
                 baris_aksi612,
                 baris_aksi612.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(debugfs -zf citra.img; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru612 != isi_aksi612, \
+            "suntikan aksi612 tidak menembak"
+        with open(berkas_aksi612, "w", encoding="utf-8") as f:
+            f.write(isi_baru612)
         rc, out = jalan(sub612, [sys.executable, GERBANG, "--semua"])
         periksa("debugfs -zf citra.img: "
                 "gerbang gagal (Audit 1394)", rc != 0)
@@ -11486,13 +13295,16 @@ def main():
             isi_aksi613 = f.read()
         baris_aksi613 = [b for b in isi_aksi613.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi613, "w", encoding="utf-8") as f:
-            f.write(isi_aksi613.replace(
+        isi_baru613 = isi_aksi613.replace(
                 baris_aksi613,
                 baris_aksi613.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(gh --hostname contoh.invalid auth login --with-token; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru613 != isi_aksi613, \
+            "suntikan aksi613 tidak menembak"
+        with open(berkas_aksi613, "w", encoding="utf-8") as f:
+            f.write(isi_baru613)
         rc, out = jalan(sub613, [sys.executable, GERBANG, "--semua"])
         periksa("gh --hostname contoh.invalid auth login --with-token: "
                 "gerbang gagal (Audit 1395)", rc != 0)
@@ -11504,13 +13316,16 @@ def main():
             isi_aksi614 = f.read()
         baris_aksi614 = [b for b in isi_aksi614.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi614, "w", encoding="utf-8") as f:
-            f.write(isi_aksi614.replace(
+        isi_baru614 = isi_aksi614.replace(
                 baris_aksi614,
                 baris_aksi614.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(/bin/cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru614 != isi_aksi614, \
+            "suntikan aksi614 tidak menembak"
+        with open(berkas_aksi614, "w", encoding="utf-8") as f:
+            f.write(isi_baru614)
         rc, out = jalan(sub614, [sys.executable, GERBANG, "--semua"])
         periksa("/bin/cat: "
                 "gerbang gagal (Audit 1396)", rc != 0)
@@ -11522,13 +13337,16 @@ def main():
             isi_aksi615 = f.read()
         baris_aksi615 = [b for b in isi_aksi615.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi615, "w", encoding="utf-8") as f:
-            f.write(isi_aksi615.replace(
+        isi_baru615 = isi_aksi615.replace(
                 baris_aksi615,
                 baris_aksi615.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(/usr/bin/openssl sha256; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru615 != isi_aksi615, \
+            "suntikan aksi615 tidak menembak"
+        with open(berkas_aksi615, "w", encoding="utf-8") as f:
+            f.write(isi_baru615)
         rc, out = jalan(sub615, [sys.executable, GERBANG, "--semua"])
         periksa("/usr/bin/openssl sha256: "
                 "gerbang gagal (Audit 1396)", rc != 0)
@@ -11540,13 +13358,16 @@ def main():
             isi_aksi616 = f.read()
         baris_aksi616 = [b for b in isi_aksi616.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi616, "w", encoding="utf-8") as f:
-            f.write(isi_aksi616.replace(
+        isi_baru616 = isi_aksi616.replace(
                 baris_aksi616,
                 baris_aksi616.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(setsid /bin/cat; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru616 != isi_aksi616, \
+            "suntikan aksi616 tidak menembak"
+        with open(berkas_aksi616, "w", encoding="utf-8") as f:
+            f.write(isi_baru616)
         rc, out = jalan(sub616, [sys.executable, GERBANG, "--semua"])
         periksa("setsid /bin/cat: "
                 "gerbang gagal (Audit 1396)", rc != 0)
@@ -11558,13 +13379,16 @@ def main():
             isi_aksi617 = f.read()
         baris_aksi617 = [b for b in isi_aksi617.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi617, "w", encoding="utf-8") as f:
-            f.write(isi_aksi617.replace(
+        isi_baru617 = isi_aksi617.replace(
                 baris_aksi617,
                 baris_aksi617.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(chgpasswd; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru617 != isi_aksi617, \
+            "suntikan aksi617 tidak menembak"
+        with open(berkas_aksi617, "w", encoding="utf-8") as f:
+            f.write(isi_baru617)
         rc, out = jalan(sub617, [sys.executable, GERBANG, "--semua"])
         periksa("chgpasswd: "
                 "gerbang gagal (Audit 1397)", rc != 0)
@@ -11576,13 +13400,16 @@ def main():
             isi_aksi618 = f.read()
         baris_aksi618 = [b for b in isi_aksi618.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi618, "w", encoding="utf-8") as f:
-            f.write(isi_aksi618.replace(
+        isi_baru618 = isi_aksi618.replace(
                 baris_aksi618,
                 baris_aksi618.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(chgpasswd berkasuji; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru618 != isi_aksi618, \
+            "suntikan aksi618 tidak menembak"
+        with open(berkas_aksi618, "w", encoding="utf-8") as f:
+            f.write(isi_baru618)
         rc, out = jalan(sub618, [sys.executable, GERBANG, "--semua"])
         periksa("chgpasswd berkasuji: "
                 "gerbang gagal (Audit 1397)", rc != 0)
@@ -11594,13 +13421,16 @@ def main():
             isi_aksi619 = f.read()
         baris_aksi619 = [b for b in isi_aksi619.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi619, "w", encoding="utf-8") as f:
-            f.write(isi_aksi619.replace(
+        isi_baru619 = isi_aksi619.replace(
                 baris_aksi619,
                 baris_aksi619.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pl2pm; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru619 != isi_aksi619, \
+            "suntikan aksi619 tidak menembak"
+        with open(berkas_aksi619, "w", encoding="utf-8") as f:
+            f.write(isi_baru619)
         rc, out = jalan(sub619, [sys.executable, GERBANG, "--semua"])
         periksa("pl2pm: "
                 "gerbang gagal (Audit 1398)", rc != 0)
@@ -11612,13 +13442,16 @@ def main():
             isi_aksi620 = f.read()
         baris_aksi620 = [b for b in isi_aksi620.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi620, "w", encoding="utf-8") as f:
-            f.write(isi_aksi620.replace(
+        isi_baru620 = isi_aksi620.replace(
                 baris_aksi620,
                 baris_aksi620.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git credential approve; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru620 != isi_aksi620, \
+            "suntikan aksi620 tidak menembak"
+        with open(berkas_aksi620, "w", encoding="utf-8") as f:
+            f.write(isi_baru620)
         rc, out = jalan(sub620, [sys.executable, GERBANG, "--semua"])
         periksa("git credential approve: "
                 "gerbang gagal (Audit 1399)", rc != 0)
@@ -11630,13 +13463,16 @@ def main():
             isi_aksi621 = f.read()
         baris_aksi621 = [b for b in isi_aksi621.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi621, "w", encoding="utf-8") as f:
-            f.write(isi_aksi621.replace(
+        isi_baru621 = isi_aksi621.replace(
                 baris_aksi621,
                 baris_aksi621.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git format-patch --stdin; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru621 != isi_aksi621, \
+            "suntikan aksi621 tidak menembak"
+        with open(berkas_aksi621, "w", encoding="utf-8") as f:
+            f.write(isi_baru621)
         rc, out = jalan(sub621, [sys.executable, GERBANG, "--semua"])
         periksa("git format-patch --stdin: "
                 "gerbang gagal (Audit 1400)", rc != 0)
@@ -11648,13 +13484,16 @@ def main():
             isi_aksi622 = f.read()
         baris_aksi622 = [b for b in isi_aksi622.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi622, "w", encoding="utf-8") as f:
-            f.write(isi_aksi622.replace(
+        isi_baru622 = isi_aksi622.replace(
                 baris_aksi622,
                 baris_aksi622.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git add -p; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru622 != isi_aksi622, \
+            "suntikan aksi622 tidak menembak"
+        with open(berkas_aksi622, "w", encoding="utf-8") as f:
+            f.write(isi_baru622)
         rc, out = jalan(sub622, [sys.executable, GERBANG, "--semua"])
         periksa("git add -p: "
                 "gerbang gagal (Audit 1401)", rc != 0)
@@ -11666,13 +13505,16 @@ def main():
             isi_aksi623 = f.read()
         baris_aksi623 = [b for b in isi_aksi623.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi623, "w", encoding="utf-8") as f:
-            f.write(isi_aksi623.replace(
+        isi_baru623 = isi_aksi623.replace(
                 baris_aksi623,
                 baris_aksi623.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(git clean -i; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru623 != isi_aksi623, \
+            "suntikan aksi623 tidak menembak"
+        with open(berkas_aksi623, "w", encoding="utf-8") as f:
+            f.write(isi_baru623)
         rc, out = jalan(sub623, [sys.executable, GERBANG, "--semua"])
         periksa("git clean -i: "
                 "gerbang gagal (Audit 1401)", rc != 0)
@@ -11684,13 +13526,16 @@ def main():
             isi_aksi624 = f.read()
         baris_aksi624 = [b for b in isi_aksi624.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi624, "w", encoding="utf-8") as f:
-            f.write(isi_aksi624.replace(
+        isi_baru624 = isi_aksi624.replace(
                 baris_aksi624,
                 baris_aksi624.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(openssl sess_id; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru624 != isi_aksi624, \
+            "suntikan aksi624 tidak menembak"
+        with open(berkas_aksi624, "w", encoding="utf-8") as f:
+            f.write(isi_baru624)
         rc, out = jalan(sub624, [sys.executable, GERBANG, "--semua"])
         periksa("openssl sess_id: "
                 "gerbang gagal (Audit 1402)", rc != 0)
@@ -11702,13 +13547,16 @@ def main():
             isi_aksi625 = f.read()
         baris_aksi625 = [b for b in isi_aksi625.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi625, "w", encoding="utf-8") as f:
-            f.write(isi_aksi625.replace(
+        isi_baru625 = isi_aksi625.replace(
                 baris_aksi625,
                 baris_aksi625.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(openssl asn1parse berkas.der; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru625 != isi_aksi625, \
+            "suntikan aksi625 tidak menembak"
+        with open(berkas_aksi625, "w", encoding="utf-8") as f:
+            f.write(isi_baru625)
         rc, out = jalan(sub625, [sys.executable, GERBANG, "--semua"])
         periksa("openssl asn1parse berkas.der: "
                 "gerbang lolos (Audit 1402)", rc == 0)
@@ -11720,13 +13568,16 @@ def main():
             isi_aksi626 = f.read()
         baris_aksi626 = [b for b in isi_aksi626.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi626, "w", encoding="utf-8") as f:
-            f.write(isi_aksi626.replace(
+        isi_baru626 = isi_aksi626.replace(
                 baris_aksi626,
                 baris_aksi626.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(openssl req -new -key kunci.pem; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru626 != isi_aksi626, \
+            "suntikan aksi626 tidak menembak"
+        with open(berkas_aksi626, "w", encoding="utf-8") as f:
+            f.write(isi_baru626)
         rc, out = jalan(sub626, [sys.executable, GERBANG, "--semua"])
         periksa("openssl req -new -key kunci.pem: "
                 "gerbang gagal (Audit 1403)", rc != 0)
@@ -11738,13 +13589,16 @@ def main():
             isi_aksi627 = f.read()
         baris_aksi627 = [b for b in isi_aksi627.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi627, "w", encoding="utf-8") as f:
-            f.write(isi_aksi627.replace(
+        isi_baru627 = isi_aksi627.replace(
                 baris_aksi627,
                 baris_aksi627.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pdftoppm - hasil; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru627 != isi_aksi627, \
+            "suntikan aksi627 tidak menembak"
+        with open(berkas_aksi627, "w", encoding="utf-8") as f:
+            f.write(isi_baru627)
         rc, out = jalan(sub627, [sys.executable, GERBANG, "--semua"])
         periksa("pdftoppm - hasil: "
                 "gerbang gagal (Audit 1404)", rc != 0)
@@ -11756,13 +13610,16 @@ def main():
             isi_aksi628 = f.read()
         baris_aksi628 = [b for b in isi_aksi628.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi628, "w", encoding="utf-8") as f:
-            f.write(isi_aksi628.replace(
+        isi_baru628 = isi_aksi628.replace(
                 baris_aksi628,
                 baris_aksi628.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(pdftocairo -png - hasil.png; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru628 != isi_aksi628, \
+            "suntikan aksi628 tidak menembak"
+        with open(berkas_aksi628, "w", encoding="utf-8") as f:
+            f.write(isi_baru628)
         rc, out = jalan(sub628, [sys.executable, GERBANG, "--semua"])
         periksa("pdftocairo -png - hasil.png: "
                 "gerbang gagal (Audit 1404)", rc != 0)
@@ -11774,13 +13631,16 @@ def main():
             isi_aksi629 = f.read()
         baris_aksi629 = [b for b in isi_aksi629.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi629, "w", encoding="utf-8") as f:
-            f.write(isi_aksi629.replace(
+        isi_baru629 = isi_aksi629.replace(
                 baris_aksi629,
                 baris_aksi629.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(npm init; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru629 != isi_aksi629, \
+            "suntikan aksi629 tidak menembak"
+        with open(berkas_aksi629, "w", encoding="utf-8") as f:
+            f.write(isi_baru629)
         rc, out = jalan(sub629, [sys.executable, GERBANG, "--semua"])
         periksa("npm init: "
                 "gerbang gagal (Audit 1405)", rc != 0)
@@ -11792,13 +13652,16 @@ def main():
             isi_aksi630 = f.read()
         baris_aksi630 = [b for b in isi_aksi630.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi630, "w", encoding="utf-8") as f:
-            f.write(isi_aksi630.replace(
+        isi_baru630 = isi_aksi630.replace(
                 baris_aksi630,
                 baris_aksi630.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(strings -; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru630 != isi_aksi630, \
+            "suntikan aksi630 tidak menembak"
+        with open(berkas_aksi630, "w", encoding="utf-8") as f:
+            f.write(isi_baru630)
         rc, out = jalan(sub630, [sys.executable, GERBANG, "--semua"])
         periksa("strings -: "
                 "gerbang lolos (Audit 1406)", rc == 0)
@@ -11810,13 +13673,16 @@ def main():
             isi_aksi631 = f.read()
         baris_aksi631 = [b for b in isi_aksi631.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi631, "w", encoding="utf-8") as f:
-            f.write(isi_aksi631.replace(
+        isi_baru631 = isi_aksi631.replace(
                 baris_aksi631,
                 baris_aksi631.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(cpan -v; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru631 != isi_aksi631, \
+            "suntikan aksi631 tidak menembak"
+        with open(berkas_aksi631, "w", encoding="utf-8") as f:
+            f.write(isi_baru631)
         rc, out = jalan(sub631, [sys.executable, GERBANG, "--semua"])
         periksa("cpan -v: "
                 "gerbang lolos (Audit 1407)", rc == 0)
@@ -11828,13 +13694,16 @@ def main():
             isi_aksi632 = f.read()
         baris_aksi632 = [b for b in isi_aksi632.splitlines()
                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-        with open(berkas_aksi632, "w", encoding="utf-8") as f:
-            f.write(isi_aksi632.replace(
+        isi_baru632 = isi_aksi632.replace(
                 baris_aksi632,
                 baris_aksi632.replace(
                     '>> "$GITHUB_OUTPUT"',
                     '> >(utmpdump -h; cat '
-                    '>> "$GITHUB_OUTPUT")'), 1))
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru632 != isi_aksi632, \
+            "suntikan aksi632 tidak menembak"
+        with open(berkas_aksi632, "w", encoding="utf-8") as f:
+            f.write(isi_baru632)
         rc, out = jalan(sub632, [sys.executable, GERBANG, "--semua"])
         periksa("utmpdump -h: "
                 "gerbang lolos (Audit 1407)", rc == 0)
