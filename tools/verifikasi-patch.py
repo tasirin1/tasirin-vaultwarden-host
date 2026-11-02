@@ -3077,11 +3077,17 @@ def _menguras_khusus(perintah, toks, awal):
         # opsi sungguhan — sebagai NILAI opsi bernilai (-P
         # menelan token berikutnya walau berawalan --) ia
         # pola nama, bukan mode stdin.
-        bernilai_tr2 = ("-P", "-I", "-L", "-o", "--charset",
-                        "--filelimit", "--timefmt", "--sort")
+        bernilai_tr2 = ("-P", "-I", "-L", "-o", "-T", "-H",
+                        "--charset", "--filelimit", "--timefmt",
+                        "--sort")
         k_tr2 = 0
         while k_tr2 < len(mentah):
             t_tr2 = mentah[k_tr2]
+            # Audit 1367: sesudah '--' semua token adalah
+            # operand direktori — '--fromfile' di sana bukan
+            # mode stdin. (Audit 1368: -T/-H kini ikut bernilai.)
+            if t_tr2 == "--":
+                return False
             if t_tr2 == "--fromfile":
                 return True
             if t_tr2 in bernilai_tr2:

@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Tree — pemindai --fromfile kini berhenti di '--' (Audit 1367)
 ## [Belum rilis] — Tmux -V dinilai keluar sebelum subperintah (tak menguras) (Audit 1366)
 ## [Belum rilis] — Make --file=/--makefile= merekat kini menerima ejaan /dev/fd/0 dan /proc/self/fd/0 (Audit 1365)
 ## [Belum rilis] — Systemd-run — --on-clock-change/--on-timezone-change masuk set penolakan timer mode --scope (Audit 1364)
