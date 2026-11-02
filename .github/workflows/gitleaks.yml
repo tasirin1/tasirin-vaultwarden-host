@@ -5,11 +5,14 @@ on:
     branches: ["main"]
     paths-ignore:
       - '.gitignore'
-      - '.github/workflows/build-binary.yml'
   pull_request:
     paths-ignore:
       - '.gitignore'
-      - '.github/workflows/build-binary.yml'
+  # Audit 1118: build-binary.yml TIDAK lagi dikecualikan —
+  # paths-ignore menonaktifkan pindaian bila SEMUA berkas berubah
+  # cocok, jadi perubahan tunggal pada workflow terbesar itu (skrip
+  # inline terpanjang: heredoc patch, URL, hash) dulu lolos tanpa
+  # dipindai secret sama sekali.
   workflow_dispatch:
 
 permissions:

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — gitleaks tak lagi mengecualikan build-binary.yml dari pindaian (Audit 1118)
+
 ## [Belum rilis] — logika HARUS_BUILD auto-merge selaras saringan path build-apk (Audit 1117)
 
 ## [Belum rilis] — validator PIN remote Util kini teruji JVM (Audit 1116)
