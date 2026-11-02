@@ -3337,7 +3337,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             for t in toks[awal + 1:]):
         return False
     if perintah == "iconv" and any(
-            t.strip("\"'") in ("-l", "--list")
+            # Audit 1263: --usage juga informasional.
+            t.strip("\"'") in ("-l", "--list", "--usage")
             for t in toks[awal + 1:]):
         return False
     lewati = False

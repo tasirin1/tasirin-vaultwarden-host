@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — iconv: --usage informasional (Audit 1263)
+
 ## [Belum rilis] — git apply: --build-fake-ancestor terpisah bukan berkas (Audit 1262)
 
 ## [Belum rilis] — git cat-file: bentuk --batch/--batch-check '=' dikenal (Audit 1261)

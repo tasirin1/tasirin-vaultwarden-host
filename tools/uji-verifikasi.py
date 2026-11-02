@@ -9196,6 +9196,24 @@ def main():
         periksa("git apply --build-fake-ancestor idx: "
                 "gerbang gagal (Audit 1262)", rc != 0)
         shutil.rmtree(sub486, ignore_errors=True)
+        sub487 = klon(tmp, "sub487")
+        berkas_aksi487 = os.path.join(
+            sub487, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi487, encoding="utf-8") as f:
+            isi_aksi487 = f.read()
+        baris_aksi487 = [b for b in isi_aksi487.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi487, "w", encoding="utf-8") as f:
+            f.write(isi_aksi487.replace(
+                baris_aksi487,
+                baris_aksi487.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(iconv --usage; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub487, [sys.executable, GERBANG, "--semua"])
+        periksa("iconv --usage: "
+                "gerbang lolos (Audit 1263)", rc == 0)
+        shutil.rmtree(sub487, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
