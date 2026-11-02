@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — strings: -s/--output-separator dan -U/--unicode hilang (Audit 1242)
+
 ## [Belum rilis] — od: -S terpisah, offset usang +N, -w opsional (Audit 1241)
 
 ## [Belum rilis] — openssl: --list/--ciphers strip-ganda informasional (Audit 1240)
