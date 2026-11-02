@@ -2810,7 +2810,8 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1311/1305/1308/1309: banding beroperand '-' —
     # cmp sendiri dan keluarga terkompresinya (bzcmp/bzdiff
     # SENGAJA tak ikut: '-' mereka nama berkas harfiah).
-    if perintah in ("zcmp", "zdiff", "xzcmp", "xzdiff", "lzcmp", "lzdiff"):
+    if perintah in ("cmp", "zcmp", "zdiff", "xzcmp", "xzdiff",
+                    "lzcmp", "lzdiff"):
         ops_cm = _operand_sesudah_opsi(
             toks, awal, {"-i", "--ignore-initial", "-n",
                          "--bytes"})
@@ -3543,6 +3544,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "zcmp", "zdiff",
                         "xzcmp", "xzdiff",
                         "lzcmp", "lzdiff",
+                        "cmp",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

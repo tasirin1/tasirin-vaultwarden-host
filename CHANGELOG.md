@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Cmp menilai operand '-' (Audit 1311)
+
 ## [Belum rilis] — Uncompress masuk tabel pembaca stdin (Audit 1310)
 
 ## [Belum rilis] — Keluarga lzma (lzcmp/lzdiff/lzegrep/lzfgrep) dinilai (Audit 1309)
