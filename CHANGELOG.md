@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — json_pp dikenal gerbang sebagai pembaca stdin (Audit 1192)
+
 ## [Belum rilis] — funzip dikenal gerbang sebagai pembaca stdin (Audit 1191)
 
 ## [Belum rilis] — uji JVM untuk TgBackup.gabungGagalChat (Audit 1190)

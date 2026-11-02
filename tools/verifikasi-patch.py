@@ -666,7 +666,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1191/1192: funzip mengekstrak anggota
                   # pertama arsip zip dari stdin; json_pp
                   # memformat JSON dari stdin.
-                  "funzip"}
+                  "funzip", "json_pp"}
 
 
 _OPSI_BERNILAI = {
