@@ -2597,6 +2597,25 @@ def main():
         periksa("operand berkutip berisi spasi satu token: pola grep menguras — gerbang gagal (Audit 1047)", rc != 0)
         shutil.rmtree(subspasikutip, ignore_errors=True)
 
+        subtac = klon(tmp, "subtac")
+        berkas_aksi132 = os.path.join(
+            subtac, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi132, encoding="utf-8") as f:
+            isi_aksi132 = f.read()
+        baris_aksi132 = [b for b in isi_aksi132.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi132, "w", encoding="utf-8") as f:
+            f.write(isi_aksi132.replace(
+                baris_aksi132,
+                baris_aksi132.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tac -s .; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subtac,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai -s tac adalah opsi: tac tetap penguras — gerbang gagal (Audit 1048)", rc != 0)
+        shutil.rmtree(subtac, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

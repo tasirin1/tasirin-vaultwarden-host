@@ -661,6 +661,9 @@ _OPSI_BERNILAI = {
            "--read-bytes", "-t", "--format", "-w", "--width"},
     "gzip": {"--suffix", "-S"},
     "gunzip": {"--suffix", "-S"},
+    # Audit 1048: tac tertinggal dari tabel saat ditambahkan
+    # Audit 1037 — nilai -s dinilai operand berkas.
+    "tac": {"-s", "--separator"},
     "shuf": {"-n", "--head-count", "-o", "--output",
              "--random-source", "-i", "--input-range"},
 }
