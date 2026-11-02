@@ -1642,6 +1642,14 @@ def _menguras_interpreter(perintah, toks, awal):
         if t in ("-W", "-X"):
             i += 2
             continue
+        # Audit 1299: opsi bernilai node — nilainya bukan
+        # operand skrip.
+        if perintah == "node" and t in (
+                "-r", "--require", "--import", "--loader",
+                "--experimental-loader", "--input-type",
+                "--conditions", "--env-file"):
+            i += 2
+            continue
         if t == "--":
             i += 1
             return toks[i] == "-" if i < n else True

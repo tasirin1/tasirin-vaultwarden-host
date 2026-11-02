@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Penilai nodejs menelan nilai opsi bernilai (Audit 1299)
+
 ## [Belum rilis] — Alias linux --list dikenali di resolver pembungkus (Audit 1298)
 
 ## [Belum rilis] — Xvfb-run -p/--xauth-protocol bernilai (Audit 1297)
