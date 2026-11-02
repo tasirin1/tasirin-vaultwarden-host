@@ -35,6 +35,32 @@ public class UtilTest {
     }
 
     @Test
+    public void semuaDigit_hanyaNolSampaiSembilan() {
+        // Audit 1144: helper pencocokan chat — hanya digit ASCII,
+        // kosong/null ditolak.
+        assertTrue(Util.semuaDigit("12345"));
+        assertTrue(Util.semuaDigit("0"));
+        assertFalse(Util.semuaDigit(""));
+        assertFalse(Util.semuaDigit(null));
+        assertFalse(Util.semuaDigit("12a"));
+        assertFalse(Util.semuaDigit(" 12"));
+        assertFalse(Util.semuaDigit("12 "));
+        assertFalse(Util.semuaDigit("+12"));
+    }
+
+    @Test
+    public void rendahAscii_hanyaHurufBesarAscii() {
+        // Audit 1144: hanya A-Z yang diturunkan; non-ASCII dan
+        // null/kosong aman.
+        assertEquals("abc", Util.rendahAscii("AbC"));
+        assertEquals("kelvin", Util.rendahAscii("KELVIN"));
+        assertEquals("ab1!", Util.rendahAscii("aB1!"));
+        assertEquals("", Util.rendahAscii(""));
+        assertEquals("", Util.rendahAscii(null));
+        assertEquals("\u00c4", Util.rendahAscii("\u00c4"));
+    }
+
+    @Test
     public void pinKataValidAturanDigitAtauSimbol() {
         // Audit 1116: min 4 char, tanpa char <= spasi, dan wajib
         // digit ATAU simbol (huruf murni ditolak).
