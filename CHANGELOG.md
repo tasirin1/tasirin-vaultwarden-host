@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — openssl: -in /dev/stdin adalah stdin di semua kelompok (Audit 1239)
+
 ## [Belum rilis] — lzcat: entri tabel ditambahkan (sufiks & kawan-kawan) (Audit 1238)
 
 ## [Belum rilis] — xzcat: -S/--suffix hilang dari entri (Audit 1237)

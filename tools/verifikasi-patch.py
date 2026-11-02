@@ -1753,10 +1753,17 @@ def _menguras_khusus(perintah, toks, awal):
             for k_in, t_in in enumerate(mentah):
                 if t_in in ("-in", "--in") or t_in.startswith("-in=") \
                         or t_in.startswith("--in="):
+                    # Audit 1239: /dev/stdin & keluarga fd 0
+                    # sebagai nilai -in ADALAH stdin.
                     if "=" in t_in:
-                        return t_in.split("=", 1)[1] != "-"
+                        return t_in.split("=", 1)[1] not in (
+                            "-", "/dev/stdin", "/dev/fd/0",
+                            "/proc/self/fd/0")
                     return not (k_in + 1 < len(mentah)
-                                and mentah[k_in + 1] == "-")
+                                and mentah[k_in + 1] in (
+                                    "-", "/dev/stdin",
+                                    "/dev/fd/0",
+                                    "/proc/self/fd/0"))
             return False
 
         if sub == "enc" or sub == "base64":
@@ -1779,10 +1786,26 @@ def _menguras_khusus(perintah, toks, awal):
             # '-' dan membaca 0 byte (terprobe satu per satu);
             # tanpa -in mereka tetap membaca objek dari stdin,
             # dan -in berkas tentu bukan stdin.
-            if any(t_in in ("-in", "--in")
-                   or t_in.startswith("-in=")
-                   or t_in.startswith("--in=")
-                   for t_in in mentah):
+            # Audit 1239: -in /dev/stdin justru menguras —
+            # jalur fd di pemuat objek adalah stdin itu
+            # sendiri (terprobe dengan PEM sungguhan).
+            ada_in = False
+            for k_i2, t_i2 in enumerate(mentah):
+                if t_i2 in ("-in", "--in"):
+                    ada_in = True
+                    if (k_i2 + 1 < len(mentah)
+                            and mentah[k_i2 + 1] in (
+                                "/dev/stdin", "/dev/fd/0",
+                                "/proc/self/fd/0")):
+                        return True
+                elif (t_i2.startswith("-in=")
+                      or t_i2.startswith("--in=")):
+                    ada_in = True
+                    if t_i2.split("=", 1)[1] in (
+                            "/dev/stdin", "/dev/fd/0",
+                            "/proc/self/fd/0"):
+                        return True
+            if ada_in:
                 return False
             return True
         if sub in ("pkcs7",
