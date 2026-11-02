@@ -9466,6 +9466,24 @@ def main():
         periksa("openssl x509 -in /dev/stdin -in /dev/null: "
                 "gerbang lolos (Audit 1278)", rc == 0)
         shutil.rmtree(sub501, ignore_errors=True)
+        sub502 = klon(tmp, "sub502")
+        berkas_aksi502 = os.path.join(
+            sub502, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi502, encoding="utf-8") as f:
+            isi_aksi502 = f.read()
+        baris_aksi502 = [b for b in isi_aksi502.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi502, "w", encoding="utf-8") as f:
+            f.write(isi_aksi502.replace(
+                baris_aksi502,
+                baris_aksi502.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(file -f /dev/stdin; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub502, [sys.executable, GERBANG, "--semua"])
+        periksa("file -f /dev/stdin: "
+                "gerbang gagal (Audit 1279)", rc != 0)
+        shutil.rmtree(sub502, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -2599,9 +2599,14 @@ def _menguras_khusus(perintah, toks, awal):
                         # Audit 1233: -f- merekat.
                         "-f-"):
                 return True
+            # Audit 1279: nilai /dev/stdin juga stdin.
+            if re.fullmatch(r"-[A-Za-z]*f-", t_nf):
+                return True
             if t_nf in ("-f", "--file"):
                 return (k_nf + 1 < len(mentah)
-                        and mentah[k_nf + 1] == "-")
+                        and mentah[k_nf + 1] in (
+                            "-", "/dev/stdin", "/dev/fd/0",
+                            "/proc/self/fd/0"))
         return False
     # Audit 1197: mode batch iproute2 membaca daftar perintah
     # dari berkas batch; '-' = stdin.
@@ -2623,8 +2628,11 @@ def _menguras_khusus(perintah, toks, awal):
         # operand '-' di tempat lain tetap stdin.
         for k_fl, t_fl in enumerate(mentah):
             if t_fl in ("-f", "--files-from"):
+                # Audit 1279: nilai /dev/stdin juga stdin.
                 if (k_fl + 1 < len(mentah)
-                        and mentah[k_fl + 1] == "-"):
+                        and mentah[k_fl + 1] in (
+                            "-", "/dev/stdin", "/dev/fd/0",
+                            "/proc/self/fd/0")):
                     return True
             if t_fl in ("-f-", "--files-from=-"):
                 return True
@@ -2640,9 +2648,13 @@ def _menguras_khusus(perintah, toks, awal):
                         # Audit 1230: -f- merekat.
                         "-f-"):
                 return True
+            # Audit 1279: nilai /dev/stdin juga stdin.
+                return True
             if t_dt in ("-f", "--file"):
                 return (k_dt + 1 < len(mentah)
-                        and mentah[k_dt + 1] == "-")
+                        and mentah[k_dt + 1] in (
+                            "-", "/dev/stdin", "/dev/fd/0",
+                            "/proc/self/fd/0"))
         return False
     # Audit 1202: sysctl -p '-' membaca konfigurasi dari stdin.
     if perintah == "sysctl":
@@ -2652,8 +2664,11 @@ def _menguras_khusus(perintah, toks, awal):
             if t_sy in ("-p", "--preload", "--preload-file"):
                 # Audit 1231: -p lain sesudahnya tetap
                 # dinilai — jangan berhenti di yang pertama.
+                # Audit 1279: nilai /dev/stdin juga stdin.
                 if (k_sy + 1 < len(mentah)
-                        and mentah[k_sy + 1] == "-"):
+                        and mentah[k_sy + 1] in (
+                            "-", "/dev/stdin", "/dev/fd/0",
+                            "/proc/self/fd/0")):
                     return True
         return False
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk

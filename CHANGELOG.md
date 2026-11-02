@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Nilai fd-0 diterima di cabang file/date/sysctl/nft (Audit 1279)
+
 ## [Belum rilis] — Openssl memakai -in terakhir untuk vonis stdin (Audit 1278)
 
 ## [Belum rilis] — Prlimit bentuk -p= dan -p<angka> dikenali sebagai mode pid (Audit 1277)
