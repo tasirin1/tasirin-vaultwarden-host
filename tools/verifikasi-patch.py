@@ -3213,14 +3213,27 @@ def _menguras_khusus(perintah, toks, awal):
         # berikutnya) — pindai huruf per token; huruf bernilai
         # lain (-b/-s/-d) menghentikan pindaian token itu
         # karena sisanya adalah nilainya.
-        for t_df in mentah:
+        # Audit 1394: -z (berkas undo) juga bernilai —
+        # himpunan opsi bernilai kini lengkap sesuai getopt
+        # debugfs 1.47.0: {b, d, f, R, s, z}. Huruf bernilai
+        # di UJUNG token menelan TOKEN BERIKUTNYA sebagai
+        # nilainya (bentuk terpisah -z -f: '-f' di sana nilai
+        # -z, bukan opsi sumber perintah).
+        k_df = 0
+        while k_df < len(mentah):
+            t_df = mentah[k_df]
+            k_df += 1
             if not t_df.startswith("-") or t_df == "-":
                 continue
-            for huruf_df in t_df[1:]:
+            telan_df = False
+            for pos_df, huruf_df in enumerate(t_df[1:]):
                 if huruf_df in ("f", "R"):
                     return False
-                if huruf_df in ("b", "s", "d"):
+                if huruf_df in ("b", "s", "d", "z"):
+                    telan_df = pos_df == len(t_df) - 2
                     break
+            if telan_df:
+                k_df += 1
         return True
     # Audit 1345: xauth tanpa subcommand membaca perintah
     # dari stdin.
