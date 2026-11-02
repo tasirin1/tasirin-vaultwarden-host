@@ -1322,28 +1322,72 @@ def _menguras_khusus(perintah, toks, awal):
         return False
     if perintah == "tar":
         # Audit 1061: arsip '-' (nilai -f) atau daftar -T '-'.
+        # Audit 1077: bundel gaya lama tanpa strip (tf) dan nilai
+        # merekat pada bundel (-tf-, -f-) — regex lama mewajibkan
+        # huruf sesudah f/T sehingga '-' terakhir tak cocok.
+        mode_tar = None
+        nilai_f = None
+        nilai_T = None
         i = 0
         while i < len(mentah):
             t = mentah[i]
-            if t in ("-f", "--file", "-T", "--files-from"):
-                if i + 1 < len(mentah) and mentah[i + 1] == "-":
-                    return True
+            if t in ("--create",):
+                mode_tar = "c"
+            elif t in ("--extract", "--get"):
+                mode_tar = "x"
+            elif t in ("--list",):
+                mode_tar = "t"
+            if t in ("-f", "--file"):
+                if i + 1 < len(mentah):
+                    nilai_f = mentah[i + 1]
+                i += 2
+                continue
+            if t in ("-T", "--files-from"):
+                if i + 1 < len(mentah):
+                    nilai_T = mentah[i + 1]
                 i += 2
                 continue
             if (t.startswith("--file=")
                     or t.startswith("--files-from=")):
-                if t.split("=", 1)[1] == "-":
-                    return True
+                if t.startswith("--file="):
+                    nilai_f = t.split("=", 1)[1]
+                else:
+                    nilai_T = t.split("=", 1)[1]
                 i += 1
                 continue
-            if re.fullmatch(r"-[a-z]*[fT][a-z]*", t):
-                # bundel berakhiran f/T merekat: -cf- / -f-
-                if t.endswith("-") or (
-                        i + 1 < len(mentah)
-                        and mentah[i + 1] == "-"
-                        and t[-1] in "fT"):
-                    return True
+            bundel = None
+            if re.fullmatch(r"-[a-z]+-?", t):
+                bundel = t[1:].rstrip("-")
+                if t.endswith("-") and bundel and bundel[-1] in "fT":
+                    # nilai merekat "-" pada huruf terakhir bundel
+                    if bundel[-1] == "f":
+                        nilai_f = "-"
+                    else:
+                        nilai_T = "-"
+            elif i == 0 and re.fullmatch(r"[a-z]+", t):
+                # bundel gaya lama: huruf-huruf tanpa strip.
+                bundel = t
+            if bundel:
+                if mode_tar is None:
+                    for huruf_t in bundel:
+                        if huruf_t in "cxt":
+                            mode_tar = huruf_t
+                            break
+                if bundel[-1] in "fT" and not (
+                        t.endswith("-") and len(t) > 1
+                        and t[0] == "-"):
+                    # nilai f/T adalah token berikutnya
+                    if i + 1 < len(mentah):
+                        if bundel[-1] == "f":
+                            nilai_f = mentah[i + 1]
+                        else:
+                            nilai_T = mentah[i + 1]
+                        i += 1
             i += 1
+        if nilai_T == "-":
+            return True
+        if nilai_f == "-":
+            return True
         return False
     if perintah == "git":
         # Audit 1062: subcommand penyaring stdin.

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — bundel tar gaya lama dan nilai -f merekat kini dikenali gerbang patch (Audit 1077)
+
 ## [Belum rilis] — opsi -rand masuk tabel bernilai openssl dgst di gerbang patch (Audit 1076)
 
 ## [Belum rilis] — operand '-' kini dikenali penilai openssl gerbang patch (Audit 1075)
