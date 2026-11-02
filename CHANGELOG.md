@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pipa di dalam segmen dinilai dari elemen pertamanya (Audit 1022)
+
+### Diperbaiki
+- Perkakas: `_menguras_stdin` kini memotong segmen pada pipa tunggal pertama di luar kutip/substitusi (`_potong_pipa_pertama`) — dalam satu jaringan pipa hanya elemen pertama yang membaca stdin bersama. Sebelumnya token `|` jatuh sebagai operand berkas sehingga `cat | tee log` dinilai bukan penguras (fail-open). `||` bukan pipa dan tidak memotong; pipa di dalam substitusi bersarang juga tidak. Skenario uji-diri aksi108.
+
+
 ## [Belum rilis] — Gerbang: grup subshell ( ... ) terurai (Audit 1021)
 
 ### Diperbaiki

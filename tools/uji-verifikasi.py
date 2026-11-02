@@ -2222,6 +2222,27 @@ def main():
                 "gerbang gagal (Audit 1021)", rc != 0)
         shutil.rmtree(subgrup, ignore_errors=True)
 
+        subpipa = klon(tmp, "subpipa")
+        berkas_aksi108 = os.path.join(
+            subpipa, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi108, encoding="utf-8") as f:
+            isi_aksi108 = f.read()
+        baris_tulis108 = [b for b in isi_aksi108.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi108, "w", encoding="utf-8") as f:
+            f.write(isi_aksi108.replace(
+                baris_tulis108,
+                baris_tulis108.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cat | tee log.txt; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subpipa,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pipa dalam segmen: elemen pertama yang dinilai — "
+                "gerbang gagal (Audit 1022)", rc != 0)
+        shutil.rmtree(subpipa, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
