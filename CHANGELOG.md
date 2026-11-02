@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — mode batch iproute2 dikenali gerbang (Audit 1197)
+
 ## [Belum rilis] — iptables-restore dikenal gerbang sebagai pembaca stdin (Audit 1196)
 
 ## [Belum rilis] — nft -f - dikenali gerbang (Audit 1195)

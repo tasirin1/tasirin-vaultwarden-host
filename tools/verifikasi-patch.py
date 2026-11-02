@@ -2304,6 +2304,16 @@ def _menguras_khusus(perintah, toks, awal):
                 return (k_nf + 1 < len(mentah)
                         and mentah[k_nf + 1] == "-")
         return False
+    # Audit 1197: mode batch iproute2 membaca daftar perintah
+    # dari berkas batch; '-' = stdin.
+    if perintah in ("ip", "tc", "bridge"):
+        for k_bt, t_bt in enumerate(mentah):
+            if t_bt == "-batch=-" or t_bt == "--batch=-":
+                return True
+            if t_bt in ("-batch", "-b", "--batch"):
+                return (k_bt + 1 < len(mentah)
+                        and mentah[k_bt + 1] == "-")
+        return False
     return False
 
 
@@ -2954,7 +2964,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "addr2line", "dig",
                         # Audit 1193/1195/1197/1198/1200/1201/
                         # 1202/1204: penilai khusus putaran-7.
-                        "pdftotext", "nft"):
+                        "pdftotext", "nft", "ip", "tc", "bridge"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
