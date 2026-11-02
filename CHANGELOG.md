@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — json_pp: entri tabel -f/--format ditambahkan (Audit 1243)
+
 ## [Belum rilis] — strings: -s/--output-separator dan -U/--unicode hilang (Audit 1242)
 
 ## [Belum rilis] — od: -S terpisah, offset usang +N, -w opsional (Audit 1241)

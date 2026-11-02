@@ -815,6 +815,10 @@ _OPSI_BERNILAI = {
                          "-w", "--wait"},
     "ip6tables-restore": {"-T", "--table", "-M", "--modprobe",
                           "-w", "--wait"},
+    # Audit 1243: json_pp tanpa entri (Audit 1192 hanya
+    # menambah namanya ke daftar pembaca).
+    "json_pp": {"-f", "--format"},
+
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",
