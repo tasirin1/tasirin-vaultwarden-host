@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — git shortlog: -w bernilai opsional, bukan terpisah (Audit 1222)
+
 ## [Belum rilis] — git am: opsi bernilai selain --patch-format hilang (Audit 1221)
 
 ## [Belum rilis] — credential: kata aksi sebagai nilai --file bukan aksi (Audit 1220)

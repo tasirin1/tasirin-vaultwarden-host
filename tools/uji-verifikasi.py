@@ -8260,6 +8260,24 @@ def main():
         periksa("git am --exclude foo: "
                 "gerbang gagal (Audit 1221)", rc != 0)
         shutil.rmtree(sub434, ignore_errors=True)
+        sub435 = klon(tmp, "sub435")
+        berkas_aksi435 = os.path.join(
+            sub435, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi435, encoding="utf-8") as f:
+            isi_aksi435 = f.read()
+        baris_aksi435 = [b for b in isi_aksi435.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi435, "w", encoding="utf-8") as f:
+            f.write(isi_aksi435.replace(
+                baris_aksi435,
+                baris_aksi435.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git shortlog -w HEAD; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub435, [sys.executable, GERBANG, "--semua"])
+        periksa("git shortlog -w HEAD: "
+                "gerbang lolos (Audit 1222)", rc == 0)
+        shutil.rmtree(sub435, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

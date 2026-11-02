@@ -2033,7 +2033,9 @@ def _menguras_khusus(perintah, toks, awal):
             return not ops_am or "-" in ops_am
         if sub == "shortlog":
             ops_sl = _operand_sesudah_opsi(
-                toks, awal + 1, {"-w", "--format"})
+                toks, awal + 1, {"--format"})
+            # Audit 1222: -w shortlog bernilai OPSIONAL
+            # (hanya merekat) — diperlakukan bendera.
             return not ops_sl
         # Audit 1206: keluarga --stdin putaran-5.
         if sub in ("update-ref", "check-attr", "check-ignore",
