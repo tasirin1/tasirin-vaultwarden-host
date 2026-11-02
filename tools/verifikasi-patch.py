@@ -2107,13 +2107,18 @@ def _menguras_khusus(perintah, toks, awal):
         # nama terbilang lewat prompt yang membaca stdin
         # (jawaban tak sah memicu prompt ulang).
         if sub == "req":
-            if not any(t == "-new" or t.startswith("-newkey")
-                       for t in mentah):
+            # Audit 1419: tanpa -in, objek req (CSR/
+            # sertifikat) dibaca dari stdin — bukan hanya
+            # bentuk -new yang meminta prompt.
+            if _in_non_stdin():
                 return False
-            if any(t == "-subj" or t.startswith("-subj=")
+            if any(t == "-new" or t.startswith("-newkey")
                    for t in mentah):
-                return False
-            return "-batch" not in mentah
+                if any(t == "-subj" or t.startswith("-subj=")
+                       for t in mentah):
+                    return False
+                return "-batch" not in mentah
+            return True
         if sub == "passwd":
             return "-stdin" in mentah
         if sub == "s_client":
