@@ -1100,10 +1100,22 @@ def _menguras_interpreter(perintah, toks, awal):
             ada_berkas = True
             i += 1
         return pakai_lingkar and not ada_berkas
+    interaktif = False
     while i < n:
         t = toks[i]
-        if perintah.startswith("python") and t in ("-c", "-m"):
+        if perintah.startswith("python") and t == "-i":
+            # Audit 1049: -i menjatuhkan python ke REPL sesudah
+            # skrip jalan — REPL itu menguras stdin.
+            interaktif = True
+            i += 1
+            continue
+        if perintah.startswith("python") and t == "-c":
             return False
+        if perintah.startswith("python") and t == "-m":
+            # Audit 1049: modul penyaring stdin yang terverifikasi
+            # menguras; modul lain tak dinilai (bawaan: bukan).
+            return (i + 1 < n and toks[i + 1].strip("\"'")
+                    in ("json.tool", "base64"))
         if perintah == "node" and t in (
                 "-e", "--eval", "-p", "--print"):
             return False
@@ -1116,7 +1128,11 @@ def _menguras_interpreter(perintah, toks, awal):
         if t.startswith("-") and t != "-":
             i += 1
             continue
-        return t == "-"
+        if t == "-":
+            return True
+        # Operand berkas skrip: tak membaca stdin, KECUALI REPL
+        # interaktif python menyusul (Audit 1049).
+        return interaktif if perintah.startswith("python") else False
     return True
 
 

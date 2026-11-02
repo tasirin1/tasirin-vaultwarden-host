@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — REPL python -i dan modul penyaring -m kini dinilai gerbang patch (Audit 1049)
+
 ## [Belum rilis] — opsi bernilai tac kini dikenali gerbang patch (Audit 1048)
 
 ## [Belum rilis] — set tr berkutip dan operand berkutip berisi spasi kini dinilai benar oleh gerbang patch (Audit 1047)
