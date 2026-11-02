@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: awalan kata kunci exec/time/eval/! transparan (Audit 1020)
+
+### Diperbaiki
+- Perkakas: resolver `tools/verifikasi-patch.py` memperlakukan `exec`, `time` (termasuk `-p`), `eval`, dan `!` di posisi awal segmen sebagai awalan transparan — perintah sesudahnyalah yang dinilai pengurasannya. Sebelumnya kata pertama itu gugur melawan daftar pembaca sehingga bentuk seperti `> >(exec cat; ...)` lolos sebagai bukan penguras (fail-open). Di balik pembungkus/env nama-nama itu tetap nama program tak dikenal (pola Audit 972). Skenario uji-diri aksi106.
+
+
 ## [Belum rilis] — Rangkaian gagalChat/gagalCa dan log backup terjadwal teredaksi (Audit 1029)
 
 ### Diperbaiki

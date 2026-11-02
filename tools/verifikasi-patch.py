@@ -796,6 +796,18 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # pembungkus/env ia di-exec sebagai program eksternal
             # yang tak ada, jadi resolusi berhenti di namanya.
             break
+        if masih_awal and t0 in ("exec", "time", "eval", "!"):
+            # Audit 1020: kata kunci/builtin awalan transparan —
+            # perintah sesudahnyalah yang menentukan pengurasan
+            # (exec menggantikan shell dengan perintah itu; time,
+            # eval, dan ! hanya membungkusnya). Hanya di posisi
+            # awal: di balik pembungkus/env nama-nama ini adalah
+            # program eksternal yang tak ada (pola Audit 972).
+            awal += 1
+            if (t0 == "time" and awal < len(toks)
+                    and toks[awal] == "-p"):
+                awal += 1
+            continue
         if t0 == "timeout" or t0 in ("xargs", "nice", "command",
                 "stdbuf", "setsid", "ionice", "chrt", "taskset",
                 "eatmydata", "nohup", "flock"):
