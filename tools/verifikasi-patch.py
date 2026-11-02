@@ -1993,7 +1993,7 @@ def _menguras_khusus(perintah, toks, awal):
             if t in ("--input-file=-", "-i-"):
                 return True
         return False
-    if perintah == "nc":
+    if perintah in ("nc", "netcat", "nc.openbsd"):
         # Audit 1068: nc dengan target/port meneruskan stdin ke
         # koneksi (atau pendengar) — tanpa operand ia tak jalan.
         # Audit 1092: mode pindai -z hanya menguji port terbuka.
@@ -2756,7 +2756,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         if perintah in ("sqlite3", "openssl", "tar", "git",
                         "comm", "join", "diff", "diff3", "csplit",
                         "zip", "rsync", "socat", "gpg", "curl",
-                        "wget", "nc", "make", "visudo", "patch",
+                        # Audit 1157: nama varian nc.
+                        "wget", "nc", "netcat", "nc.openbsd",
+                        "make", "visudo", "patch",
                         "more", "less", "vi", "vim", "nvim",
                         "basenc", "view", "ex", "du", "find",
                         "addr2line", "dig"):

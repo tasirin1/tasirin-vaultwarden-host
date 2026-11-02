@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — nama varian netcat/nc.openbsd dipetakan ke nc di gerbang patch (Audit 1157)
+
 ## [Belum rilis] — pembungkus prlimit kini dikenal resolver gerbang patch (Audit 1156)
 
 ## [Belum rilis] — pembungkus setpriv kini dikenal resolver gerbang patch (Audit 1155)
