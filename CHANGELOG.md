@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — strings -T/--target masuk tabel bernilai gerbang patch (Audit 1168)
+
 ## [Belum rilis] — tabel pr gerbang patch diluruskan: -d bendera, -D bernilai (Audit 1167)
 
 ## [Belum rilis] — tail --sleep-interval masuk tabel bernilai gerbang patch (Audit 1166)

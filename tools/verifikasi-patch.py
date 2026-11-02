@@ -731,7 +731,9 @@ _OPSI_BERNILAI = {
               "--line-bytes", "-n", "--number", "-a",
               "--suffix-length", "-t", "--separator"},
     "strings": {"-n", "--bytes", "-t", "--radix", "-e",
-                "--encoding"},
+                "--encoding",
+                # Audit 1168: -T/--target bernilai.
+                "-T", "--target"},
     "iconv": {"-f", "--from-code", "-t", "--to-code", "-o",
               "--output", "--byte-subst", "--widechar-subst",
               "--unicode-subst"},
