@@ -1325,7 +1325,14 @@ def _kata_shell(token):
         else:
             hasil.append(c)
             i += 1
-    return "".join(hasil)
+    # Audit 1396: fungsi ini hanya dipakai untuk resolusi
+    # NAMA perintah — komponen direktorinya dibuang di sini
+    # (nama berjalur /bin/cat, /usr/bin/openssl dinilai dari
+    # nama dasarnya, sama seperti shell menjalankannya).
+    kata = "".join(hasil)
+    if "/" in kata:
+        kata = kata.rsplit("/", 1)[-1]
+    return kata
 
 
 def _menguras_keluarga_skrip(perintah, toks, awal):
