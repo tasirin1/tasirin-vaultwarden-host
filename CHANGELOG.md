@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — tabel pr gerbang patch diluruskan: -d bendera, -D bernilai (Audit 1167)
+
 ## [Belum rilis] — tail --sleep-interval masuk tabel bernilai gerbang patch (Audit 1166)
 
 ## [Belum rilis] — uniq --skip-chars masuk tabel bernilai gerbang patch (Audit 1165)

@@ -720,9 +720,11 @@ _OPSI_BERNILAI = {
     # Audit 1056: opsi bernilai filter tingkat-3.
     # Audit 1100: fmt -p/--prefix tertinggal.
     "fmt": {"-w", "--width", "-g", "--goal", "-p", "--prefix"},
+    # Audit 1167: -d pr adalah BENDERA --double-space; yang
+    # bernilai adalah -D/--date-format (dulu tertukar).
     "pr": {"-w", "--width", "-l", "--length", "-n", "--number-width",
            "-o", "--indent", "-s", "--sep-string", "-h", "--header",
-           "-d", "--date-format"},
+           "-D", "--date-format"},
     "expand": {"-t", "--tabs"},
     "unexpand": {"-t", "--tabs"},
     "split": {"-l", "--lines", "-b", "--bytes", "-C",
