@@ -10636,6 +10636,24 @@ def main():
         periksa("gio save tujuan: "
                 "gerbang gagal (Audit 1343)", rc != 0)
         shutil.rmtree(sub566, ignore_errors=True)
+        sub567 = klon(tmp, "sub567")
+        berkas_aksi567 = os.path.join(
+            sub567, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi567, encoding="utf-8") as f:
+            isi_aksi567 = f.read()
+        baris_aksi567 = [b for b in isi_aksi567.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi567, "w", encoding="utf-8") as f:
+            f.write(isi_aksi567.replace(
+                baris_aksi567,
+                baris_aksi567.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(debugfs /tmp/citra.img; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub567, [sys.executable, GERBANG, "--semua"])
+        periksa("debugfs /tmp/citra.img: "
+                "gerbang gagal (Audit 1344)", rc != 0)
+        shutil.rmtree(sub567, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

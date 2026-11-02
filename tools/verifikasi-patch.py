@@ -3041,6 +3041,10 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1343: gio save menulis isi stdin ke tujuan.
     if perintah == "gio":
         return bool(mentah) and mentah[0] == "save"
+    # Audit 1344: debugfs membaca perintah dari stdin,
+    # kecuali daftar perintah datang dari -f/-R.
+    if perintah == "debugfs":
+        return "-f" not in mentah and "-R" not in mentah
     return False
 
 
@@ -3797,6 +3801,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "ssh-keygen",
                         "tree",
                         "gio",
+                        "debugfs",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
