@@ -973,6 +973,14 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         t = toks[pos]
         if lewati:
             lewati = False
+            # Audit 1005: token redirect BUKAN nilai opsi — shell
+            # memproses redirect sebelum program berjalan, jadi opsi
+            # bernilai tetap tanpa nilai dan program keluar dengan
+            # galat tanpa membaca stdin ("head -n 3<berkas",
+            # "sort -t <berkas"). Menelannya sebagai nilai membuat
+            # perintah dinilai menguras padahal tak berjalan.
+            if re.match(r"\d*(<|>)", t) or t.startswith(("<", ">")):
+                return False
             continue
         # Audit 963: token di dalam rentang string env -S adalah
         # argv harfiah — operator redirect di dalamnya operand,

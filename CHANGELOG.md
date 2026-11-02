@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: token redirect sesudah opsi bernilai bukan nilai opsi (Audit 1005)
+
+- Perbaikan perkakas: lingkar operand `_menguras_stdin` menelan token apa pun sesudah opsi bernilai sebagai nilainya, termasuk token redirect — padahal shell memproses redirect sebelum program berjalan, jadi `head -n 3<berkas`, `sort -t <berkas`, dan kawanannya membuat program keluar dengan galat "option requires an argument" tanpa membaca stdin. Model menilai bentuk-bentuk itu menguras (fail-closed). Cabang penelan kini memeriksa bentuk redirect lebih dulu dan menilai perintah tak menguras. Skenario uji-diri baru (aksi 99) mengunci `head -n 3<...` sebagai segmen bukan-penguras — gerbang wajib LOLOS. Probe dua arah: ketujuh bentuk selisih tertutup, kontrol opsi terpenuhi tetap benar.
+
 ## [Belum rilis] — Gerbang: nomor fd dinormalkan numerik, ejaan 00/000 adalah fd 0 (Audit 1004)
 
 - Perbaikan perkakas: ketiga pemindai redirect (`_indeks_sesudah_redirect`, titik-akhir xargs Audit 995, operand Audit 997) membandingkan nomor fd sebagai string persis, padahal shell menilainya numerik — `<&00` dinilai stdin dari fd lain (fail-open) dan `00<berkas` dinilai fd-lain netral (fail-closed). Kini ada penormal `_fd_norm` (digit murni dibuang nol depannya) yang diterapkan di ketiga situs termasuk target duplikasi dan token target terpisah. Skenario uji-diri baru (aksi 98) mengunci `00<... cat` sebagai segmen bukan-penguras — gerbang wajib LOLOS. Probe dua arah: 9 selisih fd-nol-ganda tertutup, kontrol `007<`/`<&01` tetap benar.

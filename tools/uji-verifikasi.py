@@ -2029,6 +2029,28 @@ def main():
                 "penguras — gerbang lolos (Audit 1004)", rc == 0)
         shutil.rmtree(subfdnol, ignore_errors=True)
 
+        subopsiredirect = klon(tmp, "subopsiredirect")
+        berkas_aksi99 = os.path.join(
+            subopsiredirect, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi99, encoding="utf-8") as f:
+            isi_aksi99 = f.read()
+        baris_tulis99 = [b for b in isi_aksi99.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi99, "w", encoding="utf-8") as f:
+            f.write(isi_aksi99.replace(
+                baris_tulis99,
+                baris_tulis99.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(head -n 3<berkasKeluaran; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subopsiredirect,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("token redirect sesudah opsi bernilai bukan nilai "
+                "opsi: segmen pertama bukan penguras — gerbang "
+                "lolos (Audit 1005)", rc == 0)
+        shutil.rmtree(subopsiredirect, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
