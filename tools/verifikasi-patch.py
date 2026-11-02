@@ -1033,18 +1033,6 @@ _OPSI_PEMBUNGKUS = {
                  "-f", "--auth-file", "-e", "--error-file",
                  # Audit 1297: -p/--xauth-protocol.
                  "-p", "--xauth-protocol"},
-    # Audit 1319: systemd-run — anak adalah perintah
-    # sesudah opsi unit/timer.
-    "systemd-run": {"--unit", "--description", "--property",
-                    "-p", "--setenv", "-E",
-                    "--working-directory", "--machine", "-M",
-                    "--host", "-H", "--on-calendar",
-                    "--on-active", "--on-boot", "--on-startup",
-                    "--on-unit-active", "--on-unit-inactive",
-                    "--timer-property", "--path-property",
-                    "--socket-property", "--uid", "--gid",
-                    "--nice", "--limit", "--slice", "--service",
-                    "--remain-after-exit"},
     # Audit 1084: chroot dikenal resolver sejak 1065 tetapi tabel
     # opsinya kosong — --userspec/--groups bernilai tak dilompati.
     "chroot": {"--userspec", "--groups", "--skip-chdir"},
@@ -3051,6 +3039,65 @@ def _menguras_khusus(perintah, toks, awal):
         ops_xa = _operand_sesudah_opsi(
             toks, awal, {"-f", "--file"})
         return not ops_xa
+    # Audit 1347: systemd-run — stdin anak hanya diteruskan
+    # pada mode --scope. Mode layanan menjalankan unit
+    # dengan stdin /dev/null; opsi timer/jalur/soket dan
+    # --remain-after-exit/--service-type DITOLAK systemd
+    # pada mode --scope sehingga tak ada yang berjalan.
+    if perintah == "systemd-run":
+        bernilai_sr = {"--unit", "--description", "--property",
+                       "-p", "--setenv", "-E",
+                       "--working-directory", "--machine", "-M",
+                       "--host", "-H", "--timer-property",
+                       "--path-property", "--socket-property",
+                       "--uid", "--gid", "--nice", "--limit",
+                       "--slice", "--service-type"}
+        timer_sr = {"--on-calendar", "--on-active", "--on-boot",
+                    "--on-startup", "--on-unit-active",
+                    "--on-unit-inactive", "--timer-property",
+                    "--path-property", "--socket-property"}
+        scope_sr = False
+        ditolak_sr = False
+        anak_sr = None
+        k_sr = 0
+        while k_sr < len(mentah):
+            t_sr = mentah[k_sr]
+            if t_sr == "--":
+                anak_sr = k_sr + 1
+                break
+            if t_sr.startswith("--"):
+                nama_sr = t_sr.split("=", 1)[0]
+                if nama_sr == "--scope":
+                    scope_sr = True
+                if (nama_sr in timer_sr
+                        or nama_sr in ("--remain-after-exit",
+                                       "--service-type")):
+                    ditolak_sr = True
+                if nama_sr in bernilai_sr and "=" not in t_sr:
+                    k_sr += 2
+                    continue
+                k_sr += 1
+                continue
+            if t_sr.startswith("-") and len(t_sr) > 1:
+                tambah_sr = 1
+                for j_sr, c_sr in enumerate(t_sr[1:]):
+                    if c_sr == "r":
+                        ditolak_sr = True
+                    if c_sr in ("p", "E", "M", "H"):
+                        if j_sr == len(t_sr) - 2:
+                            tambah_sr = 2
+                        break
+                k_sr += tambah_sr
+                continue
+            anak_sr = k_sr
+            break
+        if not scope_sr or ditolak_sr or anak_sr is None:
+            return False
+        if anak_sr >= len(mentah):
+            return False
+        segmen_sr = pecah_segmen_shell(
+            " ".join(mentah[anak_sr:]))
+        return bool(segmen_sr) and _menguras_stdin(segmen_sr[0])
     return False
 
 
@@ -3283,8 +3330,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 "setarch", "linux32", "linux64", "uclampset",
                 "choom", "xvfb-run",
                 # Audit 1318: alias personalitas langsung.
-                # Audit 1319: pembungkus systemd-run.
-                "i386", "x86_64", "systemd-run",
+                "i386", "x86_64",
                 # Audit 1194/1203: newgrp (sekelas sg) dan
                 # ssh-agent.
                 "newgrp", "ssh-agent"):
@@ -3809,6 +3855,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "gio",
                         "debugfs",
                         "xauth",
+                        # Audit 1347: systemd-run kini cabang
+                        # khusus (semantik mode --scope).
+                        "systemd-run",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
