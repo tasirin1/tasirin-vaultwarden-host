@@ -2946,6 +2946,25 @@ def main():
         periksa("alamat STDIO socat membaca stdin: penguras — gerbang gagal (Audit 1066)", rc != 0)
         shutil.rmtree(subsocat, ignore_errors=True)
 
+        submawk = klon(tmp, "submawk")
+        berkas_aksi145 = os.path.join(
+            submawk, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi145, encoding="utf-8") as f:
+            isi_aksi145 = f.read()
+        baris_aksi145 = [b for b in isi_aksi145.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi145, "w", encoding="utf-8") as f:
+            f.write(isi_aksi145.replace(
+                baris_aksi145,
+                baris_aksi145.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mawk '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(submawk,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("varian nama awk dinilai keluarga skrip: penguras — gerbang gagal (Audit 1067)", rc != 0)
+        shutil.rmtree(submawk, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

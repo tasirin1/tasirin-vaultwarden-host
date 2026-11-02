@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — varian nama awk/grep dan rg kini dinilai keluarga skrip gerbang patch (Audit 1067)
+
 ## [Belum rilis] — alamat STDIO socat kini dinilai gerbang patch (Audit 1066)
 
 ## [Belum rilis] — pembungkus chroot dan unshare kini dikenal gerbang patch (Audit 1065)

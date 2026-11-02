@@ -649,7 +649,10 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1038: keluarga beroperand skrip/pola —
                   # operand pertamanya bukan berkas (penilaian
                   # posisinya di _menguras_keluarga_skrip).
-                  "sed", "awk", "grep", "jq"}
+                  "sed", "awk", "grep", "jq",
+                  # Audit 1067: varian nama keluarga yang sama
+                  # (dipetakan ke nama kanonis di penilainya).
+                  "mawk", "nawk", "egrep", "fgrep", "rg"}
 
 
 _OPSI_BERNILAI = {
@@ -1019,6 +1022,9 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     skrip datang dari -e/-f). Operand "-" adalah stdin. Redirect
     masukan mengganti stdin (tak menguras); redirect keluaran
     dilompati beserta target terpisahnya."""
+    # Audit 1067: varian nama → nama kanonis keluarga.
+    perintah = {"mawk": "awk", "nawk": "awk", "egrep": "grep",
+                "fgrep": "grep", "rg": "grep"}.get(perintah, perintah)
     nilai = {
         "sed": {"-e", "-f", "--expression", "--file"},
         "awk": {"-F", "-v", "-f", "-W", "--field-separator",
@@ -1914,8 +1920,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         return xargs_sendiri
     if xargs_sendiri:
         return True
-    if perintah in ("sed", "awk", "grep", "jq"):
+    if perintah in ("sed", "awk", "grep", "jq",
+                    "mawk", "nawk", "egrep", "fgrep", "rg"):
         # Audit 1038: semantik operand keluarga skrip/pola.
+        # Audit 1067: varian nama dipetakan ke kanonisnya.
         return _menguras_keluarga_skrip(perintah, toks, awal)
     if perintah == "shuf" and any(
             t in ("-e", "--echo") or t == "-i"
