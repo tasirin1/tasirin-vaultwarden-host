@@ -10654,6 +10654,24 @@ def main():
         periksa("debugfs /tmp/citra.img: "
                 "gerbang gagal (Audit 1344)", rc != 0)
         shutil.rmtree(sub567, ignore_errors=True)
+        sub568 = klon(tmp, "sub568")
+        berkas_aksi568 = os.path.join(
+            sub568, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi568, encoding="utf-8") as f:
+            isi_aksi568 = f.read()
+        baris_aksi568 = [b for b in isi_aksi568.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi568, "w", encoding="utf-8") as f:
+            f.write(isi_aksi568.replace(
+                baris_aksi568,
+                baris_aksi568.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(xauth -f berkas; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub568, [sys.executable, GERBANG, "--semua"])
+        periksa("xauth -f berkas: "
+                "gerbang gagal (Audit 1345)", rc != 0)
+        shutil.rmtree(sub568, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

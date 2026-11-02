@@ -3045,6 +3045,12 @@ def _menguras_khusus(perintah, toks, awal):
     # kecuali daftar perintah datang dari -f/-R.
     if perintah == "debugfs":
         return "-f" not in mentah and "-R" not in mentah
+    # Audit 1345: xauth tanpa subcommand membaca perintah
+    # dari stdin.
+    if perintah == "xauth":
+        ops_xa = _operand_sesudah_opsi(
+            toks, awal, {"-f", "--file"})
+        return not ops_xa
     return False
 
 
@@ -3802,6 +3808,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "tree",
                         "gio",
                         "debugfs",
+                        "xauth",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

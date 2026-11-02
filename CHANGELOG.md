@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Xauth dinilai (Audit 1345)
+
 ## [Belum rilis] — Debugfs dinilai (Audit 1344)
 
 ## [Belum rilis] — Gio save dinilai (Audit 1343)
