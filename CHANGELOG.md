@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — validator PIN remote Util kini teruji JVM (Audit 1116)
+
 ## [Belum rilis] — parser file_path Telegram ditulis ulang pemindai manual teruji (Audit 1115)
 
 ## [Belum rilis] — penentu sapu basi TgBackup kini teruji JVM (Audit 1114)

@@ -22,6 +22,37 @@ public class UtilTest {
     }
 
     @Test
+    public void numerik4PlusHanyaDigitMinEmpat() {
+        // Audit 1116: validator murni jalur perintah bot ber-PIN.
+        assertTrue(Util.numerik4Plus("1234"));
+        assertTrue(Util.numerik4Plus("1234567890"));
+        assertFalse(Util.numerik4Plus("123"));
+        assertFalse(Util.numerik4Plus(""));
+        assertFalse(Util.numerik4Plus(null));
+        assertFalse(Util.numerik4Plus("12a4"));
+        assertFalse(Util.numerik4Plus("12 4"));
+        assertFalse(Util.numerik4Plus("+1234"));
+    }
+
+    @Test
+    public void pinKataValidAturanDigitAtauSimbol() {
+        // Audit 1116: min 4 char, tanpa char <= spasi, dan wajib
+        // digit ATAU simbol (huruf murni ditolak).
+        assertTrue(Util.pinKataValid("abc1"));
+        assertTrue(Util.pinKataValid("abcd!"));
+        assertTrue(Util.pinKataValid("1234"));
+        assertTrue(Util.pinKataValid("!@#$"));
+        assertFalse(Util.pinKataValid("abcd"));
+        assertFalse(Util.pinKataValid("abc"));
+        assertFalse(Util.pinKataValid("ab1"));
+        assertFalse(Util.pinKataValid(""));
+        assertFalse(Util.pinKataValid(null));
+        assertFalse(Util.pinKataValid("ab 1c"));
+        assertFalse(Util.pinKataValid("ab\t1c"));
+        assertTrue(Util.pinKataValid("Kata-Sandi_9"));
+    }
+
+    @Test
     public void cocokChatNumerik() {
         assertTrue(Util.cocokChat("12345", 12345, ""));
         assertTrue(Util.cocokChat(" 12345 ", 12345, "lain"));
