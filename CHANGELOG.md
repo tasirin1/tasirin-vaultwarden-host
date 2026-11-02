@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Dpkg-parsechangelog -l - dinilai (Audit 1327)
+
 ## [Belum rilis] — Dpkg-deb menilai operand '-' (Audit 1326)
 
 ## [Belum rilis] — Debconf-communicate dinilai (Audit 1325)

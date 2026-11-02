@@ -2924,6 +2924,19 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"--root", "--admindir", "--instdir",
                          "--path-exclude", "--path-include"})
         return "-" in ops_dd2 or "/dev/stdin" in ops_dd2
+    # Audit 1327: dpkg-parsechangelog — berkas dari -l.
+    if perintah == "dpkg-parsechangelog":
+        for k_dc, t_dc in enumerate(mentah):
+            if t_dc in ("-l", "--file"):
+                return (k_dc + 1 < len(mentah)
+                        and mentah[k_dc + 1] in (
+                            "-", "/dev/stdin"))
+            if t_dc.startswith("--file="):
+                return t_dc.split("=", 1)[1] in (
+                    "-", "/dev/stdin")
+            if t_dc.startswith("-l") and len(t_dc) > 2:
+                return t_dc[2:] in ("-", "/dev/stdin")
+        return False
     return False
 
 
@@ -3666,6 +3679,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "systemd-creds",
                         "debconf-communicate",
                         "dpkg-deb",
+                        "dpkg-parsechangelog",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
