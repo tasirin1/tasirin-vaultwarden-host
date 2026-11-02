@@ -681,7 +681,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1245/1246/1247/1248/1260: alias
                   # checksum, konverter, POD, penebak encoding.
                   "shasum", "md5sum.textutils", "uconv",
-                  "piconv", "pod2text", 
+                  "piconv", "pod2text", "chardetect",
                   # Audit 1191/1192: funzip mengekstrak anggota
                   # pertama arsip zip dari stdin; json_pp
                   # memformat JSON dari stdin.

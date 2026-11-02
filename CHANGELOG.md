@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — chardetect dikenal sebagai pembaca stdin (Audit 1260)
+
 ## [Belum rilis] — gm identify '-' membaca gambar dari stdin (Audit 1259)
 
 ## [Belum rilis] — Keluarga Poppler dikenal (pdfinfo/pdffonts/pdfimages/pdftops) (Audit 1258)
