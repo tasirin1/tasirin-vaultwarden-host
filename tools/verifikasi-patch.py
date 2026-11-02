@@ -1483,6 +1483,21 @@ def _menguras_khusus(perintah, toks, awal):
              "-B", "--prefix", "-Y", "-Z", "--quoting-style",
              "--suffix", "--basename-prefix"})
         return len(ops) < 2
+    if perintah in ("more", "less"):
+        # Audit 1072: pager pada stdin pipa menyangga/menyaring
+        # seluruh aliran bila tanpa operand berkas.
+        ops = _operand_sesudah_opsi(
+            toks, awal, {"-n", "--lines", "-P", "--prompt", "-o",
+                         "--log-file", "-O", "--logfile", "-#"})
+        if not ops:
+            return True
+        return ops[0] == "-"
+    if perintah in ("vi", "vim", "nvim"):
+        # Audit 1072: operand '-' membaca stdin ke buffer.
+        ops = _operand_sesudah_opsi(
+            toks, awal, {"-c", "-S", "--cmd", "-u", "-i", "-s",
+                         "--listen", "--servername"})
+        return bool(ops) and ops[0] == "-"
     return False
 
 
@@ -2005,7 +2020,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         if perintah in ("sqlite3", "openssl", "tar", "git",
                         "comm", "join", "diff", "diff3", "csplit",
                         "zip", "rsync", "socat", "gpg", "curl",
-                        "wget", "nc", "make", "visudo", "patch"):
+                        "wget", "nc", "make", "visudo", "patch",
+                        "more", "less", "vi", "vim", "nvim"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
