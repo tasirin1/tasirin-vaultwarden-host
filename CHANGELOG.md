@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — CI: cek skip jadwal kini juga memeriksa status latest — flip latest yang gagal tak lagi terkubur oleh skip (Audit 1346)
+
 ## [Belum rilis] — Xauth dinilai (Audit 1345)
 
 ## [Belum rilis] — Debugfs dinilai (Audit 1344)

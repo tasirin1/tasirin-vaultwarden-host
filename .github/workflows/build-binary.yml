@@ -105,7 +105,27 @@ jobs:
           done
           echo "Aset non-APK v$TAG lengkap: $LENGKAP"
           if [ "${{ github.event_name }}" = "schedule" ] && [ "$LENGKAP" = yes ]; then
-            echo "skip=yes" >> "$GITHUB_OUTPUT"
+            # Audit 1346: lengkap saja tidak cukup — rilis juga harus
+            # sudah berstatus latest. Tanpa cek ini, flip latest yang
+            # gagal keras pada run publish (Audit 1267) tidak pernah
+            # dicoba ulang: run schedule berikutnya selalu skip dan
+            # alias releases/latest/download/ basi tanpa batas.
+            # Bila status latest tak terbaca, jangan skip (alur
+            # normal akan memverifikasi ulang dan memasang latest).
+            TERBARU=""
+            for coba in 1 2 3 4; do
+              if DAPAT=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.tag_name' 2>/dev/null); then
+                TERBARU="$DAPAT"
+                break
+              fi
+              if [ "$coba" -lt 4 ]; then
+                sleep 5
+              fi
+            done
+            echo "Rilis latest saat ini: ${TERBARU:-tak terbaca}"
+            if [ "$TERBARU" = "v$TAG" ]; then
+              echo "skip=yes" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
   build-binary:
