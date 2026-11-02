@@ -936,6 +936,57 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     return True
 
 
+def _menguras_interpreter(perintah, toks, awal):
+    """Audit 1039: python3/node membaca SKRIP dari stdin bila
+    operandnya "-" atau tak ada operand skrip sama sekali; perl
+    dengan -n/-p memasang lingkar baca implisit atas stdin (atau
+    atas berkas operand bila ada). Bentuk -c/-e berkode arbitrer
+    adalah batas model (isi tak dinilai)."""
+    i = awal + 1
+    n = len(toks)
+    if perintah == "perl":
+        pakai_lingkar = False
+        ada_berkas = False
+        while i < n:
+            t = toks[i]
+            if t == "-e":
+                i += 2
+                continue
+            if t.startswith("-") and t != "-":
+                huruf = t[1:]
+                if (re.fullmatch(r"[A-Za-z]+", huruf)
+                        and ("n" in huruf or "p" in huruf)):
+                    pakai_lingkar = True
+                # Bundel berakhiran -e (-ne/-pe): token berikutnya
+                # adalah skripnya, bukan berkas masukan.
+                i += 2 if re.fullmatch(r"[A-Za-z]*e", huruf) else 1
+                continue
+            if t in ("--", "-"):
+                i += 1
+                continue
+            ada_berkas = True
+            i += 1
+        return pakai_lingkar and not ada_berkas
+    while i < n:
+        t = toks[i]
+        if perintah.startswith("python") and t in ("-c", "-m"):
+            return False
+        if perintah == "node" and t in (
+                "-e", "--eval", "-p", "--print"):
+            return False
+        if t in ("-W", "-X"):
+            i += 2
+            continue
+        if t == "--":
+            i += 1
+            return toks[i] == "-" if i < n else True
+        if t.startswith("-") and t != "-":
+            i += 1
+            continue
+        return t == "-"
+    return True
+
+
 def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
@@ -1406,6 +1457,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         return xargs_sendiri
     perintah = toks[awal].strip("\"'")
     if perintah not in _PEMBACA_STDIN:
+        # Audit 1039/1040: perintah yang menguras hanya pada
+        # bentuk tertentu (interpreter skrip-dari-stdin, builtin
+        # penampung baris) dinilai penilai khususnya sendiri.
+        if perintah in ("python3", "python", "node", "perl"):
+            return _menguras_interpreter(perintah, toks, awal)
         return xargs_sendiri
     if xargs_dari_berkas and perintah != "tee":
         # Audit 962: perintah anak menerima operand item dari berkas

@@ -2464,6 +2464,25 @@ def main():
         periksa("perintah beroperand filter: jq tanpa berkas adalah penguras — gerbang gagal (Audit 1038)", rc != 0)
         shutil.rmtree(subskrip, ignore_errors=True)
 
+        subinterp = klon(tmp, "subinterp")
+        berkas_aksi120 = os.path.join(
+            subinterp, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi120, encoding="utf-8") as f:
+            isi_aksi120 = f.read()
+        baris_aksi120 = [b for b in isi_aksi120.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi120, "w", encoding="utf-8") as f:
+            f.write(isi_aksi120.replace(
+                baris_aksi120,
+                baris_aksi120.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subinterp,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("interpreter membaca skrip dari stdin: python3 - adalah penguras — gerbang gagal (Audit 1039)", rc != 0)
+        shutil.rmtree(subinterp, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

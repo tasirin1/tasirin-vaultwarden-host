@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: interpreter yang membaca skrip dari stdin dikenal (Audit 1039)
+
+### Diperbaiki
+- Perkakas: penilai khusus `_menguras_interpreter` di `tools/verifikasi-patch.py` — `python3`/`python`/`node` menguras bila operandnya `-` atau tak ada operand skrip sama sekali (REPL membaca stdin), dan `perl` menguras bila bundel opsinya memuat `-n`/`-p` tanpa operand berkas (bundel berakhiran `-e` mengonsumsi token berikutnya sebagai skrip). Bentuk `-c`/`-e` berkode arbitrer tetap batas model tercatat. Skenario uji-diri aksi120.
+
+
 ## [Belum rilis] — Gerbang: perintah beroperand skrip/pola dikenal (Audit 1038)
 
 ### Diperbaiki
