@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: perintah beroperand skrip/pola dikenal (Audit 1038)
+
+### Diperbaiki
+- Perkakas: `sed`, `awk`, `grep`, dan `jq` dinilai penilai khusus `_menguras_keluarga_skrip` di `tools/verifikasi-patch.py`: operand pertama adalah skrip/pola/filter (bukan berkas), berkas masukan baru muncul sebagai operand berikutnya, skrip dari `-e`/`-f` membuat semua operand menjadi berkas, penetapan `nama=nilai` awk bukan berkas, dan `jq -n` tidak membaca stdin sama sekali. Aturan operand ala cat akan salah terbalik untuk keluarga ini. Skenario uji-diri aksi119.
+
+
 ## [Belum rilis] — Gerbang: filter aliran murni dikenal sebagai pembaca (Audit 1037)
 
 ### Diperbaiki

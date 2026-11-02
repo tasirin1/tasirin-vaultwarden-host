@@ -2445,6 +2445,25 @@ def main():
         periksa("filter aliran murni tanpa operand adalah penguras — gerbang gagal (Audit 1037)", rc != 0)
         shutil.rmtree(subfilter, ignore_errors=True)
 
+        subskrip = klon(tmp, "subskrip")
+        berkas_aksi119 = os.path.join(
+            subskrip, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi119, encoding="utf-8") as f:
+            isi_aksi119 = f.read()
+        baris_aksi119 = [b for b in isi_aksi119.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi119, "w", encoding="utf-8") as f:
+            f.write(isi_aksi119.replace(
+                baris_aksi119,
+                baris_aksi119.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(jq -r .tag; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subskrip,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("perintah beroperand filter: jq tanpa berkas adalah penguras — gerbang gagal (Audit 1038)", rc != 0)
+        shutil.rmtree(subskrip, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

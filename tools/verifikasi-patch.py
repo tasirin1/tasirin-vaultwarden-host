@@ -595,7 +595,11 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # berkas membaca stdin sampai habis.
                   "cut", "tr", "paste", "fold", "nl", "tac", "rev",
                   "shuf", "base64", "od", "sha256sum", "md5sum",
-                  "gzip", "gunzip"}
+                  "gzip", "gunzip",
+                  # Audit 1038: keluarga beroperand skrip/pola —
+                  # operand pertamanya bukan berkas (penilaian
+                  # posisinya di _menguras_keluarga_skrip).
+                  "sed", "awk", "grep", "jq"}
 
 
 _OPSI_BERNILAI = {
@@ -833,6 +837,103 @@ def _sesudah_redirect_berantai(toks, i, batas):
             break
         i = sesudah
     return i
+
+
+def _menguras_keluarga_skrip(perintah, toks, awal):
+    """Audit 1038: bagi sed/awk/grep/jq operand pertama adalah
+    skrip/pola/filter, BUKAN berkas masukan. Menguras bila tak ada
+    operand berkas (operand kedua dst., atau semua operand bila
+    skrip datang dari -e/-f). Operand "-" adalah stdin. Redirect
+    masukan mengganti stdin (tak menguras); redirect keluaran
+    dilompati beserta target terpisahnya."""
+    nilai = {
+        "sed": {"-e", "-f", "--expression", "--file"},
+        "awk": {"-F", "-v", "-f", "-W", "--field-separator",
+                "--assign", "--file"},
+        "grep": {"-e", "-f", "-m", "-A", "-B", "-C", "-d", "-D",
+                 "--pattern", "--file", "--max-count",
+                 "--after-context", "--before-context", "--context",
+                 "--devices", "--directories"},
+        "jq": {"-L", "--library-path", "-f", "--from-file",
+               "--arg", "--argjson", "--rawfile", "--slurpfile"},
+    }[perintah]
+    nilai2 = {"--arg", "--argjson", "--rawfile", "--slurpfile"}
+    skrip_dari_opsi = False
+    skrip_terisi = False
+    i = awal + 1
+    n = len(toks)
+    while i < n:
+        t = toks[i]
+        if t in (">", ">>", "1>", "2>", "1>>", "2>>"):
+            i += 2
+            continue
+        if re.fullmatch(r"\d*>>?", t):
+            i += 2
+            continue
+        if re.match(r"\d*>>?\S", t):
+            i += 1
+            continue
+        if t.startswith("<"):
+            if t.startswith("<&") and _fd_norm(t[2:]) == "0":
+                i += 1
+                continue
+            return False
+        if ">" in t:
+            # operand yang merekat ke redirect keluaran: nilai
+            # bagian operandnya saja.
+            t = t.split(">", 1)[0]
+            if not t:
+                i += 1
+                continue
+        bersih = t.strip("\"'")
+        if bersih == "--":
+            i += 1
+            continue
+        if bersih.startswith("-") and bersih != "-":
+            if perintah == "jq" and bersih in ("-n", "--null-input"):
+                # jq -n tak membaca stdin sama sekali.
+                return False
+            dasar = bersih.split("=", 1)[0]
+            if dasar in nilai:
+                if perintah in ("sed", "awk", "grep") and (
+                        dasar in ("-e", "-f", "--expression",
+                                  "--file", "--pattern")):
+                    skrip_dari_opsi = True
+                if perintah == "jq" and dasar in (
+                        "-f", "--from-file"):
+                    skrip_dari_opsi = True
+                i += 1 if "=" in bersih else (
+                    3 if dasar in nilai2 else 2)
+                continue
+            # Bentuk merekat: -e<skrip>, -f<berkas>, -F<pemisah>.
+            if (perintah in ("sed", "grep")
+                    and re.match(r"^-[ef]", bersih)
+                    and len(bersih) > 2):
+                skrip_dari_opsi = True
+                i += 1
+                continue
+            if perintah == "awk" and re.match(r"^-[Ffv]", bersih) \
+                    and len(bersih) > 2:
+                if bersih.startswith("-f"):
+                    skrip_dari_opsi = True
+                i += 1
+                continue
+            i += 1  # bendera polos
+            continue
+        if bersih == "-":
+            i += 1
+            continue
+        if (perintah == "awk"
+                and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", bersih)):
+            i += 1  # penetapan awk, bukan berkas
+            continue
+        # Operand polos: skrip/pola pertama, berkas sesudahnya.
+        if not skrip_terisi and not skrip_dari_opsi:
+            skrip_terisi = True
+            i += 1
+            continue
+        return False
+    return True
 
 
 def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
@@ -1316,6 +1417,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         return xargs_sendiri
     if xargs_sendiri:
         return True
+    if perintah in ("sed", "awk", "grep", "jq"):
+        # Audit 1038: semantik operand keluarga skrip/pola.
+        return _menguras_keluarga_skrip(perintah, toks, awal)
     if perintah == "shuf" and any(
             t in ("-e", "--echo") or t == "-i"
             or t.startswith("--input-range")
