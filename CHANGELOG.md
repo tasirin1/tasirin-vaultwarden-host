@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — tail --sleep-interval masuk tabel bernilai gerbang patch (Audit 1166)
+
 ## [Belum rilis] — uniq --skip-chars masuk tabel bernilai gerbang patch (Audit 1165)
 
 ## [Belum rilis] — opsi panjang bernilai sort dilengkapi di gerbang patch (Audit 1164)

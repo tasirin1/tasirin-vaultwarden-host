@@ -7000,6 +7000,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("uniq --skip-chars 2: gerbang gagal (Audit 1165)", rc != 0)
         shutil.rmtree(sub364, ignore_errors=True)
+        sub365 = klon(tmp, "sub365")
+        berkas_aksi365 = os.path.join(
+            sub365, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi365, encoding="utf-8") as f:
+            isi_aksi365 = f.read()
+        baris_aksi365 = [b for b in isi_aksi365.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi365, "w", encoding="utf-8") as f:
+            f.write(isi_aksi365.replace(
+                baris_aksi365,
+                baris_aksi365.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tail --sleep-interval 1; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub365,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tail --sleep-interval 1: gerbang gagal (Audit 1166)", rc != 0)
+        shutil.rmtree(sub365, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

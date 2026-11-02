@@ -668,7 +668,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
 _OPSI_BERNILAI = {
     "head": {"-n", "-c", "--lines", "--bytes"},
     "tail": {"-n", "-c", "--lines", "--bytes", "--pid", "--sleep",
-             "--max-unchanged-stats"},
+             # Audit 1166: nama resmi --sleep-interval (--sleep
+             # hanya singkatan getopt yang kebetulan lolos).
+             "--sleep-interval", "--max-unchanged-stats"},
     "sort": {"-k", "-o", "-t", "-S", "-T", "--random-source",
              "--parallel", "--buffer-size", "--compress-program",
              "--files0-from", "--batch-size",
