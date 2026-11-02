@@ -3646,18 +3646,22 @@ public class SettingsActivity extends Activity {
     private void pasangVersiDipilih(final boolean untukBinary, final String versi) {
         final String pinLama = untukBinary ? Updater.kuncianBinary(this)
                 : Updater.kuncianWebVault(this);
-        boolean tersimpan = untukBinary
-                ? Updater.simpanKuncianBinary(this, versi)
-                : Updater.simpanKuncianWebVault(this, versi);
-        if (!tersimpan) {
-            toast(getString(R.string.versi_tidak_valid));
-            return;
-        }
-        segarkanLabelVersi();
-        perbaruiStatusIsian();
         final String target = (versi == null || versi.isEmpty()) ? null : versi;
         final String pinLamaFinal = pinLama == null ? "" : pinLama;
         runBusy(() -> {
+            // Audit 1042: pin disimpan DI DALAM tugas — bila
+            // runBusy menolak karena sibuk, tak ada keadaan yang
+            // berubah dan tak ada rollback yang terlewat; label pun
+            // hanya berubah bila unduhan sungguh dicoba.
+            boolean tersimpan = untukBinary
+                    ? Updater.simpanKuncianBinary(SettingsActivity.this, versi)
+                    : Updater.simpanKuncianWebVault(SettingsActivity.this, versi);
+            if (!tersimpan) {
+                toast(getString(R.string.versi_tidak_valid));
+                return;
+            }
+            segarkanLabelVersi();
+            perbaruiStatusIsian();
             try {
                 if (untukBinary) {
                     appendUiLog("[app] Memasang binary v"
@@ -3686,19 +3690,20 @@ public class SettingsActivity extends Activity {
                     lastWvCheck = 0;
                 }
             } catch (Exception e) {
-                if (target != null) {
-                    // Audit 798: rollback pin ditulis SATU kali di sini —
-                    // sebelumnya terduplikasi verbatim di dua catch, dan
-                    // salinan cabang web-vault memuat lengan untukBinary
-                    // yang tak pernah bisa hidup.
-                    if (untukBinary) {
-                        Updater.simpanKuncianBinary(SettingsActivity.this, pinLamaFinal);
-                    } else {
-                        Updater.simpanKuncianWebVault(SettingsActivity.this, pinLamaFinal);
-                    }
-                    segarkanLabelVersi();
-                    perbaruiStatusIsian();
+                // Audit 798: rollback pin ditulis SATU kali di sini —
+                // sebelumnya terduplikasi verbatim di dua catch, dan
+                // salinan cabang web-vault memuat lengan untukBinary
+                // yang tak pernah bisa hidup.
+                // Audit 1042: rollback tak lagi bersyarat target —
+                // kegagalan memilih "Terbaru" (target null) juga
+                // memulihkan pin lama, simetris dengan versi eksplisit.
+                if (untukBinary) {
+                    Updater.simpanKuncianBinary(SettingsActivity.this, pinLamaFinal);
+                } else {
+                    Updater.simpanKuncianWebVault(SettingsActivity.this, pinLamaFinal);
                 }
+                segarkanLabelVersi();
+                perbaruiStatusIsian();
                 toast(getString(untukBinary
                         ? R.string.biner_pasang_gagal : R.string.wv_update_gagal,
                         String.valueOf(e.getMessage())));

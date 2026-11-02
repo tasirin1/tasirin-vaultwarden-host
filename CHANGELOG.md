@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Pin versi disimpan di dalam tugas unduhan (Audit 1042)
+
+### Diperbaiki
+- `pasangVersiDipilih` kini menyimpan pin DI DALAM tugas `runBusy`, bukan sebelumnya: penolakan sibuk tidak lagi meninggalkan pin berubah tanpa unduhan yang dicoba dan tanpa rollback. Rollback kegagalan juga tak lagi bersyarat target — memilih "Terbaru" yang gagal kini memulihkan pin lama, simetris dengan pilihan versi eksplisit.
+
+
 ## [Belum rilis] — Gerbang: dd if=/dev/stdin dinilai membaca stdin (Audit 1041)
 
 ### Diperbaiki
