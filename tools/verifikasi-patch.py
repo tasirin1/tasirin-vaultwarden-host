@@ -675,6 +675,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "xzegrep", "xzfgrep",
                   # Audit 1309: keluarga lzma.
                   "lzegrep", "lzfgrep",
+                  # Audit 1310: varian nama gzip.
+                  "uncompress",
                   # Audit 1113: varian awk orisinal.
                   "original-awk",
                   # Audit 1196: pemulih tabel firewall membaca
@@ -894,6 +896,8 @@ _OPSI_BERNILAI = {
     # terbaca operand.
     "shasum": {"-a", "--algorithm"},
     # Audit 1336: keluarga POD lain.
+    # Audit 1310: uncompress tanpa opsi bernilai.
+    "uncompress": set(),
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Uncompress masuk tabel pembaca stdin (Audit 1310)
+
 ## [Belum rilis] — Keluarga lzma (lzcmp/lzdiff/lzegrep/lzfgrep) dinilai (Audit 1309)
 
 ## [Belum rilis] — Keluarga xz (xzcmp/xzdiff/xzegrep/xzfgrep) dinilai (Audit 1308)
