@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — sort/wc --files0-from kini dibedakan gerbang patch menurut sumber daftar (Audit 1139)
+
 ## [Belum rilis] — sed -i tanpa operand berkas kini dinilai gerbang patch sebagai galat (Audit 1138)
 
 ## [Belum rilis] — basenc kini menghormati operand berkas dan '-' di gerbang patch (Audit 1137)

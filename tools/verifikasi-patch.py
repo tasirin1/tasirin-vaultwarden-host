@@ -2679,6 +2679,18 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # Audit 1037: shuf -e/-i mengambil masukan dari argumen/
         # rentang, bukan stdin.
         return False
+    # Audit 1139: --files0-from pada sort/wc — sumber daftarnya
+    # menentukan vonis: "-" stdin, selain itu berkas daftar
+    # (du/find sudah benar lewat penilai khususnya, Audit 1111).
+    if perintah in ("sort", "wc"):
+        sisa_f0 = toks[awal + 1:]
+        for k_f0, t_f0 in enumerate(sisa_f0):
+            b_f0 = t_f0.strip("\"'")
+            if b_f0 == "--files0-from":
+                return (k_f0 + 1 < len(sisa_f0)
+                        and sisa_f0[k_f0 + 1].strip("\"'") == "-")
+            if b_f0.startswith("--files0-from="):
+                return b_f0.split("=", 1)[1] == "-"
     # Audit 1102: panggilan informasional mencetak dan keluar
     # tanpa membaca stdin (--help/--version umum; iconv -l/--list).
     if perintah in _PEMBACA_STDIN and any(
