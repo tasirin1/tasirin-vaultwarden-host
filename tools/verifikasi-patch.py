@@ -1392,6 +1392,25 @@ def _menguras_khusus(perintah, toks, awal):
         return any(t == "-" or t.startswith("STDIO")
                    or t.startswith("STDIN") for t in mentah
                    if not t.startswith("-") or t == "-")
+    if perintah == "gpg":
+        # Audit 1069: enkripsi/tanda tangan simetris batch tanpa
+        # operand berkas membaca plaintext dari stdin.
+        ops = _operand_sesudah_opsi(
+            toks, awal,
+            {"-o", "--output", "--homedir", "-r", "--recipient",
+             "-u", "--local-user", "--passphrase",
+             "--passphrase-fd", "--passphrase-file", "--keyring",
+             "--status-fd", "--logger-fd", "--attribute-fd",
+             "--pinentry-mode", "--command-fd", "--keyserver",
+             "--cipher-algo", "--digest-algo", "--compress-algo",
+             "--cert-digest-algo", "--s2k-cipher-algo",
+             "--s2k-digest-algo", "--agent-program"})
+        if ops:
+            return False
+        return any(t in ("-c", "--symmetric", "-e", "--encrypt",
+                         "-s", "--sign", "-d", "--decrypt",
+                         "--clearsign", "--detach-sign")
+                   or t.startswith("--symmetric") for t in mentah)
     if perintah == "curl":
         # Audit 1068: data/unggah/konfigurasi dari stdin.
         i = 0
@@ -1949,7 +1968,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return _menguras_mapfile(toks, awal)
         if perintah in ("sqlite3", "openssl", "tar", "git",
                         "comm", "join", "diff", "diff3", "csplit",
-                        "zip", "rsync", "socat", "curl",
+                        "zip", "rsync", "socat", "gpg", "curl",
                         "wget", "nc"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

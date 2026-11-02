@@ -2984,6 +2984,25 @@ def main():
         periksa("curl -d @- membaca data dari stdin: penguras — gerbang gagal (Audit 1068)", rc != 0)
         shutil.rmtree(subcurl, ignore_errors=True)
 
+        subgpg = klon(tmp, "subgpg")
+        berkas_aksi147 = os.path.join(
+            subgpg, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi147, encoding="utf-8") as f:
+            isi_aksi147 = f.read()
+        baris_aksi147 = [b for b in isi_aksi147.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi147, "w", encoding="utf-8") as f:
+            f.write(isi_aksi147.replace(
+                baris_aksi147,
+                baris_aksi147.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg --batch --pinentry-mode loopback --passphrase x -c; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subgpg,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpg batch simetris membaca plaintext dari stdin: penguras — gerbang gagal (Audit 1069)", rc != 0)
+        shutil.rmtree(subgpg, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

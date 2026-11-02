@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — gpg batch simetris kini dinilai gerbang patch (Audit 1069)
+
 ## [Belum rilis] — jaringan dari stdin curl/wget/nc kini dinilai gerbang patch (Audit 1068)
 
 ## [Belum rilis] — varian nama awk/grep dan rg kini dinilai keluarga skrip gerbang patch (Audit 1067)
