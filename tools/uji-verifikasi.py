@@ -2870,6 +2870,25 @@ def main():
         periksa("git hash-object --stdin adalah penguras — gerbang gagal (Audit 1062)", rc != 0)
         shutil.rmtree(subgitstdin, ignore_errors=True)
 
+        subdiff = klon(tmp, "subdiff")
+        berkas_aksi141 = os.path.join(
+            subdiff, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi141, encoding="utf-8") as f:
+            isi_aksi141 = f.read()
+        baris_aksi141 = [b for b in isi_aksi141.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi141, "w", encoding="utf-8") as f:
+            f.write(isi_aksi141.replace(
+                baris_aksi141,
+                baris_aksi141.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff - berkasIn; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subdiff,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("operand '-' diff adalah stdin: penguras — gerbang gagal (Audit 1063)", rc != 0)
+        shutil.rmtree(subdiff, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1345,6 +1345,22 @@ def _menguras_khusus(perintah, toks, awal):
         if sub == "fast-import":
             return True
         return False
+    if perintah in ("comm", "join"):
+        # Audit 1063: '-' di posisi operand mana pun = stdin.
+        return "-" in _operand_sesudah_opsi(
+            toks, awal, {"-1", "-2", "-o", "-t", "-e", "-a", "-v",
+                         "--output", "--separator"})
+    if perintah in ("diff", "diff3"):
+        return "-" in _operand_sesudah_opsi(
+            toks, awal, {"-U", "-C", "-A", "--unified", "--context",
+                         "--width", "-D", "--ifdef", "--label",
+                         "--line-format", "--GTYPE-group-format",
+                         "--LTYPE-line-format"})
+    if perintah == "csplit":
+        ops = _operand_sesudah_opsi(
+            toks, awal, {"-f", "--prefix", "-n", "--digits", "-b",
+                         "--suffix-format"})
+        return bool(ops) and ops[0] == "-"
     return False
 
 
@@ -1851,7 +1867,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return _menguras_interpreter(perintah, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)
-        if perintah in ("sqlite3", "openssl", "tar", "git"):
+        if perintah in ("sqlite3", "openssl", "tar", "git",
+                        "comm", "join", "diff", "diff3", "csplit"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
