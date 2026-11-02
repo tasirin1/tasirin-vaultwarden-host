@@ -14071,6 +14071,27 @@ def main():
         periksa("pl2pm -v: "
                 "gerbang lolos (Audit 1423)", rc == 0)
         shutil.rmtree(sub649, ignore_errors=True)
+        sub650 = klon(tmp, "sub650")
+        berkas_aksi650 = os.path.join(
+            sub650, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi650, encoding="utf-8") as f:
+            isi_aksi650 = f.read()
+        baris_aksi650 = [b for b in isi_aksi650.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru650 = isi_aksi650.replace(
+                baris_aksi650,
+                baris_aksi650.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gh --hostname --with-token auth login; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru650 != isi_aksi650, \
+            "suntikan aksi650 tidak menembak"
+        with open(berkas_aksi650, "w", encoding="utf-8") as f:
+            f.write(isi_baru650)
+        rc, out = jalan(sub650, [sys.executable, GERBANG, "--semua"])
+        periksa("gh --hostname --with-token auth login: "
+                "gerbang lolos (Audit 1424)", rc == 0)
+        shutil.rmtree(sub650, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

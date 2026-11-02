@@ -3553,10 +3553,14 @@ def _menguras_khusus(perintah, toks, awal):
                 k_gh += 1
                 continue
             break
+        # Audit 1424: --with-token hanya dihitung
+        # SESUDAH posisi subperintah — kemunculannya
+        # sebagai nilai --hostname (sudah dilompati
+        # gelung di atas) bukan bendera.
         return (len(mentah) - k_gh >= 2
                 and mentah[k_gh] == "auth"
                 and mentah[k_gh + 1] == "login"
-                and "--with-token" in mentah)
+                and "--with-token" in mentah[k_gh:])
     # Audit 1405: npm init tanpa -y/--yes adalah wizard
     # interaktif yang membaca jawaban prompt dari stdin.
     if perintah == "npm":
