@@ -2789,7 +2789,12 @@ public final class TgBackup {
         // dengan kedalaman isi result; yang bersarang di
         // objek/array di dalam result bukan milik result
         // (org.json lama hanya membaca anggota langsung).
-        final int dalamResult = kedalamanPada(body, rentangAwal);
+        // Audit 1179: acuan kedalaman adalah ISI result —
+        // posisi tepat SESUDAH '{' result (rentangAwal
+        // menunjuk pada '{' itu sendiri; memakainya mentah
+        // membuat semua anggota langsung terlihat lebih
+        // dalam dan fungsi selalu mengembalikan "").
+        final int dalamResult = kedalamanPada(body, rentangAwal + 1);
         String kunci = "\"file_path\"";
         int dari = rentangAwal;
         while (true) {
