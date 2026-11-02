@@ -2361,7 +2361,22 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                  and len(opsi) > 2))):
                     # Audit 962: item dari berkas argumen menjadi
                     # operand perintah anak, bukan stdin bersama.
-                    xargs_dari_berkas = True
+                    # Audit 1134: nilai "-" berarti daftar item
+                    # dibaca dari stdin itu sendiri.
+                    nilai_a = None
+                    if opsi in ("-a", "--arg-file"):
+                        k_a = _sesudah_redirect_berantai(
+                            toks, awal, _batas_argv)
+                        if 0 <= k_a < len(toks):
+                            nilai_a = toks[k_a].strip("\"'")
+                    elif opsi.startswith("--arg-file="):
+                        nilai_a = opsi.split("=", 1)[1]
+                    else:
+                        nilai_a = opsi[2:]
+                    if nilai_a == "-":
+                        xargs_sendiri = True
+                    else:
+                        xargs_dari_berkas = True
                 if t0 == "taskset" and (opsi.startswith("--cpu-list=")
                         or opsi.startswith("--pid=")):
                     # Audit 989: getopt taskset menolak argumen =

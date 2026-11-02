@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — xargs -a - kini dinilai gerbang patch membaca dari stdin (Audit 1134)
+
 ## [Belum rilis] — pra-pindai redirect ekor gerbang patch kini sadar kutip (Audit 1133)
 
 ## [Belum rilis] — addr2line --target masuk tabel bernilai gerbang patch (Audit 1132)
