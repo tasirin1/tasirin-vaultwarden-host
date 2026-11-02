@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Pod2text -e/--guesswork/-m bernilai (Audit 1290)
+
 ## [Belum rilis] — Piconv -S/--scheme bernilai (Audit 1289)
 
 ## [Belum rilis] — Uconv -b/--callback bernilai (Audit 1288)

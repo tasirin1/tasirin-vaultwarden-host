@@ -857,7 +857,13 @@ _OPSI_BERNILAI = {
                # Audit 1289: -S/--scheme (juga -C & -s).
                "-S", "--scheme", "-C", "-s", "--string"},
     "pod2text": {"-o", "--output", "-w", "--width", "-i",
-                 "--indent", "-q", "--quotes", "--errors"},
+                 "--indent", "-q", "--quotes", "--errors",
+                 # Audit 1290: -e/--encoding, --guesswork,
+                 # -m/--margin.
+                 "-e", "--encoding", "--guesswork", "-m",
+                 "--margin"},
+    # Audit 1291: shasum selama ini tanpa entri — nilai -a
+    # terbaca operand.
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",

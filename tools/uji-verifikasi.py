@@ -9664,6 +9664,24 @@ def main():
         periksa("piconv -S scheme -f utf8 -t utf8: "
                 "gerbang gagal (Audit 1289)", rc != 0)
         shutil.rmtree(sub512, ignore_errors=True)
+        sub513 = klon(tmp, "sub513")
+        berkas_aksi513 = os.path.join(
+            sub513, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi513, encoding="utf-8") as f:
+            isi_aksi513 = f.read()
+        baris_aksi513 = [b for b in isi_aksi513.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi513, "w", encoding="utf-8") as f:
+            f.write(isi_aksi513.replace(
+                baris_aksi513,
+                baris_aksi513.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(pod2text -e utf8; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub513, [sys.executable, GERBANG, "--semua"])
+        periksa("pod2text -e utf8: "
+                "gerbang gagal (Audit 1290)", rc != 0)
+        shutil.rmtree(sub513, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
