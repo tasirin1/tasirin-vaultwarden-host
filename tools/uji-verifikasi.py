@@ -7162,6 +7162,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("unxz -F lzma: gerbang gagal (Audit 1172)", rc != 0)
         shutil.rmtree(sub373, ignore_errors=True)
+        sub374 = klon(tmp, "sub374")
+        berkas_aksi374 = os.path.join(
+            sub374, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi374, encoding="utf-8") as f:
+            isi_aksi374 = f.read()
+        baris_aksi374 = [b for b in isi_aksi374.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi374, "w", encoding="utf-8") as f:
+            f.write(isi_aksi374.replace(
+                baris_aksi374,
+                baris_aksi374.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(od --endian little; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub374,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("od --endian little: gerbang gagal (Audit 1173)", rc != 0)
+        shutil.rmtree(sub374, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

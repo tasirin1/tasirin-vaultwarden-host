@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — od --endian masuk tabel bernilai gerbang patch (Audit 1173)
+
 ## [Belum rilis] — xz/unxz -F/--format masuk tabel bernilai gerbang patch (Audit 1172)
 
 ## [Belum rilis] — cksum -l/--length masuk tabel bernilai gerbang patch (Audit 1171)

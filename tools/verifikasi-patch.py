@@ -713,7 +713,9 @@ _OPSI_BERNILAI = {
     "paste": {"-d", "--delimiters"},
     "base64": {"-w", "--wrap", "-b", "--break"},
     "od": {"-A", "--address-radix", "-j", "--skip-bytes", "-N",
-           "--read-bytes", "-t", "--format", "-w", "--width"},
+           "--read-bytes", "-t", "--format", "-w", "--width",
+           # Audit 1173: --endian bernilai.
+           "--endian"},
     "gzip": {"--suffix", "-S"},
     "gunzip": {"--suffix", "-S"},
     # Audit 1048: tac tertinggal dari tabel saat ditambahkan
