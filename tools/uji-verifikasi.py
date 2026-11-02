@@ -14176,6 +14176,27 @@ def main():
         periksa("gpgsm --decrypt: "
                 "gerbang gagal (Audit 1428)", rc != 0)
         shutil.rmtree(sub654, ignore_errors=True)
+        sub655 = klon(tmp, "sub655")
+        berkas_aksi655 = os.path.join(
+            sub655, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi655, encoding="utf-8") as f:
+            isi_aksi655 = f.read()
+        baris_aksi655 = [b for b in isi_aksi655.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru655 = isi_aksi655.replace(
+                baris_aksi655,
+                baris_aksi655.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(derdump; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru655 != isi_aksi655, \
+            "suntikan aksi655 tidak menembak"
+        with open(berkas_aksi655, "w", encoding="utf-8") as f:
+            f.write(isi_baru655)
+        rc, out = jalan(sub655, [sys.executable, GERBANG, "--semua"])
+        periksa("derdump: "
+                "gerbang gagal (Audit 1429)", rc != 0)
+        shutil.rmtree(sub655, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
