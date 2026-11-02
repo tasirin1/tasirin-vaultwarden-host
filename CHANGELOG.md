@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — wc: --total bernilai opsional, bukan terpisah (Audit 1264)
+
 ## [Belum rilis] — iconv: --usage informasional (Audit 1263)
 
 ## [Belum rilis] — git apply: --build-fake-ancestor terpisah bukan berkas (Audit 1262)

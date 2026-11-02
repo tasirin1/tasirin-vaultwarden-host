@@ -708,7 +708,8 @@ _OPSI_BERNILAI = {
     # berkas tertelan sebagai "nilai".
     # Audit 1100: entri yang dulu absen/sebagian — nilai opsinya
     # terbaca operand berkas (fail-open).
-    "wc": {"--total", "--files0-from"},
+    # Audit 1264: --total wc bernilai OPSIONAL (hanya =).
+    "wc": {"--files0-from"},
     "cksum": {"-a", "--algorithm",
               # Audit 1171: -l/--length (sah untuk blake2b).
               "-l", "--length"},
