@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Perl bundel berawalan angka (-0777pe) terlihat jalan hurufnya (Audit 1411)
 ## [Belum rilis] — Suite — skenario Audit 921 (aksi48) dihidupkan lagi dengan jarum yang hidup (Audit 1440)
 ## [Belum rilis] — Suite — suntikan skenario kini diverifikasi mengubah berkas (assert per blok) (Audit 1410)
 ## [Belum rilis] — Suite — skenario openssl asn1parse telanjang ditambahkan (Audit 1409)

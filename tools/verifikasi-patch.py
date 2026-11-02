@@ -1557,9 +1557,25 @@ def _menguras_interpreter(perintah, toks, awal):
                 # menelan sisa bundel sebagai argumennya) —
                 # huruf di wilayah argumen (mis. 'd'/'n' pada
                 # -Id, -mdiagnostics) bukan bendera.
-                if re.fullmatch(r"[A-Za-z]+", huruf):
+                # Audit 1411: saklar -0 menelan digit oktal
+                # di dalam bundel yang sama (-0777pe idiom
+                # slurp) — kelompok digit itu dibuang dari
+                # huruf yang dinilai, bukan menggagalkan
+                # pindaian.
+                huruf_huruf = ""
+                k_h = 0
+                while k_h < len(huruf):
+                    if huruf[k_h] == "0":
+                        k_h += 1
+                        while (k_h < len(huruf)
+                               and huruf[k_h] in "01234567"):
+                            k_h += 1
+                        continue
+                    huruf_huruf += huruf[k_h]
+                    k_h += 1
+                if re.fullmatch(r"[A-Za-z]+", huruf_huruf):
                     efektif = ""
-                    for h_x in huruf:
+                    for h_x in huruf_huruf:
                         if h_x in "IMme":
                             break
                         efektif += h_x
@@ -1574,7 +1590,7 @@ def _menguras_interpreter(perintah, toks, awal):
                     debugger = True
                 # Bundel berakhiran -e (-ne/-pe): token berikutnya
                 # adalah skripnya, bukan berkas masukan.
-                if re.fullmatch(r"[A-Za-z]*e", huruf):
+                if re.fullmatch(r"[A-Za-z]*e", huruf_huruf):
                     skrip_terisi = True
                     i += 2
                 else:

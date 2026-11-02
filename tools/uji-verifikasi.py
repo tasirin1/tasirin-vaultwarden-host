@@ -13777,6 +13777,27 @@ def main():
         periksa("openssl asn1parse: "
                 "gerbang gagal (Audit 1409)", rc != 0)
         shutil.rmtree(sub635, ignore_errors=True)
+        sub636 = klon(tmp, "sub636")
+        berkas_aksi636 = os.path.join(
+            sub636, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi636, encoding="utf-8") as f:
+            isi_aksi636 = f.read()
+        baris_aksi636 = [b for b in isi_aksi636.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru636 = isi_aksi636.replace(
+                baris_aksi636,
+                baris_aksi636.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(perl -0777pe skrip.pl; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru636 != isi_aksi636, \
+            "suntikan aksi636 tidak menembak"
+        with open(berkas_aksi636, "w", encoding="utf-8") as f:
+            f.write(isi_baru636)
+        rc, out = jalan(sub636, [sys.executable, GERBANG, "--semua"])
+        periksa("perl -0777pe skrip.pl: "
+                "gerbang gagal (Audit 1411)", rc != 0)
+        shutil.rmtree(sub636, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
