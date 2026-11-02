@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — nilai opsi expect -D kini dilompati gerbang patch (Audit 1146)
+
 ## [Belum rilis] — expect -c kini hanya perintah awalan di gerbang patch (Audit 1145)
 
 ## [Belum rilis] — Util.semuaDigit dan Util.rendahAscii kini teruji JVM (Audit 1144)

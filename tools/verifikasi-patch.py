@@ -1301,6 +1301,15 @@ def _menguras_interpreter(perintah, toks, awal):
                 ada_c = True
                 i += 1
                 continue
+            # Audit 1146: -D bernilai — nilainya bukan nama
+            # skrip (dulu token angka sesudah -D mengakhiri
+            # vonis sebagai operand skrip).
+            if t == "-D":
+                i += 2
+                continue
+            if t.startswith("-D") and len(t) > 2:
+                i += 1
+                continue
             if t.startswith("-"):
                 i += 1
                 continue
