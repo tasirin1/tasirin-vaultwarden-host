@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pembungkus sudo dikenal (Audit 1044)
+
+### Diperbaiki
+- Perkakas: `sudo` masuk daftar pembungkus transparan resolver beserta opsi bernilainya (-u/-g/-h/-p/-t/-C/-T/-D/-r/-R dan bentuk panjangnya), dan penetapan lingkungan sesudah sudo diperlakukan sebagai bagian sintaks sudo sendiri seperti pada `env`. Sebelumnya `sudo cat` gugur sebagai perintah tak dikenal (fail-open). Skenario uji-diri aksi117.
+
+
 ## [Belum rilis] — Gerbang: string flock -c multi-kata dinilai utuh (Audit 1035)
 
 ### Diperbaiki

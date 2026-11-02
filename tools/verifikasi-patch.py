@@ -619,6 +619,12 @@ _OPSI_PEMBUNGKUS = {
     # Audit 989: -p/--pid ionice dan taskset BUKAN opsi bernilai —
     # keduanya bendera mode pid (operand sesudahnya pid, bukan
     # nilai opsi dan bukan perintah); lihat mode_pid di resolver.
+    # Audit 1044: sudo — opsi bernilainya identitas/target/batas;
+    # bendera polos (-n/-S/-b/-v/...) dilompati lingkar umum.
+    "sudo": {"-u", "--user", "-g", "--group", "-h", "--host",
+             "-p", "--prompt", "-t", "--command-timeout", "-C",
+             "--close-from", "-T", "--command-timeout-fd", "-D",
+             "--chdir", "-r", "--role", "-R", "--chroot"},
     "ionice": {"-c", "--class", "-n", "--classdata", "-u", "--which"},
     "taskset": {"-c", "--cpu-list"},
     "chrt": {"-T", "--sched-runtime", "-D", "--sched-deadline",
@@ -969,7 +975,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             continue
         if t0 == "timeout" or t0 in ("xargs", "nice", "command",
                 "stdbuf", "setsid", "ionice", "chrt", "taskset",
-                "eatmydata", "nohup", "flock"):
+                "eatmydata", "nohup", "flock", "sudo"):
             # Audit 972: sesudah pembungkus mana pun, kata perintah
             # berikutnya adalah program eksternal.
             # Audit 988: kecuali 'command' sendiri — ia builtin yang
@@ -985,6 +991,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # Audit 966: sesudah pembungkus non-env, penetapan tak
             # lagi transparan.
             lewat_pembungkus = True
+            if t0 == "sudo":
+                # Audit 1044: sudo menerima penetapan lingkungan
+                # sebagai bagian sintaksnya sendiri (VAR=nilai
+                # perintah), seperti env — wilayah penetapan pulih.
+                lewat_pembungkus = False
             # Audit 970: taskset/chrt berbentuk daftar/pid tak
             # mempunyai operand masker/prio sebelum perintah.
             tanpa_masker = False

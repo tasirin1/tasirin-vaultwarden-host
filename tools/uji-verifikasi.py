@@ -2331,6 +2331,25 @@ def main():
         periksa("string flock -c multi-kata dinilai utuh: cat berkas bukan penguras — gerbang lolos (Audit 1035)", rc == 0)
         shutil.rmtree(subflockstr, ignore_errors=True)
 
+        subsudo = klon(tmp, "subsudo")
+        berkas_aksi117 = os.path.join(
+            subsudo, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi117, encoding="utf-8") as f:
+            isi_aksi117 = f.read()
+        baris_aksi117 = [b for b in isi_aksi117.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi117, "w", encoding="utf-8") as f:
+            f.write(isi_aksi117.replace(
+                baris_aksi117,
+                baris_aksi117.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sudo cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subsudo,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pembungkus sudo transparan: pembaca di baliknya penguras — gerbang gagal (Audit 1044)", rc != 0)
+        shutil.rmtree(subsudo, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
