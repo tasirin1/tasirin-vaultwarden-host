@@ -644,6 +644,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "fmt", "pr", "expand", "unexpand", "tsort", "ptx",
                   "split", "factor", "strings", "base32", "basenc",
                   "iconv", "logger", "numfmt",
+                  # Audit 1057: kompresor saudara gzip + zcat.
+                  "xz", "bzip2", "lzma", "zcat",
                   # Audit 1038: keluarga beroperand skrip/pola —
                   # operand pertamanya bukan berkas (penilaian
                   # posisinya di _menguras_keluarga_skrip).
@@ -694,6 +696,9 @@ _OPSI_BERNILAI = {
     "numfmt": {"-d", "--delimiter", "--field", "--format",
                "--padding", "--grouping"},
     "basenc": {},
+    # Audit 1057: opsi bernilai kompresor.
+    "xz": {"-T", "--threads", "-C", "--check", "--block-size",
+           "--memlimit-compress", "--memlimit-decompress"},
 }
 
 
