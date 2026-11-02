@@ -2951,6 +2951,11 @@ def _menguras_khusus(perintah, toks, awal):
         ops_ti = _operand_sesudah_opsi(
             toks, awal, {"-o", "-e"})
         return "-" in ops_ti
+    # Audit 1330: lesskey — sumber dari operand '-'.
+    if perintah == "lesskey":
+        ops_lk = _operand_sesudah_opsi(
+            toks, awal, {"-o", "--output"})
+        return "-" in ops_lk
     return False
 
 
@@ -3696,6 +3701,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "dpkg-parsechangelog",
                         "cvtsudoers",
                         "tic",
+                        "lesskey",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

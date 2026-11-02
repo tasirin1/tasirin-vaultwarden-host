@@ -10384,6 +10384,24 @@ def main():
         periksa("tic -o out -: "
                 "gerbang gagal (Audit 1329)", rc != 0)
         shutil.rmtree(sub552, ignore_errors=True)
+        sub553 = klon(tmp, "sub553")
+        berkas_aksi553 = os.path.join(
+            sub553, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi553, encoding="utf-8") as f:
+            isi_aksi553 = f.read()
+        baris_aksi553 = [b for b in isi_aksi553.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi553, "w", encoding="utf-8") as f:
+            f.write(isi_aksi553.replace(
+                baris_aksi553,
+                baris_aksi553.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(lesskey -o out -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub553, [sys.executable, GERBANG, "--semua"])
+        periksa("lesskey -o out -: "
+                "gerbang gagal (Audit 1330)", rc != 0)
+        shutil.rmtree(sub553, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

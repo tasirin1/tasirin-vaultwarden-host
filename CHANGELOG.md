@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Lesskey menilai masukan '-' (Audit 1330)
+
 ## [Belum rilis] — Tic menilai masukan '-' (Audit 1329)
 
 ## [Belum rilis] — Cvtsudoers dinilai (Audit 1328)
