@@ -3035,6 +3035,9 @@ def _menguras_khusus(perintah, toks, awal):
                 if t_sk.startswith("-f") and len(t_sk) > 2:
                     return t_sk[2:] in ("-", "/dev/stdin")
         return False
+    # Audit 1342: tree --fromfile membaca daftar dari stdin.
+    if perintah == "tree":
+        return "--fromfile" in mentah
     return False
 
 
@@ -3789,6 +3792,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "pygettext3",
                         "nsupdate",
                         "ssh-keygen",
+                        "tree",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

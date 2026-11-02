@@ -10600,6 +10600,24 @@ def main():
         periksa("ssh-keygen -L -f -: "
                 "gerbang gagal (Audit 1341)", rc != 0)
         shutil.rmtree(sub564, ignore_errors=True)
+        sub565 = klon(tmp, "sub565")
+        berkas_aksi565 = os.path.join(
+            sub565, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi565, encoding="utf-8") as f:
+            isi_aksi565 = f.read()
+        baris_aksi565 = [b for b in isi_aksi565.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi565, "w", encoding="utf-8") as f:
+            f.write(isi_aksi565.replace(
+                baris_aksi565,
+                baris_aksi565.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(tree --fromfile; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub565, [sys.executable, GERBANG, "--semua"])
+        periksa("tree --fromfile: "
+                "gerbang gagal (Audit 1342)", rc != 0)
+        shutil.rmtree(sub565, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

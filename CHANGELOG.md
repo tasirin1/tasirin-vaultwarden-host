@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Tree --fromfile dinilai (Audit 1342)
+
 ## [Belum rilis] — Ssh-keygen -L -f - dinilai (Audit 1341)
 
 ## [Belum rilis] — Nsupdate dinilai (Audit 1340)
