@@ -1304,7 +1304,7 @@ def _token_shell(teks):
     return hasil
 
 
-def _kata_shell(token):
+def _kata_shell_utuh(token):
     """Audit 1046: kata shell dari satu token — fragmen berkutip
     dan telanjang yang bersebelahan digabungkan dan tanda
     kutipnya dibuang, persis pembentukan kata shell (c''at →
@@ -1345,7 +1345,16 @@ def _kata_shell(token):
     # NAMA perintah — komponen direktorinya dibuang di sini
     # (nama berjalur /bin/cat, /usr/bin/openssl dinilai dari
     # nama dasarnya, sama seperti shell menjalankannya).
-    kata = "".join(hasil)
+    return "".join(hasil)
+
+
+def _kata_shell(token):
+    """Audit 1396/1408: nama perintah dari bentuk utuh —
+    komponen direktori dibuang (nama berjalur dinilai dari
+    nama dasarnya). Pemanggil yang menilai token BUKAN nama
+    perintah (penjaga penetapan) memakai _kata_shell_utuh:
+    nilai penetapan boleh berjalur tanpa merusak polanya."""
+    kata = _kata_shell_utuh(token)
     if "/" in kata:
         kata = kata.rsplit("/", 1)[-1]
     return kata
@@ -3504,8 +3513,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 awal = sesudah
                 continue
         t0 = _kata_shell(toks[awal])
+        # Audit 1408: pola penetapan dinilai pada token
+        # UTUH — nama dasar (Audit 1396) membuang direktori
+        # dari NILAI penetapan ('X=/a/b' menjadi 'b') dan
+        # penjaga ini tak pernah cocok lagi (regresi).
         if (not lewat_pembungkus and not sesudah_exec
-                and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t0)):
+                and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=",
+                             _kata_shell_utuh(toks[awal]))):
             # Audit 966: penetapan hanya transparan di awal segmen
             # atau sesudah env — sesudah pembungkus lain, token
             # berbentuk penetapan adalah nama program yang

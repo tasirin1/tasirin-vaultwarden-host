@@ -11840,6 +11840,48 @@ def main():
                 "gerbang lolos (Audit 1407)", rc == 0)
         shutil.rmtree(sub632, ignore_errors=True)
 
+        sub633 = klon(tmp, "sub633")
+        berkas_aksi633 = os.path.join(
+            sub633, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi633, encoding="utf-8") as f:
+            isi_aksi633 = f.read()
+        baris_aksi633 = [b for b in isi_aksi633.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru633 = isi_aksi633.replace(
+                baris_aksi633,
+                baris_aksi633.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(X=/a/b cat; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru633 != isi_aksi633, \
+            "suntikan aksi633 tidak menembak"
+        with open(berkas_aksi633, "w", encoding="utf-8") as f:
+            f.write(isi_baru633)
+        rc, out = jalan(sub633, [sys.executable, GERBANG, "--semua"])
+        periksa("X=/a/b cat: "
+                "gerbang gagal (Audit 1408)", rc != 0)
+        shutil.rmtree(sub633, ignore_errors=True)
+        sub634 = klon(tmp, "sub634")
+        berkas_aksi634 = os.path.join(
+            sub634, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi634, encoding="utf-8") as f:
+            isi_aksi634 = f.read()
+        baris_aksi634 = [b for b in isi_aksi634.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru634 = isi_aksi634.replace(
+                baris_aksi634,
+                baris_aksi634.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(FOO=/bin/cat; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru634 != isi_aksi634, \
+            "suntikan aksi634 tidak menembak"
+        with open(berkas_aksi634, "w", encoding="utf-8") as f:
+            f.write(isi_baru634)
+        rc, out = jalan(sub634, [sys.executable, GERBANG, "--semua"])
+        periksa("FOO=/bin/cat: "
+                "gerbang lolos (Audit 1408)", rc == 0)
+        shutil.rmtree(sub634, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
