@@ -1098,14 +1098,19 @@ def main():
             sarangbalik, ".github", "actions", "resolve-vw", "action.yml")
         with open(berkas_aksi48, encoding="utf-8") as f:
             isi_aksi48 = f.read()
+        # Audit 1440: jarum lama skenario ini (blok run:
+        # versi awal action) sudah tak ada di action.yml
+        # sehingga suntikannya tak pernah menembak dan
+        # skenario diam-diam menguji pohon bersih. Jarum
+        # kini baris tag_mentah yang hidup, diganti
+        # susunan Audit 921 yang persis: redirect
+        # subshell-DALAM ke $GITHUB_OUTPUT mengesahkan
+        # tulisan walau grup luarnya ke /dev/null (bentuk
+        # sebaliknya — dalam /dev/null, luar output —
+        # milik Audit 920 dan wajib GAGAL).
         isi_baru48 = isi_aksi48.replace(
-                '        run: |\n'
-                '          TAG="v1"\n'
-                '          { ( echo "tag_mentah=$TAG"; ) > /dev/null; } '
-                '>> "$GITHUB_OUTPUT"\n',
-                '        run: |\n'
-                '          TAG="v1"\n'
-                '          { ( echo "tag_mentah=$TAG"; ) '
+                '        echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"\n',
+                '        { ( echo "tag_mentah=$TAG"; ) '
                 '>> "$GITHUB_OUTPUT"; } > /dev/null\n', 1)
         assert isi_baru48 != isi_aksi48, \
             "suntikan aksi48 tidak menembak"
