@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — check-mailmap: operand '-' bukan stdin (Audit 1218)
+
 ## [Belum rilis] — Pemeriksa informasional: -t patch adalah bendera mode batch (Audit 1217)
 
 ## [Belum rilis] — Pemeriksa informasional: -f less adalah bendera, bukan opsi bernilai (Audit 1216)

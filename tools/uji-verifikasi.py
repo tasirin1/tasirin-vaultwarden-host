@@ -8170,6 +8170,24 @@ def main():
         periksa("patch -t --help: "
                 "gerbang lolos (Audit 1217)", rc == 0)
         shutil.rmtree(sub429, ignore_errors=True)
+        sub430 = klon(tmp, "sub430")
+        berkas_aksi430 = os.path.join(
+            sub430, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi430, encoding="utf-8") as f:
+            isi_aksi430 = f.read()
+        baris_aksi430 = [b for b in isi_aksi430.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi430, "w", encoding="utf-8") as f:
+            f.write(isi_aksi430.replace(
+                baris_aksi430,
+                baris_aksi430.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git check-mailmap -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub430, [sys.executable, GERBANG, "--semua"])
+        periksa("git check-mailmap -: "
+                "gerbang lolos (Audit 1218)", rc == 0)
+        shutil.rmtree(sub430, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
