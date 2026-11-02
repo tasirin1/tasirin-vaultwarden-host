@@ -2483,6 +2483,25 @@ def main():
         periksa("interpreter membaca skrip dari stdin: python3 - adalah penguras — gerbang gagal (Audit 1039)", rc != 0)
         shutil.rmtree(subinterp, ignore_errors=True)
 
+        submapfile = klon(tmp, "submapfile")
+        berkas_aksi121 = os.path.join(
+            submapfile, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi121, encoding="utf-8") as f:
+            isi_aksi121 = f.read()
+        baris_aksi121 = [b for b in isi_aksi121.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi121, "w", encoding="utf-8") as f:
+            f.write(isi_aksi121.replace(
+                baris_aksi121,
+                baris_aksi121.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mapfile; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(submapfile,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("builtin penampung tanpa batas menguras — gerbang gagal (Audit 1040)", rc != 0)
+        shutil.rmtree(submapfile, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

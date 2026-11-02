@@ -987,6 +987,35 @@ def _menguras_interpreter(perintah, toks, awal):
     return True
 
 
+def _menguras_mapfile(toks, awal):
+    """Audit 1040: mapfile/readarray tanpa batas membaca stdin
+    sampai EOF. -n/-N berbatas hanya membaca sebagian (penulis
+    berikutnya tak kelaparan); -u fd lain membaca fd itu."""
+    i = awal + 1
+    n = len(toks)
+    while i < n:
+        t = toks[i]
+        if t in ("-n", "-N"):
+            if i + 1 < n:
+                try:
+                    if int(toks[i + 1].strip("\"'")) > 0:
+                        return False
+                except ValueError:
+                    pass
+            i += 2
+            continue
+        if t == "-u":
+            if i + 1 < n and toks[i + 1].strip("\"'") != "0":
+                return False
+            i += 2
+            continue
+        if t in ("-d", "-O", "-s", "-C", "-c"):
+            i += 2
+            continue
+        i += 1
+    return True
+
+
 def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
@@ -1462,6 +1491,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # penampung baris) dinilai penilai khususnya sendiri.
         if perintah in ("python3", "python", "node", "perl"):
             return _menguras_interpreter(perintah, toks, awal)
+        if perintah in ("mapfile", "readarray"):
+            return _menguras_mapfile(toks, awal)
         return xargs_sendiri
     if xargs_dari_berkas and perintah != "tee":
         # Audit 962: perintah anak menerima operand item dari berkas

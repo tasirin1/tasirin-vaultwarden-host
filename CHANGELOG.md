@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: builtin penampung mapfile/readarray dikenal (Audit 1040)
+
+### Diperbaiki
+- Perkakas: penilai khusus `_menguras_mapfile` di `tools/verifikasi-patch.py` — `mapfile`/`readarray` tanpa batas membaca stdin sampai EOF (menguras); varian berbatas `-n`/`-N` hanya membaca sebagian sehingga penulis berikutnya tidak kelaparan (bukan penguras), dan `-u` fd lain membaca fd itu. Skenario uji-diri aksi121.
+
+
 ## [Belum rilis] — Gerbang: interpreter yang membaca skrip dari stdin dikenal (Audit 1039)
 
 ### Diperbaiki
