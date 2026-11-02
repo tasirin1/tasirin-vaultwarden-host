@@ -1732,6 +1732,18 @@ def _menguras_interpreter(perintah, toks, awal):
                     # adalah nama basis data (TAK menekan);
                     # operand SQL kedua (atau perintah -c)
                     # yang menekan.
+                    # Audit 1390: -c sungguh menekan (SQL-nya
+                    # dijalankan lalu keluar) — kehadirannya
+                    # diperiksa langsung pada token, bukan
+                    # tersirat dari hitungan operand;
+                    # --version/--help juga informasional
+                    # (regresi dari cabang ini).
+                    sisa_sq = [x.strip("\"'")
+                               for x in toks[i + 2:]]
+                    if ("-c" in sisa_sq
+                            or "--version" in sisa_sq
+                            or "--help" in sisa_sq):
+                        return False
                     ops_sq = _operand_sesudah_opsi(
                         toks, i + 1, {"-c"})
                     return len(ops_sq) < 2
