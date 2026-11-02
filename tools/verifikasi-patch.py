@@ -3109,6 +3109,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # putaran-8 (setarch beroperand arsitektur).
                 "setarch", "linux32", "linux64", "uclampset",
                 "choom", "xvfb-run",
+                # Audit 1318: alias personalitas langsung.
+                "i386", "x86_64",
                 # Audit 1194/1203: newgrp (sekelas sg) dan
                 # ssh-agent.
                 "newgrp", "ssh-agent"):

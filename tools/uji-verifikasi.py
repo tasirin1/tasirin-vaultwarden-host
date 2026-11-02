@@ -10168,6 +10168,24 @@ def main():
         periksa("script -qec cat /dev/null: "
                 "gerbang gagal (Audit 1317)", rc != 0)
         shutil.rmtree(sub540, ignore_errors=True)
+        sub541 = klon(tmp, "sub541")
+        berkas_aksi541 = os.path.join(
+            sub541, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi541, encoding="utf-8") as f:
+            isi_aksi541 = f.read()
+        baris_aksi541 = [b for b in isi_aksi541.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi541, "w", encoding="utf-8") as f:
+            f.write(isi_aksi541.replace(
+                baris_aksi541,
+                baris_aksi541.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(i386 cat; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub541, [sys.executable, GERBANG, "--semua"])
+        periksa("i386 cat: "
+                "gerbang gagal (Audit 1318)", rc != 0)
+        shutil.rmtree(sub541, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

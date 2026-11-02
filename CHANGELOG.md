@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Alias setarch i386/x86_64 menjadi pembungkus (Audit 1318)
+
 ## [Belum rilis] — Script -c menilai perintah anak (Audit 1317)
 
 ## [Belum rilis] — Alias vim (vim.tiny/rview/editor/sensible-editor) dirutekan (Audit 1316)
