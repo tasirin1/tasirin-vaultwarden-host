@@ -8566,6 +8566,24 @@ def main():
         periksa("wall -g users: "
                 "gerbang gagal (Audit 1236)", rc != 0)
         shutil.rmtree(sub451, ignore_errors=True)
+        sub452 = klon(tmp, "sub452")
+        berkas_aksi452 = os.path.join(
+            sub452, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi452, encoding="utf-8") as f:
+            isi_aksi452 = f.read()
+        baris_aksi452 = [b for b in isi_aksi452.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi452, "w", encoding="utf-8") as f:
+            f.write(isi_aksi452.replace(
+                baris_aksi452,
+                baris_aksi452.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(xzcat --suffix .zz; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub452, [sys.executable, GERBANG, "--semua"])
+        periksa("xzcat --suffix .zz: "
+                "gerbang gagal (Audit 1237)", rc != 0)
+        shutil.rmtree(sub452, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

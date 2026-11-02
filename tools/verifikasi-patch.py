@@ -797,7 +797,10 @@ _OPSI_BERNILAI = {
     # Audit 1213: kompresor tanpa entri untuk opsi bersamanya.
     "lzma": {"-F", "--format", "-S", "--suffix", "-T", "--threads",
              "--block-size", "-C", "--check"},
-    "xzcat": {"-F", "--format", "-T", "--threads"},
+    "xzcat": {"-F", "--format", "-T", "--threads",
+              # Audit 1237: -S/--suffix hilang dari entri ini.
+              "-S", "--suffix"},
+
     "zcat": {"-S", "--suffix"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",

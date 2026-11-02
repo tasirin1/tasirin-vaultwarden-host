@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — xzcat: -S/--suffix hilang dari entri (Audit 1237)
+
 ## [Belum rilis] — wall: -g/--group bernilai, hilang dari entri (Audit 1236)
 
 ## [Belum rilis] — ptx: -F/--flag-truncation bernilai, hilang dari tabel (Audit 1235)
