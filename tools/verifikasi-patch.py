@@ -1113,8 +1113,26 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                         dasar in ("-e", "-f", "--expression",
                                   "--file", "--pattern")):
                     skrip_dari_opsi = True
+                    # Audit 1103: skrip/pola dari "-f -" dibaca dari
+                    # stdin itu sendiri — menguras walau ada operand
+                    # berkas data sesudahnya.
+                    if dasar in ("-f", "--file"):
+                        nilai_f = bersih.split("=", 1)[1] \
+                            if "=" in bersih else (
+                                toks[i + 1].strip("\"'")
+                                if i + 1 < n else None)
+                        if nilai_f == "-":
+                            return True
                 if perintah == "jq" and dasar in (
                         "-f", "--from-file"):
+                    # Audit 1103 (cermin): jq menolak "-" sebagai
+                    # berkas filter — tak membaca stdin.
+                    nilai_f = bersih.split("=", 1)[1] \
+                        if "=" in bersih else (
+                            toks[i + 1].strip("\"'")
+                            if i + 1 < n else None)
+                    if nilai_f == "-":
+                        return False
                     skrip_dari_opsi = True
                 i += 1 if "=" in bersih else (
                     3 if dasar in nilai2 else 2)
@@ -1123,11 +1141,16 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             if (perintah in ("sed", "grep")
                     and re.match(r"^-[ef]", bersih)
                     and len(bersih) > 2):
+                # Audit 1103: "-f-" merekat = skrip dari stdin.
+                if bersih == "-f-":
+                    return True
                 skrip_dari_opsi = True
                 i += 1
                 continue
             if perintah == "awk" and re.match(r"^-[Ffv]", bersih) \
                     and len(bersih) > 2:
+                if bersih == "-f-":
+                    return True
                 if bersih.startswith("-f"):
                     skrip_dari_opsi = True
                 i += 1

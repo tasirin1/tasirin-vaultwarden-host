@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — keluarga skrip -f - beroperand kini dinilai gerbang patch (Audit 1103)
+
 ## [Belum rilis] — panggilan informasional kini tak divonis menguras oleh gerbang patch (Audit 1102)
 
 ## [Belum rilis] — basenc polos tak lagi divonis menguras oleh gerbang patch (Audit 1101)

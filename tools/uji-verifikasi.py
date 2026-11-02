@@ -4143,6 +4143,82 @@ def main():
         periksa("iconv -l informasional: gerbang lolos (Audit 1102)", rc == 0)
         shutil.rmtree(sub207, ignore_errors=True)
 
+        sub208 = klon(tmp, "sub208")
+        berkas_aksi208 = os.path.join(
+            sub208, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi208, encoding="utf-8") as f:
+            isi_aksi208 = f.read()
+        baris_aksi208 = [b for b in isi_aksi208.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi208, "w", encoding="utf-8") as f:
+            f.write(isi_aksi208.replace(
+                baris_aksi208,
+                baris_aksi208.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(grep -f - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub208,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("grep -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0)
+        shutil.rmtree(sub208, ignore_errors=True)
+
+        sub209 = klon(tmp, "sub209")
+        berkas_aksi209 = os.path.join(
+            sub209, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi209, encoding="utf-8") as f:
+            isi_aksi209 = f.read()
+        baris_aksi209 = [b for b in isi_aksi209.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi209, "w", encoding="utf-8") as f:
+            f.write(isi_aksi209.replace(
+                baris_aksi209,
+                baris_aksi209.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sed -f - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub209,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sed -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0)
+        shutil.rmtree(sub209, ignore_errors=True)
+
+        sub210 = klon(tmp, "sub210")
+        berkas_aksi210 = os.path.join(
+            sub210, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi210, encoding="utf-8") as f:
+            isi_aksi210 = f.read()
+        baris_aksi210 = [b for b in isi_aksi210.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi210, "w", encoding="utf-8") as f:
+            f.write(isi_aksi210.replace(
+                baris_aksi210,
+                baris_aksi210.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(awk -f - berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub210,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("awk -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0)
+        shutil.rmtree(sub210, ignore_errors=True)
+
+        sub211 = klon(tmp, "sub211")
+        berkas_aksi211 = os.path.join(
+            sub211, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi211, encoding="utf-8") as f:
+            isi_aksi211 = f.read()
+        baris_aksi211 = [b for b in isi_aksi211.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi211, "w", encoding="utf-8") as f:
+            f.write(isi_aksi211.replace(
+                baris_aksi211,
+                baris_aksi211.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(jq -f -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub211,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("jq -f '-' ditolak: gerbang lolos (Audit 1103)", rc == 0)
+        shutil.rmtree(sub211, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
