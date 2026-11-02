@@ -736,6 +736,9 @@ _OPSI_PEMBUNGKUS = {
     # Audit 1070: systemd-cat — operandnya perintah (pembungkus);
     # tanpa operand ia meneruskan stdin-nya sendiri ke jurnal.
     "systemd-cat": {"-t", "--identifier", "-p", "--priority"},
+    # Audit 1084: chroot dikenal resolver sejak 1065 tetapi tabel
+    # opsinya kosong — --userspec/--groups bernilai tak dilompati.
+    "chroot": {"--userspec", "--groups", "--skip-chdir"},
     "ionice": {"-c", "--class", "-n", "--classdata", "-u", "--which"},
     "taskset": {"-c", "--cpu-list"},
     "chrt": {"-T", "--sched-runtime", "-D", "--sched-deadline",

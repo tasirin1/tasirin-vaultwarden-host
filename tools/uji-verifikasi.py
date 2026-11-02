@@ -3440,6 +3440,25 @@ def main():
         periksa("shell -s operand $0: gerbang gagal (Audit 1083)", rc != 0)
         shutil.rmtree(sub170, ignore_errors=True)
 
+        sub171 = klon(tmp, "sub171")
+        berkas_aksi171 = os.path.join(
+            sub171, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi171, encoding="utf-8") as f:
+            isi_aksi171 = f.read()
+        baris_aksi171 = [b for b in isi_aksi171.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi171, "w", encoding="utf-8") as f:
+            f.write(isi_aksi171.replace(
+                baris_aksi171,
+                baris_aksi171.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(chroot --userspec root / cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub171,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("chroot tabel opsi: gerbang gagal (Audit 1084)", rc != 0)
+        shutil.rmtree(sub171, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

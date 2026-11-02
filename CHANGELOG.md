@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — tabel opsi pembungkus chroot dilengkapi di gerbang patch (Audit 1084)
+
 ## [Belum rilis] — shell -s beroperand kini dinilai gerbang patch (Audit 1083)
 
 ## [Belum rilis] — bundel opsi pendek kini terdeteksi gerbang patch (Audit 1082)
