@@ -11172,6 +11172,25 @@ def main():
                 "gerbang gagal (Audit 1377)", rc != 0)
         shutil.rmtree(sub595, ignore_errors=True)
 
+        sub596 = klon(tmp, "sub596")
+        berkas_aksi596 = os.path.join(
+            sub596, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi596, encoding="utf-8") as f:
+            isi_aksi596 = f.read()
+        baris_aksi596 = [b for b in isi_aksi596.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi596, "w", encoding="utf-8") as f:
+            f.write(isi_aksi596.replace(
+                baris_aksi596,
+                baris_aksi596.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(utmpdump; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub596, [sys.executable, GERBANG, "--semua"])
+        periksa("utmpdump: "
+                "gerbang gagal (Audit 1378)", rc != 0)
+        shutil.rmtree(sub596, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
