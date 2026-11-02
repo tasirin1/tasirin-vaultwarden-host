@@ -2334,6 +2334,15 @@ def _menguras_khusus(perintah, toks, awal):
                          "--separator", "-m", "--magic-file",
                          "-e", "--exclude", "--exclude-quiet"})
         return "-" in ops_fl
+    # Audit 1201: date -f '-' membaca daftar tanggal.
+    if perintah == "date":
+        for k_dt, t_dt in enumerate(mentah):
+            if t_dt == "--file=-":
+                return True
+            if t_dt in ("-f", "--file"):
+                return (k_dt + 1 < len(mentah)
+                        and mentah[k_dt + 1] == "-")
+        return False
     return False
 
 
@@ -2985,7 +2994,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # Audit 1193/1195/1197/1198/1200/1201/
                         # 1202/1204: penilai khusus putaran-7.
                         "pdftotext", "nft", "ip", "tc", "bridge",
-                        "dpkg", "file"):
+                        "dpkg", "file", "date"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
