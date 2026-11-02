@@ -2984,6 +2984,12 @@ def _menguras_khusus(perintah, toks, awal):
         ops_gm2 = _operand_sesudah_opsi(
             toks, awal, {"--prefix", "--output", "--include"})
         return "-" in ops_gm2
+    # Audit 1335: genrb — sumber dari operand '-'.
+    if perintah == "genrb":
+        ops_gr = _operand_sesudah_opsi(
+            toks, awal, {"-d", "--destdir", "-s",
+                         "--sourcedir", "-e", "--encoding"})
+        return "-" in ops_gr
     return False
 
 
@@ -3734,6 +3740,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "wayland-scanner",
                         "localedef",
                         "glib-genmarshal",
+                        "genrb",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

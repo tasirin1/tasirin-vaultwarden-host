@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Genrb menilai operand '-' (Audit 1335)
+
 ## [Belum rilis] — Glib-genmarshal menilai operand '-' (Audit 1334)
 
 ## [Belum rilis] — Localedef menilai masukan '-' (Audit 1333)
