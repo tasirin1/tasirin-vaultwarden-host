@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — entri tabel nl gerbang memakai nama resmi (Audit 1209)
+
 ## [Belum rilis] — entri tabel pr gerbang dibetulkan dua arah (Audit 1208)
 
 ## [Belum rilis] — git notes -F - dan pathspec-from-file dikenali gerbang (Audit 1207)

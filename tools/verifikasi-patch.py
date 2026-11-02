@@ -717,7 +717,11 @@ _OPSI_BERNILAI = {
             "--characters", "--bytes", "--output-delimiter"},
     "fold": {"-w", "--width"},
     "nl": {"-b", "-d", "-f", "-h", "-i", "-l", "-n", "-s", "-v",
-           "-w", "--body-numbering", "--delimiter",
+           "-w", "--body-numbering",
+           # Audit 1209: nama resmi pasangan -d adalah
+           # --section-delimiter (--delimiter bukan nama resmi);
+           # --join-blank-lines (pasangan -l) hilang.
+           "--section-delimiter", "--join-blank-lines",
            "--footer-numbering", "--header-numbering",
            "--number-format", "--number-separator",
            "--starting-line-number", "--line-increment",

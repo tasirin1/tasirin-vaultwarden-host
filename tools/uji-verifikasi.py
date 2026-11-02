@@ -7918,6 +7918,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("pr -n berkas.txt: gerbang lolos (Audit 1208)", rc == 0)
         shutil.rmtree(sub415, ignore_errors=True)
+        sub416 = klon(tmp, "sub416")
+        berkas_aksi416 = os.path.join(
+            sub416, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi416, encoding="utf-8") as f:
+            isi_aksi416 = f.read()
+        baris_aksi416 = [b for b in isi_aksi416.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi416, "w", encoding="utf-8") as f:
+            f.write(isi_aksi416.replace(
+                baris_aksi416,
+                baris_aksi416.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(nl --section-delimiter xx; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub416,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nl --section-delimiter xx: gerbang gagal (Audit 1209)", rc != 0)
+        shutil.rmtree(sub416, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
