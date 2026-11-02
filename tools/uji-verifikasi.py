@@ -2673,6 +2673,25 @@ def main():
         periksa("kata kunci sesudah exec adalah nama program: bukan penguras — gerbang lolos (Audit 1051)", rc == 0)
         shutil.rmtree(subexeckata, ignore_errors=True)
 
+        subawkset = klon(tmp, "subawkset")
+        berkas_aksi128 = os.path.join(
+            subawkset, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi128, encoding="utf-8") as f:
+            isi_aksi128 = f.read()
+        baris_aksi128 = [b for b in isi_aksi128.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi128, "w", encoding="utf-8") as f:
+            f.write(isi_aksi128.replace(
+                baris_aksi128,
+                baris_aksi128.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(awk FS=: '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subawkset,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("penetapan awk sebelum program membatalkan perintah: bukan penguras — gerbang lolos (Audit 1052)", rc == 0)
+        shutil.rmtree(subawkset, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

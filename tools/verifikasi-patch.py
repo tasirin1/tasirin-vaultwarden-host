@@ -1056,8 +1056,11 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
         if bersih == "-":
             i += 1
             continue
-        if (perintah == "awk"
+        if (perintah == "awk" and (skrip_terisi or skrip_dari_opsi)
                 and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", bersih)):
+            # Audit 1052: penetapan awk hanya sah SESUDAH slot
+            # program terisi — di posisi pertama ia adalah teks
+            # program (dan program 'FS=:' tak sah, perintah batal).
             i += 1  # penetapan awk, bukan berkas
             continue
         # Operand polos: skrip/pola pertama, berkas sesudahnya.

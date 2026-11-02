@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — penetapan awk sebelum program kini membatalkan vonis gerbang patch (Audit 1052)
+
 ## [Belum rilis] — kata kunci sesudah exec kini bukan pembungkus transparan bagi gerbang patch (Audit 1051)
 
 ## [Belum rilis] — mode shell sudo -s/-i kini dinilai penguras oleh gerbang patch (Audit 1050)
