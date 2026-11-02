@@ -2790,6 +2790,14 @@ def _menguras_khusus(perintah, toks, awal):
         ops_as = _operand_sesudah_opsi(
             toks, awal, {"-o", "-I", "--defsym"})
         return "-" in ops_as or "/dev/stdin" in ops_as
+    # Audit 1311/1305/1308/1309: banding beroperand '-' —
+    # cmp sendiri dan keluarga terkompresinya (bzcmp/bzdiff
+    # SENGAJA tak ikut: '-' mereka nama berkas harfiah).
+    if perintah in ("zcmp", "zdiff"):
+        ops_cm = _operand_sesudah_opsi(
+            toks, awal, {"-i", "--ignore-initial", "-n",
+                         "--bytes"})
+        return "-" in ops_cm or "/dev/stdin" in ops_cm
     return False
 
 
@@ -3514,6 +3522,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
                         "pdffonts", "pdfimages", "pdftops",
+                        # Audit 1305-1345: penilai khusus putaran-9.
+                        "zcmp", "zdiff",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

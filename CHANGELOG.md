@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Pembanding gzip (zcmp/zdiff) dinilai (Audit 1305)
+
 ## [Belum rilis] — As menilai operand '-' (Audit 1304)
 
 ## [Belum rilis] — Driver kompiler menilai operand '-' sesudah -x/-E (Audit 1303)
