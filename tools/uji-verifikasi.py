@@ -6982,6 +6982,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sort --key 2: gerbang gagal (Audit 1164)", rc != 0)
         shutil.rmtree(sub363, ignore_errors=True)
+        sub364 = klon(tmp, "sub364")
+        berkas_aksi364 = os.path.join(
+            sub364, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi364, encoding="utf-8") as f:
+            isi_aksi364 = f.read()
+        baris_aksi364 = [b for b in isi_aksi364.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi364, "w", encoding="utf-8") as f:
+            f.write(isi_aksi364.replace(
+                baris_aksi364,
+                baris_aksi364.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(uniq --skip-chars 2; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub364,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("uniq --skip-chars 2: gerbang gagal (Audit 1165)", rc != 0)
+        shutil.rmtree(sub364, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

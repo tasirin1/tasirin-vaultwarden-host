@@ -675,7 +675,9 @@ _OPSI_BERNILAI = {
              # Audit 1164: bentuk panjang yang hilang.
              "--key", "--field-separator",
              "--temporary-directory", "--output"},
-    "uniq": {"-f", "-s", "-w", "--skip-fields", "--check-chars"},
+    "uniq": {"-f", "-s", "-w", "--skip-fields", "--check-chars",
+             # Audit 1165: --skip-chars hilang.
+             "--skip-chars"},
     # Audit 1141: --group uniq DIBUANG dari tabel — argumennya
     # opsional dan hanya lewat '='; memasukkannya membuat operand
     # berkas tertelan sebagai "nilai".
