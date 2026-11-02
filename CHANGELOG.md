@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — expect telanjang dan -f - kini dimodelkan gerbang patch (Audit 1122)
+
 ## [Belum rilis] — unshare/chroot tanpa perintah kini dinilai gerbang patch menjatuhkan shell (Audit 1121)
 
 ## [Belum rilis] — tar mode baca tanpa -f kini dinilai gerbang patch membaca dari stdin (Audit 1120)

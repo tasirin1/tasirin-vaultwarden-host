@@ -1253,6 +1253,24 @@ def _menguras_interpreter(perintah, toks, awal):
         if not skrip_terisi:
             return True
         return pakai_lingkar and (berkas_stdin or not ada_berkas)
+    if perintah == "expect":
+        # Audit 1122: expect telanjang membaca skrip dari stdin;
+        # -f - sama; berkas skrip/-c menekan (isi -c = kode
+        # arbitrer, batas model seperti interpreter lain).
+        while i < n:
+            t = toks[i].strip("\"'")
+            if t == "-f":
+                return (i + 1 < n
+                        and toks[i + 1].strip("\"'") == "-")
+            if t.startswith("-f") and len(t) > 2:
+                return t[2:] == "-"
+            if t == "-c" or t.startswith("-c"):
+                return False
+            if t.startswith("-"):
+                i += 1
+                continue
+            return False
+        return True
     if perintah in ("bash", "sh", "dash", "zsh"):
         # Audit 1058: shell tanpa skrip membaca perintah dari
         # stdin; -c menekan; operand "-" memintanya eksplisit.
@@ -2516,7 +2534,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         if perintah in ("python3", "python", "node", "perl",
                         # Audit 1058: shell membaca perintah dari
                         # stdin bila tanpa skrip berkas.
-                        "bash", "sh", "dash", "zsh"):
+                        # Audit 1122: expect pembaca skrip stdin.
+                        "bash", "sh", "dash", "zsh", "expect"):
             return _menguras_interpreter(perintah, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)
