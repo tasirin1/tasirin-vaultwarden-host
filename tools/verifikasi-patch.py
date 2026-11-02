@@ -1891,6 +1891,17 @@ def _menguras_khusus(perintah, toks, awal):
                 {"--mode", "--width", "--separator",
                  "--output-width", "--padding"})
             return not ops_co or "-" in ops_co
+        # Audit 1163: --stdin plumbing & protokol credential.
+        if sub in ("rev-list", "log"):
+            return "--stdin" in mentah
+        if sub == "check-mailmap":
+            if "--stdin" in mentah:
+                return True
+            return not ops_git[1:] or "-" in ops_git[1:]
+        if sub in ("credential-store", "credential-cache"):
+            # protokol helper membaca deskripsi dari stdin
+            # untuk semua aksinya (get/store/erase).
+            return True
         return False
     if perintah == "comm":
         # Audit 1063: '-' di posisi operand mana pun = stdin.

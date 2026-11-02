@@ -6892,6 +6892,78 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("git imap-send: gerbang gagal (Audit 1162)", rc != 0)
         shutil.rmtree(sub358, ignore_errors=True)
+        sub359 = klon(tmp, "sub359")
+        berkas_aksi359 = os.path.join(
+            sub359, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi359, encoding="utf-8") as f:
+            isi_aksi359 = f.read()
+        baris_aksi359 = [b for b in isi_aksi359.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi359, "w", encoding="utf-8") as f:
+            f.write(isi_aksi359.replace(
+                baris_aksi359,
+                baris_aksi359.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(git rev-list --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub359,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("git rev-list --stdin: gerbang gagal (Audit 1163)", rc != 0)
+        shutil.rmtree(sub359, ignore_errors=True)
+        sub360 = klon(tmp, "sub360")
+        berkas_aksi360 = os.path.join(
+            sub360, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi360, encoding="utf-8") as f:
+            isi_aksi360 = f.read()
+        baris_aksi360 = [b for b in isi_aksi360.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi360, "w", encoding="utf-8") as f:
+            f.write(isi_aksi360.replace(
+                baris_aksi360,
+                baris_aksi360.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(git check-mailmap --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub360,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("git check-mailmap --stdin: gerbang gagal (Audit 1163)", rc != 0)
+        shutil.rmtree(sub360, ignore_errors=True)
+        sub361 = klon(tmp, "sub361")
+        berkas_aksi361 = os.path.join(
+            sub361, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi361, encoding="utf-8") as f:
+            isi_aksi361 = f.read()
+        baris_aksi361 = [b for b in isi_aksi361.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi361, "w", encoding="utf-8") as f:
+            f.write(isi_aksi361.replace(
+                baris_aksi361,
+                baris_aksi361.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(git credential-store get; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub361,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("git credential-store get: gerbang gagal (Audit 1163)", rc != 0)
+        shutil.rmtree(sub361, ignore_errors=True)
+        sub362 = klon(tmp, "sub362")
+        berkas_aksi362 = os.path.join(
+            sub362, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi362, encoding="utf-8") as f:
+            isi_aksi362 = f.read()
+        baris_aksi362 = [b for b in isi_aksi362.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi362, "w", encoding="utf-8") as f:
+            f.write(isi_aksi362.replace(
+                baris_aksi362,
+                baris_aksi362.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(git rev-list HEAD; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub362,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("git rev-list HEAD: gerbang lolos (Audit 1163)", rc == 0)
+        shutil.rmtree(sub362, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

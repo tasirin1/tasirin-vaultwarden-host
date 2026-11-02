@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — bentuk --stdin plumbing git dan credential get kini dimodelkan gerbang patch (Audit 1163)
+
 ## [Belum rilis] — subcommand git pembaca stdin putaran-4 kini dikenali gerbang patch (Audit 1162)
 
 ## [Belum rilis] — openssl rsautl kini dinilai gerbang patch membaca stdin tanpa -in (Audit 1161)
