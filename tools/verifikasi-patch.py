@@ -2651,6 +2651,9 @@ def _menguras_khusus(perintah, toks, awal):
                     return True
             if t in ("-f-", "--file=-", "--makefile=-",
                      "-f/dev/stdin",
+                     # Audit 1388: ejaan fd-0 merekat pendek,
+                     # sejajar bentuk panjang Audit 1365.
+                     "-f/dev/fd/0", "-f/proc/self/fd/0",
                      # Audit 1350: bentuk panjang merekat.
                      "--file=/dev/stdin",
                      "--makefile=/dev/stdin",

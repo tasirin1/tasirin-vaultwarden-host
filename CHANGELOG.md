@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Make bentuk pendek merekat -f<fd-0> diakui (Audit 1388)
 ## [Belum rilis] — Tmux bundel berisi angka (-2V) terdeteksi sebagai -V (Audit 1387)
 ## [Belum rilis] — Tmux nilai merekat opsi global (-LV) bukan bendera -V (Audit 1386)
 ## [Belum rilis] — Tree --gitfile masuk tabel opsi bernilai (Audit 1385)
