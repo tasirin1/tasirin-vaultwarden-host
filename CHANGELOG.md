@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Keluarga grep terkompresi dikenal (zgrep/bzgrep/xzgrep/lzgrep) (Audit 1244)
+
 ## [Belum rilis] — json_pp: entri tabel -f/--format ditambahkan (Audit 1243)
 
 ## [Belum rilis] — strings: -s/--output-separator dan -U/--unicode hilang (Audit 1242)
