@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Systemd-creds encrypt menilai operand '-' (Audit 1323)
+
 ## [Belum rilis] — Systemd-tmpfiles operand '-' dinilai (Audit 1322)
 
 ## [Belum rilis] — Systemd-sysusers operand '-' dinilai (Audit 1321)

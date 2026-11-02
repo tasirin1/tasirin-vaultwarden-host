@@ -2901,6 +2901,15 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"--root", "--image", "--prefix",
                          "--exclude-prefix", "--replace"})
         return "-" in ops_sy2
+    # Audit 1323: systemd-creds encrypt — masukan pertama.
+    if perintah == "systemd-creds":
+        if mentah and mentah[0] == "encrypt":
+            ops_sc2 = _operand_sesudah_opsi(
+                toks, awal + 1, {"--name", "--timestamp",
+                                 "--with-key"})
+            return bool(ops_sc2) and ops_sc2[0] in (
+                "-", "/dev/stdin")
+        return False
     return False
 
 
@@ -3640,6 +3649,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "tmux",
                         "systemd-sysusers",
                         "systemd-tmpfiles",
+                        "systemd-creds",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
