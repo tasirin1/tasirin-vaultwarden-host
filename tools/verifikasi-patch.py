@@ -1551,11 +1551,22 @@ def _menguras_khusus(perintah, toks, awal):
             return "-stdin" in mentah
         if sub == "s_client":
             return "-connect" in mentah
-        if sub in ("x509", "pkey", "rsa"):
+        if sub in ("x509", "pkey", "rsa", "crl", "pkcs7"):
             # Audit 1105: subcommand objek-tunggal tanpa -in
             # membaca satu objek dari stdin (pembaca sebagian —
             # kelas read-ahead yang diterima Audit 1057).
+            # Audit 1128: crl/pkcs7 saudara putaran-2.
             return not _in_non_stdin()
+        if sub == "verify":
+            # Audit 1128: verify tanpa operand sertifikat membaca
+            # sertifikat dari stdin.
+            ops_v = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-CAfile", "-CApath", "-trusted", "-untrusted",
+                 "-attime", "-policy", "-purpose", "-verify_depth",
+                 "-auth_level", "-engine", "-provider", "-propquery",
+                 "-nameopt"})
+            return not ops_v
         if sub == "dgst" or re.fullmatch(
                 r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"
                 r"|blake2b512|blake2s256|sm3|whirlpool)", sub):

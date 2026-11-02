@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — subcommand objek-tunggal openssl putaran-2 kini dikenali gerbang patch (Audit 1128)
+
 ## [Belum rilis] — opsi bernilai grep penyaring berkas dilengkapi di gerbang patch (Audit 1127)
 
 ## [Belum rilis] — jq --indent masuk set opsi bernilai gerbang patch (Audit 1126)
