@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — allowlist restore diterimaEntriZip kini teruji JVM langsung (Audit 1143)
+
 ## [Belum rilis] — parser Telegram kini membatasi pencarian kunci pada cakupan yang benar (Audit 1142)
 
 ## [Belum rilis] — uniq --group dibuang dari tabel opsi bernilai gerbang patch (Audit 1141)

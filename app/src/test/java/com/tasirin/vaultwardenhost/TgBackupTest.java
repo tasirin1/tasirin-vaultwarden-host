@@ -261,6 +261,30 @@ public class TgBackupTest {
     }
 
     @Test
+    public void diterimaEntriZip_allowlistPersis() {
+        // Audit 1143: keputusan terima/tolak allowlist restore.
+        assertTrue(TgBackup.diterimaEntriZip("db.sqlite3"));
+        assertTrue(TgBackup.diterimaEntriZip("db.sqlite3-wal"));
+        assertTrue(TgBackup.diterimaEntriZip("db.sqlite3-shm"));
+        assertTrue(TgBackup.diterimaEntriZip("app-config.json"));
+        assertTrue(TgBackup.diterimaEntriZip("tls"));
+        assertTrue(TgBackup.diterimaEntriZip("tls/ca.pem"));
+        assertTrue(TgBackup.diterimaEntriZip("tls/cert.pem"));
+        assertTrue(TgBackup.diterimaEntriZip("tls/key.pem"));
+        assertTrue(TgBackup.diterimaEntriZip("tls/ca-key.pem"));
+        assertFalse(TgBackup.diterimaEntriZip(""));
+        assertFalse(TgBackup.diterimaEntriZip("db.sqlite3.bak"));
+        assertFalse(TgBackup.diterimaEntriZip("../db.sqlite3"));
+        assertFalse(TgBackup.diterimaEntriZip("a/../db.sqlite3"));
+        assertFalse(TgBackup.diterimaEntriZip("tls/evil.pem"));
+        assertFalse(TgBackup.diterimaEntriZip("tls/ca.pemx"));
+        assertFalse(TgBackup.diterimaEntriZip("app-config.json2"));
+        assertFalse(TgBackup.diterimaEntriZip("x:db.sqlite3"));
+        assertFalse(TgBackup.diterimaEntriZip("DB.SQLITE3"));
+        assertFalse(TgBackup.diterimaEntriZip("/db.sqlite3"));
+    }
+
+    @Test
     public void cleanupOldBackups_nolAman() throws Exception {
         TgBackup.cleanupOldBackups(null);
         java.io.File takAda = new java.io.File("/jalan/tak/ada/vw-uji-nol");

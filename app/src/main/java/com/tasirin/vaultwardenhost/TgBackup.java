@@ -4561,7 +4561,9 @@ public final class TgBackup {
                 || nama.equals("tls/ca-key.pem");
     }
 
-    private static boolean diterimaEntriZip(String n) {
+    // Audit 1143: package-private agar keputusan allowlist-nya
+    // teruji JVM langsung (dulu private tanpa asersi langsung).
+    static boolean diterimaEntriZip(String n) {
         if (n.isEmpty() || adaSegmenDotDot(n) || n.contains(":")) {
             return false;
         }
