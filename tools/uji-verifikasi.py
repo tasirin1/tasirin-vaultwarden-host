@@ -11767,6 +11767,24 @@ def main():
         periksa("pdftocairo -png - hasil.png: "
                 "gerbang gagal (Audit 1404)", rc != 0)
         shutil.rmtree(sub628, ignore_errors=True)
+        sub629 = klon(tmp, "sub629")
+        berkas_aksi629 = os.path.join(
+            sub629, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi629, encoding="utf-8") as f:
+            isi_aksi629 = f.read()
+        baris_aksi629 = [b for b in isi_aksi629.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi629, "w", encoding="utf-8") as f:
+            f.write(isi_aksi629.replace(
+                baris_aksi629,
+                baris_aksi629.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(npm init; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub629, [sys.executable, GERBANG, "--semua"])
+        periksa("npm init: "
+                "gerbang gagal (Audit 1405)", rc != 0)
+        shutil.rmtree(sub629, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

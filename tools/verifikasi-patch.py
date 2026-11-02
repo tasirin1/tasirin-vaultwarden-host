@@ -3425,6 +3425,16 @@ def _menguras_khusus(perintah, toks, awal):
                 and mentah[k_gh] == "auth"
                 and mentah[k_gh + 1] == "login"
                 and "--with-token" in mentah)
+    # Audit 1405: npm init tanpa -y/--yes adalah wizard
+    # interaktif yang membaca jawaban prompt dari stdin.
+    if perintah == "npm":
+        ops_npm = _operand_sesudah_opsi(
+            toks, awal, {"--prefix", "--userconfig",
+                         "--globalconfig", "--cache",
+                         "--registry", "--workspace", "-w"})
+        if not ops_npm or ops_npm[0] != "init":
+            return False
+        return "-y" not in mentah and "--yes" not in mentah
     return False
 
 
@@ -4195,6 +4205,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # Audit 1377: gh (auth login
                         # --with-token membaca token).
                         "gh",
+                        # Audit 1405: npm (init interaktif).
+                        "npm",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
