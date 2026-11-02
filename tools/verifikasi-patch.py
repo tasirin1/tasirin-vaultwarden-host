@@ -1292,10 +1292,16 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "openssl":
         # Audit 1060: hanya subcommand dgst (dan alias nama
         # digestnya) serta enc yang membaca stdin.
+        # Audit 1075: operand "-" adalah stdin juga di sini
+        # (konvensi Audit 1037 belum menjangkau penilai khusus).
         if not mentah:
             return False
         sub = mentah[0]
         if sub == "enc":
+            if any(t == "-in" and k + 1 < len(mentah)
+                   and mentah[k + 1] == "-"
+                   for k, t in enumerate(mentah)):
+                return True
             return not any(
                 t == "-in" or t.startswith("-in=")
                 or t.startswith("--in") for t in mentah[1:])
@@ -1309,7 +1315,7 @@ def _menguras_khusus(perintah, toks, awal):
                  "-engine", "-fipskey", "-provider", "-propquery"})
             if sub != "dgst":
                 ops = ops[1:] if ops else []
-            return not ops
+            return not ops or "-" in ops
         return False
     if perintah == "tar":
         # Audit 1061: arsip '-' (nilai -f) atau daftar -T '-'.

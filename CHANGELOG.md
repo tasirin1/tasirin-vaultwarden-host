@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — operand '-' kini dikenali penilai openssl gerbang patch (Audit 1075)
+
 ## [Belum rilis] — bendera comm -1/-2/-3 tak lagi menelan operand '-' di gerbang patch (Audit 1074)
 
 ## [Belum rilis] — pagar kejar-waktu AlarmReceiver diekstrak ke fungsi murni teruji JVM (Audit 1073)
