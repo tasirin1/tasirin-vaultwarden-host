@@ -439,15 +439,14 @@ public class SettingsActivity extends Activity {
             String pathRestorePilih = savedInstanceState.getString(
                     STATE_RESTORE_PILIH_PATH);
             if (pathRestorePilih != null) {
-                // Audit 1012: salinan restore pemilih hanya hidup
-                // selama panggilan restore sinkron di instance yang
-                // membuatnya — path yang kembali dari Bundle selalu
-                // basi: restorenya sudah selesai (berkas terhapus
-                // di finally) atau prosesnya mati di tengah (berkas
-                // yatim). Menghidupkan lagi pengecualiannya di sini
-                // melindungi yatim itu dari semua sapuan selama
-                // rantai instance hidup; hapus berkasnya langsung.
-                new File(pathRestorePilih).delete();
+                // Audit 1013: pengecualian dihidupkan lagi (perilaku
+                // Audit 1003) — restore pemilih berjalan di thread
+                // pekerja, jadi pada rekreasi berproses-hidup salinan
+                // bisa MASIH DIBACA instance lama dan tak boleh
+                // dihapus di sini. Sisi yatimnya (proses mati di
+                // tengah restore) ditutup oleh batas TTL pada
+                // pengecualian di penyapu, bukan di sini.
+                salinanRestorePilihAktif = new File(pathRestorePilih);
             }
         }
         TgBackup.healkanStringPrefs(this);
@@ -2684,14 +2683,22 @@ public class SettingsActivity extends Activity {
                         // dikecualikan (restore pemilih tak punya
                         // keadaan dialog tertunda, jadi hanya itu
                         // pengecualiannya).
-                        File aktif = salinanRestorePilihAktif;
-                        if (aktif != null
-                                && f.getAbsolutePath().equals(aktif.getAbsolutePath())) {
-                            continue;
-                        }
                         long umur = System.currentTimeMillis() - f.lastModified();
                         if (umur < 0) {
                             umur = 0;
+                        }
+                        // Audit 1013: pengecualian salinan aktif
+                        // dibatasi TTL yang sama — pengecualian yang
+                        // dipulihkan dari Bundle bisa basi (proses
+                        // mati di tengah restore) dan tak boleh
+                        // melindungi yatim selamanya; salinan yang
+                        // sungguh sedang dibaca thread pekerja
+                        // umurnya jauh di bawah TTL.
+                        File aktif = salinanRestorePilihAktif;
+                        if (umur <= RESTORE_TG_TTL_MS
+                                && aktif != null
+                                && f.getAbsolutePath().equals(aktif.getAbsolutePath())) {
+                            continue;
                         }
                         if (umur > RESTORE_TG_TTL_MS) {
                             f.delete();
