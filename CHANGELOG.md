@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — lzcat masuk daftar pembaca stdin gerbang (Audit 1199)
+
 ## [Belum rilis] — dpkg --set-selections dikenali gerbang (Audit 1198)
 
 ## [Belum rilis] — mode batch iproute2 dikenali gerbang (Audit 1197)

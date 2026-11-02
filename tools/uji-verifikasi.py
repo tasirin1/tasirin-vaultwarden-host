@@ -7630,6 +7630,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("dpkg --set-selections: gerbang gagal (Audit 1198)", rc != 0)
         shutil.rmtree(sub399, ignore_errors=True)
+        sub400 = klon(tmp, "sub400")
+        berkas_aksi400 = os.path.join(
+            sub400, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi400, encoding="utf-8") as f:
+            isi_aksi400 = f.read()
+        baris_aksi400 = [b for b in isi_aksi400.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi400, "w", encoding="utf-8") as f:
+            f.write(isi_aksi400.replace(
+                baris_aksi400,
+                baris_aksi400.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lzcat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub400,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lzcat: gerbang gagal (Audit 1199)", rc != 0)
+        shutil.rmtree(sub400, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

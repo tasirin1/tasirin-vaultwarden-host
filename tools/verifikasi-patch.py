@@ -649,6 +649,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1098: varian nama kompresor yang sama
                   # perilakunya (dekompresi ke stdout).
                   "bunzip2", "bzcat", "xzcat", "unxz", "unlzma",
+                  # Audit 1199: lzcat setara unlzma, tertinggal
+                  # dari daftar.
+                  "lzcat",
                   # Audit 1112: pembaca interaktif/kueri — operand
                   # berkas/nama menekan seperti filter biasa.
                   "wall", "c++filt", "nslookup",
