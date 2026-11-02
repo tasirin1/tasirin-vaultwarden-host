@@ -672,10 +672,16 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1196: pemulih tabel firewall membaca
                   # aturannya dari stdin secara bawaan.
                   "iptables-restore", "ip6tables-restore",
+                  # Audit 1257: varian nama pemulih tabel.
+                  "iptables-nft-restore",
+                  "iptables-legacy-restore",
+                  "ip6tables-nft-restore",
+                  "ip6tables-legacy-restore", "arptables-restore",
+                  "ebtables-restore",
                   # Audit 1245/1246/1247/1248/1260: alias
                   # checksum, konverter, POD, penebak encoding.
                   "shasum", "md5sum.textutils", "uconv",
-                  "piconv", "pod2text",
+                  "piconv", "pod2text", 
                   # Audit 1191/1192: funzip mengekstrak anggota
                   # pertama arsip zip dari stdin; json_pp
                   # memformat JSON dari stdin.
@@ -822,12 +828,27 @@ _OPSI_BERNILAI = {
                          "-w", "--wait"},
     "ip6tables-restore": {"-T", "--table", "-M", "--modprobe",
                           "-w", "--wait"},
+    # Audit 1257: varian nama pemulih tabel lain.
+    "iptables-nft-restore": {"-T", "--table", "-M", "--modprobe",
+                             "-w", "--wait"},
+    "iptables-legacy-restore": {"-T", "--table", "-M",
+                                "--modprobe", "-w", "--wait"},
+    "ip6tables-nft-restore": {"-T", "--table", "-M",
+                              "--modprobe", "-w", "--wait"},
+    "ip6tables-legacy-restore": {"-T", "--table", "-M",
+                                 "--modprobe", "-w", "--wait"},
+    "arptables-restore": {"-T", "--table", "-M", "--modprobe",
+                          "-w", "--wait"},
+    "ebtables-restore": {"-T", "--table", "-M", "--modprobe",
+                         "-w", "--wait"},
     # Audit 1243: json_pp tanpa entri (Audit 1192 hanya
     # menambah namanya ke daftar pembaca).
     "json_pp": {"-f", "--format"},
     # Audit 1246/1247/1248: konverter & pembaca POD.
     "uconv": {"-f", "--from-code", "-t", "--to-code", "-o",
-              "--output", "-x", "--translit"},    "piconv": {"-f", "--from", "-t", "--to", "-o", "--output"},    "pod2text": {"-o", "--output", "-w", "--width", "-i",
+              "--output", "-x", "--translit"},
+    "piconv": {"-f", "--from", "-t", "--to", "-o", "--output"},
+    "pod2text": {"-o", "--output", "-w", "--width", "-i",
                  "--indent", "-q", "--quotes", "--errors"},
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Varian *tables-restore dikenal sebagai pembaca stdin (Audit 1257)
+
 ## [Belum rilis] — Pembungkus xvfb-run dikenal resolver (Audit 1256)
 
 ## [Belum rilis] — Pembungkus choom dikenal resolver (Audit 1255)
