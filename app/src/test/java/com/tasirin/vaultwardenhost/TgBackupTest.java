@@ -184,6 +184,44 @@ public class TgBackupTest {
     }
 
     @Test
+    public void parseFilePathTelegram_bentukRespons() {
+        // Audit 1115: parser file_path kini pemindai manual (bisa
+        // diuji JVM); semantik versi JSONObject dipertahankan.
+        // Gerbang "ok" (helper telegramOkBenar) teruji lewat kasus
+        // ok:true / ok:false / ok:"true" di bawah ini.
+        assertEquals("documents/file_1.zip", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":{\"file_id\":\"x\",\"file_path\":\"documents/file_1.zip\"}}"));
+        assertEquals("", TgBackup.parseFilePathTelegram(
+                "{\"ok\":false,\"result\":{\"file_path\":\"documents/file_1.zip\"}}"));
+        assertEquals("", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":{\"file_id\":\"x\"}}"));
+        assertEquals("", TgBackup.parseFilePathTelegram(null));
+        assertEquals("", TgBackup.parseFilePathTelegram(""));
+        assertEquals("", TgBackup.parseFilePathTelegram("bukan json"));
+        assertEquals("documents/file_1.zip", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":{\"file_path\":\"documents\\/file_1.zip\"}}"));
+        assertEquals("12345", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":{\"file_path\":12345}}"));
+        assertEquals("documents/file_1.zip", TgBackup.parseFilePathTelegram(
+                "{\"ok\":\"true\",\"result\":{\"file_path\":\"documents/file_1.zip\"}}"));
+        assertEquals("", TgBackup.parseFilePathTelegram(
+                "{\"ok\":true,\"result\":{\"file_path\":null}}"));
+    }
+
+    @Test
+    public void telegramOkBenar_gerbangOk() {
+        // Audit 1115: helper gerbang "ok" — literal true dan string
+        // "true" (koersi optBoolean lama); sisanya ditolak.
+        assertTrue(TgBackup.telegramOkBenar("{\"ok\":true,\"result\":{}}"));
+        assertTrue(TgBackup.telegramOkBenar("{\"ok\":\"true\"}"));
+        assertTrue(TgBackup.telegramOkBenar("{ \"ok\" : true }"));
+        assertFalse(TgBackup.telegramOkBenar("{\"ok\":false}"));
+        assertFalse(TgBackup.telegramOkBenar("{\"ok\":1}"));
+        assertFalse(TgBackup.telegramOkBenar("{\"result\":{}}"));
+        assertFalse(TgBackup.telegramOkBenar(""));
+    }
+
+    @Test
     public void cleanupOldBackups_nolAman() throws Exception {
         TgBackup.cleanupOldBackups(null);
         java.io.File takAda = new java.io.File("/jalan/tak/ada/vw-uji-nol");

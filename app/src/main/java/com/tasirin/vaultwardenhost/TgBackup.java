@@ -2707,22 +2707,118 @@ public final class TgBackup {
     }
 
     static String parseFilePathTelegram(String body) {
+        // Audit 1115: pemindai manual seperti fileSizeDariRespons
+        // (Audit 1008) — versi JSONObject tak bisa diuji JVM karena
+        // org.json android.jar adalah stub yang melempar, sehingga
+        // di uji selalu mengembalikan "" dan perilakunya tak
+        // terkunci. Semantik dipertahankan: gerbang "ok" wajib
+        // benar, lalu nilai "file_path" (string diurai escape-nya;
+        // nilai bukan-string dipaksa teks seperti optString).
         if (body == null || body.isEmpty()) {
             return "";
         }
-        try {
-            JSONObject resp = new JSONObject(body);
-            if (!resp.optBoolean("ok", false)) {
-                return "";
-            }
-            JSONObject res = resp.optJSONObject("result");
-            if (res == null) {
-                return "";
-            }
-            String path = res.optString("file_path", "");
-            return path == null ? "" : path;
-        } catch (Exception e) {
+        if (!telegramOkBenar(body)) {
             return "";
+        }
+        String kunci = "\"file_path\"";
+        int dari = 0;
+        while (true) {
+            int i = body.indexOf(kunci, dari);
+            if (i < 0) {
+                return "";
+            }
+            int j = i + kunci.length();
+            while (j < body.length()
+                    && Character.isWhitespace(body.charAt(j))) {
+                j++;
+            }
+            if (j >= body.length() || body.charAt(j) != ':') {
+                dari = i + 1;  // kemunculan bukan kunci nilai; lanjut
+                continue;
+            }
+            j++;
+            while (j < body.length()
+                    && Character.isWhitespace(body.charAt(j))) {
+                j++;
+            }
+            if (j >= body.length()) {
+                return "";
+            }
+            if (body.charAt(j) == '"') {
+                StringBuilder sb = new StringBuilder();
+                int k = j + 1;
+                while (k < body.length()) {
+                    char c = body.charAt(k);
+                    if (c == '\\' && k + 1 < body.length()) {
+                        char e = body.charAt(k + 1);
+                        switch (e) {
+                            case 'n': sb.append('\n'); k += 2; break;
+                            case 'r': sb.append('\r'); k += 2; break;
+                            case 't': sb.append('\t'); k += 2; break;
+                            case 'b': sb.append('\b'); k += 2; break;
+                            case 'f': sb.append('\f'); k += 2; break;
+                            case 'u':
+                                if (k + 5 < body.length()) {
+                                    try {
+                                        sb.append((char) Integer.parseInt(
+                                                body.substring(k + 2, k + 6), 16));
+                                        k += 6;
+                                    } catch (NumberFormatException nfe) {
+                                        sb.append('u');
+                                        k += 2;
+                                    }
+                                } else {
+                                    sb.append('u');
+                                    k += 2;
+                                }
+                                break;
+                            default: sb.append(e); k += 2; break;
+                        }
+                        continue;
+                    }
+                    if (c == '"') {
+                        return sb.toString();
+                    }
+                    sb.append(c);
+                    k++;
+                }
+                return "";  // string tak tertutup
+            }
+            // Nilai bukan string: optString lama memaksa ke teks.
+            int k = j;
+            while (k < body.length()
+                    && body.charAt(k) != ',' && body.charAt(k) != '}') {
+                k++;
+            }
+            String token = body.substring(j, k).trim();
+            return "null".equals(token) ? "" : token;
+        }
+    }
+
+    static boolean telegramOkBenar(String body) {
+        String kunci = "\"ok\"";
+        int dari = 0;
+        while (true) {
+            int i = body.indexOf(kunci, dari);
+            if (i < 0) {
+                return false;
+            }
+            int j = i + kunci.length();
+            while (j < body.length()
+                    && Character.isWhitespace(body.charAt(j))) {
+                j++;
+            }
+            if (j >= body.length() || body.charAt(j) != ':') {
+                dari = i + 1;
+                continue;
+            }
+            j++;
+            while (j < body.length()
+                    && Character.isWhitespace(body.charAt(j))) {
+                j++;
+            }
+            return body.startsWith("true", j)
+                    || body.startsWith("\"true\"", j);
         }
     }
 

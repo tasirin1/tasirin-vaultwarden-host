@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — parser file_path Telegram ditulis ulang pemindai manual teruji (Audit 1115)
+
 ## [Belum rilis] — penentu sapu basi TgBackup kini teruji JVM (Audit 1114)
 
 ## [Belum rilis] — varian nama original-awk kini dipetakan gerbang patch (Audit 1113)
