@@ -1755,14 +1755,27 @@ def _menguras_khusus(perintah, toks, awal):
             return "-stdin" in mentah
         if sub == "s_client":
             return "-connect" in mentah
-        if sub in ("x509", "pkey", "rsa", "crl", "pkcs7",
+        if sub in ("x509", "rsa", "pkey", "dsa", "crl", "ec"):
+            # Audit 1215: untuk keenamnya '-in -' BUKAN stdin di
+            # OpenSSL 3.0.13 — pembuka OSSL_STORE menolak skema
+            # '-' dan membaca 0 byte (terprobe satu per satu);
+            # tanpa -in mereka tetap membaca objek dari stdin,
+            # dan -in berkas tentu bukan stdin.
+            if any(t_in in ("-in", "--in")
+                   or t_in.startswith("-in=")
+                   or t_in.startswith("--in=")
+                   for t_in in mentah):
+                return False
+            return True
+        if sub in ("pkcs7",
                    # Audit 1160: objek-tunggal putaran-3.
-                   "dsa", "ec", "pkcs8", "pkcs12", "crl2pkcs7",
-                   "nseq"):
+                   "pkcs8", "pkcs12", "crl2pkcs7", "nseq"):
             # Audit 1105: subcommand objek-tunggal tanpa -in
             # membaca satu objek dari stdin (pembaca sebagian —
             # kelas read-ahead yang diterima Audit 1057).
-            # Audit 1128: crl/pkcs7 saudara putaran-2.
+            # Audit 1215: kelompok ini terprobe justru MENGURAS
+            # lewat -in - (jalur pemuat berbeda) — vonis lama
+            # untuk mereka dipertahankan.
             return not _in_non_stdin()
         if sub == "verify":
             # Audit 1128: verify tanpa operand sertifikat membaca

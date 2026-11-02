@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — openssl objek tertentu: -in - bukan stdin (Audit 1215)
+
 ## [Belum rilis] — bentuk daftar openssl dikenali informasional (Audit 1214)
 
 ## [Belum rilis] — entri tabel kompresor gerbang dilengkapi (Audit 1213)
