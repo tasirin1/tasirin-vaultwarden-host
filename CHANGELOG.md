@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Strings menolak operand '-' (bukan stdin) (Audit 1406)
 ## [Belum rilis] — Npm init interaktif membaca jawaban prompt (Audit 1405)
 ## [Belum rilis] — Pdftoppm/pdftocairo operand masukan '-' dikenal (Audit 1404)
 ## [Belum rilis] — Openssl req -new tanpa -subj/-batch membaca prompt DN (Audit 1403)

@@ -4290,6 +4290,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     ada_stdin_pr = False
     # Audit 1349: operand berkas pr tak memutuskan vonis.
     ada_operand_pr = False
+    # Audit 1406: keadaan operand strings ('-' ditolaknya).
+    strings_tolak_dash = False
+    strings_ada_stdin = False
     operand_tr = 0  # Audit 1047: penghitung operand himpunan tr.
     # Audit 1087: pada mode hapus (-d tanpa -s) GNU tr menolak
     # himpunan KEDUA — batas operand sah menyusut jadi 1.
@@ -4433,6 +4436,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # tercatat.
             if perintah == "pr":
                 ada_stdin_pr = True
+            # Audit 1406: strings MENOLAK '-' (galat usage /
+            # nama berkas harfiah) — bukan stdin baginya.
+            if perintah == "strings":
+                strings_tolak_dash = True
             continue
         if t.startswith("-"):
             # Audit 938: opsi bernilai tak hanya -n/-c dan -o;
@@ -4452,6 +4459,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                               "/proc/self/fd/0"):
             # Audit 1099: jalur fd-0 sebagai operand ADALAH stdin
             # itu sendiri (pengecualian 1041 diperluas dari dd).
+            # Audit 1406: untuk strings ini operand stdin
+            # SUNGGUHAN (berbeda dari '-' yang ditolaknya).
+            if perintah == "strings":
+                strings_ada_stdin = True
             continue
         if perintah == "tr":
             # Audit 1037: operand tr adalah himpunan karakter,
@@ -4496,6 +4507,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # '-' termasuk di antara operandnya.
     if perintah == "pr" and ada_operand_pr:
         return ada_stdin_pr
+    # Audit 1406: strings yang menolak '-' tak membaca apa
+    # pun dari pipa — kecuali ada operand stdin sungguhan.
+    if perintah == "strings" and strings_tolak_dash:
+        return strings_ada_stdin
     return True
 
 

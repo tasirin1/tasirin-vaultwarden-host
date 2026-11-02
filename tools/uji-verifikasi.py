@@ -11785,6 +11785,24 @@ def main():
         periksa("npm init: "
                 "gerbang gagal (Audit 1405)", rc != 0)
         shutil.rmtree(sub629, ignore_errors=True)
+        sub630 = klon(tmp, "sub630")
+        berkas_aksi630 = os.path.join(
+            sub630, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi630, encoding="utf-8") as f:
+            isi_aksi630 = f.read()
+        baris_aksi630 = [b for b in isi_aksi630.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi630, "w", encoding="utf-8") as f:
+            f.write(isi_aksi630.replace(
+                baris_aksi630,
+                baris_aksi630.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(strings -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub630, [sys.executable, GERBANG, "--semua"])
+        periksa("strings -: "
+                "gerbang lolos (Audit 1406)", rc == 0)
+        shutil.rmtree(sub630, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
