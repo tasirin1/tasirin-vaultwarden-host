@@ -4295,6 +4295,25 @@ def main():
         periksa("openssl pkeyutl: gerbang gagal (Audit 1104)", rc != 0)
         shutil.rmtree(sub215, ignore_errors=True)
 
+        sub216 = klon(tmp, "sub216")
+        berkas_aksi216 = os.path.join(
+            sub216, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi216, encoding="utf-8") as f:
+            isi_aksi216 = f.read()
+        baris_aksi216 = [b for b in isi_aksi216.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi216, "w", encoding="utf-8") as f:
+            f.write(isi_aksi216.replace(
+                baris_aksi216,
+                baris_aksi216.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl x509; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub216,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl x509 tanpa -in: gerbang gagal (Audit 1105)", rc != 0)
+        shutil.rmtree(sub216, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

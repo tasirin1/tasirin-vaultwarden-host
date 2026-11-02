@@ -1484,6 +1484,11 @@ def _menguras_khusus(perintah, toks, awal):
             return "-stdin" in mentah
         if sub == "s_client":
             return "-connect" in mentah
+        if sub in ("x509", "pkey", "rsa"):
+            # Audit 1105: subcommand objek-tunggal tanpa -in
+            # membaca satu objek dari stdin (pembaca sebagian —
+            # kelas read-ahead yang diterima Audit 1057).
+            return not _in_non_stdin()
         if sub == "dgst" or re.fullmatch(
                 r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"
                 r"|blake2b512|blake2s256|sm3|whirlpool)", sub):
