@@ -9376,6 +9376,24 @@ def main():
         periksa("git am --whitespace fix: "
                 "gerbang gagal (Audit 1273)", rc != 0)
         shutil.rmtree(sub496, ignore_errors=True)
+        sub497 = klon(tmp, "sub497")
+        berkas_aksi497 = os.path.join(
+            sub497, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi497, encoding="utf-8") as f:
+            isi_aksi497 = f.read()
+        baris_aksi497 = [b for b in isi_aksi497.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi497, "w", encoding="utf-8") as f:
+            f.write(isi_aksi497.replace(
+                baris_aksi497,
+                baris_aksi497.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git notes add -fF- HEAD; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub497, [sys.executable, GERBANG, "--semua"])
+        periksa("git notes add -fF- HEAD: "
+                "gerbang gagal (Audit 1274)", rc != 0)
+        shutil.rmtree(sub497, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

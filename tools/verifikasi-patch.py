@@ -2190,6 +2190,10 @@ def _menguras_khusus(perintah, toks, awal):
                             # Audit 1225: -F- merekat.
                             "-F-"):
                     return True
+                # Audit 1274: -F- di dalam bundel pendek
+                # (mis. -fF-).
+                if re.fullmatch(r"-[A-Za-z]*F-", t_nt):
+                    return True
                 if t_nt in ("-F", "--file") and (
                         k_nt + 1 < len(mentah)
                         and mentah[k_nt + 1] == "-"):
