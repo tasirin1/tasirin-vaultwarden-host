@@ -679,6 +679,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "uncompress",
                   # Audit 1313: penulis zip aliran.
                   "streamzip",
+                  # Audit 1314: pager terkompresi.
+                  "zless", "zmore", "bzless", "bzmore",
+                  "xzless", "xzmore", "lzless", "lzmore",
                   # Audit 1113: varian awk orisinal.
                   "original-awk",
                   # Audit 1196: pemulih tabel firewall membaca
@@ -902,6 +905,18 @@ _OPSI_BERNILAI = {
     "uncompress": set(),
     # Audit 1313: streamzip tanpa opsi bernilai.
     "streamzip": set(),
+    "zless": {"-p", "--pattern", "-P", "--prompt", "-o",
+              "--log-file"},
+    "zmore": set(),
+    "bzless": {"-p", "--pattern", "-P", "--prompt", "-o",
+               "--log-file"},
+    "bzmore": set(),
+    "xzless": {"-p", "--pattern", "-P", "--prompt", "-o",
+               "--log-file"},
+    "xzmore": set(),
+    "lzless": {"-p", "--pattern", "-P", "--prompt", "-o",
+               "--log-file"},
+    "lzmore": set(),
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",

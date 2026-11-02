@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Pager terkompresi (zless dkk.) masuk tabel bernilai (Audit 1314)
+
 ## [Belum rilis] — Streamzip masuk tabel pembaca stdin (Audit 1313)
 
 ## [Belum rilis] — Ptar -f - dinilai (Audit 1312)
