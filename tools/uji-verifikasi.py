@@ -9880,6 +9880,24 @@ def main():
         periksa("perl5.38.2: "
                 "gerbang gagal (Audit 1301)", rc != 0)
         shutil.rmtree(sub524, ignore_errors=True)
+        sub525 = klon(tmp, "sub525")
+        berkas_aksi525 = os.path.join(
+            sub525, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi525, encoding="utf-8") as f:
+            isi_aksi525 = f.read()
+        baris_aksi525 = [b for b in isi_aksi525.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi525, "w", encoding="utf-8") as f:
+            f.write(isi_aksi525.replace(
+                baris_aksi525,
+                baris_aksi525.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(cpp; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub525, [sys.executable, GERBANG, "--semua"])
+        periksa("cpp: "
+                "gerbang gagal (Audit 1302)", rc != 0)
+        shutil.rmtree(sub525, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

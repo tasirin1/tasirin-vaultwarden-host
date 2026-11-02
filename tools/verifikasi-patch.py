@@ -2771,6 +2771,14 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "bun":
         ops_bn = _operand_sesudah_opsi(toks, awal, {"-e", "--eval"})
         return bool(ops_bn) and ops_bn[0] == "repl"
+    # Audit 1302/1303/1304: kompiler & assembler — '-' atau
+    # tanpa berkas sumber (untuk -E) berarti stdin.
+    if perintah == "cpp":
+        ops_cp = _operand_sesudah_opsi(
+            toks, awal, {"-I", "-D", "-U", "-o", "-MF", "-MT",
+                         "-MQ", "-include", "-imacros"})
+        return (not ops_cp or "-" in ops_cp
+                or "/dev/stdin" in ops_cp)
     return False
 
 
@@ -3470,6 +3478,14 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return _menguras_interpreter(nama_interp, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)
+        # Audit 1302-1304: nama kompiler bertriple/bersufiks
+        # versi dinormalkan ke nama kanonisnya.
+        m_komp = re.fullmatch(
+            r"(?:x86_64-linux-gnu-)?"
+            r"(gcc|g\+\+|cc|c\+\+|cpp|as)"
+            r"(?:-\d+(?:\.\d+)?)?", perintah)
+        if m_komp:
+            return _menguras_khusus(m_komp.group(1), toks, awal)
         if perintah in ("sqlite3", "openssl", "tar", "git",
                         "comm", "join", "diff", "diff3", "csplit",
                         "zip", "rsync", "socat", "gpg", "curl",
