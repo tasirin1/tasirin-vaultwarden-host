@@ -699,7 +699,9 @@ _OPSI_BERNILAI = {
     "ptx": {"-W", "--width", "-G", "--gap-size", "-M", "--macro-name",
             "-S", "--sentence-regexp", "-T", "--format",
             "--word-regexp", "-b", "--break-file", "-f",
-            "--ignore-file", "-i", "--ignore-file"},
+            "--ignore-file", "-i", "--ignore-file",
+            # Audit 1174: -o/--only-file hilang.
+            "-o", "--only-file"},
     # Audit 1037: opsi bernilai filter aliran.
     "cut": {"-d", "-f", "-c", "--delimiter", "--fields",
             "--characters", "--bytes", "--output-delimiter"},
