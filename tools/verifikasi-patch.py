@@ -2650,7 +2650,10 @@ def _menguras_khusus(perintah, toks, awal):
         if re.fullmatch(r"\+\d+", ops[0]):
             return True
         return ops[0] == "-"
-    if perintah in ("vi", "vim", "nvim", "view", "ex"):
+    if perintah in ("vi", "vim", "nvim", "view", "ex",
+                    # Audit 1316: alias vim/editor sistem.
+                    "vim.tiny", "rview", "editor",
+                    "sensible-editor"):
         # Audit 1072: operand '-' membaca stdin ke buffer.
         # Audit 1108: di konteks pipa vim menyangga stdin sampai
         # habis juga saat membuka berkas (dan tanpa operand) —
@@ -3587,6 +3590,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "lzcmp", "lzdiff",
                         "cmp",
                         "ptar",
+                        "vim.tiny", "rview", "editor",
+                        "sensible-editor",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

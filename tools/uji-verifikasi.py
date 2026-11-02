@@ -10132,6 +10132,24 @@ def main():
         periksa("sensible-pager: "
                 "gerbang gagal (Audit 1315)", rc != 0)
         shutil.rmtree(sub538, ignore_errors=True)
+        sub539 = klon(tmp, "sub539")
+        berkas_aksi539 = os.path.join(
+            sub539, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi539, encoding="utf-8") as f:
+            isi_aksi539 = f.read()
+        baris_aksi539 = [b for b in isi_aksi539.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi539, "w", encoding="utf-8") as f:
+            f.write(isi_aksi539.replace(
+                baris_aksi539,
+                baris_aksi539.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(vim.tiny -n; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub539, [sys.executable, GERBANG, "--semua"])
+        periksa("vim.tiny -n: "
+                "gerbang gagal (Audit 1316)", rc != 0)
+        shutil.rmtree(sub539, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

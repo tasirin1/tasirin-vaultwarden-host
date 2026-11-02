@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Alias vim (vim.tiny/rview/editor/sensible-editor) dirutekan (Audit 1316)
+
 ## [Belum rilis] — Sensible-pager dan pager masuk tabel pembaca stdin (Audit 1315)
 
 ## [Belum rilis] — Pager terkompresi (zless dkk.) masuk tabel bernilai (Audit 1314)
