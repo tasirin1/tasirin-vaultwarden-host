@@ -1563,25 +1563,47 @@ def _menguras_khusus(perintah, toks, awal):
                    or t.startswith("--symmetric") for t in mentah)
     if perintah == "curl":
         # Audit 1068: data/unggah/konfigurasi dari stdin.
+        # Audit 1085: bentuk merekat (-d@-, -T-, nilai = pada --form)
+        # dan bagian-berkas -F/--data-urlencode (name@-).
         i = 0
         while i < len(mentah):
             t = mentah[i]
             if t in ("-d", "--data", "--data-ascii", "--data-raw",
                      "--data-binary", "--data-urlencode", "-T",
-                     "--upload-file", "-K", "--config"):
+                     "--upload-file", "-K", "--config", "-F",
+                     "--form"):
                 if i + 1 < len(mentah):
                     v = mentah[i + 1]
                     if t in ("-d", "--data", "--data-ascii",
-                             "--data-binary", "--data-urlencode"):
+                             "--data-binary"):
                         if v == "@-" or v.startswith("@-"):
+                            return True
+                    elif t == "--data-urlencode":
+                        if v == "@-" or v.startswith("@-") or (
+                                "@" in v
+                                and v.split("@", 1)[1] == "-"):
+                            return True
+                    elif t in ("-F", "--form"):
+                        seg_f = v.split("=", 1)[-1]
+                        if seg_f.startswith("<@"):
+                            seg_f = seg_f[1:]
+                        if seg_f == "@-" or seg_f.startswith("@-;"):
                             return True
                     elif v == "-":
                         return True
                 i += 2
                 continue
             if (t.startswith("--data") and "@-" in t) or (
+                    t.startswith("--form") and "@-" in t
+                    and "--form-string" not in t) or (
                     t.startswith("-T") and len(t) > 2
                     and t[2:] == "-") or (
+                    t.startswith("-d") and len(t) > 2
+                    and t[2:].startswith("@-")) or (
+                    t.startswith("-K") and len(t) > 2
+                    and t[2:] == "-") or (
+                    t.startswith("-F") and len(t) > 2
+                    and "@-" in t) or (
                     t.startswith("--upload-file=")
                     and t.split("=", 1)[1] == "-") or (
                     t.startswith("--config=")
