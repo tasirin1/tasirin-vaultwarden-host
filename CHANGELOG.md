@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — git apply: --build-fake-ancestor terpisah bukan berkas (Audit 1262)
+
 ## [Belum rilis] — git cat-file: bentuk --batch/--batch-check '=' dikenal (Audit 1261)
 
 ## [Belum rilis] — chardetect dikenal sebagai pembaca stdin (Audit 1260)

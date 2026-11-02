@@ -2014,10 +2014,15 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         sub = ops_git[0]
         if sub == "apply":
-            sisa2 = mentah[mentah.index("apply") + 1:]
-            berkas = [t for t in sisa2
-                      if not t.startswith("-")]
-            return not berkas
+            # Audit 1262: nilai opsi bernilai (mis.
+            # --build-fake-ancestor) bukan berkas patch.
+            ops_ap = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--build-fake-ancestor", "--directory",
+                 "--exclude", "--include", "-C", "--whitespace"})
+            if "\x00gantung" in ops_ap:
+                return False
+            return not ops_ap or "-" in ops_ap
         if sub == "hash-object":
             return "--stdin" in mentah or "--stdin-paths" in mentah
         if sub == "cat-file":
