@@ -1281,6 +1281,11 @@ def _menguras_interpreter(perintah, toks, awal):
         # Audit 1122: expect telanjang membaca skrip dari stdin;
         # -f - sama; berkas skrip/-c menekan (isi -c = kode
         # arbitrer, batas model seperti interpreter lain).
+        # Audit 1145: -c hanyalah perintah AWALAN — telan
+        # nilainya lalu lanjut memindai; -f - yang menyusul
+        # tetap berlaku. Hanya -c tanpa skrip/-f: perintah
+        # awalan lalu keluar (terprobe tak membaca stdin).
+        ada_c = False
         while i < n:
             t = toks[i].strip("\"'")
             if t == "-f":
@@ -1288,13 +1293,19 @@ def _menguras_interpreter(perintah, toks, awal):
                         and toks[i + 1].strip("\"'") == "-")
             if t.startswith("-f") and len(t) > 2:
                 return t[2:] == "-"
-            if t == "-c" or t.startswith("-c"):
-                return False
+            if t == "-c":
+                ada_c = True
+                i += 2
+                continue
+            if t.startswith("-c"):
+                ada_c = True
+                i += 1
+                continue
             if t.startswith("-"):
                 i += 1
                 continue
             return False
-        return True
+        return not ada_c
     if perintah in ("bash", "sh", "dash", "zsh"):
         # Audit 1058: shell tanpa skrip membaca perintah dari
         # stdin; -c menekan; operand "-" memintanya eksplisit.

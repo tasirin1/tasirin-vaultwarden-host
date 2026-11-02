@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — expect -c kini hanya perintah awalan di gerbang patch (Audit 1145)
+
 ## [Belum rilis] — Util.semuaDigit dan Util.rendahAscii kini teruji JVM (Audit 1144)
 
 ## [Belum rilis] — allowlist restore diterimaEntriZip kini teruji JVM langsung (Audit 1143)
