@@ -2028,6 +2028,10 @@ def _menguras_khusus(perintah, toks, awal):
         if sub == "hash-object":
             return "--stdin" in mentah or "--stdin-paths" in mentah
         if sub == "cat-file":
+            # Audit 1266: --batch-all-objects menghitung
+            # objek repo sendiri — stdin tak dibaca.
+            if "--batch-all-objects" in mentah:
+                return False
             # Audit 1261: bentuk berformat '=' juga batch.
             return any(t in ("--batch", "--batch-check",
                              "--batch-command")

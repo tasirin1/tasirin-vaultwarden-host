@@ -9250,6 +9250,24 @@ def main():
         periksa("numfmt --grouping 123: "
                 "gerbang lolos (Audit 1265)", rc == 0)
         shutil.rmtree(sub489, ignore_errors=True)
+        sub490 = klon(tmp, "sub490")
+        berkas_aksi490 = os.path.join(
+            sub490, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi490, encoding="utf-8") as f:
+            isi_aksi490 = f.read()
+        baris_aksi490 = [b for b in isi_aksi490.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi490, "w", encoding="utf-8") as f:
+            f.write(isi_aksi490.replace(
+                baris_aksi490,
+                baris_aksi490.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git cat-file --batch-all-objects --batch; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub490, [sys.executable, GERBANG, "--semua"])
+        periksa("git cat-file --batch-all-objects --batch: "
+                "gerbang lolos (Audit 1266)", rc == 0)
+        shutil.rmtree(sub490, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — git cat-file: --batch-all-objects tak membaca stdin (Audit 1266)
+
 ## [Belum rilis] — numfmt: --grouping adalah bendera (Audit 1265)
 
 ## [Belum rilis] — wc: --total bernilai opsional, bukan terpisah (Audit 1264)
