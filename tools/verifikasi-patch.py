@@ -4251,6 +4251,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 return False
             if "=" in t:
                 continue
+        # Audit 1371: chpasswd TAK punya operand berkas —
+        # token asing diabaikan dan stdin tetap dibaca
+        # (berbeda dari newusers yang sah beroperand berkas).
+        if perintah == "chpasswd":
+            continue
         # Audit 1349: pr membaca SETIAP operand berurutan —
         # operand berkas pertama tak boleh memutuskan; catat
         # dan lanjutkan ('-' bisa muncul sesudah berkas).
