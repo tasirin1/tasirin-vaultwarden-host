@@ -13924,6 +13924,27 @@ def main():
         periksa("git format-patch --output-directory --stdin HEAD: "
                 "gerbang lolos (Audit 1416)", rc == 0)
         shutil.rmtree(sub642, ignore_errors=True)
+        sub643 = klon(tmp, "sub643")
+        berkas_aksi643 = os.path.join(
+            sub643, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi643, encoding="utf-8") as f:
+            isi_aksi643 = f.read()
+        baris_aksi643 = [b for b in isi_aksi643.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru643 = isi_aksi643.replace(
+                baris_aksi643,
+                baris_aksi643.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl asn1parse -length 100; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru643 != isi_aksi643, \
+            "suntikan aksi643 tidak menembak"
+        with open(berkas_aksi643, "w", encoding="utf-8") as f:
+            f.write(isi_baru643)
+        rc, out = jalan(sub643, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl asn1parse -length 100: "
+                "gerbang gagal (Audit 1417)", rc != 0)
+        shutil.rmtree(sub643, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

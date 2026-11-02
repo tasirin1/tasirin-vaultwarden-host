@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Openssl asn1parse himpunan opsi bernilai dilengkapi (Audit 1417)
 ## [Belum rilis] — Git format-patch --stdin sadar nilai opsi (Audit 1416)
 ## [Belum rilis] — Git keluarga -p/-i — pindaian sadar nilai opsi dan -- (Audit 1415)
 ## [Belum rilis] — Debugfs -f - membaca berkas perintah dari stdin (Audit 1414)

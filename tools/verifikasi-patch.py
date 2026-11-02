@@ -2094,7 +2094,12 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, awal + 1,
                 {"-in", "-inform", "-outform", "-out",
                  "-strparse", "-genconf", "-config",
-                 "-nameopt", "-certopt"})
+                 "-nameopt", "-certopt",
+                 # Audit 1417: opsi bernilai asn1parse
+                 # yang hilang — nilai angkanya sempat
+                 # dinilai operand penekan.
+                 "-length", "-offset", "-depth", "-dlimit",
+                 "-oid", "-genstr"})
             return not ops_os
         # Audit 1403: req -new tanpa -subj/-batch meminta
         # nama terbilang lewat prompt yang membaca stdin
