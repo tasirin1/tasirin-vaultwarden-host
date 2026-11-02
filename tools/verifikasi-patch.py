@@ -1392,6 +1392,49 @@ def _menguras_khusus(perintah, toks, awal):
         return any(t == "-" or t.startswith("STDIO")
                    or t.startswith("STDIN") for t in mentah
                    if not t.startswith("-") or t == "-")
+    if perintah == "curl":
+        # Audit 1068: data/unggah/konfigurasi dari stdin.
+        i = 0
+        while i < len(mentah):
+            t = mentah[i]
+            if t in ("-d", "--data", "--data-ascii", "--data-raw",
+                     "--data-binary", "--data-urlencode", "-T",
+                     "--upload-file", "-K", "--config"):
+                if i + 1 < len(mentah):
+                    v = mentah[i + 1]
+                    if t in ("-d", "--data", "--data-ascii",
+                             "--data-binary", "--data-urlencode"):
+                        if v == "@-" or v.startswith("@-"):
+                            return True
+                    elif v == "-":
+                        return True
+                i += 2
+                continue
+            if (t.startswith("--data") and "@-" in t) or (
+                    t.startswith("-T") and len(t) > 2
+                    and t[2:] == "-") or (
+                    t.startswith("--upload-file=")
+                    and t.split("=", 1)[1] == "-") or (
+                    t.startswith("--config=")
+                    and t.split("=", 1)[1] == "-"):
+                return True
+            i += 1
+        return False
+    if perintah == "wget":
+        # Audit 1068: daftar URL dari stdin.
+        for i, t in enumerate(mentah):
+            if t in ("-i", "--input-file"):
+                if i + 1 < len(mentah) and mentah[i + 1] == "-":
+                    return True
+            if t in ("--input-file=-", "-i-"):
+                return True
+        return False
+    if perintah == "nc":
+        # Audit 1068: nc dengan target/port meneruskan stdin ke
+        # koneksi (atau pendengar) — tanpa operand ia tak jalan.
+        return bool(_operand_sesudah_opsi(
+            toks, awal, {"-p", "-s", "-X", "-x", "-w", "-i", "-q",
+                         "--proxy", "--proxy-auth"}))
     return False
 
 
@@ -1906,7 +1949,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return _menguras_mapfile(toks, awal)
         if perintah in ("sqlite3", "openssl", "tar", "git",
                         "comm", "join", "diff", "diff3", "csplit",
-                        "zip", "rsync", "socat"):
+                        "zip", "rsync", "socat", "curl",
+                        "wget", "nc"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
