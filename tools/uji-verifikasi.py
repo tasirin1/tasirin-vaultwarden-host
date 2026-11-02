@@ -8638,6 +8638,24 @@ def main():
         periksa("openssl pkcs7 -in /dev/stdin: "
                 "gerbang gagal (Audit 1239)", rc != 0)
         shutil.rmtree(sub455, ignore_errors=True)
+        sub456 = klon(tmp, "sub456")
+        berkas_aksi456 = os.path.join(
+            sub456, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi456, encoding="utf-8") as f:
+            isi_aksi456 = f.read()
+        baris_aksi456 = [b for b in isi_aksi456.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi456, "w", encoding="utf-8") as f:
+            f.write(isi_aksi456.replace(
+                baris_aksi456,
+                baris_aksi456.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl dgst --list; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub456, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl dgst --list: "
+                "gerbang lolos (Audit 1240)", rc == 0)
+        shutil.rmtree(sub456, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
