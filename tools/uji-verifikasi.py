@@ -10906,6 +10906,25 @@ def main():
         periksa("chpasswd: "
                 "gerbang gagal (Audit 1359)", rc != 0)
         shutil.rmtree(sub581, ignore_errors=True)
+        sub582 = klon(tmp, "sub582")
+        berkas_aksi582 = os.path.join(
+            sub582, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi582, encoding="utf-8") as f:
+            isi_aksi582 = f.read()
+        baris_aksi582 = [b for b in isi_aksi582.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi582, "w", encoding="utf-8") as f:
+            f.write(isi_aksi582.replace(
+                baris_aksi582,
+                baris_aksi582.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(systemd-run --scope --on-clock-change cat; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub582, [sys.executable, GERBANG, "--semua"])
+        periksa("systemd-run --scope --on-clock-change cat: "
+                "gerbang lolos (Audit 1364)", rc == 0)
+        shutil.rmtree(sub582, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -3113,7 +3113,10 @@ def _menguras_khusus(perintah, toks, awal):
         timer_sr = {"--on-calendar", "--on-active", "--on-boot",
                     "--on-startup", "--on-unit-active",
                     "--on-unit-inactive", "--timer-property",
-                    "--path-property", "--socket-property"}
+                    "--path-property", "--socket-property",
+                    # Audit 1364: dua pemicu timer lain yang
+                    # sama-sama ditolak pada mode --scope.
+                    "--on-clock-change", "--on-timezone-change"}
         scope_sr = False
         ditolak_sr = False
         anak_sr = None

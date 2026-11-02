@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Systemd-run — --on-clock-change/--on-timezone-change masuk set penolakan timer mode --scope (Audit 1364)
 ## [Belum rilis] — Uji JVM baru untuk bacaResponsBatas dan sufiksPrerelease (Audit 1363)
 ## [Belum rilis] — Pencatatan hasil PIN kini selalu sinkron agar percobaan gagal tak bisa hilang (Audit 1362)
 ## [Belum rilis] — CI: resolve-vw mencoba ulang gh dan jatuh ke curl juga saat jawaban gh kosong (Audit 1361)
