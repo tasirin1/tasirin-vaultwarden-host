@@ -686,6 +686,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "sensible-pager", "pager",
                   # Audit 1324: seleksi debconf.
                   "debconf-set-selections",
+                  # Audit 1336: keluarga POD lain.
+                  "pod2html", "pod2man", "pod2usage",
+                  "podchecker",
                   # Audit 1113: varian awk orisinal.
                   "original-awk",
                   # Audit 1196: pemulih tabel firewall membaca
@@ -929,6 +932,17 @@ _OPSI_BERNILAI = {
     # mengikuti aturan operand generik.
     # Audit 1324: debconf-set-selections tanpa opsi bernilai.
     "debconf-set-selections": set(),
+    "pod2man": {"-c", "--center", "-d", "--date", "-n",
+                "--name", "-r", "--release", "-s", "--section",
+                "--quotes"},
+    "pod2html": {"--backlink", "--cachedir", "--css",
+                 "--htmldir", "--htmlroot", "--infile",
+                 "--outfile", "--podpath", "--podroot",
+                 "--title"},
+    "pod2usage": {"-exitval", "-output", "-verbose",
+                  "-pathlist", "-formatter", "-msg"},
+    "podchecker": {"--warnings", "-warnings"},
+    # Audit 1314/1315: pager (opsi lazim less yang bernilai).
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",
