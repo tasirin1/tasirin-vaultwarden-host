@@ -2765,6 +2765,19 @@ def _menguras_khusus(perintah, toks, awal):
                          "-s", "--sign", "-d", "--decrypt",
                          "--clearsign", "--detach-sign")
                    or t.startswith("--symmetric") for t in mentah)
+    # Audit 1428: gpgsm — --decrypt/--verify tanpa
+    # operand berkas membaca pesan CMS dari stdin
+    # (--sign/--encrypt terbukti gagal lebih dulu).
+    if perintah == "gpgsm":
+        if not any(t in ("--decrypt", "--verify")
+                   for t in mentah):
+            return False
+        ops_gs = _operand_sesudah_opsi(
+            toks, awal, {"-o", "--output", "--homedir",
+                         "--status-fd", "--logger-fd",
+                         "--attribute-fd", "--passphrase-fd",
+                         "--command-fd", "-p", "--passphrase"})
+        return not ops_gs or "-" in ops_gs
     if perintah == "curl":
         # Audit 1068: data/unggah/konfigurasi dari stdin.
         # Audit 1085: bentuk merekat (-d@-, -T-, nilai = pada --form)
@@ -4300,7 +4313,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return _menguras_khusus(m_komp.group(1), toks, awal)
         if perintah in ("sqlite3", "openssl", "tar", "git",
                         "comm", "join", "diff", "diff3", "csplit",
-                        "zip", "rsync", "socat", "gpg", "curl",
+                        "zip", "rsync", "socat", "gpg", "gpgsm", "curl",
                         # Audit 1157: nama varian nc.
                         "wget", "nc", "netcat", "nc.openbsd",
                         "make", "visudo", "patch",
