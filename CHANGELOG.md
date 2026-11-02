@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Rangkaian gagalChat/gagalCa dan log backup terjadwal teredaksi (Audit 1029)
+
+### Diperbaiki
+- Entri kegagalan per tujuan di rangkai tanpa ID chat mentah dan tanpa pesan galat mentah ("tujuan ke-N" + `redaksiDetailGalat`, pola Audit 1018), dan situs log backup terjadwal di ServerService tak lagi menulis Throwable mentah. Sebelumnya pesan pengecualian gabungan "gagal ke semua chat" membawa ID chat pertama secara mentah ke log persisten.
+
+
 ## [Belum rilis] — Penggantian CA kini tercatat jelas di log (Audit 1028)
 
 ### Diperbaiki

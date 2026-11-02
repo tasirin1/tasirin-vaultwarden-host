@@ -1144,7 +1144,11 @@ public class ServerService extends Service {
                     }
                 } catch (Exception e) {
                     String ramah = TgBackup.pesanGalatBackup(e);
-                    appendLog("[tg] " + ramah + " (" + e + ")");
+                    // Audit 1029: Throwable mentah tak lagi dicatat
+                    // apa adanya — lewatkan redaksi yang sama.
+                    appendLog("[tg] " + ramah + " ("
+                            + TgBackup.redaksiDetailGalat(
+                                    String.valueOf(e)) + ")");
                     TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + ramah);
                 } finally {
                     selesaikanBackupTerjadwal(startId);

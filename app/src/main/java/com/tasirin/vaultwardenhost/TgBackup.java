@@ -673,8 +673,13 @@ public final class TgBackup {
                 respTerakhir = resp;
             } catch (Exception e) {
                 String pesan = e.getMessage();
-                gagalChat.add(tujuan.get(ci) + ": "
-                        + (pesan == null ? e.toString() : pesan));
+                // Audit 1029: entri gagal dirangkai TANPA ID chat
+                // mentah dan TANPA pesan mentah (pola 1018) — pesan
+                // gabungan ini berakhir di pengecualian yang dicatat
+                // apa adanya oleh pemanggil.
+                gagalChat.add("tujuan ke-" + (ci + 1) + ": "
+                        + redaksiDetailGalat(
+                                pesan == null ? e.toString() : pesan));
             }
         }
         if (respTerakhir == null) {
@@ -2185,8 +2190,11 @@ public final class TgBackup {
                     terkirimCa++;
                 } catch (Exception e) {
                     String pesan = e.getMessage();
-                    gagalCa.add(tujuanCa.get(ci) + ": "
-                            + (pesan == null ? e.toString() : pesan));
+                    // Audit 1029: tanpa ID chat mentah / pesan
+                    // mentah, pola yang sama seperti gagalChat.
+                    gagalCa.add("tujuan ke-" + (ci + 1) + ": "
+                            + redaksiDetailGalat(
+                                    pesan == null ? e.toString() : pesan));
                 }
             }
             if (terkirimCa == 0) {
