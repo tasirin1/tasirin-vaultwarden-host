@@ -7360,6 +7360,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("git column --indent xx: gerbang gagal (Audit 1184)", rc != 0)
         shutil.rmtree(sub384, ignore_errors=True)
+        sub385 = klon(tmp, "sub385")
+        berkas_aksi385 = os.path.join(
+            sub385, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi385, encoding="utf-8") as f:
+            isi_aksi385 = f.read()
+        baris_aksi385 = [b for b in isi_aksi385.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi385, "w", encoding="utf-8") as f:
+            f.write(isi_aksi385.replace(
+                baris_aksi385,
+                baris_aksi385.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(git check-mailmap; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub385,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("git check-mailmap: gerbang lolos (Audit 1185)", rc == 0)
+        shutil.rmtree(sub385, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

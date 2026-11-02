@@ -1950,7 +1950,12 @@ def _menguras_khusus(perintah, toks, awal):
         if sub == "check-mailmap":
             if "--stdin" in mentah:
                 return True
-            return not ops_git[1:] or "-" in ops_git[1:]
+            # Audit 1185: telanjang = fatal 'no contacts
+            # specified' — tak membaca; operand kontak biasa
+            # juga bukan stdin.
+            if not ops_git[1:]:
+                return False
+            return "-" in ops_git[1:]
         if sub in ("credential-store", "credential-cache"):
             # protokol helper membaca deskripsi dari stdin
             # untuk semua aksinya (get/store/erase).

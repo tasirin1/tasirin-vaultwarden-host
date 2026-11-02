@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — git check-mailmap telanjang tak lagi divonis menguras (Audit 1185)
+
 ## [Belum rilis] — git column mengenal --indent/--nl (Audit 1184)
 
 ## [Belum rilis] — tclsh mengenal opsi -encoding bernilai (Audit 1183)
