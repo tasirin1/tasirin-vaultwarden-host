@@ -2385,6 +2385,13 @@ def _menguras_khusus(perintah, toks, awal):
                     continue
                 k_fp += 1
             return False
+        # Audit 1434: fmt-merge-msg tanpa berkas/-F
+        # membaca log gabungan dari stdin seluruhnya
+        # lebih dulu (terprobe di dalam repo).
+        if sub == "fmt-merge-msg":
+            if "-F" in mentah or "--file" in mentah:
+                return False
+            return len(ops_git) < 2
         if sub == "mktree":
             return True
         # Audit 1124: pembaca putaran-3 — stripspace (filter
