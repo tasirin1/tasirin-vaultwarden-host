@@ -1976,7 +1976,8 @@ def _menguras_khusus(perintah, toks, awal):
         # alamat dari stdin kecuali alamat adalah operand.
         ops = _operand_sesudah_opsi(
             toks, awal, {"-e", "--exe", "-j", "--section",
-                         "-b", "--base"})
+                         # Audit 1132: --target nama panjang -b.
+                         "-b", "--base", "--target"})
         if not any(t in ("-e", "--exe") or t.startswith("--exe=")
                    or t.startswith("-e") and len(t) > 2
                    for t in mentah):

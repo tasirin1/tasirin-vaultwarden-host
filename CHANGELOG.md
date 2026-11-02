@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — addr2line --target masuk tabel bernilai gerbang patch (Audit 1132)
+
 ## [Belum rilis] — patch -i- merekat kini dikenali gerbang patch (Audit 1131)
 
 ## [Belum rilis] — zip berarsip '-' kini dihitung operand oleh gerbang patch (Audit 1130)
