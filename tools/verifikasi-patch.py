@@ -1355,6 +1355,10 @@ def _menguras_interpreter(perintah, toks, awal):
             if t.startswith("-D") and len(t) > 2:
                 i += 1
                 continue
+            # Audit 1182: operand "-" adalah skrip dari stdin,
+            # juga sesudah -c.
+            if t == "-":
+                return True
             if t.startswith("-"):
                 i += 1
                 continue

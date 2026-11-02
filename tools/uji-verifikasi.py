@@ -7306,6 +7306,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sqlite3 -init --help contoh.db: gerbang gagal (Audit 1181)", rc != 0)
         shutil.rmtree(sub381, ignore_errors=True)
+        sub382 = klon(tmp, "sub382")
+        berkas_aksi382 = os.path.join(
+            sub382, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi382, encoding="utf-8") as f:
+            isi_aksi382 = f.read()
+        baris_aksi382 = [b for b in isi_aksi382.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi382, "w", encoding="utf-8") as f:
+            f.write(isi_aksi382.replace(
+                baris_aksi382,
+                baris_aksi382.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(expect -c 'puts x' -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub382,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("expect -c 'puts x' -: gerbang gagal (Audit 1182)", rc != 0)
+        shutil.rmtree(sub382, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

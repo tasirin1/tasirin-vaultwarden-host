@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — expect mengenali operand '-' sebagai skrip stdin (Audit 1182)
+
 ## [Belum rilis] — sqlite3 -init dikenali pemeriksa informasional gerbang (Audit 1181)
 
 ## [Belum rilis] — pemeriksa informasional gerbang sadar perintah (Audit 1180)
