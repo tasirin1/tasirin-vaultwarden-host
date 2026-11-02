@@ -1978,6 +1978,10 @@ def _menguras_khusus(perintah, toks, awal):
             ops_sl = _operand_sesudah_opsi(
                 toks, awal + 1, {"-w", "--format"})
             return not ops_sl
+        # Audit 1206: keluarga --stdin putaran-5.
+        if sub in ("update-ref", "check-attr", "check-ignore",
+                   "diff-tree", "name-rev"):
+            return "--stdin" in mentah
         # Audit 1163: --stdin plumbing & protokol credential.
         if sub in ("rev-list", "log"):
             return "--stdin" in mentah

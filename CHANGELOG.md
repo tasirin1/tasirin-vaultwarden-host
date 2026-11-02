@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — keluarga --stdin git putaran-5 dikenali gerbang (Audit 1206)
+
 ## [Belum rilis] — git am/shortlog dikenali gerbang (Audit 1205)
 
 ## [Belum rilis] — bun repl dikenali gerbang (Audit 1204)
