@@ -6712,6 +6712,42 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl dsa -in kunci.pem: gerbang lolos (Audit 1160)", rc == 0)
         shutil.rmtree(sub348, ignore_errors=True)
+        sub349 = klon(tmp, "sub349")
+        berkas_aksi349 = os.path.join(
+            sub349, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi349, encoding="utf-8") as f:
+            isi_aksi349 = f.read()
+        baris_aksi349 = [b for b in isi_aksi349.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi349, "w", encoding="utf-8") as f:
+            f.write(isi_aksi349.replace(
+                baris_aksi349,
+                baris_aksi349.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl rsautl -sign -inkey k.pem; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub349,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl rsautl -sign -inkey k.pem: gerbang gagal (Audit 1161)", rc != 0)
+        shutil.rmtree(sub349, ignore_errors=True)
+        sub350 = klon(tmp, "sub350")
+        berkas_aksi350 = os.path.join(
+            sub350, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi350, encoding="utf-8") as f:
+            isi_aksi350 = f.read()
+        baris_aksi350 = [b for b in isi_aksi350.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi350, "w", encoding="utf-8") as f:
+            f.write(isi_aksi350.replace(
+                baris_aksi350,
+                baris_aksi350.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl rsautl -sign -inkey k.pem -in data.bin; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub350,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl rsautl -sign -inkey k.pem -in data.bin: gerbang lolos (Audit 1161)", rc == 0)
+        shutil.rmtree(sub350, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

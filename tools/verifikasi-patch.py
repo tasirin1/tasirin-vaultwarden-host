@@ -1648,7 +1648,9 @@ def _menguras_khusus(perintah, toks, awal):
                    for k, t in enumerate(mentah)):
                 return True
             return not _in_non_stdin()
-        if sub in ("smime", "cms", "pkeyutl"):
+        if sub in ("smime", "cms", "pkeyutl", "rsautl"):
+            # Audit 1161: rsautl (deprecated) membaca masukan
+            # dari stdin tanpa -in, seperti pkeyutl.
             return not _in_non_stdin()
         if sub == "passwd":
             return "-stdin" in mentah
