@@ -2908,6 +2908,25 @@ def main():
         periksa("zip -@ membaca daftar nama dari stdin: penguras — gerbang gagal (Audit 1064)", rc != 0)
         shutil.rmtree(subziplist, ignore_errors=True)
 
+        subunshare = klon(tmp, "subunshare")
+        berkas_aksi143 = os.path.join(
+            subunshare, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi143, encoding="utf-8") as f:
+            isi_aksi143 = f.read()
+        baris_aksi143 = [b for b in isi_aksi143.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi143, "w", encoding="utf-8") as f:
+            f.write(isi_aksi143.replace(
+                baris_aksi143,
+                baris_aksi143.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unshare -Ur cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subunshare,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pembungkus unshare transparan: pembaca di baliknya penguras — gerbang gagal (Audit 1065)", rc != 0)
+        shutil.rmtree(subunshare, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -726,6 +726,13 @@ _OPSI_PEMBUNGKUS = {
              "-p", "--prompt", "-t", "--command-timeout", "-C",
              "--close-from", "-T", "--command-timeout-fd", "-D",
              "--chdir", "-r", "--role", "-R", "--chroot"},
+    # Audit 1065: unshare — opsi bernilai pemetaan id dan root.
+    "unshare": {"--setgroups", "--map-user", "--map-group",
+                "--setuid", "--setgid", "-R", "--root", "--wd",
+                "--kill-child"},
+    # Audit 1070: systemd-cat — operandnya perintah (pembungkus);
+    # tanpa operand ia meneruskan stdin-nya sendiri ke jurnal.
+    "systemd-cat": {"-t", "--identifier", "-p", "--priority"},
     "ionice": {"-c", "--class", "-n", "--classdata", "-u", "--which"},
     "taskset": {"-c", "--cpu-list"},
     "chrt": {"-T", "--sched-runtime", "-D", "--sched-deadline",
@@ -1587,7 +1594,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             continue
         if t0 == "timeout" or t0 in ("xargs", "nice", "command",
                 "stdbuf", "setsid", "ionice", "chrt", "taskset",
-                "eatmydata", "nohup", "flock", "sudo"):
+                "eatmydata", "nohup", "flock", "sudo",
+                # Audit 1065: pembungkus baru — unshare dan
+                # chroot (operand direktori ditangani di bawah).
+                "unshare", "chroot"):
             # Audit 1051: 'command' SESUDAH exec adalah nama program
             # untuk execvp, bukan pembungkus — jangan transparan.
             if sesudah_exec and t0 == "command":
@@ -1738,9 +1748,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # Audit 989: mode pid — sisa token adalah pid-pid,
                 # resolusi selesai tanpa perintah.
                 awal = len(toks)
-            if (t0 == "timeout" or t0 == "flock"
+            if (t0 == "timeout" or t0 == "flock" or t0 == "chroot"
                     or (t0 in ("taskset", "chrt")
                         and not tanpa_masker)) and awal < len(toks):
+                # Audit 1065: operand pertama chroot adalah
+                # DIREKTORI root baru — berposisi seperti operand
+                # berkas flock.
                 # Audit 1015: operand pertama flock (berkas kunci /
                 # nomor fd) berposisi seperti durasi timeout.
                 # Audit 968: redirect sebelum durasi (mis. sesudah
