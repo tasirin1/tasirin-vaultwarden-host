@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — cek tar menggantung didahulukan dari return '-' (Audit 1187)
+
 ## [Belum rilis] — git credential tanpa aksi tak lagi divonis menguras (Audit 1186)
 
 ## [Belum rilis] — git check-mailmap telanjang tak lagi divonis menguras (Audit 1185)

@@ -7396,6 +7396,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("git credential-store: gerbang lolos (Audit 1186)", rc == 0)
         shutil.rmtree(sub386, ignore_errors=True)
+        sub387 = klon(tmp, "sub387")
+        berkas_aksi387 = os.path.join(
+            sub387, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi387, encoding="utf-8") as f:
+            isi_aksi387 = f.read()
+        baris_aksi387 = [b for b in isi_aksi387.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi387, "w", encoding="utf-8") as f:
+            f.write(isi_aksi387.replace(
+                baris_aksi387,
+                baris_aksi387.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tar -t -f - -T; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub387,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tar -t -f - -T: gerbang lolos (Audit 1187)", rc == 0)
+        shutil.rmtree(sub387, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
