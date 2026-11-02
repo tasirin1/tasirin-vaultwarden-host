@@ -674,7 +674,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "iptables-restore", "ip6tables-restore",
                   # Audit 1245/1246/1247/1248/1260: alias
                   # checksum, konverter, POD, penebak encoding.
-                  "shasum", "md5sum.textutils", 
+                  "shasum", "md5sum.textutils", "uconv",
                   # Audit 1191/1192: funzip mengekstrak anggota
                   # pertama arsip zip dari stdin; json_pp
                   # memformat JSON dari stdin.
@@ -824,7 +824,9 @@ _OPSI_BERNILAI = {
     # Audit 1243: json_pp tanpa entri (Audit 1192 hanya
     # menambah namanya ke daftar pembaca).
     "json_pp": {"-f", "--format"},
-
+    # Audit 1246/1247/1248: konverter & pembaca POD.
+    "uconv": {"-f", "--from-code", "-t", "--to-code", "-o",
+              "--output", "-x", "--translit"},
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",

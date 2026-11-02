@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — uconv (ICU) dikenal sebagai pembaca stdin (Audit 1246)
+
 ## [Belum rilis] — Alias checksum dikenal (shasum, md5sum.textutils) (Audit 1245)
 
 ## [Belum rilis] — Keluarga grep terkompresi dikenal (zgrep/bzgrep/xzgrep/lzgrep) (Audit 1244)
