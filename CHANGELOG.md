@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gpg-connect-agent telanjang dikenal (Assuan) (Audit 1427)
 ## [Belum rilis] — Dirmngr telanjang dikenal (server Assuan) (Audit 1426)
 ## [Belum rilis] — Pinentry/pinentry-curses dikenal sebagai pembaca Assuan (Audit 1425)
 ## [Belum rilis] — Gh --with-token hanya dihitung sesudah subperintah (Audit 1424)

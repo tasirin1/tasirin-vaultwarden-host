@@ -14134,6 +14134,27 @@ def main():
         periksa("dirmngr: "
                 "gerbang gagal (Audit 1426)", rc != 0)
         shutil.rmtree(sub652, ignore_errors=True)
+        sub653 = klon(tmp, "sub653")
+        berkas_aksi653 = os.path.join(
+            sub653, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi653, encoding="utf-8") as f:
+            isi_aksi653 = f.read()
+        baris_aksi653 = [b for b in isi_aksi653.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru653 = isi_aksi653.replace(
+                baris_aksi653,
+                baris_aksi653.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gpg-connect-agent; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru653 != isi_aksi653, \
+            "suntikan aksi653 tidak menembak"
+        with open(berkas_aksi653, "w", encoding="utf-8") as f:
+            f.write(isi_baru653)
+        rc, out = jalan(sub653, [sys.executable, GERBANG, "--semua"])
+        periksa("gpg-connect-agent: "
+                "gerbang gagal (Audit 1427)", rc != 0)
+        shutil.rmtree(sub653, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

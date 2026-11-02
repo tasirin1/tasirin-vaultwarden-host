@@ -650,6 +650,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Assuan & pengurai NSS — tanpa operand
                   # membaca protokol/objek dari stdin.
                   "pinentry", "pinentry-curses", "dirmngr",
+                  "gpg-connect-agent",
                   "utmpdump",
                   "shuf", "base64", "od", "sha256sum", "md5sum",
                   "gzip", "gunzip",
