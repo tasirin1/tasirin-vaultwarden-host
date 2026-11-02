@@ -11001,6 +11001,25 @@ def main():
                 "gerbang lolos (Audit 1368)", rc == 0)
         shutil.rmtree(sub586, ignore_errors=True)
 
+        sub587 = klon(tmp, "sub587")
+        berkas_aksi587 = os.path.join(
+            sub587, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi587, encoding="utf-8") as f:
+            isi_aksi587 = f.read()
+        baris_aksi587 = [b for b in isi_aksi587.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi587, "w", encoding="utf-8") as f:
+            f.write(isi_aksi587.replace(
+                baris_aksi587,
+                baris_aksi587.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(debugfs -wf perintah.txt citra.img; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub587, [sys.executable, GERBANG, "--semua"])
+        periksa("debugfs -wf perintah.txt citra.img: "
+                "gerbang lolos (Audit 1369)", rc == 0)
+        shutil.rmtree(sub587, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

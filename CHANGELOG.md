@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Debugfs — -f/-R di dalam bundel (-wf) kini terdeteksi lewat pindaian huruf (Audit 1369)
 ## [Belum rilis] — Tree — -T/-H masuk tabel bernilai dan opsi bernilai di ujung bundel dikenali (Audit 1368)
 ## [Belum rilis] — Tree — pemindai --fromfile kini berhenti di '--' (Audit 1367)
 ## [Belum rilis] — Tmux -V dinilai keluar sebelum subperintah (tak menguras) (Audit 1366)

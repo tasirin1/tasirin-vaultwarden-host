@@ -3116,9 +3116,20 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "debugfs":
         # Audit 1357: bentuk merekat -R<perintah>/-f<berkas>
         # juga menekan stdin.
-        return not any(
-            t_df.startswith("-R") or t_df.startswith("-f")
-            for t_df in mentah if t_df.startswith("-"))
+        # Audit 1369: -f/-R juga bisa bersembunyi di dalam
+        # bundel (-wf = bendera -w lalu -f menelan token
+        # berikutnya) — pindai huruf per token; huruf bernilai
+        # lain (-b/-s/-d) menghentikan pindaian token itu
+        # karena sisanya adalah nilainya.
+        for t_df in mentah:
+            if not t_df.startswith("-") or t_df == "-":
+                continue
+            for huruf_df in t_df[1:]:
+                if huruf_df in ("f", "R"):
+                    return False
+                if huruf_df in ("b", "s", "d"):
+                    break
+        return True
     # Audit 1345: xauth tanpa subcommand membaca perintah
     # dari stdin.
     if perintah == "xauth":
