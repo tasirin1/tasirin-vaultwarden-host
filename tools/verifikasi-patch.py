@@ -1557,9 +1557,19 @@ def _menguras_khusus(perintah, toks, awal):
     for t_asli_r in sisa:
         # Audit 1133: token berawalan kutip adalah DATA berkutip,
         # bukan redirect (mis. label diff '<a>').
+        # Audit 1154: tetapi segmen kutip yang DIIKUTI sisa token
+        # tetap dipecah shell — ''<berkas adalah operand kosong
+        # plus redirect, jadi sisa sesudah kutip penutup dinilai.
         if t_asli_r[:1] in ("\"", "'"):
-            continue
-        t_r = t_asli_r.strip("\"'")
+            tutup_r = t_asli_r.find(t_asli_r[0], 1)
+            if tutup_r < 0:
+                continue
+            ekor_r = t_asli_r[tutup_r + 1:]
+            if not ekor_r:
+                continue
+            t_r = ekor_r.strip("\"'")
+        else:
+            t_r = t_asli_r.strip("\"'")
         s_r = t_r
         nomor_r = ""
         while s_r[:1].isdigit():

@@ -6424,6 +6424,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("unshare --propagation private sort berkas: gerbang lolos (Audit 1153)", rc == 0)
         shutil.rmtree(sub332, ignore_errors=True)
+        sub333 = klon(tmp, "sub333")
+        berkas_aksi333 = os.path.join(
+            sub333, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi333, encoding="utf-8") as f:
+            isi_aksi333 = f.read()
+        baris_aksi333 = [b for b in isi_aksi333.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi333, "w", encoding="utf-8") as f:
+            f.write(isi_aksi333.replace(
+                baris_aksi333,
+                baris_aksi333.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff - berkas ''<pengganti.txt; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub333,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("diff - berkas ''<pengganti.txt: gerbang lolos (Audit 1154)", rc == 0)
+        shutil.rmtree(sub333, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
