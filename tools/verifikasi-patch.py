@@ -3097,6 +3097,15 @@ def _menguras_khusus(perintah, toks, awal):
                     in bernilai_tr2):
                 k_tr2 += 1
                 continue
+            # Audit 1368: opsi bernilai di UJUNG bundel pendek
+            # (-aP) menelan token berikutnya sebagai nilainya,
+            # sama seperti token persisnya.
+            if (t_tr2.startswith("-")
+                    and not t_tr2.startswith("--")
+                    and len(t_tr2) > 2
+                    and t_tr2[-1] in "PILOTH"):
+                k_tr2 += 2
+                continue
             k_tr2 += 1
         return False
     # Audit 1343: gio save menulis isi stdin ke tujuan.

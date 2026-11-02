@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Tree — -T/-H masuk tabel bernilai dan opsi bernilai di ujung bundel dikenali (Audit 1368)
 ## [Belum rilis] — Tree — pemindai --fromfile kini berhenti di '--' (Audit 1367)
 ## [Belum rilis] — Tmux -V dinilai keluar sebelum subperintah (tak menguras) (Audit 1366)
 ## [Belum rilis] — Make --file=/--makefile= merekat kini menerima ejaan /dev/fd/0 dan /proc/self/fd/0 (Audit 1365)
