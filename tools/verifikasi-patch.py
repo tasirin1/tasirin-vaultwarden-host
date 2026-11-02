@@ -2946,6 +2946,11 @@ def _menguras_khusus(perintah, toks, awal):
                          "--output", "-O", "--output-format"})
         return (not ops_cv or "-" in ops_cv
                 or "/dev/stdin" in ops_cv)
+    # Audit 1329: tic — hanya operand '-' yang stdin.
+    if perintah == "tic":
+        ops_ti = _operand_sesudah_opsi(
+            toks, awal, {"-o", "-e"})
+        return "-" in ops_ti
     return False
 
 
@@ -3690,6 +3695,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "dpkg-deb",
                         "dpkg-parsechangelog",
                         "cvtsudoers",
+                        "tic",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

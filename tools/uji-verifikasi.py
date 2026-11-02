@@ -10366,6 +10366,24 @@ def main():
         periksa("cvtsudoers -f json: "
                 "gerbang gagal (Audit 1328)", rc != 0)
         shutil.rmtree(sub551, ignore_errors=True)
+        sub552 = klon(tmp, "sub552")
+        berkas_aksi552 = os.path.join(
+            sub552, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi552, encoding="utf-8") as f:
+            isi_aksi552 = f.read()
+        baris_aksi552 = [b for b in isi_aksi552.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi552, "w", encoding="utf-8") as f:
+            f.write(isi_aksi552.replace(
+                baris_aksi552,
+                baris_aksi552.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(tic -o out -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub552, [sys.executable, GERBANG, "--semua"])
+        periksa("tic -o out -: "
+                "gerbang gagal (Audit 1329)", rc != 0)
+        shutil.rmtree(sub552, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

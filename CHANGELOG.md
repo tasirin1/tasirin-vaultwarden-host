@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Tic menilai masukan '-' (Audit 1329)
+
 ## [Belum rilis] — Cvtsudoers dinilai (Audit 1328)
 
 ## [Belum rilis] — Dpkg-parsechangelog -l - dinilai (Audit 1327)
