@@ -3345,6 +3345,25 @@ def main():
         periksa("operand +N sort: gerbang gagal (Audit 1080)", rc != 0)
         shutil.rmtree(sub165, ignore_errors=True)
 
+        sub166 = klon(tmp, "sub166")
+        berkas_aksi166 = os.path.join(
+            sub166, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi166, encoding="utf-8") as f:
+            isi_aksi166 = f.read()
+        baris_aksi166 = [b for b in isi_aksi166.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi166, "w", encoding="utf-8") as f:
+            f.write(isi_aksi166.replace(
+                baris_aksi166,
+                baris_aksi166.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -i -c pass; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub166,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python -i sesudah -c: gerbang gagal (Audit 1081)", rc != 0)
+        shutil.rmtree(sub166, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

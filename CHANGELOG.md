@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — python -i tak lagi kalah oleh -c di gerbang patch (Audit 1081)
+
 ## [Belum rilis] — operand usang +N kini dikenali gerbang patch (Audit 1080)
 
 ## [Belum rilis] — subcommand git pembaca stdin putaran-2 kini dikenali gerbang patch (Audit 1079)

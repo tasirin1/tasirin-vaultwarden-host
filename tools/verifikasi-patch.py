@@ -1184,7 +1184,11 @@ def _menguras_interpreter(perintah, toks, awal):
             i += 1
             continue
         if perintah.startswith("python") and t == "-c":
-            return False
+            # Audit 1081: -c tidak membatalkan -i — REPL sesudah
+            # kode -c tetap menguras (dulu return False membuang
+            # status interaktif yang sudah tercatat).
+            return interaktif or any(
+                x.strip("\"'") == "-i" for x in toks[i + 1:])
         if perintah.startswith("python") and t == "-m":
             # Audit 1049: modul penyaring stdin yang terverifikasi
             # menguras; modul lain tak dinilai (bawaan: bukan).
