@@ -1516,7 +1516,11 @@ public final class TgBackup {
             long warnedMs = amanLong(sp, KEY_TG_LOW_STORAGE_MS, 0);
             if (warnedMs == 0
                     && amanBoolean(sp, KEY_TG_LOW_STORAGE, false)) {
+                // Audit 1025: penyemaian warisan WAJIB ditulis balik —
+                // tanpa putLong, setiap pemeriksaan menyemai ulang
+                // dari nol dan pengulangan 24 jam tak pernah tiba.
                 warnedMs = kiniMs; // warisan versi lama: sudah diperingatkan
+                sp.edit().putLong(KEY_TG_LOW_STORAGE_MS, kiniMs).apply();
             }
             if (low) {
                 if (warnedMs == 0

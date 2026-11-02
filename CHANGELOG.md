@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Penyemaian warisan stempel storage kini disimpan (Audit 1025)
+
+### Diperbaiki
+- Migrasi Audit 1017 menulis balik stempel: cabang warisan (bendera lama tanpa stempel) kini menyimpan `putLong` saat penyemaian. Sebelumnya penyemaian hanya di variabel lokal — setiap pemeriksaan menyemai ulang dari nol, jadi peringatan ulang 24 jam tak pernah tiba untuk pengguna yang sudah diperingatkan di versi lama.
+
+
 ## [Belum rilis] — Penanda tawaran web-vault versi lama dibersihkan (Audit 1019)
 
 - Perbaikan kebersihan: penanda "tawaran update web-vault sudah ditampilkan" disimpan per versi server dan tidak pernah dibuang — satu entri mungil per rilis menumpuk permanen di pengaturan. Saat penanda versi baru dicatat, penanda semua versi lain kini ikut dibuang.
