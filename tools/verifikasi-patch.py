@@ -834,6 +834,8 @@ _OPSI_PEMBUNGKUS = {
     # dinilai seperti flock); entri ini hanya untuk opsi lain.
     "su": {"-s", "--shell", "-g", "--group", "-G", "--supp-group"},
     "sg": set(),
+    # Audit 1194: newgrp sekelas sg.
+    "newgrp": set(),
     # Audit 1084: chroot dikenal resolver sejak 1065 tetapi tabel
     # opsinya kosong — --userspec/--groups bernilai tak dilompati.
     "chroot": {"--userspec", "--groups", "--skip-chdir"},
@@ -2511,7 +2513,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 "unshare", "chroot", "systemd-cat", "strace",
                 "dbus-run-session", "runuser", "su", "sg",
                 # Audit 1155/1156: pembungkus putaran-6.
-                "setpriv", "prlimit"):
+                "setpriv", "prlimit",
+                # Audit 1194/1203: newgrp (sekelas sg) dan
+                # ssh-agent.
+                "newgrp"):
             # Audit 1051: 'command' SESUDAH exec adalah nama program
             # untuk execvp, bukan pembungkus — jangan transparan.
             if sesudah_exec and t0 == "command":
@@ -2561,7 +2566,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     or t_pid.startswith("--pid=")
                     for t_pid in toks[awal:]):
                 return False
-            if t0 in ("su", "sg"):
+            if t0 in ("su", "sg", "newgrp"):
                 # Audit 1107: su/sg — string -c dinilai seperti
                 # flock -c; tanpa -c keduanya menjatuhkan shell
                 # interaktif yang membaca perintah dari stdin.

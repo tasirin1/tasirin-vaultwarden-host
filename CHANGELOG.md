@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — newgrp dikenal gerbang sebagai pembungkus (Audit 1194)
+
 ## [Belum rilis] — pdftotext '-' dikenali gerbang (Audit 1193)
 
 ## [Belum rilis] — json_pp dikenal gerbang sebagai pembaca stdin (Audit 1192)
