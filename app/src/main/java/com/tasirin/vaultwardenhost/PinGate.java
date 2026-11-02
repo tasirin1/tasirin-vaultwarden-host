@@ -26,17 +26,6 @@ public final class PinGate {
 
     public static final Object KUNCI_PERCOBAAN = new Object();
 
-    private static final java.util.concurrent.RejectedExecutionHandler TOLAK_BERLOG =
-            Util.penanganAntreanPenuh("PinGate");
-    private static final java.util.concurrent.ExecutorService CATAT_EXEC =
-            new java.util.concurrent.ThreadPoolExecutor(0, 1, 60L,
-                    java.util.concurrent.TimeUnit.SECONDS,
-                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(32), r -> {
-                Thread t = new Thread(r, "vw-pin-catat");
-                t.setDaemon(true);
-                return t;
-            }, TOLAK_BERLOG);
-
     public static boolean dalamGraceBersama() {
         synchronized (KUNCI_BERSAMA) {
             long delta = SystemClock.elapsedRealtime() - bukaBersamaAt;
@@ -128,10 +117,11 @@ public final class PinGate {
         if (ctx == null) {
             return;
         }
-        if (diMainThread()) {
-            catatHasilAsync(ctx, cocok, sekarang);
-            return;
-        }
+        // Audit 1362: pencatatan SENGAJA selalu sinkron di utas pemanggil.
+        // Jalur async lama (executor antrean terbatas) bisa menolak atau
+        // menunda tugas, sehingga percobaan gagal dari UI bisa hilang
+        // sebelum tercatat dan hitungan kunci terlewat; commit kecil ini
+        // cukup murah untuk utas utama layar PIN.
         SharedPreferences sp = ctx.getSharedPreferences(
                 ServerService.PREFS, Context.MODE_PRIVATE);
         if (cocok) {
@@ -177,35 +167,6 @@ public final class PinGate {
                 sp.edit().putString(KEY_PIN_HASH, bungkus).apply();
             }
         } catch (Exception ignored) {
-        }
-    }
-
-    public static void catatHasilAsync(final Context ctx, final boolean cocok, final long sekarang) {
-        final Context app;
-        try {
-            app = ctx == null ? null : ctx.getApplicationContext();
-        } catch (Exception ignored) {
-            return;
-        }
-        final Context pakai = app != null ? app : ctx;
-
-        try {
-            CATAT_EXEC.execute(() -> {
-                try {
-                    catatHasil(pakai, cocok, sekarang);
-                } catch (Exception ignored) {
-                }
-            });
-        } catch (Exception ignored) {
-        }
-    }
-
-    private static boolean diMainThread() {
-        try {
-            android.os.Looper utama = android.os.Looper.getMainLooper();
-            return utama != null && android.os.Looper.myLooper() == utama;
-        } catch (Exception ignored) {
-            return false;
         }
     }
 }
