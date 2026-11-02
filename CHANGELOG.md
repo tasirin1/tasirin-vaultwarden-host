@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — more beroperand berkas kini dinilai menguras oleh gerbang patch (Audit 1089)
+
 ## [Belum rilis] — penilai khusus gerbang patch sadar redirect masukan di ekor (Audit 1088)
 
 ## [Belum rilis] — penghitung operand tr sadar aturan -d di gerbang patch (Audit 1087)

@@ -1678,7 +1678,12 @@ def _menguras_khusus(perintah, toks, awal):
              "-B", "--prefix", "-Y", "-Z", "--quoting-style",
              "--suffix", "--basename-prefix"})
         return len(ops) < 2
-    if perintah in ("more", "less"):
+    if perintah == "more":
+        # Audit 1089: more util-linux menyangga stdin pipa sampai
+        # EOF sebelum membuka berkas operandnya — selalu menguras
+        # di konteks pipa (less tidak; lihat cabang di bawah).
+        return True
+    if perintah == "less":
         # Audit 1072: pager pada stdin pipa menyangga/menyaring
         # seluruh aliran bila tanpa operand berkas.
         ops = _operand_sesudah_opsi(
