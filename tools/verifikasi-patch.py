@@ -788,6 +788,11 @@ _OPSI_BERNILAI = {
            "-F", "--format"},
     # Audit 1211: wall selama ini tanpa entri — -t bernilai.
     "wall": {"-t", "--timeout"},
+    # Audit 1213: kompresor tanpa entri untuk opsi bersamanya.
+    "lzma": {"-F", "--format", "-S", "--suffix", "-T", "--threads",
+             "--block-size", "-C", "--check"},
+    "xzcat": {"-F", "--format", "-T", "--threads"},
+    "zcat": {"-S", "--suffix"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait"},
