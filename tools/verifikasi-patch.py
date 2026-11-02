@@ -2247,7 +2247,13 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_pp:
             return False
         return bool(ops_pp) and ops_pp[0] == "-"
-
+    if perintah == "gm":
+        # Audit 1259: gm identify '-' membaca gambar dari
+        # stdin; subcommand lain tak dinilai di sini.
+        if mentah and mentah[0] == "identify":
+            return "-" in mentah[1:]
+        return False
+    if perintah == "zip":
         # Audit 1064: -@ membaca daftar nama dari stdin.
         # Audit 1094: tanpa operand arsip, zip galat sebelum
         # membaca daftar — -@ saja tidak menguras.

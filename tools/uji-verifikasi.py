@@ -9124,6 +9124,24 @@ def main():
         periksa("pdftops - -: "
                 "gerbang gagal (Audit 1258)", rc != 0)
         shutil.rmtree(sub482, ignore_errors=True)
+        sub483 = klon(tmp, "sub483")
+        berkas_aksi483 = os.path.join(
+            sub483, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi483, encoding="utf-8") as f:
+            isi_aksi483 = f.read()
+        baris_aksi483 = [b for b in isi_aksi483.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi483, "w", encoding="utf-8") as f:
+            f.write(isi_aksi483.replace(
+                baris_aksi483,
+                baris_aksi483.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gm identify -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub483, [sys.executable, GERBANG, "--semua"])
+        periksa("gm identify -: "
+                "gerbang gagal (Audit 1259)", rc != 0)
+        shutil.rmtree(sub483, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
