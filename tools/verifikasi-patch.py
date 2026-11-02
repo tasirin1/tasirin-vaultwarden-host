@@ -3012,6 +3012,13 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"-d", "--destdir", "-s",
                          "--sourcedir", "-e", "--encoding"})
         return "-" in ops_gr
+    # Audit 1339: pygettext3 — sumber dari operand '-'.
+    if perintah == "pygettext3":
+        ops_pg = _operand_sesudah_opsi(
+            toks, awal, {"-o", "--output", "-d",
+                         "--default-domain", "-p",
+                         "--output-dir", "-k", "--keyword"})
+        return "-" in ops_pg or "/dev/stdin" in ops_pg
     return False
 
 
@@ -3763,6 +3770,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "localedef",
                         "glib-genmarshal",
                         "genrb",
+                        "pygettext3",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

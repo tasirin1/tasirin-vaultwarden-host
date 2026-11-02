@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Pygettext3 dinilai (Audit 1339)
+
 ## [Belum rilis] — Instmodsh masuk tabel pembaca stdin (Audit 1338)
 
 ## [Belum rilis] — Splain masuk tabel pembaca stdin (Audit 1337)
