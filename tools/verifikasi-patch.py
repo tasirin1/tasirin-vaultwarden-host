@@ -829,22 +829,38 @@ _OPSI_BERNILAI = {
     "zcat": {"-S", "--suffix"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
-                         "-w", "--wait"},
+                         "-w", "--wait",
+                         # Audit 1293: -W/--wait-interval.
+                         "-W", "--wait-interval"},
     "ip6tables-restore": {"-T", "--table", "-M", "--modprobe",
-                          "-w", "--wait"},
+                          "-w", "--wait",
+                         # Audit 1293: -W/--wait-interval.
+                         "-W", "--wait-interval"},
     # Audit 1257: varian nama pemulih tabel lain.
     "iptables-nft-restore": {"-T", "--table", "-M", "--modprobe",
-                             "-w", "--wait"},
+                             "-w", "--wait",
+                         # Audit 1293: -W/--wait-interval.
+                         "-W", "--wait-interval"},
     "iptables-legacy-restore": {"-T", "--table", "-M",
-                                "--modprobe", "-w", "--wait"},
+                                "--modprobe", "-w", "--wait",
+                         # Audit 1293: -W/--wait-interval.
+                         "-W", "--wait-interval"},
     "ip6tables-nft-restore": {"-T", "--table", "-M",
-                              "--modprobe", "-w", "--wait"},
+                              "--modprobe", "-w", "--wait",
+                         # Audit 1293: -W/--wait-interval.
+                         "-W", "--wait-interval"},
     "ip6tables-legacy-restore": {"-T", "--table", "-M",
-                                 "--modprobe", "-w", "--wait"},
+                                 "--modprobe", "-w", "--wait",
+                         # Audit 1293: -W/--wait-interval.
+                         "-W", "--wait-interval"},
     "arptables-restore": {"-T", "--table", "-M", "--modprobe",
-                          "-w", "--wait"},
+                          "-w", "--wait",
+                         # Audit 1293: -W/--wait-interval.
+                         "-W", "--wait-interval"},
     "ebtables-restore": {"-T", "--table", "-M", "--modprobe",
-                         "-w", "--wait"},
+                         "-w", "--wait",
+                         # Audit 1293: -W/--wait-interval.
+                         "-W", "--wait-interval"},
     # Audit 1243: json_pp tanpa entri (Audit 1192 hanya
     # menambah namanya ke daftar pembaca).
     "json_pp": {"-f", "--format",

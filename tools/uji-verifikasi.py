@@ -9718,6 +9718,24 @@ def main():
         periksa("xzcat --block-size 1MiB: "
                 "gerbang gagal (Audit 1292)", rc != 0)
         shutil.rmtree(sub515, ignore_errors=True)
+        sub516 = klon(tmp, "sub516")
+        berkas_aksi516 = os.path.join(
+            sub516, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi516, encoding="utf-8") as f:
+            isi_aksi516 = f.read()
+        baris_aksi516 = [b for b in isi_aksi516.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi516, "w", encoding="utf-8") as f:
+            f.write(isi_aksi516.replace(
+                baris_aksi516,
+                baris_aksi516.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(iptables-nft-restore -W 1000; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub516, [sys.executable, GERBANG, "--semua"])
+        periksa("iptables-nft-restore -W 1000: "
+                "gerbang gagal (Audit 1293)", rc != 0)
+        shutil.rmtree(sub516, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

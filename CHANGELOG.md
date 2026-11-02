@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Keluarga tables-restore -W/--wait-interval bernilai (Audit 1293)
+
 ## [Belum rilis] — Xzcat --block-size bernilai (Audit 1292)
 
 ## [Belum rilis] — Shasum masuk tabel pembaca stdin (Audit 1291)
