@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — gmake dipetakan ke penilai make (Audit 1252)
+
 ## [Belum rilis] — nodejs dipetakan ke interpreter node (Audit 1251)
 
 ## [Belum rilis] — socat1 dipetakan ke penilai socat (Audit 1250)

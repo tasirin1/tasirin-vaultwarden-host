@@ -2347,7 +2347,9 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_nc:
             return False
         return bool(ops_nc)
-    if perintah == "make":
+    if perintah in ("make",
+                    # Audit 1252: alias GNU make.
+                    "gmake"):
         # Audit 1071: makefile dari stdin lewat -f -.
         for i, t in enumerate(mentah):
             if t in ("-f", "--file", "--makefile"):
@@ -3223,7 +3225,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "dpkg", "file", "date", "sysctl", "bun",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
-                        "sdiff", "socat1"):
+                        "sdiff", "socat1", "gmake"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri
