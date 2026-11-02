@@ -759,7 +759,9 @@ _OPSI_BERNILAI = {
            # sehingga diperlakukan bendera; --number-width bukan
            # opsi pr (milik nl); pasangan -s adalah --separator.
            "--columns", "-N", "--first-line-number",
-           "-W", "--page-width", "-s", "--separator"},
+           # Audit 1234: -s/--separator pr bernilai OPSIONAL
+           # juga (hanya menempel/=) — diperlakukan bendera.
+           "-W", "--page-width"},
     "expand": {"-t", "--tabs"},
     "unexpand": {"-t", "--tabs"},
     "split": {"-l", "--lines", "-b", "--bytes", "-C",

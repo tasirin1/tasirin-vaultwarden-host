@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — pr: -s/--separator bernilai opsional juga (Audit 1234)
+
 ## [Belum rilis] — nft: bentuk merekat -f- tak dikenal (Audit 1233)
 
 ## [Belum rilis] — pdftotext: -cfg bernilai hilang dari set cabang (Audit 1232)
