@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — logger --id tak lagi menelan pesan (Audit 1212)
+
 ## [Belum rilis] — wall punya entri tabel gerbang (Audit 1211)
 
 ## [Belum rilis] — entri tabel ptx gerbang dibetulkan (Audit 1210)

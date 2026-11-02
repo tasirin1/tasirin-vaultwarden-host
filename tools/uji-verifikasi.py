@@ -7990,6 +7990,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("wall -t 5: gerbang gagal (Audit 1211)", rc != 0)
         shutil.rmtree(sub419, ignore_errors=True)
+        sub420 = klon(tmp, "sub420")
+        berkas_aksi420 = os.path.join(
+            sub420, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi420, encoding="utf-8") as f:
+            isi_aksi420 = f.read()
+        baris_aksi420 = [b for b in isi_aksi420.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi420, "w", encoding="utf-8") as f:
+            f.write(isi_aksi420.replace(
+                baris_aksi420,
+                baris_aksi420.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(logger --id pesan; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub420,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("logger --id pesan: gerbang lolos (Audit 1212)", rc == 0)
+        shutil.rmtree(sub420, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

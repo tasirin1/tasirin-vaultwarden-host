@@ -701,7 +701,9 @@ _OPSI_BERNILAI = {
               "-l", "--length"},
     "b2sum": {"-l", "--length"},
     "base32": {"-w", "--wrap"},
-    "logger": {"-t", "--tag", "-p", "--priority", "--id", "-u",
+    "logger": {"-t", "--tag", "-p", "--priority", "-u",
+               # Audit 1212: --id bernilai OPSIONAL (hanya lewat
+               # '=') — diperlakukan bendera.
                "--socket", "-n", "--server", "-P", "--port", "-S",
                "--size", "--journald",
                # Audit 1170: opsi sd/journal bernilai.
