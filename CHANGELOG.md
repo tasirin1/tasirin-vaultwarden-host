@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — modul pdb dan asyncio masuk daftar python -m gerbang patch (Audit 1091)
+
 ## [Belum rilis] — python -m beroperand berkas tak lagi divonis menguras gerbang patch (Audit 1090)
 
 ## [Belum rilis] — more beroperand berkas kini dinilai menguras oleh gerbang patch (Audit 1089)

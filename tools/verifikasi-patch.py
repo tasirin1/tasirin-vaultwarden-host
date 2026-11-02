@@ -1253,9 +1253,13 @@ def _menguras_interpreter(perintah, toks, awal):
                 # menguras; modul lain tak dinilai (bawaan: bukan).
                 # Audit 1090: operand berkas SESUDAH nama modul
                 # adalah masukan modul penyaring — menekan stdin.
+                # Audit 1091: pdb membaca PERINTAH dari stdin walau
+                # beroperand skrip; asyncio menjatuhkan REPL.
                 if i + 1 >= n:
                     return False
                 modul = toks[i + 1].strip("\"'")
+                if modul == "pdb" or modul == "asyncio":
+                    return True
                 if modul in ("json.tool", "base64"):
                     return not _operand_sesudah_opsi(
                         toks, i + 1, {"--indent", "--tab"})

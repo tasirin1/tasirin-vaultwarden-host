@@ -3668,6 +3668,25 @@ def main():
         periksa("python -m operand berkas: gerbang lolos (Audit 1090)", rc == 0)
         shutil.rmtree(sub182, ignore_errors=True)
 
+        sub183 = klon(tmp, "sub183")
+        berkas_aksi183 = os.path.join(
+            sub183, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi183, encoding="utf-8") as f:
+            isi_aksi183 = f.read()
+        baris_aksi183 = [b for b in isi_aksi183.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi183, "w", encoding="utf-8") as f:
+            f.write(isi_aksi183.replace(
+                baris_aksi183,
+                baris_aksi183.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -m asyncio; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub183,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python -m asyncio REPL: gerbang gagal (Audit 1091)", rc != 0)
+        shutil.rmtree(sub183, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
