@@ -1588,11 +1588,22 @@ def _menguras_interpreter(perintah, toks, awal):
                 # membaca PERINTAH dari stdin.
                 if t.startswith("-d:"):
                     debugger = True
-                # Bundel berakhiran -e (-ne/-pe): token berikutnya
-                # adalah skripnya, bukan berkas masukan.
-                if re.fullmatch(r"[A-Za-z]*e", huruf_huruf):
+                # Audit 1412: 'e' di bundel menelan SISA
+                # bundel sebagai programnya — di ujung
+                # bundel programnya adalah token berikutnya
+                # (-ne/-pe), di tengah bundel programnya
+                # sisa huruf itu sendiri dan token
+                # berikutnya adalah operand berkas (-ned).
+                posisi_e = -1
+                for k_e, h_e in enumerate(huruf_huruf):
+                    if h_e in "IMm":
+                        break
+                    if h_e == "e":
+                        posisi_e = k_e
+                        break
+                if posisi_e >= 0:
                     skrip_terisi = True
-                    i += 2
+                    i += 2 if posisi_e == len(huruf_huruf) - 1 else 1
                 else:
                     i += 1
                 continue

@@ -13798,6 +13798,27 @@ def main():
         periksa("perl -0777pe skrip.pl: "
                 "gerbang gagal (Audit 1411)", rc != 0)
         shutil.rmtree(sub636, ignore_errors=True)
+        sub637 = klon(tmp, "sub637")
+        berkas_aksi637 = os.path.join(
+            sub637, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi637, encoding="utf-8") as f:
+            isi_aksi637 = f.read()
+        baris_aksi637 = [b for b in isi_aksi637.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru637 = isi_aksi637.replace(
+                baris_aksi637,
+                baris_aksi637.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(perl -ned skrip.pl; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru637 != isi_aksi637, \
+            "suntikan aksi637 tidak menembak"
+        with open(berkas_aksi637, "w", encoding="utf-8") as f:
+            f.write(isi_baru637)
+        rc, out = jalan(sub637, [sys.executable, GERBANG, "--semua"])
+        periksa("perl -ned skrip.pl: "
+                "gerbang lolos (Audit 1412)", rc == 0)
+        shutil.rmtree(sub637, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
