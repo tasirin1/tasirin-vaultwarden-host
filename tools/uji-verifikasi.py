@@ -11245,6 +11245,24 @@ def main():
         periksa("tree --gitfile --fromfile: "
                 "gerbang lolos (Audit 1385)", rc == 0)
         shutil.rmtree(sub599, ignore_errors=True)
+        sub600 = klon(tmp, "sub600")
+        berkas_aksi600 = os.path.join(
+            sub600, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi600, encoding="utf-8") as f:
+            isi_aksi600 = f.read()
+        baris_aksi600 = [b for b in isi_aksi600.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi600, "w", encoding="utf-8") as f:
+            f.write(isi_aksi600.replace(
+                baris_aksi600,
+                baris_aksi600.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(tmux -LV load-buffer -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub600, [sys.executable, GERBANG, "--semua"])
+        periksa("tmux -LV load-buffer -: "
+                "gerbang gagal (Audit 1386)", rc != 0)
+        shutil.rmtree(sub600, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

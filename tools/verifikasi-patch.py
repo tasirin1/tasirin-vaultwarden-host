@@ -2970,6 +2970,13 @@ def _menguras_khusus(perintah, toks, awal):
                 k_tm += 2
                 continue
             if t_tm.startswith("-"):
+                # Audit 1386: nilai MEREKAT opsi global bernilai
+                # (-LV = -L bernilai 'V') bukan bundel bendera —
+                # 'V' di sana nilai opsi, bukan -V; tokennya
+                # dilompati sebagai opsi bernilai.
+                if re.fullmatch(r"-[LSfT].+", t_tm):
+                    k_tm += 1
+                    continue
                 # Audit 1366: -V (termasuk di dalam bundel
                 # huruf) mencetak versi lalu KELUAR — subperintah
                 # tak pernah berjalan.
