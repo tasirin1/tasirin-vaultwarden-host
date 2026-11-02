@@ -2072,6 +2072,28 @@ def main():
                 "penguras: gerbang gagal (Audit 1006)", rc != 0)
         shutil.rmtree(subionicebundel, ignore_errors=True)
 
+        subdupambig = klon(tmp, "subdupambig")
+        berkas_aksi101 = os.path.join(
+            subdupambig, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi101, encoding="utf-8") as f:
+            isi_aksi101 = f.read()
+        baris_tulis101 = [b for b in isi_aksi101.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi101, "w", encoding="utf-8") as f:
+            f.write(isi_aksi101.replace(
+                baris_tulis101,
+                baris_tulis101.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xargs cat <&0x; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subdupambig,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("target duplikasi bersufiks huruf ditolak bash: "
+                "segmen pertama bukan penguras — gerbang lolos "
+                "(Audit 1007)", rc == 0)
+        shutil.rmtree(subdupambig, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: target duplikasi bersufiks huruf di pemindaian xargs ditolak (Audit 1007)
+
+- Perbaikan perkakas: pemindaian titik-akhir xargs membaca target duplikasi dengan regex awalan digit, sehingga `xargs cat <&0x` dan `<&0abc` dinilai duplikasi-diri netral — padahal bash menolak target itu sebagai ambiguous redirect dan perintah batal sebelum berjalan (pipa tak tersentuh, fail-closed). Target kini wajib cocok penuh (`\d+` dengan sufiks `-` yang memang ditoleransi bash, atau `-`); sufiks lain membuat segmen dinilai bukan penguras. Skenario uji-diri baru (aksi 101) mengunci bentuk itu sebagai segmen bukan-penguras — gerbang wajib LOLOS. Probe dua arah gabungan seluruh temuan gerbang putaran ini: 0 selisih.
+
 ## [Belum rilis] — Gerbang: bundel opsi ionice bernilai-terpisah diuraikan (Audit 1006)
 
 - Perbaikan perkakas: lingkar opsi pembungkus hanya mencocokkan opsi bernilai secara persis, sehingga bundel getopt seperti `ionice -tc 2 cat` dan `ionice -tn 3 cat` (bendera -t digabung opsi bernilai -c/-n yang nilainya token berikutnya) berhenti dinilai pada token nilainya — perintah di baliknya tak terlihat dan bentuk penguras dinilai aman (fail-open). Kini token bundel ionice diuraikan huruf demi huruf mengikuti getopt: opsi bernilai menelan sisa token, atau token berikutnya bila ia huruf terakhir; huruf tak dikenal selain -t menghentikan penguraian seperti perilaku lama. Skenario uji-diri baru (aksi 100) mengunci `ionice -tc 2 cat` sebagai penguras di segmen pertama substitusi proses — gerbang wajib GAGAL. Probe dua arah: kedua bentuk selisih tertutup, bentuk merekat dan kontrol tetap benar.

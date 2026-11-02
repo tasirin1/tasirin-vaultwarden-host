@@ -968,8 +968,15 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 continue
             sufiks_lt = tok[idx_lt + 1:]
             if sufiks_lt.startswith("&"):
-                m_t = re.match(r"(\d+|-)", sufiks_lt[1:])
-                target = m_t.group(1) if m_t else None
+                suf_t = sufiks_lt[1:]
+                m_t = re.fullmatch(r"(\d+)(?:-)?|(-)", suf_t)
+                if suf_t and m_t is None:
+                    # Audit 1007: target duplikasi bersufiks huruf
+                    # ("<&0x", "<&0abc") ditolak bash sebagai
+                    # ambiguous redirect — perintah batal sebelum
+                    # berjalan, pipa tak tersentuh.
+                    return False
+                target = (m_t.group(1) or m_t.group(2)) if m_t else None
                 if target is None and pos + 1 < len(toks):
                     target = toks[pos + 1].strip("\"'")
                 if _fd_norm(target or "") == "0":
