@@ -2927,6 +2927,25 @@ def main():
         periksa("pembungkus unshare transparan: pembaca di baliknya penguras — gerbang gagal (Audit 1065)", rc != 0)
         shutil.rmtree(subunshare, ignore_errors=True)
 
+        subsocat = klon(tmp, "subsocat")
+        berkas_aksi144 = os.path.join(
+            subsocat, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi144, encoding="utf-8") as f:
+            isi_aksi144 = f.read()
+        baris_aksi144 = [b for b in isi_aksi144.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi144, "w", encoding="utf-8") as f:
+            f.write(isi_aksi144.replace(
+                baris_aksi144,
+                baris_aksi144.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(socat - /dev/null; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subsocat,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("alamat STDIO socat membaca stdin: penguras — gerbang gagal (Audit 1066)", rc != 0)
+        shutil.rmtree(subsocat, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

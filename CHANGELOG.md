@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — alamat STDIO socat kini dinilai gerbang patch (Audit 1066)
+
 ## [Belum rilis] — pembungkus chroot dan unshare kini dikenal gerbang patch (Audit 1065)
 
 ## [Belum rilis] — daftar nama dari stdin zip -@ dan rsync kini dinilai gerbang patch (Audit 1064)
