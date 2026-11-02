@@ -10114,6 +10114,24 @@ def main():
         periksa("zless: "
                 "gerbang gagal (Audit 1314)", rc != 0)
         shutil.rmtree(sub537, ignore_errors=True)
+        sub538 = klon(tmp, "sub538")
+        berkas_aksi538 = os.path.join(
+            sub538, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi538, encoding="utf-8") as f:
+            isi_aksi538 = f.read()
+        baris_aksi538 = [b for b in isi_aksi538.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi538, "w", encoding="utf-8") as f:
+            f.write(isi_aksi538.replace(
+                baris_aksi538,
+                baris_aksi538.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(sensible-pager; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub538, [sys.executable, GERBANG, "--semua"])
+        periksa("sensible-pager: "
+                "gerbang gagal (Audit 1315)", rc != 0)
+        shutil.rmtree(sub538, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

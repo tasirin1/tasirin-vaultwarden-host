@@ -682,6 +682,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1314: pager terkompresi.
                   "zless", "zmore", "bzless", "bzmore",
                   "xzless", "xzmore", "lzless", "lzmore",
+                  # Audit 1315: pager sistem.
+                  "sensible-pager", "pager",
                   # Audit 1113: varian awk orisinal.
                   "original-awk",
                   # Audit 1196: pemulih tabel firewall membaca
@@ -917,6 +919,12 @@ _OPSI_BERNILAI = {
     "lzless": {"-p", "--pattern", "-P", "--prompt", "-o",
                "--log-file"},
     "lzmore": set(),
+    "sensible-pager": {"-p", "--pattern", "-P", "--prompt",
+                       "-o", "--log-file"},
+    "pager": {"-p", "--pattern", "-P", "--prompt", "-o",
+              "--log-file"},
+    # Audit 1310/1313/1337/1338/1324: entri kosong — vonis
+    # mengikuti aturan operand generik.
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",
