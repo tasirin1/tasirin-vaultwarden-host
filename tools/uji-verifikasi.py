@@ -8296,6 +8296,24 @@ def main():
         periksa("git shortlog --group author: "
                 "gerbang gagal (Audit 1223)", rc != 0)
         shutil.rmtree(sub436, ignore_errors=True)
+        sub437 = klon(tmp, "sub437")
+        berkas_aksi437 = os.path.join(
+            sub437, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi437, encoding="utf-8") as f:
+            isi_aksi437 = f.read()
+        baris_aksi437 = [b for b in isi_aksi437.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi437, "w", encoding="utf-8") as f:
+            f.write(isi_aksi437.replace(
+                baris_aksi437,
+                baris_aksi437.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git check-ignore --stdin berkas.txt; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub437, [sys.executable, GERBANG, "--semua"])
+        periksa("git check-ignore --stdin berkas.txt: "
+                "gerbang lolos (Audit 1224)", rc == 0)
+        shutil.rmtree(sub437, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

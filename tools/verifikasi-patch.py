@@ -2042,6 +2042,11 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1206: keluarga --stdin putaran-5.
         if sub in ("update-ref", "check-attr", "check-ignore",
                    "diff-tree", "name-rev"):
+            # Audit 1224: check-ignore --stdin menolak
+            # operand jalur (fatal) — sub lain tak terprobe
+            # menolak operandnya.
+            if sub == "check-ignore" and "--stdin" in mentah:
+                return not ops_git[1:]
             return "--stdin" in mentah
         # Audit 1207: catatan dari berkas pesan stdin.
         if sub == "notes":

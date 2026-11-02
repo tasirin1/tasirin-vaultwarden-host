@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — check-ignore: --stdin menolak operand jalur (Audit 1224)
+
 ## [Belum rilis] — git shortlog: --group bernilai, hilang (Audit 1223)
 
 ## [Belum rilis] — git shortlog: -w bernilai opsional, bukan terpisah (Audit 1222)
