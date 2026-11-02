@@ -780,6 +780,13 @@ _OPSI_PEMBUNGKUS = {
                 "--bounding-set", "--inh-caps", "--securebits",
                 "--pdeathsig", "--selinux-label",
                 "--apparmor-profile"},
+    # Audit 1156: prlimit — pembungkus batas sumber daya;
+    # --pid mode pid (tanpa perintah hanya mencetak/mengubah
+    # batas pid, tak membaca), perintah anak tetap dinilai.
+    "prlimit": {"--pid", "--as", "--core", "--cpu", "--data",
+                "--fsize", "--locks", "--memlock", "--msgqueue",
+                "--nice", "--nofile", "--nproc", "--rss",
+                "--rtprio", "--rttime", "--sigpending", "--stack"},
     # Audit 1070: systemd-cat — operandnya perintah (pembungkus);
     # tanpa operand ia meneruskan stdin-nya sendiri ke jurnal.
     "systemd-cat": {"-t", "--identifier", "-p", "--priority"},
@@ -2355,7 +2362,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 "unshare", "chroot", "systemd-cat", "strace",
                 "dbus-run-session", "runuser", "su", "sg",
                 # Audit 1155/1156: pembungkus putaran-6.
-                "setpriv"):
+                "setpriv", "prlimit"):
             # Audit 1051: 'command' SESUDAH exec adalah nama program
             # untuk execvp, bukan pembungkus — jangan transparan.
             if sesudah_exec and t0 == "command":

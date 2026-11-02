@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — pembungkus prlimit kini dikenal resolver gerbang patch (Audit 1156)
+
 ## [Belum rilis] — pembungkus setpriv kini dikenal resolver gerbang patch (Audit 1155)
 
 ## [Belum rilis] — pra-pindai redirect gerbang patch kini menilai sisa token sesudah kutip (Audit 1154)
