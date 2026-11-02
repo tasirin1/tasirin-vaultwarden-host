@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — bentuk daftar openssl dikenali informasional (Audit 1214)
+
 ## [Belum rilis] — entri tabel kompresor gerbang dilengkapi (Audit 1213)
 
 ## [Belum rilis] — logger --id tak lagi menelan pesan (Audit 1212)

@@ -1725,6 +1725,11 @@ def _menguras_khusus(perintah, toks, awal):
         if not mentah:
             return False
         sub = mentah[0]
+        # Audit 1214: bentuk daftar openssl juga informasional
+        # (mencetak daftar lalu keluar tanpa membaca).
+        if sub in ("dgst", "enc") and any(
+                t in ("-list", "-ciphers") for t in mentah):
+            return False
 
         def _in_non_stdin():
             for k_in, t_in in enumerate(mentah):
