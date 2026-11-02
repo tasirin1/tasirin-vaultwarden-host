@@ -2779,6 +2779,13 @@ def _menguras_khusus(perintah, toks, awal):
                          "-MQ", "-include", "-imacros"})
         return (not ops_cp or "-" in ops_cp
                 or "/dev/stdin" in ops_cp)
+    if perintah in ("gcc", "g++", "cc", "c++"):
+        ops_gc = _operand_sesudah_opsi(
+            toks, awal, {"-x", "-o", "-I", "-D", "-U", "-L",
+                         "-include", "-imacros", "-MF", "-MT",
+                         "-MQ", "-B", "-specs", "-specs="})
+        return ("-" in ops_gc or "/dev/stdin" in ops_gc
+                or ("-E" in mentah and not ops_gc))
     return False
 
 
