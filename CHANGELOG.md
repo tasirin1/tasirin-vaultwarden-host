@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — pod2text dikenal sebagai pembaca stdin (Audit 1248)
+
 ## [Belum rilis] — piconv (Perl) dikenal sebagai pembaca stdin (Audit 1247)
 
 ## [Belum rilis] — uconv (ICU) dikenal sebagai pembaca stdin (Audit 1246)

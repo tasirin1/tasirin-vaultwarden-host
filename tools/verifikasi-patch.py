@@ -675,7 +675,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1245/1246/1247/1248/1260: alias
                   # checksum, konverter, POD, penebak encoding.
                   "shasum", "md5sum.textutils", "uconv",
-                  "piconv", 
+                  "piconv", "pod2text",
                   # Audit 1191/1192: funzip mengekstrak anggota
                   # pertama arsip zip dari stdin; json_pp
                   # memformat JSON dari stdin.
@@ -827,7 +827,8 @@ _OPSI_BERNILAI = {
     "json_pp": {"-f", "--format"},
     # Audit 1246/1247/1248: konverter & pembaca POD.
     "uconv": {"-f", "--from-code", "-t", "--to-code", "-o",
-              "--output", "-x", "--translit"},    "piconv": {"-f", "--from", "-t", "--to", "-o", "--output"},
+              "--output", "-x", "--translit"},    "piconv": {"-f", "--from", "-t", "--to", "-o", "--output"},    "pod2text": {"-o", "--output", "-w", "--width", "-i",
+                 "--indent", "-q", "--quotes", "--errors"},
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",
