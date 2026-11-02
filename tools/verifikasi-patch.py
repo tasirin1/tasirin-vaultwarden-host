@@ -2320,6 +2320,20 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1198: dpkg --set-selections membaca pilihan paket.
     if perintah == "dpkg":
         return "--set-selections" in mentah
+    # Audit 1200: file — operand '-' = periksa stdin; -f '-' =
+    # daftar nama dari stdin.
+    if perintah == "file":
+        for k_fl, t_fl in enumerate(mentah):
+            if t_fl in ("-f", "--files-from"):
+                return (k_fl + 1 < len(mentah)
+                        and mentah[k_fl + 1] == "-")
+            if t_fl in ("-f-", "--files-from=-"):
+                return True
+        ops_fl = _operand_sesudah_opsi(
+            toks, awal, {"-f", "--files-from", "-F",
+                         "--separator", "-m", "--magic-file",
+                         "-e", "--exclude", "--exclude-quiet"})
+        return "-" in ops_fl
     return False
 
 
@@ -2971,7 +2985,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # Audit 1193/1195/1197/1198/1200/1201/
                         # 1202/1204: penilai khusus putaran-7.
                         "pdftotext", "nft", "ip", "tc", "bridge",
-                        "dpkg"):
+                        "dpkg", "file"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

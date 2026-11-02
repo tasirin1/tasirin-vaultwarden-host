@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — perintah file '-' dikenali gerbang (Audit 1200)
+
 ## [Belum rilis] — lzcat masuk daftar pembaca stdin gerbang (Audit 1199)
 
 ## [Belum rilis] — dpkg --set-selections dikenali gerbang (Audit 1198)
