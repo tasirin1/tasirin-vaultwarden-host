@@ -819,7 +819,9 @@ _OPSI_BERNILAI = {
              "--block-size", "-C", "--check"},
     "xzcat": {"-F", "--format", "-T", "--threads",
               # Audit 1237: -S/--suffix hilang dari entri ini.
-              "-S", "--suffix"},
+              "-S", "--suffix",
+              # Audit 1292: --block-size (entri xz memuatnya).
+              "--block-size"},
     # Audit 1238: lzcat tanpa entri sama sekali (Audit 1199
     # hanya menambah namanya ke daftar pembaca).
     "lzcat": {"-F", "--format", "-S", "--suffix", "-T",

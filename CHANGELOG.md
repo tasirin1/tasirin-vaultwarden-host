@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Xzcat --block-size bernilai (Audit 1292)
+
 ## [Belum rilis] — Shasum masuk tabel pembaca stdin (Audit 1291)
 
 ## [Belum rilis] — Pod2text -e/--guesswork/-m bernilai (Audit 1290)
