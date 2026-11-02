@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga awalan kata kunci diperketat (Audit 1031–1034)
+
+### Diperbaiki
+- Perkakas: empat perbaikan satu keluarga pada cabang kata kunci `tools/verifikasi-patch.py` — (1031) opsi milik `exec` sendiri (-c/-l bendera, -a bernilai, --) ikut dilompati; (1032) `time --` diakui sebagai akhir opsi seperti `-p`; (1033) kata berbentuk penetapan SESUDAH `exec` dinilai sebagai nama program, bukan penetapan transparan (fail-closed); (1034) kata kunci `time`/`!` di balik `command` tidak lagi transparan karena `command` hanya menjalankan builtin/program — `exec`/`eval` di baliknya tetap transparan. Skenario uji-diri aksi111–114.
+
+
 ## [Belum rilis] — Gerbang: pembungkus sudo dikenal (Audit 1044)
 
 ### Diperbaiki

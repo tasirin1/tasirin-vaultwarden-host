@@ -844,6 +844,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     xargs_dari_berkas = False
     xargs_sendiri = False
     lewat_pembungkus = False
+    # Audit 1033/1034: keadaan posisi perintah untuk kata kunci.
+    sesudah_exec = False
+    lewat_command = False
+    # Audit 987: isi string env -S di-exec env sebagai program
+    # eksternal — kata pertamanya tidak pernah builtin shell,
+    # jadi rekursi -S berjalan dengan _posisi_awal=False.
     # Audit 987: isi string env -S di-exec env sebagai program
     # eksternal — kata pertamanya tidak pernah builtin shell,
     # jadi rekursi -S berjalan dengan _posisi_awal=False.
@@ -862,7 +868,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 awal = sesudah
                 continue
         t0 = toks[awal].strip("\"'")
-        if (not lewat_pembungkus
+        if (not lewat_pembungkus and not sesudah_exec
                 and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t0)):
             # Audit 966: penetapan hanya transparan di awal segmen
             # atau sesudah env — sesudah pembungkus lain, token
@@ -968,10 +974,43 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # eval, dan ! hanya membungkusnya). Hanya di posisi
             # awal: di balik pembungkus/env nama-nama ini adalah
             # program eksternal yang tak ada (pola Audit 972).
+            # Audit 1034: 'command' menjalankan builtin/program,
+            # BUKAN kata kunci — time/! di baliknya tak transparan
+            # (exec/eval adalah builtin, tetap transparan).
+            if lewat_command and t0 in ("time", "!"):
+                break
             awal += 1
-            if (t0 == "time" and awal < len(toks)
-                    and toks[awal] == "-p"):
-                awal += 1
+            if t0 == "exec":
+                # Audit 1031: opsi milik exec sendiri (-c/-l
+                # bendera, -a bernilai, -- akhir opsi) bukan
+                # perintah — lompati juga.
+                # Audit 1033: kata berbentuk penetapan SESUDAH exec
+                # adalah nama program yang di-exec, bukan penetapan
+                # shell — tandai agar cabang penetapan tak menelannya.
+                sesudah_exec = True
+                while awal < len(toks):
+                    o = toks[awal]
+                    if (o in ("-c", "-l")
+                            or re.fullmatch(r"-[cl]+", o)):
+                        awal += 1
+                        continue
+                    if o == "-a":
+                        awal += 2
+                        continue
+                    if o.startswith("-a") and len(o) > 2:
+                        awal += 1
+                        continue
+                    if o == "--":
+                        awal += 1
+                    break
+            if t0 == "time":
+                # Audit 1032: '--' juga akhir opsi time, seperti -p.
+                while (awal < len(toks)
+                        and toks[awal] in ("-p", "--")):
+                    berhenti = toks[awal] == "--"
+                    awal += 1
+                    if berhenti:
+                        break
             continue
         if t0 == "timeout" or t0 in ("xargs", "nice", "command",
                 "stdbuf", "setsid", "ionice", "chrt", "taskset",
@@ -983,6 +1022,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # awal diteruskan (command kedua tetap transparan).
             if t0 != "command":
                 masih_awal = False
+            else:
+                # Audit 1034: ingat lintasan 'command' — kata kunci
+                # di baliknya bukan builtin (lihat cabang 1020).
+                lewat_command = True
             if t0 == "xargs":
                 # Audit 962: xargs terdalam yang menentukan sumber
                 # item — xargs di balik xargs -a membaca stdin

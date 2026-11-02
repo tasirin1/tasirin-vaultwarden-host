@@ -2350,6 +2350,82 @@ def main():
         periksa("pembungkus sudo transparan: pembaca di baliknya penguras — gerbang gagal (Audit 1044)", rc != 0)
         shutil.rmtree(subsudo, ignore_errors=True)
 
+        subexecopsi = klon(tmp, "subexecopsi")
+        berkas_aksi111 = os.path.join(
+            subexecopsi, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi111, encoding="utf-8") as f:
+            isi_aksi111 = f.read()
+        baris_aksi111 = [b for b in isi_aksi111.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi111, "w", encoding="utf-8") as f:
+            f.write(isi_aksi111.replace(
+                baris_aksi111,
+                baris_aksi111.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(exec -c cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subexecopsi,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi milik exec dilompati: exec -c cat adalah penguras — gerbang gagal (Audit 1031)", rc != 0)
+        shutil.rmtree(subexecopsi, ignore_errors=True)
+
+        subtimeakh = klon(tmp, "subtimeakh")
+        berkas_aksi112 = os.path.join(
+            subtimeakh, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi112, encoding="utf-8") as f:
+            isi_aksi112 = f.read()
+        baris_aksi112 = [b for b in isi_aksi112.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi112, "w", encoding="utf-8") as f:
+            f.write(isi_aksi112.replace(
+                baris_aksi112,
+                baris_aksi112.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(time -- cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subtimeakh,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("time -- adalah akhir opsi: pembaca sesudahnya penguras — gerbang gagal (Audit 1032)", rc != 0)
+        shutil.rmtree(subtimeakh, ignore_errors=True)
+
+        subexecset = klon(tmp, "subexecset")
+        berkas_aksi113 = os.path.join(
+            subexecset, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi113, encoding="utf-8") as f:
+            isi_aksi113 = f.read()
+        baris_aksi113 = [b for b in isi_aksi113.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi113, "w", encoding="utf-8") as f:
+            f.write(isi_aksi113.replace(
+                baris_aksi113,
+                baris_aksi113.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(exec A=1 cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subexecset,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("penetapan sesudah exec adalah nama program: bukan penguras — gerbang lolos (Audit 1033)", rc == 0)
+        shutil.rmtree(subexecset, ignore_errors=True)
+
+        subcmdkata = klon(tmp, "subcmdkata")
+        berkas_aksi114 = os.path.join(
+            subcmdkata, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi114, encoding="utf-8") as f:
+            isi_aksi114 = f.read()
+        baris_aksi114 = [b for b in isi_aksi114.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi114, "w", encoding="utf-8") as f:
+            f.write(isi_aksi114.replace(
+                baris_aksi114,
+                baris_aksi114.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(command time cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subcmdkata,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("kata kunci di balik command tak transparan: bukan penguras — gerbang lolos (Audit 1034)", rc == 0)
+        shutil.rmtree(subcmdkata, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
