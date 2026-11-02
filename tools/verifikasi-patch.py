@@ -2600,6 +2600,10 @@ def _menguras_khusus(perintah, toks, awal):
                         "-f-"):
                 return True
             # Audit 1279: nilai /dev/stdin juga stdin.
+            if t_nf in ("--file=/dev/stdin",):
+                return True
+            # Audit 1280: bundel pendek berakhiran f-
+            # (mis. -cf-).
             if re.fullmatch(r"-[A-Za-z]*f-", t_nf):
                 return True
             if t_nf in ("-f", "--file"):
@@ -2649,6 +2653,10 @@ def _menguras_khusus(perintah, toks, awal):
                         "-f-"):
                 return True
             # Audit 1279: nilai /dev/stdin juga stdin.
+            if t_dt in ("--file=/dev/stdin",):
+                return True
+            # Audit 1280: bundel berakhiran f- (mis. -Rf-).
+            if re.fullmatch(r"-[A-Za-z]*f-", t_dt):
                 return True
             if t_dt in ("-f", "--file"):
                 return (k_dt + 1 < len(mentah)

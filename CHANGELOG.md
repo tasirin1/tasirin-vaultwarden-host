@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Bundel berakhiran f- dikenali di date dan nft (Audit 1280)
+
 ## [Belum rilis] — Nilai fd-0 diterima di cabang file/date/sysctl/nft (Audit 1279)
 
 ## [Belum rilis] — Openssl memakai -in terakhir untuk vonis stdin (Audit 1278)
