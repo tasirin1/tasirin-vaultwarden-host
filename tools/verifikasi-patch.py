@@ -2343,6 +2343,15 @@ def _menguras_khusus(perintah, toks, awal):
                 return (k_dt + 1 < len(mentah)
                         and mentah[k_dt + 1] == "-")
         return False
+    # Audit 1202: sysctl -p '-' membaca konfigurasi dari stdin.
+    if perintah == "sysctl":
+        for k_sy, t_sy in enumerate(mentah):
+            if t_sy in ("-p-", "--preload-file=-"):
+                return True
+            if t_sy in ("-p", "--preload", "--preload-file"):
+                return (k_sy + 1 < len(mentah)
+                        and mentah[k_sy + 1] == "-")
+        return False
     return False
 
 
@@ -2994,7 +3003,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # Audit 1193/1195/1197/1198/1200/1201/
                         # 1202/1204: penilai khusus putaran-7.
                         "pdftotext", "nft", "ip", "tc", "bridge",
-                        "dpkg", "file", "date"):
+                        "dpkg", "file", "date", "sysctl"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)
         return xargs_sendiri

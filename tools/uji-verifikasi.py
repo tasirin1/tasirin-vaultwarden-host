@@ -7702,6 +7702,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("date -f -: gerbang gagal (Audit 1201)", rc != 0)
         shutil.rmtree(sub403, ignore_errors=True)
+        sub404 = klon(tmp, "sub404")
+        berkas_aksi404 = os.path.join(
+            sub404, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi404, encoding="utf-8") as f:
+            isi_aksi404 = f.read()
+        baris_aksi404 = [b for b in isi_aksi404.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi404, "w", encoding="utf-8") as f:
+            f.write(isi_aksi404.replace(
+                baris_aksi404,
+                baris_aksi404.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sysctl -p -; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub404,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sysctl -p -: gerbang gagal (Audit 1202)", rc != 0)
+        shutil.rmtree(sub404, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

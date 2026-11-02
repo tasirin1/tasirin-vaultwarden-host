@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — sysctl -p - dikenali gerbang (Audit 1202)
+
 ## [Belum rilis] — date -f - dikenali gerbang (Audit 1201)
 
 ## [Belum rilis] — perintah file '-' dikenali gerbang (Audit 1200)
