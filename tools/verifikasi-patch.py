@@ -2054,6 +2054,24 @@ def _menguras_khusus(perintah, toks, awal):
             return "--stdin" in mentah
         if sub == "update-index":
             return "--stdin" in mentah or "--index-info" in mentah
+        # Audit 1207: daftar pathspec dari stdin.
+        # Audit 1268: cek ini dihoist SEBELUM cabang
+        # commit/tag — commit ada di allowlist tetapi
+        # cabangnya mengembalikan vonis lebih dulu.
+        # Audit 1226: bentuk terpisah '--pathspec-from-file -'
+        # juga sah.
+        # Audit 1227: hanya subcommand ber-pathspec — cek
+        # lintas-subcommand lama membuat rev-list (menolak
+        # opsi ini) divonis menguras.
+        if sub in ("add", "checkout", "commit", "restore",
+                   "rm", "reset", "stash"):
+            for k_ps, t_ps in enumerate(mentah):
+                if t_ps == "--pathspec-from-file=-":
+                    return True
+                if t_ps == "--pathspec-from-file" and (
+                        k_ps + 1 < len(mentah)
+                        and mentah[k_ps + 1] == "-"):
+                    return True
         if sub in ("commit", "tag"):
             pesan_stdin = False
             for k_g, t_g in enumerate(mentah):
@@ -2117,21 +2135,6 @@ def _menguras_khusus(perintah, toks, awal):
                  # Audit 1184: --indent/--nl bernilai, hilang.
                  "--indent", "--nl"})
             return not ops_co or "-" in ops_co
-        # Audit 1207: daftar pathspec dari stdin.
-        # Audit 1226: bentuk terpisah '--pathspec-from-file -'
-        # juga sah.
-        # Audit 1227: hanya subcommand ber-pathspec — cek
-        # lintas-subcommand lama membuat rev-list (menolak
-        # opsi ini) divonis menguras.
-        if sub in ("add", "checkout", "commit", "restore",
-                   "rm", "reset", "stash"):
-            for k_ps, t_ps in enumerate(mentah):
-                if t_ps == "--pathspec-from-file=-":
-                    return True
-                if t_ps == "--pathspec-from-file" and (
-                        k_ps + 1 < len(mentah)
-                        and mentah[k_ps + 1] == "-"):
-                    return True
         # Audit 1205: pembaca langsung putaran-5.
         if sub == "am":
             ops_am = _operand_sesudah_opsi(
