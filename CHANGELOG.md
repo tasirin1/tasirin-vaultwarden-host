@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — xz/unxz -F/--format masuk tabel bernilai gerbang patch (Audit 1172)
+
 ## [Belum rilis] — cksum -l/--length masuk tabel bernilai gerbang patch (Audit 1171)
 
 ## [Belum rilis] — logger --msgid/--sd-id/--sd-param masuk tabel bernilai gerbang patch (Audit 1170)

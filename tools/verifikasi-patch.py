@@ -752,10 +752,14 @@ _OPSI_BERNILAI = {
     "basenc": {"-w", "--wrap"},
     # Audit 1057: opsi bernilai kompresor.
     "xz": {"-T", "--threads", "-C", "--check", "--block-size",
-           "--memlimit-compress", "--memlimit-decompress"},
+           "--memlimit-compress", "--memlimit-decompress",
+           # Audit 1172: -F/--format bernilai.
+           "-F", "--format"},
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
-    "unxz": {"--suffix", "-S", "-T", "--threads"},
+    "unxz": {"--suffix", "-S", "-T", "--threads",
+             # Audit 1172: -F/--format bernilai.
+             "-F", "--format"},
     "unlzma": {"--suffix", "-S"},
 }
 
