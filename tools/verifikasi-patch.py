@@ -2542,6 +2542,15 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # perintah — lompatan wajib melewatinya juga, kalau
             # tidak nilai itu yang dinilai sebagai perintah.
             bernilai = _OPSI_PEMBUNGKUS.get(t0, ())
+            # Audit 1189: prlimit --pid menargetkan proses lain —
+            # perintah sesudahnya BUKAN anak (nyata: galat
+            # 'mutually exclusive' bila keduanya ada), dan
+            # stdin tak dibaca.
+            if t0 == "prlimit" and any(
+                    t_pid == "--pid"
+                    or t_pid.startswith("--pid=")
+                    for t_pid in toks[awal:]):
+                return False
             if t0 in ("su", "sg"):
                 # Audit 1107: su/sg — string -c dinilai seperti
                 # flock -c; tanpa -c keduanya menjatuhkan shell

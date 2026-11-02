@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — prlimit mode --pid tak lagi dinilai pembungkus (Audit 1189)
+
 ## [Belum rilis] — tar -T kosong tak lagi divonis menguras (Audit 1188)
 
 ## [Belum rilis] — cek tar menggantung didahulukan dari return '-' (Audit 1187)

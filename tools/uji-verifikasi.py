@@ -7432,6 +7432,24 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tar -t --files-from=: gerbang lolos (Audit 1188)", rc == 0)
         shutil.rmtree(sub388, ignore_errors=True)
+        sub389 = klon(tmp, "sub389")
+        berkas_aksi389 = os.path.join(
+            sub389, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi389, encoding="utf-8") as f:
+            isi_aksi389 = f.read()
+        baris_aksi389 = [b for b in isi_aksi389.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi389, "w", encoding="utf-8") as f:
+            f.write(isi_aksi389.replace(
+                baris_aksi389,
+                baris_aksi389.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(prlimit --pid 1 cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub389,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("prlimit --pid 1 cat: gerbang lolos (Audit 1189)", rc == 0)
+        shutil.rmtree(sub389, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
