@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — opsi bernilai grep penyaring berkas dilengkapi di gerbang patch (Audit 1127)
+
 ## [Belum rilis] — jq --indent masuk set opsi bernilai gerbang patch (Audit 1126)
 
 ## [Belum rilis] — tabel opsi bernilai numfmt dilengkapi di gerbang patch (Audit 1125)

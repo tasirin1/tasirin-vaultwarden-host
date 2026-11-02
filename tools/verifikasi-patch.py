@@ -1091,7 +1091,10 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
         "grep": {"-e", "-f", "-m", "-A", "-B", "-C", "-d", "-D",
                  "--pattern", "--file", "--max-count",
                  "--after-context", "--before-context", "--context",
-                 "--devices", "--directories"},
+                 "--devices", "--directories",
+                 # Audit 1127: opsi penyaring berkas bernilai.
+                 "--exclude-from", "--exclude", "--include",
+                 "--exclude-dir", "--label", "--binary-files"},
         "jq": {"-L", "--library-path", "-f", "--from-file",
                "--arg", "--argjson", "--rawfile", "--slurpfile",
                # Audit 1126: --indent bernilai.
