@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — Tmux mencari subperintah sesudah opsi global (Audit 1354)
+
 ## [Belum rilis] — Ptar/dpkg-parsechangelog/localedef memakai kemunculan opsi terakhir (Audit 1353)
 
 ## [Belum rilis] — As tanpa operand berkas membaca stdin (Audit 1352)

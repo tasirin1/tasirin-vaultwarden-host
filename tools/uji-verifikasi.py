@@ -10798,6 +10798,24 @@ def main():
         periksa("ptar -t -f - -f arsip.tar: "
                 "gerbang lolos (Audit 1353)", rc == 0)
         shutil.rmtree(sub575, ignore_errors=True)
+        sub576 = klon(tmp, "sub576")
+        berkas_aksi576 = os.path.join(
+            sub576, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi576, encoding="utf-8") as f:
+            isi_aksi576 = f.read()
+        baris_aksi576 = [b for b in isi_aksi576.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi576, "w", encoding="utf-8") as f:
+            f.write(isi_aksi576.replace(
+                baris_aksi576,
+                baris_aksi576.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(tmux -S /tmp/sok load-buffer -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub576, [sys.executable, GERBANG, "--semua"])
+        periksa("tmux -S /tmp/sok load-buffer -: "
+                "gerbang gagal (Audit 1354)", rc != 0)
+        shutil.rmtree(sub576, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

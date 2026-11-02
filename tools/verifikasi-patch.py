@@ -2914,9 +2914,23 @@ def _menguras_khusus(perintah, toks, awal):
         return True
     # Audit 1320: tmux load-buffer dari stdin.
     if perintah == "tmux":
-        if mentah and mentah[0] == "load-buffer":
+        # Audit 1354: opsi global (-S/-L/-f/-T) lazim
+        # mendahului nama subperintah — cari subperintah
+        # sesudah opsi-opsi itu, bukan token pertama.
+        k_tm = 0
+        while k_tm < len(mentah):
+            t_tm = mentah[k_tm]
+            if t_tm in ("-S", "-L", "-f", "-T"):
+                k_tm += 2
+                continue
+            if t_tm.startswith("-"):
+                k_tm += 1
+                continue
+            break
+        if (k_tm < len(mentah)
+                and mentah[k_tm] == "load-buffer"):
             ops_tm = _operand_sesudah_opsi(
-                toks, awal + 1, {"-b", "-t"})
+                toks, awal + k_tm + 1, {"-b", "-t"})
             return "-" in ops_tm or "/dev/stdin" in ops_tm
         return False
     # Audit 1321/1322: konfigurasi systemd dari operand '-'.
