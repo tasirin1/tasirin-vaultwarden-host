@@ -725,7 +725,10 @@ _OPSI_BERNILAI = {
               "--output", "--byte-subst", "--widechar-subst",
               "--unicode-subst"},
     "numfmt": {"-d", "--delimiter", "--field", "--format",
-               "--padding", "--grouping"},
+               "--padding", "--grouping",
+               # Audit 1125: opsi konversi bernilai yang hilang.
+               "--from", "--to", "--from-unit", "--to-unit",
+               "--invalid", "--suffix"},
     "basenc": {"-w", "--wrap"},
     # Audit 1057: opsi bernilai kompresor.
     "xz": {"-T", "--threads", "-C", "--check", "--block-size",
