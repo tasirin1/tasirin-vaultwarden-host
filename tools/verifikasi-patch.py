@@ -2881,18 +2881,19 @@ def _menguras_khusus(perintah, toks, awal):
         return "-" in ops_cm or "/dev/stdin" in ops_cm
     # Audit 1312: ptar — berkas arsip dari -f.
     if perintah == "ptar":
+        # Audit 1353: kemunculan -f TERAKHIR yang menang
+        # (Getopt::Long), bukan yang pertama.
+        nilai_pt = None
         for k_pt, t_pt in enumerate(mentah):
             if t_pt in ("-f", "--file"):
-                return (k_pt + 1 < len(mentah)
-                        and mentah[k_pt + 1] in (
-                            "-", "/dev/stdin"))
-            if re.fullmatch(r"-[a-z]*f", t_pt):
-                return (k_pt + 1 < len(mentah)
-                        and mentah[k_pt + 1] in (
-                            "-", "/dev/stdin"))
-            if t_pt.startswith("-f") and len(t_pt) > 2:
-                return t_pt[2:] in ("-", "/dev/stdin")
-        return False
+                if k_pt + 1 < len(mentah):
+                    nilai_pt = mentah[k_pt + 1]
+            elif re.fullmatch(r"-[a-z]*f", t_pt):
+                if k_pt + 1 < len(mentah):
+                    nilai_pt = mentah[k_pt + 1]
+            elif t_pt.startswith("-f") and len(t_pt) > 2:
+                nilai_pt = t_pt[2:]
+        return nilai_pt in ("-", "/dev/stdin")
     # Audit 1317: script — perintah anak adalah nilai -c
     # (string shell); tanpa -c ia shell interaktif.
     if perintah == "script":
@@ -2945,17 +2946,17 @@ def _menguras_khusus(perintah, toks, awal):
         return "-" in ops_dd2 or "/dev/stdin" in ops_dd2
     # Audit 1327: dpkg-parsechangelog — berkas dari -l.
     if perintah == "dpkg-parsechangelog":
+        # Audit 1353: kemunculan -l TERAKHIR yang menang.
+        nilai_dc = None
         for k_dc, t_dc in enumerate(mentah):
             if t_dc in ("-l", "--file"):
-                return (k_dc + 1 < len(mentah)
-                        and mentah[k_dc + 1] in (
-                            "-", "/dev/stdin"))
-            if t_dc.startswith("--file="):
-                return t_dc.split("=", 1)[1] in (
-                    "-", "/dev/stdin")
-            if t_dc.startswith("-l") and len(t_dc) > 2:
-                return t_dc[2:] in ("-", "/dev/stdin")
-        return False
+                if k_dc + 1 < len(mentah):
+                    nilai_dc = mentah[k_dc + 1]
+            elif t_dc.startswith("--file="):
+                nilai_dc = t_dc.split("=", 1)[1]
+            elif t_dc.startswith("-l") and len(t_dc) > 2:
+                nilai_dc = t_dc[2:]
+        return nilai_dc in ("-", "/dev/stdin")
     # Audit 1328: cvtsudoers — tanpa berkas membaca stdin.
     if perintah == "cvtsudoers":
         ops_cv = _operand_sesudah_opsi(
@@ -2989,15 +2990,15 @@ def _menguras_khusus(perintah, toks, awal):
             "/dev/stdin", "/dev/fd/0", "/proc/self/fd/0")
     # Audit 1333: localedef — definisi dari -i.
     if perintah == "localedef":
+        # Audit 1353: kemunculan -i TERAKHIR yang menang.
+        nilai_ld = None
         for k_ld, t_ld in enumerate(mentah):
             if t_ld in ("-i", "--inputfile"):
-                return (k_ld + 1 < len(mentah)
-                        and mentah[k_ld + 1] in (
-                            "-", "/dev/stdin"))
-            if t_ld.startswith("--inputfile="):
-                return t_ld.split("=", 1)[1] in (
-                    "-", "/dev/stdin")
-        return False
+                if k_ld + 1 < len(mentah):
+                    nilai_ld = mentah[k_ld + 1]
+            elif t_ld.startswith("--inputfile="):
+                nilai_ld = t_ld.split("=", 1)[1]
+        return nilai_ld in ("-", "/dev/stdin")
     # Audit 1334: glib-genmarshal — hanya '-' yang membaca.
     if perintah == "glib-genmarshal":
         ops_gm2 = _operand_sesudah_opsi(

@@ -10780,6 +10780,24 @@ def main():
         periksa("as -o out.o: "
                 "gerbang gagal (Audit 1352)", rc != 0)
         shutil.rmtree(sub574, ignore_errors=True)
+        sub575 = klon(tmp, "sub575")
+        berkas_aksi575 = os.path.join(
+            sub575, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi575, encoding="utf-8") as f:
+            isi_aksi575 = f.read()
+        baris_aksi575 = [b for b in isi_aksi575.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi575, "w", encoding="utf-8") as f:
+            f.write(isi_aksi575.replace(
+                baris_aksi575,
+                baris_aksi575.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(ptar -t -f - -f arsip.tar; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub575, [sys.executable, GERBANG, "--semua"])
+        periksa("ptar -t -f - -f arsip.tar: "
+                "gerbang lolos (Audit 1353)", rc == 0)
+        shutil.rmtree(sub575, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
