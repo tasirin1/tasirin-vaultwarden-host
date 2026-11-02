@@ -767,9 +767,12 @@ _OPSI_PEMBUNGKUS = {
              "--close-from", "-T", "--command-timeout-fd", "-D",
              "--chdir", "-r", "--role", "-R", "--chroot"},
     # Audit 1065: unshare — opsi bernilai pemetaan id dan root.
+    # Audit 1153: --propagation/--map-users/--map-groups hilang —
+    # nilainya disangka perintah, blok habis 1121 tak tercapai.
     "unshare": {"--setgroups", "--map-user", "--map-group",
                 "--setuid", "--setgid", "-R", "--root", "--wd",
-                "--kill-child"},
+                "--kill-child", "--propagation", "--map-users",
+                "--map-groups"},
     # Audit 1070: systemd-cat — operandnya perintah (pembungkus);
     # tanpa operand ia meneruskan stdin-nya sendiri ke jurnal.
     "systemd-cat": {"-t", "--identifier", "-p", "--priority"},

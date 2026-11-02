@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — opsi bernilai unshare dilengkapi di tabel pembungkus gerbang patch (Audit 1153)
+
 ## [Belum rilis] — tar -f/-T menggantung kini divonis gerbang patch sebagai galat (Audit 1152)
 
 ## [Belum rilis] — tar -T tak lagi menggugurkan aturan arsip bawaan gerbang patch (Audit 1151)
