@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — entri tabel pr gerbang dibetulkan dua arah (Audit 1208)
+
 ## [Belum rilis] — git notes -F - dan pathspec-from-file dikenali gerbang (Audit 1207)
 
 ## [Belum rilis] — keluarga --stdin git putaran-5 dikenali gerbang (Audit 1206)

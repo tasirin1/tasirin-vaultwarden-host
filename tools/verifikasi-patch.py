@@ -740,9 +740,15 @@ _OPSI_BERNILAI = {
     "fmt": {"-w", "--width", "-g", "--goal", "-p", "--prefix"},
     # Audit 1167: -d pr adalah BENDERA --double-space; yang
     # bernilai adalah -D/--date-format (dulu tertukar).
-    "pr": {"-w", "--width", "-l", "--length", "-n", "--number-width",
-           "-o", "--indent", "-s", "--sep-string", "-h", "--header",
-           "-D", "--date-format"},
+    "pr": {"-w", "--width", "-l", "--length",
+           "-o", "--indent", "-h", "--header",
+           "-D", "--date-format",
+           # Audit 1208: --columns/-N/-W hilang (fail-open);
+           # -n/--sep-string bernilai OPSIONAL (hanya menempel/=)
+           # sehingga diperlakukan bendera; --number-width bukan
+           # opsi pr (milik nl); pasangan -s adalah --separator.
+           "--columns", "-N", "--first-line-number",
+           "-W", "--page-width", "-s", "--separator"},
     "expand": {"-t", "--tabs"},
     "unexpand": {"-t", "--tabs"},
     "split": {"-l", "--lines", "-b", "--bytes", "-C",
