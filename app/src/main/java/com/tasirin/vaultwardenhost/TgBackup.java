@@ -2837,7 +2837,7 @@ public final class TgBackup {
                             case 'b': sb.append('\b'); k += 2; break;
                             case 'f': sb.append('\f'); k += 2; break;
                             case 'u':
-                                // Audit 1142: escape \u rusak =
+                                // Audit 1142: escape \\u rusak =
                                 // parse gagal total, seperti
                                 // JSONTokener lama yang melempar —
                                 // dulu huruf 'u' + sisa digit
