@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang memodelkan pindah-fd bersumber fd 0 (Audit 1016)
+
+- Perkakas: semantik pindah-fd bash kini dimodelkan dua arah — target duplikasi `0-` sebagai SUMBER ke fd lain (`1<&0-`, `>&0-`, `2>&0-`) memindahkan lalu menutup stdin perintah, jadi segmen seperti itu dinilai tidak menguras (sebelumnya dinilai menguras dan bisa menolak workflow yang sah); pindah ke diri sendiri (`0>&0-`) tetap netral. Skenario uji-diri baru mengunci bentuk ini.
+
 ## [Belum rilis] — Gerbang mengenal pembungkus flock (Audit 1015)
 
 - Perkakas: resolver perintah gerbang kini mengenal `flock` sebagai pembungkus perintah — operand berkas kuncinya dilompati seperti durasi pada `timeout`, dan opsi bernilainya (waktu tunggu, kode keluar konflik) dipahami, jadi pembaca di balik flock (`flock kunci.lock cat`) dinilai menguras stdin sebagaimana kenyataannya, bukan lolos sebagai perintah tak dikenal. Skenario uji-diri baru mengunci bentuk ini.

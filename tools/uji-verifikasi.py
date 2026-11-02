@@ -2157,6 +2157,28 @@ def main():
                 "gerbang gagal (Audit 1015)", rc != 0)
         shutil.rmtree(subflock, ignore_errors=True)
 
+        subpindahbatal = klon(tmp, "subpindahbatal")
+        berkas_aksi105 = os.path.join(
+            subpindahbatal, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi105, encoding="utf-8") as f:
+            isi_aksi105 = f.read()
+        baris_tulis105 = [b for b in isi_aksi105.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi105, "w", encoding="utf-8") as f:
+            f.write(isi_aksi105.replace(
+                baris_tulis105,
+                baris_tulis105.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cat 1<&0-; "
+                    "cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subpindahbatal,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pindah-fd bersumber 0 menutup stdin: segmen "
+                "pertama bukan penguras — gerbang lolos "
+                "(Audit 1016)", rc == 0)
+        shutil.rmtree(subpindahbatal, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -559,6 +559,16 @@ def _fd_norm(fd):
     return fd
 
 
+def _sumber_nol_pindah(target):
+    # Audit 1016: target duplikasi "0-"/"00-" adalah pindah-fd
+    # BERSUMBER fd 0 — bila fd tujuannya bukan 0, fd 0 perintah
+    # dipindah ke sana lalu DITUTUP, jadi stdin perintah tertutup
+    # dan tak menguras apa pun. Tujuan 0 = pindah ke diri sendiri
+    # (no-op di bash), bukan penutupan.
+    return (len(target) > 1 and target.endswith("-")
+            and _fd_norm(target) == "0")
+
+
 def _indeks_sesudah_redirect(toks, i):
     """Audit 965: indeks sesudah token redirect KELUARAN pada
     posisi i — bentuk murni ('>' dsb.) melompati targetnya juga,
@@ -582,6 +592,13 @@ def _indeks_sesudah_redirect(toks, i):
     if sisa.startswith("<"):
         if sisa.startswith("<&"):
             if fd not in ("", "0"):
+                # Audit 1016: kecuali sumbernya pindah-fd dari 0 —
+                # fd 0 perintah ikut tertutup, stdinnya hilang.
+                sumber = (sisa[2:] if sisa != "<&"
+                          else (toks[i + 1] if i + 1 < len(toks)
+                                else ""))
+                if _sumber_nol_pindah(sumber):
+                    return -1
                 # Duplikasi ke fd lain: stdin bersama tak tersentuh.
                 return (min(i + 2, len(toks)) if sisa == "<&"
                         else i + 1)
@@ -604,6 +621,11 @@ def _indeks_sesudah_redirect(toks, i):
         return i + 1
     if sisa.startswith(">&"):
         target = sisa[2:]
+        # Audit 1016: pindah-fd bersumber 0 ke fd selain 0 menutup
+        # stdin perintah (tujuan "" = stdout fd 1); tujuan 0
+        # ("0>&0-") adalah pindah ke diri sendiri yang netral.
+        if fd != "0" and _sumber_nol_pindah(target):
+            return -1
         if target == "-":
             # Audit 985: stdout ditutup TIDAK menghentikan mayoritas
             # pembaca — wc/sort/head/dd/tee membaca stdin sampai
@@ -613,6 +635,10 @@ def _indeks_sesudah_redirect(toks, i):
             # perintahnya ('>&- cat' menjadi fail-closed, arah aman).
             return i + 1
         if target == "":
+            # Audit 1016: target terpisah juga bisa pindah-fd dari 0.
+            berikut = (toks[i + 1] if i + 1 < len(toks) else "")
+            if fd != "0" and _sumber_nol_pindah(berikut):
+                return -1
             return min(i + 2, len(toks))  # '>&' murni, target pisah
         return i + 1
     if (re.fullmatch(r"(\d*)(>|>>)", t)
@@ -1054,6 +1080,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             continue
                     return False
                 return False
+            if sisa_fd.startswith("&"):
+                # Audit 1016: pindah-fd bersumber 0 ke fd tujuan
+                # bukan-0 (posisi ini) menutup stdin perintah.
+                target_op = sisa_fd[1:]
+                if _sumber_nol_pindah(target_op):
+                    return False
+                if (target_op == "" and pos + 1 < len(toks)
+                        and _sumber_nol_pindah(
+                            toks[pos + 1].strip("\"'"))):
+                    return False
             if sisa_fd in ("", "&"):
                 lewati = True
             continue
@@ -1081,6 +1117,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 continue
             return False
         if ">" in t and _gt_di_luar_kutip(t) and not argv_saja:
+            # Audit 1016: "N>&0-" merekat di posisi operand —
+            # pindah-fd bersumber 0 menutup stdin (tujuan 0 netral).
+            m_pindah = re.fullmatch(r"(\d*|&)>&(\d+-)", t)
+            if (m_pindah and m_pindah.group(1) != "0"
+                    and _fd_norm(m_pindah.group(2)) == "0"):
+                return False
             if t in (">", ">>", "1>", "2>", "1>>", "2>>"):
                 lewati = True
                 continue
