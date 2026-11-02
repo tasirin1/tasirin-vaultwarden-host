@@ -1969,6 +1969,10 @@ def _menguras_khusus(perintah, toks, awal):
                  # Audit 1184: --indent/--nl bernilai, hilang.
                  "--indent", "--nl"})
             return not ops_co or "-" in ops_co
+        # Audit 1207: daftar pathspec dari stdin berlaku
+        # lintas subcommand.
+        if "--pathspec-from-file=-" in mentah:
+            return True
         # Audit 1205: pembaca langsung putaran-5.
         if sub == "am":
             ops_am = _operand_sesudah_opsi(
@@ -1982,6 +1986,16 @@ def _menguras_khusus(perintah, toks, awal):
         if sub in ("update-ref", "check-attr", "check-ignore",
                    "diff-tree", "name-rev"):
             return "--stdin" in mentah
+        # Audit 1207: catatan dari berkas pesan stdin.
+        if sub == "notes":
+            for k_nt, t_nt in enumerate(mentah):
+                if t_nt == "--file=-":
+                    return True
+                if t_nt in ("-F", "--file") and (
+                        k_nt + 1 < len(mentah)
+                        and mentah[k_nt + 1] == "-"):
+                    return True
+            return False
         # Audit 1163: --stdin plumbing & protokol credential.
         if sub in ("rev-list", "log"):
             return "--stdin" in mentah
