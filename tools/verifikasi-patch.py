@@ -3001,10 +3001,22 @@ def _menguras_khusus(perintah, toks, awal):
     # PERTAMA '-' adalah PDF dari stdin (poppler menampung
     # seluruh masukannya); operand berkas menekan.
     if perintah in ("pdftoppm", "pdftocairo"):
-        ops_pp = _operand_sesudah_opsi(
-            toks, awal, {"-f", "-l", "-r", "-rx", "-ry", "-x",
-                         "-y", "-W", "-H", "-sz", "-opw",
-                         "-upw"})
+        # Audit 1420: himpunan dilengkapi per perintah —
+        # -scale-to sekeluarga untuk keduanya; keluarga
+        # kertas/ICC/JPEG hanya milik pdftocairo.
+        if perintah == "pdftoppm":
+            bernilai_pp = {"-f", "-l", "-r", "-rx", "-ry",
+                           "-x", "-y", "-W", "-H", "-sz",
+                           "-opw", "-upw", "-scale-to",
+                           "-scale-to-x", "-scale-to-y"}
+        else:
+            bernilai_pp = {"-f", "-l", "-r", "-rx", "-ry",
+                           "-x", "-y", "-W", "-H", "-sz",
+                           "-opw", "-upw", "-scale-to",
+                           "-scale-to-x", "-scale-to-y",
+                           "-paperw", "-paperh", "-paper",
+                           "-icc", "-jpegopt"}
+        ops_pp = _operand_sesudah_opsi(toks, awal, bernilai_pp)
         return bool(ops_pp) and ops_pp[0] == "-"
     # Audit 1195: nft — hanya -f '-' yang membaca dari stdin.
     if perintah == "nft":

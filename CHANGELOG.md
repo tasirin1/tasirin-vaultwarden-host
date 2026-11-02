@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Pdftoppm/pdftocairo himpunan opsi bernilai dilengkapi per perintah (Audit 1420)
 ## [Belum rilis] — Openssl req tanpa -in membaca objek dari stdin (Audit 1419)
 ## [Belum rilis] — Openssl sess_id -context bernilai dikenal (Audit 1418)
 ## [Belum rilis] — Openssl asn1parse himpunan opsi bernilai dilengkapi (Audit 1417)
