@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Uji JVM untuk TgBackup.hex32, gerbang format rahasia alarm (Audit 1382)
 ## [Belum rilis] — ServerService.shorten dibuka package-private dan diuji JVM (Audit 1381)
 ## [Belum rilis] — CI: timeout job verifikasi dinaikkan 15 ke 45 menit agar suite uji-diri selesai (Audit 1380)
 ## [Belum rilis] — Komentar berisi escape \u mentah di TgBackup dibetulkan — aplikasi bisa dikompilasi lagi (Audit 1379)

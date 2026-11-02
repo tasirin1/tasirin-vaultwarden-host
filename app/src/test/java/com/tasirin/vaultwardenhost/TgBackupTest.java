@@ -2359,4 +2359,20 @@ public class TgBackupTest {
         assertEquals("", TgBackup.bacaResponsBatas(
                 new java.io.ByteArrayInputStream(lebih)));
     }
+
+    // Audit 1382: hex32 adalah gerbang format rahasia alarm. Nilai
+    // harapan diporting 1:1 dari badan hex32 (tepat 32 char [0-9a-f]).
+    @Test
+    public void hex32_hanyaTigaPuluhDuaHexKecil() {
+        assertTrue(TgBackup.hex32("0123456789abcdef0123456789abcdef"));
+        assertTrue(TgBackup.hex32("ffffffffffffffffffffffffffffffff"));
+        assertFalse(TgBackup.hex32(null));
+        assertFalse(TgBackup.hex32(""));
+        assertFalse(TgBackup.hex32("0123456789abcdef0123456789abcde"));
+        assertFalse(TgBackup.hex32("0123456789abcdef0123456789abcdef0"));
+        assertFalse(TgBackup.hex32("0123456789ABCDEF0123456789abcdef"));
+        assertFalse(TgBackup.hex32("0123456789abcdef0123456789abcdeg"));
+        assertFalse(TgBackup.hex32("0123456789abcdef0123456789abcde:"));
+        assertFalse(TgBackup.hex32("0123456789abcdef0123456789abcde`"));
+    }
 }
