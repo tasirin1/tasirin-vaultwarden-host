@@ -635,6 +635,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1359: alat akun shadow-utils — tanpa
                   # operand berkas membaca daftar dari stdin.
                   "chpasswd", "newusers",
+                  # Audit 1397: chgpasswd — cermin chpasswd
+                  # untuk grup; pola yang sama persis.
+                  "chgpasswd",
                   # Audit 1376: shell CPAN tanpa argumen
                   # membaca perintah dari stdin.
                   "cpan",
@@ -923,6 +926,9 @@ _OPSI_BERNILAI = {
     # Audit 1359: opsi bernilai alat akun shadow-utils.
     "chpasswd": {"-c", "--crypt-method", "-s", "--sha-rounds",
                  "-R", "--root", "--prefix"},
+    # Audit 1397: opsi bernilai chgpasswd sama dengan chpasswd.
+    "chgpasswd": {"-c", "--crypt-method", "-s", "--sha-rounds",
+                  "-R", "--root", "--prefix"},
     "newusers": {"-R", "--root", "--prefix"},
     # Audit 1336: keluarga POD lain.
     # Audit 1310: uncompress tanpa opsi bernilai.
@@ -4398,7 +4404,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # Audit 1371: chpasswd TAK punya operand berkas —
         # token asing diabaikan dan stdin tetap dibaca
         # (berbeda dari newusers yang sah beroperand berkas).
-        if perintah == "chpasswd":
+        # Audit 1397: chgpasswd sama persis — tak beroperand.
+        if perintah in ("chpasswd", "chgpasswd"):
             continue
         # Audit 1349: pr membaca SETIAP operand berurutan —
         # operand berkas pertama tak boleh memutuskan; catat
