@@ -3149,6 +3149,23 @@ def _menguras_khusus(perintah, toks, awal):
         segmen_sr = pecah_segmen_shell(
             " ".join(mentah[anak_sr:]))
         return bool(segmen_sr) and _menguras_stdin(segmen_sr[0])
+    # Audit 1358: keluarga ffmpeg — masukan '-'/'pipe:'
+    # membaca media dari stdin sampai EOF.
+    if perintah in ("ffmpeg", "ffprobe", "ffplay"):
+        for k_ff, t_ff in enumerate(mentah):
+            if t_ff == "-i" and k_ff + 1 < len(mentah):
+                if mentah[k_ff + 1] in ("-", "pipe:", "pipe:0",
+                                        "/dev/stdin"):
+                    return True
+        if perintah == "ffmpeg":
+            return False
+        ops_ff = _operand_sesudah_opsi(
+            toks, awal, {"-i", "-x", "-y", "-volume", "-seek",
+                         "-ss", "-t", "-of", "-print_format",
+                         "-select_streams", "-v", "-loglevel",
+                         "-f", "-vf", "-af", "-left", "-top"})
+        return any(o_ff in ("-", "pipe:", "pipe:0",
+                            "/dev/stdin") for o_ff in ops_ff)
     return False
 
 
@@ -3911,7 +3928,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "xauth",
                         # Audit 1347: systemd-run kini cabang
                         # khusus (semantik mode --scope).
-                        "systemd-run",
+                        # Audit 1358: keluarga ffmpeg.
+                        "systemd-run", "ffmpeg", "ffprobe",
+                        "ffplay",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
             return _menguras_khusus(perintah, toks, awal)

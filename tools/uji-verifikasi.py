@@ -10870,6 +10870,24 @@ def main():
         periksa("debugfs -Rstats citra.img: "
                 "gerbang lolos (Audit 1357)", rc == 0)
         shutil.rmtree(sub579, ignore_errors=True)
+        sub580 = klon(tmp, "sub580")
+        berkas_aksi580 = os.path.join(
+            sub580, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi580, encoding="utf-8") as f:
+            isi_aksi580 = f.read()
+        baris_aksi580 = [b for b in isi_aksi580.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi580, "w", encoding="utf-8") as f:
+            f.write(isi_aksi580.replace(
+                baris_aksi580,
+                baris_aksi580.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(ffmpeg -i - -f null -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub580, [sys.executable, GERBANG, "--semua"])
+        periksa("ffmpeg -i - -f null -: "
+                "gerbang gagal (Audit 1358)", rc != 0)
+        shutil.rmtree(sub580, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
