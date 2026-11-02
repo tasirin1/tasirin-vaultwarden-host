@@ -8350,6 +8350,24 @@ def main():
         periksa("git add --pathspec-from-file -: "
                 "gerbang gagal (Audit 1226)", rc != 0)
         shutil.rmtree(sub439, ignore_errors=True)
+        sub440 = klon(tmp, "sub440")
+        berkas_aksi440 = os.path.join(
+            sub440, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi440, encoding="utf-8") as f:
+            isi_aksi440 = f.read()
+        baris_aksi440 = [b for b in isi_aksi440.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi440, "w", encoding="utf-8") as f:
+            f.write(isi_aksi440.replace(
+                baris_aksi440,
+                baris_aksi440.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git rev-list --pathspec-from-file=-; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1))
+        rc, out = jalan(sub440, [sys.executable, GERBANG, "--semua"])
+        periksa("git rev-list --pathspec-from-file=-: "
+                "gerbang lolos (Audit 1227)", rc == 0)
+        shutil.rmtree(sub440, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -2017,17 +2017,21 @@ def _menguras_khusus(perintah, toks, awal):
                  # Audit 1184: --indent/--nl bernilai, hilang.
                  "--indent", "--nl"})
             return not ops_co or "-" in ops_co
-        # Audit 1207: daftar pathspec dari stdin berlaku
-        # lintas subcommand.
+        # Audit 1207: daftar pathspec dari stdin.
         # Audit 1226: bentuk terpisah '--pathspec-from-file -'
         # juga sah.
-        if "--pathspec-from-file=-" in mentah:
-            return True
-        for k_ps, t_ps in enumerate(mentah):
-            if t_ps == "--pathspec-from-file" and (
-                    k_ps + 1 < len(mentah)
-                    and mentah[k_ps + 1] == "-"):
-                return True
+        # Audit 1227: hanya subcommand ber-pathspec — cek
+        # lintas-subcommand lama membuat rev-list (menolak
+        # opsi ini) divonis menguras.
+        if sub in ("add", "checkout", "commit", "restore",
+                   "rm", "reset", "stash"):
+            for k_ps, t_ps in enumerate(mentah):
+                if t_ps == "--pathspec-from-file=-":
+                    return True
+                if t_ps == "--pathspec-from-file" and (
+                        k_ps + 1 < len(mentah)
+                        and mentah[k_ps + 1] == "-"):
+                    return True
         # Audit 1205: pembaca langsung putaran-5.
         if sub == "am":
             ops_am = _operand_sesudah_opsi(
