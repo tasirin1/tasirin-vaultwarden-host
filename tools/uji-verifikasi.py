@@ -2426,6 +2426,25 @@ def main():
         periksa("kata kunci di balik command tak transparan: bukan penguras — gerbang lolos (Audit 1034)", rc == 0)
         shutil.rmtree(subcmdkata, ignore_errors=True)
 
+        subfilter = klon(tmp, "subfilter")
+        berkas_aksi118 = os.path.join(
+            subfilter, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi118, encoding="utf-8") as f:
+            isi_aksi118 = f.read()
+        baris_aksi118 = [b for b in isi_aksi118.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi118, "w", encoding="utf-8") as f:
+            f.write(isi_aksi118.replace(
+                baris_aksi118,
+                baris_aksi118.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sha256sum; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(subfilter,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("filter aliran murni tanpa operand adalah penguras — gerbang gagal (Audit 1037)", rc != 0)
+        shutil.rmtree(subfilter, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

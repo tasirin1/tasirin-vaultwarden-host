@@ -1,5 +1,11 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: filter aliran murni dikenal sebagai pembaca (Audit 1037)
+
+### Diperbaiki
+- Perkakas: `cut`, `tr`, `paste`, `fold`, `nl`, `tac`, `rev`, `shuf`, `base64`, `od`, `sha256sum`, `md5sum`, `gzip`, dan `gunzip` masuk set pembaca `tools/verifikasi-patch.py` beserta tabel opsi bernilainya; operand `-` dinilai stdin dan operand `tr` dinilai himpunan karakter (tak pernah berkas), dan `shuf -e/-i` dikecualikan karena masukannya dari argumen/rentang. Sebelumnya keempat belasnya gugur sebagai perintah tak dikenal padahal tanpa operand berkas mereka menguras stdin (fail-open) — termasuk `sha256sum`, idiom rilis repo ini sendiri. Skenario uji-diri aksi118.
+
+
 ## [Belum rilis] — Gerbang: keluarga awalan kata kunci diperketat (Audit 1031–1034)
 
 ### Diperbaiki

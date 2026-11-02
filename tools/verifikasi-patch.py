@@ -590,7 +590,12 @@ def _potong_komentar_sisa(sisa):
 # Perintah-perintah yang lazim mengonsumsi stdin sampai habis —
 # dipakai menilai isi substitusi proses multi-perintah (Audit 931).
 _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
-                  "uniq"}
+                  "uniq",
+                  # Audit 1037: filter aliran murni — tanpa operand
+                  # berkas membaca stdin sampai habis.
+                  "cut", "tr", "paste", "fold", "nl", "tac", "rev",
+                  "shuf", "base64", "od", "sha256sum", "md5sum",
+                  "gzip", "gunzip"}
 
 
 _OPSI_BERNILAI = {
@@ -598,6 +603,24 @@ _OPSI_BERNILAI = {
     "tail": {"-n", "-c"},
     "sort": {"-k", "-o", "-t", "-S", "-T"},
     "uniq": {"-f", "-s"},
+    # Audit 1037: opsi bernilai filter aliran.
+    "cut": {"-d", "-f", "-c", "--delimiter", "--fields",
+            "--characters", "--bytes", "--output-delimiter"},
+    "fold": {"-w", "--width"},
+    "nl": {"-b", "-d", "-f", "-h", "-i", "-l", "-n", "-s", "-v",
+           "-w", "--body-numbering", "--delimiter",
+           "--footer-numbering", "--header-numbering",
+           "--number-format", "--number-separator",
+           "--starting-line-number", "--line-increment",
+           "--number-width"},
+    "paste": {"-d", "--delimiters"},
+    "base64": {"-w", "--wrap", "-b", "--break"},
+    "od": {"-A", "--address-radix", "-j", "--skip-bytes", "-N",
+           "--read-bytes", "-t", "--format", "-w", "--width"},
+    "gzip": {"--suffix", "-S"},
+    "gunzip": {"--suffix", "-S"},
+    "shuf": {"-n", "--head-count", "-o", "--output",
+             "--random-source", "-i", "--input-range"},
 }
 
 
@@ -1293,6 +1316,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         return xargs_sendiri
     if xargs_sendiri:
         return True
+    if perintah == "shuf" and any(
+            t in ("-e", "--echo") or t == "-i"
+            or t.startswith("--input-range")
+            for t in toks[awal + 1:]):
+        # Audit 1037: shuf -e/-i mengambil masukan dari argumen/
+        # rentang, bukan stdin.
+        return False
     lewati = False
     for pos in range(awal + 1, len(toks)):
         t = toks[pos]
@@ -1404,6 +1434,14 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # nilai opsi yang terpisah bukan operand berkas.
             if t in _OPSI_BERNILAI.get(perintah, ()):
                 lewati = True
+            continue
+        if t == "-":
+            # Audit 1037: operand "-" adalah stdin itu sendiri
+            # bagi filter coreutils.
+            continue
+        if perintah == "tr":
+            # Audit 1037: operand tr adalah himpunan karakter,
+            # tak pernah berkas masukan.
             continue
         if perintah == "tee":
             continue
