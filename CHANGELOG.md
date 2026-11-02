@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pengecualian salinan restore basi dari Bundle dibuang (Audit 1012)
+
+- Perbaikan: salinan berkas restore dari pemilih hanya hidup selama proses restore berjalan di layar yang membuatnya, tetapi path-nya yang tersimpan di Bundle dihidupkan lagi sebagai pengecualian sapuan oleh layar penerus — satu berkas yatim sisa proses yang mati di tengah restore bisa terlindungi dari semua sapuan selama aplikasi terus dibuka dari recents. Path dari Bundle kini dianggap selalu basi dan berkasnya dihapus langsung saat layar dibuat.
+
 ## [Belum rilis] — Gerbang mengenali sufiks pindah-fd pada target duplikasi (Audit 1011)
 
 - Perkakas: normalisasi nomor fd di gerbang kini memahami sufiks `-` semantik pindah-fd bash — target duplikasi `<&0-`/`<&00-` adalah duplikasi-diri yang menguras stdin sama seperti `<&0`, bukan "stdin dari fd lain" seperti yang dinilai sebelumnya di pemindaian operand dan posisi awalan (jalur xargs sudah benar sejak Audit 1007). Skenario uji-diri baru mengunci bentuk ini.

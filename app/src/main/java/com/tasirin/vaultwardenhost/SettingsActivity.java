@@ -439,7 +439,15 @@ public class SettingsActivity extends Activity {
             String pathRestorePilih = savedInstanceState.getString(
                     STATE_RESTORE_PILIH_PATH);
             if (pathRestorePilih != null) {
-                salinanRestorePilihAktif = new File(pathRestorePilih);
+                // Audit 1012: salinan restore pemilih hanya hidup
+                // selama panggilan restore sinkron di instance yang
+                // membuatnya — path yang kembali dari Bundle selalu
+                // basi: restorenya sudah selesai (berkas terhapus
+                // di finally) atau prosesnya mati di tengah (berkas
+                // yatim). Menghidupkan lagi pengecualiannya di sini
+                // melindungi yatim itu dari semua sapuan selama
+                // rantai instance hidup; hapus berkasnya langsung.
+                new File(pathRestorePilih).delete();
             }
         }
         TgBackup.healkanStringPrefs(this);
