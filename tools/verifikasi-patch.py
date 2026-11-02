@@ -773,6 +773,13 @@ _OPSI_PEMBUNGKUS = {
                 "--setuid", "--setgid", "-R", "--root", "--wd",
                 "--kill-child", "--propagation", "--map-users",
                 "--map-groups"},
+    # Audit 1155: setpriv — pembungkus hak istimewa (perintah
+    # anak di operand pertama).
+    "setpriv": {"--reuid", "--ruid", "--euid", "--regid",
+                "--rgid", "--egid", "--groups", "--ambient-caps",
+                "--bounding-set", "--inh-caps", "--securebits",
+                "--pdeathsig", "--selinux-label",
+                "--apparmor-profile"},
     # Audit 1070: systemd-cat — operandnya perintah (pembungkus);
     # tanpa operand ia meneruskan stdin-nya sendiri ke jurnal.
     "systemd-cat": {"-t", "--identifier", "-p", "--priority"},
@@ -2346,7 +2353,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # dbus-run-session, runuser (perintah operand);
                 # su/sg (string -c / shell interaktif, blok khusus).
                 "unshare", "chroot", "systemd-cat", "strace",
-                "dbus-run-session", "runuser", "su", "sg"):
+                "dbus-run-session", "runuser", "su", "sg",
+                # Audit 1155/1156: pembungkus putaran-6.
+                "setpriv"):
             # Audit 1051: 'command' SESUDAH exec adalah nama program
             # untuk execvp, bukan pembungkus — jangan transparan.
             if sesudah_exec and t0 == "command":

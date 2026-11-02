@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — pembungkus setpriv kini dikenal resolver gerbang patch (Audit 1155)
+
 ## [Belum rilis] — pra-pindai redirect gerbang patch kini menilai sisa token sesudah kutip (Audit 1154)
 
 ## [Belum rilis] — opsi bernilai unshare dilengkapi di tabel pembungkus gerbang patch (Audit 1153)

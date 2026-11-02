@@ -6442,6 +6442,42 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("diff - berkas ''<pengganti.txt: gerbang lolos (Audit 1154)", rc == 0)
         shutil.rmtree(sub333, ignore_errors=True)
+        sub334 = klon(tmp, "sub334")
+        berkas_aksi334 = os.path.join(
+            sub334, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi334, encoding="utf-8") as f:
+            isi_aksi334 = f.read()
+        baris_aksi334 = [b for b in isi_aksi334.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi334, "w", encoding="utf-8") as f:
+            f.write(isi_aksi334.replace(
+                baris_aksi334,
+                baris_aksi334.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(setpriv --reuid=1000 --regid=1000 --clear-groups cat; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub334,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("setpriv --reuid=1000 --regid=1000 --clear-groups cat: gerbang gagal (Audit 1155)", rc != 0)
+        shutil.rmtree(sub334, ignore_errors=True)
+        sub335 = klon(tmp, "sub335")
+        berkas_aksi335 = os.path.join(
+            sub335, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi335, encoding="utf-8") as f:
+            isi_aksi335 = f.read()
+        baris_aksi335 = [b for b in isi_aksi335.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        with open(berkas_aksi335, "w", encoding="utf-8") as f:
+            f.write(isi_aksi335.replace(
+                baris_aksi335,
+                baris_aksi335.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(setpriv --reuid=1000 sort berkas; cat >> \"$GITHUB_OUTPUT\")"), 1))
+        rc, out = jalan(sub335,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("setpriv --reuid=1000 sort berkas: gerbang lolos (Audit 1155)", rc == 0)
+        shutil.rmtree(sub335, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
