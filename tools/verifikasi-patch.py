@@ -2322,13 +2322,28 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 operand_su = False
                 while j_su < len(toks):
                     t_su = toks[j_su]
+                    # Audit 1140: -c juga sah berbentuk bundel
+                    # berakhiran c (-mc) dan merekat (-c'...').
+                    perintah_su = None
                     if t_su in ("-c", "--command"):
                         j_su += 1
                         j_su = _sesudah_redirect_berantai(
                             toks, j_su, _batas_argv)
                         if j_su < 0 or j_su >= len(toks):
                             return False
-                        nilai_su = toks[j_su]
+                        perintah_su = toks[j_su]
+                    elif (t_su.startswith("-c") and len(t_su) > 2
+                            and not t_su.startswith("--")):
+                        perintah_su = t_su[2:]
+                    elif re.fullmatch(r"-[a-z]*c", t_su):
+                        j_su += 1
+                        j_su = _sesudah_redirect_berantai(
+                            toks, j_su, _batas_argv)
+                        if j_su < 0 or j_su >= len(toks):
+                            return False
+                        perintah_su = toks[j_su]
+                    if perintah_su is not None:
+                        nilai_su = perintah_su
                         if (len(nilai_su) >= 1
                                 and nilai_su[0] in "\"'"
                                 and not (len(nilai_su) >= 2

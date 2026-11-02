@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — blok su/sg gerbang patch kini mengenali -c bundel dan merekat (Audit 1140)
+
 ## [Belum rilis] — sort/wc --files0-from kini dibedakan gerbang patch menurut sumber daftar (Audit 1139)
 
 ## [Belum rilis] — sed -i tanpa operand berkas kini dinilai gerbang patch sebagai galat (Audit 1138)
