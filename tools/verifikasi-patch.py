@@ -1093,7 +1093,9 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                  "--after-context", "--before-context", "--context",
                  "--devices", "--directories"},
         "jq": {"-L", "--library-path", "-f", "--from-file",
-               "--arg", "--argjson", "--rawfile", "--slurpfile"},
+               "--arg", "--argjson", "--rawfile", "--slurpfile",
+               # Audit 1126: --indent bernilai.
+               "--indent"},
     }[perintah]
     nilai2 = {"--arg", "--argjson", "--rawfile", "--slurpfile"}
     skrip_dari_opsi = False

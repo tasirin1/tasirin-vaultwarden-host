@@ -1,5 +1,7 @@
 # Changelog
 
+## [Belum rilis] — jq --indent masuk set opsi bernilai gerbang patch (Audit 1126)
+
 ## [Belum rilis] — tabel opsi bernilai numfmt dilengkapi di gerbang patch (Audit 1125)
 
 ## [Belum rilis] — subcommand git pembaca stdin putaran-3 kini dikenali gerbang patch (Audit 1124)
