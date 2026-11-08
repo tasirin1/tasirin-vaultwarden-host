@@ -5602,12 +5602,21 @@ def nama_tak_lacak():
     out = jalan("git", "ls-files", "--others", "--exclude-standard")
     return out.splitlines() if out else []
 
+_CACHE_BACA = {}
+
 def baca(path):
-    try:
-        with open(os.path.join(AKAR, path), encoding="utf-8", errors="replace") as f:
-            return f.read()
-    except OSError:
-        return ""
+    # Audit 1450: cache per lari — berkas yang sama
+    # sempat dibuka sampai 11x dalam satu lari --semua;
+    # isi repo tak berubah di tengah satu proses
+    # gerbang, jadi salinan pertama tetap sah.
+    if path not in _CACHE_BACA:
+        try:
+            with open(os.path.join(AKAR, path),
+                      encoding="utf-8", errors="replace") as f:
+                _CACHE_BACA[path] = f.read()
+        except OSError:
+            _CACHE_BACA[path] = ""
+    return _CACHE_BACA[path]
 
 # __pycache__ dilewati selaras .gitignore dan klon() uji-diri: sisa
 # bytecode lokal bukan isi repo dan tak boleh mengubah vonis (Audit 954).
