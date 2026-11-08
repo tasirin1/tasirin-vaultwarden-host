@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: cabang bungkus dan berkas baru digabung satu lintasan (Audit 1458)
 ## [Belum rilis] — Cek-cepat: header terbelah yang tersela baris lain tak lagi lolos (Audit 1456)
 ## [Belum rilis] — Cek-cepat: TAB di antara kata header PRIVATE KEY tak lagi lolos (Audit 1455)
 ## [Belum rilis] — Cek-cepat membaca daftar berkas dengan -z: nama ber-newline tak lagi lolos (Audit 1454)

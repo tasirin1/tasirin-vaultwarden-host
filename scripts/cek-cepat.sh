@@ -46,20 +46,20 @@ POLA_TOKEN='gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]
 POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Z0-9[:blank:]]*PRIVATE KEY-----|$POLA_TOKEN"
 POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN[A-Za-z0-9]{0,200}PRIVATEKEY-----[A-Za-z0-9+/=]{16,}"
 RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | sort -u || true)"
-BUNGKUS="$({ git -c core.quotepath=false ls-files -z; git -c core.quotepath=false ls-files --others --exclude-standard -z; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z; } | sort -zu | while IFS= read -r -d '' f; do
+# Audit 1458: satu lintasan untuk dua cabang — entri bertanda t:
+# (terlacak) / u: (tak terlacak/terabaikan); berkas u: juga diuji
+# pola per-baris di lintasan yang sama (dulu loop terpisah
+# memindai berkas tak terlacak dua kali).
+BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c core.quotepath=false ls-files --others --exclude-standard -z | sed -z 's/^/u:/'; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z | sed -z 's/^/u:/'; } | sort -zu | while IFS= read -r -d '' entri; do
+  f=${entri#?:}
   if [ -f "$f" ] && tr -d '\n\r \t' < "$f" 2>/dev/null | grep -q -E -- "$POLA_BUNGKUS"; then
+    printf '%s\n' "$f"
+  fi
+  if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
     printf '%s\n' "$f"
   fi
 done || true)"
 RAHASIA="$(printf '%s\n%s\n' "$RAHASIA" "$BUNGKUS" | sed '/^$/d' | sort -u || true)"
-BARU_RAHASIA="$({ git -c core.quotepath=false ls-files --others --exclude-standard -z; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z; } | sort -zu | while IFS= read -r -d '' f; do
-  if [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
-    printf '%s\n' "$f"
-  fi
-done || true)"
-if [ -n "$BARU_RAHASIA" ]; then
-  RAHASIA="$(printf '%s\n%s\n' "$RAHASIA" "$BARU_RAHASIA" | sed '/^$/d' | sort -u || true)"
-fi
 if [ -n "$RAHASIA" ]; then
   gagal_msg "isi berkas memuat pola rahasia (private key/token): $(printf '%s' "$RAHASIA" | tr '\n' ' ')"
 fi
