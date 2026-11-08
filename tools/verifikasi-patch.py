@@ -6463,11 +6463,22 @@ def nama_terdeklarasi(path):
         _CACHE_DEKLARASI[path] = nama
     return _CACHE_DEKLARASI[path]
 
+_CACHE_SEMUA_DEKLARASI = None
+
+def _semua_nama_terdeklarasi():
+    # Audit 1451: gabungan nama terdeklarasi dibangun
+    # sekali per lari; sebelumnya tiap nama memicu
+    # jalan pohon + pindai ulang (93 nama = 0,85 dtk).
+    global _CACHE_SEMUA_DEKLARASI
+    if _CACHE_SEMUA_DEKLARASI is None:
+        semua = set()
+        for path in jalan_repo(os.path.join("app", "src")):
+            semua |= nama_terdeklarasi(path)
+        _CACHE_SEMUA_DEKLARASI = semua
+    return _CACHE_SEMUA_DEKLARASI
+
 def masih_didefinisikan(nama):
-    for path in jalan_repo(os.path.join("app", "src")):
-        if nama in nama_terdeklarasi(path):
-            return True
-    return False
+    return nama in _semua_nama_terdeklarasi()
 
 def pemanggil(nama):
     pola = re.compile(r"\b%s\s*\(|::\s*%s\b"

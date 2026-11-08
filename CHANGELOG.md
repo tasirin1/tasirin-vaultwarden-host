@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Masih_didefinisikan kuadratik tanpa memo (Audit 1451)
 ## [Belum rilis] — Baca() tanpa cache — berkas sama dibuka sampai 11x per lari (Audit 1450)
 ## [Belum rilis] — Git format-patch --start-number tak dikenal — fail-closed (Audit 1449)
 ## [Belum rilis] — Pdftoppm/pdftocairo himpunan opsi bernilai masih kurang banyak (Audit 1448)
