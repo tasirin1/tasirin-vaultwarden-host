@@ -1638,14 +1638,18 @@ public class UpdaterTest {
                 new java.util.concurrent.atomic.AtomicBoolean(false);
         final java.util.concurrent.CountDownLatch mulai =
                 new java.util.concurrent.CountDownLatch(1);
+        final java.util.concurrent.CountDownLatch selesai =
+                new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.ExecutorService pelaksana =
+                java.util.concurrent.Executors.newSingleThreadExecutor();
         Updater.pasangKunciGlobal();
-        Thread lain = new Thread(() -> {
+        pelaksana.execute(() -> {
             mulai.countDown();
             Updater.pasangKunciGlobal();
             dapat.set(true);
             Updater.lepasKunciGlobal();
+            selesai.countDown();
         });
-        lain.start();
         assertTrue(mulai.await(5, java.util.concurrent.TimeUnit.SECONDS));
         Thread.sleep(300);
         assertFalse(dapat.get());
@@ -1653,7 +1657,8 @@ public class UpdaterTest {
         Updater.pasangKunciGlobal();
         Updater.lepasKunciGlobal();
         Updater.lepasKunciGlobal();
-        lain.join(5000L);
+        assertTrue(selesai.await(5, java.util.concurrent.TimeUnit.SECONDS));
         assertTrue(dapat.get());
+        pelaksana.shutdownNow();
     }
 }
