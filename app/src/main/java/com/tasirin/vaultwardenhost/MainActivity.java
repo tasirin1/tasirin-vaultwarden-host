@@ -73,6 +73,11 @@ public class MainActivity extends Activity {
     private String lastVersiBundled = "\0";
     private long lastUpDetik = -1;
     private int lastLogLen = 0;
+    // Audit 1476: ekor baris belum utuh yang sudah tampil di
+    // beranda; diputar-balik tick berikut bila asalnya ujung
+    // buffer (barisnya ditempel ulang utuh, bukan dibuang).
+    private int ekorParsialBeranda = 0;
+    private boolean ekorPutarBalik = false;
     private int barisLogBeranda = 0;
 
     private int tickCachePrefs = 0;
@@ -755,6 +760,7 @@ public class MainActivity extends Activity {
     private void refreshHomeLog() {
 
         String delta = "";
+        boolean deltaUjungBuffer = false;
         synchronized (ServerService.logBuffer) {
             int n = ServerService.logBuffer.length();
 
@@ -764,10 +770,25 @@ public class MainActivity extends Activity {
                 homeLogView.setText("");
                 barisLogBeranda = 0;
                 hintShown = false;
-            } else if (lastLogLen > 0 && lastLogLen <= n
+                ekorParsialBeranda = 0;
+                ekorPutarBalik = false;
+            } else if (ekorPutarBalik && n > lastLogLen && lastLogLen > 0
+                    && lastLogLen <= n
                     && ServerService.logBuffer.charAt(lastLogLen - 1) != '\n') {
-
-                lastLogLen = awalBarisSetelah(ServerService.logBuffer, lastLogLen, n);
+                // Audit 1476: putar balik — tick lalu berhenti di
+                // tengah baris; ekor yang sudah tampil ditarik dan
+                // posisi mundur ke awal baris agar barisnya
+                // ditempel ulang utuh. Cara lama melompati posisi
+                // ke baris berikutnya: ekor baris hilang dari
+                // tampilan beranda.
+                lastLogLen = awalBarisSebelum(ServerService.logBuffer, lastLogLen);
+                if (!hintShown && ekorParsialBeranda > 0) {
+                    CharSequence isi = homeLogView.getText();
+                    int simpan = Math.max(0, isi.length() - ekorParsialBeranda);
+                    homeLogView.setText(isi.subSequence(0, simpan));
+                }
+                ekorParsialBeranda = 0;
+                ekorPutarBalik = false;
             }
             if (n > lastLogLen) {
 
@@ -776,9 +797,18 @@ public class MainActivity extends Activity {
                 if (akhir > lastLogLen) {
                     delta = ServerService.logBuffer.substring(lastLogLen, akhir);
                     lastLogLen = akhir;
+                    deltaUjungBuffer = akhir == n;
                 } else if (akhir < 0) {
-
-                    lastLogLen = n;
+                    // Audit 1476: tak ada baris utuh dalam jendela
+                    // tick (satu baris raksasa) — dulu seluruh
+                    // jendela dibuang (posisi lompat ke n). Kini
+                    // jendela ditempel sebagai lanjutan apa adanya
+                    // dan posisi maju; tanpa putar balik, tick
+                    // berikut menyambung dari sini.
+                    int ujung = Math.min(n, lastLogLen + BATAS_DELTA_TICK);
+                    delta = ServerService.logBuffer.substring(lastLogLen, ujung);
+                    lastLogLen = ujung;
+                    deltaUjungBuffer = false;
                 }
             }
         }
@@ -800,6 +830,15 @@ public class MainActivity extends Activity {
 
         tempelLogBerwarna(delta);
         barisLogBeranda += hitungBaris(delta);
+        // Audit 1476: catat ekor tampil yang belum utuh — panjang
+        // delta SESUDAH penyamaran, yang benar-benar tertempel.
+        if (delta.charAt(delta.length() - 1) != '\n') {
+            ekorParsialBeranda += delta.length();
+            ekorPutarBalik = deltaUjungBuffer;
+        } else {
+            ekorParsialBeranda = 0;
+            ekorPutarBalik = false;
+        }
 
         if (homeLogView.length() > 40000) {
             CharSequence penuh = homeLogView.getText();
@@ -857,6 +896,20 @@ public class MainActivity extends Activity {
             pos++;
         }
         return teks.subSequence(pos, teks.length());
+    }
+
+    // Audit 1476: awal baris yang memuat posisi pos (pos = satu
+    // lewat ekor segmen baris yang belum utuh).
+    static int awalBarisSebelum(CharSequence buf, int pos) {
+        if (buf == null || pos <= 0) {
+            return 0;
+        }
+        for (int i = Math.min(pos, buf.length()) - 1; i >= 0; i--) {
+            if (buf.charAt(i) == '\n') {
+                return i + 1;
+            }
+        }
+        return 0;
     }
 
     static int awalBarisSetelah(CharSequence buf, int dari, int n) {

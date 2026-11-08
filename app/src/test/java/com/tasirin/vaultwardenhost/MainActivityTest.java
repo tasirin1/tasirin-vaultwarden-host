@@ -55,6 +55,15 @@ public class MainActivityTest {
         assertEquals(0, MainActivity.awalBarisSetelah(null, 0, 0));
         assertEquals(3, MainActivity.awalBarisSetelah("ab\ncd\n", -5, 6));
         assertEquals(3, MainActivity.awalBarisSetelah("ab\ncd\n", 0, 3));
+
+        // Audit 1476: awal baris yang memuat posisi (putar balik
+        // ekor baris yang tampil terpotong).
+        assertEquals(3, MainActivity.awalBarisSebelum("ab\ncdef\n", 6));
+        assertEquals(3, MainActivity.awalBarisSebelum("ab\ncdef\n", 7));
+        assertEquals(0, MainActivity.awalBarisSebelum("abcdef", 4));
+        assertEquals(0, MainActivity.awalBarisSebelum("abcdef", 0));
+        assertEquals(0, MainActivity.awalBarisSebelum(null, 5));
+        assertEquals(6, MainActivity.awalBarisSebelum("ab\ncd\n", 6));
     }
 
     @Test
