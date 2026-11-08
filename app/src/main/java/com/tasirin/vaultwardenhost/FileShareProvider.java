@@ -400,7 +400,7 @@ public class FileShareProvider extends ContentProvider {
     private static final class AkarBagi {
         final String files;
         final String cache;
-        String data;
+        volatile String data;
 
         AkarBagi(String files, String cache) {
             this.files = files;
@@ -408,13 +408,43 @@ public class FileShareProvider extends ContentProvider {
         }
     }
 
+    // Audit 1482: akar bagi di-cache statik. Dulu AkarBagi dibangun
+    // baru pada SETIAP panggilan (dua resolusi jalur kanonik), dan
+    // memo data di instansnya tak pernah bertahan — pref data dir
+    // dibaca + dikanonikkan ulang tiap verifikasi berkas. Kunci
+    // cache = filesDir kanonik | cacheDir kanonik | nilai mentah
+    // pref data dir; satu saja berubah → dibangun ulang. Yang
+    // di-cache hanya AKAR: verifikasi berkas per panggilan
+    // (kanonik berkas, symlink induk, isFile) tetap segar
+    // (Audit 848).
+    private static final Object KUNCI_AKAR = new Object();
+    private static AkarBagi akarCache;
+    private static String kunciAkarCache;
+
     private AkarBagi akarBagi() {
         try {
             if (getContext() == null) {
                 return null;
             }
-            return new AkarBagi(getContext().getFilesDir().getCanonicalPath(),
-                    getContext().getCacheDir().getCanonicalPath());
+            String files = getContext().getFilesDir().getCanonicalPath();
+            String cache = getContext().getCacheDir().getCanonicalPath();
+            String mentah = null;
+            try {
+                android.content.SharedPreferences sp = getContext().getSharedPreferences(
+                        ServerService.PREFS, android.content.Context.MODE_PRIVATE);
+                mentah = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, null);
+            } catch (Exception ignored) {
+            }
+            String kunci = files + "|" + cache + "|" + mentah;
+            synchronized (KUNCI_AKAR) {
+                if (akarCache != null && kunci.equals(kunciAkarCache)) {
+                    return akarCache;
+                }
+                AkarBagi baru = new AkarBagi(files, cache);
+                akarCache = baru;
+                kunciAkarCache = kunci;
+                return baru;
+            }
         } catch (Exception e) {
             return null;
         }

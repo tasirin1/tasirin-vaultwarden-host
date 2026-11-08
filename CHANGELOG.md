@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Akar bagi FileShareProvider di-cache statik berkunci gabungan; verifikasi berkas tetap segar (Audit 1482)
 ## [Belum rilis] — tulisBarisLog memakai helper tanggalLog, bukan salinan badannya (Audit 1481)
 ## [Belum rilis] — Return mati di akhir healthFail dihapus (Audit 1480)
 ## [Belum rilis] — Cabang if kosong recordRestart dibalik jadi negasi (Audit 1479)
