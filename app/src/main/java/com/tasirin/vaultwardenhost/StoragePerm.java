@@ -18,9 +18,13 @@ public final class StoragePerm {
     }
 
     private static final String[] IZIN_KOSONG = new String[0];
+    // Audit 1483: cukup WRITE — READ satu grup izin (STORAGE)
+    // dengan WRITE, jadi WRITE yang diberikan ikut memberi READ
+    // pada model izin runtime targetSdk ini; READ tetap ada di
+    // manifest untuk FileShareProvider. Meminta keduanya hanya
+    // menambah gesekan dialog.
     private static final String[] IZIN_RW = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
     };
 
     public static String[] izinRuntime(int sdk) {

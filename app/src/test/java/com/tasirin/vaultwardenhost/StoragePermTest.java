@@ -20,8 +20,8 @@ public class StoragePermTest {
     public void izinRuntimeKosongSebelumMarshmallow() {
         assertEquals(0, StoragePerm.izinRuntime(21).length);
         assertEquals(0, StoragePerm.izinRuntime(22).length);
-        assertEquals(2, StoragePerm.izinRuntime(23).length);
-        assertEquals(2, StoragePerm.izinRuntime(34).length);
+        assertEquals(1, StoragePerm.izinRuntime(23).length);
+        assertEquals(1, StoragePerm.izinRuntime(34).length);
     }
 
     @Test
