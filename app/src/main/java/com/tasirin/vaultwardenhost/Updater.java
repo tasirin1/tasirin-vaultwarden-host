@@ -911,6 +911,14 @@ public final class Updater {
                 }
                 if (sha != null) {
                     String harap = sha.ambil(url[0]);
+                    // Audit 1509: digest null berarti unduhan ini
+                    // lanjutan (Audit 1471 tak meng-hash awalan) —
+                    // hash berkas utuhnya dihitung di sini sekali,
+                    // kalau tidak resume yang sah selalu dinilai
+                    // checksum tak cocok dan tmp-nya dibuang.
+                    if (digest == null) {
+                        digest = sha256Hex(tmp);
+                    }
                     if (!expectedHexEquals(harap, digest)) {
 
                         mismatchSha++;
