@@ -2416,7 +2416,8 @@ public class SettingsActivity extends Activity {
                         + " kunci RSA / lampiran gagal dipasang ("
                         + sbLampPicker + ") - salinan staging-nya"
                         + " (.restore-tmp) dibiarkan di folder data"
-                        + " untuk pemulihan manual.");
+                        + " untuk pemulihan manual SEBELUM restore"
+                        + " berikutnya (restore lain akan menyapunya).");
             }
             if (zipCfgRusak) {
                 appendUiLog("[app] Peringatan: app-config.json tidak terbaca"

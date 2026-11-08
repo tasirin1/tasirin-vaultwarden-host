@@ -3877,7 +3877,9 @@ public final class TgBackup {
                     + gagalLamp.size() + " kunci RSA / lampiran"
                     + " gagal dipasang (" + sbLamp + ") - salinan"
                     + " staging-nya (.restore-tmp) dibiarkan di"
-                    + " folder data untuk pemulihan manual;"
+                    + " folder data untuk pemulihan manual"
+                    + " SEBELUM restore berikutnya (restore lain"
+                    + " akan menyapunya, Audit 1537);"
                     + " periksa lampiran lalu mulai ulang server.";
         }
         boolean lengkap = false;
