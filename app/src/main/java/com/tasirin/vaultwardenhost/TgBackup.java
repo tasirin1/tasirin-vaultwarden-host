@@ -3637,6 +3637,7 @@ public final class TgBackup {
         boolean adaDb = false;
         boolean adaWalZip = false;
         java.util.List<String> tlsTerStaging = new java.util.ArrayList<>();
+        java.util.List<String> lampTerStaging = new java.util.ArrayList<>();
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
@@ -3686,8 +3687,14 @@ public final class TgBackup {
                     adaWalZip = true;
                 }
                 String stagingTls = namaStagingTls(nama);
+                // Audit 1510: entri 1461 ikut staging — nama
+                // akhir langsung hanya untuk entri lain.
+                String stagingLamp = entry.isDirectory() ? null
+                        : namaStagingLampiran(nama);
                 String namaTulis = staging != null ? staging
-                        : (stagingTls != null ? stagingTls : nama);
+                        : (stagingTls != null ? stagingTls
+                                : (stagingLamp != null ? stagingLamp
+                                        : nama));
                 File outFile = new File(dataFolder, namaTulis);
                 String kanon = outFile.getCanonicalPath();
                 if (!kanon.equals(basePath) && !kanon.startsWith(awalanAman)) {
@@ -3712,7 +3719,8 @@ public final class TgBackup {
                                     Util.BATAS_JUMLAH_ENTRI);
                             fos.write(buf, 0, n);
                         }
-                        if (staging != null || stagingTls != null) {
+                        if (staging != null || stagingTls != null
+                                || stagingLamp != null) {
                             fos.flush();
                             try {
                                 fos.getFD().sync();
@@ -3723,6 +3731,9 @@ public final class TgBackup {
                     if (stagingTls != null) {
                         tlsTerStaging.add(nama);
                     }
+                    if (stagingLamp != null) {
+                        lampTerStaging.add(nama);
+                    }
                 }
                 zis.closeEntry();
             }
@@ -3731,6 +3742,7 @@ public final class TgBackup {
             try {
                 hapusStagingRestore(dataFolder);
                 hapusStagingTls(dataFolder);
+                hapusStagingLampiran(dataFolder, lampTerStaging);
             } catch (Exception eBersih) {
                 eEkstrak.addSuppressed(eBersih);
             }
@@ -3748,6 +3760,7 @@ public final class TgBackup {
         if (!adaDb) {
             hapusStagingRestore(dataFolder);
             hapusStagingTls(dataFolder);
+            hapusStagingLampiran(dataFolder, lampTerStaging);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             throw new IOException("Backup tidak berisi db.sqlite3.");
         }
@@ -3759,6 +3772,7 @@ public final class TgBackup {
         } catch (Exception ePasang) {
             hapusStagingRestore(dataFolder);
             hapusStagingTls(dataFolder);
+            hapusStagingLampiran(dataFolder, lampTerStaging);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             // Penanda restore wajib dibersihkan juga di jalur exception
             // (Audit 858): tertinggal, ia terbaca BootReceiver sebagai
@@ -3770,6 +3784,7 @@ public final class TgBackup {
         if (galatDb != null) {
             hapusStagingRestore(dataFolder);
             hapusStagingTls(dataFolder);
+            hapusStagingLampiran(dataFolder, lampTerStaging);
             kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
             tandaiRestoreSelesai(ctx);
             throw new IOException("Backup rusak (" + galatDb + ")"
@@ -3806,6 +3821,21 @@ public final class TgBackup {
                     + " sertifikat ke salinan internal gagal - salinan"
                     + " internal mungkin tertinggal; mulai ulang server"
                     + " untuk menyelaraskannya.";
+        }
+        // Audit 1510: kunci RSA + lampiran dipasang dari staging
+        // hanya sesudah database lolos pasang (titik tak kembali
+        // yang sama seperti TLS) — restore yang gagal sebelum ini
+        // membersihkan staging-nya di jalur-jalur batal di atas.
+        String peringatanLamp = "";
+        try {
+            pasangLampiranRestore(dataFolder, lampTerStaging);
+        } catch (Exception eLamp) {
+            hapusStagingLampiran(dataFolder, lampTerStaging);
+            peringatanLamp = " Database SUDAH dipulihkan, tetapi"
+                    + " pemasangan kunci RSA / lampiran dari backup"
+                    + " gagal di tengah (" + eLamp.getMessage()
+                    + ") - sebagian mungkin sudah terpasang; periksa"
+                    + " lampiran lalu mulai ulang server.";
         }
         boolean lengkap = false;
         String peringatan = "";
@@ -3859,7 +3889,7 @@ public final class TgBackup {
                                 + " ter-checkpoint ke berkas utama TIDAK ikut"
                                 + " dipulihkan."
                         : "")
-                + peringatanTls + peringatan;
+                + peringatanTls + peringatan + peringatanLamp;
     }
 
     static final String[] ENTRI_TLS_RESTORE = {"tls/ca.pem", "tls/ca-key.pem",
@@ -3919,6 +3949,54 @@ public final class TgBackup {
             File staging = new File(dataFolder, namaStagingTls(nama));
             if (staging.isFile()) {
                 ServerService.gantiAtomik(staging, new File(dataFolder, nama));
+            }
+        }
+    }
+
+    // Audit 1510: entri Audit 1461 (kunci RSA sesi + isi
+    // attachments/sends) ikut skema staging yang sama seperti
+    // db/TLS — dulu ditulis langsung ke nama akhir selama
+    // ekstrak, jadi restore yang gagal tetap menimpa rsa_key
+    // dan mengotori lampiran walau database lama dipertahankan
+    // (pasangan db-lama + kunci-baru membunuh semua sesi login).
+    static String namaStagingLampiran(String nama) {
+        if (nama == null) {
+            return null;
+        }
+        if (nama.equals("rsa_key.pem") || nama.equals("rsa_key.der")) {
+            return nama + ".restore-tmp";
+        }
+        if ((nama.startsWith("attachments/") && nama.length() > 12)
+                || (nama.startsWith("sends/") && nama.length() > 6)) {
+            return nama + ".restore-tmp";
+        }
+        return null;
+    }
+
+    static void hapusStagingLampiran(File dataFolder,
+                                     java.util.List<String> daftar) {
+        if (dataFolder == null || daftar == null) {
+            return;
+        }
+        for (String nama : daftar) {
+            String staging = namaStagingLampiran(nama);
+            if (staging != null) {
+                new File(dataFolder, staging).delete();
+            }
+        }
+    }
+
+    static void pasangLampiranRestore(File dataFolder,
+                                      java.util.List<String> daftar)
+            throws Exception {
+        for (String nama : daftar) {
+            String staging = namaStagingLampiran(nama);
+            if (staging == null) {
+                continue;
+            }
+            File dari = new File(dataFolder, staging);
+            if (dari.isFile()) {
+                ServerService.gantiAtomik(dari, new File(dataFolder, nama));
             }
         }
     }

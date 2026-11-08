@@ -418,6 +418,71 @@ public class TgBackupTest {
     }
 
     @Test
+    public void namaStagingLampiran_petaNama() {
+        // Audit 1510: entri 1461 masuk skema staging; nama lain
+        // (termasuk db dan tls yang punya staging sendiri) null.
+        assertEquals("rsa_key.pem.restore-tmp",
+                TgBackup.namaStagingLampiran("rsa_key.pem"));
+        assertEquals("rsa_key.der.restore-tmp",
+                TgBackup.namaStagingLampiran("rsa_key.der"));
+        assertEquals("attachments/a/b.bin.restore-tmp",
+                TgBackup.namaStagingLampiran("attachments/a/b.bin"));
+        assertEquals("sends/x.restore-tmp",
+                TgBackup.namaStagingLampiran("sends/x"));
+        assertNull(TgBackup.namaStagingLampiran("attachments/"));
+        assertNull(TgBackup.namaStagingLampiran("sends/"));
+        assertNull(TgBackup.namaStagingLampiran("db.sqlite3"));
+        assertNull(TgBackup.namaStagingLampiran("tls/ca.pem"));
+        assertNull(TgBackup.namaStagingLampiran("lainnya.txt"));
+        assertNull(TgBackup.namaStagingLampiran(null));
+    }
+
+    @Test
+    public void stagingLampiran_pasangDanHapus() throws Exception {
+        // Audit 1510: berkas akhir tak berubah sebelum dipasang;
+        // hapus staging membuang staging saja.
+        java.io.File dir = java.nio.file.Files
+                .createTempDirectory("vwstaginglamp").toFile();
+        try {
+            java.util.List<String> daftar = java.util.Arrays.asList(
+                    "rsa_key.pem", "attachments/u/f.bin");
+            java.io.File rsaFinal = new java.io.File(dir, "rsa_key.pem");
+            java.io.File rsaStaging = new java.io.File(dir,
+                    "rsa_key.pem.restore-tmp");
+            java.io.File lampFinal = new java.io.File(dir,
+                    "attachments/u/f.bin");
+            java.io.File lampStaging = new java.io.File(dir,
+                    "attachments/u/f.bin.restore-tmp");
+            lampFinal.getParentFile().mkdirs();
+            java.nio.file.Files.write(rsaFinal.toPath(),
+                    "lama".getBytes("UTF-8"));
+            java.nio.file.Files.write(rsaStaging.toPath(),
+                    "baru".getBytes("UTF-8"));
+            java.nio.file.Files.write(lampStaging.toPath(),
+                    "isi".getBytes("UTF-8"));
+            TgBackup.hapusStagingLampiran(dir, daftar);
+            assertFalse(rsaStaging.exists());
+            assertFalse(lampStaging.exists());
+            assertEquals("lama", new String(java.nio.file.Files
+                    .readAllBytes(rsaFinal.toPath()), "UTF-8"));
+            assertFalse(lampFinal.exists());
+            java.nio.file.Files.write(rsaStaging.toPath(),
+                    "baru".getBytes("UTF-8"));
+            java.nio.file.Files.write(lampStaging.toPath(),
+                    "isi".getBytes("UTF-8"));
+            TgBackup.pasangLampiranRestore(dir, daftar);
+            assertEquals("baru", new String(java.nio.file.Files
+                    .readAllBytes(rsaFinal.toPath()), "UTF-8"));
+            assertEquals("isi", new String(java.nio.file.Files
+                    .readAllBytes(lampFinal.toPath()), "UTF-8"));
+            assertFalse(rsaStaging.exists());
+            assertFalse(lampStaging.exists());
+        } finally {
+            hapusPohonUji(dir);
+        }
+    }
+
+    @Test
     public void cleanupOldBackups_nolAman() throws Exception {
         TgBackup.cleanupOldBackups(null);
         java.io.File takAda = new java.io.File("/jalan/tak/ada/vw-uji-nol");
