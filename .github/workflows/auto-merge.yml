@@ -12,7 +12,10 @@ jobs:
   auto-merge:
     name: Auto-merge PR Dependabot
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    # Audit 1485: 25 menit tak cukup — job verifikasi di
+    # cek-wajib saja 19-25 menit dan run Build APK yang ditunggu
+    # bisa 45 menit; jendela tunggu di bawah ±35 menit.
+    timeout-minutes: 40
     concurrency:
       group: auto-merge-pr-${{ github.event.pull_request.number }}
       cancel-in-progress: false
@@ -117,7 +120,9 @@ jobs:
             exit 0
           fi
           echo "Menunggu run Build APK $RUN_ID selesai..."
-          for i in $(seq 1 36); do
+          # Audit 1485: 105 x 20 dtk = ±35 menit (dulu 36 x 20 dtk
+          # = 12 menit, lebih pendek dari run yang ditunggu).
+          for i in $(seq 1 105); do
             BARIS=$(gh run view "$RUN_ID" -R ${{ github.repository }} --json status,conclusion --jq '[.status, (.conclusion // "")] | @tsv' 2>/dev/null || true)
             STATUS=$(printf '%s' "$BARIS" | cut -f1)
             CONCL=$(printf '%s' "$BARIS" | cut -f2)
