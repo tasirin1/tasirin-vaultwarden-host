@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Log beranda: hitungan ekor baris tak lagi menelan baris utuh (Audit 1511)
 ## [Belum rilis] — Restore Telegram: kunci RSA dan lampiran kini ikut staging, tak tertimpa restore yang gagal (Audit 1510)
 ## [Belum rilis] — Jendela tunggu auto-merge kini benar-benar terjangkau timeout job-nya (Audit 1519)
 ## [Belum rilis] — Resume unduhan tak lagi selalu dibatalkan sebagai checksum tak cocok (Audit 1509)

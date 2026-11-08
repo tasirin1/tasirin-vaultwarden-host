@@ -64,6 +64,16 @@ public class MainActivityTest {
         assertEquals(0, MainActivity.awalBarisSebelum("abcdef", 0));
         assertEquals(0, MainActivity.awalBarisSebelum(null, 5));
         assertEquals(6, MainActivity.awalBarisSebelum("ab\ncd\n", 6));
+
+        // Audit 1511: ekor = segmen sesudah '\n' terakhir delta,
+        // bukan seluruh delta; delta tanpa '\n' menyambung ekor.
+        assertEquals(13, MainActivity.ekorSesudahTempel(0,
+                "baris A\nbaris B\nbaris C-belum"));
+        assertEquals(4, MainActivity.ekorSesudahTempel(0, "ab\ncdef"));
+        assertEquals(9, MainActivity.ekorSesudahTempel(5, "ghij"));
+        assertEquals(0, MainActivity.ekorSesudahTempel(0, "abc\n"));
+        assertEquals(7, MainActivity.ekorSesudahTempel(7, ""));
+        assertEquals(7, MainActivity.ekorSesudahTempel(7, null));
     }
 
     @Test

@@ -804,8 +804,11 @@ public class MainActivity extends Activity {
         barisLogBeranda += hitungBaris(delta);
         // Audit 1476: catat ekor tampil yang belum utuh — panjang
         // delta SESUDAH penyamaran, yang benar-benar tertempel.
+        // Audit 1511: yang dicatat hanya segmen ekor yang benar,
+        // bukan seluruh delta (lihat ekorSesudahTempel).
         if (delta.charAt(delta.length() - 1) != '\n') {
-            ekorParsialBeranda += delta.length();
+            ekorParsialBeranda = ekorSesudahTempel(
+                    ekorParsialBeranda, delta);
             ekorPutarBalik = deltaUjungBuffer;
         } else {
             ekorParsialBeranda = 0;
@@ -872,6 +875,24 @@ public class MainActivity extends Activity {
 
     // Audit 1476: awal baris yang memuat posisi pos (pos = satu
     // lewat ekor segmen baris yang belum utuh).
+    // Audit 1511: panjang ekor baris belum utuh di tampilan
+    // SESUDAH delta ditempel. Bila delta memuat '\n', ekornya
+    // hanya segmen sesudah '\n' terakhir — baris-baris utuh di
+    // dalam delta yang sama BUKAN ekor. Cara lama menambahkan
+    // seluruh panjang delta, jadi pada putar-balik berikutnya
+    // baris utuh itu ikut terpotong dari tampilan dan hilang.
+    // Bila delta tanpa '\n', ia menyambung ekor yang ada.
+    static int ekorSesudahTempel(int ekorKini, String delta) {
+        if (delta == null || delta.isEmpty()) {
+            return ekorKini;
+        }
+        int nl = delta.lastIndexOf('\n');
+        if (nl >= 0) {
+            return delta.length() - nl - 1;
+        }
+        return ekorKini + delta.length();
+    }
+
     static int awalBarisSebelum(CharSequence buf, int pos) {
         if (buf == null || pos <= 0) {
             return 0;
