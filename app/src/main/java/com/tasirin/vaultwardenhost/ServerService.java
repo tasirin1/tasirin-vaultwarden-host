@@ -3016,8 +3016,6 @@ public class ServerService extends Service {
             scheduleRestart();
             return;
         }
-
-        return;
     }
 
     private static volatile javax.net.ssl.SSLSocketFactory sslFactory;
