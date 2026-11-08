@@ -331,6 +331,18 @@ def main():
                 and "token-sela-miring.txt" in out)
         shutil.rmtree(tokenselamiring, ignore_errors=True)
 
+        kunciselaakhir = klon(tmp, "kunciselaakhir")
+        tanam(kunciselaakhir, "kunci-sela-akhir.txt",
+              "-----BEGIN RSA PRIVATE KEY\nxyz\n"
+              "-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciselaakhir, ["bash", SKRIP])
+        periksa("header tersela antara KEY dan '-----' tertangkap "
+                "(Audit 1529)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-sela-akhir.txt" in out)
+        shutil.rmtree(kunciselaakhir, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
