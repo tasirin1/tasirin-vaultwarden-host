@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: himpunan opsi bernilai gpg dilengkapi 10 opsi terprobe (Audit 1549)
+
+- Himpunan opsi bernilai cabang `gpg` tak pernah disapu dump-options; 10 opsi terprobe fail-open kini diakui bernilai: `--s2k-mode`, `--s2k-count`, `--faked-system-time`, `--debug`, `--default-key`, `--log-file`, `--passphrase-repeat`, `--charset`, `--compress-level`, `--comment` — nilainya tak lagi terhitung operand penekan vonis stdin. Parser gpg menolak token dash sebagai nilai sehingga arah fail-closed tak berlaku di cabang ini. Ditambah skenario uji-diri Audit 1549.
+
 ## [Belum rilis] — Gerbang: perintah openssl nama-cipher (alias enc) kini dinilai membaca stdin (Audit 1548)
 
 - Dispatch openssl kini mengenali 44 nama perintah cipher dari `openssl list -cipher-commands` (aes-*/aria-*/camellia-*/des-ede*/des3/sm4-*) sebagai alias `enc`: tanpa `-in` mereka membaca plaintext/ciphertext dari stdin (terprobe dua arah, termasuk kontrol `-in berkas` yang tidak menguras). Sebelumnya dispatch hanya mengenal sub harfiah `enc`/`base64` sehingga bentuk bernama lolos sebagai bukan-pembaca. Ditambah skenario uji-diri Audit 1548.

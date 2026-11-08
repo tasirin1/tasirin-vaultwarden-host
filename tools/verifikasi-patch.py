@@ -2976,7 +2976,16 @@ def _menguras_khusus(perintah, toks, awal):
              "--pinentry-mode", "--command-fd", "--keyserver",
              "--cipher-algo", "--digest-algo", "--compress-algo",
              "--cert-digest-algo", "--s2k-cipher-algo",
-             "--s2k-digest-algo", "--agent-program"})
+             "--s2k-digest-algo", "--agent-program",
+             # Audit 1549: himpunan ini tak pernah disapu
+             # dump-options — 10 opsi bernilai terprobe
+             # fail-open (nilainya terhitung operand
+             # penekan); gpg menolak token dash sebagai
+             # nilai sehingga arah sebaliknya aman.
+             "--s2k-mode", "--s2k-count", "--faked-system-time",
+             "--debug", "--default-key", "--log-file",
+             "--passphrase-repeat", "--charset",
+             "--compress-level", "--comment"})
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False

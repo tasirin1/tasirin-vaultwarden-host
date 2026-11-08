@@ -14980,6 +14980,27 @@ def main():
         periksa("perintah openssl nama-cipher (aes-256-cbc) dinilai membaca stdin: gerbang gagal (Audit 1548)",
                 rc != 0)
         shutil.rmtree(sub693, ignore_errors=True)
+        sub694 = klon(tmp, "sub694")
+        berkas_aksi694 = os.path.join(
+            sub694, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi694, encoding="utf-8") as f:
+            isi_aksi694 = f.read()
+        baris_aksi694 = [b for b in isi_aksi694.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru694 = isi_aksi694.replace(
+                baris_aksi694,
+                baris_aksi694.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gpg --batch --pinentry-mode loopback --passphrase uji12152 --s2k-mode 3 -c; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru694 != isi_aksi694, \
+            "suntikan aksi694 tidak menembak"
+        with open(berkas_aksi694, "w", encoding="utf-8") as f:
+            f.write(isi_baru694)
+        rc, out = jalan(sub694, [sys.executable, GERBANG, "--semua"])
+        periksa("gpg opsi --s2k-mode bernilai: gerbang gagal (Audit 1549)",
+                rc != 0)
+        shutil.rmtree(sub694, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
