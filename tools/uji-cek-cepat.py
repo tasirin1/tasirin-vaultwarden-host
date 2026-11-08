@@ -250,6 +250,39 @@ def main():
                 and "kunci-mulai-pagar.txt" in out)
         shutil.rmtree(kuncimulaipagar, ignore_errors=True)
 
+        tokenparuhkomentar = klon(tmp, "tokenparuhkomentar")
+        tanam(tokenparuhkomentar, "token-paruh-komentar.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "# " + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenparuhkomentar, ["bash", SKRIP])
+        periksa("paruh token di dalam baris komentar tertangkap "
+                "(Audit 1527)",
+                rc != 0 and "pola rahasia" in out
+                and "token-paruh-komentar.txt" in out)
+        shutil.rmtree(tokenparuhkomentar, ignore_errors=True)
+
+        tokenparuhjarak = klon(tmp, "tokenparuhjarak")
+        tanam(tokenparuhjarak, "token-paruh-jarak.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "   # " + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenparuhjarak, ["bash", SKRIP])
+        periksa("paruh token di baris komentar berindentasi "
+                "tertangkap (Audit 1527)",
+                rc != 0 and "pola rahasia" in out
+                and "token-paruh-jarak.txt" in out)
+        shutil.rmtree(tokenparuhjarak, ignore_errors=True)
+
+        tokentergabung = klon(tmp, "tokentergabung")
+        tanam(tokentergabung, "token-tergabung-pagar.txt",
+              "token uji: " + token_palsu[:paruh] + "#"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokentergabung, ["bash", SKRIP])
+        periksa("token tergabung '#' sebaris tertangkap "
+                "(Audit 1527)",
+                rc != 0 and "pola rahasia" in out
+                and "token-tergabung-pagar.txt" in out)
+        shutil.rmtree(tokentergabung, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

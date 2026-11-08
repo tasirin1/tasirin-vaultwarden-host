@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: paruh rahasia di dalam baris komentar '#' dan yang tergabung '#' sebaris kini tertangkap — dikunci skenario (mekanisme perbaikan Audit 1526) (Audit 1527)
 ## [Belum rilis] — Cek-cepat: pembuangan '#' tak lagi menelan potongan rahasia sesudahnya di baris yang sama (regresi Audit 1505) (Audit 1526)
 ## [Belum rilis] — Gerbang: himpunan opsi bernilai gpgsm dilengkapi di deteksi modus maupun himpunan operand (Audit 1525)
 ## [Belum rilis] — Gerbang: pindai -F git commit/tag kini sadar nilai --cleanup/--author/--template/--trailer (Audit 1524)
