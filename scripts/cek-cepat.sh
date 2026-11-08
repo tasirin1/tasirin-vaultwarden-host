@@ -64,7 +64,13 @@ BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c 
   # "# x -----BEGIN ..." lolos, padahal tertangkap sebelum
   # Audit 1505). Kata komentar yang tersisa adalah pengisi
   # alfanumerik yang ditoleransi kedua pola.
-  if [ -f "$f" ] && sed 's/#//g' < "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
+  # Audit 1528: baris komentar '//' dan baris tanda-baca
+  # murni (tanpa alfanumerik) juga dibuang sebelum
+  # perataan — menyela belahan dengan '***', '...', atau
+  # '// jeda' dulu mematahkan kedua pola. Baris '-----'
+  # persis DIPERTAHANKAN: itu penutup header kunci, bukan
+  # hiasan.
+  if [ -f "$f" ] && awk '{ gsub(/#/, ""); s = $0; gsub(/[[:space:]\r]/, "", s); if ($0 ~ /^[[:space:]]*\/\//) next; if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) next; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
     printf '%s\n' "$f"
   fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then

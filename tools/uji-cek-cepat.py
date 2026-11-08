@@ -283,6 +283,54 @@ def main():
                 and "token-tergabung-pagar.txt" in out)
         shutil.rmtree(tokentergabung, ignore_errors=True)
 
+        tokenselabintang = klon(tmp, "tokenselabintang")
+        tanam(tokenselabintang, "token-sela-bintang.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "***\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselabintang, ["bash", SKRIP])
+        periksa("token tersela baris tanda bintang tertangkap "
+                "(Audit 1528)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-bintang.txt" in out)
+        shutil.rmtree(tokenselabintang, ignore_errors=True)
+
+        kunciselatitik = klon(tmp, "kunciselatitik")
+        tanam(kunciselatitik, "kunci-sela-titik.txt",
+              "-----BEGIN OPENSSH\n...\n"
+              "PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciselatitik, ["bash", SKRIP])
+        periksa("header tersela baris titik-titik tertangkap "
+                "(Audit 1528)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-sela-titik.txt" in out)
+        shutil.rmtree(kunciselatitik, ignore_errors=True)
+
+        kunciselamiring = klon(tmp, "kunciselamiring")
+        tanam(kunciselamiring, "kunci-sela-miring.txt",
+              "-----BEGIN OPENSSH\n// jeda\n"
+              "PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciselamiring, ["bash", SKRIP])
+        periksa("header tersela komentar '//' tertangkap "
+                "(Audit 1528)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-sela-miring.txt" in out)
+        shutil.rmtree(kunciselamiring, ignore_errors=True)
+
+        tokenselamiring = klon(tmp, "tokenselamiring")
+        tanam(tokenselamiring, "token-sela-miring.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "// jeda\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselamiring, ["bash", SKRIP])
+        periksa("token tersela komentar '//' tertangkap "
+                "(Audit 1528)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-miring.txt" in out)
+        shutil.rmtree(tokenselamiring, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
