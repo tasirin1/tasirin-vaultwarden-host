@@ -2113,6 +2113,10 @@ def _menguras_khusus(perintah, toks, awal):
                  # dinilai operand penekan.
                  "-length", "-offset", "-depth", "-dlimit",
                  "-oid", "-genstr",
+                 # Audit 1443: -item (asn1parse) hilang —
+                 # nama tipenya sempat terhitung operand
+                 # penekan.
+                 "-item",
                  # Audit 1418: -context (sess_id).
                  "-context"})
             return not ops_os
