@@ -2551,12 +2551,35 @@ def _menguras_khusus(perintah, toks, awal):
                     return True
         if sub in ("commit", "tag"):
             pesan_stdin = False
-            for k_g, t_g in enumerate(mentah):
-                if t_g in ("-F", "--file") and k_g + 1 < len(mentah) \
-                        and mentah[k_g + 1] == "-":
-                    pesan_stdin = True
+            # Audit 1502: pindai -F kini sadar nilai
+            # (meniru pola fmt-merge-msg Audit 1442) —
+            # "-F" yang menjadi NILAI opsi lain
+            # (mis. -m -F -) bukan bendera berkas.
+            k_g = 0
+            while k_g < len(mentah):
+                t_g = mentah[k_g]
+                if t_g == "--":
+                    break
+                if t_g in ("-F", "--file"):
+                    if k_g + 1 < len(mentah) \
+                            and mentah[k_g + 1] == "-":
+                        pesan_stdin = True
+                    k_g += 2
+                    continue
                 if t_g in ("-F-", "--file=-"):
                     pesan_stdin = True
+                elif t_g.startswith("--file="):
+                    if t_g.split("=", 1)[1] == "-":
+                        pesan_stdin = True
+                elif t_g.startswith("-F") \
+                        and not t_g.startswith("--") \
+                        and len(t_g) > 2:
+                    if t_g[2:] == "-":
+                        pesan_stdin = True
+                elif t_g in bernilai_in:
+                    k_g += 2
+                    continue
+                k_g += 1
             if not pesan_stdin:
                 return False
             if sub == "commit":

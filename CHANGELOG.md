@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pindai -F git commit/tag kini sadar nilai opsi lain (Audit 1502)
 ## [Belum rilis] — Gerbang: openssl enc/base64 kini memakai -in terakhir seperti OpenSSL (Audit 1501)
 ## [Belum rilis] — Gerbang: cmsutil -i - kini dikenali sebagai nama berkas harfiah, bukan stdin (Audit 1500)
 ## [Belum rilis] — Gerbang: opsi -item kini hanya milik asn1parse; sess_id tak lagi mewarisinya (Audit 1499)

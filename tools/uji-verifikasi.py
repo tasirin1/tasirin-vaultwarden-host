@@ -14677,6 +14677,28 @@ def main():
                 "gerbang lolos (Audit 1501)",
                 rc == 0)
         shutil.rmtree(sub679, ignore_errors=True)
+        sub680 = klon(tmp, "sub680")
+        berkas_aksi680 = os.path.join(
+            sub680, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi680, encoding="utf-8") as f:
+            isi_aksi680 = f.read()
+        baris_aksi680 = [b for b in isi_aksi680.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru680 = isi_aksi680.replace(
+                baris_aksi680,
+                baris_aksi680.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git commit -m -F -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru680 != isi_aksi680, \
+            "suntikan aksi680 tidak menembak"
+        with open(berkas_aksi680, "w", encoding="utf-8") as f:
+            f.write(isi_baru680)
+        rc, out = jalan(sub680, [sys.executable, GERBANG, "--semua"])
+        periksa("git commit -m -F -: -F adalah nilai -m, bukan berkas stdin: "
+                "gerbang lolos (Audit 1502)",
+                rc == 0)
+        shutil.rmtree(sub680, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
