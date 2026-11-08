@@ -14872,6 +14872,28 @@ def main():
                 "gerbang lolos (Audit 1524)",
                 rc == 0)
         shutil.rmtree(sub688, ignore_errors=True)
+        sub689 = klon(tmp, "sub689")
+        berkas_aksi689 = os.path.join(
+            sub689, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi689, encoding="utf-8") as f:
+            isi_aksi689 = f.read()
+        baris_aksi689 = [b for b in isi_aksi689.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru689 = isi_aksi689.replace(
+                baris_aksi689,
+                baris_aksi689.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gpgsm --log-file --decrypt; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru689 != isi_aksi689, \
+            "suntikan aksi689 tidak menembak"
+        with open(berkas_aksi689, "w", encoding="utf-8") as f:
+            f.write(isi_baru689)
+        rc, out = jalan(sub689, [sys.executable, GERBANG, "--semua"])
+        periksa("gpgsm --log-file --decrypt: --decrypt adalah nilai opsi: "
+                "gerbang lolos (Audit 1525)",
+                rc == 0)
+        shutil.rmtree(sub689, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

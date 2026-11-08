@@ -2985,6 +2985,13 @@ def _menguras_khusus(perintah, toks, awal):
         # deteksi kini sadar nilai, melompati nilai
         # opsi bernilai gpgsm yang sama seperti
         # himpunan operand di bawah.
+        # Audit 1525: himpunan ini (dan salinannya di
+        # himpunan operand di bawah — keduanya wajib
+        # identik) tak lengkap: --log-file/--p12-charset/
+        # --default-key/--policy-file/--encrypt-to/
+        # --audit-log/--debug-level/--include-certs/
+        # --keyring juga bernilai (dari gpgsm --help,
+        # sebagian terprobe).
         bernilai_gs = {"-o", "--output", "--homedir",
                        "--status-fd", "--logger-fd",
                        "--attribute-fd", "--passphrase-fd",
@@ -2992,7 +2999,12 @@ def _menguras_khusus(perintah, toks, awal):
                        "--cipher-algo", "--digest-algo",
                        "--compress-algo", "--local-user",
                        "-u", "--recipient", "-r",
-                       "--agent-program", "--options"}
+                       "--agent-program", "--options",
+                       "--log-file", "--p12-charset",
+                       "--default-key", "--policy-file",
+                       "--encrypt-to", "--audit-log",
+                       "--debug-level", "--include-certs",
+                       "--keyring"}
         ada_modus = False
         k_gs = 0
         while k_gs < len(mentah):
@@ -3020,7 +3032,14 @@ def _menguras_khusus(perintah, toks, awal):
                          "--cipher-algo", "--digest-algo",
                          "--compress-algo", "--local-user",
                          "-u", "--recipient", "-r",
-                         "--agent-program", "--options"})
+                         "--agent-program", "--options",
+                         # Audit 1525: sama seperti
+                         # bernilai_gs di atas.
+                         "--log-file", "--p12-charset",
+                         "--default-key", "--policy-file",
+                         "--encrypt-to", "--audit-log",
+                         "--debug-level", "--include-certs",
+                         "--keyring"})
         return not ops_gs or "-" in ops_gs
     if perintah == "curl":
         # Audit 1068: data/unggah/konfigurasi dari stdin.
