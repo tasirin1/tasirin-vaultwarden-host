@@ -74,6 +74,18 @@ public class MainActivityTest {
         assertEquals(0, MainActivity.ekorSesudahTempel(0, "abc\n"));
         assertEquals(7, MainActivity.ekorSesudahTempel(7, ""));
         assertEquals(7, MainActivity.ekorSesudahTempel(7, null));
+
+        // Audit 1539: delta yang menyambung ekor parsial tak
+        // menambah baris untuk segmen pertamanya.
+        assertEquals(12, MainActivity.barisSesudahTempel(10, 0, "a\nb\n"));
+        assertEquals(12, MainActivity.barisSesudahTempel(10, 0, "a\nb"));
+        assertEquals(10, MainActivity.barisSesudahTempel(10, 3, "sambungan\n"));
+        assertEquals(11, MainActivity.barisSesudahTempel(10, 3,
+                "sambungan\nbaru\n"));
+        assertEquals(10, MainActivity.barisSesudahTempel(10, 3, "sambungan"));
+        assertEquals(11, MainActivity.barisSesudahTempel(10, 3,
+                "sambungan\nparsial"));
+        assertEquals(10, MainActivity.barisSesudahTempel(10, 0, ""));
     }
 
     @Test

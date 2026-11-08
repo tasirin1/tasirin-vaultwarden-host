@@ -758,6 +758,11 @@ public class MainActivity extends Activity {
                     CharSequence isi = homeLogView.getText();
                     int simpan = Math.max(0, isi.length() - ekorParsialBeranda);
                     homeLogView.setText(isi.subSequence(0, simpan));
+                    // Audit 1539: ekor parsial yang ditarik ini
+                    // sudah terhitung satu baris saat ditempel;
+                    // kurangi agar tempelan ulangnya tak
+                    // terhitung dua kali.
+                    barisLogBeranda = Math.max(0, barisLogBeranda - 1);
                 }
                 ekorParsialBeranda = 0;
                 ekorPutarBalik = false;
@@ -801,7 +806,8 @@ public class MainActivity extends Activity {
         }
 
         tempelLogBerwarna(delta);
-        barisLogBeranda += hitungBaris(delta);
+        barisLogBeranda = barisSesudahTempel(barisLogBeranda,
+                ekorParsialBeranda, delta);
         // Audit 1476: catat ekor tampil yang belum utuh — panjang
         // delta SESUDAH penyamaran, yang benar-benar tertempel.
         // Audit 1511: yang dicatat hanya segmen ekor yang benar,
@@ -889,6 +895,20 @@ public class MainActivity extends Activity {
             return delta.length() - nl - 1;
         }
         return ekorKini + delta.length();
+    }
+
+    // Audit 1539: jumlah baris tampilan sesudah delta
+    // ditempel. Bila tampilan sedang mengakhiri baris parsial
+    // (ekorParsial > 0), segmen pertama delta MENYAMBUNG
+    // baris yang sudah terhitung itu — bukan baris baru —
+    // jadi hitungan delta dikurangi satu. Cara lama menambah
+    // hitungBaris(delta) mentah: baris parsial terhitung dua
+    // kali dan tiap segmen baris raksasa terhitung satu
+    // baris, sehingga pemangkasan 150 baris terpicu dini.
+    static int barisSesudahTempel(int barisKini, int ekorParsial,
+                                  String delta) {
+        return barisKini + LogActivity.hitungBaris(delta)
+                - (ekorParsial > 0 ? 1 : 0);
     }
 
     // Audit 1476: awal baris yang memuat posisi pos (pos = satu

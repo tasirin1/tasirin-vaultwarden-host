@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Pencacah baris log beranda tak lagi menghitung baris parsial dua kali (pemangkasan 150 baris tak terpicu dini) (Audit 1539)
 ## [Belum rilis] — Restore menolak entri zip bernama akhiran .restore-tmp (tak pernah isi sah) (Audit 1538)
 ## [Belum rilis] — Peringatan restore kini menyebut staging yang dibiarkan hanya bertahan sampai restore berikutnya (Audit 1537)
 ## [Belum rilis] — Sapuan staging yatim tak lagi mengikuti symlink direktori keluar folder data (Audit 1536)
