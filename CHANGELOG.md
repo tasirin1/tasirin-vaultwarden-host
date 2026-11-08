@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek cepat: penanda komentar blok dikupas, bukan barisnya dibuang (Audit 1547)
+
+- Perbaikan REGRESI Audit 1543: aturan yang membuang seluruh baris berawalan `/*`/`*` menelan baris PEMBAWA rahasia — header kunci utuh sebagai butir bullet `* -----BEGIN ...` atau baris lanjutan komentar blok lolos pemeriksaan (terprobe rc=0, padahal pra-1543 tertangkap). Kini hanya penanda komentar blok yang dikupas dari baris (`/*` di awal, deret `*` di awal, `*/` di akhir — pola yang sama dengan pengupasan aksara `#` Audit 1526) dan isi baris tetap diperiksa; sela komentar blok murni tetap tertangkap karena sisa katanya menyatu sebagai pengisi. Ditambah 3 skenario uji-diri Audit 1547 (bullet, lanjutan blok, sebaris sesudah `/*`).
+
 ## [Belum rilis] — Gerbang: openssl storeutl bentuk URI file:// ke jalur fd kini dinilai membaca stdin (Audit 1546)
 ## [Belum rilis] — Gerbang: himpunan opsi bernilai gpgsm dilengkapi 27 opsi lagi dari --dump-options (Audit 1545)
 ## [Belum rilis] — Cek-cepat: celah pola header kini menoleransi '-' dan '_' (baris '-----' sebagai sela ikut tertangkap) (Audit 1544)

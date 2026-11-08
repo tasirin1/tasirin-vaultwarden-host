@@ -472,6 +472,39 @@ def main():
                 and "kunci-sebaris-titik.txt" in out)
         shutil.rmtree(kuncisebaristik, ignore_errors=True)
 
+        kuncibullet = klon(tmp, "kuncibullet")
+        tanam(kuncibullet, "kunci-bullet.txt",
+              "* -----BEGIN OPENSSH PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kuncibullet, ["bash", SKRIP])
+        periksa("header utuh di baris bullet '*' tertangkap "
+                "(Audit 1547)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-bullet.txt" in out)
+        shutil.rmtree(kuncibullet, ignore_errors=True)
+
+        kunciblok = klon(tmp, "kunciblok")
+        tanam(kunciblok, "kunci-blok.txt",
+              "/*\n * -----BEGIN OPENSSH PRIVATE KEY-----\n */\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciblok, ["bash", SKRIP])
+        periksa("header utuh di baris lanjutan komentar blok "
+                "tertangkap (Audit 1547)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-blok.txt" in out)
+        shutil.rmtree(kunciblok, ignore_errors=True)
+
+        kuncibloksebaris = klon(tmp, "kuncibloksebaris")
+        tanam(kuncibloksebaris, "kunci-blok-sebaris.txt",
+              "/* -----BEGIN OPENSSH PRIVATE KEY----- */\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kuncibloksebaris, ["bash", SKRIP])
+        periksa("header utuh sebaris sesudah '/*' tertangkap "
+                "(Audit 1547)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-blok-sebaris.txt" in out)
+        shutil.rmtree(kuncibloksebaris, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
