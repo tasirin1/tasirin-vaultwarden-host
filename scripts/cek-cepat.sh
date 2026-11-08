@@ -73,7 +73,14 @@ BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c 
   # '// jeda' dulu mematahkan kedua pola. Baris '-----'
   # persis DIPERTAHANKAN: itu penutup header kunci, bukan
   # hiasan.
-  if [ -f "$f" ] && awk '{ gsub(/#/, ""); s = $0; gsub(/[[:space:]\r]/, "", s); if ($0 ~ /^[[:space:]]*\/\//) next; if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) next; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
+  # Audit 1543: sela CAMPURAN (kata + simbol) ikut
+  # ditangani — baris komentar blok ('/*' atau '*'
+  # pembuka) dibuang; aksara pemutus '!', ';', '*', '.'
+  # dibuang dari semua baris (tak satu pun anggota
+  # charset token/header/badan base64); ':' yang diikuti
+  # spasi dinetralkan kecuali pada baris berbentuk token
+  # (komentar '# catatan: penting' dulu mematahkannya).
+  if [ -f "$f" ] && awk '{ if ($0 ~ /^[[:space:]]*(\/\*|\*)/) next; gsub(/#/, ""); gsub(/[!;*.]/, ""); if ($0 !~ /[0-9]{8,10}:AA/) { gsub(/:[[:space:]]/, " "); } s = $0; gsub(/[[:space:]\r]/, "", s); if ($0 ~ /^[[:space:]]*\/\//) next; if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) next; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
     printf '%s\n' "$f"
   fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then

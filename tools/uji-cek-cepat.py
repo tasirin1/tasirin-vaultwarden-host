@@ -343,6 +343,87 @@ def main():
                 and "kunci-sela-akhir.txt" in out)
         shutil.rmtree(kunciselaakhir, ignore_errors=True)
 
+        tokenselaseru = klon(tmp, "tokenselaseru")
+        tanam(tokenselaseru, "token-sela-seru.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "# hati-hati!\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselaseru, ["bash", SKRIP])
+        periksa("token tersela '# hati-hati!' tertangkap "
+                "(Audit 1543)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-seru.txt" in out)
+        shutil.rmtree(tokenselaseru, ignore_errors=True)
+
+        tokenselakolon = klon(tmp, "tokenselakolon")
+        tanam(tokenselakolon, "token-sela-kolon.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "# catatan: penting\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselakolon, ["bash", SKRIP])
+        periksa("token tersela '# catatan: penting' tertangkap "
+                "(Audit 1543)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-kolon.txt" in out)
+        shutil.rmtree(tokenselakolon, ignore_errors=True)
+
+        tokenselablok = klon(tmp, "tokenselablok")
+        tanam(tokenselablok, "token-sela-blok.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "/* jeda */\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselablok, ["bash", SKRIP])
+        periksa("token tersela komentar blok tertangkap "
+                "(Audit 1543)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-blok.txt" in out)
+        shutil.rmtree(tokenselablok, ignore_errors=True)
+
+        tokenselakoma = klon(tmp, "tokenselakoma")
+        tanam(tokenselakoma, "token-sela-koma.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "; jeda\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselakoma, ["bash", SKRIP])
+        periksa("token tersela '; jeda' tertangkap "
+                "(Audit 1543)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-koma.txt" in out)
+        shutil.rmtree(tokenselakoma, ignore_errors=True)
+
+        tokenparuhseru = klon(tmp, "tokenparuhseru")
+        tanam(tokenparuhseru, "token-paruh-seru.txt",
+              "token uji: " + token_palsu[:paruh] + " # hati-hati!\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenparuhseru, ["bash", SKRIP])
+        periksa("token paruh-1 diakhiri komentar sebaris tertangkap "
+                "(Audit 1543)",
+                rc != 0 and "pola rahasia" in out
+                and "token-paruh-seru.txt" in out)
+        shutil.rmtree(tokenparuhseru, ignore_errors=True)
+
+        tokensebarisbintang = klon(tmp, "tokensebarisbintang")
+        tanam(tokensebarisbintang, "token-sebaris-bintang.txt",
+              "token uji: " + token_palsu[:paruh] + " *** "
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokensebarisbintang, ["bash", SKRIP])
+        periksa("token dua paruh sebaris dipisah ' *** ' tertangkap "
+                "(Audit 1543)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sebaris-bintang.txt" in out)
+        shutil.rmtree(tokensebarisbintang, ignore_errors=True)
+
+        kuncisebaristik = klon(tmp, "kuncisebaristik")
+        tanam(kuncisebaristik, "kunci-sebaris-titik.txt",
+              "-----BEGIN OPENSSH ... PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kuncisebaristik, ["bash", SKRIP])
+        periksa("header tersela ' ... ' sebaris tertangkap "
+                "(Audit 1543)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-sebaris-titik.txt" in out)
+        shutil.rmtree(kuncisebaristik, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
