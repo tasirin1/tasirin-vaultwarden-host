@@ -249,6 +249,17 @@ public final class PinCrypto {
     // yang terlewat dari eskalasi Audit 1467, jadi penyerang
     // bertingkat tinggi yang memicu reboot + jam maju hanya
     // menerima 5 menit, bukan tingkatnya sendiri.
+    // Audit 1532: konsekuensi yang SADAR DITERIMA — bila
+    // sisaWall sudah 0 (kunci sungguh kedaluwarsa) tetapi
+    // perangkat reboot sebelum ada verifikasi sukses, kunci
+    // dipersenjatai ulang sebesar durasi penuh tingkatnya
+    // (plafon 24 jam). Cabang ini tak bisa membedakan
+    // "kedaluwarsa sungguhan" dari "jam dimajukan penyerang"
+    // dari data yang ada; potongan apa pun di jalur ini
+    // adalah potongan juga bagi serangan jam, jadi arah
+    // fail-closed dipertahankan dan biayanya — pengguna sah
+    // yang menunggu penuh lalu reboot menunggu satu tingkat
+    // lagi — diterima.
     public static long sisaKunciSesudahReboot(int gagal, long sisaWall) {
         return sisaWall > 0 ? sisaWall : durasiKunciMs(gagal);
     }
