@@ -1997,13 +1997,37 @@ public final class TgBackup {
 
     static void kumpulkanBerkasZip(File dir,
                                    java.util.List<File> ke) {
+        kumpulkanBerkasZip(dir, ke, new java.util.HashSet<String>());
+    }
+
+    // Audit 1513: rekursi mengingat direktori yang sudah
+    // dikunjungi menurut jalur kanoniknya. Dulu isDirectory()
+    // mengikuti symlink tanpa batas — symlink direktori yang
+    // membentuk siklus di attachments/sends (mis. x -> ..)
+    // membuat pengumpulan tak pernah selesai dan berakhir
+    // StackOverflowError (sebuah Error, tak tertangkap handler
+    // Exception jalur backup) sehingga backup gagal permanen.
+    private static void kumpulkanBerkasZip(File dir,
+            java.util.List<File> ke, java.util.Set<String> sudah) {
+        if (dir == null) {
+            return;
+        }
+        String kanon;
+        try {
+            kanon = dir.getCanonicalPath();
+        } catch (Exception e) {
+            return;
+        }
+        if (!sudah.add(kanon)) {
+            return;
+        }
         File[] anak = dir.listFiles();
         if (anak == null) {
             return;
         }
         for (File a : anak) {
             if (a.isDirectory()) {
-                kumpulkanBerkasZip(a, ke);
+                kumpulkanBerkasZip(a, ke, sudah);
             } else if (a.isFile()) {
                 ke.add(a);
             }

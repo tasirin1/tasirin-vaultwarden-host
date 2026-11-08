@@ -390,6 +390,37 @@ public class TgBackupTest {
         }
     }
 
+    @Test
+    public void kumpulkanBerkasZip_siklusSymlinkBerhenti() throws Exception {
+        // Audit 1513: symlink direktori yang menunjuk induknya
+        // sendiri tak boleh membuat pengumpulan berputar selamanya.
+        java.io.File akar = java.nio.file.Files.createTempDirectory(
+                "vwkumpulputar").toFile();
+        java.io.File putar = new java.io.File(akar, "putar");
+        try {
+            java.nio.file.Files.write(new java.io.File(akar, "satu.txt").toPath(),
+                    "1".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            try {
+                java.nio.file.Files.createSymbolicLink(putar.toPath(),
+                        akar.toPath());
+            } catch (Exception e) {
+                org.junit.Assume.assumeNoException(
+                        "symlink tak bisa dibuat di platform uji", e);
+            }
+            java.util.List<java.io.File> ke = new java.util.ArrayList<>();
+            TgBackup.kumpulkanBerkasZip(akar, ke);
+            org.junit.Assert.assertEquals(1, ke.size());
+            org.junit.Assert.assertEquals("satu.txt", ke.get(0).getName());
+        } finally {
+            // Putus symlink dulu agar pembersihan tak ikut berputar.
+            try {
+                java.nio.file.Files.deleteIfExists(putar.toPath());
+            } catch (Exception ignored) {
+            }
+            hapusPohonUji(akar);
+        }
+    }
+
     private static void hapusPohonUji(java.io.File f) {
         if (f == null) {
             return;
