@@ -505,6 +505,29 @@ def main():
                 and "kunci-blok-sebaris.txt" in out)
         shutil.rmtree(kuncibloksebaris, ignore_errors=True)
 
+        tokenbelahduaa = klon(tmp, "tokenbelahduaa")
+        tanam(tokenbelahduaa, "token-belah-dua-a.txt",
+              "token uji: " + token_palsu[:10] + " \n"
+              + token_palsu[10:] + "\n", "w")
+        rc, out = jalan(tokenbelahduaa, ["bash", SKRIP])
+        periksa("token terbelah persis sesudah ':' tertangkap "
+                "(Audit 1552)",
+                rc != 0 and "pola rahasia" in out
+                and "token-belah-dua-a.txt" in out)
+        shutil.rmtree(tokenbelahduaa, ignore_errors=True)
+
+        tokenbelahduab = klon(tmp, "tokenbelahduab")
+        tanam(tokenbelahduab, "token-belah-dua-b.txt",
+              "token uji: " + token_palsu[:7] + "\n"
+              + token_palsu[7:9] + ": " + token_palsu[10:] + "\n",
+              "w")
+        rc, out = jalan(tokenbelahduab, ["bash", SKRIP])
+        periksa("token terbelah dengan ':' di awal baris kedua "
+                "tertangkap (Audit 1552)",
+                rc != 0 and "pola rahasia" in out
+                and "token-belah-dua-b.txt" in out)
+        shutil.rmtree(tokenbelahduab, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

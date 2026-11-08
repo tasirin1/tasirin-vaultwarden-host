@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek cepat: titik dua token dilindungi per digit — belahan persis di ':'+spasi tertangkap (Audit 1552)
+
+- Residu Audit 1543 yang terkonfirmasi audit-91: penetralan `:`+spasi mengecualikan baris berbentuk token utuh, jadi token yang dibelah PERSIS di titik duanya (baris-1 diakhiri `<digit>:` + spasi, atau titik dua pindah ke awal baris-2) lolos karena tak satu pun barisnya memuat token utuh. Kini titik dua yang didahului digit dilindungi per aksara (ditandai SUBSEP sebelum penetralan, dipulihkan sesudahnya); titik dua prosa yang didahului huruf tetap dinetralkan seperti sebelumnya. Ditambah 2 skenario uji-diri Audit 1552.
+
 ## [Belum rilis] — Gerbang: storeutl menerima varian URI file: ke jalur fd (Audit 1551)
 
 - Residu Audit 1546: pengupasan skema storeutl hanya persis `file://` huruf kecil tanpa host, sehingga `file:/dev/stdin` (satu garis miring), `file://localhost/dev/stdin` (ada host), dan `FILE:///dev/stdin` (huruf besar) lolos fail-open (ketiganya terprobe menguras dengan PEM sah). Kini skema dinormalisasi tak peka huruf dengan host opsional sesudah `//`. Ditambah skenario uji-diri Audit 1551.
