@@ -1107,12 +1107,18 @@ public final class Updater {
                 // diperiksa pada respons pertama, jadi urutan
                 // 200-lalu-404 gagal permanen tanpa mencoba
                 // cadangan (dan pesan 404 menutup coba-lagi).
-                // resumeFrom sudah 0 di kedua jalur buka ulang.
+                // Audit 1559: blok ini juga terjangkau dari
+                // jalur langsung (blok pertama tak switch)
+                // dengan resumeFrom yang bisa > 0 — reset
+                // eksplisit seperti blok pertama; tanpa ini
+                // switch di sini menghitung done dari nilai
+                // basi sesudah tmp dihapus.
                 String alt = cadangan.ganti(url[0], code);
                 if (alt != null && !alt.equals(url[0])) {
                     dl.disconnect();
                     dl = null;
                     tmp.delete();
+                    resumeFrom = 0;
                     url[0] = alt;
                     fallbackUsed[0] = true;
                     dl = open(ctx, url[0], connectMs, readMs);

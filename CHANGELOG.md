@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Unduhan: blok fallback kedua kini mereset resumeFrom seperti blok pertama (Audit 1559)
+
+- Blok fallback Audit 1542 menghapus berkas temp tetapi tidak mereset `resumeFrom`, berbeda dari blok fallback pertama. Hari ini selisihnya tak terjangkau (ketiga implementasi `UrlCadangan` menentukan pada panggilan pertama — yang tidak beralih selalu melempar atau deterministik null), tetapi blok kedua juga berjalan pada jalur langsung dengan `resumeFrom` yang bisa > 0 dan memanggil `ganti()` kedua kalinya: implementasi cadangan masa depan yang berubah jawaban antar panggilan akan beralih dengan penghitung basi dan melempar "Unduhan terputus" palsu. Kini resetnya eksplisit dan komentar blok dikoreksi.
+
 ## [Belum rilis] — Restore picker: kegagalan langkah susulan tak lagi memicu rollback database (Audit 1558)
 
 - Sesudah lampiran terpasang, segmen penerapan config di jalur file-picker berjalan tanpa pelindung setempat: pengecualian apa pun yang lolos darinya (mis. penjadwal alarm melempar) masuk catch luar yang mengembalikan database lama dan TLS — tetapi lampiran/rsa_key yang sudah terpasang tidak punya potret untuk dikembalikan, sehingga database lama berpasangan diam-diam dengan lampiran baru, dan staging entri gagal-pasang yang sengaja dibiarkan untuk pemulihan manual (Audit 1531) ikut terhapus. Kini segmen sesudah titik pasang dibungkus try/catch sendiri: kegagalannya dicatat sebagai peringatan dan database baru tetap dipakai, karena pada titik itu restore sudah terpasang utuh dan konsisten.
