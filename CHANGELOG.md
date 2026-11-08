@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — tulisBarisLog memakai helper tanggalLog, bukan salinan badannya (Audit 1481)
 ## [Belum rilis] — Return mati di akhir healthFail dihapus (Audit 1480)
 ## [Belum rilis] — Cabang if kosong recordRestart dibalik jadi negasi (Audit 1479)
 ## [Belum rilis] — Memo kecocokan versi dua tahap dan catatPinDibuka disatukan (MemoVersiCocok + PinGate) (Audit 1478)

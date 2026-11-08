@@ -2756,9 +2756,9 @@ public class ServerService extends Service {
         synchronized (logBuffer) {
             // Cap diformat DI DALAM kunci (Audit 776): di luar kunci, dua
             // thread bisa masuk buffer dengan urutan cap terbalik.
-            java.util.Date tgl = LOG_TGL.get();
-            tgl.setTime(System.currentTimeMillis());
-            stamp = LOG_TS.get().format(tgl);
+            // Audit 1481: tanggal kini lewat tanggalLog() (dulu badan
+            // helper itu disalin mentah di sini).
+            stamp = LOG_TS.get().format(tanggalLog());
 
             logBuffer.append(stamp).append(' ').append(line).append('\n');
             pangkasBufferTerkunci();
