@@ -2062,15 +2062,10 @@ public final class Updater {
         tandaiStagingAktif(newDir);
         deleteRecursive(newDir);
         newDir.mkdirs();
-        String kanonBasis;
-        try {
-            kanonBasis = newDir.getCanonicalPath();
-        } catch (Exception e) {
-            lepasStagingAktif(newDir);
-            deleteRecursive(newDir);
-            throw new IOException("Gagal menyiapkan folder web-vault: " + e.getMessage());
-        }
-        String awalanAman = kanonBasis + File.separator;
+        // Audit 1470: basis cek awalan kini jalur absolut (bukan
+        // kanonik) — lihat alasan di cek per entri di bawah.
+        String absBasis = newDir.getAbsolutePath();
+        String awalanAbs = absBasis + File.separator;
         byte[] buf = new byte[64 * 1024];
 
         java.util.Set<String> dirSiap = new java.util.HashSet<>();
@@ -2097,19 +2092,17 @@ public final class Updater {
                         }
                         File outFile = new File(newDir, namaEntri);
 
-                        try {
-                            String kanon = outFile.getCanonicalPath();
-                            if (!kanon.equals(kanonBasis) && !kanon.startsWith(awalanAman)) {
-                                entriTerlewat++;
-                                zis.closeEntry();
-                                continue;
-                            }
-                        } catch (Exception e) {
+                        // Audit 1470: amanEntriZip sudah menolak
+                        // nama absolut/".."/segmen "." dan staging
+                        // ini baru dibuat + hanya loop ini yang
+                        // menulisnya (entri selalu berkas reguler,
+                        // tak pernah symlink), jadi cek awalan
+                        // jalur absolut setara dengan cek kanonik
+                        // lama — tanpa syscall path-walk per entri.
+                        String abs = outFile.getAbsolutePath();
+                        if (!abs.equals(absBasis) && !abs.startsWith(awalanAbs)) {
                             entriTerlewat++;
-                            try {
-                                zis.closeEntry();
-                            } catch (Exception ignored) {
-                            }
+                            zis.closeEntry();
                             continue;
                         }
                         if (entry.isDirectory()) {
@@ -2122,6 +2115,13 @@ public final class Updater {
                                     && dirSiap.add(parent.getAbsolutePath())) {
                                 parent.mkdirs();
                             }
+                            // Audit 1470: fsync per berkas dibuang —
+                            // ribuan berkas kecil di flash STB lambat
+                            // membayar sync penuh per berkas, padahal
+                            // sesudah loop semua direktori staging
+                            // sudah di-fsync sekali (dirSiap + newDir
+                            // lewat TlsCert.fsyncDirektori) sebelum
+                            // penukaran atomik.
                             try (FileOutputStream fos = new FileOutputStream(outFile)) {
                                 int n;
                                 while ((n = zis.read(buf)) != -1) {
@@ -2129,10 +2129,6 @@ public final class Updater {
                                             Util.BATAS_UNZIP_WEBVAULT, jumlahEntri,
                                             Util.BATAS_JUMLAH_ENTRI);
                                     fos.write(buf, 0, n);
-                                }
-                                try {
-                                    fos.getFD().sync();
-                                } catch (Exception ignored) {
                                 }
                             }
                         }
