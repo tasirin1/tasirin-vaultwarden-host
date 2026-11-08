@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Saringan cipher TLS kini mewajibkan forward secrecy; cipher RSA statis ditolak (Audit 1515)
 ## [Belum rilis] — Kunci PIN sesudah reboot kini mengikuti durasi bertingkat, bukan datar 5 menit (Audit 1514)
 ## [Belum rilis] — Backup Telegram: pengumpulan berkas zip kini tahan siklus symlink direktori (Audit 1513)
 ## [Belum rilis] — Long-poll Telegram 50 detik kini benar-benar tercapai: read timeout klien dinaikkan khusus getUpdates (Audit 1512)

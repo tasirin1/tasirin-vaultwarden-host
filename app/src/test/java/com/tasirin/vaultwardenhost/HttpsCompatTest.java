@@ -80,10 +80,13 @@ public class HttpsCompatTest {
                 "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
                 "TLS_RSA_WITH_3DES_EDE_CBC_SHA",
                 "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_AES_256_GCM_SHA384",
                 "TLS_RSA_WITH_AES_256_CBC_SHA"};
+        // Audit 1515: RSA statis (baris terakhir) kini tersaring;
+        // suite TLS 1.3 (TLS_AES_*) lolos sebagai FS bawaan.
         assertArrayEquals(new String[]{
                 "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-                "TLS_RSA_WITH_AES_256_CBC_SHA"},
+                "TLS_AES_256_GCM_SHA384"},
                 HttpsCompat.saringCipher(masuk));
         assertEquals(0, HttpsCompat.saringCipher(
                 new String[]{"TLS_RSA_WITH_RC4_128_SHA"}).length);
@@ -93,7 +96,12 @@ public class HttpsCompatTest {
     @Test
     public void cipherKuat_terimaModernTolakLemah() {
         assertTrue(HttpsCompat.cipherKuat("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"));
-        assertTrue(HttpsCompat.cipherKuat("TLS_RSA_WITH_AES_256_CBC_SHA"));
+        // Audit 1515: RSA statis tanpa forward secrecy ditolak,
+        // walau enkripsinya AES-256/GCM.
+        assertFalse(HttpsCompat.cipherKuat("TLS_RSA_WITH_AES_256_CBC_SHA"));
+        assertFalse(HttpsCompat.cipherKuat("TLS_RSA_WITH_AES_128_GCM_SHA256"));
+        assertTrue(HttpsCompat.cipherKuat("TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"));
+        assertTrue(HttpsCompat.cipherKuat("TLS_AES_128_GCM_SHA256"));
 
         assertTrue(HttpsCompat.cipherKuat("TLS_CHACHA20_POLY1305_SHA256"));
         assertTrue(HttpsCompat.cipherKuat("TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"));

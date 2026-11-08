@@ -103,8 +103,18 @@ public final class HttpsCompat {
                 || c.contains("EXPORT") || c.contains("EMPTY")) {
             return false;
         }
-        return c.contains("ECDHE") || c.contains("AES_GCM") || c.contains("AES_256")
-                || c.contains("CHACHA20");
+        // Audit 1515: wajib forward secrecy — pertukaran kunci
+        // ECDHE/DHE, atau suite TLS 1.3 (nama TLS_AES_*/
+        // TLS_CHACHA20_* yang FS menurut desain protokol).
+        // Cara lama menerima SALAH SATU penanda enkripsi saja,
+        // jadi cipher RSA statis (TLS_RSA_WITH_AES_256_CBC_SHA,
+        // TLS_RSA_WITH_AES_128_GCM_SHA256) lolos tanpa FS.
+        // Hasil saringan kosong aman: pemanggil membiarkan
+        // bawaan platform apa adanya.
+        if (c.contains("ECDHE") || c.contains("_DHE_")) {
+            return true;
+        }
+        return c.startsWith("TLS_AES_") || c.startsWith("TLS_CHACHA20_");
     }
 
     static String[] saringCipher(String[] didukung) {
