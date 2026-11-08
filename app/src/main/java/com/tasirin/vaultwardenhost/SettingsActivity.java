@@ -2091,6 +2091,11 @@ public class SettingsActivity extends Activity {
         boolean tandaRestoreSendiri = false;
 
         java.util.Map<String, byte[]> tlsAsal = null;
+        // Audit 1534: daftar lampiran/rsa_key yang ter-staging
+        // di jalur picker ini — dulu jalur ini menulisnya
+        // langsung ke nama akhir (lihat blok ekstrak).
+        java.util.List<String> lampTerStaging =
+                new java.util.ArrayList<>();
         JSONObject zipCfg = null;
         boolean zipCfgRusak = false;
         try {
@@ -2115,6 +2120,7 @@ public class SettingsActivity extends Activity {
 
             TgBackup.hapusStagingRestore(new File(dataDir));
             TgBackup.hapusStagingTls(new File(dataDir));
+            TgBackup.hapusStagingLampiranYatim(new File(dataDir));
             if (dbFile.exists()) {
                 File backupDir = new File(dataDir, "backups");
                 if (!backupDir.exists()) {
@@ -2218,13 +2224,20 @@ public class SettingsActivity extends Activity {
 
                         String staging = TgBackup.namaStagingRestore(name);
                         String stagingTls = TgBackup.namaStagingTls(name);
+                        // Audit 1534: lampiran & rsa_key ikut skema
+                        // staging Audit 1510 seperti jalur bot —
+                        // entri direktori tetap dibuat atas nama
+                        // aslinya, hanya berkas yang di-staging.
+                        String stagingLamp = entry.isDirectory() ? null
+                                : TgBackup.namaStagingLampiran(name);
                         if (staging != null && entry.isDirectory()) {
 
                             zis.closeEntry();
                             continue;
                         }
                         File out = new File(dataFolder, staging != null ? staging
-                                : (stagingTls != null ? stagingTls : name));
+                                : (stagingTls != null ? stagingTls
+                                : (stagingLamp != null ? stagingLamp : name)));
 
                         String kanon = out.getCanonicalPath();
                         if (!kanon.equals(canonBase) && !kanon.startsWith(awalanAman)) {
@@ -2246,7 +2259,8 @@ public class SettingsActivity extends Activity {
                                             Util.BATAS_JUMLAH_ENTRI);
                                     fos.write(buf, 0, len);
                                 }
-                                if (staging != null || stagingTls != null) {
+                                if (staging != null || stagingTls != null
+                                        || stagingLamp != null) {
                                     fos.flush();
                                     try {
                                         fos.getFD().sync();
@@ -2256,6 +2270,9 @@ public class SettingsActivity extends Activity {
                             }
                             if (stagingTls != null) {
                                 tlsTerStaging.add(name);
+                            }
+                            if (stagingLamp != null) {
+                                lampTerStaging.add(name);
                             }
                         }
                         zis.closeEntry();
@@ -2324,6 +2341,8 @@ public class SettingsActivity extends Activity {
 
                 TgBackup.hapusStagingRestore(new File(dataDir));
                 TgBackup.hapusStagingTls(new File(dataDir));
+                TgBackup.hapusStagingLampiran(new File(dataDir),
+                        lampTerStaging);
                 TgBackup.hapusWalShm(new File(dataDir));
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 toast(getString(R.string.restore_tanpa_db));
@@ -2337,6 +2356,8 @@ public class SettingsActivity extends Activity {
             if (galatDb != null) {
                 TgBackup.hapusStagingRestore(new File(dataDir));
                 TgBackup.hapusStagingTls(new File(dataDir));
+                TgBackup.hapusStagingLampiran(new File(dataDir),
+                        lampTerStaging);
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 toast(getString(R.string.restore_backup_rusak, galatDb));
                 appendUiLog("[app] Restore gagal: " + galatDb + ", DB lama dipertahankan.");
@@ -2373,6 +2394,29 @@ public class SettingsActivity extends Activity {
                         + " internal gagal - salinan internal mungkin"
                         + " tertinggal; mulai ulang server untuk"
                         + " menyelaraskannya.");
+            }
+            // Audit 1534: lampiran + rsa_key dipasang dari
+            // staging hanya sesudah DB lolos pasang — titik tak
+            // kembali yang sama seperti TLS dan jalur bot.
+            java.util.List<String> gagalLampPicker =
+                    TgBackup.pasangLampiranRestore(new File(dataDir),
+                            lampTerStaging);
+            if (!gagalLampPicker.isEmpty()) {
+                StringBuilder sbLampPicker = new StringBuilder();
+                for (int i = 0; i < gagalLampPicker.size() && i < 3; i++) {
+                    if (i > 0) {
+                        sbLampPicker.append(", ");
+                    }
+                    sbLampPicker.append(gagalLampPicker.get(i));
+                }
+                if (gagalLampPicker.size() > 3) {
+                    sbLampPicker.append(", ...");
+                }
+                appendUiLog("[app] Peringatan: " + gagalLampPicker.size()
+                        + " kunci RSA / lampiran gagal dipasang ("
+                        + sbLampPicker + ") - salinan staging-nya"
+                        + " (.restore-tmp) dibiarkan di folder data"
+                        + " untuk pemulihan manual.");
             }
             if (zipCfgRusak) {
                 appendUiLog("[app] Peringatan: app-config.json tidak terbaca"
@@ -2416,6 +2460,8 @@ public class SettingsActivity extends Activity {
 
             try {
                 TgBackup.hapusStagingTls(new File(dataDir));
+                TgBackup.hapusStagingLampiran(new File(dataDir),
+                        lampTerStaging);
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
                 TgBackup.pulihkanDbLama(new File(dataDir), dbFile, preBackup);
                 if (tandaRestoreSendiri) {
