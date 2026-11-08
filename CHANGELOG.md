@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — URL cadangan unduhan kini juga ditawarkan untuk respons kedua sesudah reset-resume (Audit 1542)
 ## [Belum rilis] — Pasang binary manual kini ikut kunci pasang global jalur unduhan (tak lagi balapan berkas .bak) (Audit 1541)
 ## [Belum rilis] — Pemulihan .bak saat start kini mencakup rsa_key dan pohon attachments/sends (Audit 1540)
 ## [Belum rilis] — Pencacah baris log beranda tak lagi menghitung baris parsial dua kali (pemangkasan 150 baris tak terpicu dini) (Audit 1539)

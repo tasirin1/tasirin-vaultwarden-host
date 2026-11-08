@@ -1100,6 +1100,25 @@ public final class Updater {
                 dl = open(ctx, url[0], connectMs, readMs);
                 code = dl.getResponseCode();
             }
+            if (code == 404 && cadangan != null && !fallbackUsed[0]) {
+                // Audit 1542: respons KEDUA (hasil buka ulang
+                // reset-resume / rentang tak cocok) juga berhak
+                // atas URL cadangan — dulu fallback hanya
+                // diperiksa pada respons pertama, jadi urutan
+                // 200-lalu-404 gagal permanen tanpa mencoba
+                // cadangan (dan pesan 404 menutup coba-lagi).
+                // resumeFrom sudah 0 di kedua jalur buka ulang.
+                String alt = cadangan.ganti(url[0], code);
+                if (alt != null && !alt.equals(url[0])) {
+                    dl.disconnect();
+                    dl = null;
+                    tmp.delete();
+                    url[0] = alt;
+                    fallbackUsed[0] = true;
+                    dl = open(ctx, url[0], connectMs, readMs);
+                    code = dl.getResponseCode();
+                }
+            }
             if (code != 200 && code != 206) {
                 throw new IOException("Unduhan gagal (HTTP " + code + ").");
             }
