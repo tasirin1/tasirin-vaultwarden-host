@@ -653,6 +653,19 @@ public final class Updater {
         return nama != null && STAGING_AKTIF.contains(nama);
     }
 
+    // Audit 1516: fsync isi satu berkas lewat fd baca (galat
+    // diabaikan — ini lapisan durabilitas best-effort di atas
+    // cek wvPayloadAda, meniru gaya TlsCert.fsyncDirektori).
+    static void fsyncBerkas(File f) {
+        if (f == null || !f.isFile()) {
+            return;
+        }
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(f)) {
+            fis.getFD().sync();
+        } catch (Exception ignored) {
+        }
+    }
+
     static java.io.File stagingWebVault(java.io.File dataFolder) {
         return new java.io.File(dataFolder, "web-vault.new-" + TgBackup.stempelUnik());
     }
@@ -2107,6 +2120,7 @@ public final class Updater {
         byte[] buf = new byte[64 * 1024];
 
         java.util.Set<String> dirSiap = new java.util.HashSet<>();
+        java.util.List<File> berkasSiap = new java.util.ArrayList<>();
 
         boolean terpasang = false;
         try {
@@ -2144,22 +2158,38 @@ public final class Updater {
                             continue;
                         }
                         if (entry.isDirectory()) {
-                            if (dirSiap.add(outFile.getAbsolutePath())) {
-                                outFile.mkdirs();
+                            outFile.mkdirs();
+                            // Audit 1516: entri direktori + semua
+                            // perantaranya ikut daftar fsync.
+                            File pDir = outFile;
+                            while (pDir != null && !pDir.equals(newDir)
+                                    && pDir.getAbsolutePath()
+                                            .startsWith(awalanAbs)) {
+                                dirSiap.add(pDir.getAbsolutePath());
+                                pDir = pDir.getParentFile();
                             }
                         } else {
                             File parent = outFile.getParentFile();
-                            if (parent != null
-                                    && dirSiap.add(parent.getAbsolutePath())) {
+                            if (parent != null) {
                                 parent.mkdirs();
+                                // Audit 1516: mkdirs() membuat
+                                // direktori perantara diam-diam —
+                                // semuanya dicatat agar ikut
+                                // di-fsync (fsync anak tak
+                                // menjamin entri di induknya).
+                                File pInduk = parent;
+                                while (pInduk != null
+                                        && !pInduk.equals(newDir)
+                                        && pInduk.getAbsolutePath()
+                                                .startsWith(awalanAbs)) {
+                                    dirSiap.add(pInduk.getAbsolutePath());
+                                    pInduk = pInduk.getParentFile();
+                                }
                             }
-                            // Audit 1470: fsync per berkas dibuang —
-                            // ribuan berkas kecil di flash STB lambat
-                            // membayar sync penuh per berkas, padahal
-                            // sesudah loop semua direktori staging
-                            // sudah di-fsync sekali (dirSiap + newDir
-                            // lewat TlsCert.fsyncDirektori) sebelum
-                            // penukaran atomik.
+                            // Audit 1470: fsync per berkas dibuang
+                            // dari loop tulis; Audit 1516
+                            // memindahkannya ke satu lintasan
+                            // sesudah loop (lihat berkasSiap).
                             try (FileOutputStream fos = new FileOutputStream(outFile)) {
                                 int n;
                                 while ((n = zis.read(buf)) != -1) {
@@ -2169,6 +2199,7 @@ public final class Updater {
                                     fos.write(buf, 0, n);
                                 }
                             }
+                            berkasSiap.add(outFile);
                         }
                         zis.closeEntry();
                     }
@@ -2198,6 +2229,14 @@ public final class Updater {
                 ServerService.catatLog("[app] Web-vault: " + entriTerlewat
                         + " entri zip dilewati filter nama/kanonis - aset"
                         + " terkait bisa hilang dari tampilan vault.");
+            }
+            // Audit 1516: fsync isi semua berkas lebih dulu —
+            // fsync direktori sesudahnya hanya menjamin entri
+            // nama, bukan isi; tanpa lintasan ini mati listrik
+            // sesaat sesudah penukaran bisa menyisakan berkas
+            // 0 byte/terpotong di folder yang resmi terpasang.
+            for (File bf : berkasSiap) {
+                fsyncBerkas(bf);
             }
             for (String d : dirSiap) {
                 TlsCert.fsyncDirektori(new File(d));

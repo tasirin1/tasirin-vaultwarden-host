@@ -342,6 +342,24 @@ public class UpdaterTest {
     }
 
     @Test
+    public void fsyncBerkas_amanDanIsiUtuh() throws Exception {
+        // Audit 1516: helper durabilitas web-vault — tak melempar
+        // untuk null/berkas hilang, isi berkas asli tak berubah.
+        Updater.fsyncBerkas(null);
+        Updater.fsyncBerkas(new java.io.File("/jalan/tak/ada/vw-fsync"));
+        java.io.File f = java.io.File.createTempFile("vwfsync", ".bin");
+        try {
+            java.nio.file.Files.write(f.toPath(),
+                    "isi-utuh".getBytes("UTF-8"));
+            Updater.fsyncBerkas(f);
+            org.junit.Assert.assertEquals("isi-utuh", new String(
+                    java.nio.file.Files.readAllBytes(f.toPath()), "UTF-8"));
+        } finally {
+            f.delete();
+        }
+    }
+
+    @Test
     public void gantiAtomik_pulihkanLamaBilaGagal() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwatom").toFile();
         java.io.File out = new java.io.File(dir, "bin");
