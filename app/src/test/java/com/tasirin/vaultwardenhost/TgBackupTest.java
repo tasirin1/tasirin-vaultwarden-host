@@ -2440,6 +2440,62 @@ public class TgBackupTest {
         assertEquals("", TgBackup.bacaResponsBatas(rusak));
     }
 
+    // Audit 1466: pembaca respons bersama memilih aliran menurut
+    // kode — masukan untuk 2xx, galat selain itu, tak ada aliran
+    // berarti "".
+    private static java.net.HttpURLConnection koneksiPalsu(
+            final java.io.InputStream masuk, final java.io.InputStream galat) {
+        return new java.net.HttpURLConnection(null) {
+            @Override
+            public void disconnect() {
+            }
+
+            @Override
+            public boolean usingProxy() {
+                return false;
+            }
+
+            @Override
+            public void connect() {
+            }
+
+            @Override
+            public java.io.InputStream getInputStream() {
+                return masuk;
+            }
+
+            @Override
+            public java.io.InputStream getErrorStream() {
+                return galat;
+            }
+        };
+    }
+
+    private static java.io.ByteArrayInputStream aliranUji(String teks) {
+        return new java.io.ByteArrayInputStream(
+                teks.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void bacaResponsTelegram_memilihAliranMenurutKode() throws Exception {
+        assertEquals("isi-ok", TgBackup.bacaResponsTelegram(
+                koneksiPalsu(aliranUji("isi-ok"), aliranUji("isi-galat")), 200));
+        assertEquals("isi-galat", TgBackup.bacaResponsTelegram(
+                koneksiPalsu(aliranUji("isi-ok"), aliranUji("isi-galat")), 429));
+        assertEquals("", TgBackup.bacaResponsTelegram(
+                koneksiPalsu(aliranUji("isi-ok"), null), 500));
+        assertEquals("", TgBackup.bacaResponsTelegram(
+                koneksiPalsu(null, aliranUji("isi-galat")), 204));
+    }
+
+    @Test
+    public void pesanLimitTelegram_formatSamaDiSemuaTitik() {
+        assertEquals("[tg] Kena limit Telegram - tunggu 3 dtk lalu coba lagi.",
+                TgBackup.pesanLimitTelegram("Kena limit Telegram", 3000L));
+        assertEquals("[tg] Unggah kena limit Telegram - tunggu 5 dtk lalu coba lagi.",
+                TgBackup.pesanLimitTelegram("Unggah kena limit Telegram", 5000L));
+    }
+
     @Test
     public void bacaResponsBatas_tepatSatuMbLolosLebihMenjadiKosong() {
         byte[] pas = new byte[1024 * 1024];

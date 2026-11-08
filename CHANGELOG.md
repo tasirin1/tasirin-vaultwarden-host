@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Pola baca respons + tunggu 429 Telegram disatukan ke helper bersama (Audit 1466)
 ## [Belum rilis] — Stempel backup terakhir kini konsisten: file, nama, dan waktu dari batch yang sama (Audit 1465)
 ## [Belum rilis] — Polling bot dilonggarkan: alarm 60 detik + long-poll 50 detik (Audit 1463)
 ## [Belum rilis] — Callback tanpa pesan tak lagi membalas ke chat id -1 (Audit 1462)

@@ -1149,25 +1149,15 @@ public final class TgBackup {
                 }
                 tolakRedirectTelegram(conn);
                 int code = conn.getResponseCode();
-                InputStream mentah = (code >= 200 && code < 300)
-                        ? conn.getInputStream() : conn.getErrorStream();
-                StringBuilder sb = new StringBuilder();
-                if (mentah != null) {
-                    try (InputStream is = mentah) {
-                        sb.append(bacaResponsBatas(is));
-                    }
-                }
+                String balasan = bacaResponsTelegram(conn, code);
                 if (code == 429 && percobaan == 0) {
-                    long jeda = jedaRetryAfterMs(sb.toString());
-                    ServerService.catatLog("[tg] Kena limit Telegram - tunggu "
-                            + (jeda / 1000) + " dtk lalu coba lagi.");
-                    Thread.sleep(jeda);
+                    tungguLimitTelegram("Kena limit Telegram", balasan);
                     continue;
                 }
 
-                if (code != 200 || !TgBot.responsOk(sb.toString())) {
+                if (code != 200 || !TgBot.responsOk(balasan)) {
                     logTgFailure("kirim pesan " + (bi + 1) + "/" + total,
-                            code, sb.toString());
+                            code, balasan);
                 }
                 return;
             } finally {
@@ -1243,14 +1233,7 @@ public final class TgBackup {
             }
             tolakRedirectTelegram(conn);
             int code = conn.getResponseCode();
-            InputStream mentah = (code >= 200 && code < 300)
-                    ? conn.getInputStream() : conn.getErrorStream();
-            String balasan = "";
-            if (mentah != null) {
-                try (InputStream is = mentah) {
-                    balasan = bacaResponsBatas(is);
-                }
-            }
+            String balasan = bacaResponsTelegram(conn, code);
             if (code == 200 && TgBot.responsOk(balasan)) {
                 return true;
             }
@@ -2474,29 +2457,19 @@ public final class TgBackup {
 
                 tolakRedirectTelegram(conn);
                 int code = conn.getResponseCode();
-                InputStream mentah = (code >= 200 && code < 300)
-                        ? conn.getInputStream() : conn.getErrorStream();
-                StringBuilder sb = new StringBuilder();
-                if (mentah != null) {
-                    try (InputStream is = mentah) {
-                        sb.append(bacaResponsBatas(is));
-                    }
-                }
+                String sb = bacaResponsTelegram(conn, code);
 
                 if (code == 429 && percobaan == 0) {
-                    long jeda = jedaRetryAfterMs(sb.toString());
-                    ServerService.catatLog("[tg] Unggah kena limit Telegram - tunggu "
-                            + (jeda / 1000) + " dtk lalu coba lagi.");
-                    Thread.sleep(jeda);
+                    tungguLimitTelegram("Unggah kena limit Telegram", sb);
                     continue;
                 }
 
-                if (code != 200 || !TgBot.responsOk(sb.toString())) {
+                if (code != 200 || !TgBot.responsOk(sb)) {
 
                     throw new IOException("Telegram "
-                            + TgBot.ringkasGalatTelegram(sb.toString(), code));
+                            + TgBot.ringkasGalatTelegram(sb, code));
                 }
-                return sb.toString();
+                return sb;
             } finally {
                 if (conn != null) {
                     conn.disconnect();
@@ -2544,26 +2517,16 @@ public final class TgBackup {
                 }
                 tolakRedirectTelegram(conn);
                 int code = conn.getResponseCode();
-                InputStream mentah = (code >= 200 && code < 300)
-                        ? conn.getInputStream() : conn.getErrorStream();
-                StringBuilder sb = new StringBuilder();
-                if (mentah != null) {
-                    try (InputStream is = mentah) {
-                        sb.append(bacaResponsBatas(is));
-                    }
-                }
+                String sb = bacaResponsTelegram(conn, code);
                 if (code == 429 && percobaan == 0) {
-                    long jeda = jedaRetryAfterMs(sb.toString());
-                    ServerService.catatLog("[tg] Kirim by-id kena limit Telegram"
-                            + " - tunggu " + (jeda / 1000) + " dtk lalu coba lagi.");
-                    Thread.sleep(jeda);
+                    tungguLimitTelegram("Kirim by-id kena limit Telegram", sb);
                     continue;
                 }
-                if (code != 200 || !TgBot.responsOk(sb.toString())) {
+                if (code != 200 || !TgBot.responsOk(sb)) {
                     throw new IOException("Telegram "
-                            + TgBot.ringkasGalatTelegram(sb.toString(), code));
+                            + TgBot.ringkasGalatTelegram(sb, code));
                 }
-                return sb.toString();
+                return sb;
             } finally {
                 if (conn != null) {
                     conn.disconnect();
@@ -2622,16 +2585,10 @@ public final class TgBackup {
                     20000, 120000);
             int code = conn.getResponseCode();
             if (code == 429) {
-                StringBuilder sb429 = new StringBuilder();
-                InputStream mentah = conn.getErrorStream();
-                if (mentah != null) {
-                    try (InputStream is = mentah) {
-                        sb429.append(bacaResponsBatas(is));
-                    }
-                }
+                String sb429 = bacaResponsTelegram(conn, code);
                 conn.disconnect();
                 conn = null;
-                Thread.sleep(jedaRetryAfterMs(sb429.toString()));
+                Thread.sleep(jedaRetryAfterMs(sb429));
                 conn = bukaFileTelegram(ctx,
                         "https://api.telegram.org/file/bot" + token + "/" + path,
                         20000, 120000);
@@ -2687,21 +2644,14 @@ public final class TgBackup {
                 tolakRedirectTelegram(conn);
                 int code = conn.getResponseCode();
                 if (code == 429 && percobaan == 0) {
-                    InputStream mentah = conn.getErrorStream();
-                    if (mentah != null) {
-                        try (InputStream is = mentah) {
-                            sb.append(bacaResponsBatas(is));
-                        }
-                    }
+                    sb.append(bacaResponsTelegram(conn, code));
                     Thread.sleep(jedaRetryAfterMs(sb.toString()));
                     continue;
                 }
                 if (code != 200) {
                     throw new IOException("getFile gagal (HTTP " + code + ")");
                 }
-                try (InputStream is = conn.getInputStream()) {
-                    sb.append(bacaResponsBatas(is));
-                }
+                sb.append(bacaResponsTelegram(conn, code));
                 break;
             } finally {
                 if (conn != null) {
@@ -4723,6 +4673,38 @@ public final class TgBackup {
             b[i] = (byte) s.charAt(i);
         }
         os.write(b);
+    }
+
+    // Audit 1466: satu-satunya pembaca badan respons Telegram —
+    // aliran masukan untuk 2xx, aliran galat selain itu; aliran
+    // yang tak ada menghasilkan "". Enam titik panggil yang dulu
+    // menyalin pola baca ini sekarang lewat sini.
+    static String bacaResponsTelegram(HttpURLConnection conn, int code)
+            throws IOException {
+        InputStream mentah = (code >= 200 && code < 300)
+                ? conn.getInputStream() : conn.getErrorStream();
+        if (mentah == null) {
+            return "";
+        }
+        try (InputStream is = mentah) {
+            return bacaResponsBatas(is);
+        }
+    }
+
+    // Audit 1466: bunyi catatan tunggu sesudah kena 429, sama di
+    // semua titik panggil POST (label = awalan khas titik itu).
+    static String pesanLimitTelegram(String label, long jedaMs) {
+        return "[tg] " + label + " - tunggu " + (jedaMs / 1000)
+                + " dtk lalu coba lagi.";
+    }
+
+    // Audit 1466: tunggu sesudah kena 429 sesuai retry_after pada
+    // badan respons, dengan catatan log bersama.
+    static void tungguLimitTelegram(String label, String body)
+            throws InterruptedException {
+        long jeda = jedaRetryAfterMs(body);
+        ServerService.catatLog(pesanLimitTelegram(label, jeda));
+        Thread.sleep(jeda);
     }
 
     static String bacaResponsBatas(InputStream in) {
