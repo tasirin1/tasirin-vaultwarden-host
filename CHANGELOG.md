@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek cepat: himpunan aksara buang diperluas (komentar HTML, apostrof, garis miring, pipa, backslash) (Audit 1553)
+
+- Sela campuran beraksara di luar himpunan buang Audit 1543 terprobe lolos di audit-91: baris `# don't dulu` (apostrof), `dan/atau` (garis miring), `# halo, dunia` (koma), komentar HTML `<!-- jeda -->` (antar baris maupun sebaris), serta `|` dan `\` sebaris. Himpunan buang kini memuat `,`, `/`, `<`, `>`, `|`, `\`, dan apostrof (lewat escape oktal karena program awk berbalut petik tunggal); tak satu pun anggota charset token/header/badan base64. Kelas simbolnya pada dasarnya tak terbatas — ini himpunan yang realistis terprobe. Ditambah 3 skenario uji-diri Audit 1553; salinan repo utuh tetap lolos (rc=0).
+
 ## [Belum rilis] — Cek cepat: titik dua token dilindungi per digit — belahan persis di ':'+spasi tertangkap (Audit 1552)
 
 - Residu Audit 1543 yang terkonfirmasi audit-91: penetralan `:`+spasi mengecualikan baris berbentuk token utuh, jadi token yang dibelah PERSIS di titik duanya (baris-1 diakhiri `<digit>:` + spasi, atau titik dua pindah ke awal baris-2) lolos karena tak satu pun barisnya memuat token utuh. Kini titik dua yang didahului digit dilindungi per aksara (ditandai SUBSEP sebelum penetralan, dipulihkan sesudahnya); titik dua prosa yang didahului huruf tetap dinetralkan seperti sebelumnya. Ditambah 2 skenario uji-diri Audit 1552.

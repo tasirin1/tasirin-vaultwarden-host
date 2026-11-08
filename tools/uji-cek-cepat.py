@@ -528,6 +528,39 @@ def main():
                 and "token-belah-dua-b.txt" in out)
         shutil.rmtree(tokenbelahduab, ignore_errors=True)
 
+        tokenselaapos = klon(tmp, "tokenselaapos")
+        tanam(tokenselaapos, "token-sela-apostrof.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "# don't dulu\n" + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselaapos, ["bash", SKRIP])
+        periksa("token tersela baris apostrof tertangkap "
+                "(Audit 1553)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-apostrof.txt" in out)
+        shutil.rmtree(tokenselaapos, ignore_errors=True)
+
+        tokenselahtml = klon(tmp, "tokenselahtml")
+        tanam(tokenselahtml, "token-sela-html.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "<!-- jeda -->\n" + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselahtml, ["bash", SKRIP])
+        periksa("token tersela komentar HTML tertangkap "
+                "(Audit 1553)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-html.txt" in out)
+        shutil.rmtree(tokenselahtml, ignore_errors=True)
+
+        tokenselapipa = klon(tmp, "tokenselapipa")
+        tanam(tokenselapipa, "token-sela-pipa.txt",
+              "token uji: " + token_palsu[:paruh] + " | "
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselapipa, ["bash", SKRIP])
+        periksa("token dua paruh sebaris dipisah ' | ' tertangkap "
+                "(Audit 1553)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-pipa.txt" in out)
+        shutil.rmtree(tokenselapipa, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

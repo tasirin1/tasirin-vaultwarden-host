@@ -90,6 +90,13 @@ BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c 
   # ('* -----BEGIN ...' sebagai bullet/komentar blok
   # lolos). Kini hanya penandanya yang dikupas (pola
   # Audit 1526 untuk '#'): isi baris tetap diperiksa.
+  # Audit 1553: himpunan aksara buang diperluas ke sela
+  # campuran yang terprobe lolos: ',' '/' '<' '>' '|'
+  # '\' dan apostrof (lewat escape oktal "\047" karena
+  # program awk berbalut petik tunggal) — komentar HTML
+  # '<!-- jeda -->', sela 'dan/atau', '# don't dulu',
+  # dan '|'/'\' sebaris kini ikut menyatu. Kelasnya
+  # pada dasarnya terbuka; ini himpunan yang realistis.
   # Audit 1552: pengecualian penetralan ':' diganti —
   # dulu baris berbentuk token dikecualikan utuh, jadi
   # belahan PERSIS di ':'+spasi lolos (titik duanya ikut
@@ -98,7 +105,7 @@ BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c 
   # dilindungi per aksara lewat SUBSEP sebelum
   # penetralan, lalu dipulihkan — titik dua prosa
   # (didahului huruf) tetap dinetralkan.
-  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.]/, ""); ndg = split("0 1 2 3 4 5 6 7 8 9", dg, " "); for (di = 1; di <= ndg; di++) { gsub(dg[di] ": ", dg[di] SUBSEP); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if ($0 ~ /^[[:space:]]*\/\//) next; if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) next; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
+  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); ndg = split("0 1 2 3 4 5 6 7 8 9", dg, " "); for (di = 1; di <= ndg; di++) { gsub(dg[di] ": ", dg[di] SUBSEP); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if ($0 ~ /^[[:space:]]*\/\//) next; if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) next; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
     printf '%s\n' "$f"
   fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
