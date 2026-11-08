@@ -375,6 +375,25 @@ public class TlsCertTest {
     }
 
     @Test
+    public void pasanganCertKeyCocok_stabilUntukPasanganSilang() throws Exception {
+        // Audit 1468: hasil tak cocok kini ikut dimemoisasi —
+        // putusan untuk berkas yang sama harus stabil antar
+        // panggilan berurutan, untuk pasangan silang maupun asli.
+        java.nio.file.Path dir = Files.createTempDirectory("tlspasangan");
+        File d = dir.toFile();
+        assertTrue(TlsCert.buatCa(new File(d, "certA.pem"), new File(d, "keyA.pem")));
+        assertTrue(TlsCert.buatCa(new File(d, "certB.pem"), new File(d, "keyB.pem")));
+        assertFalse(TlsCert.pasanganCertKeyCocok(
+                new File(d, "certA.pem"), new File(d, "keyB.pem")));
+        assertFalse(TlsCert.pasanganCertKeyCocok(
+                new File(d, "certA.pem"), new File(d, "keyB.pem")));
+        assertTrue(TlsCert.pasanganCertKeyCocok(
+                new File(d, "certA.pem"), new File(d, "keyA.pem")));
+        assertTrue(TlsCert.pasanganCertKeyCocok(
+                new File(d, "certA.pem"), new File(d, "keyA.pem")));
+    }
+
+    @Test
     public void pulihkanTukarTersisa_pasangPasanganBaruAsli() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlspulihbaru");
         File d = dir.toFile();

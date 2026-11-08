@@ -86,10 +86,13 @@ public final class TlsCert {
 
     static final long MEMO_MASA_TTL_MS = 60_000;
 
-    private static final java.util.Map<String, Long> MEMO_PASANGAN =
-            new java.util.LinkedHashMap<String, Long>(64, 0.75f, true) {
+    // Nilai memo pasangan: [stempel elapsed, cocok ? 1 : 0]
+    // (Audit 1468 — dulu hanya stempel, dan hanya hasil cocok
+    // yang disimpan).
+    private static final java.util.Map<String, long[]> MEMO_PASANGAN =
+            new java.util.LinkedHashMap<String, long[]>(64, 0.75f, true) {
                 @Override protected boolean removeEldestEntry(
-                        java.util.Map.Entry<String, Long> tertua) {
+                        java.util.Map.Entry<String, long[]> tertua) {
                     return size() > 64;
                 }
             };
@@ -631,28 +634,37 @@ public final class TlsCert {
         }
         if (kunciMemo != null) {
             synchronized (MEMO_PASANGAN) {
-                Long catat = MEMO_PASANGAN.get(kunciMemo);
+                long[] catat = MEMO_PASANGAN.get(kunciMemo);
                 long kini = elapsedAman();
-                if (catat != null && kini > 0 && catat.longValue() > 0
-                        && kini - catat.longValue() < MEMO_MASA_TTL_MS) {
-                    return true;
+                if (catat != null && catat.length >= 2 && kini > 0
+                        && catat[0] > 0
+                        && kini - catat[0] < MEMO_MASA_TTL_MS) {
+                    return catat[1] != 0;
                 }
             }
         }
         boolean cocok;
+        boolean terbaca;
         try {
             X509Certificate cert = bacaCert(certFile);
             PrivateKey key = bacaPrivateKey(keyFile);
-            cocok = cert != null && key != null
-                    && kunciCocokCert(cert.getPublicKey(), key);
+            terbaca = cert != null && key != null;
+            cocok = terbaca && kunciCocokCert(cert.getPublicKey(), key);
         } catch (Exception e) {
             return false;
         }
-        if (cocok && kunciMemo != null) {
+        // Audit 1468: hasil TAK cocok yang definitif (kedua berkas
+        // terbaca, modulus beda) kini ikut dimemoisasi — dulu hanya
+        // yang cocok, jadi pasangan rusak di-parse ulang pada tiap
+        // panggilan sampai berkasnya berubah. Gagal baca tetap tak
+        // dimemoisasi (pelajaran Audit 838: kegagalan sesaat tak
+        // boleh menempel 60 detik).
+        if (terbaca && kunciMemo != null) {
             long catat = elapsedAman();
             if (catat > 0) {
                 synchronized (MEMO_PASANGAN) {
-                    MEMO_PASANGAN.put(kunciMemo, Long.valueOf(catat));
+                    MEMO_PASANGAN.put(kunciMemo,
+                            new long[]{catat, cocok ? 1 : 0});
                 }
             }
         }
