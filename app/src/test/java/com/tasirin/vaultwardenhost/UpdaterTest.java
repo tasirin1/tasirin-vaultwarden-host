@@ -1548,22 +1548,32 @@ public class UpdaterTest {
     public void statusUnduhanBaruKosongSetelahUnduhanTerakhir() {
         Updater.statusMesin = "";
         Updater.statusWebVault = "";
-        Updater.mulaiUnduhan();
-        Updater.mulaiUnduhan();
+        Updater.mulaiUnduhan("binary");
+        Updater.mulaiUnduhan("web vault");
         Updater.reportDownload("binary", 1, 2,
                 "Unduh %1$s %2$s/%3$s (%4$d%%)", "Unduh %1$s %2$s...");
+        Updater.reportDownload("web vault", 1, 2,
+                "Unduh %1$s %2$s/%3$s (%4$d%%)", "Unduh %1$s %2$s...");
         assertFalse("progres unduhan harus tampil", Updater.downloadStatus().isEmpty());
-        Updater.selesaiUnduhan();
-
+        // Audit 1517: jenis yang selesai lebih dulu dibersihkan
+        // sendiri; jenis lain yang masih berjalan tetap tampil.
+        Updater.selesaiUnduhan("binary");
+        assertEquals("", Updater.statusMesin);
+        assertFalse(Updater.statusWebVault.isEmpty());
         assertFalse(Updater.downloadStatus().isEmpty());
-        Updater.selesaiUnduhan();
+        Updater.selesaiUnduhan("web vault");
         assertEquals("", Updater.downloadStatus());
 
-        Updater.selesaiUnduhan();
-        Updater.mulaiUnduhan();
+        Updater.selesaiUnduhan("web vault");
+        // Jalur bersarang binary -> shim berbagi kelompok mesin:
+        // shim selesai tak menghapus status selama binary aktif.
+        Updater.mulaiUnduhan("binary");
+        Updater.mulaiUnduhan("shim");
         Updater.reportDownload("shim", 5, 10,
                 "Unduh %1$s %2$s/%3$s (%4$d%%)", "Unduh %1$s %2$s...");
-        Updater.selesaiUnduhan();
+        Updater.selesaiUnduhan("shim");
+        assertFalse(Updater.downloadStatus().isEmpty());
+        Updater.selesaiUnduhan("binary");
         assertEquals("", Updater.downloadStatus());
     }
 

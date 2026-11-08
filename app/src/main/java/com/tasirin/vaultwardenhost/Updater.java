@@ -353,11 +353,40 @@ public final class Updater {
             java.util.Collections.newSetFromMap(
                     new java.util.concurrent.ConcurrentHashMap<String, Boolean>());
 
-    static void mulaiUnduhan() {
+    // Audit 1517: penghitung per kelompok status (mesin =
+    // binary+shim, web vault sendiri) agar field jenis yang
+    // selesai lebih dulu bisa dibersihkan tanpa menunggu
+    // semua unduhan tuntas.
+    private static final java.util.concurrent.atomic.AtomicInteger
+            unduhanAktifMesin = new java.util.concurrent.atomic.AtomicInteger();
+    private static final java.util.concurrent.atomic.AtomicInteger
+            unduhanAktifWv = new java.util.concurrent.atomic.AtomicInteger();
+
+    static void mulaiUnduhan(String label) {
         unduhanAktif.incrementAndGet();
+        ("web vault".equals(label) ? unduhanAktifWv : unduhanAktifMesin)
+                .incrementAndGet();
     }
 
-    static void selesaiUnduhan() {
+    static void selesaiUnduhan(String label) {
+        // Audit 1517: dulu kedua field hanya dibersihkan
+        // bersama saat hitungan global mencapai 0, jadi teks
+        // akhir jenis yang selesai lebih dulu (mis. progres
+        // 100%) tampil basi berdampingan dengan progres jenis
+        // yang masih berjalan. Kini field dibersihkan saat
+        // kelompoknya sendiri tuntas; jalur bersarang
+        // binary -> shim berbagi kelompok mesin sehingga
+        // shim yang selesai tak menghapus status binary induk.
+        java.util.concurrent.atomic.AtomicInteger hitung =
+                "web vault".equals(label) ? unduhanAktifWv : unduhanAktifMesin;
+        if (hitung.decrementAndGet() <= 0) {
+            hitung.set(0);
+            if ("web vault".equals(label)) {
+                statusWebVault = "";
+            } else {
+                statusMesin = "";
+            }
+        }
         int sisa = unduhanAktif.decrementAndGet();
         if (sisa <= 0) {
             unduhanAktif.set(0);
@@ -1437,13 +1466,13 @@ public final class Updater {
         // thread sehingga jalur bersarang unduh-binary → unduh-shim
         // pada thread yang sama tetap aman.
         kunciPasangGlobal(ctx.getString(R.string.dl_status_waiting));
-        mulaiUnduhan();
+        mulaiUnduhan("binary");
         try {
             return downloadBinaryInner(ctx, out, versi, batal,
                     urlChecksumSiap, checksumSiap);
         } finally {
             try {
-                selesaiUnduhan();
+                selesaiUnduhan("binary");
             } finally {
                 KUNCI_PASANG_GLOBAL.unlock();
             }
@@ -1729,12 +1758,12 @@ public final class Updater {
 
     public static String downloadShim(Context ctx, File out) throws Exception {
         kunciPasangGlobal(ctx.getString(R.string.dl_status_waiting));
-        mulaiUnduhan();
+        mulaiUnduhan("shim");
         try {
             return downloadShimInner(ctx, out);
         } finally {
             try {
-                selesaiUnduhan();
+                selesaiUnduhan("shim");
             } finally {
                 KUNCI_PASANG_GLOBAL.unlock();
             }
@@ -1934,11 +1963,11 @@ public final class Updater {
 
     public static String updateWebVaultVersi(Context ctx, String versi) throws Exception {
         synchronized (KUNCI_UPDATE_WV) {
-            mulaiUnduhan();
+            mulaiUnduhan("web vault");
             try {
                 return updateWebVaultInner(ctx, versi);
             } finally {
-                selesaiUnduhan();
+                selesaiUnduhan("web vault");
             }
         }
     }
