@@ -3540,21 +3540,31 @@ public class ServerService extends Service {
                                 TgBackup.sendMessage(this, "Binary manual ditolak:"
                                         + " bukan versi pilihan v" + pinManual + ".");
                             } else {
-                                gantiAtomik(tmpManual, out);
-                                writeText(verFile, Updater.appVersionName(this));
+                                // Audit 1541: swap + metadata di bawah
+                                // kunci pasang global yang sama dengan
+                                // jalur unduhan (Updater) — tanpa ini dua
+                                // pemasangan berebut satu nama .bak dan
+                                // pin bisa tak selaras isi akhir.
+                                Updater.pasangKunciGlobal();
+                                try {
+                                    gantiAtomik(tmpManual, out);
+                                    writeText(verFile, Updater.appVersionName(this));
 
-                                sp.edit().putString(KEY_BIN_PATCH,
-                                                String.valueOf(BIN_PATCH_REV))
-                                        .putString(KEY_BIN_MANUAL_FP, sidikAwal)
-                                        .putString(Updater.KEY_BIN_SHA_PIN,
-                                                Updater.sha256Hex(out))
-                                        .apply();
+                                    sp.edit().putString(KEY_BIN_PATCH,
+                                                    String.valueOf(BIN_PATCH_REV))
+                                            .putString(KEY_BIN_MANUAL_FP, sidikAwal)
+                                            .putString(Updater.KEY_BIN_SHA_PIN,
+                                                    Updater.sha256Hex(out))
+                                            .apply();
 
-                                if (realManual != null && !realManual.isEmpty()) {
-                                    sp.edit().putString(KEY_UPDATE_VERSION, realManual).apply();
+                                    if (realManual != null && !realManual.isEmpty()) {
+                                        sp.edit().putString(KEY_UPDATE_VERSION, realManual).apply();
+                                    }
+                                    appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
+                                    return out;
+                                } finally {
+                                    Updater.lepasKunciGlobal();
                                 }
-                                appendLog("[app] Binary dari folder data dipakai (SHA-256 cocok).");
-                                return out;
                             }
                             }
                         }

@@ -1626,4 +1626,34 @@ public class UpdaterTest {
         assertEquals(1, Updater.pecahBarisChecksum("").size());
         assertTrue(Updater.pecahBarisChecksum(null).isEmpty());
     }
+
+    @Test
+    public void kunciPasangGlobal_salingMengunciAntarThread()
+            throws Exception {
+        // Audit 1541: kunci pasang global yang dipakai jalur
+        // unduhan kini juga dikunci jalur manual lewat
+        // pasang/lepasKunciGlobal — buktikan saling eksklusif
+        // antar thread dan reentrant di thread yang sama.
+        final java.util.concurrent.atomic.AtomicBoolean dapat =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        final java.util.concurrent.CountDownLatch mulai =
+                new java.util.concurrent.CountDownLatch(1);
+        Updater.pasangKunciGlobal();
+        Thread lain = new Thread(() -> {
+            mulai.countDown();
+            Updater.pasangKunciGlobal();
+            dapat.set(true);
+            Updater.lepasKunciGlobal();
+        });
+        lain.start();
+        assertTrue(mulai.await(5, java.util.concurrent.TimeUnit.SECONDS));
+        Thread.sleep(300);
+        assertFalse(dapat.get());
+        // Reentrant: thread yang sama boleh mengunci lagi.
+        Updater.pasangKunciGlobal();
+        Updater.lepasKunciGlobal();
+        Updater.lepasKunciGlobal();
+        lain.join(5000L);
+        assertTrue(dapat.get());
+    }
 }

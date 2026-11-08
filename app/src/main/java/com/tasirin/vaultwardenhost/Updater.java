@@ -1446,6 +1446,18 @@ public final class Updater {
         }
     }
 
+    // Audit 1541: jalur pasang binary manual (ServerService)
+    // mengunci kunci pasang global yang sama — swap berkas
+    // dan penulisan pin-nya tak boleh balapan dengan
+    // pemasangan hasil unduhan.
+    static void pasangKunciGlobal() {
+        KUNCI_PASANG_GLOBAL.lock();
+    }
+
+    static void lepasKunciGlobal() {
+        KUNCI_PASANG_GLOBAL.unlock();
+    }
+
     public static String downloadBinaryVersi(Context ctx, File out, String versi,
                                              CekBatal batal) throws Exception {
         return downloadBinaryVersi(ctx, out, versi, batal, null, null);

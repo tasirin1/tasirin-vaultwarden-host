@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Pasang binary manual kini ikut kunci pasang global jalur unduhan (tak lagi balapan berkas .bak) (Audit 1541)
 ## [Belum rilis] — Pemulihan .bak saat start kini mencakup rsa_key dan pohon attachments/sends (Audit 1540)
 ## [Belum rilis] — Pencacah baris log beranda tak lagi menghitung baris parsial dua kali (pemangkasan 150 baris tak terpicu dini) (Audit 1539)
 ## [Belum rilis] — Restore menolak entri zip bernama akhiran .restore-tmp (tak pernah isi sah) (Audit 1538)
