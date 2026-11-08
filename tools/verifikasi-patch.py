@@ -3101,14 +3101,34 @@ def _menguras_khusus(perintah, toks, awal):
             bernilai_pp = {"-f", "-l", "-r", "-rx", "-ry",
                            "-x", "-y", "-W", "-H", "-sz",
                            "-opw", "-upw", "-scale-to",
-                           "-scale-to-x", "-scale-to-y"}
+                           "-scale-to-x", "-scale-to-y",
+                           # Audit 1448: opsi bernilai
+                           # resmi yang hilang dari
+                           # Audit 1420 (anti-alias,
+                           # profil, kompresi TIFF).
+                           "-aa", "-aaVector", "-sep",
+                           "-freetype", "-thinlinemode",
+                           "-displayprofile",
+                           "-defaultgrayprofile",
+                           "-defaultrgbprofile",
+                           "-defaultcmykprofile",
+                           "-tiffcompression", "-jpegopt"}
         else:
             bernilai_pp = {"-f", "-l", "-r", "-rx", "-ry",
                            "-x", "-y", "-W", "-H", "-sz",
                            "-opw", "-upw", "-scale-to",
                            "-scale-to-x", "-scale-to-y",
                            "-paperw", "-paperh", "-paper",
-                           "-icc", "-jpegopt"}
+                           "-icc", "-jpegopt",
+                           # Audit 1448: keluarga yang
+                           # sama untuk pdftocairo.
+                           "-aa", "-aaVector", "-sep",
+                           "-freetype", "-thinlinemode",
+                           "-displayprofile",
+                           "-defaultgrayprofile",
+                           "-defaultrgbprofile",
+                           "-defaultcmykprofile",
+                           "-tiffcompression"}
         ops_pp = _operand_sesudah_opsi(toks, awal, bernilai_pp)
         return bool(ops_pp) and ops_pp[0] == "-"
     # Audit 1195: nft — hanya -f '-' yang membaca dari stdin.

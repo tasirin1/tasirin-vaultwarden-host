@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Pdftoppm/pdftocairo himpunan opsi bernilai masih kurang banyak (Audit 1448)
 ## [Belum rilis] — Cmsutil penjaga -i buta nilai (-p menelan -i sebagai sandi) (Audit 1447)
 ## [Belum rilis] — Gpgsm himpunan opsi bernilai kurang (--cipher-algo dkk.) (Audit 1446)
 ## [Belum rilis] — Npm bendera global bernilai masih kurang (--init-module dkk.) (Audit 1445)
