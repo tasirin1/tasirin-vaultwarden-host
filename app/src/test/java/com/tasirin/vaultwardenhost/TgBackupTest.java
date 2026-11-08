@@ -514,6 +514,78 @@ public class TgBackupTest {
     }
 
     @Test
+    public void stagingLampiranYatim_tersapuLegitBertahan()
+            throws Exception {
+        // Audit 1530: sisa staging dari restore yang terbunuh
+        // dibersihkan sapuan awal restore; berkas sah dengan
+        // nama akhir yang sama tak disentuh.
+        java.io.File dir = java.nio.file.Files
+                .createTempDirectory("vwstagingyatim").toFile();
+        try {
+            java.io.File lampDir = new java.io.File(dir,
+                    "attachments/u1");
+            org.junit.Assert.assertTrue(lampDir.mkdirs());
+            java.io.File sendsDir = new java.io.File(dir, "sends/s1");
+            org.junit.Assert.assertTrue(sendsDir.mkdirs());
+            java.io.File[] staging = {
+                new java.io.File(dir, "rsa_key.pem.restore-tmp"),
+                new java.io.File(dir, "rsa_key.der.restore-tmp"),
+                new java.io.File(lampDir, "f.bin.restore-tmp"),
+                new java.io.File(sendsDir, "x.restore-tmp")};
+            java.io.File[] legit = {
+                new java.io.File(dir, "rsa_key.pem"),
+                new java.io.File(lampDir, "f.bin"),
+                new java.io.File(sendsDir, "x")};
+            for (java.io.File f : staging) {
+                java.nio.file.Files.write(f.toPath(),
+                        "s".getBytes("UTF-8"));
+            }
+            for (java.io.File f : legit) {
+                java.nio.file.Files.write(f.toPath(),
+                        "l".getBytes("UTF-8"));
+            }
+            TgBackup.hapusStagingLampiranYatim(dir);
+            for (java.io.File f : staging) {
+                assertFalse(f.exists());
+            }
+            for (java.io.File f : legit) {
+                assertTrue(f.exists());
+            }
+            // Pekerja rekursifnya langsung juga (nama teruji).
+            java.nio.file.Files.write(staging[2].toPath(),
+                    "s".getBytes("UTF-8"));
+            TgBackup.sapuStagingYatim(
+                    new java.io.File(dir, "attachments"),
+                    new java.util.HashSet<String>());
+            assertFalse(staging[2].exists());
+        } finally {
+            hapusPohonUji(dir);
+        }
+    }
+
+    @Test
+    public void kumpulkanBerkasZip_lewatiStagingRestoreTmp()
+            throws Exception {
+        // Audit 1530: berkas staging tak ikut terkumpul ke
+        // backup berikutnya.
+        java.io.File akar = java.nio.file.Files.createTempDirectory(
+                "vwkumpulstaging").toFile();
+        try {
+            java.nio.file.Files.write(new java.io.File(akar,
+                    "sah.txt").toPath(), "1".getBytes("UTF-8"));
+            java.nio.file.Files.write(new java.io.File(akar,
+                    "sisa.restore-tmp").toPath(), "2".getBytes("UTF-8"));
+            java.util.List<java.io.File> ke = new java.util.ArrayList<>();
+            TgBackup.kumpulkanBerkasZip(akar, ke);
+            org.junit.Assert.assertEquals(1, ke.size());
+            org.junit.Assert.assertEquals("sah.txt",
+                    ke.get(0).getName());
+        } finally {
+            hapusPohonUji(akar);
+        }
+    }
+
+    @Test
     public void cleanupOldBackups_nolAman() throws Exception {
         TgBackup.cleanupOldBackups(null);
         java.io.File takAda = new java.io.File("/jalan/tak/ada/vw-uji-nol");

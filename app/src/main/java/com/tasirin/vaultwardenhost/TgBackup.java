@@ -2028,7 +2028,11 @@ public final class TgBackup {
         for (File a : anak) {
             if (a.isDirectory()) {
                 kumpulkanBerkasZip(a, ke, sudah);
-            } else if (a.isFile()) {
+            } else if (a.isFile()
+                    && !a.getName().endsWith(".restore-tmp")) {
+                // Audit 1530: berkas staging restore bukan isi
+                // backup — mengirimnya hanya melestarikan
+                // sampah lintas generasi backup/restore.
                 ke.add(a);
             }
         }
@@ -3622,6 +3626,7 @@ public final class TgBackup {
 
         hapusStagingRestore(dataFolder);
         hapusStagingTls(dataFolder);
+        hapusStagingLampiranYatim(dataFolder);
 
         File preBackup = null;
         if (dbFile.exists()) {
@@ -4006,6 +4011,56 @@ public final class TgBackup {
             String staging = namaStagingLampiran(nama);
             if (staging != null) {
                 new File(dataFolder, staging).delete();
+            }
+        }
+    }
+
+    // Audit 1530: staging lampiran dari restore yang TERBUNUH
+    // di tengah (LMK/swipe/perangkat mati) tak terjangkau
+    // hapusStagingLampiran — daftar namanya hanya hidup di
+    // memori run yang mati itu. Sapuan ini membersihkan
+    // staging rsa_key di akar folder data + semua berkas
+    // "*.restore-tmp" di bawah attachments/sends, dan
+    // dipanggil di awal restore berikutnya bersama
+    // hapusStagingRestore/hapusStagingTls.
+    static void hapusStagingLampiranYatim(File dataFolder) {
+        if (dataFolder == null) {
+            return;
+        }
+        new File(dataFolder, "rsa_key.pem.restore-tmp").delete();
+        new File(dataFolder, "rsa_key.der.restore-tmp").delete();
+        java.util.Set<String> sudah = new java.util.HashSet<>();
+        sapuStagingYatim(new File(dataFolder, "attachments"), sudah);
+        sapuStagingYatim(new File(dataFolder, "sends"), sudah);
+    }
+
+    // Penjaga direktori terunjungi per jalur kanonik seperti
+    // Audit 1513: symlink direktori bersiklus di pohon
+    // lampiran tak boleh membuat sapuan berputar selamanya.
+    static void sapuStagingYatim(File dir,
+                                 java.util.Set<String> sudah) {
+        if (dir == null || sudah == null) {
+            return;
+        }
+        String kanon;
+        try {
+            kanon = dir.getCanonicalPath();
+        } catch (Exception e) {
+            return;
+        }
+        if (!sudah.add(kanon)) {
+            return;
+        }
+        File[] anak = dir.listFiles();
+        if (anak == null) {
+            return;
+        }
+        for (File a : anak) {
+            if (a.isDirectory()) {
+                sapuStagingYatim(a, sudah);
+            } else if (a.isFile()
+                    && a.getName().endsWith(".restore-tmp")) {
+                a.delete();
             }
         }
     }

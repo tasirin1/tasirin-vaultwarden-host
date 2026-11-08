@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Restore: sisa staging lampiran .restore-tmp dari restore yang terbunuh kini disapu di awal restore dan tak lagi ikut ter-backup (Audit 1530)
 ## [Belum rilis] — Cek-cepat: pola bungkus menoleransi sisipan di antara KEY dan '-----' pada header kunci (Audit 1529)
 ## [Belum rilis] — Cek-cepat: belahan tersela baris tanda-baca murni atau komentar '//' kini tertangkap (baris '-----' dipertahankan) (Audit 1528)
 ## [Belum rilis] — Cek-cepat: paruh rahasia di dalam baris komentar '#' dan yang tergabung '#' sebaris kini tertangkap — dikunci skenario (mekanisme perbaikan Audit 1526) (Audit 1527)
