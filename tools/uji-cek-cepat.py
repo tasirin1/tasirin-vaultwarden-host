@@ -21,44 +21,23 @@ ada skenario yang menyimpang).
 
 import os
 import shutil
-import subprocess
 import sys
 import tempfile
 
+# Audit 1460: helper jalan/git/klon/periksa satu pintu di
+# tools/uji_bersama.py (dulu dua salinan nyaris identik di sini
+# dan di uji-verifikasi.py).
+import uji_bersama
+from uji_bersama import GAGAL, git, jalan, periksa
+
 AKAR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKRIP = os.path.join("scripts", "cek-cepat.sh")
-GAGAL = []
 
-
-def jalan(cwd, perintah):
-    # Audit 1453: timeout sama seperti uji-verifikasi — satu
-    # panggilan menggantung tak lagi membekukan job CI.
-    try:
-        p = subprocess.run(perintah, cwd=cwd, stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT, text=True, timeout=300)
-    except subprocess.TimeoutExpired as ex:
-        return 124, "TIMEOUT 300 detik: %s" % (ex.output or "")
-    return p.returncode, p.stdout
-
-
-def git(repo, *args):
-    rc, out = jalan(repo, ["git", "-c", "safe.directory=*", *args])
-    if rc != 0:
-        raise RuntimeError("git gagal: %s\n%s" % (args, out))
-    return out
+_SNAPSHOT = uji_bersama.Snapshot()
 
 
 def klon(tmp, nama):
-    tujuan = os.path.join(tmp, nama)
-    shutil.copytree(AKAR, tujuan, ignore=shutil.ignore_patterns(
-        ".git", "__pycache__"))
-    git(tujuan, "init", "-q")
-    git(tujuan, "config", "user.email", "uji@lokal")
-    git(tujuan, "config", "user.name", "Uji Cek Cepat")
-    git(tujuan, "add", "-A")
-    git(tujuan, "commit", "-q", "-m", "snapshot uji")
-    git(tujuan, "commit", "-q", "--allow-empty", "-m", "riwayat cadangan")
-    return tujuan
+    return uji_bersama.klon(tmp, nama, AKAR, "Uji Cek Cepat", _SNAPSHOT)
 
 
 def tanam(repo, rel, isi, mode="wb"):
@@ -68,12 +47,6 @@ def tanam(repo, rel, isi, mode="wb"):
         f.write(isi)
     git(repo, "add", "-A")
     git(repo, "commit", "-q", "-m", "tanam pelanggaran uji")
-
-
-def periksa(nama, ok, detail=""):
-    print("%s %s %s" % ("LOLOS " if ok else "GAGAL ", nama, detail))
-    if not ok:
-        GAGAL.append(nama)
 
 
 def main():

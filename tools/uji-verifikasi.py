@@ -17,85 +17,24 @@ ada skenario yang menyimpang).
 
 import os
 import shutil
-import subprocess
 import sys
 import tempfile
+
+# Audit 1460: helper jalan/git/klon/periksa satu pintu di
+# tools/uji_bersama.py (dulu dua salinan nyaris identik di sini
+# dan di uji-cek-cepat.py).
+import uji_bersama
+from uji_bersama import GAGAL, git, jalan, periksa
 
 AKAR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GERBANG = os.path.join("tools", "verifikasi-patch.py")
 KELAS = "app/src/main/java/com/tasirin/vaultwardenhost/DialogAman.java"
-GAGAL = []
 
-
-def jalan(cwd, perintah, env=None):
-    e = dict(os.environ)
-    if env:
-        e.update(env)
-    # Audit 1453: tanpa timeout, satu panggilan yang menggantung
-    # membekukan seluruh suite sampai timeout job CI 45 menit;
-    # kini skenario itu GAGAL keras dengan label jelas.
-    try:
-        p = subprocess.run(perintah, cwd=cwd, env=e, stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT, text=True, timeout=300)
-    except subprocess.TimeoutExpired as ex:
-        return 124, "TIMEOUT 300 detik: %s" % (ex.output or "")
-    return p.returncode, p.stdout
-
-
-def git(repo, *args):
-    rc, out = jalan(repo, ["git", "-c", "safe.directory=*", *args])
-    if rc != 0:
-        raise RuntimeError("git gagal: %s\n%s" % (args, out))
-    return out
-
-
-_SNAPSHOT = None
-
-
-def _snapshot(tmp):
-    # Audit 1457: snapshot pohon dibangun SEKALI per lari suite;
-    # sebelumnya tiap skenario membayar copytree + init + add +
-    # 2 commit sendiri (±0,5 detik x ratusan skenario).
-    global _SNAPSHOT
-    if _SNAPSHOT is None:
-        asal = os.path.join(tmp, ".snapshot-uji")
-        shutil.copytree(AKAR, asal, ignore=shutil.ignore_patterns(
-            ".git", "__pycache__"))
-        git(asal, "init", "-q")
-        git(asal, "config", "user.email", "uji@lokal")
-        git(asal, "config", "user.name", "Uji Gerbang")
-        git(asal, "add", "-A")
-        git(asal, "commit", "-q", "-m", "snapshot uji")
-        # Commit kosong kedua: gerbang pada mode tanpa --rentang memakai
-        # diff cadangan HEAD~1...HEAD bila upstream tak ada; repo
-        # berkomit tunggal membuat diff itu gagal dan gerbang GAGAL
-        # keras (bukan LOLOS) — dua commit adalah riwayat minimum agar
-        # kontrol bersih bisa lulus.
-        git(asal, "commit", "-q", "--allow-empty", "-m",
-            "riwayat cadangan")
-        _SNAPSHOT = asal
-    return _SNAPSHOT
+_SNAPSHOT = uji_bersama.Snapshot()
 
 
 def klon(tmp, nama):
-    # Klon lokal dari snapshot bersama: menguji persis pohon yang
-    # sedang diperiksa CI, tanpa bergantung pada riwayat/upstream
-    # repo asal, dan ringan (pohon kerja hanya beberapa MB; klon
-    # penuh menyalin ratusan MB riwayat dan memenuhi /tmp kecil).
-    # Remote origin dibuang agar keadaan git-nya setara repo hasil
-    # init (gerbang memakai diff cadangan HEAD~1...HEAD).
-    tujuan = os.path.join(tmp, nama)
-    git(tmp, "clone", "-q", "--local", _snapshot(tmp), tujuan)
-    git(tujuan, "remote", "remove", "origin")
-    git(tujuan, "config", "user.email", "uji@lokal")
-    git(tujuan, "config", "user.name", "Uji Gerbang")
-    return tujuan
-
-
-def periksa(nama, ok, detail=""):
-    print("%s %s %s" % ("LOLOS " if ok else "GAGAL ", nama, detail))
-    if not ok:
-        GAGAL.append(nama)
+    return uji_bersama.klon(tmp, nama, AKAR, "Uji Gerbang", _SNAPSHOT)
 
 
 def main():
