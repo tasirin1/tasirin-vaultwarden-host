@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — jalan() kedua suite kini bertimeout 300 detik (Audit 1453)
 ## [Belum rilis] — Skenario prodtrue/prodkutip1 suite kini berasersi suntikan (Audit 1452)
 ## [Belum rilis] — Masih_didefinisikan kuadratik tanpa memo (Audit 1451)
 ## [Belum rilis] — Baca() tanpa cache — berkas sama dibuka sampai 11x per lari (Audit 1450)

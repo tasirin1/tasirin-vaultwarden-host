@@ -31,8 +31,14 @@ def jalan(cwd, perintah, env=None):
     e = dict(os.environ)
     if env:
         e.update(env)
-    p = subprocess.run(perintah, cwd=cwd, env=e, stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT, text=True)
+    # Audit 1453: tanpa timeout, satu panggilan yang menggantung
+    # membekukan seluruh suite sampai timeout job CI 45 menit;
+    # kini skenario itu GAGAL keras dengan label jelas.
+    try:
+        p = subprocess.run(perintah, cwd=cwd, env=e, stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT, text=True, timeout=300)
+    except subprocess.TimeoutExpired as ex:
+        return 124, "TIMEOUT 300 detik: %s" % (ex.output or "")
     return p.returncode, p.stdout
 
 

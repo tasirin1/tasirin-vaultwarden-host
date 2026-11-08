@@ -31,8 +31,13 @@ GAGAL = []
 
 
 def jalan(cwd, perintah):
-    p = subprocess.run(perintah, cwd=cwd, stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT, text=True)
+    # Audit 1453: timeout sama seperti uji-verifikasi — satu
+    # panggilan menggantung tak lagi membekukan job CI.
+    try:
+        p = subprocess.run(perintah, cwd=cwd, stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT, text=True, timeout=300)
+    except subprocess.TimeoutExpired as ex:
+        return 124, "TIMEOUT 300 detik: %s" % (ex.output or "")
     return p.returncode, p.stdout
 
 
