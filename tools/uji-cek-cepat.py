@@ -83,6 +83,17 @@ def main():
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(terbelah, ignore_errors=True)
 
+        tokenjeda = klon(tmp, "tokenjeda")
+        tanam(tokenjeda, "catatan-token-jeda.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "# jeda\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenjeda, ["bash", SKRIP])
+        periksa("token terbelah tersela baris komentar tertangkap "
+                "(Audit 1506)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(tokenjeda, ignore_errors=True)
+
         readme = klon(tmp, "readme")
         berkas_rm = os.path.join(readme, "README.id.md")
         with open(berkas_rm, encoding="utf-8") as f:

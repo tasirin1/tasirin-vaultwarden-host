@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Cek cepat: skenario token terbelah tersela komentar dikunci di suite (Audit 1506)
 ## [Belum rilis] — Cek cepat: header kunci tersela komentar / terbelah di tengah frasa / label kecil panjang kini tertangkap (Audit 1505)
 ## [Belum rilis] — Konstanta mati DEFAULT_DATA_DIR dihapus; produksi dan uji memakai dataDirBawaanSegar() (Audit 1518)
 ## [Belum rilis] — Status unduhan: jenis yang selesai lebih dulu tak lagi tampil basi (Audit 1517)
