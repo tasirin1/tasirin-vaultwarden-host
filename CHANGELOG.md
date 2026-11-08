@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gpgsm --debug dan --attribute diakui bernilai (Audit 1550)
+
+- Residu sapuan Audit 1545: `--debug` dan `--attribute` bernilai tetapi absen dari kedua himpunan gpgsm — bentuk `--debug 1024 --decrypt` lolos fail-open dan bentuk `--debug --decrypt` keliru dinilai menguras (token modus tertelan sebagai nilai, program galat). Kini keduanya masuk KEDUA himpunan (tetap identik 57 elemen). Terprobe induk dua arah. Ditambah skenario uji-diri Audit 1550.
+
 ## [Belum rilis] — Gerbang: himpunan opsi bernilai gpg dilengkapi 10 opsi terprobe (Audit 1549)
 
 - Himpunan opsi bernilai cabang `gpg` tak pernah disapu dump-options; 10 opsi terprobe fail-open kini diakui bernilai: `--s2k-mode`, `--s2k-count`, `--faked-system-time`, `--debug`, `--default-key`, `--log-file`, `--passphrase-repeat`, `--charset`, `--compress-level`, `--comment` — nilainya tak lagi terhitung operand penekan vonis stdin. Parser gpg menolak token dash sebagai nilai sehingga arah fail-closed tak berlaku di cabang ini. Ditambah skenario uji-diri Audit 1549.

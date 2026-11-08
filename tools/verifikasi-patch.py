@@ -3040,7 +3040,7 @@ def _menguras_khusus(perintah, toks, awal):
         bernilai_gs = {
                        "--agent-program", "--attribute-fd", "--audit-log", "--chuid",
                        "--cipher-algo", "--command-fd", "--compatibility-flags", "--compliance",
-                       "--compress-algo", "--debug-level", "--default-key", "--digest-algo",
+                       "--compress-algo", "--debug-level", "--default-key", "--debug", "--attribute", "--digest-algo",
                        "--dirmngr-program", "--disable-cipher-algo", "--disable-pubkey-algo", "--display",
                        "--encrypt-to", "--extra-digest-algo", "--faked-system-time", "--homedir",
                        "--html-audit-log", "--ignore-cert-extension", "--ignore-cert-with-oid", "--include-certs",
@@ -3071,7 +3071,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {
                        "--agent-program", "--attribute-fd", "--audit-log", "--chuid",
                        "--cipher-algo", "--command-fd", "--compatibility-flags", "--compliance",
-                       "--compress-algo", "--debug-level", "--default-key", "--digest-algo",
+                       "--compress-algo", "--debug-level", "--default-key", "--debug", "--attribute", "--digest-algo",
                        "--dirmngr-program", "--disable-cipher-algo", "--disable-pubkey-algo", "--display",
                        "--encrypt-to", "--extra-digest-algo", "--faked-system-time", "--homedir",
                        "--html-audit-log", "--ignore-cert-extension", "--ignore-cert-with-oid", "--include-certs",

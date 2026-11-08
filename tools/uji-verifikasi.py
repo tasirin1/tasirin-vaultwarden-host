@@ -15001,6 +15001,27 @@ def main():
         periksa("gpg opsi --s2k-mode bernilai: gerbang gagal (Audit 1549)",
                 rc != 0)
         shutil.rmtree(sub694, ignore_errors=True)
+        sub695 = klon(tmp, "sub695")
+        berkas_aksi695 = os.path.join(
+            sub695, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi695, encoding="utf-8") as f:
+            isi_aksi695 = f.read()
+        baris_aksi695 = [b for b in isi_aksi695.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru695 = isi_aksi695.replace(
+                baris_aksi695,
+                baris_aksi695.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gpgsm --debug 1024 --decrypt; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru695 != isi_aksi695, \
+            "suntikan aksi695 tidak menembak"
+        with open(berkas_aksi695, "w", encoding="utf-8") as f:
+            f.write(isi_baru695)
+        rc, out = jalan(sub695, [sys.executable, GERBANG, "--semua"])
+        periksa("gpgsm opsi --debug bernilai: gerbang gagal (Audit 1550)",
+                rc != 0)
+        shutil.rmtree(sub695, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
