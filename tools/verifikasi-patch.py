@@ -2254,7 +2254,11 @@ def _menguras_khusus(perintah, toks, awal):
                  # Audit 1149: opsi verifikasi bernilai lain —
                  # nilainya terhitung operand sertifikat.
                  "-verify_hostname", "-verify_email", "-verify_ip",
-                 "-CRLfile", "-CAstore", "-policy_oids"})
+                 "-CRLfile", "-CAstore", "-policy_oids",
+                 # Audit 1521: -vfyopt/-provider-path/
+                 # -verify_name juga bernilai — nilainya
+                 # terhitung operand penekan.
+                 "-vfyopt", "-provider-path", "-verify_name"})
             return not ops_v
         if sub == "dgst" or re.fullmatch(
                 r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"
