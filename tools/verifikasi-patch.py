@@ -2394,7 +2394,13 @@ def _menguras_khusus(perintah, toks, awal):
                             "--reroll-count", "--to", "--cc",
                             "--from", "--in-reply-to",
                             "--signature-file",
-                            "--cover-from-description"):
+                            "--cover-from-description",
+                            # Audit 1449: penelan nilai
+                            # yang hilang — --stdin
+                            # sempat menjadi NILAI
+                            # --start-number.
+                            "--start-number", "--thread-depth",
+                            "--filename-max-length"):
                     k_fp += 2
                     continue
                 k_fp += 1

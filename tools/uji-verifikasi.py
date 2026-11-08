@@ -14492,6 +14492,27 @@ def main():
         periksa("pdftoppm -aa yes - hasil: "
                 "gerbang gagal (Audit 1448)", rc != 0)
         shutil.rmtree(sub669, ignore_errors=True)
+        sub670 = klon(tmp, "sub670")
+        berkas_aksi670 = os.path.join(
+            sub670, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi670, encoding="utf-8") as f:
+            isi_aksi670 = f.read()
+        baris_aksi670 = [b for b in isi_aksi670.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru670 = isi_aksi670.replace(
+                baris_aksi670,
+                baris_aksi670.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git format-patch --start-number --stdin HEAD; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru670 != isi_aksi670, \
+            "suntikan aksi670 tidak menembak"
+        with open(berkas_aksi670, "w", encoding="utf-8") as f:
+            f.write(isi_baru670)
+        rc, out = jalan(sub670, [sys.executable, GERBANG, "--semua"])
+        periksa("git format-patch --start-number --stdin: "
+                "gerbang lolos (Audit 1449)", rc == 0)
+        shutil.rmtree(sub670, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
