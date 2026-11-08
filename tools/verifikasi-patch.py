@@ -2391,7 +2391,16 @@ def _menguras_khusus(perintah, toks, awal):
         if sub == "fmt-merge-msg":
             if "-F" in mentah or "--file" in mentah:
                 return False
-            return len(ops_git) < 2
+            # Audit 1441: nilai opsi subcommand (-m,
+            # --message, --into-name) bukan operand
+            # berkas — hitung operand dengan himpunan
+            # bernilai yang memuatnya.
+            ops_fm = _operand_sesudah_opsi(
+                toks, awal,
+                {"-C", "-c", "--git-dir", "--work-tree",
+                 "--namespace", "-m", "--message",
+                 "--into-name"})
+            return len(ops_fm) < 2
         if sub == "mktree":
             return True
         # Audit 1124: pembaca putaran-3 — stripspace (filter
