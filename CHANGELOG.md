@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Sapuan staging yatim tak lagi mengikuti symlink direktori keluar folder data (Audit 1536)
 ## [Belum rilis] — Gerbang: pindai -F commit/tag tak lagi memperlakukan -s sebagai opsi bernilai (signoff/sign adalah bendera) (Audit 1535)
 ## [Belum rilis] — Restore file-picker: lampiran & rsa_key kini ikut skema staging (tak lagi ditulis langsung ke nama akhir) (Audit 1534)
 ## [Belum rilis] — Komentar Audit 1476 dikembalikan menempel ke metodenya (blok Audit 1511 dipindah ke atasnya) (Audit 1533)

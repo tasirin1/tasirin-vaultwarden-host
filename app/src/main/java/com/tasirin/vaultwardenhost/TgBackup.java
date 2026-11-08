@@ -4056,10 +4056,32 @@ public final class TgBackup {
         if (dir == null || sudah == null) {
             return;
         }
+        String basis;
+        try {
+            basis = dir.getCanonicalPath();
+        } catch (Exception e) {
+            return;
+        }
+        sapuStagingYatimDalam(dir, basis, sudah);
+    }
+
+    static void sapuStagingYatimDalam(File dir, String basis,
+                                      java.util.Set<String> sudah) {
+        if (dir == null || basis == null || sudah == null) {
+            return;
+        }
         String kanon;
         try {
             kanon = dir.getCanonicalPath();
         } catch (Exception e) {
+            return;
+        }
+        // Audit 1536: jangan keluar dari akar sapuan — symlink
+        // direktori yang menunjuk keluar folder data tidak
+        // diikuti; penjaga kanonik di bawah hanya mencegah
+        // siklus, bukan pelarian.
+        if (!kanon.equals(basis)
+                && !kanon.startsWith(basis + File.separator)) {
             return;
         }
         if (!sudah.add(kanon)) {
@@ -4071,7 +4093,7 @@ public final class TgBackup {
         }
         for (File a : anak) {
             if (a.isDirectory()) {
-                sapuStagingYatim(a, sudah);
+                sapuStagingYatimDalam(a, basis, sudah);
             } else if (a.isFile()
                     && a.getName().endsWith(".restore-tmp")) {
                 a.delete();

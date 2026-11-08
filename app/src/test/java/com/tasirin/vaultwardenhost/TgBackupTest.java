@@ -564,6 +564,49 @@ public class TgBackupTest {
     }
 
     @Test
+    public void stagingLampiranYatim_symlinkKeluarTakDiikuti()
+            throws Exception {
+        // Audit 1536: symlink direktori di pohon lampiran yang
+        // menunjuk ke LUAR folder data tak boleh membuat
+        // sapuan menghapus berkas di folder tujuan.
+        java.io.File dir = java.nio.file.Files
+                .createTempDirectory("vwstagingtaut").toFile();
+        java.io.File luar = java.nio.file.Files
+                .createTempDirectory("vwstagingluar").toFile();
+        try {
+            java.io.File korban = new java.io.File(luar,
+                    "korban.restore-tmp");
+            java.nio.file.Files.write(korban.toPath(),
+                    "k".getBytes("UTF-8"));
+            java.io.File lamp = new java.io.File(dir, "attachments");
+            org.junit.Assert.assertTrue(lamp.mkdirs());
+            java.io.File dalam = new java.io.File(lamp,
+                    "sisa.restore-tmp");
+            java.nio.file.Files.write(dalam.toPath(),
+                    "d".getBytes("UTF-8"));
+            java.io.File taut = new java.io.File(lamp, "tautan");
+            try {
+                java.nio.file.Files.createSymbolicLink(
+                        taut.toPath(), luar.toPath());
+            } catch (Exception e) {
+                org.junit.Assume.assumeNoException(
+                        "symlink tak bisa dibuat di platform uji", e);
+            }
+            TgBackup.hapusStagingLampiranYatim(dir);
+            assertFalse(dalam.exists());
+            assertTrue(korban.exists());
+            // Pekerja dalamnya langsung juga (nama teruji).
+            TgBackup.sapuStagingYatimDalam(lamp,
+                    lamp.getCanonicalPath(),
+                    new java.util.HashSet<String>());
+            assertTrue(korban.exists());
+        } finally {
+            hapusPohonUji(dir);
+            hapusPohonUji(luar);
+        }
+    }
+
+    @Test
     public void kumpulkanBerkasZip_lewatiStagingRestoreTmp()
             throws Exception {
         // Audit 1530: berkas staging tak ikut terkumpul ke
