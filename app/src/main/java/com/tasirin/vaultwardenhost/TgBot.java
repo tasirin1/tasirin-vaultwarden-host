@@ -473,8 +473,11 @@ public final class TgBot {
 
             isiNamaBotBilaKosong(ctx, token);
 
+            // Audit 1512: read timeout klien wajib di atas
+            // long-poll 50 dtk — bawaan httpPostForm 35 dtk
+            // memutus poll yang diam lebih dulu (residu 1463).
             String body = httpPostForm(ctx, TG_API + token + "/getUpdates",
-                    "offset=" + offset + "&timeout=50&limit=10");
+                    "offset=" + offset + "&timeout=50&limit=10", 65000);
             if (body == null) {
                 return;
             }
@@ -2718,11 +2721,16 @@ public final class TgBot {
     }
 
     private static String httpPostForm(Context ctx, String url, String param) {
+        return httpPostForm(ctx, url, param, 35000);
+    }
+
+    private static String httpPostForm(Context ctx, String url, String param,
+                                       int readMs) {
         HttpURLConnection c = null;
         try {
             byte[] body = param.getBytes(StandardCharsets.UTF_8);
             c = TgBackup.bukaPostTelegram(ctx, url, body,
-                    "application/x-www-form-urlencoded", 15000, 35000);
+                    "application/x-www-form-urlencoded", 15000, readMs);
             try (OutputStream os = c.getOutputStream()) {
                 os.write(body);
             }

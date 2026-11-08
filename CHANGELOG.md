@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Long-poll Telegram 50 detik kini benar-benar tercapai: read timeout klien dinaikkan khusus getUpdates (Audit 1512)
 ## [Belum rilis] — Log beranda: hitungan ekor baris tak lagi menelan baris utuh (Audit 1511)
 ## [Belum rilis] — Restore Telegram: kunci RSA dan lampiran kini ikut staging, tak tertimpa restore yang gagal (Audit 1510)
 ## [Belum rilis] — Jendela tunggu auto-merge kini benar-benar terjangkau timeout job-nya (Audit 1519)
