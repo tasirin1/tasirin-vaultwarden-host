@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Suite uji-diri gerbang tak lagi ganda di PR (cek-wajib sudah menjalankannya) (Audit 1486)
 ## [Belum rilis] — Auto-merge: batas job 40 menit dan jendela tunggu build ±35 menit (Audit 1485)
 ## [Belum rilis] — KernelCompat.channelName kini private (hanya dipakai internal) (Audit 1484)
 ## [Belum rilis] — Permintaan izin runtime cukup WRITE_EXTERNAL_STORAGE (READ satu grup, tetap di manifest) (Audit 1483)

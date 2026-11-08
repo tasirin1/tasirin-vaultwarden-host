@@ -67,9 +67,15 @@ jobs:
           python3 tools/verifikasi-patch.py --rentang "$RENTANG"
       - name: Cek cepat (vektor 0.x, README, secret)
         run: bash scripts/cek-cepat.sh
+      # Audit 1486: suite uji-diri dilewati pada pull_request —
+      # cek-wajib.yml sudah menjalankannya untuk SEMUA PR tanpa
+      # saringan path; menjalankannya lagi di sini menggandakan
+      # ±19-25 menit per PR. Push tetap menjalankannya.
       - name: Uji-diri gerbang (cabang langka verifikasi-patch)
+        if: github.event_name != 'pull_request'
         run: python3 tools/uji-verifikasi.py
       - name: Uji-diri cek-cepat (cabang deteksi cek-cepat)
+        if: github.event_name != 'pull_request'
         run: python3 tools/uji-cek-cepat.py
 
   resolve:
