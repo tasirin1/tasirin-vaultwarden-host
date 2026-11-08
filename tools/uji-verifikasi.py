@@ -14850,6 +14850,28 @@ def main():
                 "gerbang gagal (Audit 1523)",
                 rc != 0)
         shutil.rmtree(sub687, ignore_errors=True)
+        sub688 = klon(tmp, "sub688")
+        berkas_aksi688 = os.path.join(
+            sub688, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi688, encoding="utf-8") as f:
+            isi_aksi688 = f.read()
+        baris_aksi688 = [b for b in isi_aksi688.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru688 = isi_aksi688.replace(
+                baris_aksi688,
+                baris_aksi688.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git commit --cleanup -F -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru688 != isi_aksi688, \
+            "suntikan aksi688 tidak menembak"
+        with open(berkas_aksi688, "w", encoding="utf-8") as f:
+            f.write(isi_baru688)
+        rc, out = jalan(sub688, [sys.executable, GERBANG, "--semua"])
+        periksa("git commit --cleanup -F -: -F adalah nilai --cleanup: "
+                "gerbang lolos (Audit 1524)",
+                rc == 0)
+        shutil.rmtree(sub688, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

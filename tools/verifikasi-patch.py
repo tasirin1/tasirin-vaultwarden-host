@@ -2662,7 +2662,14 @@ def _menguras_khusus(perintah, toks, awal):
                             pesan_stdin = True
                         k_g += lompat_b
                     continue
-                elif t_g in bernilai_in:
+                # Audit 1524: --cleanup/--author/--template/
+                # --trailer juga bernilai di commit/tag —
+                # tak ada di bernilai_in (dipakai bersama
+                # subcommand lain); nilai mereka (mis. -F)
+                # bukan bendera berkas.
+                elif t_g in bernilai_in or t_g in (
+                        "--cleanup", "--author", "--template",
+                        "--trailer"):
                     k_g += 2
                     continue
                 k_g += 1

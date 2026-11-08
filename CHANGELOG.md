@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pindai -F git commit/tag kini sadar nilai --cleanup/--author/--template/--trailer (Audit 1524)
 ## [Belum rilis] — Gerbang mengenal openssl storeutl: operand jalur fd adalah stdin, tanda - nama berkas harfiah (Audit 1523)
 ## [Belum rilis] — Gerbang: pindai -F git commit/tag kini mengenali -F di dalam bundel huruf pendek (Audit 1522)
 ## [Belum rilis] — Gerbang: opsi bernilai verify -vfyopt/-provider-path/-verify_name tak lagi terhitung operand sertifikat (Audit 1521)
