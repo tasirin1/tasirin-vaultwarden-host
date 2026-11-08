@@ -573,6 +573,28 @@ def main():
                 rc == 0)
         shutil.rmtree(doccontoh, ignore_errors=True)
 
+        kuncimiringsela = klon(tmp, "kuncimiringsela")
+        tanam(kuncimiringsela, "kunci-baris-miring.txt",
+              "// -----BEGIN OPENSSH PRIVATE " "KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kuncimiringsela, ["bash", SKRIP])
+        periksa("header utuh di baris komentar '//' tertangkap "
+                "(Audit 1567)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-baris-miring.txt" in out)
+        shutil.rmtree(kuncimiringsela, ignore_errors=True)
+
+        tokenselamiring = klon(tmp, "tokenselamiring")
+        tanam(tokenselamiring, "token-sela-miring.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "// jeda\n" + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselamiring, ["bash", SKRIP])
+        periksa("token tersela baris '// jeda' tertangkap "
+                "(Audit 1567)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-miring.txt" in out)
+        shutil.rmtree(tokenselamiring, ignore_errors=True)
+
         subsepjinak = klon(tmp, "subsepjinak")
         tanam(subsepjinak, "catatan-subsep.txt",
               b"123456789\x1c" + b"A" * 35 + b"\n")

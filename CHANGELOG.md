@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Aturan buang baris '//' yang mati di cek-cepat dihapus; perilaku '//' dikunci skenario (Audit 1567)
+
+- Pemeriksaan buang-baris '//' di program awk penyiapan blob mati sejak Audit 1553: aksara '/' dibuang lebih dulu sehingga polanya tak pernah bisa cocok. Ia kini dihapus tuntas dan perilaku yang berlaku dinyatakan eksplisit: baris '//' TIDAK dibuang — garis miringnya dikupas sebagai tanda baca dan isinya ikut diperiksa (header di baris '// -----BEGIN ...' tertangkap, arah fail-safe). Dikunci dua skenario uji baru agar perombakan urutan gsub di masa depan tidak membuka lagi lolosnya secara diam-diam.
+
 ## [Belum rilis] — Byte penanda SUBSEP bawaan berkas dibuang lebih dulu di cek-cepat (Audit 1566)
 
 - Langkah pulih lama menulis ulang SEMUA byte SUBSEP (\034) di blob menjadi ':', termasuk byte yang memang sudah ada di berkas sumber: digit + byte itu + badan base64 (tanpa titik dua sama sekali) tertangkap sebagai token (positif palsu), dan baris sela berisi byte itu menelan belahan (lolos) — keduanya terprobe. Kini byte SUBSEP bawaan dibuang sebelum perlindungan menandai apa pun, jadi satu-satunya SUBSEP di blob adalah tanda perlindungan sendiri.

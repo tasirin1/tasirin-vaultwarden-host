@@ -84,12 +84,12 @@ BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c 
   # "# x -----BEGIN ..." lolos, padahal tertangkap sebelum
   # Audit 1505). Kata komentar yang tersisa adalah pengisi
   # alfanumerik yang ditoleransi kedua pola.
-  # Audit 1528: baris komentar '//' dan baris tanda-baca
-  # murni (tanpa alfanumerik) juga dibuang sebelum
-  # perataan — menyela belahan dengan '***', '...', atau
-  # '// jeda' dulu mematahkan kedua pola. Baris '-----'
-  # persis DIPERTAHANKAN: itu penutup header kunci, bukan
-  # hiasan.
+  # Audit 1528: baris tanda-baca murni (tanpa alfanumerik)
+  # dibuang sebelum perataan — menyela belahan dengan
+  # '***' atau '...' dulu mematahkan kedua pola. Baris
+  # '-----' persis DIPERTAHANKAN: itu penutup header
+  # kunci, bukan hiasan. (Baris komentar '//' TIDAK
+  # dibuang: isinya diperiksa — lihat Audit 1567.)
   # Audit 1543: sela CAMPURAN (kata + simbol) ikut
   # ditangani — aksara pemutus '!', ';', '*', '.'
   # dibuang dari semua baris (tak satu pun anggota
@@ -142,7 +142,16 @@ BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c 
   # palsu) atau menelan belahan di baris sela (lolos).
   # Sesudah pembuangan ini, satu-satunya SUBSEP di blob
   # adalah tanda perlindungan sendiri.
-  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, ""); awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0; if (match(awal, /^[0-9]+/)) hd = RLENGTH; if (ekordgt + hd >= 5 && substr(awal, hd + 1, 1) == ":" && substr(awal, hd + 2, 1) ~ /[[:space:]]/) { sp = length($0) - length(awal); pos = sp + hd + 1; $0 = substr($0, 1, pos - 1) SUBSEP substr($0, pos + 2); } while (match($0, /[0-9][0-9][0-9][0-9][0-9]:[[:space:]]/)) { $0 = substr($0, 1, RSTART + 4) SUBSEP substr($0, RSTART + 7); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if ($0 ~ /^[[:space:]]*\/\//) next; if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) { ekordgt = 0; next; } ekordgt = 0; if (match($0, /[0-9]+$/)) ekordgt = RLENGTH; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
+  # Audit 1567: pemeriksaan buang-baris '//' yang dulu
+  # ada di program awk ini MATI sejak Audit 1553 ('/'
+  # dibuang sebagai aksara lebih dulu, jadi pola
+  # '^//'-nya tak pernah bisa cocok) — kini dihapus
+  # tuntas. Perilaku yang berlaku dan SENGAJA: baris
+  # '//' tidak dibuang; garis miringnya dikupas sebagai
+  # tanda baca dan isinya ikut diperiksa (header di baris
+  # '// -----BEGIN ...' tertangkap). Terkunci skenario
+  # uji 1567.
+  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, ""); awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0; if (match(awal, /^[0-9]+/)) hd = RLENGTH; if (ekordgt + hd >= 5 && substr(awal, hd + 1, 1) == ":" && substr(awal, hd + 2, 1) ~ /[[:space:]]/) { sp = length($0) - length(awal); pos = sp + hd + 1; $0 = substr($0, 1, pos - 1) SUBSEP substr($0, pos + 2); } while (match($0, /[0-9][0-9][0-9][0-9][0-9]:[[:space:]]/)) { $0 = substr($0, 1, RSTART + 4) SUBSEP substr($0, RSTART + 7); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) { ekordgt = 0; next; } ekordgt = 0; if (match($0, /[0-9]+$/)) ekordgt = RLENGTH; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
     printf '%s\n' "$f"
   fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
