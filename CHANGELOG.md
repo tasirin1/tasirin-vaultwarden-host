@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: TAB di antara kata header PRIVATE KEY tak lagi lolos (Audit 1455)
 ## [Belum rilis] — Cek-cepat membaca daftar berkas dengan -z: nama ber-newline tak lagi lolos (Audit 1454)
 ## [Belum rilis] — jalan() kedua suite kini bertimeout 300 detik (Audit 1453)
 ## [Belum rilis] — Skenario prodtrue/prodkutip1 suite kini berasersi suntikan (Audit 1452)

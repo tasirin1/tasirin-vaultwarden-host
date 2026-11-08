@@ -151,6 +151,16 @@ def main():
                 and "kunci-terbelah.txt" in out)
         shutil.rmtree(kunciterbelah, ignore_errors=True)
 
+        kuncitab = klon(tmp, "kuncitab")
+        tanam(kuncitab, "kunci-tab.txt",
+              "-----BEGIN OPENSSH\tPRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kuncitab, ["bash", SKRIP])
+        periksa("header private key ber-TAB tertangkap (Audit 1455)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-tab.txt" in out)
+        shutil.rmtree(kuncitab, ignore_errors=True)
+
         namabarisbaru = klon(tmp, "namabarisbaru")
         paruh2 = len(token_palsu) // 2
         tanam(namabarisbaru, "token\nterbelah.txt",
