@@ -711,11 +711,17 @@ public final class TgBackup {
                 : " (sebagian chat gagal: " + gabungGagalChat(gagalChat)
                         + " - dicoba lagi otomatis backup berikutnya)";
 
-        SharedPreferences.Editor edLast = sp.edit()
-                .putString(KEY_TG_LAST_FILE, fileId)
-                .putString(KEY_TG_LAST_NAME, upload.getName());
+        // Audit 1465: file/nama/waktu backup terakhir ditulis
+        // hanya bila SEMUA chat berhasil, agar info restore dan
+        // unduh-backup-terakhir selalu menunjuk satu batch yang
+        // sama (dulu nama bisa baru sementara tanggal lama).
+        // Stempel harian memang sengaja tak dimajukan pada
+        // kegagalan sebagian agar backup berikutnya mengulang.
+        SharedPreferences.Editor edLast = sp.edit();
         if (gagalChat.isEmpty()) {
-            edLast.putLong(KEY_TG_LAST, System.currentTimeMillis());
+            edLast.putString(KEY_TG_LAST_FILE, fileId)
+                    .putString(KEY_TG_LAST_NAME, upload.getName())
+                    .putLong(KEY_TG_LAST, System.currentTimeMillis());
         }
         edLast.apply();
         if (!gagalChat.isEmpty()) {

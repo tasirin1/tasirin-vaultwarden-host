@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Stempel backup terakhir kini konsisten: file, nama, dan waktu dari batch yang sama (Audit 1465)
 ## [Belum rilis] — Polling bot dilonggarkan: alarm 60 detik + long-poll 50 detik (Audit 1463)
 ## [Belum rilis] — Callback tanpa pesan tak lagi membalas ke chat id -1 (Audit 1462)
 ## [Belum rilis] — Ekstraksi web-vault: tanpa fsync per berkas dan tanpa getCanonicalPath per entri (Audit 1470)
