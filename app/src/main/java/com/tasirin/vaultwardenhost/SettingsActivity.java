@@ -2419,6 +2419,15 @@ public class SettingsActivity extends Activity {
                         + " untuk pemulihan manual SEBELUM restore"
                         + " berikutnya (restore lain akan menyapunya).");
             }
+            // Audit 1558: mulai titik ini restore SUDAH
+            // terpasang utuh (DB + TLS + lampiran konsisten
+            // dari backup yang sama) — kegagalan langkah
+            // susulan (terapkan config, jadwalkan backup)
+            // tak boleh memicu rollback catch luar yang
+            // mengembalikan DB lama: itu memasangkan DB
+            // lama dengan lampiran/kunci baru dan menghapus
+            // staging gagal-pasang yang sengaja dibiarkan.
+            try {
             if (zipCfgRusak) {
                 appendUiLog("[app] Peringatan: app-config.json tidak terbaca"
                         + " - pengaturan TIDAK diterapkan.");
@@ -2457,6 +2466,11 @@ public class SettingsActivity extends Activity {
                     ? R.string.restore_selesai_tls_gagal
                     : R.string.restore_selesai_restart));
             appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
+            } catch (Exception ePasca) {
+                appendUiLog("[app] Peringatan: restore terpasang, tetapi"
+                        + " langkah susulan gagal (" + ePasca.getMessage()
+                        + ") - database baru tetap dipakai.");
+            }
         } catch (Exception e) {
 
             try {

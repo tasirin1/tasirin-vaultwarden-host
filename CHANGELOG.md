@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Restore picker: kegagalan langkah susulan tak lagi memicu rollback database (Audit 1558)
+
+- Sesudah lampiran terpasang, segmen penerapan config di jalur file-picker berjalan tanpa pelindung setempat: pengecualian apa pun yang lolos darinya (mis. penjadwal alarm melempar) masuk catch luar yang mengembalikan database lama dan TLS — tetapi lampiran/rsa_key yang sudah terpasang tidak punya potret untuk dikembalikan, sehingga database lama berpasangan diam-diam dengan lampiran baru, dan staging entri gagal-pasang yang sengaja dibiarkan untuk pemulihan manual (Audit 1531) ikut terhapus. Kini segmen sesudah titik pasang dibungkus try/catch sendiri: kegagalannya dicatat sebagai peringatan dan database baru tetap dipakai, karena pada titik itu restore sudah terpasang utuh dan konsisten.
+
 ## [Belum rilis] — Pencacah ekor log beranda diselaraskan sesudah pemotongan tampilan (Audit 1557)
 
 - Cabang potong 40.000 karakter di beranda menghitung ulang jumlah baris dari sisa tampilan (Audit 1539) tetapi membiarkan `ekorParsialBeranda` pada nilai sebelum potong. Bila potong mendarat di tengah satu baris raksasa (>30 ribu karakter tanpa baris baru), ekor tampilan menyusut sementara pencacahnya tetap besar — putar-balik berikutnya menarik terlalu banyak dan bisa mengosongkan seluruh tampilan beranda (buffer sumber utuh; pulih sendiri dari delta berikutnya). Kini ekor dihitung ulang dari sisa tampilan lewat penolong murni `ekorSesudahPotong` yang teruji JVM.
