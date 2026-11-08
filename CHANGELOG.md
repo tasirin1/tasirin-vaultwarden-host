@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek cepat: positif palsu label contoh berstrip diperbaiki — celah dalam label hanya menoleransi rangkaian strip (Audit 1554)
+
+- Pelebaran celah Audit 1544 membuat dokumen jinak berisi contoh header teredaksi (`-----BEGIN CONTOH-PRIVATE-KEY-----`) dan hash rilis heksadesimal 40 aksara di berkas yang sama keliru ditolak: celah melintasi strip TUNGGAL di dalam label contoh dan hash berperan sebagai badan base64. Kini dua celah di dalam label (BEGIN..PRIVATE dan PRIVATE..KEY) hanya menoleransi strip sebagai rangkaian (`--` ke atas) — sela rangkaian strip Audit 1544 ('-----', '-- jeda') tetap tertangkap, label asli memang tak pernah berstrip tunggal. Residu yang diterima: kata sela berstrip tunggal di dalam label kini bisa mematahkan pola. Ditambah skenario uji-diri Audit 1554 (dokumen contoh + hash kini lolos bersih).
+
 ## [Belum rilis] — Cek cepat: himpunan aksara buang diperluas (komentar HTML, apostrof, garis miring, pipa, backslash) (Audit 1553)
 
 - Sela campuran beraksara di luar himpunan buang Audit 1543 terprobe lolos di audit-91: baris `# don't dulu` (apostrof), `dan/atau` (garis miring), `# halo, dunia` (koma), komentar HTML `<!-- jeda -->` (antar baris maupun sebaris), serta `|` dan `\` sebaris. Himpunan buang kini memuat `,`, `/`, `<`, `>`, `|`, `\`, dan apostrof (lewat escape oktal karena program awk berbalut petik tunggal); tak satu pun anggota charset token/header/badan base64. Kelas simbolnya pada dasarnya tak terbatas — ini himpunan yang realistis terprobe. Ditambah 3 skenario uji-diri Audit 1553; salinan repo utuh tetap lolos (rc=0).

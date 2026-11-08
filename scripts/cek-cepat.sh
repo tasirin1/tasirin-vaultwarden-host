@@ -56,7 +56,18 @@ POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Za-z0-9[:blank:]]*PRIVATE KEY-----|$POL
 # duduk sebagai sela di antara BEGIN dan PRIVATE
 # KEY, dan kata sela bergaris bawah ('jeda_sesaat')
 # mematahkan celah alfanumerik murni.
-POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN[A-Za-z0-9_-]{0,200}PRIVATE[A-Za-z0-9_-]{0,200}KEY[A-Za-z0-9_-]{0,200}-----[A-Za-z0-9+/=]{16,}"
+# Audit 1554: dua celah DALAM label (BEGIN..PRIVATE
+# dan PRIVATE..KEY) kini hanya menoleransi strip
+# sebagai RANGKAIAN ('--' ke atas), bukan strip
+# tunggal — pelebaran 1544 membuat label contoh
+# berstrip pada dokumen jinak ('-----BEGIN
+# CONTOH-PRIVATE-KEY-----') cocok sebagai header
+# sungguhan bila berkas yang sama memuat hash heks
+# 40 aksara (positif palsu). Sela rangkaian strip
+# ('-----', '-- jeda') tetap tertangkap; sela kata
+# berstrip tunggal di dalam label kini lolos
+# (diterima — label asli tak pernah berstrip).
+POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN([A-Za-z0-9_]|--+){0,200}PRIVATE([A-Za-z0-9_]|--+){0,200}KEY[A-Za-z0-9_-]{0,200}-----[A-Za-z0-9+/=]{16,}"
 RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | sort -u || true)"
 # Audit 1458: satu lintasan untuk dua cabang — entri bertanda t:
 # (terlacak) / u: (tak terlacak/terabaikan); berkas u: juga diuji

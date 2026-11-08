@@ -561,6 +561,18 @@ def main():
                 and "token-sela-pipa.txt" in out)
         shutil.rmtree(tokenselapipa, ignore_errors=True)
 
+        doccontoh = klon(tmp, "doccontoh")
+        tanam(doccontoh, "dok-contoh.txt",
+              "contoh header (sudah diredaksi):\n"
+              "-----BEGIN CONTOH-PRIVATE-KEY-----\n"
+              "hash rilis: da39a3ee5e6b4b0d3255bfef95601890"
+              "afd80709\n", "w")
+        rc, out = jalan(doccontoh, ["bash", SKRIP])
+        periksa("dokumen contoh header teredaksi + hash rilis "
+                "lolos bersih (Audit 1554)",
+                rc == 0)
+        shutil.rmtree(doccontoh, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
