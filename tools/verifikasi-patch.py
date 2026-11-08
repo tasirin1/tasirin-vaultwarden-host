@@ -2389,8 +2389,6 @@ def _menguras_khusus(perintah, toks, awal):
         # membaca log gabungan dari stdin seluruhnya
         # lebih dulu (terprobe di dalam repo).
         if sub == "fmt-merge-msg":
-            if "-F" in mentah or "--file" in mentah:
-                return False
             # Audit 1441: nilai opsi subcommand (-m,
             # --message, --into-name) bukan operand
             # berkas — hitung operand dengan himpunan
@@ -2400,6 +2398,28 @@ def _menguras_khusus(perintah, toks, awal):
                 {"-C", "-c", "--git-dir", "--work-tree",
                  "--namespace", "-m", "--message",
                  "--into-name"})
+            # Audit 1442: -F/--file bernilai "-" berarti
+            # berkas log gabungan adalah stdin itu
+            # sendiri. Pindai sadar nilai: nilai -m bisa
+            # saja berbentuk "-F".
+            k_fm = 0
+            while k_fm < len(mentah):
+                t_fm = mentah[k_fm]
+                if t_fm == "--":
+                    break
+                if t_fm in ("-m", "--message", "--into-name"):
+                    k_fm += 2
+                    continue
+                if t_fm in ("-F", "--file"):
+                    return (k_fm + 1 < len(mentah)
+                            and mentah[k_fm + 1] == "-")
+                if t_fm in ("-F-", "--file=-"):
+                    return True
+                if t_fm.startswith("--file=") or (
+                        t_fm.startswith("-F")
+                        and len(t_fm) > 2):
+                    return False
+                k_fm += 1
             return len(ops_fm) < 2
         if sub == "mktree":
             return True

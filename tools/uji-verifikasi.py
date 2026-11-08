@@ -14345,6 +14345,27 @@ def main():
         periksa("git fmt-merge-msg -m judul: "
                 "gerbang gagal (Audit 1441)", rc != 0)
         shutil.rmtree(sub662, ignore_errors=True)
+        sub663 = klon(tmp, "sub663")
+        berkas_aksi663 = os.path.join(
+            sub663, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi663, encoding="utf-8") as f:
+            isi_aksi663 = f.read()
+        baris_aksi663 = [b for b in isi_aksi663.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru663 = isi_aksi663.replace(
+                baris_aksi663,
+                baris_aksi663.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git fmt-merge-msg -F -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru663 != isi_aksi663, \
+            "suntikan aksi663 tidak menembak"
+        with open(berkas_aksi663, "w", encoding="utf-8") as f:
+            f.write(isi_baru663)
+        rc, out = jalan(sub663, [sys.executable, GERBANG, "--semua"])
+        periksa("git fmt-merge-msg -F -: "
+                "gerbang gagal (Audit 1442)", rc != 0)
+        shutil.rmtree(sub663, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

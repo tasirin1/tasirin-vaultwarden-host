@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Git fmt-merge-msg -F - adalah stdin, penjaga buta nilai (Audit 1442)
 ## [Belum rilis] — Git fmt-merge-msg -m — nilai -m terhitung berkas, stdin lolos (Audit 1441)
 ## [Belum rilis] — Uji-cek-cepat: skenario berkas tak terlacak untuk cabang rahasia baru (Audit 1439)
 ## [Belum rilis] — Cek-cepat: README hilang tak lagi membunuh skrip sebelum pindai rahasia (Audit 1438)
