@@ -2284,9 +2284,7 @@ public class ServerService extends Service {
                 }
                 if (autoRestart) {
                     writeCrashLog("crash (exit " + code + ")");
-                    if (recordRestart("crash (exit " + code + ")")) {
-
-                    } else {
+                    if (!recordRestart("crash (exit " + code + ")")) {
                         String saran = saranCrash(code);
                         if (!saran.isEmpty()) {
                             appendLog("[app] " + saran);
