@@ -116,7 +116,16 @@ BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c 
   # dilindungi per aksara lewat SUBSEP sebelum
   # penetralan, lalu dipulihkan — titik dua prosa
   # (didahului huruf) tetap dinetralkan.
-  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); ndg = split("0 1 2 3 4 5 6 7 8 9", dg, " "); for (di = 1; di <= ndg; di++) { gsub(dg[di] ": ", dg[di] SUBSEP); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if ($0 ~ /^[[:space:]]*\/\//) next; if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) next; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
+  # Audit 1560: perlindungan diganti kontekstual — cara
+  # 1552 melindungi ':' sesudah DIGIT APA PUN di SEMUA baris,
+  # jadi baris sela prosa berisi jam/versi ('# selesai
+  # 12: 30', '# versi 2: final') ikut dilindungi dan titik
+  # duanya mendarat di blob di antara paruh rahasia,
+  # mematahkan kedua pola (REGRESI, terprobe rc=0). Kini
+  # yang dilindungi hanya ':' yang didahului >=5 digit
+  # beruntun (bentuk titik dua token itu sendiri) — titik
+  # dua jam (2 digit) dan versi (1 digit) tetap dinetralkan.
+  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); while (match($0, /[0-9][0-9][0-9][0-9][0-9]: /)) { $0 = substr($0, 1, RSTART + 4) SUBSEP substr($0, RSTART + 7); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if ($0 ~ /^[[:space:]]*\/\//) next; if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) next; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
     printf '%s\n' "$f"
   fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then

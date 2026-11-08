@@ -573,6 +573,29 @@ def main():
                 rc == 0)
         shutil.rmtree(doccontoh, ignore_errors=True)
 
+        tokenselajam = klon(tmp, "tokenselajam")
+        tanam(tokenselajam, "token-sela-jam.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "# selesai 12: 30\n" + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselajam, ["bash", SKRIP])
+        periksa("token tersela baris jam '12: 30' tertangkap "
+                "(Audit 1560)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-jam.txt" in out)
+        shutil.rmtree(tokenselajam, ignore_errors=True)
+
+        kunciselajam = klon(tmp, "kunciselajam")
+        tanam(kunciselajam, "kunci-sela-versi.txt",
+              "-----BEGIN OPENSSH\n# versi 2: final\n"
+              "PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciselajam, ["bash", SKRIP])
+        periksa("header tersela baris versi '2: final' tertangkap "
+                "(Audit 1560)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-sela-versi.txt" in out)
+        shutil.rmtree(kunciselajam, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Perlindungan titik dua cek-cepat kontekstual: sela jam/versi tak lagi mematahkan belahan token/header (Audit 1560)
+
+- Perlindungan titik dua Audit 1552 berlaku untuk titik dua sesudah digit APA PUN di semua baris, termasuk baris sela prosa: baris sela berisi jam ('# selesai 12: 30') atau versi ('# versi 2: final') di antara dua paruh token/header ikut dilindungi, titik duanya mendarat di blob di antara paruh, dan belahan lolos dari gerbang (regresi, terprobe rc=0; kontras tiga era skrip mengatribusikannya ke 1552). Kini yang dilindungi hanya titik dua yang didahului >=5 digit beruntun — bentuk titik dua token itu sendiri — sehingga titik dua jam (2 digit) dan versi (1 digit) tetap dinetralkan dan paruhnya menyatu lagi.
+
 ## [Belum rilis] — Unduhan: blok fallback kedua kini mereset resumeFrom seperti blok pertama (Audit 1559)
 
 - Blok fallback Audit 1542 menghapus berkas temp tetapi tidak mereset `resumeFrom`, berbeda dari blok fallback pertama. Hari ini selisihnya tak terjangkau (ketiga implementasi `UrlCadangan` menentukan pada panggilan pertama — yang tidak beralih selalu melempar atau deterministik null), tetapi blok kedua juga berjalan pada jalur langsung dengan `resumeFrom` yang bisa > 0 dan memanggil `ganti()` kedua kalinya: implementasi cadangan masa depan yang berubah jawaban antar panggilan akan beralih dengan penghitung basi dan melempar "Unduhan terputus" palsu. Kini resetnya eksplisit dan komentar blok dikoreksi.
