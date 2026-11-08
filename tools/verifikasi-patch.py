@@ -3674,7 +3674,28 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1431: cmsutil -D tanpa -i membaca pesan
     # dari stdin.
     if perintah == "cmsutil":
-        return "-D" in mentah and "-i" not in mentah
+        # Audit 1447: -i bisa menjadi NILAI -p (kata
+        # sandi), bukan berkas masukan — penjaga lama
+        # buta nilai. Pindai dengan melompati nilai opsi
+        # bernilai cmsutil.
+        if "-D" not in mentah:
+            return False
+        k_cu = 0
+        while k_cu < len(mentah):
+            t_cu = mentah[k_cu]
+            if t_cu == "--":
+                break
+            if t_cu in ("-i", "--input"):
+                return (k_cu + 1 < len(mentah)
+                        and mentah[k_cu + 1] == "-")
+            if t_cu.startswith("--input="):
+                return t_cu == "--input=-"
+            if t_cu in ("-p", "--password", "-o", "--output",
+                        "-d", "-u"):
+                k_cu += 2
+                continue
+            k_cu += 1
+        return True
     # Audit 1435: apt-key add - menyerahkan materi
     # kunci ke gpg yang membacanya dari stdin.
     if perintah == "apt-key":
