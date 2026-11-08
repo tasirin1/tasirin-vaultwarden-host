@@ -228,6 +228,28 @@ def main():
                 and "catatan-baru.txt" in out)
         shutil.rmtree(takterlacak, ignore_errors=True)
 
+        tokenparuhpagar = klon(tmp, "tokenparuhpagar")
+        tanam(tokenparuhpagar, "token-paruh-pagar.txt",
+              "warna #fff token: " + token_palsu[:paruh] + "\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenparuhpagar, ["bash", SKRIP])
+        periksa("token terbelah dengan paruh sesudah '#' sebaris "
+                "tertangkap (Audit 1526)",
+                rc != 0 and "pola rahasia" in out
+                and "token-paruh-pagar.txt" in out)
+        shutil.rmtree(tokenparuhpagar, ignore_errors=True)
+
+        kuncimulaipagar = klon(tmp, "kuncimulaipagar")
+        tanam(kuncimulaipagar, "kunci-mulai-pagar.txt",
+              "# x -----BEGIN OPENSSH\n"
+              "PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kuncimulaipagar, ["bash", SKRIP])
+        periksa("header diawali baris '#' tertangkap (Audit 1526)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-mulai-pagar.txt" in out)
+        shutil.rmtree(kuncimulaipagar, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

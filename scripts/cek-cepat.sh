@@ -55,11 +55,16 @@ RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHAS
 # memindai berkas tak terlacak dua kali).
 BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c core.quotepath=false ls-files --others --exclude-standard -z | sed -z 's/^/u:/'; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z | sed -z 's/^/u:/'; } | sort -zu | while IFS= read -r -d '' entri; do
   f=${entri#?:}
-  # Audit 1505/1506: komentar dari '#' sampai akhir baris dibuang
-  # sebelum perataan — baris komentar yang menyela belahan dulu
-  # menyisakan '#' + kata komentar di blob dan mematahkan kedua
-  # pola bungkus (header maupun token).
-  if [ -f "$f" ] && sed 's/#.*//' < "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
+  # Audit 1505/1506: komentar yang menyela belahan mematahkan
+  # kedua pola bungkus (header maupun token).
+  # Audit 1526: yang dibuang hanya AKSARA '#' itu sendiri,
+  # BUKAN isi sesudahnya — cara lama ('s/#.*//') menelan
+  # potongan rahasia yang duduk sesudah '#' di baris yang
+  # sama (regresi: bentuk "warna #fff token: <paruh>" dan
+  # "# x -----BEGIN ..." lolos, padahal tertangkap sebelum
+  # Audit 1505). Kata komentar yang tersisa adalah pengisi
+  # alfanumerik yang ditoleransi kedua pola.
+  if [ -f "$f" ] && sed 's/#//g' < "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
     printf '%s\n' "$f"
   fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
