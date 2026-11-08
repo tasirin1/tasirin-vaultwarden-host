@@ -14,6 +14,12 @@ on:
 permissions:
   contents: read
 
+# Audit 1487: dorongan beruntun ke PR yang sama membatalkan run
+# lama — workflow ini khusus PR, jadi pembatalan selalu aman.
+concurrency:
+  group: vw-cek-wajib-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verifikasi:
     name: Cek patch yang berubah

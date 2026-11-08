@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Run PR lama dibatalkan oleh dorongan baru (concurrency build-apk + cek-wajib) (Audit 1487)
 ## [Belum rilis] — Suite uji-diri gerbang tak lagi ganda di PR (cek-wajib sudah menjalankannya) (Audit 1486)
 ## [Belum rilis] — Auto-merge: batas job 40 menit dan jendela tunggu build ±35 menit (Audit 1485)
 ## [Belum rilis] — KernelCompat.channelName kini private (hanya dipakai internal) (Audit 1484)

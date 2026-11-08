@@ -41,7 +41,10 @@ permissions:
 
 concurrency:
   group: vw-apk-${{ github.ref }}
-  cancel-in-progress: false
+  # Audit 1487: run PR boleh dibatalkan run yang lebih baru pada
+  # ref yang sama (head lama sudah tak relevan); run push ke main
+  # tetap tak pernah dibatalkan (rilis).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verifikasi:
