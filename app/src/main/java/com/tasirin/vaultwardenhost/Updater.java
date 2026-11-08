@@ -1312,9 +1312,7 @@ public final class Updater {
                     .remove(KEY_BIN_FALLBACK_AT)
                     .remove(KEY_CEK_GANGGUAN_AT).apply();
         }
-        String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
-        String current = realJalan != null ? realJalan : normVersion(updated != null && !updated.isEmpty()
-                ? updated : readBundledVersionRaw(ctx));
+        String current = versiSaatIni(ctx, realJalan);
         if (!paksa && !butuhRefresh && versiMelebihiAtauPersis(current, latest)) {
             return sebutan + latest;
         }
@@ -2290,18 +2288,25 @@ public final class Updater {
         return (v == null || v.isEmpty()) ? "Version: ?" : "Version: " + v;
     }
 
-    public static String currentServerVersion(Context ctx) {
-        String real = parseBinaryVersion(ServerService.binaryVersion);
-        if (real != null) {
-            return real;
+    /** Audit 1475: satu pintu "versi server saat ini" — versi
+     *  binary yang sedang berjalan bila diketahui; selain itu
+     *  catatan update terakhir; selain itu versi bundel. Cabang
+     *  cadangan selalu dinormalisasi. Dulu rantai ini tersalin di
+     *  tiga tempat dan salinan currentServerVersion diam-diam
+     *  tak menormalisasi, jadi berpotensi divergen. */
+    public static String versiSaatIni(Context ctx, String realJalan) {
+        if (realJalan != null) {
+            return realJalan;
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                 Context.MODE_PRIVATE);
         String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
-        if (updated != null && !updated.isEmpty()) {
-            return updated;
-        }
-        return readBundledVersionRaw(ctx);
+        return normVersion(updated != null && !updated.isEmpty()
+                ? updated : readBundledVersionRaw(ctx));
+    }
+
+    public static String currentServerVersion(Context ctx) {
+        return versiSaatIni(ctx, parseBinaryVersion(ServerService.binaryVersion));
     }
 
     static final int BATAS_WV_VERSION = 16 * 1024;

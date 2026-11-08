@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Rantai versi server saat ini disatukan ke Updater.versiSaatIni (Audit 1475)
 ## [Belum rilis] — Status unduhan dipecah per jenis (binary/shim vs web-vault) agar tak saling menimpa (Audit 1474)
 ## [Belum rilis] — Cek update berkala tak lagi mengantre berjam-jam di kunci cek (tryLock) (Audit 1473)
 ## [Belum rilis] — Unduhan shim meneruskan hex ke pemasangan, tak di-hash ulang penuh (Audit 1472)

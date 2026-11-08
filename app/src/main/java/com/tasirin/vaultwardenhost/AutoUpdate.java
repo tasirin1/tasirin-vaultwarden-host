@@ -73,10 +73,7 @@ public final class AutoUpdate {
             String real = ServerService.running
                     ? Updater.parseBinaryVersion(ServerService.binaryVersion)
                     : null;
-            String updated = TgBackup.amanString(sp, ServerService.KEY_UPDATE_VERSION, "");
-            String current = real != null ? real : Updater.normVersion(
-                    updated != null && !updated.isEmpty()
-                            ? updated : Updater.readBundledVersionRaw(ctx));
+            String current = Updater.versiSaatIni(ctx, real);
             boolean adaTerpasang = false;
 
             int bandingReal = Updater.bandingVersi(real, latest);
