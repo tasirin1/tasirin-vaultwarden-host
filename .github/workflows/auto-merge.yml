@@ -15,7 +15,14 @@ jobs:
     # Audit 1485: 25 menit tak cukup — job verifikasi di
     # cek-wajib saja 19-25 menit dan run Build APK yang ditunggu
     # bisa 45 menit; jendela tunggu di bawah ±35 menit.
-    timeout-minutes: 40
+    # Audit 1519: aritmetika 1485 tak menutup — total tidur
+    # worst-case (2 + 3 + 35 menit) menyamai timeout 40 itu
+    # sendiri, belum termasuk ±155 panggilan gh dan waktu mulai
+    # runner, jadi ekor jendelanya tak terjangkau. Kini gelung
+    # tunggu utama 135 x 20 dtk = 45 menit (menutup premis run
+    # 45 menit) dan timeout 70 menit: worst-case total ±56
+    # menit masih menyisakan ±14 menit kelonggaran.
+    timeout-minutes: 70
     concurrency:
       group: auto-merge-pr-${{ github.event.pull_request.number }}
       cancel-in-progress: false
@@ -122,7 +129,10 @@ jobs:
           echo "Menunggu run Build APK $RUN_ID selesai..."
           # Audit 1485: 105 x 20 dtk = ±35 menit (dulu 36 x 20 dtk
           # = 12 menit, lebih pendek dari run yang ditunggu).
-          for i in $(seq 1 105); do
+          # Audit 1519: 135 x 20 dtk = 45 menit — run Build APK
+          # yang ditunggu sendiri bisa 45 menit, jadi jendela
+          # tunggunya wajib selebar itu.
+          for i in $(seq 1 135); do
             BARIS=$(gh run view "$RUN_ID" -R ${{ github.repository }} --json status,conclusion --jq '[.status, (.conclusion // "")] | @tsv' 2>/dev/null || true)
             STATUS=$(printf '%s' "$BARIS" | cut -f1)
             CONCL=$(printf '%s' "$BARIS" | cut -f2)

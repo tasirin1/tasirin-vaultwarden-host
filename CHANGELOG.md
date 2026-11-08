@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Jendela tunggu auto-merge kini benar-benar terjangkau timeout job-nya (Audit 1519)
 ## [Belum rilis] — Resume unduhan tak lagi selalu dibatalkan sebagai checksum tak cocok (Audit 1509)
 ## [Belum rilis] — Uji stempel elapsed basi diselaraskan ke plafon kunci bertingkat Audit 1467 (perbaikan CI)
 ## [Belum rilis] — Tiga aturan -keep ProGuard manual yang redundan dihapus (Audit 1493)
