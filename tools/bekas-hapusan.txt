@@ -118,3 +118,5 @@ catatHasilAsync
 diMainThread
 # Getter mati di HttpsCompat; field kini dibaca langsung (Audit 1469).
 gagalTrustTerakhir
+# Penghash awalan unduhan lanjutan di Updater; resume kini mengembalikan hex null (Audit 1471).
+digestPrefix

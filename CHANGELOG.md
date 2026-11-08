@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Unduhan lanjutan tak lagi meng-hash ulang awalan berkas; hash utuh dihitung sekali saat pemasangan (Audit 1471)
 ## [Belum rilis] — Getter mati gagalTrustTerakhir di HttpsCompat dihapus (Audit 1469)
 ## [Belum rilis] — Memo kecocokan pasangan cert/key kini menyimpan juga hasil tak cocok yang definitif (Audit 1468)
 ## [Belum rilis] — Pola baca respons + tunggu 429 Telegram disatukan ke helper bersama (Audit 1466)

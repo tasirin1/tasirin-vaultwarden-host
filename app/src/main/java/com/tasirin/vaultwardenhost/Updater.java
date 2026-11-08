@@ -1080,15 +1080,6 @@ public final class Updater {
             throw new IOException("SHA-256 tidak tersedia: " + e.getMessage());
         }
         long done = lanjutDari;
-        if (lanjutDari > 0) {
-
-            long capPanjang = tmp.length();
-            digestPrefix(md, tmp, lanjutDari);
-            if (tmp.length() != capPanjang) {
-                throw new IOException("File parsial berubah saat di-hash"
-                        + " - unduh ulang dari nol.");
-            }
-        }
         try (InputStream in = dl.getInputStream();
              FileOutputStream fos = new FileOutputStream(tmp, kodeHttp == 206)) {
             byte[] buf = new byte[64 * 1024];
@@ -1116,7 +1107,13 @@ public final class Updater {
             throw new IOException("Unduhan terputus di " + done + " dari " + total
                     + " byte - dilanjutkan dari titik terakhir.");
         }
-        return toHex(md.digest());
+        // Audit 1471: unduhan lanjutan tak lagi meng-hash ulang
+        // awalan yang sudah ada di berkas (dulu digestPrefix
+        // membaca ulang seluruh awalan pada tiap lanjutan). Hex
+        // atas data baru saja tak berguna, jadi kembalikan null —
+        // pemanggil menghitung hash berkas utuh sekali saat
+        // pemasangan (pasangHasilUnduh).
+        return lanjutDari > 0 ? null : toHex(md.digest());
     }
 
     static boolean badanTerpotong(long done, long total) {
@@ -2838,24 +2835,6 @@ public final class Updater {
         } catch (Exception ignored) {
         }
         return -1;
-    }
-
-    private static void digestPrefix(java.security.MessageDigest md, File f, long len)
-            throws IOException {
-        try (InputStream in = new FileInputStream(f)) {
-            byte[] buf = new byte[64 * 1024];
-            long left = len;
-            int n;
-            while (left > 0 && (n = in.read(buf, 0, (int) Math.min(buf.length, left))) != -1) {
-                md.update(buf, 0, n);
-                left -= n;
-            }
-
-            if (left > 0) {
-                throw new IOException("File parsial rusak (kurang " + left
-                        + " byte) - unduh ulang dari nol.");
-            }
-        }
     }
 
     static boolean expectedHexEquals(String expectedHex, String gotHex) {
