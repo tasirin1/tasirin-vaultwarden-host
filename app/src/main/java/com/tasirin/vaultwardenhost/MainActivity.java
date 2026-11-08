@@ -873,8 +873,6 @@ public class MainActivity extends Activity {
         return teks.subSequence(pos, teks.length());
     }
 
-    // Audit 1476: awal baris yang memuat posisi pos (pos = satu
-    // lewat ekor segmen baris yang belum utuh).
     // Audit 1511: panjang ekor baris belum utuh di tampilan
     // SESUDAH delta ditempel. Bila delta memuat '\n', ekornya
     // hanya segmen sesudah '\n' terakhir — baris-baris utuh di
@@ -893,6 +891,8 @@ public class MainActivity extends Activity {
         return ekorKini + delta.length();
     }
 
+    // Audit 1476: awal baris yang memuat posisi pos (pos = satu
+    // lewat ekor segmen baris yang belum utuh).
     static int awalBarisSebelum(CharSequence buf, int pos) {
         if (buf == null || pos <= 0) {
             return 0;

@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Komentar Audit 1476 dikembalikan menempel ke metodenya (blok Audit 1511 dipindah ke atasnya) (Audit 1533)
 ## [Belum rilis] — PIN: persenjataan ulang penuh sesudah reboot pada kunci yang sudah kedaluwarsa didokumentasikan sebagai trade-off yang sadar diterima (fail-closed, Audit 1532) (Audit 1532)
 ## [Belum rilis] — Restore: pemasangan lampiran kini per entri — satu gagal tak menghentikan sisanya dan staging yang gagal dibiarkan untuk pemulihan manual (Audit 1531)
 ## [Belum rilis] — Restore: sisa staging lampiran .restore-tmp dari restore yang terbunuh kini disapu di awal restore dan tak lagi ikut ter-backup (Audit 1530)
