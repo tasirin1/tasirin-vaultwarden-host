@@ -14633,6 +14633,28 @@ def main():
                 "gerbang lolos (Audit 1499)",
                 rc == 0)
         shutil.rmtree(sub677, ignore_errors=True)
+        sub678 = klon(tmp, "sub678")
+        berkas_aksi678 = os.path.join(
+            sub678, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi678, encoding="utf-8") as f:
+            isi_aksi678 = f.read()
+        baris_aksi678 = [b for b in isi_aksi678.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru678 = isi_aksi678.replace(
+                baris_aksi678,
+                baris_aksi678.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(cmsutil -D -d sql:db -i -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru678 != isi_aksi678, \
+            "suntikan aksi678 tidak menembak"
+        with open(berkas_aksi678, "w", encoding="utf-8") as f:
+            f.write(isi_baru678)
+        rc, out = jalan(sub678, [sys.executable, GERBANG, "--semua"])
+        periksa("cmsutil -i - adalah nama berkas harfiah, bukan stdin: "
+                "gerbang lolos (Audit 1500)",
+                rc == 0)
+        shutil.rmtree(sub678, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

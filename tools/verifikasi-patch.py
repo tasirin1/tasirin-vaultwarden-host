@@ -3748,10 +3748,14 @@ def _menguras_khusus(perintah, toks, awal):
             if t_cu == "--":
                 break
             if t_cu in ("-i", "--input"):
-                return (k_cu + 1 < len(mentah)
-                        and mentah[k_cu + 1] == "-")
+                # Audit 1500: "-" di cmsutil adalah
+                # nama berkas harfiah yang gagal
+                # dibuka, BUKAN stdin (terprobe) —
+                # asumsi 1447 terbalik; stdin hanya
+                # dibaca bila -i absen sama sekali.
+                return False
             if t_cu.startswith("--input="):
-                return t_cu == "--input=-"
+                return False
             if t_cu in ("-p", "--password", "-o", "--output",
                         "-d", "-u"):
                 k_cu += 2

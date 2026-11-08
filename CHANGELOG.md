@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cmsutil -i - kini dikenali sebagai nama berkas harfiah, bukan stdin (Audit 1500)
 ## [Belum rilis] — Gerbang: opsi -item kini hanya milik asn1parse; sess_id tak lagi mewarisinya (Audit 1499)
 ## [Belum rilis] — Gerbang: opsi -antialias pdftocairo kini diperhitungkan sebagai opsi bernilai (Audit 1498)
 ## [Belum rilis] — Gerbang: openssl ts kini memakai -data terakhir, bukan kemunculan pertama (Audit 1497)
