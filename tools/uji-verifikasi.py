@@ -15022,6 +15022,27 @@ def main():
         periksa("gpgsm opsi --debug bernilai: gerbang gagal (Audit 1550)",
                 rc != 0)
         shutil.rmtree(sub695, ignore_errors=True)
+        sub696 = klon(tmp, "sub696")
+        berkas_aksi696 = os.path.join(
+            sub696, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi696, encoding="utf-8") as f:
+            isi_aksi696 = f.read()
+        baris_aksi696 = [b for b in isi_aksi696.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru696 = isi_aksi696.replace(
+                baris_aksi696,
+                baris_aksi696.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl storeutl file:/dev/stdin; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru696 != isi_aksi696, \
+            "suntikan aksi696 tidak menembak"
+        with open(berkas_aksi696, "w", encoding="utf-8") as f:
+            f.write(isi_baru696)
+        rc, out = jalan(sub696, [sys.executable, GERBANG, "--semua"])
+        periksa("storeutl URI file: satu garis miring dinilai membaca stdin: gerbang gagal (Audit 1551)",
+                rc != 0)
+        shutil.rmtree(sub696, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

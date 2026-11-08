@@ -2268,8 +2268,14 @@ def _menguras_khusus(perintah, toks, awal):
             # juga membaca stdin (openssl storeutl
             # file:///dev/stdin terprobe menguras) — kupas
             # skemanya sebelum mencocokkan jalur fd.
-            return any((o_s[len("file://"):]
-                        if o_s.startswith("file://") else o_s)
+            # Audit 1551: varian file:/dev/stdin (satu
+            # garis miring), file://localhost/... (ada
+            # host), dan FILE: (huruf besar) juga URI
+            # store yang sah (terprobe menguras) —
+            # normalisasi: skema tak peka huruf + host
+            # opsional sesudah '//'.
+            return any((re.sub(r"(?i)^file:(//[^/]*)?", "",
+                               o_s))
                        in ("/dev/stdin", "/dev/fd/0",
                            "/proc/self/fd/0")
                        for o_s in ops_s)

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: storeutl menerima varian URI file: ke jalur fd (Audit 1551)
+
+- Residu Audit 1546: pengupasan skema storeutl hanya persis `file://` huruf kecil tanpa host, sehingga `file:/dev/stdin` (satu garis miring), `file://localhost/dev/stdin` (ada host), dan `FILE:///dev/stdin` (huruf besar) lolos fail-open (ketiganya terprobe menguras dengan PEM sah). Kini skema dinormalisasi tak peka huruf dengan host opsional sesudah `//`. Ditambah skenario uji-diri Audit 1551.
+
 ## [Belum rilis] — Gerbang: gpgsm --debug dan --attribute diakui bernilai (Audit 1550)
 
 - Residu sapuan Audit 1545: `--debug` dan `--attribute` bernilai tetapi absen dari kedua himpunan gpgsm — bentuk `--debug 1024 --decrypt` lolos fail-open dan bentuk `--debug --decrypt` keliru dinilai menguras (token modus tertelan sebagai nilai, program galat). Kini keduanya masuk KEDUA himpunan (tetap identik 57 elemen). Terprobe induk dua arah. Ditambah skenario uji-diri Audit 1550.
