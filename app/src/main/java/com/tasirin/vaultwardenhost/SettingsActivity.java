@@ -4278,6 +4278,12 @@ public class SettingsActivity extends Activity {
     private void tulisHashPin(final String pin, final int seq,
             final boolean pinAktif, final boolean beriKabar) {
         pinPending = Util.kirimPin(() -> {
+            // Audit 1477: PIN tak aktif → kedua cabang simpan di
+            // bawah sama-sama mensyaratkan pinAktif, jadi hash
+            // PBKDF2 yang mahal pasti terbuang; lewati dari awal.
+            if (!pinAktif) {
+                return;
+            }
             String h;
             try {
                 h = PinCrypto.hash(pin);

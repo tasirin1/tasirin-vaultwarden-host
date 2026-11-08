@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Ketik PIN dengan PIN nonaktif tak lagi menghitung hash PBKDF2 yang pasti dibuang (Audit 1477)
 ## [Belum rilis] — Log beranda: ekor baris yang terpotong di tengah kini diputar-balik dan ditempel ulang utuh, baris raksasa tak lagi dibuang (Audit 1476)
 ## [Belum rilis] — Rantai versi server saat ini disatukan ke Updater.versiSaatIni (Audit 1475)
 ## [Belum rilis] — Status unduhan dipecah per jenis (binary/shim vs web-vault) agar tak saling menimpa (Audit 1474)
