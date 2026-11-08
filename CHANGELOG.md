@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: token modus gpgsm yang menjadi nilai opsi tak lagi memicu cabang modus (Audit 1504)
 ## [Belum rilis] — Gerbang: format-patch — --signature/--suffix/--add-header dan sekelasnya kini menelan nilai termasuk --stdin (Audit 1503)
 ## [Belum rilis] — Gerbang: pindai -F git commit/tag kini sadar nilai opsi lain (Audit 1502)
 ## [Belum rilis] — Gerbang: openssl enc/base64 kini memakai -in terakhir seperti OpenSSL (Audit 1501)

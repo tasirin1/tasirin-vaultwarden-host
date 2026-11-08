@@ -2895,8 +2895,33 @@ def _menguras_khusus(perintah, toks, awal):
     # operand berkas membaca pesan CMS dari stdin
     # (--sign/--encrypt terbukti gagal lebih dulu).
     if perintah == "gpgsm":
-        if not any(t in ("--decrypt", "--verify")
-                   for t in mentah):
+        # Audit 1504: token modus yang menjadi NILAI
+        # opsi (mis. --options --decrypt) bukan modus —
+        # deteksi kini sadar nilai, melompati nilai
+        # opsi bernilai gpgsm yang sama seperti
+        # himpunan operand di bawah.
+        bernilai_gs = {"-o", "--output", "--homedir",
+                       "--status-fd", "--logger-fd",
+                       "--attribute-fd", "--passphrase-fd",
+                       "--command-fd", "-p", "--passphrase",
+                       "--cipher-algo", "--digest-algo",
+                       "--compress-algo", "--local-user",
+                       "-u", "--recipient", "-r",
+                       "--agent-program", "--options"}
+        ada_modus = False
+        k_gs = 0
+        while k_gs < len(mentah):
+            t_gs = mentah[k_gs]
+            if t_gs == "--":
+                break
+            if t_gs in ("--decrypt", "--verify"):
+                ada_modus = True
+                break
+            if t_gs in bernilai_gs:
+                k_gs += 2
+                continue
+            k_gs += 1
+        if not ada_modus:
             return False
         ops_gs = _operand_sesudah_opsi(
             toks, awal, {"-o", "--output", "--homedir",
