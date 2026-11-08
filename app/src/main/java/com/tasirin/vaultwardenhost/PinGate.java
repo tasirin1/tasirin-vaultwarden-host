@@ -107,7 +107,7 @@ public final class PinGate {
         long sampaiElapsed = TgBackup.amanLong(sp, KEY_KUNCI_ELAPSED, 0);
         if (gagal >= PinCrypto.MAX_GAGAL
                 && PinCrypto.stempelElapsedBasi(sampaiElapsed, elapsedKini)) {
-            long sisaBaru = PinCrypto.sisaKunciSesudahReboot(sisaWall);
+            long sisaBaru = PinCrypto.sisaKunciSesudahReboot(gagal, sisaWall);
             try {
                 sp.edit().putLong(KEY_KUNCI_SAMPAI, sekarang + sisaBaru)
                         .putLong(KEY_KUNCI_ELAPSED, elapsedKini + sisaBaru)

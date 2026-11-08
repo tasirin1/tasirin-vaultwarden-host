@@ -243,8 +243,14 @@ public final class PinCrypto {
                 && terkunciElapsed - sekarangElapsed > KUNCI_MAKS_MS;
     }
 
-    public static long sisaKunciSesudahReboot(long sisaWall) {
-        return sisaWall > 0 ? sisaWall : KUNCI_MS;
+    // Audit 1514: cadangan sesudah reboot dengan sisa wall
+    // habis kini memakai durasi bertingkat menurut jumlah
+    // gagal, bukan KUNCI_MS datar — jalur ini satu-satunya
+    // yang terlewat dari eskalasi Audit 1467, jadi penyerang
+    // bertingkat tinggi yang memicu reboot + jam maju hanya
+    // menerima 5 menit, bukan tingkatnya sendiri.
+    public static long sisaKunciSesudahReboot(int gagal, long sisaWall) {
+        return sisaWall > 0 ? sisaWall : durasiKunciMs(gagal);
     }
 
     public static long kunciElapsedBerikutnyaMs(int gagalSesudah, long sekarangElapsed) {

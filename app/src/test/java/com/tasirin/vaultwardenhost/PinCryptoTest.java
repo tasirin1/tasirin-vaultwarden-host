@@ -358,8 +358,16 @@ public class PinCryptoTest {
                 10_000L + PinCrypto.KUNCI_MAKS_MS, 10_000L));
         assertTrue(PinCrypto.stempelElapsedBasi(
                 10_000L + PinCrypto.KUNCI_MAKS_MS + 1, 10_000L));
-        assertTrue(PinCrypto.sisaKunciSesudahReboot(120_000L) == 120_000L);
-        assertTrue(PinCrypto.sisaKunciSesudahReboot(0L) == PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciSesudahReboot(5, 120_000L) == 120_000L);
+        // Audit 1514: sisa wall habis mengikuti tingkat gagal,
+        // bukan datar KUNCI_MS (tingkat 0 memang KUNCI_MS).
+        assertTrue(PinCrypto.sisaKunciSesudahReboot(5, 0L) == PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciSesudahReboot(10, 0L)
+                == 2 * PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciSesudahReboot(15, 0L)
+                == 4 * PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.sisaKunciSesudahReboot(10_000, 0L)
+                == PinCrypto.KUNCI_MAKS_MS);
     }
 
     @Test
