@@ -3649,7 +3649,13 @@ def _menguras_khusus(perintah, toks, awal):
                          # bernilai yang hilang — nilainya
                          # sempat menggeser operand init.
                          "--loglevel", "--otp", "--proxy",
-                         "--https-proxy", "--cafile"})
+                         "--https-proxy", "--cafile",
+                         # Audit 1445: gelombang kedua
+                         # bendera global bernilai yang
+                         # hilang dari Audit 1421.
+                         "--init-module", "--tmp", "--shell",
+                         "--node-options", "--ca", "--cert",
+                         "--key"})
         if not ops_npm or ops_npm[0] != "init":
             return False
         return "-y" not in mentah and "--yes" not in mentah

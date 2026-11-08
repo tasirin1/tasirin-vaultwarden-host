@@ -14408,6 +14408,27 @@ def main():
         periksa("openssl ts -query -data -: "
                 "gerbang gagal (Audit 1444)", rc != 0)
         shutil.rmtree(sub665, ignore_errors=True)
+        sub666 = klon(tmp, "sub666")
+        berkas_aksi666 = os.path.join(
+            sub666, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi666, encoding="utf-8") as f:
+            isi_aksi666 = f.read()
+        baris_aksi666 = [b for b in isi_aksi666.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru666 = isi_aksi666.replace(
+                baris_aksi666,
+                baris_aksi666.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(npm --init-module /tmp/modul.js init; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru666 != isi_aksi666, \
+            "suntikan aksi666 tidak menembak"
+        with open(berkas_aksi666, "w", encoding="utf-8") as f:
+            f.write(isi_baru666)
+        rc, out = jalan(sub666, [sys.executable, GERBANG, "--semua"])
+        periksa("npm --init-module init: "
+                "gerbang gagal (Audit 1445)", rc != 0)
+        shutil.rmtree(sub666, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

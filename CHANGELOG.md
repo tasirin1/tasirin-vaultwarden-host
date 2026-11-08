@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Npm bendera global bernilai masih kurang (--init-module dkk.) (Audit 1445)
 ## [Belum rilis] — Openssl ts -data - membaca dari stdin, penjaga buta nilai (Audit 1444)
 ## [Belum rilis] — Openssl asn1parse -item hilang dari himpunan opsi bernilai (Audit 1443)
 ## [Belum rilis] — Git fmt-merge-msg -F - adalah stdin, penjaga buta nilai (Audit 1442)
