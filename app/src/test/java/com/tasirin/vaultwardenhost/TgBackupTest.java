@@ -586,6 +586,61 @@ public class TgBackupTest {
     }
 
     @Test
+    public void pasangLampiranRestore_gagalSatuLainTetapTerpasang()
+            throws Exception {
+        // Audit 1531: satu entri yang gagal dipasang tak
+        // menghentikan entri lain, namanya dilaporkan, dan
+        // staging-nya dibiarkan (tak dibuang).
+        java.io.File dir = java.nio.file.Files
+                .createTempDirectory("vwpasangsebagian").toFile();
+        try {
+            java.util.List<String> daftar = java.util.Arrays.asList(
+                    "attachments/u1/f.bin", "attachments/u2",
+                    "attachments/u3/f.bin");
+            // Entri tengah dibuat mustahil terpasang: nama
+            // akhirnya direktori berisi, dan nama .bak-nya
+            // juga direktori berisi, jadi gantiAtomik melempar
+            // di langkah pencadangan.
+            java.io.File tengah = new java.io.File(dir,
+                    "attachments/u2");
+            org.junit.Assert.assertTrue(tengah.mkdirs());
+            java.nio.file.Files.write(new java.io.File(tengah,
+                    "pengisi").toPath(), "x".getBytes("UTF-8"));
+            java.io.File bakTengah = new java.io.File(dir,
+                    "attachments/u2.bak");
+            org.junit.Assert.assertTrue(bakTengah.mkdirs());
+            java.nio.file.Files.write(new java.io.File(bakTengah,
+                    "pengisi").toPath(), "x".getBytes("UTF-8"));
+            for (String nama : daftar) {
+                java.io.File stg = new java.io.File(dir,
+                        TgBackup.namaStagingLampiran(nama));
+                stg.getParentFile().mkdirs();
+                java.nio.file.Files.write(stg.toPath(),
+                        ("isi-" + nama).getBytes("UTF-8"));
+            }
+            java.util.List<String> gagal =
+                    TgBackup.pasangLampiranRestore(dir, daftar);
+            org.junit.Assert.assertEquals(
+                    java.util.Collections.singletonList(
+                            "attachments/u2"), gagal);
+            org.junit.Assert.assertEquals("isi-attachments/u1/f.bin",
+                    new String(java.nio.file.Files.readAllBytes(
+                            new java.io.File(dir,
+                                    "attachments/u1/f.bin").toPath()),
+                            "UTF-8"));
+            org.junit.Assert.assertEquals("isi-attachments/u3/f.bin",
+                    new String(java.nio.file.Files.readAllBytes(
+                            new java.io.File(dir,
+                                    "attachments/u3/f.bin").toPath()),
+                            "UTF-8"));
+            assertTrue(new java.io.File(dir,
+                    "attachments/u2.restore-tmp").exists());
+        } finally {
+            hapusPohonUji(dir);
+        }
+    }
+
+    @Test
     public void cleanupOldBackups_nolAman() throws Exception {
         TgBackup.cleanupOldBackups(null);
         java.io.File takAda = new java.io.File("/jalan/tak/ada/vw-uji-nol");

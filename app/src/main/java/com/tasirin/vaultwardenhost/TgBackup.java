@@ -3856,15 +3856,29 @@ public final class TgBackup {
         // yang sama seperti TLS) — restore yang gagal sebelum ini
         // membersihkan staging-nya di jalur-jalur batal di atas.
         String peringatanLamp = "";
-        try {
-            pasangLampiranRestore(dataFolder, lampTerStaging);
-        } catch (Exception eLamp) {
-            hapusStagingLampiran(dataFolder, lampTerStaging);
-            peringatanLamp = " Database SUDAH dipulihkan, tetapi"
-                    + " pemasangan kunci RSA / lampiran dari backup"
-                    + " gagal di tengah (" + eLamp.getMessage()
-                    + ") - sebagian mungkin sudah terpasang; periksa"
-                    + " lampiran lalu mulai ulang server.";
+        // Audit 1531: pasang kini per entri — yang gagal
+        // dilaporkan namanya dan staging-nya dibiarkan
+        // (.restore-tmp) untuk pemulihan manual, bukan
+        // dibuang bersama staging entri yang belum terpasang.
+        java.util.List<String> gagalLamp =
+                pasangLampiranRestore(dataFolder, lampTerStaging);
+        if (!gagalLamp.isEmpty()) {
+            StringBuilder sbLamp = new StringBuilder();
+            for (int i = 0; i < gagalLamp.size() && i < 3; i++) {
+                if (i > 0) {
+                    sbLamp.append(", ");
+                }
+                sbLamp.append(gagalLamp.get(i));
+            }
+            if (gagalLamp.size() > 3) {
+                sbLamp.append(", ...");
+            }
+            peringatanLamp = " Database SUDAH dipulihkan, tetapi "
+                    + gagalLamp.size() + " kunci RSA / lampiran"
+                    + " gagal dipasang (" + sbLamp + ") - salinan"
+                    + " staging-nya (.restore-tmp) dibiarkan di"
+                    + " folder data untuk pemulihan manual;"
+                    + " periksa lampiran lalu mulai ulang server.";
         }
         boolean lengkap = false;
         String peringatan = "";
@@ -4065,9 +4079,20 @@ public final class TgBackup {
         }
     }
 
-    static void pasangLampiranRestore(File dataFolder,
-                                      java.util.List<String> daftar)
-            throws Exception {
+    // Audit 1531: kegagalan satu entri tak lagi menghentikan
+    // seluruh gelung dan tak lagi membuang staging entri
+    // sehat yang belum terpasang (zip sumber sudah terhapus
+    // saat tahap ini berjalan, jadi staging adalah satu-
+    // satunya salinan lokal). Kini tiap entri dicoba sendiri;
+    // yang gagal dikumpulkan namanya untuk dilaporkan, dan
+    // staging mereka DIBIARKAN di folder data (.restore-tmp)
+    // untuk pemulihan manual.
+    static java.util.List<String> pasangLampiranRestore(
+            File dataFolder, java.util.List<String> daftar) {
+        java.util.List<String> gagal = new java.util.ArrayList<>();
+        if (dataFolder == null || daftar == null) {
+            return gagal;
+        }
         for (String nama : daftar) {
             String staging = namaStagingLampiran(nama);
             if (staging == null) {
@@ -4075,9 +4100,15 @@ public final class TgBackup {
             }
             File dari = new File(dataFolder, staging);
             if (dari.isFile()) {
-                ServerService.gantiAtomik(dari, new File(dataFolder, nama));
+                try {
+                    ServerService.gantiAtomik(
+                            dari, new File(dataFolder, nama));
+                } catch (Exception e) {
+                    gagal.add(nama);
+                }
             }
         }
+        return gagal;
     }
 
     static String namaStagingRestore(String nama) {
