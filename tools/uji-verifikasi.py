@@ -14589,6 +14589,28 @@ def main():
                 "gerbang gagal (Audit 1497)",
                 rc != 0)
         shutil.rmtree(sub675, ignore_errors=True)
+        sub676 = klon(tmp, "sub676")
+        berkas_aksi676 = os.path.join(
+            sub676, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi676, encoding="utf-8") as f:
+            isi_aksi676 = f.read()
+        baris_aksi676 = [b for b in isi_aksi676.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru676 = isi_aksi676.replace(
+                baris_aksi676,
+                baris_aksi676.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(pdftocairo -antialias best -png - out; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru676 != isi_aksi676, \
+            "suntikan aksi676 tidak menembak"
+        with open(berkas_aksi676, "w", encoding="utf-8") as f:
+            f.write(isi_baru676)
+        rc, out = jalan(sub676, [sys.executable, GERBANG, "--semua"])
+        periksa("pdftocairo -antialias bernilai: operand - adalah stdin: "
+                "gerbang gagal (Audit 1498)",
+                rc != 0)
+        shutil.rmtree(sub676, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

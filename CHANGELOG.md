@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi -antialias pdftocairo kini diperhitungkan sebagai opsi bernilai (Audit 1498)
 ## [Belum rilis] — Gerbang: openssl ts kini memakai -data terakhir, bukan kemunculan pertama (Audit 1497)
 ## [Belum rilis] — Gerbang: openssl mac tanpa -in kini dikenali membaca data dari stdin (Audit 1496)
 ## [Belum rilis] — Gerbang: subcommand parameter OpenSSL (pkeyparam/ecparam/dhparam/dsaparam) kini dikenali pembaca stdin-nya (Audit 1495)

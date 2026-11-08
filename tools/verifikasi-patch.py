@@ -3161,7 +3161,13 @@ def _menguras_khusus(perintah, toks, awal):
                            "-defaultgrayprofile",
                            "-defaultrgbprofile",
                            "-defaultcmykprofile",
-                           "-tiffcompression"}
+                           "-tiffcompression",
+                           # Audit 1498: -antialias
+                           # bernilai, khusus
+                           # pdftocairo (pdftoppm
+                           # memakai -aa) — hilang
+                           # dari Audit 1448.
+                           "-antialias"}
         ops_pp = _operand_sesudah_opsi(toks, awal, bernilai_pp)
         return bool(ops_pp) and ops_pp[0] == "-"
     # Audit 1195: nft — hanya -f '-' yang membaca dari stdin.
