@@ -14959,6 +14959,27 @@ def main():
         periksa("storeutl URI file:// ke /dev/stdin dinilai membaca stdin: gerbang gagal (Audit 1546)",
                 rc != 0)
         shutil.rmtree(sub692, ignore_errors=True)
+        sub693 = klon(tmp, "sub693")
+        berkas_aksi693 = os.path.join(
+            sub693, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi693, encoding="utf-8") as f:
+            isi_aksi693 = f.read()
+        baris_aksi693 = [b for b in isi_aksi693.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru693 = isi_aksi693.replace(
+                baris_aksi693,
+                baris_aksi693.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl aes-256-cbc -pass pass:uji12152; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru693 != isi_aksi693, \
+            "suntikan aksi693 tidak menembak"
+        with open(berkas_aksi693, "w", encoding="utf-8") as f:
+            f.write(isi_baru693)
+        rc, out = jalan(sub693, [sys.executable, GERBANG, "--semua"])
+        periksa("perintah openssl nama-cipher (aes-256-cbc) dinilai membaca stdin: gerbang gagal (Audit 1548)",
+                rc != 0)
+        shutil.rmtree(sub693, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

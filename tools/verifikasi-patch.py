@@ -2086,7 +2086,17 @@ def _menguras_khusus(perintah, toks, awal):
                                 "/proc/self/fd/0"))
             return bool(hasil_in)
 
-        if sub == "enc" or sub == "base64":
+        if sub == "enc" or sub == "base64" or re.fullmatch(
+                r"(aes-(128|192|256)-(cbc|cfb|cfb1|cfb8|ctr|ecb|ofb)"
+                r"|aria-(128|192|256)-(cbc|cfb|cfb1|cfb8|ctr|ecb|ofb)"
+                r"|camellia-(128|192|256)"
+                r"-(cbc|cfb|cfb1|cfb8|ctr|ecb|ofb)"
+                r"|des-ede3?(-(cbc|cfb|ofb))?|des3"
+                r"|sm4-(cbc|cfb|ctr|ecb|ofb))", sub):
+            # Audit 1548: nama cipher (aes-256-cbc dkk., 44
+            # nama dari openssl list -cipher-commands)
+            # adalah alias enc — membaca stdin tanpa -in
+            # sama seperti enc (terprobe).
             # Audit 1501: OpenSSL memakai -in TERAKHIR
             # juga di sini (seperti _in_non_stdin,
             # Audit 1278) — vonis lama menghitung

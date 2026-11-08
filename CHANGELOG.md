@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: perintah openssl nama-cipher (alias enc) kini dinilai membaca stdin (Audit 1548)
+
+- Dispatch openssl kini mengenali 44 nama perintah cipher dari `openssl list -cipher-commands` (aes-*/aria-*/camellia-*/des-ede*/des3/sm4-*) sebagai alias `enc`: tanpa `-in` mereka membaca plaintext/ciphertext dari stdin (terprobe dua arah, termasuk kontrol `-in berkas` yang tidak menguras). Sebelumnya dispatch hanya mengenal sub harfiah `enc`/`base64` sehingga bentuk bernama lolos sebagai bukan-pembaca. Ditambah skenario uji-diri Audit 1548.
+
 ## [Belum rilis] — Cek cepat: penanda komentar blok dikupas, bukan barisnya dibuang (Audit 1547)
 
 - Perbaikan REGRESI Audit 1543: aturan yang membuang seluruh baris berawalan `/*`/`*` menelan baris PEMBAWA rahasia — header kunci utuh sebagai butir bullet `* -----BEGIN ...` atau baris lanjutan komentar blok lolos pemeriksaan (terprobe rc=0, padahal pra-1543 tertangkap). Kini hanya penanda komentar blok yang dikupas dari baris (`/*` di awal, deret `*` di awal, `*/` di akhir — pola yang sama dengan pengupasan aksara `#` Audit 1526) dan isi baris tetap diperiksa; sela komentar blok murni tetap tertangkap karena sisa katanya menyatu sebagai pengisi. Ditambah 3 skenario uji-diri Audit 1547 (bullet, lanjutan blok, sebaris sesudah `/*`).
