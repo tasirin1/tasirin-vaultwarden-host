@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Konstanta mati DEFAULT_DATA_DIR dihapus; produksi dan uji memakai dataDirBawaanSegar() (Audit 1518)
 ## [Belum rilis] — Status unduhan: jenis yang selesai lebih dulu tak lagi tampil basi (Audit 1517)
 ## [Belum rilis] — Web-vault: isi berkas kini ikut di-fsync sebelum penukaran, direktori perantara lengkap (Audit 1516)
 ## [Belum rilis] — Saringan cipher TLS kini mewajibkan forward secrecy; cipher RSA statis ditolak (Audit 1515)

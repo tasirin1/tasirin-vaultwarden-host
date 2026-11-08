@@ -85,7 +85,7 @@ public class SettingsActivityTest {
     public void galatFolderTerimaKosongDanBawaan() {
         assertNull(SettingsActivity.galatFolder(null, "SALAH"));
         assertNull(SettingsActivity.galatFolder("", "SALAH"));
-        assertNull(SettingsActivity.galatFolder(ServerService.DEFAULT_DATA_DIR, "SALAH"));
+        assertNull(SettingsActivity.galatFolder(ServerService.dataDirBawaanSegar(), "SALAH"));
     }
 
     @Test

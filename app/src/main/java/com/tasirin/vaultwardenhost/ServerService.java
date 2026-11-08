@@ -46,9 +46,6 @@ public class ServerService extends Service {
 
     public static final String PREFS = "vw_prefs";
 
-    @Deprecated
-    public static final String DEFAULT_DATA_DIR = defaultDataDir();
-
     public static String dataDirBawaanSegar() {
         return defaultDataDir();
     }

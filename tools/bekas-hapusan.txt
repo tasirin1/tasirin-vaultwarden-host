@@ -120,3 +120,5 @@ diMainThread
 gagalTrustTerakhir
 # Penghash awalan unduhan lanjutan di Updater; resume kini mengembalikan hex null (Audit 1471).
 digestPrefix
+# Konstanta folder data bawaan yang di-cache saat class-load; produksi memakai dataDirBawaanSegar() (Audit 1518).
+DEFAULT_DATA_DIR

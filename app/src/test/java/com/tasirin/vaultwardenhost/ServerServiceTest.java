@@ -345,7 +345,7 @@ public class ServerServiceTest {
         assertFalse(ServerService.dataDirAman("/sdcard/a\"b"));
         assertFalse(ServerService.dataDirAman("/"));
         assertFalse(ServerService.dataDirAman("/system"));
-        assertEquals(ServerService.DEFAULT_DATA_DIR,
+        assertEquals(ServerService.dataDirBawaanSegar(),
                 ServerService.amankanDataDir("/sdcard/a\"b"));
     }
 
