@@ -2111,22 +2111,25 @@ def _menguras_khusus(perintah, toks, awal):
         if sub in ("sess_id", "asn1parse"):
             if _in_non_stdin():
                 return False
+            # Audit 1499: himpunan tak lagi dipakai
+            # bersama mentah — -item hanya milik
+            # asn1parse; di sess_id ia galat usage
+            # sehingga nilainya bukan nilai opsi
+            # (residu Audit 1443).
+            bernilai_os = {"-in", "-inform", "-outform",
+                           "-out", "-strparse", "-genconf",
+                           "-config", "-nameopt", "-certopt",
+                           # Audit 1417: opsi bernilai
+                           # asn1parse yang hilang.
+                           "-length", "-offset", "-depth",
+                           "-dlimit", "-oid", "-genstr",
+                           # Audit 1418: -context (sess_id).
+                           "-context"}
+            if sub == "asn1parse":
+                # Audit 1443: -item (asn1parse).
+                bernilai_os.add("-item")
             ops_os = _operand_sesudah_opsi(
-                toks, awal + 1,
-                {"-in", "-inform", "-outform", "-out",
-                 "-strparse", "-genconf", "-config",
-                 "-nameopt", "-certopt",
-                 # Audit 1417: opsi bernilai asn1parse
-                 # yang hilang — nilai angkanya sempat
-                 # dinilai operand penekan.
-                 "-length", "-offset", "-depth", "-dlimit",
-                 "-oid", "-genstr",
-                 # Audit 1443: -item (asn1parse) hilang —
-                 # nama tipenya sempat terhitung operand
-                 # penekan.
-                 "-item",
-                 # Audit 1418: -context (sess_id).
-                 "-context"})
+                toks, awal + 1, bernilai_os)
             return not ops_os
         # Audit 1403: req -new tanpa -subj/-batch meminta
         # nama terbilang lewat prompt yang membaca stdin

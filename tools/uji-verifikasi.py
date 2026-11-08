@@ -14611,6 +14611,28 @@ def main():
                 "gerbang gagal (Audit 1498)",
                 rc != 0)
         shutil.rmtree(sub676, ignore_errors=True)
+        sub677 = klon(tmp, "sub677")
+        berkas_aksi677 = os.path.join(
+            sub677, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi677, encoding="utf-8") as f:
+            isi_aksi677 = f.read()
+        baris_aksi677 = [b for b in isi_aksi677.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru677 = isi_aksi677.replace(
+                baris_aksi677,
+                baris_aksi677.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl sess_id -item FOO; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru677 != isi_aksi677, \
+            "suntikan aksi677 tidak menembak"
+        with open(berkas_aksi677, "w", encoding="utf-8") as f:
+            f.write(isi_baru677)
+        rc, out = jalan(sub677, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl sess_id -item adalah galat usage, bukan stdin: "
+                "gerbang lolos (Audit 1499)",
+                rc == 0)
+        shutil.rmtree(sub677, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
