@@ -14743,6 +14743,25 @@ def main():
                 "gerbang lolos (Audit 1504)",
                 rc == 0)
         shutil.rmtree(sub682, ignore_errors=True)
+        sub683 = klon(tmp, "sub683")
+        berkas_warna683 = os.path.join(
+            sub683, "app", "src", "main", "res", "values-night",
+            "colors.xml")
+        with open(berkas_warna683, encoding="utf-8") as f:
+            isi_warna683 = f.read()
+        isi_baru683 = isi_warna683.replace(
+                "</resources>",
+                '    <color name="warna_khusus_malam88">#FF000000</color>\n'
+                "</resources>", 1)
+        assert isi_baru683 != isi_warna683, \
+            "suntikan warna683 tidak menembak"
+        with open(berkas_warna683, "w", encoding="utf-8") as f:
+            f.write(isi_baru683)
+        rc, out = jalan(sub683, [sys.executable, GERBANG, "--semua"])
+        periksa("warna hanya ada di malam (arah malam-siang): "
+                "gerbang gagal (Audit 1507)",
+                rc != 0 and "warna_khusus_malam88" in out)
+        shutil.rmtree(sub683, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
