@@ -2254,8 +2254,14 @@ def _menguras_khusus(perintah, toks, awal):
                  "-provider-path", "-propquery", "-alias",
                  "-subject", "-issuer", "-serial",
                  "-fingerprint"})
-            return any(o_s in ("/dev/stdin", "/dev/fd/0",
-                               "/proc/self/fd/0")
+            # Audit 1546: bentuk URI file:// ke jalur fd
+            # juga membaca stdin (openssl storeutl
+            # file:///dev/stdin terprobe menguras) — kupas
+            # skemanya sebelum mencocokkan jalur fd.
+            return any((o_s[len("file://"):]
+                        if o_s.startswith("file://") else o_s)
+                       in ("/dev/stdin", "/dev/fd/0",
+                           "/proc/self/fd/0")
                        for o_s in ops_s)
         if sub == "verify":
             # Audit 1128: verify tanpa operand sertifikat membaca

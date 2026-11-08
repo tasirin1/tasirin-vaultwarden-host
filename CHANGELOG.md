@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: openssl storeutl bentuk URI file:// ke jalur fd kini dinilai membaca stdin (Audit 1546)
 ## [Belum rilis] — Gerbang: himpunan opsi bernilai gpgsm dilengkapi 27 opsi lagi dari --dump-options (Audit 1545)
 ## [Belum rilis] — Cek-cepat: celah pola header kini menoleransi '-' dan '_' (baris '-----' sebagai sela ikut tertangkap) (Audit 1544)
 ## [Belum rilis] — Cek-cepat: sela campuran kata+simbol tak lagi mematahkan pola bungkus (Audit 1543)
