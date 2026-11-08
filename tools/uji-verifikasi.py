@@ -49,24 +49,46 @@ def git(repo, *args):
     return out
 
 
+_SNAPSHOT = None
+
+
+def _snapshot(tmp):
+    # Audit 1457: snapshot pohon dibangun SEKALI per lari suite;
+    # sebelumnya tiap skenario membayar copytree + init + add +
+    # 2 commit sendiri (±0,5 detik x ratusan skenario).
+    global _SNAPSHOT
+    if _SNAPSHOT is None:
+        asal = os.path.join(tmp, ".snapshot-uji")
+        shutil.copytree(AKAR, asal, ignore=shutil.ignore_patterns(
+            ".git", "__pycache__"))
+        git(asal, "init", "-q")
+        git(asal, "config", "user.email", "uji@lokal")
+        git(asal, "config", "user.name", "Uji Gerbang")
+        git(asal, "add", "-A")
+        git(asal, "commit", "-q", "-m", "snapshot uji")
+        # Commit kosong kedua: gerbang pada mode tanpa --rentang memakai
+        # diff cadangan HEAD~1...HEAD bila upstream tak ada; repo
+        # berkomit tunggal membuat diff itu gagal dan gerbang GAGAL
+        # keras (bukan LOLOS) — dua commit adalah riwayat minimum agar
+        # kontrol bersih bisa lulus.
+        git(asal, "commit", "-q", "--allow-empty", "-m",
+            "riwayat cadangan")
+        _SNAPSHOT = asal
+    return _SNAPSHOT
+
+
 def klon(tmp, nama):
-    # Salinan pohon kerja (tanpa .git) yang di-init + di-commit snapshot:
-    # menguji persis pohon yang sedang diperiksa CI, tanpa bergantung pada
-    # riwayat/upstream repo asal, dan ringan (pohon kerja hanya beberapa
-    # MB; klon penuh menyalin ratusan MB riwayat dan memenuhi /tmp kecil).
+    # Klon lokal dari snapshot bersama: menguji persis pohon yang
+    # sedang diperiksa CI, tanpa bergantung pada riwayat/upstream
+    # repo asal, dan ringan (pohon kerja hanya beberapa MB; klon
+    # penuh menyalin ratusan MB riwayat dan memenuhi /tmp kecil).
+    # Remote origin dibuang agar keadaan git-nya setara repo hasil
+    # init (gerbang memakai diff cadangan HEAD~1...HEAD).
     tujuan = os.path.join(tmp, nama)
-    shutil.copytree(AKAR, tujuan, ignore=shutil.ignore_patterns(
-        ".git", "__pycache__"))
-    git(tujuan, "init", "-q")
+    git(tmp, "clone", "-q", "--local", _snapshot(tmp), tujuan)
+    git(tujuan, "remote", "remove", "origin")
     git(tujuan, "config", "user.email", "uji@lokal")
     git(tujuan, "config", "user.name", "Uji Gerbang")
-    git(tujuan, "add", "-A")
-    git(tujuan, "commit", "-q", "-m", "snapshot uji")
-    # Commit kosong kedua: gerbang pada mode tanpa --rentang memakai diff
-    # cadangan HEAD~1...HEAD bila upstream tak ada; repo berkomit tunggal
-    # membuat diff itu gagal dan gerbang GAGAL keras (bukan LOLOS) — dua
-    # commit adalah riwayat minimum agar kontrol bersih bisa lulus.
-    git(tujuan, "commit", "-q", "--allow-empty", "-m", "riwayat cadangan")
     return tujuan
 
 
