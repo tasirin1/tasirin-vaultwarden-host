@@ -87,8 +87,12 @@ def main():
 
 
 
-        rahasia = klon(tmp, "rahasia")
+        # Audit 1459: token_palsu dipakai banyak blok skenario —
+        # definisikan sekali di sini, bukan di dalam blok rahasia
+        # (menghapus blok itu dulu merusak empat blok lain).
         token_palsu = "123456789" + ":" + "AA" + "Ab3_" * 10
+
+        rahasia = klon(tmp, "rahasia")
         tanam(rahasia, "catatan-token.txt",
               "token uji: " + token_palsu + "\n", "w")
         rc, out = jalan(rahasia, ["bash", SKRIP])
