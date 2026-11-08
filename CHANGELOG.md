@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Clone sumber Vaultwarden di build binary kini dicoba ulang 3x (Audit 1490)
 ## [Belum rilis] — Langkah APK mempromosikan latest hanya bila 7 aset rilis sudah lengkap (Audit 1489)
 ## [Belum rilis] — Langkah Publish APK menyamakan syarat event dengan langkah rilis lain (Audit 1488)
 ## [Belum rilis] — Run PR lama dibatalkan oleh dorongan baru (concurrency build-apk + cek-wajib) (Audit 1487)

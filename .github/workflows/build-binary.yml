@@ -163,8 +163,23 @@ jobs:
 
       - name: Fetch Vaultwarden source (${{ needs.resolve.outputs.vw_mentah }})
         run: |
-          git clone --depth 1 --branch "$VW_MENTAH" \
-            https://github.com/dani-garcia/vaultwarden.git
+          # Audit 1490: clone dibungkus coba-ulang 3x — satu
+          # gangguan jaringan sesaat dulu menggagalkan seluruh
+          # build berat; unduhan lain di berkas ini sudah memakai
+          # pola tahan gangguan yang sama (curl --retry 3).
+          for t in 1 2 3; do
+            if git clone --depth 1 --branch "$VW_MENTAH" \
+              https://github.com/dani-garcia/vaultwarden.git; then
+              break
+            fi
+            if [ "$t" = 3 ]; then
+              echo "::error::git clone Vaultwarden gagal 3x."
+              exit 1
+            fi
+            echo "Clone gagal (percobaan $t/3), tunggu 15 dtk..."
+            rm -rf vaultwarden
+            sleep 15
+          done
 
       - name: Unduh bundel CA Mozilla (verifier TLS Android)
         run: |
