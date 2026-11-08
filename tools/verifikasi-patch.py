@@ -2228,6 +2228,20 @@ def _menguras_khusus(perintah, toks, awal):
             # lewat -in - (jalur pemuat berbeda) — vonis lama
             # untuk mereka dipertahankan.
             return not _in_non_stdin()
+        # Audit 1520: spkac tak punya cabang sama sekali.
+        # Bentuk baca (tanpa -key) membaca SPKAC dari
+        # stdin (bawaan tanpa -in, atau -in -/jalur fd —
+        # menguras masukan SPKAC sah berulang, terprobe);
+        # bentuk buat (-key ...) tidak menguras: kunci
+        # dibaca dari berkas, dan "-key -" pun hanya
+        # membaca satu kunci lalu berhenti (terprobe
+        # dengan kunci sah berulang).
+        if sub == "spkac":
+            if "-key" in mentah or any(
+                    t_sk.startswith("-key=")
+                    for t_sk in mentah):
+                return False
+            return not _in_non_stdin()
         if sub == "verify":
             # Audit 1128: verify tanpa operand sertifikat membaca
             # sertifikat dari stdin.

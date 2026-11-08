@@ -14762,6 +14762,28 @@ def main():
                 "gerbang gagal (Audit 1507)",
                 rc != 0 and "warna_khusus_malam88" in out)
         shutil.rmtree(sub683, ignore_errors=True)
+        sub684 = klon(tmp, "sub684")
+        berkas_aksi684 = os.path.join(
+            sub684, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi684, encoding="utf-8") as f:
+            isi_aksi684 = f.read()
+        baris_aksi684 = [b for b in isi_aksi684.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru684 = isi_aksi684.replace(
+                baris_aksi684,
+                baris_aksi684.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl spkac; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru684 != isi_aksi684, \
+            "suntikan aksi684 tidak menembak"
+        with open(berkas_aksi684, "w", encoding="utf-8") as f:
+            f.write(isi_baru684)
+        rc, out = jalan(sub684, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl spkac telanjang menguras stdin: "
+                "gerbang gagal (Audit 1520)",
+                rc != 0)
+        shutil.rmtree(sub684, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
