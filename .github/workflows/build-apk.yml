@@ -221,7 +221,9 @@ jobs:
 
       - name: Publish APK ke rilis
 
-        if: github.ref == 'refs/heads/main'
+        # Audit 1488: syarat event disamakan dengan 4 langkah
+        # rilis lain (dulu hanya ref — PR tak boleh pernah publish).
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
