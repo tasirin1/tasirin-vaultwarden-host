@@ -313,9 +313,34 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void durasiKunciNaikBertingkat() {
+
+        // Audit 1467: lockout bertingkat — tingkat 0 sama seperti
+        // dulu (5 menit), tiap +MAX_GAGAL kegagalan menggandakan,
+        // dibatasi 24 jam.
+        long sekarang = 1_700_000_000_000L;
+        assertTrue(PinCrypto.durasiKunciMs(4) == 0);
+        assertTrue(PinCrypto.durasiKunciMs(5) == PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.durasiKunciMs(9) == PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.durasiKunciMs(10) == 2 * PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.durasiKunciMs(15) == 4 * PinCrypto.KUNCI_MS);
+        assertTrue(PinCrypto.durasiKunciMs(1000) == PinCrypto.KUNCI_MAKS_MS);
+        long sampai = PinCrypto.kunciBerikutnyaMs(10, sekarang);
+        assertTrue(PinCrypto.sisaKunciMs(10, sampai, sekarang)
+                == 2 * PinCrypto.KUNCI_MS);
+        long sampaiE = PinCrypto.kunciElapsedBerikutnyaMs(10, 60_000L);
+        assertTrue(PinCrypto.sisaKunciElapsed(sampaiE, 60_000L)
+                == 2 * PinCrypto.KUNCI_MS);
+    }
+
+    @Test
     public void kunciElapsedBasiSehabisRebootTakMengunci() {
 
-        assertTrue(PinCrypto.sisaKunciElapsed(500_000L, 10_000L) == 0);
+        // Audit 1467: stempel yang lebih jauh dari kunci terlama
+        // yang mungkin (KUNCI_MAKS_MS) tetap dianggap sampah
+        // warisan boot lain.
+        assertTrue(PinCrypto.sisaKunciElapsed(
+                PinCrypto.KUNCI_MAKS_MS + 500_000L, 10_000L) == 0);
         assertTrue(PinCrypto.sisaKunciElapsed(0L, 10_000L) == 0);
     }
 

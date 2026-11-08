@@ -10,6 +10,24 @@ public final class PinCrypto {
     public static final int MAX_GAGAL = 5;
     public static final long KUNCI_MS = 5 * 60_000;
 
+    // Audit 1467: kunci bertingkat — tiap MAX_GAGAL kegagalan
+    // tambahan menggandakan durasi kunci, dibatasi di sini.
+    // Lockout datar lama memberi ±1.440 tebakan/hari selamanya;
+    // ruang PIN 4 digit (10.000) habis dalam ±7 hari.
+    public static final long KUNCI_MAKS_MS = 24L * 3600L * 1000L;
+
+    public static long durasiKunciMs(int gagalSesudah) {
+        if (gagalSesudah < MAX_GAGAL) {
+            return 0;
+        }
+        int tingkat = (gagalSesudah - MAX_GAGAL) / MAX_GAGAL;
+        long d = KUNCI_MS;
+        for (int i = 0; i < tingkat && d < KUNCI_MAKS_MS; i++) {
+            d = Math.min(d * 2, KUNCI_MAKS_MS);
+        }
+        return d;
+    }
+
     private static final String PREFIX = "PBKDF2$";
 
     static final String PREFIX_BUNGKUS = "PBKDF2W$";
@@ -193,24 +211,28 @@ public final class PinCrypto {
             return 0;
         }
         if (terkunciSampai <= 0) {
-            return KUNCI_MS;
+            return durasiKunciMs(gagal);
         }
         if (sekarang >= terkunciSampai) {
             return 0;
         }
-        return Math.min(terkunciSampai - sekarang, KUNCI_MS);
+        return Math.min(terkunciSampai - sekarang, durasiKunciMs(gagal));
     }
 
     public static long kunciBerikutnyaMs(int gagalSesudah, long sekarang) {
         if (gagalSesudah < MAX_GAGAL) {
             return 0;
         }
-        return sekarang + KUNCI_MS;
+        return sekarang + durasiKunciMs(gagalSesudah);
     }
 
     public static long sisaKunciElapsed(long terkunciElapsed, long sekarangElapsed) {
         long sisa = terkunciElapsed - sekarangElapsed;
-        if (sisa <= 0 || sisa > KUNCI_MS) {
+        // Audit 1467: plafon kepercayaan stempel elapsed naik ke
+        // KUNCI_MAKS_MS agar kunci bertingkat tetap dipercaya;
+        // stempel warisan boot lain yang lebih jauh dari itu
+        // tetap dianggap sampah.
+        if (sisa <= 0 || sisa > KUNCI_MAKS_MS) {
             return 0;
         }
         return sisa;
@@ -218,7 +240,7 @@ public final class PinCrypto {
 
     public static boolean stempelElapsedBasi(long terkunciElapsed, long sekarangElapsed) {
         return terkunciElapsed > 0
-                && terkunciElapsed - sekarangElapsed > KUNCI_MS;
+                && terkunciElapsed - sekarangElapsed > KUNCI_MAKS_MS;
     }
 
     public static long sisaKunciSesudahReboot(long sisaWall) {
@@ -229,7 +251,7 @@ public final class PinCrypto {
         if (gagalSesudah < MAX_GAGAL) {
             return 0;
         }
-        return sekarangElapsed + KUNCI_MS;
+        return sekarangElapsed + durasiKunciMs(gagalSesudah);
     }
 
     static boolean pabrikHilangPermanen(Throwable t) {
