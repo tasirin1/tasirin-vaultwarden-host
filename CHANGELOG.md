@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: celah pola header kini menoleransi '-' dan '_' (baris '-----' sebagai sela ikut tertangkap) (Audit 1544)
 ## [Belum rilis] — Cek-cepat: sela campuran kata+simbol tak lagi mematahkan pola bungkus (Audit 1543)
 ## [Belum rilis] — URL cadangan unduhan kini juga ditawarkan untuk respons kedua sesudah reset-resume (Audit 1542)
 ## [Belum rilis] — Pasang binary manual kini ikut kunci pasang global jalur unduhan (tak lagi balapan berkas .bak) (Audit 1541)

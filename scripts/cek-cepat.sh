@@ -50,7 +50,13 @@ POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Za-z0-9[:blank:]]*PRIVATE KEY-----|$POL
 # Audit 1529: toleransi yang sama sesudah KEY — sisipan di
 # antara KEY dan '-----' (satu baris 'xyz' di antaranya)
 # dulu mematahkan pola walau badan base64-nya utuh.
-POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN[A-Za-z0-9]{0,200}PRIVATE[A-Za-z0-9]{0,200}KEY[A-Za-z0-9]{0,200}-----[A-Za-z0-9+/=]{16,}"
+# Audit 1544: celah header ikut menoleransi '-' dan
+# '_' — baris '-----' persis (yang dipertahankan
+# Audit 1528 untuk penutup header) justru bisa
+# duduk sebagai sela di antara BEGIN dan PRIVATE
+# KEY, dan kata sela bergaris bawah ('jeda_sesaat')
+# mematahkan celah alfanumerik murni.
+POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN[A-Za-z0-9_-]{0,200}PRIVATE[A-Za-z0-9_-]{0,200}KEY[A-Za-z0-9_-]{0,200}-----[A-Za-z0-9+/=]{16,}"
 RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | sort -u || true)"
 # Audit 1458: satu lintasan untuk dua cabang — entri bertanda t:
 # (terlacak) / u: (tak terlacak/terabaikan); berkas u: juga diuji

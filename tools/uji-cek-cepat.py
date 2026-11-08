@@ -413,6 +413,54 @@ def main():
                 and "token-sebaris-bintang.txt" in out)
         shutil.rmtree(tokensebarisbintang, ignore_errors=True)
 
+        kunciselastrip = klon(tmp, "kunciselastrip")
+        tanam(kunciselastrip, "kunci-sela-strip.txt",
+              "-----BEGIN OPENSSH\n-----\n"
+              "PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciselastrip, ["bash", SKRIP])
+        periksa("header tersela baris '-----' persis tertangkap "
+                "(Audit 1544)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-sela-strip.txt" in out)
+        shutil.rmtree(kunciselastrip, ignore_errors=True)
+
+        kunciselastrip2 = klon(tmp, "kunciselastrip2")
+        tanam(kunciselastrip2, "kunci-sela-strip2.txt",
+              "-----BEGIN OPENSSH\n ----- \n"
+              "PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciselastrip2, ["bash", SKRIP])
+        periksa("header tersela baris ' ----- ' berspasi tertangkap "
+                "(Audit 1544)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-sela-strip2.txt" in out)
+        shutil.rmtree(kunciselastrip2, ignore_errors=True)
+
+        kunciselagarisbawah = klon(tmp, "kunciselagarisbawah")
+        tanam(kunciselagarisbawah, "kunci-sela-garisbawah.txt",
+              "-----BEGIN OPENSSH\njeda_sesaat\n"
+              "PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciselagarisbawah, ["bash", SKRIP])
+        periksa("header tersela kata bergaris bawah tertangkap "
+                "(Audit 1544)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-sela-garisbawah.txt" in out)
+        shutil.rmtree(kunciselagarisbawah, ignore_errors=True)
+
+        kunciseladuastrip = klon(tmp, "kunciseladuastrip")
+        tanam(kunciseladuastrip, "kunci-sela-duastrip.txt",
+              "-----BEGIN OPENSSH\n-- jeda\n"
+              "PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciseladuastrip, ["bash", SKRIP])
+        periksa("header tersela baris '-- jeda' tertangkap "
+                "(Audit 1544)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-sela-duastrip.txt" in out)
+        shutil.rmtree(kunciseladuastrip, ignore_errors=True)
+
         kuncisebaristik = klon(tmp, "kuncisebaristik")
         tanam(kuncisebaristik, "kunci-sebaris-titik.txt",
               "-----BEGIN OPENSSH ... PRIVATE KEY-----\n"
