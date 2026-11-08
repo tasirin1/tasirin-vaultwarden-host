@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Unduhan shim meneruskan hex ke pemasangan, tak di-hash ulang penuh (Audit 1472)
 ## [Belum rilis] — Unduhan lanjutan tak lagi meng-hash ulang awalan berkas; hash utuh dihitung sekali saat pemasangan (Audit 1471)
 ## [Belum rilis] — Getter mati gagalTrustTerakhir di HttpsCompat dihapus (Audit 1469)
 ## [Belum rilis] — Memo kecocokan pasangan cert/key kini menyimpan juga hasil tak cocok yang definitif (Audit 1468)

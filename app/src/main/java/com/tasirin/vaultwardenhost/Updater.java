@@ -1705,8 +1705,12 @@ public final class Updater {
         sapuTmpUnduhBasi(binDir, out.getName(), tmp);
         final String[] urlShimAkhir = {assetUrl};
         final String[] shaDapat = {null};
+        String hexShim;
         try {
-            unduhKeTmp(ctx, assetUrl, tmp, "shim", 20000, 30000,
+            // Audit 1472: hex hasil unduh kini diteruskan ke
+            // pasangHasilUnduh (dulu dibuang — berkas di-hash
+            // ulang penuh di sana; meniru jalur binary).
+            hexShim = unduhKeTmp(ctx, assetUrl, tmp, "shim", 20000, 30000,
                     new UrlCadangan() {
                         @Override
                         public String ganti(String url, int kode) throws IOException {
@@ -1739,7 +1743,7 @@ public final class Updater {
         }
 
         try {
-            pasangHasilUnduh(tmp, out, expectedSha);
+            pasangHasilUnduh(tmp, out, expectedSha, hexShim);
         } catch (IOException e) {
             try {
                 tmp.delete();
