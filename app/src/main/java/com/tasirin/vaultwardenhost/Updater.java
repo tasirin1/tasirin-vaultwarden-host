@@ -317,7 +317,34 @@ public final class Updater {
         return kiniWall - at < WV_FALLBACK_TUNDA_MS;
     }
 
-    public static volatile String downloadStatus = "";
+    // Audit 1474: status unduhan dipecah per jenis — unduhan
+    // binary/shim dan web-vault bisa berjalan bersamaan dan dulu
+    // saling menimpa satu field yang sama, jadi banner UI
+    // meloncat-loncat di antara keduanya.
+    static volatile String statusMesin = "";
+    static volatile String statusWebVault = "";
+
+    /** Status gabungan untuk banner UI: jenis yang sedang aktif;
+     *  bila dua-duanya aktif, keduanya tampil berurutan. */
+    public static String downloadStatus() {
+        String m = statusMesin;
+        String w = statusWebVault;
+        if (m.isEmpty()) {
+            return w;
+        }
+        if (w.isEmpty()) {
+            return m;
+        }
+        return m + " · " + w;
+    }
+
+    static void catatStatusUnduh(String label, String teks) {
+        if ("web vault".equals(label)) {
+            statusWebVault = teks;
+        } else {
+            statusMesin = teks;
+        }
+    }
 
     private static final java.util.concurrent.atomic.AtomicInteger unduhanAktif =
             new java.util.concurrent.atomic.AtomicInteger();
@@ -334,7 +361,8 @@ public final class Updater {
         int sisa = unduhanAktif.decrementAndGet();
         if (sisa <= 0) {
             unduhanAktif.set(0);
-            downloadStatus = "";
+            statusMesin = "";
+            statusWebVault = "";
         }
     }
 
@@ -578,12 +606,13 @@ public final class Updater {
                 || rendah.contains("broken pipe") || rendah.contains("http");
     }
 
-    static boolean tundaCobaLagiUnduh(int coba, String tmpl) {
+    static boolean tundaCobaLagiUnduh(int coba, String tmpl, String label) {
         // Audit 990: teks status unduhan tampil di banner UI kedua
         // activity, jadi templatnya berasal dari resource pemanggil
         // (pola Audit 975) agar mengikuti locale perangkat.
-        downloadStatus = tmpl.replace("%1$d", String.valueOf(coba + 1))
-                .replace("%2$d", String.valueOf(MAX_COBA_UNDUH));
+        // Audit 1474: label menentukan field status per jenis.
+        catatStatusUnduh(label, tmpl.replace("%1$d", String.valueOf(coba + 1))
+                .replace("%2$d", String.valueOf(MAX_COBA_UNDUH)));
         try {
             Thread.sleep(3000);
             return true;
@@ -905,7 +934,8 @@ public final class Updater {
                         || mismatchSha >= 2) {
                     break;
                 }
-                if (!tundaCobaLagiUnduh(coba, ctx.getString(R.string.dl_status_retry))) {
+                if (!tundaCobaLagiUnduh(coba, ctx.getString(R.string.dl_status_retry),
+                        label)) {
                     break;
                 }
             } catch (Exception e) {
@@ -1362,7 +1392,8 @@ public final class Updater {
     private static void kunciPasangGlobal(String teksMenunggu) {
         if (!KUNCI_PASANG_GLOBAL.tryLock()) {
             // Audit 990: teks tunggu dari resource pemanggil.
-            downloadStatus = teksMenunggu;
+            // Audit 1474: kunci pasang hanya untuk binary — field mesin.
+            statusMesin = teksMenunggu;
             KUNCI_PASANG_GLOBAL.lock();
         }
     }
@@ -1805,14 +1836,14 @@ public final class Updater {
             // String.format); rantai replace tidak melipatnya, jadi
             // lipat di sini — tanpa ini status berakhir "(34%%)" dan
             // persenUnduhan gagal mem-parse-nya (Audit 999).
-            downloadStatus = tmplTotal.replace("%1$s", label)
+            catatStatusUnduh(label, tmplTotal.replace("%1$s", label)
                     .replace("%2$s", TgBackup.humanBytes(done))
                     .replace("%3$s", TgBackup.humanBytes(total))
                     .replace("%4$d", String.valueOf(pct))
-                    .replace("%%", "%");
+                    .replace("%%", "%"));
         } else {
-            downloadStatus = tmplTanpaTotal.replace("%1$s", label)
-                    .replace("%2$s", TgBackup.humanBytes(done));
+            catatStatusUnduh(label, tmplTanpaTotal.replace("%1$s", label)
+                    .replace("%2$s", TgBackup.humanBytes(done)));
         }
     }
 

@@ -763,13 +763,13 @@ public class UpdaterTest {
         String tmplTotal = "Unduh %1$s %2$s/%3$s (%4$d%%)";
         String tmplTanpa = "Unduh %1$s %2$s...";
         Updater.reportDownload("binary", 104, 100, tmplTotal, tmplTanpa);
-        assertEquals(100, Updater.persenUnduhan(Updater.downloadStatus));
+        assertEquals(100, Updater.persenUnduhan(Updater.downloadStatus()));
         Updater.reportDownload("binary", -5, 100, tmplTotal, tmplTanpa);
-        assertEquals(0, Updater.persenUnduhan(Updater.downloadStatus));
+        assertEquals(0, Updater.persenUnduhan(Updater.downloadStatus()));
         Updater.reportDownload("binary", 34, 100, tmplTotal, tmplTanpa);
-        assertEquals(34, Updater.persenUnduhan(Updater.downloadStatus));
-        assertTrue(Updater.downloadStatus.startsWith("Unduh binary "));
-        assertTrue(Updater.downloadStatus.endsWith("(34%)"));
+        assertEquals(34, Updater.persenUnduhan(Updater.downloadStatus()));
+        assertTrue(Updater.downloadStatus().startsWith("Unduh binary "));
+        assertTrue(Updater.downloadStatus().endsWith("(34%)"));
     }
 
     @Test
@@ -1528,24 +1528,47 @@ public class UpdaterTest {
 
     @Test
     public void statusUnduhanBaruKosongSetelahUnduhanTerakhir() {
-        Updater.downloadStatus = "";
+        Updater.statusMesin = "";
+        Updater.statusWebVault = "";
         Updater.mulaiUnduhan();
         Updater.mulaiUnduhan();
         Updater.reportDownload("binary", 1, 2,
                 "Unduh %1$s %2$s/%3$s (%4$d%%)", "Unduh %1$s %2$s...");
-        assertFalse("progres unduhan harus tampil", Updater.downloadStatus.isEmpty());
+        assertFalse("progres unduhan harus tampil", Updater.downloadStatus().isEmpty());
         Updater.selesaiUnduhan();
 
-        assertFalse(Updater.downloadStatus.isEmpty());
+        assertFalse(Updater.downloadStatus().isEmpty());
         Updater.selesaiUnduhan();
-        assertEquals("", Updater.downloadStatus);
+        assertEquals("", Updater.downloadStatus());
 
         Updater.selesaiUnduhan();
         Updater.mulaiUnduhan();
         Updater.reportDownload("shim", 5, 10,
                 "Unduh %1$s %2$s/%3$s (%4$d%%)", "Unduh %1$s %2$s...");
         Updater.selesaiUnduhan();
-        assertEquals("", Updater.downloadStatus);
+        assertEquals("", Updater.downloadStatus());
+    }
+
+    @Test
+    public void statusUnduhanPisahPerJenis() {
+        // Audit 1474: progres binary dan web-vault yang berjalan
+        // bersamaan tak lagi saling menimpa.
+        Updater.statusMesin = "";
+        Updater.statusWebVault = "";
+        String tmplTotal = "Unduh %1$s %2$s/%3$s (%4$d%%)";
+        String tmplTanpa = "Unduh %1$s %2$s...";
+        Updater.reportDownload("binary", 1, 4, tmplTotal, tmplTanpa);
+        Updater.reportDownload("web vault", 3, 4, tmplTotal, tmplTanpa);
+        assertTrue(Updater.statusMesin.startsWith("Unduh binary "));
+        assertTrue(Updater.statusWebVault.startsWith("Unduh web vault "));
+        String gab = Updater.downloadStatus();
+        assertTrue(gab.contains("Unduh binary "));
+        assertTrue(gab.contains("Unduh web vault "));
+        Updater.reportDownload("shim", 2, 4, tmplTotal, tmplTanpa);
+        assertTrue(Updater.statusMesin.startsWith("Unduh shim "));
+        assertTrue(Updater.statusWebVault.startsWith("Unduh web vault "));
+        Updater.statusMesin = "";
+        Updater.statusWebVault = "";
     }
 
     @Test

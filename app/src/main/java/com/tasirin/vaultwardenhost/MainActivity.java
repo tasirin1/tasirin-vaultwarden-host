@@ -549,7 +549,7 @@ public class MainActivity extends Activity {
         ui.removeCallbacks(refreshLoop);
 
         if (uiBusy) {
-            String dl = Updater.downloadStatus;
+            String dl = Updater.downloadStatus();
             String sibuk = dl.isEmpty()
                     ? (teksSibuk.isEmpty() ? getString(R.string.busy_work) : teksSibuk)
                     : dl;

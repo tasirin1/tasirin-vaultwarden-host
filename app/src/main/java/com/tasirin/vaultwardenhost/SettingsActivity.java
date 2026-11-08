@@ -1316,7 +1316,7 @@ public class SettingsActivity extends Activity {
         if (!uiBusy) {
             return false;
         }
-        String dl = Updater.downloadStatus;
+        String dl = Updater.downloadStatus();
         String sibuk = dl.isEmpty() ? teksSibuk : dl;
         if (!sibuk.equals(lastBusyText)) {
             lastBusyText = sibuk;
