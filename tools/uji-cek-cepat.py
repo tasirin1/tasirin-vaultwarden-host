@@ -140,6 +140,41 @@ def main():
                 and "kunci-tersela.txt" in out)
         shutil.rmtree(kuncitersela, ignore_errors=True)
 
+        kuncikomentar = klon(tmp, "kuncikomentar")
+        tanam(kuncikomentar, "kunci-komentar.txt",
+              "-----BEGIN OPENSSH\n# catatan penting\n"
+              "PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kuncikomentar, ["bash", SKRIP])
+        periksa("header tersela baris komentar tertangkap "
+                "(Audit 1505)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-komentar.txt" in out)
+        shutil.rmtree(kuncikomentar, ignore_errors=True)
+
+        kuncitengah = klon(tmp, "kuncitengah")
+        tanam(kuncitengah, "kunci-tengah.txt",
+              "-----BEGIN RSA PRIVATE\nxyz123\n"
+              "KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kuncitengah, ["bash", SKRIP])
+        periksa("header terbelah di tengah frasa tertangkap "
+                "(Audit 1505)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-tengah.txt" in out)
+        shutil.rmtree(kuncitengah, ignore_errors=True)
+
+        kuncipanjang = klon(tmp, "kuncipanjang")
+        tanam(kuncipanjang, "kunci-panjang.txt",
+              "-----BEGIN " + "a" * 250 + " PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kuncipanjang, ["bash", SKRIP])
+        periksa("header label huruf kecil panjang tertangkap "
+                "(Audit 1505)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-panjang.txt" in out)
+        shutil.rmtree(kuncipanjang, ignore_errors=True)
+
         kuncitab = klon(tmp, "kuncitab")
         tanam(kuncitab, "kunci-tab.txt",
               "-----BEGIN OPENSSH\tPRIVATE KEY-----\n"

@@ -43,8 +43,11 @@ if [ "$a" != "$b" ]; then gagal_msg "struktur judul README.md ($a) != README.id.
 if [ "$a" != "$c" ]; then gagal_msg "struktur judul README.md ($a) != README.ru.md ($c)"; fi
 
 POLA_TOKEN='gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[abp]-[0-9A-Za-z-]{10,}|[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}'
-POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Z0-9[:blank:]]*PRIVATE KEY-----|$POLA_TOKEN"
-POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN[A-Za-z0-9]{0,200}PRIVATEKEY-----[A-Za-z0-9+/=]{16,}"
+POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Za-z0-9[:blank:]]*PRIVATE KEY-----|$POLA_TOKEN"
+# Audit 1505: pola bungkus juga menoleransi sisipan di TENGAH
+# frasa (PRIVATE ... KEY), bukan hanya di antara BEGIN dan
+# frasa — belahan di tengah frasa dulu lolos.
+POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN[A-Za-z0-9]{0,200}PRIVATE[A-Za-z0-9]{0,200}KEY-----[A-Za-z0-9+/=]{16,}"
 RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | sort -u || true)"
 # Audit 1458: satu lintasan untuk dua cabang — entri bertanda t:
 # (terlacak) / u: (tak terlacak/terabaikan); berkas u: juga diuji
@@ -52,7 +55,11 @@ RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHAS
 # memindai berkas tak terlacak dua kali).
 BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c core.quotepath=false ls-files --others --exclude-standard -z | sed -z 's/^/u:/'; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z | sed -z 's/^/u:/'; } | sort -zu | while IFS= read -r -d '' entri; do
   f=${entri#?:}
-  if [ -f "$f" ] && tr -d '\n\r \t' < "$f" 2>/dev/null | grep -q -E -- "$POLA_BUNGKUS"; then
+  # Audit 1505/1506: komentar dari '#' sampai akhir baris dibuang
+  # sebelum perataan — baris komentar yang menyela belahan dulu
+  # menyisakan '#' + kata komentar di blob dan mematahkan kedua
+  # pola bungkus (header maupun token).
+  if [ -f "$f" ] && sed 's/#.*//' < "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
     printf '%s\n' "$f"
   fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
