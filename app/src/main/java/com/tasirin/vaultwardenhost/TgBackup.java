@@ -1921,6 +1921,19 @@ public final class TgBackup {
                         File tlsSrc = tlsAktifUntukBackup(ctx, dataFolder);
                         addFileEntry(zos, buf, new File(tlsSrc, "ca.pem"), "tls/ca.pem");
                         addFileEntry(zos, buf, new File(tlsSrc, "cert.pem"), "tls/cert.pem");
+                        // Audit 1461: lampiran vault, kiriman, dan
+                        // kunci RSA sesi ikut dicadangkan — tanpa
+                        // ketiganya restore "berhasil" tetapi
+                        // lampiran hilang permanen dan seluruh
+                        // sesi login gugur.
+                        tambahFolderZip(zos, buf, new File(dataFolder, "attachments"),
+                                "attachments");
+                        tambahFolderZip(zos, buf, new File(dataFolder, "sends"),
+                                "sends");
+                        addFileEntry(zos, buf, new File(dataFolder, "rsa_key.pem"),
+                                "rsa_key.pem");
+                        addFileEntry(zos, buf, new File(dataFolder, "rsa_key.der"),
+                                "rsa_key.der");
                         if (denganKunci) {
                             addFileEntry(zos, buf, new File(tlsSrc, "ca-key.pem"),
                                     "tls/ca-key.pem");
@@ -1967,6 +1980,45 @@ public final class TgBackup {
             }
         }
         zos.closeEntry();
+    }
+
+    // Audit 1461: seluruh isi folder (rekursif, urutan nama tetap)
+    // masuk zip dengan nama relatif berawalan awalan + "/". Berkas
+    // yang jalur kanoniknya keluar dari folder (symlink) dilewati.
+    static void tambahFolderZip(ZipOutputStream zos, byte[] buf,
+                                File folder, String awalan)
+            throws Exception {
+        if (folder == null || !folder.isDirectory()) {
+            return;
+        }
+        String basis = folder.getCanonicalPath();
+        java.util.List<File> berkas = new java.util.ArrayList<>();
+        kumpulkanBerkasZip(folder, berkas);
+        java.util.Collections.sort(berkas);
+        for (File f : berkas) {
+            String kanon = f.getCanonicalPath();
+            if (!kanon.startsWith(basis + File.separator)) {
+                continue;
+            }
+            String rel = kanon.substring(basis.length() + 1)
+                    .replace(File.separatorChar, '/');
+            addFileEntry(zos, buf, f, awalan + "/" + rel);
+        }
+    }
+
+    static void kumpulkanBerkasZip(File dir,
+                                   java.util.List<File> ke) {
+        File[] anak = dir.listFiles();
+        if (anak == null) {
+            return;
+        }
+        for (File a : anak) {
+            if (a.isDirectory()) {
+                kumpulkanBerkasZip(a, ke);
+            } else if (a.isFile()) {
+                ke.add(a);
+            }
+        }
     }
 
     static final java.util.Set<String> SECRET_PREF_KEYS = new java.util.HashSet<>(
@@ -4571,6 +4623,17 @@ public final class TgBackup {
                 || nama.equals("db.sqlite3-shm")) {
             return true;
         }
+        // Audit 1461: kunci RSA sesi + lampiran/kiriman. Nama di
+        // sini sudah dinormalisasi (segmen ".." ditolak
+        // normalisasiEntriZip) dan loop ekstrak memeriksa ulang
+        // jalur kanonik tiap entri.
+        if (nama.equals("rsa_key.pem") || nama.equals("rsa_key.der")) {
+            return true;
+        }
+        if ((nama.startsWith("attachments/") && nama.length() > 12)
+                || (nama.startsWith("sends/") && nama.length() > 6)) {
+            return true;
+        }
         return nama.equals("tls") || nama.equals("tls/ca.pem")
                 || nama.equals("tls/cert.pem") || nama.equals("tls/key.pem")
                 || nama.equals("tls/ca-key.pem");
@@ -4588,6 +4651,16 @@ public final class TgBackup {
 
         if (n.equals("db.sqlite3") || n.equals("db.sqlite3-wal")
                 || n.equals("db.sqlite3-shm")) {
+            return true;
+        }
+
+        // Audit 1461: kunci RSA sesi + isi folder lampiran dan
+        // kiriman (segmen ".." sudah ditolak di kepala metode).
+        if (n.equals("rsa_key.pem") || n.equals("rsa_key.der")) {
+            return true;
+        }
+        if ((n.startsWith("attachments/") && n.length() > 12)
+                || (n.startsWith("sends/") && n.length() > 6)) {
             return true;
         }
 

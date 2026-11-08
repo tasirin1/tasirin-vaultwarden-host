@@ -323,6 +323,98 @@ public class TgBackupTest {
         assertFalse(TgBackup.diterimaEntriZip("x:db.sqlite3"));
         assertFalse(TgBackup.diterimaEntriZip("DB.SQLITE3"));
         assertFalse(TgBackup.diterimaEntriZip("/db.sqlite3"));
+        // Audit 1461: lampiran, kiriman, kunci RSA sesi.
+        assertTrue(TgBackup.diterimaEntriZip("rsa_key.pem"));
+        assertTrue(TgBackup.diterimaEntriZip("rsa_key.der"));
+        assertTrue(TgBackup.diterimaEntriZip("attachments/abc/file.pdf"));
+        assertTrue(TgBackup.diterimaEntriZip("sends/xyz"));
+        assertFalse(TgBackup.diterimaEntriZip("attachments/"));
+        assertFalse(TgBackup.diterimaEntriZip("sends/"));
+        assertFalse(TgBackup.diterimaEntriZip("attachments/../db.sqlite3"));
+        assertFalse(TgBackup.diterimaEntriZip("attachmentsx/file"));
+        assertFalse(TgBackup.diterimaEntriZip("rsa_key.pem.bak"));
+    }
+
+    @Test
+    public void tambahFolderZip_rekursifTerurut() throws Exception {
+        // Audit 1461: isi folder lampiran masuk zip rekursif
+        // dengan nama relatif yang benar dan urutan tetap.
+        java.io.File akar = java.nio.file.Files.createTempDirectory(
+                "vwzip").toFile();
+        try {
+            java.io.File att = new java.io.File(akar, "attachments");
+            java.io.File sub = new java.io.File(att, "sub");
+            org.junit.Assert.assertTrue(sub.mkdirs());
+            java.nio.file.Files.write(new java.io.File(att, "b.txt").toPath(),
+                    "B".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.file.Files.write(new java.io.File(sub, "a.txt").toPath(),
+                    "A".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.io.ByteArrayOutputStream bos =
+                    new java.io.ByteArrayOutputStream();
+            java.util.zip.ZipOutputStream zos =
+                    new java.util.zip.ZipOutputStream(bos);
+            TgBackup.tambahFolderZip(zos, new byte[64], att, "attachments");
+            zos.close();
+            java.util.List<String> nama = new java.util.ArrayList<>();
+            java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(
+                    new java.io.ByteArrayInputStream(bos.toByteArray()));
+            java.util.zip.ZipEntry e;
+            while ((e = zis.getNextEntry()) != null) {
+                nama.add(e.getName());
+            }
+            org.junit.Assert.assertEquals(java.util.Arrays.asList(
+                    "attachments/b.txt", "attachments/sub/a.txt"), nama);
+        } finally {
+            hapusPohonUji(akar);
+        }
+    }
+
+    @Test
+    public void kumpulkanBerkasZip_hanyaBerkasRekursif() throws Exception {
+        java.io.File akar = java.nio.file.Files.createTempDirectory(
+                "vwkumpul").toFile();
+        try {
+            java.io.File sub = new java.io.File(akar, "sub");
+            org.junit.Assert.assertTrue(sub.mkdirs());
+            org.junit.Assert.assertTrue(
+                    new java.io.File(akar, "kosong").mkdirs());
+            java.nio.file.Files.write(new java.io.File(akar, "satu.txt").toPath(),
+                    "1".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.file.Files.write(new java.io.File(sub, "dua.txt").toPath(),
+                    "2".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.util.List<java.io.File> ke = new java.util.ArrayList<>();
+            TgBackup.kumpulkanBerkasZip(akar, ke);
+            org.junit.Assert.assertEquals(2, ke.size());
+        } finally {
+            hapusPohonUji(akar);
+        }
+    }
+
+    private static void hapusPohonUji(java.io.File f) {
+        if (f == null) {
+            return;
+        }
+        java.io.File[] anak = f.listFiles();
+        if (anak != null) {
+            for (java.io.File a : anak) {
+                hapusPohonUji(a);
+            }
+        }
+        f.delete();
+    }
+
+    @Test
+    public void bolehTulisRestore_lampiranDanRsa() {
+        // Audit 1461: sisi tulis restore menerima cakupan yang
+        // sama dengan sisi terima zip.
+        assertTrue(TgBackup.bolehTulisRestore("attachments/a/b.bin"));
+        assertTrue(TgBackup.bolehTulisRestore("sends/x"));
+        assertTrue(TgBackup.bolehTulisRestore("rsa_key.pem"));
+        assertTrue(TgBackup.bolehTulisRestore("rsa_key.der"));
+        assertFalse(TgBackup.bolehTulisRestore("attachments/"));
+        assertFalse(TgBackup.bolehTulisRestore("attachments"));
+        assertFalse(TgBackup.bolehTulisRestore("lainnya.txt"));
+        assertFalse(TgBackup.bolehTulisRestore(null));
     }
 
     @Test

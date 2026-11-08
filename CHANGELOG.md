@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Backup Telegram kini memuat attachments/, sends/, dan rsa_key (Audit 1461)
 ## [Belum rilis] — Helper jalan/git/klon/periksa dua suite disatukan di tools/uji_bersama.py (Audit 1460)
 ## [Belum rilis] — token_palsu uji-cek-cepat diangkat keluar blok skenario rahasia (Audit 1459)
 ## [Belum rilis] — Suite uji-verifikasi: klon skenario kini dari satu snapshot bersama (Audit 1457)
