@@ -2140,7 +2140,17 @@ def _menguras_khusus(perintah, toks, awal):
         # data yang di-hash dari stdin (keluarannya
         # permintaan stempel waktu DER yang sah).
         if sub == "ts":
-            return "-query" in mentah and "-data" not in mentah
+            # Audit 1444: -data - menyerahkan data lewat
+            # stdin — penjaga lama buta nilai.
+            if "-query" not in mentah:
+                return False
+            for k_ts, t_ts in enumerate(mentah):
+                if t_ts == "-data":
+                    return (k_ts + 1 < len(mentah)
+                            and mentah[k_ts + 1] == "-")
+                if t_ts.startswith("-data="):
+                    return t_ts == "-data=-"
+            return True
         # Audit 1433: ca dengan -in - membaca CSR dari
         # stdin (dengan konfigurasi CA lengkap).
         if sub == "ca":

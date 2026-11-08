@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Openssl ts -data - membaca dari stdin, penjaga buta nilai (Audit 1444)
 ## [Belum rilis] — Openssl asn1parse -item hilang dari himpunan opsi bernilai (Audit 1443)
 ## [Belum rilis] — Git fmt-merge-msg -F - adalah stdin, penjaga buta nilai (Audit 1442)
 ## [Belum rilis] — Git fmt-merge-msg -m — nilai -m terhitung berkas, stdin lolos (Audit 1441)
