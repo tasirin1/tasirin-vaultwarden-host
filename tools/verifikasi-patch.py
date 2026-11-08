@@ -2167,7 +2167,18 @@ def _menguras_khusus(perintah, toks, awal):
             return "-stdin" in mentah
         if sub == "s_client":
             return "-connect" in mentah
-        if sub in ("x509", "rsa", "pkey", "dsa", "crl", "ec"):
+        # Audit 1496: mac membaca data yang di-MAC
+        # dari stdin tanpa -in (dan -in -//dev/stdin),
+        # sekelas dgst (terprobe).
+        if sub == "mac":
+            return not _in_non_stdin()
+        # Audit 1495: ecparam/dsaparam membaca
+        # parameter dari stdin tanpa -in, dengan
+        # semantik pemuat objek yang sama seperti
+        # kelompok di bawah ("-" nama berkas harfiah,
+        # jalur fd adalah stdin — terprobe).
+        if sub in ("x509", "rsa", "pkey", "dsa", "crl", "ec",
+                   "ecparam", "dsaparam"):
             # Audit 1215: untuk keenamnya '-in -' BUKAN stdin di
             # OpenSSL 3.0.13 — pembuka OSSL_STORE menolak skema
             # '-' dan membaca 0 byte (terprobe satu per satu);
