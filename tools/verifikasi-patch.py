@@ -6866,6 +6866,16 @@ def teks_xml_bersih(path):
 def nama_warna(path):
     return set(re.findall(r'<color\b[^>]*?\bname="([^"]+)"', teks_xml_bersih(path)))
 
+# Audit 1491: warna yang nilainya memang sama persis siang &
+# malam — override malamnya sudah dihapus (tak ada beda yang
+# dijaga), jadi absennya di values-night BUKAN pelanggaran
+# paritas. Warna lain yang absen tetap gagal, dan warna
+# malam-saja tetap selalu gagal.
+WARNA_MALAM_BOLEH_ABSEN = {
+    "primary_dark", "white", "status_on", "hero_start",
+    "hero_end", "chip_stopped", "chip_busy", "btn_stop_pressed",
+}
+
 def quantities_plurals(path):
     hasil = {}
     for m in re.finditer(r'<plurals\b[^>]*?\bname="([^"]+)"(.*?)</plurals>', teks_xml_bersih(path), re.S):
@@ -6888,9 +6898,10 @@ def cek_paritas_resource(gagal):
             if not siang or not malam:
                 gagal.append("colors.xml tanpa <color> — paritas siang/gelap"
                              " tak bisa dicek")
-            if siang - malam:
+            if siang - malam - WARNA_MALAM_BOLEH_ABSEN:
                 gagal.append("colors.xml siang berlebih vs night: "
-                             + ", ".join(sorted(siang - malam)[:10]))
+                             + ", ".join(sorted(
+                                 siang - malam - WARNA_MALAM_BOLEH_ABSEN)[:10]))
             if malam - siang:
                 gagal.append("values-night/colors.xml berlebih vs siang: "
                              + ", ".join(sorted(malam - siang)[:10]))

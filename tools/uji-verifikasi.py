@@ -14489,6 +14489,40 @@ def main():
         periksa("git format-patch --start-number --stdin: "
                 "gerbang lolos (Audit 1449)", rc == 0)
         shutil.rmtree(sub670, ignore_errors=True)
+        sub671 = klon(tmp, "sub671")
+        berkas_gerbang671 = os.path.join(
+            sub671, "tools", "verifikasi-patch.py")
+        with open(berkas_gerbang671, encoding="utf-8") as f:
+            isi_gerbang671 = f.read()
+        isi_baru671 = isi_gerbang671.replace(
+                '"status_on", "hero_start",', '"status_on",', 1)
+        assert isi_baru671 != isi_gerbang671, \
+            "suntikan gerbang671 tidak menembak"
+        with open(berkas_gerbang671, "w", encoding="utf-8") as f:
+            f.write(isi_baru671)
+        rc, out = jalan(sub671, [sys.executable, GERBANG, "--semua"])
+        periksa("pengecualian paritas malam dicabut satu: "
+                "gerbang gagal (Audit 1491)",
+                rc != 0 and "hero_start" in out)
+        shutil.rmtree(sub671, ignore_errors=True)
+        sub672 = klon(tmp, "sub672")
+        berkas_warna672 = os.path.join(
+            sub672, "app", "src", "main", "res", "values-night",
+            "colors.xml")
+        with open(berkas_warna672, encoding="utf-8") as f:
+            isi_warna672 = f.read()
+        isi_baru672 = "".join(
+            b for b in isi_warna672.splitlines(keepends=True)
+            if 'name="status_off"' not in b)
+        assert isi_baru672 != isi_warna672, \
+            "suntikan warna672 tidak menembak"
+        with open(berkas_warna672, "w", encoding="utf-8") as f:
+            f.write(isi_baru672)
+        rc, out = jalan(sub672, [sys.executable, GERBANG, "--semua"])
+        periksa("warna tak terkecuali absen di malam: "
+                "gerbang gagal (Audit 1491)",
+                rc != 0 and "status_off" in out)
+        shutil.rmtree(sub672, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
