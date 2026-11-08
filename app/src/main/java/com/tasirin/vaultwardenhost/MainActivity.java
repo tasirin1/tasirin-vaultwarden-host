@@ -841,6 +841,13 @@ public class MainActivity extends Activity {
             CharSequence sisa = penuh.subSequence(awalTampil, penuh.length());
             homeLogView.setText(sisa);
             barisLogBeranda = hitungBaris(sisa);
+            // Audit 1557: ekor parsial juga dihitung ulang —
+            // potong bisa mendarat di tengah satu baris
+            // raksasa (tak ada '\n' sesudah titik potong)
+            // sehingga ekor menyusut; nilai lama yang lebih
+            // besar membuat putar-balik berikutnya menarik
+            // terlalu banyak dan mengosongkan tampilan.
+            ekorParsialBeranda = ekorSesudahPotong(sisa);
         }
 
         if (homeLogView.length() > 25000 && barisLogBeranda > MAKS_BARIS_LOG) {
@@ -909,6 +916,20 @@ public class MainActivity extends Activity {
                                   String delta) {
         return barisKini + LogActivity.hitungBaris(delta)
                 - (ekorParsial > 0 ? 1 : 0);
+    }
+
+    // Audit 1557: panjang ekor parsial (baris terakhir yang
+    // belum berakhiran '\n') dari teks tampilan — dipakai
+    // menyelaraskan pencacah sesudah pemotongan tampilan.
+    static int ekorSesudahPotong(CharSequence sisa) {
+        int nl = -1;
+        for (int i = sisa.length() - 1; i >= 0; i--) {
+            if (sisa.charAt(i) == '\n') {
+                nl = i;
+                break;
+            }
+        }
+        return sisa.length() - (nl + 1);
     }
 
     // Audit 1476: awal baris yang memuat posisi pos (pos = satu

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pencacah ekor log beranda diselaraskan sesudah pemotongan tampilan (Audit 1557)
+
+- Cabang potong 40.000 karakter di beranda menghitung ulang jumlah baris dari sisa tampilan (Audit 1539) tetapi membiarkan `ekorParsialBeranda` pada nilai sebelum potong. Bila potong mendarat di tengah satu baris raksasa (>30 ribu karakter tanpa baris baru), ekor tampilan menyusut sementara pencacahnya tetap besar — putar-balik berikutnya menarik terlalu banyak dan bisa mengosongkan seluruh tampilan beranda (buffer sumber utuh; pulih sendiri dari delta berikutnya). Kini ekor dihitung ulang dari sisa tampilan lewat penolong murni `ekorSesudahPotong` yang teruji JVM.
+
 ## [Belum rilis] — Pasang binary manual kini menampilkan teks tunggu saat kunci pasang dipakai unduhan (Audit 1556)
 
 - Residu Audit 1541: `pasangKunciGlobal()` mengunci polos tanpa batas dan tanpa indikator, sedangkan jalur unduhan memasang teks status "menunggu" lewat `kunciPasangGlobal(teks)` — pengguna yang menekan Start saat unduhan berjalan menunggu diam-diam sampai unduhan selesai (bisa bermenit-menit). Kini jalur manual memakai pintu yang sama dengan teks tunggu dari resource yang sama (`dl_status_waiting`); urutan dan serialisasi kuncinya tidak berubah.

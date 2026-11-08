@@ -86,6 +86,15 @@ public class MainActivityTest {
         assertEquals(11, MainActivity.barisSesudahTempel(10, 3,
                 "sambungan\nparsial"));
         assertEquals(10, MainActivity.barisSesudahTempel(10, 0, ""));
+
+        // Audit 1557: ekor parsial sesudah potong dihitung
+        // dari sisa tampilan, bukan nilai sebelum potong.
+        assertEquals(3, MainActivity.ekorSesudahPotong("abc"));
+        assertEquals(0, MainActivity.ekorSesudahPotong("abc\n"));
+        assertEquals(3, MainActivity.ekorSesudahPotong("ab\ncde"));
+        assertEquals(0, MainActivity.ekorSesudahPotong(""));
+        assertEquals(0, MainActivity.ekorSesudahPotong("\n"));
+        assertEquals(5, MainActivity.ekorSesudahPotong("x\ny\nzzzzz"));
     }
 
     @Test
