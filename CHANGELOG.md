@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pindai -F git commit/tag kini mengenali -F di dalam bundel huruf pendek (Audit 1522)
 ## [Belum rilis] — Gerbang: opsi bernilai verify -vfyopt/-provider-path/-verify_name tak lagi terhitung operand sertifikat (Audit 1521)
 ## [Belum rilis] — Gerbang mengenal openssl spkac: bentuk baca menguras stdin, bentuk buat tidak (Audit 1520)
 ## [Belum rilis] — Suite gerbang: skenario paritas warna arah malam−siang kini teruji (Audit 1507)

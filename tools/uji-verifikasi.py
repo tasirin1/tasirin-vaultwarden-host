@@ -14806,6 +14806,28 @@ def main():
                 "gerbang gagal (Audit 1521)",
                 rc != 0)
         shutil.rmtree(sub685, ignore_errors=True)
+        sub686 = klon(tmp, "sub686")
+        berkas_aksi686 = os.path.join(
+            sub686, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi686, encoding="utf-8") as f:
+            isi_aksi686 = f.read()
+        baris_aksi686 = [b for b in isi_aksi686.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru686 = isi_aksi686.replace(
+                baris_aksi686,
+                baris_aksi686.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git commit -aF -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru686 != isi_aksi686, \
+            "suntikan aksi686 tidak menembak"
+        with open(berkas_aksi686, "w", encoding="utf-8") as f:
+            f.write(isi_baru686)
+        rc, out = jalan(sub686, [sys.executable, GERBANG, "--semua"])
+        periksa("git commit -aF -: -F di bundel membaca pesan dari stdin: "
+                "gerbang gagal (Audit 1522)",
+                rc != 0)
+        shutil.rmtree(sub686, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

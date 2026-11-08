@@ -2602,6 +2602,51 @@ def _menguras_khusus(perintah, toks, awal):
                         and len(t_g) > 2:
                     if t_g[2:] == "-":
                         pesan_stdin = True
+                elif (t_g.startswith("-")
+                        and not t_g.startswith("--")
+                        and len(t_g) > 2):
+                    # Audit 1522: -F bisa bersembunyi di
+                    # dalam bundel huruf pendek ("-aF -",
+                    # "-aF-") — git mem-parse bundel huruf
+                    # demi huruf: opsi bernilai wajib
+                    # menelan sisa token (atau token
+                    # berikut bila ia huruf terakhir);
+                    # -u/-S bernilai opsional hanya
+                    # menelan sisa token.
+                    isi_b = t_g[1:]
+                    j_b = 0
+                    vonis_b = None
+                    lompat_b = 1
+                    while j_b < len(isi_b):
+                        c_b = isi_b[j_b]
+                        if c_b == "F":
+                            sisa_b = isi_b[j_b + 1:]
+                            if sisa_b:
+                                vonis_b = sisa_b == "-"
+                            else:
+                                vonis_b = (
+                                    k_g + 1 < len(mentah)
+                                    and mentah[k_g + 1] == "-")
+                                lompat_b = 2
+                            break
+                        if c_b in ("m", "C", "c", "t"):
+                            if j_b + 1 >= len(isi_b):
+                                lompat_b = 2
+                            vonis_b = False
+                            break
+                        if c_b in ("u", "S"):
+                            vonis_b = False
+                            break
+                        if not c_b.isalpha():
+                            break
+                        j_b += 1
+                    if vonis_b is None:
+                        k_g += 1
+                    else:
+                        if vonis_b:
+                            pesan_stdin = True
+                        k_g += lompat_b
+                    continue
                 elif t_g in bernilai_in:
                     k_g += 2
                     continue
