@@ -62,12 +62,8 @@ public class MainActivity extends Activity {
     private String lastShownUptime = "";
     private boolean lastUpdBtnVisible = true;
     private String lastUpdText = "";
-    private String memoCocokA = "\0";
-    private String memoCocokB = "\0";
-    private boolean memoCocokHasil = false;
-    private String memoCocokA2 = "\0";
-    private String memoCocokB2 = "\0";
-    private boolean memoCocokHasil2 = false;
+    // Audit 1478: memo kecocokan versi kini kelas bersama.
+    private final MemoVersiCocok memoVersi = new MemoVersiCocok();
     private String lastVersiApp = "\0";
     private String lastVersiBin = "\0";
     private String lastVersiBundled = "\0";
@@ -109,12 +105,6 @@ public class MainActivity extends Activity {
 
     private boolean pinBukaJalan = false;
     private boolean kontenTersegel = false;
-
-    static void catatPinDibuka() {
-        if (!PinGate.dalamGraceBersama()) {
-            PinGate.bukaKunciBersama();
-        }
-    }
 
     @Override
 
@@ -330,7 +320,7 @@ public class MainActivity extends Activity {
         if (requestCode == REQ_PIN) {
             pinBukaJalan = false;
             if (resultCode == RESULT_OK) {
-                catatPinDibuka();
+                PinGate.catatPinDibuka();
             } else {
                 finish();
             }
@@ -641,16 +631,7 @@ public class MainActivity extends Activity {
             SharedPreferences psp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
 
-            String ra = real == null ? "" : real;
-            boolean cocok1;
-            if (ra.equals(memoCocokA) && pend.equals(memoCocokB)) {
-                cocok1 = memoCocokHasil;
-            } else {
-                cocok1 = Updater.versiCocok(real, pend);
-                memoCocokA = ra;
-                memoCocokB = pend;
-                memoCocokHasil = cocok1;
-            }
+            boolean cocok1 = memoVersi.cocokTahap1(real, pend);
 
             if (cocok1) {
                 psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pend).apply();
@@ -659,16 +640,7 @@ public class MainActivity extends Activity {
                 String up = TgBackup.amanString(psp, ServerService.KEY_UPDATE_VERSION, "");
                 String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
                         ? up : bundledRaw);
-                String ca = cur == null ? "" : cur;
-                boolean cocok2;
-                if (ca.equals(memoCocokA2) && pend.equals(memoCocokB2)) {
-                    cocok2 = memoCocokHasil2;
-                } else {
-                    cocok2 = Updater.versiCocok(cur, pend);
-                    memoCocokA2 = ca;
-                    memoCocokB2 = pend;
-                    memoCocokHasil2 = cocok2;
-                }
+                boolean cocok2 = memoVersi.cocokTahap2(cur, pend);
                 if (cocok2) {
                     pendingVersion = null;
                 } else {

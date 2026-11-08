@@ -33,6 +33,14 @@ public final class PinGate {
         }
     }
 
+    // Audit 1478: dulu tersalin persis di MainActivity dan
+    // SettingsActivity; kini satu-satunya di sini.
+    public static void catatPinDibuka() {
+        if (!dalamGraceBersama()) {
+            bukaKunciBersama();
+        }
+    }
+
     public static void bukaKunciBersama() {
         synchronized (KUNCI_BERSAMA) {
             bukaBersama = true;

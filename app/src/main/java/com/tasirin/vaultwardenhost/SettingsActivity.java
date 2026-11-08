@@ -331,12 +331,8 @@ public class SettingsActivity extends Activity {
     private boolean lastUpdVisible = false;
 
     private boolean inputStartValid = true;
-    private String memoCocokA = "\0";
-    private String memoCocokB = "\0";
-    private boolean memoCocokHasil = false;
-    private String memoCocokA2 = "\0";
-    private String memoCocokB2 = "\0";
-    private boolean memoCocokHasil2 = false;
+    // Audit 1478: memo kecocokan versi kini kelas bersama.
+    private final MemoVersiCocok memoVersi = new MemoVersiCocok();
 
     private int tickCacheUbah = 0;
     private volatile boolean paksaCacheUbah = true;
@@ -396,12 +392,6 @@ public class SettingsActivity extends Activity {
 
     private boolean pinBukaJalan = false;
     private boolean kontenTersegel = false;
-
-    static void catatPinDibuka() {
-        if (!PinGate.dalamGraceBersama()) {
-            PinGate.bukaKunciBersama();
-        }
-    }
 
     @Override
 
@@ -1412,16 +1402,7 @@ public class SettingsActivity extends Activity {
         if (pendSet != null) {
             SharedPreferences psp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
             String real = Updater.parseBinaryVersion(ServerService.binaryVersion);
-            String raSet = real == null ? "" : real;
-            boolean cocok1;
-            if (raSet.equals(memoCocokA) && pendSet.equals(memoCocokB)) {
-                cocok1 = memoCocokHasil;
-            } else {
-                cocok1 = Updater.versiCocok(real, pendSet);
-                memoCocokA = raSet;
-                memoCocokB = pendSet;
-                memoCocokHasil = cocok1;
-            }
+            boolean cocok1 = memoVersi.cocokTahap1(real, pendSet);
             if (cocok1) {
                 psp.edit().putString(ServerService.KEY_UPDATE_VERSION, pendSet).apply();
                 pendingVersion = null;
@@ -1429,16 +1410,7 @@ public class SettingsActivity extends Activity {
                 String up = TgBackup.amanString(psp, ServerService.KEY_UPDATE_VERSION, "");
                 String cur = real != null ? real : Updater.normVersion(up != null && !up.isEmpty()
                         ? up : bundledRaw);
-                String caSet = cur == null ? "" : cur;
-                boolean cocok2;
-                if (caSet.equals(memoCocokA2) && pendSet.equals(memoCocokB2)) {
-                    cocok2 = memoCocokHasil2;
-                } else {
-                    cocok2 = Updater.versiCocok(cur, pendSet);
-                    memoCocokA2 = caSet;
-                    memoCocokB2 = pendSet;
-                    memoCocokHasil2 = cocok2;
-                }
+                boolean cocok2 = memoVersi.cocokTahap2(cur, pendSet);
                 if (cocok2) {
                     pendingVersion = null;
                 } else {
@@ -2021,7 +1993,7 @@ public class SettingsActivity extends Activity {
         if (requestCode == REQ_PIN) {
             pinBukaJalan = false;
             if (resultCode == RESULT_OK) {
-                catatPinDibuka();
+                PinGate.catatPinDibuka();
             } else {
                 finish();
             }
