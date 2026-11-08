@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Backup/restore: berkas .bak tak lagi ikut ter-backup dan ditolak saat restore (Audit 1555)
+
+- Menutup saluran round-trip yang tersisa dari Audit 1540: sisa swap bernama `*.bak` di attachments/sends dulu ikut ter-backup (`kumpulkanBerkasZip` hanya melewati `*.restore-tmp`), lolos pintu restore (`bolehTulisRestore` hanya menolak `.restore-tmp`), terpasang sebagai berkas akhir, lalu dihapus/di-rename oleh pemulihan pohon `.bak` saat start berikutnya karena dikira sisa swap — lampiran putus dari nama yang dicatat database. Kini pengumpulan melewati `*.bak` dan pintu restore menolak nama berakhiran `.bak`, sekelas perlakuan `.restore-tmp` (Audit 1530/1538). Ditambah uji JVM untuk kedua sisi.
+
 ## [Belum rilis] — Cek cepat: positif palsu label contoh berstrip diperbaiki — celah dalam label hanya menoleransi rangkaian strip (Audit 1554)
 
 - Pelebaran celah Audit 1544 membuat dokumen jinak berisi contoh header teredaksi (`-----BEGIN CONTOH-PRIVATE-KEY-----`) dan hash rilis heksadesimal 40 aksara di berkas yang sama keliru ditolak: celah melintasi strip TUNGGAL di dalam label contoh dan hash berperan sebagai badan base64. Kini dua celah di dalam label (BEGIN..PRIVATE dan PRIVATE..KEY) hanya menoleransi strip sebagai rangkaian (`--` ke atas) — sela rangkaian strip Audit 1544 ('-----', '-- jeda') tetap tertangkap, label asli memang tak pernah berstrip tunggal. Residu yang diterima: kata sela berstrip tunggal di dalam label kini bisa mematahkan pola. Ditambah skenario uji-diri Audit 1554 (dokumen contoh + hash kini lolos bersih).

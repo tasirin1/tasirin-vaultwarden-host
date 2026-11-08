@@ -2029,10 +2029,15 @@ public final class TgBackup {
             if (a.isDirectory()) {
                 kumpulkanBerkasZip(a, ke, sudah);
             } else if (a.isFile()
-                    && !a.getName().endsWith(".restore-tmp")) {
+                    && !a.getName().endsWith(".restore-tmp")
+                    && !a.getName().endsWith(".bak")) {
                 // Audit 1530: berkas staging restore bukan isi
                 // backup — mengirimnya hanya melestarikan
                 // sampah lintas generasi backup/restore.
+                // Audit 1555: sisa swap .bak juga bukan isi —
+                // mengembalikannya lewat restore memasang
+                // berkas akhir bernama .bak yang lalu disapu
+                // pemulihan start (Audit 1540).
                 ke.add(a);
             }
         }
@@ -4793,7 +4798,11 @@ public final class TgBackup {
         // menerimanya memasang berkas sampah sebagai berkas
         // akhir yang lalu tak ter-backup dan tersapu restore
         // berikutnya.
-        if (nama.endsWith(".restore-tmp")) {
+        // Audit 1555: akhiran .bak sama nasibnya — itu nama
+        // sisa swap gantiAtomik; memasangnya sebagai berkas
+        // akhir membuat pemulihan pohon .bak saat start
+        // (Audit 1540) menghapus/mengganti namanya.
+        if (nama.endsWith(".restore-tmp") || nama.endsWith(".bak")) {
             return false;
         }
         if (nama.equals("db.sqlite3") || nama.equals("db.sqlite3-wal")

@@ -458,6 +458,40 @@ public class TgBackupTest {
                 "tls/ca.pem.restore-tmp"));
         assertFalse(TgBackup.bolehTulisRestore(
                 "db.sqlite3.restore-tmp"));
+        // Audit 1555: akhiran sisa swap .bak juga bukan
+        // nama isi yang sah.
+        assertFalse(TgBackup.bolehTulisRestore(
+                "attachments/a/b.bin.bak"));
+        assertFalse(TgBackup.bolehTulisRestore(
+                "rsa_key.pem.bak"));
+        assertFalse(TgBackup.bolehTulisRestore(
+                "sends/x.bak"));
+    }
+
+    @Test
+    public void kumpulkanBerkasZip_lewatiBakDanStaging() throws Exception {
+        // Audit 1555: sisa swap .bak (dan staging
+        // .restore-tmp) tak ikut ter-backup.
+        java.io.File akar = java.nio.file.Files.createTempDirectory(
+                "vwkumpulbak").toFile();
+        try {
+            java.io.File sub = new java.io.File(akar, "sub");
+            org.junit.Assert.assertTrue(sub.mkdirs());
+            java.nio.file.Files.write(new java.io.File(akar, "satu.txt").toPath(),
+                    "1".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.file.Files.write(new java.io.File(akar, "sisa.bak").toPath(),
+                    "2".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.file.Files.write(new java.io.File(sub, "tiga.bak").toPath(),
+                    "3".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.file.Files.write(new java.io.File(sub, "empat.txt.restore-tmp").toPath(),
+                    "4".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.util.List<java.io.File> ke = new java.util.ArrayList<>();
+            TgBackup.kumpulkanBerkasZip(akar, ke);
+            org.junit.Assert.assertEquals(1, ke.size());
+            org.junit.Assert.assertEquals("satu.txt", ke.get(0).getName());
+        } finally {
+            hapusPohonUji(akar);
+        }
     }
 
     @Test
