@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Callback tanpa pesan tak lagi membalas ke chat id -1 (Audit 1462)
 ## [Belum rilis] — Ekstraksi web-vault: tanpa fsync per berkas dan tanpa getCanonicalPath per entri (Audit 1470)
 ## [Belum rilis] — Lockout PIN kini bertingkat: durasi kunci berlipat tiap 5 kegagalan tambahan, maks 24 jam (Audit 1467)
 ## [Belum rilis] — Backup Telegram kini memuat attachments/, sends/, dan rsa_key (Audit 1461)

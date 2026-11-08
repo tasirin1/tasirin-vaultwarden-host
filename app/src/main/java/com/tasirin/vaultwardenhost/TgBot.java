@@ -1129,9 +1129,11 @@ public final class TgBot {
             }
 
             if (pesan == null) {
+                // Audit 1462: pesan null berarti ruang juga null
+                // dan idRuang selalu -1 — balas() ke "-1" pasti
+                // ditolak Telegram. Jawaban callback (toast) saja
+                // sudah menyampaikan kedaluwarsanya ke penekan.
                 jawabCallback(ctx, cb.optString("id", ""));
-                balas(ctx, idRuang, "Tombol sudah kedaluwarsa (>24 jam)."
-                        + " Minta keyboard baru dengan /help lalu coba lagi.");
                 return;
             }
             long tgl = pesan.optLong("date", 0) * 1000L;
