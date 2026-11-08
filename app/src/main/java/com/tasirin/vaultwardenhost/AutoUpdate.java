@@ -48,7 +48,16 @@ public final class AutoUpdate {
     }
 
     public static void cek(Context ctx, Aksi aksi, AturPending pending, boolean lengkap) {
-        KUNCI_CEK.lock();
+        // Audit 1473: tryLock — cek berkala yang menumpuk antre di
+        // belakang cek lain yang sedang berjalan (unduh bisa
+        // berjam-jam) hanya membuang utas; lewati dengan catatan.
+        if (!KUNCI_CEK.tryLock()) {
+            try {
+                aksi.catat("[app] Cek update dilewati: cek lain sedang berjalan.");
+            } catch (Exception ignored) {
+            }
+            return;
+        }
         try {
 
             String latest = Updater.versiTargetBinary(ctx);
