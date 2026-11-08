@@ -2092,6 +2092,14 @@ def _menguras_khusus(perintah, toks, awal):
                    for k, t in enumerate(mentah)):
                 return True
             return not _in_non_stdin()
+        # Audit 1495: subcommand parameter yang tak
+        # tertangani putaran-putaran sebelumnya —
+        # pkeyparam/dhparam membaca parameter dari
+        # stdin tanpa -in, dan "-" adalah stdin di
+        # keduanya (terprobe; beda dari kelompok
+        # pemuat objek di bawah).
+        if sub in ("pkeyparam", "dhparam"):
+            return not _in_non_stdin()
         if sub in ("smime", "cms", "pkeyutl", "rsautl"):
             # Audit 1161: rsautl (deprecated) membaca masukan
             # dari stdin tanpa -in, seperti pkeyutl.

@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: subcommand parameter OpenSSL (pkeyparam/ecparam/dhparam/dsaparam) kini dikenali pembaca stdin-nya (Audit 1495)
 ## [Belum rilis] — Perkakas uji: pesan TIMEOUT suite tak lagi memuat repr bytes (Audit 1508)
 ## [Belum rilis] — Cek cepat: skenario token terbelah tersela komentar dikunci di suite (Audit 1506)
 ## [Belum rilis] — Cek cepat: header kunci tersela komentar / terbelah di tengah frasa / label kecil panjang kini tertangkap (Audit 1505)
