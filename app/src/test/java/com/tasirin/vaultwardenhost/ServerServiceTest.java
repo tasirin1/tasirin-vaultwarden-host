@@ -1130,6 +1130,50 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void pulihkanBakTersisa_rsaDanLampiranIkutPulih()
+            throws Exception {
+        // Audit 1540: .bak rsa_key di akar dan .bak lampiran
+        // di pohon attachments/sends kini ikut dipulihkan —
+        // target hilang berarti .bak dipasang balik; target
+        // ada berarti .bak sisa dihapus.
+        java.io.File dir = java.nio.file.Files
+                .createTempDirectory("vwbakpohon").toFile();
+        java.io.File rsaBak = new java.io.File(dir, "rsa_key.pem.bak");
+        java.nio.file.Files.write(rsaBak.toPath(),
+                "kunci".getBytes("UTF-8"));
+        java.io.File lampDir = new java.io.File(dir, "attachments/u1");
+        assertTrue(lampDir.mkdirs());
+        java.io.File lampBak = new java.io.File(lampDir, "f.bin.bak");
+        java.nio.file.Files.write(lampBak.toPath(),
+                "isi".getBytes("UTF-8"));
+        java.io.File sendsDir = new java.io.File(dir, "sends/s1");
+        assertTrue(sendsDir.mkdirs());
+        java.io.File utuh = new java.io.File(sendsDir, "x");
+        java.nio.file.Files.write(utuh.toPath(),
+                "utuh".getBytes("UTF-8"));
+        java.io.File bakSisa = new java.io.File(sendsDir, "x.bak");
+        java.nio.file.Files.write(bakSisa.toPath(),
+                "sisa".getBytes("UTF-8"));
+        ServerService.pulihkanBakTersisa(dir);
+        assertTrue(new java.io.File(dir, "rsa_key.pem").exists());
+        assertFalse(rsaBak.exists());
+        assertTrue(new java.io.File(lampDir, "f.bin").exists());
+        assertFalse(lampBak.exists());
+        assertEquals("utuh", new String(java.nio.file.Files
+                .readAllBytes(utuh.toPath()), "UTF-8"));
+        assertFalse(bakSisa.exists());
+        // Pekerja pohonnya langsung juga (nama teruji).
+        java.nio.file.Files.write(lampBak.toPath(),
+                "isi2".getBytes("UTF-8"));
+        new java.io.File(lampDir, "f.bin").delete();
+        ServerService.pulihkanBakPohon(
+                new java.io.File(dir, "attachments"));
+        assertEquals("isi2", new String(java.nio.file.Files
+                .readAllBytes(new java.io.File(lampDir,
+                        "f.bin").toPath()), "UTF-8"));
+    }
+
+    @Test
     public void pingMilikEpisodeSama_tolakProsesAtauEpisodeBeda() {
         Process a = new ProsesPalsu();
         Process b = new ProsesPalsu();

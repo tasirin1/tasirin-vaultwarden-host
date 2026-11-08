@@ -651,12 +651,69 @@ public class ServerService extends Service {
         if (dataFolder == null) {
             return;
         }
+        // Audit 1540: rsa_key ikut daftar akar — sejak Audit
+        // 1510 ia dipasang via gantiAtomik seperti db, tetapi
+        // pemulihan .bak-nya tertinggal dari daftar ini.
         pulihkanBakDiFolder(dataFolder,
-                new String[]{"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm"});
+                new String[]{"db.sqlite3", "db.sqlite3-wal", "db.sqlite3-shm",
+                        "rsa_key.pem", "rsa_key.der"});
         pulihkanBakDiFolder(new File(dataFolder, "tls"),
                 new String[]{"ca.pem", "cert.pem", "key.pem", "ca-key.pem"});
         pulihkanBakDiFolder(new File(dataFolder, "backups"),
                 namaAsal -> TgBackup.isFileBackup(namaAsal));
+        // Audit 1540: pohon lampiran & kiriman juga dipasang
+        // via gantiAtomik (Audit 1510) — pulihkan .bak-nya
+        // secara rekursif.
+        pulihkanBakPohon(new File(dataFolder, "attachments"));
+        pulihkanBakPohon(new File(dataFolder, "sends"));
+    }
+
+    // Audit 1540: pulihkan .bak sisa gantiAtomik di seluruh
+    // pohon (nama berkas di attachments/sends buatan server,
+    // jadi setiap *.bak adalah sisa swap). Penjaga kanonik
+    // mencegah siklus symlink dan basis akar mencegah
+    // mengikuti symlink keluar pohon (pola Audit 1536).
+    static void pulihkanBakPohon(File akar) {
+        if (akar == null) {
+            return;
+        }
+        String basis;
+        try {
+            basis = akar.getCanonicalPath();
+        } catch (Exception e) {
+            return;
+        }
+        pulihkanBakPohon(akar, basis, new java.util.HashSet<String>());
+    }
+
+    static void pulihkanBakPohon(File dir, String basis,
+                                 java.util.Set<String> sudah) {
+        if (dir == null || basis == null || sudah == null) {
+            return;
+        }
+        String kanon;
+        try {
+            kanon = dir.getCanonicalPath();
+        } catch (Exception e) {
+            return;
+        }
+        if (!kanon.equals(basis)
+                && !kanon.startsWith(basis + File.separator)) {
+            return;
+        }
+        if (!sudah.add(kanon)) {
+            return;
+        }
+        pulihkanBakDiFolder(dir, namaAsal -> true);
+        File[] isi = dir.listFiles();
+        if (isi == null) {
+            return;
+        }
+        for (File a : isi) {
+            if (a.isDirectory()) {
+                pulihkanBakPohon(a, basis, sudah);
+            }
+        }
     }
 
     static boolean bakNamaSah(String namaAsal, String[] namaSah) {
