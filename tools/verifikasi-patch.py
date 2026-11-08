@@ -2242,6 +2242,21 @@ def _menguras_khusus(perintah, toks, awal):
                     for t_sk in mentah):
                 return False
             return not _in_non_stdin()
+        # Audit 1523: storeutl membaca objek dari operand
+        # URI-nya — operand jalur fd (/dev/stdin &
+        # keluarga) adalah stdin, sedangkan "-" nama
+        # berkas harfiah seperti kelompok pemuat objek
+        # (terprobe dengan PEM sungguhan).
+        if sub == "storeutl":
+            ops_s = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-out", "-passin", "-engine", "-provider",
+                 "-provider-path", "-propquery", "-alias",
+                 "-subject", "-issuer", "-serial",
+                 "-fingerprint"})
+            return any(o_s in ("/dev/stdin", "/dev/fd/0",
+                               "/proc/self/fd/0")
+                       for o_s in ops_s)
         if sub == "verify":
             # Audit 1128: verify tanpa operand sertifikat membaca
             # sertifikat dari stdin.

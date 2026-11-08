@@ -14828,6 +14828,28 @@ def main():
                 "gerbang gagal (Audit 1522)",
                 rc != 0)
         shutil.rmtree(sub686, ignore_errors=True)
+        sub687 = klon(tmp, "sub687")
+        berkas_aksi687 = os.path.join(
+            sub687, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi687, encoding="utf-8") as f:
+            isi_aksi687 = f.read()
+        baris_aksi687 = [b for b in isi_aksi687.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru687 = isi_aksi687.replace(
+                baris_aksi687,
+                baris_aksi687.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl storeutl /dev/stdin; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru687 != isi_aksi687, \
+            "suntikan aksi687 tidak menembak"
+        with open(berkas_aksi687, "w", encoding="utf-8") as f:
+            f.write(isi_baru687)
+        rc, out = jalan(sub687, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl storeutl operand /dev/stdin membaca stdin: "
+                "gerbang gagal (Audit 1523)",
+                rc != 0)
+        shutil.rmtree(sub687, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
