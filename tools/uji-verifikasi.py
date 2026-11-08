@@ -14699,6 +14699,28 @@ def main():
                 "gerbang lolos (Audit 1502)",
                 rc == 0)
         shutil.rmtree(sub680, ignore_errors=True)
+        sub681 = klon(tmp, "sub681")
+        berkas_aksi681 = os.path.join(
+            sub681, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi681, encoding="utf-8") as f:
+            isi_aksi681 = f.read()
+        baris_aksi681 = [b for b in isi_aksi681.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru681 = isi_aksi681.replace(
+                baris_aksi681,
+                baris_aksi681.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git format-patch --signature --stdin; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru681 != isi_aksi681, \
+            "suntikan aksi681 tidak menembak"
+        with open(berkas_aksi681, "w", encoding="utf-8") as f:
+            f.write(isi_baru681)
+        rc, out = jalan(sub681, [sys.executable, GERBANG, "--semua"])
+        periksa("git format-patch --signature menelan --stdin sebagai nilai: "
+                "gerbang lolos (Audit 1503)",
+                rc == 0)
+        shutil.rmtree(sub681, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

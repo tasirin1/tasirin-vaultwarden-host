@@ -2430,7 +2430,15 @@ def _menguras_khusus(perintah, toks, awal):
                             # sempat menjadi NILAI
                             # --start-number.
                             "--start-number", "--thread-depth",
-                            "--filename-max-length"):
+                            "--filename-max-length",
+                            # Audit 1503: penelan nilai
+                            # gelombang berikutnya —
+                            # --stdin sempat menjadi
+                            # NILAI --signature dkk.
+                            "--signature", "--suffix",
+                            "--add-header", "--interdiff",
+                            "--range-diff",
+                            "--creation-factor"):
                     k_fp += 2
                     continue
                 k_fp += 1
