@@ -116,3 +116,5 @@ _pola_kurung_redirect
 # Mesin pencatat async PinGate; pencatatan hasil PIN kini selalu sinkron (Audit 1362).
 catatHasilAsync
 diMainThread
+# Getter mati di HttpsCompat; field kini dibaca langsung (Audit 1469).
+gagalTrustTerakhir

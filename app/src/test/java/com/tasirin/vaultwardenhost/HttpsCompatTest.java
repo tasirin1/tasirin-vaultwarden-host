@@ -110,7 +110,7 @@ public class HttpsCompatTest {
         assertFalse(HttpsCompat.sinyalGagalTrust(null, null));
         HttpsCompat.catatGagalTrust(new Exception("uji-sinyal"));
         assertTrue("java.lang.Exception: uji-sinyal".equals(
-                HttpsCompat.gagalTrustTerakhir()));
+                HttpsCompat.gagalTrustTerakhir));
     }
 
     @Test

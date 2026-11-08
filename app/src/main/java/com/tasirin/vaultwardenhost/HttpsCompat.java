@@ -150,11 +150,10 @@ public final class HttpsCompat {
         }
     }
 
-    private static volatile String gagalTrustTerakhir;
-
-    static String gagalTrustTerakhir() {
-        return gagalTrustTerakhir;
-    }
+    // Audit 1469: getter gagalTrustTerakhir() dihapus (mati —
+    // produksi membaca field ini langsung); field kini
+    // package-private agar uji bisa membacanya tanpa getter.
+    static volatile String gagalTrustTerakhir;
 
     static boolean sinyalGagalTrust(String sebelumnya, String kini) {
         return kini != null && !kini.equals(sebelumnya);

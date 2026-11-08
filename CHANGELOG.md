@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Getter mati gagalTrustTerakhir di HttpsCompat dihapus (Audit 1469)
 ## [Belum rilis] — Memo kecocokan pasangan cert/key kini menyimpan juga hasil tak cocok yang definitif (Audit 1468)
 ## [Belum rilis] — Pola baca respons + tunggu 429 Telegram disatukan ke helper bersama (Audit 1466)
 ## [Belum rilis] — Stempel backup terakhir kini konsisten: file, nama, dan waktu dari batch yang sama (Audit 1465)
