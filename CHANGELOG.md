@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Perkakas uji: pesan TIMEOUT suite tak lagi memuat repr bytes (Audit 1508)
 ## [Belum rilis] — Cek cepat: skenario token terbelah tersela komentar dikunci di suite (Audit 1506)
 ## [Belum rilis] — Cek cepat: header kunci tersela komentar / terbelah di tengah frasa / label kecil panjang kini tertangkap (Audit 1505)
 ## [Belum rilis] — Konstanta mati DEFAULT_DATA_DIR dihapus; produksi dan uji memakai dataDirBawaanSegar() (Audit 1518)

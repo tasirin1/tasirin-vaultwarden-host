@@ -28,7 +28,12 @@ def jalan(cwd, perintah, env=None):
         p = subprocess.run(perintah, cwd=cwd, env=e, stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT, text=True, timeout=300)
     except subprocess.TimeoutExpired as ex:
-        return 124, "TIMEOUT 300 detik: %s" % (ex.output or "")
+        # Audit 1508: ex.output bertipe bytes walau text=True,
+        # jadi pesan timeout dulu memuat repr b'...' yang kabur.
+        keluaran = ex.output or ""
+        if isinstance(keluaran, bytes):
+            keluaran = keluaran.decode("utf-8", "replace")
+        return 124, "TIMEOUT 300 detik: %s" % keluaran
     return p.returncode, p.stdout
 
 
