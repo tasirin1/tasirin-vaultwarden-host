@@ -45,7 +45,12 @@ public final class TgBot {
     static final String MENU_UPDATE = "update";
     static final String MENU_SERTIFIKAT = "sertifikat";
     static final String MENU_INFO = "info";
-    private static final long POLL_INTERVAL_MS = 20_000;
+    // Audit 1463: irama poll dilonggarkan (20 dtk + long-poll 8 dtk
+    // = ±3 koneksi HTTPS/menit 24 jam). Long-poll 50 dtk membuat
+    // satu koneksi menunggu hampir seirama alarm 60 dtk; getUpdates
+    // tetap kembali seketika saat ada update, jadi respons tak
+    // berubah — hanya koneksi diam yang berkurang ±3x.
+    private static final long POLL_INTERVAL_MS = 60_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
 
@@ -469,7 +474,7 @@ public final class TgBot {
             isiNamaBotBilaKosong(ctx, token);
 
             String body = httpPostForm(ctx, TG_API + token + "/getUpdates",
-                    "offset=" + offset + "&timeout=8&limit=10");
+                    "offset=" + offset + "&timeout=50&limit=10");
             if (body == null) {
                 return;
             }
