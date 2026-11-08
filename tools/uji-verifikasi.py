@@ -14894,6 +14894,28 @@ def main():
                 "gerbang lolos (Audit 1525)",
                 rc == 0)
         shutil.rmtree(sub689, ignore_errors=True)
+        sub690 = klon(tmp, "sub690")
+        berkas_aksi690 = os.path.join(
+            sub690, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi690, encoding="utf-8") as f:
+            isi_aksi690 = f.read()
+        baris_aksi690 = [b for b in isi_aksi690.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru690 = isi_aksi690.replace(
+                baris_aksi690,
+                baris_aksi690.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(git commit -s -F -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru690 != isi_aksi690, \
+            "suntikan aksi690 tidak menembak"
+        with open(berkas_aksi690, "w", encoding="utf-8") as f:
+            f.write(isi_baru690)
+        rc, out = jalan(sub690, [sys.executable, GERBANG, "--semua"])
+        periksa("git commit -s -F -: -s bendera tanpa nilai di commit: "
+                "gerbang gagal (Audit 1535)",
+                rc != 0)
+        shutil.rmtree(sub690, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

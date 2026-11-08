@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pindai -F commit/tag tak lagi memperlakukan -s sebagai opsi bernilai (signoff/sign adalah bendera) (Audit 1535)
 ## [Belum rilis] — Restore file-picker: lampiran & rsa_key kini ikut skema staging (tak lagi ditulis langsung ke nama akhir) (Audit 1534)
 ## [Belum rilis] — Komentar Audit 1476 dikembalikan menempel ke metodenya (blok Audit 1511 dipindah ke atasnya) (Audit 1533)
 ## [Belum rilis] — PIN: persenjataan ulang penuh sesudah reboot pada kunci yang sudah kedaluwarsa didokumentasikan sebagai trade-off yang sadar diterima (fail-closed, Audit 1532) (Audit 1532)

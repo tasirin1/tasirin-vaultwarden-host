@@ -2667,7 +2667,13 @@ def _menguras_khusus(perintah, toks, awal):
                 # tak ada di bernilai_in (dipakai bersama
                 # subcommand lain); nilai mereka (mis. -F)
                 # bukan bendera berkas.
-                elif t_g in bernilai_in or t_g in (
+                # Audit 1535: "-s" DIKECUALIKAN di sini — di
+                # bernilai_in ia untuk --strategy milik merge,
+                # tetapi di commit -s = --signoff dan di tag
+                # -s = --sign, keduanya bendera TANPA nilai;
+                # memperlakukannya bernilai menelan -F
+                # berikutnya ("git commit -s -F -" lolos).
+                elif (t_g in bernilai_in and t_g != "-s") or t_g in (
                         "--cleanup", "--author", "--template",
                         "--trailer"):
                     k_g += 2
