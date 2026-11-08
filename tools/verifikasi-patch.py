@@ -2087,10 +2087,10 @@ def _menguras_khusus(perintah, toks, awal):
             return bool(hasil_in)
 
         if sub == "enc" or sub == "base64":
-            if any(t == "-in" and k + 1 < len(mentah)
-                   and mentah[k + 1] == "-"
-                   for k, t in enumerate(mentah)):
-                return True
+            # Audit 1501: OpenSSL memakai -in TERAKHIR
+            # juga di sini (seperti _in_non_stdin,
+            # Audit 1278) — vonis lama menghitung
+            # kemunculan "-" di posisi mana pun.
             return not _in_non_stdin()
         # Audit 1495: subcommand parameter yang tak
         # tertangani putaran-putaran sebelumnya —

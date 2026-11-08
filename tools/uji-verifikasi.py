@@ -14655,6 +14655,28 @@ def main():
                 "gerbang lolos (Audit 1500)",
                 rc == 0)
         shutil.rmtree(sub678, ignore_errors=True)
+        sub679 = klon(tmp, "sub679")
+        berkas_aksi679 = os.path.join(
+            sub679, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi679, encoding="utf-8") as f:
+            isi_aksi679 = f.read()
+        baris_aksi679 = [b for b in isi_aksi679.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru679 = isi_aksi679.replace(
+                baris_aksi679,
+                baris_aksi679.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl enc -aes-256-cbc -in - -in data.bin -pass pass:x; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru679 != isi_aksi679, \
+            "suntikan aksi679 tidak menembak"
+        with open(berkas_aksi679, "w", encoding="utf-8") as f:
+            f.write(isi_baru679)
+        rc, out = jalan(sub679, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl enc -in terakhir berkas, bukan stdin: "
+                "gerbang lolos (Audit 1501)",
+                rc == 0)
+        shutil.rmtree(sub679, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
