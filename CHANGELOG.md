@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gpgsm himpunan opsi bernilai kurang (--cipher-algo dkk.) (Audit 1446)
 ## [Belum rilis] — Npm bendera global bernilai masih kurang (--init-module dkk.) (Audit 1445)
 ## [Belum rilis] — Openssl ts -data - membaca dari stdin, penjaga buta nilai (Audit 1444)
 ## [Belum rilis] — Openssl asn1parse -item hilang dari himpunan opsi bernilai (Audit 1443)

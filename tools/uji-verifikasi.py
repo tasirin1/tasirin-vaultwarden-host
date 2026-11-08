@@ -14429,6 +14429,27 @@ def main():
         periksa("npm --init-module init: "
                 "gerbang gagal (Audit 1445)", rc != 0)
         shutil.rmtree(sub666, ignore_errors=True)
+        sub667 = klon(tmp, "sub667")
+        berkas_aksi667 = os.path.join(
+            sub667, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi667, encoding="utf-8") as f:
+            isi_aksi667 = f.read()
+        baris_aksi667 = [b for b in isi_aksi667.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru667 = isi_aksi667.replace(
+                baris_aksi667,
+                baris_aksi667.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gpgsm --decrypt --cipher-algo AES256; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru667 != isi_aksi667, \
+            "suntikan aksi667 tidak menembak"
+        with open(berkas_aksi667, "w", encoding="utf-8") as f:
+            f.write(isi_baru667)
+        rc, out = jalan(sub667, [sys.executable, GERBANG, "--semua"])
+        periksa("gpgsm --decrypt --cipher-algo: "
+                "gerbang gagal (Audit 1446)", rc != 0)
+        shutil.rmtree(sub667, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

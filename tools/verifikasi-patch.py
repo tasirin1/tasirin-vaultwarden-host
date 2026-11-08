@@ -2835,7 +2835,15 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"-o", "--output", "--homedir",
                          "--status-fd", "--logger-fd",
                          "--attribute-fd", "--passphrase-fd",
-                         "--command-fd", "-p", "--passphrase"})
+                         "--command-fd", "-p", "--passphrase",
+                         # Audit 1446: opsi bernilai gpgsm
+                         # yang hilang dari Audit 1428 —
+                         # nilainya sempat terhitung
+                         # operand berkas penekan.
+                         "--cipher-algo", "--digest-algo",
+                         "--compress-algo", "--local-user",
+                         "-u", "--recipient", "-r",
+                         "--agent-program", "--options"})
         return not ops_gs or "-" in ops_gs
     if perintah == "curl":
         # Audit 1068: data/unggah/konfigurasi dari stdin.
