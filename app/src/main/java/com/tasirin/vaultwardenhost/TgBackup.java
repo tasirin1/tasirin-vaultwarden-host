@@ -4787,6 +4787,15 @@ public final class TgBackup {
         if (nama == null) {
             return false;
         }
+        // Audit 1538: nama berakhiran .restore-tmp tidak pernah
+        // isi backup yang sah (itu akhiran staging internal;
+        // pengumpulan backup Audit 1530 pun melewatinya) —
+        // menerimanya memasang berkas sampah sebagai berkas
+        // akhir yang lalu tak ter-backup dan tersapu restore
+        // berikutnya.
+        if (nama.endsWith(".restore-tmp")) {
+            return false;
+        }
         if (nama.equals("db.sqlite3") || nama.equals("db.sqlite3-wal")
                 || nama.equals("db.sqlite3-shm")) {
             return true;

@@ -446,6 +446,18 @@ public class TgBackupTest {
         assertFalse(TgBackup.bolehTulisRestore("attachments"));
         assertFalse(TgBackup.bolehTulisRestore("lainnya.txt"));
         assertFalse(TgBackup.bolehTulisRestore(null));
+        // Audit 1538: akhiran staging internal tak pernah
+        // nama isi yang sah.
+        assertFalse(TgBackup.bolehTulisRestore(
+                "attachments/a/b.bin.restore-tmp"));
+        assertFalse(TgBackup.bolehTulisRestore(
+                "rsa_key.pem.restore-tmp"));
+        assertFalse(TgBackup.bolehTulisRestore(
+                "sends/x.restore-tmp"));
+        assertFalse(TgBackup.bolehTulisRestore(
+                "tls/ca.pem.restore-tmp"));
+        assertFalse(TgBackup.bolehTulisRestore(
+                "db.sqlite3.restore-tmp"));
     }
 
     @Test
