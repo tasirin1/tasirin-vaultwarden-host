@@ -2152,13 +2152,21 @@ def _menguras_khusus(perintah, toks, awal):
             # stdin — penjaga lama buta nilai.
             if "-query" not in mentah:
                 return False
+            # Audit 1497: OpenSSL memakai -data
+            # TERAKHIR (seperti -in, Audit 1278) —
+            # pindai 1444 berhenti di kemunculan
+            # pertama sehingga "-data berkas -data -"
+            # lolos dan arah sebaliknya vonis palsu.
+            hasil_data = None
             for k_ts, t_ts in enumerate(mentah):
                 if t_ts == "-data":
-                    return (k_ts + 1 < len(mentah)
-                            and mentah[k_ts + 1] == "-")
-                if t_ts.startswith("-data="):
-                    return t_ts == "-data=-"
-            return True
+                    hasil_data = (k_ts + 1 < len(mentah)
+                                  and mentah[k_ts + 1] == "-")
+                elif t_ts.startswith("-data="):
+                    hasil_data = t_ts == "-data=-"
+            if hasil_data is None:
+                return True
+            return hasil_data
         # Audit 1433: ca dengan -in - membaca CSR dari
         # stdin (dengan konfigurasi CA lengkap).
         if sub == "ca":

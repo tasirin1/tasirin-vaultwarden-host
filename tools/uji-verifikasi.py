@@ -14567,6 +14567,28 @@ def main():
                 "gerbang gagal (Audit 1496)",
                 rc != 0)
         shutil.rmtree(sub674, ignore_errors=True)
+        sub675 = klon(tmp, "sub675")
+        berkas_aksi675 = os.path.join(
+            sub675, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi675, encoding="utf-8") as f:
+            isi_aksi675 = f.read()
+        baris_aksi675 = [b for b in isi_aksi675.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru675 = isi_aksi675.replace(
+                baris_aksi675,
+                baris_aksi675.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl ts -query -data data.bin -data -; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru675 != isi_aksi675, \
+            "suntikan aksi675 tidak menembak"
+        with open(berkas_aksi675, "w", encoding="utf-8") as f:
+            f.write(isi_baru675)
+        rc, out = jalan(sub675, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl ts -data terakhir - menguras stdin: "
+                "gerbang gagal (Audit 1497)",
+                rc != 0)
+        shutil.rmtree(sub675, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
