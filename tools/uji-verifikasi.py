@@ -218,10 +218,16 @@ def main():
                                  "resolve-vw", "action.yml")
         with open(berkas_pt, encoding="utf-8") as f:
             isi_pt = f.read()
+        # Audit 1452: pola isi_baru + asersi (kelas Audit 1410) —
+        # suntikan yang tak menembak kini menggagalkan suite,
+        # bukan lagi LOLOS palsu.
+        isi_baru_pt = isi_pt.replace(
+            'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+            'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT" || true')
+        assert isi_baru_pt != isi_pt, \
+            "suntikan prodtrue tidak menembak"
         with open(berkas_pt, "w", encoding="utf-8") as f:
-            f.write(isi_pt.replace(
-                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
-                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT" || true'))
+            f.write(isi_baru_pt)
         rc, out = jalan(prodtrue, [sys.executable, GERBANG, "--semua"])
         periksa("produsen sah sufiks || true: gerbang lolos (Audit 875)",
                 rc == 0)
@@ -232,10 +238,13 @@ def main():
                                  "resolve-vw", "action.yml")
         with open(berkas_pk, encoding="utf-8") as f:
             isi_pk = f.read()
+        isi_baru_pk = isi_pk.replace(
+            'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+            "echo 'tag_mentah=$TAG' >> \"$GITHUB_OUTPUT\"")
+        assert isi_baru_pk != isi_pk, \
+            "suntikan prodkutip1 tidak menembak"
         with open(berkas_pk, "w", encoding="utf-8") as f:
-            f.write(isi_pk.replace(
-                'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
-                "echo 'tag_mentah=$TAG' >> \"$GITHUB_OUTPUT\""))
+            f.write(isi_baru_pk)
         rc, out = jalan(prodkutip1, [sys.executable, GERBANG, "--semua"])
         periksa("produsen sah echo kutip tunggal: gerbang lolos (Audit 875)",
                 rc == 0)
