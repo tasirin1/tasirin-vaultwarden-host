@@ -573,6 +573,27 @@ def main():
                 rc == 0)
         shutil.rmtree(doccontoh, ignore_errors=True)
 
+        subsepjinak = klon(tmp, "subsepjinak")
+        tanam(subsepjinak, "catatan-subsep.txt",
+              b"123456789\x1c" + b"A" * 35 + b"\n")
+        rc, out = jalan(subsepjinak, ["bash", SKRIP])
+        periksa("byte SUBSEP bawaan tanpa titik dua tidak "
+                "menempa token (Audit 1566)",
+                rc == 0)
+        shutil.rmtree(subsepjinak, ignore_errors=True)
+
+        tokenselasubsep = klon(tmp, "tokenselasubsep")
+        tanam(tokenselasubsep, "token-sela-subsep.txt",
+              "token uji: " + token_palsu[:paruh] + "\n"
+              "# jeda\x1c sebentar\n" + token_palsu[paruh:] + "\n",
+              "w")
+        rc, out = jalan(tokenselasubsep, ["bash", SKRIP])
+        periksa("token tersela baris berisi byte SUBSEP "
+                "tertangkap (Audit 1566)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-subsep.txt" in out)
+        shutil.rmtree(tokenselasubsep, ignore_errors=True)
+
         tokenbelahduac = klon(tmp, "tokenbelahduac")
         tanam(tokenbelahduac, "token-belah-dua-c.txt",
               "token uji: " + token_palsu[:9] + "\n"

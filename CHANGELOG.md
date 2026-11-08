@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Byte penanda SUBSEP bawaan berkas dibuang lebih dulu di cek-cepat (Audit 1566)
+
+- Langkah pulih lama menulis ulang SEMUA byte SUBSEP (\034) di blob menjadi ':', termasuk byte yang memang sudah ada di berkas sumber: digit + byte itu + badan base64 (tanpa titik dua sama sekali) tertangkap sebagai token (positif palsu), dan baris sela berisi byte itu menelan belahan (lolos) — keduanya terprobe. Kini byte SUBSEP bawaan dibuang sebelum perlindungan menandai apa pun, jadi satu-satunya SUBSEP di blob adalah tanda perlindungan sendiri.
+
 ## [Belum rilis] — Perlindungan titik dua cek-cepat mencakup belahan lintas-baris dan titik dua + TAB (Audit 1565)
 
 - Perlindungan 1560 masih lebih sempit daripada penetralan dalam dua bentuk: titik dua token persis di awal baris kedua (seluruh digitnya di baris pertama, atau terbelah di tengah deret digit) tidak terjangkau aturan per-baris, dan titik dua diikuti TAB hanya dinetralkan ([[:space:]]) tanpa pernah dilindungi (kelas spasi persis). Kini perlindungan memakai kelas penetralan yang sama dan ada aturan lintas-baris: ekor digit baris sebelumnya dijumlahkan dengan kepala digit baris ini sebelum memutuskan.
