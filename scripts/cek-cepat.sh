@@ -125,7 +125,16 @@ BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c 
   # yang dilindungi hanya ':' yang didahului >=5 digit
   # beruntun (bentuk titik dua token itu sendiri) — titik
   # dua jam (2 digit) dan versi (1 digit) tetap dinetralkan.
-  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); while (match($0, /[0-9][0-9][0-9][0-9][0-9]: /)) { $0 = substr($0, 1, RSTART + 4) SUBSEP substr($0, RSTART + 7); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if ($0 ~ /^[[:space:]]*\/\//) next; if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) next; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
+  # Audit 1565: perlindungan 1560 masih lebih sempit
+  # daripada penetralan dalam dua bentuk — (a) titik dua
+  # token di AWAL baris kedua dengan digitnya terbelah
+  # (ekor digit baris sebelumnya + kepala digit baris ini
+  # harus dijumlahkan; dilacak lewat 'ekordgt'), dan
+  # (b) titik dua diikuti TAB (perlindungan hanya
+  # mencocokkan spasi persis, penetralan [[:space:]]).
+  # Keduanya kini dicakup: kelas penetralan yang sama
+  # dipakai perlindungan, plus aturan lintas-baris itu.
+  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0; if (match(awal, /^[0-9]+/)) hd = RLENGTH; if (ekordgt + hd >= 5 && substr(awal, hd + 1, 1) == ":" && substr(awal, hd + 2, 1) ~ /[[:space:]]/) { sp = length($0) - length(awal); pos = sp + hd + 1; $0 = substr($0, 1, pos - 1) SUBSEP substr($0, pos + 2); } while (match($0, /[0-9][0-9][0-9][0-9][0-9]:[[:space:]]/)) { $0 = substr($0, 1, RSTART + 4) SUBSEP substr($0, RSTART + 7); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if ($0 ~ /^[[:space:]]*\/\//) next; if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) { ekordgt = 0; next; } ekordgt = 0; if (match($0, /[0-9]+$/)) ekordgt = RLENGTH; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
     printf '%s\n' "$f"
   fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then

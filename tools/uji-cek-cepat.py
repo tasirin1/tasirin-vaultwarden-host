@@ -573,6 +573,29 @@ def main():
                 rc == 0)
         shutil.rmtree(doccontoh, ignore_errors=True)
 
+        tokenbelahduac = klon(tmp, "tokenbelahduac")
+        tanam(tokenbelahduac, "token-belah-dua-c.txt",
+              "token uji: " + token_palsu[:9] + "\n"
+              + token_palsu[9] + " " + token_palsu[10:] + "\n",
+              "w")
+        rc, out = jalan(tokenbelahduac, ["bash", SKRIP])
+        periksa("token terbelah dengan ':' persis di awal baris "
+                "kedua tertangkap (Audit 1565)",
+                rc != 0 and "pola rahasia" in out
+                and "token-belah-dua-c.txt" in out)
+        shutil.rmtree(tokenbelahduac, ignore_errors=True)
+
+        tokenbelahduad = klon(tmp, "tokenbelahduad")
+        tanam(tokenbelahduad, "token-belah-dua-d.txt",
+              "token uji: " + token_palsu[:10] + "\t"
+              + token_palsu[10:] + "\n", "w")
+        rc, out = jalan(tokenbelahduad, ["bash", SKRIP])
+        periksa("token dengan TAB sesudah ':' tertangkap "
+                "(Audit 1565)",
+                rc != 0 and "pola rahasia" in out
+                and "token-belah-dua-d.txt" in out)
+        shutil.rmtree(tokenbelahduad, ignore_errors=True)
+
         tokenselajam = klon(tmp, "tokenselajam")
         tanam(tokenselajam, "token-sela-jam.txt",
               "token uji: " + token_palsu[:paruh] + "\n"

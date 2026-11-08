@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Perlindungan titik dua cek-cepat mencakup belahan lintas-baris dan titik dua + TAB (Audit 1565)
+
+- Perlindungan 1560 masih lebih sempit daripada penetralan dalam dua bentuk: titik dua token persis di awal baris kedua (seluruh digitnya di baris pertama, atau terbelah di tengah deret digit) tidak terjangkau aturan per-baris, dan titik dua diikuti TAB hanya dinetralkan ([[:space:]]) tanpa pernah dilindungi (kelas spasi persis). Kini perlindungan memakai kelas penetralan yang sama dan ada aturan lintas-baris: ekor digit baris sebelumnya dijumlahkan dengan kepala digit baris ini sebelum memutuskan.
+
 ## [Belum rilis] — Perlindungan titik dua cek-cepat kontekstual: sela jam/versi tak lagi mematahkan belahan token/header (Audit 1560)
 
 - Perlindungan titik dua Audit 1552 berlaku untuk titik dua sesudah digit APA PUN di semua baris, termasuk baris sela prosa: baris sela berisi jam ('# selesai 12: 30') atau versi ('# versi 2: final') di antara dua paruh token/header ikut dilindungi, titik duanya mendarat di blob di antara paruh, dan belahan lolos dari gerbang (regresi, terprobe rc=0; kontras tiga era skrip mengatribusikannya ke 1552). Kini yang dilindungi hanya titik dua yang didahului >=5 digit beruntun — bentuk titik dua token itu sendiri — sehingga titik dua jam (2 digit) dan versi (1 digit) tetap dinetralkan dan paruhnya menyatu lagi.
