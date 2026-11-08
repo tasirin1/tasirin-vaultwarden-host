@@ -2998,19 +2998,35 @@ def _menguras_khusus(perintah, toks, awal):
         # --audit-log/--debug-level/--include-certs/
         # --keyring juga bernilai (dari gpgsm --help,
         # sebagian terprobe).
-        bernilai_gs = {"-o", "--output", "--homedir",
-                       "--status-fd", "--logger-fd",
-                       "--attribute-fd", "--passphrase-fd",
-                       "--command-fd", "-p", "--passphrase",
-                       "--cipher-algo", "--digest-algo",
-                       "--compress-algo", "--local-user",
-                       "-u", "--recipient", "-r",
-                       "--agent-program", "--options",
-                       "--log-file", "--p12-charset",
-                       "--default-key", "--policy-file",
-                       "--encrypt-to", "--audit-log",
-                       "--debug-level", "--include-certs",
-                       "--keyring"}
+        # Audit 1545: dilengkapi lagi dari gpgsm
+        # --dump-options + probe dua arah (27 opsi):
+        # --pinentry-mode/--html-audit-log/
+        # --extra-digest-algo/--validation-model/
+        # --keyserver/--dirmngr-program/--compliance/
+        # --keyboxd-program/--protect-tool-program/
+        # --min-rsa-length/--ignore-cert-extension/
+        # --ignore-cert-with-oid/--ldapserver/
+        # --disable-cipher-algo/--disable-pubkey-algo/
+        # --request-origin/--faked-system-time/
+        # --kbx-buffer-size/--input-size-hint/
+        # --compatibility-flags/--display/--ttyname/
+        # --ttytype/--lc-ctype/--lc-messages/
+        # --xauthority/--chuid.
+        bernilai_gs = {
+                       "--agent-program", "--attribute-fd", "--audit-log", "--chuid",
+                       "--cipher-algo", "--command-fd", "--compatibility-flags", "--compliance",
+                       "--compress-algo", "--debug-level", "--default-key", "--digest-algo",
+                       "--dirmngr-program", "--disable-cipher-algo", "--disable-pubkey-algo", "--display",
+                       "--encrypt-to", "--extra-digest-algo", "--faked-system-time", "--homedir",
+                       "--html-audit-log", "--ignore-cert-extension", "--ignore-cert-with-oid", "--include-certs",
+                       "--input-size-hint", "--kbx-buffer-size", "--keyboxd-program", "--keyring",
+                       "--keyserver", "--lc-ctype", "--lc-messages", "--ldapserver",
+                       "--local-user", "--log-file", "--logger-fd", "--min-rsa-length",
+                       "--options", "--output", "--p12-charset", "--passphrase",
+                       "--passphrase-fd", "--pinentry-mode", "--policy-file", "--protect-tool-program",
+                       "--recipient", "--request-origin", "--status-fd", "--ttyname",
+                       "--ttytype", "--validation-model", "--xauthority", "-o",
+                       "-p", "-r", "-u"}
         ada_modus = False
         k_gs = 0
         while k_gs < len(mentah):
@@ -3027,25 +3043,21 @@ def _menguras_khusus(perintah, toks, awal):
         if not ada_modus:
             return False
         ops_gs = _operand_sesudah_opsi(
-            toks, awal, {"-o", "--output", "--homedir",
-                         "--status-fd", "--logger-fd",
-                         "--attribute-fd", "--passphrase-fd",
-                         "--command-fd", "-p", "--passphrase",
-                         # Audit 1446: opsi bernilai gpgsm
-                         # yang hilang dari Audit 1428 —
-                         # nilainya sempat terhitung
-                         # operand berkas penekan.
-                         "--cipher-algo", "--digest-algo",
-                         "--compress-algo", "--local-user",
-                         "-u", "--recipient", "-r",
-                         "--agent-program", "--options",
-                         # Audit 1525: sama seperti
-                         # bernilai_gs di atas.
-                         "--log-file", "--p12-charset",
-                         "--default-key", "--policy-file",
-                         "--encrypt-to", "--audit-log",
-                         "--debug-level", "--include-certs",
-                         "--keyring"})
+            toks, awal, {
+                       "--agent-program", "--attribute-fd", "--audit-log", "--chuid",
+                       "--cipher-algo", "--command-fd", "--compatibility-flags", "--compliance",
+                       "--compress-algo", "--debug-level", "--default-key", "--digest-algo",
+                       "--dirmngr-program", "--disable-cipher-algo", "--disable-pubkey-algo", "--display",
+                       "--encrypt-to", "--extra-digest-algo", "--faked-system-time", "--homedir",
+                       "--html-audit-log", "--ignore-cert-extension", "--ignore-cert-with-oid", "--include-certs",
+                       "--input-size-hint", "--kbx-buffer-size", "--keyboxd-program", "--keyring",
+                       "--keyserver", "--lc-ctype", "--lc-messages", "--ldapserver",
+                       "--local-user", "--log-file", "--logger-fd", "--min-rsa-length",
+                       "--options", "--output", "--p12-charset", "--passphrase",
+                       "--passphrase-fd", "--pinentry-mode", "--policy-file", "--protect-tool-program",
+                       "--recipient", "--request-origin", "--status-fd", "--ttyname",
+                       "--ttytype", "--validation-model", "--xauthority", "-o",
+                       "-p", "-r", "-u"})
         return not ops_gs or "-" in ops_gs
     if perintah == "curl":
         # Audit 1068: data/unggah/konfigurasi dari stdin.

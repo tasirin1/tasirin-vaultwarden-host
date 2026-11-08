@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: himpunan opsi bernilai gpgsm dilengkapi 27 opsi lagi dari --dump-options (Audit 1545)
 ## [Belum rilis] — Cek-cepat: celah pola header kini menoleransi '-' dan '_' (baris '-----' sebagai sela ikut tertangkap) (Audit 1544)
 ## [Belum rilis] — Cek-cepat: sela campuran kata+simbol tak lagi mematahkan pola bungkus (Audit 1543)
 ## [Belum rilis] — URL cadangan unduhan kini juga ditawarkan untuk respons kedua sesudah reset-resume (Audit 1542)

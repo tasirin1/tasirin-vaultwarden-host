@@ -14916,6 +14916,28 @@ def main():
                 "gerbang gagal (Audit 1535)",
                 rc != 0)
         shutil.rmtree(sub690, ignore_errors=True)
+        sub691 = klon(tmp, "sub691")
+        berkas_aksi691 = os.path.join(
+            sub691, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi691, encoding="utf-8") as f:
+            isi_aksi691 = f.read()
+        baris_aksi691 = [b for b in isi_aksi691.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru691 = isi_aksi691.replace(
+                baris_aksi691,
+                baris_aksi691.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gpgsm --pinentry-mode loopback --decrypt; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru691 != isi_aksi691, \
+            "suntikan aksi691 tidak menembak"
+        with open(berkas_aksi691, "w", encoding="utf-8") as f:
+            f.write(isi_baru691)
+        rc, out = jalan(sub691, [sys.executable, GERBANG, "--semua"])
+        periksa("gpgsm --pinentry-mode bernilai: --decrypt tak tertelan sebagai nilai maupun tertekan operand: gerbang gagal (Audit 1545)",
+                rc != 0)
+        shutil.rmtree(sub691, ignore_errors=True)
+
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
