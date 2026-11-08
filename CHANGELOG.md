@@ -1,5 +1,6 @@
 # Changelog
 
+## [Belum rilis] — KernelCompat.channelName kini private (hanya dipakai internal) (Audit 1484)
 ## [Belum rilis] — Permintaan izin runtime cukup WRITE_EXTERNAL_STORAGE (READ satu grup, tetap di manifest) (Audit 1483)
 ## [Belum rilis] — Akar bagi FileShareProvider di-cache statik berkunci gabungan; verifikasi berkas tetap segar (Audit 1482)
 ## [Belum rilis] — tulisBarisLog memakai helper tanggalLog, bukan salinan badannya (Audit 1481)

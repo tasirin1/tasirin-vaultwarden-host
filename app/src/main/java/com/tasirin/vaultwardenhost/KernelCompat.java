@@ -40,7 +40,9 @@ public final class KernelCompat {
         }
     }
 
-    public static String channelName(boolean legacy) {
+    // Audit 1484: private — satu-satunya pemanggil internal
+    // (infoBaris); dulu public tanpa pemanggil luar.
+    private static String channelName(boolean legacy) {
         return legacy ? "legacy" : "modern";
     }
 
