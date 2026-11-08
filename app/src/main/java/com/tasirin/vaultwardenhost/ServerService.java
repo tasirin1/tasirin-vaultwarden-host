@@ -3545,7 +3545,8 @@ public class ServerService extends Service {
                                 // jalur unduhan (Updater) — tanpa ini dua
                                 // pemasangan berebut satu nama .bak dan
                                 // pin bisa tak selaras isi akhir.
-                                Updater.pasangKunciGlobal();
+                                Updater.pasangKunciGlobal(
+                                        getString(R.string.dl_status_waiting));
                                 try {
                                     gantiAtomik(tmpManual, out);
                                     writeText(verFile, Updater.appVersionName(this));

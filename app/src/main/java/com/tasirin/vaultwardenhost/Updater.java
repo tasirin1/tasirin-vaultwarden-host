@@ -1469,8 +1469,12 @@ public final class Updater {
     // mengunci kunci pasang global yang sama — swap berkas
     // dan penulisan pin-nya tak boleh balapan dengan
     // pemasangan hasil unduhan.
-    static void pasangKunciGlobal() {
-        KUNCI_PASANG_GLOBAL.lock();
+    // Audit 1556: lewat kunciPasangGlobal(teks) agar masa
+    // tunggu (bisa bermenit-menit selama unduhan berjalan)
+    // memasang teks status yang sama seperti jalur
+    // unduhan, bukan menunggu diam-diam.
+    static void pasangKunciGlobal(String teksMenunggu) {
+        kunciPasangGlobal(teksMenunggu);
     }
 
     static void lepasKunciGlobal() {

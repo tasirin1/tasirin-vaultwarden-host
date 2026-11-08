@@ -1634,6 +1634,7 @@ public class UpdaterTest {
         // unduhan kini juga dikunci jalur manual lewat
         // pasang/lepasKunciGlobal — buktikan saling eksklusif
         // antar thread dan reentrant di thread yang sama.
+        // Audit 1556: pasangKunciGlobal menerima teks tunggu.
         final java.util.concurrent.atomic.AtomicBoolean dapat =
                 new java.util.concurrent.atomic.AtomicBoolean(false);
         final java.util.concurrent.CountDownLatch mulai =
@@ -1642,10 +1643,10 @@ public class UpdaterTest {
                 new java.util.concurrent.CountDownLatch(1);
         java.util.concurrent.ExecutorService pelaksana =
                 java.util.concurrent.Executors.newSingleThreadExecutor();
-        Updater.pasangKunciGlobal();
+        Updater.pasangKunciGlobal("menunggu uji");
         pelaksana.execute(() -> {
             mulai.countDown();
-            Updater.pasangKunciGlobal();
+            Updater.pasangKunciGlobal("menunggu uji");
             dapat.set(true);
             Updater.lepasKunciGlobal();
             selesai.countDown();
@@ -1654,7 +1655,7 @@ public class UpdaterTest {
         Thread.sleep(300);
         assertFalse(dapat.get());
         // Reentrant: thread yang sama boleh mengunci lagi.
-        Updater.pasangKunciGlobal();
+        Updater.pasangKunciGlobal("menunggu uji");
         Updater.lepasKunciGlobal();
         Updater.lepasKunciGlobal();
         assertTrue(selesai.await(5, java.util.concurrent.TimeUnit.SECONDS));

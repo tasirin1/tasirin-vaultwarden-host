@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pasang binary manual kini menampilkan teks tunggu saat kunci pasang dipakai unduhan (Audit 1556)
+
+- Residu Audit 1541: `pasangKunciGlobal()` mengunci polos tanpa batas dan tanpa indikator, sedangkan jalur unduhan memasang teks status "menunggu" lewat `kunciPasangGlobal(teks)` — pengguna yang menekan Start saat unduhan berjalan menunggu diam-diam sampai unduhan selesai (bisa bermenit-menit). Kini jalur manual memakai pintu yang sama dengan teks tunggu dari resource yang sama (`dl_status_waiting`); urutan dan serialisasi kuncinya tidak berubah.
+
 ## [Belum rilis] — Backup/restore: berkas .bak tak lagi ikut ter-backup dan ditolak saat restore (Audit 1555)
 
 - Menutup saluran round-trip yang tersisa dari Audit 1540: sisa swap bernama `*.bak` di attachments/sends dulu ikut ter-backup (`kumpulkanBerkasZip` hanya melewati `*.restore-tmp`), lolos pintu restore (`bolehTulisRestore` hanya menolak `.restore-tmp`), terpasang sebagai berkas akhir, lalu dihapus/di-rename oleh pemulihan pohon `.bak` saat start berikutnya karena dikira sisa swap — lampiran putus dari nama yang dicatat database. Kini pengumpulan melewati `*.bak` dan pintu restore menolak nama berakhiran `.bak`, sekelas perlakuan `.restore-tmp` (Audit 1530/1538). Ditambah uji JVM untuk kedua sisi.
