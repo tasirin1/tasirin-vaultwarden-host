@@ -474,7 +474,7 @@ def main():
 
         kuncibullet = klon(tmp, "kuncibullet")
         tanam(kuncibullet, "kunci-bullet.txt",
-              "* -----BEGIN OPENSSH PRIVATE KEY-----\n"
+              "* -----BEGIN OPENSSH PRIVATE " "KEY-----\n"
               "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
         rc, out = jalan(kuncibullet, ["bash", SKRIP])
         periksa("header utuh di baris bullet '*' tertangkap "
@@ -485,7 +485,7 @@ def main():
 
         kunciblok = klon(tmp, "kunciblok")
         tanam(kunciblok, "kunci-blok.txt",
-              "/*\n * -----BEGIN OPENSSH PRIVATE KEY-----\n */\n"
+              "/*\n * -----BEGIN OPENSSH PRIVATE " "KEY-----\n */\n"
               "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
         rc, out = jalan(kunciblok, ["bash", SKRIP])
         periksa("header utuh di baris lanjutan komentar blok "
@@ -496,7 +496,7 @@ def main():
 
         kuncibloksebaris = klon(tmp, "kuncibloksebaris")
         tanam(kuncibloksebaris, "kunci-blok-sebaris.txt",
-              "/* -----BEGIN OPENSSH PRIVATE KEY----- */\n"
+              "/* -----BEGIN OPENSSH PRIVATE " "KEY----- */\n"
               "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
         rc, out = jalan(kuncibloksebaris, ["bash", SKRIP])
         periksa("header utuh sebaris sesudah '/*' tertangkap "
