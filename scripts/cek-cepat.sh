@@ -46,13 +46,13 @@ POLA_TOKEN='gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]
 POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----|$POLA_TOKEN"
 POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN[A-Z0-9]*PRIVATEKEY-----[A-Za-z0-9+/=]{16,}"
 RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | sort -u || true)"
-BUNGKUS="$({ git -c core.quotepath=false ls-files; git -c core.quotepath=false ls-files --others --exclude-standard; git -c core.quotepath=false ls-files --others --ignored --exclude-standard; } | sort -u | while IFS= read -r f; do
+BUNGKUS="$({ git -c core.quotepath=false ls-files -z; git -c core.quotepath=false ls-files --others --exclude-standard -z; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z; } | sort -zu | while IFS= read -r -d '' f; do
   if [ -f "$f" ] && tr -d '\n\r ' < "$f" 2>/dev/null | grep -q -E -- "$POLA_BUNGKUS"; then
     printf '%s\n' "$f"
   fi
 done || true)"
 RAHASIA="$(printf '%s\n%s\n' "$RAHASIA" "$BUNGKUS" | sed '/^$/d' | sort -u || true)"
-BARU_RAHASIA="$({ git -c core.quotepath=false ls-files --others --exclude-standard; git -c core.quotepath=false ls-files --others --ignored --exclude-standard; } | sort -u | while IFS= read -r f; do
+BARU_RAHASIA="$({ git -c core.quotepath=false ls-files --others --exclude-standard -z; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z; } | sort -zu | while IFS= read -r -d '' f; do
   if [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
     printf '%s\n' "$f"
   fi

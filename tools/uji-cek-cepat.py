@@ -151,6 +151,17 @@ def main():
                 and "kunci-terbelah.txt" in out)
         shutil.rmtree(kunciterbelah, ignore_errors=True)
 
+        namabarisbaru = klon(tmp, "namabarisbaru")
+        paruh2 = len(token_palsu) // 2
+        tanam(namabarisbaru, "token\nterbelah.txt",
+              "token uji: " + token_palsu[:paruh2] + "\n"
+              + token_palsu[paruh2:] + "\n", "w")
+        rc, out = jalan(namabarisbaru, ["bash", SKRIP])
+        periksa("token terbelah di berkas bernama newline tertangkap "
+                "(Audit 1454)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(namabarisbaru, ignore_errors=True)
+
         readmehilang = klon(tmp, "readmehilang")
         os.remove(os.path.join(readmehilang, "README.id.md"))
         tanam(readmehilang, "catatan-token.txt",
