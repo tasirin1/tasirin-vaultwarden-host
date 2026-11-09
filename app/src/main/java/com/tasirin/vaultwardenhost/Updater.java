@@ -525,7 +525,11 @@ public final class Updater {
                 // backup/unduh/restore Telegram) harus dikenali
                 // juga — tanpa ini sarannya jatuh ke cek internet
                 // yang kontradiktif dengan inti pesannya.
-                || gabung.contains("storage kurang")) {
+                // Audit 1667: frasa saudara kandungnya di
+                // update web-vault ("Sisa penyimpanan tinggal…",
+                // cek awal + cek ekstrak Audit 1645).
+                || gabung.contains("storage kurang")
+                || gabung.contains("sisa penyimpanan")) {
             return "Penyimpanan STB penuh (tidak ada ruang tersisa)."
                     + " Hapus berkas unduhan/cache lama atau pindahkan data,"
                     + " lalu coba lagi.";

@@ -576,6 +576,18 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_sisaPenyimpananWebVaultDikenali() {
+        // Audit 1667: frasa "Sisa penyimpanan tinggal…" di
+        // update web-vault juga saran penyimpanan.
+        Exception e = new java.io.IOException(
+                "Sisa penyimpanan tinggal 10 MB - butuh minimal"
+                        + " 150 MB untuk update web-vault.");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("Penyimpanan"));
+        assertFalse(saran.contains("internet"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

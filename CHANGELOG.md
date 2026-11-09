@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Saran disk-penuh kini menangkap frasa 'Sisa penyimpanan tinggal…' (Audit 1667)
+
+- Token cabang disk-penuh di `saranKoneksi` ditambah `sisa penyimpanan` — pesan cek-ruang update web-vault (cek awal 150 MB + cek ekstrak Audit 1645, keduanya "Sisa penyimpanan tinggal…") kini menghasilkan saran penyimpanan, bukan jatuh ke cek internet. Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Saran koneksi kini mengenali kegagalan checksum SHA-256 (Audit 1666)
 
 - Cabang baru di `saranKoneksi`: "Checksum SHA-256 tidak cocok" dari `pasangHasilUnduh` kini menghasilkan saran soal verifikasi integritas (unduh ulang; bila tetap gagal, berkas rilisnya yang bermasalah), bukan saran cek internet yang mengaburkan makna penghentian keamanan. Uji JVM baru menguncinya.
