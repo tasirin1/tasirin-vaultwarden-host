@@ -738,6 +738,13 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_batalStopTertekanTertangkapLokal() {
+        String s = Updater.saranKoneksi(
+                new Exception(Updater.pesanDibatalkan("binary")));
+        assertTrue(s.contains("bukan di jaringan"));
+    }
+
+    @Test
     public void saranKoneksi_batalBerakhiranTitikTertangkapLokal() {
         // Audit 1704: produsen batal berakhiran titik divonis
         // lokal; pesan SHA Audit 1696 tetap ke cabang 404.

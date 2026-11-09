@@ -613,6 +613,11 @@ public final class Updater {
                 // vonis benarnya cabang 404 (Audit 1696) -
                 // persempit ke redaksi produsen batal yang
                 // sebenarnya (pesanDibatalkan/backup/restore).
+                // Audit 1717: TANDA_DIBATALKAN yang sebenarnya
+                // adalah "dibatalkan (Stop ditekan)" - frasa
+                // "(Stop ditekan)" menyela token di bawah ini
+                // sehingga batal-Stop produsen utama lolos.
+                || gabung.contains("dibatalkan (stop ditekan)")
                 || gabung.contains("dibatalkan - tidak dilanjutkan")
                 || gabung.contains("backup dibatalkan")
                 || gabung.contains("restore dibatalkan")

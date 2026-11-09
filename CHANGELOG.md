@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Batal-Stop (pesanDibatalkan) kini tertangkap cabang lokal (Audit 1717)
+
+- Teks produsen aslinya "Unduhan <label> dibatalkan (Stop ditekan) - tidak dilanjutkan." — frasa "(Stop ditekan)" menyela token "dibatalkan - tidak dilanjutkan" (Audit 1687) dan token "dibatalkan." (Audit 1704) juga tidak cocok, jadi unduhan yang dibatalkan pengguna sendiri lewat bot divonis saran internet GitHub. Token "dibatalkan (stop ditekan)" ditambahkan; terkunci uji JVM yang memakai pesanDibatalkan asli.
+
 ## [Belum rilis] — Galat DNS Telegram kini divonis Telegram, bukan github.com (Audit 1716)
 
 - Sub-cabang DNS di dalam cabang Telegram (Audit 1702) tidak pernah terjangkau: token unknownhost/unable to resolve adalah himpunan-bagian cabang DNS utama yang berdiri jauh lebih awal, jadi galat DNS Telegram selalu divonis "nama github.com tidak ketemu ... tekan Start lagi". Cabang DNS kini sadar tuan rumah (rantai memuat telegram -> vonis api.telegram.org tanpa Start), dan token DNS bayangan di sub-cabang Telegram dicabut. Terkunci uji JVM.
