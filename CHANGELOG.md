@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Ekor spasi/tab/CR membunuh ekordgt cek-cepat (Audit 1584) (Audit 1584)
+
+- Pengukuran ekor digit (Audit 1565) dilakukan pada baris yang masih memuat whitespace ekor, padahal whitespace itu dibuang dari blob oleh perataan — berkas CRLF mengalahkan perlindungan lintas-baris utuh dan belahan token lolos. ekordgt kini diukur pada salinan baris yang ekor whitespace-nya sudah dibuang.
+
 ## [Belum rilis] — healthFail hanya membunuh proses episode yang dicek (Audit 1574)
 
 - checkHealthOnce memeriksa identitas proses + episode dua kali, tetapi healthFail kemudian membunuh potret field 'process' yang hidup — bila proses lama mati sendiri dan start baru lahir di celah sesudah cek kedua (crash + Start cepat), yang terbunuh adalah proses BARU itu (sembuh sendiri sebagai satu restart mubazir, tetapi tetap salah sasaran). healthFail kini menerima proses yang dicek dan memverifikasi identitasnya di dalam KUNCI_PROSET yang sama dengan kelahiran proses (prosesBolehDibunuh); episode yang sudah berganti membatalkan restart dengan catatan log.

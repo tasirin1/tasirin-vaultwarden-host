@@ -662,6 +662,18 @@ def main():
                 and "kunci-sela-versi.txt" in out)
         shutil.rmtree(kunciselajam, ignore_errors=True)
 
+        tokencrlf = klon(tmp, "tokencrlf")
+        tanam(tokencrlf, "token-crlf.txt",
+              ("token uji: " + token_palsu[:9] + "\r\n"
+               + token_palsu[9] + " " + token_palsu[10:]
+               + "\r\n").encode(), "wb")
+        rc, out = jalan(tokencrlf, ["bash", SKRIP])
+        periksa("token terbelah dua baris di berkas CRLF "
+                "tertangkap (Audit 1584)",
+                rc != 0 and "pola rahasia" in out
+                and "token-crlf.txt" in out)
+        shutil.rmtree(tokencrlf, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

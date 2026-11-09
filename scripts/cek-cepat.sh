@@ -151,7 +151,12 @@ BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c 
   # tanda baca dan isinya ikut diperiksa (header di baris
   # '// -----BEGIN ...' tertangkap). Terkunci skenario
   # uji 1567.
-  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, ""); awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0; if (match(awal, /^[0-9]+/)) hd = RLENGTH; if (ekordgt + hd >= 5 && substr(awal, hd + 1, 1) == ":" && substr(awal, hd + 2, 1) ~ /[[:space:]]/) { sp = length($0) - length(awal); pos = sp + hd + 1; $0 = substr($0, 1, pos - 1) SUBSEP substr($0, pos + 2); } while (match($0, /[0-9][0-9][0-9][0-9][0-9]:[[:space:]]/)) { $0 = substr($0, 1, RSTART + 4) SUBSEP substr($0, RSTART + 7); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) { ekordgt = 0; next; } ekordgt = 0; if (match($0, /[0-9]+$/)) ekordgt = RLENGTH; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
+  # Audit 1584: ekordgt diukur pada salinan baris yang
+  # ekor whitespace-nya (spasi/tab/CR) sudah dibuang —
+  # whitespace itu dibuang dari blob oleh perataan,
+  # jadi baris berkas CRLF tetap dihitung berakhir
+  # digit.
+  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, ""); awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0; if (match(awal, /^[0-9]+/)) hd = RLENGTH; if (ekordgt + hd >= 5 && substr(awal, hd + 1, 1) == ":" && substr(awal, hd + 2, 1) ~ /[[:space:]]/) { sp = length($0) - length(awal); pos = sp + hd + 1; $0 = substr($0, 1, pos - 1) SUBSEP substr($0, pos + 2); } while (match($0, /[0-9][0-9][0-9][0-9][0-9]:[[:space:]]/)) { $0 = substr($0, 1, RSTART + 4) SUBSEP substr($0, RSTART + 7); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) { ekordgt = 0; next; } ekort = $0; sub(/[ \t\r]+$/, "", ekort); ekordgt = 0; if (match(ekort, /[0-9]+$/)) ekordgt = RLENGTH; print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
     printf '%s\n' "$f"
   fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
