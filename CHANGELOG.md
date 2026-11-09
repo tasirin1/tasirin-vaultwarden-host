@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: huruf -q CPython sah diterima model (Audit 1706)
+
+- Huruf `q` (quiet) ditambahkan ke daftar huruf sah bundel dan daftar token satu huruf — CPython 3.12 menerimanya (terprobe real: program dari stdin berjalan di bawah -q) tetapi penjaga Audit 1694 menilainya asing sehingga `python3 -q` yang sungguh menguras divonis aman. 1 skenario suite baru (Audit 1706).
+
 ## [Belum rilis] — Gerbang: opsi informasional python divonis cetak-lalu-keluar (Audit 1705)
 
 - Opsi panjang informasional python (--help/--version/--help-env/--help-xoptions/--help-all) kini mengembalikan False di penjaga Audit 1694 (dulu hanya dilewati sebagai bendera); -V telanjang dan -V di dalam bundel juga False. Terprobe: semuanya model True / real False. 1 skenario suite baru (Audit 1705).

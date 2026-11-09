@@ -1844,7 +1844,7 @@ def _menguras_interpreter(perintah, toks, awal):
                     if h == "i":
                         interaktif = True
                         continue
-                    if h not in "bBdEhIOPQRsSuUvVx":
+                    if h not in "bBdEhIOPQRsSuUvVqx":
                         asing_py = True
                         break
                 if asing_py:
@@ -2056,7 +2056,7 @@ def _menguras_interpreter(perintah, toks, awal):
         # -W/-X sudah tertangani cabang-cabangnya di atas.
         if (perintah.startswith("python") and len(bersih_t) == 2
                 and bersih_t.startswith("-")
-                and bersih_t[1] not in "bBcdEiImOPQRsSuUvVWxX"):
+                and bersih_t[1] not in "bBcdEiImOPQRsSuUvVWxXq"):
             return False
         # Audit 1694: opsi panjang python tak dikenal -
         # CPython mencetak galat lalu keluar tanpa membaca.
