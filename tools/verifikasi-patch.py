@@ -6993,11 +6993,34 @@ def _semua_nama_terdeklarasi():
 def masih_didefinisikan(nama):
     return nama in _semua_nama_terdeklarasi()
 
+_POLA_KANDIDAT_PEMANGGIL = re.compile(r"(\w+)\s*\(|::\s*(\w+)")
+_PETA_PEMANGGIL = []
+
+
+def _peta_pemanggil():
+    # Audit 1631: kandidat nama->berkas dibangun SEKALI per lari
+    # dari teks ter-kupas seluruh pohon; dulu pemanggil() memindai
+    # ulang seluruh pohon untuk tiap nama yang ditanyakan.
+    if _PETA_PEMANGGIL:
+        return _PETA_PEMANGGIL[0]
+    peta = {}
+    for path in jalan_repo("app", ext=(".java",)):
+        for _no, baris in baris_tanpa_komentar(baca(path)):
+            for cocok in _POLA_KANDIDAT_PEMANGGIL.finditer(baris):
+                for nama in cocok.groups():
+                    if nama:
+                        peta.setdefault(nama, [])
+                        if path not in peta[nama]:
+                            peta[nama].append(path)
+    _PETA_PEMANGGIL.append(peta)
+    return peta
+
+
 def pemanggil(nama):
     pola = re.compile(r"\b%s\s*\(|::\s*%s\b"
                       % (re.escape(nama), re.escape(nama)))
     temu = []
-    for path in jalan_repo("app", ext=(".java",)):
+    for path in _peta_pemanggil().get(nama, []):
         for i, baris in baris_tanpa_komentar(baca(path)):
             if pola.search(baris):
                 temu.append("%s:%d" % (path, i))
@@ -7502,16 +7525,39 @@ def cek_import_mati(gagal):
                     and nama not in acuan_javadoc):
                 gagal.append("Import mati di %s: %s" % (path, jalan_imp))
 
+_POLA_KANDIDAT_UJI = re.compile(r"(\w+)\s*\(|(\w+)\s*\.\s*(\w+)\s*\(")
+_PETA_UJI = []
+
+
+def _peta_uji():
+    # Audit 1631: pasangan nama->berkas uji dibangun sekali per
+    # lari dari isi mentah berkas uji (sumber yang sama dengan yang
+    # dulu dipindai ulang per nama oleh disebut_di_uji()).
+    if _PETA_UJI:
+        return _PETA_UJI[0]
+    peta = {}
+    for path in jalan_repo(os.path.join("app", "src", "test")):
+        for cocok in _POLA_KANDIDAT_UJI.finditer(baca(path)):
+            for nama in (cocok.group(1), cocok.group(3)):
+                if nama:
+                    peta.setdefault(nama, [])
+                    if path not in peta[nama]:
+                        peta[nama].append(path)
+    _PETA_UJI.append(peta)
+    return peta
+
+
 def disebut_di_uji(nama, kelas=None):
     pola = re.compile(r"\b%s\s*\(" % re.escape(nama))
+    berkas = _peta_uji().get(nama, [])
     if not kelas:
-        for path in jalan_repo(os.path.join("app", "src", "test")):
+        for path in berkas:
             if pola.search(baca(path)):
                 return True
         return False
     pola_lengkap = re.compile(r"\b%s\s*\.\s*%s\s*\("
                               % (re.escape(kelas), re.escape(nama)))
-    for path in jalan_repo(os.path.join("app", "src", "test")):
+    for path in berkas:
         isi = baca(path)
         if pola_lengkap.search(isi):
             return True

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: peta pemanggil & berkas uji dibangun sekali per lari (Audit 1631)
+
+- `pemanggil()` dan `disebut_di_uji()` kini lebih dulu menyaring berkas kandidat dari peta yang dibangun sekali per lari, bukan memindai seluruh pohon untuk setiap nama yang diperiksa; logika vonis per berkas tidak berubah.
+
 ## [Belum rilis] — Gerbang: pengupas Java dipercepat (Audit 1597)
 
 - `_kupas_java_mentah()` kini menyalin rentang kode polos sekaligus memakai pencarian penanda terdekat, bukan aksara demi aksara; penanganan komentar, string, dan blok teks tetap sama persis (terbukti byte-identik pada 48 berkas Java repo + 4.000 kasus fuzz adversarial).
