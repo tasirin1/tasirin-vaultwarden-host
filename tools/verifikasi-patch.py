@@ -3131,7 +3131,10 @@ def _menguras_khusus(perintah, toks, awal):
              # Audit 1587: --cert-notation/--sig-notation
              # bernilai (notasi nama@nilai) — tertahan
              # audit-92, kini terprobe fail-open.
-             "--cert-notation", "--sig-notation"})
+             "--cert-notation", "--sig-notation",
+             # Audit 1588: -N, opsi pendek notasi gpg —
+             # selisih dua arah bila absen.
+             "-N"})
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False

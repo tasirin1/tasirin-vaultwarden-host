@@ -15444,6 +15444,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg --cert-notation di substitusi proses: gerbang gagal (Audit 1587)", rc != 0)
         shutil.rmtree(sub717, ignore_errors=True)
+        sub718 = klon(tmp, "sub718")
+        berkas_aksi718 = os.path.join(
+            sub718, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi718, encoding="utf-8") as f:
+            isi_aksi718 = f.read()
+        baris_aksi718 = [b for b in isi_aksi718.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru718 = isi_aksi718.replace(
+                baris_aksi718,
+                baris_aksi718.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg --batch -N nama@uji=nilai --clearsign; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru718 != isi_aksi718, \
+            "suntikan aksi718 tidak menembak"
+        with open(berkas_aksi718, "w", encoding="utf-8") as f:
+            f.write(isi_baru718)
+        rc, out = jalan(sub718,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpg -N di substitusi proses: gerbang gagal (Audit 1588)", rc != 0)
+        shutil.rmtree(sub718, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

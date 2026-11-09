@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi pendek gpg -N absen dari himpunan (Audit 1588) (Audit 1588)
+
+- -N (notasi) adalah opsi pendek bernilai yang absen dari himpunan gpg dan menimbulkan selisih dua arah: bentuk bernilai fail-open, bentuk menggantung divonis pembaca padahal gpg galat 'missing argument'. -N kini masuk himpunan.
+
 ## [Belum rilis] — Gerbang: gpg --cert-notation/--sig-notation absen (Audit 1587) (Audit 1587)
 
 - Kedua opsi notasi bernilai (nama@nilai) tetapi absen dari himpunan gpg — tertahan audit-92 yang kini terprobe fail-open: nilai notasi terhitung operand dan perintah yang menelan stdin lolos. Keduanya kini masuk himpunan.
