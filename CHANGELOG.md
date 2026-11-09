@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Layout: peringatan LabelFor ditandai positif-palsu (Audit 1612)
+
+- 10 kolom isian ditandai `tools:ignore="LabelFor"`: lint tetap memperingatkan padahal setiap kolom itu SUDAH punya label TextView ber-labelFor yang menunjuknya DAN android:hint (keduanya terverifikasi di sumber) — peringatan positif-palsu detektor. Aksesibilitas runtime tidak berubah.
+
 ## [Belum rilis] — String: elipsis resmi menggantikan tiga titik (Audit 1611)
 
 - Empat string status unduhan/notifikasi di kedua locale memakai elipsis resmi `…` menggantikan tiga titik ASCII (8 peringatan lint TypographyEllipsis). Isi dan format string tidak berubah.
