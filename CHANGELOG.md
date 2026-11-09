@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — String: elipsis resmi menggantikan tiga titik (Audit 1611)
+
+- Empat string status unduhan/notifikasi di kedua locale memakai elipsis resmi `…` menggantikan tiga titik ASCII (8 peringatan lint TypographyEllipsis). Isi dan format string tidak berubah.
+
 ## [Belum rilis] — CI: artefak APK kedaluwarsa 7 hari (Audit 1618)
 
 - Unggahan artefak APK tidak lagi memakai bawaan retensi 90 hari: `retention-days: 7` — rilis GitHub adalah salinan yang dipakai, artefak Actions hanya untuk unduhan sesaat sesudah build.

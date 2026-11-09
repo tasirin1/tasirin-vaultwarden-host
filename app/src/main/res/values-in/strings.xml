@@ -36,10 +36,10 @@
     <string name="dur_hour">jam</string>
     <string name="dur_minute">menit</string>
     <string name="dur_second">detik</string>
-    <string name="dl_status_retry">Koneksi putus, coba lagi %1$d/%2$d...</string>
-    <string name="dl_status_waiting">Menunggu unduhan/pemasangan lain selesai...</string>
+    <string name="dl_status_retry">Koneksi putus, coba lagi %1$d/%2$d…</string>
+    <string name="dl_status_waiting">Menunggu unduhan/pemasangan lain selesai…</string>
     <string name="dl_status_progress">Unduh %1$s %2$s/%3$s (%4$d%%)</string>
-    <string name="dl_status_progress_unknown">Unduh %1$s %2$s...</string>
+    <string name="dl_status_progress_unknown">Unduh %1$s %2$s…</string>
 
     <string name="copy_url">Salin URL</string>
     <string name="folder_data">Folder data</string>
@@ -216,7 +216,7 @@
     <string name="update_tersedia_singkat">Update tersedia: v%1$s</string>
     <string name="notif_update">Pembaruan Vaultwarden</string>
     <string name="notif_server_aktif">Server aktif di port %1$s</string>
-    <string name="notif_tugas_latar">Menjalankan tugas latar...</string>
+    <string name="notif_tugas_latar">Menjalankan tugas latar…</string>
     <string name="notif_channel_server">Server Vaultwarden</string>
     <string name="wv_update_judul">Update web vault tersedia</string>
     <string name="wv_update_pesan">Web vault saat ini v%1$s, sedangkan server v%2$s.\n\nPerbarui web vault sekarang? (unduhan ~35 MB, berlaku setelah server di-restart)</string>
