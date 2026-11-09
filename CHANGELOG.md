@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi informasional node divonis cetak-lalu-keluar (Audit 1712)
+
+- Di penjaga node Audit 1711, token --version/--help/-v kini mengembalikan False di posisi mana pun (node mencetak lalu keluar, tidak menjalankan skrip). Terprobe real ketiganya. 1 skenario suite baru (Audit 1712).
+
 ## [Belum rilis] — Gerbang: opsi node tak dikenal divonis bad-option lalu keluar (Audit 1711)
 
 - Penjaga node baru di loop interpreter: token opsi yang tidak dikenal (daftar bendera umum + keluarga awalan --experimental-/--v8-/--trace-/--no-/--max- + huruf tunggal ceiprv) -> False. Terprobe: `node --bogus`, `node -Z`, `node --bogus -` semuanya real "bad option" lalu keluar. 1 skenario suite baru (Audit 1711).

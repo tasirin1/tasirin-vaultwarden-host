@@ -17124,6 +17124,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("node opsi tak dikenal bad option lalu keluar: gerbang lolos (Audit 1711)", rc == 0)
         shutil.rmtree(sub797, ignore_errors=True)
+        sub798 = klon(tmp, "sub798")
+        berkas_aksi798 = os.path.join(
+            sub798, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi798, encoding="utf-8") as f:
+            isi_aksi798 = f.read()
+        baris_aksi798 = [b for b in isi_aksi798.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru798 = isi_aksi798.replace(
+                baris_aksi798,
+                baris_aksi798.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --version; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru798 != isi_aksi798, \
+            "suntikan aksi798 tidak menembak"
+        with open(berkas_aksi798, "w", encoding="utf-8") as f:
+            f.write(isi_baru798)
+        rc, out = jalan(sub798,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("node --version cetak lalu keluar: gerbang lolos (Audit 1712)", rc == 0)
+        shutil.rmtree(sub798, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

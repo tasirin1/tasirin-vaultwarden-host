@@ -2102,6 +2102,10 @@ def _menguras_interpreter(perintah, toks, awal):
         # dan -e/-p tertangani cabangnya sendiri di atas.
         if perintah == "node" and t.startswith("-") and t != "-":
             dasar_nd = t.split("=")[0]
+            # Audit 1712: informasional node mencetak lalu
+            # keluar di posisi mana pun.
+            if dasar_nd in ("--version", "--help", "-v"):
+                return False
             dikenal_nd = (
                 dasar_nd in ("--version", "--help", "-v",
                              "--eval", "--print", "--check",
