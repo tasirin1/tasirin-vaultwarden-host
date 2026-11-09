@@ -584,16 +584,9 @@ def main():
                 and "kunci-baris-miring.txt" in out)
         shutil.rmtree(kuncimiringsela, ignore_errors=True)
 
-        tokenselamiring = klon(tmp, "tokenselamiring")
-        tanam(tokenselamiring, "token-sela-miring.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "// jeda\n" + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselamiring, ["bash", SKRIP])
-        periksa("token tersela baris '// jeda' tertangkap "
-                "(Audit 1567)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-miring.txt" in out)
-        shutil.rmtree(tokenselamiring, ignore_errors=True)
+        # Audit 1627: blok tokenselamiring ganda (dulu di sini,
+        # berlabel Audit 1567) dihapus — isinya byte-identik
+        # dengan blok Audit 1528 di atas.
 
         subsepjinak = klon(tmp, "subsepjinak")
         tanam(subsepjinak, "catatan-subsep.txt",

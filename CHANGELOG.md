@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Suite cek-cepat: skenario ganda dihapus (Audit 1627)
+
+- Blok skenario `tokenselamiring` kedua (berlabel Audit 1567) isinya identik dengan blok Audit 1528 — tanam, panggilan, dan asersinya sama — jadi dihapus; cakupan tidak berkurang, suite turun 58 -> 57 skenario.
+
 ## [Belum rilis] — Cek-cepat: satu proses awk untuk semua berkas (Audit 1595, 1625)
 
 - Lintasan bungkus tidak lagi menjalankan awk+tr+grep per berkas (3 proses x jumlah berkas, program awk di-parse ulang tiap berkas): satu proses awk membaca semua berkas sebagai argumen (nama ber-newline tetap utuh, Audit 1454), merangkai blob tiap berkas dengan program per baris yang sama persis, dan mencocokkannya sekali per berkas. Suite yang membayar pindai penuh 58x ikut murah karenanya (Audit 1595). Waktu lari terukur 5,5 -> 2,3 detik di pohon repo.
