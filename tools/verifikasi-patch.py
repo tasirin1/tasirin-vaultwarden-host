@@ -2094,6 +2094,16 @@ def _menguras_khusus(perintah, toks, awal):
             # dari kemunculan terakhir, bukan pertama.
             hasil_in = None
             for k_in, t_in in enumerate(mentah):
+                # Audit 1582: token -in yang menjadi NILAI
+                # -out (mis. 'enc -out -in') bukan opsi
+                # -in — openssl membacanya sebagai nama
+                # berkas keluaran dan masukan tetap dari
+                # stdin.
+                if k_in > 0 and mentah[k_in - 1] == "-out" \
+                        and (t_in in ("-in", "--in")
+                             or t_in.startswith("-in=")
+                             or t_in.startswith("--in=")):
+                    continue
                 if t_in in ("-in", "--in") or t_in.startswith("-in=") \
                         or t_in.startswith("--in="):
                     # Audit 1239: /dev/stdin & keluarga fd 0
@@ -2244,6 +2254,13 @@ def _menguras_khusus(perintah, toks, awal):
             ada_in = False
             in_terakhir_stdin = False
             for k_i2, t_i2 in enumerate(mentah):
+                # Audit 1582: '-in' sebagai nilai -out
+                # bukan opsi masukan (kelas yang sama).
+                if k_i2 > 0 and mentah[k_i2 - 1] == "-out" \
+                        and (t_i2 in ("-in", "--in")
+                             or t_i2.startswith("-in=")
+                             or t_i2.startswith("--in=")):
+                    continue
                 if t_i2 in ("-in", "--in"):
                     ada_in = True
                     in_terakhir_stdin = (

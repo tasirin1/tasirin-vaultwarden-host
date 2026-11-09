@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: token -in sebagai nilai -out menipu pindaian -in (Audit 1582) (Audit 1582)
+
+- Pindaian -in mentah di _in_non_stdin dan kelompok x509 menghitung token '-in' yang sebenarnya NILAI opsi -out (mis. 'openssl enc -out -in') sebagai opsi masukan berkas, padahal openssl membacanya sebagai nama berkas keluaran dan masukan tetap dari stdin (fail-open). Kedua pindaian kini melewati '-in' yang menjadi nilai -out.
+
 ## [Belum rilis] — Gerbang: 4 opsi bernilai dgst absen dari himpunan (Audit 1581) (Audit 1581)
 
 - -signature, -writerand, -provider-path, dan -xoflen bernilai di openssl dgst tetapi absen dari himpunan gerbang, sehingga nilainya terhitung operand penekan dan vonis stdin terbalik (fail-open). Keempatnya kini masuk himpunan (-provider-path sebelumnya hanya ditambahkan ke cabang verify pada Audit 1521).
