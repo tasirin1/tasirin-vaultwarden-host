@@ -1926,7 +1926,14 @@ def _menguras_interpreter(perintah, toks, awal):
             continue
         # Audit 1641: opsi bernilai interpreter lain —
         # nilainya bukan operand skrip.
-        if perintah == "ruby" and t in ("-I", "-r"):
+        if perintah == "ruby" and t in (
+                "-I", "-r",
+                # Audit 1650: opsi bernilai ruby lain dari
+                # man ruby(1) — -C direktori, -E/--encoding
+                # keluarga encoding, -F pemisah, -K koding.
+                "-C", "-E", "--encoding",
+                "--external-encoding", "--internal-encoding",
+                "-F", "-K"):
             i += 2
             continue
         if perintah == "php" and t in ("-d", "-c"):

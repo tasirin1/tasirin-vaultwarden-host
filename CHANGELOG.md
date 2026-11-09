@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai ruby dilengkapi (-C/-E/-F/-K + keluarga encoding) (Audit 1650)
+
+- Cabang ruby di penilai interpreter kini juga melewati berpasangan `-C`, `-E`, `--encoding`, `--external-encoding`, `--internal-encoding`, `-F`, dan `-K` (man ruby(1)) — nilainya tak lagi terbaca sebagai berkas program; 2 skenario suite baru menguncinya (Audit 1650).
+
 ## [Belum rilis] — Gerbang: bentuk gpgv `sigfile -` dimodelkan (Audit 1649)
 
 - Pemeriksaan khusus gpgv kini mengenali bentuk terdokumentasi `gpgv sigfile -` (man gpgv EXAMPLES; terprobe real dengan tanda tangan detached sah): operand kedua `-` berarti data bertanda tangan dibaca dari stdin, jadi segmennya divonis menguras walau operand pertama berkas sig; 2 skenario suite baru menguncinya (Audit 1649).

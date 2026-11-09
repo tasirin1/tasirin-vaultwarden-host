@@ -16200,6 +16200,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpgv dua operand berkas: gerbang lolos (Audit 1649)", rc == 0)
         shutil.rmtree(sub753, ignore_errors=True)
+        sub754 = klon(tmp, "sub754")
+        berkas_aksi754 = os.path.join(
+            sub754, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi754, encoding="utf-8") as f:
+            isi_aksi754 = f.read()
+        baris_aksi754 = [b for b in isi_aksi754.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru754 = isi_aksi754.replace(
+                baris_aksi754,
+                baris_aksi754.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ruby -C dir; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru754 != isi_aksi754, \
+            "suntikan aksi754 tidak menembak"
+        with open(berkas_aksi754, "w", encoding="utf-8") as f:
+            f.write(isi_baru754)
+        rc, out = jalan(sub754,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("ruby -C bernilai di substitusi proses: penguras — gerbang gagal (Audit 1650)", rc != 0)
+        shutil.rmtree(sub754, ignore_errors=True)
+        sub755 = klon(tmp, "sub755")
+        berkas_aksi755 = os.path.join(
+            sub755, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi755, encoding="utf-8") as f:
+            isi_aksi755 = f.read()
+        baris_aksi755 = [b for b in isi_aksi755.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru755 = isi_aksi755.replace(
+                baris_aksi755,
+                baris_aksi755.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ruby -E UTF-8; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru755 != isi_aksi755, \
+            "suntikan aksi755 tidak menembak"
+        with open(berkas_aksi755, "w", encoding="utf-8") as f:
+            f.write(isi_baru755)
+        rc, out = jalan(sub755,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("ruby -E bernilai di substitusi proses: penguras — gerbang gagal (Audit 1650)", rc != 0)
+        shutil.rmtree(sub755, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
