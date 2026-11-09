@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: 5 nama gpg bernilai lain absen (Audit 1590) (Audit 1590)
+
+- --ungroup, --add-desig-revoker, --force-ownertrust, --gpg-agent-info, dan --debug-allow-large-chunks bernilai menurut tabel opsi gpg (argumennya ditelan parser) tetapi absen dari himpunan gerbang sehingga fail-open. Kelimanya kini masuk himpunan (total 139 nama).
+
 ## [Belum rilis] — Gerbang: 4 alias gpg bernilai absen (Audit 1589) (Audit 1589)
 
 - --compression-algo, --personal-cipher-prefs, --personal-compress-prefs, dan --remote-user berbagi opcode dengan nama yang sudah ada di himpunan, tetapi pemindaian berbasis nama harfiah membuat nilainya terhitung operand (fail-open). Keempat alias kini masuk himpunan.

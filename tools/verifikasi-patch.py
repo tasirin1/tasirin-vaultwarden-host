@@ -3139,7 +3139,12 @@ def _menguras_khusus(perintah, toks, awal):
              # dengan nama yang sudah ada di himpunan.
              "--compression-algo",
              "--personal-cipher-prefs",
-             "--personal-compress-prefs", "--remote-user"})
+             "--personal-compress-prefs", "--remote-user",
+             # Audit 1590: lima nama bernilai lain dari
+             # dump-options yang absen.
+             "--ungroup", "--add-desig-revoker",
+             "--force-ownertrust", "--gpg-agent-info",
+             "--debug-allow-large-chunks"})
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False
