@@ -5,6 +5,23 @@ import java.io.IOException;
 
 public final class Util {
 
+    // Audit 1621: appendUiLog kedua activity tadinya salinan
+    // (salinan Settings kehilangan penjaga null) — kini satu di
+    // sini; mengembalikan stempel segar terakhir yang baru.
+    static long catatLogTerjadwal(String line, long terakhir,
+            android.os.Handler ui, Runnable segarkan) {
+        if (line == null) {
+            return terakhir;
+        }
+        ServerService.catatLog(line);
+        long now = android.os.SystemClock.elapsedRealtime();
+        if (now - terakhir > 500) {
+            ui.post(segarkan);
+            return now;
+        }
+        return terakhir;
+    }
+
     public static final long BATAS_UNZIP_WEBVAULT = 300L * 1024 * 1024;
 
     public static final long BATAS_UNZIP_RESTORE = 200L * 1024 * 1024;

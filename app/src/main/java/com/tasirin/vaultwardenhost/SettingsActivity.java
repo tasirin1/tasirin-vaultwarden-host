@@ -4272,13 +4272,8 @@ public class SettingsActivity extends Activity {
     }
 
     private void appendUiLog(String line) {
-        ServerService.catatLog(line);
-
-        long now = SystemClock.elapsedRealtime();
-        if (now - lastUiLogRefresh > 500) {
-            lastUiLogRefresh = now;
-            ui.post(refreshLoop);
-        }
+        lastUiLogRefresh = Util.catatLogTerjadwal(line, lastUiLogRefresh,
+                ui, refreshLoop);
     }
 
     static boolean perluKonfirmasiGantiPin(boolean pinAktif, boolean adaHash) {

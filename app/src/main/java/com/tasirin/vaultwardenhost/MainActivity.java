@@ -1150,16 +1150,8 @@ public class MainActivity extends Activity {
     }
 
     private void appendUiLog(String line) {
-        if (line == null) {
-            return;
-        }
-        ServerService.catatLog(line);
-
-        long now = SystemClock.elapsedRealtime();
-        if (now - lastUiLogRefresh > 500) {
-            lastUiLogRefresh = now;
-            ui.post(refreshLoop);
-        }
+        lastUiLogRefresh = Util.catatLogTerjadwal(line, lastUiLogRefresh,
+                ui, refreshLoop);
     }
 
     private void toast(String message) {

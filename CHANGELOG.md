@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Activity: appendUiLog disatukan di Util (Audit 1621)
+
+- `appendUiLog` disatukan ke `Util.catatLogTerjadwal` — salinan Settings yang kehilangan penjaga null kini ikut menolak line null seperti salinan Main.
+
 ## [Belum rilis] — Activity: tampil kunci PIN disatukan di PinGate (Audit 1620)
 
 - `maybeShowPinLock` yang identik di kedua activity disatukan ke `PinGate.tampilkanBilaPerlu` (mengembalikan keadaan bendera yang baru); konstanta REQ_PIN masing-masing activity tetap dipakai.
