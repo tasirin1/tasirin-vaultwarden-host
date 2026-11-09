@@ -77,6 +77,24 @@ public final class PinGate {
         return putus == KUNCI_BUKA || putus == KUNCI_RUSAK;
     }
 
+    // Audit 1620: maybeShowPinLock MainActivity dan
+    // SettingsActivity tadinya salinan identik — kini satu di
+    // sini; pemanggil menyimpan hasil balik ke benderanya.
+    static boolean tampilkanBilaPerlu(android.app.Activity a, int reqPin,
+            boolean sedangJalan) {
+        if (!perlukanLayarPin(a) || sedangJalan) {
+            return sedangJalan;
+        }
+        try {
+            a.startActivityForResult(
+                    new android.content.Intent(a, PinActivity.class), reqPin);
+            return true;
+        } catch (Exception e) {
+            a.finish();
+            return false;
+        }
+    }
+
     public static boolean perlukanLayarPin(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(
                 ServerService.PREFS, Context.MODE_PRIVATE);

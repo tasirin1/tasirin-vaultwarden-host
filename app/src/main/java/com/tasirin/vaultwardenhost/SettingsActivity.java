@@ -3292,18 +3292,7 @@ public class SettingsActivity extends Activity {
     }
 
     private void maybeShowPinLock() {
-
-        if (!PinGate.perlukanLayarPin(this) || pinBukaJalan) {
-            return;
-        }
-        pinBukaJalan = true;
-
-        try {
-            startActivityForResult(new Intent(this, PinActivity.class), REQ_PIN);
-        } catch (Exception e) {
-            pinBukaJalan = false;
-            finish();
-        }
+        pinBukaJalan = PinGate.tampilkanBilaPerlu(this, REQ_PIN, pinBukaJalan);
     }
 
     private File[] daftarBackup(File backupDir) {

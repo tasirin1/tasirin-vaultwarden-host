@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Activity: tampil kunci PIN disatukan di PinGate (Audit 1620)
+
+- `maybeShowPinLock` yang identik di kedua activity disatukan ke `PinGate.tampilkanBilaPerlu` (mengembalikan keadaan bendera yang baru); konstanta REQ_PIN masing-masing activity tetap dipakai.
+
 ## [Belum rilis] — Activity: hasil izin tulis disatukan di StoragePerm (Audit 1619)
 
 - Badan `onRequestPermissionsResult` MainActivity dan SettingsActivity yang identik disatukan ke `StoragePerm.tanganiHasilIzinTulis`; kedua activity tinggal membaca+membersihkan bendera lanjutnya di dalam gerbang kode permintaannya.
