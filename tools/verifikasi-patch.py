@@ -5285,8 +5285,38 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # (man gpgv EXAMPLES) — operand kedua "-" berarti
         # data bertanda tangan dibaca dari stdin walau
         # operand pertamanya berkas sig.
-        ops_gv = _operand_sesudah_opsi(
-            toks, awal, _OPSI_BERNILAI.get("gpgv", set()))
+        # Audit 1709: operand gpgv ditelusuri BERURUTAN -
+        # gpgv berhenti memindai opsi di operand pertama;
+        # "--" yang muncul sesudah operand pertama adalah
+        # nama berkas harfiah, bukan pemisah.
+        ops_gv = []
+        k2_gv = awal + 1
+        operand_mulai = False
+        while k2_gv < len(toks):
+            u2_gv = toks[k2_gv].strip("\"'")
+            if operand_mulai:
+                ops_gv.append(u2_gv)
+                k2_gv += 1
+                continue
+            if u2_gv == "--":
+                operand_mulai = True
+                k2_gv += 1
+                continue
+            if u2_gv in bernilai_gv:
+                if k2_gv + 1 >= len(toks):
+                    ops_gv.append("\x00gantung")
+                k2_gv += 2
+                continue
+            if any(u2_gv.startswith(o + "=")
+                   for o in bernilai_gv if o.startswith("--")):
+                k2_gv += 1
+                continue
+            if u2_gv.startswith("-") and u2_gv != "-":
+                k2_gv += 1
+                continue
+            operand_mulai = True
+            ops_gv.append(u2_gv)
+            k2_gv += 1
         # Audit 1689: penanda mode nama-berkas khusus.
         khusus_gv = "--enable-special-filenames" in bebas_gv
         # Audit 1659: cerminnya — operand pertama "-"
@@ -5297,9 +5327,17 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # dataA+dataB sah dari "gpgv gab.sig dataA -") -
         # "-" di posisi data mana pun menguras; premis
         # dua-operand Audit 1671 gugur oleh bukti itu.
-        if len(ops_gv) >= 2 and (ops_gv[0] == "-"
-                                 or "-" in ops_gv[1:]):
+        if len(ops_gv) >= 2 and ops_gv[0] == "-":
             return True
+        # Audit 1709: operand data diproses berurutan -
+        # "--" harfiah menghentikan dengan galat SEBELUM
+        # "-" sesudahnya sempat dibaca.
+        if len(ops_gv) >= 2:
+            for o_gv in ops_gv[1:]:
+                if o_gv == "--":
+                    break
+                if o_gv == "-":
+                    return True
         # Audit 1689: --enable-special-filenames menjadikan
         # operand "-&0" pembaca fd 0 (terprobe real: Good
         # signature dari stdin). "-&0" tak pernah masuk

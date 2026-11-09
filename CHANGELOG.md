@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: operand gpgv ditelusuri berurutan, '--' tengah adalah berkas harfiah (Audit 1709)
+
+- Blok gpgv kini mengumpulkan operand dengan susunan berurutan (berhenti memindai opsi di operand pertama, seperti gpgv nyata) dan menilai operand data berurutan: "-" menguras, tetapi "--" harfiah yang muncul sesudah operand pertama menghentikan dengan galat lebih dulu. Terprobe: `gpgv gab.sig -- -` real False ("can't open signed data '--'"). 1 skenario suite baru (Audit 1709).
+
 ## [Belum rilis] — Gerbang: -W/-X menggantung dan di ekor bundel menelan operand (Audit 1708)
 
 - Pasangan terpisah -W/-X kini memeriksa sisa token (menggantung -> False, galat "Argument expected"); bundel yang huruf bernilai pertamanya W/X di posisi ekor menelan token berikutnya sebagai nilai, dan menggantung di ekor bundel juga False. Terprobe: `-sW skrip.py` real membaca program dari stdin karena skrip.py menjadi nilai -W. 2 skenario suite baru (Audit 1708).

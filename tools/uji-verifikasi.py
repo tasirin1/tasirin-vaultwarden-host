@@ -17061,6 +17061,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("python -sW menelan skrip.py sebagai nilai -W lalu membaca stdin: gerbang gagal (Audit 1708)", rc != 0)
         shutil.rmtree(sub794, ignore_errors=True)
+        sub795 = klon(tmp, "sub795")
+        berkas_aksi795 = os.path.join(
+            sub795, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi795, encoding="utf-8") as f:
+            isi_aksi795 = f.read()
+        baris_aksi795 = [b for b in isi_aksi795.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru795 = isi_aksi795.replace(
+                baris_aksi795,
+                baris_aksi795.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv gab.sig -- -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru795 != isi_aksi795, \
+            "suntikan aksi795 tidak menembak"
+        with open(berkas_aksi795, "w", encoding="utf-8") as f:
+            f.write(isi_baru795)
+        rc, out = jalan(sub795,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv '--' sesudah operand adalah nama berkas harfiah, galat tanpa membaca: gerbang lolos (Audit 1709)", rc == 0)
+        shutil.rmtree(sub795, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
