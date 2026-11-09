@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Nama dinamis openssl tak peka huruf di gerbang: cipher/digest kapital dinilai membaca stdin (Audit 1561)
+
+- openssl menyelesaikan nama perintah yang dibangkitkan dinamis (alias cipher dan alias digest) tanpa peka huruf, tetapi kedua regex gerbang peka huruf — 'openssl AES-256-CBC' dan 'openssl SHA256' lolos sebagai bukan-pembaca. Kedua regex kini IGNORECASE; nama subcommand biasa tetap peka huruf (openssl ENC tetap tak sah), dan cakupan inti Audit 1548 terverifikasi utuh (47/47 nama cipher COCOK).
+
 ## [Belum rilis] — Aturan buang baris '//' yang mati di cek-cepat dihapus; perilaku '//' dikunci skenario (Audit 1567)
 
 - Pemeriksaan buang-baris '//' di program awk penyiapan blob mati sejak Audit 1553: aksara '/' dibuang lebih dulu sehingga polanya tak pernah bisa cocok. Ia kini dihapus tuntas dan perilaku yang berlaku dinyatakan eksplisit: baris '//' TIDAK dibuang — garis miringnya dikupas sebagai tanda baca dan isinya ikut diperiksa (header di baris '// -----BEGIN ...' tertangkap, arah fail-safe). Dikunci dua skenario uji baru agar perombakan urutan gsub di masa depan tidak membuka lagi lolosnya secara diam-diam.

@@ -15043,6 +15043,48 @@ def main():
         periksa("storeutl URI file: satu garis miring dinilai membaca stdin: gerbang gagal (Audit 1551)",
                 rc != 0)
         shutil.rmtree(sub696, ignore_errors=True)
+        sub697 = klon(tmp, "sub697")
+        berkas_aksi697 = os.path.join(
+            sub697, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi697, encoding="utf-8") as f:
+            isi_aksi697 = f.read()
+        baris_aksi697 = [b for b in isi_aksi697.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru697 = isi_aksi697.replace(
+                baris_aksi697,
+                baris_aksi697.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl AES-256-CBC -pass pass:uji; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru697 != isi_aksi697, \
+            "suntikan aksi697 tidak menembak"
+        with open(berkas_aksi697, "w", encoding="utf-8") as f:
+            f.write(isi_baru697)
+        rc, out = jalan(sub697, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl nama cipher kapital (AES-256-CBC) dinilai membaca stdin: gerbang gagal (Audit 1561)",
+                rc != 0)
+        shutil.rmtree(sub697, ignore_errors=True)
+        sub698 = klon(tmp, "sub698")
+        berkas_aksi698 = os.path.join(
+            sub698, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi698, encoding="utf-8") as f:
+            isi_aksi698 = f.read()
+        baris_aksi698 = [b for b in isi_aksi698.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru698 = isi_aksi698.replace(
+                baris_aksi698,
+                baris_aksi698.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl SHA256; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru698 != isi_aksi698, \
+            "suntikan aksi698 tidak menembak"
+        with open(berkas_aksi698, "w", encoding="utf-8") as f:
+            f.write(isi_baru698)
+        rc, out = jalan(sub698, [sys.executable, GERBANG, "--semua"])
+        periksa("openssl nama digest kapital (SHA256) dinilai membaca stdin: gerbang gagal (Audit 1561)",
+                rc != 0)
+        shutil.rmtree(sub698, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -2092,7 +2092,14 @@ def _menguras_khusus(perintah, toks, awal):
                 r"|camellia-(128|192|256)"
                 r"-(cbc|cfb|cfb1|cfb8|ctr|ecb|ofb)"
                 r"|des-ede3?(-(cbc|cfb|ofb))?|des3"
-                r"|sm4-(cbc|cfb|ctr|ecb|ofb))", sub):
+                r"|sm4-(cbc|cfb|ctr|ecb|ofb))", sub,
+                re.IGNORECASE):
+            # Audit 1561: regex nama cipher di atas dan
+            # regex alias digest di cabang dgst sama-sama
+            # tak peka huruf — openssl menyelesaikan nama
+            # dinamis tanpa peka huruf (AES-256-CBC dan
+            # SHA256 terprobe menguras), sedangkan nama
+            # subcommand biasa tetap peka huruf.
             # Audit 1548: nama cipher (aes-256-cbc dkk., 44
             # nama dari openssl list -cipher-commands)
             # adalah alias enc — membaca stdin tanpa -in
@@ -2299,7 +2306,8 @@ def _menguras_khusus(perintah, toks, awal):
             return not ops_v
         if sub == "dgst" or re.fullmatch(
                 r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"
-                r"|blake2b512|blake2s256|sm3|whirlpool)", sub):
+                r"|blake2b512|blake2s256|sm3|whirlpool)", sub,
+                re.IGNORECASE):
             dasar = awal + 1 if sub == "dgst" else awal
             # Audit 1076: -rand bernilai — dulu hilang dari tabel
             # sehingga nilai berkasnya terhitung operand penekan.
