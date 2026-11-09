@@ -1694,7 +1694,8 @@ public final class Updater {
         try {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .edit().putString(KEY_BIN_SHA_PIN,
-                            shaTerpasang[0] != null ? shaTerpasang[0] : sha256Hex(out)).commit();
+                            shaTerpasang[0] != null ? shaTerpasang[0] : sha256Hex(out))
+                    .putString(KEY_BIN_SHA_FP, ServerService.sidikManualFile(out)).commit();
         } catch (Exception ignored) {
         }
         ServerService.binaryVersion = "";
@@ -1738,6 +1739,43 @@ public final class Updater {
     static final String KEY_SHIM_SHA = "shim_sha256";
 
     static final String KEY_BIN_SHA_PIN = "bin_sha_pin";
+
+    // Audit 1592: sidik (ukuran+mtime) berkas binary pada saat
+    // hash penuh terakhir LOLOS. Selama sidik tak berubah, hash
+    // penuh 35 MB tak diulang pada tiap Start — sidik berubah →
+    // hash penuh yang memutuskan (tetap fail-closed).
+    static final String KEY_BIN_SHA_FP = "bin_sha_fp";
+
+    static boolean pinBolehLewatiHash(String sidikTersimpan, File f) {
+        if (sidikTersimpan == null || sidikTersimpan.isEmpty()) {
+            return false;
+        }
+        if (f == null || !f.isFile()) {
+            return false;
+        }
+        return ServerService.sidikManualFile(f).equals(sidikTersimpan);
+    }
+
+    static boolean binaryUtuhTersidik(android.content.SharedPreferences sp,
+            File f, String shaPin) {
+        if (shaPin == null || shaPin.isEmpty()) {
+            return true;
+        }
+        String tersimpan = sp == null ? ""
+                : TgBackup.amanString(sp, KEY_BIN_SHA_FP, "");
+        if (pinBolehLewatiHash(tersimpan, f)) {
+            return true;
+        }
+        boolean utuh = binaryUtuh(f, shaPin);
+        if (utuh && sp != null) {
+            try {
+                sp.edit().putString(KEY_BIN_SHA_FP,
+                        ServerService.sidikManualFile(f)).apply();
+            } catch (Exception ignored) {
+            }
+        }
+        return utuh;
+    }
 
     static boolean binaryUtuh(File f, String shaPin) {
         if (f == null || !f.isFile()) {

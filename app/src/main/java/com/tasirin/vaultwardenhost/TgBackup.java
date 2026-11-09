@@ -4710,6 +4710,7 @@ public final class TgBackup {
         }
         if (eraBinaryBerubah) {
             ed.remove(Updater.KEY_BIN_SHA_PIN);
+            ed.remove(Updater.KEY_BIN_SHA_FP);
             ed.remove(ServerService.KEY_BIN_MANUAL_FP);
         }
         ed.apply();

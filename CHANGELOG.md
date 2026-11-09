@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Updater: hash pin binary tak lagi dihitung penuh tiap Start (Audit 1592)
+
+- Pemeriksaan pin SHA-256 binary (±35 MB) kini digerbang sidik berkas (ukuran+mtime): selama sidik sama dengan saat hash penuh terakhir lolos, berkas dianggap utuh tanpa hashing; sidik berubah → hash penuh yang memutuskan (fail-closed tetap). Sidik dicatat di semua situs penulisan pin dan dibersihkan saat pin dibersihkan.
+
 ## [Belum rilis] — Drawable: warna literal menjadi bernama (Audit 1614)
 
 - Empat warna hex literal yang berulang di drawable (garis status #55FFFFFF x3, fokus chip #33F57C00, biru perisai launcher #1B5FD9/#164FBE) kini warna bernama di colors.xml + values-night/colors.xml dengan nilai yang sama persis.

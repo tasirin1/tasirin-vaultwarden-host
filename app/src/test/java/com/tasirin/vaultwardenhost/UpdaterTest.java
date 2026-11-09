@@ -1687,4 +1687,20 @@ public class UpdaterTest {
         assertEquals("", Updater.statusMesin);
         pelaksana.shutdownNow();
     }
+
+    @Test
+    public void pinBolehLewatiHash_sidikSamaDanBerkasAda() throws Exception {
+        java.io.File f = java.io.File.createTempFile("pin", ".bin");
+        try {
+            String sidik = ServerService.sidikManualFile(f);
+            assertTrue(Updater.pinBolehLewatiHash(sidik, f));
+            assertFalse(Updater.pinBolehLewatiHash("", f));
+            assertFalse(Updater.pinBolehLewatiHash(null, f));
+            assertFalse(Updater.pinBolehLewatiHash("0:0", f));
+            assertFalse(Updater.pinBolehLewatiHash(sidik,
+                    new java.io.File(f.getParent(), "tidak-ada.bin")));
+        } finally {
+            f.delete();
+        }
+    }
 }

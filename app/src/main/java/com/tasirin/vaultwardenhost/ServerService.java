@@ -3465,7 +3465,7 @@ public class ServerService extends Service {
                 TgBackup.amanString(sp, KEY_BIN_MANUAL_FP, ""), userBin);
 
         String pinShaBin = TgBackup.amanString(sp, Updater.KEY_BIN_SHA_PIN, "");
-        boolean binUtuh = Updater.binaryUtuh(out, pinShaBin);
+        boolean binUtuh = Updater.binaryUtuhTersidik(sp, out, pinShaBin);
         if (!binUtuh) {
             appendLog("[app] Binary update gagal verifikasi SHA-256 tercatat"
                     + " - diunduh ulang.");
@@ -3498,7 +3498,9 @@ public class ServerService extends Service {
                             if (pinShaBin == null || pinShaBin.isEmpty()) {
                                 try {
                                     sp.edit().putString(Updater.KEY_BIN_SHA_PIN,
-                                            Updater.sha256Hex(out)).apply();
+                                                    Updater.sha256Hex(out))
+                                            .putString(Updater.KEY_BIN_SHA_FP,
+                                                    sidikManualFile(out)).apply();
                                 } catch (Exception ignored) {
                                 }
                             }
@@ -3576,6 +3578,8 @@ public class ServerService extends Service {
                                             .putString(KEY_BIN_MANUAL_FP, sidikAwal)
                                             .putString(Updater.KEY_BIN_SHA_PIN,
                                                     Updater.sha256Hex(out))
+                                            .putString(Updater.KEY_BIN_SHA_FP,
+                                                    sidikManualFile(out))
                                             .apply();
 
                                     if (realManual != null && !realManual.isEmpty()) {
