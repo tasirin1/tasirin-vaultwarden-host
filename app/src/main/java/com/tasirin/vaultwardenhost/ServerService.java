@@ -3857,7 +3857,12 @@ public class ServerService extends Service {
             String msgShim = e.getMessage();
             String ramah = msgShim != null ? msgShim : e.toString();
             appendLog("[app] Gagal pasang shim getrandom: " + e
-                    + "\n[app] Saran: " + Updater.saranKoneksi(e));
+                    // Audit 1703: penjaga yang sama dengan
+                    // ensureBinary (Audit 1683) - situs ini
+                    // terlewat kemarin.
+                    + (Updater.mengandungSaran(ramah) ? ""
+                            : "\n[app] Saran: "
+                                    + Updater.saranKoneksi(e)));
             setStatus("Shim getrandom belum tersedia - " + ramah);
             return null;
         }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Log ensureShim kini berpenjaga mengandungSaran (situs keempat kelas 1683) (Audit 1703)
+
+- Baris "Saran:" pada catch `ensureShim` di ServerService kini bersyarat `Updater.mengandungSaran`, sama seperti `ensureBinary` (Audit 1683). Galat unduh shim yang sudah terbungkus `pesanGalatUnduh` tidak lagi menampilkan dua blok saran berurutan di log.
+
 ## [Belum rilis] — Cabang Telegram mendahului timeout/DNS dan sadar timeout (Audit 1702)
 
 - Cabang Telegram di `saranKoneksi` dipindah ke sebelum cabang timeout/SSL dan diberi sub-cabang timeout/DNS sendiri ("Koneksi ke Telegram timeout/gagal..."). Galat jaringan mentah dari fase kirim Telegram — rantainya memuat api.telegram.org tetapi tertangkap lebih dulu oleh cabang timeout/DNS — sebelumnya divonis "Koneksi ke GitHub timeout... tekan Start lagi", menyebut layanan yang tidak bermasalah. Rantai GitHub tidak pernah memuat kata "telegram", jadi urutan baru ini tidak mengubah vonis GitHub.
