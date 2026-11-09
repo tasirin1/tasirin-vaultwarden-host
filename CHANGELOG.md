@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Normalisasi URI storeutl di gerbang diperbaiki dua arah (Audit 1564)
+
+- Residu Audit 1551: normalisasi lama menyisakan '//dev/stdin' yang tak cocok himpunan jalur fd (padahal openssl melipat garis miring ganda — fail-open) dan mengupas host APA PUN (padahal pemuat OSSL_STORE hanya menerima host kosong atau localhost — host asing terlanjur dianggap stdin, fail-closed). Normalisasi kini di _uri_store_ke_jalur: host selain kosong/localhost ditolak sebagai bukan-stdin dan garis miring awal dilipat sebelum pencocokan.
+
 ## [Belum rilis] — gpgsm --debug-wait bernilai ditambahkan ke kedua himpunan gerbang (Audit 1563)
 
 - Residu Audit 1550: '--debug-wait <detik>' mengambil nilai tetapi absen dari kedua himpunan gpgsm — bentuk bernilai tertekan sebagai bukan-pembaca (fail-open) dan token modus sesudah bentuk telanjangnya tertelan sebagai nilai (fail-closed); keduanya terprobe dua arah. Kini hadir di kedua himpunan (58 elemen, tetap identik).

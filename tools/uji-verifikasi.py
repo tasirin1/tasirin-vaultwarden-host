@@ -15169,6 +15169,48 @@ def main():
         periksa("gpgsm opsi --debug-wait bernilai: gerbang gagal (Audit 1563)",
                 rc != 0)
         shutil.rmtree(sub702, ignore_errors=True)
+        sub703 = klon(tmp, "sub703")
+        berkas_aksi703 = os.path.join(
+            sub703, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi703, encoding="utf-8") as f:
+            isi_aksi703 = f.read()
+        baris_aksi703 = [b for b in isi_aksi703.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru703 = isi_aksi703.replace(
+                baris_aksi703,
+                baris_aksi703.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl storeutl file:////dev/stdin; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru703 != isi_aksi703, \
+            "suntikan aksi703 tidak menembak"
+        with open(berkas_aksi703, "w", encoding="utf-8") as f:
+            f.write(isi_baru703)
+        rc, out = jalan(sub703, [sys.executable, GERBANG, "--semua"])
+        periksa("storeutl URI miring ganda dinilai membaca stdin: gerbang gagal (Audit 1564)",
+                rc != 0)
+        shutil.rmtree(sub703, ignore_errors=True)
+        sub704 = klon(tmp, "sub704")
+        berkas_aksi704 = os.path.join(
+            sub704, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi704, encoding="utf-8") as f:
+            isi_aksi704 = f.read()
+        baris_aksi704 = [b for b in isi_aksi704.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru704 = isi_aksi704.replace(
+                baris_aksi704,
+                baris_aksi704.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(openssl storeutl file://example.com/dev/stdin; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru704 != isi_aksi704, \
+            "suntikan aksi704 tidak menembak"
+        with open(berkas_aksi704, "w", encoding="utf-8") as f:
+            f.write(isi_baru704)
+        rc, out = jalan(sub704, [sys.executable, GERBANG, "--semua"])
+        periksa("storeutl URI host asing BUKAN stdin: gerbang tetap lolos (Audit 1564)",
+                rc == 0)
+        shutil.rmtree(sub704, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1949,6 +1949,31 @@ def _operand_sesudah_opsi(toks, awal, bernilai):
     return hasil
 
 
+def _uri_store_ke_jalur(o_s):
+    # Audit 1564: normalisasi operand storeutl —
+    # pemuat file OSSL_STORE hanya menerima host
+    # kosong atau localhost (tak peka huruf); host
+    # lain (termasuk userinfo, port, kurung IPv6)
+    # ditolak sebelum membaca, jadi BUKAN stdin.
+    # Sebaliknya garis miring ganda di awal jalur
+    # dilipat openssl (file:////dev/stdin tetap
+    # membuka fd-nya) — lipat sebelum mencocokkan.
+    m = re.match(r"(?i)^file:(.*)$", o_s)
+    if not m:
+        return o_s
+    sisa = m.group(1)
+    if sisa.startswith("//"):
+        potong = sisa.find("/", 2)
+        if potong < 0:
+            return sisa
+        host = sisa[2:potong]
+        if host != "" and host.lower() != "localhost":
+            return sisa
+        sisa = sisa[potong:]
+    if sisa.startswith("/"):
+        sisa = "/" + sisa.lstrip("/")
+    return sisa
+
 def _menguras_khusus(perintah, toks, awal):
     """Audit 1059-1072: penilai perintah yang pengurasannya
     bergantung pada subcommand / bentuk opsi khas — tak bisa
@@ -2281,8 +2306,11 @@ def _menguras_khusus(perintah, toks, awal):
             # store yang sah (terprobe menguras) —
             # normalisasi: skema tak peka huruf + host
             # opsional sesudah '//'.
-            return any((re.sub(r"(?i)^file:(//[^/]*)?", "",
-                               o_s))
+            # Audit 1564: normalisasi dipindah ke
+            # _uri_store_ke_jalur — host asing BUKAN
+            # stdin (fail-closed lama) dan garis miring
+            # ganda dilipat (fail-open lama).
+            return any(_uri_store_ke_jalur(o_s)
                        in ("/dev/stdin", "/dev/fd/0",
                            "/proc/self/fd/0")
                        for o_s in ops_s)
