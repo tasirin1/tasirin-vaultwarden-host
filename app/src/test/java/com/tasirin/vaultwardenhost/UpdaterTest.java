@@ -727,6 +727,21 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_batalBerakhiranTitikTertangkapLokal() {
+        // Audit 1704: produsen batal berakhiran titik divonis
+        // lokal; pesan SHA Audit 1696 tetap ke cabang 404.
+        String s1 = Updater.saranKoneksi(new java.io.IOException(
+                "Unduhan binary melebihi batas ukuran 134217728"
+                        + " byte - unduhan dibatalkan."));
+        assertTrue(s1.contains("bukan di jaringan"));
+        String s2 = Updater.saranKoneksi(new java.io.IOException(
+                "Verifikasi SHA-256 tidak bisa diambil dari"
+                        + " release (aset belum terbit di rilis)."
+                        + " Update dibatalkan demi keamanan."));
+        assertTrue(s2.contains("belum tersedia di rilis"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Token 'dibatalkan.' menangkap tiga produsen batal yang lolos dari penyempitan (Audit 1704)
+
+- Cabang keadaan lokal `saranKoneksi` ditambah token `dibatalkan.` (berakhiran titik): menangkap "Backup otomatis dibatalkan.", "file_path tidak aman - unduhan dibatalkan.", dan pesan melebihi batas "... unduhan dibatalkan." yang sesudah penyempitan susulan maraton-101 jatuh ke saran internet. Pesan SHA "Update dibatalkan demi keamanan" tidak memuat bentuk berakhiran titik itu, jadi vonis 404 Audit 1696 tetap utuh (terkunci uji JVM).
+
 ## [Belum rilis] — Log ensureShim kini berpenjaga mengandungSaran (situs keempat kelas 1683) (Audit 1703)
 
 - Baris "Saran:" pada catch `ensureShim` di ServerService kini bersyarat `Updater.mengandungSaran`, sama seperti `ensureBinary` (Audit 1683). Galat unduh shim yang sudah terbungkus `pesanGalatUnduh` tidak lagi menampilkan dua blok saran berurutan di log.

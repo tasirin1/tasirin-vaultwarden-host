@@ -606,6 +606,13 @@ public final class Updater {
                 || gabung.contains("dibatalkan - tidak dilanjutkan")
                 || gabung.contains("backup dibatalkan")
                 || gabung.contains("restore dibatalkan")
+                // Audit 1704: tiga produsen batal lain yang
+                // redaksinya diakhiri titik ("Backup otomatis
+                // dibatalkan.", "... unduhan dibatalkan.") -
+                // token "dibatalkan." menangkap ketiganya
+                // tanpa menyentuh "Update dibatalkan demi
+                // keamanan" (tanpa titik) milik Audit 1696.
+                || gabung.contains("dibatalkan.")
                 || gabung.contains("kunci pasang")
                 || gabung.contains("file update tidak valid")
                 || gabung.contains("file_id backup kosong")
