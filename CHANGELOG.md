@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Teks log IP stabil tak lagi menyebut '2x tick' (Audit 1678)
+
+- Predikat `restartIpBolehDiminta` mensyaratkan hitungan >= 2 DAN selang >= 60 detik; pada mode tick cepat (30 detik) tembakan sebenarnya terjadi di hitungan ke-3, jadi angka di teks lama salah separuh waktu. Teks kini tanpa angka — ambangnya tetap sama, perilakunya tidak berubah.
+
 ## [Belum rilis] — Teks rangkuman health tak lagi menyebut '3x gagal' untuk jalur yang hitungannya beda (Audit 1677)
 
 - Empat teks keluarga ambang health (log, crash-log, pesan Telegram, label `recordRestart`) diganti tanpa angka hitungan: jalur polos memang 3 panggilan, tetapi jalur TCP-hidup membunuh pada kegagalan ke-5 dan jalur DB-rusak sesudah 10 tick — teks lama menyesatkan diagnosis. Label ambang yang muncul persis saat penghitung menyentuh 3 (`(ke-3/3)`, log gerbang TCP) tidak diubah.

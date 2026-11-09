@@ -3019,7 +3019,7 @@ public class ServerService extends Service {
                 ipBaruKandidat = "";
                 ipBaruHitung = 0;
                 ipBaruSejak = 0;
-                appendLog("[health] IP baru stabil 2x tick - restart agar DOMAIN ikut IP baru.");
+                appendLog("[health] IP baru stabil - restart agar DOMAIN ikut IP baru.");
                 if (restart(getApplicationContext())) {
                     ipRestartDiminta = kini;
                 } else {
