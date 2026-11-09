@@ -6638,7 +6638,30 @@ def cek_sinkron_terjemah(gagal):
         if lebih:
             gagal.append("values-in berlebih plurals: " + ", ".join(lebih[:10]))
 
+_CACHE_BERKAS_TEKS = {}
+
+
 def berkas_teks(path):
+    # Audit 1633: hasil diperiksa sekali per keadaan berkas —
+    # dulu tiap pemanggil (jenis_biner/jenis_pasif/cek literal
+    # biner Audit 1579) membaca ulang berkas yang sama bongkahan
+    # demi bongkahan di lari yang sama.
+    try:
+        st = os.stat(os.path.join(AKAR, path))
+        kunci = (path, st.st_size, st.st_mtime_ns)
+    except OSError:
+        kunci = None
+    if kunci is not None and kunci in _CACHE_BERKAS_TEKS:
+        return _CACHE_BERKAS_TEKS[kunci]
+    hasil = _berkas_teks_mentah(path)
+    if kunci is not None:
+        if len(_CACHE_BERKAS_TEKS) > 4096:
+            _CACHE_BERKAS_TEKS.clear()
+        _CACHE_BERKAS_TEKS[kunci] = hasil
+    return hasil
+
+
+def _berkas_teks_mentah(path):
     dek = codecs.getincrementaldecoder("utf-8")()
     try:
         with open(os.path.join(AKAR, path), "rb") as f:

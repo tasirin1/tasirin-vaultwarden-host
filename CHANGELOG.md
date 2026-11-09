@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: berkas_teks berkache (Audit 1633)
+
+- `berkas_teks()` kini berkache dengan kunci sidik berkas (ukuran + mtime ns), sejajar cache baca() yang sudah ada; berkas yang berubah di tengah lari tetap terbaca ulang karena sidiknya berubah.
+
 ## [Belum rilis] — Gerbang: mode --semua melewati daftar berubah kerja yang tak terpakai (Audit 1632)
 
 - Pada mode `--semua`, daftar berkas berubah dari ruang kerja (diff acuan, status porcelain, berkas tak terlacak) tidak lagi dihitung karena hasilnya selalu ditimpa cakupan penuh; isi diff yang diperiksa tidak berubah. Paruh `git diff --check` di cek pola berisiko sengaja dipertahankan (mode git berbeda, tak bisa diturunkan dari teks patch).
