@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gpgv --enable-special-filenames membaca fd lewat operand -&0 (Audit 1689)
+
+- Blok khusus gpgv kini mengenali mode `--enable-special-filenames`: operand `-&0` membaca fd 0 (terprobe real: Good signature dari stdin) sehingga divonis menguras. Karena penyapu operand melewati semua token berawalan `-`, kehadiran `&0` dicari di daftar token sesudah perintah. 1 skenario suite baru menguncinya (Audit 1689).
+
 ## [Belum rilis] — Gerbang: gpgv mengonkatenasi semua operand data (Audit 1688)
 
 - Syarat cek khusus gpgv diganti: menguras bila operand pertama `-` ATAU `-` muncul di operand data mana pun sesudahnya. Premis Audit 1671 (gpgv hanya memakai dua operand pertama) terbantah probe fungsional — tanda tangan atas dataA+dataB terverifikasi Good signature dari `gpgv gab.sig dataA -` dengan stdin=dataB. 2 skenario suite baru menguncinya (Audit 1688).

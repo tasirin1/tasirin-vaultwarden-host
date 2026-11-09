@@ -5156,6 +5156,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # operand pertamanya berkas sig.
         ops_gv = _operand_sesudah_opsi(
             toks, awal, _OPSI_BERNILAI.get("gpgv", set()))
+        # Audit 1689: penanda mode nama-berkas khusus.
+        khusus_gv = "--enable-special-filenames" in [
+            t.strip("\"'") for t in toks[awal + 1:]]
         # Audit 1659: cerminnya — operand pertama "-"
         # berarti berkas tanda tangan dibaca dari stdin
         # (terprobe real: detached-sig sah terkuras penuh).
@@ -5166,6 +5169,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # dua-operand Audit 1671 gugur oleh bukti itu.
         if len(ops_gv) >= 2 and (ops_gv[0] == "-"
                                  or "-" in ops_gv[1:]):
+            return True
+        # Audit 1689: --enable-special-filenames menjadikan
+        # operand "-&0" pembaca fd 0 (terprobe real: Good
+        # signature dari stdin). "-&0" tak pernah masuk
+        # daftar operand (penyapu operand melewati semua
+        # token berawalan "-"), jadi kehadirannya dicari di
+        # token mentah sesudah perintah - di sana ia hanya
+        # bisa berstatus operand.
+        if khusus_gv and "-&0" in [
+                t.strip("\"'") for t in toks[awal + 1:]]:
             return True
     if perintah == "iconv":
         # Audit 1263: --usage juga informasional.

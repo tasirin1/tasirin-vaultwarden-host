@@ -16767,6 +16767,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpgv tiga operand berkas tanpa '-': gerbang lolos (Audit 1688)", rc == 0)
         shutil.rmtree(sub780, ignore_errors=True)
+        sub781 = klon(tmp, "sub781")
+        berkas_aksi781 = os.path.join(
+            sub781, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi781, encoding="utf-8") as f:
+            isi_aksi781 = f.read()
+        baris_aksi781 = [b for b in isi_aksi781.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru781 = isi_aksi781.replace(
+                baris_aksi781,
+                baris_aksi781.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv --enable-special-filenames sig -&0; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru781 != isi_aksi781, \
+            "suntikan aksi781 tidak menembak"
+        with open(berkas_aksi781, "w", encoding="utf-8") as f:
+            f.write(isi_baru781)
+        rc, out = jalan(sub781,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv nama khusus -&0 membaca fd 0 di substitusi proses: penguras — gerbang gagal (Audit 1689)", rc != 0)
+        shutil.rmtree(sub781, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
