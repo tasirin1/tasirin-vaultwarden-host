@@ -1962,6 +1962,12 @@ def _menguras_interpreter(perintah, toks, awal):
         if perintah in ("lua", "luajit") and t == "-l":
             i += 2
             continue
+        # Audit 1672: -j luajit bernilai terpisah (perintah
+        # JIT; luajit.c collectargs case 'j') — khusus luajit,
+        # lua tidak punya -j.
+        if perintah == "luajit" and t == "-j":
+            i += 2
+            continue
         if t == "--":
             i += 1
             return toks[i] == "-" if i < n else True

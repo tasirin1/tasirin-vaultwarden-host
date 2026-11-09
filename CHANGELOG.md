@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: luajit -j dilompati berpasangan (Audit 1672)
+
+- Penilai interpreter kini melompati berpasangan `-j` khusus `luajit` (perintah JIT bernilai terpisah menurut luajit.c collectargs) — nilainya tak lagi terbaca sebagai berkas skrip sehingga bentuk tanpa skrip divonis menguras; lua sengaja tidak ikut (tak punya -j). 2 skenario suite baru menguncinya (Audit 1672).
+
 ## [Belum rilis] — Gerbang: cek khusus gpgv menerima bentuk ≥3 operand (Audit 1671)
 
 - Syarat panjang cek khusus gpgv dilonggarkan dari `== 2` menjadi `>= 2`: gpgv nyata hanya memakai dua operand pertama dan mengabaikan sisanya (terprobe real), jadi bentuk ≥3 operand dengan `-` di posisi pertama/kedua tetap menguras stdin dan kini terdeteksi; 2 skenario suite baru menguncinya (Audit 1671).
