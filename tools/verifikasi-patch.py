@@ -894,8 +894,11 @@ _OPSI_BERNILAI = {
            # Audit 1172: -F/--format bernilai.
            "-F", "--format"},
     # Audit 1639: opsi bernilai gpgv.
+    # Audit 1648: --weak-digest terprobe real menguras;
+    # --output/-o & --log-file bernilai menurut man gpgv(1).
     "gpgv": {"--keyring", "--homedir", "--status-fd",
-             "--logger-fd"},
+             "--logger-fd", "--weak-digest", "--output", "-o",
+             "--log-file"},
     # Audit 1638: opsi bernilai kompresor zstd/pigz.
     "zstd": {"-o", "--output", "-D", "-T", "--threads",
              # Audit 1642: -M/--memory & --format bernilai.

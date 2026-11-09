@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai gpgv dilengkapi tiga anggota (Audit 1648)
+
+- Entri opsi bernilai `gpgv` dilengkapi `--weak-digest` (terprobe real: payload clearsign sah terkuras penuh), `--output`/`-o`, dan `--log-file` (bernilai menurut man gpgv(1)) — nilainya tak lagi tertelan sebagai operand berkas sehingga bentuk tanpa operand data divonis menguras stdin; 2 skenario suite baru menguncinya (Audit 1648).
+
 ## [Belum rilis] — Telegram: fallback edit→kirim-baru hanya untuk kegagalan yang pasti (Audit 1647)
 
 - Hasil ubah pesan kini bertiga: berhasil / gagal-pasti / gagal-ragu. Fallback mengirim teks yang sama sebagai pesan baru hanya berjalan pada gagal-pasti (server menjawab menolak, 429 ganda, atau teks memang terlalu panjang untuk diedit). Kegagalan ragu — respons hilang di tengah jalan, mis. timeout sesudah server menerapkan edit — tidak lagi memicu kirim-baru, sehingga pesan tidak lagi berisiko ganda di chat. Uji JVM baru mengunci predikat fallbacknya (Audit 1647).
