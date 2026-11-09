@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Backup: sidik cache maraton-94 tidak lagi diekspor dan ikut dibersihkan saat ganti era (Audit 1636)
+
+- `KEY_BIN_SHA_FP`, `KEY_VERSI_FP`, dan `KEY_VERSI_FILE` kini masuk `TAK_DIEKSPOR_KEYS` (meniru pin + sidik manual yang sudah di sana), dan pasangan versi ikut dihapus pada blok ganti era di `applyPrefsFromJson` — sidik kepercayaan tidak lagi bisa datang dari config perangkat lain sementara pin yang dijaminnya tetap lokal (Audit 1636).
+
 ## [Belum rilis] — Server: urutan kunci data di pilihBiner dikembalikan (regresi 1593 dibatalkan) (Audit 1635)
 
 - `lepasKunciData()` kembali berjalan SESUDAH `pulihkanBakTersisa` + `cleanupTempFiles` di `pilihBiner`. Audit 1593 sempat melepas kunci lebih dulu dengan klaim kedua pemanggilan itu tak menyentuh keadaan berkunci data — keliru: keduanya memulihkan swap `.bak` pada artefak yang sama yang ditukar jalur restore/reset sambil memegang kunci data (invariant Audit 863), jadi urutan baru itu membuka balapan nyata dengan restore (Audit 1635).
