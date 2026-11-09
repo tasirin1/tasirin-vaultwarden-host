@@ -2976,12 +2976,12 @@ public class ServerService extends Service {
                     // terdiagnosis ini menuntaskan gerbangnya.
                     healthFails.set(2);
                     healthTcpLolos.set(2);
-                    healthFail("DB rusak beruntun (/alive 5xx tapi /api/config 200, "
-                            + BATAS_CONFIG_SAJA_BERUNTUN + "x) — " + h.rincian, pCek);
+                    healthFail("DB rusak kumulatif (/alive 5xx tapi /api/config 200, "
+                            + BATAS_CONFIG_SAJA_BERUNTUN + "x sejak sehat terakhir) — " + h.rincian, pCek);
                     return;
                 }
                 appendLog("[health] /alive 5xx tapi /api/config 200 (DB mungkin rusak,"
-                        + " ke-" + n + "/" + BATAS_CONFIG_SAJA_BERUNTUN + ").");
+                        + " total ke-" + n + "/" + BATAS_CONFIG_SAJA_BERUNTUN + " sejak sehat terakhir).");
                 return;
             }
             int[] ph0 = perbaruiPenghitungHealth(0,

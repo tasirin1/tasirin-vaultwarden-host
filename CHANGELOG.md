@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Label hitungan config-saja kini jujur: kumulatif sejak sehat terakhir, bukan "beruntun" (Audit 1715)
+
+- Sesudah Audit 1698 penghitung config-saja tidak lagi gugur oleh tick tak-merespon yang menyela — n adalah total tick sejak tick sehat terakhir. Alasan restart dan log health masih mengklaim "beruntun", menyesatkan diagnosis episode campuran. Keduanya kini berbunyi "kumulatif/total ... sejak sehat terakhir"; ambang dan perilaku restart tidak berubah.
+
 ## [Belum rilis] — Gerbang: opsi ruby/php tak dikenal dan informasional divonis keluar (Audit 1714)
 
 - Penjaga ruby/php baru: --version/--help -> False; opsi panjang di luar himpunan sah (longgar dari dokumentasi CLI; awalan --enable-/--disable- diizinkan) -> False; huruf tunggal di luar himpunan sah man ruby(1)/php --help -> False; -v telanjang di ekor -> False. DUGAAN kuat — biner tak terpasang untuk probe. 1 skenario suite baru (Audit 1714).
