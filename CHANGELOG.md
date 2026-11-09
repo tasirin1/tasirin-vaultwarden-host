@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Frasa 'belum terbit' tertangkap cabang 404; shaDariRilis tak lagi menanam saran (Audit 1696)
+
+- Token cabang 404 `saranKoneksi` ditambah `belum terbit` (frasa `shaDariRilis` untuk aset .sha256 yang belum terbit), dan situs itu tak lagi menanam `saranKoneksi(null)` di dalam pesannya sendiri — perender luar kini menempelkan saran yang benar tepat satu kali, bukan bawaan cek internet dua kali. Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Token kode HTTP saran kini sadar layanan dan berbentuk frasa (Audit 1695)
 
 - Dua perbaikan satu akar di `saranKoneksi`: (a) cabang Telegram baru di depan cabang kode — rantai memuat "telegram" divonis soal Telegram (429 = batas laju Telegram; kode lain = periksa blokir/kick/chat ID), bukan rate-limit/belum-terbit GitHub; (b) kode GitHub dicocokkan sebagai frasa `http 403`/`code: 403` dst, bukan substring bebas, sehingga angka dinamis (byte unduhan, ukuran shim, iterasi KDF) tak lagi menabrak token. Uji JVM baru mengunci kedua arah.

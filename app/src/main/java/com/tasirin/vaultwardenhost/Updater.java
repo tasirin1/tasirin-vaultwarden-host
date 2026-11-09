@@ -643,7 +643,9 @@ public final class Updater {
                     + " lalu coba lagi.";
         }
         if (gabung.contains("http 404") || gabung.contains("code: 404")
-                || gabung.contains("belum tersedia")) {
+                || gabung.contains("belum tersedia")
+                // Audit 1696: frasa saudara dari shaDariRilis.
+                || gabung.contains("belum terbit")) {
             return "File belum tersedia di rilis (build +-12 jam). Coba lagi nanti.";
         }
         return "Cek internet STB (buka github.com di browser), lalu tekan Start lagi.";
@@ -1021,7 +1023,13 @@ public final class Updater {
                             + (hasil.sementara
                                     ? " karena gangguan jaringan/rate-limit - coba lagi nanti."
                                     : " (aset belum terbit di rilis).")
-                            + " Update dibatalkan demi keamanan. " + saranKoneksi(null));
+                            // Audit 1696: tanpa menanam saran di
+                            // dalam pesan - perender luar yang
+                            // menempelkan saranKoneksi atas rantai
+                            // utuhnya (kini tertangkap "belum
+                            // terbit"); menanam bawaan di sini
+                            // membuatnya tampil dua kali dan salah.
+                            + " Update dibatalkan demi keamanan.");
                 }
                 simpan[0] = hasil.hex;
                 return hasil.hex;

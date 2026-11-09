@@ -674,6 +674,17 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_belumTerbitTertangkap404() {
+        // Audit 1696: frasa shaDariRilis sekelas belum tersedia.
+        String s = Updater.saranKoneksi(new java.io.IOException(
+                "Verifikasi SHA-256 tidak bisa diambil dari"
+                        + " release (aset belum terbit di rilis)."
+                        + " Update dibatalkan demi keamanan."));
+        assertTrue(s.contains("belum tersedia di rilis"));
+        assertFalse(s.contains("internet"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);
