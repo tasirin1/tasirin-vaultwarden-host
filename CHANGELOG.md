@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Password backup salah saat restore kini berpesan jelas, bukan pengecualian kripto mentah (Audit 1686)
+
+- Kegagalan padding dekripsi (kedua percobaan KDF) di `decryptFile` kini dibungkus menjadi pesan pengguna "Password backup salah atau berkas backup rusak - periksa password backup di pengaturan, lalu ulangi restore." — sebelumnya BadPaddingException merambat apa adanya (pesannya sering null atau teks asing penyedia kripto) lalu dirender bersama saran cek internet. Cabang saran pendampingnya ada di perbaikan Audit 1686 sisi Updater.
+
 ## [Belum rilis] — uploadTelegram kini mengklasifikasi respons ambigu seperti kirim by-id (Audit 1681)
 
 - Pengirim dokumen kedua ini sebelumnya melempar semua kegagalan baca-respons dan 200 tak terkonfirmasi sebagai gagal pasti: chat divonis gagal, stempel tak maju, dan backup berikutnya mengunggah ulang ke semua chat. Kini fase responsnya dipisah persis pola Audit 1663/1679 — baca gagal atau 200 tak terkonfirmasi mengembalikan `""` (dianggap terkirim, tercatat di log), penolakan redirect dan kode galat terbaca tetap gagal pasti.

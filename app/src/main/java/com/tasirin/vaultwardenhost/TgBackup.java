@@ -3293,6 +3293,15 @@ public final class TgBackup {
             }
             fsyncFile(tmp);
             ServerService.gantiAtomik(tmp, out);
+        } catch (javax.crypto.BadPaddingException e) {
+            // Audit 1686: kegagalan padding dari kedua percobaan
+            // KDF berarti password salah atau berkas rusak —
+            // bungkus dengan pesan berbahasa pengguna; pengecualian
+            // mentahnya (sering null/asing) tak boleh jadi inti
+            // pesan yang dirender ke pemilik.
+            throw new java.io.IOException("Password backup salah atau"
+                    + " berkas backup rusak - periksa password backup"
+                    + " di pengaturan, lalu ulangi restore.", e);
         } finally {
             try {
                 tmp.delete();
