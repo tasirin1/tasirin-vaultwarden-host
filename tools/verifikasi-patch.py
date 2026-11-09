@@ -3050,9 +3050,7 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "gpg":
         # Audit 1069: enkripsi/tanda tangan simetris batch tanpa
         # operand berkas membaca plaintext dari stdin.
-        ops = _operand_sesudah_opsi(
-            toks, awal,
-            {"-o", "--output", "--homedir", "-r", "--recipient",
+        bernilai_gpg = {"-o", "--output", "--homedir", "-r", "--recipient",
              "-u", "--local-user", "--passphrase",
              "--passphrase-fd", "--passphrase-file", "--keyring",
              "--status-fd", "--logger-fd", "--attribute-fd",
@@ -3144,7 +3142,9 @@ def _menguras_khusus(perintah, toks, awal):
              # dump-options yang absen.
              "--ungroup", "--add-desig-revoker",
              "--force-ownertrust", "--gpg-agent-info",
-             "--debug-allow-large-chunks"})
+             "--debug-allow-large-chunks"}
+        ops = _operand_sesudah_opsi(
+            toks, awal, bernilai_gpg)
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False
@@ -3153,19 +3153,38 @@ def _menguras_khusus(perintah, toks, awal):
         # print-md yang operand tunggalnya nama algoritma.
         # Audit 1123: --verify tanpa operand membaca bahan
         # tanda tangan dari stdin.
+        # Audit 1591: deteksi modus sadar nilai — token
+        # modus yang menjadi NILAI opsi bernilai (mis.
+        # --options --clearsign) bukan modus; gpgsm
+        # sudah begini sejak Audit 1504. --tofu-policy
+        # menelan nilai untuk pemindaian ini saja
+        # (opcode perintah; nilainya tetap terhitung
+        # operand di ops).
+        modus = []
+        k_md = 0
+        while k_md < len(mentah):
+            t_md = mentah[k_md]
+            modus.append(t_md)
+            if (t_md in bernilai_gpg
+                    or t_md == "--tofu-policy") \
+                    and "=" not in t_md \
+                    and k_md + 1 < len(mentah):
+                k_md += 1
+            k_md += 1
         if any(t in ("--import", "--dearmor", "--enarmor",
-                     "--list-packets", "--verify") for t in mentah):
+                     "--list-packets", "--verify")
+               for t in modus):
             # Audit 1150: operand "-" adalah stdin juga di sini
             # (gpg --verify - membaca tanda tangan dari stdin).
             return not ops or "-" in ops
-        if "--print-md" in mentah:
+        if "--print-md" in modus:
             return len(ops) <= 1
         if ops:
             return False
         return any(t in ("-c", "--symmetric", "-e", "--encrypt",
                          "-s", "--sign", "-d", "--decrypt",
                          "--clearsign", "--detach-sign")
-                   or t.startswith("--symmetric") for t in mentah)
+                   or t.startswith("--symmetric") for t in modus)
     # Audit 1428: gpgsm — --decrypt/--verify tanpa
     # operand berkas membaca pesan CMS dari stdin
     # (--sign/--encrypt terbukti gagal lebih dulu).

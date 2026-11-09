@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: deteksi modus gpg menghitung token yang tertelan sebagai nilai (Audit 1591) (Audit 1591)
+
+- Pemeriksaan modus gpg (--import/--verify/--print-md dan modus kripto) memindai token mentah, sehingga token modus yang menjadi NILAI opsi bernilai (mis. 'gpg --options --clearsign', yang membuka nilai sebagai berkas secara fatal) ikut terhitung modus — positif palsu. Deteksi kini sadar nilai seperti gpgsm (Audit 1504): himpunan gpg dihoist ke variabel bernilai_gpg dan pemindaian modus melompati nilai opsi (termasuk nilai --tofu-policy untuk pemindaian ini saja).
+
 ## [Belum rilis] — Gerbang: 5 nama gpg bernilai lain absen (Audit 1590) (Audit 1590)
 
 - --ungroup, --add-desig-revoker, --force-ownertrust, --gpg-agent-info, dan --debug-allow-large-chunks bernilai menurut tabel opsi gpg (argumennya ditelan parser) tetapi absen dari himpunan gerbang sehingga fail-open. Kelimanya kini masuk himpunan (total 139 nama).
