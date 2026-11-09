@@ -16830,6 +16830,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpgv --dump-option-table meta cetak lalu keluar: gerbang lolos (Audit 1691)", rc == 0)
         shutil.rmtree(sub783, ignore_errors=True)
+        sub784 = klon(tmp, "sub784")
+        berkas_aksi784 = os.path.join(
+            sub784, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi784, encoding="utf-8") as f:
+            isi_aksi784 = f.read()
+        baris_aksi784 = [b for b in isi_aksi784.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru784 = isi_aksi784.replace(
+                baris_aksi784,
+                baris_aksi784.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -sWignore skrip.py; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru784 != isi_aksi784, \
+            "suntikan aksi784 tidak menembak"
+        with open(berkas_aksi784, "w", encoding="utf-8") as f:
+            f.write(isi_baru784)
+        rc, out = jalan(sub784,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python -Wignore di tengah bundel adalah nilai, bukan bendera: gerbang lolos (Audit 1692)", rc == 0)
+        shutil.rmtree(sub784, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

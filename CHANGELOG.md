@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bundel opsi python ditafsir per karakter (Audit 1692)
+
+- Blok bundel python dibangun ulang menafsir token per karakter seperti CPython: opsi bernilai (c/m/W/X) menelan sisa token sebagai nilainya di posisi mana pun — Audit 1674 hanya menjaga huruf pertama sehingga `-sWignore`/`-uWignore`/`-sXimporttime`/`-sWic` tetap disalahbaca (huruf nilai menyalakan interaktif/-c semu). `-m` menempel dinilai seperti cabang -m terpisah atas modul itu. 1 skenario suite baru menguncinya (Audit 1692).
+
 ## [Belum rilis] — Gerbang: --dump-option-table ikut opsi meta gpgv (Audit 1691)
 
 - Daftar meta gpgv ditambah `--dump-option-table` — dari enumerasi real `gpgv --dump-options` (GnuPG 2.4.4) ia satu-satunya opsi cetak-lalu-keluar yang belum dimodelkan Audit 1675 (model True, realitas False). 1 skenario suite baru menguncinya (Audit 1691).

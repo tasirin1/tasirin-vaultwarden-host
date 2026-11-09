@@ -1826,17 +1826,21 @@ def _menguras_interpreter(perintah, toks, awal):
                     and not bersih_t.startswith("--")
                     and len(bersih_t) > 2):
                 huruf_py = bersih_t[1:]
-                # Audit 1674: -W/-X bernilai — ekor token
-                # adalah NILAI-nya (-Wignore, -Ximporttime),
-                # bukan bundel bendera; huruf nilai (mis. 'i'
-                # di "ignore") tidak boleh menyalakan
-                # interaktif.
-                if huruf_py[:1] in ("W", "X"):
-                    i += 1
-                    continue
-                if "c" in huruf_py:
-                    if "i" in huruf_py[:huruf_py.index("c")]:
+                # Audit 1692: bundel ditafsir per karakter
+                # seperti CPython - opsi bernilai (c/m/W/X)
+                # menelan SISA token sebagai nilainya di
+                # posisi mana pun (bukan hanya huruf pertama
+                # seperti Audit 1674); huruf 'i' sebelum opsi
+                # bernilai pertama tetap menyalakan interaktif.
+                pos_bernilai = -1
+                for pos, h in enumerate(huruf_py):
+                    if h in ("c", "m", "W", "X"):
+                        pos_bernilai = pos
+                        break
+                    if h == "i":
                         interaktif = True
+                if (pos_bernilai >= 0
+                        and huruf_py[pos_bernilai] == "c"):
                     # Audit 1081: -i berlaku juga sesudah -c.
                     return interaktif or any(
                         x.strip("\"'") == "-i"
@@ -1845,14 +1849,40 @@ def _menguras_interpreter(perintah, toks, awal):
                             and len(x.strip("\"'")) > 2
                             and "i" in x.strip("\"'")[1:])
                         for x in toks[i + 1:])
-                if "m" in huruf_py and huruf_py[-1] == "m":
-                    if "i" in huruf_py[:-1]:
-                        interaktif = True
-                    t = "-m"
-                elif "i" in huruf_py:
-                    interaktif = True
-                    i += 1
-                    continue
+                if (pos_bernilai >= 0
+                        and huruf_py[pos_bernilai] == "m"):
+                    if pos_bernilai == len(huruf_py) - 1:
+                        t = "-m"
+                    else:
+                        # -m bernilai menempel: sisa token
+                        # adalah nama modulnya - dinilai
+                        # seperti cabang -m terpisah atas
+                        # modul itu (versi ringkas).
+                        modul_m = huruf_py[pos_bernilai + 1:]
+                        if modul_m in ("pdb", "asyncio", "code"):
+                            return True
+                        if modul_m == "sqlite3":
+                            sisa_m = [x.strip("\"'")
+                                      for x in toks[i + 1:]]
+                            if ("-c" in sisa_m
+                                    or "--version" in sisa_m
+                                    or "--help" in sisa_m):
+                                return False
+                            return len(_operand_sesudah_opsi(
+                                toks, i, {"-c"})) < 2
+                        if modul_m in ("json.tool", "base64",
+                                       "tokenize", "quopri",
+                                       "gzip", "uu", "dis"):
+                            ops_m = _operand_sesudah_opsi(
+                                toks, i, {"--indent", "--tab"})
+                            if modul_m == "tokenize":
+                                return not ops_m
+                            if not ops_m:
+                                return True
+                            if modul_m == "gzip":
+                                return "-" in ops_m
+                            return ops_m[0] == "-"
+                        return interaktif
                 else:
                     i += 1
                     continue
