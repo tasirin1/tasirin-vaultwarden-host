@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — CI: artefak APK kedaluwarsa 7 hari (Audit 1618)
+
+- Unggahan artefak APK tidak lagi memakai bawaan retensi 90 hari: `retention-days: 7` — rilis GitHub adalah salinan yang dipakai, artefak Actions hanya untuk unduhan sesaat sesudah build.
+
 ## [Belum rilis] — CI: catatan durasi basi diperbarui (Audit 1617)
 
 - Komentar timeout di build-apk.yml dan dua sebutan `~4 menit` di AGENTS.md diperbarui ke komposisi terukur run 42548165680 (job verifikasi 27:04; run total 28:34). Risiko timeout dipantau dari laju per skenario suite, bukan durasi mentah yang didominasi varians runner.

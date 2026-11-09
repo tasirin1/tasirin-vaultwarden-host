@@ -347,3 +347,4 @@ jobs:
           name: tasirin-vaultwarden-host-apk-armeabi-v7a
           path: tasirin-vaultwarden-host-armeabi-v7a.apk
           if-no-files-found: error
+          retention-days: 7
