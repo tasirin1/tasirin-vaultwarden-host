@@ -16788,6 +16788,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpgv nama khusus -&0 membaca fd 0 di substitusi proses: penguras — gerbang gagal (Audit 1689)", rc != 0)
         shutil.rmtree(sub781, ignore_errors=True)
+        sub782 = klon(tmp, "sub782")
+        berkas_aksi782 = os.path.join(
+            sub782, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi782, encoding="utf-8") as f:
+            isi_aksi782 = f.read()
+        baris_aksi782 = [b for b in isi_aksi782.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru782 = isi_aksi782.replace(
+                baris_aksi782,
+                baris_aksi782.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv -o --warranty sig -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru782 != isi_aksi782, \
+            "suntikan aksi782 tidak menembak"
+        with open(berkas_aksi782, "w", encoding="utf-8") as f:
+            f.write(isi_baru782)
+        rc, out = jalan(sub782,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv --warranty sebagai NILAI -o bukan meta; '-' menguras: gerbang gagal (Audit 1690)", rc != 0)
+        shutil.rmtree(sub782, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

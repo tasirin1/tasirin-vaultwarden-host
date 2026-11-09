@@ -5144,11 +5144,31 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             for t in toks[awal + 1:]):
         return False
     if perintah == "gpgv":
+        # Audit 1690: token bebas = token yang BUKAN nilai
+        # opsi bernilai (penyusuran sadar nilai seperti
+        # penjaga iconv Audit 1276) - "--warranty" sebagai
+        # nilai -o/--log-file tak lagi memicu penjaga meta.
+        bernilai_gv = _OPSI_BERNILAI.get("gpgv", set())
+        bebas_gv = []
+        k_gv = awal + 1
+        while k_gv < len(toks):
+            u_gv = toks[k_gv].strip("\"'")
+            if u_gv == "--":
+                break
+            if u_gv in bernilai_gv:
+                k_gv += 2
+                continue
+            if any(u_gv.startswith(o + "=")
+                   for o in bernilai_gv if o.startswith("--")):
+                k_gv += 1
+                continue
+            bebas_gv.append(u_gv)
+            k_gv += 1
         # Audit 1675: opsi meta gpgv mencetak lalu keluar
         # tanpa membaca stdin (--warranty terprobe real:
         # payload utuh; --dump-options sekelas).
-        if any(t.strip("\"'") in ("--warranty", "--dump-options")
-               for t in toks[awal + 1:]):
+        if any(u in ("--warranty", "--dump-options")
+               for u in bebas_gv):
             return False
         # Audit 1649: bentuk terdokumentasi `gpgv sigfile -`
         # (man gpgv EXAMPLES) — operand kedua "-" berarti
@@ -5157,8 +5177,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         ops_gv = _operand_sesudah_opsi(
             toks, awal, _OPSI_BERNILAI.get("gpgv", set()))
         # Audit 1689: penanda mode nama-berkas khusus.
-        khusus_gv = "--enable-special-filenames" in [
-            t.strip("\"'") for t in toks[awal + 1:]]
+        khusus_gv = "--enable-special-filenames" in bebas_gv
         # Audit 1659: cerminnya — operand pertama "-"
         # berarti berkas tanda tangan dibaca dari stdin
         # (terprobe real: detached-sig sah terkuras penuh).
@@ -5177,8 +5196,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # token berawalan "-"), jadi kehadirannya dicari di
         # token mentah sesudah perintah - di sana ia hanya
         # bisa berstatus operand.
-        if khusus_gv and "-&0" in [
-                t.strip("\"'") for t in toks[awal + 1:]]:
+        # Audit 1690: pencarian "-&0" ikut sadar nilai -
+        # di token bebas ia hanya bisa berstatus operand
+        # (nilai opsi bernilai sudah tersaring keluar).
+        if khusus_gv and "-&0" in bebas_gv:
             return True
     if perintah == "iconv":
         # Audit 1263: --usage juga informasional.

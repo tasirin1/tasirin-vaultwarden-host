@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: penjaga meta gpgv kini sadar nilai opsi (Audit 1690)
+
+- Pemeriksaan opsi meta gpgv (Audit 1675) dibangun ulang di atas daftar token bebas — token yang bukan nilai opsi bernilai, disusuri sadar nilai seperti penjaga iconv Audit 1276. `--warranty` sebagai nilai `-o`/`--log-file` tak lagi memicu penjaga (positif palsu: model False padahal realitas menguras); pencarian `&0` Audit 1689 ikut memakai daftar yang sama. 1 skenario suite baru menguncinya (Audit 1690).
+
 ## [Belum rilis] — Gerbang: gpgv --enable-special-filenames membaca fd lewat operand -&0 (Audit 1689)
 
 - Blok khusus gpgv kini mengenali mode `--enable-special-filenames`: operand `-&0` membaca fd 0 (terprobe real: Good signature dari stdin) sehingga divonis menguras. Karena penyapu operand melewati semua token berawalan `-`, kehadiran `&0` dicari di daftar token sesudah perintah. 1 skenario suite baru menguncinya (Audit 1689).
