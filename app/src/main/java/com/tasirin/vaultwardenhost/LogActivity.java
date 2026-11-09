@@ -416,16 +416,7 @@ public class LogActivity extends Activity {
     }
 
     private static boolean cocokAsciiRentang(String text, int pos, String kunci) {
-        int m = kunci.length();
-        if (pos + m > text.length()) {
-            return false;
-        }
-        for (int j = 0; j < m; j++) {
-            if (!Util.samaHurufAscii(text.charAt(pos + j), kunci.charAt(j))) {
-                return false;
-            }
-        }
-        return true;
+        return Util.cocokAsciiPada(text, pos, kunci);
     }
 
     private static boolean asciiSemua(String k) {
@@ -748,16 +739,7 @@ public class LogActivity extends Activity {
     }
 
     private static boolean cocokKunciAt(String t, int pos, String kunci) {
-        int m = kunci.length();
-        if (pos + m > t.length()) {
-            return false;
-        }
-        for (int j = 0; j < m; j++) {
-            if (!Util.samaHurufAscii(t.charAt(pos + j), kunci.charAt(j))) {
-                return false;
-            }
-        }
-        return true;
+        return Util.cocokAsciiPada(t, pos, kunci);
     }
 
     static String samarkanLog(String log) {

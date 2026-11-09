@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Util: pencocok kunci ASCII disatukan (Audit 1622)
+
+- Tiga salinan pencocok ASCII (LogActivity.cocokAsciiRentang, LogActivity.cocokKunciAt, ServerService.cocokLoginAt) menjadi delegasi satu baris ke `Util.cocokAsciiPada`.
+
 ## [Belum rilis] — Activity: appendUiLog disatukan di Util (Audit 1621)
 
 - `appendUiLog` disatukan ke `Util.catatLogTerjadwal` — salinan Settings yang kehilangan penjaga null kini ikut menolak line null seperti salinan Main.

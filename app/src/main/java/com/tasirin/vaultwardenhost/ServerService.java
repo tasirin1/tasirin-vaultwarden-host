@@ -2547,16 +2547,7 @@ public class ServerService extends Service {
     }
 
     private static boolean cocokLoginAt(String b, int pos, String kunci) {
-        int m = kunci.length();
-        if (pos + m > b.length()) {
-            return false;
-        }
-        for (int j = 0; j < m; j++) {
-            if (!Util.samaHurufAscii(b.charAt(pos + j), kunci.charAt(j))) {
-                return false;
-            }
-        }
-        return true;
+        return Util.cocokAsciiPada(b, pos, kunci);
     }
 
     static String saranLoginUntukBaris(String baris) {

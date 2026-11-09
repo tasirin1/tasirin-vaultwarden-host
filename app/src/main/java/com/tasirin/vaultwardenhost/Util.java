@@ -5,6 +5,22 @@ import java.io.IOException;
 
 public final class Util {
 
+    // Audit 1622: pencocok kunci ASCII pada posisi tertentu
+    // tadinya ditulis tiga kali (LogActivity x2, ServerService)
+    // — kini satu di sini.
+    static boolean cocokAsciiPada(String teks, int pos, String kunci) {
+        int m = kunci.length();
+        if (pos + m > teks.length()) {
+            return false;
+        }
+        for (int j = 0; j < m; j++) {
+            if (!samaHurufAscii(teks.charAt(pos + j), kunci.charAt(j))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     // Audit 1621: appendUiLog kedua activity tadinya salinan
     // (salinan Settings kehilangan penjaga null) — kini satu di
     // sini; mengembalikan stempel segar terakhir yang baru.
