@@ -15338,6 +15338,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl sha3-256 di substitusi proses: gerbang gagal (Audit 1580)", rc != 0)
         shutil.rmtree(sub712, ignore_errors=True)
+        sub713 = klon(tmp, "sub713")
+        berkas_aksi713 = os.path.join(
+            sub713, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi713, encoding="utf-8") as f:
+            isi_aksi713 = f.read()
+        baris_aksi713 = [b for b in isi_aksi713.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru713 = isi_aksi713.replace(
+                baris_aksi713,
+                baris_aksi713.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl dgst -verify kunci.pub -signature tanda.bin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru713 != isi_aksi713, \
+            "suntikan aksi713 tidak menembak"
+        with open(berkas_aksi713, "w", encoding="utf-8") as f:
+            f.write(isi_baru713)
+        rc, out = jalan(sub713,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl dgst -signature di substitusi proses: gerbang gagal (Audit 1581)", rc != 0)
+        shutil.rmtree(sub713, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -2353,7 +2353,13 @@ def _menguras_khusus(perintah, toks, awal):
                  # nilainya terbaca operand penekan.
                  # Audit 1148: -hmac/-sigopt ketinggalan.
                  "-rand", "-mac", "-macopt", "-prverify",
-                 "-hmac", "-sigopt"})
+                 "-hmac", "-sigopt",
+                 # Audit 1581: -signature/-writerand/
+                 # -provider-path/-xoflen bernilai di dgst
+                 # tetapi absen (-provider-path hanya
+                 # ditambahkan ke verify pada Audit 1521).
+                 "-signature", "-writerand",
+                 "-provider-path", "-xoflen"})
             # Audit 1135: opsi menggantung = program galat.
             if "\x00gantung" in ops:
                 return False

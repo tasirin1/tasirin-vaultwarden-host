@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: 4 opsi bernilai dgst absen dari himpunan (Audit 1581) (Audit 1581)
+
+- -signature, -writerand, -provider-path, dan -xoflen bernilai di openssl dgst tetapi absen dari himpunan gerbang, sehingga nilainya terhitung operand penekan dan vonis stdin terbalik (fail-open). Keempatnya kini masuk himpunan (-provider-path sebelumnya hanya ditambahkan ke cabang verify pada Audit 1521).
+
 ## [Belum rilis] — Gerbang: 8 alias digest openssl absen dari regex (Audit 1580) (Audit 1580)
 
 - sha3-224/256/384/512, sha512-224/256, dan shake128/256 adalah perintah digest sah provider bawaan OpenSSL 3 yang menguras stdin, tetapi absen dari regex alias dgst sehingga dinilai bukan pembaca (fail-open). Kedelapannya kini masuk regex.
