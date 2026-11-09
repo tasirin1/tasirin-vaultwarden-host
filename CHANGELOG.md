@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Settings: pool jenuh tak lagi jatuh ke hitung UI thread (Audit 1609)
+
+- Saat pool latar menolak tugas berat kartu info, tick itu kini memakai baris cache saja (hitungUi=false) alih-alih menghitung lima baris info di UI thread.
+
 ## [Belum rilis] — Dialog Tentang: versi binary/web-vault diisi dari latar (Audit 1608)
 
 - AboutDialog tampil segera dengan versi aplikasi; versi binary + web-vault dibaca di latar lalu ditempel ke tampilan versi bila dialog masih hidup.

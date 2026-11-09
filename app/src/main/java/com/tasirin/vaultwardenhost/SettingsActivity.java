@@ -1462,6 +1462,7 @@ public class SettingsActivity extends Activity {
                 || nowHeavy - lastWvCheck >= WV_CHECK_MS
                 || nowHeavy - lastSysCheck >= SYS_CHECK_MS
                 || nowHeavy - lastCertCheck >= CERT_CHECK_MS;
+        boolean pakaiCacheSaja = false;
         if (heavyDue && heavyRunning.compareAndSet(false, true)) {
             boolean masuk = Util.jalankanBg(() -> {
                 try {
@@ -1482,11 +1483,15 @@ public class SettingsActivity extends Activity {
             if (!masuk) {
 
                 heavyRunning.set(false);
+                // Audit 1609: pool latar menolak tugas — jangan
+                // jatuh ke hitung penuh di UI thread; pakai
+                // baris cache saja pada tick ini.
+                pakaiCacheSaja = true;
             }
         }
         StringBuilder fullB = new StringBuilder(version);
 
-        boolean hitungUi = !heavyRunning.get();
+        boolean hitungUi = !heavyRunning.get() && !pakaiCacheSaja;
         String dbInfo = dbInfoLine(hitungUi);
         if (!dbInfo.isEmpty()) {
             fullB.append("\n").append(dbInfo);
