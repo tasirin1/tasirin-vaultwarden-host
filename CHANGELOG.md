@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — TlsCert: verifikasi tanda tangan leaf oleh CA dimemoisasi (Audit 1599)
+
+- `ditandatanganiCa` kini bermemo meniru pola MEMO_PASANGAN (kunci stat kedua berkas + TTL 60 detik); hanya hasil dari berkas terbaca penuh yang disimpan.
+
 ## [Belum rilis] — FileShareProvider: kunci cache akar tak lagi membayar kanonikkan per panggilan (Audit 1598)
 
 - Kunci cache akar bagi kini dibangun dari jalur absolut files/cache dir; resolusi kanonik hanya dibayar saat kunci berubah dan instans dibangun ulang.

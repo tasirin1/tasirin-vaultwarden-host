@@ -675,18 +675,70 @@ public final class TlsCert {
         return cocok;
     }
 
+    // Audit 1599: memo hasil verifikasi tanda tangan leaf oleh
+    // CA, meniru MEMO_PASANGAN (kunci stat kedua berkas + TTL).
+    // Dulu leaf.verify() (parse 2 sertifikat + verifikasi RSA)
+    // berjalan pada tiap pemeriksaan kesiapan. Hanya hasil
+    // dari berkas yang terbaca penuh yang dimemoisasi
+    // (pelajaran Audit 838: gagal baca tak boleh menempel).
+    private static final java.util.Map<String, long[]> MEMO_TANDA =
+            new java.util.LinkedHashMap<String, long[]>(64, 0.75f, true) {
+                @Override protected boolean removeEldestEntry(
+                        java.util.Map.Entry<String, long[]> tertua) {
+                    return size() > 64;
+                }
+            };
+
     static boolean ditandatanganiCa(File leafFile, File caFile) {
+        String kunciMemo = null;
+        try {
+            String ksLeaf = kunciStat(leafFile);
+            String ksCa = kunciStat(caFile);
+            if (ksLeaf != null && ksCa != null) {
+                kunciMemo = ksLeaf + "|" + ksCa;
+            }
+        } catch (Exception ignored) {
+            kunciMemo = null;
+        }
+        if (kunciMemo != null) {
+            synchronized (MEMO_TANDA) {
+                long[] catat = MEMO_TANDA.get(kunciMemo);
+                long kini = elapsedAman();
+                if (catat != null && catat.length >= 2 && kini > 0
+                        && catat[0] > 0
+                        && kini - catat[0] < MEMO_MASA_TTL_MS) {
+                    return catat[1] != 0;
+                }
+            }
+        }
+        boolean terbaca;
+        boolean cocok;
         try {
             X509Certificate leaf = bacaCert(leafFile);
             X509Certificate ca = bacaCert(caFile);
-            if (leaf == null || ca == null) {
+            terbaca = leaf != null && ca != null;
+            if (!terbaca) {
                 return false;
             }
-            leaf.verify(ca.getPublicKey());
-            return true;
+            try {
+                leaf.verify(ca.getPublicKey());
+                cocok = true;
+            } catch (Exception e) {
+                cocok = false;
+            }
         } catch (Exception e) {
             return false;
         }
+        if (kunciMemo != null) {
+            long catat = elapsedAman();
+            if (catat > 0) {
+                synchronized (MEMO_TANDA) {
+                    MEMO_TANDA.put(kunciMemo,
+                            new long[]{catat, cocok ? 1 : 0});
+                }
+            }
+        }
+        return cocok;
     }
 
     public static boolean siapPakaiTanpaTulis(File dir) {
