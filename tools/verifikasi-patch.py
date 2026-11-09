@@ -1908,6 +1908,17 @@ def _menguras_interpreter(perintah, toks, awal):
                 "--conditions", "--env-file"):
             i += 2
             continue
+        # Audit 1641: opsi bernilai interpreter lain —
+        # nilainya bukan operand skrip.
+        if perintah == "ruby" and t in ("-I", "-r"):
+            i += 2
+            continue
+        if perintah == "php" and t in ("-d", "-c"):
+            i += 2
+            continue
+        if perintah == "lua" and t == "-l":
+            i += 2
+            continue
         if t == "--":
             i += 1
             return toks[i] == "-" if i < n else True

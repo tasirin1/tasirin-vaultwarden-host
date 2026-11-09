@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nilai opsi ruby/php/lua dilewati berpasangan (Audit 1641)
+
+- Pemindai generik penilai interpreter kini melewati berpasangan nilai opsi ruby `{-I, -r}`, php `{-d, -c}`, dan lua `{-l}` — nilainya tak lagi terbaca sebagai operand berkas skrip, jadi bentuk tanpa skrip sungguhan divonis menguras stdin seperti realitasnya; 4 skenario suite baru menguncinya (Audit 1641).
+
 ## [Belum rilis] — Gerbang: opsi bernilai khas GNU awk untuk gawk (Audit 1640)
 
 - Penilai keluarga skrip kini menambah `{-i, --include, -l, --load}` khusus untuk nama asli gawk/pgawk/igawk — nilai opsi GNU itu tak lagi menempati slot program sehingga program sungguhan tak terbaca sebagai berkas data. Himpunan awk bersama tidak diubah (awk POSIX yang tak mengenal opsi itu galat dan tak membaca); 2 skenario suite baru menguncinya (Audit 1640).
