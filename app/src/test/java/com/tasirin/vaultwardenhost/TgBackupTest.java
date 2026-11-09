@@ -1934,6 +1934,20 @@ public class TgBackupTest {
     }
 
     @Test
+    public void fileIdBatch_chatTerakhirRaguMemakaiKonfirmasiSebelumnya() {
+        // Audit 1700: akumulasi per batch mulai dari "" -
+        // respons ragu ("") tidak menghapus konfirmasi chat
+        // sebelumnya, dan konfirmasi yang ada bertahan.
+        String batch = "";
+        batch = TgBackup.fileIdBerikutnya(batch,
+                "{\"ok\":true,\"result\":{\"file_id\":\"FID-BATCH\"}}");
+        batch = TgBackup.fileIdBerikutnya(batch, "");
+        assertEquals("FID-BATCH", batch);
+        String kosong = TgBackup.fileIdBerikutnya("", "");
+        assertEquals("", kosong);
+    }
+
+    @Test
     public void fileIdBerikutnya_ekstrakBaruAtauPertahankan() {
         String json = "{\"ok\":true,\"result\":{\"document\":{"
                 + "\"file_id\":\"BARU1\",\"file_name\":\"b.zip\"}}}";

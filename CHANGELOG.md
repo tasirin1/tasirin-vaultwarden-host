@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda backup terakhir memakai file_id terkonfirmasi batch, bukan hanya chat terakhir (Audit 1700)
+
+- Loop backup kini mengakumulasi `fileIdBatch` (file_id terkonfirmasi terakhir dari chat mana pun pada batch ini, lewat `fileIdBerikutnya` mulai dari kosong) dan penanda memakai nilai itu. Sebelumnya penanda hanya membaca respons chat terakhir — bila chat terakhir berakhir ragu (respons ambigu dianggap terkirim) sementara chat sebelumnya mengonfirmasi, penanda tetap batch lama dan unduh/restore terakhir mengambil generasi sebelumnya. Bila tak ada chat yang mengonfirmasi, perilaku Audit 1680 (penanda lama dipertahankan) tidak berubah.
+
 ## [Belum rilis] — Predikat coba-lagi unduhan: '404' dicocokkan sebagai frasa, bukan substring byte (Audit 1699)
 
 - `bolehCobaLagiUnduh` kini menolak coba-lagi hanya untuk frasa `http 404`/`code: 404` (dan `belum tersedia`). Sebelumnya substring `404` telanjang yang diperiksa pertama ikut tertangkap hitungan byte mentah pada pesan "Unduhan terputus di <done> dari <total> byte" — total aset diawali 404… membuat unduhan terputus divonis final dan update gagal total, padahal pesannya menjanjikan kelanjutan dari titik terakhir.

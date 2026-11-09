@@ -658,6 +658,7 @@ public final class TgBackup {
         java.util.List<String> tujuan = daftarChatTujuan(chat);
 
         String respTerakhir = null;
+        String fileIdBatch = "";
         String fileIdDikenal = null;
         java.util.List<String> gagalChat = new java.util.ArrayList<>();
         for (int ci = 0; ci < tujuan.size(); ci++) {
@@ -690,6 +691,10 @@ public final class TgBackup {
                     fileIdDikenal = fileIdBerikutnya(fileIdDikenal, resp);
                 }
                 respTerakhir = resp;
+                // Audit 1700: kumpulkan file_id terkonfirmasi
+                // batch ini dari chat mana pun, bukan hanya
+                // chat terakhir.
+                fileIdBatch = fileIdBerikutnya(fileIdBatch, resp);
             } catch (Exception e) {
                 String pesan = e.getMessage();
                 // Audit 1029: entri gagal dirangkai TANPA ID chat
@@ -706,7 +711,11 @@ public final class TgBackup {
                     + gagalChat.size() + "/" + tujuan.size() + "): "
                     + gabungGagalChat(gagalChat));
         }
-        String fileId = extractFileId(respTerakhir);
+        // Audit 1700: penanda memakai file_id terkonfirmasi
+        // terakhir batch ini (fileIdBatch); val respTerakhir
+        // saja membuang konfirmasi chat sebelumnya bila chat
+        // terakhir berakhir ragu.
+        String fileId = fileIdBatch;
         String peringatanChat = gagalChat.isEmpty() ? ""
                 : " (sebagian chat gagal: " + gabungGagalChat(gagalChat)
                         + " - dicoba lagi otomatis backup berikutnya)";
