@@ -1953,7 +1953,7 @@ def _menguras_interpreter(perintah, toks, awal):
                 "-z", "-B", "-R", "-E", "-F"):
             i += 2
             continue
-        if perintah == "lua" and t == "-l":
+        if perintah in ("lua", "luajit") and t == "-l":
             i += 2
             continue
         if t == "--":
@@ -4958,7 +4958,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                            # — tanpa skrip membaca dari stdin
                            # seperti keluarganya.
                            "ash", "ksh", "fish",
-                           "ruby", "php", "lua"):
+                           "ruby", "php", "lua", "luajit"):
             return _menguras_interpreter(nama_interp, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)

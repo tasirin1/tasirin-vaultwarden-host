@@ -16452,6 +16452,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpgv '-' tanda tangan dari stdin di substitusi proses: penguras — gerbang gagal (Audit 1659)", rc != 0)
         shutil.rmtree(sub765, ignore_errors=True)
+        sub766 = klon(tmp, "sub766")
+        berkas_aksi766 = os.path.join(
+            sub766, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi766, encoding="utf-8") as f:
+            isi_aksi766 = f.read()
+        baris_aksi766 = [b for b in isi_aksi766.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru766 = isi_aksi766.replace(
+                baris_aksi766,
+                baris_aksi766.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(luajit -l lib; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru766 != isi_aksi766, \
+            "suntikan aksi766 tidak menembak"
+        with open(berkas_aksi766, "w", encoding="utf-8") as f:
+            f.write(isi_baru766)
+        rc, out = jalan(sub766,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("luajit -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1660)", rc != 0)
+        shutil.rmtree(sub766, ignore_errors=True)
+        sub767 = klon(tmp, "sub767")
+        berkas_aksi767 = os.path.join(
+            sub767, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi767, encoding="utf-8") as f:
+            isi_aksi767 = f.read()
+        baris_aksi767 = [b for b in isi_aksi767.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru767 = isi_aksi767.replace(
+                baris_aksi767,
+                baris_aksi767.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(luajit skrip.lua; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru767 != isi_aksi767, \
+            "suntikan aksi767 tidak menembak"
+        with open(berkas_aksi767, "w", encoding="utf-8") as f:
+            f.write(isi_baru767)
+        rc, out = jalan(sub767,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("luajit beroperand skrip: gerbang lolos (Audit 1660)", rc == 0)
+        shutil.rmtree(sub767, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

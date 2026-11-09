@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: luajit dimodelkan setara lua (Audit 1660)
+
+- `luajit` masuk tuple dispatch interpreter dan berbagi cabang `-l` bernilai dengan `lua` (man luajit(1): opsi mencerminkan lua; tanpa skrip ia membaca skrip dari stdin) — sebelumnya nama ini tak dinilai sama sekali; 2 skenario suite baru menguncinya (Audit 1660).
+
 ## [Belum rilis] — Gerbang: bentuk gpgv '- datafile' dimodelkan (Audit 1659)
 
 - Cek khusus gpgv kini juga divonis menguras bila operand PERTAMA adalah `-` (berkas tanda tangan dibaca dari stdin; terprobe real dengan tanda tangan detached sah) — cerminan bentuk `sigfile -` Audit 1649; 1 skenario suite baru menguncinya (Audit 1659).
