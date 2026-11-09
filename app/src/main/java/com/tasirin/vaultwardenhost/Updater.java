@@ -1415,6 +1415,16 @@ public final class Updater {
         return msg;
     }
 
+    // Audit 1604: versi hasil deteksi di-cache berdasar sidik
+    // berkas (ukuran+mtime) — spawn binary 35 MB hanya untuk
+    // membaca versinya tak lagi dibayar pada tiap cek saat
+    // server berhenti. Sidik berubah (binary diganti) → deteksi
+    // ulang; gerbang ini tidak melemahkan Audit 648 karena
+    // yang dipercaya bukan pref mentah, melainkan pref yang
+    // terikat sidik berkas saat ini.
+    static final String KEY_VERSI_FP = "versi_fp";
+    static final String KEY_VERSI_FILE = "versi_file";
+
     static String versiFileBinary(Context ctx) {
         try {
             File berkas = new File(ctx.getFilesDir(),
@@ -1422,7 +1432,30 @@ public final class Updater {
             if (berkas == null || !berkas.isFile() || berkas.length() < 1_000_000) {
                 return null;
             }
-            return detectVersion(ctx, berkas);
+            android.content.SharedPreferences sp = null;
+            String sidik = ServerService.sidikManualFile(berkas);
+            try {
+                sp = ctx.getSharedPreferences(ServerService.PREFS,
+                        Context.MODE_PRIVATE);
+                if (!sidik.isEmpty() && sidik.equals(
+                        TgBackup.amanString(sp, KEY_VERSI_FP, ""))) {
+                    String tercatat = TgBackup.amanString(sp, KEY_VERSI_FILE, "");
+                    if (!tercatat.isEmpty()) {
+                        return tercatat;
+                    }
+                }
+            } catch (Exception ignored) {
+                sp = null;
+            }
+            String versi = detectVersion(ctx, berkas);
+            if (versi != null && sp != null && !sidik.isEmpty()) {
+                try {
+                    sp.edit().putString(KEY_VERSI_FP, sidik)
+                            .putString(KEY_VERSI_FILE, versi).apply();
+                } catch (Exception ignored) {
+                }
+            }
+            return versi;
         } catch (Exception ignored) {
             return null;
         }

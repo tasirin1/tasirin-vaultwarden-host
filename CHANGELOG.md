@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Updater: spawn baca versi binary digerbang sidik berkas (Audit 1604)
+
+- `versiFileBinary` meng-cache versi terdeteksi terikat sidik berkas; binary tak lagi di-spawn hanya untuk membaca versi pada tiap cek selama sidiknya tak berubah.
+
 ## [Belum rilis] — Updater: penantian kunci pasang + unduhan berbatas waktu (Audit 1602)
 
 - Penunggu kunci pasang global kini tryLock 15 menit lalu gagal keras (dulu lock() tanpa batas), dan satu percobaan unduh dibatasi total 20 menit lewat pemeriksa murni `unduhanLewatBatasWaktu` (teruji JVM) di gelung salin.
