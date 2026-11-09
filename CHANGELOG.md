@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — ekordgt cek-cepat tidak kumulatif untuk belahan tiga baris (Audit 1585) (Audit 1585)
+
+- Baris digit murni yang merupakan sambungan deret digit token menimpa ekordgt dengan panjang ekornya sendiri, jadi token yang terbelah tiga baris lolos. Baris yang seluruh isinya digit kini MENAMBAHKAN ekordgt lama, bukan menimpanya.
+
 ## [Belum rilis] — Ekor spasi/tab/CR membunuh ekordgt cek-cepat (Audit 1584) (Audit 1584)
 
 - Pengukuran ekor digit (Audit 1565) dilakukan pada baris yang masih memuat whitespace ekor, padahal whitespace itu dibuang dari blob oleh perataan — berkas CRLF mengalahkan perlindungan lintas-baris utuh dan belahan token lolos. ekordgt kini diukur pada salinan baris yang ekor whitespace-nya sudah dibuang.

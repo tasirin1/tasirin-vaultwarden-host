@@ -674,6 +674,32 @@ def main():
                 and "token-crlf.txt" in out)
         shutil.rmtree(tokencrlf, ignore_errors=True)
 
+        tokentigabaris = klon(tmp, "tokentigabaris")
+        tanam(tokentigabaris, "token-tiga-baris.txt",
+              "token uji: " + token_palsu[:7] + "\n"
+              + token_palsu[7:9] + "\n"
+              + token_palsu[9] + " " + token_palsu[10:] + "\n",
+              "w")
+        rc, out = jalan(tokentigabaris, ["bash", SKRIP])
+        periksa("token terbelah tiga baris lewat baris digit "
+                "murni tertangkap (Audit 1585)",
+                rc != 0 and "pola rahasia" in out
+                and "token-tiga-baris.txt" in out)
+        shutil.rmtree(tokentigabaris, ignore_errors=True)
+
+        tokenakumulasi = klon(tmp, "tokenakumulasi")
+        tanam(tokenakumulasi, "token-akumulasi.txt",
+              "token uji: " + token_palsu[:6] + "\n"
+              + token_palsu[6:9] + "\n"
+              + token_palsu[9] + " " + token_palsu[10:] + "\n",
+              "w")
+        rc, out = jalan(tokenakumulasi, ["bash", SKRIP])
+        periksa("deret digit token diakumulasi lintas baris "
+                "digit murni (Audit 1585)",
+                rc != 0 and "pola rahasia" in out
+                and "token-akumulasi.txt" in out)
+        shutil.rmtree(tokenakumulasi, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
