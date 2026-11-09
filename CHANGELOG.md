@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Respons 200 Telegram berbadan tak terkonfirmasi kini gagal-ragu, bukan gagal-pasti (Audit 1655)
+
+- Di `ubahSinkronDenganUlang`, kode 200 dengan badan yang tidak terkonfirmasi `ok` (aliran putus di tengah baca menjadi string kosong di `bacaResponsBatas`) kini mengembalikan `UBAH_GAGAL_RAGU`: server sudah memproses permintaan, badan yang hilang tidak membuktikan penolakan, jadi fallback kirim-baru tidak dijalankan dan duplikat pesan tertutup penuh. Kode galat lain tetap gagal-pasti seperti Audit 1647.
+
 ## [Belum rilis] — Jalur restart paksa DB rusak kini menuntaskan gerbang kesempatan-kedua TCP (Audit 1654)
 
 - Pemicu cabang config-saja di `checkHealthOnce` kini juga memosisikan `healthTcpLolos` di ambang-1: gerbang kesempatan-kedua TCP di `healthFail` memakai penghitung itu, dan cabang ini menolkannya tiap tick sehingga `lolos` selalu 1 dan blok restart tak pernah terjangkau walau patch Audit 1643 sudah menaikkan `healthFails` ke ambang. Sesudah ini pemicu yang terdiagnosis DB-rusak sungguh mengeksekusi restart + notifikasi.

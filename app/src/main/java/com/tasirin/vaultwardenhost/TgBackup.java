@@ -1267,6 +1267,14 @@ public final class TgBackup {
                 }
                 return ubahSinkronDenganUlang(app, chatId, messageId, msg, markup, true);
             }
+            if (code == 200) {
+                // Audit 1655: server menjawab 200 = permintaan
+                // diproses; badan yang tak terkonfirmasi (aliran
+                // putus di tengah baca menjadi "" di
+                // bacaResponsBatas) tidak membuktikan penolakan —
+                // ragu, jangan fallback kirim baru.
+                return UBAH_GAGAL_RAGU;
+            }
             // Server menjawab dengan kode galat: edit pasti
             // tidak diterapkan, fallback kirim baru aman.
             logTgFailure("ubah pesan", code, balasan);
