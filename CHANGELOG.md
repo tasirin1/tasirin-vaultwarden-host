@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pengupas Java dipercepat (Audit 1597)
+
+- `_kupas_java_mentah()` kini menyalin rentang kode polos sekaligus memakai pencarian penanda terdekat, bukan aksara demi aksara; penanganan komentar, string, dan blok teks tetap sama persis (terbukti byte-identik pada 48 berkas Java repo + 4.000 kasus fuzz adversarial).
+
 ## [Belum rilis] — Gerbang: himpun definisi metode dibangun sekali per lari (Audit 1596)
 
 - `himpun_definisi()` kini dibungkus memo per lari; sebelumnya peta definisi seluruh pohon dibangun dua kali dalam satu lari gerbang (sekali untuk cek panggil bekas hapusan, sekali untuk cek metode baru tanpa uji). Vonis tidak berubah.

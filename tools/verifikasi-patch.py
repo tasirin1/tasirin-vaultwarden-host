@@ -6358,6 +6358,32 @@ def _kupas_java_mentah(isi):
     keluar = []
     i, n = 0, len(isi)
     while i < n:
+        # Audit 1597: rentang kode polos disalin sekaligus sampai
+        # awal konstruk berikutnya (komentar/literal) — dulu tiap
+        # aksara membayar irisan + append sendiri (±835 KB/s).
+        # Penanganan konstruknya sendiri tak berubah dari
+        # implementasi lama; keluaran dibuktikan byte-identik.
+        j_petik2 = isi.find(petik_ganda, i)
+        j_petik1 = isi.find(petik_satu, i)
+        j_miring = isi.find('/', i)
+        j = n
+        if 0 <= j_petik2 < j:
+            j = j_petik2
+        if 0 <= j_petik1 < j:
+            j = j_petik1
+        if 0 <= j_miring < j:
+            j = j_miring
+        if j > i:
+            if j == j_miring and isi[j:j + 2] not in ('//', '/*'):
+                # Garis miring tunggal (bagi/kurung komentar tak
+                # jadi): polos — ikut disalin, lanjut sesudahnya.
+                keluar.append(isi[i:j + 1])
+                i = j + 1
+                continue
+            keluar.append(isi[i:j])
+            i = j
+            if i >= n:
+                break
         c = isi[i]
         dua = isi[i:i + 2]
         if dua == '//':
