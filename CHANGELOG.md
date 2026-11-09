@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi ruby/php tak dikenal dan informasional divonis keluar (Audit 1714)
+
+- Penjaga ruby/php baru: --version/--help -> False; opsi panjang di luar himpunan sah (longgar dari dokumentasi CLI; awalan --enable-/--disable- diizinkan) -> False; huruf tunggal di luar himpunan sah man ruby(1)/php --help -> False; -v telanjang di ekor -> False. DUGAAN kuat — biner tak terpasang untuk probe. 1 skenario suite baru (Audit 1714).
+
 ## [Belum rilis] — Gerbang: opsi lua/luajit bernilai menggantung divonis keluar (Audit 1713)
 
 - Cabang -l (lua+luajit) dan -e (lua) kini memeriksa sisa token: menggantung -> False. Menurut keluarga collectargs lua.c, -e/-l tanpa argumen menghasilkan "needs argument" + usage lalu keluar. DUGAAN kuat — biner tak terpasang untuk probe. 1 skenario suite baru (Audit 1713).

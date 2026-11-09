@@ -2134,6 +2134,47 @@ def _menguras_interpreter(perintah, toks, awal):
                 return False
             i += 1
             continue
+        # Audit 1714: ruby/php - informasional cetak lalu
+        # keluar; opsi tak dikenal galat lalu keluar
+        # (DUGAAN kuat dari dokumentasi CLI keduanya;
+        # biner tak terpasang di mesin audit). Huruf sah
+        # diambil longgar dari man ruby(1)/php --help agar
+        # bendera sah tak ikut tertolak.
+        if perintah in ("ruby", "php") and t.startswith("-") and t != "-":
+            dasar_rp = t.split("=")[0]
+            if dasar_rp in ("--version", "--help"):
+                return False
+            if dasar_rp.startswith("--"):
+                if perintah == "ruby":
+                    sah_rp = {"--copyright", "--dump",
+                              "--verbose", "--debug", "--warn",
+                              "--encoding",
+                              "--external-encoding",
+                              "--internal-encoding",
+                              "--backtrace-limit", "--jit",
+                              "--yjit",
+                              "--frozen-string-literal",
+                              "--debug-frozen-string-literal"}
+                else:
+                    sah_rp = {"--ini", "--info", "--modules"}
+                if (dasar_rp not in sah_rp
+                        and not dasar_rp.startswith("--enable-")
+                        and not dasar_rp.startswith("--disable-")):
+                    return False
+                i += 1
+                continue
+            if len(dasar_rp) == 2:
+                if perintah == "ruby":
+                    sah1_rp = "abcdehilmnprsuvwxyCEFIKTUWX"
+                else:
+                    sah1_rp = "abcdefhilmnqrstvzBCEFRST"
+                if dasar_rp[1] not in sah1_rp:
+                    return False
+                # -v telanjang di ekor = versi lalu keluar.
+                if dasar_rp == "-v" and i + 1 >= n:
+                    return False
+            i += 1
+            continue
         # Audit 1697: opsi lua tak dikenal - lua.c usage
         # lalu keluar tanpa membaca (DUGAAN kuat; sejajar
         # Audit 1694). Yang sah: -e (bernilai), -i, -l
