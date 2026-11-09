@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Teks rangkuman health tak lagi menyebut '3x gagal' untuk jalur yang hitungannya beda (Audit 1677)
+
+- Empat teks keluarga ambang health (log, crash-log, pesan Telegram, label `recordRestart`) diganti tanpa angka hitungan: jalur polos memang 3 panggilan, tetapi jalur TCP-hidup membunuh pada kegagalan ke-5 dan jalur DB-rusak sesudah 10 tick — teks lama menyesatkan diagnosis. Label ambang yang muncul persis saat penghitung menyentuh 3 (`(ke-3/3)`, log gerbang TCP) tidak diubah.
+
 ## [Belum rilis] — CodeQL kini benar-benar melewati semua berkas .md termasuk subdirektori (Audit 1676)
 
 - Pola `paths-ignore` di `codeql.yml` diganti `'*.md'` → `'**.md'` di pemicu push dan pull_request: pola lama hanya cocok `.md` di akar (semantik resmi GitHub: `*` tidak menyeberangi `/`), sehingga 3 templat `.md` di `.github/` tetap memicu analisis CodeQL penuh. Arah perbaikannya tetap fail-closed — yang dibuang hanya run berat yang memang diniatkan dikecualikan.

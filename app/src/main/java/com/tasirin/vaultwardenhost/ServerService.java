@@ -3093,9 +3093,10 @@ public class ServerService extends Service {
                 return;
             }
             setStatus("Server tidak sehat - restart otomatis.");
-            appendLog("[health] 3x gagal beruntun - restart otomatis.");
-            writeCrashLog("health 3x");
-            TgBackup.sendMessage(this, "Server tidak sehat (3x gagal /alive) - restart otomatis.\n"
+            appendLog("[health] gagal /alive beruntun melewati ambang"
+                        + " - restart otomatis.");
+            writeCrashLog("health ambang");
+            TgBackup.sendMessage(this, "Server tidak sehat (gagal /alive beruntun) - restart otomatis.\n"
                     + shorten(tailLog(15), 500));
             if (p != null) {
                 releaseWakeLock();
@@ -3109,7 +3110,7 @@ public class ServerService extends Service {
                 }
             }
 
-            if (recordRestart("health 3x")) {
+            if (recordRestart("health ambang")) {
                 return;
             }
 
