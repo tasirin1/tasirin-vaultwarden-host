@@ -2531,21 +2531,42 @@ public final class TgBackup {
                     os.flush();
                 }
 
-                tolakRedirectTelegram(conn);
-                int code = conn.getResponseCode();
-                String sb = bacaResponsTelegram(conn, code);
-
+                // Audit 1681: fase respons dipisah seperti
+                // kirimDokumenById (Audit 1663/1679) — kegagalan
+                // baca respons sesudah berkas terunggah utuh dan
+                // 200 tak terkonfirmasi itu ambigu: kembalikan ""
+                // (dianggap terkirim) agar chat tak divonis gagal
+                // dan putaran berikutnya tak mengunggah ulang ke
+                // semua chat. Penolakan redirect = respons
+                // terbaca = gagal pasti.
+                int code;
+                String sb;
+                try {
+                    tolakRedirectTelegram(conn);
+                    code = conn.getResponseCode();
+                    sb = bacaResponsTelegram(conn, code);
+                } catch (IOException eBaca) {
+                    String m = eBaca.getMessage();
+                    if (m != null && m.startsWith("Redirect Telegram ditolak")) {
+                        throw eBaca;
+                    }
+                    logTgFailure("unggah (respons tak terbaca)", -1,
+                            String.valueOf(eBaca.getMessage()));
+                    return "";
+                }
                 if (code == 429 && percobaan == 0) {
                     tungguLimitTelegram("Unggah kena limit Telegram", sb);
                     continue;
                 }
-
-                if (code != 200 || !TgBot.responsOk(sb)) {
-
-                    throw new IOException("Telegram "
-                            + TgBot.ringkasGalatTelegram(sb, code));
+                if (code == 200) {
+                    if (TgBot.responsOk(sb)) {
+                        return sb;
+                    }
+                    logTgFailure("unggah (200 tak terkonfirmasi)", code, sb);
+                    return "";
                 }
-                return sb;
+                throw new IOException("Telegram "
+                        + TgBot.ringkasGalatTelegram(sb, code));
             } finally {
                 if (conn != null) {
                     conn.disconnect();

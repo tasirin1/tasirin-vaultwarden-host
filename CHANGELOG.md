@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — uploadTelegram kini mengklasifikasi respons ambigu seperti kirim by-id (Audit 1681)
+
+- Pengirim dokumen kedua ini sebelumnya melempar semua kegagalan baca-respons dan 200 tak terkonfirmasi sebagai gagal pasti: chat divonis gagal, stempel tak maju, dan backup berikutnya mengunggah ulang ke semua chat. Kini fase responsnya dipisah persis pola Audit 1663/1679 — baca gagal atau 200 tak terkonfirmasi mengembalikan `""` (dianggap terkirim, tercatat di log), penolakan redirect dan kode galat terbaca tetap gagal pasti.
+
 ## [Belum rilis] — Penanda backup terakhir tak lagi ditimpa kosong saat chat terakhir terkonfirmasi ragu (Audit 1680)
 
 - Regresi Audit 1663: nilai balik ragu `""` dari chat terakhir mengalir menjadi `respTerakhir`, sehingga `extractFileId` menghasilkan `""` dan penanda `KEY_TG_LAST_FILE` tersimpan kosong sambil stempel dimajukan — unduh/restore backup terakhir sesudahnya mengaku belum ada backup padahal terkirim. Kini batch penanda hanya ditulis bila file_id-nya benar-benar diketahui; bila ragu, penanda lama dipertahankan utuh dan dicatat di log.
