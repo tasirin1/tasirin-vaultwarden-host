@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda selesai restore picker dibersihkan di finally; toast sukses tak lagi terlewat (Audit 1572)
+
+- Pada jalur file-picker, tandaiRestoreSelesai dan toast sukses berada di DALAM try peringatan Audit 1558, sesudah langkah penerapan config dan penjadwalan: exception dari langkah itu (mis. TgBot.schedule) melompat ke catch peringatan sehingga penanda restore_tanda_ms tertinggal — pada boot berikutnya BootReceiver membacanya sebagai restore terputus dan mengirim peringatan Telegram yang keliru, padahal database baru sudah terpasang utuh. Penanda kini dibersihkan di finally (meniru jalur bot) dan toast + log final berjalan di semua jalan keluar segmen.
+
 ## [Belum rilis] — Literal header kunci di TlsCert dirakit dari potongan (Audit 1570)
 
 - Baris pembersih PEM di TlsCert memuat literal header kunci utuh — bentuk persis yang ditandai Gitleaks pada insiden fixture Audit 1547. Ia lolos selama ini hanya karena Gitleaks memindai baris tambahan dan baris ini lama tak ditulis ulang; refactor apa pun yang menyentuhnya akan menggagalkan push. Literalnya kini dirakit dari dua potongan (isi string runtime identik), sejalan dengan penulisan header dinamis di berkas yang sama dan penjagaan baru Audit 1571.

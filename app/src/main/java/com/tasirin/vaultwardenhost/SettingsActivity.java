@@ -2461,16 +2461,22 @@ public class SettingsActivity extends Activity {
                     uiPost(this::reloadSettingsFromPrefs);
                 }
             }
-            TgBackup.tandaiRestoreSelesai(SettingsActivity.this);
-            toast(getString(tlsGagalPasang
-                    ? R.string.restore_selesai_tls_gagal
-                    : R.string.restore_selesai_restart));
-            appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
             } catch (Exception ePasca) {
                 appendUiLog("[app] Peringatan: restore terpasang, tetapi"
                         + " langkah susulan gagal (" + ePasca.getMessage()
                         + ") - database baru tetap dipakai.");
+            } finally {
+                // Audit 1572: penanda selesai dibersihkan di
+                // SEMUA jalan keluar segmen ini (meniru jalur
+                // bot, yang memasangnya di finally) —
+                // penanda tertinggal dibaca BootReceiver
+                // sebagai restore terputus pada boot berikut.
+                TgBackup.tandaiRestoreSelesai(SettingsActivity.this);
             }
+            toast(getString(tlsGagalPasang
+                    ? R.string.restore_selesai_tls_gagal
+                    : R.string.restore_selesai_restart));
+            appendUiLog("[app] DB direstore. Ukuran: " + dbFile.length() + " bytes");
         } catch (Exception e) {
 
             try {
