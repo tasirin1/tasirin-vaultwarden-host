@@ -1503,10 +1503,6 @@ public final class Updater {
         return downloadBinaryVersi(ctx, out, versiTargetBinary(ctx), batal);
     }
 
-    public static String downloadBinaryVersi(Context ctx, File out, String versi) throws Exception {
-        return downloadBinaryVersi(ctx, out, versi, null);
-    }
-
     private static final java.util.concurrent.locks.ReentrantLock KUNCI_PASANG_GLOBAL =
             new java.util.concurrent.locks.ReentrantLock();
 

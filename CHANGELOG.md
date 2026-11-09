@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Updater: overload mati dihapus (Audit 1605)
+
+- Overload `downloadBinaryVersi(Context, File, String)` tanpa satu pun pemanggil dihapus. Nama metodenya tetap terdefinisi (overload lain), jadi ini perubahan aritas — bukan hapusan yang dicatat di bekas-hapusan.
+
 ## [Belum rilis] — Updater: spawn baca versi binary digerbang sidik berkas (Audit 1604)
 
 - `versiFileBinary` meng-cache versi terdeteksi terikat sidik berkas; binary tak lagi di-spawn hanya untuk membaca versi pada tiap cek selama sidiknya tak berubah.
