@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Token kode HTTP saran kini sadar layanan dan berbentuk frasa (Audit 1695)
+
+- Dua perbaikan satu akar di `saranKoneksi`: (a) cabang Telegram baru di depan cabang kode — rantai memuat "telegram" divonis soal Telegram (429 = batas laju Telegram; kode lain = periksa blokir/kick/chat ID), bukan rate-limit/belum-terbit GitHub; (b) kode GitHub dicocokkan sebagai frasa `http 403`/`code: 403` dst, bukan substring bebas, sehingga angka dinamis (byte unduhan, ukuran shim, iterasi KDF) tak lagi menabrak token. Uji JVM baru mengunci kedua arah.
+
 ## [Belum rilis] — Saran koneksi kini mengenali kelompok pesan keadaan lokal (Audit 1687)
 
 - Cabang baru di `saranKoneksi` untuk peta sisa kelas Audit 1656: pesan keadaan lokal (database belum siap/belum ada, berkas backup rusak/bukan backup/terenkripsi rusak, verifikasi lokal gagal, checkpoint WAL, unduhan dibatalkan pengguna, kunci pasang tertahan, file update tidak valid, file_id kosong, batas Telegram habis) kini ditutup saran netral "bukan di jaringan - ikuti langkah pada pesan di atas", bukan tempelan cek internet/tekan Start yang tak relevan (dua produsen malah berlawanan arah). Uji JVM baru menguncinya.

@@ -647,6 +647,33 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_kodeTelegramBukanGitHub() {
+        // Audit 1695a: kode HTTP Telegram divonis soal Telegram.
+        String s = Updater.saranKoneksi(new java.io.IOException(
+                "Backup gagal ke semua chat (2/2): Telegram"
+                        + " HTTP 403: bot was blocked by the user"));
+        assertTrue(s.contains("Telegram menolak"));
+        assertFalse(s.contains("GitHub"));
+        String s429 = Updater.saranKoneksi(new java.io.IOException(
+                "Telegram HTTP 429: Too Many Requests"));
+        assertTrue(s429.contains("Telegram membatasi"));
+    }
+
+    @Test
+    public void saranKoneksi_angkaDinamisTakMenabrakKode() {
+        // Audit 1695b: hitungan byte memuat "404" sebagai
+        // substring - tak boleh divonis belum-terbit/rate-limit.
+        String s = Updater.saranKoneksi(new java.io.IOException(
+                "Unduhan terputus di 14040412 dari 20000000 byte"));
+        assertFalse(s.contains("belum tersedia"));
+        assertFalse(s.contains("GitHub membatasi"));
+        // Kode GitHub asli tetap tertangkap sebagai frasa.
+        String g = Updater.saranKoneksi(new java.io.IOException(
+                "HTTP 403"));
+        assertTrue(g.contains("GitHub membatasi"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

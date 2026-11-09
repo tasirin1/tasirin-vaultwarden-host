@@ -619,11 +619,31 @@ public final class Updater {
             return "TLS gagal di Android 5/6. Cek tanggal & jam STB sudah benar,"
                     + " lalu coba lagi.";
         }
-        if (gabung.contains("403") || gabung.contains("429") || gabung.contains("rate")) {
+        // Audit 1695: galat Telegram membawa kode HTTP-nya
+        // sendiri ("Telegram HTTP 403: ...") - vonisnya soal
+        // Telegram, bukan GitHub.
+        if (gabung.contains("telegram")) {
+            if (gabung.contains("429")) {
+                return "Telegram membatasi sementara (rate-limit)."
+                        + " Tunggu sebentar, lalu coba lagi.";
+            }
+            return "Telegram menolak permintaan (lihat pesan di"
+                    + " atas). Periksa bot tidak diblokir/di-kick"
+                    + " dari chat dan chat ID benar, lalu coba lagi.";
+        }
+        // Audit 1695: kode GitHub dicocokkan sebagai frasa
+        // ("http 403"/"code: 403"), bukan substring bebas -
+        // angka dinamis (byte unduhan, ukuran shim, iterasi
+        // KDF) tak lagi menabrak token kode.
+        if (gabung.contains("http 403") || gabung.contains("code: 403")
+                || gabung.contains("http 429")
+                || gabung.contains("code: 429")
+                || gabung.contains("rate")) {
             return "GitHub membatasi sementara (rate-limit). Tunggu +-15 menit,"
                     + " lalu coba lagi.";
         }
-        if (gabung.contains("404") || gabung.contains("belum tersedia")) {
+        if (gabung.contains("http 404") || gabung.contains("code: 404")
+                || gabung.contains("belum tersedia")) {
             return "File belum tersedia di rilis (build +-12 jam). Coba lagi nanti.";
         }
         return "Cek internet STB (buka github.com di browser), lalu tekan Start lagi.";
