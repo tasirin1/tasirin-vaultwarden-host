@@ -2835,4 +2835,20 @@ public class TgBackupTest {
         assertFalse(TgBackup.hex32("0123456789abcdef0123456789abcde:"));
         assertFalse(TgBackup.hex32("0123456789abcdef0123456789abcde`"));
     }
+
+    // Audit 1575: pengetatan izin lampiran hanya untuk dua
+    // nama kunci persis — nama memuat "key" dari zip
+    // rekayasa bukan kunci.
+    @Test
+    public void namaKunciLampiran_hanyaDuaNamaPersis() {
+        assertTrue(TgBackup.namaKunciLampiran("rsa_key.pem"));
+        assertTrue(TgBackup.namaKunciLampiran("rsa_key.der"));
+        assertFalse(TgBackup.namaKunciLampiran(
+                "attachments/key-cadangan"));
+        assertFalse(TgBackup.namaKunciLampiran(
+                "attachments/rsa_key.pem"));
+        assertFalse(TgBackup.namaKunciLampiran("sends/xkey"));
+        assertFalse(TgBackup.namaKunciLampiran("rsa_key.pem.bak"));
+        assertFalse(TgBackup.namaKunciLampiran(null));
+    }
 }

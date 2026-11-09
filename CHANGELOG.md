@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pengetatan izin lampiran restore hanya untuk nama kunci persis (Audit 1575) (Audit 1575)
+
+- Perbaikan Audit 1569 menerapkan pengetatan izin berdasar predikat substring 'key' pada nama utuh; klaim pendampingnya (nama lampiran UUID tak pernah memuat 'key') hanya benar untuk nama buatan Vaultwarden sendiri — nama lampiran dari zip restore tidak divalidasi bentuk UUID-nya, jadi entri seperti attachments/key-cadangan ikut diketatkan padahal bukan kunci. pasangLampiranRestore kini mengetatkan hanya untuk rsa_key.pem/rsa_key.der persis (namaKunciLampiran, teruji JVM).
+
 ## [Belum rilis] — Baris yang dibuang cek-cepat mereset ekordgt (Audit 1586) (Audit 1586)
 
 - Baris kosong/tanda-baca-murni tidak menyumbang aksara apa pun ke blob, tetapi cabang buang-baris mereset ekordgt sehingga belahan token dengan sela transparan persis sebelum baris ':' lolos. Baris yang dibuang kini tidak menyentuh ekordgt.

@@ -4122,6 +4122,16 @@ public final class TgBackup {
     // yang gagal dikumpulkan namanya untuk dilaporkan, dan
     // staging mereka DIBIARKAN di folder data (.restore-tmp)
     // untuk pemulihan manual.
+    // Audit 1575: nama berkas kunci di jangkauan
+    // pasang lampiran hanya dua nama persis ini
+    // (kunci RSA server di akar folder data); nama
+    // lain — termasuk yang memuat "key" — bukan
+    // kunci dan tidak diketatkan izinnya.
+    static boolean namaKunciLampiran(String nama) {
+        return "rsa_key.pem".equals(nama)
+                || "rsa_key.der".equals(nama);
+    }
+
     static java.util.List<String> pasangLampiranRestore(
             File dataFolder, java.util.List<String> daftar) {
         java.util.List<String> gagal = new java.util.ArrayList<>();
@@ -4139,9 +4149,14 @@ public final class TgBackup {
                     File tujuan = new File(dataFolder, nama);
                     ServerService.gantiAtomik(dari, tujuan);
                     // Audit 1569: rsa_key hasil restore juga
-                    // diketatkan (nama lampiran UUID tak
-                    // pernah memuat "key": heksadesimal).
-                    if (TlsCert.namaBerkasKunci(nama)) {
+                    // diketatkan.
+                    // Audit 1575: pengetatan hanya untuk
+                    // nama kunci lampiran PERSIS — predikat
+                    // substring "key" pada nama utuh bisa
+                    // menembak berkas lampiran biasa dari
+                    // zip rekayasa (nama lampiran tidak
+                    // divalidasi bentuk UUID-nya).
+                    if (namaKunciLampiran(nama)) {
                         TlsCert.ketatkanIzinKunci(tujuan);
                     }
                 } catch (Exception e) {
