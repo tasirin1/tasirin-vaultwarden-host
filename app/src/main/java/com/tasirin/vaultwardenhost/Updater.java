@@ -517,6 +517,13 @@ public final class Updater {
                     + " Buka github.com di browser (login dulu bila diminta),"
                     + " coba hotspot HP / ganti DNS, lalu tekan Start lagi.";
         }
+        // Audit 1646: disk penuh bukan urusan jaringan —
+        // jangan jatuh ke saran cek internet.
+        if (gabung.contains("no space left") || gabung.contains("enospc")) {
+            return "Penyimpanan STB penuh (tidak ada ruang tersisa)."
+                    + " Hapus berkas unduhan/cache lama atau pindahkan data,"
+                    + " lalu coba lagi.";
+        }
         if (gabung.contains("timed out") || gabung.contains("timeout")
                 || gabung.contains("failed to connect") || gabung.contains("econn")
                 || gabung.contains("unreachable") || gabung.contains("etimedout")) {

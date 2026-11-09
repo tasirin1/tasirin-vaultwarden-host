@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Unduhan: saran galat disk penuh kini menyebut penyimpanan, bukan internet (Audit 1646)
+
+- `saranKoneksi` di Updater tak punya cabang untuk galat ruang habis, sehingga unduhan yang mati karena storage penuh menghasilkan pesan "No space left on device. Cek internet STB…" — saran yang bertolak belakang dengan penyebabnya. Kini ada cabang ENOSPC/"no space left" yang menyarankan mengosongkan penyimpanan. Uji JVM baru menguncinya (Audit 1646).
+
 ## [Belum rilis] — Update web-vault: kebutuhan ruang ekstrak dicek sebelum ekstrak mulai (Audit 1645)
 
 - Gerbang 150 MB di awal update web-vault hanya menjamin unduhan zip, padahal zip tetap di disk selama ekstrak menumbuhkan staging di folder yang sama (kebutuhan nyata gabungan bisa melewati 150 MB bahkan untuk aset rilis berjalan). Kini sesudah unduh selesai, total ukuran terdeklarasi entri zip dihitung dari direktori pusat zip (`totalUkuranEntriZip`) dan ruang bebas wajib menutupinya sebelum satu berkas pun ditulis — gagal cepat dengan angka kebutuhan yang jujur, bukan gagal di tengah ekstrak. Uji JVM baru mengunci penjumlahan entri (Audit 1645).

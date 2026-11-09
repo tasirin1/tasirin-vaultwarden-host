@@ -516,6 +516,18 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_diskPenuhMenyebutPenyimpanan() {
+        // Audit 1646: ENOSPC harus menyarankan mengosongkan
+        // penyimpanan, bukan cek internet.
+        Exception e = new java.io.IOException(
+                "write failed: ENOSPC (No space left on device)");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("Penyimpanan"));
+        assertTrue(saran.contains("penuh"));
+        assertFalse(saran.contains("internet"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);
