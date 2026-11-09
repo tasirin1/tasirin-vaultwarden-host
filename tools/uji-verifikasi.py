@@ -17082,6 +17082,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpgv '--' sesudah operand adalah nama berkas harfiah, galat tanpa membaca: gerbang lolos (Audit 1709)", rc == 0)
         shutil.rmtree(sub795, ignore_errors=True)
+        sub796 = klon(tmp, "sub796")
+        berkas_aksi796 = os.path.join(
+            sub796, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi796, encoding="utf-8") as f:
+            isi_aksi796 = f.read()
+        baris_aksi796 = [b for b in isi_aksi796.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru796 = isi_aksi796.replace(
+                baris_aksi796,
+                baris_aksi796.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv --bogus gab.sig -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru796 != isi_aksi796, \
+            "suntikan aksi796 tidak menembak"
+        with open(berkas_aksi796, "w", encoding="utf-8") as f:
+            f.write(isi_baru796)
+        rc, out = jalan(sub796,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv opsi panjang tak dikenal invalid option lalu keluar: gerbang lolos (Audit 1710)", rc == 0)
+        shutil.rmtree(sub796, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -5281,6 +5281,26 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                      "--dump-option-table")
                for u in bebas_gv):
             return False
+        # Audit 1710: opsi panjang gpgv tak dikenal = galat
+        # "invalid option" lalu keluar (kelas Audit 1694
+        # untuk gpgv); --help/--version ikut meta cetak-
+        # lalu-keluar. Himpunan sah = enumerasi
+        # --dump-options GnuPG 2.4.4.
+        sah_gv = {"--assert-pubkey-algo", "--debug",
+                  "--dump-option-table", "--dump-options",
+                  "--enable-special-filenames", "--help",
+                  "--homedir", "--ignore-time-conflict",
+                  "--keyring", "--log-file", "--logger-fd",
+                  "--output", "--quiet", "--status-fd",
+                  "--verbose", "--version", "--warranty",
+                  "--weak-digest"}
+        if any(u.startswith("--")
+               and u.split("=")[0] not in sah_gv
+               for u in bebas_gv):
+            return False
+        if any(u.split("=")[0] in ("--help", "--version")
+               for u in bebas_gv):
+            return False
         # Audit 1649: bentuk terdokumentasi `gpgv sigfile -`
         # (man gpgv EXAMPLES) — operand kedua "-" berarti
         # data bertanda tangan dibaca dari stdin walau

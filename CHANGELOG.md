@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi panjang gpgv tak dikenal dan informasional divonis keluar (Audit 1710)
+
+- Blok gpgv kini memvalidasi token panjang bebas terhadap himpunan sah dari enumerasi --dump-options GnuPG 2.4.4 (18 opsi): di luar itu -> False ("invalid option"); --help/--version ikut meta cetak-lalu-keluar. Terprobe: `gpgv --bogus gab.sig -` model True / real False. 1 skenario suite baru (Audit 1710).
+
 ## [Belum rilis] — Gerbang: operand gpgv ditelusuri berurutan, '--' tengah adalah berkas harfiah (Audit 1709)
 
 - Blok gpgv kini mengumpulkan operand dengan susunan berurutan (berhenti memindai opsi di operand pertama, seperti gpgv nyata) dan menilai operand data berurutan: "-" menguras, tetapi "--" harfiah yang muncul sesudah operand pertama menghentikan dengan galat lebih dulu. Terprobe: `gpgv gab.sig -- -` real False ("can't open signed data '--'"). 1 skenario suite baru (Audit 1709).
