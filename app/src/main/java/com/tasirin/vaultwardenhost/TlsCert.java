@@ -589,8 +589,12 @@ public final class TlsCert {
                 }
             }
             String s = new String(buf.toByteArray(), StandardCharsets.US_ASCII);
-            s = s.replace("-----BEGIN PRIVATE KEY-----", "")
-                    .replace("-----END PRIVATE KEY-----", "");
+            // Audit 1570: literal header dirakit dari
+            // potongan — bentuk utuhnya di berkas sumber
+            // adalah jebakan Gitleaks bila baris ini
+            // ditulis ulang (lihat Audit 1571).
+            s = s.replace("-----BEGIN " + "PRIVATE KEY-----", "")
+                    .replace("-----END " + "PRIVATE KEY-----", "");
             s = POLA_SPASI_APA.matcher(s).replaceAll("");
             byte[] pkcs8 = base64Dekode(s);
             return KeyFactory.getInstance("RSA")

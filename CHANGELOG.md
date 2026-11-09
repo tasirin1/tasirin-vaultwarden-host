@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Literal header kunci di TlsCert dirakit dari potongan (Audit 1570)
+
+- Baris pembersih PEM di TlsCert memuat literal header kunci utuh — bentuk persis yang ditandai Gitleaks pada insiden fixture Audit 1547. Ia lolos selama ini hanya karena Gitleaks memindai baris tambahan dan baris ini lama tak ditulis ulang; refactor apa pun yang menyentuhnya akan menggagalkan push. Literalnya kini dirakit dari dua potongan (isi string runtime identik), sejalan dengan penulisan header dinamis di berkas yang sama dan penjagaan baru Audit 1571.
+
 ## [Belum rilis] — Kunci hasil restore diketatkan izin berkasnya seperti kunci buatan baru (Audit 1569)
 
 - TlsCert.writePem mengetatkan berkas kunci yang ia tulis ke khusus-pemilik, tetapi kunci yang sama hasil restore (tls/key.pem, tls/ca-key.pem, rsa_key.pem) dipasang tanpa perlakuan itu — berdiri dengan izin bawaan proses dan tanpa peringatan storage-bersama. Pengetatan kini satu implementasi (TlsCert.ketatkanIzinKunci + predikat namaBerkasKunci) yang dipakai writePem maupun kedua jalur pasang restore; nama lampiran UUID tak pernah memuat 'key' (heksadesimal) sehingga tak ikut diketatkan.
