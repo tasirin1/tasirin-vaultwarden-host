@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi informasional python divonis cetak-lalu-keluar (Audit 1705)
+
+- Opsi panjang informasional python (--help/--version/--help-env/--help-xoptions/--help-all) kini mengembalikan False di penjaga Audit 1694 (dulu hanya dilewati sebagai bendera); -V telanjang dan -V di dalam bundel juga False. Terprobe: semuanya model True / real False. 1 skenario suite baru (Audit 1705).
+
 ## [Belum rilis] — Token 'dibatalkan.' menangkap tiga produsen batal yang lolos dari penyempitan (Audit 1704)
 
 - Cabang keadaan lokal `saranKoneksi` ditambah token `dibatalkan.` (berakhiran titik): menangkap "Backup otomatis dibatalkan.", "file_path tidak aman - unduhan dibatalkan.", dan pesan melebihi batas "... unduhan dibatalkan." yang sesudah penyempitan susulan maraton-101 jatuh ke saran internet. Pesan SHA "Update dibatalkan demi keamanan" tidak memuat bentuk berakhiran titik itu, jadi vonis 404 Audit 1696 tetap utuh (terkunci uji JVM).

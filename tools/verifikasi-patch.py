@@ -1849,6 +1849,11 @@ def _menguras_interpreter(perintah, toks, awal):
                         break
                 if asing_py:
                     return False
+                # Audit 1705: -V di bundel mencetak versi lalu
+                # keluar, mendahului REPL maupun skrip.
+                if "V" in (huruf_py if pos_bernilai < 0
+                           else huruf_py[:pos_bernilai]):
+                    return False
                 if (pos_bernilai >= 0
                         and huruf_py[pos_bernilai] == "c"):
                     # Audit 1081: -i berlaku juga sesudah -c.
@@ -2042,6 +2047,9 @@ def _menguras_interpreter(perintah, toks, awal):
         if t == "--":
             i += 1
             return toks[i] == "-" if i < n else True
+        # Audit 1705: -V mencetak versi lalu keluar.
+        if perintah.startswith("python") and bersih_t == "-V":
+            return False
         # Audit 1694: token python satu huruf tak dikenal
         # (atau -h: bantuan lalu keluar) - CPython galat/
         # bantuan lalu keluar tanpa membaca. Token -i/-c/-m/
@@ -2053,9 +2061,13 @@ def _menguras_interpreter(perintah, toks, awal):
         # Audit 1694: opsi panjang python tak dikenal -
         # CPython mencetak galat lalu keluar tanpa membaca.
         if perintah.startswith("python") and t.startswith("--"):
-            if t.split("=")[0] not in (
+            # Audit 1705: opsi informasional mencetak lalu
+            # keluar - bukan dilewati sebagai bendera biasa.
+            if t.split("=")[0] in (
                     "--help", "--version", "--help-env",
-                    "--help-xoptions", "--help-all",
+                    "--help-xoptions", "--help-all"):
+                return False
+            if t.split("=")[0] not in (
                     "--check-hash-based-pycs", "--safe-path"):
                 return False
             i += 1
