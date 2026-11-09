@@ -34,6 +34,12 @@ public final class HttpsCompat {
 
     private static volatile String[] protokolCache = null;
     private static volatile String[] cipherCache = null;
+    // Audit 1600: daftar MENTAH yang didukung platform di-cache
+    // juga — nilainya konstan seumur proses, jadi
+    // getSupportedProtocols/getSupportedCipherSuites tak perlu
+    // dipanggil (dan hasilnya tak perlu di-clone) per soket.
+    private static volatile String[] mentahProtokol = null;
+    private static volatile String[] mentahCipher = null;
 
     static String[] pilihProtokol(String[] didukung) {
         if (didukung == null || didukung.length == 0) {
@@ -297,6 +303,8 @@ public final class HttpsCompat {
 
             protokolCache = null;
             cipherCache = null;
+            mentahProtokol = null;
+            mentahCipher = null;
         }
         return cached;
     }
@@ -312,11 +320,16 @@ public final class HttpsCompat {
             if (s instanceof SSLSocket) {
                 SSLSocket ssl = (SSLSocket) s;
 
-                String[] dukungIni;
-                try {
-                    dukungIni = ssl.getSupportedProtocols();
-                } catch (Exception ignored) {
-                    dukungIni = null;
+                String[] dukungIni = mentahProtokol;
+                if (dukungIni == null) {
+                    try {
+                        dukungIni = ssl.getSupportedProtocols();
+                    } catch (Exception ignored) {
+                        dukungIni = null;
+                    }
+                    if (dukungIni != null) {
+                        mentahProtokol = dukungIni;
+                    }
                 }
                 String[] protokol = protokolCache;
                 if (protokol == null) {
@@ -358,11 +371,16 @@ public final class HttpsCompat {
                     }
                 }
 
-                String[] dukungCipher;
-                try {
-                    dukungCipher = ssl.getSupportedCipherSuites();
-                } catch (Exception ignored) {
-                    dukungCipher = null;
+                String[] dukungCipher = mentahCipher;
+                if (dukungCipher == null) {
+                    try {
+                        dukungCipher = ssl.getSupportedCipherSuites();
+                    } catch (Exception ignored) {
+                        dukungCipher = null;
+                    }
+                    if (dukungCipher != null) {
+                        mentahCipher = dukungCipher;
+                    }
                 }
                 String[] kuat = cipherCache;
                 if (kuat == null) {

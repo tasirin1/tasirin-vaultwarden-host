@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — HttpsCompat: daftar dukungan mentah TLS di-cache (Audit 1600)
+
+- Hasil `getSupportedProtocols()`/`getSupportedCipherSuites()` kini di-cache statik per proses (konstan platform); yang dipilih tetap divalidasi dari daftar itu seperti sebelumnya.
+
 ## [Belum rilis] — TlsCert: verifikasi tanda tangan leaf oleh CA dimemoisasi (Audit 1599)
 
 - `ditandatanganiCa` kini bermemo meniru pola MEMO_PASANGAN (kunci stat kedua berkas + TTL 60 detik); hanya hasil dari berkas terbaca penuh yang disimpan.
