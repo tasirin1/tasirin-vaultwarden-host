@@ -16494,6 +16494,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("luajit beroperand skrip: gerbang lolos (Audit 1660)", rc == 0)
         shutil.rmtree(sub767, ignore_errors=True)
+        sub768 = klon(tmp, "sub768")
+        berkas_aksi768 = os.path.join(
+            sub768, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi768, encoding="utf-8") as f:
+            isi_aksi768 = f.read()
+        baris_aksi768 = [b for b in isi_aksi768.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru768 = isi_aksi768.replace(
+                baris_aksi768,
+                baris_aksi768.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ruby -W skrip.rb; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru768 != isi_aksi768, \
+            "suntikan aksi768 tidak menembak"
+        with open(berkas_aksi768, "w", encoding="utf-8") as f:
+            f.write(isi_baru768)
+        rc, out = jalan(sub768,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("ruby -W token terpisah adalah berkas skrip: gerbang lolos (Audit 1661)", rc == 0)
+        shutil.rmtree(sub768, ignore_errors=True)
+        sub769 = klon(tmp, "sub769")
+        berkas_aksi769 = os.path.join(
+            sub769, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi769, encoding="utf-8") as f:
+            isi_aksi769 = f.read()
+        baris_aksi769 = [b for b in isi_aksi769.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru769 = isi_aksi769.replace(
+                baris_aksi769,
+                baris_aksi769.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lua -W skrip.lua; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru769 != isi_aksi769, \
+            "suntikan aksi769 tidak menembak"
+        with open(berkas_aksi769, "w", encoding="utf-8") as f:
+            f.write(isi_baru769)
+        rc, out = jalan(sub769,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lua -W bendera, token terpisah berkas skrip: gerbang lolos (Audit 1661)", rc == 0)
+        shutil.rmtree(sub769, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

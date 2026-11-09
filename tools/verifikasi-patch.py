@@ -1921,7 +1921,13 @@ def _menguras_interpreter(perintah, toks, awal):
         if perintah == "node" and t in (
                 "-e", "--eval", "-p", "--print"):
             return False
-        if t in ("-W", "-X"):
+        # Audit 1661: pasangan -W/-X hanya sah untuk python
+        # (di python keduanya memang bernilai). Di ruby -W
+        # berargumen opsional MENEMPEL (-W0/-W1/-W2; token
+        # terpisah berikutnya adalah berkas skrip) dan di lua
+        # -W bendera tanpa nilai — menelan token berikutnya
+        # di sana menyembunyikan operand skrip (positif palsu).
+        if perintah.startswith("python") and t in ("-W", "-X"):
             i += 2
             continue
         # Audit 1299: opsi bernilai node — nilainya bukan

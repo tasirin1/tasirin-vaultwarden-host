@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pasangan -W/-X hanya untuk python (Audit 1661)
+
+- Cabang generik yang melompati berpasangan token `-W`/`-X` kini dijaga `perintah.startswith("python")`: di python keduanya memang bernilai, tetapi di ruby `-W` berargumen opsional menempel (token terpisah = berkas skrip) dan di lua `-W` bendera — menelannya di sana menyembunyikan operand skrip dan menolak patch sah (positif palsu pra-ada sejak ruby/lua masuk dispatch); 2 skenario suite baru menguncinya (Audit 1661).
+
 ## [Belum rilis] — Gerbang: luajit dimodelkan setara lua (Audit 1660)
 
 - `luajit` masuk tuple dispatch interpreter dan berbagi cabang `-l` bernilai dengan `lua` (man luajit(1): opsi mencerminkan lua; tanpa skrip ia membaca skrip dari stdin) — sebelumnya nama ini tak dinilai sama sekali; 2 skenario suite baru menguncinya (Audit 1660).
