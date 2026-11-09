@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pola cek literal gerbang lebih sempit dari aturan Gitleaks (Audit 1578) (Audit 1578)
+
+- Pola Audit 1571 hanya mengenali header polos huruf besar: blok PGP PRIVATE KEY BLOCK, header huruf kecil penuh, dan label berstrip lolos lokal tetapi kena Gitleaks CI — kelas insiden yang hendak dicegah 1571. Pola kini mengikuti aturan private-key Gitleaks v8 (tak peka huruf, label boleh memuat '-'/'_', akhiran ' BLOCK' diterima).
+
 ## [Belum rilis] — onDestroy mengambil potret proses di dalam KUNCI_PROSET (Audit 1577) (Audit 1577)
 
 - Berbeda dengan stopServer yang memasang batalStart + mengambil potret proses di dalam synchronized (KUNCI_PROSET), onDestroy melakukannya tanpa kunci: thread start yang sudah membaca batalStart=false di dalam blok kelahiran tetapi ter-deschedule sebelum penugasan proses dapat menyelesaikan kelahiran sesudah onDestroy membaca proses null — proses Vaultwarden yatim tetap melayani dan memegang port serta wake lock-nya. Potret + pemasangan batalStart kini di dalam kunci yang sama seperti stopServer.

@@ -6412,7 +6412,14 @@ def cek_literal_rahasia_utuh(gagal, diff):
     # menggagalkan rilis, sedangkan sebelumnya tak
     # ada gerbang lokal yang menangkapnya sebelum
     # push. Rakit header dari potongan literal.
-    pola = re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----")
+    # Audit 1578: pola diselaraskan ke aturan
+    # private-key Gitleaks v8 — tak peka huruf, label
+    # boleh memuat '-'/'_', dan akhiran ' BLOCK'
+    # diterima (blok PGP); bentuk-bentuk itu lolos
+    # pola sempit 1571 tetapi kena di CI.
+    pola = re.compile(
+        r"-----BEGIN[ A-Z0-9_-]{0,100}PRIVATE KEY"
+        r"( BLOCK)?-----", re.IGNORECASE)
     for baris in diff.splitlines():
         if baris.startswith("+") and not baris.startswith("+++"):
             if pola.search(baris):

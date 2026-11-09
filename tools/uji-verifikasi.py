@@ -15243,6 +15243,56 @@ def main():
         periksa("header terbelah dua literal di baris baru: gerbang tetap lolos (Audit 1571)",
                 rc == 0)
         shutil.rmtree(sub706, ignore_errors=True)
+        sub707 = klon(tmp, "sub707")
+        berkas_aksi707 = os.path.join(
+            sub707, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi707, encoding="utf-8") as f:
+            isi_aksi707 = f.read()
+        isi_baru707 = isi_aksi707 + (
+            "\n# contoh: -----BEGIN PGP PRIVATE "
+            "KEY BLOCK-----\n")
+        assert isi_baru707 != isi_aksi707, \
+            "tambahan aksi707 tidak menembak"
+        with open(berkas_aksi707, "w", encoding="utf-8") as f:
+            f.write(isi_baru707)
+        rc, out = jalan(sub707, [sys.executable, GERBANG, "--semua"])
+        periksa("blok PGP PRIVATE KEY BLOCK utuh: gerbang gagal (Audit 1578)",
+                rc != 0 and "literal header kunci" in out)
+        shutil.rmtree(sub707, ignore_errors=True)
+
+        sub708 = klon(tmp, "sub708")
+        berkas_aksi708 = os.path.join(
+            sub708, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi708, encoding="utf-8") as f:
+            isi_aksi708 = f.read()
+        isi_baru708 = isi_aksi708 + (
+            "\n# contoh: -----begin private "
+            "key-----\n")
+        assert isi_baru708 != isi_aksi708, \
+            "tambahan aksi708 tidak menembak"
+        with open(berkas_aksi708, "w", encoding="utf-8") as f:
+            f.write(isi_baru708)
+        rc, out = jalan(sub708, [sys.executable, GERBANG, "--semua"])
+        periksa("header kunci huruf kecil utuh: gerbang gagal (Audit 1578)",
+                rc != 0 and "literal header kunci" in out)
+        shutil.rmtree(sub708, ignore_errors=True)
+
+        sub709 = klon(tmp, "sub709")
+        berkas_aksi709 = os.path.join(
+            sub709, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi709, encoding="utf-8") as f:
+            isi_aksi709 = f.read()
+        isi_baru709 = isi_aksi709 + (
+            "\n# contoh: -----BEGIN FOO-BAR PRIVATE "
+            "KEY-----\n")
+        assert isi_baru709 != isi_aksi709, \
+            "tambahan aksi709 tidak menembak"
+        with open(berkas_aksi709, "w", encoding="utf-8") as f:
+            f.write(isi_baru709)
+        rc, out = jalan(sub709, [sys.executable, GERBANG, "--semua"])
+        periksa("label header berstrip utuh: gerbang gagal (Audit 1578)",
+                rc != 0 and "literal header kunci" in out)
+        shutil.rmtree(sub709, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
