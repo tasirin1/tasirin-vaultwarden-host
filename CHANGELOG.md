@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Label audit otomatis diselaraskan dengan format badan issue yang nyata (Audit 1718)
+
+- label-audit.yml menuntut penanda "**Ronde audit:** putaran-N" yang tidak pernah muncul di badan issue audit (format yang dipakai: "- Ronde: Audit-NNN ...") — label `audit` tidak pernah terpasang (terverifikasi: issue audit sampel berlabel kosong semua) sehingga pengecualian stale untuk issue audit tidak pernah berlaku dan label manual pun dicabut cabang elif pada suntingan berikutnya. Pola kini mengikuti format nyata; issue audit terbuka lama tidak lagi ditutup stale otomatis sebelum diperbaiki.
+
 ## [Belum rilis] — Batal-Stop (pesanDibatalkan) kini tertangkap cabang lokal (Audit 1717)
 
 - Teks produsen aslinya "Unduhan <label> dibatalkan (Stop ditekan) - tidak dilanjutkan." — frasa "(Stop ditekan)" menyela token "dibatalkan - tidak dilanjutkan" (Audit 1687) dan token "dibatalkan." (Audit 1704) juga tidak cocok, jadi unduhan yang dibatalkan pengguna sendiri lewat bot divonis saran internet GitHub. Token "dibatalkan (stop ditekan)" ditambahkan; terkunci uji JVM yang memakai pesanDibatalkan asli.
