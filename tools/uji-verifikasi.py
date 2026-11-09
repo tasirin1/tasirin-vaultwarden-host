@@ -15148,6 +15148,27 @@ def main():
         periksa("gpg opsi pendek -z bernilai terpisah: gerbang gagal (Audit 1562)",
                 rc != 0)
         shutil.rmtree(sub701, ignore_errors=True)
+        sub702 = klon(tmp, "sub702")
+        berkas_aksi702 = os.path.join(
+            sub702, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi702, encoding="utf-8") as f:
+            isi_aksi702 = f.read()
+        baris_aksi702 = [b for b in isi_aksi702.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru702 = isi_aksi702.replace(
+                baris_aksi702,
+                baris_aksi702.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gpgsm --debug-wait 0 --decrypt; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru702 != isi_aksi702, \
+            "suntikan aksi702 tidak menembak"
+        with open(berkas_aksi702, "w", encoding="utf-8") as f:
+            f.write(isi_baru702)
+        rc, out = jalan(sub702, [sys.executable, GERBANG, "--semua"])
+        periksa("gpgsm opsi --debug-wait bernilai: gerbang gagal (Audit 1563)",
+                rc != 0)
+        shutil.rmtree(sub702, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

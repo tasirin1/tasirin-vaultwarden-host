@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — gpgsm --debug-wait bernilai ditambahkan ke kedua himpunan gerbang (Audit 1563)
+
+- Residu Audit 1550: '--debug-wait <detik>' mengambil nilai tetapi absen dari kedua himpunan gpgsm — bentuk bernilai tertekan sebagai bukan-pembaca (fail-open) dan token modus sesudah bentuk telanjangnya tertelan sebagai nilai (fail-closed); keduanya terprobe dua arah. Kini hadir di kedua himpunan (58 elemen, tetap identik).
+
 ## [Belum rilis] — Himpunan opsi bernilai gpg di gerbang dilengkapi sapuan kedua (Audit 1562)
 
 - Sapuan 'gpg --dump-options' kedua membuktikan daftar Audit 1549 jauh dari lengkap: ±92 nama bernilai terprobe fail-open — nilai opsi tak dikenal terhitung operand berkas sehingga vonis stdin tertekan. Yang lazim di skrip ikut tercakup (--options, --trust-model, --status-file, --keyid-format, '-z' terpisah) beserta keluarga penerima enkripsi (--encrypt-to, --hidden-recipient, --recipient-file). Penahanan audit-91 atas --encrypt-to dicabut: ternyata artefak kunci fixture lama yang sign-only; dengan subkunci enkripsi ia terprobe SELISIH terisolasi.
