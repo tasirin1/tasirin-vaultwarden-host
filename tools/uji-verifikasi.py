@@ -16242,6 +16242,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("ruby -E bernilai di substitusi proses: penguras — gerbang gagal (Audit 1650)", rc != 0)
         shutil.rmtree(sub755, ignore_errors=True)
+        sub756 = klon(tmp, "sub756")
+        berkas_aksi756 = os.path.join(
+            sub756, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi756, encoding="utf-8") as f:
+            isi_aksi756 = f.read()
+        baris_aksi756 = [b for b in isi_aksi756.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru756 = isi_aksi756.replace(
+                baris_aksi756,
+                baris_aksi756.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(php -z ext.so; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru756 != isi_aksi756, \
+            "suntikan aksi756 tidak menembak"
+        with open(berkas_aksi756, "w", encoding="utf-8") as f:
+            f.write(isi_baru756)
+        rc, out = jalan(sub756,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("php -z bernilai di substitusi proses: penguras — gerbang gagal (Audit 1651)", rc != 0)
+        shutil.rmtree(sub756, ignore_errors=True)
+        sub757 = klon(tmp, "sub757")
+        berkas_aksi757 = os.path.join(
+            sub757, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi757, encoding="utf-8") as f:
+            isi_aksi757 = f.read()
+        baris_aksi757 = [b for b in isi_aksi757.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru757 = isi_aksi757.replace(
+                baris_aksi757,
+                baris_aksi757.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(php -R 'echo 1;'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru757 != isi_aksi757, \
+            "suntikan aksi757 tidak menembak"
+        with open(berkas_aksi757, "w", encoding="utf-8") as f:
+            f.write(isi_baru757)
+        rc, out = jalan(sub757,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("php -R pemroses baris di substitusi proses: penguras — gerbang gagal (Audit 1651)", rc != 0)
+        shutil.rmtree(sub757, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai php dilengkapi (-z + pemroses baris -B/-R/-E/-F) (Audit 1651)
+
+- Cabang php di penilai interpreter kini juga melewati berpasangan `-z` serta keluarga pemroses baris `-B`/`-R`/`-E`/`-F` (manual PHP) — tanpa berkas masukan, baris-barisnya dibaca dari stdin; 2 skenario suite baru menguncinya (Audit 1651).
+
 ## [Belum rilis] — Gerbang: opsi bernilai ruby dilengkapi (-C/-E/-F/-K + keluarga encoding) (Audit 1650)
 
 - Cabang ruby di penilai interpreter kini juga melewati berpasangan `-C`, `-E`, `--encoding`, `--external-encoding`, `--internal-encoding`, `-F`, dan `-K` (man ruby(1)) — nilainya tak lagi terbaca sebagai berkas program; 2 skenario suite baru menguncinya (Audit 1650).

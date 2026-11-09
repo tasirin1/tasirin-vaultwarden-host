@@ -1936,7 +1936,13 @@ def _menguras_interpreter(perintah, toks, awal):
                 "-F", "-K"):
             i += 2
             continue
-        if perintah == "php" and t in ("-d", "-c"):
+        if perintah == "php" and t in (
+                "-d", "-c",
+                # Audit 1651: -z ekstensi bernilai + keluarga
+                # pemroses baris (-B/-R/-E kode, -F berkas)
+                # yang membaca baris masukan dari stdin bila
+                # tanpa berkas (manual PHP).
+                "-z", "-B", "-R", "-E", "-F"):
             i += 2
             continue
         if perintah == "lua" and t == "-l":
