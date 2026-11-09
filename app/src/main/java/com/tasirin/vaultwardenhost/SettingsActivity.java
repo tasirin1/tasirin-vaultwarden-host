@@ -361,17 +361,20 @@ public class SettingsActivity extends Activity {
     private static final AtomicBoolean tugasBerjalan = new AtomicBoolean(false);
 
     private boolean pinCentangProgram = false;
-    private long lastWvCheck = 0;
-    private String wvLine = "";
-    private long lastDbCheck = 0;
-    private String dbLine = "";
+    // Audit 1610: field cache kartu info ditulis tugas latar
+    // dan dibaca UI thread — kini volatile agar bacaan UI tak
+    // memakai nilai basi tanpa batas (pasangan stempel+isi).
+    private volatile long lastWvCheck = 0;
+    private volatile String wvLine = "";
+    private volatile long lastDbCheck = 0;
+    private volatile String dbLine = "";
 
-    private File[] cacheDaftarBackup = null;
-    private String cacheDaftarBackupDir = "";
-    private long cacheDaftarBackupAt = 0;
+    private volatile File[] cacheDaftarBackup = null;
+    private volatile String cacheDaftarBackupDir = "";
+    private volatile long cacheDaftarBackupAt = 0;
     private static final long DAFTAR_BACKUP_TTL_MS = 5_000;
-    private long lastStorageCheck = 0;
-    private String storageLine = "";
+    private volatile long lastStorageCheck = 0;
+    private volatile String storageLine = "";
     private static final long WV_CHECK_MS = 10_000;
     private static final long DB_CHECK_MS = 5_000;
     private static final long STORAGE_CHECK_MS = 5_000;
@@ -379,14 +382,14 @@ public class SettingsActivity extends Activity {
     private static final long CERT_CHECK_MS = 30_000;
 
     private static final AtomicBoolean heavyRunning = new AtomicBoolean(false);
-    private long lastSysCheck = 0;
-    private String sysLine = "";
-    private long lastCertCheck = 0;
-    private String certLine = "";
+    private volatile long lastSysCheck = 0;
+    private volatile String sysLine = "";
+    private volatile long lastCertCheck = 0;
+    private volatile String certLine = "";
     private long lastUiLogRefresh = 0;
     private static final long BATTERY_CHECK_MS = 30_000;
-    private long lastBatteryCheck = 0;
-    private boolean needBatteryCached = false;
+    private volatile long lastBatteryCheck = 0;
+    private volatile boolean needBatteryCached = false;
 
     private Boolean lastBatteryTampil = null;
 

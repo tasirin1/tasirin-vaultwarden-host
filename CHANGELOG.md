@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Settings: field cache lintas-thread menjadi volatile (Audit 1610)
+
+- Pasangan stempel+isi cache kartu info (wv/db/storage/sys/cert/battery + cache daftar backup) yang ditulis tugas latar dan dibaca UI thread kini volatile.
+
 ## [Belum rilis] — Settings: pool jenuh tak lagi jatuh ke hitung UI thread (Audit 1609)
 
 - Saat pool latar menolak tugas berat kartu info, tick itu kini memakai baris cache saja (hitungUi=false) alih-alih menghitung lima baris info di UI thread.
