@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: pengukuran ekor digit hanya pada baris berdigit (Audit 1626)
+
+- Pengukuran `ekordgt` (Audit 1584-1586) kini dilewati untuk baris tanpa digit — baris seperti itu pasti berakhir ekordgt 0 di kedua cabang lama; vonis terbukti identik pada baterai 15 keadaan x kasus.
+
 ## [Belum rilis] — Gerbang: daftar bekas hapusan dimuat malas (Audit 1634)
 
 - `BEKAS_HAPUSAN` tidak lagi dimuat saat import modul; daftar dibaca pada pemakaian pertama lewat `bekas_hapusan()`. Vonis di dalam pohon tetap persis, termasuk kegagalan keras bila berkasnya tak terbaca.
