@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cabang prasyarat saran kini menangkap redaksi 'sedang berjalan' (Audit 1684)
+
+- Token cabang prasyarat `saranKoneksi` ditambah `sedang berjalan` — pesan "Tugas backup/restore lain sedang berjalan, coba lagi sebentar." (bot + backup) sebelumnya lolos karena tokennya hanya "masih berjalan", lalu jatuh ke saran cek internet + tekan Start untuk galat kesibukan lokal murni. Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Token 'backup terlalu besar' dipersempit ke redaksi khas restore (Audit 1682)
 
 - Token cabang prasyarat di `saranKoneksi` diganti `backup terlalu besar` → `backup terlalu besar (`: kedua produsen restore memang berbunyi "Backup terlalu besar (…)" sedangkan produsen sisi backup berbunyi "File backup terlalu besar untuk Telegram…" — pesan kegagalan backup kini tak lagi ditutup saran "ulangi restore". Uji JVM baru menguncinya.

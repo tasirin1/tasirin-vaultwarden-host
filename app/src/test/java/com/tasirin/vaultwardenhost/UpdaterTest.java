@@ -599,6 +599,17 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_sedangBerjalanPrasyaratJuga() {
+        // Audit 1684: redaksi "sedang berjalan" ikut tertangkap.
+        Exception e = new java.io.IOException(
+                "Tugas backup/restore lain sedang berjalan,"
+                        + " coba lagi sebentar.");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("pesan di atas"));
+        assertFalse(saran.contains("internet"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

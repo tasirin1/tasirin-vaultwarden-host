@@ -547,6 +547,9 @@ public final class Updater {
         // bertabrakan langsung dengan inti pesannya.
         if (gabung.contains("stop manual")
                 || gabung.contains("masih berjalan")
+                // Audit 1684: saudara satu kata — produsen
+                // kesibukan tugas memakai "sedang berjalan".
+                || gabung.contains("sedang berjalan")
                 || gabung.contains("gagal berhenti")
                 || gabung.contains("isi password backup")
                 // Audit 1682: token dipersempit ke redaksi khas
