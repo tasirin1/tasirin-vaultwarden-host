@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kirim by-id: pembacaan respons pertama (tolakRedirect) kini di dalam bungkus ambigu (Audit 1679)
+
+- `tolakRedirectTelegram` di `kirimDokumenById` memanggil `getResponseCode()` — pembacaan respons pertama yang sesungguhnya — tetapi kemarin berada di luar bungkus ambigu Audit 1663, jadi putusnya koneksi tepat di sana masih lolos sebagai gagal pasti dan memicu unggahan penuh yang menggandakan dokumen. Kini ia di dalam bungkus yang sama; penolakan redirect-nya sendiri dibedakan sebagai gagal pasti (respons terbaca utuh), kegagalan baca lain tetap ambigu (dianggap terkirim).
+
 ## [Belum rilis] — Teks log IP stabil tak lagi menyebut '2x tick' (Audit 1678)
 
 - Predikat `restartIpBolehDiminta` mensyaratkan hitungan >= 2 DAN selang >= 60 detik; pada mode tick cepat (30 detik) tembakan sebenarnya terjadi di hitungan ke-3, jadi angka di teks lama salah separuh waktu. Teks kini tanpa angka — ambangnya tetap sama, perilakunya tidak berubah.

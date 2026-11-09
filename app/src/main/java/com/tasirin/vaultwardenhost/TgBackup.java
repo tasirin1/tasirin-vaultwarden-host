@@ -2579,7 +2579,6 @@ public final class TgBackup {
                 try (OutputStream os = conn.getOutputStream()) {
                     os.write(body);
                 }
-                tolakRedirectTelegram(conn);
                 // Audit 1663: fase respons dipisah — kegagalan
                 // membaca respons (kode/badan) sesudah permintaan
                 // terkirim itu ambigu: dokumen bisa sudah
@@ -2588,11 +2587,26 @@ public final class TgBackup {
                 // unggahan penuh yang menggandakan dokumen —
                 // sekelas Audit 1647/1655. Kode galat yang
                 // terbaca utuh tetap gagal pasti (lempar).
+                // Audit 1679: tolakRedirect ikut di dalam
+                // bungkus — ia memanggil getResponseCode (itulah
+                // pembacaan respons pertama); penolakannya
+                // sendiri berarti respons TERBACA (kode redirect
+                // terbaca utuh) sehingga gagal pasti, dibedakan
+                // dari kegagalan baca jaringan yang ambigu.
                 int code;
                 String sb;
                 try {
+                    tolakRedirectTelegram(conn);
                     code = conn.getResponseCode();
                     sb = bacaResponsTelegram(conn, code);
+                } catch (java.io.IOException eBaca) {
+                    String m = eBaca.getMessage();
+                    if (m != null && m.startsWith("Redirect Telegram ditolak")) {
+                        throw eBaca;
+                    }
+                    logTgFailure("kirim by-id (respons tak terbaca)", -1,
+                            String.valueOf(eBaca.getMessage()));
+                    return "";
                 } catch (Exception eBaca) {
                     logTgFailure("kirim by-id (respons tak terbaca)", -1,
                             String.valueOf(eBaca.getMessage()));
