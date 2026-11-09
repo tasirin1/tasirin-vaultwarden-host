@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi lua/luajit bernilai menggantung divonis keluar (Audit 1713)
+
+- Cabang -l (lua+luajit) dan -e (lua) kini memeriksa sisa token: menggantung -> False. Menurut keluarga collectargs lua.c, -e/-l tanpa argumen menghasilkan "needs argument" + usage lalu keluar. DUGAAN kuat — biner tak terpasang untuk probe. 1 skenario suite baru (Audit 1713).
+
 ## [Belum rilis] — Gerbang: opsi informasional node divonis cetak-lalu-keluar (Audit 1712)
 
 - Di penjaga node Audit 1711, token --version/--help/-v kini mengembalikan False di posisi mana pun (node mencetak lalu keluar, tidak menjalankan skrip). Terprobe real ketiganya. 1 skenario suite baru (Audit 1712).

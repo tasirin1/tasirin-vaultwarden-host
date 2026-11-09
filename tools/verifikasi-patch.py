@@ -2033,6 +2033,10 @@ def _menguras_interpreter(perintah, toks, awal):
             i += 2
             continue
         if perintah in ("lua", "luajit") and t == "-l":
+            # Audit 1713: -l menggantung = "needs argument"
+            # lalu keluar (keluarga collectargs lua.c).
+            if i + 1 >= n:
+                return False
             i += 2
             continue
         # Audit 1672: -j luajit bernilai terpisah (perintah
@@ -2136,6 +2140,9 @@ def _menguras_interpreter(perintah, toks, awal):
         # (tertangani di atas), -v, -E, -W.
         if perintah == "lua" and t.startswith("-") and t != "-":
             if t == "-e":
+                # Audit 1713: -e menggantung sama seperti -l.
+                if i + 1 >= n:
+                    return False
                 i += 2
                 continue
             if t in ("-i", "-v", "-E", "-W"):
