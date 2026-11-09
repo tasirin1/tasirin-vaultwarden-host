@@ -700,6 +700,18 @@ def main():
                 and "token-akumulasi.txt" in out)
         shutil.rmtree(tokenakumulasi, ignore_errors=True)
 
+        tokenselakosong = klon(tmp, "tokenselakosong")
+        tanam(tokenselakosong, "token-sela-kosong.txt",
+              "token uji: " + token_palsu[:9] + "\n\n"
+              + token_palsu[9] + " " + token_palsu[10:] + "\n",
+              "w")
+        rc, out = jalan(tokenselakosong, ["bash", SKRIP])
+        periksa("token terbelah dengan sela baris kosong "
+                "sebelum ':' tertangkap (Audit 1586)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-kosong.txt" in out)
+        shutil.rmtree(tokenselakosong, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

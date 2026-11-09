@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Baris yang dibuang cek-cepat mereset ekordgt (Audit 1586) (Audit 1586)
+
+- Baris kosong/tanda-baca-murni tidak menyumbang aksara apa pun ke blob, tetapi cabang buang-baris mereset ekordgt sehingga belahan token dengan sela transparan persis sebelum baris ':' lolos. Baris yang dibuang kini tidak menyentuh ekordgt.
+
 ## [Belum rilis] — ekordgt cek-cepat tidak kumulatif untuk belahan tiga baris (Audit 1585) (Audit 1585)
 
 - Baris digit murni yang merupakan sambungan deret digit token menimpa ekordgt dengan panjang ekornya sendiri, jadi token yang terbelah tiga baris lolos. Baris yang seluruh isinya digit kini MENAMBAHKAN ekordgt lama, bukan menimpanya.
