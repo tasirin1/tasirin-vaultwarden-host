@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan build susulan Audit 1645: freeBytes menerima jalur String (Audit 1645)
+
+- Commit Audit 1645 memanggil `TgBackup.freeBytes(ctx, dataFolder)` dengan `File`, padahal tanda tangannya `freeBytes(Context, String)` — CI merah di `compileDebugJavaWithJavac` (Updater.java:2340, dibaca dari pesan galat aktual). Kini memakai `dataDir` (String yang sama dengan cek ruang di awal metode yang sama).
+
 ## [Belum rilis] — Gerbang: nama berversi ruby3.x/php8.x/lua5.x dinormalkan (Audit 1653)
 
 - Normalisasi nama interpreter kini juga memetakan `ruby\d+(.\d+)?`, `php\d+(.\d+)?`, dan `lua\d+(.\d+)?` ke nama polosnya — nama biner standar distro itu (ruby3.1, php8.2, lua5.4) berperilaku identik nama polosnya dan kini dinilai penilai interpreter yang sama; 3 skenario suite baru menguncinya (Audit 1653).

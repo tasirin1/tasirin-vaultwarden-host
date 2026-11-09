@@ -2337,7 +2337,7 @@ public final class Updater {
         // apa pun, dengan angka yang jujur, bukan gagal di
         // tengah ekstrak.
         long totalEkstrak = totalUkuranEntriZip(tmpZip);
-        long bebasEkstrak = TgBackup.freeBytes(ctx, dataFolder);
+        long bebasEkstrak = TgBackup.freeBytes(ctx, dataDir);
         if (totalEkstrak >= 0 && bebasEkstrak >= 0
                 && bebasEkstrak < totalEkstrak) {
             throw new IOException("Sisa penyimpanan tinggal "
