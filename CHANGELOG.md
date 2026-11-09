@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — onDestroy mengambil potret proses di dalam KUNCI_PROSET (Audit 1577) (Audit 1577)
+
+- Berbeda dengan stopServer yang memasang batalStart + mengambil potret proses di dalam synchronized (KUNCI_PROSET), onDestroy melakukannya tanpa kunci: thread start yang sudah membaca batalStart=false di dalam blok kelahiran tetapi ter-deschedule sebelum penugasan proses dapat menyelesaikan kelahiran sesudah onDestroy membaca proses null — proses Vaultwarden yatim tetap melayani dan memegang port serta wake lock-nya. Potret + pemasangan batalStart kini di dalam kunci yang sama seperti stopServer.
+
 ## [Belum rilis] — Daftar-putih path CI mencakup dependensi gerbang sendiri (Audit 1576) (Audit 1576)
 
 - Kedua suite yang masuk daftar-putih paths build-apk.yml mengimpor tools/uji_bersama.py, tetapi berkas itu (dan tools/bekas-hapusan.txt yang dibaca gerbang) absen dari daftar — push ke main yang hanya mengubahnya tidak memicu job verifikasi apa pun (cek-wajib khusus PR). Kedua berkas kini masuk paths push + PR build-apk.yml dan regex HARUS_BUILD auto-merge.yml agar ketiganya tetap selaras.

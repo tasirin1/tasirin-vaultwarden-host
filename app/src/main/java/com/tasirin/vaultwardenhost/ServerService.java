@@ -4945,7 +4945,6 @@ public class ServerService extends Service {
         notifForeground = false;
 
         healthActive = false;
-        batalStart = true;
         nomorStop.incrementAndGet();
         mulaiSetelahProsesMati = false;
         startSusulanDiminta = false;
@@ -4954,7 +4953,18 @@ public class ServerService extends Service {
         batalUtama(startTunda);
         flushLogFile();
 
-        Process p = process;
+        // Audit 1577: potret proses + pasang batalStart
+        // di dalam KUNCI_PROSET seperti stopServer — di
+        // luar kunci, thread start yang sedang
+        // melahirkan proses bisa menyelesaikan
+        // kelahiran sesudah potret null dibaca,
+        // menyisakan proses yatim yang tak dibunuh
+        // siapa pun (tetap memegang port + wake lock).
+        final Process p;
+        synchronized (KUNCI_PROSET) {
+            batalStart = true;
+            p = process;
+        }
         if (p != null) {
             tandaiStopDisengaja(p);
             try {
