@@ -28,9 +28,20 @@ def muat_bekas_hapusan():
         return None
     return nama
 
-BEKAS_HAPUSAN = muat_bekas_hapusan()
+# Audit 1634: daftar bekas hapusan dimuat MALAS pada pemakaian
+# pertama, bukan saat import — modul yang disalin/diprofilkan di
+# luar pohon tak lagi gagal di import, dan vonis di dalam pohon
+# tetap persis (cek_daftar_hapusan tetap gagal bila tak terbaca).
+_BACAS_HAPUSAN = []
+
+
+def bekas_hapusan():
+    if not _BACAS_HAPUSAN:
+        _BACAS_HAPUSAN.append(muat_bekas_hapusan())
+    return _BACAS_HAPUSAN[0]
 
 def cek_daftar_hapusan(gagal):
+    BEKAS_HAPUSAN = bekas_hapusan()
     if BEKAS_HAPUSAN is None:
         gagal.append("tools/bekas-hapusan.txt tak terbaca — penjagaan nama "
                      "metode terhapus tidak bisa dijalankan")
@@ -7351,11 +7362,11 @@ def cek_metode_hilang(gagal, peringatan, diff, hapus=()):
             gagal.append(pesan)
 
 def cek_panggil_bekas_hapusan(gagal, diff):
-    if not BEKAS_HAPUSAN:
+    if not bekas_hapusan():
         return
     baris_tambah = [(path, baris) for path, baris in tambah_java(diff)
                     if not baris.lstrip().startswith(("*", "//", "/*"))]
-    for nama in sorted(BEKAS_HAPUSAN):
+    for nama in sorted(bekas_hapusan()):
         pola = re.compile(r"\b%s\s*\(|::\s*%s\b"
                           % (re.escape(nama), re.escape(nama)))
         sebelumnya = {}
@@ -7397,7 +7408,7 @@ def cek_uji_ubah(peringatan, diff):
                 "tambah/cek uji logika murninya agar salah-fix ketahuan" % nama)
 
 def cek_hapusan_belum_tercatat(peringatan, diff):
-    tercatat = BEKAS_HAPUSAN
+    tercatat = bekas_hapusan()
     if not tercatat:
         return
     for nama in sorted(set(nama_metode_hilang(diff))):

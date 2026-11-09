@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: daftar bekas hapusan dimuat malas (Audit 1634)
+
+- `BEKAS_HAPUSAN` tidak lagi dimuat saat import modul; daftar dibaca pada pemakaian pertama lewat `bekas_hapusan()`. Vonis di dalam pohon tetap persis, termasuk kegagalan keras bila berkasnya tak terbaca.
+
 ## [Belum rilis] — Gerbang: berkas_teks berkache (Audit 1633)
 
 - `berkas_teks()` kini berkache dengan kunci sidik berkas (ukuran + mtime ns), sejajar cache baca() yang sudah ada; berkas yang berubah di tengah lari tetap terbaca ulang karena sidiknya berubah.
