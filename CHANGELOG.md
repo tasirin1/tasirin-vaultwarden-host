@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kirim dokumen by-id: respons ambigu dianggap terkirim, bukan unggah ulang (Audit 1663)
+
+- `kirimDokumenById` memisahkan fase respons: kegagalan membaca respons sesudah permintaan terkirim dan kode 200 berbadan tak terkonfirmasi kini mengembalikan "" (dianggap terkirim, bukan null) sehingga kedua loop pemanggil tidak menjalankan unggahan penuh yang menggandakan dokumen di chat — sekelas Audit 1647/1655. Kode galat yang terbaca utuh (mis. file_id tidak valid) tetap gagal pasti dan fallback unggahan tetap jalan di sana.
+
 ## [Belum rilis] — Teks log health tak lagi menyebut angka '9x' yang tidak pernah terjadi (Audit 1662)
 
 - Baris log gerbang kesempatan-kedua TCP di `healthFail` kini berbunyi "/alive tetap gagal tapi TCP hidup - dianggap gantung, server dihentikan." — teks lama "gagal 9x" salah angka di kedua jalur yang mencapainya (DB-rusak: satu panggilan healthFail sesudah 10 tick config; tak-merespon: 5 panggilan). Murni kosmetik-diagnostik; perilaku restart tidak berubah.

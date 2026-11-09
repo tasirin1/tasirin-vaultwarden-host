@@ -2580,17 +2580,39 @@ public final class TgBackup {
                     os.write(body);
                 }
                 tolakRedirectTelegram(conn);
-                int code = conn.getResponseCode();
-                String sb = bacaResponsTelegram(conn, code);
+                // Audit 1663: fase respons dipisah — kegagalan
+                // membaca respons (kode/badan) sesudah permintaan
+                // terkirim itu ambigu: dokumen bisa sudah
+                // terkirim. Kembalikan "" (dianggap terkirim,
+                // BUKAN null) agar pemanggil tidak menjalankan
+                // unggahan penuh yang menggandakan dokumen —
+                // sekelas Audit 1647/1655. Kode galat yang
+                // terbaca utuh tetap gagal pasti (lempar).
+                int code;
+                String sb;
+                try {
+                    code = conn.getResponseCode();
+                    sb = bacaResponsTelegram(conn, code);
+                } catch (Exception eBaca) {
+                    logTgFailure("kirim by-id (respons tak terbaca)", -1,
+                            String.valueOf(eBaca.getMessage()));
+                    return "";
+                }
                 if (code == 429 && percobaan == 0) {
                     tungguLimitTelegram("Kirim by-id kena limit Telegram", sb);
                     continue;
                 }
-                if (code != 200 || !TgBot.responsOk(sb)) {
-                    throw new IOException("Telegram "
-                            + TgBot.ringkasGalatTelegram(sb, code));
+                if (code == 200) {
+                    if (TgBot.responsOk(sb)) {
+                        return sb;
+                    }
+                    // 200 berbadan tak terkonfirmasi: server
+                    // memproses; jangan gandakan.
+                    logTgFailure("kirim by-id (200 tak terkonfirmasi)", code, sb);
+                    return "";
                 }
-                return sb;
+                throw new IOException("Telegram "
+                        + TgBot.ringkasGalatTelegram(sb, code));
             } finally {
                 if (conn != null) {
                     conn.disconnect();
