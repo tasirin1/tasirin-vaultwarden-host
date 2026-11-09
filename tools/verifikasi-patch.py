@@ -662,6 +662,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # membaca protokol/objek dari stdin.
                   "pinentry", "pinentry-curses", "dirmngr",
                   "gpg-connect-agent", "derdump",
+                  # Audit 1639: gpgv — verifikator tanda tangan;
+                  # tanpa operand data membaca dari stdin.
+                  "gpgv",
                   "utmpdump",
                   "shuf", "base64", "od", "sha256sum", "md5sum",
                   "gzip", "gunzip",
@@ -886,6 +889,9 @@ _OPSI_BERNILAI = {
            "--memlimit-compress", "--memlimit-decompress",
            # Audit 1172: -F/--format bernilai.
            "-F", "--format"},
+    # Audit 1639: opsi bernilai gpgv.
+    "gpgv": {"--keyring", "--homedir", "--status-fd",
+             "--logger-fd"},
     # Audit 1638: opsi bernilai kompresor zstd/pigz.
     "zstd": {"-o", "--output", "-D", "-T", "--threads"},
     "unzstd": {"-o", "--output", "-D", "-T", "--threads"},

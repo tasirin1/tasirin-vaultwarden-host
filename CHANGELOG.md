@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gpgv kini dimodelkan sebagai pembaca stdin (Audit 1639)
+
+- `gpgv` masuk daftar pembaca stdin beserta entri opsi bernilainya (`--keyring`/`--homedir`/`--status-fd`/`--logger-fd`) — tanpa operand data ia membaca data bertanda tangan dari stdin sampai habis (terprobe: payload clearsign sah terkonsumsi penuh), jadi segmennya kini tertangkap deteksi pengurasan stdin; 2 skenario suite baru menguncinya (Audit 1639).
+
 ## [Belum rilis] — Gerbang: varian nama GNU awk dan keluarga nama lain kini dikenal (Audit 1638)
 
 - `gawk`/`pgawk`/`igawk` kini dipetakan ke keluarga awk (sebelumnya lolos deteksi pengurasan stdin), `gpg2` dinilai sama dengan `gpg`, kompresor `zstd`/`pigz` (+ varian dekompresinya) masuk daftar pembaca stdin beserta opsi bernilainya, dan shell `ash`/`ksh`/`fish` serta interpreter `ruby`/`php`/`lua` dinilai seperti keluarganya. 15 skenario suite baru (775 total) mengunci vonisnya (Audit 1638).
