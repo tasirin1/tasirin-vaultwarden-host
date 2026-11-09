@@ -15211,6 +15211,38 @@ def main():
         periksa("storeutl URI host asing BUKAN stdin: gerbang tetap lolos (Audit 1564)",
                 rc == 0)
         shutil.rmtree(sub704, ignore_errors=True)
+        sub705 = klon(tmp, "sub705")
+        berkas_aksi705 = os.path.join(
+            sub705, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi705, encoding="utf-8") as f:
+            isi_aksi705 = f.read()
+        isi_baru705 = isi_aksi705 + (
+            "\n# contoh: -----BEGIN OPENSSH PRIVATE "
+            "KEY-----\n")
+        assert isi_baru705 != isi_aksi705, \
+            "tambahan aksi705 tidak menembak"
+        with open(berkas_aksi705, "w", encoding="utf-8") as f:
+            f.write(isi_baru705)
+        rc, out = jalan(sub705, [sys.executable, GERBANG, "--semua"])
+        periksa("literal header kunci utuh di baris baru: gerbang gagal (Audit 1571)",
+                rc != 0 and "literal header kunci" in out)
+        shutil.rmtree(sub705, ignore_errors=True)
+        sub706 = klon(tmp, "sub706")
+        berkas_aksi706 = os.path.join(
+            sub706, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi706, encoding="utf-8") as f:
+            isi_aksi706 = f.read()
+        isi_baru706 = isi_aksi706 + (
+            "\n# contoh rakitan: \"-----BEGIN OPENSSH PRIVATE \" "
+            "\"KEY-----\"\n")
+        assert isi_baru706 != isi_aksi706, \
+            "tambahan aksi706 tidak menembak"
+        with open(berkas_aksi706, "w", encoding="utf-8") as f:
+            f.write(isi_baru706)
+        rc, out = jalan(sub706, [sys.executable, GERBANG, "--semua"])
+        periksa("header terbelah dua literal di baris baru: gerbang tetap lolos (Audit 1571)",
+                rc == 0)
+        shutil.rmtree(sub706, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

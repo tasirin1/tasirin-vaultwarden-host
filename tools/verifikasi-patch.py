@@ -6404,6 +6404,26 @@ def cek_izin_baru(peringatan, diff):
                 peringatan.append("Izin baru %s — pastikan perlu di TV/STB + tercatat README"
                                   % cocok.group(1))
 
+def cek_literal_rahasia_utuh(gagal, diff):
+    # Audit 1571: literal header kunci UTUH pada baris
+    # baru adalah jebakan Gitleaks (insiden fixture
+    # Audit 1547, run 42529695945 FAILURE): pemindai
+    # rahasia CI menandainya sebagai private-key dan
+    # menggagalkan rilis, sedangkan sebelumnya tak
+    # ada gerbang lokal yang menangkapnya sebelum
+    # push. Rakit header dari potongan literal.
+    pola = re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----")
+    for baris in diff.splitlines():
+        if baris.startswith("+") and not baris.startswith("+++"):
+            if pola.search(baris):
+                gagal.append(
+                    "Baris baru memuat literal header kunci "
+                    "utuh — rakit dari potongan literal "
+                    "agar Gitleaks CI tidak menandainya "
+                    "sebagai bocoran: "
+                    + baris.strip()[:70])
+                return
+
 def cek_definisi_baru(peringatan, diff):
     pola = re.compile(r'\+\s*<(style|string|color|dimen|plurals|string-array|integer-array|array)(?=[\s/>])[^>]*?\bname="([^"]+)"')
     _, acuan = himpun_definisi()
@@ -7556,6 +7576,7 @@ def utama():
         cek_pola_berisiko(peringatan, diff, berubah, rentang_cek)
         cek_pola_boros(peringatan, diff)
         cek_izin_baru(peringatan, diff)
+        cek_literal_rahasia_utuh(gagal, diff)
         cek_definisi_baru(peringatan, diff)
     if diff_gagal:
 

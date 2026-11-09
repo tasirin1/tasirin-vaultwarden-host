@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang menolak baris baru ber-literal header kunci utuh (Audit 1571)
+
+- Kelas fixture Audit 1547 (header kunci utuh sebagai literal di berkas uji) sebelumnya hanya tertangkap Gitleaks CI SESUDAH push — menghabiskan satu run FAILURE + satu commit susulan pada maraton-91 — karena tak ada pemeriksaan lokal yang setara; hook pra-push hanya menjalankan dua gerbang yang tak mengenal pola itu. Gerbang kini punya cek_literal_rahasia_utuh: baris tambahan pada diff yang memuat literal header utuh membuat gerbang GAGAL dengan arahan merakitnya dari potongan. Dokumen berelepsis ('-----BEGIN ... PRIVATE KEY-----') dan rakitan potongan tidak terkena.
+
 ## [Belum rilis] — Normalisasi URI storeutl di gerbang diperbaiki dua arah (Audit 1564)
 
 - Residu Audit 1551: normalisasi lama menyisakan '//dev/stdin' yang tak cocok himpunan jalur fd (padahal openssl melipat garis miring ganda — fail-open) dan mengupas host APA PUN (padahal pemuat OSSL_STORE hanya menerima host kosong atau localhost — host asing terlanjur dianggap stdin, fail-closed). Normalisasi kini di _uri_store_ke_jalur: host selain kosong/localhost ditolak sebagai bukan-stdin dan garis miring awal dilipat sebelum pencocokan.
