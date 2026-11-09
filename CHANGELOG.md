@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Suite: keluaran vonis langsung ter-flush (Audit 1628)
+
+- `periksa()` di tools/uji_bersama.py kini mencetak dengan flush=True; sebelumnya keluaran suite ter-buffer penuh sehingga lari yang mati di tengah meninggalkan log kosong dan seluruh vonis yang sudah tercetak ikut hilang.
+
 ## [Belum rilis] — Suite cek-cepat: skenario ganda dihapus (Audit 1627)
 
 - Blok skenario `tokenselamiring` kedua (berlabel Audit 1567) isinya identik dengan blok Audit 1528 — tanam, panggilan, dan asersinya sama — jadi dihapus; cakupan tidak berkurang, suite turun 58 -> 57 skenario.

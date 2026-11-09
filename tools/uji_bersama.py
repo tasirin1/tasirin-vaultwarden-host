@@ -84,6 +84,10 @@ def klon(tmp, nama, akar, nama_uji, snapshot):
 
 
 def periksa(nama, ok, detail=""):
-    print("%s %s %s" % ("LOLOS " if ok else "GAGAL ", nama, detail))
+    # Audit 1628: flush per vonis — keluaran suite yang ter-buffer
+    # penuh membuat lari yang mati di tengah meninggalkan log
+    # KOSONG (seluruh vonis yang sudah tercetak ikut hilang).
+    print("%s %s %s" % ("LOLOS " if ok else "GAGAL ", nama, detail),
+          flush=True)
     if not ok:
         GAGAL.append(nama)
