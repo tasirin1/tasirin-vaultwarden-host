@@ -519,7 +519,13 @@ public final class Updater {
         }
         // Audit 1646: disk penuh bukan urusan jaringan —
         // jangan jatuh ke saran cek internet.
-        if (gabung.contains("no space left") || gabung.contains("enospc")) {
+        if (gabung.contains("no space left") || gabung.contains("enospc")
+                // Audit 1656: pesan ruang habis buatan aplikasi
+                // sendiri ("Storage kurang…" dari cek-ruang
+                // backup/unduh/restore Telegram) harus dikenali
+                // juga — tanpa ini sarannya jatuh ke cek internet
+                // yang kontradiktif dengan inti pesannya.
+                || gabung.contains("storage kurang")) {
             return "Penyimpanan STB penuh (tidak ada ruang tersisa)."
                     + " Hapus berkas unduhan/cache lama atau pindahkan data,"
                     + " lalu coba lagi.";

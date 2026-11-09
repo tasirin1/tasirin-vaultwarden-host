@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Saran koneksi kini mengenali pesan 'Storage kurang' buatan aplikasi (Audit 1656)
+
+- Cabang disk-penuh di `saranKoneksi` (Audit 1646) juga cocok dengan token `storage kurang` — pesan ruang habis dari cek-ruang backup/unduh/restore Telegram sendiri — sehingga pesan galatnya menyarankan mengosongkan penyimpanan, bukan berakhir dengan saran cek internet yang kontradiktif. Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Respons 200 Telegram berbadan tak terkonfirmasi kini gagal-ragu, bukan gagal-pasti (Audit 1655)
 
 - Di `ubahSinkronDenganUlang`, kode 200 dengan badan yang tidak terkonfirmasi `ok` (aliran putus di tengah baca menjadi string kosong di `bacaResponsBatas`) kini mengembalikan `UBAH_GAGAL_RAGU`: server sudah memproses permintaan, badan yang hilang tidak membuktikan penolakan, jadi fallback kirim-baru tidak dijalankan dan duplikat pesan tertutup penuh. Kode galat lain tetap gagal-pasti seperti Audit 1647.

@@ -528,6 +528,21 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_pesanStorageKurangAplikasiDikenali() {
+        // Audit 1656: pesan ruang habis buatan aplikasi sendiri
+        // (cek-ruang backup/unduh/restore Telegram) harus
+        // menghasilkan saran penyimpanan juga.
+        Exception e = new java.io.IOException(
+                "Storage kurang untuk backup (butuh 10 MB, sisa 1 MB)"
+                        + " - kosongkan penyimpanan atau hapus backup"
+                        + " lama lalu ulangi.");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("Penyimpanan"));
+        assertTrue(saran.contains("penuh"));
+        assertFalse(saran.contains("internet"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);
