@@ -157,12 +157,15 @@ jobs:
         if: always()
         run: |
 
+          # Audit 1616: di AGP 8 kedua jalur memuat laporan
+          # teks yang sama — cukup jalur pertama yang ada.
           for f in \
             app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt \
             app/build/reports/lint-results-debug.txt; do
             if [ -f "$f" ]; then
               echo "===== $f ====="
               sed -n '1,400p' "$f"
+              break
             fi
           done
 
