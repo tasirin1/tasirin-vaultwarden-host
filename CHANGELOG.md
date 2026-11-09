@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Teks log health tak lagi menyebut angka '9x' yang tidak pernah terjadi (Audit 1662)
+
+- Baris log gerbang kesempatan-kedua TCP di `healthFail` kini berbunyi "/alive tetap gagal tapi TCP hidup - dianggap gantung, server dihentikan." — teks lama "gagal 9x" salah angka di kedua jalur yang mencapainya (DB-rusak: satu panggilan healthFail sesudah 10 tick config; tak-merespon: 5 panggilan). Murni kosmetik-diagnostik; perilaku restart tidak berubah.
+
 ## [Belum rilis] — Gerbang: pasangan -W/-X hanya untuk python (Audit 1661)
 
 - Cabang generik yang melompati berpasangan token `-W`/`-X` kini dijaga `perintah.startswith("python")`: di python keduanya memang bernilai, tetapi di ruby `-W` berargumen opsional menempel (token terpisah = berkas skrip) dan di lua `-W` bendera — menelannya di sana menyembunyikan operand skrip dan menolak patch sah (positif palsu pra-ada sejak ruby/lua masuk dispatch); 2 skenario suite baru menguncinya (Audit 1661).

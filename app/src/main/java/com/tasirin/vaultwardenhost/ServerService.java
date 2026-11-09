@@ -3058,7 +3058,12 @@ public class ServerService extends Service {
                     healthFails.set(2);
                     return;
                 }
-                appendLog("[health] /alive gagal 9x tapi TCP hidup"
+                // Audit 1662: teks lama menyebut "9x" — angka
+                // yang tidak pernah terjadi di jalur mana pun
+                // yang mencapai baris ini (DB-rusak: satu
+                // panggilan healthFail sesudah 10 tick config;
+                // tak-merespon: 5 panggilan). Tanpa angka palsu.
+                appendLog("[health] /alive tetap gagal tapi TCP hidup"
                         + " - dianggap gantung, server dihentikan.");
             }
 
