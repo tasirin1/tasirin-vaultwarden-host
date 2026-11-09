@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Uji: asersi pengunci untuk tiga kunci sidik tak-diekspor (Audit 1637)
+
+- `TgBackupTest` kini mengasersi `bin_sha_fp`, `versi_fp`, dan `versi_file` tidak diekspor (assertFalse `kunciDiekspor` + assertTrue `TAK_DIEKSPOR_KEYS`) — ketiganya ditambahkan Audit 1636 tanpa asersi pengunci, jadi penghapusan tak sengaja di masa depan sekarang menggagalkan uji CI (Audit 1637).
+
 ## [Belum rilis] — Backup: sidik cache maraton-94 tidak lagi diekspor dan ikut dibersihkan saat ganti era (Audit 1636)
 
 - `KEY_BIN_SHA_FP`, `KEY_VERSI_FP`, dan `KEY_VERSI_FILE` kini masuk `TAK_DIEKSPOR_KEYS` (meniru pin + sidik manual yang sudah di sana), dan pasangan versi ikut dihapus pada blok ganti era di `applyPrefsFromJson` — sidik kepercayaan tidak lagi bisa datang dari config perangkat lain sementara pin yang dijaminnya tetap lokal (Audit 1636).

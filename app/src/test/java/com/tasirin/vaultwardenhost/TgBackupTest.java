@@ -1840,6 +1840,14 @@ public class TgBackupTest {
         assertFalse(TgBackup.kunciDiekspor("tg_bot_id"));
         assertFalse(TgBackup.kunciDiekspor("tg_bot_user"));
         assertFalse(TgBackup.kunciDiekspor("tg_menu_hash"));
+        // Audit 1637: tiga kunci sidik Audit 1592/1604/1636 ikut
+        // dikunci di sini (sebelumnya tanpa asersi sama sekali).
+        assertFalse(TgBackup.kunciDiekspor("bin_sha_fp"));
+        assertFalse(TgBackup.kunciDiekspor("versi_fp"));
+        assertFalse(TgBackup.kunciDiekspor("versi_file"));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains("bin_sha_fp"));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains("versi_fp"));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains("versi_file"));
         assertFalse(TgBackup.kunciDiekspor("alarm_throttle_elapsed"));
         assertFalse(TgBackup.kunciDiekspor("alarm_throttle_waktu_elapsed"));
         assertFalse(TgBackup.kunciDiekspor("boot_throttle_elapsed"));
