@@ -73,8 +73,6 @@ RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHAS
 # (terlacak) / u: (tak terlacak/terabaikan); berkas u: juga diuji
 # pola per-baris di lintasan yang sama (dulu loop terpisah
 # memindai berkas tak terlacak dua kali).
-BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c core.quotepath=false ls-files --others --exclude-standard -z | sed -z 's/^/u:/'; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z | sed -z 's/^/u:/'; } | sort -zu | while IFS= read -r -d '' entri; do
-  f=${entri#?:}
   # Audit 1505/1506: komentar yang menyela belahan mematahkan
   # kedua pola bungkus (header maupun token).
   # Audit 1526: yang dibuang hanya AKSARA '#' itu sendiri,
@@ -163,13 +161,66 @@ BUNGKUS="$({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c 
   # murni) TIDAK menyentuh ekordgt — baris itu
   # transparan di blob, jadi rantai digit
   # lintas-barisnya utuh.
-  if [ -f "$f" ] && awk '{ sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, ""); gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, ""); awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0; if (match(awal, /^[0-9]+/)) hd = RLENGTH; if (ekordgt + hd >= 5 && substr(awal, hd + 1, 1) == ":" && substr(awal, hd + 2, 1) ~ /[[:space:]]/) { sp = length($0) - length(awal); pos = sp + hd + 1; $0 = substr($0, 1, pos - 1) SUBSEP substr($0, pos + 2); } while (match($0, /[0-9][0-9][0-9][0-9][0-9]:[[:space:]]/)) { $0 = substr($0, 1, RSTART + 4) SUBSEP substr($0, RSTART + 7); } gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":"); s = $0; gsub(/[[:space:]\r]/, "", s); if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) { next; } if ($0 ~ /[0-9]/) { ekort = $0; sub(/[ \t\r]+$/, "", ekort); if (ekort ~ /^[0-9]+$/) { ekordgt = ekordgt + length(ekort); } else { ekordgt = 0; if (match(ekort, /[0-9]+$/)) ekordgt = RLENGTH; } } else { ekordgt = 0; } print }' "$f" 2>/dev/null | tr -d '\n\r \t' | grep -q -E -- "$POLA_BUNGKUS"; then
-    printf '%s\n' "$f"
+# Audit 1595/1625: SATU proses awk untuk semua berkas (dulu
+# awk+tr+grep per berkas: 3 proses x jumlah berkas, program
+# awk di-parse ulang tiap berkas). Program per barisnya sama
+# persis dengan program lama (kini berbentuk fungsi proses());
+# blob tiap berkas dirangkai di dalam awk lalu dicocokkan ke
+# POLA_BUNGKUS sekali per berkas. Daftar berkas diteruskan
+# sebagai argumen awk dari array bash aliran -z yang sama,
+# jadi nama berkas ber-newline tetap utuh (Audit 1454).
+# Audit 1626: pengukuran ekordgt hanya membayar salinan ekort
+# bila baris memuat digit — baris tanpa digit pasti berakhir
+# ekordgt 0 di kedua cabang lama, jadi pintasannya setara.
+mapfile -d '' ENTRI_BUNGKUS < <({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c core.quotepath=false ls-files --others --exclude-standard -z | sed -z 's/^/u:/'; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z | sed -z 's/^/u:/'; } | sort -zu)
+DAFTAR_BUNGKUS=()
+for entri in "${ENTRI_BUNGKUS[@]}"; do
+  f=${entri#?:}
+  if [ -f "$f" ]; then
+    DAFTAR_BUNGKUS+=("$f")
   fi
+done
+BUNGKUS="$(awk -v POLA="$POLA_BUNGKUS" '
+function proses(line,   awal, hd, sp, pos, s, ekort) {
+  $0 = line
+  sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, "")
+  gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, "")
+  awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0
+  if (match(awal, /^[0-9]+/)) hd = RLENGTH
+  if (ekordgt + hd >= 5 && substr(awal, hd + 1, 1) == ":" && substr(awal, hd + 2, 1) ~ /[[:space:]]/) {
+    sp = length($0) - length(awal); pos = sp + hd + 1
+    $0 = substr($0, 1, pos - 1) SUBSEP substr($0, pos + 2)
+  }
+  while (match($0, /[0-9][0-9][0-9][0-9][0-9]:[[:space:]]/)) {
+    $0 = substr($0, 1, RSTART + 4) SUBSEP substr($0, RSTART + 7)
+  }
+  gsub(/:[[:space:]]/, " "); gsub(SUBSEP, ":")
+  s = $0; gsub(/[[:space:]\r]/, "", s)
+  if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) { return "" }
+  if ($0 ~ /[0-9]/) {
+    ekort = $0; sub(/[ \t\r]+$/, "", ekort)
+    if (ekort ~ /^[0-9]+$/) { ekordgt = ekordgt + length(ekort) }
+    else { ekordgt = 0; if (match(ekort, /[0-9]+$/)) ekordgt = RLENGTH }
+  } else { ekordgt = 0 }
+  gsub(/[ \t\r]/, "", $0)
+  return $0
+}
+BEGIN {
+  for (i = 1; i < ARGC; i++) {
+    f = ARGV[i]
+    blob = ""; ekordgt = 0
+    while ((getline baris < f) > 0) { blob = blob proses(baris) }
+    close(f)
+    if (blob ~ POLA) { print f }
+  }
+  exit
+}' "${DAFTAR_BUNGKUS[@]}" || true)"
+for entri in "${ENTRI_BUNGKUS[@]}"; do
+  f=${entri#?:}
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
-    printf '%s\n' "$f"
+    BUNGKUS="$(printf '%s\n%s\n' "$BUNGKUS" "$f")"
   fi
-done || true)"
+done
 RAHASIA="$(printf '%s\n%s\n' "$RAHASIA" "$BUNGKUS" | sed '/^$/d' | sort -u || true)"
 if [ -n "$RAHASIA" ]; then
   gagal_msg "isi berkas memuat pola rahasia (private key/token): $(printf '%s' "$RAHASIA" | tr '\n' ' ')"

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: satu proses awk untuk semua berkas (Audit 1595, 1625)
+
+- Lintasan bungkus tidak lagi menjalankan awk+tr+grep per berkas (3 proses x jumlah berkas, program awk di-parse ulang tiap berkas): satu proses awk membaca semua berkas sebagai argumen (nama ber-newline tetap utuh, Audit 1454), merangkai blob tiap berkas dengan program per baris yang sama persis, dan mencocokkannya sekali per berkas. Suite yang membayar pindai penuh 58x ikut murah karenanya (Audit 1595). Waktu lari terukur 5,5 -> 2,3 detik di pohon repo.
+
 ## [Belum rilis] — Cek-cepat: pengukuran ekor digit hanya pada baris berdigit (Audit 1626)
 
 - Pengukuran `ekordgt` (Audit 1584-1586) kini dilewati untuk baris tanpa digit — baris seperti itu pasti berakhir ekordgt 0 di kedua cabang lama; vonis terbukti identik pada baterai 15 keadaan x kasus.
