@@ -16851,6 +16851,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("python -Wignore di tengah bundel adalah nilai, bukan bendera: gerbang lolos (Audit 1692)", rc == 0)
         shutil.rmtree(sub784, ignore_errors=True)
+        sub785 = klon(tmp, "sub785")
+        berkas_aksi785 = os.path.join(
+            sub785, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi785, encoding="utf-8") as f:
+            isi_aksi785 = f.read()
+        baris_aksi785 = [b for b in isi_aksi785.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru785 = isi_aksi785.replace(
+                baris_aksi785,
+                baris_aksi785.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -i -m calendar; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru785 != isi_aksi785, \
+            "suntikan aksi785 tidak menembak"
+        with open(berkas_aksi785, "w", encoding="utf-8") as f:
+            f.write(isi_baru785)
+        rc, out = jalan(sub785,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python -i -m modul: REPL sesudah modul menguras — gerbang gagal (Audit 1693)", rc != 0)
+        shutil.rmtree(sub785, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

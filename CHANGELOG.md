@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: python -i -m modul biasa menjatuhkan REPL (Audit 1693)
+
+- Cabang `-m` penilai interpreter kini mengembalikan keadaan interaktif untuk modul biasa: `python3 -i -m calendar` menjalankan modul lalu masuk REPL yang menguras stdin (terprobe real), sebelumnya divonis False. Bentuk bundel `-im` ikut tertutup lewat Audit 1692. 1 skenario suite baru menguncinya (Audit 1693).
+
 ## [Belum rilis] — Gerbang: bundel opsi python ditafsir per karakter (Audit 1692)
 
 - Blok bundel python dibangun ulang menafsir token per karakter seperti CPython: opsi bernilai (c/m/W/X) menelan sisa token sebagai nilainya di posisi mana pun — Audit 1674 hanya menjaga huruf pertama sehingga `-sWignore`/`-uWignore`/`-sXimporttime`/`-sWic` tetap disalahbaca (huruf nilai menyalakan interaktif/-c semu). `-m` menempel dinilai seperti cabang -m terpisah atas modul itu. 1 skenario suite baru menguncinya (Audit 1692).

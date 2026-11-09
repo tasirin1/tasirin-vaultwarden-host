@@ -1955,7 +1955,9 @@ def _menguras_interpreter(perintah, toks, awal):
                     if modul == "gzip":
                         return "-" in ops_md
                     return ops_md[0] == "-"
-                return False
+                # Audit 1693: modul biasa + -i = modul jalan
+                # lalu REPL - REPL itu menguras stdin.
+                return interaktif
         if perintah == "node" and t in (
                 "-e", "--eval", "-p", "--print"):
             return False
