@@ -1703,4 +1703,12 @@ public class UpdaterTest {
             f.delete();
         }
     }
+
+    @Test
+    public void unduhanLewatBatasWaktu_batasTotal() {
+        assertFalse(Updater.unduhanLewatBatasWaktu(1000, 2000, 5000));
+        assertTrue(Updater.unduhanLewatBatasWaktu(1000, 7000, 5000));
+        assertFalse(Updater.unduhanLewatBatasWaktu(0, 999999, 5000));
+        assertFalse(Updater.unduhanLewatBatasWaktu(1000, 7000, 0));
+    }
 }

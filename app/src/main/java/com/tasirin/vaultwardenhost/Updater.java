@@ -1161,6 +1161,15 @@ public final class Updater {
         return batas > 0 && done > batas;
     }
 
+    // Audit 1602: batas waktu TOTAL satu percobaan unduh —
+    // timeout baca per panggilan tak menahan koneksi yang
+    // menetes pelan selamanya.
+    static final long BATAS_WAKTU_UNDUH_MS = 20 * 60_000L;
+
+    static boolean unduhanLewatBatasWaktu(long mulai, long kini, long batasMs) {
+        return mulai > 0 && batasMs > 0 && kini - mulai > batasMs;
+    }
+
     static String pesanMelebihiBatas(String label, long batas) {
         return "Unduhan " + label + " melebihi batas ukuran " + batas
                 + " byte - unduhan dibatalkan.";
@@ -1190,7 +1199,13 @@ public final class Updater {
             byte[] buf = new byte[64 * 1024];
             int n;
             long lastReport = done;
+            long mulaiSalin = SystemClock.elapsedRealtime();
             while ((n = in.read(buf)) != -1) {
+                if (unduhanLewatBatasWaktu(mulaiSalin,
+                        SystemClock.elapsedRealtime(), BATAS_WAKTU_UNDUH_MS)) {
+                    throw new IOException("Unduhan " + label
+                            + " melebihi batas waktu 20 menit - dihentikan.");
+                }
                 if (dibatalkan(batal)) {
 
                     throw new IOException(pesanDibatalkan(label));
@@ -1467,7 +1482,28 @@ public final class Updater {
             // Audit 990: teks tunggu dari resource pemanggil.
             // Audit 1474: kunci pasang hanya untuk binary — field mesin.
             statusMesin = teksMenunggu;
-            KUNCI_PASANG_GLOBAL.lock();
+            // Audit 1602: penantian kini BERBATAS 15 menit —
+            // lock() tanpa batas membuat satu pemasangan yang
+            // macet (unduhan menetes tanpa ujung) menggantung
+            // semua penunggu selamanya. Habis batas → gagal
+            // keras yang terlihat, bukan menggantung.
+            boolean terkunci;
+            try {
+                terkunci = KUNCI_PASANG_GLOBAL.tryLock(15,
+                        java.util.concurrent.TimeUnit.MINUTES);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                terkunci = false;
+            }
+            if (!terkunci) {
+                if (teksMenunggu != null
+                        && teksMenunggu.equals(statusMesin)) {
+                    statusMesin = "";
+                }
+                throw new IllegalStateException(
+                        "Kunci pasang global masih dipegang >15 menit"
+                        + " - pemasangan dibatalkan.");
+            }
             // Audit 1573: teks tunggu yang kami pasang bisa
             // basi permanen — pemegang sebelumnya
             // membersihkan statusMesin (selesaiUnduhan)
