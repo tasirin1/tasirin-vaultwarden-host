@@ -5,11 +5,11 @@
     android:viewportHeight="108">
 
     <path
-        android:fillColor="#1B5FD9"
+        android:fillColor="@color/launcher_shield"
         android:pathData="M54,4 L100,26 L100,74 Q100,94 54,106 Q8,94 8,74 L8,26 Z" />
 
     <path
-        android:fillColor="#164FBE"
+        android:fillColor="@color/launcher_shield_dark"
         android:pathData="M54,8 L96,27.5 L96,40 L54,21 Z" />
 
     <path

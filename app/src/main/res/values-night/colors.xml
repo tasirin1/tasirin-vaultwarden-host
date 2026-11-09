@@ -36,4 +36,8 @@
     <color name="btn_disabled_bg">#1E2A44</color>
     <color name="btn_disabled_text">#8A94A6</color>
 
+    <color name="stroke_status_overlay">#55FFFFFF</color>
+    <color name="chip_focus_overlay">#33F57C00</color>
+    <color name="launcher_shield">#1B5FD9</color>
+    <color name="launcher_shield_dark">#164FBE</color>
 </resources>

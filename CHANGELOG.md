@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Drawable: warna literal menjadi bernama (Audit 1614)
+
+- Empat warna hex literal yang berulang di drawable (garis status #55FFFFFF x3, fokus chip #33F57C00, biru perisai launcher #1B5FD9/#164FBE) kini warna bernama di colors.xml + values-night/colors.xml dengan nilai yang sama persis.
+
 ## [Belum rilis] — String: 7 pasang duplikat disatukan (Audit 1613)
 
 - Tujuh pasang string bernilai identik di kedua locale disatukan ke satu nama; semua pemanggil dialihkan dan nama duplikatnya dihapus dari values + values-in. Dua pasang lain yang terjemahannya sudah berbeda (bot_token/label_bot_token, restore_from_tg/restore_tg_judul) sengaja dipertahankan.
