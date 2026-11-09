@@ -397,7 +397,12 @@ public class ServerService extends Service {
     private static final java.util.concurrent.atomic.AtomicLong nomorStop =
             new java.util.concurrent.atomic.AtomicLong();
 
-    private static volatile boolean mulaiSetelahProsesMati = false;
+    // Audit 1607: AtomicBoolean — konsumsi bendera di
+    // jalankanStartTertundaStop kini getAndSet atomik; pola
+    // cek-lalu-hapus sebelumnya bisa menelan niat start baru
+    // yang dipasang benang lain di antara cek dan hapus.
+    private static final java.util.concurrent.atomic.AtomicBoolean
+            mulaiSetelahProsesMati = new java.util.concurrent.atomic.AtomicBoolean(false);
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
 
     private static volatile boolean startSusulanDiminta = false;
@@ -1049,7 +1054,7 @@ public class ServerService extends Service {
 
             nomorStop.incrementAndGet();
 
-            mulaiSetelahProsesMati = false;
+            mulaiSetelahProsesMati.set(false);
 
             startSusulanDiminta = false;
             stopServer();
@@ -1226,12 +1231,12 @@ public class ServerService extends Service {
             startTertundaData.set(0);
             healthActive = true;
             startForegroundCompat();
-            mulaiSetelahProsesMati = false;
+            mulaiSetelahProsesMati.set(false);
             if (process == null || !alive(process)) {
                 startServerAsync();
             } else if (isStopDisengaja(process)) {
 
-                mulaiSetelahProsesMati = true;
+                mulaiSetelahProsesMati.set(true);
             }
             batalUtama(healthTick);
             posUtama(healthTick, HEALTH_FAST_INTERVAL_MS);
@@ -1249,12 +1254,12 @@ public class ServerService extends Service {
 
         lupakanRiwayatRestart();
         startForegroundCompat();
-        mulaiSetelahProsesMati = false;
+        mulaiSetelahProsesMati.set(false);
         if (process == null || !alive(process)) {
             startServerAsync();
         } else if (isStopDisengaja(process)) {
 
-            mulaiSetelahProsesMati = true;
+            mulaiSetelahProsesMati.set(true);
         }
         batalUtama(healthTick);
         posUtama(healthTick, HEALTH_FAST_INTERVAL_MS);
@@ -2258,10 +2263,9 @@ public class ServerService extends Service {
     }
 
     private void jalankanStartTertundaStop() {
-        if (!mulaiSetelahProsesMati) {
+        if (!mulaiSetelahProsesMati.getAndSet(false)) {
             return;
         }
-        mulaiSetelahProsesMati = false;
         if (process != null && alive(process)) {
 
             return;
@@ -4955,7 +4959,7 @@ public class ServerService extends Service {
 
         healthActive = false;
         nomorStop.incrementAndGet();
-        mulaiSetelahProsesMati = false;
+        mulaiSetelahProsesMati.set(false);
         startSusulanDiminta = false;
         batalUtama(healthTick);
         batalUtama(restartTunda);

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Server: bendera start-tertunda menjadi AtomicBoolean (Audit 1607)
+
+- `mulaiSetelahProsesMati` menjadi AtomicBoolean; konsumsi di `jalankanStartTertundaStop` memakai getAndSet(false) atomik sehingga niat start baru yang dipasang di antara cek dan hapus tak lagi tertelan.
+
 ## [Belum rilis] — Updater: overload mati dihapus (Audit 1605)
 
 - Overload `downloadBinaryVersi(Context, File, String)` tanpa satu pun pemanggil dihapus. Nama metodenya tetap terdefinisi (overload lain), jadi ini perubahan aritas — bukan hapusan yang dicatat di bekas-hapusan.
