@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mode --semua melewati daftar berubah kerja yang tak terpakai (Audit 1632)
+
+- Pada mode `--semua`, daftar berkas berubah dari ruang kerja (diff acuan, status porcelain, berkas tak terlacak) tidak lagi dihitung karena hasilnya selalu ditimpa cakupan penuh; isi diff yang diperiksa tidak berubah. Paruh `git diff --check` di cek pola berisiko sengaja dipertahankan (mode git berbeda, tak bisa diturunkan dari teks patch).
+
 ## [Belum rilis] — Gerbang: peta pemanggil & berkas uji dibangun sekali per lari (Audit 1631)
 
 - `pemanggil()` dan `disebut_di_uji()` kini lebih dulu menyaring berkas kandidat dari peta yang dibangun sekali per lari, bukan memindai seluruh pohon untuk setiap nama yang diperiksa; logika vonis per berkas tidak berubah.

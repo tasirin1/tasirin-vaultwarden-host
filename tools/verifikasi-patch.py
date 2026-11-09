@@ -7694,17 +7694,22 @@ def utama():
         if acuan:
             diff, ok = jalan_diff("git", "diff", acuan + "...HEAD")
             diff_gagal = diff_gagal or not ok
-            daftar = jalan("git", "diff", "--name-only", acuan + "...HEAD") or ""
-            berubah = daftar.splitlines()
+            if not args.semua:
+                daftar = jalan("git", "diff", "--name-only", acuan + "...HEAD") or ""
+                berubah = daftar.splitlines()
         else:
             diff, ok = jalan_diff("git", "diff", "HEAD~1...HEAD")
             diff_gagal = diff_gagal or not ok
-            berubah = (jalan("git", "diff", "--name-only", "HEAD~1...HEAD") or "").splitlines()
-        kotor = jalan("git", "status", "--porcelain") or ""
-        for baris in kotor.splitlines():
-            nama = baris[3:].strip().strip('"')
-            if nama and nama not in berubah:
-                berubah.append(nama)
+            if not args.semua:
+                berubah = (jalan("git", "diff", "--name-only", "HEAD~1...HEAD") or "").splitlines()
+        # Audit 1632: pada mode --semua daftar berubah kerja ini
+        # ditimpa daftar seluruh pohon di bawah — jangan dibayar.
+        if not args.semua:
+            kotor = jalan("git", "status", "--porcelain") or ""
+            for baris in kotor.splitlines():
+                nama = baris[3:].strip().strip('"')
+                if nama and nama not in berubah:
+                    berubah.append(nama)
 
         teks, ok = jalan_diff("git", "diff")
         diff += teks
@@ -7712,7 +7717,8 @@ def utama():
         teks, ok = jalan_diff("git", "diff", "--cached")
         diff += teks
         diff_gagal = diff_gagal or not ok
-    berubah += [b for b in nama_tak_lacak() if b not in berubah]
+    if not args.semua:
+        berubah += [b for b in nama_tak_lacak() if b not in berubah]
     if args.semua:
 
         berubah = list(jalan_repo(".", ext=None))
