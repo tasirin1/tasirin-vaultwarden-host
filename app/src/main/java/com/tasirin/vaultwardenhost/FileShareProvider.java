@@ -426,8 +426,12 @@ public class FileShareProvider extends ContentProvider {
             if (getContext() == null) {
                 return null;
             }
-            String files = getContext().getFilesDir().getCanonicalPath();
-            String cache = getContext().getCacheDir().getCanonicalPath();
+            // Audit 1598: kunci cache dibangun dari jalur
+            // ABSOLUT (getter murah) — resolusi kanonik (syscall
+            // realpath x2) hanya dibayar saat kunci berubah,
+            // bukan pada tiap panggilan sebelum banding kunci.
+            String files = getContext().getFilesDir().getAbsolutePath();
+            String cache = getContext().getCacheDir().getAbsolutePath();
             String mentah = null;
             try {
                 android.content.SharedPreferences sp = getContext().getSharedPreferences(
@@ -440,7 +444,9 @@ public class FileShareProvider extends ContentProvider {
                 if (akarCache != null && kunci.equals(kunciAkarCache)) {
                     return akarCache;
                 }
-                AkarBagi baru = new AkarBagi(files, cache);
+                AkarBagi baru = new AkarBagi(
+                        getContext().getFilesDir().getCanonicalPath(),
+                        getContext().getCacheDir().getCanonicalPath());
                 akarCache = baru;
                 kunciAkarCache = kunci;
                 return baru;

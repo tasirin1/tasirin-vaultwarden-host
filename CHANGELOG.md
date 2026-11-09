@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — FileShareProvider: kunci cache akar tak lagi membayar kanonikkan per panggilan (Audit 1598)
+
+- Kunci cache akar bagi kini dibangun dari jalur absolut files/cache dir; resolusi kanonik hanya dibayar saat kunci berubah dan instans dibangun ulang.
+
 ## [Belum rilis] — Server: kunci data tak lagi ditahan selama pemulihan pohon .bak (Audit 1593)
 
 - `lepasKunciData()` di `pilihBiner` dipindah ke sebelum `pulihkanBakTersisa` + `cleanupTempFiles`: penelusuran pohon lampiran rekursif dan penyapuan temp tidak lagi berjalan sambil menahan KUNCI_DATA.
