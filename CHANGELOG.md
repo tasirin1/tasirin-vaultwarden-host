@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Saran koneksi kini mengenali kelompok pesan keadaan lokal (Audit 1687)
+
+- Cabang baru di `saranKoneksi` untuk peta sisa kelas Audit 1656: pesan keadaan lokal (database belum siap/belum ada, berkas backup rusak/bukan backup/terenkripsi rusak, verifikasi lokal gagal, checkpoint WAL, unduhan dibatalkan pengguna, kunci pasang tertahan, file update tidak valid, file_id kosong, batas Telegram habis) kini ditutup saran netral "bukan di jaringan - ikuti langkah pada pesan di atas", bukan tempelan cek internet/tekan Start yang tak relevan (dua produsen malah berlawanan arah). Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Saran koneksi kini mengenali password backup salah (Audit 1686)
 
 - Cabang baru di `saranKoneksi` untuk pesan terbungkus Audit 1686 ("Password backup salah atau berkas backup rusak…"): saran pendamping memeriksa password backup di Pengaturan, bukan cek internet. Uji JVM baru menguncinya. (Bagian pembungkus pesannya di TgBackup pada commit Audit 1686 sebelumnya.)

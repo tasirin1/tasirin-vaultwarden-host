@@ -633,6 +633,20 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_keadaanLokalBukanInternet() {
+        // Audit 1687: contoh dua produsen berlawanan arah.
+        String s1 = Updater.saranKoneksi(new java.io.IOException(
+                "Database belum siap 30 dtk setelah Start"
+                        + " - backup otomatis dilewati."));
+        assertTrue(s1.contains("bukan di jaringan"));
+        assertFalse(s1.contains("internet"));
+        assertFalse(s1.contains("Start"));
+        String s2 = Updater.saranKoneksi(new java.io.IOException(
+                "Checkpoint WAL gagal - restore dibatalkan."));
+        assertTrue(s2.contains("bukan di jaringan"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

@@ -583,6 +583,30 @@ public final class Updater {
                     + " sudah dibuang. Unduh ulang; bila tetap tidak"
                     + " cocok, berkas di rilisnya yang bermasalah.";
         }
+        // Audit 1687: kelompok pesan keadaan lokal (bukan
+        // jaringan) — database belum siap/ada, berkas backup
+        // rusak/bukan backup, verifikasi lokal gagal, restore
+        // WAL, unduhan dibatalkan pengguna sendiri, kunci
+        // pasang tertahan, file update tak lolos uji jalan.
+        // Tempelan cek internet/tekan Start di sini tak
+        // relevan, untuk dua produsen malah berlawanan arah.
+        if (gabung.contains("belum siap")
+                || gabung.contains("database belum ada")
+                || gabung.contains("bukan backup")
+                || gabung.contains("terenkripsi rusak")
+                || gabung.contains("backup rusak")
+                || gabung.contains("tidak berisi db.sqlite3")
+                || gabung.contains("checkpoint wal")
+                || gabung.contains("dibatalkan")
+                || gabung.contains("kunci pasang")
+                || gabung.contains("file update tidak valid")
+                || gabung.contains("file_id backup kosong")
+                || gabung.contains("gagal verifikasi")
+                || gabung.contains("backup gagal dibuat")
+                || gabung.contains("telegram tetap membatasi")) {
+            return "Masalahnya bukan di jaringan - ikuti langkah"
+                    + " pada pesan di atas, lalu coba lagi bila perlu.";
+        }
         if (gabung.contains("timed out") || gabung.contains("timeout")
                 || gabung.contains("failed to connect") || gabung.contains("econn")
                 || gabung.contains("unreachable") || gabung.contains("etimedout")) {
