@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Update web-vault: kebutuhan ruang ekstrak dicek sebelum ekstrak mulai (Audit 1645)
+
+- Gerbang 150 MB di awal update web-vault hanya menjamin unduhan zip, padahal zip tetap di disk selama ekstrak menumbuhkan staging di folder yang sama (kebutuhan nyata gabungan bisa melewati 150 MB bahkan untuk aset rilis berjalan). Kini sesudah unduh selesai, total ukuran terdeklarasi entri zip dihitung dari direktori pusat zip (`totalUkuranEntriZip`) dan ruang bebas wajib menutupinya sebelum satu berkas pun ditulis — gagal cepat dengan angka kebutuhan yang jujur, bukan gagal di tengah ekstrak. Uji JVM baru mengunci penjumlahan entri (Audit 1645).
+
 ## [Belum rilis] — PIN: sisa kunci elapsed tak lagi membengkak sesudah reboot (Audit 1644)
 
 - Stempel kunci elapsed dari boot sebelumnya kini dinilai terhadap durasi tingkat kunci yang berjalan, bukan plafon datar 24 jam: dalam satu boot sisa elapsed tak mungkin melebihi durasi tingkat yang menulis stempelnya, jadi selisih yang lebih besar pasti warisan boot lama (elapsed mulai lagi dari ~0 sesudah reboot) dan dianggap basi — sisa wall-clock yang benar yang berlaku. Sebelumnya kunci 5 menit yang ditulis pada uptime 20 jam bisa terhitung ±20 jam sesudah reboot. `sisaKunciElapsed`/`stempelElapsedBasi` kini menerima jumlah gagal; uji PinCrypto diperbarui + kasus regresi boot-lama (Audit 1644).

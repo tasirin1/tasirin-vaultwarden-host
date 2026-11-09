@@ -2132,6 +2132,35 @@ public final class Updater {
     }
 
     @android.annotation.SuppressLint("ApplySharedPref")
+    // Audit 1645: total ukuran terdeklarasi semua entri zip
+    // yang akan ditulis (dari direktori pusat zip), agar
+    // kebutuhan ruang ekstrak bisa dicek SEBELUM ekstrak
+    // mulai. -1 bila zip tak terbaca atau ada entri yang
+    // ukurannya tak diketahui.
+    static long totalUkuranEntriZip(File zip) {
+        long total = 0;
+        try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(zip)) {
+            java.util.Enumeration<? extends ZipEntry> en = zf.entries();
+            while (en.hasMoreElements()) {
+                ZipEntry e = en.nextElement();
+                if (e.isDirectory() || !amanEntriZip(e.getName())) {
+                    continue;
+                }
+                long u = e.getSize();
+                if (u < 0) {
+                    return -1;
+                }
+                total += u;
+                if (total > Util.BATAS_UNZIP_WEBVAULT) {
+                    return total;
+                }
+            }
+        } catch (Exception e) {
+            return -1;
+        }
+        return total;
+    }
+
     private static String updateWebVaultInner(Context ctx, String diminta) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());
@@ -2291,6 +2320,23 @@ public final class Updater {
             throw new IOException("Web vault updated tapi index.html tidak ditemukan"
                     + " atau kosong - versi lama dipertahankan."
                     + " (zip yang sama sudah gagal pada percobaan sebelumnya)");
+        }
+
+        // Audit 1645: gerbang 150 MB di awal hanya menjamin
+        // unduhan; zip tetap di disk selama ekstrak
+        // menumbuhkan staging di folder yang sama, jadi
+        // kebutuhan ekstrak dicek sendiri di sini dari
+        // ukuran terdeklarasi zip — gagal sebelum menulis
+        // apa pun, dengan angka yang jujur, bukan gagal di
+        // tengah ekstrak.
+        long totalEkstrak = totalUkuranEntriZip(tmpZip);
+        long bebasEkstrak = TgBackup.freeBytes(ctx, dataFolder);
+        if (totalEkstrak >= 0 && bebasEkstrak >= 0
+                && bebasEkstrak < totalEkstrak) {
+            throw new IOException("Sisa penyimpanan tinggal "
+                    + TgBackup.humanBytes(bebasEkstrak)
+                    + " - butuh minimal " + TgBackup.humanBytes(totalEkstrak)
+                    + " untuk ekstrak web-vault.");
         }
 
         File newDir = stagingWebVault(dataFolder);

@@ -1711,4 +1711,34 @@ public class UpdaterTest {
         assertFalse(Updater.unduhanLewatBatasWaktu(0, 999999, 5000));
         assertFalse(Updater.unduhanLewatBatasWaktu(1000, 7000, 0));
     }
+
+    @Test
+    public void totalUkuranEntriZip_jumlahkanEntriAman() throws Exception {
+        // Audit 1645: total = jumlah ukuran terdeklarasi
+        // entri berkas yang lolos saringan nama; entri
+        // direktori dan entri berbahaya tak dihitung.
+        java.io.File f = java.io.File.createTempFile("wvzip", ".zip");
+        try {
+            try (java.util.zip.ZipOutputStream zos =
+                    new java.util.zip.ZipOutputStream(
+                            new java.io.FileOutputStream(f))) {
+                zos.putNextEntry(new java.util.zip.ZipEntry("dir/"));
+                zos.closeEntry();
+                zos.putNextEntry(new java.util.zip.ZipEntry("dir/a.txt"));
+                zos.write(new byte[100]);
+                zos.closeEntry();
+                zos.putNextEntry(new java.util.zip.ZipEntry("b.txt"));
+                zos.write(new byte[250]);
+                zos.closeEntry();
+                zos.putNextEntry(new java.util.zip.ZipEntry("../jahat.txt"));
+                zos.write(new byte[999]);
+                zos.closeEntry();
+            }
+            assertTrue(Updater.totalUkuranEntriZip(f) == 350L);
+            assertTrue(Updater.totalUkuranEntriZip(
+                    new java.io.File(f.getParent(), "tidak-ada.zip")) == -1L);
+        } finally {
+            f.delete();
+        }
+    }
 }
