@@ -5,6 +5,25 @@ import java.io.IOException;
 
 public final class Util {
 
+    // Audit 1624: gelung baca-terbatas tadinya ditulis dua kali
+    // (TgBackup.bacaTerbatas, SettingsActivity.readCapped) —
+    // kini satu di sini.
+    static byte[] bacaTerbatas(java.io.InputStream in, long batas, String pesan)
+            throws IOException {
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream(8192);
+        byte[] buf = new byte[64 * 1024];
+        long total = 0;
+        int n;
+        while ((n = in.read(buf)) != -1) {
+            total += n;
+            if (total > batas) {
+                throw new IOException(pesan);
+            }
+            bos.write(buf, 0, n);
+        }
+        return bos.toByteArray();
+    }
+
     // Audit 1622: pencocok kunci ASCII pada posisi tertentu
     // tadinya ditulis tiga kali (LogActivity x2, ServerService)
     // — kini satu di sini.

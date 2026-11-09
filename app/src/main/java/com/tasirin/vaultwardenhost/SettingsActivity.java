@@ -3260,19 +3260,7 @@ public class SettingsActivity extends Activity {
 
     private static byte[] readCapped(InputStream in, int max, String pesanBesar)
             throws Exception {
-
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream(8192);
-        byte[] buf = new byte[8192];
-        int total = 0;
-        int n;
-        while ((n = in.read(buf)) != -1) {
-            total += n;
-            if (total > max) {
-                throw new java.io.IOException(pesanBesar);
-            }
-            bos.write(buf, 0, n);
-        }
-        return bos.toByteArray();
+        return Util.bacaTerbatas(in, max, pesanBesar);
     }
 
     private void sanitizePortPref() {

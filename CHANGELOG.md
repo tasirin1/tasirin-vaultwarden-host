@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Util: gelung baca terbatas disatukan (Audit 1624)
+
+- `TgBackup.bacaTerbatas` dan `SettingsActivity.readCapped` menjadi delegasi ke `Util.bacaTerbatas(in, batas, pesan)`; pesan galat dan batas masing-masing tetap.
+
 ## [Belum rilis] — Util: pencocok kunci ASCII disatukan (Audit 1622)
 
 - Tiga salinan pencocok ASCII (LogActivity.cocokAsciiRentang, LogActivity.cocokKunciAt, ServerService.cocokLoginAt) menjadi delegasi satu baris ke `Util.cocokAsciiPada`.

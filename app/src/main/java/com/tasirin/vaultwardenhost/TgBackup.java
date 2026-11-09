@@ -4974,19 +4974,8 @@ public final class TgBackup {
     }
 
     static byte[] bacaTerbatas(InputStream in, long batas) throws Exception {
-
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream(8192);
-        byte[] buf = new byte[64 * 1024];
-        int n;
-        long total = 0;
-        while ((n = in.read(buf)) != -1) {
-            total += n;
-            if (total > batas) {
-                throw new IOException("Ukuran data melebihi batas " + batas + " byte.");
-            }
-            bos.write(buf, 0, n);
-        }
-        return bos.toByteArray();
+        return Util.bacaTerbatas(in, batas,
+                "Ukuran data melebihi batas " + batas + " byte.");
     }
 
     private static final java.util.Map<String, long[]> FOLDER_SIZE_CACHE =
