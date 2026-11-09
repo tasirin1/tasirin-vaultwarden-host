@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gpgv mengonkatenasi semua operand data (Audit 1688)
+
+- Syarat cek khusus gpgv diganti: menguras bila operand pertama `-` ATAU `-` muncul di operand data mana pun sesudahnya. Premis Audit 1671 (gpgv hanya memakai dua operand pertama) terbantah probe fungsional — tanda tangan atas dataA+dataB terverifikasi Good signature dari `gpgv gab.sig dataA -` dengan stdin=dataB. 2 skenario suite baru menguncinya (Audit 1688).
+
 ## [Belum rilis] — Penjaga anti-render-ganda kini mengenali semua keluarga saran (Audit 1683)
 
 - Helper baru `Updater.mengandungSaran` mengenali frasa pembuka khas semua cabang `saranKoneksi` (bawaan, jam, DNS, hijack, disk, config, password, backup-dulu, prasyarat, SHA, lokal, timeout, TLS, Telegram, rate-limit, 404). Ketiga penjaga perender (bot unduh binary/web-vault + ensureBinary) memakainya menggantikan heuristik `contains("Cek ")` yang buta terhadap saran cabang baru, dan baris log Saran di ensureBinary kini bersyarat sama — saran tak lagi tampil dobel untuk galat yang sudah terbungkus pesanGalatUnduh. Uji JVM baru menguncinya.

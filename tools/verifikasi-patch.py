@@ -5159,12 +5159,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # Audit 1659: cerminnya — operand pertama "-"
         # berarti berkas tanda tangan dibaca dari stdin
         # (terprobe real: detached-sig sah terkuras penuh).
-        # Audit 1671: syarat panjang dilonggarkan — gpgv
-        # nyata hanya memakai DUA operand pertama dan
-        # mengabaikan sisanya (terprobe real: bentuk >=3
-        # operand dengan "-" di posisi 1/2 tetap menguras).
-        if len(ops_gv) >= 2 and (ops_gv[1] == "-"
-                                 or ops_gv[0] == "-"):
+        # Audit 1688: gpgv mengonkatenasi SEMUA operand
+        # data (terprobe fungsional: tanda tangan atas
+        # dataA+dataB sah dari "gpgv gab.sig dataA -") -
+        # "-" di posisi data mana pun menguras; premis
+        # dua-operand Audit 1671 gugur oleh bukti itu.
+        if len(ops_gv) >= 2 and (ops_gv[0] == "-"
+                                 or "-" in ops_gv[1:]):
             return True
     if perintah == "iconv":
         # Audit 1263: --usage juga informasional.
