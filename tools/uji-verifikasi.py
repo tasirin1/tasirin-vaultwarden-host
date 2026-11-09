@@ -16389,6 +16389,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("lua berversi -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1653)", rc != 0)
         shutil.rmtree(sub762, ignore_errors=True)
+        sub763 = klon(tmp, "sub763")
+        berkas_aksi763 = os.path.join(
+            sub763, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi763, encoding="utf-8") as f:
+            isi_aksi763 = f.read()
+        baris_aksi763 = [b for b in isi_aksi763.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru763 = isi_aksi763.replace(
+                baris_aksi763,
+                baris_aksi763.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv --debug all; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru763 != isi_aksi763, \
+            "suntikan aksi763 tidak menembak"
+        with open(berkas_aksi763, "w", encoding="utf-8") as f:
+            f.write(isi_baru763)
+        rc, out = jalan(sub763,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv --debug bernilai di substitusi proses: penguras — gerbang gagal (Audit 1658)", rc != 0)
+        shutil.rmtree(sub763, ignore_errors=True)
+        sub764 = klon(tmp, "sub764")
+        berkas_aksi764 = os.path.join(
+            sub764, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi764, encoding="utf-8") as f:
+            isi_aksi764 = f.read()
+        baris_aksi764 = [b for b in isi_aksi764.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru764 = isi_aksi764.replace(
+                baris_aksi764,
+                baris_aksi764.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv --assert-pubkey-algo eddsa; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru764 != isi_aksi764, \
+            "suntikan aksi764 tidak menembak"
+        with open(berkas_aksi764, "w", encoding="utf-8") as f:
+            f.write(isi_baru764)
+        rc, out = jalan(sub764,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv --assert-pubkey-algo bernilai di substitusi proses: penguras — gerbang gagal (Audit 1658)", rc != 0)
+        shutil.rmtree(sub764, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

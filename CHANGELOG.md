@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai gpgv dilengkapi --debug dan --assert-pubkey-algo (Audit 1658)
+
+- Entri opsi bernilai `gpgv` dilengkapi `--debug` dan `--assert-pubkey-algo` (keduanya terprobe real menguras stdin dengan fixture sah; himpunan `gpg` di berkas yang sama sudah lama memuat keduanya) — nilainya tak lagi tertelan sebagai operand berkas; 2 skenario suite baru menguncinya (Audit 1658).
+
 ## [Belum rilis] — Penulisan ulang stempel basi PIN kini di bawah kunci percobaan + cek-banding (Audit 1657)
 
 - Efek samping tulis di pembacaan `PinGate.sisaKunciMs` (cabang stempel elapsed basi) kini berjalan di dalam `synchronized (KUNCI_PERCOBAAN)` — kunci yang sama dengan para penulis `catatHasil` — dan hanya menulis bila stempel elapsed masih persis yang dibaca; `apply()` advisori dari luar kunci tak lagi bisa menimpa stempel segar yang ter-commit bersamaan (kunci menyusut ke sisa lama).
