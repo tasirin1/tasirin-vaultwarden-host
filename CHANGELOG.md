@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bentuk gpgv `sigfile -` dimodelkan (Audit 1649)
+
+- Pemeriksaan khusus gpgv kini mengenali bentuk terdokumentasi `gpgv sigfile -` (man gpgv EXAMPLES; terprobe real dengan tanda tangan detached sah): operand kedua `-` berarti data bertanda tangan dibaca dari stdin, jadi segmennya divonis menguras walau operand pertama berkas sig; 2 skenario suite baru menguncinya (Audit 1649).
+
 ## [Belum rilis] — Gerbang: opsi bernilai gpgv dilengkapi tiga anggota (Audit 1648)
 
 - Entri opsi bernilai `gpgv` dilengkapi `--weak-digest` (terprobe real: payload clearsign sah terkuras penuh), `--output`/`-o`, dan `--log-file` (bernilai menurut man gpgv(1)) — nilainya tak lagi tertelan sebagai operand berkas sehingga bentuk tanpa operand data divonis menguras stdin; 2 skenario suite baru menguncinya (Audit 1648).

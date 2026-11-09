@@ -16158,6 +16158,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpgv --output bernilai di substitusi proses: penguras — gerbang gagal (Audit 1648)", rc != 0)
         shutil.rmtree(sub751, ignore_errors=True)
+        sub752 = klon(tmp, "sub752")
+        berkas_aksi752 = os.path.join(
+            sub752, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi752, encoding="utf-8") as f:
+            isi_aksi752 = f.read()
+        baris_aksi752 = [b for b in isi_aksi752.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru752 = isi_aksi752.replace(
+                baris_aksi752,
+                baris_aksi752.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv data.sig -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru752 != isi_aksi752, \
+            "suntikan aksi752 tidak menembak"
+        with open(berkas_aksi752, "w", encoding="utf-8") as f:
+            f.write(isi_baru752)
+        rc, out = jalan(sub752,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv sigfile + operand '-' di substitusi proses: data dari stdin, penguras — gerbang gagal (Audit 1649)", rc != 0)
+        shutil.rmtree(sub752, ignore_errors=True)
+        sub753 = klon(tmp, "sub753")
+        berkas_aksi753 = os.path.join(
+            sub753, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi753, encoding="utf-8") as f:
+            isi_aksi753 = f.read()
+        baris_aksi753 = [b for b in isi_aksi753.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru753 = isi_aksi753.replace(
+                baris_aksi753,
+                baris_aksi753.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv data.sig data.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru753 != isi_aksi753, \
+            "suntikan aksi753 tidak menembak"
+        with open(berkas_aksi753, "w", encoding="utf-8") as f:
+            f.write(isi_baru753)
+        rc, out = jalan(sub753,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv dua operand berkas: gerbang lolos (Audit 1649)", rc == 0)
+        shutil.rmtree(sub753, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

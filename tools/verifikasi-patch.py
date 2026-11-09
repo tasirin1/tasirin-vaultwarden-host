@@ -5072,6 +5072,15 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             t.strip("\"'") in _INFO_HURUF.get(perintah, ())
             for t in toks[awal + 1:]):
         return False
+    if perintah == "gpgv":
+        # Audit 1649: bentuk terdokumentasi `gpgv sigfile -`
+        # (man gpgv EXAMPLES) — operand kedua "-" berarti
+        # data bertanda tangan dibaca dari stdin walau
+        # operand pertamanya berkas sig.
+        ops_gv = _operand_sesudah_opsi(
+            toks, awal, _OPSI_BERNILAI.get("gpgv", set()))
+        if len(ops_gv) == 2 and ops_gv[1] == "-":
+            return True
     if perintah == "iconv":
         # Audit 1263: --usage juga informasional.
         # Audit 1276: token yang menjadi NILAI opsi bernilai
