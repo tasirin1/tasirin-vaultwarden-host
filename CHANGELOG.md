@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Server: kunci data tak lagi ditahan selama pemulihan pohon .bak (Audit 1593)
+
+- `lepasKunciData()` di `pilihBiner` dipindah ke sebelum `pulihkanBakTersisa` + `cleanupTempFiles`: penelusuran pohon lampiran rekursif dan penyapuan temp tidak lagi berjalan sambil menahan KUNCI_DATA.
+
 ## [Belum rilis] — Updater: hash pin binary tak lagi dihitung penuh tiap Start (Audit 1592)
 
 - Pemeriksaan pin SHA-256 binary (±35 MB) kini digerbang sidik berkas (ukuran+mtime): selama sidik sama dengan saat hash penuh terakhir lolos, berkas dianggap utuh tanpa hashing; sidik berubah → hash penuh yang memutuskan (fail-closed tetap). Sidik dicatat di semua situs penulisan pin dan dibersihkan saat pin dibersihkan.

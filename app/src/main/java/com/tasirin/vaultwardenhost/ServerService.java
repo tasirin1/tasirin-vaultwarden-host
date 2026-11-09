@@ -1911,12 +1911,17 @@ public class ServerService extends Service {
     }
 
     private boolean pilihBiner(long stopAwal, SesiStart sesi) {
+        // Audit 1593: kunci data dilepas SEBELUM pemulihan .bak
+        // dan pembersihan temp — keduanya berjalan rekursif di
+        // pohon data dan tak menyentuh keadaan berkunci data,
+        // jadi menahannya selama itu hanya memperlama penantian
+        // pelepas kunci lain (stop/start ulang).
+        lepasKunciData();
         pulihkanBakTersisa(new File(sesi.dataDir));
         cleanupTempFiles(sesi.dataDir);
         appendLog("[app] Perangkat: " + KernelCompat.infoBaris(
                 KernelCompat.kernelSekarang(), Build.VERSION.SDK_INT));
 
-        lepasKunciData();
         sesi.binary = ensureBinary(stopAwal);
         if (sesi.binary == null) {
             return false;
