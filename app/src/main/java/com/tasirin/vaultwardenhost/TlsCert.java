@@ -502,6 +502,13 @@ public final class TlsCert {
             writePem(caKey, "PRIVATE KEY", kp.getPrivate().getEncoded());
             return true;
         } catch (Exception e) {
+            // Audit 1601: kegagalan buat CA tak lagi diam —
+            // tanpa catatan ini pemulihan TLS yang gagal hanya
+            // terlihat sebagai "sertifikat tidak siap".
+            try {
+                android.util.Log.w("TlsCert", "[tls] buatCa gagal: " + e);
+            } catch (Exception ignored) {
+            }
             return false;
         }
     }
@@ -543,6 +550,11 @@ public final class TlsCert {
             writePem(keyFile, "PRIVATE KEY", kp.getPrivate().getEncoded());
             return true;
         } catch (Exception e) {
+            // Audit 1601: kegagalan buat leaf tak lagi diam.
+            try {
+                android.util.Log.w("TlsCert", "[tls] buatLeaf gagal: " + e);
+            } catch (Exception ignored) {
+            }
             return false;
         }
     }

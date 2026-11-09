@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — TlsCert: kegagalan pembuatan sertifikat tercatat (Audit 1601)
+
+- Catch kosong di `buatCa` dan `buatLeaf` kini menulis `Log.w` berisi pengecualian penyebabnya; perilaku gagal-aman (return false) tidak berubah.
+
 ## [Belum rilis] — HttpsCompat: daftar dukungan mentah TLS di-cache (Audit 1600)
 
 - Hasil `getSupportedProtocols()`/`getSupportedCipherSuites()` kini di-cache statik per proses (konstan platform); yang dipilih tetap divalidasi dari daftar itu seperti sebelumnya.
