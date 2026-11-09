@@ -46,16 +46,18 @@ final class AboutDialog {
         if (TextUtils.isEmpty(dataDir)) {
             dataDir = ServerService.dataDirBawaanSegar();
         }
-        String bin = Updater.currentServerVersion(a);
-        String wv = Updater.readWvVersion(new File(dataDir, "web-vault/vw-version.json"));
         int build = 0;
         try {
             build = a.getPackageManager().getPackageInfo(a.getPackageName(), 0).versionCode;
         } catch (Exception ignored) {
         }
         String versiApp = Updater.appVersionName(a);
+        // Audit 1608: versi binary/web-vault dibaca dari disk —
+        // kini diisi belakangan dari latar; dialog tampil segera
+        // dengan versi aplikasi saja agar klik Tentang tak
+        // membayar baca berkas sinkron di UI thread.
         StringBuilder infoVersi = new StringBuilder(
-                rangkaianVersi(versiApp, bin, wv));
+                rangkaianVersi(versiApp, null, null));
         LayoutInflater pompa = LayoutInflater.from(a);
         View lihat = pompa.inflate(R.layout.dialog_about, null);
         TextView versiView = (TextView) lihat.findViewById(R.id.about_version);
@@ -158,5 +160,21 @@ final class AboutDialog {
         }
         DialogAman.tampil(a, dialog);
         lihat.findViewById(R.id.btn_about_ok).setOnClickListener(v -> dialog.dismiss());
+        final String dataDirFinal = dataDir;
+        Util.jalankanBg(() -> {
+            String bin = Updater.currentServerVersion(a);
+            String wv = Updater.readWvVersion(
+                    new File(dataDirFinal, "web-vault/vw-version.json"));
+            if (bin == null && wv == null) {
+                return;
+            }
+            String teks = a.getString(R.string.about_version,
+                    rangkaianVersi(versiApp, bin, wv));
+            versiView.post(() -> {
+                if (!a.isFinishing() && !a.isDestroyed()) {
+                    versiView.setText(teks);
+                }
+            });
+        });
     }
 }

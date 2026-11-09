@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Dialog Tentang: versi binary/web-vault diisi dari latar (Audit 1608)
+
+- AboutDialog tampil segera dengan versi aplikasi; versi binary + web-vault dibaca di latar lalu ditempel ke tampilan versi bila dialog masih hidup.
+
 ## [Belum rilis] — Server: bendera start-tertunda menjadi AtomicBoolean (Audit 1607)
 
 - `mulaiSetelahProsesMati` menjadi AtomicBoolean; konsumsi di `jalankanStartTertundaStop` memakai getAndSet(false) atomik sehingga niat start baru yang dipasang di antara cek dan hapus tak lagi tertelan.
