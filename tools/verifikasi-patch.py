@@ -5167,7 +5167,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # Audit 1675: opsi meta gpgv mencetak lalu keluar
         # tanpa membaca stdin (--warranty terprobe real:
         # payload utuh; --dump-options sekelas).
-        if any(u in ("--warranty", "--dump-options")
+        # Audit 1691: --dump-option-table ikut meta
+        # (enumerasi --dump-options GnuPG 2.4.4: satu-satunya
+        # cetak-lalu-keluar yang kemarin absen).
+        if any(u in ("--warranty", "--dump-options",
+                     "--dump-option-table")
                for u in bebas_gv):
             return False
         # Audit 1649: bentuk terdokumentasi `gpgv sigfile -`

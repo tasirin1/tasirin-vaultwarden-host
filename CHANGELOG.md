@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --dump-option-table ikut opsi meta gpgv (Audit 1691)
+
+- Daftar meta gpgv ditambah `--dump-option-table` — dari enumerasi real `gpgv --dump-options` (GnuPG 2.4.4) ia satu-satunya opsi cetak-lalu-keluar yang belum dimodelkan Audit 1675 (model True, realitas False). 1 skenario suite baru menguncinya (Audit 1691).
+
 ## [Belum rilis] — Gerbang: penjaga meta gpgv kini sadar nilai opsi (Audit 1690)
 
 - Pemeriksaan opsi meta gpgv (Audit 1675) dibangun ulang di atas daftar token bebas — token yang bukan nilai opsi bernilai, disusuri sadar nilai seperti penjaga iconv Audit 1276. `--warranty` sebagai nilai `-o`/`--log-file` tak lagi memicu penjaga (positif palsu: model False padahal realitas menguras); pencarian `&0` Audit 1689 ikut memakai daftar yang sama. 1 skenario suite baru menguncinya (Audit 1690).

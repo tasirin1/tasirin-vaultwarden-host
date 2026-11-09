@@ -16809,6 +16809,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpgv --warranty sebagai NILAI -o bukan meta; '-' menguras: gerbang gagal (Audit 1690)", rc != 0)
         shutil.rmtree(sub782, ignore_errors=True)
+        sub783 = klon(tmp, "sub783")
+        berkas_aksi783 = os.path.join(
+            sub783, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi783, encoding="utf-8") as f:
+            isi_aksi783 = f.read()
+        baris_aksi783 = [b for b in isi_aksi783.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru783 = isi_aksi783.replace(
+                baris_aksi783,
+                baris_aksi783.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv --dump-option-table; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru783 != isi_aksi783, \
+            "suntikan aksi783 tidak menembak"
+        with open(berkas_aksi783, "w", encoding="utf-8") as f:
+            f.write(isi_baru783)
+        rc, out = jalan(sub783,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv --dump-option-table meta cetak lalu keluar: gerbang lolos (Audit 1691)", rc == 0)
+        shutil.rmtree(sub783, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
