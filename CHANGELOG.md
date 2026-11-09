@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: himpun definisi metode dibangun sekali per lari (Audit 1596)
+
+- `himpun_definisi()` kini dibungkus memo per lari; sebelumnya peta definisi seluruh pohon dibangun dua kali dalam satu lari gerbang (sekali untuk cek panggil bekas hapusan, sekali untuk cek metode baru tanpa uji). Vonis tidak berubah.
+
 ## [Belum rilis] — Gerbang: deteksi modus gpg menghitung token yang tertelan sebagai nilai (Audit 1591) (Audit 1591)
 
 - Pemeriksaan modus gpg (--import/--verify/--print-md dan modus kripto) memindai token mentah, sehingga token modus yang menjadi NILAI opsi bernilai (mis. 'gpg --options --clearsign', yang membuka nilai sebagai berkas secara fatal) ikut terhitung modus — positif palsu. Deteksi kini sadar nilai seperti gpgsm (Audit 1504): himpunan gpg dihoist ke variabel bernilai_gpg dan pemindaian modus melompati nilai opsi (termasuk nilai --tofu-policy untuk pemindaian ini saja).

@@ -6054,7 +6054,22 @@ def kupas_komentar_xml(isi):
     return re.sub(r"<!--.*?-->", "", isi, flags=re.S)
 
 
+_HIMPUN_CACHE = []
+
+
 def himpun_definisi():
+    # Audit 1596: hasil dibangun SEKALI per lari lalu dipakai ulang
+    # — dulu cek_acuan_yatim dan cek_definisi_baru masing-masing
+    # membangun ulang seluruh peta definisi+acuan resource (0,9 dtk
+    # per bangunan; pohon tak berubah di tengah satu lari gerbang).
+    if _HIMPUN_CACHE:
+        return _HIMPUN_CACHE[0]
+    hasil = _himpun_definisi_mentah()
+    _HIMPUN_CACHE.append(hasil)
+    return hasil
+
+
+def _himpun_definisi_mentah():
     definisi = {}
     acuan = {}
 
