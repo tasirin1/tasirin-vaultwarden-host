@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gpg --cert-notation/--sig-notation absen (Audit 1587) (Audit 1587)
+
+- Kedua opsi notasi bernilai (nama@nilai) tetapi absen dari himpunan gpg — tertahan audit-92 yang kini terprobe fail-open: nilai notasi terhitung operand dan perintah yang menelan stdin lolos. Keduanya kini masuk himpunan.
+
 ## [Belum rilis] — Gerbang: penjaga bentuk daftar hanya berlaku untuk sub harfiah (Audit 1583) (Audit 1583)
 
 - Penjaga bentuk informasional -list/-ciphers hanya mengenal sub harfiah dgst/enc, sehingga bentuk daftar lewat alias ('aes-256-cbc -ciphers', 'sha256 -list') kena positif palsu. Pola nama cipher/digest kini dihoist dari cabangnya dan penjaga memakai himpunan yang sama persis.

@@ -3127,7 +3127,11 @@ def _menguras_khusus(perintah, toks, awal):
              "--trustdb-name", "--trusted-key",
              "--try-secret-key", "--ttyname", "--ttytype",
              "--user", "--verify-options", "--weak-digest",
-             "--xauthority"})
+             "--xauthority",
+             # Audit 1587: --cert-notation/--sig-notation
+             # bernilai (notasi nama@nilai) — tertahan
+             # audit-92, kini terprobe fail-open.
+             "--cert-notation", "--sig-notation"})
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False

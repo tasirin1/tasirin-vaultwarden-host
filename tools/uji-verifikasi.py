@@ -15423,6 +15423,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl sha256 -list: gerbang lolos (Audit 1583)", rc == 0)
         shutil.rmtree(sub716, ignore_errors=True)
+        sub717 = klon(tmp, "sub717")
+        berkas_aksi717 = os.path.join(
+            sub717, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi717, encoding="utf-8") as f:
+            isi_aksi717 = f.read()
+        baris_aksi717 = [b for b in isi_aksi717.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru717 = isi_aksi717.replace(
+                baris_aksi717,
+                baris_aksi717.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg --batch --cert-notation nama@uji=nilai --clearsign; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru717 != isi_aksi717, \
+            "suntikan aksi717 tidak menembak"
+        with open(berkas_aksi717, "w", encoding="utf-8") as f:
+            f.write(isi_baru717)
+        rc, out = jalan(sub717,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpg --cert-notation di substitusi proses: gerbang gagal (Audit 1587)", rc != 0)
+        shutil.rmtree(sub717, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
