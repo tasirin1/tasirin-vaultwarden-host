@@ -1188,6 +1188,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void prosesBolehDibunuh_hanyaProsesYangDicek() {
+        // Audit 1574: healthFail hanya membunuh proses dari
+        // episode yang dicek checkHealthOnce.
+        Process a = new ProsesPalsu();
+        Process b = new ProsesPalsu();
+        assertTrue(ServerService.prosesBolehDibunuh(a, a));
+        assertFalse(ServerService.prosesBolehDibunuh(a, b));
+        assertFalse(ServerService.prosesBolehDibunuh(null, a));
+        assertFalse(ServerService.prosesBolehDibunuh(a, null));
+    }
+
+    @Test
     public void catatanUrl_menandaiLoopbackDanTransisiSaja() {
         assertEquals("", ServerService.catatanUrl("192.168.1.5", "192.168.1.5", true));
         assertEquals("", ServerService.catatanUrl("192.168.1.5", "", false));

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — healthFail hanya membunuh proses episode yang dicek (Audit 1574)
+
+- checkHealthOnce memeriksa identitas proses + episode dua kali, tetapi healthFail kemudian membunuh potret field 'process' yang hidup — bila proses lama mati sendiri dan start baru lahir di celah sesudah cek kedua (crash + Start cepat), yang terbunuh adalah proses BARU itu (sembuh sendiri sebagai satu restart mubazir, tetapi tetap salah sasaran). healthFail kini menerima proses yang dicek dan memverifikasi identitasnya di dalam KUNCI_PROSET yang sama dengan kelahiran proses (prosesBolehDibunuh); episode yang sudah berganti membatalkan restart dengan catatan log.
+
 ## [Belum rilis] — Teks tunggu kunci pasang dibersihkan sendiri sesudah kunci didapat (Audit 1573)
 
 - Efek samping Audit 1556: penunggu kunci pasang global yang menyetel statusMesin bisa meninggalkan teks 'menunggu' basi permanen — pemegang sebelumnya membersihkan statusMesin lewat selesaiUnduhan SEBELUM melepas kunci, jadi set penunggu yang mendarat di celah sempit itu tak dibersihkan siapa pun (banner basi sampai unduhan berikutnya). Kini penunggu yang memperoleh kunci menghapus teks itu bila isinya masih persis teks yang ia pasang.

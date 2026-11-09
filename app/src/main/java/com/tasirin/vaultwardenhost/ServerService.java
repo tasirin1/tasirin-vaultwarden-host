@@ -2927,7 +2927,7 @@ public class ServerService extends Service {
                 if (n >= BATAS_CONFIG_SAJA_BERUNTUN) {
                     configSajaBeruntun.set(0);
                     healthFail("DB rusak beruntun (/alive 5xx tapi /api/config 200, "
-                            + BATAS_CONFIG_SAJA_BERUNTUN + "x) — " + h.rincian);
+                            + BATAS_CONFIG_SAJA_BERUNTUN + "x) — " + h.rincian, pCek);
                     return;
                 }
                 appendLog("[health] /alive 5xx tapi /api/config 200 (DB mungkin rusak,"
@@ -2940,7 +2940,7 @@ public class ServerService extends Service {
             return;
         }
         configSajaBeruntun.set(0);
-        healthFail("tidak merespon (" + h.rincian + ")");
+        healthFail("tidak merespon (" + h.rincian + ")", pCek);
     }
 
     static boolean restartIpBolehDiminta(int hitung, long sejakMs, long kiniMs,
@@ -3010,7 +3010,15 @@ public class ServerService extends Service {
         }
     }
 
-    private void healthFail(String reason) {
+    // Audit 1574: proses yang boleh dibunuh healthFail
+    // hanyalah proses episode yang dicek checkHealthOnce
+    // — potret field hidup bisa menunjuk proses BARU
+    // yang lahir sesudah cek kedua (crash + Start cepat).
+    static boolean prosesBolehDibunuh(Process semasa, Process dicek) {
+        return semasa != null && semasa == dicek;
+    }
+
+    private void healthFail(String reason, Process pCek) {
 
         if (!healthActive) {
             return;
@@ -3038,13 +3046,25 @@ public class ServerService extends Service {
             healthTcpLolos.set(0);
 
             final Process p;
+            boolean episodeBerubah;
             synchronized (KUNCI_PROSET) {
-                p = process;
+                // Audit 1574: verifikasi di dalam kunci yang
+                // sama dengan kelahiran proses — atomik
+                // terhadap pergantian proses.
+                episodeBerubah = !prosesBolehDibunuh(process, pCek);
+                p = episodeBerubah ? null : process;
                 if (p != null) {
                     tandaiStopDisengaja(p);
                 }
-                running = false;
-                resetPenandaJalan();
+                if (!episodeBerubah) {
+                    running = false;
+                    resetPenandaJalan();
+                }
+            }
+            if (episodeBerubah) {
+                appendLog("[health] proses sudah berganti dari "
+                        + "episode yang dicek - restart dibatalkan.");
+                return;
             }
             setStatus("Server tidak sehat - restart otomatis.");
             appendLog("[health] 3x gagal beruntun - restart otomatis.");
