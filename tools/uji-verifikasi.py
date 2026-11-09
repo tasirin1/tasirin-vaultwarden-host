@@ -15317,6 +15317,27 @@ def main():
         periksa("PNG bersih tanpa blok kunci: gerbang lolos (Audit 1579)",
                 rc == 0)
         shutil.rmtree(sub711, ignore_errors=True)
+        sub712 = klon(tmp, "sub712")
+        berkas_aksi712 = os.path.join(
+            sub712, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi712, encoding="utf-8") as f:
+            isi_aksi712 = f.read()
+        baris_aksi712 = [b for b in isi_aksi712.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru712 = isi_aksi712.replace(
+                baris_aksi712,
+                baris_aksi712.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl sha3-256; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru712 != isi_aksi712, \
+            "suntikan aksi712 tidak menembak"
+        with open(berkas_aksi712, "w", encoding="utf-8") as f:
+            f.write(isi_baru712)
+        rc, out = jalan(sub712,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl sha3-256 di substitusi proses: gerbang gagal (Audit 1580)", rc != 0)
+        shutil.rmtree(sub712, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

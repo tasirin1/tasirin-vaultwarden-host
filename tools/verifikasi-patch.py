@@ -2332,10 +2332,16 @@ def _menguras_khusus(perintah, toks, awal):
                  # terhitung operand penekan.
                  "-vfyopt", "-provider-path", "-verify_name"})
             return not ops_v
+        # Audit 1580: regex alias digest kini juga
+        # memuat 8 nama provider bawaan OpenSSL 3 yang
+        # dulu absen (sha3-224/256/384/512,
+        # sha512-224/256, shake128, shake256).
         if sub == "dgst" or re.fullmatch(
                 r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"
-                r"|blake2b512|blake2s256|sm3|whirlpool)", sub,
-                re.IGNORECASE):
+                r"|blake2b512|blake2s256|sm3|whirlpool"
+                r"|sha3-224|sha3-256|sha3-384|sha3-512"
+                r"|sha512-224|sha512-256|shake128|shake256)",
+                sub, re.IGNORECASE):
             dasar = awal + 1 if sub == "dgst" else awal
             # Audit 1076: -rand bernilai — dulu hilang dari tabel
             # sehingga nilai berkasnya terhitung operand penekan.

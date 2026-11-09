@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: 8 alias digest openssl absen dari regex (Audit 1580) (Audit 1580)
+
+- sha3-224/256/384/512, sha512-224/256, dan shake128/256 adalah perintah digest sah provider bawaan OpenSSL 3 yang menguras stdin, tetapi absen dari regex alias dgst sehingga dinilai bukan pembaca (fail-open). Kedelapannya kini masuk regex.
+
 ## [Belum rilis] — Isi berkas biner berformat dikenal tidak diperiksa gerbang (Audit 1579) (Audit 1579)
 
 - cek_literal_rahasia_utuh hanya memindai baris teks diff; berkas biner tampil sebagai 'Binary files differ' tanpa baris isi, jadi blok kunci utuh di dalam berkas biner berformat yang diizinkan (mis. PNG pasif) lolos semua gerbang lokal padahal Gitleaks memindai isinya. Cek kini juga memindai byte mentah berkas berubah yang bukan teks dengan pola yang sama.
