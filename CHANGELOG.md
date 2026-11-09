@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Token 'backup terlalu besar' dipersempit ke redaksi khas restore (Audit 1682)
+
+- Token cabang prasyarat di `saranKoneksi` diganti `backup terlalu besar` → `backup terlalu besar (`: kedua produsen restore memang berbunyi "Backup terlalu besar (…)" sedangkan produsen sisi backup berbunyi "File backup terlalu besar untuk Telegram…" — pesan kegagalan backup kini tak lagi ditutup saran "ulangi restore". Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Password backup salah saat restore kini berpesan jelas, bukan pengecualian kripto mentah (Audit 1686)
 
 - Kegagalan padding dekripsi (kedua percobaan KDF) di `decryptFile` kini dibungkus menjadi pesan pengguna "Password backup salah atau berkas backup rusak - periksa password backup di pengaturan, lalu ulangi restore." — sebelumnya BadPaddingException merambat apa adanya (pesannya sering null atau teks asing penyedia kripto) lalu dirender bersama saran cek internet. Cabang saran pendampingnya ada di perbaikan Audit 1686 sisi Updater.

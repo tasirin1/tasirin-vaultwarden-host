@@ -588,6 +588,17 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_backupTerlaluBesarSisiBackupBukanRestore() {
+        // Audit 1682: produsen backup (uploadTelegram) tidak
+        // boleh tertangkap cabang prasyarat restore.
+        Exception e = new java.io.IOException(
+                "File backup terlalu besar untuk Telegram"
+                        + " (>48 MB). Ambil manual via Settings.");
+        String saran = Updater.saranKoneksi(e);
+        assertFalse(saran.contains("ulangi restore"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

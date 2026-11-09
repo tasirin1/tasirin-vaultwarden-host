@@ -549,7 +549,12 @@ public final class Updater {
                 || gabung.contains("masih berjalan")
                 || gabung.contains("gagal berhenti")
                 || gabung.contains("isi password backup")
-                || gabung.contains("backup terlalu besar")) {
+                // Audit 1682: token dipersempit ke redaksi khas
+                // restore ("Backup terlalu besar (…)") — produsen
+                // sisi backup berbunyi "File backup terlalu
+                // besar untuk Telegram…" dan tak boleh ditutup
+                // saran "ulangi restore".
+                || gabung.contains("backup terlalu besar (")) {
             return "Selesaikan dulu langkah pada pesan di atas, lalu"
                     + " ulangi restore.";
         }
