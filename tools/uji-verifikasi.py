@@ -16872,6 +16872,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("python -i -m modul: REPL sesudah modul menguras — gerbang gagal (Audit 1693)", rc != 0)
         shutil.rmtree(sub785, ignore_errors=True)
+        sub786 = klon(tmp, "sub786")
+        berkas_aksi786 = os.path.join(
+            sub786, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi786, encoding="utf-8") as f:
+            isi_aksi786 = f.read()
+        baris_aksi786 = [b for b in isi_aksi786.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru786 = isi_aksi786.replace(
+                baris_aksi786,
+                baris_aksi786.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -Z; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru786 != isi_aksi786, \
+            "suntikan aksi786 tidak menembak"
+        with open(berkas_aksi786, "w", encoding="utf-8") as f:
+            f.write(isi_baru786)
+        rc, out = jalan(sub786,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python opsi satu huruf tak dikenal galat lalu keluar: gerbang lolos (Audit 1694)", rc == 0)
+        shutil.rmtree(sub786, ignore_errors=True)
+        sub787 = klon(tmp, "sub787")
+        berkas_aksi787 = os.path.join(
+            sub787, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi787, encoding="utf-8") as f:
+            isi_aksi787 = f.read()
+        baris_aksi787 = [b for b in isi_aksi787.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru787 = isi_aksi787.replace(
+                baris_aksi787,
+                baris_aksi787.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 --bogus; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru787 != isi_aksi787, \
+            "suntikan aksi787 tidak menembak"
+        with open(berkas_aksi787, "w", encoding="utf-8") as f:
+            f.write(isi_baru787)
+        rc, out = jalan(sub787,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python opsi panjang tak dikenal galat lalu keluar: gerbang lolos (Audit 1694)", rc == 0)
+        shutil.rmtree(sub787, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

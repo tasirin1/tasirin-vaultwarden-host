@@ -1833,12 +1833,22 @@ def _menguras_interpreter(perintah, toks, awal):
                 # seperti Audit 1674); huruf 'i' sebelum opsi
                 # bernilai pertama tetap menyalakan interaktif.
                 pos_bernilai = -1
+                # Audit 1694: huruf asing sebelum opsi
+                # bernilai pertama = opsi tak dikenal -
+                # CPython mencetak galat lalu keluar.
+                asing_py = False
                 for pos, h in enumerate(huruf_py):
                     if h in ("c", "m", "W", "X"):
                         pos_bernilai = pos
                         break
                     if h == "i":
                         interaktif = True
+                        continue
+                    if h not in "bBdEhIOPQRsSuUvVx":
+                        asing_py = True
+                        break
+                if asing_py:
+                    return False
                 if (pos_bernilai >= 0
                         and huruf_py[pos_bernilai] == "c"):
                     # Audit 1081: -i berlaku juga sesudah -c.
@@ -2032,6 +2042,24 @@ def _menguras_interpreter(perintah, toks, awal):
         if t == "--":
             i += 1
             return toks[i] == "-" if i < n else True
+        # Audit 1694: token python satu huruf tak dikenal
+        # (atau -h: bantuan lalu keluar) - CPython galat/
+        # bantuan lalu keluar tanpa membaca. Token -i/-c/-m/
+        # -W/-X sudah tertangani cabang-cabangnya di atas.
+        if (perintah.startswith("python") and len(bersih_t) == 2
+                and bersih_t.startswith("-")
+                and bersih_t[1] not in "bBcdEiImOPQRsSuUvVWxX"):
+            return False
+        # Audit 1694: opsi panjang python tak dikenal -
+        # CPython mencetak galat lalu keluar tanpa membaca.
+        if perintah.startswith("python") and t.startswith("--"):
+            if t.split("=")[0] not in (
+                    "--help", "--version", "--help-env",
+                    "--help-xoptions", "--help-all",
+                    "--check-hash-based-pycs", "--safe-path"):
+                return False
+            i += 1
+            continue
         if t.startswith("-") and t != "-":
             i += 1
             continue

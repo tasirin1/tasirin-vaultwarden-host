@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi python tak dikenal = galat lalu keluar (Audit 1694)
+
+- Tiga penjaga baru sejajar preseden usage-exit gerbang sendiri: huruf asing di bundel sebelum opsi bernilai pertama, token satu huruf tak dikenal (termasuk -h), dan opsi panjang tak dikenal — CPython mencetak galat/bantuan lalu keluar tanpa membaca stdin (`python3 -Z`, `python3 --bogus` terprobe real False). Daftar opsi panjang sah (--help/--version/--help-env/--help-xoptions/--help-all/--check-hash-based-pycs/--safe-path) dikecualikan. 2 skenario suite baru menguncinya (Audit 1694).
+
 ## [Belum rilis] — Gerbang: python -i -m modul biasa menjatuhkan REPL (Audit 1693)
 
 - Cabang `-m` penilai interpreter kini mengembalikan keadaan interaktif untuk modul biasa: `python3 -i -m calendar` menjalankan modul lalu masuk REPL yang menguras stdin (terprobe real), sebelumnya divonis False. Bentuk bundel `-im` ikut tertutup lewat Audit 1692. 1 skenario suite baru menguncinya (Audit 1693).
