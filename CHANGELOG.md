@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi lua tak dikenal = usage lalu keluar (Audit 1697)
+
+- Penilai interpreter kini menolak token opsi tak dikenal untuk `lua`: yang sah hanya -e (bernilai), -i, -l, -v, -E, -W; token lain (mis. -b, -j) membuat lua.c mencetak usage lalu keluar tanpa membaca stdin. DUGAAN kuat — lua/luajit tidak terpasang di mesin audit untuk probe; mengikuti preseden Audit 1694/1673. 1 skenario suite baru menguncinya (Audit 1697).
+
 ## [Belum rilis] — Gerbang: opsi python tak dikenal = galat lalu keluar (Audit 1694)
 
 - Tiga penjaga baru sejajar preseden usage-exit gerbang sendiri: huruf asing di bundel sebelum opsi bernilai pertama, token satu huruf tak dikenal (termasuk -h), dan opsi panjang tak dikenal — CPython mencetak galat/bantuan lalu keluar tanpa membaca stdin (`python3 -Z`, `python3 --bogus` terprobe real False). Daftar opsi panjang sah (--help/--version/--help-env/--help-xoptions/--help-all/--check-hash-based-pycs/--safe-path) dikecualikan. 2 skenario suite baru menguncinya (Audit 1694).

@@ -2060,6 +2060,18 @@ def _menguras_interpreter(perintah, toks, awal):
                 return False
             i += 1
             continue
+        # Audit 1697: opsi lua tak dikenal - lua.c usage
+        # lalu keluar tanpa membaca (DUGAAN kuat; sejajar
+        # Audit 1694). Yang sah: -e (bernilai), -i, -l
+        # (tertangani di atas), -v, -E, -W.
+        if perintah == "lua" and t.startswith("-") and t != "-":
+            if t == "-e":
+                i += 2
+                continue
+            if t in ("-i", "-v", "-E", "-W"):
+                i += 1
+                continue
+            return False
         if t.startswith("-") and t != "-":
             i += 1
             continue

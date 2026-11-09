@@ -16914,6 +16914,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("python opsi panjang tak dikenal galat lalu keluar: gerbang lolos (Audit 1694)", rc == 0)
         shutil.rmtree(sub787, ignore_errors=True)
+        sub788 = klon(tmp, "sub788")
+        berkas_aksi788 = os.path.join(
+            sub788, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi788, encoding="utf-8") as f:
+            isi_aksi788 = f.read()
+        baris_aksi788 = [b for b in isi_aksi788.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru788 = isi_aksi788.replace(
+                baris_aksi788,
+                baris_aksi788.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lua -b; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru788 != isi_aksi788, \
+            "suntikan aksi788 tidak menembak"
+        with open(berkas_aksi788, "w", encoding="utf-8") as f:
+            f.write(isi_baru788)
+        rc, out = jalan(sub788,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lua opsi tak dikenal usage lalu keluar: gerbang lolos (Audit 1697)", rc == 0)
+        shutil.rmtree(sub788, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
