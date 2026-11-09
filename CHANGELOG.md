@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — PIN: sisa kunci elapsed tak lagi membengkak sesudah reboot (Audit 1644)
+
+- Stempel kunci elapsed dari boot sebelumnya kini dinilai terhadap durasi tingkat kunci yang berjalan, bukan plafon datar 24 jam: dalam satu boot sisa elapsed tak mungkin melebihi durasi tingkat yang menulis stempelnya, jadi selisih yang lebih besar pasti warisan boot lama (elapsed mulai lagi dari ~0 sesudah reboot) dan dianggap basi — sisa wall-clock yang benar yang berlaku. Sebelumnya kunci 5 menit yang ditulis pada uptime 20 jam bisa terhitung ±20 jam sesudah reboot. `sisaKunciElapsed`/`stempelElapsedBasi` kini menerima jumlah gagal; uji PinCrypto diperbarui + kasus regresi boot-lama (Audit 1644).
+
 ## [Belum rilis] — Health-check: jalur restart paksa DB rusak kini sungguh terjangkau (Audit 1643)
 
 - Cabang config-saja di `checkHealthOnce` menolkan `healthFails` pada tiap tick, sehingga panggilan `healthFail` sesudah 10 tick beruntun selalu mendarat di 1/3 dan blok restart-nya tidak pernah berjalan — server dengan DB rusak (/alive 5xx tetapi /api/config 200) berjalan selamanya tanpa restart dan tanpa notifikasi. Kini penghitung diposisikan di ambang-1 tepat sebelum panggilan itu agar jalur restart paksa + notifikasi Telegram sungguh tereksekusi (Audit 1643).

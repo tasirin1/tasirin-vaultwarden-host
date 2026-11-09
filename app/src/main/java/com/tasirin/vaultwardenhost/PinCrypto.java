@@ -226,21 +226,29 @@ public final class PinCrypto {
         return sekarang + durasiKunciMs(gagalSesudah);
     }
 
-    public static long sisaKunciElapsed(long terkunciElapsed, long sekarangElapsed) {
+    public static long sisaKunciElapsed(long terkunciElapsed, long sekarangElapsed,
+            int gagal) {
         long sisa = terkunciElapsed - sekarangElapsed;
         // Audit 1467: plafon kepercayaan stempel elapsed naik ke
         // KUNCI_MAKS_MS agar kunci bertingkat tetap dipercaya;
         // stempel warisan boot lain yang lebih jauh dari itu
         // tetap dianggap sampah.
-        if (sisa <= 0 || sisa > KUNCI_MAKS_MS) {
+        // Audit 1644: plafonnya durasi tingkat kunci yang
+        // berjalan, bukan 24 jam datar — dalam satu boot sisa
+        // tak mungkin melebihi durasi tingkat yang menulis
+        // stempelnya, jadi selisih yang lebih besar pasti
+        // warisan boot sebelumnya (elapsed mulai lagi dari ~0
+        // sesudah reboot) dan tak boleh dipercaya.
+        if (sisa <= 0 || sisa > durasiKunciMs(gagal)) {
             return 0;
         }
         return sisa;
     }
 
-    public static boolean stempelElapsedBasi(long terkunciElapsed, long sekarangElapsed) {
+    public static boolean stempelElapsedBasi(long terkunciElapsed, long sekarangElapsed,
+            int gagal) {
         return terkunciElapsed > 0
-                && terkunciElapsed - sekarangElapsed > KUNCI_MAKS_MS;
+                && terkunciElapsed - sekarangElapsed > durasiKunciMs(gagal);
     }
 
     // Audit 1514: cadangan sesudah reboot dengan sisa wall

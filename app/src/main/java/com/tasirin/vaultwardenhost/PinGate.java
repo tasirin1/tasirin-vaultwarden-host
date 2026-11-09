@@ -124,7 +124,7 @@ public final class PinGate {
         long elapsedKini = SystemClock.elapsedRealtime();
         long sampaiElapsed = TgBackup.amanLong(sp, KEY_KUNCI_ELAPSED, 0);
         if (gagal >= PinCrypto.MAX_GAGAL
-                && PinCrypto.stempelElapsedBasi(sampaiElapsed, elapsedKini)) {
+                && PinCrypto.stempelElapsedBasi(sampaiElapsed, elapsedKini, gagal)) {
             long sisaBaru = PinCrypto.sisaKunciSesudahReboot(gagal, sisaWall);
             try {
                 sp.edit().putLong(KEY_KUNCI_SAMPAI, sekarang + sisaBaru)
@@ -134,7 +134,7 @@ public final class PinGate {
             }
             return sisaBaru;
         }
-        long sisaElapsed = PinCrypto.sisaKunciElapsed(sampaiElapsed, elapsedKini);
+        long sisaElapsed = PinCrypto.sisaKunciElapsed(sampaiElapsed, elapsedKini, gagal);
         return Math.max(sisaWall, sisaElapsed);
     }
 

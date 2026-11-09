@@ -306,9 +306,9 @@ public class PinCryptoTest {
         long elapsed = 500_000L;
         long sampai = PinCrypto.kunciElapsedBerikutnyaMs(5, elapsed);
         assertTrue(sampai == elapsed + PinCrypto.KUNCI_MS);
-        assertTrue(PinCrypto.sisaKunciElapsed(sampai, elapsed + 60_000L) > 0);
-        assertTrue(PinCrypto.sisaKunciElapsed(sampai, sampai) == 0);
-        assertTrue(PinCrypto.sisaKunciElapsed(sampai, sampai + 1) == 0);
+        assertTrue(PinCrypto.sisaKunciElapsed(sampai, elapsed + 60_000L, 5) > 0);
+        assertTrue(PinCrypto.sisaKunciElapsed(sampai, sampai, 5) == 0);
+        assertTrue(PinCrypto.sisaKunciElapsed(sampai, sampai + 1, 5) == 0);
         assertTrue(PinCrypto.kunciElapsedBerikutnyaMs(4, elapsed) == 0);
     }
 
@@ -329,7 +329,7 @@ public class PinCryptoTest {
         assertTrue(PinCrypto.sisaKunciMs(10, sampai, sekarang)
                 == 2 * PinCrypto.KUNCI_MS);
         long sampaiE = PinCrypto.kunciElapsedBerikutnyaMs(10, 60_000L);
-        assertTrue(PinCrypto.sisaKunciElapsed(sampaiE, 60_000L)
+        assertTrue(PinCrypto.sisaKunciElapsed(sampaiE, 60_000L, 10)
                 == 2 * PinCrypto.KUNCI_MS);
     }
 
@@ -340,8 +340,8 @@ public class PinCryptoTest {
         // yang mungkin (KUNCI_MAKS_MS) tetap dianggap sampah
         // warisan boot lain.
         assertTrue(PinCrypto.sisaKunciElapsed(
-                PinCrypto.KUNCI_MAKS_MS + 500_000L, 10_000L) == 0);
-        assertTrue(PinCrypto.sisaKunciElapsed(0L, 10_000L) == 0);
+                PinCrypto.KUNCI_MAKS_MS + 500_000L, 10_000L, 5) == 0);
+        assertTrue(PinCrypto.sisaKunciElapsed(0L, 10_000L, 5) == 0);
     }
 
     @Test
@@ -349,15 +349,24 @@ public class PinCryptoTest {
         // Audit 1467: kunci bertingkat bisa 24 jam, jadi stempel
         // sampai KUNCI_MAKS_MS di masa depan masih dipercaya;
         // yang lebih jauh dari itu pasti warisan boot lain.
-        assertFalse(PinCrypto.stempelElapsedBasi(500_000L, 10_000L));
-        assertFalse(PinCrypto.stempelElapsedBasi(0L, 10_000L));
-        assertFalse(PinCrypto.stempelElapsedBasi(100_000L, 90_000L));
+        assertFalse(PinCrypto.stempelElapsedBasi(500_000L, 10_000L, 10));
+        assertFalse(PinCrypto.stempelElapsedBasi(0L, 10_000L, 5));
+        assertFalse(PinCrypto.stempelElapsedBasi(100_000L, 90_000L, 5));
         assertFalse(PinCrypto.stempelElapsedBasi(
-                10_000L + PinCrypto.KUNCI_MS, 10_000L));
+                10_000L + PinCrypto.KUNCI_MS, 10_000L, 5));
         assertFalse(PinCrypto.stempelElapsedBasi(
-                10_000L + PinCrypto.KUNCI_MAKS_MS, 10_000L));
+                10_000L + PinCrypto.KUNCI_MAKS_MS, 10_000L, 1000));
         assertTrue(PinCrypto.stempelElapsedBasi(
-                10_000L + PinCrypto.KUNCI_MAKS_MS + 1, 10_000L));
+                10_000L + PinCrypto.KUNCI_MAKS_MS + 1, 10_000L, 1000));
+        // Audit 1644: stempel warisan boot lama — ditulis pada
+        // elapsed 20 jam untuk kunci tingkat pertama (5 menit),
+        // dibaca 1 menit sesudah reboot. Selisihnya (±20 jam)
+        // di bawah plafon lama 24 jam tetapi jauh di atas
+        // durasi tingkatnya, jadi wajib dianggap basi dan sisa
+        // elapsed-nya nol (sisa wall yang kecil yang berlaku).
+        long stempelBootLama = 20L * 3_600_000L + PinCrypto.KUNCI_MS;
+        assertTrue(PinCrypto.stempelElapsedBasi(stempelBootLama, 60_000L, 5));
+        assertTrue(PinCrypto.sisaKunciElapsed(stempelBootLama, 60_000L, 5) == 0);
         assertTrue(PinCrypto.sisaKunciSesudahReboot(5, 120_000L) == 120_000L);
         // Audit 1514: sisa wall habis mengikuti tingkat gagal,
         // bukan datar KUNCI_MS (tingkat 0 memang KUNCI_MS).
