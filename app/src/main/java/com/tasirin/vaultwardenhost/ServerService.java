@@ -3750,10 +3750,13 @@ public class ServerService extends Service {
             }
 
             String msgBin = e.getMessage();
-            String ramah = msgBin != null && msgBin.contains("Cek ")
+            String ramah = Updater.mengandungSaran(msgBin)
                     ? msgBin : Updater.pesanGalatUnduh("Unduh binary", e);
             appendLog("[app] Gagal unduh binary: " + e
-                    + "\n[app] Saran: " + Updater.saranKoneksi(e)
+                    // Audit 1683: baris Saran hanya bila pesan
+                    // mentahnya belum memuat saran (terbungkus).
+                    + (Updater.mengandungSaran(msgBin) ? ""
+                            : "\n[app] Saran: " + Updater.saranKoneksi(e))
                     + " Bila STB offline, pakai cara manual di README"
                     + " (taruh binary di folder data).");
             setStatus("Binary belum tersedia - " + ramah);

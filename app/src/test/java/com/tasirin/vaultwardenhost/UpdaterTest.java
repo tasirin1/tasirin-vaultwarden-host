@@ -685,6 +685,23 @@ public class UpdaterTest {
     }
 
     @Test
+    public void mengandungSaran_mengenaliSemuaKeluargaSaran() {
+        // Audit 1683: hasil render dikenali; pesan mentah tidak.
+        String render = Updater.pesanGalatUnduh("Unduh binary",
+                new java.io.IOException(
+                        "Sisa penyimpanan tinggal 1 MB"));
+        assertTrue(Updater.mengandungSaran(render));
+        assertTrue(Updater.mengandungSaran(Updater.saranKoneksi(
+                new java.io.IOException("Telegram HTTP 403: blocked"))));
+        assertTrue(Updater.mengandungSaran(Updater.saranKoneksi(
+                new java.io.IOException("HTTP 404"))));
+        assertFalse(Updater.mengandungSaran(
+                "Telegram HTTP 403: bot was blocked by the user"));
+        assertFalse(Updater.mengandungSaran(null));
+        assertFalse(Updater.mengandungSaran(""));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

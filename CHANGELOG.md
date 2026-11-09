@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penjaga anti-render-ganda kini mengenali semua keluarga saran (Audit 1683)
+
+- Helper baru `Updater.mengandungSaran` mengenali frasa pembuka khas semua cabang `saranKoneksi` (bawaan, jam, DNS, hijack, disk, config, password, backup-dulu, prasyarat, SHA, lokal, timeout, TLS, Telegram, rate-limit, 404). Ketiga penjaga perender (bot unduh binary/web-vault + ensureBinary) memakainya menggantikan heuristik `contains("Cek ")` yang buta terhadap saran cabang baru, dan baris log Saran di ensureBinary kini bersyarat sama — saran tak lagi tampil dobel untuk galat yang sudah terbungkus pesanGalatUnduh. Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Frasa 'belum terbit' tertangkap cabang 404; shaDariRilis tak lagi menanam saran (Audit 1696)
 
 - Token cabang 404 `saranKoneksi` ditambah `belum terbit` (frasa `shaDariRilis` untuk aset .sha256 yang belum terbit), dan situs itu tak lagi menanam `saranKoneksi(null)` di dalam pesannya sendiri — perender luar kini menempelkan saran yang benar tepat satu kali, bukan bawaan cek internet dua kali. Uji JVM baru menguncinya.

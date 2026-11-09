@@ -651,6 +651,35 @@ public final class Updater {
         return "Cek internet STB (buka github.com di browser), lalu tekan Start lagi.";
     }
 
+    // Audit 1683: apakah teks sudah memuat sebuah saran dari
+    // saranKoneksi (mis. hasil pesanGalatUnduh)? Perender luar
+    // memakai ini agar tak menempelkan saran kedua - penjaga
+    // lama hanya mengenali substring "Cek " yang tak dimiliki
+    // saran cabang disk/config/prasyarat/SHA/lokal/Telegram.
+    static boolean mengandungSaran(String teks) {
+        if (teks == null) {
+            return false;
+        }
+        String r = teks.toLowerCase(Locale.US);
+        return r.contains("cek internet stb")
+                || r.contains("tanggal & jam stb")
+                || r.contains("dns gagal")
+                || r.contains("malah mengarah ke ip lokal")
+                || r.contains("penyimpanan stb penuh")
+                || r.contains("periksa token bot")
+                || r.contains("periksa password backup")
+                || r.contains("jalankan backup dulu")
+                || r.contains("selesaikan dulu langkah")
+                || r.contains("tidak lolos verifikasi sha-256")
+                || r.contains("masalahnya bukan di jaringan")
+                || r.contains("koneksi ke github timeout")
+                || r.contains("tls gagal di android")
+                || r.contains("telegram membatasi sementara")
+                || r.contains("telegram menolak permintaan")
+                || r.contains("github membatasi sementara")
+                || r.contains("file belum tersedia di rilis");
+    }
+
     static String pesanGalatUnduh(String aksi, Exception e) {
         String inti = (e == null || e.getMessage() == null) ? String.valueOf(e) : e.getMessage();
         String rendah = ((e != null ? e.getClass().getSimpleName() + " " : "")
