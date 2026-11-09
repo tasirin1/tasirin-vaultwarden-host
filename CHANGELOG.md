@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — CodeQL kini benar-benar melewati semua berkas .md termasuk subdirektori (Audit 1676)
+
+- Pola `paths-ignore` di `codeql.yml` diganti `'*.md'` → `'**.md'` di pemicu push dan pull_request: pola lama hanya cocok `.md` di akar (semantik resmi GitHub: `*` tidak menyeberangi `/`), sehingga 3 templat `.md` di `.github/` tetap memicu analisis CodeQL penuh. Arah perbaikannya tetap fail-closed — yang dibuang hanya run berat yang memang diniatkan dikecualikan.
+
 ## [Belum rilis] — Gerbang: opsi meta gpgv --warranty/--dump-options informasional (Audit 1675)
 
 - Blok khusus gpgv kini lebih dulu mengembalikan False bila ada token `--warranty` atau `--dump-options`: keduanya opsi meta yang mencetak lalu keluar tanpa membaca stdin (--warranty terprobe real: payload utuh), sekelas penjaga informasional Audit 1102; 1 skenario suite baru menguncinya (Audit 1675).

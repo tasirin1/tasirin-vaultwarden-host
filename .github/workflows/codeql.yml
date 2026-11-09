@@ -4,12 +4,12 @@ on:
   push:
     branches: ["main"]
     paths-ignore:
-      - '*.md'
+      - '**.md'
       - '.gitignore'
       - '.github/workflows/build-binary.yml'
   pull_request:
     paths-ignore:
-      - '*.md'
+      - '**.md'
       - '.gitignore'
       - '.github/workflows/build-binary.yml'
   schedule:
