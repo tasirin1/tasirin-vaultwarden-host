@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Daftar-putih path CI mencakup dependensi gerbang sendiri (Audit 1576) (Audit 1576)
+
+- Kedua suite yang masuk daftar-putih paths build-apk.yml mengimpor tools/uji_bersama.py, tetapi berkas itu (dan tools/bekas-hapusan.txt yang dibaca gerbang) absen dari daftar — push ke main yang hanya mengubahnya tidak memicu job verifikasi apa pun (cek-wajib khusus PR). Kedua berkas kini masuk paths push + PR build-apk.yml dan regex HARUS_BUILD auto-merge.yml agar ketiganya tetap selaras.
+
 ## [Belum rilis] — Pengetatan izin lampiran restore hanya untuk nama kunci persis (Audit 1575) (Audit 1575)
 
 - Perbaikan Audit 1569 menerapkan pengetatan izin berdasar predikat substring 'key' pada nama utuh; klaim pendampingnya (nama lampiran UUID tak pernah memuat 'key') hanya benar untuk nama buatan Vaultwarden sendiri — nama lampiran dari zip restore tidak divalidasi bentuk UUID-nya, jadi entri seperti attachments/key-cadangan ikut diketatkan padahal bukan kunci. pasangLampiranRestore kini mengetatkan hanya untuk rsa_key.pem/rsa_key.der persis (namaKunciLampiran, teruji JVM).

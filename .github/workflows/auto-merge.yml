@@ -56,7 +56,7 @@ jobs:
           # (stale/labeler/gitleaks/codeql), padahal Build APK
           # memang tak pernah terpicu untuk path itu, sehingga
           # langkah tunggu selalu batal sesudah ±3 menit.
-          if echo "$FILES" | grep -qE '^(app/|build\.gradle\.kts$|settings\.gradle\.kts$|gradle\.properties$|gradle/|gradlew$|gradlew\.bat$|tools/verifikasi-patch\.py$|tools/uji-verifikasi\.py$|tools/uji-cek-cepat\.py$|scripts/cek-cepat\.sh$|\.github/workflows/build-apk\.yml$|\.github/actions/resolve-vw/)'; then
+          if echo "$FILES" | grep -qE '^(app/|build\.gradle\.kts$|settings\.gradle\.kts$|gradle\.properties$|gradle/|gradlew$|gradlew\.bat$|tools/verifikasi-patch\.py$|tools/uji-verifikasi\.py$|tools/uji-cek-cepat\.py$|tools/uji_bersama\.py$|tools/bekas-hapusan\.txt$|scripts/cek-cepat\.sh$|\.github/workflows/build-apk\.yml$|\.github/actions/resolve-vw/)'; then
             echo "HARUS_BUILD=true" >> "$GITHUB_ENV"
           fi
 
