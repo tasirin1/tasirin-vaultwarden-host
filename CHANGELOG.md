@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Predikat coba-lagi unduhan: '404' dicocokkan sebagai frasa, bukan substring byte (Audit 1699)
+
+- `bolehCobaLagiUnduh` kini menolak coba-lagi hanya untuk frasa `http 404`/`code: 404` (dan `belum tersedia`). Sebelumnya substring `404` telanjang yang diperiksa pertama ikut tertangkap hitungan byte mentah pada pesan "Unduhan terputus di <done> dari <total> byte" — total aset diawali 404… membuat unduhan terputus divonis final dan update gagal total, padahal pesannya menjanjikan kelanjutan dari titik terakhir.
+
 ## [Belum rilis] — Mode tak-sehat berselang-seling tak lagi saling menolkan penghitung health (Audit 1698)
 
 - Kebijakan penghitung health diekstrak ke helper murni teruji JVM `perbaruiPenghitungHealth`: tick satu mode tak-sehat tidak lagi menolkan penghitung mode tak-sehat lain (dulu cabang config-saja menolkan healthFails/healthTcpLolos dan cabang tak-merespon menolkan configSajaBeruntun, sehingga server gantung berfluktuasi timeout <-> 503+config-200 berosilasi 0<->1 dan kedua ambang restart — 3 dan 10 — tak pernah tercapai). Hanya tick sehat penuh yang menolkan semuanya; jalur pemicu config-saja tetap memosisikan penghitung healthFail seperti Audit 1643/1654.

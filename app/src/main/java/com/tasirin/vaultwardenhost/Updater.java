@@ -764,7 +764,13 @@ public final class Updater {
     static boolean bolehCobaLagiUnduh(Exception e) {
         String rendah = String.valueOf(e == null ? null : e.getMessage()).toLowerCase(Locale.US);
 
-        if (rendah.contains("404") || rendah.contains("belum tersedia")) {
+        // Audit 1699: kode 404 dicocokkan sebagai frasa
+        // ("http 404"/"code: 404"), bukan substring bebas -
+        // pesan terputus memuat hitungan byte mentah dan
+        // total diawali 404... dulu membatalkan coba-lagi
+        // (kelas angka dinamis Audit 1695, sisi predikat).
+        if (rendah.contains("http 404") || rendah.contains("code: 404")
+                || rendah.contains("belum tersedia")) {
             return false;
         }
 

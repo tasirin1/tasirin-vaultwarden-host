@@ -702,6 +702,19 @@ public class UpdaterTest {
     }
 
     @Test
+    public void bolehCobaLagiUnduh_angkaByteBukanKode404() {
+        // Audit 1699: hitungan byte yang memuat "404" bukan
+        // kode HTTP 404 - unduhan terputus tetap boleh lanjut.
+        assertTrue(Updater.bolehCobaLagiUnduh(new java.io.IOException(
+                "Unduhan terputus di 1404000 dari 40412345 byte"
+                        + " - dilanjutkan dari titik terakhir.")));
+        assertFalse(Updater.bolehCobaLagiUnduh(
+                new java.io.IOException("HTTP 404")));
+        assertFalse(Updater.bolehCobaLagiUnduh(new java.io.IOException(
+                "Server returned HTTP response code: 404")));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);
