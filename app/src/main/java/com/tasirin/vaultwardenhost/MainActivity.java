@@ -331,16 +331,10 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
         if (requestCode == REQ_WRITE) {
-            boolean diberi = StoragePerm.tulisDiizinkan(permissions, grantResults);
-            if (!diberi) {
-                StoragePerm.tanganiPenolakan(this);
-            }
-
             boolean lanjut = mulaiUlangSetelahIzin;
             mulaiUlangSetelahIzin = false;
-            if (diberi && lanjut && !isFinishing() && !isDestroyed()) {
-                saveAndStart();
-            }
+            StoragePerm.tanganiHasilIzinTulis(this, permissions,
+                    grantResults, lanjut, this::saveAndStart);
         }
     }
 

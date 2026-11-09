@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Activity: hasil izin tulis disatukan di StoragePerm (Audit 1619)
+
+- Badan `onRequestPermissionsResult` MainActivity dan SettingsActivity yang identik disatukan ke `StoragePerm.tanganiHasilIzinTulis`; kedua activity tinggal membaca+membersihkan bendera lanjutnya di dalam gerbang kode permintaannya.
+
 ## [Belum rilis] — Settings: field cache lintas-thread menjadi volatile (Audit 1610)
 
 - Pasangan stempel+isi cache kartu info (wv/db/storage/sys/cert/battery + cache daftar backup) yang ditulis tugas latar dan dibaca UI thread kini volatile.

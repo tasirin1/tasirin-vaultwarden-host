@@ -133,6 +133,21 @@ public final class StoragePerm {
         return !rationaleTampil && !sudahDiizinkan;
     }
 
+    // Audit 1619: badan onRequestPermissionsResult MainActivity
+    // dan SettingsActivity tadinya salinan identik — kini satu
+    // di sini. `lanjut` dibaca+ dibersihkan pemanggil di dalam
+    // gerbang kode permintaannya sendiri sebelum memanggil ini.
+    static void tanganiHasilIzinTulis(Activity act, String[] permissions,
+            int[] grantResults, boolean lanjut, Runnable aksiLanjut) {
+        boolean diberi = tulisDiizinkan(permissions, grantResults);
+        if (!diberi) {
+            tanganiPenolakan(act);
+        }
+        if (diberi && lanjut && !act.isFinishing() && !act.isDestroyed()) {
+            aksiLanjut.run();
+        }
+    }
+
     public static void tanganiPenolakan(Activity act) {
         boolean permanen = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
