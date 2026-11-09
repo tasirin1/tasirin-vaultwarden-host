@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan susulan: token 'dibatalkan' cabang lokal dipersempit (Audit 1687)
+
+- Uji JVM CI menangkap tabrakan antar-perbaikan maraton-101: token `dibatalkan` telanjang di cabang keadaan lokal ikut menangkap pesan SHA-256 `Update dibatalkan demi keamanan` yang vonis benarnya cabang 404 Audit 1696. Token dipersempit ke redaksi produsen batal sebenarnya: `dibatalkan - tidak dilanjutkan` (pesanDibatalkan), `backup dibatalkan`, `restore dibatalkan`.
+
 ## [Belum rilis] — Gerbang: opsi lua tak dikenal = usage lalu keluar (Audit 1697)
 
 - Penilai interpreter kini menolak token opsi tak dikenal untuk `lua`: yang sah hanya -e (bernilai), -i, -l, -v, -E, -W; token lain (mis. -b, -j) membuat lua.c mencetak usage lalu keluar tanpa membaca stdin. DUGAAN kuat — lua/luajit tidak terpasang di mesin audit untuk probe; mengikuti preseden Audit 1694/1673. 1 skenario suite baru menguncinya (Audit 1697).

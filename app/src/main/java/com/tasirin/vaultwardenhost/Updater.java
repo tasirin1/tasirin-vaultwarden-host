@@ -597,7 +597,15 @@ public final class Updater {
                 || gabung.contains("backup rusak")
                 || gabung.contains("tidak berisi db.sqlite3")
                 || gabung.contains("checkpoint wal")
-                || gabung.contains("dibatalkan")
+                // Perbaikan susulan maraton-101: token
+                // "dibatalkan" telanjang ikut menangkap pesan
+                // SHA "Update dibatalkan demi keamanan" yang
+                // vonis benarnya cabang 404 (Audit 1696) -
+                // persempit ke redaksi produsen batal yang
+                // sebenarnya (pesanDibatalkan/backup/restore).
+                || gabung.contains("dibatalkan - tidak dilanjutkan")
+                || gabung.contains("backup dibatalkan")
+                || gabung.contains("restore dibatalkan")
                 || gabung.contains("kunci pasang")
                 || gabung.contains("file update tidak valid")
                 || gabung.contains("file_id backup kosong")
