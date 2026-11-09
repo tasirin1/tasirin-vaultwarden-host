@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Saran koneksi kini mengenali password backup salah (Audit 1686)
+
+- Cabang baru di `saranKoneksi` untuk pesan terbungkus Audit 1686 ("Password backup salah atau berkas backup rusak…"): saran pendamping memeriksa password backup di Pengaturan, bukan cek internet. Uji JVM baru menguncinya. (Bagian pembungkus pesannya di TgBackup pada commit Audit 1686 sebelumnya.)
+
 ## [Belum rilis] — Saran koneksi kini mengenali 'belum ada backup terkirim' (Audit 1685)
 
 - Cabang baru di `saranKoneksi`: pesan `downloadLastBackup` "Belum ada backup terkirim dari app ini." kini ditutup saran menjalankan backup pertama, bukan bawaan cek internet + tekan Start. Uji JVM baru menguncinya.

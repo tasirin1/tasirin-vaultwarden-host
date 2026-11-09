@@ -620,6 +620,19 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_passwordBackupSalahBukanInternet() {
+        // Audit 1686: saran pendamping pesan terbungkus
+        // decryptFile.
+        Exception e = new java.io.IOException(
+                "Password backup salah atau berkas backup rusak"
+                        + " - periksa password backup di pengaturan,"
+                        + " lalu ulangi restore.");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("password backup"));
+        assertFalse(saran.contains("internet"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

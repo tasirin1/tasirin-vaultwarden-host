@@ -547,6 +547,14 @@ public final class Updater {
             return "Jalankan backup dulu (dari bot: /backup, atau"
                     + " Pengaturan), lalu ulangi restore.";
         }
+        // Audit 1686: password backup salah / berkas rusak
+        // (pesan terbungkus di decryptFile) — obatnya periksa
+        // password, bukan jaringan.
+        if (gabung.contains("password backup salah")) {
+            return "Periksa password backup di Pengaturan (bagian"
+                    + " Telegram) - harus sama dengan saat backup"
+                    + " dibuat.";
+        }
         // Audit 1665: prasyarat restore (server harus berhenti
         // dulu / password backup harus diisi / berkas terlalu
         // besar untuk jalur ini) — tempelan "tekan Start lagi"
