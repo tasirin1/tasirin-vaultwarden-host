@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nama berversi ruby3.x/php8.x/lua5.x dinormalkan (Audit 1653)
+
+- Normalisasi nama interpreter kini juga memetakan `ruby\d+(.\d+)?`, `php\d+(.\d+)?`, dan `lua\d+(.\d+)?` ke nama polosnya — nama biner standar distro itu (ruby3.1, php8.2, lua5.4) berperilaku identik nama polosnya dan kini dinilai penilai interpreter yang sama; 3 skenario suite baru menguncinya (Audit 1653).
+
 ## [Belum rilis] — Gerbang: dgawk (debugger GNU awk) dimodelkan (Audit 1652)
 
 - `dgawk` masuk daftar pembaca + tuple dispatch keluarga skrip, dan penilai keluarga mengembalikannya sebagai penguras selalu: debugger GNU awk membaca perintah debug dari stdin apa pun operand berkasnya (preseden debugger perl -d); 2 skenario suite baru menguncinya (Audit 1652).
