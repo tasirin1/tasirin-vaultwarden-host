@@ -1916,17 +1916,20 @@ public class ServerService extends Service {
     }
 
     private boolean pilihBiner(long stopAwal, SesiStart sesi) {
-        // Audit 1593: kunci data dilepas SEBELUM pemulihan .bak
-        // dan pembersihan temp — keduanya berjalan rekursif di
-        // pohon data dan tak menyentuh keadaan berkunci data,
-        // jadi menahannya selama itu hanya memperlama penantian
-        // pelepas kunci lain (stop/start ulang).
-        lepasKunciData();
+        // Audit 1635: dua pemanggilan berikut WAJIB berjalan
+        // di dalam kunci data — keduanya memulihkan swap .bak
+        // pada artefak yang sama yang ditukar jalur
+        // restore/reset sambil memegang kunci ini (invariant
+        // Audit 863). Audit 1593 sempat melepas kunci lebih
+        // dulu demi kecepatan dan mengklaim keduanya tak
+        // menyentuh keadaan berkunci data; klaim itu keliru
+        // (balapan nyata dengan restore) — urutan dikembalikan.
         pulihkanBakTersisa(new File(sesi.dataDir));
         cleanupTempFiles(sesi.dataDir);
         appendLog("[app] Perangkat: " + KernelCompat.infoBaris(
                 KernelCompat.kernelSekarang(), Build.VERSION.SDK_INT));
 
+        lepasKunciData();
         sesi.binary = ensureBinary(stopAwal);
         if (sesi.binary == null) {
             return false;

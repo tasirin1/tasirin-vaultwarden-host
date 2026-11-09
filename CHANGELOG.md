@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Server: urutan kunci data di pilihBiner dikembalikan (regresi 1593 dibatalkan) (Audit 1635)
+
+- `lepasKunciData()` kembali berjalan SESUDAH `pulihkanBakTersisa` + `cleanupTempFiles` di `pilihBiner`. Audit 1593 sempat melepas kunci lebih dulu dengan klaim kedua pemanggilan itu tak menyentuh keadaan berkunci data — keliru: keduanya memulihkan swap `.bak` pada artefak yang sama yang ditukar jalur restore/reset sambil memegang kunci data (invariant Audit 863), jadi urutan baru itu membuka balapan nyata dengan restore (Audit 1635).
+
 ## [Belum rilis] — Perbaikan build susulan Audit 1608
 
 - Nama variabel lambda pengisi versi di AboutDialog diganti `teksVersi` (sebelumnya `teks`, bertabrakan dengan variabel `teks` yang sudah ada di metode yang sama — build CI merah di compileDebugJavaWithJavac).
