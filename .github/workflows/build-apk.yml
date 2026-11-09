@@ -81,6 +81,22 @@ jobs:
       - name: Uji-diri gerbang (cabang langka verifikasi-patch)
         if: github.event_name != 'pull_request'
         run: python3 tools/uji-verifikasi.py
+  verifikasi-cek:
+    name: Cek patch yang berubah (cek-cepat)
+    runs-on: ubuntu-24.04
+    # Audit 1594: suite cek-cepat (terukur 4:30) dipisah dari
+    # job verifikasi (27:04) agar keduanya berjalan paralel;
+    # build-apk menunggu keduanya. Di PR suite dilewati di
+    # dalam job (cek-wajib.yml sudah menjalankannya), sama
+    # seperti sebelumnya — job tetap jalan agar needs
+    # build-apk terpenuhi.
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+          persist-credentials: false
       - name: Uji-diri cek-cepat (cabang deteksi cek-cepat)
         if: github.event_name != 'pull_request'
         run: python3 tools/uji-cek-cepat.py
@@ -100,7 +116,7 @@ jobs:
 
   build-apk:
     name: Assemble APK
-    needs: [resolve, verifikasi]
+    needs: [resolve, verifikasi, verifikasi-cek]
     runs-on: ubuntu-24.04
     timeout-minutes: 90
 

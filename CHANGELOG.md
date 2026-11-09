@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — CI: suite cek-cepat pindah ke job paralel (Audit 1594)
+
+- Dua suite uji-diri tidak lagi seri dalam satu job (jalur kritis run terukur 27:04 dari 28:34): uji-cek-cepat (4:30) kini job `verifikasi-cek` sendiri yang berjalan paralel dengan job `verifikasi`; `build-apk` menunggu keduanya. Nama cek wajib proteksi branch tetap `Cek patch yang berubah` pada job verifikasi.
+
 ## [Belum rilis] — Suite cek-cepat: klon vektor dibersihkan (Audit 1630)
 
 - Skenario `vektor` kini menghapus klon sementaranya dengan shutil.rmtree seperti semua skenario lain; sebelumnya satu-satunya skenario yang membocorkan klon.
