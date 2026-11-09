@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Isi berkas biner berformat dikenal tidak diperiksa gerbang (Audit 1579) (Audit 1579)
+
+- cek_literal_rahasia_utuh hanya memindai baris teks diff; berkas biner tampil sebagai 'Binary files differ' tanpa baris isi, jadi blok kunci utuh di dalam berkas biner berformat yang diizinkan (mis. PNG pasif) lolos semua gerbang lokal padahal Gitleaks memindai isinya. Cek kini juga memindai byte mentah berkas berubah yang bukan teks dengan pola yang sama.
+
 ## [Belum rilis] — Pola cek literal gerbang lebih sempit dari aturan Gitleaks (Audit 1578) (Audit 1578)
 
 - Pola Audit 1571 hanya mengenali header polos huruf besar: blok PGP PRIVATE KEY BLOCK, header huruf kecil penuh, dan label berstrip lolos lokal tetapi kena Gitleaks CI — kelas insiden yang hendak dicegah 1571. Pola kini mengikuti aturan private-key Gitleaks v8 (tak peka huruf, label boleh memuat '-'/'_', akhiran ' BLOCK' diterima).

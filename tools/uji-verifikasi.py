@@ -15293,6 +15293,30 @@ def main():
         periksa("label header berstrip utuh: gerbang gagal (Audit 1578)",
                 rc != 0 and "literal header kunci" in out)
         shutil.rmtree(sub709, ignore_errors=True)
+        sub710 = klon(tmp, "sub710")
+        with open(os.path.join(sub710, "uji-biner710.png"),
+                  "wb") as f:
+            f.write(b"\x89PNG\r\n\x1a\n" + b"\x00" * 32
+               + b"-----BEGIN PRIVATE " b"KEY-----\n"
+               b"QUJD\n"
+               b"-----END PRIVATE " b"KEY-----\n")
+        git(sub710, "add", "-A")
+        git(sub710, "commit", "-q", "-m", "tanam biner uji")
+        rc, out = jalan(sub710, [sys.executable, GERBANG, "--semua"])
+        periksa("blok kunci utuh di dalam PNG: gerbang gagal (Audit 1579)",
+                rc != 0 and "Berkas biner memuat" in out)
+        shutil.rmtree(sub710, ignore_errors=True)
+
+        sub711 = klon(tmp, "sub711")
+        with open(os.path.join(sub711, "uji-biner711.png"),
+                  "wb") as f:
+            f.write(b"\x89PNG\r\n\x1a\n" + b"\x00" * 64)
+        git(sub711, "add", "-A")
+        git(sub711, "commit", "-q", "-m", "tanam biner uji")
+        rc, out = jalan(sub711, [sys.executable, GERBANG, "--semua"])
+        periksa("PNG bersih tanpa blok kunci: gerbang lolos (Audit 1579)",
+                rc == 0)
+        shutil.rmtree(sub711, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

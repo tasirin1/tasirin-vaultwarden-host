@@ -6404,7 +6404,7 @@ def cek_izin_baru(peringatan, diff):
                 peringatan.append("Izin baru %s — pastikan perlu di TV/STB + tercatat README"
                                   % cocok.group(1))
 
-def cek_literal_rahasia_utuh(gagal, diff):
+def cek_literal_rahasia_utuh(gagal, diff, berubah=()):
     # Audit 1571: literal header kunci UTUH pada baris
     # baru adalah jebakan Gitleaks (insiden fixture
     # Audit 1547, run 42529695945 FAILURE): pemindai
@@ -6430,6 +6430,30 @@ def cek_literal_rahasia_utuh(gagal, diff):
                     "sebagai bocoran: "
                     + baris.strip()[:70])
                 return
+    # Audit 1579: berkas biner tak punya baris diff —
+    # blok kunci utuh di dalam berkas biner berformat
+    # yang diizinkan (mis. gambar pasif) lolos semua
+    # cek diff, padahal Gitleaks memindai isi berkas.
+    # Pindai byte mentah berkas berubah yang bukan
+    # teks dengan pola biner yang sama.
+    pola_b = re.compile(
+        rb"-----BEGIN[ A-Z0-9_-]{0,100}PRIVATE KEY"
+        rb"( BLOCK)?-----", re.IGNORECASE)
+    for path in berubah:
+        try:
+            if berkas_teks(path):
+                continue
+            with open(os.path.join(AKAR, path), "rb") as f:
+                isi_b = f.read(16 * 1024 * 1024)
+        except OSError:
+            continue
+        if pola_b.search(isi_b):
+            gagal.append(
+                "Berkas biner memuat blok header kunci "
+                "utuh di dalam isinya — Gitleaks CI "
+                "memindai isi berkas biner juga: "
+                + path)
+            return
 
 def cek_definisi_baru(peringatan, diff):
     pola = re.compile(r'\+\s*<(style|string|color|dimen|plurals|string-array|integer-array|array)(?=[\s/>])[^>]*?\bname="([^"]+)"')
@@ -7583,7 +7607,7 @@ def utama():
         cek_pola_berisiko(peringatan, diff, berubah, rentang_cek)
         cek_pola_boros(peringatan, diff)
         cek_izin_baru(peringatan, diff)
-        cek_literal_rahasia_utuh(gagal, diff)
+        cek_literal_rahasia_utuh(gagal, diff, berubah)
         cek_definisi_baru(peringatan, diff)
     if diff_gagal:
 
