@@ -126,11 +126,22 @@ public final class PinGate {
         if (gagal >= PinCrypto.MAX_GAGAL
                 && PinCrypto.stempelElapsedBasi(sampaiElapsed, elapsedKini, gagal)) {
             long sisaBaru = PinCrypto.sisaKunciSesudahReboot(gagal, sisaWall);
-            try {
-                sp.edit().putLong(KEY_KUNCI_SAMPAI, sekarang + sisaBaru)
-                        .putLong(KEY_KUNCI_ELAPSED, elapsedKini + sisaBaru)
-                        .apply();
-            } catch (Exception ignored) {
+            // Audit 1657: penulisan ulang ini efek samping sebuah
+            // pembacaan, dan pemanggil advisori berjalan di luar
+            // KUNCI_PERCOBAAN — apply() advisori bisa mendarat
+            // sesudah commit catatHasil yang bersamaan dan menimpa
+            // stempel segarnya (kunci menyusut ke sisa lama). Di
+            // bawah kunci yang sama dengan para penulis, dan hanya
+            // bila stempel masih persis yang dibaca tadi.
+            synchronized (KUNCI_PERCOBAAN) {
+                if (TgBackup.amanLong(sp, KEY_KUNCI_ELAPSED, 0) == sampaiElapsed) {
+                    try {
+                        sp.edit().putLong(KEY_KUNCI_SAMPAI, sekarang + sisaBaru)
+                                .putLong(KEY_KUNCI_ELAPSED, elapsedKini + sisaBaru)
+                                .apply();
+                    } catch (Exception ignored) {
+                    }
+                }
             }
             return sisaBaru;
         }

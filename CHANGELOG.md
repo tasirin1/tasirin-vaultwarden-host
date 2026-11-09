@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penulisan ulang stempel basi PIN kini di bawah kunci percobaan + cek-banding (Audit 1657)
+
+- Efek samping tulis di pembacaan `PinGate.sisaKunciMs` (cabang stempel elapsed basi) kini berjalan di dalam `synchronized (KUNCI_PERCOBAAN)` — kunci yang sama dengan para penulis `catatHasil` — dan hanya menulis bila stempel elapsed masih persis yang dibaca; `apply()` advisori dari luar kunci tak lagi bisa menimpa stempel segar yang ter-commit bersamaan (kunci menyusut ke sisa lama).
+
 ## [Belum rilis] — Saran koneksi kini mengenali pesan 'Storage kurang' buatan aplikasi (Audit 1656)
 
 - Cabang disk-penuh di `saranKoneksi` (Audit 1646) juga cocok dengan token `storage kurang` — pesan ruang habis dari cek-ruang backup/unduh/restore Telegram sendiri — sehingga pesan galatnya menyarankan mengosongkan penyimpanan, bukan berakhir dengan saran cek internet yang kontradiktif. Uji JVM baru menguncinya.
