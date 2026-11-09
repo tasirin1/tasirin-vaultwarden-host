@@ -15380,6 +15380,49 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("openssl enc -out -in: gerbang gagal (Audit 1582)", rc != 0)
         shutil.rmtree(sub714, ignore_errors=True)
+        sub715 = klon(tmp, "sub715")
+        berkas_aksi715 = os.path.join(
+            sub715, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi715, encoding="utf-8") as f:
+            isi_aksi715 = f.read()
+        baris_aksi715 = [b for b in isi_aksi715.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru715 = isi_aksi715.replace(
+                baris_aksi715,
+                baris_aksi715.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl aes-256-cbc -ciphers; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru715 != isi_aksi715, \
+            "suntikan aksi715 tidak menembak"
+        with open(berkas_aksi715, "w", encoding="utf-8") as f:
+            f.write(isi_baru715)
+        rc, out = jalan(sub715,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl aes-256-cbc -ciphers: gerbang lolos (Audit 1583)", rc == 0)
+        shutil.rmtree(sub715, ignore_errors=True)
+
+        sub716 = klon(tmp, "sub716")
+        berkas_aksi716 = os.path.join(
+            sub716, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi716, encoding="utf-8") as f:
+            isi_aksi716 = f.read()
+        baris_aksi716 = [b for b in isi_aksi716.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru716 = isi_aksi716.replace(
+                baris_aksi716,
+                baris_aksi716.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(openssl sha256 -list; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru716 != isi_aksi716, \
+            "suntikan aksi716 tidak menembak"
+        with open(berkas_aksi716, "w", encoding="utf-8") as f:
+            f.write(isi_baru716)
+        rc, out = jalan(sub716,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("openssl sha256 -list: gerbang lolos (Audit 1583)", rc == 0)
+        shutil.rmtree(sub716, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

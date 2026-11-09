@@ -2081,9 +2081,31 @@ def _menguras_khusus(perintah, toks, awal):
         if not mentah:
             return False
         sub = mentah[0]
+        # Audit 1583: pola nama dinamis dihoist dari
+        # cabang enc/dgst agar penjaga bentuk daftar
+        # memakai himpunan yang sama persis (dulu
+        # penjaga hanya mengenal sub harfiah sehingga
+        # alias seperti 'aes-256-cbc -ciphers' dan
+        # 'sha256 -list' kena positif palsu).
+        pola_cipher = (
+            r"(aes-(128|192|256)-(cbc|cfb|cfb1|cfb8|ctr|ecb|ofb)"
+            r"|aria-(128|192|256)-(cbc|cfb|cfb1|cfb8|ctr|ecb|ofb)"
+            r"|camellia-(128|192|256)"
+            r"-(cbc|cfb|cfb1|cfb8|ctr|ecb|ofb)"
+            r"|des-ede3?(-(cbc|cfb|ofb))?|des3"
+            r"|sm4-(cbc|cfb|ctr|ecb|ofb))")
+        pola_digest = (
+            r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"
+            r"|blake2b512|blake2s256|sm3|whirlpool"
+            r"|sha3-224|sha3-256|sha3-384|sha3-512"
+            r"|sha512-224|sha512-256|shake128|shake256)")
         # Audit 1214: bentuk daftar openssl juga informasional
         # (mencetak daftar lalu keluar tanpa membaca).
-        if sub in ("dgst", "enc") and any(
+        if (sub in ("dgst", "enc")
+                or re.fullmatch(pola_cipher, sub,
+                                re.IGNORECASE)
+                or re.fullmatch(pola_digest, sub,
+                                re.IGNORECASE)) and any(
                 # Audit 1240: bentuk strip-ganda juga.
                 t in ("-list", "-ciphers", "--list",
                       "--ciphers") for t in mentah):
@@ -2122,13 +2144,7 @@ def _menguras_khusus(perintah, toks, awal):
             return bool(hasil_in)
 
         if sub == "enc" or sub == "base64" or re.fullmatch(
-                r"(aes-(128|192|256)-(cbc|cfb|cfb1|cfb8|ctr|ecb|ofb)"
-                r"|aria-(128|192|256)-(cbc|cfb|cfb1|cfb8|ctr|ecb|ofb)"
-                r"|camellia-(128|192|256)"
-                r"-(cbc|cfb|cfb1|cfb8|ctr|ecb|ofb)"
-                r"|des-ede3?(-(cbc|cfb|ofb))?|des3"
-                r"|sm4-(cbc|cfb|ctr|ecb|ofb))", sub,
-                re.IGNORECASE):
+                pola_cipher, sub, re.IGNORECASE):
             # Audit 1561: regex nama cipher di atas dan
             # regex alias digest di cabang dgst sama-sama
             # tak peka huruf — openssl menyelesaikan nama
@@ -2354,11 +2370,7 @@ def _menguras_khusus(perintah, toks, awal):
         # dulu absen (sha3-224/256/384/512,
         # sha512-224/256, shake128, shake256).
         if sub == "dgst" or re.fullmatch(
-                r"(md5|sha1|sha224|sha256|sha384|sha512|rmd160"
-                r"|blake2b512|blake2s256|sm3|whirlpool"
-                r"|sha3-224|sha3-256|sha3-384|sha3-512"
-                r"|sha512-224|sha512-256|shake128|shake256)",
-                sub, re.IGNORECASE):
+                pola_digest, sub, re.IGNORECASE):
             dasar = awal + 1 if sub == "dgst" else awal
             # Audit 1076: -rand bernilai — dulu hilang dari tabel
             # sehingga nilai berkasnya terhitung operand penekan.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: penjaga bentuk daftar hanya berlaku untuk sub harfiah (Audit 1583) (Audit 1583)
+
+- Penjaga bentuk informasional -list/-ciphers hanya mengenal sub harfiah dgst/enc, sehingga bentuk daftar lewat alias ('aes-256-cbc -ciphers', 'sha256 -list') kena positif palsu. Pola nama cipher/digest kini dihoist dari cabangnya dan penjaga memakai himpunan yang sama persis.
+
 ## [Belum rilis] — Gerbang: token -in sebagai nilai -out menipu pindaian -in (Audit 1582) (Audit 1582)
 
 - Pindaian -in mentah di _in_non_stdin dan kelompok x509 menghitung token '-in' yang sebenarnya NILAI opsi -out (mis. 'openssl enc -out -in') sebagai opsi masukan berkas, padahal openssl membacanya sebagai nama berkas keluaran dan masukan tetap dari stdin (fail-open). Kedua pindaian kini melewati '-in' yang menjadi nilai -out.
