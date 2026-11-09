@@ -288,7 +288,12 @@ jobs:
           path: |
             vaultwarden/target
             ~/.cargo/registry
-          key: vw-cargo-armv7-${{ needs.resolve.outputs.vw }}
+          # Audit 1669: kunci ikut memuat hash berkas workflow
+          # ini sendiri — di sanalah NDK_VERSION, profil rilis,
+          # daftar fitur, dan isi patch heredoc hidup; tanpa
+          # itu perubahan konfigurasi build untuk versi
+          # upstream yang sama me-restore cache konfigurasi lama.
+          key: vw-cargo-armv7-${{ needs.resolve.outputs.vw }}-${{ hashFiles('.github/workflows/build-binary.yml') }}
 
           restore-keys: |
             vw-cargo-armv7-

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kunci cache cargo build-binary kini memuat hash workflow-nya sendiri (Audit 1669)
+
+- Kunci cache cargo di `build-binary.yml` ditambah `hashFiles` berkas workflow itu sendiri — di sanalah NDK_VERSION, profil rilis, daftar fitur, dan isi patch heredoc hidup; perubahan konfigurasi build untuk versi upstream yang sama kini membuat kunci baru, bukan me-restore cache konfigurasi lama.
+
 ## [Belum rilis] — Setel/ganti PIN kini membuang warisan kunci PIN lama (Audit 1668)
 
 - Kedua situs penetapan kredensial PIN di Settings (aktivasi + ganti PIN, keduanya di dalam `KUNCI_PERCOBAAN` oleh pemilik yang lolos gerbang) kini ikut menghapus `KEY_GAGAL` + kedua stempel kunci dalam edit yang sama — PIN baru tidak lagi mewarisi kunci dari kegagalan PIN lama (mis. yang menumpuk lewat bot selagi Settings terbuka). Matikan PIN saja tidak menyentuh keadaan; siklus nyala berikutnya yang membersihkannya.
