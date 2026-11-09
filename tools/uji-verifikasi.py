@@ -16536,6 +16536,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("lua -W bendera, token terpisah berkas skrip: gerbang lolos (Audit 1661)", rc == 0)
         shutil.rmtree(sub769, ignore_errors=True)
+        sub770 = klon(tmp, "sub770")
+        berkas_aksi770 = os.path.join(
+            sub770, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi770, encoding="utf-8") as f:
+            isi_aksi770 = f.read()
+        baris_aksi770 = [b for b in isi_aksi770.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru770 = isi_aksi770.replace(
+                baris_aksi770,
+                baris_aksi770.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv sig - data; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru770 != isi_aksi770, \
+            "suntikan aksi770 tidak menembak"
+        with open(berkas_aksi770, "w", encoding="utf-8") as f:
+            f.write(isi_baru770)
+        rc, out = jalan(sub770,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv tiga operand dengan '-' kedua di substitusi proses: penguras — gerbang gagal (Audit 1671)", rc != 0)
+        shutil.rmtree(sub770, ignore_errors=True)
+        sub771 = klon(tmp, "sub771")
+        berkas_aksi771 = os.path.join(
+            sub771, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi771, encoding="utf-8") as f:
+            isi_aksi771 = f.read()
+        baris_aksi771 = [b for b in isi_aksi771.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru771 = isi_aksi771.replace(
+                baris_aksi771,
+                baris_aksi771.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv sig data ekstra; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru771 != isi_aksi771, \
+            "suntikan aksi771 tidak menembak"
+        with open(berkas_aksi771, "w", encoding="utf-8") as f:
+            f.write(isi_baru771)
+        rc, out = jalan(sub771,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv tiga operand berkas: gerbang lolos (Audit 1671)", rc == 0)
+        shutil.rmtree(sub771, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

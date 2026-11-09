@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cek khusus gpgv menerima bentuk ≥3 operand (Audit 1671)
+
+- Syarat panjang cek khusus gpgv dilonggarkan dari `== 2` menjadi `>= 2`: gpgv nyata hanya memakai dua operand pertama dan mengabaikan sisanya (terprobe real), jadi bentuk ≥3 operand dengan `-` di posisi pertama/kedua tetap menguras stdin dan kini terdeteksi; 2 skenario suite baru menguncinya (Audit 1671).
+
 ## [Belum rilis] — Saran disk-penuh kini menangkap frasa 'Sisa penyimpanan tinggal…' (Audit 1667)
 
 - Token cabang disk-penuh di `saranKoneksi` ditambah `sisa penyimpanan` — pesan cek-ruang update web-vault (cek awal 150 MB + cek ekstrak Audit 1645, keduanya "Sisa penyimpanan tinggal…") kini menghasilkan saran penyimpanan, bukan jatuh ke cek internet. Uji JVM baru menguncinya.

@@ -5118,7 +5118,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # Audit 1659: cerminnya — operand pertama "-"
         # berarti berkas tanda tangan dibaca dari stdin
         # (terprobe real: detached-sig sah terkuras penuh).
-        if len(ops_gv) == 2 and (ops_gv[1] == "-"
+        # Audit 1671: syarat panjang dilonggarkan — gpgv
+        # nyata hanya memakai DUA operand pertama dan
+        # mengabaikan sisanya (terprobe real: bentuk >=3
+        # operand dengan "-" di posisi 1/2 tetap menguras).
+        if len(ops_gv) >= 2 and (ops_gv[1] == "-"
                                  or ops_gv[0] == "-"):
             return True
     if perintah == "iconv":
