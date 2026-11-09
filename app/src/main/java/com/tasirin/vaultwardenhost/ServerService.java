@@ -837,6 +837,27 @@ public class ServerService extends Service {
         return aliveCode == 200 || configCode == 200;
     }
 
+    // Audit 1698: kebijakan penghitung health per tick.
+    // mode 0 = sehat penuh, 1 = config-saja (DB rusak),
+    // 2 = tak merespon. Kembalian {healthFails, healthTcpLolos,
+    // configSajaBeruntun} SESUDAH pembukuan tick ini, di luar
+    // kenaikan healthFail sendiri. Inti perbaikannya: mode
+    // tak-sehat TIDAK menolkan penghitung mode tak-sehat lain
+    // - dulu dua mode berselang-seling saling menghapus
+    // sehingga kedua ambang restart tak pernah tercapai pada
+    // server yang tak pernah sehat. Hanya sehat penuh yang
+    // menolkan semuanya.
+    static int[] perbaruiPenghitungHealth(int mode, int gagal,
+            int tcp, int config) {
+        if (mode == 0) {
+            return new int[]{0, 0, 0};
+        }
+        if (mode == 1) {
+            return new int[]{gagal, tcp, config + 1};
+        }
+        return new int[]{gagal, tcp, config};
+    }
+
     static boolean aliveRusakTapiConfigSehat(int aliveCode, int configCode) {
         return aliveCode >= 500 && aliveCode < 600 && configCode == 200;
     }
@@ -2924,9 +2945,17 @@ public class ServerService extends Service {
 
             if (aliveRusakTapiConfigSehat(h.aliveCode, h.configCode)) {
 
-                healthFails.set(0);
-                healthTcpLolos.set(0);
-                int n = configSajaBeruntun.incrementAndGet();
+                // Audit 1698: penghitung mode lain tak lagi
+                // dinolkan di sini (kebijakan perbaruiPenghitung
+                // Health) - dulu tick config-saja menghapus
+                // hitungan tak-merespon dan sebaliknya.
+                int[] ph = perbaruiPenghitungHealth(1,
+                        healthFails.get(), healthTcpLolos.get(),
+                        configSajaBeruntun.get());
+                healthFails.set(ph[0]);
+                healthTcpLolos.set(ph[1]);
+                configSajaBeruntun.set(ph[2]);
+                int n = ph[2];
                 if (n >= BATAS_CONFIG_SAJA_BERUNTUN) {
                     configSajaBeruntun.set(0);
                     // Audit 1643: cabang ini menolkan healthFails
@@ -2955,12 +2984,22 @@ public class ServerService extends Service {
                         + " ke-" + n + "/" + BATAS_CONFIG_SAJA_BERUNTUN + ").");
                 return;
             }
-            configSajaBeruntun.set(0);
-            healthFails.set(0);
-            healthTcpLolos.set(0);
+            int[] ph0 = perbaruiPenghitungHealth(0,
+                    healthFails.get(), healthTcpLolos.get(),
+                    configSajaBeruntun.get());
+            healthFails.set(ph0[0]);
+            healthTcpLolos.set(ph0[1]);
+            configSajaBeruntun.set(ph0[2]);
             return;
         }
-        configSajaBeruntun.set(0);
+        // Audit 1698: configSajaBeruntun tak dinolkan di sini -
+        // lihat perbaruiPenghitungHealth.
+        int[] ph2 = perbaruiPenghitungHealth(2,
+                healthFails.get(), healthTcpLolos.get(),
+                configSajaBeruntun.get());
+        healthFails.set(ph2[0]);
+        healthTcpLolos.set(ph2[1]);
+        configSajaBeruntun.set(ph2[2]);
         healthFail("tidak merespon (" + h.rincian + ")", pCek);
     }
 

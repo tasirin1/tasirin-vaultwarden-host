@@ -225,6 +225,30 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void perbaruiPenghitungHealth_berselangSelingTidakSalingMenolkan() {
+        // Audit 1698: urutan mode tak-sehat bergantian tidak
+        // boleh menghapus hitungan mode sebelahnya.
+        int[] p = ServerService.perbaruiPenghitungHealth(2, 0, 0, 0);
+        p = ServerService.perbaruiPenghitungHealth(1, p[0], p[1], p[2]);
+        assertEquals(1, p[2]);
+        p = ServerService.perbaruiPenghitungHealth(2, p[0], p[1], p[2]);
+        assertEquals(1, p[2]);
+        p = ServerService.perbaruiPenghitungHealth(1, p[0], p[1], p[2]);
+        assertEquals(2, p[2]);
+        // Hanya sehat penuh yang menolkan semuanya.
+        p = ServerService.perbaruiPenghitungHealth(0, p[0], p[1], p[2]);
+        assertEquals(0, p[0]);
+        assertEquals(0, p[1]);
+        assertEquals(0, p[2]);
+        // Mode tunggal: config menumpuk, tak-merespon menahan.
+        p = ServerService.perbaruiPenghitungHealth(1, 0, 0, 9);
+        assertEquals(10, p[2]);
+        p = ServerService.perbaruiPenghitungHealth(2, 3, 2, 4);
+        assertEquals(3, p[0]);
+        assertEquals(4, p[2]);
+    }
+
+    @Test
     public void configSajaSehatHanyaSaatAlive5xx() {
         assertTrue(ServerService.aliveRusakTapiConfigSehat(500, 200));
         assertTrue(ServerService.aliveRusakTapiConfigSehat(503, 200));
