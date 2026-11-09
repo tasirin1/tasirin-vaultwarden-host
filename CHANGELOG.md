@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: varian nama GNU awk dan keluarga nama lain kini dikenal (Audit 1638)
+
+- `gawk`/`pgawk`/`igawk` kini dipetakan ke keluarga awk (sebelumnya lolos deteksi pengurasan stdin), `gpg2` dinilai sama dengan `gpg`, kompresor `zstd`/`pigz` (+ varian dekompresinya) masuk daftar pembaca stdin beserta opsi bernilainya, dan shell `ash`/`ksh`/`fish` serta interpreter `ruby`/`php`/`lua` dinilai seperti keluarganya. 15 skenario suite baru (775 total) mengunci vonisnya (Audit 1638).
+
 ## [Belum rilis] — Uji: asersi pengunci untuk tiga kunci sidik tak-diekspor (Audit 1637)
 
 - `TgBackupTest` kini mengasersi `bin_sha_fp`, `versi_fp`, dan `versi_file` tidak diekspor (assertFalse `kunciDiekspor` + assertTrue `TAK_DIEKSPOR_KEYS`) — ketiganya ditambahkan Audit 1636 tanpa asersi pengunci, jadi penghapusan tak sengaja di masa depan sekarang menggagalkan uji CI (Audit 1637).

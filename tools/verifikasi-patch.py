@@ -677,12 +677,17 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "iconv", "logger", "numfmt",
                   # Audit 1057: kompresor saudara gzip + zcat.
                   "xz", "bzip2", "lzma", "zcat",
+                  # Audit 1638: kompresor generasi berikut —
+                  # tanpa operand membaca stdin seperti gzip.
+                  "zstd", "pigz",
                   # Audit 1098: varian nama kompresor yang sama
                   # perilakunya (dekompresi ke stdout).
                   "bunzip2", "bzcat", "xzcat", "unxz", "unlzma",
                   # Audit 1199: lzcat setara unlzma, tertinggal
                   # dari daftar.
                   "lzcat",
+                  # Audit 1638: varian dekompresi zstd/pigz.
+                  "unzstd", "zstdcat", "unpigz",
                   # Audit 1112: pembaca interaktif/kueri — operand
                   # berkas/nama menekan seperti filter biasa.
                   "wall", "c++filt", "nslookup",
@@ -695,6 +700,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1067: varian nama keluarga yang sama
                   # (dipetakan ke nama kanonis di penilainya).
                   "mawk", "nawk", "egrep", "fgrep", "rg",
+                  # Audit 1638: varian GNU awk.
+                  "gawk", "pgawk", "igawk",
                   # Audit 1244: grep terkompresi — pola
                   # pertamanya bukan berkas (penilai keluarga).
                   "zgrep", "bzgrep", "xzgrep", "lzgrep",
@@ -879,6 +886,14 @@ _OPSI_BERNILAI = {
            "--memlimit-compress", "--memlimit-decompress",
            # Audit 1172: -F/--format bernilai.
            "-F", "--format"},
+    # Audit 1638: opsi bernilai kompresor zstd/pigz.
+    "zstd": {"-o", "--output", "-D", "-T", "--threads"},
+    "unzstd": {"-o", "--output", "-D", "-T", "--threads"},
+    "zstdcat": {"-D", "-T", "--threads"},
+    "pigz": {"-p", "--processes", "-b", "--blocksize", "-S",
+             "--suffix"},
+    "unpigz": {"-p", "--processes", "-b", "--blocksize", "-S",
+               "--suffix"},
     # Audit 1211: wall selama ini tanpa entri — -t bernilai.
     "wall": {"-t", "--timeout",
             # Audit 1236: -g/--group wall bernilai.
@@ -1399,7 +1414,10 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 "bzegrep": "grep", "bzfgrep": "grep",
                 "xzegrep": "grep", "xzfgrep": "grep",
                 "lzegrep": "grep", "lzfgrep": "grep",
-                "original-awk": "awk"}.get(perintah, perintah)
+                "original-awk": "awk",
+                # Audit 1638: varian GNU awk.
+                "gawk": "awk", "pgawk": "awk",
+                "igawk": "awk"}.get(perintah, perintah)
     # Audit 1095: mode daftar rg tak membaca stdin sama sekali.
     if nama_asli == "rg" and any(
             t.strip("\"'") == "--files" for t in toks[awal + 1:]):
@@ -1706,7 +1724,10 @@ def _menguras_interpreter(perintah, toks, awal):
             return t == "-"
         return True
     if perintah in ("bash", "sh", "dash", "zsh", "rbash",
-                    "rzsh"):
+                    "rzsh",
+                    # Audit 1638: shell lain sekeluarga —
+                    # tanpa skrip membaca perintah dari stdin.
+                    "ash", "ksh", "fish"):
         # Audit 1058: shell tanpa skrip membaca perintah dari
         # stdin; -c menekan; operand "-" memintanya eksplisit.
         # Audit 1083: sesudah -s, operand pertama adalah $0 (nama
@@ -3058,7 +3079,9 @@ def _menguras_khusus(perintah, toks, awal):
         return any(t == "-" or t.startswith("STDIO")
                    or t.startswith("STDIN") for t in mentah
                    if not t.startswith("-") or t == "-")
-    if perintah == "gpg":
+    if perintah in ("gpg", "gpg2"):
+        # Audit 1638: gpg2 adalah nama historis binary GnuPG 2 —
+        # semantik opsi & operandnya sama persis dengan gpg.
         # Audit 1069: enkripsi/tanda tangan simetris batch tanpa
         # operand berkas membaca plaintext dari stdin.
         bernilai_gpg = {"-o", "--output", "--homedir", "-r", "--recipient",
@@ -4861,7 +4884,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                            # Audit 1122: expect pembaca skrip.
                            # Audit 1158: shell terbatas rbash/rzsh.
                            "bash", "sh", "dash", "zsh", "expect",
-                           "rbash", "rzsh", "tclsh"):
+                           "rbash", "rzsh", "tclsh",
+                           # Audit 1638: shell & interpreter lain
+                           # — tanpa skrip membaca dari stdin
+                           # seperti keluarganya.
+                           "ash", "ksh", "fish",
+                           "ruby", "php", "lua"):
             return _menguras_interpreter(nama_interp, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return _menguras_mapfile(toks, awal)
@@ -4878,7 +4906,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return _menguras_khusus(m_komp.group(1), toks, awal)
         if perintah in ("sqlite3", "openssl", "tar", "git",
                         "comm", "join", "diff", "diff3", "csplit",
-                        "zip", "rsync", "socat", "gpg", "gpgsm", "curl",
+                        "zip", "rsync", "socat", "gpg", "gpg2",
+                        "gpgsm", "curl",
                         # Audit 1157: nama varian nc.
                         "wget", "nc", "netcat", "nc.openbsd",
                         "make", "visudo", "patch",
@@ -4953,6 +4982,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         return True
     if perintah in ("sed", "awk", "grep", "jq",
                     "mawk", "nawk", "egrep", "fgrep", "rg",
+                    # Audit 1638: varian GNU awk.
+                    "gawk", "pgawk", "igawk",
                   # Audit 1244: grep terkompresi — pola
                   # pertamanya bukan berkas (penilai keluarga).
                   "zgrep", "bzgrep", "xzgrep", "lzgrep",

@@ -15528,6 +15528,321 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg --options --clearsign (modus tertelan nilai): gerbang lolos (Audit 1591)", rc == 0)
         shutil.rmtree(sub721, ignore_errors=True)
+        sub722 = klon(tmp, "sub722")
+        berkas_aksi722 = os.path.join(
+            sub722, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi722, encoding="utf-8") as f:
+            isi_aksi722 = f.read()
+        baris_aksi722 = [b for b in isi_aksi722.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru722 = isi_aksi722.replace(
+                baris_aksi722,
+                baris_aksi722.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gawk '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru722 != isi_aksi722, \
+            "suntikan aksi722 tidak menembak"
+        with open(berkas_aksi722, "w", encoding="utf-8") as f:
+            f.write(isi_baru722)
+        rc, out = jalan(sub722,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("varian GNU awk gawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub722, ignore_errors=True)
+        sub723 = klon(tmp, "sub723")
+        berkas_aksi723 = os.path.join(
+            sub723, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi723, encoding="utf-8") as f:
+            isi_aksi723 = f.read()
+        baris_aksi723 = [b for b in isi_aksi723.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru723 = isi_aksi723.replace(
+                baris_aksi723,
+                baris_aksi723.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gawk '{print}' data.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru723 != isi_aksi723, \
+            "suntikan aksi723 tidak menembak"
+        with open(berkas_aksi723, "w", encoding="utf-8") as f:
+            f.write(isi_baru723)
+        rc, out = jalan(sub723,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gawk beroperand berkas data: gerbang lolos (Audit 1638)", rc == 0)
+        shutil.rmtree(sub723, ignore_errors=True)
+        sub724 = klon(tmp, "sub724")
+        berkas_aksi724 = os.path.join(
+            sub724, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi724, encoding="utf-8") as f:
+            isi_aksi724 = f.read()
+        baris_aksi724 = [b for b in isi_aksi724.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru724 = isi_aksi724.replace(
+                baris_aksi724,
+                baris_aksi724.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pgawk '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru724 != isi_aksi724, \
+            "suntikan aksi724 tidak menembak"
+        with open(berkas_aksi724, "w", encoding="utf-8") as f:
+            f.write(isi_baru724)
+        rc, out = jalan(sub724,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("varian GNU awk pgawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub724, ignore_errors=True)
+        sub725 = klon(tmp, "sub725")
+        berkas_aksi725 = os.path.join(
+            sub725, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi725, encoding="utf-8") as f:
+            isi_aksi725 = f.read()
+        baris_aksi725 = [b for b in isi_aksi725.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru725 = isi_aksi725.replace(
+                baris_aksi725,
+                baris_aksi725.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(igawk '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru725 != isi_aksi725, \
+            "suntikan aksi725 tidak menembak"
+        with open(berkas_aksi725, "w", encoding="utf-8") as f:
+            f.write(isi_baru725)
+        rc, out = jalan(sub725,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("varian GNU awk igawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub725, ignore_errors=True)
+        sub726 = klon(tmp, "sub726")
+        berkas_aksi726 = os.path.join(
+            sub726, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi726, encoding="utf-8") as f:
+            isi_aksi726 = f.read()
+        baris_aksi726 = [b for b in isi_aksi726.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru726 = isi_aksi726.replace(
+                baris_aksi726,
+                baris_aksi726.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg2 --encrypt-to Uji92 -r Uji92 -e; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru726 != isi_aksi726, \
+            "suntikan aksi726 tidak menembak"
+        with open(berkas_aksi726, "w", encoding="utf-8") as f:
+            f.write(isi_baru726)
+        rc, out = jalan(sub726,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpg2 dinilai sama dengan gpg di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub726, ignore_errors=True)
+        sub727 = klon(tmp, "sub727")
+        berkas_aksi727 = os.path.join(
+            sub727, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi727, encoding="utf-8") as f:
+            isi_aksi727 = f.read()
+        baris_aksi727 = [b for b in isi_aksi727.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru727 = isi_aksi727.replace(
+                baris_aksi727,
+                baris_aksi727.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstd; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru727 != isi_aksi727, \
+            "suntikan aksi727 tidak menembak"
+        with open(berkas_aksi727, "w", encoding="utf-8") as f:
+            f.write(isi_baru727)
+        rc, out = jalan(sub727,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("kompresor zstd tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub727, ignore_errors=True)
+        sub728 = klon(tmp, "sub728")
+        berkas_aksi728 = os.path.join(
+            sub728, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi728, encoding="utf-8") as f:
+            isi_aksi728 = f.read()
+        baris_aksi728 = [b for b in isi_aksi728.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru728 = isi_aksi728.replace(
+                baris_aksi728,
+                baris_aksi728.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstd berkas.bin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru728 != isi_aksi728, \
+            "suntikan aksi728 tidak menembak"
+        with open(berkas_aksi728, "w", encoding="utf-8") as f:
+            f.write(isi_baru728)
+        rc, out = jalan(sub728,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zstd beroperand berkas: gerbang lolos (Audit 1638)", rc == 0)
+        shutil.rmtree(sub728, ignore_errors=True)
+        sub729 = klon(tmp, "sub729")
+        berkas_aksi729 = os.path.join(
+            sub729, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi729, encoding="utf-8") as f:
+            isi_aksi729 = f.read()
+        baris_aksi729 = [b for b in isi_aksi729.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru729 = isi_aksi729.replace(
+                baris_aksi729,
+                baris_aksi729.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pigz; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru729 != isi_aksi729, \
+            "suntikan aksi729 tidak menembak"
+        with open(berkas_aksi729, "w", encoding="utf-8") as f:
+            f.write(isi_baru729)
+        rc, out = jalan(sub729,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("kompresor pigz tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub729, ignore_errors=True)
+        sub730 = klon(tmp, "sub730")
+        berkas_aksi730 = os.path.join(
+            sub730, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi730, encoding="utf-8") as f:
+            isi_aksi730 = f.read()
+        baris_aksi730 = [b for b in isi_aksi730.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru730 = isi_aksi730.replace(
+                baris_aksi730,
+                baris_aksi730.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ruby; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru730 != isi_aksi730, \
+            "suntikan aksi730 tidak menembak"
+        with open(berkas_aksi730, "w", encoding="utf-8") as f:
+            f.write(isi_baru730)
+        rc, out = jalan(sub730,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("interpreter ruby tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub730, ignore_errors=True)
+        sub731 = klon(tmp, "sub731")
+        berkas_aksi731 = os.path.join(
+            sub731, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi731, encoding="utf-8") as f:
+            isi_aksi731 = f.read()
+        baris_aksi731 = [b for b in isi_aksi731.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru731 = isi_aksi731.replace(
+                baris_aksi731,
+                baris_aksi731.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ruby skrip.rb; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru731 != isi_aksi731, \
+            "suntikan aksi731 tidak menembak"
+        with open(berkas_aksi731, "w", encoding="utf-8") as f:
+            f.write(isi_baru731)
+        rc, out = jalan(sub731,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("ruby beroperand berkas skrip: gerbang lolos (Audit 1638)", rc == 0)
+        shutil.rmtree(sub731, ignore_errors=True)
+        sub732 = klon(tmp, "sub732")
+        berkas_aksi732 = os.path.join(
+            sub732, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi732, encoding="utf-8") as f:
+            isi_aksi732 = f.read()
+        baris_aksi732 = [b for b in isi_aksi732.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru732 = isi_aksi732.replace(
+                baris_aksi732,
+                baris_aksi732.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(php; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru732 != isi_aksi732, \
+            "suntikan aksi732 tidak menembak"
+        with open(berkas_aksi732, "w", encoding="utf-8") as f:
+            f.write(isi_baru732)
+        rc, out = jalan(sub732,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("interpreter php tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub732, ignore_errors=True)
+        sub733 = klon(tmp, "sub733")
+        berkas_aksi733 = os.path.join(
+            sub733, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi733, encoding="utf-8") as f:
+            isi_aksi733 = f.read()
+        baris_aksi733 = [b for b in isi_aksi733.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru733 = isi_aksi733.replace(
+                baris_aksi733,
+                baris_aksi733.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lua; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru733 != isi_aksi733, \
+            "suntikan aksi733 tidak menembak"
+        with open(berkas_aksi733, "w", encoding="utf-8") as f:
+            f.write(isi_baru733)
+        rc, out = jalan(sub733,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("interpreter lua tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub733, ignore_errors=True)
+        sub734 = klon(tmp, "sub734")
+        berkas_aksi734 = os.path.join(
+            sub734, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi734, encoding="utf-8") as f:
+            isi_aksi734 = f.read()
+        baris_aksi734 = [b for b in isi_aksi734.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru734 = isi_aksi734.replace(
+                baris_aksi734,
+                baris_aksi734.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ash; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru734 != isi_aksi734, \
+            "suntikan aksi734 tidak menembak"
+        with open(berkas_aksi734, "w", encoding="utf-8") as f:
+            f.write(isi_baru734)
+        rc, out = jalan(sub734,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("shell ash tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub734, ignore_errors=True)
+        sub735 = klon(tmp, "sub735")
+        berkas_aksi735 = os.path.join(
+            sub735, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi735, encoding="utf-8") as f:
+            isi_aksi735 = f.read()
+        baris_aksi735 = [b for b in isi_aksi735.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru735 = isi_aksi735.replace(
+                baris_aksi735,
+                baris_aksi735.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ksh; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru735 != isi_aksi735, \
+            "suntikan aksi735 tidak menembak"
+        with open(berkas_aksi735, "w", encoding="utf-8") as f:
+            f.write(isi_baru735)
+        rc, out = jalan(sub735,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("shell ksh tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub735, ignore_errors=True)
+        sub736 = klon(tmp, "sub736")
+        berkas_aksi736 = os.path.join(
+            sub736, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi736, encoding="utf-8") as f:
+            isi_aksi736 = f.read()
+        baris_aksi736 = [b for b in isi_aksi736.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru736 = isi_aksi736.replace(
+                baris_aksi736,
+                baris_aksi736.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(fish; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru736 != isi_aksi736, \
+            "suntikan aksi736 tidak menembak"
+        with open(berkas_aksi736, "w", encoding="utf-8") as f:
+            f.write(isi_baru736)
+        rc, out = jalan(sub736,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("shell fish tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        shutil.rmtree(sub736, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
