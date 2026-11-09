@@ -719,9 +719,21 @@ public final class TgBackup {
         // kegagalan sebagian agar backup berikutnya mengulang.
         SharedPreferences.Editor edLast = sp.edit();
         if (gagalChat.isEmpty()) {
-            edLast.putString(KEY_TG_LAST_FILE, fileId)
-                    .putString(KEY_TG_LAST_NAME, upload.getName())
-                    .putLong(KEY_TG_LAST, System.currentTimeMillis());
+            // Audit 1680: chat terakhir bisa terkonfirmasi RAGU
+            // (Audit 1663/1681 mengembalikan "" = dianggap
+            // terkirim) sehingga fileId batch ini kosong/tak
+            // diketahui. Menulis penanda kosong akan memutus
+            // unduh/restore backup terakhir padahal backupnya
+            // terkirim — penanda lama dipertahankan utuh.
+            if (fileId != null && !fileId.isEmpty()) {
+                edLast.putString(KEY_TG_LAST_FILE, fileId)
+                        .putString(KEY_TG_LAST_NAME, upload.getName())
+                        .putLong(KEY_TG_LAST, System.currentTimeMillis());
+            } else {
+                ServerService.catatLog("[tg] Penanda backup terakhir"
+                        + " dipertahankan: file_id batch ini tidak"
+                        + " terkonfirmasi (respons ambigu).");
+            }
         }
         edLast.apply();
         if (!gagalChat.isEmpty()) {

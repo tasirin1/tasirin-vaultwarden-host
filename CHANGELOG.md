@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda backup terakhir tak lagi ditimpa kosong saat chat terakhir terkonfirmasi ragu (Audit 1680)
+
+- Regresi Audit 1663: nilai balik ragu `""` dari chat terakhir mengalir menjadi `respTerakhir`, sehingga `extractFileId` menghasilkan `""` dan penanda `KEY_TG_LAST_FILE` tersimpan kosong sambil stempel dimajukan — unduh/restore backup terakhir sesudahnya mengaku belum ada backup padahal terkirim. Kini batch penanda hanya ditulis bila file_id-nya benar-benar diketahui; bila ragu, penanda lama dipertahankan utuh dan dicatat di log.
+
 ## [Belum rilis] — Kirim by-id: pembacaan respons pertama (tolakRedirect) kini di dalam bungkus ambigu (Audit 1679)
 
 - `tolakRedirectTelegram` di `kirimDokumenById` memanggil `getResponseCode()` — pembacaan respons pertama yang sesungguhnya — tetapi kemarin berada di luar bungkus ambigu Audit 1663, jadi putusnya koneksi tepat di sana masih lolos sebagai gagal pasti dan memicu unggahan penuh yang menggandakan dokumen. Kini ia di dalam bungkus yang sama; penolakan redirect-nya sendiri dibedakan sebagai gagal pasti (respons terbaca utuh), kegagalan baca lain tetap ambigu (dianggap terkirim).
