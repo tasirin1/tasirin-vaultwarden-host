@@ -557,7 +557,7 @@ public class SettingsActivity extends Activity {
     private void pasangAksi() {
         startStopBawah.setOnClickListener(v -> aksiStartStop());
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
-        revertBtn.setOnClickListener(v -> confirm(getString(R.string.reset_biner_judul),
+        revertBtn.setOnClickListener(v -> confirm(getString(R.string.reset_binary),
                 getString(R.string.reset_biner_pesan),
                 () -> runBusy(this::revertToBundled)));
         installCertBtn.setOnClickListener(v -> installCertificate());
@@ -614,7 +614,7 @@ public class SettingsActivity extends Activity {
         showPassBtn.setOnClickListener(v -> togglePassword(backupPassInput, showPassBtn));
         if (copyAdminBtn != null) {
             copyAdminBtn.setOnClickListener(v -> salinTeks(adminTokenInput.getText().toString(),
-                    getString(R.string.label_admin_token)));
+                    getString(R.string.admin_token)));
         }
         if (copyTgBtn != null) {
             copyTgBtn.setOnClickListener(v -> salinTeks(tgTokenInput.getText().toString(),
@@ -1133,7 +1133,7 @@ public class SettingsActivity extends Activity {
         } catch (Exception ignored) {
         }
         if (portNum < 1 || portNum > 65535) {
-            toast(getString(R.string.port_angka));
+            toast(getString(R.string.port_error));
             appendUiLog("[app] Port tidak valid: '" + port + "' - Start dibatalkan.");
             return;
         }
@@ -3462,7 +3462,7 @@ public class SettingsActivity extends Activity {
                 if (sb.length() > 0) {
                     sb.append(" \u00B7 ");
                 }
-                sb.append(getString(R.string.info_uptime, TgBot.durationText(up,
+                sb.append(getString(R.string.uptime_format, TgBot.durationText(up,
                         getString(R.string.dur_hour), getString(R.string.dur_minute),
                         getString(R.string.dur_second))));
             }

@@ -540,7 +540,7 @@ public class LogActivity extends Activity {
         DialogAman.tampil(this, new AlertDialog.Builder(this)
                 .setTitle(R.string.log_crash_judul)
                 .setView(sv)
-                .setPositiveButton(R.string.salin, (dlg, w) -> {
+                .setPositiveButton(R.string.copy, (dlg, w) -> {
                     salinClipboardBersihOtomatis("vaultwarden-crash", crash);
                     toast(getString(R.string.log_crash_disalin));
                 })

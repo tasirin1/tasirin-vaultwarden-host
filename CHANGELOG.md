@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — String: 7 pasang duplikat disatukan (Audit 1613)
+
+- Tujuh pasang string bernilai identik di kedua locale disatukan ke satu nama; semua pemanggil dialihkan dan nama duplikatnya dihapus dari values + values-in. Dua pasang lain yang terjemahannya sudah berbeda (bot_token/label_bot_token, restore_from_tg/restore_tg_judul) sengaja dipertahankan.
+
 ## [Belum rilis] — Layout: peringatan LabelFor ditandai positif-palsu (Audit 1612)
 
 - 10 kolom isian ditandai `tools:ignore="LabelFor"`: lint tetap memperingatkan padahal setiap kolom itu SUDAH punya label TextView ber-labelFor yang menunjuknya DAN android:hint (keduanya terverifikasi di sumber) — peringatan positif-palsu detektor. Aksesibilitas runtime tidak berubah.

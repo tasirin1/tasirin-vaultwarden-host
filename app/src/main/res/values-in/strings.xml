@@ -15,11 +15,9 @@
     <string name="about_title">Tentang Tasirin Vaultwarden Host</string>
     <string name="about_version">Versi %1$s</string>
     <string name="about_github">Buka GitHub</string>
-    <string name="about_check_update">Cek Update</string>
     <string name="about_tech">minSdk %1$d · targetSdk %2$d · build %3$d</string>
     <string name="menu">Menu</string>
     <string name="toolbar_subtitle">v%1$s · build %2$d</string>
-    <string name="open_settings">Pengaturan</string>
     <string name="update_open_settings">⚠ Update v%1$s tersedia — buka di Settings</string>
     <string name="uptime_format">Uptime %1$s</string>
     <string name="url_copied">URL disalin: %1$s</string>
@@ -157,7 +155,6 @@
     <string name="antrean_penuh">Antrean tugas penuh, coba lagi sebentar.</string>
     <string name="log_crash_belum_ada">Belum ada log crash.</string>
     <string name="log_crash_judul">Log Crash</string>
-    <string name="salin">Salin</string>
     <string name="log_crash_disalin">Log crash disalin ke papan klip.</string>
     <string name="log_menyiapkan">Menyiapkan log…</string>
     <string name="log_kosong">Log masih kosong.</string>
@@ -203,7 +200,6 @@
     <string name="pin_aktif">PIN aktif.</string>
     <string name="masih_bekerja">Masih bekerja, mohon tunggu.</string>
     <string name="folder_bawaan">Folder data tidak valid, memakai bawaan.</string>
-    <string name="port_angka">Port harus angka 1&#8211;65535.</string>
     <string name="port_kecil_bawaan">Port &lt;1024 butuh root — memakai bawaan %1$s.</string>
     <string name="port_root_pesan_setelan">Port utama (%1$d) di bawah 1024 hanya bisa dipakai dengan akses root.\nGanti port ke &gt;= 1024 (mis. 8088) di atas.</string>
     <string name="port_dipakai_pesan_setelan">Port utama (%1$d) sudah dipakai proses lain.\nHentikan aplikasi lain itu, ganti port di atas, atau restart HP lebih dulu.</string>
@@ -270,7 +266,6 @@
     <string name="biner_tidak_ada">Belum ada binary tersimpan.</string>
     <string name="ya">Ya</string>
     <string name="tugas_gagal">Tugas gagal: %1$s</string>
-    <string name="reset_biner_judul">Reset Binary</string>
     <string name="reset_biner_pesan">Hapus binary tersimpan. Versi pilihan (atau terbaru bila tak dikunci) akan diunduh otomatis saat Start berikutnya (butuh internet). Lanjutkan?</string>
     <string name="reset_sert_judul">Reset Sertifikat</string>
     <string name="reset_sert_pesan">Hapus CA + sertifikat lama dan buat CA baru saat Start berikutnya. Setiap HP harus memasang ulang CA baru. Lanjutkan?</string>
@@ -286,7 +281,6 @@
     <string name="url_lokal_disalin">URL lokal disalin</string>
     <string name="url_loopback_disalin">URL loopback disalin (IP LAN tak terdeteksi)</string>
     <string name="url_jaringan_disalin">URL jaringan disalin</string>
-    <string name="label_admin_token">Admin Token</string>
     <string name="label_bot_token">Token bot</string>
     <string name="backup_auto_aktif">Backup otomatis aktif.</string>
     <string name="backup_auto_mati">Backup otomatis nonaktif.</string>
@@ -301,7 +295,6 @@
     <string name="info_wv_bundled">(bawaan)</string>
     <string name="info_wv_beda">\u26A0 versi server berbeda v%1$s</string>
     <string name="info_ram">RAM %1$s</string>
-    <string name="info_uptime">Uptime %1$s</string>
     <string name="info_free">Sisa %1$s</string>
     <plurals name="info_tls_exp">
         <item quantity="other">\u26A0 Sertifikat TLS kedaluwarsa dalam %1$d hari</item>

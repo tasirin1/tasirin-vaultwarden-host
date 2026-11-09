@@ -85,7 +85,7 @@
             android:minHeight="48dp"
             android:nextFocusLeft="@id/btn_about_github"
             android:nextFocusDown="@id/btn_about_ok"
-            android:text="@string/about_check_update"
+            android:text="@string/check_update"
             android:textSize="13sp" />
     </LinearLayout>
 

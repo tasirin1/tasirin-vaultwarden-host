@@ -15,11 +15,9 @@
     <string name="about_title">About Tasirin Vaultwarden Host</string>
     <string name="about_version">Version %1$s</string>
     <string name="about_github">Open GitHub</string>
-    <string name="about_check_update">Check Update</string>
     <string name="about_tech">minSdk %1$d · targetSdk %2$d · build %3$d</string>
     <string name="menu">Menu</string>
     <string name="toolbar_subtitle">v%1$s · build %2$d</string>
-    <string name="open_settings">Settings</string>
     <string name="update_open_settings">⚠ Update v%1$s available — open Settings</string>
     <string name="uptime_format">Uptime %1$s</string>
     <string name="url_copied">URL copied: %1$s</string>
@@ -157,7 +155,6 @@
     <string name="antrean_penuh">Task queue is full, try again shortly.</string>
     <string name="log_crash_belum_ada">No crash log yet.</string>
     <string name="log_crash_judul">Crash Log</string>
-    <string name="salin">Copy</string>
     <string name="log_crash_disalin">Crash log copied to clipboard.</string>
     <string name="log_menyiapkan">Preparing log…</string>
     <string name="log_kosong">Log is still empty.</string>
@@ -204,7 +201,6 @@
     <string name="pin_aktif">PIN is active.</string>
     <string name="masih_bekerja">Still working, please wait.</string>
     <string name="folder_bawaan">Invalid data folder, using default.</string>
-    <string name="port_angka">Port must be a number 1&#8211;65535.</string>
     <string name="port_kecil_bawaan">Port &lt;1024 needs root — using default %1$s.</string>
     <string name="port_root_pesan_setelan">Main port (%1$d) below 1024 can only be used with root access.\nChange the port to &gt;= 1024 (e.g. 8088) above.</string>
     <string name="port_dipakai_pesan_setelan">Main port (%1$d) is already used by another process.\nStop the other app using it, change the port above, or restart the phone first.</string>
@@ -271,7 +267,6 @@
     <string name="biner_tidak_ada">No saved binary.</string>
     <string name="ya">Yes</string>
     <string name="tugas_gagal">Task failed: %1$s</string>
-    <string name="reset_biner_judul">Reset Binary</string>
     <string name="reset_biner_pesan">Delete the saved binary. The chosen version (or latest if unpinned) will be re-downloaded automatically on next Start (needs internet). Continue?</string>
     <string name="reset_sert_judul">Reset Certificate</string>
     <string name="reset_sert_pesan">Delete the old CA + certificates and create a new CA on next Start. Every phone must reinstall the new CA. Continue?</string>
@@ -287,7 +282,6 @@
     <string name="url_lokal_disalin">Local URL copied</string>
     <string name="url_loopback_disalin">Loopback URL copied (LAN IP not detected)</string>
     <string name="url_jaringan_disalin">Network URL copied</string>
-    <string name="label_admin_token">Admin Token</string>
     <string name="label_bot_token">Bot token</string>
     <string name="backup_auto_aktif">Automatic backup enabled.</string>
     <string name="backup_auto_mati">Automatic backup disabled.</string>
@@ -302,7 +296,6 @@
     <string name="info_wv_bundled">(bundled)</string>
     <string name="info_wv_beda">\u26A0 server version differs v%1$s</string>
     <string name="info_ram">RAM %1$s</string>
-    <string name="info_uptime">Uptime %1$s</string>
     <string name="info_free">Free %1$s</string>
     <plurals name="info_tls_exp">
         <item quantity="one">\u26A0 TLS certificate expires in %1$d day</item>

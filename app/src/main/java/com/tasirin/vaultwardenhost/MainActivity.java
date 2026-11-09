@@ -369,7 +369,7 @@ public class MainActivity extends Activity {
 
     private void showOverflowMenu() {
         PopupMenu popup = new PopupMenu(this, overflowBtn, Gravity.END);
-        popup.getMenu().add(0, 1, 0, getString(R.string.open_settings));
+        popup.getMenu().add(0, 1, 0, getString(R.string.settings));
         popup.getMenu().add(0, 2, 0, getString(R.string.about));
         popup.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == 1) {
