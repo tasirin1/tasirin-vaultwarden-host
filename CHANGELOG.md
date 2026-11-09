@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --check-hash-based-pycs bernilai spasi, bentuk = ditolak (Audit 1707)
+
+- Opsi itu kini ditangani sebagai opsi bernilai bentuk spasi (token berikutnya diloncati sebagai nilainya); bentuk `--check-hash-based-pycs=default` jatuh ke tak dikenal -> False, sesuai CPython 3.12.3 terprobe yang menolak bentuk =. Sebelumnya terbalik dua arah. 2 skenario suite baru (Audit 1707).
+
 ## [Belum rilis] — Gerbang: huruf -q CPython sah diterima model (Audit 1706)
 
 - Huruf `q` (quiet) ditambahkan ke daftar huruf sah bundel dan daftar token satu huruf — CPython 3.12 menerimanya (terprobe real: program dari stdin berjalan di bawah -q) tetapi penjaga Audit 1694 menilainya asing sehingga `python3 -q` yang sungguh menguras divonis aman. 1 skenario suite baru (Audit 1706).

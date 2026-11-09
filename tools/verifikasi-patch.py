@@ -2067,8 +2067,13 @@ def _menguras_interpreter(perintah, toks, awal):
                     "--help", "--version", "--help-env",
                     "--help-xoptions", "--help-all"):
                 return False
-            if t.split("=")[0] not in (
-                    "--check-hash-based-pycs", "--safe-path"):
+            # Audit 1707: --check-hash-based-pycs BERNILAI
+            # (bentuk spasi saja; bentuk = ditolak CPython
+            # 3.12.3 terprobe) - nilainya bukan operand.
+            if t == "--check-hash-based-pycs":
+                i += 2
+                continue
+            if t.split("=")[0] not in ("--safe-path",):
                 return False
             i += 1
             continue
