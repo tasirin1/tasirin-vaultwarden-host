@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai zstd dilengkapi + zstdmt/zstdgrep dimodelkan (Audit 1642)
+
+- Entri opsi bernilai zstd/unzstd/zstdcat dilengkapi `-M`/`--memory`/`--format`; `zstdmt` dimodelkan setara zstd dan `zstdgrep` setara zgrep (daftar pembaca, peta kanonis, dispatch); 5 skenario suite baru menguncinya (Audit 1642).
+
 ## [Belum rilis] — Gerbang: nilai opsi ruby/php/lua dilewati berpasangan (Audit 1641)
 
 - Pemindai generik penilai interpreter kini melewati berpasangan nilai opsi ruby `{-I, -r}`, php `{-d, -c}`, dan lua `{-l}` — nilainya tak lagi terbaca sebagai operand berkas skrip, jadi bentuk tanpa skrip sungguhan divonis menguras stdin seperti realitasnya; 4 skenario suite baru menguncinya (Audit 1641).

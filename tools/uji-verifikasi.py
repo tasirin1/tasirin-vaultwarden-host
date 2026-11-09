@@ -16011,6 +16011,111 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("ruby -I bernilai + berkas skrip: gerbang lolos (Audit 1641)", rc == 0)
         shutil.rmtree(sub744, ignore_errors=True)
+        sub745 = klon(tmp, "sub745")
+        berkas_aksi745 = os.path.join(
+            sub745, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi745, encoding="utf-8") as f:
+            isi_aksi745 = f.read()
+        baris_aksi745 = [b for b in isi_aksi745.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru745 = isi_aksi745.replace(
+                baris_aksi745,
+                baris_aksi745.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstd -M 512MB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru745 != isi_aksi745, \
+            "suntikan aksi745 tidak menembak"
+        with open(berkas_aksi745, "w", encoding="utf-8") as f:
+            f.write(isi_baru745)
+        rc, out = jalan(sub745,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zstd -M bernilai di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0)
+        shutil.rmtree(sub745, ignore_errors=True)
+        sub746 = klon(tmp, "sub746")
+        berkas_aksi746 = os.path.join(
+            sub746, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi746, encoding="utf-8") as f:
+            isi_aksi746 = f.read()
+        baris_aksi746 = [b for b in isi_aksi746.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru746 = isi_aksi746.replace(
+                baris_aksi746,
+                baris_aksi746.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstd --format gzip; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru746 != isi_aksi746, \
+            "suntikan aksi746 tidak menembak"
+        with open(berkas_aksi746, "w", encoding="utf-8") as f:
+            f.write(isi_baru746)
+        rc, out = jalan(sub746,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zstd --format bernilai di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0)
+        shutil.rmtree(sub746, ignore_errors=True)
+        sub747 = klon(tmp, "sub747")
+        berkas_aksi747 = os.path.join(
+            sub747, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi747, encoding="utf-8") as f:
+            isi_aksi747 = f.read()
+        baris_aksi747 = [b for b in isi_aksi747.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru747 = isi_aksi747.replace(
+                baris_aksi747,
+                baris_aksi747.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstdmt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru747 != isi_aksi747, \
+            "suntikan aksi747 tidak menembak"
+        with open(berkas_aksi747, "w", encoding="utf-8") as f:
+            f.write(isi_baru747)
+        rc, out = jalan(sub747,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("varian zstdmt tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0)
+        shutil.rmtree(sub747, ignore_errors=True)
+        sub748 = klon(tmp, "sub748")
+        berkas_aksi748 = os.path.join(
+            sub748, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi748, encoding="utf-8") as f:
+            isi_aksi748 = f.read()
+        baris_aksi748 = [b for b in isi_aksi748.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru748 = isi_aksi748.replace(
+                baris_aksi748,
+                baris_aksi748.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstdgrep pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru748 != isi_aksi748, \
+            "suntikan aksi748 tidak menembak"
+        with open(berkas_aksi748, "w", encoding="utf-8") as f:
+            f.write(isi_baru748)
+        rc, out = jalan(sub748,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zstdgrep tanpa operand berkas di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0)
+        shutil.rmtree(sub748, ignore_errors=True)
+        sub749 = klon(tmp, "sub749")
+        berkas_aksi749 = os.path.join(
+            sub749, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi749, encoding="utf-8") as f:
+            isi_aksi749 = f.read()
+        baris_aksi749 = [b for b in isi_aksi749.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru749 = isi_aksi749.replace(
+                baris_aksi749,
+                baris_aksi749.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstdgrep pola berkas.zst; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru749 != isi_aksi749, \
+            "suntikan aksi749 tidak menembak"
+        with open(berkas_aksi749, "w", encoding="utf-8") as f:
+            f.write(isi_baru749)
+        rc, out = jalan(sub749,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zstdgrep beroperand berkas: gerbang lolos (Audit 1642)", rc == 0)
+        shutil.rmtree(sub749, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

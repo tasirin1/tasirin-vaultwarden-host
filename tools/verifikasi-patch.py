@@ -683,6 +683,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1638: kompresor generasi berikut —
                   # tanpa operand membaca stdin seperti gzip.
                   "zstd", "pigz",
+                  # Audit 1642: varian multithread zstd.
+                  "zstdmt",
                   # Audit 1098: varian nama kompresor yang sama
                   # perilakunya (dekompresi ke stdout).
                   "bunzip2", "bzcat", "xzcat", "unxz", "unlzma",
@@ -708,6 +710,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1244: grep terkompresi — pola
                   # pertamanya bukan berkas (penilai keluarga).
                   "zgrep", "bzgrep", "xzgrep", "lzgrep",
+                  # Audit 1642: grep terkompresi zstd.
+                  "zstdgrep",
                   # Audit 1306: egrep/fgrep gzip.
                   "zegrep", "zfgrep",
                   # Audit 1307: egrep/fgrep bzip2.
@@ -893,9 +897,16 @@ _OPSI_BERNILAI = {
     "gpgv": {"--keyring", "--homedir", "--status-fd",
              "--logger-fd"},
     # Audit 1638: opsi bernilai kompresor zstd/pigz.
-    "zstd": {"-o", "--output", "-D", "-T", "--threads"},
-    "unzstd": {"-o", "--output", "-D", "-T", "--threads"},
-    "zstdcat": {"-D", "-T", "--threads"},
+    "zstd": {"-o", "--output", "-D", "-T", "--threads",
+             # Audit 1642: -M/--memory & --format bernilai.
+             "-M", "--memory", "--format"},
+    "unzstd": {"-o", "--output", "-D", "-T", "--threads",
+               "-M", "--memory", "--format"},
+    "zstdcat": {"-D", "-T", "--threads",
+                "-M", "--memory", "--format"},
+    # Audit 1642: zstdmt varian multithread zstd.
+    "zstdmt": {"-o", "--output", "-D", "-T", "--threads",
+               "-M", "--memory", "--format"},
     "pigz": {"-p", "--processes", "-b", "--blocksize", "-S",
              "--suffix"},
     "unpigz": {"-p", "--processes", "-b", "--blocksize", "-S",
@@ -1415,6 +1426,8 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 # Audit 1244: grep terkompresi sekeluarga grep.
                 "zgrep": "grep", "bzgrep": "grep",
                 "xzgrep": "grep", "lzgrep": "grep",
+                # Audit 1642: grep terkompresi zstd.
+                "zstdgrep": "grep",
                 # Audit 1306-1309: egrep/fgrep terkompresi.
                 "zegrep": "grep", "zfgrep": "grep",
                 "bzegrep": "grep", "bzfgrep": "grep",
@@ -5010,6 +5023,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                   # Audit 1244: grep terkompresi — pola
                   # pertamanya bukan berkas (penilai keluarga).
                   "zgrep", "bzgrep", "xzgrep", "lzgrep",
+                  # Audit 1642: grep terkompresi zstd.
+                  "zstdgrep",
                   # Audit 1306: egrep/fgrep gzip.
                   "zegrep", "zfgrep",
                   # Audit 1307: egrep/fgrep bzip2.
