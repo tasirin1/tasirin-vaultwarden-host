@@ -5144,6 +5144,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             for t in toks[awal + 1:]):
         return False
     if perintah == "gpgv":
+        # Audit 1675: opsi meta gpgv mencetak lalu keluar
+        # tanpa membaca stdin (--warranty terprobe real:
+        # payload utuh; --dump-options sekelas).
+        if any(t.strip("\"'") in ("--warranty", "--dump-options")
+               for t in toks[awal + 1:]):
+            return False
         # Audit 1649: bentuk terdokumentasi `gpgv sigfile -`
         # (man gpgv EXAMPLES) — operand kedua "-" berarti
         # data bertanda tangan dibaca dari stdin walau

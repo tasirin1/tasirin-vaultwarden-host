@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi meta gpgv --warranty/--dump-options informasional (Audit 1675)
+
+- Blok khusus gpgv kini lebih dulu mengembalikan False bila ada token `--warranty` atau `--dump-options`: keduanya opsi meta yang mencetak lalu keluar tanpa membaca stdin (--warranty terprobe real: payload utuh), sekelas penjaga informasional Audit 1102; 1 skenario suite baru menguncinya (Audit 1675).
+
 ## [Belum rilis] — Gerbang: nilai menempel -W/-X python bukan bundel bendera (Audit 1674)
 
 - Blok bundel python kini melewati token yang diawali `-W`/`-X` sebagai opsi bernilai utuh: ekor token adalah nilainya (`-Wignore`, `-Ximporttime`), bukan bundel bendera — huruf `i` di dalam nilai tak lagi menyalakan mode interaktif dan menyembunyikan operand skrip (positif palsu pra-ada, terprobe real python3); 1 skenario suite baru menguncinya (Audit 1674).

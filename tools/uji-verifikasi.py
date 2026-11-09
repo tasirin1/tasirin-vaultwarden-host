@@ -16704,6 +16704,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("python -Wignore nilai menempel, bukan bundel: gerbang lolos (Audit 1674)", rc == 0)
         shutil.rmtree(sub777, ignore_errors=True)
+        sub778 = klon(tmp, "sub778")
+        berkas_aksi778 = os.path.join(
+            sub778, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi778, encoding="utf-8") as f:
+            isi_aksi778 = f.read()
+        baris_aksi778 = [b for b in isi_aksi778.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru778 = isi_aksi778.replace(
+                baris_aksi778,
+                baris_aksi778.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpgv --warranty; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru778 != isi_aksi778, \
+            "suntikan aksi778 tidak menembak"
+        with open(berkas_aksi778, "w", encoding="utf-8") as f:
+            f.write(isi_baru778)
+        rc, out = jalan(sub778,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpgv --warranty meta cetak lalu keluar: gerbang lolos (Audit 1675)", rc == 0)
+        shutil.rmtree(sub778, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
