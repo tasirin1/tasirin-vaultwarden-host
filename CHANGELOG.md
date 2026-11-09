@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Dua pesan unduh-restore Telegram kini menyebut 'Telegram HTTP' agar divonis benar (Audit 1701)
+
+- Pesan `Unduh backup gagal (HTTP ...)` dan `getFile gagal (HTTP ...)` di `TgBackup` diganti menjadi `(Telegram HTTP ...)` — redaksi lama tak memuat kata "telegram" sehingga cabang Telegram Audit 1695 tak pernah menangkapnya dan kode 403/429/404-nya jatuh ke saran GitHub. Sesudah ini rantai galatnya memuat kata itu dan vonisnya soal Telegram.
+
 ## [Belum rilis] — Penanda backup terakhir memakai file_id terkonfirmasi batch, bukan hanya chat terakhir (Audit 1700)
 
 - Loop backup kini mengakumulasi `fileIdBatch` (file_id terkonfirmasi terakhir dari chat mana pun pada batch ini, lewat `fileIdBerikutnya` mulai dari kosong) dan penanda memakai nilai itu. Sebelumnya penanda hanya membaca respons chat terakhir — bila chat terakhir berakhir ragu (respons ambigu dianggap terkirim) sementara chat sebelumnya mengonfirmasi, penanda tetap batch lama dan unduh/restore terakhir mengambil generasi sebelumnya. Bila tak ada chat yang mengonfirmasi, perilaku Audit 1680 (penanda lama dipertahankan) tidak berubah.

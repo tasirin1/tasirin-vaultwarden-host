@@ -2737,7 +2737,7 @@ public final class TgBackup {
                 code = conn.getResponseCode();
             }
             if (code != 200) {
-                throw new IOException("Unduh backup gagal (HTTP " + code + ")");
+                throw new IOException("Unduh backup gagal (Telegram HTTP " + code + ")");
             }
             try (InputStream in = conn.getInputStream();
                  FileOutputStream fos = new FileOutputStream(dest)) {
@@ -2791,7 +2791,7 @@ public final class TgBackup {
                     continue;
                 }
                 if (code != 200) {
-                    throw new IOException("getFile gagal (HTTP " + code + ")");
+                    throw new IOException("getFile gagal (Telegram HTTP " + code + ")");
                 }
                 sb.append(bacaResponsTelegram(conn, code));
                 break;
