@@ -3998,7 +3998,13 @@ public final class TgBackup {
         for (String nama : daftar) {
             File staging = new File(dataFolder, namaStagingTls(nama));
             if (staging.isFile()) {
-                ServerService.gantiAtomik(staging, new File(dataFolder, nama));
+                File tujuan = new File(dataFolder, nama);
+                ServerService.gantiAtomik(staging, tujuan);
+                // Audit 1569: kunci hasil restore diketatkan
+                // seperti kunci buatan baru (TlsCert).
+                if (TlsCert.namaBerkasKunci(nama)) {
+                    TlsCert.ketatkanIzinKunci(tujuan);
+                }
             }
         }
     }
@@ -4130,8 +4136,14 @@ public final class TgBackup {
             File dari = new File(dataFolder, staging);
             if (dari.isFile()) {
                 try {
-                    ServerService.gantiAtomik(
-                            dari, new File(dataFolder, nama));
+                    File tujuan = new File(dataFolder, nama);
+                    ServerService.gantiAtomik(dari, tujuan);
+                    // Audit 1569: rsa_key hasil restore juga
+                    // diketatkan (nama lampiran UUID tak
+                    // pernah memuat "key": heksadesimal).
+                    if (TlsCert.namaBerkasKunci(nama)) {
+                        TlsCert.ketatkanIzinKunci(tujuan);
+                    }
                 } catch (Exception e) {
                     gagal.add(nama);
                 }

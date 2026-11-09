@@ -1100,23 +1100,35 @@ public final class TlsCert {
             }
         }
         if (type.contains("PRIVATE") || f.getName().contains("key")) {
+            ketatkanIzinKunci(f);
+        }
+    }
+
+    // Audit 1569: predikat + pengetatan izin berkas kunci
+    // dipakai bersama jalur pembuatan (writePem) dan
+    // jalur restore (TgBackup) — kunci hasil restore dulu
+    // berdiri dengan izin bawaan proses, asimetris
+    // terhadap kunci yang dibuat baru.
+    static boolean namaBerkasKunci(String nama) {
+        return nama != null && nama.contains("key");
+    }
+
+    static void ketatkanIzinKunci(java.io.File f) {
+        try {
+            f.setReadable(false, false);
+            f.setReadable(true, true);
+            f.setWritable(false, false);
+            f.setWritable(true, true);
 
             try {
-                f.setReadable(false, false);
-                f.setReadable(true, true);
-                f.setWritable(false, false);
-                f.setWritable(true, true);
-
-                try {
-                    String p = f.getCanonicalPath();
-                    if (!p.startsWith("/data/")) {
-                        android.util.Log.w("TlsCert",
-                                "[tls] kunci di storage bersama, pindahkan data_dir ke internal");
-                    }
-                } catch (Exception ignored2) {
+                String p = f.getCanonicalPath();
+                if (!p.startsWith("/data/")) {
+                    android.util.Log.w("TlsCert",
+                            "[tls] kunci di storage bersama, pindahkan data_dir ke internal");
                 }
-            } catch (Exception ignored) {
+            } catch (Exception ignored2) {
             }
+        } catch (Exception ignored) {
         }
     }
 

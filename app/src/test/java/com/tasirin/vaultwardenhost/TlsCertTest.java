@@ -503,4 +503,34 @@ public class TlsCertTest {
         assertFalse(sisa.exists());
     }
 
+
+    @Test
+    public void namaBerkasKunci_hanyaNamaBerkey() {
+        // Audit 1569: predikat pengetatan izin restore.
+        assertTrue(TlsCert.namaBerkasKunci("tls/key.pem"));
+        assertTrue(TlsCert.namaBerkasKunci("tls/ca-key.pem"));
+        assertTrue(TlsCert.namaBerkasKunci("rsa_key.pem"));
+        assertTrue(TlsCert.namaBerkasKunci("rsa_key.der"));
+        assertFalse(TlsCert.namaBerkasKunci("tls/ca.pem"));
+        assertFalse(TlsCert.namaBerkasKunci("tls/cert.pem"));
+        assertFalse(TlsCert.namaBerkasKunci("attachments/9f2ab41c"));
+        assertFalse(TlsCert.namaBerkasKunci(null));
+    }
+
+    @Test
+    public void ketatkanIzinKunci_pemilikSaja() throws Exception {
+        // Audit 1569: sesudah pengetatan tak ada bit grup/other.
+        File dir = Files.createTempDirectory("tls1569").toFile();
+        File f = new File(dir, "key.pem");
+        Files.write(f.toPath(), new byte[]{1, 2, 3});
+        TlsCert.ketatkanIzinKunci(f);
+        java.util.Set<java.nio.file.attribute.PosixFilePermission> izin =
+                Files.getPosixFilePermissions(f.toPath());
+        assertFalse(izin.contains(
+                java.nio.file.attribute.PosixFilePermission.GROUP_READ));
+        assertFalse(izin.contains(
+                java.nio.file.attribute.PosixFilePermission.OTHERS_READ));
+        assertTrue(izin.contains(
+                java.nio.file.attribute.PosixFilePermission.OWNER_READ));
+    }
 }

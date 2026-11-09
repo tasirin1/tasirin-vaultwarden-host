@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kunci hasil restore diketatkan izin berkasnya seperti kunci buatan baru (Audit 1569)
+
+- TlsCert.writePem mengetatkan berkas kunci yang ia tulis ke khusus-pemilik, tetapi kunci yang sama hasil restore (tls/key.pem, tls/ca-key.pem, rsa_key.pem) dipasang tanpa perlakuan itu — berdiri dengan izin bawaan proses dan tanpa peringatan storage-bersama. Pengetatan kini satu implementasi (TlsCert.ketatkanIzinKunci + predikat namaBerkasKunci) yang dipakai writePem maupun kedua jalur pasang restore; nama lampiran UUID tak pernah memuat 'key' (heksadesimal) sehingga tak ikut diketatkan.
+
 ## [Belum rilis] — Gerbang menolak baris baru ber-literal header kunci utuh (Audit 1571)
 
 - Kelas fixture Audit 1547 (header kunci utuh sebagai literal di berkas uji) sebelumnya hanya tertangkap Gitleaks CI SESUDAH push — menghabiskan satu run FAILURE + satu commit susulan pada maraton-91 — karena tak ada pemeriksaan lokal yang setara; hook pra-push hanya menjalankan dua gerbang yang tak mengenal pola itu. Gerbang kini punya cek_literal_rahasia_utuh: baris tambahan pada diff yang memuat literal header utuh membuat gerbang GAGAL dengan arahan merakitnya dari potongan. Dokumen berelepsis ('-----BEGIN ... PRIVATE KEY-----') dan rakitan potongan tidak terkena.
