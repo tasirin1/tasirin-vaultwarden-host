@@ -2095,6 +2095,37 @@ def _menguras_interpreter(perintah, toks, awal):
                 return False
             i += 1
             continue
+        # Audit 1711: node - opsi tak dikenal membuat node
+        # galat "bad option" lalu keluar (terprobe real).
+        # Yang dikenal dilewati (bendera umum + keluarga
+        # awalan); opsi bernilai node tertangani Audit 1299
+        # dan -e/-p tertangani cabangnya sendiri di atas.
+        if perintah == "node" and t.startswith("-") and t != "-":
+            dasar_nd = t.split("=")[0]
+            dikenal_nd = (
+                dasar_nd in ("--version", "--help", "-v",
+                             "--eval", "--print", "--check",
+                             "--interactive", "--require",
+                             "--import", "--loader",
+                             "--experimental-loader",
+                             "--input-type", "--conditions",
+                             "--env-file", "--enable-source-maps",
+                             "--watch", "--test", "--inspect",
+                             "--inspect-brk", "--cpu-prof",
+                             "--heap-prof", "--title",
+                             "--use-largepages",
+                             "--zero-fill-buffers")
+                or dasar_nd.startswith("--experimental-")
+                or dasar_nd.startswith("--v8-")
+                or dasar_nd.startswith("--trace-")
+                or dasar_nd.startswith("--no-")
+                or dasar_nd.startswith("--max-")
+                or (len(dasar_nd) == 2
+                    and dasar_nd[1] in "ceiprv"))
+            if not dikenal_nd:
+                return False
+            i += 1
+            continue
         # Audit 1697: opsi lua tak dikenal - lua.c usage
         # lalu keluar tanpa membaca (DUGAAN kuat; sejajar
         # Audit 1694). Yang sah: -e (bernilai), -i, -l

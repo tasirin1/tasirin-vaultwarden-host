@@ -17103,6 +17103,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpgv opsi panjang tak dikenal invalid option lalu keluar: gerbang lolos (Audit 1710)", rc == 0)
         shutil.rmtree(sub796, ignore_errors=True)
+        sub797 = klon(tmp, "sub797")
+        berkas_aksi797 = os.path.join(
+            sub797, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi797, encoding="utf-8") as f:
+            isi_aksi797 = f.read()
+        baris_aksi797 = [b for b in isi_aksi797.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru797 = isi_aksi797.replace(
+                baris_aksi797,
+                baris_aksi797.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --bogus; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru797 != isi_aksi797, \
+            "suntikan aksi797 tidak menembak"
+        with open(berkas_aksi797, "w", encoding="utf-8") as f:
+            f.write(isi_baru797)
+        rc, out = jalan(sub797,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("node opsi tak dikenal bad option lalu keluar: gerbang lolos (Audit 1711)", rc == 0)
+        shutil.rmtree(sub797, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
