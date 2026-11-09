@@ -16284,6 +16284,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("php -R pemroses baris di substitusi proses: penguras — gerbang gagal (Audit 1651)", rc != 0)
         shutil.rmtree(sub757, ignore_errors=True)
+        sub758 = klon(tmp, "sub758")
+        berkas_aksi758 = os.path.join(
+            sub758, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi758, encoding="utf-8") as f:
+            isi_aksi758 = f.read()
+        baris_aksi758 = [b for b in isi_aksi758.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru758 = isi_aksi758.replace(
+                baris_aksi758,
+                baris_aksi758.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dgawk -f prog.awk; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru758 != isi_aksi758, \
+            "suntikan aksi758 tidak menembak"
+        with open(berkas_aksi758, "w", encoding="utf-8") as f:
+            f.write(isi_baru758)
+        rc, out = jalan(sub758,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("dgawk debugger di substitusi proses: perintah dari stdin, penguras — gerbang gagal (Audit 1652)", rc != 0)
+        shutil.rmtree(sub758, ignore_errors=True)
+        sub759 = klon(tmp, "sub759")
+        berkas_aksi759 = os.path.join(
+            sub759, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi759, encoding="utf-8") as f:
+            isi_aksi759 = f.read()
+        baris_aksi759 = [b for b in isi_aksi759.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru759 = isi_aksi759.replace(
+                baris_aksi759,
+                baris_aksi759.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dgawk -f prog.awk data.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru759 != isi_aksi759, \
+            "suntikan aksi759 tidak menembak"
+        with open(berkas_aksi759, "w", encoding="utf-8") as f:
+            f.write(isi_baru759)
+        rc, out = jalan(sub759,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("dgawk beroperand berkas tetap membaca perintah debug dari stdin: penguras — gerbang gagal (Audit 1652)", rc != 0)
+        shutil.rmtree(sub759, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

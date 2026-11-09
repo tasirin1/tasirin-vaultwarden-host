@@ -707,6 +707,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "mawk", "nawk", "egrep", "fgrep", "rg",
                   # Audit 1638: varian GNU awk.
                   "gawk", "pgawk", "igawk",
+                  # Audit 1652: debugger GNU awk.
+                  "dgawk",
                   # Audit 1244: grep terkompresi — pola
                   # pertamanya bukan berkas (penilai keluarga).
                   "zgrep", "bzgrep", "xzgrep", "lzgrep",
@@ -1444,6 +1446,12 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     if nama_asli == "rg" and any(
             t.strip("\"'") == "--files" for t in toks[awal + 1:]):
         return False
+    if nama_asli == "dgawk":
+        # Audit 1652: debugger GNU awk membaca PERINTAH
+        # debug dari stdin apa pun operand berkasnya
+        # (preseden debugger perl -d di penilai
+        # interpreter) — selalu menguras.
+        return True
     nilai = {
         "sed": {"-e", "-f", "--expression", "--file"},
         "awk": {"-F", "-v", "-f", "-W", "--field-separator",
@@ -5035,7 +5043,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     if perintah in ("sed", "awk", "grep", "jq",
                     "mawk", "nawk", "egrep", "fgrep", "rg",
                     # Audit 1638: varian GNU awk.
-                    "gawk", "pgawk", "igawk",
+                    "gawk", "pgawk", "igawk", "dgawk",
                   # Audit 1244: grep terkompresi — pola
                   # pertamanya bukan berkas (penilai keluarga).
                   "zgrep", "bzgrep", "xzgrep", "lzgrep",

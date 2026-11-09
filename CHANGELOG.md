@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: dgawk (debugger GNU awk) dimodelkan (Audit 1652)
+
+- `dgawk` masuk daftar pembaca + tuple dispatch keluarga skrip, dan penilai keluarga mengembalikannya sebagai penguras selalu: debugger GNU awk membaca perintah debug dari stdin apa pun operand berkasnya (preseden debugger perl -d); 2 skenario suite baru menguncinya (Audit 1652).
+
 ## [Belum rilis] — Gerbang: opsi bernilai php dilengkapi (-z + pemroses baris -B/-R/-E/-F) (Audit 1651)
 
 - Cabang php di penilai interpreter kini juga melewati berpasangan `-z` serta keluarga pemroses baris `-B`/`-R`/`-E`/`-F` (manual PHP) — tanpa berkas masukan, baris-barisnya dibaca dari stdin; 2 skenario suite baru menguncinya (Audit 1651).
