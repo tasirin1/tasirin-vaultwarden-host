@@ -116,6 +116,7 @@ def main():
         rc, out = jalan(vektor, ["bash", SKRIP])
         periksa("path vektor tanpa nol depan tertangkap",
                 rc != 0 and "tanpa nol depan" in out)
+        shutil.rmtree(vektor, ignore_errors=True)
 
         terabaikan = klon(tmp, "terabaikan")
         tanam(terabaikan, ".gitignore", "rahasia-terabaikan.txt\n", "w")

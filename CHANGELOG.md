@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Suite cek-cepat: klon vektor dibersihkan (Audit 1630)
+
+- Skenario `vektor` kini menghapus klon sementaranya dengan shutil.rmtree seperti semua skenario lain; sebelumnya satu-satunya skenario yang membocorkan klon.
+
 ## [Belum rilis] — Suite: keluaran vonis langsung ter-flush (Audit 1628)
 
 - `periksa()` di tools/uji_bersama.py kini mencetak dengan flush=True; sebelumnya keluaran suite ter-buffer penuh sehingga lari yang mati di tengah meninggalkan log kosong dan seluruh vonis yang sudah tercetak ikut hilang.
