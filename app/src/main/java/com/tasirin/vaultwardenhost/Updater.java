@@ -615,13 +615,6 @@ public final class Updater {
             return "Masalahnya bukan di jaringan - ikuti langkah"
                     + " pada pesan di atas, lalu coba lagi bila perlu.";
         }
-        if (gabung.contains("timed out") || gabung.contains("timeout")
-                || gabung.contains("failed to connect") || gabung.contains("econn")
-                || gabung.contains("unreachable") || gabung.contains("etimedout")) {
-            return "Koneksi ke GitHub timeout/diblokir. Cek WiFi ada internet"
-                    + " (buka github.com di browser), cek tanggal & jam STB,"
-                    + " coba hotspot HP, lalu tekan Start lagi.";
-        }
         if (gabung.contains("ssl") || gabung.contains("certificate")
                 || gabung.contains("handshake") || gabung.contains("tls")) {
             return "TLS gagal di Android 5/6. Cek tanggal & jam STB sudah benar,"
@@ -630,14 +623,33 @@ public final class Updater {
         // Audit 1695: galat Telegram membawa kode HTTP-nya
         // sendiri ("Telegram HTTP 403: ...") - vonisnya soal
         // Telegram, bukan GitHub.
+        // Audit 1702: cabang ini berdiri SEBELUM timeout -
+        // galat jaringan mentah fase kirim Telegram (rantainya
+        // memuat api.telegram.org) dulu tertangkap cabang
+        // timeout/DNS yang teksnya menyebut GitHub + Start.
         if (gabung.contains("telegram")) {
             if (gabung.contains("429")) {
                 return "Telegram membatasi sementara (rate-limit)."
                         + " Tunggu sebentar, lalu coba lagi.";
             }
+            if (gabung.contains("timed out") || gabung.contains("timeout")
+                    || gabung.contains("failed to connect")
+                    || gabung.contains("unknownhost")
+                    || gabung.contains("unable to resolve")
+                    || gabung.contains("unreachable")) {
+                return "Koneksi ke Telegram timeout/gagal. Cek internet"
+                        + " STB, lalu coba lagi.";
+            }
             return "Telegram menolak permintaan (lihat pesan di"
                     + " atas). Periksa bot tidak diblokir/di-kick"
                     + " dari chat dan chat ID benar, lalu coba lagi.";
+        }
+        if (gabung.contains("timed out") || gabung.contains("timeout")
+                || gabung.contains("failed to connect") || gabung.contains("econn")
+                || gabung.contains("unreachable") || gabung.contains("etimedout")) {
+            return "Koneksi ke GitHub timeout/diblokir. Cek WiFi ada internet"
+                    + " (buka github.com di browser), cek tanggal & jam STB,"
+                    + " coba hotspot HP, lalu tekan Start lagi.";
         }
         // Audit 1695: kode GitHub dicocokkan sebagai frasa
         // ("http 403"/"code: 403"), bukan substring bebas -

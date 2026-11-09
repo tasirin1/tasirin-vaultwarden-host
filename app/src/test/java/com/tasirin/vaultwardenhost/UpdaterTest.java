@@ -715,6 +715,18 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_telegramTimeoutBukanGitHub() {
+        // Audit 1702: galat jaringan mentah ke api.telegram.org
+        // divonis soal Telegram, bukan GitHub.
+        String s = Updater.saranKoneksi(new java.io.IOException(
+                "Backup gagal ke semua chat (1/1): failed to connect"
+                        + " to api.telegram.org/149.154.167.220:443"));
+        assertTrue(s.contains("Telegram"));
+        assertFalse(s.contains("GitHub"));
+        assertFalse(s.contains("Start"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cabang Telegram mendahului timeout/DNS dan sadar timeout (Audit 1702)
+
+- Cabang Telegram di `saranKoneksi` dipindah ke sebelum cabang timeout/SSL dan diberi sub-cabang timeout/DNS sendiri ("Koneksi ke Telegram timeout/gagal..."). Galat jaringan mentah dari fase kirim Telegram — rantainya memuat api.telegram.org tetapi tertangkap lebih dulu oleh cabang timeout/DNS — sebelumnya divonis "Koneksi ke GitHub timeout... tekan Start lagi", menyebut layanan yang tidak bermasalah. Rantai GitHub tidak pernah memuat kata "telegram", jadi urutan baru ini tidak mengubah vonis GitHub.
+
 ## [Belum rilis] — Dua pesan unduh-restore Telegram kini menyebut 'Telegram HTTP' agar divonis benar (Audit 1701)
 
 - Pesan `Unduh backup gagal (HTTP ...)` dan `getFile gagal (HTTP ...)` di `TgBackup` diganti menjadi `(Telegram HTTP ...)` — redaksi lama tak memuat kata "telegram" sehingga cabang Telegram Audit 1695 tak pernah menangkapnya dan kode 403/429/404-nya jatuh ke saran GitHub. Sesudah ini rantai galatnya memuat kata itu dan vonisnya soal Telegram.
