@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan build susulan Audit 1608
+
+- Nama variabel lambda pengisi versi di AboutDialog diganti `teksVersi` (sebelumnya `teks`, bertabrakan dengan variabel `teks` yang sudah ada di metode yang sama — build CI merah di compileDebugJavaWithJavac).
+
 ## [Belum rilis] — Util: gelung baca terbatas disatukan (Audit 1624)
 
 - `TgBackup.bacaTerbatas` dan `SettingsActivity.readCapped` menjadi delegasi ke `Util.bacaTerbatas(in, batas, pesan)`; pesan galat dan batas masing-masing tetap.

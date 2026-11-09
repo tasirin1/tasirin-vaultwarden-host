@@ -168,11 +168,11 @@ final class AboutDialog {
             if (bin == null && wv == null) {
                 return;
             }
-            String teks = a.getString(R.string.about_version,
+            String teksVersi = a.getString(R.string.about_version,
                     rangkaianVersi(versiApp, bin, wv));
             versiView.post(() -> {
                 if (!a.isFinishing() && !a.isDestroyed()) {
-                    versiView.setText(teks);
+                    versiView.setText(teksVersi);
                 }
             });
         });
