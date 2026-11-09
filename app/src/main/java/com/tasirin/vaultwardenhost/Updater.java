@@ -537,6 +537,18 @@ public final class Updater {
             return "Periksa token bot & chat ID di Pengaturan (bagian"
                     + " Telegram), lalu coba lagi.";
         }
+        // Audit 1665: prasyarat restore (server harus berhenti
+        // dulu / password backup harus diisi / berkas terlalu
+        // besar untuk jalur ini) — tempelan "tekan Start lagi"
+        // bertabrakan langsung dengan inti pesannya.
+        if (gabung.contains("stop manual")
+                || gabung.contains("masih berjalan")
+                || gabung.contains("gagal berhenti")
+                || gabung.contains("isi password backup")
+                || gabung.contains("backup terlalu besar")) {
+            return "Selesaikan dulu langkah pada pesan di atas, lalu"
+                    + " ulangi restore.";
+        }
         if (gabung.contains("timed out") || gabung.contains("timeout")
                 || gabung.contains("failed to connect") || gabung.contains("econn")
                 || gabung.contains("unreachable") || gabung.contains("etimedout")) {

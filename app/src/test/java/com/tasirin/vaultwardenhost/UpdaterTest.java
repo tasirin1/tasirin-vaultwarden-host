@@ -553,6 +553,19 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_prasyaratRestoreBukanStart() {
+        // Audit 1665: inti pesan menyuruh Stop manual; saran
+        // tidak boleh menyuruh tekan Start.
+        Exception e = new java.io.IOException(
+                "Server masih berjalan - restore dibatalkan agar"
+                        + " database tidak korup. Stop manual lalu ulangi.");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("pesan di atas"));
+        assertFalse(saran.contains("Start"));
+        assertFalse(saran.contains("internet"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

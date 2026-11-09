@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Saran koneksi kini mengenali prasyarat restore (Audit 1665)
+
+- Cabang baru di `saranKoneksi`: pesan restore yang menyuruh Stop manual / server masih berjalan / gagal berhenti / password backup belum diisi / backup terlalu besar kini ditutup saran "selesaikan langkah pada pesan di atas", bukan tempelan "tekan Start lagi" yang bertabrakan dengan inti pesannya. Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Saran koneksi kini mengenali galat konfigurasi bot (Audit 1664)
 
 - Cabang baru di `saranKoneksi`: pesan "Bot token / chat ID belum diisi." dan "Chat ID Telegram tidak valid - periksa pengaturan bot." dari `backupNowIsi` kini menghasilkan saran memeriksa pengaturan Telegram, bukan jatuh ke bawaan cek internet yang kontradiktif. Uji JVM baru menguncinya.
