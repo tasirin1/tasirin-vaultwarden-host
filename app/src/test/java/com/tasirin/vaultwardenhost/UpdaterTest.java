@@ -610,6 +610,16 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_belumAdaBackupBukanInternet() {
+        // Audit 1685: obatnya backup pertama, bukan internet.
+        Exception e = new java.io.IOException(
+                "Belum ada backup terkirim dari app ini.");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("Jalankan backup dulu"));
+        assertFalse(saran.contains("internet"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

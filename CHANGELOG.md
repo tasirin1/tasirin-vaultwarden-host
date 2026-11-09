@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Saran koneksi kini mengenali 'belum ada backup terkirim' (Audit 1685)
+
+- Cabang baru di `saranKoneksi`: pesan `downloadLastBackup` "Belum ada backup terkirim dari app ini." kini ditutup saran menjalankan backup pertama, bukan bawaan cek internet + tekan Start. Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Cabang prasyarat saran kini menangkap redaksi 'sedang berjalan' (Audit 1684)
 
 - Token cabang prasyarat `saranKoneksi` ditambah `sedang berjalan` — pesan "Tugas backup/restore lain sedang berjalan, coba lagi sebentar." (bot + backup) sebelumnya lolos karena tokennya hanya "masih berjalan", lalu jatuh ke saran cek internet + tekan Start untuk galat kesibukan lokal murni. Uji JVM baru menguncinya.

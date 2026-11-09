@@ -541,6 +541,12 @@ public final class Updater {
             return "Periksa token bot & chat ID di Pengaturan (bagian"
                     + " Telegram), lalu coba lagi.";
         }
+        // Audit 1685: belum ada backup sama sekali bukan
+        // urusan jaringan — obatnya menjalankan backup dulu.
+        if (gabung.contains("belum ada backup")) {
+            return "Jalankan backup dulu (dari bot: /backup, atau"
+                    + " Pengaturan), lalu ulangi restore.";
+        }
         // Audit 1665: prasyarat restore (server harus berhenti
         // dulu / password backup harus diisi / berkas terlalu
         // besar untuk jalur ini) — tempelan "tekan Start lagi"
