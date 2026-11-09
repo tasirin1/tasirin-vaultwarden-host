@@ -508,6 +508,16 @@ public final class Updater {
         }
         if (gabung.contains("unknownhost") || gabung.contains("no address")
                 || gabung.contains("unable to resolve")) {
+            // Audit 1716: galat DNS Telegram tertangkap di sini
+            // (cabang ini berdiri jauh sebelum cabang Telegram)
+            // - vonisnya harus menyebut Telegram, bukan GitHub.
+            // Token DNS di sub-cabang Telegram (Audit 1702)
+            // tak terjangkau dan sudah dicabut dari sana.
+            if (gabung.contains("telegram")) {
+                return "DNS gagal (nama api.telegram.org tidak ketemu)."
+                        + " Cek internet STB, coba hotspot HP / ganti DNS,"
+                        + " lalu coba lagi.";
+            }
             return "DNS gagal (nama github.com tidak ketemu). Cek internet STB,"
                     + " coba hotspot HP / ganti DNS, lalu tekan Start lagi.";
         }
@@ -641,8 +651,6 @@ public final class Updater {
             }
             if (gabung.contains("timed out") || gabung.contains("timeout")
                     || gabung.contains("failed to connect")
-                    || gabung.contains("unknownhost")
-                    || gabung.contains("unable to resolve")
                     || gabung.contains("unreachable")) {
                 return "Koneksi ke Telegram timeout/gagal. Cek internet"
                         + " STB, lalu coba lagi.";

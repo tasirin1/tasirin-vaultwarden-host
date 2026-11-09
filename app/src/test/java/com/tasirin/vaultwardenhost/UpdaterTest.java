@@ -727,6 +727,17 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_dnsTelegramBukanGitHub() {
+        String s = Updater.saranKoneksi(new Exception(
+                "Backup gagal ke semua chat (1/1): java.net.UnknownHostException: "
+                + "Unable to resolve host \"api.telegram.org\": "
+                + "No address associated with hostname"));
+        assertTrue(s.contains("api.telegram.org"));
+        assertFalse(s.contains("github.com"));
+        assertFalse(s.contains("tekan Start"));
+    }
+
+    @Test
     public void saranKoneksi_batalBerakhiranTitikTertangkapLokal() {
         // Audit 1704: produsen batal berakhiran titik divonis
         // lokal; pesan SHA Audit 1696 tetap ke cabang 404.

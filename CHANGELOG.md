@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Galat DNS Telegram kini divonis Telegram, bukan github.com (Audit 1716)
+
+- Sub-cabang DNS di dalam cabang Telegram (Audit 1702) tidak pernah terjangkau: token unknownhost/unable to resolve adalah himpunan-bagian cabang DNS utama yang berdiri jauh lebih awal, jadi galat DNS Telegram selalu divonis "nama github.com tidak ketemu ... tekan Start lagi". Cabang DNS kini sadar tuan rumah (rantai memuat telegram -> vonis api.telegram.org tanpa Start), dan token DNS bayangan di sub-cabang Telegram dicabut. Terkunci uji JVM.
+
 ## [Belum rilis] — Label hitungan config-saja kini jujur: kumulatif sejak sehat terakhir, bukan "beruntun" (Audit 1715)
 
 - Sesudah Audit 1698 penghitung config-saja tidak lagi gugur oleh tick tak-merespon yang menyela — n adalah total tick sejak tick sehat terakhir. Alasan restart dan log health masih mengklaim "beruntun", menyesatkan diagnosis episode campuran. Keduanya kini berbunyi "kumulatif/total ... sejak sehat terakhir"; ambang dan perilaku restart tidak berubah.
