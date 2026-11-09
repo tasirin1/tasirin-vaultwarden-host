@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mode bytecode luajit -b dimodelkan (Audit 1673)
+
+- Cabang khusus `luajit -b` menilai token sisa sebagai argumen jit/bcsave.lua: opsi bernilai bcsave dilompati berpasangan, operand adalah berkas masukan, stdin hanya dibaca bila ada operand `-` persis, dan tanpa operand berarti usage lalu keluar — dua positif palsu (`-b` telanjang, `-b -l skrip.lua`) tertutup; 3 skenario suite baru menguncinya (Audit 1673).
+
 ## [Belum rilis] — Gerbang: luajit -j dilompati berpasangan (Audit 1672)
 
 - Penilai interpreter kini melompati berpasangan `-j` khusus `luajit` (perintah JIT bernilai terpisah menurut luajit.c collectargs) — nilainya tak lagi terbaca sebagai berkas skrip sehingga bentuk tanpa skrip divonis menguras; lua sengaja tidak ikut (tak punya -j). 2 skenario suite baru menguncinya (Audit 1672).

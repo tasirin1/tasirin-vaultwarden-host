@@ -1968,6 +1968,27 @@ def _menguras_interpreter(perintah, toks, awal):
         if perintah == "luajit" and t == "-j":
             i += 2
             continue
+        if perintah == "luajit" and t == "-b":
+            # Audit 1673: mode bytecode — semua token sisa
+            # adalah argumen jit/bcsave.lua, bukan program
+            # lua: -n/-t/-a/-o/-e bernilai (lompati
+            # berpasangan), opsi lain bendera, operand adalah
+            # berkas masukan; stdin hanya dibaca bila ada
+            # operand "-" persis. Tanpa operand = usage lalu
+            # keluar (tak membaca).
+            j = i + 1
+            while j < n:
+                u = toks[j].strip("\"'")
+                if u in ("-n", "-t", "-a", "-o", "-e"):
+                    j += 2
+                    continue
+                if u.startswith("-") and u != "-":
+                    j += 1
+                    continue
+                if u == "-":
+                    return True
+                j += 1
+            return False
         if t == "--":
             i += 1
             return toks[i] == "-" if i < n else True
