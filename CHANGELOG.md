@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Telegram: fallback edit→kirim-baru hanya untuk kegagalan yang pasti (Audit 1647)
+
+- Hasil ubah pesan kini bertiga: berhasil / gagal-pasti / gagal-ragu. Fallback mengirim teks yang sama sebagai pesan baru hanya berjalan pada gagal-pasti (server menjawab menolak, 429 ganda, atau teks memang terlalu panjang untuk diedit). Kegagalan ragu — respons hilang di tengah jalan, mis. timeout sesudah server menerapkan edit — tidak lagi memicu kirim-baru, sehingga pesan tidak lagi berisiko ganda di chat. Uji JVM baru mengunci predikat fallbacknya (Audit 1647).
+
 ## [Belum rilis] — Unduhan: saran galat disk penuh kini menyebut penyimpanan, bukan internet (Audit 1646)
 
 - `saranKoneksi` di Updater tak punya cabang untuk galat ruang habis, sehingga unduhan yang mati karena storage penuh menghasilkan pesan "No space left on device. Cek internet STB…" — saran yang bertolak belakang dengan penyebabnya. Kini ada cabang ENOSPC/"no space left" yang menyarankan mengosongkan penyimpanan. Uji JVM baru menguncinya (Audit 1646).

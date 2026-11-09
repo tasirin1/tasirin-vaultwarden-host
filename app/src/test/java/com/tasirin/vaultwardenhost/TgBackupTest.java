@@ -2351,6 +2351,16 @@ public class TgBackupTest {
     }
 
     @Test
+    public void editPerluFallbackKirim_hanyaGagalPasti() {
+        // Audit 1647: fallback kirim-baru hanya untuk
+        // kegagalan yang pasti; hasil ragu (respons hilang)
+        // tidak boleh menggandakan pesan.
+        assertTrue(TgBackup.editPerluFallbackKirim(TgBackup.UBAH_GAGAL_PASTI));
+        assertFalse(TgBackup.editPerluFallbackKirim(TgBackup.UBAH_BERHASIL));
+        assertFalse(TgBackup.editPerluFallbackKirim(TgBackup.UBAH_GAGAL_RAGU));
+    }
+
+    @Test
     public void tugasDataJalan_mengikutiKunciRestore() {
         assertFalse(TgBackup.tugasDataJalan());
         assertTrue(TgBackup.kunciRestore());

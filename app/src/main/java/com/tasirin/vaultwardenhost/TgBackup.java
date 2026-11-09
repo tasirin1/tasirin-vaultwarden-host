@@ -898,6 +898,20 @@ public final class TgBackup {
         }
     }
 
+    // Audit 1647: hasil ubah pesan bertiga — fallback kirim
+    // baru hanya sah bila kegagalannya PASTI (server menjawab
+    // menolak, atau teks memang tak bisa diedit); kegagalan
+    // RAGU (respons hilang di tengah jalan) bisa berarti edit
+    // sebenarnya berhasil diterapkan, jadi mengirim ulang
+    // hanya akan menggandakan pesan di chat.
+    static final int UBAH_BERHASIL = 1;
+    static final int UBAH_GAGAL_PASTI = 0;
+    static final int UBAH_GAGAL_RAGU = -1;
+
+    static boolean editPerluFallbackKirim(int hasilUbah) {
+        return hasilUbah == UBAH_GAGAL_PASTI;
+    }
+
     public static boolean editMessageKb(Context ctx, long chatId, int messageId,
                                      String text, String markupJson) {
         final Context app;
@@ -913,7 +927,8 @@ public final class TgBackup {
         final String markup = markupJson;
         try {
             TG_MSG_EXEC.execute(() -> {
-                if (!ubahSinkron(app, chatId, messageId, msg, markup)) {
+                if (editPerluFallbackKirim(
+                        ubahSinkron(app, chatId, messageId, msg, markup))) {
 
                     kirimSinkronKe(app, String.valueOf(chatId), msg, markup);
                 }
@@ -1200,12 +1215,12 @@ public final class TgBackup {
         return Math.min(ms, 5000L);
     }
 
-    private static boolean ubahSinkron(Context app, long chatId, int messageId,
+    private static int ubahSinkron(Context app, long chatId, int messageId,
                                        String msg, String markup) {
         return ubahSinkronDenganUlang(app, chatId, messageId, msg, markup, false);
     }
 
-    private static boolean ubahSinkronDenganUlang(Context app, long chatId, int messageId,
+    private static int ubahSinkronDenganUlang(Context app, long chatId, int messageId,
                                        String msg, String markup, boolean ulang429) {
         HttpURLConnection conn = null;
         try {
@@ -1213,11 +1228,11 @@ public final class TgBackup {
                     Context.MODE_PRIVATE);
             String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
             if (token.isEmpty()) {
-                return true;
+                return UBAH_BERHASIL;
             }
             java.util.List<String> bagian = pecahPesan(msg, BATAS_PESAN_TELEGRAM);
             if (bagian.size() != 1) {
-                return false;
+                return UBAH_GAGAL_PASTI;
             }
             String chatEnk = URLEncoder.encode(String.valueOf(chatId), "UTF-8");
             String teksEnk = URLEncoder.encode(bagian.get(0), "UTF-8");
@@ -1235,26 +1250,32 @@ public final class TgBackup {
             int code = conn.getResponseCode();
             String balasan = bacaResponsTelegram(conn, code);
             if (code == 200 && TgBot.responsOk(balasan)) {
-                return true;
+                return UBAH_BERHASIL;
             }
             if (code == 400
                     && Util.mengandungAbaikanHuruf(balasan, "message is not modified")) {
-                return true;
+                return UBAH_BERHASIL;
             }
             if (code == 429 && !ulang429) {
                 try {
                     Thread.sleep(jedaRetryAfterMs(balasan));
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
-                    return false;
+                    // Server sudah menjawab 429: edit pasti
+                    // tidak diterapkan.
+                    return UBAH_GAGAL_PASTI;
                 }
                 return ubahSinkronDenganUlang(app, chatId, messageId, msg, markup, true);
             }
+            // Server menjawab dengan kode galat: edit pasti
+            // tidak diterapkan, fallback kirim baru aman.
             logTgFailure("ubah pesan", code, balasan);
-            return false;
+            return UBAH_GAGAL_PASTI;
         } catch (Exception e) {
+            // Audit 1647: tanpa respons, edit bisa saja sudah
+            // diterapkan server — jangan vonis gagal pasti.
             logTgFailure("ubah pesan", -1, String.valueOf(e.getMessage()));
-            return false;
+            return UBAH_GAGAL_RAGU;
         } finally {
             if (conn != null) {
                 conn.disconnect();
