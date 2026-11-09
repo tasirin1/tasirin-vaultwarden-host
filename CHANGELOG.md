@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Jalur restart paksa DB rusak kini menuntaskan gerbang kesempatan-kedua TCP (Audit 1654)
+
+- Pemicu cabang config-saja di `checkHealthOnce` kini juga memosisikan `healthTcpLolos` di ambang-1: gerbang kesempatan-kedua TCP di `healthFail` memakai penghitung itu, dan cabang ini menolkannya tiap tick sehingga `lolos` selalu 1 dan blok restart tak pernah terjangkau walau patch Audit 1643 sudah menaikkan `healthFails` ke ambang. Sesudah ini pemicu yang terdiagnosis DB-rusak sungguh mengeksekusi restart + notifikasi.
+
 ## [Belum rilis] — Perbaikan build susulan Audit 1645: freeBytes menerima jalur String (Audit 1645)
 
 - Commit Audit 1645 memanggil `TgBackup.freeBytes(ctx, dataFolder)` dengan `File`, padahal tanda tangannya `freeBytes(Context, String)` — CI merah di `compileDebugJavaWithJavac` (Updater.java:2340, dibaca dari pesan galat aktual). Kini memakai `dataDir` (String yang sama dengan cek ruang di awal metode yang sama).

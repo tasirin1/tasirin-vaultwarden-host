@@ -2936,7 +2936,17 @@ public class ServerService extends Service {
                     // penghitung di ambang-1 agar kenaikan di
                     // healthFail mencapai ambang dan jalur
                     // restart sungguh berjalan.
+                    // Audit 1654: gerbang kesempatan-kedua TCP di
+                    // healthFail memakai healthTcpLolos, yang juga
+                    // dinolkan cabang ini tiap tick — tanpa
+                    // diposisikan juga, gerbang itu selalu
+                    // mengembalikan "coba lagi (1/3)" selamanya
+                    // (di skenario cabang ini proses hidup + TCP
+                    // tersambung memang selalu benar). Posisikan
+                    // di ambang-1 juga agar pemicu yang sudah
+                    // terdiagnosis ini menuntaskan gerbangnya.
                     healthFails.set(2);
+                    healthTcpLolos.set(2);
                     healthFail("DB rusak beruntun (/alive 5xx tapi /api/config 200, "
                             + BATAS_CONFIG_SAJA_BERUNTUN + "x) — " + h.rincian, pCek);
                     return;
