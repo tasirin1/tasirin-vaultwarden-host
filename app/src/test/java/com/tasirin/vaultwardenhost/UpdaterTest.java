@@ -1662,4 +1662,29 @@ public class UpdaterTest {
         assertTrue(dapat.get());
         pelaksana.shutdownNow();
     }
+
+    @Test
+    public void kunciPasangGlobal_teksTungguDibersihkanSesudahDapat()
+            throws Exception {
+        // Audit 1573: penunggu yang memperoleh kunci
+        // membersihkan teks tunggunya sendiri; teks tak
+        // boleh basi sesudah ia lepas.
+        final java.util.concurrent.CountDownLatch selesai =
+                new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.ExecutorService pelaksana =
+                java.util.concurrent.Executors.newSingleThreadExecutor();
+        Updater.pasangKunciGlobal("menunggu uji");
+        pelaksana.execute(() -> {
+            Updater.pasangKunciGlobal("menunggu uji");
+            Updater.lepasKunciGlobal();
+            selesai.countDown();
+        });
+        Thread.sleep(300);
+        assertEquals("menunggu uji", Updater.statusMesin);
+        Updater.lepasKunciGlobal();
+        assertTrue(selesai.await(5,
+                java.util.concurrent.TimeUnit.SECONDS));
+        assertEquals("", Updater.statusMesin);
+        pelaksana.shutdownNow();
+    }
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Teks tunggu kunci pasang dibersihkan sendiri sesudah kunci didapat (Audit 1573)
+
+- Efek samping Audit 1556: penunggu kunci pasang global yang menyetel statusMesin bisa meninggalkan teks 'menunggu' basi permanen — pemegang sebelumnya membersihkan statusMesin lewat selesaiUnduhan SEBELUM melepas kunci, jadi set penunggu yang mendarat di celah sempit itu tak dibersihkan siapa pun (banner basi sampai unduhan berikutnya). Kini penunggu yang memperoleh kunci menghapus teks itu bila isinya masih persis teks yang ia pasang.
+
 ## [Belum rilis] — Penanda selesai restore picker dibersihkan di finally; toast sukses tak lagi terlewat (Audit 1572)
 
 - Pada jalur file-picker, tandaiRestoreSelesai dan toast sukses berada di DALAM try peringatan Audit 1558, sesudah langkah penerapan config dan penjadwalan: exception dari langkah itu (mis. TgBot.schedule) melompat ke catch peringatan sehingga penanda restore_tanda_ms tertinggal — pada boot berikutnya BootReceiver membacanya sebagai restore terputus dan mengirim peringatan Telegram yang keliru, padahal database baru sudah terpasang utuh. Penanda kini dibersihkan di finally (meniru jalur bot) dan toast + log final berjalan di semua jalan keluar segmen.

@@ -1468,6 +1468,17 @@ public final class Updater {
             // Audit 1474: kunci pasang hanya untuk binary — field mesin.
             statusMesin = teksMenunggu;
             KUNCI_PASANG_GLOBAL.lock();
+            // Audit 1573: teks tunggu yang kami pasang bisa
+            // basi permanen — pemegang sebelumnya
+            // membersihkan statusMesin (selesaiUnduhan)
+            // SEBELUM melepas kunci, jadi bila set kami
+            // mendarat di celah itu tak ada lagi yang
+            // membersihkannya. Hapus bila isinya masih
+            // persis teks kami.
+            if (teksMenunggu != null
+                    && teksMenunggu.equals(statusMesin)) {
+                statusMesin = "";
+            }
         }
     }
 
