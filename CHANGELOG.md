@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Saran koneksi kini mengenali kegagalan checksum SHA-256 (Audit 1666)
+
+- Cabang baru di `saranKoneksi`: "Checksum SHA-256 tidak cocok" dari `pasangHasilUnduh` kini menghasilkan saran soal verifikasi integritas (unduh ulang; bila tetap gagal, berkas rilisnya yang bermasalah), bukan saran cek internet yang mengaburkan makna penghentian keamanan. Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Saran koneksi kini mengenali prasyarat restore (Audit 1665)
 
 - Cabang baru di `saranKoneksi`: pesan restore yang menyuruh Stop manual / server masih berjalan / gagal berhenti / password backup belum diisi / backup terlalu besar kini ditutup saran "selesaikan langkah pada pesan di atas", bukan tempelan "tekan Start lagi" yang bertabrakan dengan inti pesannya. Uji JVM baru menguncinya.

@@ -566,6 +566,16 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_shaTidakCocokBukanInternet() {
+        // Audit 1666: checksum gagal = penghentian keamanan.
+        Exception e = new java.io.IOException(
+                "Checksum SHA-256 tidak cocok; update dibatalkan.");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("SHA-256"));
+        assertFalse(saran.contains("internet"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);

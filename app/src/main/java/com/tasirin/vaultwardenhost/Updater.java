@@ -549,6 +549,14 @@ public final class Updater {
             return "Selesaikan dulu langkah pada pesan di atas, lalu"
                     + " ulangi restore.";
         }
+        // Audit 1666: checksum gagal = penghentian keamanan;
+        // saran jaringan mengaburkan maknanya.
+        if (gabung.contains("sha-256 tidak cocok")
+                || gabung.contains("checksum sha-256")) {
+            return "Berkas unduhan tidak lolos verifikasi SHA-256 dan"
+                    + " sudah dibuang. Unduh ulang; bila tetap tidak"
+                    + " cocok, berkas di rilisnya yang bermasalah.";
+        }
         if (gabung.contains("timed out") || gabung.contains("timeout")
                 || gabung.contains("failed to connect") || gabung.contains("econn")
                 || gabung.contains("unreachable") || gabung.contains("etimedout")) {
