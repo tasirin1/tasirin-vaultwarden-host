@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Health-check: jalur restart paksa DB rusak kini sungguh terjangkau (Audit 1643)
+
+- Cabang config-saja di `checkHealthOnce` menolkan `healthFails` pada tiap tick, sehingga panggilan `healthFail` sesudah 10 tick beruntun selalu mendarat di 1/3 dan blok restart-nya tidak pernah berjalan — server dengan DB rusak (/alive 5xx tetapi /api/config 200) berjalan selamanya tanpa restart dan tanpa notifikasi. Kini penghitung diposisikan di ambang-1 tepat sebelum panggilan itu agar jalur restart paksa + notifikasi Telegram sungguh tereksekusi (Audit 1643).
+
 ## [Belum rilis] — Gerbang: opsi bernilai zstd dilengkapi + zstdmt/zstdgrep dimodelkan (Audit 1642)
 
 - Entri opsi bernilai zstd/unzstd/zstdcat dilengkapi `-M`/`--memory`/`--format`; `zstdmt` dimodelkan setara zstd dan `zstdgrep` setara zgrep (daftar pembaca, peta kanonis, dispatch); 5 skenario suite baru menguncinya (Audit 1642).

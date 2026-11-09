@@ -2929,6 +2929,14 @@ public class ServerService extends Service {
                 int n = configSajaBeruntun.incrementAndGet();
                 if (n >= BATAS_CONFIG_SAJA_BERUNTUN) {
                     configSajaBeruntun.set(0);
+                    // Audit 1643: cabang ini menolkan healthFails
+                    // di tiap tick, jadi panggilan healthFail di
+                    // bawah selalu mendarat di 1/3 dan blok
+                    // restart-nya tak pernah terjangkau. Posisikan
+                    // penghitung di ambang-1 agar kenaikan di
+                    // healthFail mencapai ambang dan jalur
+                    // restart sungguh berjalan.
+                    healthFails.set(2);
                     healthFail("DB rusak beruntun (/alive 5xx tapi /api/config 200, "
                             + BATAS_CONFIG_SAJA_BERUNTUN + "x) — " + h.rincian, pCek);
                     return;
