@@ -16683,6 +16683,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("luajit -b masukan '-' membaca stdin: penguras — gerbang gagal (Audit 1673)", rc != 0)
         shutil.rmtree(sub776, ignore_errors=True)
+        sub777 = klon(tmp, "sub777")
+        berkas_aksi777 = os.path.join(
+            sub777, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi777, encoding="utf-8") as f:
+            isi_aksi777 = f.read()
+        baris_aksi777 = [b for b in isi_aksi777.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru777 = isi_aksi777.replace(
+                baris_aksi777,
+                baris_aksi777.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -Wignore skrip.py; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru777 != isi_aksi777, \
+            "suntikan aksi777 tidak menembak"
+        with open(berkas_aksi777, "w", encoding="utf-8") as f:
+            f.write(isi_baru777)
+        rc, out = jalan(sub777,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python -Wignore nilai menempel, bukan bundel: gerbang lolos (Audit 1674)", rc == 0)
+        shutil.rmtree(sub777, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

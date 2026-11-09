@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nilai menempel -W/-X python bukan bundel bendera (Audit 1674)
+
+- Blok bundel python kini melewati token yang diawali `-W`/`-X` sebagai opsi bernilai utuh: ekor token adalah nilainya (`-Wignore`, `-Ximporttime`), bukan bundel bendera — huruf `i` di dalam nilai tak lagi menyalakan mode interaktif dan menyembunyikan operand skrip (positif palsu pra-ada, terprobe real python3); 1 skenario suite baru menguncinya (Audit 1674).
+
 ## [Belum rilis] — Gerbang: mode bytecode luajit -b dimodelkan (Audit 1673)
 
 - Cabang khusus `luajit -b` menilai token sisa sebagai argumen jit/bcsave.lua: opsi bernilai bcsave dilompati berpasangan, operand adalah berkas masukan, stdin hanya dibaca bila ada operand `-` persis, dan tanpa operand berarti usage lalu keluar — dua positif palsu (`-b` telanjang, `-b -l skrip.lua`) tertutup; 3 skenario suite baru menguncinya (Audit 1673).

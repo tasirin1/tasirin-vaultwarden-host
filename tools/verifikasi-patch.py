@@ -1826,6 +1826,14 @@ def _menguras_interpreter(perintah, toks, awal):
                     and not bersih_t.startswith("--")
                     and len(bersih_t) > 2):
                 huruf_py = bersih_t[1:]
+                # Audit 1674: -W/-X bernilai — ekor token
+                # adalah NILAI-nya (-Wignore, -Ximporttime),
+                # bukan bundel bendera; huruf nilai (mis. 'i'
+                # di "ignore") tidak boleh menyalakan
+                # interaktif.
+                if huruf_py[:1] in ("W", "X"):
+                    i += 1
+                    continue
                 if "c" in huruf_py:
                     if "i" in huruf_py[:huruf_py.index("c")]:
                         interaktif = True
