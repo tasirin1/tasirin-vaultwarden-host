@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Saran koneksi kini mengenali galat konfigurasi bot (Audit 1664)
+
+- Cabang baru di `saranKoneksi`: pesan "Bot token / chat ID belum diisi." dan "Chat ID Telegram tidak valid - periksa pengaturan bot." dari `backupNowIsi` kini menghasilkan saran memeriksa pengaturan Telegram, bukan jatuh ke bawaan cek internet yang kontradiktif. Uji JVM baru menguncinya.
+
 ## [Belum rilis] — Penonaktifan auto-merge kini membedakan gagal asli dari memang belum aktif (Audit 1670)
 
 - Kedua langkah `gh pr merge --disable-auto-merge || echo` di `auto-merge.yml` diganti blok verifikasi: bila perintah gagal, keadaan akhir ditanyakan lewat `gh pr view --json autoMergeRequest`; auto-merge yang masih aktif menggagalkan langkah (`exit 1`), bukan tertelan sebagai "memang belum aktif". PR kelas manual tidak lagi bisa ter-merge otomatis gara-gara kegagalan gh yang diam.

@@ -530,6 +530,13 @@ public final class Updater {
                     + " Hapus berkas unduhan/cache lama atau pindahkan data,"
                     + " lalu coba lagi.";
         }
+        // Audit 1664: galat konfigurasi bot bukan urusan
+        // jaringan — obatnya pengaturan, bukan internet.
+        if (gabung.contains("belum diisi")
+                || gabung.contains("periksa pengaturan bot")) {
+            return "Periksa token bot & chat ID di Pengaturan (bagian"
+                    + " Telegram), lalu coba lagi.";
+        }
         if (gabung.contains("timed out") || gabung.contains("timeout")
                 || gabung.contains("failed to connect") || gabung.contains("econn")
                 || gabung.contains("unreachable") || gabung.contains("etimedout")) {

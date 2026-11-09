@@ -543,6 +543,16 @@ public class UpdaterTest {
     }
 
     @Test
+    public void saranKoneksi_konfigurasiBotBukanInternet() {
+        // Audit 1664: galat konfigurasi bot obatnya pengaturan.
+        Exception e = new java.io.IOException(
+                "Bot token / chat ID belum diisi.");
+        String saran = Updater.saranKoneksi(e);
+        assertTrue(saran.contains("Pengaturan"));
+        assertFalse(saran.contains("internet"));
+    }
+
+    @Test
     public void pesanGalatUnduh_memuatAksiDanSaran() {
         Exception e = new java.net.SocketTimeoutException("failed to connect");
         String pesan = Updater.pesanGalatUnduh("Unduh binary", e);
