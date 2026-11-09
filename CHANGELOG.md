@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Himpunan opsi bernilai gpg di gerbang dilengkapi sapuan kedua (Audit 1562)
+
+- Sapuan 'gpg --dump-options' kedua membuktikan daftar Audit 1549 jauh dari lengkap: ±92 nama bernilai terprobe fail-open — nilai opsi tak dikenal terhitung operand berkas sehingga vonis stdin tertekan. Yang lazim di skrip ikut tercakup (--options, --trust-model, --status-file, --keyid-format, '-z' terpisah) beserta keluarga penerima enkripsi (--encrypt-to, --hidden-recipient, --recipient-file). Penahanan audit-91 atas --encrypt-to dicabut: ternyata artefak kunci fixture lama yang sign-only; dengan subkunci enkripsi ia terprobe SELISIH terisolasi.
+
 ## [Belum rilis] — Nama dinamis openssl tak peka huruf di gerbang: cipher/digest kapital dinilai membaca stdin (Audit 1561)
 
 - openssl menyelesaikan nama perintah yang dibangkitkan dinamis (alias cipher dan alias digest) tanpa peka huruf, tetapi kedua regex gerbang peka huruf — 'openssl AES-256-CBC' dan 'openssl SHA256' lolos sebagai bukan-pembaca. Kedua regex kini IGNORECASE; nama subcommand biasa tetap peka huruf (openssl ENC tetap tak sah), dan cakupan inti Audit 1548 terverifikasi utuh (47/47 nama cipher COCOK).

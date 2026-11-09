@@ -2999,7 +2999,66 @@ def _menguras_khusus(perintah, toks, awal):
              "--s2k-mode", "--s2k-count", "--faked-system-time",
              "--debug", "--default-key", "--log-file",
              "--passphrase-repeat", "--charset",
-             "--compress-level", "--comment"})
+             "--compress-level", "--comment",
+             # Audit 1562: sapuan dump-options kedua —
+             # himpunan 1549 ternyata jauh dari lengkap
+             # (±92 nama bernilai terprobe fail-open,
+             # termasuk yang lazim di skrip: --options,
+             # --trust-model, --status-file, --keyid-format,
+             # -z terpisah, dan keluarga penerima enkripsi
+             # --encrypt-to/--hidden-recipient/
+             # --recipient-file). Penahanan audit-91 atas
+             # --encrypt-to dicabut: artefak kunci fixture
+             # sign-only; terprobe SELISIH terisolasi.
+             "-z", "--aead-algo", "--assert-pubkey-algo",
+             "--assert-signer", "--attribute-file",
+             "--auto-key-locate", "--bzip2-compress-level",
+             "--cert-policy-url", "--chuid", "--chunk-size",
+             "--command-file", "--compatibility-flags",
+             "--completes-needed", "--compliance",
+             "--ctapi-driver", "--debug-level",
+             "--debug-set-iobuf-size",
+             "--default-cert-check-level",
+             "--default-cert-expire", "--default-cert-level",
+             "--default-keyserver-url",
+             "--default-new-key-algo",
+             "--default-preference-list",
+             "--default-recipient", "--default-sig-expire",
+             "--dirmngr-program", "--disable-cipher-algo",
+             "--disable-pubkey-algo", "--display",
+             "--display-charset", "--encrypt-to",
+             "--exec-path", "--export-filter",
+             "--export-options", "--group",
+             "--hidden-encrypt-to", "--hidden-recipient",
+             "--hidden-recipient-file", "--import-filter",
+             "--import-options", "--input-size-hint",
+             "--kbx-buffer-size", "--key-origin",
+             "--keyboxd-program", "--keyid-format",
+             "--keyserver-options", "--known-notation",
+             "--lc-ctype", "--lc-messages",
+             "--limit-card-insert-tries", "--list-options",
+             "--logger-file", "--marginals-needed",
+             "--max-cert-depth", "--max-output",
+             "--min-cert-level", "--min-rsa-length",
+             "--options", "--override-session-key",
+             "--override-session-key-fd", "--pcsc-driver",
+             "--personal-aead-preferences",
+             "--personal-cipher-preferences",
+             "--personal-compress-preferences",
+             "--personal-digest-preferences",
+             "--photo-viewer", "--primary-keyring",
+             "--reader-port", "--recipient-file",
+             "--request-origin", "--secret-keyring",
+             "--sender", "--set-filename", "--set-filesize",
+             "--set-notation", "--set-policy-url",
+             "--sig-keyserver-url", "--sig-policy-url",
+             "--sign-with", "--status-file",
+             "--temp-directory", "--tofu-db-format",
+             "--tofu-default-policy", "--trust-model",
+             "--trustdb-name", "--trusted-key",
+             "--try-secret-key", "--ttyname", "--ttytype",
+             "--user", "--verify-options", "--weak-digest",
+             "--xauthority"})
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False

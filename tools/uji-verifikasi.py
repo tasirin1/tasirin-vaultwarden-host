@@ -15085,6 +15085,69 @@ def main():
         periksa("openssl nama digest kapital (SHA256) dinilai membaca stdin: gerbang gagal (Audit 1561)",
                 rc != 0)
         shutil.rmtree(sub698, ignore_errors=True)
+        sub699 = klon(tmp, "sub699")
+        berkas_aksi699 = os.path.join(
+            sub699, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi699, encoding="utf-8") as f:
+            isi_aksi699 = f.read()
+        baris_aksi699 = [b for b in isi_aksi699.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru699 = isi_aksi699.replace(
+                baris_aksi699,
+                baris_aksi699.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gpg --batch --pinentry-mode loopback --passphrase uji1562 --options opsi.txt --clearsign; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru699 != isi_aksi699, \
+            "suntikan aksi699 tidak menembak"
+        with open(berkas_aksi699, "w", encoding="utf-8") as f:
+            f.write(isi_baru699)
+        rc, out = jalan(sub699, [sys.executable, GERBANG, "--semua"])
+        periksa("gpg opsi --options bernilai: gerbang gagal (Audit 1562)",
+                rc != 0)
+        shutil.rmtree(sub699, ignore_errors=True)
+        sub700 = klon(tmp, "sub700")
+        berkas_aksi700 = os.path.join(
+            sub700, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi700, encoding="utf-8") as f:
+            isi_aksi700 = f.read()
+        baris_aksi700 = [b for b in isi_aksi700.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru700 = isi_aksi700.replace(
+                baris_aksi700,
+                baris_aksi700.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gpg --encrypt-to Uji92 -r Uji92 -e; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru700 != isi_aksi700, \
+            "suntikan aksi700 tidak menembak"
+        with open(berkas_aksi700, "w", encoding="utf-8") as f:
+            f.write(isi_baru700)
+        rc, out = jalan(sub700, [sys.executable, GERBANG, "--semua"])
+        periksa("gpg opsi --encrypt-to bernilai: gerbang gagal (Audit 1562)",
+                rc != 0)
+        shutil.rmtree(sub700, ignore_errors=True)
+        sub701 = klon(tmp, "sub701")
+        berkas_aksi701 = os.path.join(
+            sub701, ".github", "actions", "resolve-vw", "action.yml")
+        with open(berkas_aksi701, encoding="utf-8") as f:
+            isi_aksi701 = f.read()
+        baris_aksi701 = [b for b in isi_aksi701.splitlines()
+                         if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru701 = isi_aksi701.replace(
+                baris_aksi701,
+                baris_aksi701.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    '> >(gpg --batch --pinentry-mode loopback --passphrase uji1562 -z 3 --clearsign; cat '
+                    '>> "$GITHUB_OUTPUT")'), 1)
+        assert isi_baru701 != isi_aksi701, \
+            "suntikan aksi701 tidak menembak"
+        with open(berkas_aksi701, "w", encoding="utf-8") as f:
+            f.write(isi_baru701)
+        rc, out = jalan(sub701, [sys.executable, GERBANG, "--semua"])
+        periksa("gpg opsi pendek -z bernilai terpisah: gerbang gagal (Audit 1562)",
+                rc != 0)
+        shutil.rmtree(sub701, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
