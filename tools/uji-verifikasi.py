@@ -15885,6 +15885,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpgv beroperand berkas data: gerbang lolos (Audit 1639)", rc == 0)
         shutil.rmtree(sub738, ignore_errors=True)
+        sub739 = klon(tmp, "sub739")
+        berkas_aksi739 = os.path.join(
+            sub739, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi739, encoding="utf-8") as f:
+            isi_aksi739 = f.read()
+        baris_aksi739 = [b for b in isi_aksi739.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru739 = isi_aksi739.replace(
+                baris_aksi739,
+                baris_aksi739.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gawk -i inplace '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru739 != isi_aksi739, \
+            "suntikan aksi739 tidak menembak"
+        with open(berkas_aksi739, "w", encoding="utf-8") as f:
+            f.write(isi_baru739)
+        rc, out = jalan(sub739,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gawk -i bernilai GNU di substitusi proses: penguras — gerbang gagal (Audit 1640)", rc != 0)
+        shutil.rmtree(sub739, ignore_errors=True)
+        sub740 = klon(tmp, "sub740")
+        berkas_aksi740 = os.path.join(
+            sub740, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi740, encoding="utf-8") as f:
+            isi_aksi740 = f.read()
+        baris_aksi740 = [b for b in isi_aksi740.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru740 = isi_aksi740.replace(
+                baris_aksi740,
+                baris_aksi740.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gawk -l ext '{print}'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru740 != isi_aksi740, \
+            "suntikan aksi740 tidak menembak"
+        with open(berkas_aksi740, "w", encoding="utf-8") as f:
+            f.write(isi_baru740)
+        rc, out = jalan(sub740,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gawk -l bernilai GNU di substitusi proses: penguras — gerbang gagal (Audit 1640)", rc != 0)
+        shutil.rmtree(sub740, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

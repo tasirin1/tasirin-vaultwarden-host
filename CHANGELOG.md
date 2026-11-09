@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai khas GNU awk untuk gawk (Audit 1640)
+
+- Penilai keluarga skrip kini menambah `{-i, --include, -l, --load}` khusus untuk nama asli gawk/pgawk/igawk — nilai opsi GNU itu tak lagi menempati slot program sehingga program sungguhan tak terbaca sebagai berkas data. Himpunan awk bersama tidak diubah (awk POSIX yang tak mengenal opsi itu galat dan tak membaca); 2 skenario suite baru menguncinya (Audit 1640).
+
 ## [Belum rilis] — Gerbang: gpgv kini dimodelkan sebagai pembaca stdin (Audit 1639)
 
 - `gpgv` masuk daftar pembaca stdin beserta entri opsi bernilainya (`--keyring`/`--homedir`/`--status-fd`/`--logger-fd`) — tanpa operand data ia membaca data bertanda tangan dari stdin sampai habis (terprobe: payload clearsign sah terkonsumsi penuh), jadi segmennya kini tertangkap deteksi pengurasan stdin; 2 skenario suite baru menguncinya (Audit 1639).

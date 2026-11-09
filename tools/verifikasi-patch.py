@@ -1446,6 +1446,12 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                # Audit 1126: --indent bernilai.
                "--indent"},
     }[perintah]
+    if nama_asli in ("gawk", "pgawk", "igawk"):
+        # Audit 1640: opsi bernilai khas GNU awk — tidak
+        # ditambahkan ke himpunan awk bersama karena awk
+        # POSIX yang tak mengenalnya akan galat dan tak
+        # membaca stdin sama sekali.
+        nilai = nilai | {"-i", "--include", "-l", "--load"}
     nilai2 = {"--arg", "--argjson", "--rawfile", "--slurpfile"}
     skrip_dari_opsi = False
     skrip_terisi = False
