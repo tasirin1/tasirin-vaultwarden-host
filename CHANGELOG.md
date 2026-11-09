@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Setel/ganti PIN kini membuang warisan kunci PIN lama (Audit 1668)
+
+- Kedua situs penetapan kredensial PIN di Settings (aktivasi + ganti PIN, keduanya di dalam `KUNCI_PERCOBAAN` oleh pemilik yang lolos gerbang) kini ikut menghapus `KEY_GAGAL` + kedua stempel kunci dalam edit yang sama — PIN baru tidak lagi mewarisi kunci dari kegagalan PIN lama (mis. yang menumpuk lewat bot selagi Settings terbuka). Matikan PIN saja tidak menyentuh keadaan; siklus nyala berikutnya yang membersihkannya.
+
 ## [Belum rilis] — Kirim dokumen by-id: respons ambigu dianggap terkirim, bukan unggah ulang (Audit 1663)
 
 - `kirimDokumenById` memisahkan fase respons: kegagalan membaca respons sesudah permintaan terkirim dan kode 200 berbadan tak terkonfirmasi kini mengembalikan "" (dianggap terkirim, bukan null) sehingga kedua loop pemanggil tidak menjalankan unggahan penuh yang menggandakan dokumen di chat — sekelas Audit 1647/1655. Kode galat yang terbaca utuh (mis. file_id tidak valid) tetap gagal pasti dan fallback unggahan tetap jalan di sana.

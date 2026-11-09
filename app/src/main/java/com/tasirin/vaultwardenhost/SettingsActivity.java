@@ -873,9 +873,19 @@ public class SettingsActivity extends Activity {
                     diterapkan = aktivasiPinMasihBerlaku(epAktif, epAktifPin);
                     if (diterapkan) {
                         synchronized (PinGate.KUNCI_PERCOBAAN) {
+                            // Audit 1668: kredensial baru mulai
+                            // bersih — penghitung gagal + stempel
+                            // kunci warisan PIN lama dibuang di
+                            // edit yang sama (di dalam kunci
+                            // percobaan, oleh pemilik yang lolos
+                            // gerbang Settings).
                             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
                                     .edit().putString(PinGate.KEY_PIN_HASH, hasil)
-                                    .putBoolean(PinGate.KEY_PIN_ON, true).apply();
+                                    .putBoolean(PinGate.KEY_PIN_ON, true)
+                                    .remove(PinGate.KEY_GAGAL)
+                                    .remove(PinGate.KEY_KUNCI_SAMPAI)
+                                    .remove(PinGate.KEY_KUNCI_ELAPSED)
+                                    .apply();
                         }
                     }
                 }
@@ -4312,8 +4322,14 @@ public class SettingsActivity extends Activity {
 
             if (!pinAktifJalan && pinAktif) {
                 synchronized (PinGate.KUNCI_PERCOBAAN) {
+                    // Audit 1668: ganti PIN = kredensial baru;
+                    // warisan kunci PIN lama dibuang sekalian.
                     getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                            .edit().putString(PinGate.KEY_PIN_HASH, h).apply();
+                            .edit().putString(PinGate.KEY_PIN_HASH, h)
+                            .remove(PinGate.KEY_GAGAL)
+                            .remove(PinGate.KEY_KUNCI_SAMPAI)
+                            .remove(PinGate.KEY_KUNCI_ELAPSED)
+                            .apply();
                 }
                 if (beriKabar) {
                     toast(getString(R.string.pin_diperbarui));
