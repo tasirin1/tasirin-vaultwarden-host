@@ -26,7 +26,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 
 ```
 .
-├── .github/workflows/build-apk.yml     # CI ringan (~4 mnt): verifikasi → resolve versi → build APK → upload APK
+├── .github/workflows/build-apk.yml     # CI (~30 mnt, didominasi suite uji-diri): verifikasi → resolve versi → build APK → upload APK
 ├── .github/workflows/build-binary.yml  # CI berat (~15 mnt): verifikasi → resolve versi → build binary+shim+web-vault → rilis
 ├── .github/workflows/ (lainnya)        # codeql.yml, gitleaks.yml (pindai), cek-wajib.yml (gerbang untuk semua PR), labeler.yml + label-audit.yml (label), stale.yml (tutup tak aktif), auto-merge.yml (Dependabot non-Gradle)
 ├── .github/actions/resolve-vw/         # action komposit penentu versi Vaultwarden (dipakai kedua build)
@@ -145,7 +145,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
    melewati gerbang **Verifikasi Patch** dulu (~1 menit, tanpa SDK;
    temuan ditulis sebagai annotations di tab Files) baru build APK;
    push kode aplikasi
-   otomatis memicu build APK ringan (~4 menit, + manual via Run workflow); build
+   otomatis memicu build APK (~30 menit, didominasi suite uji-diri; + manual via Run workflow); build
    binary berat (~15 menit) hanya jalan bila `shim/`/`build-binary.yml` berubah
    atau jadwal bulanan menemukan versi upstream baru — jadi gabungkan perubahan
    kecil dalam satu commit (commit dokumen `*.md` saja dilewati CI).

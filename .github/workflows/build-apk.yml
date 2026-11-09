@@ -56,6 +56,9 @@ jobs:
     runs-on: ubuntu-24.04
     # Audit 1380: suite uji-diri kini berjalan +-19-25 menit;
     # batas lama 15 menit membunuh job di tengah suite.
+    # Audit 1617: komposisi terukur run 42548165680 — job ini
+    # 27:04 dari run 28:34 (uji-verifikasi 22:18; uji-cek-cepat
+    # 4:30 kini di job paralel verifikasi-cek, Audit 1594).
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

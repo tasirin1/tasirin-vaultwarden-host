@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — CI: catatan durasi basi diperbarui (Audit 1617)
+
+- Komentar timeout di build-apk.yml dan dua sebutan `~4 menit` di AGENTS.md diperbarui ke komposisi terukur run 42548165680 (job verifikasi 27:04; run total 28:34). Risiko timeout dipantau dari laju per skenario suite, bukan durasi mentah yang didominasi varians runner.
+
 ## [Belum rilis] — CI: laporan lint tidak lagi tercetak ganda (Audit 1616)
 
 - Langkah penampil laporan lint mencetak dua jalur berkas yang di AGP 8 memuat laporan teks yang sama persis, jadi tiap peringatan muncul dua kali di log; kini hanya jalur pertama yang ada yang dicetak.
