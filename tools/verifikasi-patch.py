@@ -3134,7 +3134,12 @@ def _menguras_khusus(perintah, toks, awal):
              "--cert-notation", "--sig-notation",
              # Audit 1588: -N, opsi pendek notasi gpg —
              # selisih dua arah bila absen.
-             "-N"})
+             "-N",
+             # Audit 1589: alias bernilai berbagi opcode
+             # dengan nama yang sudah ada di himpunan.
+             "--compression-algo",
+             "--personal-cipher-prefs",
+             "--personal-compress-prefs", "--remote-user"})
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False

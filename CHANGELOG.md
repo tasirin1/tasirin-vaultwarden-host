@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: 4 alias gpg bernilai absen (Audit 1589) (Audit 1589)
+
+- --compression-algo, --personal-cipher-prefs, --personal-compress-prefs, dan --remote-user berbagi opcode dengan nama yang sudah ada di himpunan, tetapi pemindaian berbasis nama harfiah membuat nilainya terhitung operand (fail-open). Keempat alias kini masuk himpunan.
+
 ## [Belum rilis] — Gerbang: opsi pendek gpg -N absen dari himpunan (Audit 1588) (Audit 1588)
 
 - -N (notasi) adalah opsi pendek bernilai yang absen dari himpunan gpg dan menimbulkan selisih dua arah: bentuk bernilai fail-open, bentuk menggantung divonis pembaca padahal gpg galat 'missing argument'. -N kini masuk himpunan.
