@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bentuk gpgv '- datafile' dimodelkan (Audit 1659)
+
+- Cek khusus gpgv kini juga divonis menguras bila operand PERTAMA adalah `-` (berkas tanda tangan dibaca dari stdin; terprobe real dengan tanda tangan detached sah) — cerminan bentuk `sigfile -` Audit 1649; 1 skenario suite baru menguncinya (Audit 1659).
+
 ## [Belum rilis] — Gerbang: opsi bernilai gpgv dilengkapi --debug dan --assert-pubkey-algo (Audit 1658)
 
 - Entri opsi bernilai `gpgv` dilengkapi `--debug` dan `--assert-pubkey-algo` (keduanya terprobe real menguras stdin dengan fixture sah; himpunan `gpg` di berkas yang sama sudah lama memuat keduanya) — nilainya tak lagi tertelan sebagai operand berkas; 2 skenario suite baru menguncinya (Audit 1658).
