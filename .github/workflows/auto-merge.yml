@@ -65,7 +65,17 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto-merge || echo "Auto-merge memang belum aktif di PR ini."
+          if ! gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto-merge; then
+            # Audit 1670: bedakan "memang belum aktif" dari
+            # kegagalan gh asli (API/token) — tanyakan keadaan
+            # akhirnya; masih aktif = langkah gagal, bukan hijau.
+            SISA=$(gh pr view ${{ github.event.pull_request.number }} -R ${{ github.repository }} --json autoMergeRequest --jq '.autoMergeRequest')
+            if [ "$SISA" != "null" ]; then
+              echo "::error::Gagal mematikan auto-merge; auto-merge masih aktif untuk PR kelas manual ini."
+              exit 1
+            fi
+            echo "Auto-merge memang belum aktif di PR ini."
+          fi
 
       - name: Komentar panduan (PR dependensi Gradle)
         if: env.GRADLE_DEPS == 'true'
@@ -79,7 +89,17 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto-merge || echo "Auto-merge memang belum aktif di PR ini."
+          if ! gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto-merge; then
+            # Audit 1670: bedakan "memang belum aktif" dari
+            # kegagalan gh asli (API/token) — tanyakan keadaan
+            # akhirnya; masih aktif = langkah gagal, bukan hijau.
+            SISA=$(gh pr view ${{ github.event.pull_request.number }} -R ${{ github.repository }} --json autoMergeRequest --jq '.autoMergeRequest')
+            if [ "$SISA" != "null" ]; then
+              echo "::error::Gagal mematikan auto-merge; auto-merge masih aktif untuk PR kelas manual ini."
+              exit 1
+            fi
+            echo "Auto-merge memang belum aktif di PR ini."
+          fi
 
       - name: Komentar panduan (PR workflow binary/shim)
         if: env.BINARY_PR == 'true' && env.GRADLE_DEPS != 'true'

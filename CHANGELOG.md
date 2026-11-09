@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penonaktifan auto-merge kini membedakan gagal asli dari memang belum aktif (Audit 1670)
+
+- Kedua langkah `gh pr merge --disable-auto-merge || echo` di `auto-merge.yml` diganti blok verifikasi: bila perintah gagal, keadaan akhir ditanyakan lewat `gh pr view --json autoMergeRequest`; auto-merge yang masih aktif menggagalkan langkah (`exit 1`), bukan tertelan sebagai "memang belum aktif". PR kelas manual tidak lagi bisa ter-merge otomatis gara-gara kegagalan gh yang diam.
+
 ## [Belum rilis] — Kunci cache cargo build-binary kini memuat hash workflow-nya sendiri (Audit 1669)
 
 - Kunci cache cargo di `build-binary.yml` ditambah `hashFiles` berkas workflow itu sendiri — di sanalah NDK_VERSION, profil rilis, daftar fitur, dan isi patch heredoc hidup; perubahan konfigurasi build untuk versi upstream yang sama kini membuat kunci baru, bukan me-restore cache konfigurasi lama.
