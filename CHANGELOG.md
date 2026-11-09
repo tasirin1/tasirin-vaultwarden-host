@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -W/-X menggantung dan di ekor bundel menelan operand (Audit 1708)
+
+- Pasangan terpisah -W/-X kini memeriksa sisa token (menggantung -> False, galat "Argument expected"); bundel yang huruf bernilai pertamanya W/X di posisi ekor menelan token berikutnya sebagai nilai, dan menggantung di ekor bundel juga False. Terprobe: `-sW skrip.py` real membaca program dari stdin karena skrip.py menjadi nilai -W. 2 skenario suite baru (Audit 1708).
+
 ## [Belum rilis] — Gerbang: --check-hash-based-pycs bernilai spasi, bentuk = ditolak (Audit 1707)
 
 - Opsi itu kini ditangani sebagai opsi bernilai bentuk spasi (token berikutnya diloncati sebagai nilainya); bentuk `--check-hash-based-pycs=default` jatuh ke tak dikenal -> False, sesuai CPython 3.12.3 terprobe yang menolak bentuk =. Sebelumnya terbalik dua arah. 2 skenario suite baru (Audit 1707).

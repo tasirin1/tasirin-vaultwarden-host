@@ -17019,6 +17019,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("python --check-hash-based-pycs bentuk = ditolak build ini: gerbang lolos (Audit 1707)", rc == 0)
         shutil.rmtree(sub792, ignore_errors=True)
+        sub793 = klon(tmp, "sub793")
+        berkas_aksi793 = os.path.join(
+            sub793, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi793, encoding="utf-8") as f:
+            isi_aksi793 = f.read()
+        baris_aksi793 = [b for b in isi_aksi793.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru793 = isi_aksi793.replace(
+                baris_aksi793,
+                baris_aksi793.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -W; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru793 != isi_aksi793, \
+            "suntikan aksi793 tidak menembak"
+        with open(berkas_aksi793, "w", encoding="utf-8") as f:
+            f.write(isi_baru793)
+        rc, out = jalan(sub793,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python -W menggantung galat lalu keluar: gerbang lolos (Audit 1708)", rc == 0)
+        shutil.rmtree(sub793, ignore_errors=True)
+        sub794 = klon(tmp, "sub794")
+        berkas_aksi794 = os.path.join(
+            sub794, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi794, encoding="utf-8") as f:
+            isi_aksi794 = f.read()
+        baris_aksi794 = [b for b in isi_aksi794.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru794 = isi_aksi794.replace(
+                baris_aksi794,
+                baris_aksi794.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -sW skrip.py; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru794 != isi_aksi794, \
+            "suntikan aksi794 tidak menembak"
+        with open(berkas_aksi794, "w", encoding="utf-8") as f:
+            f.write(isi_baru794)
+        rc, out = jalan(sub794,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python -sW menelan skrip.py sebagai nilai -W lalu membaca stdin: gerbang gagal (Audit 1708)", rc != 0)
+        shutil.rmtree(sub794, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

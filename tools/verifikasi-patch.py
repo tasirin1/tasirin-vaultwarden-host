@@ -1898,6 +1898,20 @@ def _menguras_interpreter(perintah, toks, awal):
                                 return "-" in ops_m
                             return ops_m[0] == "-"
                         return interaktif
+                elif (pos_bernilai >= 0
+                        and huruf_py[pos_bernilai] in ("W", "X")):
+                    # Audit 1708: W/X di ekor bundel menelan
+                    # token BERIKUTNYA sebagai nilainya; tanpa
+                    # token berikutnya = galat lalu keluar.
+                    # Nilai menempel (sisa token) tuntas di
+                    # token ini juga.
+                    if pos_bernilai == len(huruf_py) - 1:
+                        if i + 1 >= n:
+                            return False
+                        i += 2
+                    else:
+                        i += 1
+                    continue
                 else:
                     i += 1
                     continue
@@ -1983,6 +1997,10 @@ def _menguras_interpreter(perintah, toks, awal):
         # -W bendera tanpa nilai — menelan token berikutnya
         # di sana menyembunyikan operand skrip (positif palsu).
         if perintah.startswith("python") and t in ("-W", "-X"):
+            # Audit 1708: -W/-X menggantung (tak ada token
+            # nilai) = galat "Argument expected" lalu keluar.
+            if i + 1 >= n:
+                return False
             i += 2
             continue
         # Audit 1299: opsi bernilai node — nilainya bukan
