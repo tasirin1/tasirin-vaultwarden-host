@@ -1,9 +1,11 @@
 name: Label audit otomatis
 
 # Issue temuan audit membawa penanda baku di badannya: baris yang diawali
-# "- Ronde: Audit-N" (format badan issue audit yang dipakai sejak
-# putaran-putaran awal; pola lama "**Ronde audit:** putaran-N" tidak
-# pernah cocok satu pun - Audit 1718). stale.yml
+# "- Ronde: Audit-N" (format baku kini; pola lama "**Ronde audit:**
+# putaran-N" tidak pernah cocok satu pun - Audit 1718). Issue lama
+# memakai varian "Ronde: Audit-N", "Ronde: Audit N", dan
+# "Ronde: audit-N" — pola menerima semua varian itu agar label
+# terpasang juga pada issue lama (Audit 1728). stale.yml
 # mengecualikan label `audit`; workflow ini yang memastikan label itu
 # terpasang otomatis, bukan bergantung pada ingatan pembuat issue
 # (temuan Audit 557 / sisa kerapuhan #245). Penanda kini BERJANGKAR pada
@@ -16,7 +18,7 @@ name: Label audit otomatis
 
 on:
   issues:
-    types: [opened, edited]
+    types: [opened, edited, reopened]
 
 permissions:
   issues: write
@@ -40,7 +42,7 @@ jobs:
           case ",$ASOSIASI," in
             *,OWNER,*|*,MEMBER,*|*,COLLABORATOR,*) dipercaya=1 ;;
           esac
-          if [ "$dipercaya" = 1 ] && printf '%s' "$BADAN" | grep -qE '^- Ronde: Audit-[0-9]+'; then
+          if [ "$dipercaya" = 1 ] && printf '%s' "$BADAN" | grep -qE '^(- )?Ronde: [Aa]udit[- ][0-9]+'; then
             gh issue edit "$NOMOR" --repo "$REPO" --add-label audit
           elif printf ',%s,' "$LABELS" | grep -q ',audit,'; then
             gh issue edit "$NOMOR" --repo "$REPO" --remove-label audit

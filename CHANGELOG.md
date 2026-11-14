@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pola label audit menerima format badan issue lama (Audit 1728)
+
+- Pola penanda di workflow label-audit kini menerima juga format badan issue lama ("Ronde: Audit-N" tanpa strip, "Ronde: Audit N" dengan spasi, "Ronde: audit-N" huruf kecil) di samping format baku kini — terverifikasi cocok pada sampel issue nyata dari ketiga keluarga format, dan kutipan di tengah kalimat tetap tidak berlabel. Pemicu workflow kini juga memuat reopened agar issue yang dibuka lagi dinilai ulang.
+
 ## [Belum rilis] — Penanda backup terakhir terikat ke bot pemiliknya (Audit 1727)
 
 - Penanda backup terakhir (file_id/nama/tanggal) kini mencatat id bot yang membuatnya dan hanya ditawarkan ke bot yang sama: file_id Telegram hanya berlaku untuk bot penerbitnya, jadi sesudah ganti token ke bot lain /restore dan unduh backup terakhir kini menjawab jelas bahwa backup itu milik bot lain (minta /backup dulu), bukan gagal HTTP 400 tanpa penjelasan. Penanda lama tanpa id tetap berlaku (pola penjaga offset per-bot, Audit 779).
