@@ -4407,6 +4407,11 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return True
+    # Audit 1771: rpm2cpio tanpa argumen membaca aliran
+    # RPM dari standard input (rpm2cpio(1)).
+    if perintah == "rpm2cpio":
+        ops_rp = _operand_sesudah_opsi(toks, awal, set())
+        return not ops_rp or "-" in ops_rp
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5696,7 +5701,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "pwsh", "powershell", "bc", "dc", "ed",
                         "hexdump", "hd", "xxd", "cpio", "pax",
                         "pg", "bat", "batcat", "lzip", "lz4",
-                        "unlz4", "lz4cat",
+                        "unlz4", "lz4cat", "rpm2cpio",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

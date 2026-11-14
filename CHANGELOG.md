@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: rpm2cpio dinilai (Audit 1771)
+
+- rpm2cpio kini dinilai penilai khusus mengikuti rpm2cpio(1): tanpa argumen aliran RPM dibaca dari standard input, dan argumen '-' juga stdin.
+
 ## [Belum rilis] — Gerbang: lz4 dinilai (Audit 1770)
 
 - lz4, unlz4, dan lz4cat kini dinilai penilai khusus mengikuti lz4(1): tanpa berkas masukan atau berkas '-' sumbernya standard input; opsi bernilai lazim dilompati.

@@ -18636,6 +18636,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("lz4 tanpa berkas membuka dari stdin: gerbang gagal (Audit 1770)", rc != 0)
         shutil.rmtree(sub869, ignore_errors=True)
+        sub870 = klon(tmp, "sub870")
+        berkas_aksi870 = os.path.join(
+            sub870, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi870, encoding="utf-8") as f:
+            isi_aksi870 = f.read()
+        baris_aksi870 = [b for b in isi_aksi870.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru870 = isi_aksi870.replace(
+                baris_aksi870,
+                baris_aksi870.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(rpm2cpio; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru870 != isi_aksi870, \
+            "suntikan aksi870 tidak menembak"
+        with open(berkas_aksi870, "w", encoding="utf-8") as f:
+            f.write(isi_baru870)
+        rc, out = jalan(sub870,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("rpm2cpio tanpa argumen membaca aliran RPM dari stdin: gerbang gagal (Audit 1771)", rc != 0)
+        shutil.rmtree(sub870, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
