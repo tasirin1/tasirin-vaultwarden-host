@@ -21135,6 +21135,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--patch-from berlaku juga di zstdcat: gerbang gagal (Audit 1858)", rc != 0)
         shutil.rmtree(sub988, ignore_errors=True)
+        sub989 = klon(tmp, "sub989")
+        berkas_aksi989 = os.path.join(
+            sub989, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi989, encoding="utf-8") as f:
+            isi_aksi989 = f.read()
+        baris_aksi989 = [b for b in isi_aksi989.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru989 = isi_aksi989.replace(
+                baris_aksi989,
+                baris_aksi989.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(c++filt -s gnu-v3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru989 != isi_aksi989, \
+            "suntikan aksi989 tidak menembak"
+        with open(berkas_aksi989, "w", encoding="utf-8") as f:
+            f.write(isi_baru989)
+        rc, out = jalan(sub989,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-s c++filt bernilai gaya demangling - tanpa operand ia membaca stdin: gerbang gagal (Audit 1859)", rc != 0)
+        shutil.rmtree(sub989, ignore_errors=True)
+        sub990 = klon(tmp, "sub990")
+        berkas_aksi990 = os.path.join(
+            sub990, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi990, encoding="utf-8") as f:
+            isi_aksi990 = f.read()
+        baris_aksi990 = [b for b in isi_aksi990.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru990 = isi_aksi990.replace(
+                baris_aksi990,
+                baris_aksi990.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(c++filt --format gnu-v3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru990 != isi_aksi990, \
+            "suntikan aksi990 tidak menembak"
+        with open(berkas_aksi990, "w", encoding="utf-8") as f:
+            f.write(isi_baru990)
+        rc, out = jalan(sub990,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--format c++filt bernilai: gerbang gagal (Audit 1859)", rc != 0)
+        shutil.rmtree(sub990, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai c++filt didaftarkan (Audit 1859)
+
+- Entri opsi bernilai c++filt (-s/--format gaya demangling) ditambahkan: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: --patch-from didaftarkan juga untuk unzstd dan zstdcat (Audit 1858)
 
 - zstd(1) menaruh --patch-from di modifier umum yang berlaku di mode dekompresi juga: entri unzstd dan zstdcat kini memuatnya.
