@@ -4068,6 +4068,23 @@ def _menguras_khusus(perintah, toks, awal):
         # dilompati, bukan dinilai sebagai saklar).
         i_pw = 0
         aksi_pw = False
+        if perintah == "pwsh":
+            # Audit 1759: -Version mengabaikan parameter lain
+            # (about_Pwsh), jadi deteksinya mendahului putaran:
+            # token penentu yang lebih awal (-NoExit, -File -)
+            # tidak boleh menembak lebih dulu. Nilai aksi
+            # dilompati agar "-Version" sebagai nilai string
+            # tidak ikut terdeteksi.
+            i_ps = 0
+            while i_ps < len(mentah):
+                t_ps = mentah[i_ps].lower()
+                if t_ps in ("-version", "-v"):
+                    return False
+                if t_ps in ("-file", "-command", "-c",
+                            "-encodedcommand"):
+                    i_ps += 2
+                    continue
+                i_ps += 1
         while i_pw < len(mentah):
             t_pw = mentah[i_pw].lower()
             if perintah == "pwsh" and t_pw in ("-version", "-v"):

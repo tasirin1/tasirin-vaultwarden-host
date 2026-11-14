@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -Version pwsh didahulukan (Audit 1759)
+
+- Deteksi -Version/-v pwsh kini berupa prapindai yang melompati nilai aksi: -Version mengabaikan parameter lain (about_Pwsh), jadi token penentu yang lebih awal seperti -NoExit atau -File - tidak lagi menembak lebih dulu dan memvonisnya interaktif.
+
 ## [Belum rilis] — Gerbang: xxd dinilai (Audit 1758)
 
 - xxd kini dinilai penilai khusus gerbang mengikuti xxd(1): tanpa infile standard input dibaca dan infile '-' juga berarti stdin; opsi bernilai (-l/-s/-c/-g/-o dan nama panjangnya) dilompati beserta nilainya.
