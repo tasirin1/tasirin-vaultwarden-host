@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: dc -f - adalah stdin (Audit 1751)
+
+- Cabang dc kini mengenali nilai '-' untuk -f/--file (termasuk bentuk --file=-) sebagai berkas aliran stdin mengikuti manual GNU dc - sebelumnya nilai opsi itu dilompati buta sehingga `dc -f -` lolos dari vonis menguras.
+
 ## [Belum rilis] — Gerbang: ed dinilai (Audit 1750)
 
 - ed kini dinilai penilai khusus gerbang: perintah ed selalu dibaca dari standard input (manual GNU ed) - operand berkas hanya mengisi buffer suntingan, jadi bentuk beroperand pun menguras. Sebelumnya ed tak dikenal dispatch gerbang.

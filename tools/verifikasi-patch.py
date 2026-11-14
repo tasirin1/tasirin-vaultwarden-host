@@ -4115,11 +4115,21 @@ def _menguras_khusus(perintah, toks, awal):
             if t_dc in ("-e", "--expression", "-f", "--file"):
                 if i_dc + 1 >= len(mentah):
                     return False
+                # Audit 1751: nilai "-" untuk -f/--file adalah
+                # berkas aliran stdin (manual GNU dc; man dc(1):
+                # dc hanya keluar sesudah -f bila "-" tidak
+                # pernah diberikan ke -f/--file).
+                if (t_dc in ("-f", "--file")
+                        and mentah[i_dc + 1] == "-"):
+                    return True
                 aksi_dc = True
                 i_dc += 2
                 continue
             if (t_dc.startswith("--expression=")
                     or t_dc.startswith("--file=")):
+                # Audit 1751: bentuk "--file=-" sama - stdin.
+                if t_dc == "--file=-":
+                    return True
                 aksi_dc = True
                 i_dc += 1
                 continue
