@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sftp menolak host '-' (Audit 1790)
+
+- Jalur sftp tanpa -b kini memeriksa operand: operand '-' adalah nama host tak sah yang membuat sftp keluar saat resolusi host (sftp(1) hanya mendokumentasikan '-' untuk nilai -b).
+
 ## [Belum rilis] — Gerbang: bun -e mengalahkan '-' (Audit 1789)
 
 - Bila -e/--eval hadir, token '-' pada cabang bun divonis argumen posisi skrip eval (argv), bukan skrip dari stdin - terprobe fungsional: bun -e mencetak hasil eval saja dan stdin tak tersentuh.

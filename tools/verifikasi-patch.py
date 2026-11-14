@@ -4060,6 +4060,14 @@ def _menguras_khusus(perintah, toks, awal):
                 return mentah[k_sf + 1] == "-"
             if t_sf.startswith("-b") and len(t_sf) > 2:
                 return t_sf[2:] == "-"
+        # Audit 1790: tanpa -b, operand '-' adalah nama
+        # host yang tak sah - sftp keluar saat resolusi
+        # host (sftp(1) hanya mendokumentasikan '-' untuk
+        # nilai -b), jadi perintah tak pernah dibaca.
+        if "-" in _operand_sesudah_opsi(
+                toks, awal, {"-b", "-o", "-P", "-F", "-J",
+                             "-B", "-D", "-S"}):
+            return False
         return True
     # Audit 1735: pwsh/powershell (dokumentasi resmi
     # about_Pwsh) — stdin yang ter-redirect dieksekusi sebagai

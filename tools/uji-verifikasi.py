@@ -18951,6 +18951,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sesudah -e, '-' adalah argumen posisi skrip eval: gerbang lolos (Audit 1789)", rc == 0)
         shutil.rmtree(sub884, ignore_errors=True)
+        sub885 = klon(tmp, "sub885")
+        berkas_aksi885 = os.path.join(
+            sub885, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi885, encoding="utf-8") as f:
+            isi_aksi885 = f.read()
+        baris_aksi885 = [b for b in isi_aksi885.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru885 = isi_aksi885.replace(
+                baris_aksi885,
+                baris_aksi885.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sftp -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru885 != isi_aksi885, \
+            "suntikan aksi885 tidak menembak"
+        with open(berkas_aksi885, "w", encoding="utf-8") as f:
+            f.write(isi_baru885)
+        rc, out = jalan(sub885,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("operand '-' pada sftp adalah host tak sah, sftp keluar: gerbang lolos (Audit 1790)", rc == 0)
+        shutil.rmtree(sub885, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
