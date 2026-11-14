@@ -5261,6 +5261,7 @@ def _menguras_khusus(perintah, toks, awal):
                     # sama-sama ditolak pada mode --scope.
                     "--on-clock-change", "--on-timezone-change"}
         scope_sr = False
+        pipe_sr = False
         ditolak_sr = False
         anak_sr = None
         k_sr = 0
@@ -5273,6 +5274,8 @@ def _menguras_khusus(perintah, toks, awal):
                 nama_sr = t_sr.split("=", 1)[0]
                 if nama_sr == "--scope":
                     scope_sr = True
+                if nama_sr == "--pipe":
+                    pipe_sr = True
                 if (nama_sr in timer_sr
                         or nama_sr in ("--remain-after-exit",
                                        "--service-type")):
@@ -5295,7 +5298,21 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             anak_sr = k_sr
             break
-        if not scope_sr or ditolak_sr or anak_sr is None:
+        # Audit 1874: --pipe juga mewarisi stdio pemanggil
+        # seperti --scope; penolakan ala --scope tidak
+        # berlaku untuk opsi layanan --service-type dan
+        # --remain-after-exit, tetapi pemicu timer/jalur/
+        # soket tetap bukan pewaris langsung.
+        if anak_sr is None:
+            return False
+        if scope_sr:
+            if ditolak_sr:
+                return False
+        elif pipe_sr:
+            if any(t_p in timer_sr or t_p.split("=", 1)[0]
+                   in timer_sr for t_p in mentah):
+                return False
+        else:
             return False
         if anak_sr >= len(mentah):
             return False

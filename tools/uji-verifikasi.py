@@ -21555,6 +21555,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("watch meneruskan stdin ke anaknya, -n bernilai selang: gerbang gagal (Audit 1873)", rc != 0)
         shutil.rmtree(sub1008, ignore_errors=True)
+        sub1009 = klon(tmp, "sub1009")
+        berkas_aksi1009 = os.path.join(
+            sub1009, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1009, encoding="utf-8") as f:
+            isi_aksi1009 = f.read()
+        baris_aksi1009 = [b for b in isi_aksi1009.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1009 = isi_aksi1009.replace(
+                baris_aksi1009,
+                baris_aksi1009.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(systemd-run --pipe cpan -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1009 != isi_aksi1009, \
+            "suntikan aksi1009 tidak menembak"
+        with open(berkas_aksi1009, "w", encoding="utf-8") as f:
+            f.write(isi_baru1009)
+        rc, out = jalan(sub1009,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--pipe systemd-run mewarisi stdio pemanggil seperti --scope: gerbang gagal (Audit 1874)", rc != 0)
+        shutil.rmtree(sub1009, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

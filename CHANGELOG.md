@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: systemd-run --pipe diteruskan sebagai pewaris stdin (Audit 1874)
+
+- Cabang systemd-run kini meneruskan vonis anak juga pada mode --pipe (mewarisi stdio pemanggil seperti --scope); pemicu timer/jalur/soket tetap ditolak sebagai pewaris langsung, dan opsi layanan --service-type/--remain-after-exit tidak lagi menghalangi mode --pipe.
+
 ## [Belum rilis] — Gerbang: watch dikenal sebagai pembungkus pewaris stdin (Audit 1873)
 
 - watch ditambahkan ke daftar pembungkus transparan dengan opsi bernilai -n/--interval: terprobe empiris watch meneruskan stdin ke anak yang dijalankannya berulang, jadi vonis anak kini diteruskan.
