@@ -2197,7 +2197,7 @@ def _menguras_interpreter(perintah, toks, awal):
                 continue
             if len(dasar_rp) == 2:
                 if perintah == "ruby":
-                    sah1_rp = "abcdehilmnprsuvwxyCEFIKTUWX"
+                    sah1_rp = "abcdehilmnprsuvwxyCEFIKTUWX0"
                 else:
                     sah1_rp = "abcdefhilmnqrstvzBCEFRST"
                 if dasar_rp[1] not in sah1_rp:

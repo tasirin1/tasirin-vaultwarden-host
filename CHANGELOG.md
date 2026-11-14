@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ruby -0 sah (Audit 1724)
+
+- Huruf `0` ditambahkan ke himpunan huruf opsi sah ruby: pemisah rekaman `-0` boleh tampil tanpa digit oktal (man ruby(1): -0[octal]), jadi `ruby -0` tanpa skrip kini divonis membaca program dari stdin, bukan ditolak sebagai huruf asing oleh penjaga Audit 1714.
+
 ## [Belum rilis] — Gerbang: php -t bernilai (Audit 1723)
 
 - `php -t <docroot>` kini dikenali sebagai opsi bernilai di gerbang (manual PHP: -t adalah docroot server bawaan), lengkap dengan cek menggantung untuk seluruh cabang opsi bernilai php — `php -t` tanpa nilai (dan `php -d` tanpa nilai) divonis galat lalu keluar.

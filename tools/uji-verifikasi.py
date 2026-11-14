@@ -17334,6 +17334,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("php -t menelan docroot lalu membaca kode dari stdin: penguras - gerbang gagal (Audit 1723)", rc != 0)
         shutil.rmtree(sub807, ignore_errors=True)
+        sub808 = klon(tmp, "sub808")
+        berkas_aksi808 = os.path.join(
+            sub808, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi808, encoding="utf-8") as f:
+            isi_aksi808 = f.read()
+        baris_aksi808 = [b for b in isi_aksi808.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru808 = isi_aksi808.replace(
+                baris_aksi808,
+                baris_aksi808.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ruby -0; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru808 != isi_aksi808, \
+            "suntikan aksi808 tidak menembak"
+        with open(berkas_aksi808, "w", encoding="utf-8") as f:
+            f.write(isi_baru808)
+        rc, out = jalan(sub808,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("ruby -0 opsi sah; ruby telanjang membaca program dari stdin: penguras - gerbang gagal (Audit 1724)", rc != 0)
+        shutil.rmtree(sub808, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
