@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga lbzip2 dikenal sebagai pembaca stdin (Audit 1807)
+
+- Nama lbzip2, lbunzip2, dan lbzcat masuk daftar pembaca stdin: tanpa FILE ketiganya bekerja sebagai filter stdin ke stdout.
+
 ## [Belum rilis] — Gerbang: plzip dikenal sebagai pembaca stdin (Audit 1806)
 
 - Nama plzip masuk daftar pembaca stdin: tanpa berkas atau berkas '-' ia mengompres/mendekompres dari stdin (manual resmi plzip).

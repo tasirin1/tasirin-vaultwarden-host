@@ -19224,6 +19224,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("plzip tanpa berkas mengompres dari stdin: gerbang gagal (Audit 1806)", rc != 0)
         shutil.rmtree(sub897, ignore_errors=True)
+        sub898 = klon(tmp, "sub898")
+        berkas_aksi898 = os.path.join(
+            sub898, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi898, encoding="utf-8") as f:
+            isi_aksi898 = f.read()
+        baris_aksi898 = [b for b in isi_aksi898.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru898 = isi_aksi898.replace(
+                baris_aksi898,
+                baris_aksi898.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lbzcat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru898 != isi_aksi898, \
+            "suntikan aksi898 tidak menembak"
+        with open(berkas_aksi898, "w", encoding="utf-8") as f:
+            f.write(isi_baru898)
+        rc, out = jalan(sub898,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lbzcat tanpa FILE adalah filter dekompresi stdin: gerbang gagal (Audit 1807)", rc != 0)
+        shutil.rmtree(sub898, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -699,6 +699,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1806: plzip - tanpa berkas
                   # atau berkas '-' dari stdin (manual).
                   "plzip",
+                  # Audit 1807: keluarga lbzip2 - tanpa
+                  # FILE bekerja sebagai filter stdin.
+                  "lbzip2", "lbunzip2", "lbzcat",
                   # Audit 1112: pembaca interaktif/kueri — operand
                   # berkas/nama menekan seperti filter biasa.
                   "wall", "c++filt", "nslookup",
