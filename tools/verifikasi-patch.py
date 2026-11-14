@@ -5483,7 +5483,13 @@ def _menguras_khusus(perintah, toks, awal):
         # jauh; keluarga filter --files-from/
         # --files-from-raw/--filter-from bernilai '-'
         # membaca daftar dari stdin (docs rclone.org).
-        ops_rx = _operand_sesudah_opsi(toks, awal, set())
+        # Audit 1958: opsi global rclone bernilai
+        # dilompati agar posisi sub-perintah utuh.
+        ops_rx = _operand_sesudah_opsi(
+            toks, awal, {"--config", "--cache-dir",
+                         "--log-file", "--files-from",
+                         "--files-from-raw", "--filter-from",
+                         "--temp-dir", "--metadata"})
         if "\x00gantung" in ops_rx:
             return False
         # Audit 1957: rcat menuntut tepat satu

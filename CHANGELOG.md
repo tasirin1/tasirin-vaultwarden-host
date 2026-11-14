@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang rclone melompati opsi global bernilai (Audit 1958)
+
+- Himpunan bernilai operand cabang rclone kini memuat opsi globalnya (--config/--files-from/dll) agar posisi sub-perintah tak rusak.
+
 ## [Belum rilis] — Gerbang: cabang rclone - rcat menuntut berkas jauh (Audit 1957)
 
 - Cabang rclone kini hanya menilai rcat bila ada operand berkas jauh sesudahnya; rcat tanpa tujuan adalah galat argumen.
