@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pwsh -Version informasional (Audit 1752)
+
+- Cabang pwsh kini memvonis -Version/-v sebagai informatif: pwsh mencetak versi lalu keluar dan argumen lain diabaikan (dokumentasi about_Pwsh), bukan masuk mode interaktif.
+
 ## [Belum rilis] — Gerbang: dc -f - adalah stdin (Audit 1751)
 
 - Cabang dc kini mengenali nilai '-' untuk -f/--file (termasuk bentuk --file=-) sebagai berkas aliran stdin mengikuti manual GNU dc - sebelumnya nilai opsi itu dilompati buta sehingga `dc -f -` lolos dari vonis menguras.

@@ -4059,6 +4059,11 @@ def _menguras_khusus(perintah, toks, awal):
         aksi_pw = False
         while i_pw < len(mentah):
             t_pw = mentah[i_pw].lower()
+            if perintah == "pwsh" and t_pw in ("-version", "-v"):
+                # Audit 1752: -Version pada pwsh informasional -
+                # cetak versi lalu keluar dan argumen lain
+                # diabaikan (about_Pwsh); bukan mode interaktif.
+                return False
             if t_pw == "-noexit":
                 return True
             if t_pw in ("-file", "-command", "-c",
