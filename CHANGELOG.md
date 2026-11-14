@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mariadb mengenali --execute= dan bundel -e (Audit 1915)
+
+- Cermin perbaikan mysql 1914 pada cabang mariadb.
+
 ## [Belum rilis] — Gerbang: cabang mysql mengenali --execute= dan bundel -e (Audit 1914)
 
 - Cabang mysql kini menolak --execute=<..> dan huruf e di bundel pendek mana pun (e bernilai, sisa bundel adalah nilainya).

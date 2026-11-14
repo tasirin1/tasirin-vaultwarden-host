@@ -22269,6 +22269,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--execute= mysql menjalankan lalu keluar: gerbang lolos (Audit 1914)", rc == 0)
         shutil.rmtree(sub1043, ignore_errors=True)
+        sub1044 = klon(tmp, "sub1044")
+        berkas_aksi1044 = os.path.join(
+            sub1044, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1044, encoding="utf-8") as f:
+            isi_aksi1044 = f.read()
+        baris_aksi1044 = [b for b in isi_aksi1044.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1044 = isi_aksi1044.replace(
+                baris_aksi1044,
+                baris_aksi1044.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mariadb --execute=select; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1044 != isi_aksi1044, \
+            "suntikan aksi1044 tidak menembak"
+        with open(berkas_aksi1044, "w", encoding="utf-8") as f:
+            f.write(isi_baru1044)
+        rc, out = jalan(sub1044,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--execute= mariadb menjalankan lalu keluar: gerbang lolos (Audit 1915)", rc == 0)
+        shutil.rmtree(sub1044, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

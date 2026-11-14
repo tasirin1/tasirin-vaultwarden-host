@@ -5005,11 +5005,15 @@ def _menguras_khusus(perintah, toks, awal):
         # mode masukan terpipa membaca stdin;
         # dokumentasi mariadb.com).
         for t_md in mentah:
-            if t_md in ("-e", "--execute", "-V", "--version",
-                        "--help"):
+            if t_md in ("-V", "--version", "--help"):
                 return False
-            if (t_md.startswith("-e") and len(t_md) > 2
-                    and not t_md.startswith("--")):
+            # Audit 1915: cermin 1914 pada mariadb.
+            if (t_md == "--execute"
+                    or t_md.startswith("--execute=")):
+                return False
+            if (t_md.startswith("-")
+                    and not t_md.startswith("--")
+                    and "e" in t_md[1:]):
                 return False
         return True
     # Audit 1854: derdump - sumber masukannya opsi
