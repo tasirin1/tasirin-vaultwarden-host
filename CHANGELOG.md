@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang ssh menolak opsi bernilai menggantung (Audit 1911)
+
+- Cabang ssh kini menggugurkan opsi bernilai yang menggantung di token terakhir (terpisah maupun di ujung bundel): ssh galat tanpa membaca stdin.
+
 ## [Belum rilis] — Gerbang: cabang nc - --recv-only ncat tak meneruskan stdin (Audit 1910)
 
 - Cabang nc kini menilai --recv-only pada ncat sebagai tak meneruskan stdin (hanya menerima), mencerminkan --send-only yang sudah ada.

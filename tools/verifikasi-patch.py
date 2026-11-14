@@ -4782,6 +4782,11 @@ def _menguras_khusus(perintah, toks, awal):
                 tujuan_sh = i_sh + 1 < len(mentah)
                 break
             if t_sh in bernilai_ssh:
+                # Audit 1911: opsi bernilai di token
+                # terakhir menggantung - ssh galat
+                # tanpa membaca stdin.
+                if i_sh + 1 >= len(mentah):
+                    return False
                 i_sh += 2
                 continue
             if t_sh.startswith("--"):
@@ -4802,7 +4807,15 @@ def _menguras_khusus(perintah, toks, awal):
                 if any(h_sh in bendera_sh for h_sh in "nNGQf"):
                     return False
                 if pos_sh is not None:
-                    i_sh += 1 if pos_sh < len(huruf_sh) - 1 else 2
+                    # Audit 1911: huruf bernilai di ujung
+                    # bundel menelan token berikutnya -
+                    # yang menggantung juga galat.
+                    if pos_sh < len(huruf_sh) - 1:
+                        i_sh += 1
+                    elif i_sh + 1 >= len(mentah):
+                        return False
+                    else:
+                        i_sh += 2
                     continue
                 i_sh += 1
                 continue
