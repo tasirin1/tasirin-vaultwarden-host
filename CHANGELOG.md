@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang sftp - bentuk host:berkas adalah mode unduh otomatis (Audit 1908)
+
+- Cabang sftp kini menilai operand pertama berbentuk host:berkas sebagai mode unduh otomatis non-interaktif yang tak membaca perintah dari stdin.
+
 ## [Belum rilis] — Gerbang: cabang sftp - nilai '-' pada opsi bernilai gugur parsing (Audit 1907)
 
 - Cabang sftp kini menolak nilai '-' pada opsi bernilai selain -b (-P/-F/-J/-D/-B, terpisah maupun merekat): OpenSSH menggugurkannya fatal saat parsing sebelum jalur -b mana pun.

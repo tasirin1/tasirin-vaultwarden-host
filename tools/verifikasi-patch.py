@@ -4276,10 +4276,21 @@ def _menguras_khusus(perintah, toks, awal):
         # host yang tak sah - sftp keluar saat resolusi
         # host (sftp(1) hanya mendokumentasikan '-' untuk
         # nilai -b), jadi perintah tak pernah dibaca.
-        if "-" in _operand_sesudah_opsi(
-                toks, awal, {"-b", "-o", "-P", "-F", "-J",
-                             "-B", "-D", "-S"}):
+        ops_sf = _operand_sesudah_opsi(
+            toks, awal, {"-b", "-o", "-P", "-F", "-J",
+                         "-B", "-D", "-S"})
+        if "-" in ops_sf:
             return False
+        # Audit 1908: operand pertama berbentuk
+        # host:berkas = mode unduh otomatis
+        # non-interaktif - tak membaca perintah stdin.
+        if ops_sf:
+            pertama_sf = ops_sf[0]
+            if (":" in pertama_sf and (
+                    "/" not in pertama_sf
+                    or pertama_sf.index(":")
+                    < pertama_sf.index("/"))):
+                return False
         return True
     # Audit 1735: pwsh/powershell (dokumentasi resmi
     # about_Pwsh) — stdin yang ter-redirect dieksekusi sebagai
