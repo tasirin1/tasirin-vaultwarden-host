@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: busybox/toybox dinilai via applet (Audit 1738)
+
+- Dispatch gerbang kini mengalihkan penilaian busybox/toybox ke applet sesudahnya (busybox sh dinilai sebagai sh, toybox cat sebagai cat): multi-biner itu sebelumnya tak terlihat gerbang karena hanya token pertamanya yang dinilai. busybox telanjang atau beropsi (--list/--install) tetap divonis tak membaca stdin.
+
 ## [Belum rilis] — Gerbang: mksh/tcsh/csh/yash dinilai sebagai shell (Audit 1737)
 
 - Empat shell keluarga kedua - mksh (sh bawaan Android), tcsh, csh, yash - kini ikut dinilai cabang shell gerbang: tanpa skrip mereka membaca perintah dari stdin seperti bash/sh. Sebelumnya tuple shell hanya memuat keluarga pertama sehingga keempatnya lolos tak dinilai.

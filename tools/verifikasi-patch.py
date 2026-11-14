@@ -5246,6 +5246,19 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return True
         return xargs_sendiri
     perintah = _kata_shell(toks[awal])
+    # Audit 1738: busybox/toybox adalah multi-biner — perintah
+    # sesungguhnya adalah applet sesudahnya (busybox sh, toybox
+    # cat), jadi penilaian dialihkan ke applet itu. busybox
+    # telanjang atau beropsi (--list/--install) hanya mencetak
+    # teks bantuan, tidak membaca stdin.
+    if perintah in ("busybox", "toybox"):
+        if awal + 1 >= len(toks):
+            return False
+        applet = _kata_shell(toks[awal + 1])
+        if not applet or applet.startswith("-"):
+            return False
+        awal += 1
+        perintah = applet
     if perintah not in _PEMBACA_STDIN:
         # Audit 1039/1040: perintah yang menguras hanya pada
         # bentuk tertentu (interpreter skrip-dari-stdin, builtin
