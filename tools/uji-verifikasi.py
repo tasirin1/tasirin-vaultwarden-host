@@ -22983,6 +22983,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("rclone rcat menyalin stdin: gerbang gagal (Audit 1950)", rc != 0)
         shutil.rmtree(sub1077, ignore_errors=True)
+        sub1078 = klon(tmp, "sub1078")
+        berkas_aksi1078 = os.path.join(
+            sub1078, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1078, encoding="utf-8") as f:
+            isi_aksi1078 = f.read()
+        baris_aksi1078 = [b for b in isi_aksi1078.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1078 = isi_aksi1078.replace(
+                baris_aksi1078,
+                baris_aksi1078.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(restic backup --stdin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1078 != isi_aksi1078, \
+            "suntikan aksi1078 tidak menembak"
+        with open(berkas_aksi1078, "w", encoding="utf-8") as f:
+            f.write(isi_baru1078)
+        rc, out = jalan(sub1078,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("restic backup --stdin membaca stdin: gerbang gagal (Audit 1951)", rc != 0)
+        shutil.rmtree(sub1078, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

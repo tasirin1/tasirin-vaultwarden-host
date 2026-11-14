@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: restic dinilai - backup --stdin dan --files-from - (Audit 1951)
+
+- restic kini dinilai: backup --stdin membaca data dari stdin; --files-from/--files-from-raw bernilai '-' membaca daftar dari stdin.
+
 ## [Belum rilis] — Gerbang: rclone dinilai - rcat dan --files-from - (Audit 1950)
 
 - rclone kini dinilai: rcat menyalin stdin ke berkas jauh; --files-from/--files-from-raw/--filter-from bernilai '-' membaca daftar dari stdin.
