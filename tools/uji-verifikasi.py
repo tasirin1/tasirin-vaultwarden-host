@@ -22815,6 +22815,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("aws opsi global sebelum s3 cp dari '-': gerbang gagal (Audit 1942)", rc != 0)
         shutil.rmtree(sub1069, ignore_errors=True)
+        sub1070 = klon(tmp, "sub1070")
+        berkas_aksi1070 = os.path.join(
+            sub1070, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1070, encoding="utf-8") as f:
+            isi_aksi1070 = f.read()
+        baris_aksi1070 = [b for b in isi_aksi1070.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1070 = isi_aksi1070.replace(
+                baris_aksi1070,
+                baris_aksi1070.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mysql -psecret db; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1070 != isi_aksi1070, \
+            "suntikan aksi1070 tidak menembak"
+        with open(berkas_aksi1070, "w", encoding="utf-8") as f:
+            f.write(isi_baru1070)
+        rc, out = jalan(sub1070,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'e' di nilai -p mysql bukan -e: gerbang gagal menguras (Audit 1943)", rc != 0)
+        shutil.rmtree(sub1070, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

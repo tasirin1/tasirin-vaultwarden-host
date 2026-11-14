@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mysql mengurai bundel setia getopt (Audit 1943)
+
+- Aturan bundel mysql kini berjalan huruf demi huruf: huruf bernilai pertama (p/D/h/u/S/P) menelan sisa bundel, jadi 'e' di dalam nilai (mis. -psecret) bukan lagi -e.
+
 ## [Belum rilis] — Gerbang: cabang aws melompati opsi global sebelum sub-perintah (Audit 1942)
 
 - Cabang aws kini melompati opsi global bernilai (--region/--profile/dll, terpisah maupun rekat '=') sebelum mencari pasangan s3 cp.

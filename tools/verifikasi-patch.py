@@ -5134,10 +5134,17 @@ def _menguras_khusus(perintah, toks, awal):
             if (t_my == "--execute"
                     or t_my.startswith("--execute=")):
                 return False
+            # Audit 1943: urai bundel setia getopt -
+            # huruf bernilai pertama (p/D/h/u/S/P)
+            # menelan sisa bundel sebagai nilai,
+            # jadi 'e' di dalam nilai bukan -e.
             if (t_my.startswith("-")
-                    and not t_my.startswith("--")
-                    and "e" in t_my[1:]):
-                return False
+                    and not t_my.startswith("--")):
+                for h_my in t_my[1:]:
+                    if h_my == "e":
+                        return False
+                    if h_my in ("p", "D", "h", "u", "S", "P"):
+                        break
         return True
     if perintah == "mariadb":
         # Audit 1905: cermin mysql 1904 (klien MariaDB:
