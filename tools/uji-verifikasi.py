@@ -22647,6 +22647,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("aws s3 cp dari '-' mengunggah stdin: gerbang gagal (Audit 1934)", rc != 0)
         shutil.rmtree(sub1061, ignore_errors=True)
+        sub1062 = klon(tmp, "sub1062")
+        berkas_aksi1062 = os.path.join(
+            sub1062, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1062, encoding="utf-8") as f:
+            isi_aksi1062 = f.read()
+        baris_aksi1062 = [b for b in isi_aksi1062.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1062 = isi_aksi1062.replace(
+                baris_aksi1062,
+                baris_aksi1062.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gsutil cp - gs://bkt/k; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1062 != isi_aksi1062, \
+            "suntikan aksi1062 tidak menembak"
+        with open(berkas_aksi1062, "w", encoding="utf-8") as f:
+            f.write(isi_baru1062)
+        rc, out = jalan(sub1062,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gsutil cp dari '-' mengunggah stdin: gerbang gagal (Audit 1935)", rc != 0)
+        shutil.rmtree(sub1062, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

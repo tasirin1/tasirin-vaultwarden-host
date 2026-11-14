@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gsutil cp '-' dan -I dinilai membaca stdin (Audit 1935)
+
+- gsutil kini dinilai: cp dengan sumber '-' mengunggah stdin dan -I membaca daftar URL dari stdin.
+
 ## [Belum rilis] — Gerbang: aws s3 cp dari '-' dinilai mengunggah stdin (Audit 1934)
 
 - aws kini dinilai terbatas: s3 cp dengan operand sumber '-' mengunggah isi stdin; '-' di tujuan (stdout) tak dinilai.
