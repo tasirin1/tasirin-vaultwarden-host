@@ -5220,16 +5220,30 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             # Audit 1944 + 1956: cermin 1943/1955
             # pada mariadb.
-            if t_md in ("-h", "-u", "-p", "-D", "-S",
-                        "--host", "--user", "--password",
+            # Audit 1982: cermin 1981 pada mariadb.
+            if t_md in ("-h", "-u", "-D", "-S",
+                        "--host", "--user",
                         "--database", "--socket", "--port"):
+                if i_md + 1 >= len(mentah):
+                    return False
+                lompat_md = True
+            elif t_md in ("-p", "--password"):
                 lompat_md = True
             elif (t_md.startswith("-")
                     and not t_md.startswith("--")):
-                for h_md in t_md[1:]:
+                for pos_md, h_md in enumerate(t_md[1:]):
                     if h_md == "e":
                         return False
                     if h_md in ("p", "D", "h", "u", "S", "P"):
+                        # Audit 1982: cermin 1981 -
+                        # huruf bernilai di ujung bundel.
+                        if pos_md == len(t_md) - 2:
+                            if h_md == "p":
+                                pass
+                            elif i_md + 1 >= len(mentah):
+                                return False
+                            else:
+                                lompat_md = True
                         break
             i_md += 2 if lompat_md else 1
         return True
