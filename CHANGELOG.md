@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cqlsh dinilai membaca stdin (Audit 1990)
+
+- cqlsh kini dinilai: bentuk polos tanpa --execute/--file membaca dari stdin saat terpipa.
+
 ## [Belum rilis] — Gerbang: cypher-shell dinilai membaca stdin (Audit 1989)
 
 - cypher-shell kini dinilai: bentuk polos terpipa membaca pernyataan dari stdin; argumen pernyataan dan -f menekannya.

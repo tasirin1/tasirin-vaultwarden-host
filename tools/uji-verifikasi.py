@@ -23781,6 +23781,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("cypher-shell polos membaca stdin: gerbang gagal (Audit 1989)", rc != 0)
         shutil.rmtree(sub1115, ignore_errors=True)
+        sub1116 = klon(tmp, "sub1116")
+        berkas_aksi1116 = os.path.join(
+            sub1116, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1116, encoding="utf-8") as f:
+            isi_aksi1116 = f.read()
+        baris_aksi1116 = [b for b in isi_aksi1116.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1116 = isi_aksi1116.replace(
+                baris_aksi1116,
+                baris_aksi1116.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cqlsh; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1116 != isi_aksi1116, \
+            "suntikan aksi1116 tidak menembak"
+        with open(berkas_aksi1116, "w", encoding="utf-8") as f:
+            f.write(isi_baru1116)
+        rc, out = jalan(sub1116,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("cqlsh polos membaca stdin: gerbang gagal (Audit 1990)", rc != 0)
+        shutil.rmtree(sub1116, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
