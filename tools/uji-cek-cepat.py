@@ -751,6 +751,15 @@ def main():
                 rc != 0 and "pola rahasia" in out
                 and "token-unicode.txt" in out)
         shutil.rmtree(tokennbsp, ignore_errors=True)
+        tokenescape = klon(tmp, "tokenescape")
+        tanam(tokenescape, "token-escape.txt",
+              token_palsu[:9] + "\\t" + token_palsu[9:] + "\n", "w")
+        rc, out = jalan(tokenescape, ["bash", SKRIP])
+        periksa("token tersela escape harfiah backslash-t "
+                "tertangkap (Audit 1777)",
+                rc != 0 and "pola rahasia" in out
+                and "token-escape.txt" in out)
+        shutil.rmtree(tokenescape, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: escape harfiah dikupas (Audit 1777)
+
+- Fungsi proses() cek-cepat kini mengupas urutan escape harfiah backslash-t/n/r (dua aksara teks) sebelum pengupasan aksara tunggal: huruf sisanya kemarin mematahkan run digit token yang ditulis di dalam string berkode-escape.
+
 ## [Belum rilis] — Cek-cepat: spasi unicode dikupas (Audit 1776)
 
 - Fungsi proses() cek-cepat kini mengupas urutan byte spasi unicode U+00A0 (NBSP) dan U+2003 (EM SPACE): keduanya bukan whitespace bagi awk di locale POSIX sehingga belahan token yang disela spasi itu kemarin lolos dari pola bungkus.

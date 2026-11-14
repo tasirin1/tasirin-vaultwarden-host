@@ -184,6 +184,7 @@ BUNGKUS="$(awk -v POLA="$POLA_BUNGKUS" '
 function proses(line,   awal, hd, sp, pos, s, ekort) {
   $0 = line
   sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, "")
+  gsub(/\\[tnr]/, "")
   gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, "")
   gsub(/[@=+%&~$^?{}\[\]]/, "")
   gsub("\302\240", ""); gsub("\342\200\203", "")
