@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cpan dinilai cabang khusus mode shell vs pasang (Audit 1865)
+
+- cpan keluar dari himpunan generik dan dinilai cabang khusus: -s memaksa mode shell (membaca stdin); operand modul atau opsi bernilai -j/-M tanpa -s adalah mode pasang (tak membaca stdin); nama ditambahkan ke tuple dispatch.
+
 ## [Belum rilis] — Gerbang: opsi bernilai dirmngr didaftarkan (Audit 1864)
 
 - Entri opsi bernilai dirmngr (--homedir, --options, --log-file) ditambahkan: mode --server-nya membaca perintah Assuan dari stdin.

@@ -651,7 +651,8 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "chgpasswd",
                   # Audit 1376: shell CPAN tanpa argumen
                   # membaca perintah dari stdin.
-                  "cpan",
+                  # Audit 1865: cpan dinilai cabangnya
+                  # sendiri (mode shell vs pasang).
                   # Audit 1398: pl2pm tanpa operand menerjemahkan
                   # stdin ke stdout (operand berkas menekan).
                   "pl2pm",
@@ -4662,6 +4663,27 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_rc:
             return False
         return len(ops_rc) == 1
+    # Audit 1865: cpan - mode shell membaca perintah
+    # dari stdin; mode pasang (operand modul, atau
+    # opsi bernilai -j/-M tanpa -s) tidak.
+    if perintah == "cpan":
+        if any(t_c2 in _INFO_HURUF.get("cpan", ())
+               for t_c2 in mentah):
+            return False
+        if "-s" in mentah:
+            return True
+        ops_c = _operand_sesudah_opsi(
+            toks, awal, {"-j", "-M"})
+        if "\x00gantung" in ops_c:
+            return False
+        if ops_c:
+            return False
+        for t_c in mentah:
+            if (t_c in ("-j", "-M")
+                    or (t_c.startswith(("-j", "-M"))
+                        and not t_c.startswith("--"))):
+                return False
+        return True
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6171,7 +6193,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "unlz4", "lz4cat", "rpm2cpio", "7z",
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
-                        "aria2c", "choose", "dasel", "derdump", "envsubst", "mlr", "sd", "recode",
+                        "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode",
                         "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.

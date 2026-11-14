@@ -21282,6 +21282,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("mode --server dirmngr membaca perintah Assuan dari stdin, --homedir bernilai: gerbang gagal (Audit 1864)", rc != 0)
         shutil.rmtree(sub995, ignore_errors=True)
+        sub996 = klon(tmp, "sub996")
+        berkas_aksi996 = os.path.join(
+            sub996, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi996, encoding="utf-8") as f:
+            isi_aksi996 = f.read()
+        baris_aksi996 = [b for b in isi_aksi996.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru996 = isi_aksi996.replace(
+                baris_aksi996,
+                baris_aksi996.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cpan -s -j konfig.pm; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru996 != isi_aksi996, \
+            "suntikan aksi996 tidak menembak"
+        with open(berkas_aksi996, "w", encoding="utf-8") as f:
+            f.write(isi_baru996)
+        rc, out = jalan(sub996,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-s memaksa cpan masuk mode shell yang membaca perintah dari stdin: gerbang gagal (Audit 1865)", rc != 0)
+        shutil.rmtree(sub996, ignore_errors=True)
+        sub997 = klon(tmp, "sub997")
+        berkas_aksi997 = os.path.join(
+            sub997, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi997, encoding="utf-8") as f:
+            isi_aksi997 = f.read()
+        baris_aksi997 = [b for b in isi_aksi997.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru997 = isi_aksi997.replace(
+                baris_aksi997,
+                baris_aksi997.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cpan -j konfig.pm; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru997 != isi_aksi997, \
+            "suntikan aksi997 tidak menembak"
+        with open(berkas_aksi997, "w", encoding="utf-8") as f:
+            f.write(isi_baru997)
+        rc, out = jalan(sub997,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("cpan -j tanpa -s mode pasang - tak membaca stdin: gerbang lolos (Audit 1865)", rc == 0)
+        shutil.rmtree(sub997, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
