@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: 7z -si mensyaratkan nama arsip (Audit 1781)
+
+- Cabang 7z kini mensyaratkan operand polos (nama arsip) di samping saklar -si: tanpa nama arsip perintah gugur dengan galat baris perintah sebelum membaca data stdin, sejajar preseden zip Audit 1094.
+
 ## [Belum rilis] — Gerbang: cpio -F - berkas harfiah (Audit 1780)
 
 - Syarat stdin copy-in cpio kini hanya ketiadaan -F: nilai '-' untuk -F/--file adalah nama berkas harfiah karena manual GNU cpio tidak mendokumentasikannya sebagai stdin - sejajar keputusan hexdump -f - (Audit 1775).

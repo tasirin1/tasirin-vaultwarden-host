@@ -4434,8 +4434,13 @@ def _menguras_khusus(perintah, toks, awal):
     # bentuk x -/l - tak didukung dokumentasi.
     if perintah == "7z":
         if mentah and mentah[0].lower() == "a":
-            return any(t.lower().startswith("-si")
-                       for t in mentah[1:])
+            # Audit 1781: nama arsip wajib - tanpa operand
+            # polos perintah gugur sebelum membaca stdin
+            # (sejajar zip Audit 1094).
+            return (any(t.lower().startswith("-si")
+                        for t in mentah[1:])
+                    and any(not t.startswith("-")
+                            for t in mentah[1:]))
         return False
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.

@@ -18762,6 +18762,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai -F cpio berupa - adalah berkas harfiah, bukan stdin: gerbang lolos (Audit 1780)", rc == 0)
         shutil.rmtree(sub875, ignore_errors=True)
+        sub876 = klon(tmp, "sub876")
+        berkas_aksi876 = os.path.join(
+            sub876, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi876, encoding="utf-8") as f:
+            isi_aksi876 = f.read()
+        baris_aksi876 = [b for b in isi_aksi876.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru876 = isi_aksi876.replace(
+                baris_aksi876,
+                baris_aksi876.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(7z a -siNama; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru876 != isi_aksi876, \
+            "suntikan aksi876 tidak menembak"
+        with open(berkas_aksi876, "w", encoding="utf-8") as f:
+            f.write(isi_baru876)
+        rc, out = jalan(sub876,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("7z a -si tanpa nama arsip gugur sebelum membaca stdin: gerbang lolos (Audit 1781)", rc == 0)
+        shutil.rmtree(sub876, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
