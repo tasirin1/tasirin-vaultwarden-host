@@ -19509,14 +19509,14 @@ def main():
                 baris_aksi911,
                 baris_aksi911.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(lbzip2 -b 900; cat >> \"$GITHUB_OUTPUT\")"), 1)
+                    "> >(lbzip2 -n 4; cat >> \"$GITHUB_OUTPUT\")"), 1)
         assert isi_baru911 != isi_aksi911, \
             "suntikan aksi911 tidak menembak"
         with open(berkas_aksi911, "w", encoding="utf-8") as f:
             f.write(isi_baru911)
         rc, out = jalan(sub911,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai -b lbzip2 bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1820)", rc != 0)
+        periksa("nilai -n lbzip2 bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1820, dikoreksi Audit 1866)", rc != 0)
         shutil.rmtree(sub911, ignore_errors=True)
         sub912 = klon(tmp, "sub912")
         berkas_aksi912 = os.path.join(
@@ -20349,14 +20349,14 @@ def main():
                 baris_aksi951,
                 baris_aksi951.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(lbzcat -b 900; cat >> \"$GITHUB_OUTPUT\")"), 1)
+                    "> >(lbzcat -n 4; cat >> \"$GITHUB_OUTPUT\")"), 1)
         assert isi_baru951 != isi_aksi951, \
             "suntikan aksi951 tidak menembak"
         with open(berkas_aksi951, "w", encoding="utf-8") as f:
             f.write(isi_baru951)
         rc, out = jalan(sub951,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lbzcat berbagi entri lbzip2 - -b bernilai: gerbang gagal (Audit 1845)", rc != 0)
+        periksa("lbzcat berbagi entri lbzip2 - -n bernilai: gerbang gagal (Audit 1845, dikoreksi Audit 1866)", rc != 0)
         shutil.rmtree(sub951, ignore_errors=True)
         sub952 = klon(tmp, "sub952")
         berkas_aksi952 = os.path.join(
@@ -20370,14 +20370,14 @@ def main():
                 baris_aksi952,
                 baris_aksi952.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(lbunzip2 -b 900; cat >> \"$GITHUB_OUTPUT\")"), 1)
+                    "> >(lbunzip2 -n 4; cat >> \"$GITHUB_OUTPUT\")"), 1)
         assert isi_baru952 != isi_aksi952, \
             "suntikan aksi952 tidak menembak"
         with open(berkas_aksi952, "w", encoding="utf-8") as f:
             f.write(isi_baru952)
         rc, out = jalan(sub952,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lbunzip2 berbagi entri lbzip2: gerbang gagal (Audit 1845)", rc != 0)
+        periksa("lbunzip2 berbagi entri lbzip2 - -n bernilai: gerbang gagal (Audit 1845, dikoreksi Audit 1866)", rc != 0)
         shutil.rmtree(sub952, ignore_errors=True)
         sub953 = klon(tmp, "sub953")
         berkas_aksi953 = os.path.join(
@@ -20398,7 +20398,7 @@ def main():
             f.write(isi_baru953)
         rc, out = jalan(sub953,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--block-size lbunzip2 bernilai: gerbang gagal (Audit 1845)", rc != 0)
+        periksa("--block-size bukan opsi lbunzip2 - 900 operand berkas: gerbang lolos (Audit 1845, dikoreksi Audit 1866)", rc == 0)
         shutil.rmtree(sub953, ignore_errors=True)
         sub954 = klon(tmp, "sub954")
         berkas_aksi954 = os.path.join(
@@ -21324,6 +21324,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("cpan -j tanpa -s mode pasang - tak membaca stdin: gerbang lolos (Audit 1865)", rc == 0)
         shutil.rmtree(sub997, ignore_errors=True)
+        sub998 = klon(tmp, "sub998")
+        berkas_aksi998 = os.path.join(
+            sub998, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi998, encoding="utf-8") as f:
+            isi_aksi998 = f.read()
+        baris_aksi998 = [b for b in isi_aksi998.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru998 = isi_aksi998.replace(
+                baris_aksi998,
+                baris_aksi998.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lbzip2 -n 4; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru998 != isi_aksi998, \
+            "suntikan aksi998 tidak menembak"
+        with open(berkas_aksi998, "w", encoding="utf-8") as f:
+            f.write(isi_baru998)
+        rc, out = jalan(sub998,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-n lbzip2 satu-satunya opsi bernilai (jumlah benang): gerbang gagal (Audit 1866)", rc != 0)
+        shutil.rmtree(sub998, ignore_errors=True)
+        sub999 = klon(tmp, "sub999")
+        berkas_aksi999 = os.path.join(
+            sub999, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi999, encoding="utf-8") as f:
+            isi_aksi999 = f.read()
+        baris_aksi999 = [b for b in isi_aksi999.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru999 = isi_aksi999.replace(
+                baris_aksi999,
+                baris_aksi999.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lbzip2 -b 2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru999 != isi_aksi999, \
+            "suntikan aksi999 tidak menembak"
+        with open(berkas_aksi999, "w", encoding="utf-8") as f:
+            f.write(isi_baru999)
+        rc, out = jalan(sub999,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-b bukan opsi lbzip2 - 2 adalah operand berkas: gerbang lolos (Audit 1866)", rc == 0)
+        shutil.rmtree(sub999, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

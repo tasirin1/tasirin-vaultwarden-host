@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: entri lbzip2 diganti ke opsi bernilai sebenarnya -n (Audit 1866)
+
+- Ketiga entri keluarga lbzip2 (lbzip2, lbzcat, lbunzip2) diganti dari {-b, --block-size} yang tidak ada di lbzip2 menjadi {-n}: manual resmi lbzip2 2.5 menyebut -n (jumlah benang) satu-satunya opsi bernilai.
+
 ## [Belum rilis] — Gerbang: cpan dinilai cabang khusus mode shell vs pasang (Audit 1865)
 
 - cpan keluar dari himpunan generik dan dinilai cabang khusus: -s memaksa mode shell (membaca stdin); operand modul atau opsi bernilai -j/-M tanpa -s adalah mode pasang (tak membaca stdin); nama ditambahkan ke tuple dispatch.

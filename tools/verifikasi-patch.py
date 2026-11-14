@@ -997,7 +997,7 @@ _OPSI_BERNILAI = {
     "plzip": {"-n", "--threads", "--dictionary-size",
               "--match-length", "--format"},
     # Audit 1820: opsi bernilai lbzip2.
-    "lbzip2": {"-b", "--block-size"},
+    "lbzip2": {"-n"},
     # Audit 1821: opsi bernilai pixz.
     "pixz": {"-p", "-q", "-x", "-f", "-o"},
     # Audit 1822: opsi bernilai compress.
@@ -1024,8 +1024,8 @@ _OPSI_BERNILAI = {
     "brcat": {"-q", "--quality", "-o", "--output",
               "-w", "--window", "-S", "--suffix"},
     # Audit 1845: alias lbzip2 berbagi entri lbzip2.
-    "lbzcat": {"-b", "--block-size"},
-    "lbunzip2": {"-b", "--block-size"},
+    "lbzcat": {"-n"},
+    "lbunzip2": {"-n"},
     # Audit 1846: opsi bernilai lziprecover.
     "lziprecover": {"-o", "--output"},
     # Audit 1859: opsi bernilai c++filt.
