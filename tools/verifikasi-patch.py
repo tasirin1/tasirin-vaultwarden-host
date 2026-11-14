@@ -4850,9 +4850,24 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1895: -s/--stdin-file dan -l/--stdin-line
         # membaca pesan dari stdin (man mosquitto_pub);
         # bentuk lain pesannya dari -m/berkas.
-        return any(
-            t_mp in ("-s", "--stdin-file", "-l", "--stdin-line")
-            for t_mp in mentah)
+        # Audit 1922: bundel huruf getopt diurai -
+        # huruf mode stdin (s/l) di dalam bundel tetap
+        # berlaku; huruf bernilai menghentikan urai
+        # (sisanya adalah nilai menempel).
+        for t_mp in mentah:
+            if t_mp in ("-s", "--stdin-file", "-l",
+                        "--stdin-line"):
+                return True
+            if (t_mp.startswith("-")
+                    and not t_mp.startswith("--")
+                    and len(t_mp) > 2):
+                for h_mp in t_mp[1:]:
+                    if h_mp in ("s", "l"):
+                        return True
+                    if h_mp in ("h", "p", "q", "t", "u", "P",
+                                "i", "k", "A", "c", "V", "f"):
+                        break
+        return False
     if perintah == "grpcurl":
         # Audit 1896: -d @ membaca badan permintaan dari
         # stdin (README grpcurl); nilai @ lain berkas.

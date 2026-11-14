@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mosquitto_pub mengurai bundel mode stdin (Audit 1922)
+
+- Cabang mosquitto_pub kini mengurai bundel huruf getopt: huruf s/l di dalam bundel tetap mode stdin; huruf bernilai menghentikan urai.
+
 ## [Belum rilis] — Gerbang: cabang kubectl wilayah pindai sampai '--' + bundel setia (Audit 1919, 1920)
 
 - Cabang kubectl kini berhenti memindai di '--' (Audit 1919) dan mengurai bundel dengan -c bernilai (Audit 1920).
