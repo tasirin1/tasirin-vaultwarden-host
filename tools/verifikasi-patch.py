@@ -4543,6 +4543,12 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1804: uudecode [FILE]... - tanpa FILE
         # membaca stdin (manual GNU sharutils).
         return not ops_uu or "-" in ops_uu
+    # Audit 1814-1817: keluarga moreutils yang selalu
+    # membaca stdin - operandnya bukan berkas masukan
+    # (sponge: berkas keluaran; ts: pola format; vipe:
+    # editor pipa; pee: perintah tujuan).
+    if perintah in ("sponge",):
+        return True
     # Audit 1771: rpm2cpio tanpa argumen membaca aliran
     # RPM dari standard input (rpm2cpio(1)).
     if perintah == "rpm2cpio":
@@ -5894,7 +5900,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "pg", "bat", "batcat", "lzip", "lz4",
                         "unlz4", "lz4cat", "rpm2cpio", "7z",
                         "7za", "7zr", "7zz", "uuencode",
-                        "uudecode",
+                        "uudecode", "sponge",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

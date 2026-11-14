@@ -19371,6 +19371,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("dos2unix tanpa FILE adalah filter stdin: gerbang gagal (Audit 1813)", rc != 0)
         shutil.rmtree(sub904, ignore_errors=True)
+        sub905 = klon(tmp, "sub905")
+        berkas_aksi905 = os.path.join(
+            sub905, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi905, encoding="utf-8") as f:
+            isi_aksi905 = f.read()
+        baris_aksi905 = [b for b in isi_aksi905.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru905 = isi_aksi905.replace(
+                baris_aksi905,
+                baris_aksi905.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sponge berkas.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru905 != isi_aksi905, \
+            "suntikan aksi905 tidak menembak"
+        with open(berkas_aksi905, "w", encoding="utf-8") as f:
+            f.write(isi_baru905)
+        rc, out = jalan(sub905,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sponge selalu menyedot stdin, operandnya berkas keluaran: gerbang gagal (Audit 1814)", rc != 0)
+        shutil.rmtree(sub905, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
