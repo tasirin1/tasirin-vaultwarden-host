@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang gh menilai api --input - dan berkas badan '-' (Audit 1931)
+
+- Cabang gh kini juga menilai api --input -, field -F berisi @-, serta --body-file/--notes-file berupa '-' pada pr/issue/release sebagai pembaca stdin.
+
 ## [Belum rilis] — Gerbang: etcdctl put tanpa nilai dan txn dinilai (Audit 1930)
 
 - etcdctl kini dinilai: put dengan tepat satu operand (kunci saja) membaca nilainya dari stdin; txn membaca interaksi dari stdin.

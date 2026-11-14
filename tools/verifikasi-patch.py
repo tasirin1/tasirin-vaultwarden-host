@@ -5967,6 +5967,22 @@ def _menguras_khusus(perintah, toks, awal):
         # SESUDAH posisi subperintah — kemunculannya
         # sebagai nilai --hostname (sudah dilompati
         # gelung di atas) bukan bendera.
+        # Audit 1931: bentuk badan dari stdin gh -
+        # api --input -, field -F berisi @-, dan berkas
+        # badan/catatan berupa '-' pada pr/issue/release.
+        sisa_gh = mentah[k_gh:]
+        for k2_gh, t2_gh in enumerate(sisa_gh):
+            if t2_gh in ("--input", "--body-file",
+                         "--notes-file"):
+                if (k2_gh + 1 < len(sisa_gh)
+                        and sisa_gh[k2_gh + 1] == "-"):
+                    return True
+            elif t2_gh in ("--input=-", "--body-file=-",
+                           "--notes-file=-"):
+                return True
+            elif (t2_gh == "-F" and k2_gh + 1 < len(sisa_gh)
+                    and "@-" in sisa_gh[k2_gh + 1]):
+                return True
         return (len(mentah) - k_gh >= 2
                 and mentah[k_gh] == "auth"
                 and mentah[k_gh + 1] == "login"

@@ -22563,6 +22563,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("etcdctl put tanpa nilai membaca stdin: gerbang gagal (Audit 1930)", rc != 0)
         shutil.rmtree(sub1057, ignore_errors=True)
+        sub1058 = klon(tmp, "sub1058")
+        berkas_aksi1058 = os.path.join(
+            sub1058, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1058, encoding="utf-8") as f:
+            isi_aksi1058 = f.read()
+        baris_aksi1058 = [b for b in isi_aksi1058.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1058 = isi_aksi1058.replace(
+                baris_aksi1058,
+                baris_aksi1058.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gh api --input -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1058 != isi_aksi1058, \
+            "suntikan aksi1058 tidak menembak"
+        with open(berkas_aksi1058, "w", encoding="utf-8") as f:
+            f.write(isi_baru1058)
+        rc, out = jalan(sub1058,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gh api --input - membaca badan dari stdin: gerbang gagal (Audit 1931)", rc != 0)
+        shutil.rmtree(sub1058, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
