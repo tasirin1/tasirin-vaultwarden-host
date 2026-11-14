@@ -19833,6 +19833,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("ncat meneruskan stdin ke koneksi seperti nc: gerbang gagal (Audit 1835)", rc != 0)
         shutil.rmtree(sub926, ignore_errors=True)
+        sub927 = klon(tmp, "sub927")
+        berkas_aksi927 = os.path.join(
+            sub927, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi927, encoding="utf-8") as f:
+            isi_aksi927 = f.read()
+        baris_aksi927 = [b for b in isi_aksi927.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru927 = isi_aksi927.replace(
+                baris_aksi927,
+                baris_aksi927.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(aria2c -i -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru927 != isi_aksi927, \
+            "suntikan aksi927 tidak menembak"
+        with open(berkas_aksi927, "w", encoding="utf-8") as f:
+            f.write(isi_baru927)
+        rc, out = jalan(sub927,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("aria2c -i - membaca daftar URI dari stdin: gerbang gagal (Audit 1836)", rc != 0)
+        shutil.rmtree(sub927, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: aria2c -i - dinilai membaca stdin (Audit 1836)
+
+- Cabang khusus aria2c mengikuti pola wget: nilai -i/--input-file berupa '-' (terpisah, menempel, atau bentuk =) berarti daftar URI dari stdin.
+
 ## [Belum rilis] — Gerbang: ncat tercakup cabang nc (Audit 1835)
 
 - Nama ncat ditambahkan ke cabang dan tuple nc: ia meneruskan stdin ke koneksi persis seperti nc.
