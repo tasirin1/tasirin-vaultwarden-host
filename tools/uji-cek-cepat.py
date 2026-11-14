@@ -903,6 +903,15 @@ def main():
                 rc != 0 and "pola rahasia" in out
                 and "token-lain.txt" in out)
         shutil.rmtree(nama_pipa, ignore_errors=True)
+        escape_umodal = klon(tmp, "escapeumodal")
+        tanam(escape_umodal, "token-umodal.sh",
+              "TOKEN=$'" + token_palsu.replace(":", "\\U0000003a")
+              + "'\n", "w")
+        rc, out = jalan(escape_umodal, ["bash", SKRIP])
+        periksa("token ter-encode escape \\U tertangkap "
+                "(Audit 1924)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(escape_umodal, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

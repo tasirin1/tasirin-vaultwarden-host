@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: escape \U 8 digit didekode perata bungkus (Audit 1924)
+
+- Fungsi proses() kini turut mendekode escape \UXXXXXXXX (8 digit heksa) sesudah \uXXXX, dengan pemotongan byte rendah yang sama untuk nilai di atas ASCII.
+
 ## [Belum rilis] — Gerbang: cabang redis-cli memindai dengan menghormati nilai opsi (Audit 1923)
 
 - Jalan pintas '-x'/'--pipe' cabang redis-cli kini hanya berlaku di posisi opsi; nilai opsi bernilai (mis. kata sandi -a) dilompati lebih dulu.
