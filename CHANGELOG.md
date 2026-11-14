@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mariadb melewati '-e' yang tertelan sebagai nilai opsi (Audit 1956)
+
+- Cermin perbaikan mysql 1955 pada cabang mariadb.
+
 ## [Belum rilis] — Gerbang: cabang mysql melewati '-e' yang tertelan sebagai nilai opsi (Audit 1955)
 
 - Gelung cabang mysql kini berjalan per indeks dan melompati nilai opsi bernilai terpisah: '-e' yang menjadi nilai -h/-u tak lagi dihitung maupun terlewat secara salah.

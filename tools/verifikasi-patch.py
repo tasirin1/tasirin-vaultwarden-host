@@ -5185,21 +5185,30 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1905: cermin mysql 1904 (klien MariaDB:
         # mode masukan terpipa membaca stdin;
         # dokumentasi mariadb.com).
-        for t_md in mentah:
+        i_md = 0
+        while i_md < len(mentah):
+            t_md = mentah[i_md]
+            lompat_md = False
             if t_md in ("-V", "--version", "--help"):
                 return False
             # Audit 1915: cermin 1914 pada mariadb.
             if (t_md == "--execute"
                     or t_md.startswith("--execute=")):
                 return False
-            # Audit 1944: cermin 1943 pada mariadb.
-            if (t_md.startswith("-")
+            # Audit 1944 + 1956: cermin 1943/1955
+            # pada mariadb.
+            if t_md in ("-h", "-u", "-p", "-D", "-S",
+                        "--host", "--user", "--password",
+                        "--database", "--socket", "--port"):
+                lompat_md = True
+            elif (t_md.startswith("-")
                     and not t_md.startswith("--")):
                 for h_md in t_md[1:]:
                     if h_md == "e":
                         return False
                     if h_md in ("p", "D", "h", "u", "S", "P"):
                         break
+            i_md += 2 if lompat_md else 1
         return True
     if perintah == "nerdctl":
         # Audit 1926: cermin docker untuk nerdctl -
