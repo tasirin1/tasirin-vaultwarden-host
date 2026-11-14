@@ -5560,8 +5560,11 @@ def _menguras_khusus(perintah, toks, awal):
                          "--mount", "-v", "--json"})
         if "\x00gantung" in ops_ip:
             return False
+        # Audit 1962/1963: dag put/block put membaca
+        # stdin hanya TANPA argumen berkas - dengan
+        # berkas, masukan dari berkas itu.
         if ops_ip[:2] in (["dag", "put"], ["block", "put"]):
-            return True
+            return len(ops_ip) == 2
         if ops_ip and ops_ip[0] == "add":
             return len(ops_ip) == 1
         return False

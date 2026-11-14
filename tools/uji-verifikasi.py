@@ -23214,6 +23214,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi global ipfs tak merusak sub: gerbang gagal (Audit 1961)", rc != 0)
         shutil.rmtree(sub1088, ignore_errors=True)
+        sub1089 = klon(tmp, "sub1089")
+        berkas_aksi1089 = os.path.join(
+            sub1089, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1089, encoding="utf-8") as f:
+            isi_aksi1089 = f.read()
+        baris_aksi1089 = [b for b in isi_aksi1089.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1089 = isi_aksi1089.replace(
+                baris_aksi1089,
+                baris_aksi1089.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ipfs dag put berkas.json; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1089 != isi_aksi1089, \
+            "suntikan aksi1089 tidak menembak"
+        with open(berkas_aksi1089, "w", encoding="utf-8") as f:
+            f.write(isi_baru1089)
+        rc, out = jalan(sub1089,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("dag put berkas membaca berkas: gerbang lolos (Audit 1962)", rc == 0)
+        shutil.rmtree(sub1089, ignore_errors=True)
+        sub1090 = klon(tmp, "sub1090")
+        berkas_aksi1090 = os.path.join(
+            sub1090, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1090, encoding="utf-8") as f:
+            isi_aksi1090 = f.read()
+        baris_aksi1090 = [b for b in isi_aksi1090.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1090 = isi_aksi1090.replace(
+                baris_aksi1090,
+                baris_aksi1090.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ipfs block put berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1090 != isi_aksi1090, \
+            "suntikan aksi1090 tidak menembak"
+        with open(berkas_aksi1090, "w", encoding="utf-8") as f:
+            f.write(isi_baru1090)
+        rc, out = jalan(sub1090,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("block put berkas membaca berkas: gerbang lolos (Audit 1963)", rc == 0)
+        shutil.rmtree(sub1090, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
