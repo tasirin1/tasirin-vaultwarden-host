@@ -21093,6 +21093,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("bentuk -f=stdin dasel (pflag) berarti stdin: gerbang gagal (Audit 1857)", rc != 0)
         shutil.rmtree(sub986, ignore_errors=True)
+        sub987 = klon(tmp, "sub987")
+        berkas_aksi987 = os.path.join(
+            sub987, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi987, encoding="utf-8") as f:
+            isi_aksi987 = f.read()
+        baris_aksi987 = [b for b in isi_aksi987.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru987 = isi_aksi987.replace(
+                baris_aksi987,
+                baris_aksi987.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unzstd --patch-from ref; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru987 != isi_aksi987, \
+            "suntikan aksi987 tidak menembak"
+        with open(berkas_aksi987, "w", encoding="utf-8") as f:
+            f.write(isi_baru987)
+        rc, out = jalan(sub987,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--patch-from berlaku juga di mode dekompresi unzstd: gerbang gagal (Audit 1858)", rc != 0)
+        shutil.rmtree(sub987, ignore_errors=True)
+        sub988 = klon(tmp, "sub988")
+        berkas_aksi988 = os.path.join(
+            sub988, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi988, encoding="utf-8") as f:
+            isi_aksi988 = f.read()
+        baris_aksi988 = [b for b in isi_aksi988.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru988 = isi_aksi988.replace(
+                baris_aksi988,
+                baris_aksi988.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstdcat --patch-from ref; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru988 != isi_aksi988, \
+            "suntikan aksi988 tidak menembak"
+        with open(berkas_aksi988, "w", encoding="utf-8") as f:
+            f.write(isi_baru988)
+        rc, out = jalan(sub988,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--patch-from berlaku juga di zstdcat: gerbang gagal (Audit 1858)", rc != 0)
+        shutil.rmtree(sub988, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

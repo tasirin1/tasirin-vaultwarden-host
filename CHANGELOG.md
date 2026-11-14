@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --patch-from didaftarkan juga untuk unzstd dan zstdcat (Audit 1858)
+
+- zstd(1) menaruh --patch-from di modifier umum yang berlaku di mode dekompresi juga: entri unzstd dan zstdcat kini memuatnya.
+
 ## [Belum rilis] — Gerbang: cabang dasel - bentuk -f=nilai diurai (Audit 1857)
 
 - Cabang dasel kini membuang '=' awalan pada nilai menempel: -f=stdin dikenali sebagai stdin, menyamai sintaks pflag dasel v2.
