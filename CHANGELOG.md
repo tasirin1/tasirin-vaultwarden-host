@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang sftp - nilai '-' pada opsi bernilai gugur parsing (Audit 1907)
+
+- Cabang sftp kini menolak nilai '-' pada opsi bernilai selain -b (-P/-F/-J/-D/-B, terpisah maupun merekat): OpenSSH menggugurkannya fatal saat parsing sebelum jalur -b mana pun.
+
 ## [Belum rilis] — Gerbang: cabang socat menghormati arah -u/-U (Audit 1906)
 
 - Cabang socat kini arah-sadar: -u hanya mengonsumsi stdin bila alamat pertama yang stdin, -U bila alamat kedua; aliran dua arah tak berubah.

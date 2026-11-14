@@ -22101,6 +22101,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("socat -u: sumber berkas, stdin tak dikonsumsi: gerbang lolos (Audit 1906)", rc == 0)
         shutil.rmtree(sub1035, ignore_errors=True)
+        sub1036 = klon(tmp, "sub1036")
+        berkas_aksi1036 = os.path.join(
+            sub1036, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1036, encoding="utf-8") as f:
+            isi_aksi1036 = f.read()
+        baris_aksi1036 = [b for b in isi_aksi1036.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1036 = isi_aksi1036.replace(
+                baris_aksi1036,
+                baris_aksi1036.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sftp -P - host; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1036 != isi_aksi1036, \
+            "suntikan aksi1036 tidak menembak"
+        with open(berkas_aksi1036, "w", encoding="utf-8") as f:
+            f.write(isi_baru1036)
+        rc, out = jalan(sub1036,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai '-' opsi sftp gugur parsing: gerbang lolos (Audit 1907)", rc == 0)
+        shutil.rmtree(sub1036, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

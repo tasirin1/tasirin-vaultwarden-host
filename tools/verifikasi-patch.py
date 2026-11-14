@@ -4231,6 +4231,19 @@ def _menguras_khusus(perintah, toks, awal):
     # input); tanpa -b, mode interaktif membaca perintah dari
     # stdin yang ter-redirect; -b berkas membacanya dari berkas.
     if perintah == "sftp":
+        # Audit 1907: nilai '-' pada opsi bernilai selain
+        # -b (-P/-F/-J/-D/-B) gugur fatal saat parsing di
+        # OpenSSH - perintah tak pernah berjalan walau
+        # ada -b - di belakangnya.
+        for k_sf, t_sf in enumerate(mentah):
+            if t_sf in ("-P", "-F", "-J", "-D", "-B") \
+                    and k_sf + 1 < len(mentah) \
+                    and mentah[k_sf + 1] == "-":
+                return False
+            if (len(t_sf) > 2 and t_sf[:2]
+                    in ("-P", "-F", "-J", "-D", "-B")
+                    and t_sf[2:] == "-"):
+                return False
         # Audit 1791: nilai -o berupa '-' adalah kata kunci
         # konfigurasi ssh yang tak sah - sftp gugur fatal
         # sebelum koneksi, mengalahkan jalur -b mana pun
