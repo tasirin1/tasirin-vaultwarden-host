@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: rclone dinilai - rcat dan --files-from - (Audit 1950)
+
+- rclone kini dinilai: rcat menyalin stdin ke berkas jauh; --files-from/--files-from-raw/--filter-from bernilai '-' membaca daftar dari stdin.
+
 ## [Belum rilis] — Gerbang: cabang gh - saklar stdin digerbang konteks sub-perintah (Audit 1949)
 
 - Pindaian saklar stdin gh kini hanya berjalan pada konteks api / pr create / issue create / release create.

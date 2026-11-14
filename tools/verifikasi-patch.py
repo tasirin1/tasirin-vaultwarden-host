@@ -5449,6 +5449,27 @@ def _menguras_khusus(perintah, toks, awal):
             # parsing crictl sebelum berjalan.
             return False
         return False
+    if perintah == "rclone":
+        # Audit 1950: rcat menyalin stdin ke berkas
+        # jauh; keluarga filter --files-from/
+        # --files-from-raw/--filter-from bernilai '-'
+        # membaca daftar dari stdin (docs rclone.org).
+        ops_rx = _operand_sesudah_opsi(toks, awal, set())
+        if "\x00gantung" in ops_rx:
+            return False
+        if ops_rx and ops_rx[0] == "rcat":
+            return True
+        for k_rx, t_rx in enumerate(mentah):
+            if t_rx in ("--files-from=-",
+                        "--files-from-raw=-",
+                        "--filter-from=-"):
+                return True
+            if (t_rx in ("--files-from", "--files-from-raw",
+                         "--filter-from")
+                    and k_rx + 1 < len(mentah)
+                    and mentah[k_rx + 1] == "-"):
+                return True
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -7041,7 +7062,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "buildah", "clickhouse-client", "consul", "crictl", "etcdctl", "glab", "gcloud", "gsutil", "nerdctl", "oc", "skopeo", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "buildah", "clickhouse-client", "consul", "crictl", "etcdctl", "glab", "gcloud", "gsutil", "nerdctl", "oc", "rclone", "skopeo", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
