@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ssh dinilai cabang khusus penerus stdin (Audit 1881)
+
+- ssh kini dinilai cabang khusus: ia meneruskan stdin ke sesi jauh secara bawaan, dan hanya -n/-N/-G/-Q/-f yang memutusnya; opsi bernilainya ditelan (termasuk di dalam bundel, wilayah bendera dibatasi huruf bernilai pertama), dan tanpa tujuan ia galat.
+
 ## [Belum rilis] — Gerbang: --json ditambahkan ke keluarga opsi data curl (Audit 1880)
 
 - Cabang curl kini memuat --json di daftar opsi data (terpisah, bentuk --json=..., dan rekat @-): nilai @- dinilai dibaca dari stdin seperti --data.

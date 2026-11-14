@@ -4708,6 +4708,51 @@ def _menguras_khusus(perintah, toks, awal):
                         and not t_c.startswith("--"))):
                 return False
         return True
+    if perintah == "ssh":
+        # Audit 1881: ssh meneruskan stdin ke sesi jauh
+        # secara bawaan; yang memutusnya hanya -n (alihkan
+        # stdin dari /dev/null; -f mengimplikasikannya), -N
+        # (tanpa perintah jauh), dan -G/-Q (cetak
+        # konfigurasi lalu keluar). Tanpa tujuan = galat.
+        bernilai_ssh = {"-B", "-b", "-c", "-D", "-E", "-e",
+                        "-F", "-I", "-i", "-J", "-L", "-l",
+                        "-m", "-O", "-o", "-p", "-R", "-S",
+                        "-W", "-w"}
+        i_sh = 0
+        tujuan_sh = False
+        while i_sh < len(mentah):
+            t_sh = mentah[i_sh]
+            if t_sh == "--":
+                tujuan_sh = i_sh + 1 < len(mentah)
+                break
+            if t_sh in bernilai_ssh:
+                i_sh += 2
+                continue
+            if t_sh.startswith("--"):
+                i_sh += 1
+                continue
+            if (t_sh.startswith("-") and len(t_sh) > 1
+                    and not t_sh.startswith("--")):
+                huruf_sh = t_sh[1:]
+                # Huruf bernilai pertama membatasi wilayah
+                # bendera: sesudahnya semua nilai menempel.
+                pos_sh = None
+                for k_sh, h_sh in enumerate(huruf_sh):
+                    if "-" + h_sh in bernilai_ssh:
+                        pos_sh = k_sh
+                        break
+                bendera_sh = (huruf_sh if pos_sh is None
+                              else huruf_sh[:pos_sh])
+                if any(h_sh in bendera_sh for h_sh in "nNGQf"):
+                    return False
+                if pos_sh is not None:
+                    i_sh += 1 if pos_sh < len(huruf_sh) - 1 else 2
+                    continue
+                i_sh += 1
+                continue
+            tujuan_sh = True
+            break
+        return tujuan_sh
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6271,7 +6316,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "unlz4", "lz4cat", "rpm2cpio", "7z",
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
-                        "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode",
+                        "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
                         "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.

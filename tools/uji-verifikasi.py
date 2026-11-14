@@ -21744,6 +21744,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--json curl opsi data - @- dari stdin: gerbang gagal (Audit 1880)", rc != 0)
         shutil.rmtree(sub1018, ignore_errors=True)
+        sub1019 = klon(tmp, "sub1019")
+        berkas_aksi1019 = os.path.join(
+            sub1019, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1019, encoding="utf-8") as f:
+            isi_aksi1019 = f.read()
+        baris_aksi1019 = [b for b in isi_aksi1019.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1019 = isi_aksi1019.replace(
+                baris_aksi1019,
+                baris_aksi1019.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ssh host perintah; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1019 != isi_aksi1019, \
+            "suntikan aksi1019 tidak menembak"
+        with open(berkas_aksi1019, "w", encoding="utf-8") as f:
+            f.write(isi_baru1019)
+        rc, out = jalan(sub1019,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("ssh meneruskan stdin ke sesi jauh: gerbang gagal (Audit 1881)", rc != 0)
+        shutil.rmtree(sub1019, ignore_errors=True)
+        sub1020 = klon(tmp, "sub1020")
+        berkas_aksi1020 = os.path.join(
+            sub1020, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1020, encoding="utf-8") as f:
+            isi_aksi1020 = f.read()
+        baris_aksi1020 = [b for b in isi_aksi1020.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1020 = isi_aksi1020.replace(
+                baris_aksi1020,
+                baris_aksi1020.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ssh -n host perintah; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1020 != isi_aksi1020, \
+            "suntikan aksi1020 tidak menembak"
+        with open(berkas_aksi1020, "w", encoding="utf-8") as f:
+            f.write(isi_baru1020)
+        rc, out = jalan(sub1020,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("ssh -n mengalihkan stdin dari /dev/null: gerbang lolos (Audit 1881)", rc == 0)
+        shutil.rmtree(sub1020, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
