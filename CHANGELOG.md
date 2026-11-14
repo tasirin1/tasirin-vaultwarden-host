@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: node --title bernilai (Audit 1721)
+
+- `--title` pada node kini diperlakukan sebagai opsi bernilai: bentuk menggantung divonis galat lalu keluar, dan nilai sesudahnya ditelan sehingga `node --title judul` tanpa skrip divonis membaca REPL dari stdin. Sebelumnya --title dianggap bendera tak bernilai di penjaga Audit 1711 — vonisnya terbalik dua arah.
+
 ## [Belum rilis] — Gerbang: --check-hash-based-pycs tanpa nilai divonis galat (Audit 1720)
 
 - Bentuk `python3 --check-hash-based-pycs` tanpa nilai sesudahnya kini divonis galat lalu keluar (CPython: Argument expected); cabang Audit 1707 menelan dua token tanpa memeriksa sisa token sehingga bentuk menggantung ini divonis menguras stdin.

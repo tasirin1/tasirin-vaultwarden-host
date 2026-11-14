@@ -17229,6 +17229,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("python --check-hash-based-pycs gantung: galat lalu keluar - gerbang lolos (Audit 1720)", rc == 0)
         shutil.rmtree(sub802, ignore_errors=True)
+        sub803 = klon(tmp, "sub803")
+        berkas_aksi803 = os.path.join(
+            sub803, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi803, encoding="utf-8") as f:
+            isi_aksi803 = f.read()
+        baris_aksi803 = [b for b in isi_aksi803.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru803 = isi_aksi803.replace(
+                baris_aksi803,
+                baris_aksi803.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --title judul; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru803 != isi_aksi803, \
+            "suntikan aksi803 tidak menembak"
+        with open(berkas_aksi803, "w", encoding="utf-8") as f:
+            f.write(isi_baru803)
+        rc, out = jalan(sub803,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("node --title menelan nilai lalu node membaca REPL dari stdin: penguras - gerbang gagal (Audit 1721)", rc != 0)
+        shutil.rmtree(sub803, ignore_errors=True)
+        sub804 = klon(tmp, "sub804")
+        berkas_aksi804 = os.path.join(
+            sub804, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi804, encoding="utf-8") as f:
+            isi_aksi804 = f.read()
+        baris_aksi804 = [b for b in isi_aksi804.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru804 = isi_aksi804.replace(
+                baris_aksi804,
+                baris_aksi804.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --title; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru804 != isi_aksi804, \
+            "suntikan aksi804 tidak menembak"
+        with open(berkas_aksi804, "w", encoding="utf-8") as f:
+            f.write(isi_baru804)
+        rc, out = jalan(sub804,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("node --title gantung: galat lalu keluar - gerbang lolos (Audit 1721)", rc == 0)
+        shutil.rmtree(sub804, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

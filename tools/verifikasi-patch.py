@@ -2120,6 +2120,17 @@ def _menguras_interpreter(perintah, toks, awal):
             # keluar di posisi mana pun.
             if dasar_nd in ("--version", "--help", "-v"):
                 return False
+            # Audit 1721: --title BERNILAI (mengambil argumen;
+            # menggantung = "--title requires an argument"
+            # lalu keluar) — nilainya bukan operand skrip.
+            if dasar_nd == "--title":
+                if "=" in t:
+                    i += 1
+                elif i + 1 >= n:
+                    return False
+                else:
+                    i += 2
+                continue
             dikenal_nd = (
                 dasar_nd in ("--version", "--help", "-v",
                              "--eval", "--print", "--check",
@@ -2130,7 +2141,7 @@ def _menguras_interpreter(perintah, toks, awal):
                              "--env-file", "--enable-source-maps",
                              "--watch", "--test", "--inspect",
                              "--inspect-brk", "--cpu-prof",
-                             "--heap-prof", "--title",
+                             "--heap-prof",
                              "--use-largepages",
                              "--zero-fill-buffers")
                 or dasar_nd.startswith("--experimental-")
