@@ -21492,6 +21492,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("bzip2 tak punya -S - berkas.bz2 operand sungguhan: gerbang lolos (Audit 1870)", rc == 0)
         shutil.rmtree(sub1005, ignore_errors=True)
+        sub1006 = klon(tmp, "sub1006")
+        berkas_aksi1006 = os.path.join(
+            sub1006, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1006, encoding="utf-8") as f:
+            isi_aksi1006 = f.read()
+        baris_aksi1006 = [b for b in isi_aksi1006.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1006 = isi_aksi1006.replace(
+                baris_aksi1006,
+                baris_aksi1006.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(newusers -c SHA512; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1006 != isi_aksi1006, \
+            "suntikan aksi1006 tidak menembak"
+        with open(berkas_aksi1006, "w", encoding="utf-8") as f:
+            f.write(isi_baru1006)
+        rc, out = jalan(sub1006,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-c/--crypt-method newusers bernilai menyamai chpasswd: gerbang gagal (Audit 1871)", rc != 0)
+        shutil.rmtree(sub1006, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

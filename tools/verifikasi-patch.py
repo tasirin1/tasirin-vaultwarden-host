@@ -1110,7 +1110,8 @@ _OPSI_BERNILAI = {
     # Audit 1397: opsi bernilai chgpasswd sama dengan chpasswd.
     "chgpasswd": {"-c", "--crypt-method", "-s", "--sha-rounds",
                   "-R", "--root", "--prefix"},
-    "newusers": {"-R", "--root", "--prefix"},
+    "newusers": {"-R", "--root", "--prefix", "-c",
+                 "--crypt-method", "-s", "--sha-rounds"},
     # Audit 1336: keluarga POD lain.
     # Audit 1310: uncompress tanpa opsi bernilai.
     "uncompress": set(),

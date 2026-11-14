@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -c/--crypt-method dan -s/--sha-rounds didaftarkan untuk newusers (Audit 1871)
+
+- Entri newusers dilengkapi dua opsi bernilai keluarga shadow yang sudah dimuat chpasswd/chgpasswd di berkas yang sama, per manual newusers(8).
+
 ## [Belum rilis] — Gerbang: entri bunzip2 dikosongkan - bzip2 tak punya -S/--suffix (Audit 1870)
 
 - Terprobe biner bzip2 1.0.8: -S/--suffix adalah opsi gzip, bukan bzip2 (Bad flag). Entri bunzip2 dikosongkan menyamai bzip2/bzcat: nama berkas tak lagi tertelan sebagai nilai sufiks.
