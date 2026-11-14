@@ -973,6 +973,8 @@ _OPSI_BERNILAI = {
     "lbzip2": {"-b", "--block-size"},
     # Audit 1821: opsi bernilai pixz.
     "pixz": {"-p", "-q", "-x", "-f", "-o"},
+    # Audit 1822: opsi bernilai compress.
+    "compress": {"-b"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

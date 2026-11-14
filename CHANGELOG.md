@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai compress didaftarkan (Audit 1822)
+
+- Entri opsi bernilai compress (-b) ditambahkan: nilai bitnya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: opsi bernilai pixz didaftarkan (Audit 1821)
 
 - Entri opsi bernilai pixz (-p, -q, -x, -f, -o) ditambahkan: nilainya tak lagi terhitung operand.
