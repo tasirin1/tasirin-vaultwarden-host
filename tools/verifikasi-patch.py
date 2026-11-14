@@ -5473,6 +5473,23 @@ def _menguras_khusus(perintah, toks, awal):
             t_ct = mentah[j_ct]
             if t_ct in ("-i", "--stdin"):
                 return True
+            # Audit 1966: bundel huruf pendek diurai
+            # (cri-tools UseShortOptionHandling) -
+            # huruf i di bundel tetap -i; huruf asing
+            # menggugurkan.
+            if (t_ct.startswith("-")
+                    and not t_ct.startswith("--")
+                    and len(t_ct) > 1):
+                asing_ct = False
+                for h_ct in t_ct[1:]:
+                    if h_ct == "i":
+                        return True
+                    if h_ct != "t":
+                        asing_ct = True
+                if asing_ct:
+                    return False
+                j_ct += 1
+                continue
             if t_ct in ("-t", "--tty"):
                 j_ct += 1
                 continue

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang crictl mengurai bundel huruf pendek (Audit 1966)
+
+- Cabang crictl kini mengurai bundel (mis. -it): huruf i di bundel tetap -i; huruf asing menggugurkan vonis.
+
 ## [Belum rilis] — Gerbang: mosquitto_pub - himpunan bernilai diperbaiki dua arah (Audit 1964, 1965)
 
 - Opsi bernilai -m/-x/-I/-D ditambahkan ke himpunan penelan mosquitto_pub (Audit 1964) dan -c dikeluarkan karena bendera polos (Audit 1965).
