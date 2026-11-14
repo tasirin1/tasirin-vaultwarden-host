@@ -4096,6 +4096,13 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return not aksi_pw
+    # Audit 1748: bc membaca stdin sesudah semua berkas
+    # operand dibaca (POSIX bc; manual GNU bc) - tak ada
+    # bentuk operand yang menekan pembacaan itu kecuali
+    # berkas yang memuat perintah halt, yang tidak bisa
+    # diketahui gerbang.
+    if perintah == "bc":
+        return True
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5382,7 +5389,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # 1202/1204: penilai khusus putaran-7.
                         "pdftotext", "nft", "ip", "tc", "bridge",
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
-                        "pwsh", "powershell",
+                        "pwsh", "powershell", "bc",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

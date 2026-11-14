@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bc dinilai (Audit 1748)
+
+- bc kini dinilai penilai khusus gerbang: ia membaca standard input sesudah semua berkas operand dibaca (POSIX bc; manual GNU bc), jadi semua bentuknya divonis menguras (penjaga informasional tetap berlaku untuk --help/--version). Sebelumnya bc tak dikenal dispatch gerbang sama sekali.
+
 ## [Belum rilis] — Shim: uji interpose menutup kasus tepi gabungan dan hasil parsial (Audit 1747)
 
 - test_interpose kini menguji gabungan flags-tak-dikenal + buffer NULL di kedua pintu (vonis EINVAL), buffer NULL panjang 0 lewat pintu syscall (0), dan kasus hasil parsial halaman-terlarang Audit 1746 di kedua pintu - kasus terakhir terverifikasi gagal pada shim lama dan lolos pada kernel serta shim baru.
