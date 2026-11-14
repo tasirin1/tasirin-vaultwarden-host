@@ -17523,6 +17523,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("pwsh -Command string mengeksekusi string lalu keluar: gerbang lolos (Audit 1735)", rc == 0)
         shutil.rmtree(sub816, ignore_errors=True)
+        sub817 = klon(tmp, "sub817")
+        berkas_aksi817 = os.path.join(
+            sub817, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi817, encoding="utf-8") as f:
+            isi_aksi817 = f.read()
+        baris_aksi817 = [b for b in isi_aksi817.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru817 = isi_aksi817.replace(
+                baris_aksi817,
+                baris_aksi817.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(wish; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru817 != isi_aksi817, \
+            "suntikan aksi817 tidak menembak"
+        with open(berkas_aksi817, "w", encoding="utf-8") as f:
+            f.write(isi_baru817)
+        rc, out = jalan(sub817,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("wish telanjang membaca perintah dari stdin: penguras - gerbang gagal (Audit 1736)", rc != 0)
+        shutil.rmtree(sub817, ignore_errors=True)
+        sub818 = klon(tmp, "sub818")
+        berkas_aksi818 = os.path.join(
+            sub818, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi818, encoding="utf-8") as f:
+            isi_aksi818 = f.read()
+        baris_aksi818 = [b for b in isi_aksi818.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru818 = isi_aksi818.replace(
+                baris_aksi818,
+                baris_aksi818.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(wish skrip.tcl; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru818 != isi_aksi818, \
+            "suntikan aksi818 tidak menembak"
+        with open(berkas_aksi818, "w", encoding="utf-8") as f:
+            f.write(isi_baru818)
+        rc, out = jalan(sub818,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("wish dengan berkas skrip tidak membaca stdin: gerbang lolos (Audit 1736)", rc == 0)
+        shutil.rmtree(sub818, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

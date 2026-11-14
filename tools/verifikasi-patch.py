@@ -1701,7 +1701,7 @@ def _menguras_interpreter(perintah, toks, awal):
         if debugger:
             return True
         return pakai_lingkar and (berkas_stdin or not ada_berkas)
-    if perintah == "expect":
+    if perintah in ("expect", "expectk"):
         # Audit 1122: expect telanjang membaca skrip dari stdin;
         # -f - sama; berkas skrip/-c menekan (isi -c = kode
         # arbitrer, batas model seperti interpreter lain).
@@ -1743,7 +1743,7 @@ def _menguras_interpreter(perintah, toks, awal):
                 continue
             return False
         return not ada_c
-    if perintah == "tclsh":
+    if perintah in ("tclsh", "wish"):
         # Audit 1159: tclsh tanpa berkas skrip membaca skrip
         # dari stdin; operand "-" juga stdin; token lain =
         # nama skrip (argumen sesudahnya argv skrip).
@@ -5256,6 +5256,15 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             nama_interp = "python3"
         elif re.fullmatch(r"tclsh(\d+(\.\d+)?)?", perintah):
             nama_interp = "tclsh"
+        elif re.fullmatch(r"wish(\d+(\.\d+)?)?", perintah):
+            # Audit 1736: wish adalah tclsh+Tk — tanpa
+            # fileName membaca perintah dari stdin (wish(1));
+            # dinilai cabang tclsh.
+            nama_interp = "wish"
+        elif perintah == "expectk":
+            # Audit 1736: expectk adalah expect+Tk; dinilai
+            # cabang expect.
+            nama_interp = "expectk"
         # Audit 1301: alias berversi perl/zsh.
         elif re.fullmatch(r"perl5(\.\d+)*(-\S+)?", perintah):
             nama_interp = "perl"
@@ -5279,7 +5288,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                            # Audit 1122: expect pembaca skrip.
                            # Audit 1158: shell terbatas rbash/rzsh.
                            "bash", "sh", "dash", "zsh", "expect",
-                           "rbash", "rzsh", "tclsh",
+                           "rbash", "rzsh", "tclsh", "wish", "expectk",
                            # Audit 1638: shell & interpreter lain
                            # — tanpa skrip membaca dari stdin
                            # seperti keluarganya.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: wish dan expectk dinilai (Audit 1736)
+
+- wish (tclsh+Tk) kini dinilai cabang tclsh dan expectk (expect+Tk) cabang expect, termasuk nama berversi wish8.6: tanpa nama berkas keduanya membaca perintah/skrip dari stdin (wish(1)). Sebelumnya dispatch gerbang tak mengenal keduanya.
+
 ## [Belum rilis] — Gerbang: pwsh/powershell dinilai (Audit 1735)
 
 - pwsh dan powershell kini dinilai penilai khusus gerbang mengikuti dokumentasi resmi about_Pwsh: `-File -`/`-Command -` mengeksekusi stdin yang ter-redirect sebagai perintah, dan bentuk telanjang interaktif membaca perintah dari stdin; -File berkas, -Command berisi string, dan operand naskah menekan pembacaan itu. Sebelumnya keduanya tak dirutekan sama sekali.
