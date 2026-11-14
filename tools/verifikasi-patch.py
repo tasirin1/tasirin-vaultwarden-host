@@ -1012,6 +1012,9 @@ _OPSI_BERNILAI = {
                  "-w", "--window", "-S", "--suffix"},
     "brcat": {"-q", "--quality", "-o", "--output",
               "-w", "--window", "-S", "--suffix"},
+    # Audit 1845: alias lbzip2 berbagi entri lbzip2.
+    "lbzcat": {"-b", "--block-size"},
+    "lbunzip2": {"-b", "--block-size"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

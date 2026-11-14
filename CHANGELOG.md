@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: lbzcat dan lbunzip2 berbagi entri lbzip2 (Audit 1845)
+
+- Kedua alias lbzip2 kini berentri {-b, --block-size} seperti lbzip2: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: unbrotli dan brcat berbagi entri brotli (Audit 1844)
 
 - Kedua alias brotli kini berentri menyamai brotli (-q/--quality, -o/--output, -w/--window, -S/--suffix).
