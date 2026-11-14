@@ -771,6 +771,16 @@ def main():
                 rc != 0 and "pola rahasia" in out
                 and "token-bom.txt" in out)
         shutil.rmtree(tokenbom, ignore_errors=True)
+        tokennul = klon(tmp, "tokennul")
+        tanam(tokennul, "token-nul.txt",
+              (token_palsu[:9] + chr(0) + token_palsu[9:]
+               + chr(10)).encode("utf-8"), "wb")
+        rc, out = jalan(tokennul, ["bash", SKRIP])
+        periksa("token tersisipi byte NUL di rentangnya "
+                "tertangkap (Audit 1795)",
+                rc != 0 and "pola rahasia" in out
+                and "token-nul.txt" in out)
+        shutil.rmtree(tokennul, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

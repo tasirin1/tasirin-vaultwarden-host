@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: kupas byte NUL (Audit 1795)
+
+- Fungsi proses() kini membuang byte NUL dari tiap baris sebelum kupasan lain: pencocokan pola mawk berhenti di NUL (semantik string-C), jadi token yang rentangnya disisipi 0x00 dulu lolos; kini rentangnya menyambung dan tertangkap pola bungkus.
+
 ## [Belum rilis] — Gerbang: dc nilai menempel dikenali (Audit 1794)
 
 - Token -e<x> dan -f<x> pada dc kini dikenali sebagai aksi bernilai menempel (getopt), termasuk nilai menempel '-' untuk -f yang tetap berkas stdin sesuai Audit 1751.
