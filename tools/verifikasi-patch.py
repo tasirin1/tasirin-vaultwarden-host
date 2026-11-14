@@ -4228,6 +4228,11 @@ def _menguras_khusus(perintah, toks, awal):
             if t_hx in ("-n", "-s", "-e", "-f"):
                 if i_hx + 1 >= len(mentah):
                     return False
+                # Audit 1775: nilai -f adalah nama berkas
+                # format harfiah - '-' di sana berkas bernama
+                # '-' (galat bila tak ada), bukan stdin.
+                if t_hx == "-f" and mentah[i_hx + 1] == "-":
+                    return False
                 i_hx += 2
                 continue
             if mentah[i_hx] == "-":

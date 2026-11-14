@@ -18720,6 +18720,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("awalan -ver pada powershell adalah -Version bernilai, interaktif: gerbang gagal (Audit 1774)", rc != 0)
         shutil.rmtree(sub873, ignore_errors=True)
+        sub874 = klon(tmp, "sub874")
+        berkas_aksi874 = os.path.join(
+            sub874, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi874, encoding="utf-8") as f:
+            isi_aksi874 = f.read()
+        baris_aksi874 = [b for b in isi_aksi874.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru874 = isi_aksi874.replace(
+                baris_aksi874,
+                baris_aksi874.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(hexdump -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru874 != isi_aksi874, \
+            "suntikan aksi874 tidak menembak"
+        with open(berkas_aksi874, "w", encoding="utf-8") as f:
+            f.write(isi_baru874)
+        rc, out = jalan(sub874,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai -f hexdump adalah berkas format harfiah, bukan stdin: gerbang lolos (Audit 1775)", rc == 0)
+        shutil.rmtree(sub874, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

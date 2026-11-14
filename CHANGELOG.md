@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: hexdump -f - berkas harfiah (Audit 1775)
+
+- Nilai opsi -f hexdump kini diperiksa: '-' di sana adalah nama berkas format harfiah (dibuka dengan fopen menurut sumber BSD-nya; galat bila tak ada), bukan stdin - beda dengan dc -f - yang manualnya memang mendokumentasikan stdin.
+
 ## [Belum rilis] — Gerbang: awalan -Version dibedakan per nama (Audit 1774)
 
 - Cek awalan unik informasional kini digerbang khusus pwsh; untuk powershell awalan yang sama (-ver dst.) masuk jalur opsi bernilai -Version (memilih mesin lalu interaktif) lengkap dengan validasi nilai bersaklar dari Audit 1760.
