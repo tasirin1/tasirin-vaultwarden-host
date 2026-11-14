@@ -19434,6 +19434,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("vipe membaca seluruh stdin ke editor: gerbang gagal (Audit 1816)", rc != 0)
         shutil.rmtree(sub907, ignore_errors=True)
+        sub908 = klon(tmp, "sub908")
+        berkas_aksi908 = os.path.join(
+            sub908, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi908, encoding="utf-8") as f:
+            isi_aksi908 = f.read()
+        baris_aksi908 = [b for b in isi_aksi908.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru908 = isi_aksi908.replace(
+                baris_aksi908,
+                baris_aksi908.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pee cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru908 != isi_aksi908, \
+            "suntikan aksi908 tidak menembak"
+        with open(berkas_aksi908, "w", encoding="utf-8") as f:
+            f.write(isi_baru908)
+        rc, out = jalan(sub908,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pee menyalurkan stdin ke pipa-pipa tujuannya: gerbang gagal (Audit 1817)", rc != 0)
+        shutil.rmtree(sub908, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

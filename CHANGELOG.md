@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pee dinilai selalu membaca stdin (Audit 1817)
+
+- pee moreutils masuk cabang selalu-menguras: operandnya perintah-perintah tujuan, stdin dibaca selalu.
+
 ## [Belum rilis] — Gerbang: vipe dinilai selalu membaca stdin (Audit 1816)
 
 - vipe moreutils masuk cabang selalu-menguras: ia membaca seluruh stdin ke editor lalu menulis hasilnya ke stdout.
