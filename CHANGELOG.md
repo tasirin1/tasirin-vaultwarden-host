@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: clickhouse-client dengan --query tetap membaca stdin (Audit 1941)
+
+- Cabang clickhouse-client kini selalu menilai membaca stdin: dokumentasi resmi menegaskan mode batch menerima query, stdin, atau keduanya (request = query + isi stdin).
+
 ## [Belum rilis] — Gerbang: crictl exec -i dinilai meneruskan stdin (Audit 1940)
 
 - crictl kini dinilai: exec dengan -i/--stdin di wilayah opsi meneruskan stdin (berlabel DUGAAN di issue - pendukung blog resmi Kubernetes + dokumen ccictl).

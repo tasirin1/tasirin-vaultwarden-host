@@ -5308,9 +5308,11 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "clickhouse-client":
         # Audit 1933: mode polos terpipa = mode batch
         # membaca query dari stdin (dokumentasi
-        # resmi ClickHouse); klaim dibatasi bentuk
-        # tanpa --query.
-        return "--query" not in mentah
+        # resmi ClickHouse).
+        # Audit 1941: --query pun tetap membaca stdin
+        # (dokumentasi: query, stdin, "or both" -
+        # request = query + line feed + isi stdin).
+        return True
     if perintah == "aws":
         # Audit 1934: hanya s3 cp dengan SUMBER '-'
         # yang mengunggah isi stdin (AWS CLI User
