@@ -19182,6 +19182,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("satu-satunya operand uuencode adalah nama keluaran, masukan dari stdin: gerbang gagal (Audit 1803)", rc != 0)
         shutil.rmtree(sub895, ignore_errors=True)
+        sub896 = klon(tmp, "sub896")
+        berkas_aksi896 = os.path.join(
+            sub896, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi896, encoding="utf-8") as f:
+            isi_aksi896 = f.read()
+        baris_aksi896 = [b for b in isi_aksi896.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru896 = isi_aksi896.replace(
+                baris_aksi896,
+                baris_aksi896.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(uudecode; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru896 != isi_aksi896, \
+            "suntikan aksi896 tidak menembak"
+        with open(berkas_aksi896, "w", encoding="utf-8") as f:
+            f.write(isi_baru896)
+        rc, out = jalan(sub896,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("uudecode tanpa FILE membaca stdin: gerbang gagal (Audit 1804)", rc != 0)
+        shutil.rmtree(sub896, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

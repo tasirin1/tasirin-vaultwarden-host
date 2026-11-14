@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: uudecode tanpa FILE dinilai membaca stdin (Audit 1804)
+
+- Cabang uu bersama: uudecode tanpa FILE (atau operand '-') membaca stdin; dengan berkas ia membaca berkas itu.
+
 ## [Belum rilis] — Gerbang: uuencode satu operand dinilai membaca stdin (Audit 1803)
 
 - Cabang khusus uuencode: satu-satunya operand adalah NAME keluaran dan masukannya stdin; dua operand membaca berkas masukan; tanpa operand galat; nilai -o dilompati.
