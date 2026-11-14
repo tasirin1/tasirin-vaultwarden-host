@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ImageMagick - posisi operand sub-perintah dan identify (Audit 1983)
+
+- Cabang ImageMagick kini melompati nilai opsi (-format/-define/dll), mengenali sub-perintah di dalam magick, dan memperlakukan semua operand identify sebagai masukan (tak ada keluaran).
+
 ## [Belum rilis] — Gerbang: cabang mariadb - opsi bernilai wajib menggantung digugurkan (Audit 1982)
 
 - Cermin perbaikan mysql 1981 pada cabang mariadb.

@@ -23634,6 +23634,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--host menggantung mariadb galat: gerbang lolos (Audit 1982)", rc == 0)
         shutil.rmtree(sub1108, ignore_errors=True)
+        sub1109 = klon(tmp, "sub1109")
+        berkas_aksi1109 = os.path.join(
+            sub1109, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1109, encoding="utf-8") as f:
+            isi_aksi1109 = f.read()
+        baris_aksi1109 = [b for b in isi_aksi1109.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1109 = isi_aksi1109.replace(
+                baris_aksi1109,
+                baris_aksi1109.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(magick identify -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1109 != isi_aksi1109, \
+            "suntikan aksi1109 tidak menembak"
+        with open(berkas_aksi1109, "w", encoding="utf-8") as f:
+            f.write(isi_baru1109)
+        rc, out = jalan(sub1109,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("magick identify '-' masukan stdin: gerbang gagal (Audit 1983)", rc != 0)
+        shutil.rmtree(sub1109, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

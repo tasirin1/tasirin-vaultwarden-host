@@ -5671,10 +5671,36 @@ def _menguras_khusus(perintah, toks, awal):
         # di posisi MASUKAN berarti stdin
         # (dokumentasi ImageMagick); operand terakhir
         # adalah keluaran (stdout), bukan masukan.
-        ops_im = _operand_sesudah_opsi(toks, awal, set())
+        # Audit 1983: opsi bernilai ImageMagick
+        # dilompati; sub-perintah magick (identify
+        # dll) menempati slot pertama; identify tak
+        # punya operand keluaran.
+        ops_im = _operand_sesudah_opsi(
+            toks, awal, {"-format", "-define", "-size",
+                         "-quality", "-resize", "-crop",
+                         "-rotate", "-density", "-depth",
+                         "-background", "-fill", "-stroke",
+                         "-font", "-pointsize", "-gravity",
+                         "-channel", "-type", "-colorspace",
+                         "-profile", "-sampling-factor",
+                         "-extent", "-geometry", "-page",
+                         "-delay", "-loop", "-label",
+                         "-comment", "-set"})
         if "\x00gantung" in ops_im:
             return False
-        masuk_im = ops_im[:-1] if len(ops_im) >= 2 else ops_im
+        sub_im = perintah == "identify"
+        if (perintah == "magick" and ops_im
+                and ops_im[0] in ("identify", "stream",
+                                  "convert", "mogrify",
+                                  "montage", "compare",
+                                  "composite", "conjure",
+                                  "import", "display",
+                                  "animate")):
+            sub_im = ops_im[0] == "identify"
+            ops_im = ops_im[1:]
+        masuk_im = (ops_im if sub_im
+                    else (ops_im[:-1] if len(ops_im) >= 2
+                          else ops_im))
         for t_im in masuk_im:
             if (t_im == "-" or t_im.endswith(":-")
                     or t_im == "fd:0"):
