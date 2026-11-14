@@ -20253,6 +20253,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-C unlzma bernilai: gerbang gagal (Audit 1842)", rc != 0)
         shutil.rmtree(sub946, ignore_errors=True)
+        sub947 = klon(tmp, "sub947")
+        berkas_aksi947 = os.path.join(
+            sub947, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi947, encoding="utf-8") as f:
+            isi_aksi947 = f.read()
+        baris_aksi947 = [b for b in isi_aksi947.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru947 = isi_aksi947.replace(
+                baris_aksi947,
+                baris_aksi947.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(derdump -o hasil; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru947 != isi_aksi947, \
+            "suntikan aksi947 tidak menembak"
+        with open(berkas_aksi947, "w", encoding="utf-8") as f:
+            f.write(isi_baru947)
+        rc, out = jalan(sub947,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-o derdump berkas keluaran bernilai - tanpa operand ia membaca stdin: gerbang gagal (Audit 1843)", rc != 0)
+        shutil.rmtree(sub947, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1005,6 +1005,8 @@ _OPSI_BERNILAI = {
     "hck": {"-f", "--fields", "-d", "--delimiter"},
     # Audit 1834: opsi bernilai hexyl.
     "hexyl": {"-n", "--length", "-s", "--skip"},
+    # Audit 1843: opsi bernilai derdump.
+    "derdump": {"-o"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

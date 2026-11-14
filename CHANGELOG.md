@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai derdump didaftarkan (Audit 1843)
+
+- Entri opsi bernilai derdump (-o berkas keluaran) ditambahkan: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: entri unlzma dilengkapi menyamai lzma (Audit 1842)
 
 - unlzma kini berentri penuh (-F/--format, -T/--threads, --block-size, -C/--check di samping yang sudah ada): ia xz mode lzma dengan seluruh opsi xz.
