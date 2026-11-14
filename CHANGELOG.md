@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pg_restore dinilai - tanpa berkas membaca stdin (Audit 1987)
+
+- pg_restore kini dinilai: tanpa operand nama berkas ia membaca arsip dari stdin.
+
 ## [Belum rilis] — Gerbang: duckdb dinilai membaca stdin (Audit 1986)
 
 - duckdb kini dinilai: polos atau basis data saja membaca perintah dari stdin; -c dan operand kueri menekannya.
