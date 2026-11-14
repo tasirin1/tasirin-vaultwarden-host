@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga ImageMagick dinilai - masukan '-' dari stdin (Audit 1973)
+
+- magick/convert/identify kini dinilai: nama semu '-'/'fmt:-'/'fd:0' di posisi masukan berarti stdin; operand terakhir (keluaran) tak dinilai.
+
 ## [Belum rilis] — Gerbang: pandoc dinilai membaca stdin tanpa berkas masukan (Audit 1972)
 
 - pandoc kini dinilai: tanpa berkas masukan (opsi keluaran/format saja) ia membaca dari stdin.
