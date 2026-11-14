@@ -3562,12 +3562,23 @@ def _menguras_khusus(perintah, toks, awal):
             return not ops or "-" in ops
         if "--print-md" in modus:
             return len(ops) <= 1
+        kripto = any(t in ("-c", "--symmetric", "-e", "--encrypt",
+                           "-s", "--sign", "-d", "--decrypt",
+                           "--clearsign", "--detach-sign")
+                     or t.startswith("--symmetric") for t in modus)
+        bendera_saja = all(
+            t == "-" or t in bernilai_gpg
+            or t in ("--batch", "--yes", "--no", "--quiet",
+                     "--verbose", "-v", "--no-verbose",
+                     "--dry-run", "--no-tty")
+            for t in modus)
         if ops:
-            return False
-        return any(t in ("-c", "--symmetric", "-e", "--encrypt",
-                         "-s", "--sign", "-d", "--decrypt",
-                         "--clearsign", "--detach-sign")
-                   or t.startswith("--symmetric") for t in modus)
+            # Audit 1756: operand "-" adalah stdin juga pada
+            # modus kripto dan gpg nyaris telanjang (hanya
+            # bendera global; terprobe biner nyata) - sejajar
+            # keluarga verify Audit 1150.
+            return "-" in ops and (kripto or bendera_saja)
+        return kripto
     # Audit 1428: gpgsm — --decrypt/--verify tanpa
     # operand berkas membaca pesan CMS dari stdin
     # (--sign/--encrypt terbukti gagal lebih dulu).

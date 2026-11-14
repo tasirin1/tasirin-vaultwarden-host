@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gpg modus kripto mengenal operand '-' (Audit 1756)
+
+- Ekor cabang gpg kini mengenali operand '-' sebagai stdin juga pada modus kripto dan pada gpg nyaris telanjang (hanya bendera global), sejajar keluarga verify Audit 1150 - terprobe biner nyata: gpg --decrypt -, -d -, -c -, dan gpg - semuanya membaca pesan dari stdin.
+
 ## [Belum rilis] — Uji shim: prasyarat kasus parsial menggagalkan dengan lantang (Audit 1755)
 
 - Blok kasus hasil parsial di test_interpose tidak lagi dibungkus kondisional bersarang yang bisa melewatkannya senyap: prasyarat sysconf/mmap/mprotect yang gagal kini menggagalkan uji dengan pesan jelas, sehingga cakupan kontrak parsial Audit 1746 tidak bisa menyusut diam-diam di runner.

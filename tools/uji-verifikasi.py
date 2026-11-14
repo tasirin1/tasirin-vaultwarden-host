@@ -18111,6 +18111,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("powershell -Version lalu -File berkas menjalankan berkas itu: gerbang lolos (Audit 1753)", rc == 0)
         shutil.rmtree(sub844, ignore_errors=True)
+        sub845 = klon(tmp, "sub845")
+        berkas_aksi845 = os.path.join(
+            sub845, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi845, encoding="utf-8") as f:
+            isi_aksi845 = f.read()
+        baris_aksi845 = [b for b in isi_aksi845.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru845 = isi_aksi845.replace(
+                baris_aksi845,
+                baris_aksi845.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg --decrypt -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru845 != isi_aksi845, \
+            "suntikan aksi845 tidak menembak"
+        with open(berkas_aksi845, "w", encoding="utf-8") as f:
+            f.write(isi_baru845)
+        rc, out = jalan(sub845,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("operand - pada modus kripto gpg adalah stdin: gerbang gagal (Audit 1756)", rc != 0)
+        shutil.rmtree(sub845, ignore_errors=True)
+        sub846 = klon(tmp, "sub846")
+        berkas_aksi846 = os.path.join(
+            sub846, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi846, encoding="utf-8") as f:
+            isi_aksi846 = f.read()
+        baris_aksi846 = [b for b in isi_aksi846.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru846 = isi_aksi846.replace(
+                baris_aksi846,
+                baris_aksi846.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg --decrypt berkas.gpg; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru846 != isi_aksi846, \
+            "suntikan aksi846 tidak menembak"
+        with open(berkas_aksi846, "w", encoding="utf-8") as f:
+            f.write(isi_baru846)
+        rc, out = jalan(sub846,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gpg dekripsi berkas operand membaca berkas itu: gerbang lolos (Audit 1756)", rc == 0)
+        shutil.rmtree(sub846, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
