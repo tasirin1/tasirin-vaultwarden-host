@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang podman ditulis ulang wilayah-sadar (Audit 1917)
+
+- Cermin penulisan ulang docker 1916 pada cabang podman, termasuk --interactive (Audit 1917).
+
 ## [Belum rilis] — Gerbang: cabang docker ditulis ulang wilayah-sadar (Audit 1916, 1918, 1921)
 
 - Cabang docker kini memindai wilayah opsi saja (sesudah sub-perintah, sebelum operand pertama): --interactive berlaku (Audit 1916), '-i' di wilayah perintah kontainer tak lagi terhitung (Audit 1918), dan bundel diurai setia getopt dengan huruf bernilai menelan sisa (Audit 1921).

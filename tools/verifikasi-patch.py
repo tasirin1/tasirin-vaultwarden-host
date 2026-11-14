@@ -4935,15 +4935,50 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "podman":
         # Audit 1899: exec/run -i mengonsumsi stdin
         # (docs.podman.io) - cermin docker 1898.
-        sub_pm = any(t_pm in ("exec", "run") for t_pm in mentah)
-        if not sub_pm:
+        # Audit 1917/1918/1921: cermin perbaikan docker
+        # 1916 (wilayah opsi, --interactive, bundel
+        # getopt) pada cabang podman.
+        sub_pm = None
+        for k_pm, t_pm in enumerate(mentah):
+            if t_pm in ("exec", "run"):
+                sub_pm = k_pm
+                break
+        if sub_pm is None:
             return False
-        for t_pm in mentah:
-            if t_pm == "-i":
+        nilai_pm = {"e", "u", "w", "v", "p", "m", "h"}
+        panjang_pm = {"--env", "--user", "--workdir",
+                      "--volume", "--publish", "--name",
+                      "--network", "--memory", "--env-file",
+                      "--entrypoint", "--hostname", "--mount",
+                      "--add-host", "--dns", "--label",
+                      "--label-file", "--ip", "--expose",
+                      "--restart", "--pull", "--platform",
+                      "--cidfile", "--detach-keys",
+                      "--log-driver", "--health-cmd"}
+        j_pm = sub_pm + 1
+        while j_pm < len(mentah):
+            t_pm = mentah[j_pm]
+            if t_pm == "--":
+                return False
+            if t_pm in ("-i", "--interactive",
+                        "--interactive=true"):
                 return True
-            if (t_pm.startswith("-") and not t_pm.startswith("--")
-                    and len(t_pm) > 2 and "i" in t_pm[1:]):
-                return True
+            if t_pm.startswith("--"):
+                j_pm += 2 if t_pm in panjang_pm else 1
+                continue
+            if t_pm.startswith("-") and len(t_pm) > 1:
+                lompat_pm = 1
+                huruf_pm = t_pm[1:]
+                for pos_pm, h_pm in enumerate(huruf_pm):
+                    if h_pm == "i":
+                        return True
+                    if h_pm in nilai_pm:
+                        if pos_pm == len(huruf_pm) - 1:
+                            lompat_pm = 2
+                        break
+                j_pm += lompat_pm
+                continue
+            return False
         return False
     if perintah == "terraform":
         # Audit 1900: hanya sub-perintah console yang

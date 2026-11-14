@@ -22353,6 +22353,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("bundel -w docker bernilai bukan -i: gerbang lolos (Audit 1921)", rc == 0)
         shutil.rmtree(sub1047, ignore_errors=True)
+        sub1048 = klon(tmp, "sub1048")
+        berkas_aksi1048 = os.path.join(
+            sub1048, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1048, encoding="utf-8") as f:
+            isi_aksi1048 = f.read()
+        baris_aksi1048 = [b for b in isi_aksi1048.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1048 = isi_aksi1048.replace(
+                baris_aksi1048,
+                baris_aksi1048.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(podman run --interactive citra; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1048 != isi_aksi1048, \
+            "suntikan aksi1048 tidak menembak"
+        with open(berkas_aksi1048, "w", encoding="utf-8") as f:
+            f.write(isi_baru1048)
+        rc, out = jalan(sub1048,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--interactive podman meneruskan stdin: gerbang gagal (Audit 1917)", rc != 0)
+        shutil.rmtree(sub1048, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
