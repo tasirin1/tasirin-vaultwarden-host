@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: column (util-linux) dikenal sebagai pembaca stdin (Audit 1801)
+
+- Nama column masuk daftar pembaca stdin beserta opsi bernilainya: tanpa berkas (termasuk modus -t) ia membaca stdin, dengan berkas ia membaca berkas itu.
+
 ## [Belum rilis] — Beranda: ekor log yang belum berujung baris ditahan sebelum disamarkan (Audit 1799)
 
 - Delta log beranda yang belum berakhir newline kini menahan 256 aksara terakhirnya untuk disamarkan bersama delta berikutnya - token yang melintasi batas jendela baris raksasa (8192 aksara) tidak lagi tampil terbelah tanpa samaran; ekor tertahan dibersihkan saat tampilan direset atau ditarik balik.

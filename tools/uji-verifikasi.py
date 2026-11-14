@@ -19119,6 +19119,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nama arsip 7z sah sesudah -- dan -si tetap aktif: gerbang gagal (Audit 1798)", rc != 0)
         shutil.rmtree(sub892, ignore_errors=True)
+        sub893 = klon(tmp, "sub893")
+        berkas_aksi893 = os.path.join(
+            sub893, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi893, encoding="utf-8") as f:
+            isi_aksi893 = f.read()
+        baris_aksi893 = [b for b in isi_aksi893.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru893 = isi_aksi893.replace(
+                baris_aksi893,
+                baris_aksi893.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(column -t; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru893 != isi_aksi893, \
+            "suntikan aksi893 tidak menembak"
+        with open(berkas_aksi893, "w", encoding="utf-8") as f:
+            f.write(isi_baru893)
+        rc, out = jalan(sub893,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("column tanpa berkas membaca stdin untuk ditabelkan: gerbang gagal (Audit 1801)", rc != 0)
+        shutil.rmtree(sub893, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
