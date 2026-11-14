@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sftp -b ganda ditolak (Audit 1792)
+
+- Pindaian -b sftp kini menghitung kemunculan: -b kedua divonis penolakan parsing OpenSSH ('Batch file already specified.'), bukan mengikuti nilai -b pertama.
+
 ## [Belum rilis] — Gerbang: sftp -o '-' fatal (Audit 1791)
 
 - Prapindai cabang sftp menolak nilai -o berupa '-' (termasuk bentuk menempel): kata kunci konfigurasi ssh tak sah itu menggagalkan sftp sebelum koneksi, mengalahkan jalur -b mana pun (terprobe OpenSSH).

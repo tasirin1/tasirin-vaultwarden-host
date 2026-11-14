@@ -18993,6 +18993,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai -o berupa '-' fatal di konfigurasi ssh: gerbang lolos (Audit 1791)", rc == 0)
         shutil.rmtree(sub886, ignore_errors=True)
+        sub887 = klon(tmp, "sub887")
+        berkas_aksi887 = os.path.join(
+            sub887, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi887, encoding="utf-8") as f:
+            isi_aksi887 = f.read()
+        baris_aksi887 = [b for b in isi_aksi887.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru887 = isi_aksi887.replace(
+                baris_aksi887,
+                baris_aksi887.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sftp -b - -b berkas.txt host; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru887 != isi_aksi887, \
+            "suntikan aksi887 tidak menembak"
+        with open(berkas_aksi887, "w", encoding="utf-8") as f:
+            f.write(isi_baru887)
+        rc, out = jalan(sub887,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-b kedua pada sftp ditolak OpenSSH saat parsing: gerbang lolos (Audit 1792)", rc == 0)
+        shutil.rmtree(sub887, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

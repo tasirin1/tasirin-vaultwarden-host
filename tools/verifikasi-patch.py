@@ -4064,13 +4064,23 @@ def _menguras_khusus(perintah, toks, awal):
             if t_sf.startswith("-o") and len(t_sf) > 2 \
                     and t_sf[2:] == "-":
                 return False
+        b_sf = 0
+        nilai_b_sf = None
         for k_sf, t_sf in enumerate(mentah):
             if t_sf == "-b":
                 if k_sf + 1 >= len(mentah):
                     return False
-                return mentah[k_sf + 1] == "-"
-            if t_sf.startswith("-b") and len(t_sf) > 2:
-                return t_sf[2:] == "-"
+                b_sf += 1
+                nilai_b_sf = mentah[k_sf + 1]
+            elif t_sf.startswith("-b") and len(t_sf) > 2:
+                b_sf += 1
+                nilai_b_sf = t_sf[2:]
+        # Audit 1792: -b kedua ditolak OpenSSH ('Batch file
+        # already specified.') pada tahap parsing.
+        if b_sf > 1:
+            return False
+        if b_sf == 1:
+            return nilai_b_sf == "-"
         # Audit 1790: tanpa -b, operand '-' adalah nama
         # host yang tak sah - sftp keluar saat resolusi
         # host (sftp(1) hanya mendokumentasikan '-' untuk
