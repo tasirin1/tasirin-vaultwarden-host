@@ -19014,6 +19014,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-b kedua pada sftp ditolak OpenSSH saat parsing: gerbang lolos (Audit 1792)", rc == 0)
         shutil.rmtree(sub887, ignore_errors=True)
+        sub888 = klon(tmp, "sub888")
+        berkas_aksi888 = os.path.join(
+            sub888, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi888, encoding="utf-8") as f:
+            isi_aksi888 = f.read()
+        baris_aksi888 = [b for b in isi_aksi888.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru888 = isi_aksi888.replace(
+                baris_aksi888,
+                baris_aksi888.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dc berkas.dc -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru888 != isi_aksi888, \
+            "suntikan aksi888 tidak menembak"
+        with open(berkas_aksi888, "w", encoding="utf-8") as f:
+            f.write(isi_baru888)
+        rc, out = jalan(sub888,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("operand '-' dc sesudah berkas tetap aliran stdin: gerbang gagal (Audit 1793)", rc != 0)
+        shutil.rmtree(sub888, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

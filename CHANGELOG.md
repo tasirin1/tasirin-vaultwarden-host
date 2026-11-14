@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: dc membaca berkas lalu stdin (Audit 1793)
+
+- Putaran dc kini berlanjut sesudah operand berkas: parameter tersisa adalah berkas-berkas yang dibaca berurutan dan '-' di antaranya berarti aliran stdin (manual GNU dc), jadi vonis akhir memperhitungkan berkas operand di samping -e/-f.
+
 ## [Belum rilis] — Gerbang: sftp -b ganda ditolak (Audit 1792)
 
 - Pindaian -b sftp kini menghitung kemunculan: -b kedua divonis penolakan parsing OpenSSH ('Batch file already specified.'), bukan mengikuti nilai -b pertama.

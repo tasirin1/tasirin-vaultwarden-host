@@ -4217,6 +4217,7 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "dc":
         i_dc = 0
         aksi_dc = False
+        berkas_dc = False
         while i_dc < len(mentah):
             t_dc = mentah[i_dc].lower()
             if t_dc in ("-e", "--expression", "-f", "--file"):
@@ -4245,8 +4246,16 @@ def _menguras_khusus(perintah, toks, awal):
             if t_dc.startswith("-"):
                 i_dc += 1
                 continue
-            return False
-        return not aksi_dc
+            # Audit 1793: operand polos adalah berkas yang
+            # dibaca berurutan; '-' di posisi operand
+            # berikutnya tetap berarti stdin (manual GNU
+            # dc: parameter tersisa adalah berkas-berkas
+            # dan '-' adalah aliran standar), jadi
+            # pindaian berlanjut, bukan berhenti.
+            berkas_dc = True
+            i_dc += 1
+            continue
+        return not aksi_dc and not berkas_dc
     # Audit 1750: perintah ed selalu dibaca dari stdin
     # (manual GNU ed) - operand berkas hanya mengisi buffer
     # suntingan, sumber perintahnya tetap stdin.
