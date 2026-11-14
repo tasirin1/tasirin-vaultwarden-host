@@ -4133,6 +4133,12 @@ def _menguras_khusus(perintah, toks, awal):
                     return False
                 i_pw += 2
                 continue
+            if t_pw.startswith("-version"):
+                # Audit 1761: perpanjangan nama -Version
+                # (mis. -Versionx) bukan parameter dan bukan
+                # singkatan sah - parser menggalalkan atau
+                # berkasnya tak ada; host keluar tanpa sesi.
+                return False
             if t_pw.startswith("-"):
                 i_pw += 1
                 continue

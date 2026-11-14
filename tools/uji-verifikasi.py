@@ -18321,6 +18321,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("powershell -Version bernilai sah interaktif membaca stdin: gerbang gagal (Audit 1760)", rc != 0)
         shutil.rmtree(sub854, ignore_errors=True)
+        sub855 = klon(tmp, "sub855")
+        berkas_aksi855 = os.path.join(
+            sub855, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi855, encoding="utf-8") as f:
+            isi_aksi855 = f.read()
+        baris_aksi855 = [b for b in isi_aksi855.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru855 = isi_aksi855.replace(
+                baris_aksi855,
+                baris_aksi855.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pwsh -Versionx; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru855 != isi_aksi855, \
+            "suntikan aksi855 tidak menembak"
+        with open(berkas_aksi855, "w", encoding="utf-8") as f:
+            f.write(isi_baru855)
+        rc, out = jalan(sub855,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("perpanjangan nama -Version bukan parameter pwsh: gerbang lolos (Audit 1761)", rc == 0)
+        shutil.rmtree(sub855, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

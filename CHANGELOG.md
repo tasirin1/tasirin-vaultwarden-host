@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: perpanjangan -Version pwsh ditolak (Audit 1761)
+
+- Token yang memperpanjang nama -Version (mis. -Versionx) kini divonis bukan parameter: ia bukan parameter pwsh dan bukan singkatan sah, parser menggalalkan atau berkasnya tak ada sehingga host keluar tanpa sesi interaktif.
+
 ## [Belum rilis] — Gerbang: nilai -Version powershell divalidasi (Audit 1760)
 
 - Nilai -Version pada powershell kini diperiksa: token bersaklar (mis. -Command atau -) bukan versi yang terpasang, host keluar dengan galat sebelum membaca stdin - bentuk itu tidak lagi lolos sebagai interaktif.
