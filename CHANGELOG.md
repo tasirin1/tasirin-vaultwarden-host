@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: watch dikenal sebagai pembungkus pewaris stdin (Audit 1873)
+
+- watch ditambahkan ke daftar pembungkus transparan dengan opsi bernilai -n/--interval: terprobe empiris watch meneruskan stdin ke anak yang dijalankannya berulang, jadi vonis anak kini diteruskan.
+
 ## [Belum rilis] — Gerbang: doas dikenal sebagai pembungkus pewaris stdin (Audit 1872)
 
 - doas ditambahkan ke daftar pembungkus transparan dengan opsi bernilai -C (berkas konfigurasi) dan -u (pengguna): ia men-exec anak dengan stdin warisan seperti sudo, jadi vonis anak kini diteruskan.

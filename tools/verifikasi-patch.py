@@ -1193,6 +1193,9 @@ _OPSI_PEMBUNGKUS = {
     # Audit 1872: doas - pembungkus pewaris stdin sekelas
     # sudo; opsi bernilainya berkas konfigurasi dan pengguna.
     "doas": {"-C", "-u"},
+    # Audit 1873: watch - menjalankan anak berulang dengan
+    # stdin warisan; opsi bernilainya selang antarlari.
+    "watch": {"-n", "--interval"},
     "sudo": {"-u", "--user", "-g", "--group", "-h", "--host",
              "-p", "--prompt", "-t", "--command-timeout", "-C",
              "--close-from", "-T", "--command-timeout-fd", "-D",
@@ -5661,7 +5664,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 "unshare", "chroot", "systemd-cat", "strace",
                 "dbus-run-session", "runuser", "su", "sg",
                 # Audit 1155/1156: pembungkus putaran-6.
-                "setpriv", "prlimit", "doas",
+                "setpriv", "prlimit", "doas", "watch",
                 # Audit 1253/1254/1255/1256: pembungkus
                 # putaran-8 (setarch beroperand arsitektur).
                 "setarch", "linux32", "linux64", "uclampset",
