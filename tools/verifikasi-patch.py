@@ -4464,7 +4464,10 @@ def _menguras_khusus(perintah, toks, awal):
                     break
                 if t_7z.lower().startswith("-si"):
                     si_7z = True
-                elif not t_7z.startswith("-"):
+                elif (not t_7z.startswith("-")
+                        and not t_7z.startswith("@")):
+                    # Audit 1787: token @listfile memasok
+                    # daftar isi, bukan nama arsip.
                     arsip_7z = True
             return si_7z and arsip_7z
         return False

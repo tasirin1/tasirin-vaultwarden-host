@@ -18888,6 +18888,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai -F cpio menempel adalah berkas arsip, bukan stdin: gerbang lolos (Audit 1786)", rc == 0)
         shutil.rmtree(sub881, ignore_errors=True)
+        sub882 = klon(tmp, "sub882")
+        berkas_aksi882 = os.path.join(
+            sub882, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi882, encoding="utf-8") as f:
+            isi_aksi882 = f.read()
+        baris_aksi882 = [b for b in isi_aksi882.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru882 = isi_aksi882.replace(
+                baris_aksi882,
+                baris_aksi882.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(7z a @daftar.txt -si; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru882 != isi_aksi882, \
+            "suntikan aksi882 tidak menembak"
+        with open(berkas_aksi882, "w", encoding="utf-8") as f:
+            f.write(isi_baru882)
+        rc, out = jalan(sub882,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("@listfile bukan nama arsip 7z - tanpa arsip perintah gugur: gerbang lolos (Audit 1787)", rc == 0)
+        shutil.rmtree(sub882, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

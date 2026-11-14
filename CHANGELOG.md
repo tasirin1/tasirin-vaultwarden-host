@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: 7z @listfile bukan arsip (Audit 1787)
+
+- Uji operand arsip pada cabang 7z kini mengecualikan token @listfile: token itu memasok daftar isi menurut manual sintaks resmi, bukan nama arsip, jadi bentuk -si tanpa nama arsip divonis gugur perintah.
+
 ## [Belum rilis] — Gerbang: cpio -F menempel dikenali (Audit 1786)
 
 - Cabang cpio kini mengenali nilai -F yang menempel pada token yang sama (getopt: argumen wajib boleh menempel): berkas yang disebut tercatat dan huruf di dalam nilainya tidak lagi dibaca sebagai huruf modus.
