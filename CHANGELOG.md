@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang ssh mengurai opsi sesudah tujuan (permutasi getopt) (Audit 1887)
+
+- Cabang ssh kini melanjutkan pindaian sesudah token tujuan: getopt OpenSSH mempermutasi argv sehingga huruf pemutus (-n/-N/-G/-Q/-f) dan opsi bernilai sesudah tujuan tetap berlaku.
+
 ## [Belum rilis] — Cek-cepat: berkas hanya-di-indeks diwujudkan untuk fase bungkus (Audit 1886)
 
 - Daftar bungkus kini mewujudkan berkas terlacak yang hanya ada di indeks (terhapus dari pohon kerja) dari isi indeks ke berkas sementara, meratakannya, lalu memetakan nama tampilnya kembali - keadaan staged-lalu-dihapus tak lagi lolos fase bungkus.

@@ -4750,8 +4750,15 @@ def _menguras_khusus(perintah, toks, awal):
                     continue
                 i_sh += 1
                 continue
+            # Audit 1887: getopt OpenSSH mempermutasi
+            # argv - opsi SESUDAH tujuan tetap diurai
+            # sebagai opsi ssh, jadi pindaian berlanjut
+            # (kata perintah jauh berikutnya bukan opsi
+            # dan tak mengubah vonis, kecuali huruf
+            # pemutus yang sudah diperiksa di atas).
             tujuan_sh = True
-            break
+            i_sh += 1
+            continue
         return tujuan_sh
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun

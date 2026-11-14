@@ -21786,6 +21786,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("ssh -n mengalihkan stdin dari /dev/null: gerbang lolos (Audit 1881)", rc == 0)
         shutil.rmtree(sub1020, ignore_errors=True)
+        sub1021 = klon(tmp, "sub1021")
+        berkas_aksi1021 = os.path.join(
+            sub1021, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1021, encoding="utf-8") as f:
+            isi_aksi1021 = f.read()
+        baris_aksi1021 = [b for b in isi_aksi1021.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1021 = isi_aksi1021.replace(
+                baris_aksi1021,
+                baris_aksi1021.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ssh host -n; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1021 != isi_aksi1021, \
+            "suntikan aksi1021 tidak menembak"
+        with open(berkas_aksi1021, "w", encoding="utf-8") as f:
+            f.write(isi_baru1021)
+        rc, out = jalan(sub1021,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi pemutus ssh sesudah tujuan berlaku: gerbang lolos (Audit 1887)", rc == 0)
+        shutil.rmtree(sub1021, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
