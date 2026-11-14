@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -I/--iterations dan -X/--index didaftarkan untuk pigz/unpigz (Audit 1869)
+
+- Kedua entri pigz dan unpigz dilengkapi opsi bernilai -I/--iterations dan -X/--index per manual pigz.
+
 ## [Belum rilis] — Gerbang: -o/--output didaftarkan untuk zstdcat (Audit 1868)
 
 - Entri zstdcat kini memuat -o/--output seperti ketiga saudara zstd-nya dari manual bersama: nilai berkas keluarannya tak lagi terhitung operand masukan.

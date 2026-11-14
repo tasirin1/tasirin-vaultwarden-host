@@ -959,9 +959,9 @@ _OPSI_BERNILAI = {
                "--output-dir-flat",
                "--output-dir-mirror", "--patch-from"},
     "pigz": {"-p", "--processes", "-b", "--blocksize", "-S",
-             "--suffix"},
+             "--suffix", "-I", "--iterations", "-X", "--index"},
     "unpigz": {"-p", "--processes", "-b", "--blocksize", "-S",
-               "--suffix"},
+               "--suffix", "-I", "--iterations", "-X", "--index"},
     # Audit 1211: wall selama ini tanpa entri — -t bernilai.
     "wall": {"-t", "--timeout",
             # Audit 1236: -g/--group wall bernilai.

@@ -21429,6 +21429,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-o zstdcat berkas keluaran dari manual bersama zstd: gerbang gagal (Audit 1868)", rc != 0)
         shutil.rmtree(sub1002, ignore_errors=True)
+        sub1003 = klon(tmp, "sub1003")
+        berkas_aksi1003 = os.path.join(
+            sub1003, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1003, encoding="utf-8") as f:
+            isi_aksi1003 = f.read()
+        baris_aksi1003 = [b for b in isi_aksi1003.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1003 = isi_aksi1003.replace(
+                baris_aksi1003,
+                baris_aksi1003.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pigz -X indeks; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1003 != isi_aksi1003, \
+            "suntikan aksi1003 tidak menembak"
+        with open(berkas_aksi1003, "w", encoding="utf-8") as f:
+            f.write(isi_baru1003)
+        rc, out = jalan(sub1003,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-X/--index pigz bernilai berkas indeks: gerbang gagal (Audit 1869)", rc != 0)
+        shutil.rmtree(sub1003, ignore_errors=True)
+        sub1004 = klon(tmp, "sub1004")
+        berkas_aksi1004 = os.path.join(
+            sub1004, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1004, encoding="utf-8") as f:
+            isi_aksi1004 = f.read()
+        baris_aksi1004 = [b for b in isi_aksi1004.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1004 = isi_aksi1004.replace(
+                baris_aksi1004,
+                baris_aksi1004.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unpigz --index indeks; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1004 != isi_aksi1004, \
+            "suntikan aksi1004 tidak menembak"
+        with open(berkas_aksi1004, "w", encoding="utf-8") as f:
+            f.write(isi_baru1004)
+        rc, out = jalan(sub1004,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--index unpigz bernilai menyamai pigz: gerbang gagal (Audit 1869)", rc != 0)
+        shutil.rmtree(sub1004, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
