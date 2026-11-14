@@ -4860,19 +4860,34 @@ def _menguras_khusus(perintah, toks, awal):
         # huruf mode stdin (s/l) di dalam bundel tetap
         # berlaku; huruf bernilai menghentikan urai
         # (sisanya adalah nilai menempel).
-        for t_mp in mentah:
+        # Audit 1946: pindai menghormati opsi bernilai
+        # terpisah lebih dulu - '-s' sebagai nilai -t
+        # bukan mode stdin.
+        i_mp = 0
+        while i_mp < len(mentah):
+            t_mp = mentah[i_mp]
             if t_mp in ("-s", "--stdin-file", "-l",
                         "--stdin-line"):
                 return True
+            if t_mp in ("-h", "-p", "-q", "-t", "-u", "-P",
+                        "-i", "-k", "-A", "-c", "-V", "-f"):
+                i_mp += 2
+                continue
             if (t_mp.startswith("-")
                     and not t_mp.startswith("--")
                     and len(t_mp) > 2):
-                for h_mp in t_mp[1:]:
+                lompat_mp = 1
+                for pos_mp, h_mp in enumerate(t_mp[1:]):
                     if h_mp in ("s", "l"):
                         return True
                     if h_mp in ("h", "p", "q", "t", "u", "P",
                                 "i", "k", "A", "c", "V", "f"):
+                        if pos_mp == len(t_mp) - 2:
+                            lompat_mp = 2
                         break
+                i_mp += lompat_mp
+                continue
+            i_mp += 1
         return False
     if perintah == "grpcurl":
         # Audit 1896: -d @ membaca badan permintaan dari

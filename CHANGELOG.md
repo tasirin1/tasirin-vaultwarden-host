@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mosquitto_pub memindai dengan menghormati nilai opsi (Audit 1946)
+
+- Cabang mosquitto_pub kini melompati nilai opsi bernilai terpisah lebih dulu; '-s' sebagai nilai -t bukan mode stdin.
+
 ## [Belum rilis] — Gerbang: cabang consul - '-' hanya stdin di posisi nilai (Audit 1945)
 
 - Cabang consul kini hanya menilai '-' sebagai stdin bila ia operand terakhir (posisi nilai); '-' di posisi kunci adalah nama kunci harfiah.
