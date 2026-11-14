@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mosquitto_pub - himpunan bernilai diperbaiki dua arah (Audit 1964, 1965)
+
+- Opsi bernilai -m/-x/-I/-D ditambahkan ke himpunan penelan mosquitto_pub (Audit 1964) dan -c dikeluarkan karena bendera polos (Audit 1965).
+
 ## [Belum rilis] — Gerbang: cabang ipfs - dag/block put berkas membaca berkas (Audit 1962, 1963)
 
 - Cabang ipfs kini hanya menilai dag put/block put sebagai pembaca stdin bila tanpa argumen berkas (Audit 1962 dan 1963).

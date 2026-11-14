@@ -4878,8 +4878,12 @@ def _menguras_khusus(perintah, toks, awal):
             if t_mp in ("-s", "--stdin-file", "-l",
                         "--stdin-line"):
                 return True
+            # Audit 1964/1965: -m/-x/-I/-D bernilai
+            # (hilang kemarin); -c bendera polos
+            # (keluar dari himpunan bernilai).
             if t_mp in ("-h", "-p", "-q", "-t", "-u", "-P",
-                        "-i", "-k", "-A", "-c", "-V", "-f"):
+                        "-i", "-k", "-A", "-V", "-f", "-m",
+                        "-x", "-I", "-D"):
                 i_mp += 2
                 continue
             if (t_mp.startswith("-")
@@ -4890,7 +4894,8 @@ def _menguras_khusus(perintah, toks, awal):
                     if h_mp in ("s", "l"):
                         return True
                     if h_mp in ("h", "p", "q", "t", "u", "P",
-                                "i", "k", "A", "c", "V", "f"):
+                                "i", "k", "A", "V", "f", "m",
+                                "x", "I", "D"):
                         if pos_mp == len(t_mp) - 2:
                             lompat_mp = 2
                         break

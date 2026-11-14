@@ -23256,6 +23256,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("block put berkas membaca berkas: gerbang lolos (Audit 1963)", rc == 0)
         shutil.rmtree(sub1090, ignore_errors=True)
+        sub1091 = klon(tmp, "sub1091")
+        berkas_aksi1091 = os.path.join(
+            sub1091, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1091, encoding="utf-8") as f:
+            isi_aksi1091 = f.read()
+        baris_aksi1091 = [b for b in isi_aksi1091.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1091 = isi_aksi1091.replace(
+                baris_aksi1091,
+                baris_aksi1091.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mosquitto_pub -m -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1091 != isi_aksi1091, \
+            "suntikan aksi1091 tidak menembak"
+        with open(berkas_aksi1091, "w", encoding="utf-8") as f:
+            f.write(isi_baru1091)
+        rc, out = jalan(sub1091,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'-s' nilai -m mosquitto bukan stdin: gerbang lolos (Audit 1964)", rc == 0)
+        shutil.rmtree(sub1091, ignore_errors=True)
+        sub1092 = klon(tmp, "sub1092")
+        berkas_aksi1092 = os.path.join(
+            sub1092, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1092, encoding="utf-8") as f:
+            isi_aksi1092 = f.read()
+        baris_aksi1092 = [b for b in isi_aksi1092.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1092 = isi_aksi1092.replace(
+                baris_aksi1092,
+                baris_aksi1092.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mosquitto_pub -c -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1092 != isi_aksi1092, \
+            "suntikan aksi1092 tidak menembak"
+        with open(berkas_aksi1092, "w", encoding="utf-8") as f:
+            f.write(isi_baru1092)
+        rc, out = jalan(sub1092,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-c bendera polos: -s mode stdin: gerbang gagal (Audit 1965)", rc != 0)
+        shutil.rmtree(sub1092, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
