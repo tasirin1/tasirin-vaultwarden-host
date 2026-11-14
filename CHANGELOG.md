@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sftp dinilai (batch dari stdin) (Audit 1734)
+
+- sftp kini punya penilai khusus di gerbang: `-b -` divonis membaca perintah batch dari stdin (man sftp(1): batchfile '-' = standard input), tanpa -b mode interaktifnya juga membaca perintah dari stdin yang ter-redirect, dan `-b <berkas>` membacanya dari berkas itu. Sebelumnya sftp tak dikenal dispatch gerbang sama sekali.
+
 ## [Belum rilis] — Cek-cepat: 11 aksara sela tambahan ikut dikupas pada rangkai blob (Audit 1733)
 
 - Fungsi proses() perangkai blob kini juga mengupas 11 aksara sela (@ = + % & ~ $ ^ ? { } [ ]) yang sebelumnya mematahkan pola bungkus: rahasia terbelah baris komentar bersela aksara itu kini tertangkap (terverifikasi end-to-end dua arah pada fixture sela-@/plus/sama dan token). Empat aksara lain dari temuan - tanda kutip dan kurung buka/tutup - SENGAJA tidak ikut dikupas: keduanya pematah pola yang diandalkan konten jinak (kutip memisahkan literal fixture di berkas uji; kurung membingkai contoh header berelepsis di CHANGELOG) dan mengupasnya menimbulkan positif palsu terverifikasi pada pohon asli - sela kutip/kurung dicatat sebagai residu yang diterima, sejajar Audit 1554/1568. Dua skenario uji-diri baru mengunci arah tertangkapnya.

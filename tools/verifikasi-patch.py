@@ -4026,6 +4026,19 @@ def _menguras_khusus(perintah, toks, awal):
                             "/proc/self/fd/0")):
                     return True
         return False
+    # Audit 1734: sftp membaca perintah batch dari stdin bila
+    # -b bernilai "-" (man sftp(1): batchfile "-" = standard
+    # input); tanpa -b, mode interaktif membaca perintah dari
+    # stdin yang ter-redirect; -b berkas membacanya dari berkas.
+    if perintah == "sftp":
+        for k_sf, t_sf in enumerate(mentah):
+            if t_sf == "-b":
+                if k_sf + 1 >= len(mentah):
+                    return False
+                return mentah[k_sf + 1] == "-"
+            if t_sf.startswith("-b") and len(t_sf) > 2:
+                return t_sf[2:] == "-"
+        return True
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5280,7 +5293,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # Audit 1193/1195/1197/1198/1200/1201/
                         # 1202/1204: penilai khusus putaran-7.
                         "pdftotext", "nft", "ip", "tc", "bridge",
-                        "dpkg", "file", "date", "sysctl", "bun",
+                        "dpkg", "file", "date", "sysctl", "bun", "sftp",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

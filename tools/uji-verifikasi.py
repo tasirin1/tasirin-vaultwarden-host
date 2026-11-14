@@ -17439,6 +17439,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("bun run - menjalankan skrip dari stdin: penguras - gerbang gagal (Audit 1732)", rc != 0)
         shutil.rmtree(sub812, ignore_errors=True)
+        sub813 = klon(tmp, "sub813")
+        berkas_aksi813 = os.path.join(
+            sub813, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi813, encoding="utf-8") as f:
+            isi_aksi813 = f.read()
+        baris_aksi813 = [b for b in isi_aksi813.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru813 = isi_aksi813.replace(
+                baris_aksi813,
+                baris_aksi813.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sftp -b - host; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru813 != isi_aksi813, \
+            "suntikan aksi813 tidak menembak"
+        with open(berkas_aksi813, "w", encoding="utf-8") as f:
+            f.write(isi_baru813)
+        rc, out = jalan(sub813,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sftp -b - membaca batch dari stdin: penguras - gerbang gagal (Audit 1734)", rc != 0)
+        shutil.rmtree(sub813, ignore_errors=True)
+        sub814 = klon(tmp, "sub814")
+        berkas_aksi814 = os.path.join(
+            sub814, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi814, encoding="utf-8") as f:
+            isi_aksi814 = f.read()
+        baris_aksi814 = [b for b in isi_aksi814.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru814 = isi_aksi814.replace(
+                baris_aksi814,
+                baris_aksi814.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sftp -b batch.txt host; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru814 != isi_aksi814, \
+            "suntikan aksi814 tidak menembak"
+        with open(berkas_aksi814, "w", encoding="utf-8") as f:
+            f.write(isi_baru814)
+        rc, out = jalan(sub814,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sftp -b berkas membaca batch dari berkas: gerbang lolos (Audit 1734)", rc == 0)
+        shutil.rmtree(sub814, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
