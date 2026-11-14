@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang redis-cli memindai dengan menghormati nilai opsi (Audit 1923)
+
+- Jalan pintas '-x'/'--pipe' cabang redis-cli kini hanya berlaku di posisi opsi; nilai opsi bernilai (mis. kata sandi -a) dilompati lebih dulu.
+
 ## [Belum rilis] — Gerbang: mosquitto_pub mengurai bundel mode stdin (Audit 1922)
 
 - Cabang mosquitto_pub kini mengurai bundel huruf getopt: huruf s/l di dalam bundel tetap mode stdin; huruf bernilai menghentikan urai.

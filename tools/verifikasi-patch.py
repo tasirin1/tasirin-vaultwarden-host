@@ -5058,16 +5058,31 @@ def _menguras_khusus(perintah, toks, awal):
         # tanpa kata perintah ia membaca perintah dari
         # stdin saat terpipa (redis.io). Dengan kata
         # perintah (tanpa -x) ia menjalankan lalu keluar.
-        if "-x" in mentah or "--pipe" in mentah:
-            return True
-        ops_rc = _operand_sesudah_opsi(
-            toks, awal, {"-h", "-p", "-a", "-u", "--user",
-                         "--pass", "-n", "--db", "-s",
-                         "--cacert", "--cert", "--key",
-                         "--tls-cacertdir"})
-        if "\x00gantung" in ops_rc:
-            return False
-        return len(ops_rc) == 0
+        # Audit 1923: pindai menghormati nilai opsi
+        # bernilai - '-x'/'--pipe' hanya berarti saklar
+        # di posisi opsi, bukan sebagai nilai (mis.
+        # kata sandi -a).
+        bernilai_rc = {"-h", "-p", "-a", "-u", "--user",
+                       "--pass", "-n", "--db", "-s",
+                       "--cacert", "--cert", "--key",
+                       "--tls-cacertdir"}
+        i_rc = 0
+        kata_rc = 0
+        while i_rc < len(mentah):
+            t_rc = mentah[i_rc]
+            if t_rc in ("-x", "--pipe"):
+                return True
+            if t_rc in bernilai_rc:
+                if i_rc + 1 >= len(mentah):
+                    return False
+                i_rc += 2
+                continue
+            if t_rc.startswith("-") and t_rc != "-":
+                i_rc += 1
+                continue
+            kata_rc += 1
+            i_rc += 1
+        return kata_rc == 0
     if perintah == "psql":
         # Audit 1903: -f - membaca stdin; tanpa -c/-f
         # ia membaca perintah dari stdin saat terpipa

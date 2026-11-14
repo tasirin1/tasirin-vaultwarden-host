@@ -22437,6 +22437,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("bundel -sl mosquitto_pub mode stdin: gerbang gagal (Audit 1922)", rc != 0)
         shutil.rmtree(sub1051, ignore_errors=True)
+        sub1052 = klon(tmp, "sub1052")
+        berkas_aksi1052 = os.path.join(
+            sub1052, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1052, encoding="utf-8") as f:
+            isi_aksi1052 = f.read()
+        baris_aksi1052 = [b for b in isi_aksi1052.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1052 = isi_aksi1052.replace(
+                baris_aksi1052,
+                baris_aksi1052.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(redis-cli -a -x get k; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1052 != isi_aksi1052, \
+            "suntikan aksi1052 tidak menembak"
+        with open(berkas_aksi1052, "w", encoding="utf-8") as f:
+            f.write(isi_baru1052)
+        rc, out = jalan(sub1052,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'-x' nilai -a redis-cli bukan saklar: gerbang lolos (Audit 1923)", rc == 0)
+        shutil.rmtree(sub1052, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
