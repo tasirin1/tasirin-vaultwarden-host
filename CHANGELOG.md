@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai brotli didaftarkan (Audit 1823)
+
+- Entri opsi bernilai brotli (-q/--quality, -o/--output, -w/--window, -S/--suffix) ditambahkan.
+
 ## [Belum rilis] — Gerbang: opsi bernilai compress didaftarkan (Audit 1822)
 
 - Entri opsi bernilai compress (-b) ditambahkan: nilai bitnya tak lagi terhitung operand.

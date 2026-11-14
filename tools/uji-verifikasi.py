@@ -19560,6 +19560,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai -b compress bukan operand - tanpa berkas stdin dikompres: gerbang gagal (Audit 1822)", rc != 0)
         shutil.rmtree(sub913, ignore_errors=True)
+        sub914 = klon(tmp, "sub914")
+        berkas_aksi914 = os.path.join(
+            sub914, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi914, encoding="utf-8") as f:
+            isi_aksi914 = f.read()
+        baris_aksi914 = [b for b in isi_aksi914.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru914 = isi_aksi914.replace(
+                baris_aksi914,
+                baris_aksi914.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(brotli -q 11; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru914 != isi_aksi914, \
+            "suntikan aksi914 tidak menembak"
+        with open(berkas_aksi914, "w", encoding="utf-8") as f:
+            f.write(isi_baru914)
+        rc, out = jalan(sub914,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai -q brotli bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1823)", rc != 0)
+        shutil.rmtree(sub914, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

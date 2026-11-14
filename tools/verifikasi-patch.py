@@ -975,6 +975,9 @@ _OPSI_BERNILAI = {
     "pixz": {"-p", "-q", "-x", "-f", "-o"},
     # Audit 1822: opsi bernilai compress.
     "compress": {"-b"},
+    # Audit 1823: opsi bernilai brotli.
+    "brotli": {"-q", "--quality", "-o", "--output",
+               "-w", "--window", "-S", "--suffix"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",
