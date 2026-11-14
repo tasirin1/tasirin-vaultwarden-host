@@ -1152,7 +1152,7 @@ _OPSI_BERNILAI = {
     # Audit 1338: instmodsh tanpa opsi bernilai.
     "instmodsh": set(),
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
-    "bunzip2": {"--suffix", "-S"},
+    "bunzip2": set(),
     "unxz": {"--suffix", "-S", "-T", "--threads",
              "-C", "--check",
              # Audit 1172: -F/--format bernilai.

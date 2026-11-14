@@ -21471,6 +21471,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--index unpigz bernilai menyamai pigz: gerbang gagal (Audit 1869)", rc != 0)
         shutil.rmtree(sub1004, ignore_errors=True)
+        sub1005 = klon(tmp, "sub1005")
+        berkas_aksi1005 = os.path.join(
+            sub1005, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1005, encoding="utf-8") as f:
+            isi_aksi1005 = f.read()
+        baris_aksi1005 = [b for b in isi_aksi1005.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1005 = isi_aksi1005.replace(
+                baris_aksi1005,
+                baris_aksi1005.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(bunzip2 -S .zz berkas.bz2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1005 != isi_aksi1005, \
+            "suntikan aksi1005 tidak menembak"
+        with open(berkas_aksi1005, "w", encoding="utf-8") as f:
+            f.write(isi_baru1005)
+        rc, out = jalan(sub1005,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bzip2 tak punya -S - berkas.bz2 operand sungguhan: gerbang lolos (Audit 1870)", rc == 0)
+        shutil.rmtree(sub1005, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

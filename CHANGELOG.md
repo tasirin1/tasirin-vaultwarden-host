@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: entri bunzip2 dikosongkan - bzip2 tak punya -S/--suffix (Audit 1870)
+
+- Terprobe biner bzip2 1.0.8: -S/--suffix adalah opsi gzip, bukan bzip2 (Bad flag). Entri bunzip2 dikosongkan menyamai bzip2/bzcat: nama berkas tak lagi tertelan sebagai nilai sufiks.
+
 ## [Belum rilis] — Gerbang: -I/--iterations dan -X/--index didaftarkan untuk pigz/unpigz (Audit 1869)
 
 - Kedua entri pigz dan unpigz dilengkapi opsi bernilai -I/--iterations dan -X/--index per manual pigz.
