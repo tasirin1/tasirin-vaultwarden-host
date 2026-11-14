@@ -19518,6 +19518,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai -b lbzip2 bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1820)", rc != 0)
         shutil.rmtree(sub911, ignore_errors=True)
+        sub912 = klon(tmp, "sub912")
+        berkas_aksi912 = os.path.join(
+            sub912, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi912, encoding="utf-8") as f:
+            isi_aksi912 = f.read()
+        baris_aksi912 = [b for b in isi_aksi912.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru912 = isi_aksi912.replace(
+                baris_aksi912,
+                baris_aksi912.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pixz -p 2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru912 != isi_aksi912, \
+            "suntikan aksi912 tidak menembak"
+        with open(berkas_aksi912, "w", encoding="utf-8") as f:
+            f.write(isi_baru912)
+        rc, out = jalan(sub912,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai -p pixz bukan operand - tanpa INPUT ia memakai stdin: gerbang gagal (Audit 1821)", rc != 0)
+        shutil.rmtree(sub912, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai pixz didaftarkan (Audit 1821)
+
+- Entri opsi bernilai pixz (-p, -q, -x, -f, -o) ditambahkan: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: opsi bernilai lbzip2 didaftarkan (Audit 1820)
 
 - Entri opsi bernilai lbzip2 (-b/--block-size) ditambahkan: nilainya tak lagi terhitung operand.
