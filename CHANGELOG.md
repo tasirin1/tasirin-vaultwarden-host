@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai lzop didaftarkan (Audit 1824)
+
+- Entri opsi bernilai lzop (-o/--output, --suffix) ditambahkan: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: opsi bernilai brotli didaftarkan (Audit 1823)
 
 - Entri opsi bernilai brotli (-q/--quality, -o/--output, -w/--window, -S/--suffix) ditambahkan.

@@ -978,6 +978,8 @@ _OPSI_BERNILAI = {
     # Audit 1823: opsi bernilai brotli.
     "brotli": {"-q", "--quality", "-o", "--output",
                "-w", "--window", "-S", "--suffix"},
+    # Audit 1824: opsi bernilai lzop.
+    "lzop": {"-o", "--output", "--suffix"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

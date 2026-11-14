@@ -19581,6 +19581,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai -q brotli bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1823)", rc != 0)
         shutil.rmtree(sub914, ignore_errors=True)
+        sub915 = klon(tmp, "sub915")
+        berkas_aksi915 = os.path.join(
+            sub915, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi915, encoding="utf-8") as f:
+            isi_aksi915 = f.read()
+        baris_aksi915 = [b for b in isi_aksi915.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru915 = isi_aksi915.replace(
+                baris_aksi915,
+                baris_aksi915.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lzop -o out; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru915 != isi_aksi915, \
+            "suntikan aksi915 tidak menembak"
+        with open(berkas_aksi915, "w", encoding="utf-8") as f:
+            f.write(isi_baru915)
+        rc, out = jalan(sub915,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai -o lzop bukan operand - tanpa berkas ia mengompres stdin: gerbang gagal (Audit 1824)", rc != 0)
+        shutil.rmtree(sub915, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
