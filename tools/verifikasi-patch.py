@@ -4291,6 +4291,15 @@ def _menguras_khusus(perintah, toks, awal):
                 berkas_cp = t_cp.split("=", 1)[1]
                 i_cp += 1
                 continue
+            if (t_cp.startswith("-F") and len(t_cp) > 2
+                    and not t_cp.startswith("--")):
+                # Audit 1786: nilai -F menempel (getopt:
+                # argumen wajib boleh menempel) - berkas
+                # yang disebut; huruf di dalam nilainya
+                # bukan huruf modus.
+                berkas_cp = t_cp[2:]
+                i_cp += 1
+                continue
             if t_cp in ("--create", "--pass"):
                 modus_cp = "tulis"
             elif t_cp in ("--extract", "--list"):

@@ -18867,6 +18867,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-v bukan alias pada powershell.exe, host keluar tanpa sesi: gerbang lolos (Audit 1785)", rc == 0)
         shutil.rmtree(sub880, ignore_errors=True)
+        sub881 = klon(tmp, "sub881")
+        berkas_aksi881 = os.path.join(
+            sub881, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi881, encoding="utf-8") as f:
+            isi_aksi881 = f.read()
+        baris_aksi881 = [b for b in isi_aksi881.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru881 = isi_aksi881.replace(
+                baris_aksi881,
+                baris_aksi881.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cpio -i -Farsip.cpio; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru881 != isi_aksi881, \
+            "suntikan aksi881 tidak menembak"
+        with open(berkas_aksi881, "w", encoding="utf-8") as f:
+            f.write(isi_baru881)
+        rc, out = jalan(sub881,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai -F cpio menempel adalah berkas arsip, bukan stdin: gerbang lolos (Audit 1786)", rc == 0)
+        shutil.rmtree(sub881, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

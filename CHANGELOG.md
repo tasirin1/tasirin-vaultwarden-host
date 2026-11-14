@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cpio -F menempel dikenali (Audit 1786)
+
+- Cabang cpio kini mengenali nilai -F yang menempel pada token yang sama (getopt: argumen wajib boleh menempel): berkas yang disebut tercatat dan huruf di dalam nilainya tidak lagi dibaca sebagai huruf modus.
+
 ## [Belum rilis] — Gerbang: powershell -v ditolak (Audit 1785)
 
 - Token '-v' pada powershell kini divonis keluar tanpa sesi: about_PowerShell_exe tidak mengenal alias -v (itu hanya milik pwsh), jadi ia parameter tak dikenal atau -Version yang kehilangan nilai wajibnya.
