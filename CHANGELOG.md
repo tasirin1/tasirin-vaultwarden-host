@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai lbzip2 didaftarkan (Audit 1820)
+
+- Entri opsi bernilai lbzip2 (-b/--block-size) ditambahkan: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: opsi bernilai plzip didaftarkan (Audit 1819)
 
 - Entri opsi bernilai plzip (-n/--threads, --dictionary-size, --match-length, --format) ditambahkan: nilainya tak lagi terhitung operand.

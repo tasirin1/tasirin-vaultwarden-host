@@ -19497,6 +19497,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai --threads plzip bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1819)", rc != 0)
         shutil.rmtree(sub910, ignore_errors=True)
+        sub911 = klon(tmp, "sub911")
+        berkas_aksi911 = os.path.join(
+            sub911, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi911, encoding="utf-8") as f:
+            isi_aksi911 = f.read()
+        baris_aksi911 = [b for b in isi_aksi911.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru911 = isi_aksi911.replace(
+                baris_aksi911,
+                baris_aksi911.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lbzip2 -b 900; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru911 != isi_aksi911, \
+            "suntikan aksi911 tidak menembak"
+        with open(berkas_aksi911, "w", encoding="utf-8") as f:
+            f.write(isi_baru911)
+        rc, out = jalan(sub911,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai -b lbzip2 bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1820)", rc != 0)
+        shutil.rmtree(sub911, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

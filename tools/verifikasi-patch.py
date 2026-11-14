@@ -969,6 +969,8 @@ _OPSI_BERNILAI = {
     # Audit 1819: opsi bernilai plzip.
     "plzip": {"-n", "--threads", "--dictionary-size",
               "--match-length", "--format"},
+    # Audit 1820: opsi bernilai lbzip2.
+    "lbzip2": {"-b", "--block-size"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",
