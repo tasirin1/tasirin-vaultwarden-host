@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: berkas hanya-di-indeks diwujudkan untuk fase bungkus (Audit 1886)
+
+- Daftar bungkus kini mewujudkan berkas terlacak yang hanya ada di indeks (terhapus dari pohon kerja) dari isi indeks ke berkas sementara, meratakannya, lalu memetakan nama tampilnya kembali - keadaan staged-lalu-dihapus tak lagi lolos fase bungkus.
+
 ## [Belum rilis] — Cek-cepat: escape heksa dan oktal didekode perata bungkus (Audit 1885)
 
 - Fungsi proses() kini mendekode escape \xHH dan \NNN (bentuk $'...' dan printf) menjadi aksara aslinya sebelum kupasan lain, dengan nilai byte dihitung dari indeks heksa agar portabel di mawk maupun gawk - token ter-encode tersambung kembali.

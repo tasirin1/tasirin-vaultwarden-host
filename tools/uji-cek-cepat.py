@@ -827,6 +827,20 @@ def main():
                 "(Audit 1885)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(token_oktal, ignore_errors=True)
+        indeks_saja = klon(tmp, "indekssaja")
+        berkas_indeks = os.path.join(
+            indeks_saja, "token-indeks-saja.txt")
+        with open(berkas_indeks, "w") as f_indeks:
+            f_indeks.write(
+                "token: " + token_palsu[:paruh] + "\n"
+                + token_palsu[paruh:] + "\n")
+        git(indeks_saja, "add", "token-indeks-saja.txt")
+        os.remove(berkas_indeks)
+        rc, out = jalan(indeks_saja, ["bash", SKRIP])
+        periksa("token terbelah hanya di indeks tertangkap "
+                "(Audit 1886)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(indeks_saja, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

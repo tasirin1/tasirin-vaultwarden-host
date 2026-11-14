@@ -174,10 +174,26 @@ RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHAS
 # ekordgt 0 di kedua cabang lama, jadi pintasannya setara.
 mapfile -d '' ENTRI_BUNGKUS < <({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c core.quotepath=false ls-files --others --exclude-standard -z | sed -z 's/^/u:/'; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z | sed -z 's/^/u:/'; } | sort -zu)
 DAFTAR_BUNGKUS=()
+# Audit 1886: berkas terlacak yang hanya ada di indeks
+# (terhapus dari pohon kerja) diwujudkan dari indeks ke
+# berkas sementara agar fase bungkus tetap meratakannya;
+# nama tampil dipetakan kembali sesudah awk berjalan.
+TMPBUNGKUS="$(mktemp -d)"
+PETA_TMP1886=()
+PETA_ASAL1886=()
 for entri in "${ENTRI_BUNGKUS[@]}"; do
   f=${entri#?:}
   if [ -f "$f" ]; then
     DAFTAR_BUNGKUS+=("$f")
+  elif [ "${entri%%:*}" = "t" ]; then
+    wujud1886="$TMPBUNGKUS/${#PETA_TMP1886[@]}"
+    if git show ":$f" > "$wujud1886" 2>/dev/null; then
+      DAFTAR_BUNGKUS+=("$wujud1886")
+      PETA_TMP1886+=("$wujud1886")
+      PETA_ASAL1886+=("$f")
+    else
+      rm -f "$wujud1886"
+    fi
   fi
 done
 BUNGKUS="$(awk -v POLA="$POLA_BUNGKUS" '
@@ -250,6 +266,12 @@ BEGIN {
   }
   exit
 }' "${DAFTAR_BUNGKUS[@]}" || true)"
+for i1886 in "${!PETA_TMP1886[@]}"; do
+  if [ -n "$BUNGKUS" ]; then
+    BUNGKUS="$(printf '%s\n' "$BUNGKUS" | sed "s|^${PETA_TMP1886[$i1886]}$|${PETA_ASAL1886[$i1886]}|")"
+  fi
+done
+rm -rf "$TMPBUNGKUS"
 for entri in "${ENTRI_BUNGKUS[@]}"; do
   f=${entri#?:}
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
