@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pandoc dinilai membaca stdin tanpa berkas masukan (Audit 1972)
+
+- pandoc kini dinilai: tanpa berkas masukan (opsi keluaran/format saja) ia membaca dari stdin.
+
 ## [Belum rilis] — Gerbang: micro dinilai membuat buffer dari stdin (Audit 1971)
 
 - micro kini dinilai: tanpa operand berkas ia membuat buffer dari stdin saat terpipa.

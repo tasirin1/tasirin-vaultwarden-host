@@ -23403,6 +23403,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("micro polos membuat buffer dari stdin: gerbang gagal (Audit 1971)", rc != 0)
         shutil.rmtree(sub1097, ignore_errors=True)
+        sub1098 = klon(tmp, "sub1098")
+        berkas_aksi1098 = os.path.join(
+            sub1098, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1098, encoding="utf-8") as f:
+            isi_aksi1098 = f.read()
+        baris_aksi1098 = [b for b in isi_aksi1098.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1098 = isi_aksi1098.replace(
+                baris_aksi1098,
+                baris_aksi1098.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pandoc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1098 != isi_aksi1098, \
+            "suntikan aksi1098 tidak menembak"
+        with open(berkas_aksi1098, "w", encoding="utf-8") as f:
+            f.write(isi_baru1098)
+        rc, out = jalan(sub1098,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pandoc polos membaca stdin: gerbang gagal (Audit 1972)", rc != 0)
+        shutil.rmtree(sub1098, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
