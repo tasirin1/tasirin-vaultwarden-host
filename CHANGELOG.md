@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: escape heksa dan oktal didekode perata bungkus (Audit 1885)
+
+- Fungsi proses() kini mendekode escape \xHH dan \NNN (bentuk $'...' dan printf) menjadi aksara aslinya sebelum kupasan lain, dengan nilai byte dihitung dari indeks heksa agar portabel di mawk maupun gawk - token ter-encode tersambung kembali.
+
 ## [Belum rilis] — Cek-cepat: tab vertikal dan form feed diratakan perata bungkus (Audit 1884)
 
 - Perataan blob dan pemangkas ekor di proses() kini membuang \x0B (tab vertikal) dan \x0C (form feed), menyelaraskan dengan kelas [[:space:]] yang sudah dipakai uji barisnya sendiri.

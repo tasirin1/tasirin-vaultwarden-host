@@ -808,6 +808,25 @@ def main():
                 "(Audit 1884)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(sela_vt, ignore_errors=True)
+        token_escape = klon(tmp, "tokenescape")
+        tanam(token_escape, "token-escape.sh",
+              "TOKEN=$'" + token_palsu.replace(":", "\\x3a")
+              + "'\n", "w")
+        rc, out = jalan(token_escape, ["bash", SKRIP])
+        periksa("token ter-encode escape heksa tertangkap "
+                "(Audit 1885)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(token_escape, ignore_errors=True)
+
+        token_oktal = klon(tmp, "tokenoktal")
+        tanam(token_oktal, "token-oktal.sh",
+              "TOKEN=$'" + token_palsu.replace(":", "\\072")
+              + "'\n", "w")
+        rc, out = jalan(token_oktal, ["bash", SKRIP])
+        periksa("token ter-encode escape oktal tertangkap "
+                "(Audit 1885)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(token_oktal, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

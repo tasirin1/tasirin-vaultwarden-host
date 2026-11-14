@@ -181,9 +181,24 @@ for entri in "${ENTRI_BUNGKUS[@]}"; do
   fi
 done
 BUNGKUS="$(awk -v POLA="$POLA_BUNGKUS" '
-function proses(line,   awal, hd, sp, pos, s, ekort) {
+function proses(line,   awal, hd, sp, pos, s, ekort, hx, hv, ox, ov) {
   $0 = line
   gsub(/\0/, "")
+  # Audit 1885: dekode escape heksa \xHH dan oktal \NNN
+  # (bentuk $'...' dan printf) ke aksara aslinya sebelum
+  # kupasan lain - token ter-encode tersambung kembali.
+  # Nilai byte dihitung dari indeks heksa (portabel
+  # mawk/gawk, tanpa strtonum).
+  while (match($0, /\\x[0-9a-fA-F][0-9a-fA-F]/)) {
+    hx = substr($0, RSTART + 2, 2)
+    hv = (index("0123456789abcdef", tolower(substr(hx, 1, 1))) - 1) * 16 + (index("0123456789abcdef", tolower(substr(hx, 2, 1))) - 1)
+    $0 = substr($0, 1, RSTART - 1) sprintf("%c", hv) substr($0, RSTART + 4)
+  }
+  while (match($0, /\\[0-7][0-7][0-7]/)) {
+    ox = substr($0, RSTART + 1, 3)
+    ov = (substr(ox, 1, 1) + 0) * 64 + (substr(ox, 2, 1) + 0) * 8 + (substr(ox, 3, 1) + 0)
+    $0 = substr($0, 1, RSTART - 1) sprintf("%c", ov) substr($0, RSTART + 4)
+  }
   sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, "")
   gsub(/\\[tnr]/, "")
   gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, "")
