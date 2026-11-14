@@ -939,14 +939,23 @@ _OPSI_BERNILAI = {
     # Audit 1638: opsi bernilai kompresor zstd/pigz.
     "zstd": {"-o", "--output", "-D", "-T", "--threads",
              # Audit 1642: -M/--memory & --format bernilai.
-             "-M", "--memory", "--format"},
+             "-M", "--memory", "--format",
+             # Audit 1847: opsi bernilai generasi baru.
+             "--output-dir-flat", "--output-dir-mirror",
+             "--patch-from"},
     "unzstd": {"-o", "--output", "-D", "-T", "--threads",
-               "-M", "--memory", "--format"},
+               "-M", "--memory", "--format",
+               "--output-dir-flat",
+               "--output-dir-mirror"},
     "zstdcat": {"-D", "-T", "--threads",
-                "-M", "--memory", "--format"},
+                "-M", "--memory", "--format",
+                "--output-dir-flat",
+                "--output-dir-mirror"},
     # Audit 1642: zstdmt varian multithread zstd.
     "zstdmt": {"-o", "--output", "-D", "-T", "--threads",
-               "-M", "--memory", "--format"},
+               "-M", "--memory", "--format",
+               "--output-dir-flat",
+               "--output-dir-mirror", "--patch-from"},
     "pigz": {"-p", "--processes", "-b", "--blocksize", "-S",
              "--suffix"},
     "unpigz": {"-p", "--processes", "-b", "--blocksize", "-S",

@@ -20442,6 +20442,111 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--output lziprecover bernilai: gerbang gagal (Audit 1846)", rc != 0)
         shutil.rmtree(sub955, ignore_errors=True)
+        sub956 = klon(tmp, "sub956")
+        berkas_aksi956 = os.path.join(
+            sub956, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi956, encoding="utf-8") as f:
+            isi_aksi956 = f.read()
+        baris_aksi956 = [b for b in isi_aksi956.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru956 = isi_aksi956.replace(
+                baris_aksi956,
+                baris_aksi956.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstd --output-dir-flat dir; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru956 != isi_aksi956, \
+            "suntikan aksi956 tidak menembak"
+        with open(berkas_aksi956, "w", encoding="utf-8") as f:
+            f.write(isi_baru956)
+        rc, out = jalan(sub956,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--output-dir-flat zstd bernilai direktori: gerbang gagal (Audit 1847)", rc != 0)
+        shutil.rmtree(sub956, ignore_errors=True)
+        sub957 = klon(tmp, "sub957")
+        berkas_aksi957 = os.path.join(
+            sub957, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi957, encoding="utf-8") as f:
+            isi_aksi957 = f.read()
+        baris_aksi957 = [b for b in isi_aksi957.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru957 = isi_aksi957.replace(
+                baris_aksi957,
+                baris_aksi957.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstd --patch-from ref; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru957 != isi_aksi957, \
+            "suntikan aksi957 tidak menembak"
+        with open(berkas_aksi957, "w", encoding="utf-8") as f:
+            f.write(isi_baru957)
+        rc, out = jalan(sub957,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--patch-from zstd bernilai berkas rujukan: gerbang gagal (Audit 1847)", rc != 0)
+        shutil.rmtree(sub957, ignore_errors=True)
+        sub958 = klon(tmp, "sub958")
+        berkas_aksi958 = os.path.join(
+            sub958, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi958, encoding="utf-8") as f:
+            isi_aksi958 = f.read()
+        baris_aksi958 = [b for b in isi_aksi958.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru958 = isi_aksi958.replace(
+                baris_aksi958,
+                baris_aksi958.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unzstd --output-dir-flat dir; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru958 != isi_aksi958, \
+            "suntikan aksi958 tidak menembak"
+        with open(berkas_aksi958, "w", encoding="utf-8") as f:
+            f.write(isi_baru958)
+        rc, out = jalan(sub958,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("unzstd memuat --output-dir-flat: gerbang gagal (Audit 1847)", rc != 0)
+        shutil.rmtree(sub958, ignore_errors=True)
+        sub959 = klon(tmp, "sub959")
+        berkas_aksi959 = os.path.join(
+            sub959, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi959, encoding="utf-8") as f:
+            isi_aksi959 = f.read()
+        baris_aksi959 = [b for b in isi_aksi959.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru959 = isi_aksi959.replace(
+                baris_aksi959,
+                baris_aksi959.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstdmt --output-dir-mirror dir; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru959 != isi_aksi959, \
+            "suntikan aksi959 tidak menembak"
+        with open(berkas_aksi959, "w", encoding="utf-8") as f:
+            f.write(isi_baru959)
+        rc, out = jalan(sub959,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zstdmt memuat --output-dir-mirror: gerbang gagal (Audit 1847)", rc != 0)
+        shutil.rmtree(sub959, ignore_errors=True)
+        sub960 = klon(tmp, "sub960")
+        berkas_aksi960 = os.path.join(
+            sub960, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi960, encoding="utf-8") as f:
+            isi_aksi960 = f.read()
+        baris_aksi960 = [b for b in isi_aksi960.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru960 = isi_aksi960.replace(
+                baris_aksi960,
+                baris_aksi960.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstdcat --output-dir-flat dir; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru960 != isi_aksi960, \
+            "suntikan aksi960 tidak menembak"
+        with open(berkas_aksi960, "w", encoding="utf-8") as f:
+            f.write(isi_baru960)
+        rc, out = jalan(sub960,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zstdcat memuat --output-dir-flat: gerbang gagal (Audit 1847)", rc != 0)
+        shutil.rmtree(sub960, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

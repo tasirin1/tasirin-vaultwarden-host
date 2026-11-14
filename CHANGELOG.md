@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai generasi baru zstd didaftarkan (Audit 1847)
+
+- --output-dir-flat dan --output-dir-mirror ditambahkan ke zstd, unzstd, zstdcat, dan zstdmt; --patch-from ke zstd dan zstdmt.
+
 ## [Belum rilis] — Gerbang: opsi bernilai lziprecover didaftarkan (Audit 1846)
 
 - Entri opsi bernilai lziprecover (-o/--output berkas keluaran) ditambahkan: nilainya tak lagi terhitung operand.
