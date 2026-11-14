@@ -19203,6 +19203,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("uudecode tanpa FILE membaca stdin: gerbang gagal (Audit 1804)", rc != 0)
         shutil.rmtree(sub896, ignore_errors=True)
+        sub897 = klon(tmp, "sub897")
+        berkas_aksi897 = os.path.join(
+            sub897, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi897, encoding="utf-8") as f:
+            isi_aksi897 = f.read()
+        baris_aksi897 = [b for b in isi_aksi897.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru897 = isi_aksi897.replace(
+                baris_aksi897,
+                baris_aksi897.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(plzip; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru897 != isi_aksi897, \
+            "suntikan aksi897 tidak menembak"
+        with open(berkas_aksi897, "w", encoding="utf-8") as f:
+            f.write(isi_baru897)
+        rc, out = jalan(sub897,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("plzip tanpa berkas mengompres dari stdin: gerbang gagal (Audit 1806)", rc != 0)
+        shutil.rmtree(sub897, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

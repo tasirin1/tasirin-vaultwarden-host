@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: plzip dikenal sebagai pembaca stdin (Audit 1806)
+
+- Nama plzip masuk daftar pembaca stdin: tanpa berkas atau berkas '-' ia mengompres/mendekompres dari stdin (manual resmi plzip).
+
 ## [Belum rilis] — Beranda: ekor tertahan samaran disiram saat aliran log berhenti (Audit 1800)
 
 - Tick pembaruan log tanpa data baru kini menyiram ekor tertahan Audit 1799 apa adanya, jadi baris yang penulisannya berhenti di tengah tidak kehilangan hingga 256 aksara terakhirnya dari tampilan beranda.

@@ -696,6 +696,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "lzcat",
                   # Audit 1638: varian dekompresi zstd/pigz.
                   "unzstd", "zstdcat", "unpigz",
+                  # Audit 1806: plzip - tanpa berkas
+                  # atau berkas '-' dari stdin (manual).
+                  "plzip",
                   # Audit 1112: pembaca interaktif/kueri — operand
                   # berkas/nama menekan seperti filter biasa.
                   "wall", "c++filt", "nslookup",
