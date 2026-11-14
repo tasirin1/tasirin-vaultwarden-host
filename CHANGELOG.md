@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: psql dinilai - polos dan -f - membaca stdin (Audit 1903)
+
+- psql kini dinilai: -f - membaca stdin dan mode polos (tanpa -c/-f) membaca perintah dari stdin saat terpipa; -c dan -f berkas menekan pembacaan itu.
+
 ## [Belum rilis] — Gerbang: redis-cli dinilai - polos/-x/--pipe membaca stdin (Audit 1902)
 
 - redis-cli kini dinilai: -x dan --pipe membaca dari stdin, dan tanpa kata perintah ia membaca perintah dari stdin saat terpipa; dengan kata perintah ia menjalankan lalu keluar.

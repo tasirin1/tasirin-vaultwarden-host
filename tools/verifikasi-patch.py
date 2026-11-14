@@ -4884,6 +4884,22 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_rc:
             return False
         return len(ops_rc) == 0
+    if perintah == "psql":
+        # Audit 1903: -f - membaca stdin; tanpa -c/-f
+        # ia membaca perintah dari stdin saat terpipa
+        # (dokumentasi app-psql). -c menjalankan string
+        # lalu keluar; -f berkas membaca berkas.
+        for k_pq, t_pq in enumerate(mentah):
+            if t_pq in ("-c", "--command"):
+                return False
+            if t_pq in ("-f", "--file"):
+                return (k_pq + 1 < len(mentah)
+                        and mentah[k_pq + 1] == "-")
+            if t_pq in ("-f-", "--file=-"):
+                return True
+            if t_pq in ("-l", "--list", "-V", "--version"):
+                return False
+        return True
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6448,7 +6464,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mosquitto_pub", "podman", "redis-cli", "rsh", "terraform", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mosquitto_pub", "podman", "psql", "redis-cli", "rsh", "terraform", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
