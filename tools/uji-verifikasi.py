@@ -22710,6 +22710,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("buildah build --stdin meneruskan stdin: gerbang gagal (Audit 1937)", rc != 0)
         shutil.rmtree(sub1064, ignore_errors=True)
+        sub1065 = klon(tmp, "sub1065")
+        berkas_aksi1065 = os.path.join(
+            sub1065, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1065, encoding="utf-8") as f:
+            isi_aksi1065 = f.read()
+        baris_aksi1065 = [b for b in isi_aksi1065.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1065 = isi_aksi1065.replace(
+                baris_aksi1065,
+                baris_aksi1065.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(skopeo copy docker-archive:/dev/stdin docker://x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1065 != isi_aksi1065, \
+            "suntikan aksi1065 tidak menembak"
+        with open(berkas_aksi1065, "w", encoding="utf-8") as f:
+            f.write(isi_baru1065)
+        rc, out = jalan(sub1065,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("skopeo copy dari /dev/stdin membaca aliran: gerbang gagal (Audit 1938)", rc != 0)
+        shutil.rmtree(sub1065, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

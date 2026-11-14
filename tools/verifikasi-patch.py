@@ -5354,6 +5354,14 @@ def _menguras_khusus(perintah, toks, awal):
         return (bool(ops_ba)
                 and ops_ba[0] in ("build", "bud")
                 and "--stdin" in mentah)
+    if perintah == "skopeo":
+        # Audit 1938: copy dari docker-archive:/dev/stdin
+        # membaca aliran stdin (containers-transports(5)).
+        ops_sk = _operand_sesudah_opsi(toks, awal, set())
+        if "\x00gantung" in ops_sk:
+            return False
+        return (len(ops_sk) >= 2 and ops_sk[0] == "copy"
+                and ops_sk[1].startswith("docker-archive:/dev/stdin"))
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6934,7 +6942,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "buildah", "clickhouse-client", "consul", "etcdctl", "glab", "gcloud", "gsutil", "nerdctl", "oc", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "buildah", "clickhouse-client", "consul", "etcdctl", "glab", "gcloud", "gsutil", "nerdctl", "oc", "skopeo", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

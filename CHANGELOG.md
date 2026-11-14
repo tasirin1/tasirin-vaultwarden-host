@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: skopeo copy dari docker-archive:/dev/stdin dinilai (Audit 1938)
+
+- skopeo kini dinilai: copy dengan sumber berawalan docker-archive:/dev/stdin membaca aliran stdin.
+
 ## [Belum rilis] — Gerbang: buildah build --stdin dinilai meneruskan stdin (Audit 1937)
 
 - buildah kini dinilai: build/bud dengan --stdin meneruskan stdin ke kontainer RUN.
