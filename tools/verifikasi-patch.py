@@ -4678,6 +4678,14 @@ def _menguras_khusus(perintah, toks, awal):
     # mengabaikan stdin (manual GNU gettext).
     if perintah == "envsubst":
         return "--variables" not in mentah
+    # Audit 1838: write PENGGUNA [TTY] - baris yang
+    # disalin ke terminal penerima dibaca dari stdin
+    # sampai EOF; tanpa pengguna ia galat (write(1)).
+    if perintah == "write":
+        ops_w = _operand_sesudah_opsi(toks, awal, set())
+        if "\x00gantung" in ops_w:
+            return False
+        return len(ops_w) >= 1
     # Audit 1771: rpm2cpio tanpa argumen membaca aliran
     # RPM dari standard input (rpm2cpio(1)).
     if perintah == "rpm2cpio":
@@ -6031,6 +6039,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "dasel", "envsubst", "mlr", "sd", "recode",
+                        "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

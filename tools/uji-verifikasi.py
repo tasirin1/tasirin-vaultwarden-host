@@ -19875,6 +19875,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("envsubst selalu menyalin stdin ke stdout: gerbang gagal (Audit 1837)", rc != 0)
         shutil.rmtree(sub928, ignore_errors=True)
+        sub929 = klon(tmp, "sub929")
+        berkas_aksi929 = os.path.join(
+            sub929, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi929, encoding="utf-8") as f:
+            isi_aksi929 = f.read()
+        baris_aksi929 = [b for b in isi_aksi929.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru929 = isi_aksi929.replace(
+                baris_aksi929,
+                baris_aksi929.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(write tasirin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru929 != isi_aksi929, \
+            "suntikan aksi929 tidak menembak"
+        with open(berkas_aksi929, "w", encoding="utf-8") as f:
+            f.write(isi_baru929)
+        rc, out = jalan(sub929,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("write membaca baris dari stdin untuk terminal penerima: gerbang gagal (Audit 1838)", rc != 0)
+        shutil.rmtree(sub929, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

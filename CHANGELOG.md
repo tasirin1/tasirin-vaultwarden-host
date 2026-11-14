@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: write dinilai membaca stdin bila ada operand pengguna (Audit 1838)
+
+- Cabang khusus write: operandnya pengguna/tty, bukan berkas - dengan operand ia membaca baris dari stdin sampai EOF; tanpa operand ia galat.
+
 ## [Belum rilis] — Gerbang: envsubst dinilai selalu membaca stdin (Audit 1837)
 
 - Cabang khusus envsubst: ia selalu menyalin stdin ke stdout (operandnya format) kecuali --variables yang mengabaikan stdin.
