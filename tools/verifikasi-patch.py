@@ -721,6 +721,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # FILE adalah filter stdin.
                   "dos2unix", "unix2dos", "mac2unix",
                   "unix2mac",
+                  # Audit 1833: hck, klon cut - tanpa
+                  # berkas atau '-' membaca stdin.
+                  "hck",
                   # Audit 1112: pembaca interaktif/kueri — operand
                   # berkas/nama menekan seperti filter biasa.
                   "wall", "c++filt", "nslookup",
@@ -985,6 +988,8 @@ _OPSI_BERNILAI = {
     "unix2dos": {"-c", "--convmode"},
     "mac2unix": {"-c", "--convmode"},
     "unix2mac": {"-c", "--convmode"},
+    # Audit 1833: opsi bernilai hck.
+    "hck": {"-f", "--fields", "-d", "--delimiter"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

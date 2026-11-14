@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: hck dikenal sebagai pembaca stdin (Audit 1833)
+
+- Nama hck masuk daftar pembaca stdin beserta opsi bernilainya (-f/--fields, -d/--delimiter): klon cut ini membaca stdin tanpa berkas.
+
 ## [Belum rilis] — Gerbang: choose dinilai dari kehadiran opsi -i (Audit 1832)
 
 - Cabang khusus choose: satu-satunya sumber berkas -i/--input; tanpa itu ia membaca stdin dan operandnya pilihan bidang (-f adalah pemisah, bukan berkas).

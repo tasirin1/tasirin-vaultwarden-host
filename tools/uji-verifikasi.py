@@ -19770,6 +19770,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("choose membaca stdin, -f-nya pemisah bidang bukan berkas: gerbang gagal (Audit 1832)", rc != 0)
         shutil.rmtree(sub923, ignore_errors=True)
+        sub924 = klon(tmp, "sub924")
+        berkas_aksi924 = os.path.join(
+            sub924, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi924, encoding="utf-8") as f:
+            isi_aksi924 = f.read()
+        baris_aksi924 = [b for b in isi_aksi924.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru924 = isi_aksi924.replace(
+                baris_aksi924,
+                baris_aksi924.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(hck -f 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru924 != isi_aksi924, \
+            "suntikan aksi924 tidak menembak"
+        with open(berkas_aksi924, "w", encoding="utf-8") as f:
+            f.write(isi_baru924)
+        rc, out = jalan(sub924,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("hck tanpa berkas membaca stdin seperti cut: gerbang gagal (Audit 1833)", rc != 0)
+        shutil.rmtree(sub924, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
