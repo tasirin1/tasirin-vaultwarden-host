@@ -1190,6 +1190,9 @@ _OPSI_PEMBUNGKUS = {
     # nilai opsi dan bukan perintah); lihat mode_pid di resolver.
     # Audit 1044: sudo — opsi bernilainya identitas/target/batas;
     # bendera polos (-n/-S/-b/-v/...) dilompati lingkar umum.
+    # Audit 1872: doas - pembungkus pewaris stdin sekelas
+    # sudo; opsi bernilainya berkas konfigurasi dan pengguna.
+    "doas": {"-C", "-u"},
     "sudo": {"-u", "--user", "-g", "--group", "-h", "--host",
              "-p", "--prompt", "-t", "--command-timeout", "-C",
              "--close-from", "-T", "--command-timeout-fd", "-D",
@@ -5658,7 +5661,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 "unshare", "chroot", "systemd-cat", "strace",
                 "dbus-run-session", "runuser", "su", "sg",
                 # Audit 1155/1156: pembungkus putaran-6.
-                "setpriv", "prlimit",
+                "setpriv", "prlimit", "doas",
                 # Audit 1253/1254/1255/1256: pembungkus
                 # putaran-8 (setarch beroperand arsitektur).
                 "setarch", "linux32", "linux64", "uclampset",

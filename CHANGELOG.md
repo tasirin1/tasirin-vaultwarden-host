@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: doas dikenal sebagai pembungkus pewaris stdin (Audit 1872)
+
+- doas ditambahkan ke daftar pembungkus transparan dengan opsi bernilai -C (berkas konfigurasi) dan -u (pengguna): ia men-exec anak dengan stdin warisan seperti sudo, jadi vonis anak kini diteruskan.
+
 ## [Belum rilis] — Gerbang: -c/--crypt-method dan -s/--sha-rounds didaftarkan untuk newusers (Audit 1871)
 
 - Entri newusers dilengkapi dua opsi bernilai keluarga shadow yang sudah dimuat chpasswd/chgpasswd di berkas yang sama, per manual newusers(8).

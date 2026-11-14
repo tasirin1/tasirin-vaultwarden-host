@@ -21513,6 +21513,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-c/--crypt-method newusers bernilai menyamai chpasswd: gerbang gagal (Audit 1871)", rc != 0)
         shutil.rmtree(sub1006, ignore_errors=True)
+        sub1007 = klon(tmp, "sub1007")
+        berkas_aksi1007 = os.path.join(
+            sub1007, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1007, encoding="utf-8") as f:
+            isi_aksi1007 = f.read()
+        baris_aksi1007 = [b for b in isi_aksi1007.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1007 = isi_aksi1007.replace(
+                baris_aksi1007,
+                baris_aksi1007.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(doas cpan -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1007 != isi_aksi1007, \
+            "suntikan aksi1007 tidak menembak"
+        with open(berkas_aksi1007, "w", encoding="utf-8") as f:
+            f.write(isi_baru1007)
+        rc, out = jalan(sub1007,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("doas pembungkus pewaris stdin sekelas sudo: gerbang gagal (Audit 1872)", rc != 0)
+        shutil.rmtree(sub1007, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
