@@ -4387,6 +4387,26 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return True
+    # Audit 1770: lz4 membaca stdin bila tak ada berkas
+    # masukan atau berkasnya '-' (lz4(1)); unlz4/lz4cat
+    # bentuk kucingnya. Opsi bernilai lazim dilompati.
+    if perintah in ("lz4", "unlz4", "lz4cat"):
+        i_l4 = 0
+        while i_l4 < len(mentah):
+            t_l4 = mentah[i_l4].lower()
+            if t_l4 in ("-D", "--dict", "-B", "--block-size",
+                        "-T", "--threads", "--input-size"):
+                if i_l4 + 1 >= len(mentah):
+                    return False
+                i_l4 += 2
+                continue
+            if mentah[i_l4] == "-":
+                return True
+            if t_l4.startswith("-"):
+                i_l4 += 1
+                continue
+            return False
+        return True
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5675,7 +5695,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
                         "pwsh", "powershell", "bc", "dc", "ed",
                         "hexdump", "hd", "xxd", "cpio", "pax",
-                        "pg", "bat", "batcat", "lzip",
+                        "pg", "bat", "batcat", "lzip", "lz4",
+                        "unlz4", "lz4cat",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

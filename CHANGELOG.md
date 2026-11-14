@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: lz4 dinilai (Audit 1770)
+
+- lz4, unlz4, dan lz4cat kini dinilai penilai khusus mengikuti lz4(1): tanpa berkas masukan atau berkas '-' sumbernya standard input; opsi bernilai lazim dilompati.
+
 ## [Belum rilis] — Gerbang: lzip dinilai (Audit 1769)
 
 - lzip kini dinilai penilai khusus mengikuti manual GNU lzip: tanpa nama berkas ia memampatkan/membuka dari standard input dan argumen '-' juga berarti stdin.

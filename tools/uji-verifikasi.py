@@ -18615,6 +18615,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("lzip tanpa berkas membuka dari stdin: gerbang gagal (Audit 1769)", rc != 0)
         shutil.rmtree(sub868, ignore_errors=True)
+        sub869 = klon(tmp, "sub869")
+        berkas_aksi869 = os.path.join(
+            sub869, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi869, encoding="utf-8") as f:
+            isi_aksi869 = f.read()
+        baris_aksi869 = [b for b in isi_aksi869.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru869 = isi_aksi869.replace(
+                baris_aksi869,
+                baris_aksi869.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lz4 -dc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru869 != isi_aksi869, \
+            "suntikan aksi869 tidak menembak"
+        with open(berkas_aksi869, "w", encoding="utf-8") as f:
+            f.write(isi_baru869)
+        rc, out = jalan(sub869,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lz4 tanpa berkas membuka dari stdin: gerbang gagal (Audit 1770)", rc != 0)
+        shutil.rmtree(sub869, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
