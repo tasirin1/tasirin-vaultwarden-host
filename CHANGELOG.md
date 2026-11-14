@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: yq - opsi -f dicatat dan penjaga cerminnya menolak (Audit 1851)
+
+- Dict yq kini memuat -f/--from-file agar penjaga cermin keluarga skrip terjangkau, dan penjaga itu menolak semua bentuk -f untuk yq: yq memang tak punya opsi itu (galat, tak membaca stdin).
+
 ## [Belum rilis] — Gerbang: cabang dasel - nilai -f 'stdin' berarti stdin (Audit 1850)
 
 - Cabang dasel kini membaca nilai -f/--file: nilai harfiah 'stdin' berarti masukan stdin; nilai lain tetap berkas seperti sebelumnya.
