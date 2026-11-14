@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai dirmngr didaftarkan (Audit 1864)
+
+- Entri opsi bernilai dirmngr (--homedir, --options, --log-file) ditambahkan: mode --server-nya membaca perintah Assuan dari stdin.
+
 ## [Belum rilis] — Gerbang: opsi bernilai gpg-connect-agent didaftarkan (Audit 1863)
 
 - Entri opsi bernilai gpg-connect-agent (--homedir, -S/--raw-socket, -T/--tcp-socket, -r/--run) ditambahkan: ia membaca perintah dari stdin sesudah menyambung ke agen.

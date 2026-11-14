@@ -1044,6 +1044,8 @@ _OPSI_BERNILAI = {
     "gpg-connect-agent": {"--homedir", "-S",
                           "--raw-socket", "-T",
                           "--tcp-socket", "-r", "--run"},
+    # Audit 1864: opsi bernilai dirmngr.
+    "dirmngr": {"--homedir", "--options", "--log-file"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

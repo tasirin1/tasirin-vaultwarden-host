@@ -21261,6 +21261,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--homedir gpg-connect-agent bernilai - ia membaca perintah dari stdin: gerbang gagal (Audit 1863)", rc != 0)
         shutil.rmtree(sub994, ignore_errors=True)
+        sub995 = klon(tmp, "sub995")
+        berkas_aksi995 = os.path.join(
+            sub995, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi995, encoding="utf-8") as f:
+            isi_aksi995 = f.read()
+        baris_aksi995 = [b for b in isi_aksi995.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru995 = isi_aksi995.replace(
+                baris_aksi995,
+                baris_aksi995.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dirmngr --server --homedir /tmp; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru995 != isi_aksi995, \
+            "suntikan aksi995 tidak menembak"
+        with open(berkas_aksi995, "w", encoding="utf-8") as f:
+            f.write(isi_baru995)
+        rc, out = jalan(sub995,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("mode --server dirmngr membaca perintah Assuan dari stdin, --homedir bernilai: gerbang gagal (Audit 1864)", rc != 0)
+        shutil.rmtree(sub995, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
