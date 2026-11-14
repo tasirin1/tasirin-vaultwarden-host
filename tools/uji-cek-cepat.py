@@ -859,6 +859,21 @@ def main():
                 "(Audit 1890)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(escape_unicode, ignore_errors=True)
+        staged_ganti = klon(tmp, "stagedganti")
+        berkas_ganti = os.path.join(
+            staged_ganti, "token-staged-ganti.txt")
+        with open(berkas_ganti, "w") as f_ganti:
+            f_ganti.write(
+                "token: " + token_palsu[:paruh] + "\n"
+                + token_palsu[paruh:] + "\n")
+        git(staged_ganti, "add", "token-staged-ganti.txt")
+        with open(berkas_ganti, "w") as f_ganti:
+            f_ganti.write("isi jinak biasa saja\n")
+        rc, out = jalan(staged_ganti, ["bash", SKRIP])
+        periksa("token terbelah staged lalu diganti jinak "
+                "tertangkap (Audit 1891)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(staged_ganti, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: isi staged yang berbeda dari pohon kerja diwujudkan dari indeks (Audit 1891)
+
+- Perwujudan indeks kini juga berjalan bila isi ter-stage berbeda dari pohon kerja (diganti jinak sesudah stage atau berkas hilang), bukan hanya bila berkas tak ada.
+
 ## [Belum rilis] — Cek-cepat: escape unicode \uXXXX didekode perata bungkus (Audit 1890)
 
 - Fungsi proses() kini mendekode escape \uXXXX: nilai di bawah 0x80 (semua aksara token) persis, di atasnya terpotong ke byte rendah yang untuk keluarga spasi/tak-terlihat jatuh ke kelas terlarut perataan.

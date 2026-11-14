@@ -185,7 +185,11 @@ for entri in "${ENTRI_BUNGKUS[@]}"; do
   f=${entri#?:}
   if [ -f "$f" ]; then
     DAFTAR_BUNGKUS+=("$f")
-  elif [ "${entri%%:*}" = "t" ]; then
+  fi
+  # Audit 1891: isi ter-stage yang berbeda dari pohon
+  # kerja (diganti jinak sesudah stage, atau berkasnya
+  # hilang) ikut diwujudkan dari indeks.
+  if [ "${entri%%:*}" = "t" ] && { [ ! -f "$f" ] || ! git diff --cached --quiet -- "$f" 2>/dev/null; }; then
     wujud1886="$TMPBUNGKUS/${#PETA_TMP1886[@]}"
     if git show ":$f" > "$wujud1886" 2>/dev/null; then
       DAFTAR_BUNGKUS+=("$wujud1886")
