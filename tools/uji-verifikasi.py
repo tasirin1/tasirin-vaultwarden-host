@@ -23655,6 +23655,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("magick identify '-' masukan stdin: gerbang gagal (Audit 1983)", rc != 0)
         shutil.rmtree(sub1109, ignore_errors=True)
+        sub1110 = klon(tmp, "sub1110")
+        berkas_aksi1110 = os.path.join(
+            sub1110, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1110, encoding="utf-8") as f:
+            isi_aksi1110 = f.read()
+        baris_aksi1110 = [b for b in isi_aksi1110.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1110 = isi_aksi1110.replace(
+                baris_aksi1110,
+                baris_aksi1110.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sendmail -F -bp budi@x.id; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1110 != isi_aksi1110, \
+            "suntikan aksi1110 tidak menembak"
+        with open(berkas_aksi1110, "w", encoding="utf-8") as f:
+            f.write(isi_baru1110)
+        rc, out = jalan(sub1110,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'-bp' nilai -F sendmail bukan mode: gerbang gagal (Audit 1984)", rc != 0)
+        shutil.rmtree(sub1110, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

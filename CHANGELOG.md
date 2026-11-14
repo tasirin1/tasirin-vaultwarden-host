@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sendmail - pemeriksaan mode sadar posisi (Audit 1984)
+
+- Pemeriksaan mode sendmail kini berjalan per indeks dengan melompati nilai opsi bernilai: '-bp' sebagai nilai -F bukan lagi mode antrean.
+
 ## [Belum rilis] — Gerbang: ImageMagick - posisi operand sub-perintah dan identify (Audit 1983)
 
 - Cabang ImageMagick kini melompati nilai opsi (-format/-define/dll), mengenali sub-perintah di dalam magick, dan memperlakukan semua operand identify sebagai masukan (tak ada keluaran).

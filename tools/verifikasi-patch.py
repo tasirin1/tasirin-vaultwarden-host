@@ -5710,9 +5710,19 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1974: mode kirim (polos, -t, alamat)
         # membaca pesan dari stdin (man sendmail(8));
         # mode antrean/versi/verifikasi tidak.
-        if any(t_sm in ("-bp", "-V", "-bv", "-bP")
-               for t_sm in mentah):
-            return False
+        # Audit 1984: pemeriksaan mode sadar posisi
+        # - nilai opsi bernilai (-F/-f/-o/dll) yang
+        # kebetulan berbunyi mode bukan mode.
+        i_sm = 0
+        while i_sm < len(mentah):
+            t_sm = mentah[i_sm]
+            if t_sm in ("-F", "-f", "-o", "-O", "-N",
+                        "-R", "-h"):
+                i_sm += 2
+                continue
+            if t_sm in ("-bp", "-V", "-bv", "-bP"):
+                return False
+            i_sm += 1
         return True
     if perintah in ("mailx", "s-nail", "mail"):
         # Audit 1975: mode kirim (operand alamat)
