@@ -5631,7 +5631,9 @@ def _menguras_khusus(perintah, toks, awal):
                          "--defaults", "--reference-doc"})
         if "\x00gantung" in ops_pd:
             return False
-        return not ops_pd
+        # Audit 1979: operand '-' adalah stdin
+        # (sumber pandoc: readSource '-' = stdin).
+        return not ops_pd or "-" in ops_pd
     if perintah in ("magick", "convert", "identify"):
         # Audit 1973: nama semu '-' / 'fmt:-' / 'fd:0'
         # di posisi MASUKAN berarti stdin

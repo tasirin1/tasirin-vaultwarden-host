@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pandoc - operand '-' adalah stdin (Audit 1979)
+
+- Cabang pandoc kini menilai operand '-' sebagai masukan stdin, sesuai sumber resminya.
+
 ## [Belum rilis] — Gerbang: keluarga mailx - mode -t membaca pesan dari stdin (Audit 1978)
 
 - Cabang mailx kini menilai mode -t sebagai pembaca stdin: penerima diambil dari header pesan itu sendiri.
