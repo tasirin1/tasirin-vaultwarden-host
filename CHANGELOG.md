@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mlr dinilai dari nama berkas sesudah kata kerja (Audit 1830)
+
+- Cabang khusus mlr (Miller): tanpa kata kerja bawaannya cat; nama berkas dinilai sesudah kata kerja dengan nilai opsi kata kerja dilewati - tanpa nama berkas ia membaca stdin.
+
 ## [Belum rilis] — Gerbang: dasel dinilai dari kehadiran opsi -f (Audit 1829)
 
 - Cabang khusus dasel: sumber berkasnya hanya -f/--file; tanpa opsi itu ia membaca stdin dan operandnya selektor.

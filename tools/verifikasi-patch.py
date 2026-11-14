@@ -4598,6 +4598,40 @@ def _menguras_khusus(perintah, toks, awal):
                         and not t_d.startswith("--"))):
                 return False
         return True
+    # Audit 1830: mlr [bendera] KATA-KERJA [opsi kata
+    # kerja] [berkas]... - tanpa nama berkas membaca
+    # stdin (manual mlr); tanpa kata kerja bawaannya
+    # cat. Token persis sesudah token berawalan '-'
+    # dianggap nilai opsi kata kerja, bukan berkas.
+    if perintah == "mlr":
+        if mentah and mentah[0] == "-n":
+            return False
+        i_m = 0
+        kata_kerja = False
+        while i_m < len(mentah):
+            t_m = mentah[i_m]
+            if t_m == "--":
+                sisa_m = mentah[i_m + 1:]
+                return not sisa_m or "-" in sisa_m
+            if not kata_kerja:
+                if t_m.startswith("-") and t_m != "-":
+                    i_m += 2 if t_m == "--from" else 1
+                    continue
+                if "." in t_m or "/" in t_m:
+                    return False
+                kata_kerja = True
+                i_m += 1
+                continue
+            if t_m == "-":
+                return True
+            if t_m.startswith("-"):
+                i_m += 1
+                continue
+            if mentah[i_m - 1].startswith("-"):
+                i_m += 1
+                continue
+            return False
+        return True
     # Audit 1771: rpm2cpio tanpa argumen membaca aliran
     # RPM dari standard input (rpm2cpio(1)).
     if perintah == "rpm2cpio":
@@ -5950,7 +5984,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "unlz4", "lz4cat", "rpm2cpio", "7z",
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
-                        "dasel", "recode",
+                        "dasel", "mlr", "recode",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

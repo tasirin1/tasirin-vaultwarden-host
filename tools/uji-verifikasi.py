@@ -19707,6 +19707,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("dasel tanpa -f membaca stdin, operandnya selektor: gerbang gagal (Audit 1829)", rc != 0)
         shutil.rmtree(sub920, ignore_errors=True)
+        sub921 = klon(tmp, "sub921")
+        berkas_aksi921 = os.path.join(
+            sub921, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi921, encoding="utf-8") as f:
+            isi_aksi921 = f.read()
+        baris_aksi921 = [b for b in isi_aksi921.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru921 = isi_aksi921.replace(
+                baris_aksi921,
+                baris_aksi921.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mlr --csv cut -f a; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru921 != isi_aksi921, \
+            "suntikan aksi921 tidak menembak"
+        with open(berkas_aksi921, "w", encoding="utf-8") as f:
+            f.write(isi_baru921)
+        rc, out = jalan(sub921,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("mlr tanpa nama berkas membaca stdin, -f a milik kata kerja: gerbang gagal (Audit 1830)", rc != 0)
+        shutil.rmtree(sub921, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
