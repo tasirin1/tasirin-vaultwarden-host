@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang rclone - rcat menuntut berkas jauh (Audit 1957)
+
+- Cabang rclone kini hanya menilai rcat bila ada operand berkas jauh sesudahnya; rcat tanpa tujuan adalah galat argumen.
+
 ## [Belum rilis] — Gerbang: cabang mariadb melewati '-e' yang tertelan sebagai nilai opsi (Audit 1956)
 
 - Cermin perbaikan mysql 1955 pada cabang mariadb.

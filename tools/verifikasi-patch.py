@@ -5486,8 +5486,10 @@ def _menguras_khusus(perintah, toks, awal):
         ops_rx = _operand_sesudah_opsi(toks, awal, set())
         if "\x00gantung" in ops_rx:
             return False
+        # Audit 1957: rcat menuntut tepat satu
+        # berkas jauh - tanpa itu galat argumen.
         if ops_rx and ops_rx[0] == "rcat":
-            return True
+            return len(ops_rx) >= 2
         for k_rx, t_rx in enumerate(mentah):
             if t_rx in ("--files-from=-",
                         "--files-from-raw=-",

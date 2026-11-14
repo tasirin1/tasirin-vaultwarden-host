@@ -23109,6 +23109,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("'-e' nilai -u mariadb bukan -e: gerbang gagal menguras (Audit 1956)", rc != 0)
         shutil.rmtree(sub1083, ignore_errors=True)
+        sub1084 = klon(tmp, "sub1084")
+        berkas_aksi1084 = os.path.join(
+            sub1084, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1084, encoding="utf-8") as f:
+            isi_aksi1084 = f.read()
+        baris_aksi1084 = [b for b in isi_aksi1084.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1084 = isi_aksi1084.replace(
+                baris_aksi1084,
+                baris_aksi1084.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(rclone rcat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1084 != isi_aksi1084, \
+            "suntikan aksi1084 tidak menembak"
+        with open(berkas_aksi1084, "w", encoding="utf-8") as f:
+            f.write(isi_baru1084)
+        rc, out = jalan(sub1084,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("rclone rcat tanpa tujuan galat: gerbang lolos (Audit 1957)", rc == 0)
+        shutil.rmtree(sub1084, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
