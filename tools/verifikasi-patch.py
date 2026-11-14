@@ -705,6 +705,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1808: pixz - bawaannya stdin/
                   # stdout tanpa argumen INPUT/OUTPUT.
                   "pixz",
+                  # Audit 1809: compress - pasangan
+                  # uncompress yang sudah anggota.
+                  "compress",
                   # Audit 1112: pembaca interaktif/kueri — operand
                   # berkas/nama menekan seperti filter biasa.
                   "wall", "c++filt", "nslookup",

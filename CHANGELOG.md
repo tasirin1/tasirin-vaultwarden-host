@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: compress dikenal sebagai pembaca stdin (Audit 1809)
+
+- Nama compress masuk daftar pembaca stdin, menyusul pasangannya uncompress yang sudah lama anggota: tanpa berkas ia mengompres stdin ke stdout.
+
 ## [Belum rilis] — Gerbang: pixz dikenal sebagai pembaca stdin (Audit 1808)
 
 - Nama pixz masuk daftar pembaca stdin: bawaannya memakai stdin/stdout kecuali argumen INPUT/OUTPUT diberikan.
