@@ -4632,6 +4632,15 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return True
+    # Audit 1831: sd CARI GANTI [BERKAS]... - dua
+    # operand pertamanya pola dan pengganti; tepat
+    # dua operand berarti filter stdin (README sd).
+    if perintah == "sd":
+        ops_s = _operand_sesudah_opsi(
+            toks, awal, {"-f", "--flags", "-n"})
+        if "\x00gantung" in ops_s:
+            return False
+        return len(ops_s) == 2
     # Audit 1771: rpm2cpio tanpa argumen membaca aliran
     # RPM dari standard input (rpm2cpio(1)).
     if perintah == "rpm2cpio":
@@ -5984,7 +5993,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "unlz4", "lz4cat", "rpm2cpio", "7z",
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
-                        "dasel", "mlr", "recode",
+                        "dasel", "mlr", "sd", "recode",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
