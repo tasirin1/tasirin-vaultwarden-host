@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: buildah build --stdin dinilai meneruskan stdin (Audit 1937)
+
+- buildah kini dinilai: build/bud dengan --stdin meneruskan stdin ke kontainer RUN.
+
 ## [Belum rilis] — Gerbang: gcloud storage cp '-' dan -I dinilai membaca stdin (Audit 1936)
 
 - gcloud kini dinilai terbatas pada storage cp, mencerminkan gsutil: sumber '-' dan -I membaca dari stdin.

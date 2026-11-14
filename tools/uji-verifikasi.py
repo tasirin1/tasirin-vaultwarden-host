@@ -22689,6 +22689,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gcloud storage cp dari '-' mengunggah stdin: gerbang gagal (Audit 1936)", rc != 0)
         shutil.rmtree(sub1063, ignore_errors=True)
+        sub1064 = klon(tmp, "sub1064")
+        berkas_aksi1064 = os.path.join(
+            sub1064, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1064, encoding="utf-8") as f:
+            isi_aksi1064 = f.read()
+        baris_aksi1064 = [b for b in isi_aksi1064.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1064 = isi_aksi1064.replace(
+                baris_aksi1064,
+                baris_aksi1064.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(buildah build --stdin ctx; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1064 != isi_aksi1064, \
+            "suntikan aksi1064 tidak menembak"
+        with open(berkas_aksi1064, "w", encoding="utf-8") as f:
+            f.write(isi_baru1064)
+        rc, out = jalan(sub1064,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("buildah build --stdin meneruskan stdin: gerbang gagal (Audit 1937)", rc != 0)
+        shutil.rmtree(sub1064, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
