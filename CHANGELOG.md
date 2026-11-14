@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mysql mengenali --execute= dan bundel -e (Audit 1914)
+
+- Cabang mysql kini menolak --execute=<..> dan huruf e di bundel pendek mana pun (e bernilai, sisa bundel adalah nilainya).
+
 ## [Belum rilis] — Gerbang: cabang psql memproses -c/-f berurutan (Audit 1913)
 
 - Cabang psql kini mengumpulkan aksi -c/-f dari seluruh baris: -f - di mana pun membuat vonis membaca stdin, mencerminkan pemrosesan berurutan app-psql.

@@ -4987,11 +4987,17 @@ def _menguras_khusus(perintah, toks, awal):
         # Reference Manual); -e/--execute menjalankan
         # string lalu keluar.
         for t_my in mentah:
-            if t_my in ("-e", "--execute", "-V", "--version",
-                        "--help"):
+            if t_my in ("-V", "--version", "--help"):
                 return False
-            if (t_my.startswith("-e") and len(t_my) > 2
-                    and not t_my.startswith("--")):
+            # Audit 1914: --execute=<..> dan huruf e di
+            # bundel mana pun adalah -e (e bernilai -
+            # sisa bundel adalah nilainya).
+            if (t_my == "--execute"
+                    or t_my.startswith("--execute=")):
+                return False
+            if (t_my.startswith("-")
+                    and not t_my.startswith("--")
+                    and "e" in t_my[1:]):
                 return False
         return True
     if perintah == "mariadb":
