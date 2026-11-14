@@ -22374,6 +22374,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--interactive podman meneruskan stdin: gerbang gagal (Audit 1917)", rc != 0)
         shutil.rmtree(sub1048, ignore_errors=True)
+        sub1049 = klon(tmp, "sub1049")
+        berkas_aksi1049 = os.path.join(
+            sub1049, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1049, encoding="utf-8") as f:
+            isi_aksi1049 = f.read()
+        baris_aksi1049 = [b for b in isi_aksi1049.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1049 = isi_aksi1049.replace(
+                baris_aksi1049,
+                baris_aksi1049.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(kubectl exec pod -- grep -i x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1049 != isi_aksi1049, \
+            "suntikan aksi1049 tidak menembak"
+        with open(berkas_aksi1049, "w", encoding="utf-8") as f:
+            f.write(isi_baru1049)
+        rc, out = jalan(sub1049,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'-i' sesudah -- kubectl milik perintah: gerbang lolos (Audit 1919)", rc == 0)
+        shutil.rmtree(sub1049, ignore_errors=True)
+        sub1050 = klon(tmp, "sub1050")
+        berkas_aksi1050 = os.path.join(
+            sub1050, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1050, encoding="utf-8") as f:
+            isi_aksi1050 = f.read()
+        baris_aksi1050 = [b for b in isi_aksi1050.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1050 = isi_aksi1050.replace(
+                baris_aksi1050,
+                baris_aksi1050.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(kubectl exec -cinit pod -- c; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1050 != isi_aksi1050, \
+            "suntikan aksi1050 tidak menembak"
+        with open(berkas_aksi1050, "w", encoding="utf-8") as f:
+            f.write(isi_baru1050)
+        rc, out = jalan(sub1050,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel -c kubectl bernilai bukan -i: gerbang lolos (Audit 1920)", rc == 0)
+        shutil.rmtree(sub1050, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

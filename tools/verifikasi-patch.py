@@ -4868,16 +4868,45 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1897: sub-perintah exec/attach/run dengan
         # -i/--stdin meneruskan stdin ke kontainer
         # (help kubectl: "Pass stdin to the container").
-        sub_kc = any(t_kc in ("exec", "attach", "run")
-                     for t_kc in mentah)
-        if not sub_kc:
+        # Audit 1919/1920: wilayah pindai = sesudah
+        # sub-perintah sampai '--' (pflag berhenti di
+        # sana; '-i' sesudahnya milik perintah
+        # kontainer); bundel diurai dengan -c bernilai
+        # (sisa bundel/nilai berikutnya adalah nama
+        # kontainer, bukan bendera).
+        sub_kc = None
+        for k_kc, t_kc in enumerate(mentah):
+            if t_kc in ("exec", "attach", "run"):
+                sub_kc = k_kc
+                break
+        if sub_kc is None:
             return False
-        for t_kc in mentah:
+        j_kc = sub_kc + 1
+        while j_kc < len(mentah):
+            t_kc = mentah[j_kc]
+            if t_kc == "--":
+                return False
             if t_kc in ("-i", "--stdin", "--stdin=true"):
                 return True
-            if (t_kc.startswith("-") and not t_kc.startswith("--")
-                    and len(t_kc) > 2 and "i" in t_kc[1:]):
-                return True
+            if t_kc in ("-c", "--container"):
+                j_kc += 2
+                continue
+            if t_kc.startswith("--"):
+                j_kc += 1
+                continue
+            if t_kc.startswith("-") and len(t_kc) > 1:
+                lompat_kc = 1
+                huruf_kc = t_kc[1:]
+                for pos_kc, h_kc in enumerate(huruf_kc):
+                    if h_kc == "i":
+                        return True
+                    if h_kc == "c":
+                        if pos_kc == len(huruf_kc) - 1:
+                            lompat_kc = 2
+                        break
+                j_kc += lompat_kc
+                continue
+            j_kc += 1
         return False
     if perintah == "docker":
         # Audit 1898: exec/run -i menjaga stdin tetap

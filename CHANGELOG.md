@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang kubectl wilayah pindai sampai '--' + bundel setia (Audit 1919, 1920)
+
+- Cabang kubectl kini berhenti memindai di '--' (Audit 1919) dan mengurai bundel dengan -c bernilai (Audit 1920).
+
 ## [Belum rilis] — Gerbang: cabang podman ditulis ulang wilayah-sadar (Audit 1917)
 
 - Cermin penulisan ulang docker 1916 pada cabang podman, termasuk --interactive (Audit 1917).
