@@ -21240,6 +21240,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--display pinentry-curses bernilai - berbagi opsi pinentry: gerbang gagal (Audit 1862)", rc != 0)
         shutil.rmtree(sub993, ignore_errors=True)
+        sub994 = klon(tmp, "sub994")
+        berkas_aksi994 = os.path.join(
+            sub994, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi994, encoding="utf-8") as f:
+            isi_aksi994 = f.read()
+        baris_aksi994 = [b for b in isi_aksi994.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru994 = isi_aksi994.replace(
+                baris_aksi994,
+                baris_aksi994.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gpg-connect-agent --homedir /tmp; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru994 != isi_aksi994, \
+            "suntikan aksi994 tidak menembak"
+        with open(berkas_aksi994, "w", encoding="utf-8") as f:
+            f.write(isi_baru994)
+        rc, out = jalan(sub994,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--homedir gpg-connect-agent bernilai - ia membaca perintah dari stdin: gerbang gagal (Audit 1863)", rc != 0)
+        shutil.rmtree(sub994, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

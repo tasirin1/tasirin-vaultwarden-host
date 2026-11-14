@@ -1040,6 +1040,10 @@ _OPSI_BERNILAI = {
                         "--display", "-T", "--ttyname",
                         "-C", "--lc-ctype", "-M",
                         "--lc-messages"},
+    # Audit 1863: opsi bernilai gpg-connect-agent.
+    "gpg-connect-agent": {"--homedir", "-S",
+                          "--raw-socket", "-T",
+                          "--tcp-socket", "-r", "--run"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

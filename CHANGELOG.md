@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai gpg-connect-agent didaftarkan (Audit 1863)
+
+- Entri opsi bernilai gpg-connect-agent (--homedir, -S/--raw-socket, -T/--tcp-socket, -r/--run) ditambahkan: ia membaca perintah dari stdin sesudah menyambung ke agen.
+
 ## [Belum rilis] — Gerbang: opsi bernilai pinentry-curses didaftarkan (Audit 1862)
 
 - pinentry-curses berbagi himpunan opsi bernilai pinentry dan kini berentri sama: nilainya tak lagi terhitung operand.
