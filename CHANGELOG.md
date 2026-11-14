@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: clickhouse multicall dinilai (client/local) (Audit 1991)
+
+- Bentuk multicall clickhouse kini dinilai: 'clickhouse client' setara clickhouse-client, 'clickhouse local' dan 'clickhouse-local' membaca data dari stdin.
+
 ## [Belum rilis] — Gerbang: cqlsh dinilai membaca stdin (Audit 1990)
 
 - cqlsh kini dinilai: bentuk polos tanpa --execute/--file membaca dari stdin saat terpipa.
