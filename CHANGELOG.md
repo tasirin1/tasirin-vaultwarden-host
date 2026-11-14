@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Label audit tidak dicabut pada peristiwa dibuka-ulang (Audit 1741)
+
+- Workflow label-audit kini mengecualikan peristiwa reopened dari cabang pencabut label: membuka ulang tidak mengubah badan issue, jadi label audit yang terpasang manual pada issue lama tanpa baris penanda tidak lagi gugur tepat saat issue itu dibuka ulang untuk dikerjakan (pencabutan Audit 625 tetap berlaku untuk suntingan badan).
+
 ## [Belum rilis] — Gerbang: pwsh -NoExit dinilai (Audit 1740)
 
 - Pindaian cabang pwsh/powershell tidak lagi berhenti di aksi pertama: -NoExit di posisi saklar mana pun memberi vonis menguras (host tetap interaktif membaca stdin sesudah -File/-Command selesai, dokumentasi about_Pwsh); nilai '-' tetap langsung menguras dan token nilai -File/-Command dilompati, bukan dinilai sebagai saklar.

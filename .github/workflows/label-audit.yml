@@ -11,7 +11,10 @@ name: Label audit otomatis
 # (temuan Audit 557 / sisa kerapuhan #245). Penanda kini BERJANGKAR pada
 # format baku itu — frasa "Ronde audit" yang lepas di tengah kalimat
 # (kutipan/diskusi) tidak lagi memberi label, dan label DICABUT bila
-# penanda hilang dari badan sesudah suntingan (Audit 625). Label hanya
+# penanda hilang dari badan sesudah suntingan (Audit 625). Pencabutan
+# TIDAK berlaku pada peristiwa dibuka-ulang (reopened, Audit 1728):
+# membuka ulang tidak mengubah badan, jadi label yang terpasang
+# manual tidak boleh gugur karenanya (Audit 1741). Label hanya
 # dipasang untuk issue berpenulis pihak repo (OWNER/MEMBER/COLLABORATOR):
 # penanda yang disalin pembuka issue eksternal tidak lagi membuat
 # issuenya kebal-stale lewat pengecualian label audit (Audit 751).
@@ -37,6 +40,7 @@ jobs:
           REPO: ${{ github.repository }}
           LABELS: ${{ join(github.event.issue.labels.*.name, ',') }}
           ASOSIASI: ${{ github.event.issue.author_association }}
+          AKSI: ${{ github.event.action }}
         run: |
           dipercaya=0
           case ",$ASOSIASI," in
@@ -44,7 +48,7 @@ jobs:
           esac
           if [ "$dipercaya" = 1 ] && printf '%s' "$BADAN" | grep -qE '^(- )?Ronde: [Aa]udit[- ][0-9]+'; then
             gh issue edit "$NOMOR" --repo "$REPO" --add-label audit
-          elif printf ',%s,' "$LABELS" | grep -q ',audit,'; then
+          elif [ "$AKSI" != "reopened" ] && printf ',%s,' "$LABELS" | grep -q ',audit,'; then
             gh issue edit "$NOMOR" --repo "$REPO" --remove-label audit
             echo "Penanda baku tak ada atau penulis bukan pihak repo; label audit dicabut."
           else
