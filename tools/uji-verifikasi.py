@@ -23529,6 +23529,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--persist bendera polos: gnuplot telanjang membaca stdin (Audit 1977)", rc != 0)
         shutil.rmtree(sub1103, ignore_errors=True)
+        sub1104 = klon(tmp, "sub1104")
+        berkas_aksi1104 = os.path.join(
+            sub1104, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1104, encoding="utf-8") as f:
+            isi_aksi1104 = f.read()
+        baris_aksi1104 = [b for b in isi_aksi1104.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1104 = isi_aksi1104.replace(
+                baris_aksi1104,
+                baris_aksi1104.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mailx -t; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1104 != isi_aksi1104, \
+            "suntikan aksi1104 tidak menembak"
+        with open(berkas_aksi1104, "w", encoding="utf-8") as f:
+            f.write(isi_baru1104)
+        rc, out = jalan(sub1104,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("mailx -t membaca pesan dari stdin: gerbang gagal (Audit 1978)", rc != 0)
+        shutil.rmtree(sub1104, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga mailx - mode -t membaca pesan dari stdin (Audit 1978)
+
+- Cabang mailx kini menilai mode -t sebagai pembaca stdin: penerima diambil dari header pesan itu sendiri.
+
 ## [Belum rilis] — Gerbang: gnuplot - --persist bendera polos, bukan bernilai (Audit 1977)
 
 - --persist dikeluarkan dari himpunan bernilai gnuplot dan disaring dari operand: dengan berkas gnuplot keluar (lolos), telanjang ia membaca stdin (gagal).

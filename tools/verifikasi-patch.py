@@ -5658,6 +5658,10 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1975: mode kirim (operand alamat)
         # membaca isi surat dari stdin; mode baca
         # (-f kotak) tidak (POSIX mailx + s-nail(1)).
+        # Audit 1978: mode -t membaca seluruh pesan
+        # dari stdin (penerima dari header).
+        if "-t" in mentah:
+            return True
         if "-f" in mentah:
             return False
         ops_mx = _operand_sesudah_opsi(
