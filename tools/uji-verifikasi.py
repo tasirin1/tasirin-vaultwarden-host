@@ -23676,6 +23676,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("'-bp' nilai -F sendmail bukan mode: gerbang gagal (Audit 1984)", rc != 0)
         shutil.rmtree(sub1110, ignore_errors=True)
+        sub1111 = klon(tmp, "sub1111")
+        berkas_aksi1111 = os.path.join(
+            sub1111, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1111, encoding="utf-8") as f:
+            isi_aksi1111 = f.read()
+        baris_aksi1111 = [b for b in isi_aksi1111.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1111 = isi_aksi1111.replace(
+                baris_aksi1111,
+                baris_aksi1111.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(kafka-console-producer; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1111 != isi_aksi1111, \
+            "suntikan aksi1111 tidak menembak"
+        with open(berkas_aksi1111, "w", encoding="utf-8") as f:
+            f.write(isi_baru1111)
+        rc, out = jalan(sub1111,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("kafka producer membaca stdin: gerbang gagal (Audit 1985)", rc != 0)
+        shutil.rmtree(sub1111, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

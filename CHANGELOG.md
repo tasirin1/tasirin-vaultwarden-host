@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: kafka-console-producer dinilai membaca stdin (Audit 1985)
+
+- kafka-console-producer (dan bentuk .sh) kini dinilai: ia membaca baris pesan dari stdin.
+
 ## [Belum rilis] — Gerbang: sendmail - pemeriksaan mode sadar posisi (Audit 1984)
 
 - Pemeriksaan mode sendmail kini berjalan per indeks dengan melompati nilai opsi bernilai: '-bp' sebagai nilai -F bukan lagi mode antrean.
