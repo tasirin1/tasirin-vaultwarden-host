@@ -1137,7 +1137,7 @@ _OPSI_BERNILAI = {
              # Audit 1172: -F/--format bernilai.
              "-F", "--format", "--block-list", "--memlimit",
              "--memlimit-compress",
-             "--memlimit-decompress"},
+             "--memlimit-decompress", "--block-size"},
     # Audit 1842: unlzma = xz mode lzma - entri
     # penuh menyamai lzma.
     "unlzma": {"--suffix", "-S", "--block-list",

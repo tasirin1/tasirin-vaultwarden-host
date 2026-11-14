@@ -20883,6 +20883,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--suffix xz bernilai menyamai saudara xz lain: gerbang gagal (Audit 1852)", rc != 0)
         shutil.rmtree(sub976, ignore_errors=True)
+        sub977 = klon(tmp, "sub977")
+        berkas_aksi977 = os.path.join(
+            sub977, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi977, encoding="utf-8") as f:
+            isi_aksi977 = f.read()
+        baris_aksi977 = [b for b in isi_aksi977.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru977 = isi_aksi977.replace(
+                baris_aksi977,
+                baris_aksi977.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unxz --block-size 1MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru977 != isi_aksi977, \
+            "suntikan aksi977 tidak menembak"
+        with open(berkas_aksi977, "w", encoding="utf-8") as f:
+            f.write(isi_baru977)
+        rc, out = jalan(sub977,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--block-size unxz bernilai menyamai keluarga xz: gerbang gagal (Audit 1853)", rc != 0)
+        shutil.rmtree(sub977, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

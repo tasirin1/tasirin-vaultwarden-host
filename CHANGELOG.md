@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --block-size didaftarkan untuk unxz (Audit 1853)
+
+- Entri unxz kini memuat --block-size seperti seluruh keluarga xz: penyeragaman Audit 1840 dilengkapi.
+
 ## [Belum rilis] — Gerbang: -S/--suffix didaftarkan untuk xz (Audit 1852)
 
 - Entri xz kini memuat -S/--suffix seperti semua saudara xz lainnya (unxz, lzma, lzcat): nilainya tak lagi terhitung operand.
