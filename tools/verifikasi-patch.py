@@ -5603,6 +5603,11 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_gp:
             return False
         return not ops_gp or "-" in ops_gp
+    if perintah == "kak":
+        # Audit 1970: mode filter -f memproses stdin
+        # dan -p mengirim perintah dari stdin ke
+        # sesi (man kak(1)).
+        return "-f" in mentah or "-p" in mentah
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -7195,7 +7200,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "borg", "buildah", "clickhouse-client", "consul", "crictl", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "ipfs", "nano", "nerdctl", "oc", "rclone", "restic", "skopeo", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "borg", "buildah", "clickhouse-client", "consul", "crictl", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "ipfs", "kak", "nano", "nerdctl", "oc", "rclone", "restic", "skopeo", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

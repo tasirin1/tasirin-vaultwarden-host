@@ -23361,6 +23361,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gnuplot polos membaca stdin: gerbang gagal (Audit 1969)", rc != 0)
         shutil.rmtree(sub1095, ignore_errors=True)
+        sub1096 = klon(tmp, "sub1096")
+        berkas_aksi1096 = os.path.join(
+            sub1096, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1096, encoding="utf-8") as f:
+            isi_aksi1096 = f.read()
+        baris_aksi1096 = [b for b in isi_aksi1096.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1096 = isi_aksi1096.replace(
+                baris_aksi1096,
+                baris_aksi1096.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(kak -f keys; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1096 != isi_aksi1096, \
+            "suntikan aksi1096 tidak menembak"
+        with open(berkas_aksi1096, "w", encoding="utf-8") as f:
+            f.write(isi_baru1096)
+        rc, out = jalan(sub1096,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("kak -f memproses stdin: gerbang gagal (Audit 1970)", rc != 0)
+        shutil.rmtree(sub1096, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

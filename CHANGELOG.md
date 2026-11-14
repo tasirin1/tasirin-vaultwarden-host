@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: kak dinilai - mode filter dan pipa sesi (Audit 1970)
+
+- kak (Kakoune) kini dinilai: -f (mode filter) memproses stdin dan -p mengirim perintah dari stdin.
+
 ## [Belum rilis] — Gerbang: gnuplot dinilai membaca stdin (Audit 1969)
 
 - gnuplot kini dinilai: tanpa berkas muatan atau dengan nama '-' ia membaca perintah dari stdin.
