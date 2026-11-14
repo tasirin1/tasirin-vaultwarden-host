@@ -4585,6 +4585,19 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_rc:
             return False
         return len(ops_rc) == 1
+    # Audit 1829: dasel - sumber berkasnya hanya opsi
+    # -f/--file; tanpa itu ia membaca stdin dan
+    # operandnya selektor (dokumentasi dasel v2).
+    if perintah == "dasel":
+        for t_d in mentah:
+            if t_d == "--":
+                break
+            if (t_d in ("-f", "--file")
+                    or t_d.startswith("--file=")
+                    or (t_d.startswith("-f")
+                        and not t_d.startswith("--"))):
+                return False
+        return True
     # Audit 1771: rpm2cpio tanpa argumen membaca aliran
     # RPM dari standard input (rpm2cpio(1)).
     if perintah == "rpm2cpio":
@@ -5937,7 +5950,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "unlz4", "lz4cat", "rpm2cpio", "7z",
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
-                        "recode",
+                        "dasel", "recode",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

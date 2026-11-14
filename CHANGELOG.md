@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: dasel dinilai dari kehadiran opsi -f (Audit 1829)
+
+- Cabang khusus dasel: sumber berkasnya hanya -f/--file; tanpa opsi itu ia membaca stdin dan operandnya selektor.
+
 ## [Belum rilis] — Gerbang: fq dirutekan ke penilai keluarga skrip (Audit 1828)
 
 - fq masuk daftar pembaca stdin, tuple keluarga skrip, dan tabel opsi bernilai (meniru jq): ekspresi tanpa berkas membaca stdin, -n tidak.
