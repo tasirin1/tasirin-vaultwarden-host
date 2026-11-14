@@ -56,7 +56,11 @@ static ssize_t isi_dari_inti(void *buf, size_t len, int pakai_random,
         return 0;
     }
     if (buf == 0) {
-        errno = EINVAL;
+        /* Audit 1730: kontrak kernel untuk buffer NULL dengan
+         * panjang > 0 adalah EFAULT, bukan EINVAL (EINVAL juga
+         * tanda khas kegagalan kernel lama di jalur ini, jadi
+         * errno yang salah mengaburkan diagnosis). */
+        errno = EFAULT;
         return -1;
     }
     int *wadah_fd = nonblok

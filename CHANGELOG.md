@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Shim getrandom: buffer NULL ber-errno EFAULT sesuai kontrak kernel (Audit 1730)
+
+- Jalur buffer NULL pada shim getrandom (isi_dari_inti) kini mengembalikan EFAULT, bukan EINVAL, untuk panjang > 0 — kontrak kernel yang sebenarnya; EINVAL di jalur ini juga merupakan tanda khas kegagalan kernel lama sehingga errno lama mengaburkan diagnosis. Uji interpose menambah kasus NULL untuk kedua pintu masuk (getrandom + syscall) dan kasus panjang 0 yang tetap sah; terverifikasi lolos dengan shim terpasang (LD_PRELOAD) dan cocok dengan perilaku kernel tanpa shim.
+
 ## [Belum rilis] — Pola label audit menerima format badan issue lama (Audit 1728)
 
 - Pola penanda di workflow label-audit kini menerima juga format badan issue lama ("Ronde: Audit-N" tanpa strip, "Ronde: Audit N" dengan spasi, "Ronde: audit-N" huruf kecil) di samping format baku kini — terverifikasi cocok pada sampel issue nyata dari ketiga keluarga format, dan kutipan di tengah kalimat tetap tidak berlabel. Pemicu workflow kini juga memuat reopened agar issue yang dibuka lagi dinilai ulang.

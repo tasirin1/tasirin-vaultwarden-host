@@ -58,6 +58,30 @@ int main(void) {
                tolak2, errno);
         return 1;
     }
+    /* Audit 1730: buffer NULL dengan panjang > 0 mengikuti
+     * kontrak kernel: EFAULT (kedua pintu masuk). */
+    errno = 0;
+    ssize_t nullb = getrandom(NULL, 16, 0);
+    if (nullb != -1 || errno != EFAULT) {
+        printf("GAGAL buffer NULL harus EFAULT (ret=%zd errno=%d)\n",
+               nullb, errno);
+        return 1;
+    }
+    errno = 0;
+    long nullb2 = syscall(SYS_getrandom, NULL, 16, 0);
+    if (nullb2 != -1 || errno != EFAULT) {
+        printf("GAGAL syscall buffer NULL harus EFAULT (ret=%ld errno=%d)\n",
+               nullb2, errno);
+        return 1;
+    }
+    /* Panjang 0 dengan buffer NULL tetap sah: 0. */
+    errno = 0;
+    ssize_t nolnull = getrandom(NULL, 0, 0);
+    if (nolnull != 0) {
+        printf("GAGAL buffer NULL panjang 0 harus 0 (ret=%zd errno=%d)\n",
+               nolnull, errno);
+        return 1;
+    }
     unsigned char r[32];
     ssize_t nr = getrandom(r, sizeof r, 0x0002u);
     if (nr != 32) {
