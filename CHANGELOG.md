@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Shim menolak kombinasi flags RANDOM|INSECURE (Audit 1779)
+
+- getrandom_bendera kini menolak kombinasi GRND_RANDOM|GRND_INSECURE dengan EINVAL persis seperti kernel - kedua bit itu saling meniadakan maknanya; sebelumnya shim diam-diam memilih INSECURE dan mengisi byte urandom. Uji interposisi menambah kasus kombinasi itu di kedua pintu (fungsi dan syscall).
+
 ## [Belum rilis] — Cek-cepat: BOM dikupas (Audit 1778)
 
 - Fungsi proses() cek-cepat kini mengupas urutan byte BOM (EF BB BF) di posisi mana pun: belahan token yang baris lanjutannya diawali BOM (mis. gabungan berkas ber-BOM) kemarin lolos dari pola bungkus.

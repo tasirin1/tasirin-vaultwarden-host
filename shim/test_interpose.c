@@ -167,6 +167,20 @@ int main(void) {
         printf("GAGAL getrandom GRND_INSECURE n=%zd errno=%d\n", nin, errno);
         return 1;
     }
+    errno = 0;
+    ssize_t nri = getrandom(nb, sizeof nb, 0x0002u | 0x0004u);
+    if (nri != -1 || errno != EINVAL) {
+        printf("GAGAL getrandom RANDOM|INSECURE harus EINVAL (ret=%zd errno=%d)\n",
+               nri, errno);
+        return 1;
+    }
+    errno = 0;
+    long nris = syscall(SYS_getrandom, nb, sizeof nb, 0x0002u | 0x0004u);
+    if (nris != -1 || errno != EINVAL) {
+        printf("GAGAL syscall RANDOM|INSECURE harus EINVAL (ret=%ld errno=%d)\n",
+               nris, errno);
+        return 1;
+    }
     ssize_t n = getrandom(b, sizeof b, 0);
     if (n != 32) {
         printf("GAGAL getrandom n=%zd\n", n);

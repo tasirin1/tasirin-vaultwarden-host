@@ -155,6 +155,13 @@ static ssize_t getrandom_bendera(void *buf, size_t buflen, unsigned int flags) {
         errno = EINVAL;
         return -1;
     }
+    /* Audit 1779: GRND_RANDOM dan GRND_INSECURE saling
+     * meniadakan - kernel menolak kombinasinya EINVAL. */
+    if ((flags & GRND_RANDOM_SHIM)
+            && (flags & GRND_INSECURE_SHIM)) {
+        errno = EINVAL;
+        return -1;
+    }
     /* Audit 1746: kernel membatasi permintaan ke INT_MAX. */
     if (buflen > (size_t) INT_MAX) {
         buflen = (size_t) INT_MAX;
