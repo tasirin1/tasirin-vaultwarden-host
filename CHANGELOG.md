@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --block-list didaftarkan di semua entri keluarga xz (Audit 1839)
+
+- Opsi bernilai --block-list ditambahkan ke entri xz, lzma, xzcat, lzcat, unxz, dan unlzma: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: write dinilai membaca stdin bila ada operand pengguna (Audit 1838)
 
 - Cabang khusus write: operandnya pengguna/tty, bukan berkas - dengan operand ia membaca baris dari stdin sampai EOF; tanpa operand ia galat.

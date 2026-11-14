@@ -19896,6 +19896,132 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("write membaca baris dari stdin untuk terminal penerima: gerbang gagal (Audit 1838)", rc != 0)
         shutil.rmtree(sub929, ignore_errors=True)
+        sub930 = klon(tmp, "sub930")
+        berkas_aksi930 = os.path.join(
+            sub930, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi930, encoding="utf-8") as f:
+            isi_aksi930 = f.read()
+        baris_aksi930 = [b for b in isi_aksi930.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru930 = isi_aksi930.replace(
+                baris_aksi930,
+                baris_aksi930.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xz --block-list 1MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru930 != isi_aksi930, \
+            "suntikan aksi930 tidak menembak"
+        with open(berkas_aksi930, "w", encoding="utf-8") as f:
+            f.write(isi_baru930)
+        rc, out = jalan(sub930,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai --block-list xz bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1839)", rc != 0)
+        shutil.rmtree(sub930, ignore_errors=True)
+        sub931 = klon(tmp, "sub931")
+        berkas_aksi931 = os.path.join(
+            sub931, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi931, encoding="utf-8") as f:
+            isi_aksi931 = f.read()
+        baris_aksi931 = [b for b in isi_aksi931.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru931 = isi_aksi931.replace(
+                baris_aksi931,
+                baris_aksi931.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lzma --block-list 1MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru931 != isi_aksi931, \
+            "suntikan aksi931 tidak menembak"
+        with open(berkas_aksi931, "w", encoding="utf-8") as f:
+            f.write(isi_baru931)
+        rc, out = jalan(sub931,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai --block-list lzma bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1839)", rc != 0)
+        shutil.rmtree(sub931, ignore_errors=True)
+        sub932 = klon(tmp, "sub932")
+        berkas_aksi932 = os.path.join(
+            sub932, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi932, encoding="utf-8") as f:
+            isi_aksi932 = f.read()
+        baris_aksi932 = [b for b in isi_aksi932.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru932 = isi_aksi932.replace(
+                baris_aksi932,
+                baris_aksi932.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unxz --block-list 1MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru932 != isi_aksi932, \
+            "suntikan aksi932 tidak menembak"
+        with open(berkas_aksi932, "w", encoding="utf-8") as f:
+            f.write(isi_baru932)
+        rc, out = jalan(sub932,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai --block-list unxz bukan operand: gerbang gagal (Audit 1839)", rc != 0)
+        shutil.rmtree(sub932, ignore_errors=True)
+        sub933 = klon(tmp, "sub933")
+        berkas_aksi933 = os.path.join(
+            sub933, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi933, encoding="utf-8") as f:
+            isi_aksi933 = f.read()
+        baris_aksi933 = [b for b in isi_aksi933.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru933 = isi_aksi933.replace(
+                baris_aksi933,
+                baris_aksi933.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xzcat --block-list 1MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru933 != isi_aksi933, \
+            "suntikan aksi933 tidak menembak"
+        with open(berkas_aksi933, "w", encoding="utf-8") as f:
+            f.write(isi_baru933)
+        rc, out = jalan(sub933,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai --block-list xzcat bukan operand: gerbang gagal (Audit 1839)", rc != 0)
+        shutil.rmtree(sub933, ignore_errors=True)
+        sub934 = klon(tmp, "sub934")
+        berkas_aksi934 = os.path.join(
+            sub934, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi934, encoding="utf-8") as f:
+            isi_aksi934 = f.read()
+        baris_aksi934 = [b for b in isi_aksi934.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru934 = isi_aksi934.replace(
+                baris_aksi934,
+                baris_aksi934.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lzcat --block-list 1MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru934 != isi_aksi934, \
+            "suntikan aksi934 tidak menembak"
+        with open(berkas_aksi934, "w", encoding="utf-8") as f:
+            f.write(isi_baru934)
+        rc, out = jalan(sub934,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai --block-list lzcat bukan operand: gerbang gagal (Audit 1839)", rc != 0)
+        shutil.rmtree(sub934, ignore_errors=True)
+        sub935 = klon(tmp, "sub935")
+        berkas_aksi935 = os.path.join(
+            sub935, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi935, encoding="utf-8") as f:
+            isi_aksi935 = f.read()
+        baris_aksi935 = [b for b in isi_aksi935.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru935 = isi_aksi935.replace(
+                baris_aksi935,
+                baris_aksi935.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unlzma --block-list 1MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru935 != isi_aksi935, \
+            "suntikan aksi935 tidak menembak"
+        with open(berkas_aksi935, "w", encoding="utf-8") as f:
+            f.write(isi_baru935)
+        rc, out = jalan(sub935,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai --block-list unlzma bukan operand: gerbang gagal (Audit 1839)", rc != 0)
+        shutil.rmtree(sub935, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
