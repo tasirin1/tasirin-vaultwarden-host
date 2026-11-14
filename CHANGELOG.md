@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xxd dinilai (Audit 1758)
+
+- xxd kini dinilai penilai khusus gerbang mengikuti xxd(1): tanpa infile standard input dibaca dan infile '-' juga berarti stdin; opsi bernilai (-l/-s/-c/-g/-o dan nama panjangnya) dilompati beserta nilainya.
+
 ## [Belum rilis] — Gerbang: hexdump dan hd dinilai (Audit 1757)
 
 - hexdump dan nama panggilnya hd kini dinilai penilai khusus gerbang mengikuti hexdump(1): berkas yang disebut ditampilkan, tanpa berkas standard input yang dibaca; opsi bernilai -n/-s/-e/-f dilompati beserta nilainya dan operand '-' berarti stdin.

@@ -4184,6 +4184,27 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return True
+    # Audit 1758: xxd membaca standard input bila tak ada
+    # infile, dan infile "-" juga berarti stdin (xxd(1)).
+    # Opsi bernilai dilompati beserta nilainya.
+    if perintah == "xxd":
+        i_xx = 0
+        while i_xx < len(mentah):
+            t_xx = mentah[i_xx].lower()
+            if t_xx in ("-l", "-len", "-s", "-seek", "-c",
+                        "-cols", "-g", "-groupsize", "-o",
+                        "-offset"):
+                if i_xx + 1 >= len(mentah):
+                    return False
+                i_xx += 2
+                continue
+            if mentah[i_xx] == "-":
+                return True
+            if t_xx.startswith("-"):
+                i_xx += 1
+                continue
+            return False
+        return True
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5471,7 +5492,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "pdftotext", "nft", "ip", "tc", "bridge",
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
                         "pwsh", "powershell", "bc", "dc", "ed",
-                        "hexdump", "hd",
+                        "hexdump", "hd", "xxd",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
