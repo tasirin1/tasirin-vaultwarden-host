@@ -5504,6 +5504,19 @@ def _menguras_khusus(perintah, toks, awal):
         if "--paths-from-stdin" in mentah:
             return True
         return "-" in ops_bg[1:]
+    if perintah == "ipfs":
+        # Audit 1953: dag put dan block put membaca
+        # masukan dari stdin; add tanpa operand path
+        # membaca data dari stdin (sumber Kubo).
+        ops_ip = _operand_sesudah_opsi(
+            toks, awal, {"--stdin-name", "-f", "--file"})
+        if "\x00gantung" in ops_ip:
+            return False
+        if ops_ip[:2] in (["dag", "put"], ["block", "put"]):
+            return True
+        if ops_ip and ops_ip[0] == "add":
+            return len(ops_ip) == 1
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -7096,7 +7109,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "borg", "buildah", "clickhouse-client", "consul", "crictl", "etcdctl", "glab", "gcloud", "gsutil", "nerdctl", "oc", "rclone", "restic", "skopeo", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "borg", "buildah", "clickhouse-client", "consul", "crictl", "etcdctl", "glab", "gcloud", "gsutil", "ipfs", "nerdctl", "oc", "rclone", "restic", "skopeo", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

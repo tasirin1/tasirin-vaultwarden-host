@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ipfs dinilai - dag put, block put, add tanpa path (Audit 1953)
+
+- ipfs kini dinilai: dag put dan block put membaca dari stdin; add tanpa operand path membaca data dari stdin.
+
 ## [Belum rilis] — Gerbang: borg dinilai - create path '-' dan --paths-from-stdin (Audit 1952)
 
 - borg kini dinilai: create dengan path '-' membaca data dari stdin; --paths-from-stdin membaca daftar path dari stdin.

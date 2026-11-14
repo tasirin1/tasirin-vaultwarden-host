@@ -23025,6 +23025,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("borg create path '-' membaca stdin: gerbang gagal (Audit 1952)", rc != 0)
         shutil.rmtree(sub1079, ignore_errors=True)
+        sub1080 = klon(tmp, "sub1080")
+        berkas_aksi1080 = os.path.join(
+            sub1080, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1080, encoding="utf-8") as f:
+            isi_aksi1080 = f.read()
+        baris_aksi1080 = [b for b in isi_aksi1080.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1080 = isi_aksi1080.replace(
+                baris_aksi1080,
+                baris_aksi1080.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ipfs dag put; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1080 != isi_aksi1080, \
+            "suntikan aksi1080 tidak menembak"
+        with open(berkas_aksi1080, "w", encoding="utf-8") as f:
+            f.write(isi_baru1080)
+        rc, out = jalan(sub1080,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("ipfs dag put membaca stdin: gerbang gagal (Audit 1953)", rc != 0)
+        shutil.rmtree(sub1080, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
