@@ -4083,11 +4083,13 @@ def _menguras_khusus(perintah, toks, awal):
                 aksi_pw = True
                 i_pw += 2
                 continue
-            if t_pw in ("-configurationname",
+            if (t_pw in ("-configurationname",
                         "-configurationfile", "-custompipename",
                         "-executionpolicy", "-inputformat",
                         "-outputformat", "-settingsfile",
-                        "-windowstyle", "-workingdirectory"):
+                        "-windowstyle", "-workingdirectory")
+                    or (perintah == "powershell"
+                        and t_pw == "-version")):
                 # Audit 1745: opsi bernilai lain - nilainya
                 # bukan operand naskah; lompati beserta nilainya
                 # agar bentuk tanpa -File/-Command tetap divonis

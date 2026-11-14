@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: powershell -Version bernilai (Audit 1753)
+
+- Untuk nama powershell (beda dari pwsh), -Version kini diperlakukan sebagai opsi bernilai: ia memilih versi mesin yang dijalankan (about_PowerShell_exe), jadi `powershell -Version 5.1` tanpa aksi divonis interaktif membaca stdin, bukan gugur sebagai operand.
+
 ## [Belum rilis] — Gerbang: pwsh -Version informasional (Audit 1752)
 
 - Cabang pwsh kini memvonis -Version/-v sebagai informatif: pwsh mencetak versi lalu keluar dan argumen lain diabaikan (dokumentasi about_Pwsh), bukan masuk mode interaktif.
