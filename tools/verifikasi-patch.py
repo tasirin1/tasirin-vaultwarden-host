@@ -5836,6 +5836,15 @@ def _menguras_khusus(perintah, toks, awal):
             return True
         ops_ch = _operand_sesudah_opsi(toks, awal, set())
         return bool(ops_ch) and ops_ch[0] in ("client", "local")
+    if perintah == "snowsql":
+        # Audit 1992: polos terpipa berjalan batch
+        # lewat stdin (dokumentasi Snowflake); -q
+        # dan -f menekan (-f - tak diklaim).
+        if any(t_sq in ("-q", "--query", "-f",
+                        "--filename", "--file")
+               for t_sq in mentah):
+            return False
+        return True
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -7428,7 +7437,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "nano", "nats", "nerdctl", "oc", "pandoc", "pg_restore", "rclone", "restic", "s-nail", "sendmail", "skopeo", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "nano", "nats", "nerdctl", "oc", "pandoc", "pg_restore", "rclone", "restic", "s-nail", "sendmail", "skopeo", "snowsql", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: snowsql dinilai membaca stdin (Audit 1992)
+
+- snowsql kini dinilai: bentuk polos terpipa berjalan batch lewat stdin; -q dan -f menekannya.
+
 ## [Belum rilis] — Gerbang: clickhouse multicall dinilai (client/local) (Audit 1991)
 
 - Bentuk multicall clickhouse kini dinilai: 'clickhouse client' setara clickhouse-client, 'clickhouse local' dan 'clickhouse-local' membaca data dari stdin.
