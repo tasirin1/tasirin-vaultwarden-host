@@ -5673,6 +5673,11 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return len(ops_mx) >= 1
     if perintah == "R":
+        # Audit 1980: R CMD menjalankan sub-perintah
+        # perkakas (BATCH membaca berkas), bukan R
+        # interaktif.
+        if mentah[:1] == ["CMD"]:
+            return False
         # Audit 1976: -f '-' berarti stdin; tanpa
         # -f/-e R membaca dari stdin saat terpipa
         # (manual resmi R, Lampiran B.1).

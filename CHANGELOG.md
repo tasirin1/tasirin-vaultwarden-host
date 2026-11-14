@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: R - bentuk R CMD digugurkan (Audit 1980)
+
+- Cabang R kini menggugurkan bentuk R CMD (BATCH/INSTALL/check membaca berkas, bukan stdin).
+
 ## [Belum rilis] — Gerbang: pandoc - operand '-' adalah stdin (Audit 1979)
 
 - Cabang pandoc kini menilai operand '-' sebagai masukan stdin, sesuai sumber resminya.
