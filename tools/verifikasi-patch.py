@@ -4849,6 +4849,25 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_tf:
             return False
         return bool(ops_tf) and ops_tf[0] == "console"
+    if perintah == "websocat":
+        # Audit 1901: alamat '-'/'stdio:' membaca stdin;
+        # mode klien sederhana (satu alamat ws:// atau
+        # wss:// tanpa mode dengar) juga meneruskan
+        # baris stdin ke websocket (README websocat).
+        if any(t_ws == "-" or t_ws.startswith("stdio:")
+               for t_ws in mentah):
+            return True
+        if any(t_ws in ("-l", "--listen", "-s", "--server")
+               for t_ws in mentah):
+            return False
+        ops_ws = _operand_sesudah_opsi(
+            toks, awal, {"-H", "--header", "--origin",
+                         "--protocol", "-k"})
+        if "\x00gantung" in ops_ws:
+            return False
+        return (len(ops_ws) == 1
+                and (ops_ws[0].startswith("ws://")
+                     or ops_ws[0].startswith("wss://")))
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6413,7 +6432,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mosquitto_pub", "podman", "rsh", "terraform", "write",
+                        "docker", "grpcurl", "kubectl", "mosquitto_pub", "podman", "rsh", "terraform", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

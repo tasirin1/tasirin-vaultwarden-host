@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: websocat dinilai - alamat stdio dan mode klien sederhana (Audit 1901)
+
+- websocat kini dinilai: alamat '-'/'stdio:' dan mode klien sederhana (satu alamat ws:// atau wss:// tanpa mode dengar) meneruskan stdin.
+
 ## [Belum rilis] — Gerbang: terraform console dinilai membaca stdin (Audit 1900)
 
 - terraform kini dinilai: hanya sub-perintah console yang membaca perintah dari stdin saat terpipa; sub-perintah lain tak membaca stdin.
