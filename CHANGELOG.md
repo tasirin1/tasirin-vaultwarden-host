@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: escape oktal dua digit didekode perata bungkus (Audit 1889)
+
+- Sesudah gelung oktal 3 digit menghabiskan bentuk panjangnya, gelung oktal 2 digit kini turut mendekode bentuk seperti $'\72' (':') sehingga token ter-encode tersambung kembali.
+
 ## [Belum rilis] — Gerbang: cabang ssh menolak '-' tunggal sebagai tujuan (Audit 1888)
 
 - Token '-' tunggal sebelum tujuan kini ditolak cabang ssh: ssh keluar dengan nama host tak sah dan tak pernah meneruskan stdin.

@@ -841,6 +841,15 @@ def main():
                 "(Audit 1886)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(indeks_saja, ignore_errors=True)
+        oktal_dua = klon(tmp, "oktaldua")
+        tanam(oktal_dua, "token-oktal-dua.sh",
+              "TOKEN=$'" + token_palsu.replace(":", "\\72")
+              + "'\n", "w")
+        rc, out = jalan(oktal_dua, ["bash", SKRIP])
+        periksa("token ter-encode oktal dua digit tertangkap "
+                "(Audit 1889)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(oktal_dua, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

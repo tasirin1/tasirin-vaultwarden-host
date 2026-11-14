@@ -215,6 +215,14 @@ function proses(line,   awal, hd, sp, pos, s, ekort, hx, hv, ox, ov) {
     ov = (substr(ox, 1, 1) + 0) * 64 + (substr(ox, 2, 1) + 0) * 8 + (substr(ox, 3, 1) + 0)
     $0 = substr($0, 1, RSTART - 1) sprintf("%c", ov) substr($0, RSTART + 4)
   }
+  # Audit 1889: oktal dua digit ($'\72' = ':') juga
+  # didekode - gelung 3 digit di atas sudah menghabiskan
+  # bentuk panjangnya lebih dulu.
+  while (match($0, /\\[0-7][0-7]/)) {
+    ox = substr($0, RSTART + 1, 2)
+    ov = (substr(ox, 1, 1) + 0) * 8 + (substr(ox, 2, 1) + 0)
+    $0 = substr($0, 1, RSTART - 1) sprintf("%c", ov) substr($0, RSTART + 3)
+  }
   sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, "")
   gsub(/\\[tnr]/, "")
   gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, "")
