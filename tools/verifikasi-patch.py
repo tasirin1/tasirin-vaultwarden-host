@@ -4798,6 +4798,21 @@ def _menguras_khusus(perintah, toks, awal):
             elif t_gr in ("-d@", "--data=@"):
                 return True
         return False
+    if perintah == "kubectl":
+        # Audit 1897: sub-perintah exec/attach/run dengan
+        # -i/--stdin meneruskan stdin ke kontainer
+        # (help kubectl: "Pass stdin to the container").
+        sub_kc = any(t_kc in ("exec", "attach", "run")
+                     for t_kc in mentah)
+        if not sub_kc:
+            return False
+        for t_kc in mentah:
+            if t_kc in ("-i", "--stdin", "--stdin=true"):
+                return True
+            if (t_kc.startswith("-") and not t_kc.startswith("--")
+                    and len(t_kc) > 2 and "i" in t_kc[1:]):
+                return True
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6362,7 +6377,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "grpcurl", "mosquitto_pub", "rsh", "write",
+                        "grpcurl", "kubectl", "mosquitto_pub", "rsh", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

@@ -21891,6 +21891,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("grpcurl -d @ membaca badan dari stdin: gerbang gagal (Audit 1896)", rc != 0)
         shutil.rmtree(sub1025, ignore_errors=True)
+        sub1026 = klon(tmp, "sub1026")
+        berkas_aksi1026 = os.path.join(
+            sub1026, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1026, encoding="utf-8") as f:
+            isi_aksi1026 = f.read()
+        baris_aksi1026 = [b for b in isi_aksi1026.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1026 = isi_aksi1026.replace(
+                baris_aksi1026,
+                baris_aksi1026.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(kubectl exec -i pod -- perintah; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1026 != isi_aksi1026, \
+            "suntikan aksi1026 tidak menembak"
+        with open(berkas_aksi1026, "w", encoding="utf-8") as f:
+            f.write(isi_baru1026)
+        rc, out = jalan(sub1026,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("kubectl exec -i meneruskan stdin: gerbang gagal (Audit 1897)", rc != 0)
+        shutil.rmtree(sub1026, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
