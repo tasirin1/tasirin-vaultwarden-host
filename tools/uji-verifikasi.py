@@ -23487,6 +23487,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("mailx mode kirim membaca isi dari stdin: gerbang gagal (Audit 1975)", rc != 0)
         shutil.rmtree(sub1101, ignore_errors=True)
+        sub1102 = klon(tmp, "sub1102")
+        berkas_aksi1102 = os.path.join(
+            sub1102, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1102, encoding="utf-8") as f:
+            isi_aksi1102 = f.read()
+        baris_aksi1102 = [b for b in isi_aksi1102.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1102 = isi_aksi1102.replace(
+                baris_aksi1102,
+                baris_aksi1102.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(R --slave; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1102 != isi_aksi1102, \
+            "suntikan aksi1102 tidak menembak"
+        with open(berkas_aksi1102, "w", encoding="utf-8") as f:
+            f.write(isi_baru1102)
+        rc, out = jalan(sub1102,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("R --slave membaca dari stdin: gerbang gagal (Audit 1976)", rc != 0)
+        shutil.rmtree(sub1102, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

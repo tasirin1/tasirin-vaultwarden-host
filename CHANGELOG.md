@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: R dinilai membaca stdin (Audit 1976)
+
+- R kini dinilai: polos/--slave tanpa -f/-e dan bentuk -f -/--file=- membaca dari stdin; -f berkas dan -e tidak.
+
 ## [Belum rilis] — Gerbang: keluarga mailx dinilai membaca isi surat dari stdin (Audit 1975)
 
 - mailx/s-nail/mail kini dinilai: mode kirim dengan operand alamat membaca isi surat dari stdin; mode baca -f tidak.
