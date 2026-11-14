@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang ssh menolak '-' tunggal sebagai tujuan (Audit 1888)
+
+- Token '-' tunggal sebelum tujuan kini ditolak cabang ssh: ssh keluar dengan nama host tak sah dan tak pernah meneruskan stdin.
+
 ## [Belum rilis] — Gerbang: cabang ssh mengurai opsi sesudah tujuan (permutasi getopt) (Audit 1887)
 
 - Cabang ssh kini melanjutkan pindaian sesudah token tujuan: getopt OpenSSH mempermutasi argv sehingga huruf pemutus (-n/-N/-G/-Q/-f) dan opsi bernilai sesudah tujuan tetap berlaku.

@@ -4722,6 +4722,13 @@ def _menguras_khusus(perintah, toks, awal):
         tujuan_sh = False
         while i_sh < len(mentah):
             t_sh = mentah[i_sh]
+            # Audit 1888: '-' tunggal sebagai token
+            # pertama bukan tujuan sah (ssh keluar:
+            # nama host tak sah) - ia tak pernah
+            # meneruskan stdin. Sesudah tujuan ia kata
+            # perintah jauh biasa.
+            if t_sh == "-" and not tujuan_sh:
+                return False
             if t_sh == "--":
                 tujuan_sh = i_sh + 1 < len(mentah)
                 break
