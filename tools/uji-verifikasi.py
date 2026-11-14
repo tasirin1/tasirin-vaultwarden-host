@@ -17292,6 +17292,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("node -r gantung: galat lalu keluar - gerbang lolos (Audit 1722)", rc == 0)
         shutil.rmtree(sub805, ignore_errors=True)
+        sub806 = klon(tmp, "sub806")
+        berkas_aksi806 = os.path.join(
+            sub806, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi806, encoding="utf-8") as f:
+            isi_aksi806 = f.read()
+        baris_aksi806 = [b for b in isi_aksi806.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru806 = isi_aksi806.replace(
+                baris_aksi806,
+                baris_aksi806.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(php -t; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru806 != isi_aksi806, \
+            "suntikan aksi806 tidak menembak"
+        with open(berkas_aksi806, "w", encoding="utf-8") as f:
+            f.write(isi_baru806)
+        rc, out = jalan(sub806,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("php -t gantung: galat lalu keluar - gerbang lolos (Audit 1723)", rc == 0)
+        shutil.rmtree(sub806, ignore_errors=True)
+        sub807 = klon(tmp, "sub807")
+        berkas_aksi807 = os.path.join(
+            sub807, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi807, encoding="utf-8") as f:
+            isi_aksi807 = f.read()
+        baris_aksi807 = [b for b in isi_aksi807.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru807 = isi_aksi807.replace(
+                baris_aksi807,
+                baris_aksi807.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(php -t /srv/www; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru807 != isi_aksi807, \
+            "suntikan aksi807 tidak menembak"
+        with open(berkas_aksi807, "w", encoding="utf-8") as f:
+            f.write(isi_baru807)
+        rc, out = jalan(sub807,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("php -t menelan docroot lalu membaca kode dari stdin: penguras - gerbang gagal (Audit 1723)", rc != 0)
+        shutil.rmtree(sub807, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

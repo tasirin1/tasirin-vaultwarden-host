@@ -2039,7 +2039,14 @@ def _menguras_interpreter(perintah, toks, awal):
                 # pemroses baris (-B/-R/-E kode, -F berkas)
                 # yang membaca baris masukan dari stdin bila
                 # tanpa berkas (manual PHP).
-                "-z", "-B", "-R", "-E", "-F"):
+                "-z", "-B", "-R", "-E", "-F",
+                # Audit 1723: -t docroot server bawaan juga
+                # bernilai (manual PHP) — nilai bukan operand
+                # dan menggantung = galat lalu keluar
+                # (DUGAAN kuat; biner tak terpasang).
+                "-t"):
+            if i + 1 >= n:
+                return False
             i += 2
             continue
         if perintah in ("lua", "luajit") and t == "-l":

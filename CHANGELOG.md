@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: php -t bernilai (Audit 1723)
+
+- `php -t <docroot>` kini dikenali sebagai opsi bernilai di gerbang (manual PHP: -t adalah docroot server bawaan), lengkap dengan cek menggantung untuk seluruh cabang opsi bernilai php — `php -t` tanpa nilai (dan `php -d` tanpa nilai) divonis galat lalu keluar.
+
 ## [Belum rilis] — Gerbang: opsi bernilai node menggantung divonis galat (Audit 1722)
 
 - Cabang opsi bernilai node (-r/--require/--import/--loader/--experimental-loader/--input-type/--conditions/--env-file) kini memeriksa sisa token: bentuk menggantung (mis. `node -r`) divonis galat lalu keluar, bukan menguras stdin.
