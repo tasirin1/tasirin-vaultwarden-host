@@ -5238,6 +5238,14 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             j_oc += 1
         return False
+    if perintah == "consul":
+        # Audit 1928: kv put/import dengan nilai '-'
+        # membaca nilai dari stdin (dokumentasi
+        # HashiCorp + contoh resmi).
+        if len(mentah) >= 2 and mentah[0] == "kv" \
+                and mentah[1] in ("put", "import"):
+            return "-" in mentah[2:]
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6802,7 +6810,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "nerdctl", "oc", "terraform", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "consul", "nerdctl", "oc", "terraform", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

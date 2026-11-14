@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: consul kv put/import dengan nilai '-' dinilai (Audit 1928)
+
+- consul kini dinilai: kv put/import dengan operand nilai '-' membaca nilai dari stdin.
+
 ## [Belum rilis] — Gerbang: oc dinilai - exec/attach -i cermin kubectl (Audit 1927)
 
 - oc kini dinilai mencerminkan kubectl: exec/attach dengan -i/--stdin sebelum '--' meneruskan stdin.
