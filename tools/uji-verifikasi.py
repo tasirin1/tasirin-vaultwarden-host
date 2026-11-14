@@ -19098,6 +19098,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("cluster cpio dengan -F di tengah token adalah arsip berkas: gerbang lolos (Audit 1797)", rc == 0)
         shutil.rmtree(sub891, ignore_errors=True)
+        sub892 = klon(tmp, "sub892")
+        berkas_aksi892 = os.path.join(
+            sub892, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi892, encoding="utf-8") as f:
+            isi_aksi892 = f.read()
+        baris_aksi892 = [b for b in isi_aksi892.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru892 = isi_aksi892.replace(
+                baris_aksi892,
+                baris_aksi892.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(7z a -si -- arsip.7z; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru892 != isi_aksi892, \
+            "suntikan aksi892 tidak menembak"
+        with open(berkas_aksi892, "w", encoding="utf-8") as f:
+            f.write(isi_baru892)
+        rc, out = jalan(sub892,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nama arsip 7z sah sesudah -- dan -si tetap aktif: gerbang gagal (Audit 1798)", rc != 0)
+        shutil.rmtree(sub892, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

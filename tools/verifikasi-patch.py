@@ -4517,10 +4517,17 @@ def _menguras_khusus(perintah, toks, awal):
             # '-si' sesudahnya nama berkas, bukan saklar.
             si_7z = False
             arsip_7z = False
+            dd_7z = False
             for t_7z in mentah[1:]:
-                if t_7z == "--":
-                    break
-                if t_7z.lower().startswith("-si"):
+                if t_7z == "--" and not dd_7z:
+                    dd_7z = True
+                    continue
+                if dd_7z:
+                    # Audit 1798: sesudah '--' token adalah
+                    # nama berkas biasa - nama arsip tetap
+                    # wajib ditemukan di sana.
+                    arsip_7z = True
+                elif t_7z.lower().startswith("-si"):
                     si_7z = True
                 elif (not t_7z.startswith("-")
                         and not t_7z.startswith("@")):

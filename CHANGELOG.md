@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nama arsip 7z sesudah '--' tetap dicari (Audit 1798)
+
+- Putaran 7z tidak lagi berhenti total di '--': token sesudahnya adalah nama berkas biasa, jadi `7z a -si -- arsip.7z` vonisnya menguras; '-si' sesudah '--' tetap bukan saklar.
+
 ## [Belum rilis] — Gerbang: cluster cpio -F di tengah token dikenali (Audit 1797)
 
 - Opsi -F di tengah cluster (mis. -iFarsip.cpio) kini diperlakukan berargumen wajib seperti getopt: huruf sesudah F adalah nilai berkas, hanya kepala cluster yang dipindai huruf modusnya.
