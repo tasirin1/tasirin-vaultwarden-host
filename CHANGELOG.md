@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sendmail dinilai membaca pesan dari stdin (Audit 1974)
+
+- sendmail kini dinilai: mode kirim (polos/-t/alamat) membaca pesan dari stdin; mode antrean/versi/verifikasi digugurkan.
+
 ## [Belum rilis] — Gerbang: keluarga ImageMagick dinilai - masukan '-' dari stdin (Audit 1973)
 
 - magick/convert/identify kini dinilai: nama semu '-'/'fmt:-'/'fd:0' di posisi masukan berarti stdin; operand terakhir (keluaran) tak dinilai.
