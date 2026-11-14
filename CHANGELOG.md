@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: micro dinilai membuat buffer dari stdin (Audit 1971)
+
+- micro kini dinilai: tanpa operand berkas ia membuat buffer dari stdin saat terpipa.
+
 ## [Belum rilis] — Gerbang: kak dinilai - mode filter dan pipa sesi (Audit 1970)
 
 - kak (Kakoune) kini dinilai: -f (mode filter) memproses stdin dan -p mengirim perintah dari stdin.
