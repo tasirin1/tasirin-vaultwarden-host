@@ -110,32 +110,39 @@ int main(void) {
     }
     /* Audit 1746/1747: buffer yang berakhir di halaman
      * terlarang - hasil parsial sejumlah byte halaman sah,
-     * bukan kegagalan total (kedua pintu). */
+     * bukan kegagalan total (kedua pintu). Audit 1755:
+     * prasyarat yang gagal menggagalkan uji dengan lantang,
+     * bukan melewatkan kasus ini senyap. */
     long hlm = sysconf(_SC_PAGESIZE);
-    if (hlm > 0) {
-        char *peta = mmap(NULL, (size_t) hlm * 2, PROT_READ | PROT_WRITE,
-                          MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-        if (peta != MAP_FAILED) {
-            if (mprotect(peta + hlm, (size_t) hlm, PROT_NONE) == 0) {
-                errno = 0;
-                ssize_t pars = getrandom(peta, (size_t) hlm * 2, 0);
-                if (pars != (ssize_t) hlm) {
-                    printf("GAGAL hasil parsial harus %ld (ret=%zd errno=%d)\n",
-                           hlm, pars, errno);
-                    return 1;
-                }
-                errno = 0;
-                long pars2 = syscall(SYS_getrandom, peta,
-                                     (size_t) hlm * 2, 0);
-                if (pars2 != hlm) {
-                    printf("GAGAL syscall hasil parsial harus %ld (ret=%ld errno=%d)\n",
-                           hlm, pars2, errno);
-                    return 1;
-                }
-            }
-            munmap(peta, (size_t) hlm * 2);
-        }
+    if (hlm <= 0) {
+        printf("GAGAL prasyarat ukuran halaman tak terbaca\n");
+        return 1;
     }
+    char *peta = mmap(NULL, (size_t) hlm * 2, PROT_READ | PROT_WRITE,
+                      MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (peta == MAP_FAILED) {
+        printf("GAGAL prasyarat mmap untuk kasus parsial\n");
+        return 1;
+    }
+    if (mprotect(peta + hlm, (size_t) hlm, PROT_NONE) != 0) {
+        printf("GAGAL prasyarat mprotect untuk kasus parsial\n");
+        return 1;
+    }
+    errno = 0;
+    ssize_t pars = getrandom(peta, (size_t) hlm * 2, 0);
+    if (pars != (ssize_t) hlm) {
+        printf("GAGAL hasil parsial harus %ld (ret=%zd errno=%d)\n",
+               hlm, pars, errno);
+        return 1;
+    }
+    errno = 0;
+    long pars2 = syscall(SYS_getrandom, peta, (size_t) hlm * 2, 0);
+    if (pars2 != hlm) {
+        printf("GAGAL syscall hasil parsial harus %ld (ret=%ld errno=%d)\n",
+               hlm, pars2, errno);
+        return 1;
+    }
+    munmap(peta, (size_t) hlm * 2);
     unsigned char r[32];
     ssize_t nr = getrandom(r, sizeof r, 0x0002u);
     if (nr != 32) {

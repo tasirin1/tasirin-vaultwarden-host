@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Uji shim: prasyarat kasus parsial menggagalkan dengan lantang (Audit 1755)
+
+- Blok kasus hasil parsial di test_interpose tidak lagi dibungkus kondisional bersarang yang bisa melewatkannya senyap: prasyarat sysconf/mmap/mprotect yang gagal kini menggagalkan uji dengan pesan jelas, sehingga cakupan kontrak parsial Audit 1746 tidak bisa menyusut diam-diam di runner.
+
 ## [Belum rilis] — Stempel backup terakhir kini terikat bot untuk kuota harian (Audit 1754)
 
 - Helper murni baru TgBackup.stempelEfektif menolkan stempel backup terakhir bagi bot lain (mengikuti ikatan penanda berkas Audit 1727), dan keempat keputusan kuota/kejar backup harian - maybeAutoBackup, jalur terjadwal ServerService, susulan boot dan kejar waktu AlarmReceiver - kini memakainya: mengganti bot di hari yang sama tidak lagi membungkam backup otomatis ke bot baru seharian. Teruji JVM.
