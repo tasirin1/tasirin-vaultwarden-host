@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang sqlite3 mengenal -version/-help strip-tunggal (Audit 1939)
+
+- Cabang sqlite3 kini menggugurkan -version/-help strip-tunggal sebagai informasional (terprobe: keluar tanpa membaca stdin).
+
 ## [Belum rilis] — Gerbang: skopeo copy dari docker-archive:/dev/stdin dinilai (Audit 1938)
 
 - skopeo kini dinilai: copy dengan sumber berawalan docker-archive:/dev/stdin membaca aliran stdin.

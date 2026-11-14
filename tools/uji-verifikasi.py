@@ -22731,6 +22731,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("skopeo copy dari /dev/stdin membaca aliran: gerbang gagal (Audit 1938)", rc != 0)
         shutil.rmtree(sub1065, ignore_errors=True)
+        sub1066 = klon(tmp, "sub1066")
+        berkas_aksi1066 = os.path.join(
+            sub1066, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1066, encoding="utf-8") as f:
+            isi_aksi1066 = f.read()
+        baris_aksi1066 = [b for b in isi_aksi1066.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1066 = isi_aksi1066.replace(
+                baris_aksi1066,
+                baris_aksi1066.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 -version; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1066 != isi_aksi1066, \
+            "suntikan aksi1066 tidak menembak"
+        with open(berkas_aksi1066, "w", encoding="utf-8") as f:
+            f.write(isi_baru1066)
+        rc, out = jalan(sub1066,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-version sqlite3 informasional strip-tunggal: gerbang lolos (Audit 1939)", rc == 0)
+        shutil.rmtree(sub1066, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

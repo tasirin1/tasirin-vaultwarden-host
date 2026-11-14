@@ -2594,6 +2594,12 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
     if perintah == "sqlite3":
+        # Audit 1939: -version/-help strip-tunggal juga
+        # informasional (terprobe sqlite3: keluar tanpa
+        # membaca) - penjaga kepala hanya mengenal
+        # strip-ganda.
+        if "-version" in mentah or "-help" in mentah:
+            return False
         # Audit 1059: operand pertama = berkas db (bukan sumber
         # perintah); operand kedua = string SQL yang menekan.
         ops = _operand_sesudah_opsi(
