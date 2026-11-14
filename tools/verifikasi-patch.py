@@ -4787,6 +4787,17 @@ def _menguras_khusus(perintah, toks, awal):
         return any(
             t_mp in ("-s", "--stdin-file", "-l", "--stdin-line")
             for t_mp in mentah)
+    if perintah == "grpcurl":
+        # Audit 1896: -d @ membaca badan permintaan dari
+        # stdin (README grpcurl); nilai @ lain berkas.
+        for k_gr, t_gr in enumerate(mentah):
+            if t_gr in ("-d", "--data"):
+                if (k_gr + 1 < len(mentah)
+                        and mentah[k_gr + 1] == "@"):
+                    return True
+            elif t_gr in ("-d@", "--data=@"):
+                return True
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6351,7 +6362,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "mosquitto_pub", "rsh", "write",
+                        "grpcurl", "mosquitto_pub", "rsh", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: grpcurl dinilai - -d @ membaca badan dari stdin (Audit 1896)
+
+- grpcurl kini dinilai: nilai -d/--data berupa '@' (terpisah atau merekat) membaca badan permintaan dari stdin.
+
 ## [Belum rilis] — Gerbang: mosquitto_pub dinilai - -s/-l membaca pesan dari stdin (Audit 1895)
 
 - mosquitto_pub kini dinilai: -s/--stdin-file dan -l/--stdin-line membaca pesan dari stdin; bentuk lain pesannya dari -m/berkas.
