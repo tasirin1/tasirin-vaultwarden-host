@@ -19350,6 +19350,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("lziprecover tanpa berkas mendekompres dari stdin: gerbang gagal (Audit 1812)", rc != 0)
         shutil.rmtree(sub903, ignore_errors=True)
+        sub904 = klon(tmp, "sub904")
+        berkas_aksi904 = os.path.join(
+            sub904, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi904, encoding="utf-8") as f:
+            isi_aksi904 = f.read()
+        baris_aksi904 = [b for b in isi_aksi904.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru904 = isi_aksi904.replace(
+                baris_aksi904,
+                baris_aksi904.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dos2unix; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru904 != isi_aksi904, \
+            "suntikan aksi904 tidak menembak"
+        with open(berkas_aksi904, "w", encoding="utf-8") as f:
+            f.write(isi_baru904)
+        rc, out = jalan(sub904,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("dos2unix tanpa FILE adalah filter stdin: gerbang gagal (Audit 1813)", rc != 0)
+        shutil.rmtree(sub904, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -717,6 +717,10 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1812: lziprecover - mode
                   # dekompresi/uji tanpa berkas stdin.
                   "lziprecover",
+                  # Audit 1813: keluarga dos2unix - tanpa
+                  # FILE adalah filter stdin.
+                  "dos2unix", "unix2dos", "mac2unix",
+                  "unix2mac",
                   # Audit 1112: pembaca interaktif/kueri — operand
                   # berkas/nama menekan seperti filter biasa.
                   "wall", "c++filt", "nslookup",

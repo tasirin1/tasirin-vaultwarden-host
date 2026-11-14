@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga dos2unix dikenal sebagai pembaca stdin (Audit 1813)
+
+- Nama dos2unix, unix2dos, mac2unix, dan unix2mac masuk daftar pembaca stdin: tanpa FILE keempatnya adalah filter stdin ke stdout.
+
 ## [Belum rilis] — Gerbang: lziprecover dikenal sebagai pembaca stdin (Audit 1812)
 
 - Nama lziprecover masuk daftar pembaca stdin: pada mode dekompresi/uji tanpa nama berkas ia membaca dari stdin.
