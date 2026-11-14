@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pwsh/powershell dinilai (Audit 1735)
+
+- pwsh dan powershell kini dinilai penilai khusus gerbang mengikuti dokumentasi resmi about_Pwsh: `-File -`/`-Command -` mengeksekusi stdin yang ter-redirect sebagai perintah, dan bentuk telanjang interaktif membaca perintah dari stdin; -File berkas, -Command berisi string, dan operand naskah menekan pembacaan itu. Sebelumnya keduanya tak dirutekan sama sekali.
+
 ## [Belum rilis] — Gerbang: sftp dinilai (batch dari stdin) (Audit 1734)
 
 - sftp kini punya penilai khusus di gerbang: `-b -` divonis membaca perintah batch dari stdin (man sftp(1): batchfile '-' = standard input), tanpa -b mode interaktifnya juga membaca perintah dari stdin yang ter-redirect, dan `-b <berkas>` membacanya dari berkas itu. Sebelumnya sftp tak dikenal dispatch gerbang sama sekali.

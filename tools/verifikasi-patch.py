@@ -4039,6 +4039,25 @@ def _menguras_khusus(perintah, toks, awal):
             if t_sf.startswith("-b") and len(t_sf) > 2:
                 return t_sf[2:] == "-"
         return True
+    # Audit 1735: pwsh/powershell (dokumentasi resmi
+    # about_Pwsh) — stdin yang ter-redirect dieksekusi sebagai
+    # perintah bila -File/-Command bernilai "-"; tanpa skrip
+    # dan tanpa perintah, mode interaktif membaca perintah
+    # dari stdin; -File berkas, -Command berisi string, dan
+    # operand naskah menekan pembacaan itu.
+    if perintah in ("pwsh", "powershell"):
+        i_pw = 0
+        while i_pw < len(mentah):
+            t_pw = mentah[i_pw].lower()
+            if t_pw in ("-file", "-command", "-c"):
+                if i_pw + 1 >= len(mentah):
+                    return False
+                return mentah[i_pw + 1] == "-"
+            if t_pw.startswith("-"):
+                i_pw += 1
+                continue
+            return False
+        return True
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5294,6 +5313,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # 1202/1204: penilai khusus putaran-7.
                         "pdftotext", "nft", "ip", "tc", "bridge",
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
+                        "pwsh", "powershell",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
