@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nerdctl dinilai - exec/run -i dan load dari stdin (Audit 1926)
+
+- nerdctl kini dinilai mencerminkan docker (exec/run -i/--interactive wilayah-sadar) ditambah load polos yang membaca arsip dari stdin.
+
 ## [Belum rilis] — Cek-cepat: perwujudan indeks memakai perbandingan indeks-pohon kerja (Audit 1925)
 
 - Syarat perwujudan indeks kini memakai git diff --quiet (indeks vs pohon kerja), bukan --cached (indeks vs HEAD): isi ter-stage/ter-commit yang berbeda dari pohon kerja selalu diwujudkan.

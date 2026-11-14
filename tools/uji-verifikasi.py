@@ -22458,6 +22458,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("'-x' nilai -a redis-cli bukan saklar: gerbang lolos (Audit 1923)", rc == 0)
         shutil.rmtree(sub1052, ignore_errors=True)
+        sub1053 = klon(tmp, "sub1053")
+        berkas_aksi1053 = os.path.join(
+            sub1053, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1053, encoding="utf-8") as f:
+            isi_aksi1053 = f.read()
+        baris_aksi1053 = [b for b in isi_aksi1053.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1053 = isi_aksi1053.replace(
+                baris_aksi1053,
+                baris_aksi1053.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(nerdctl run -i citra; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1053 != isi_aksi1053, \
+            "suntikan aksi1053 tidak menembak"
+        with open(berkas_aksi1053, "w", encoding="utf-8") as f:
+            f.write(isi_baru1053)
+        rc, out = jalan(sub1053,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nerdctl run -i meneruskan stdin: gerbang gagal (Audit 1926)", rc != 0)
+        shutil.rmtree(sub1053, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

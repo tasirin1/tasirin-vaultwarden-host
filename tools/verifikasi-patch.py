@@ -5149,6 +5149,56 @@ def _menguras_khusus(perintah, toks, awal):
                     and "e" in t_md[1:]):
                 return False
         return True
+    if perintah == "nerdctl":
+        # Audit 1926: cermin docker untuk nerdctl -
+        # exec/run -i/--interactive meneruskan stdin
+        # dan load polos membaca arsip dari stdin
+        # (dokumentasi containerd/nerdctl). Wilayah
+        # opsi dan urai bundel sama dengan docker.
+        sub_nc = None
+        for k_nc, t_nc in enumerate(mentah):
+            if t_nc in ("exec", "run"):
+                sub_nc = k_nc
+                break
+            if t_nc == "load":
+                return True
+        if sub_nc is None:
+            return False
+        nilai_nc = {"e", "u", "w", "v", "p", "m", "h"}
+        panjang_nc = {"--env", "--user", "--workdir",
+                      "--volume", "--publish", "--name",
+                      "--network", "--memory", "--env-file",
+                      "--entrypoint", "--hostname", "--mount",
+                      "--add-host", "--dns", "--label",
+                      "--label-file", "--ip", "--expose",
+                      "--restart", "--pull", "--platform",
+                      "--cidfile", "--detach-keys",
+                      "--log-driver", "--health-cmd"}
+        j_nc = sub_nc + 1
+        while j_nc < len(mentah):
+            t_nc = mentah[j_nc]
+            if t_nc == "--":
+                return False
+            if t_nc in ("-i", "--interactive",
+                        "--interactive=true"):
+                return True
+            if t_nc.startswith("--"):
+                j_nc += 2 if t_nc in panjang_nc else 1
+                continue
+            if t_nc.startswith("-") and len(t_nc) > 1:
+                lompat_nc = 1
+                huruf_nc = t_nc[1:]
+                for pos_nc, h_nc in enumerate(huruf_nc):
+                    if h_nc == "i":
+                        return True
+                    if h_nc in nilai_nc:
+                        if pos_nc == len(huruf_nc) - 1:
+                            lompat_nc = 2
+                        break
+                j_nc += lompat_nc
+                continue
+            return False
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6713,7 +6763,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "terraform", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "nerdctl", "terraform", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
