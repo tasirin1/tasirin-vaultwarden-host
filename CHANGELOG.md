@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: aksara tak terlihat Unicode dikupas perata bungkus (Audit 1882)
+
+- Fungsi proses() kini juga mengupas aksara tak terlihat U+200B, U+200C, U+200D, U+2060, dan U+00AD sehingga token yang diselanya tersambung kembali dan tertangkap fase bungkus.
+
 ## [Belum rilis] — Gerbang: ssh dinilai cabang khusus penerus stdin (Audit 1881)
 
 - ssh kini dinilai cabang khusus: ia meneruskan stdin ke sesi jauh secara bawaan, dan hanya -n/-N/-G/-Q/-f yang memutusnya; opsi bernilainya ditelan (termasuk di dalam bundel, wilayah bendera dibatasi huruf bernilai pertama), dan tanpa tujuan ia galat.

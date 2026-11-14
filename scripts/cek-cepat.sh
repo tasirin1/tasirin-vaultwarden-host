@@ -190,6 +190,11 @@ function proses(line,   awal, hd, sp, pos, s, ekort) {
   gsub(/[@=+%&~$^?{}\[\]]/, "")
   gsub("\357\273\277", "")
   gsub("\302\240", ""); gsub("\342\200\203", "")
+  # Audit 1882: aksara tak terlihat (ZWSP/ZWNJ/ZWJ/word
+  # joiner/soft hyphen) yang menyela token ikut dikupas.
+  gsub("\342\200\213", ""); gsub("\342\200\214", "")
+  gsub("\342\200\215", ""); gsub("\342\201\240", "")
+  gsub("\302\255", "")
   awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0
   if (match(awal, /^[0-9]+/)) hd = RLENGTH
   if (ekordgt + hd >= 5 && substr(awal, hd + 1, 1) == ":" && substr(awal, hd + 2, 1) ~ /[[:space:]]/) {
