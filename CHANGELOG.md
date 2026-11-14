@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: '&' tunggal menjadi pemisah segmen (Audit 1875)
+
+- pecah_segmen_shell kini memecah juga pada '&' tunggal (perintah latar belakang = segmen sendiri), dengan pengecualian bentuk saluran '&>', duplikasi fd '>&', dan pipa '|&' yang bukan pemisah.
+
 ## [Belum rilis] — Gerbang: systemd-run --pipe diteruskan sebagai pewaris stdin (Audit 1874)
 
 - Cabang systemd-run kini meneruskan vonis anak juga pada mode --pipe (mewarisi stdio pemanggil seperti --scope); pemicu timer/jalur/soket tetap ditolak sebagai pewaris langsung, dan opsi layanan --service-type/--remain-after-exit tidak lagi menghalangi mode --pipe.

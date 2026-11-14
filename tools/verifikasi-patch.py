@@ -432,6 +432,17 @@ def pecah_segmen_shell(baris):
             kini = []
             i += 2
             continue
+        if (c == "&" and dalam == 0 and not tikus
+                and (i + 1 >= n or baris[i + 1] != ">")
+                and (i == 0 or baris[i - 1] not in (">", "|", "<"))):
+            # Audit 1875: '&' tunggal adalah pemisah latar
+            # belakang - perintah sesudahnya segmen sendiri.
+            # Bukan pemisah: '&>' (saluran ganda), '>&' dan
+            # '<&' (duplikasi fd), '|&' (pipa plus stderr).
+            segmen.append("".join(kini))
+            kini = []
+            i += 1
+            continue
         if (c == "|" and dalam == 0 and not tikus
                 and i + 1 < n and baris[i + 1] == "|"):
             # `||` juga pemisah perintah (Audit 888): perintah
