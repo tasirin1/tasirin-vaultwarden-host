@@ -5101,10 +5101,20 @@ def _menguras_khusus(perintah, toks, awal):
                        "--pass", "-n", "--db", "-s",
                        "--cacert", "--cert", "--key",
                        "--tls-cacertdir"}
+        # Audit 1993: mode khusus redis-cli
+        # (--bigkeys/--scan/--latency/dll) berjalan
+        # sendiri di main() dan tak membaca stdin;
+        # pemeriksaan di posisi opsi (nilai opsi
+        # bernilai sudah dilompati gelung).
+        modus_rc = {"--bigkeys", "--scan", "--latency",
+                    "--stat", "--memkeys", "--hotkeys",
+                    "--replica"}
         i_rc = 0
         kata_rc = 0
         while i_rc < len(mentah):
             t_rc = mentah[i_rc]
+            if t_rc in modus_rc:
+                return False
             if t_rc in ("-x", "--pipe"):
                 return True
             if t_rc in bernilai_rc:

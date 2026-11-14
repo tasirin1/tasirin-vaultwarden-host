@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: redis-cli - mode khusus digugurkan (Audit 1993)
+
+- Mode khusus redis-cli (--bigkeys/--scan/--latency/--stat/--memkeys/--hotkeys/--replica) kini digugurkan di posisi opsi: mode itu menjalankan aksinya sendiri dan tak membaca stdin.
+
 ## [Belum rilis] — Gerbang: snowsql dinilai membaca stdin (Audit 1992)
 
 - snowsql kini dinilai: bentuk polos terpipa berjalan batch lewat stdin; -q dan -f menekannya.

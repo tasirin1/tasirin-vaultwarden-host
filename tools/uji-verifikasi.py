@@ -23844,6 +23844,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("snowsql polos membaca stdin: gerbang gagal (Audit 1992)", rc != 0)
         shutil.rmtree(sub1118, ignore_errors=True)
+        sub1119 = klon(tmp, "sub1119")
+        berkas_aksi1119 = os.path.join(
+            sub1119, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1119, encoding="utf-8") as f:
+            isi_aksi1119 = f.read()
+        baris_aksi1119 = [b for b in isi_aksi1119.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1119 = isi_aksi1119.replace(
+                baris_aksi1119,
+                baris_aksi1119.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(redis-cli --bigkeys; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1119 != isi_aksi1119, \
+            "suntikan aksi1119 tidak menembak"
+        with open(berkas_aksi1119, "w", encoding="utf-8") as f:
+            f.write(isi_baru1119)
+        rc, out = jalan(sub1119,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("mode khusus redis-cli tak membaca stdin: gerbang lolos (Audit 1993)", rc == 0)
+        shutil.rmtree(sub1119, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
