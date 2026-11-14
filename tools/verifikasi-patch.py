@@ -1854,6 +1854,12 @@ def _menguras_interpreter(perintah, toks, awal):
                 if "V" in (huruf_py if pos_bernilai < 0
                            else huruf_py[:pos_bernilai]):
                     return False
+                # Audit 1719: -h di bundel juga bantuan lalu
+                # keluar (kasus sejajar -V yang tertinggal;
+                # terprobe -hi/-ih/-hs model True / real False).
+                if "h" in (huruf_py if pos_bernilai < 0
+                           else huruf_py[:pos_bernilai]):
+                    return False
                 if (pos_bernilai >= 0
                         and huruf_py[pos_bernilai] == "c"):
                     # Audit 1081: -i berlaku juga sesudah -c.

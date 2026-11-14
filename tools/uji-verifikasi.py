@@ -17187,6 +17187,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("ruby opsi tak dikenal galat lalu keluar: gerbang lolos (Audit 1714)", rc == 0)
         shutil.rmtree(sub800, ignore_errors=True)
+        sub801 = klon(tmp, "sub801")
+        berkas_aksi801 = os.path.join(
+            sub801, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi801, encoding="utf-8") as f:
+            isi_aksi801 = f.read()
+        baris_aksi801 = [b for b in isi_aksi801.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru801 = isi_aksi801.replace(
+                baris_aksi801,
+                baris_aksi801.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -hi; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru801 != isi_aksi801, \
+            "suntikan aksi801 tidak menembak"
+        with open(berkas_aksi801, "w", encoding="utf-8") as f:
+            f.write(isi_baru801)
+        rc, out = jalan(sub801,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("python -hi di bundel: bantuan lalu keluar - gerbang lolos (Audit 1719)", rc == 0)
+        shutil.rmtree(sub801, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

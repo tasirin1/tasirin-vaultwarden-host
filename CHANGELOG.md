@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: huruf h pada bundel python dikenali sebagai bantuan (Audit 1719)
+
+- Bundel opsi python yang memuat huruf `h` (mis. `python3 -hi skrip.py`) kini divonis sama seperti `-h`/`-V`: interpreter mencetak bantuan lalu keluar tanpa membaca masukan sebagai program. Sebelumnya huruf itu lolos dari daftar periksa bundel (Audit 1694/1705) sehingga bentuknya divonis menguras stdin.
+
 ## [Belum rilis] — Label audit otomatis diselaraskan dengan format badan issue yang nyata (Audit 1718)
 
 - label-audit.yml menuntut penanda "**Ronde audit:** putaran-N" yang tidak pernah muncul di badan issue audit (format yang dipakai: "- Ronde: Audit-NNN ...") — label `audit` tidak pernah terpasang (terverifikasi: issue audit sampel berlabel kosong semua) sehingga pengecualian stale untuk issue audit tidak pernah berlaku dan label manual pun dicabut cabang elif pada suntingan berikutnya. Pola kini mengikuti format nyata; issue audit terbuka lama tidak lagi ditutup stale otomatis sebelum diperbaiki.
