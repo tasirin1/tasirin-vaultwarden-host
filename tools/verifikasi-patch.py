@@ -4767,6 +4767,19 @@ def _menguras_khusus(perintah, toks, awal):
             i_sh += 1
             continue
         return tujuan_sh
+    if perintah == "rsh":
+        # Audit 1894: rsh menyalin stdin-nya ke perintah
+        # jauh (rsh(1): "copies its standard input to
+        # the remote command"); -n mengalihkan stdin
+        # dari /dev/null. Tanpa perintah jauh ia mode
+        # rlogin (di luar klaim ronde ini).
+        if "-n" in mentah:
+            return False
+        ops_rsh = _operand_sesudah_opsi(
+            toks, awal, {"-l", "-e", "-t", "-p"})
+        if "\x00gantung" in ops_rsh:
+            return False
+        return len(ops_rsh) >= 2
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6331,7 +6344,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "write",
+                        "rsh", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

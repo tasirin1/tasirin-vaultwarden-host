@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: rsh dinilai cabang khusus penerus stdin (Audit 1894)
+
+- rsh kini dinilai: ia menyalin stdin ke perintah jauh, -n memutusnya, dan tanpa perintah jauh ia di luar klaim (mode rlogin).
+
 ## [Belum rilis] — Cek-cepat: pemetaan nama tampil berkas indeks tanpa sed (Audit 1892, 1893)
 
 - Pemetaan nama tampil berkas perwujudan indeks kini memakai pencocokan string persis bash, bukan sed: aksara '&' tak lagi merusak nama tampil dan aksara '|' tak lagi membunuh skrip tanpa pesan (Audit 1893).
