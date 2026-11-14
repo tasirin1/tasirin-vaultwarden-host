@@ -21912,6 +21912,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("kubectl exec -i meneruskan stdin: gerbang gagal (Audit 1897)", rc != 0)
         shutil.rmtree(sub1026, ignore_errors=True)
+        sub1027 = klon(tmp, "sub1027")
+        berkas_aksi1027 = os.path.join(
+            sub1027, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1027, encoding="utf-8") as f:
+            isi_aksi1027 = f.read()
+        baris_aksi1027 = [b for b in isi_aksi1027.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1027 = isi_aksi1027.replace(
+                baris_aksi1027,
+                baris_aksi1027.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(docker exec -i kontainer perintah; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1027 != isi_aksi1027, \
+            "suntikan aksi1027 tidak menembak"
+        with open(berkas_aksi1027, "w", encoding="utf-8") as f:
+            f.write(isi_baru1027)
+        rc, out = jalan(sub1027,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("docker exec -i meneruskan stdin: gerbang gagal (Audit 1898)", rc != 0)
+        shutil.rmtree(sub1027, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

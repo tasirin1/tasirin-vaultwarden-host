@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: docker exec/run -i dinilai meneruskan stdin (Audit 1898)
+
+- docker kini dinilai: sub-perintah exec/run dengan -i (termasuk bundel seperti -it) meneruskan stdin ke kontainer.
+
 ## [Belum rilis] — Gerbang: kubectl exec/attach/run -i dinilai meneruskan stdin (Audit 1897)
 
 - kubectl kini dinilai: sub-perintah exec/attach/run dengan -i/--stdin (termasuk bundel dan --stdin=true) meneruskan stdin ke kontainer.
