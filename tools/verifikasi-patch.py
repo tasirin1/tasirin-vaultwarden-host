@@ -4101,6 +4101,13 @@ def _menguras_khusus(perintah, toks, awal):
                 # cetak versi lalu keluar dan argumen lain
                 # diabaikan (about_Pwsh); bukan mode interaktif.
                 return False
+            if perintah == "powershell" and t_pw == "-v":
+                # Audit 1785: '-v' bukan alias -Version pada
+                # powershell.exe (alias itu hanya milik pwsh
+                # menurut about_PowerShell_exe) - parameter
+                # tak dikenal atau nilai wajibnya hilang;
+                # host keluar tanpa sesi interaktif.
+                return False
             if t_pw == "-noexit":
                 return True
             if t_pw in ("-file", "-command", "-c",

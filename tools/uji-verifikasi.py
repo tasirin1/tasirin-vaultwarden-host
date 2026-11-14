@@ -18846,6 +18846,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("varian 7za dengan a -si membaca stdin seperti 7z: gerbang gagal (Audit 1784)", rc != 0)
         shutil.rmtree(sub879, ignore_errors=True)
+        sub880 = klon(tmp, "sub880")
+        berkas_aksi880 = os.path.join(
+            sub880, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi880, encoding="utf-8") as f:
+            isi_aksi880 = f.read()
+        baris_aksi880 = [b for b in isi_aksi880.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru880 = isi_aksi880.replace(
+                baris_aksi880,
+                baris_aksi880.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(powershell -v; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru880 != isi_aksi880, \
+            "suntikan aksi880 tidak menembak"
+        with open(berkas_aksi880, "w", encoding="utf-8") as f:
+            f.write(isi_baru880)
+        rc, out = jalan(sub880,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-v bukan alias pada powershell.exe, host keluar tanpa sesi: gerbang lolos (Audit 1785)", rc == 0)
+        shutil.rmtree(sub880, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

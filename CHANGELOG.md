@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: powershell -v ditolak (Audit 1785)
+
+- Token '-v' pada powershell kini divonis keluar tanpa sesi: about_PowerShell_exe tidak mengenal alias -v (itu hanya milik pwsh), jadi ia parameter tak dikenal atau -Version yang kehilangan nilai wajibnya.
+
 ## [Belum rilis] — Gerbang: varian 7za/7zr/7zz dinilai (Audit 1784)
 
 - Nama varian 7za, 7zr, dan 7zz kini masuk tuple penilai khusus dan cabang 7z: halaman man ketiganya memuat semantik -si yang identik dengan 7z(1).
