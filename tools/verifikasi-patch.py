@@ -5368,6 +5368,27 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return (len(ops_sk) >= 2 and ops_sk[0] == "copy"
                 and ops_sk[1].startswith("docker-archive:/dev/stdin"))
+    if perintah == "crictl":
+        # Audit 1940: exec -i meneruskan stdin ke
+        # kontainer (DUGAAN audit-121: blog resmi
+        # Kubernetes soal CRI stdin + dokumen fork
+        # ccictl; man cri-tools tak menyebut stdin).
+        sub_ct = None
+        for k_ct, t_ct in enumerate(mentah):
+            if t_ct == "exec":
+                sub_ct = k_ct
+                break
+        if sub_ct is None:
+            return False
+        j_ct = sub_ct + 1
+        while j_ct < len(mentah):
+            t_ct = mentah[j_ct]
+            if t_ct in ("-i", "--stdin"):
+                return True
+            if not t_ct.startswith("-"):
+                return False
+            j_ct += 1
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6948,7 +6969,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "buildah", "clickhouse-client", "consul", "etcdctl", "glab", "gcloud", "gsutil", "nerdctl", "oc", "skopeo", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "buildah", "clickhouse-client", "consul", "crictl", "etcdctl", "glab", "gcloud", "gsutil", "nerdctl", "oc", "skopeo", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

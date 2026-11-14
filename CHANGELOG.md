@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: crictl exec -i dinilai meneruskan stdin (Audit 1940)
+
+- crictl kini dinilai: exec dengan -i/--stdin di wilayah opsi meneruskan stdin (berlabel DUGAAN di issue - pendukung blog resmi Kubernetes + dokumen ccictl).
+
 ## [Belum rilis] — Gerbang: cabang sqlite3 mengenal -version/-help strip-tunggal (Audit 1939)
 
 - Cabang sqlite3 kini menggugurkan -version/-help strip-tunggal sebagai informasional (terprobe: keluar tanpa membaca stdin).
