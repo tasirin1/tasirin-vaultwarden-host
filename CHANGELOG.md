@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: aksi kedua pwsh ditolak (Audit 1744)
+
+- Pindaian pwsh kini menolak aksi kedua: -File dan -Command tidak bisa digabung dalam satu perintah (dokumentasi about_Pwsh) sehingga host keluar sebelum membaca stdin - `pwsh -File x -Command -` tidak lagi divonis menguras (perubahan tak diniatkan dari restruktur Audit 1740).
+
 ## [Belum rilis] — Gerbang: penetapan sesudah busybox bukan penetapan shell (Audit 1743)
 
 - Cabang busybox/toybox kini menandai sudah-lewat-pembungkus sesudah menggeser ke applet: token berbentuk penetapan di posisi applet adalah nama applet yang tak dikenal (Audit 966), bukan penetapan shell transparan - `busybox X=1 cat` kini divonis tidak menguras, sejajar `timeout 5 X=1 cat`.

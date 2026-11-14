@@ -4062,6 +4062,13 @@ def _menguras_khusus(perintah, toks, awal):
             if t_pw == "-noexit":
                 return True
             if t_pw in ("-file", "-command", "-c"):
+                # Audit 1744: -File dan -Command tidak bisa
+                # digabung dalam satu perintah (dokumentasi
+                # about_Pwsh) - aksi kedua membuat host menolak
+                # dan keluar, jadi vonisnya tidak menguras walau
+                # aksi kedua itu bernilai "-".
+                if aksi_pw:
+                    return False
                 if i_pw + 1 >= len(mentah):
                     return False
                 if mentah[i_pw + 1] == "-":

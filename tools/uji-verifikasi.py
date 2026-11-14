@@ -17775,6 +17775,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("env di posisi applet memulihkan wilayah penetapan, cat membaca stdin: gerbang gagal (Audit 1743)", rc != 0)
         shutil.rmtree(sub828, ignore_errors=True)
+        sub829 = klon(tmp, "sub829")
+        berkas_aksi829 = os.path.join(
+            sub829, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi829, encoding="utf-8") as f:
+            isi_aksi829 = f.read()
+        baris_aksi829 = [b for b in isi_aksi829.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru829 = isi_aksi829.replace(
+                baris_aksi829,
+                baris_aksi829.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pwsh -File x -Command -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru829 != isi_aksi829, \
+            "suntikan aksi829 tidak menembak"
+        with open(berkas_aksi829, "w", encoding="utf-8") as f:
+            f.write(isi_baru829)
+        rc, out = jalan(sub829,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("aksi kedua pwsh membuat host menolak gabungan -File/-Command: gerbang lolos (Audit 1744)", rc == 0)
+        shutil.rmtree(sub829, ignore_errors=True)
+        sub830 = klon(tmp, "sub830")
+        berkas_aksi830 = os.path.join(
+            sub830, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi830, encoding="utf-8") as f:
+            isi_aksi830 = f.read()
+        baris_aksi830 = [b for b in isi_aksi830.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru830 = isi_aksi830.replace(
+                baris_aksi830,
+                baris_aksi830.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pwsh -Command -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru830 != isi_aksi830, \
+            "suntikan aksi830 tidak menembak"
+        with open(berkas_aksi830, "w", encoding="utf-8") as f:
+            f.write(isi_baru830)
+        rc, out = jalan(sub830,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pwsh -Command - mengeksekusi stdin: gerbang gagal (Audit 1744)", rc != 0)
+        shutil.rmtree(sub830, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
