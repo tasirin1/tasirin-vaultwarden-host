@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang crictl menggugurkan opsi tak dikenal (Audit 1948)
+
+- Cabang crictl kini mengenal -t/--tty dan --timeout (bernilai); opsi lain sebelum id kontainer dianggap galat parsing dan menggugurkan vonis.
+
 ## [Belum rilis] — Gerbang: cabang vault - nilai stdin harus persis '-' sesudah '=' (Audit 1947)
 
 - Aturan 'kunci=-' cabang vault kini memakai nilai sesudah '=' pertama yang harus persis '-'; nilai berakhiran '=-' di tengah teks tak lagi terhitung.

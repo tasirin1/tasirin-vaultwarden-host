@@ -5439,9 +5439,15 @@ def _menguras_khusus(perintah, toks, awal):
             t_ct = mentah[j_ct]
             if t_ct in ("-i", "--stdin"):
                 return True
-            if not t_ct.startswith("-"):
-                return False
-            j_ct += 1
+            if t_ct in ("-t", "--tty"):
+                j_ct += 1
+                continue
+            if t_ct == "--timeout":
+                j_ct += 2
+                continue
+            # Audit 1948: opsi tak dikenal = galat
+            # parsing crictl sebelum berjalan.
+            return False
         return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
