@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mosquitto_pub dinilai - -s/-l membaca pesan dari stdin (Audit 1895)
+
+- mosquitto_pub kini dinilai: -s/--stdin-file dan -l/--stdin-line membaca pesan dari stdin; bentuk lain pesannya dari -m/berkas.
+
 ## [Belum rilis] — Gerbang: rsh dinilai cabang khusus penerus stdin (Audit 1894)
 
 - rsh kini dinilai: ia menyalin stdin ke perintah jauh, -n memutusnya, dan tanpa perintah jauh ia di luar klaim (mode rlogin).

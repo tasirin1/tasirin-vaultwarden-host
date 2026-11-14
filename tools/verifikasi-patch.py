@@ -4780,6 +4780,13 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_rsh:
             return False
         return len(ops_rsh) >= 2
+    if perintah == "mosquitto_pub":
+        # Audit 1895: -s/--stdin-file dan -l/--stdin-line
+        # membaca pesan dari stdin (man mosquitto_pub);
+        # bentuk lain pesannya dari -m/berkas.
+        return any(
+            t_mp in ("-s", "--stdin-file", "-l", "--stdin-line")
+            for t_mp in mentah)
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6344,7 +6351,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "rsh", "write",
+                        "mosquitto_pub", "rsh", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
