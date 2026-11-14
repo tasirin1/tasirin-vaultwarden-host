@@ -4130,6 +4130,11 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return not aksi_dc
+    # Audit 1750: perintah ed selalu dibaca dari stdin
+    # (manual GNU ed) - operand berkas hanya mengisi buffer
+    # suntingan, sumber perintahnya tetap stdin.
+    if perintah == "ed":
+        return True
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5416,7 +5421,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # 1202/1204: penilai khusus putaran-7.
                         "pdftotext", "nft", "ip", "tc", "bridge",
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
-                        "pwsh", "powershell", "bc", "dc",
+                        "pwsh", "powershell", "bc", "dc", "ed",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

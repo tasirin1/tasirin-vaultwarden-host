@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ed dinilai (Audit 1750)
+
+- ed kini dinilai penilai khusus gerbang: perintah ed selalu dibaca dari standard input (manual GNU ed) - operand berkas hanya mengisi buffer suntingan, jadi bentuk beroperand pun menguras. Sebelumnya ed tak dikenal dispatch gerbang.
+
 ## [Belum rilis] — Gerbang: dc dinilai (Audit 1749)
 
 - dc kini dinilai penilai khusus gerbang mengikuti manual GNU dc: tanpa berkas dan tanpa -e/-f perintah dibaca dari stdin, nama berkas '-' adalah aliran stdin, dan berkas operand atau -e/-f menggantikan stdin. Sebelumnya dc tak dikenal dispatch gerbang.
