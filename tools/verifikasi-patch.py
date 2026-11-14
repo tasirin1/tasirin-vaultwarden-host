@@ -2015,6 +2015,10 @@ def _menguras_interpreter(perintah, toks, awal):
                 "-r", "--require", "--import", "--loader",
                 "--experimental-loader", "--input-type",
                 "--conditions", "--env-file"):
+            # Audit 1722: menggantung = "requires an argument"
+            # lalu keluar (sejajar Audit 1708/1713).
+            if i + 1 >= n:
+                return False
             i += 2
             continue
         # Audit 1641: opsi bernilai interpreter lain —

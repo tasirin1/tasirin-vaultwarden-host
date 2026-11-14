@@ -17271,6 +17271,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("node --title gantung: galat lalu keluar - gerbang lolos (Audit 1721)", rc == 0)
         shutil.rmtree(sub804, ignore_errors=True)
+        sub805 = klon(tmp, "sub805")
+        berkas_aksi805 = os.path.join(
+            sub805, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi805, encoding="utf-8") as f:
+            isi_aksi805 = f.read()
+        baris_aksi805 = [b for b in isi_aksi805.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru805 = isi_aksi805.replace(
+                baris_aksi805,
+                baris_aksi805.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node -r; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru805 != isi_aksi805, \
+            "suntikan aksi805 tidak menembak"
+        with open(berkas_aksi805, "w", encoding="utf-8") as f:
+            f.write(isi_baru805)
+        rc, out = jalan(sub805,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("node -r gantung: galat lalu keluar - gerbang lolos (Audit 1722)", rc == 0)
+        shutil.rmtree(sub805, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

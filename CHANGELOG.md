@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai node menggantung divonis galat (Audit 1722)
+
+- Cabang opsi bernilai node (-r/--require/--import/--loader/--experimental-loader/--input-type/--conditions/--env-file) kini memeriksa sisa token: bentuk menggantung (mis. `node -r`) divonis galat lalu keluar, bukan menguras stdin.
+
 ## [Belum rilis] — Gerbang: node --title bernilai (Audit 1721)
 
 - `--title` pada node kini diperlakukan sebagai opsi bernilai: bentuk menggantung divonis galat lalu keluar, dan nilai sesudahnya ditelan sehingga `node --title judul` tanpa skrip divonis membaca REPL dari stdin. Sebelumnya --title dianggap bendera tak bernilai di penjaga Audit 1711 — vonisnya terbalik dua arah.
