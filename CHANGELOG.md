@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Beranda: ekor tertahan samaran disiram saat aliran log berhenti (Audit 1800)
+
+- Tick pembaruan log tanpa data baru kini menyiram ekor tertahan Audit 1799 apa adanya, jadi baris yang penulisannya berhenti di tengah tidak kehilangan hingga 256 aksara terakhirnya dari tampilan beranda.
+
 ## [Belum rilis] — Gerbang: uudecode tanpa FILE dinilai membaca stdin (Audit 1804)
 
 - Cabang uu bersama: uudecode tanpa FILE (atau operand '-') membaca stdin; dengan berkas ia membaca berkas itu.

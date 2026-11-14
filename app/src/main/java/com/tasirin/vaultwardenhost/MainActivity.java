@@ -792,9 +792,14 @@ public class MainActivity extends Activity {
         // token yang melintasi batas potong (jendela baris
         // raksasa Audit 1476); ekor yang ditahan disambung
         // dan disamarkan bersama delta berikutnya.
+        // Audit 1800: tick tanpa data baru menyiram
+        // tertahan apa adanya - aliran yang berhenti di
+        // tengah baris tak menelan ekornya selamanya.
+        boolean deltaMentahKosong = delta.isEmpty();
         delta = deltaTertahanBeranda + delta;
         if (!delta.isEmpty()
-                && delta.charAt(delta.length() - 1) != '\n') {
+                && delta.charAt(delta.length() - 1) != '\n'
+                && !deltaMentahKosong) {
             int tahan = Math.min(delta.length(),
                     BATAS_TAHAN_SAMARAN);
             deltaTertahanBeranda = delta.substring(
