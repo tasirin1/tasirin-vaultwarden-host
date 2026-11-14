@@ -22143,6 +22143,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sftp host:berkas lokal mode unduh otomatis: gerbang lolos (Audit 1908)", rc == 0)
         shutil.rmtree(sub1037, ignore_errors=True)
+        sub1038 = klon(tmp, "sub1038")
+        berkas_aksi1038 = os.path.join(
+            sub1038, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1038, encoding="utf-8") as f:
+            isi_aksi1038 = f.read()
+        baris_aksi1038 = [b for b in isi_aksi1038.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1038 = isi_aksi1038.replace(
+                baris_aksi1038,
+                baris_aksi1038.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(nc -I 10; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1038 != isi_aksi1038, \
+            "suntikan aksi1038 tidak menembak"
+        with open(berkas_aksi1038, "w", encoding="utf-8") as f:
+            f.write(isi_baru1038)
+        rc, out = jalan(sub1038,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-I nc bernilai - tanpa host ia galat: gerbang lolos (Audit 1909)", rc == 0)
+        shutil.rmtree(sub1038, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

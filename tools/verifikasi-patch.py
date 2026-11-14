@@ -3912,6 +3912,7 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         ops_nc = _operand_sesudah_opsi(
             toks, awal, {"-p", "-s", "-X", "-x", "-w", "-i", "-q",
+                         "-I", "-M", "-m", "-O", "-P",
                          "--proxy", "--proxy-auth"})
         # Audit 1096: opsi menggantung = program galat.
         if "\x00gantung" in ops_nc:

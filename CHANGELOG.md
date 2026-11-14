@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang nc - -I/-M/-m/-O/-P didaftarkan sebagai opsi bernilai (Audit 1909)
+
+- Himpunan opsi bernilai cabang nc kini memuat -I/-M/-m/-O/-P (OpenBSD nc): nilainya tak lagi terhitung host sehingga bentuk tanpa host divonis galat pemakaian.
+
 ## [Belum rilis] — Gerbang: cabang sftp - bentuk host:berkas adalah mode unduh otomatis (Audit 1908)
 
 - Cabang sftp kini menilai operand pertama berbentuk host:berkas sebagai mode unduh otomatis non-interaktif yang tak membaca perintah dari stdin.
