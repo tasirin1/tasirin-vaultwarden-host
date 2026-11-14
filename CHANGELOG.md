@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai keluarga dos2unix didaftarkan (Audit 1825)
+
+- Entri opsi bernilai -c/--convmode ditambahkan untuk dos2unix, unix2dos, mac2unix, dan unix2mac.
+
 ## [Belum rilis] — Gerbang: opsi bernilai lzop didaftarkan (Audit 1824)
 
 - Entri opsi bernilai lzop (-o/--output, --suffix) ditambahkan: nilainya tak lagi terhitung operand.

@@ -19602,6 +19602,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai -o lzop bukan operand - tanpa berkas ia mengompres stdin: gerbang gagal (Audit 1824)", rc != 0)
         shutil.rmtree(sub915, ignore_errors=True)
+        sub916 = klon(tmp, "sub916")
+        berkas_aksi916 = os.path.join(
+            sub916, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi916, encoding="utf-8") as f:
+            isi_aksi916 = f.read()
+        baris_aksi916 = [b for b in isi_aksi916.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru916 = isi_aksi916.replace(
+                baris_aksi916,
+                baris_aksi916.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dos2unix -c mac; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru916 != isi_aksi916, \
+            "suntikan aksi916 tidak menembak"
+        with open(berkas_aksi916, "w", encoding="utf-8") as f:
+            f.write(isi_baru916)
+        rc, out = jalan(sub916,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai -c dos2unix bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1825)", rc != 0)
+        shutil.rmtree(sub916, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

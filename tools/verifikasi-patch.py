@@ -980,6 +980,11 @@ _OPSI_BERNILAI = {
                "-w", "--window", "-S", "--suffix"},
     # Audit 1824: opsi bernilai lzop.
     "lzop": {"-o", "--output", "--suffix"},
+    # Audit 1825: opsi bernilai keluarga dos2unix.
+    "dos2unix": {"-c", "--convmode"},
+    "unix2dos": {"-c", "--convmode"},
+    "mac2unix": {"-c", "--convmode"},
+    "unix2mac": {"-c", "--convmode"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",
