@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: dc nilai menempel dikenali (Audit 1794)
+
+- Token -e<x> dan -f<x> pada dc kini dikenali sebagai aksi bernilai menempel (getopt), termasuk nilai menempel '-' untuk -f yang tetap berkas stdin sesuai Audit 1751.
+
 ## [Belum rilis] — Gerbang: dc membaca berkas lalu stdin (Audit 1793)
 
 - Putaran dc kini berlanjut sesudah operand berkas: parameter tersisa adalah berkas-berkas yang dibaca berurutan dan '-' di antaranya berarti aliran stdin (manual GNU dc), jadi vonis akhir memperhitungkan berkas operand di samping -e/-f.

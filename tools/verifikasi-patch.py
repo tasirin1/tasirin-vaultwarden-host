@@ -4241,6 +4241,17 @@ def _menguras_khusus(perintah, toks, awal):
                 aksi_dc = True
                 i_dc += 1
                 continue
+            if (t_dc.startswith("-e") and len(t_dc) > 2) or \
+                    (t_dc.startswith("-f") and len(t_dc) > 2):
+                # Audit 1794: nilai menempel getopt untuk
+                # -e/-f (mis. -e2p, -fberkas) adalah aksi
+                # juga; nilai menempel '-' untuk -f tetap
+                # berkas stdin (lini Audit 1751).
+                if t_dc.startswith("-f") and t_dc[2:] == "-":
+                    return True
+                aksi_dc = True
+                i_dc += 1
+                continue
             if mentah[i_dc] == "-":
                 return True
             if t_dc.startswith("-"):
