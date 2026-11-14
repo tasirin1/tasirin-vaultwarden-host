@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Shim: hasil parsial pengisian dikembalikan, permintaan dibatasi INT_MAX (Audit 1746)
+
+- Shim getrandom kini meniru kontrak kernel untuk buffer yang fault di tengah: pengisian dipotong per 4096 byte, byte yang sudah terkirim dikembalikan sebagai hasil parsial (bukan kegagalan total EFAULT), dan permintaan dibatasi ke INT_MAX di getrandom_bendera - terverifikasi probe dua dunia (tanpa shim dan dengan shim hasil identik 4096 di kedua pintu masuk).
+
 ## [Belum rilis] — Gerbang: opsi bernilai pwsh dikenal (Audit 1745)
 
 - Cabang pwsh kini mengenal -EncodedCommand sebagai aksi (string berkode dieksekusi lalu keluar; nilai '-' bukan stdin) dan sembilan opsi bernilai lain (-WorkingDirectory, -InputFormat, -OutputFormat, -ExecutionPolicy, -ConfigurationName, -ConfigurationFile, -CustomPipeName, -SettingsFile, -WindowStyle) yang nilainya dilompati: bentuk tanpa -File/-Command seperti `pwsh -WorkingDirectory /tmp` kini benar divonis interaktif.

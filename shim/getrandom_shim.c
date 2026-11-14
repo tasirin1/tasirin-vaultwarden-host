@@ -1,6 +1,7 @@
 
 
 #include <errno.h>
+#include <limits.h>
 #include <fcntl.h>
 #include <stddef.h>
 #include <unistd.h>
@@ -88,7 +89,14 @@ static ssize_t isi_dari_inti(void *buf, size_t len, int pakai_random,
         }
         int pulih = 0;
         while (sudah < len) {
-            ssize_t n = read(*wadah_fd, (char *) buf + sudah, len - sudah);
+            /* Audit 1746: pengisian dipotong per 4096 byte agar
+             * fault di tengah buffer berhenti sebagai hasil
+             * parsial, bukan kegagalan total. */
+            size_t sisa = len - sudah;
+            if (sisa > 4096) {
+                sisa = 4096;
+            }
+            ssize_t n = read(*wadah_fd, (char *) buf + sudah, sisa);
             if (n < 0) {
                 int e = errno;
                 if (e == EINTR) {
@@ -106,7 +114,11 @@ static ssize_t isi_dari_inti(void *buf, size_t len, int pakai_random,
                     break;
                 }
                 pthread_mutex_unlock(kunci);
-                if (nonblok && e == EAGAIN && sudah > 0) {
+                if (sudah > 0) {
+                    /* Audit 1746: byte yang sudah terkirim menang
+                     * atas galat - kernel mengembalikan hitungan
+                     * parsial bila penyalinan fault di tengah
+                     * (kasus nonblok/EAGAIN lama termasuk di sini). */
                     return (ssize_t) sudah;
                 }
                 errno = e;
@@ -142,6 +154,10 @@ static ssize_t getrandom_bendera(void *buf, size_t buflen, unsigned int flags) {
     if (flags & ~GRND_DIKENAL_SHIM) {
         errno = EINVAL;
         return -1;
+    }
+    /* Audit 1746: kernel membatasi permintaan ke INT_MAX. */
+    if (buflen > (size_t) INT_MAX) {
+        buflen = (size_t) INT_MAX;
     }
     int pakai_random = (flags & GRND_RANDOM_SHIM) != 0
             && (flags & GRND_INSECURE_SHIM) == 0;
