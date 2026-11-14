@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ts dinilai selalu membaca stdin (Audit 1815)
+
+- ts moreutils masuk cabang selalu-menguras: operand non-opsinya pola format strftime, bukan berkas - dengan atau tanpa operand ia memberi stempel waktu pada aliran stdin.
+
 ## [Belum rilis] — Gerbang: sponge dinilai selalu membaca stdin (Audit 1814)
 
 - Cabang khusus keluarga moreutils dibuka dengan sponge: operandnya berkas keluaran sehingga ia selalu menguras stdin, termasuk saat operand ada (sekelas tee).

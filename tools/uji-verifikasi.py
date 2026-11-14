@@ -19392,6 +19392,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sponge selalu menyedot stdin, operandnya berkas keluaran: gerbang gagal (Audit 1814)", rc != 0)
         shutil.rmtree(sub905, ignore_errors=True)
+        sub906 = klon(tmp, "sub906")
+        berkas_aksi906 = os.path.join(
+            sub906, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi906, encoding="utf-8") as f:
+            isi_aksi906 = f.read()
+        baris_aksi906 = [b for b in isi_aksi906.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru906 = isi_aksi906.replace(
+                baris_aksi906,
+                baris_aksi906.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ts -i; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru906 != isi_aksi906, \
+            "suntikan aksi906 tidak menembak"
+        with open(berkas_aksi906, "w", encoding="utf-8") as f:
+            f.write(isi_baru906)
+        rc, out = jalan(sub906,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("ts memberi stempel waktu pada aliran stdin: gerbang gagal (Audit 1815)", rc != 0)
+        shutil.rmtree(sub906, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
