@@ -3588,8 +3588,28 @@ def _menguras_khusus(perintah, toks, awal):
                     # Audit 1250: nama binary socat sebenarnya.
                     "socat1"):
         # Audit 1066: alamat '-' / STDIO / STDIN membaca stdin.
-        return any(t == "-" or t.startswith("STDIO")
-                   or t.startswith("STDIN") for t in mentah
+        # Audit 1906: -u aliran satu arah kiri->kanan dan
+        # -U kanan->kiri: stdin hanya dikonsumsi bila
+        # alamat di sisi SUMBER (pertama untuk -u, kedua
+        # untuk -U) adalah alamat stdin.
+        def _alamat_stdin(t_sc):
+            return (t_sc == "-" or t_sc.startswith("STDIO")
+                    or t_sc.startswith("STDIN"))
+        if "-u" in mentah or "-U" in mentah:
+            alamat_sc = []
+            i_sc = 0
+            while i_sc < len(mentah):
+                t_sc = mentah[i_sc]
+                if t_sc in ("-b", "-t", "-T", "-S"):
+                    i_sc += 2
+                    continue
+                if not t_sc.startswith("-") or t_sc == "-":
+                    alamat_sc.append(t_sc)
+                i_sc += 1
+            if "-u" in mentah:
+                return bool(alamat_sc) and _alamat_stdin(alamat_sc[0])
+            return len(alamat_sc) >= 2 and _alamat_stdin(alamat_sc[1])
+        return any(_alamat_stdin(t) for t in mentah
                    if not t.startswith("-") or t == "-")
     if perintah in ("gpg", "gpg2"):
         # Audit 1638: gpg2 adalah nama historis binary GnuPG 2 —

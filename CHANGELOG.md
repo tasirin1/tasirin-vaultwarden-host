@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang socat menghormati arah -u/-U (Audit 1906)
+
+- Cabang socat kini arah-sadar: -u hanya mengonsumsi stdin bila alamat pertama yang stdin, -U bila alamat kedua; aliran dua arah tak berubah.
+
 ## [Belum rilis] — Gerbang: mariadb dinilai - mode polos terpipa membaca stdin (Audit 1905)
 
 - mariadb kini dinilai mencerminkan mysql: mode polos terpipa membaca stdin, -e menekan pembacaan itu.

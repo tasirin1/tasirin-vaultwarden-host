@@ -22080,6 +22080,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("mariadb polos terpipa membaca stdin: gerbang gagal (Audit 1905)", rc != 0)
         shutil.rmtree(sub1034, ignore_errors=True)
+        sub1035 = klon(tmp, "sub1035")
+        berkas_aksi1035 = os.path.join(
+            sub1035, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1035, encoding="utf-8") as f:
+            isi_aksi1035 = f.read()
+        baris_aksi1035 = [b for b in isi_aksi1035.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1035 = isi_aksi1035.replace(
+                baris_aksi1035,
+                baris_aksi1035.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(socat -u FILE:x STDIO; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1035 != isi_aksi1035, \
+            "suntikan aksi1035 tidak menembak"
+        with open(berkas_aksi1035, "w", encoding="utf-8") as f:
+            f.write(isi_baru1035)
+        rc, out = jalan(sub1035,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("socat -u: sumber berkas, stdin tak dikonsumsi: gerbang lolos (Audit 1906)", rc == 0)
+        shutil.rmtree(sub1035, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
