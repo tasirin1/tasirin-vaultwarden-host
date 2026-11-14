@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang restic melompati opsi global bernilai (Audit 1959)
+
+- Himpunan bernilai operand cabang restic kini memuat opsi globalnya (-r/--repo/--password-file/dll).
+
 ## [Belum rilis] — Gerbang: cabang rclone melompati opsi global bernilai (Audit 1958)
 
 - Himpunan bernilai operand cabang rclone kini memuat opsi globalnya (--config/--files-from/dll) agar posisi sub-perintah tak rusak.

@@ -5513,7 +5513,12 @@ def _menguras_khusus(perintah, toks, awal):
         # bernilai '-' membaca daftar dari stdin
         # (dokumentasi restic). --stdin-from-command
         # sengaja tak dinilai.
-        ops_re = _operand_sesudah_opsi(toks, awal, set())
+        # Audit 1959: opsi global restic bernilai
+        # (-r/--repo dll) dilompati.
+        ops_re = _operand_sesudah_opsi(
+            toks, awal, {"-r", "--repo", "--repo-file",
+                         "--password-file", "--cache-dir",
+                         "-o", "--option", "--tls-client-cert"})
         if "\x00gantung" in ops_re:
             return False
         if not ops_re or ops_re[0] != "backup":
