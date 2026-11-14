@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: choose dinilai dari kehadiran opsi -i (Audit 1832)
+
+- Cabang khusus choose: satu-satunya sumber berkas -i/--input; tanpa itu ia membaca stdin dan operandnya pilihan bidang (-f adalah pemisah, bukan berkas).
+
 ## [Belum rilis] — Gerbang: sd dinilai dari jumlah operand pola-pengganti (Audit 1831)
 
 - Cabang khusus sd: tepat dua operand (pola dan pengganti) tanpa berkas berarti filter stdin; berkas baru mulai operand ketiga.

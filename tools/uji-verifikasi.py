@@ -19749,6 +19749,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("dua operand sd adalah pola dan pengganti - tanpa berkas ia filter stdin: gerbang gagal (Audit 1831)", rc != 0)
         shutil.rmtree(sub922, ignore_errors=True)
+        sub923 = klon(tmp, "sub923")
+        berkas_aksi923 = os.path.join(
+            sub923, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi923, encoding="utf-8") as f:
+            isi_aksi923 = f.read()
+        baris_aksi923 = [b for b in isi_aksi923.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru923 = isi_aksi923.replace(
+                baris_aksi923,
+                baris_aksi923.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(choose -f : 0; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru923 != isi_aksi923, \
+            "suntikan aksi923 tidak menembak"
+        with open(berkas_aksi923, "w", encoding="utf-8") as f:
+            f.write(isi_baru923)
+        rc, out = jalan(sub923,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("choose membaca stdin, -f-nya pemisah bidang bukan berkas: gerbang gagal (Audit 1832)", rc != 0)
+        shutil.rmtree(sub923, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
