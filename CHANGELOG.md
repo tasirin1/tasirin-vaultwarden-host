@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: envsubst dinilai selalu membaca stdin (Audit 1837)
+
+- Cabang khusus envsubst: ia selalu menyalin stdin ke stdout (operandnya format) kecuali --variables yang mengabaikan stdin.
+
 ## [Belum rilis] — Gerbang: aria2c -i - dinilai membaca stdin (Audit 1836)
 
 - Cabang khusus aria2c mengikuti pola wget: nilai -i/--input-file berupa '-' (terpisah, menempel, atau bentuk =) berarti daftar URI dari stdin.
