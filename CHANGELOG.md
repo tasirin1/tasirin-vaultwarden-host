@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang psql memproses -c/-f berurutan (Audit 1913)
+
+- Cabang psql kini mengumpulkan aksi -c/-f dari seluruh baris: -f - di mana pun membuat vonis membaca stdin, mencerminkan pemrosesan berurutan app-psql.
+
 ## [Belum rilis] — Gerbang: cabang ssh - token sesudah '--' berawalan '-' bukan tujuan (Audit 1912)
 
 - Penangan '--' cabang ssh kini mensyaratkan token tujuan tak berawalan '-': ssh menolak nama host semacam itu dan tak meneruskan stdin.

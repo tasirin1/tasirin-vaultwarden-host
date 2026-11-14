@@ -4955,16 +4955,31 @@ def _menguras_khusus(perintah, toks, awal):
         # ia membaca perintah dari stdin saat terpipa
         # (dokumentasi app-psql). -c menjalankan string
         # lalu keluar; -f berkas membaca berkas.
+        # Audit 1913: -c dan -f diproses BERURUTAN
+        # sesuai urutan kemunculannya (dokumentasi
+        # app-psql) - vonis ditentukan himpunan aksinya,
+        # bukan penentu pertama: -f - di mana pun berarti
+        # stdin tetap dibaca.
+        ada_stdin_pq = False
+        ada_tekan_pq = False
         for k_pq, t_pq in enumerate(mentah):
-            if t_pq in ("-c", "--command"):
-                return False
             if t_pq in ("-f", "--file"):
-                return (k_pq + 1 < len(mentah)
-                        and mentah[k_pq + 1] == "-")
-            if t_pq in ("-f-", "--file=-"):
-                return True
-            if t_pq in ("-l", "--list", "-V", "--version"):
+                if k_pq + 1 >= len(mentah):
+                    return False
+                if mentah[k_pq + 1] == "-":
+                    ada_stdin_pq = True
+                else:
+                    ada_tekan_pq = True
+            elif t_pq in ("-f-", "--file=-"):
+                ada_stdin_pq = True
+            elif t_pq in ("-c", "--command"):
+                ada_tekan_pq = True
+            elif t_pq in ("-l", "--list", "-V", "--version"):
                 return False
+        if ada_stdin_pq:
+            return True
+        if ada_tekan_pq:
+            return False
         return True
     if perintah == "mysql":
         # Audit 1904: tanpa -e ia berjalan sebagai
