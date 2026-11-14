@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Layar: konten disegel ulang saat resume bila PIN ditagih lagi (Audit 1805)
+
+- onResume MainActivity dan SettingsActivity kini memasang lagi segel INVISIBLE bila PinGate menagih layar PIN, jadi konten lama tidak tampil polos selama jendela transisi sesudah grace kedaluwarsa; segel dibuka jalur refresh biasa sesudah PIN lolos.
+
 ## [Belum rilis] — Gerbang: recode dengan request tanpa FILE dinilai membaca stdin (Audit 1818)
 
 - Cabang khusus recode: operand pertama adalah request pengkodean - tepat satu operand berarti filter stdin; request plus berkas membaca berkas itu; tanpa request bukan filter.

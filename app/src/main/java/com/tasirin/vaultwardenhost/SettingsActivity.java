@@ -948,6 +948,19 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Audit 1805: segel ulang saat resume - grace
+        // yang kedaluwarsa di tengah sesi tak membiarkan
+        // konten lama tampil polos sebelum layar PIN
+        // menutupi; segel dibuka jalur refresh biasa
+        // sesudah PIN lolos.
+        try {
+            if (PinGate.perlukanLayarPin(this)) {
+                kontenTersegel = true;
+                findViewById(android.R.id.content)
+                        .setVisibility(android.view.View.INVISIBLE);
+            }
+        } catch (Exception ignored) {
+        }
         sapuCacheLatar();
         refreshActive = true;
         paksaCacheUbah = true;
