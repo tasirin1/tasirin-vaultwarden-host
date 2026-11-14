@@ -18363,6 +18363,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("awalan unik -ver terikat sebagai -Version informasional: gerbang lolos (Audit 1762)", rc == 0)
         shutil.rmtree(sub856, ignore_errors=True)
+        sub857 = klon(tmp, "sub857")
+        berkas_aksi857 = os.path.join(
+            sub857, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi857, encoding="utf-8") as f:
+            isi_aksi857 = f.read()
+        baris_aksi857 = [b for b in isi_aksi857.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru857 = isi_aksi857.replace(
+                baris_aksi857,
+                baris_aksi857.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zip arsip.zip -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru857 != isi_aksi857, \
+            "suntikan aksi857 tidak menembak"
+        with open(berkas_aksi857, "w", encoding="utf-8") as f:
+            f.write(isi_baru857)
+        rc, out = jalan(sub857,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zip mengarsipkan berkas masukan - dari stdin: gerbang gagal (Audit 1763)", rc != 0)
+        shutil.rmtree(sub857, ignore_errors=True)
+        sub858 = klon(tmp, "sub858")
+        berkas_aksi858 = os.path.join(
+            sub858, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi858, encoding="utf-8") as f:
+            isi_aksi858 = f.read()
+        baris_aksi858 = [b for b in isi_aksi858.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru858 = isi_aksi858.replace(
+                baris_aksi858,
+                baris_aksi858.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zip arsip.zip berkas.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru858 != isi_aksi858, \
+            "suntikan aksi858 tidak menembak"
+        with open(berkas_aksi858, "w", encoding="utf-8") as f:
+            f.write(isi_baru858)
+        rc, out = jalan(sub858,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("zip berkas masukan biasa membaca berkas itu: gerbang lolos (Audit 1763)", rc == 0)
+        shutil.rmtree(sub858, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

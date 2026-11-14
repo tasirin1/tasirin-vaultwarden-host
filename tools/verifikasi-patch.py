@@ -3405,6 +3405,12 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1064: -@ membaca daftar nama dari stdin.
         # Audit 1094: tanpa operand arsip, zip galat sebelum
         # membaca daftar — -@ saja tidak menguras.
+        # Audit 1763: operand berkas masukan "-" mengarsipkan
+        # isi stdin sebagai entri "-" (terprobe biner nyata).
+        polos = [t for t in mentah
+                 if not t.startswith("-") or t == "-"]
+        if len(polos) >= 2 and "-" in polos[1:]:
+            return True
         if not any(t == "-@" or re.fullmatch(r"-[a-z]*@", t)
                    for t in mentah):
             return False

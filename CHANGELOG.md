@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: zip mengenal operand '-' (Audit 1763)
+
+- Cabang zip kini mengenali operand berkas masukan '-' sebagai pengarsipan isi stdin (terprobe biner nyata Info-ZIP: entri '-' tersimpan di arsip), di samping pemodelan daftar -@ yang sudah ada.
+
 ## [Belum rilis] — Gerbang: awalan unik -Version pwsh informasional (Audit 1762)
 
 - Awalan unik -Version sepanjang >= 4 aksara (mis. -ver, -versi) kini divonis informasional: pengikat parameter PowerShell mengikatnya sebagai -Version itu sendiri yang mencetak versi lalu keluar.
