@@ -5552,8 +5552,12 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1953: dag put dan block put membaca
         # masukan dari stdin; add tanpa operand path
         # membaca data dari stdin (sumber Kubo).
+        # Audit 1961: opsi global ipfs bernilai
+        # (--api/--config) dilompati.
         ops_ip = _operand_sesudah_opsi(
-            toks, awal, {"--stdin-name", "-f", "--file"})
+            toks, awal, {"--stdin-name", "-f", "--file",
+                         "--api", "--config", "-c",
+                         "--mount", "-v", "--json"})
         if "\x00gantung" in ops_ip:
             return False
         if ops_ip[:2] in (["dag", "put"], ["block", "put"]):

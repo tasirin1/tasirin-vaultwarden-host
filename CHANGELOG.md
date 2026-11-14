@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang ipfs melompati opsi global bernilai (Audit 1961)
+
+- Himpunan bernilai operand cabang ipfs kini memuat opsi globalnya (--api/--config/-c/dll).
+
 ## [Belum rilis] — Gerbang: cabang restic mengenali --stdin=true (Audit 1960)
 
 - Cabang restic kini turut menilai bentuk bendera bool rekat --stdin=true sebagai pembaca stdin.

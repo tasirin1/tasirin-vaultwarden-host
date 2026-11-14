@@ -23193,6 +23193,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--stdin=true restic membaca stdin: gerbang gagal (Audit 1960)", rc != 0)
         shutil.rmtree(sub1087, ignore_errors=True)
+        sub1088 = klon(tmp, "sub1088")
+        berkas_aksi1088 = os.path.join(
+            sub1088, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1088, encoding="utf-8") as f:
+            isi_aksi1088 = f.read()
+        baris_aksi1088 = [b for b in isi_aksi1088.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1088 = isi_aksi1088.replace(
+                baris_aksi1088,
+                baris_aksi1088.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ipfs --api /ip4/x add; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1088 != isi_aksi1088, \
+            "suntikan aksi1088 tidak menembak"
+        with open(berkas_aksi1088, "w", encoding="utf-8") as f:
+            f.write(isi_baru1088)
+        rc, out = jalan(sub1088,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi global ipfs tak merusak sub: gerbang gagal (Audit 1961)", rc != 0)
+        shutil.rmtree(sub1088, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
