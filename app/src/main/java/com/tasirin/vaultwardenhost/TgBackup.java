@@ -52,6 +52,7 @@ public final class TgBackup {
     public static final String KEY_TG_PASS = "tg_pass";
     public static final String KEY_TG_LAST_FILE = "tg_last_file";
     public static final String KEY_TG_LAST_NAME = "tg_last_name";
+    public static final String KEY_TG_LAST_BOT_ID = "tg_last_bot_id";
 
     public static final String KEY_BACKUP_TERTUNDA = "tg_backup_tertunda";
     private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
@@ -737,6 +738,8 @@ public final class TgBackup {
             if (fileId != null && !fileId.isEmpty()) {
                 edLast.putString(KEY_TG_LAST_FILE, fileId)
                         .putString(KEY_TG_LAST_NAME, upload.getName())
+                        .putString(KEY_TG_LAST_BOT_ID,
+                                TgBot.idBotDariToken(token))
                         .putLong(KEY_TG_LAST, System.currentTimeMillis());
             } else {
                 ServerService.catatLog("[tg] Penanda backup terakhir"
@@ -2119,7 +2122,8 @@ public final class TgBackup {
                     AutoUpdate.KEY_TAWARAN_UPDATE,
                     KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA,
                     LogActivity.KEY_CLIP_KEDALUWARSA,
-                    KEY_TG_LAST_FILE, TgBot.KEY_TG_BOT_ID, TgBot.KEY_TG_BOT_USER,
+                    KEY_TG_LAST_FILE, KEY_TG_LAST_BOT_ID,
+                    TgBot.KEY_TG_BOT_ID, TgBot.KEY_TG_BOT_USER,
                     TgBot.KEY_TG_MENU_HASH,
                     AlarmReceiver.KEY_THROTTLE_ALARM_ELAPSED,
                     AlarmReceiver.KEY_THROTTLE_WAKTU_ELAPSED,
@@ -2711,6 +2715,17 @@ public final class TgBackup {
         }
     }
 
+    // Audit 1727: file_id Telegram hanya berlaku untuk bot yang
+    // menerbitkannya, jadi penanda backup terakhir mencatat id bot
+    // pemiliknya. Penanda warisan (tanpa id) atau token yang id-nya
+    // tak terbaca TIDAK dianggap milik bot lain — pola yang sama
+    // dengan penjaga offset per-bot (Audit 779).
+    static boolean penandaBotLain(String idPenanda, String idKini) {
+        return idPenanda != null && idKini != null
+                && !idPenanda.isEmpty() && !idKini.isEmpty()
+                && !idPenanda.equals(idKini);
+    }
+
     public static String downloadLastBackup(Context ctx, File dest) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String token = Util.amanTrim(amanString(sp, KEY_TG_TOKEN, ""));
@@ -2718,6 +2733,15 @@ public final class TgBackup {
         String name = amanString(sp, KEY_TG_LAST_NAME, "backup.zip");
         if (token.isEmpty() || fileId.isEmpty()) {
             throw new IOException("Belum ada backup terkirim dari app ini.");
+        }
+        // Audit 1727: penanda milik bot lain tak akan pernah bisa
+        // diunduh bot ini (getFile selalu HTTP 400) — sampaikan
+        // sebab sebenarnya, bukan galat Telegram generik.
+        if (penandaBotLain(amanString(sp, KEY_TG_LAST_BOT_ID, ""),
+                TgBot.idBotDariToken(token))) {
+            throw new IOException("Belum ada backup terkirim dari bot ini"
+                    + " - backup terakhir dibuat dengan bot lain."
+                    + " Kirim /backup dulu dengan bot ini.");
         }
         String path = getFilePath(ctx, token, fileId);
         HttpURLConnection conn = null;

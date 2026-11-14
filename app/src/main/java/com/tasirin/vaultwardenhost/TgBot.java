@@ -2000,6 +2000,16 @@ public final class TgBot {
         if ((name == null || name.isEmpty()) && (fileId == null || fileId.isEmpty())) {
             return "Belum ada backup terkirim dari app ini. Kirim /backup dulu.";
         }
+        // Audit 1727: jangan tawarkan restore dari penanda milik
+        // bot lain — file_id-nya tak berlaku untuk bot ini.
+        if (TgBackup.penandaBotLain(
+                TgBackup.amanString(sp, TgBackup.KEY_TG_LAST_BOT_ID, ""),
+                idBotDariToken(TgBackup.amanString(sp,
+                        TgBackup.KEY_TG_TOKEN, "")))) {
+            return "Belum ada backup terkirim dari bot ini"
+                    + " - backup terakhir dibuat dengan bot lain."
+                    + " Kirim /backup dulu.";
+        }
         if (name == null || name.isEmpty()) {
             name = "backup terakhir";
         }

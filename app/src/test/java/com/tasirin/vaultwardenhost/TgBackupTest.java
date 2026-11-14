@@ -1821,6 +1821,20 @@ public class TgBackupTest {
     }
 
     @Test
+    public void penandaBotLainHanyaBilaKeduaIdAdaDanBerbeda() {
+        // Audit 1727: penanda hanya dianggap milik bot lain bila
+        // kedua id terbaca dan berbeda; penanda warisan tanpa id
+        // dan token tak terbaca tetap dianggap milik bot ini.
+        assertTrue(TgBackup.penandaBotLain("111", "222"));
+        assertFalse(TgBackup.penandaBotLain("111", "111"));
+        assertFalse(TgBackup.penandaBotLain("", "222"));
+        assertFalse(TgBackup.penandaBotLain("111", ""));
+        assertFalse(TgBackup.penandaBotLain(null, "222"));
+        assertFalse(TgBackup.penandaBotLain("111", null));
+        assertFalse(TgBackup.penandaBotLain(null, null));
+    }
+
+    @Test
     public void pinOnHasilRestoreIkutPerangkat() {
         assertTrue(TgBackup.pinOnHasilRestore(true, "PBKDF2$120000$aa$bb"));
         assertFalse(TgBackup.pinOnHasilRestore(false, "PBKDF2$120000$aa$bb"));
@@ -1836,6 +1850,9 @@ public class TgBackupTest {
         assertFalse(TgBackup.kunciDiekspor("tg_token"));
         assertFalse(TgBackup.kunciDiekspor("tg_last_file"));
         assertFalse(TgBackup.kunciDiekspor("tg_last_name"));
+        // Audit 1727: id bot pemilik penanda ikut tak diekspor,
+        // sejajar kunci penanda lainnya.
+        assertFalse(TgBackup.kunciDiekspor("tg_last_bot_id"));
         assertFalse(TgBackup.kunciDiekspor("tg_low_storage_notified"));
         assertFalse(TgBackup.kunciDiekspor("tg_bot_id"));
         assertFalse(TgBackup.kunciDiekspor("tg_bot_user"));

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda backup terakhir terikat ke bot pemiliknya (Audit 1727)
+
+- Penanda backup terakhir (file_id/nama/tanggal) kini mencatat id bot yang membuatnya dan hanya ditawarkan ke bot yang sama: file_id Telegram hanya berlaku untuk bot penerbitnya, jadi sesudah ganti token ke bot lain /restore dan unduh backup terakhir kini menjawab jelas bahwa backup itu milik bot lain (minta /backup dulu), bukan gagal HTTP 400 tanpa penjelasan. Penanda lama tanpa id tetap berlaku (pola penjaga offset per-bot, Audit 779).
+
 ## [Belum rilis] — Gerbang: lua -v telanjang tidak membaca stdin (Audit 1726)
 
 - Bentuk `lua -v` tanpa skrip kini divonis mencetak versi lalu keluar (lua.c: has_v menghalangi pembacaan stdin sebagai program); bentuk -v bersama skrip tidak berubah.
