@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pixz dikenal sebagai pembaca stdin (Audit 1808)
+
+- Nama pixz masuk daftar pembaca stdin: bawaannya memakai stdin/stdout kecuali argumen INPUT/OUTPUT diberikan.
+
 ## [Belum rilis] — Gerbang: keluarga lbzip2 dikenal sebagai pembaca stdin (Audit 1807)
 
 - Nama lbzip2, lbunzip2, dan lbzcat masuk daftar pembaca stdin: tanpa FILE ketiganya bekerja sebagai filter stdin ke stdout.
