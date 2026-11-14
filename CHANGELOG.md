@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pwsh -NoExit dinilai (Audit 1740)
+
+- Pindaian cabang pwsh/powershell tidak lagi berhenti di aksi pertama: -NoExit di posisi saklar mana pun memberi vonis menguras (host tetap interaktif membaca stdin sesudah -File/-Command selesai, dokumentasi about_Pwsh); nilai '-' tetap langsung menguras dan token nilai -File/-Command dilompati, bukan dinilai sebagai saklar.
+
 ## [Belum rilis] — Gerbang: applet pembungkus busybox/toybox dinilai tuntas (Audit 1739)
 
 - Resolusi busybox/toybox pindah ke dalam putaran pengupasan pembungkus gerbang: applet yang berupa pembungkus (timeout/nice/env/xargs/sudo) kini dikupas tahap yang sama sebelum perintah dalamnya dinilai - sebelumnya `busybox timeout 5 cat` lolos karena pergeseran applet Audit 1738 melompati tahap itu.

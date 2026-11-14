@@ -4048,18 +4048,32 @@ def _menguras_khusus(perintah, toks, awal):
     # dari stdin; -File berkas, -Command berisi string, dan
     # operand naskah menekan pembacaan itu.
     if perintah in ("pwsh", "powershell"):
+        # Audit 1740: -NoExit membuat host tetap interaktif sesudah
+        # -File/-Command selesai (dokumentasi about_Pwsh) - stdin
+        # lalu dibaca sebagai perintah REPL, jadi pindaian tidak
+        # berhenti di aksi pertama: nilai "-" tetap langsung True,
+        # nilai berkas/string dicatat sebagai aksi dan pindaian
+        # berlanjut mencari -NoExit (token nilai itu sendiri
+        # dilompati, bukan dinilai sebagai saklar).
         i_pw = 0
+        aksi_pw = False
         while i_pw < len(mentah):
             t_pw = mentah[i_pw].lower()
+            if t_pw == "-noexit":
+                return True
             if t_pw in ("-file", "-command", "-c"):
                 if i_pw + 1 >= len(mentah):
                     return False
-                return mentah[i_pw + 1] == "-"
+                if mentah[i_pw + 1] == "-":
+                    return True
+                aksi_pw = True
+                i_pw += 2
+                continue
             if t_pw.startswith("-"):
                 i_pw += 1
                 continue
             return False
-        return True
+        return not aksi_pw
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
