@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: duckdb dinilai membaca stdin (Audit 1986)
+
+- duckdb kini dinilai: polos atau basis data saja membaca perintah dari stdin; -c dan operand kueri menekannya.
+
 ## [Belum rilis] — Gerbang: kafka-console-producer dinilai membaca stdin (Audit 1985)
 
 - kafka-console-producer (dan bentuk .sh) kini dinilai: ia membaca baris pesan dari stdin.

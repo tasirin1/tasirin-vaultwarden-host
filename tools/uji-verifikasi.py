@@ -23697,6 +23697,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("kafka producer membaca stdin: gerbang gagal (Audit 1985)", rc != 0)
         shutil.rmtree(sub1111, ignore_errors=True)
+        sub1112 = klon(tmp, "sub1112")
+        berkas_aksi1112 = os.path.join(
+            sub1112, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1112, encoding="utf-8") as f:
+            isi_aksi1112 = f.read()
+        baris_aksi1112 = [b for b in isi_aksi1112.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1112 = isi_aksi1112.replace(
+                baris_aksi1112,
+                baris_aksi1112.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(duckdb; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1112 != isi_aksi1112, \
+            "suntikan aksi1112 tidak menembak"
+        with open(berkas_aksi1112, "w", encoding="utf-8") as f:
+            f.write(isi_baru1112)
+        rc, out = jalan(sub1112,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("duckdb polos membaca stdin: gerbang gagal (Audit 1986)", rc != 0)
+        shutil.rmtree(sub1112, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
