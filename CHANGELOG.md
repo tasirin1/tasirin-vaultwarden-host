@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai pinentry didaftarkan (Audit 1861)
+
+- Entri opsi bernilai pinentry (-o/--timeout, -D/--display, -T/--ttyname, -C/--lc-ctype, -M/--lc-messages) ditambahkan: ia membaca perintah Assuan dari stdin.
+
 ## [Belum rilis] — Gerbang: opsi bernilai utmpdump didaftarkan (Audit 1860)
 
 - Entri opsi bernilai utmpdump (-o/--output berkas keluaran) ditambahkan: sumber bawaannya stdin kini dinilai benar.

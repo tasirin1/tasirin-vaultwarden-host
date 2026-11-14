@@ -1031,6 +1031,10 @@ _OPSI_BERNILAI = {
     "c++filt": {"-s", "--format"},
     # Audit 1860: opsi bernilai utmpdump.
     "utmpdump": {"-o", "--output"},
+    # Audit 1861: opsi bernilai pinentry.
+    "pinentry": {"-o", "--timeout", "-D", "--display",
+                 "-T", "--ttyname", "-C", "--lc-ctype",
+                 "-M", "--lc-messages"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",
