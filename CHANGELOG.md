@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang ssh - token sesudah '--' berawalan '-' bukan tujuan (Audit 1912)
+
+- Penangan '--' cabang ssh kini mensyaratkan token tujuan tak berawalan '-': ssh menolak nama host semacam itu dan tak meneruskan stdin.
+
 ## [Belum rilis] — Gerbang: cabang ssh menolak opsi bernilai menggantung (Audit 1911)
 
 - Cabang ssh kini menggugurkan opsi bernilai yang menggantung di token terakhir (terpisah maupun di ujung bundel): ssh galat tanpa membaca stdin.

@@ -4779,7 +4779,11 @@ def _menguras_khusus(perintah, toks, awal):
             if t_sh == "-" and not tujuan_sh:
                 return False
             if t_sh == "--":
-                tujuan_sh = i_sh + 1 < len(mentah)
+                # Audit 1912: token sesudah -- adalah
+                # tujuan harfiah - yang berawalan '-'
+                # bukan nama host sah (ssh menolaknya).
+                tujuan_sh = (i_sh + 1 < len(mentah)
+                             and not mentah[i_sh + 1].startswith("-"))
                 break
             if t_sh in bernilai_ssh:
                 # Audit 1911: opsi bernilai di token
