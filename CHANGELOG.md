@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: glab dinilai - api --input - dan auth login --stdin (Audit 1932)
+
+- glab kini dinilai: api --input -/field @- dan auth login --stdin membaca dari stdin.
+
 ## [Belum rilis] — Gerbang: cabang gh menilai api --input - dan berkas badan '-' (Audit 1931)
 
 - Cabang gh kini juga menilai api --input -, field -F berisi @-, serta --body-file/--notes-file berupa '-' pada pr/issue/release sebagai pembaca stdin.

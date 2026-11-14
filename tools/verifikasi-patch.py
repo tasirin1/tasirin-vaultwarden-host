@@ -5281,6 +5281,24 @@ def _menguras_khusus(perintah, toks, awal):
             sisa_et.append(t_et)
             j_et += 1
         return len(sisa_et) == 1
+    if perintah == "glab":
+        # Audit 1932: api --input - dan field @-
+        # membaca badan dari stdin; auth login
+        # --stdin membaca token dari stdin (man glab).
+        for k_gl, t_gl in enumerate(mentah):
+            if t_gl == "--stdin":
+                return True
+            if t_gl == "--input":
+                if (k_gl + 1 < len(mentah)
+                        and mentah[k_gl + 1] == "-"):
+                    return True
+            elif t_gl == "--input=-":
+                return True
+            elif (t_gl in ("-F", "--field")
+                    and k_gl + 1 < len(mentah)
+                    and "@-" in mentah[k_gl + 1]):
+                return True
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6861,7 +6879,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "consul", "etcdctl", "nerdctl", "oc", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "consul", "etcdctl", "glab", "nerdctl", "oc", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
