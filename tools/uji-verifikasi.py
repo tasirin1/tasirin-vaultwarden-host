@@ -18930,6 +18930,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai opsi global bun dilompati, '-' adalah skrip stdin: gerbang gagal (Audit 1788)", rc != 0)
         shutil.rmtree(sub883, ignore_errors=True)
+        sub884 = klon(tmp, "sub884")
+        berkas_aksi884 = os.path.join(
+            sub884, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi884, encoding="utf-8") as f:
+            isi_aksi884 = f.read()
+        baris_aksi884 = [b for b in isi_aksi884.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru884 = isi_aksi884.replace(
+                baris_aksi884,
+                baris_aksi884.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(bun -e x -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru884 != isi_aksi884, \
+            "suntikan aksi884 tidak menembak"
+        with open(berkas_aksi884, "w", encoding="utf-8") as f:
+            f.write(isi_baru884)
+        rc, out = jalan(sub884,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sesudah -e, '-' adalah argumen posisi skrip eval: gerbang lolos (Audit 1789)", rc == 0)
+        shutil.rmtree(sub884, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

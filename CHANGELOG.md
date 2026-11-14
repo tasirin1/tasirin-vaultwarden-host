@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bun -e mengalahkan '-' (Audit 1789)
+
+- Bila -e/--eval hadir, token '-' pada cabang bun divonis argumen posisi skrip eval (argv), bukan skrip dari stdin - terprobe fungsional: bun -e mencetak hasil eval saja dan stdin tak tersentuh.
+
 ## [Belum rilis] — Gerbang: opsi bernilai bun lengkap (Audit 1788)
 
 - Himpunan opsi bernilai bun yang dilompati nilainya diperluas dari hanya -e/--eval menjadi juga --cwd, --config, --env-file, --port, --host, dan --hostname: nilai terpisahnya dulu jatuh sebagai operand dan menyembunyikan skrip '-' dari stdin (terprobe fungsional bun).

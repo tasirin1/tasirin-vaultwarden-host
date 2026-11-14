@@ -4482,6 +4482,15 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"-e", "--eval", "--cwd", "--config",
                          "--env-file", "--port", "--host",
                          "--hostname"})
+        # Audit 1789: sesudah -e/--eval, token '-' adalah
+        # argumen posisi skrip eval (argv), bukan skrip dari
+        # stdin (terprobe fungsional bun 1.4.4).
+        if ops_bn and ops_bn[0] == "-" and any(
+                t in ("-e", "--eval")
+                or t.startswith("--eval=")
+                or (t.startswith("-e") and len(t) > 2)
+                for t in mentah):
+            return False
         if not ops_bn:
             return False
         # Audit 1732: `bun -` dan `bun run -` menjalankan
