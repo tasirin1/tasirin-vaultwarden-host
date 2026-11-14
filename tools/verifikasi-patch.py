@@ -4677,7 +4677,10 @@ def _menguras_khusus(perintah, toks, awal):
                 nilai_d = t_d.split("=", 1)[1]
             elif (t_d.startswith("-f")
                     and not t_d.startswith("--")):
+                # Audit 1857: bentuk -f=nilai pflag.
                 nilai_d = t_d[2:]
+                if nilai_d.startswith("="):
+                    nilai_d = nilai_d[1:]
             if nilai_d is not None:
                 # Audit 1850: nilai harfiah "stdin" pada
                 # -f adalah cara dasel menyebut stdin.

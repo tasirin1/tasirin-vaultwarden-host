@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang dasel - bentuk -f=nilai diurai (Audit 1857)
+
+- Cabang dasel kini membuang '=' awalan pada nilai menempel: -f=stdin dikenali sebagai stdin, menyamai sintaks pflag dasel v2.
+
 ## [Belum rilis] — Gerbang: cabang mlr - keluarga opsi pemisah bernilai ditelan (Audit 1856)
 
 - Himpunan telan mlr dilengkapi keluarga pemisah resmi Miller: --rs, --irs, --ors, --fs, --ifs, --ofs, --ps, --ips, --ops, --ifs-regex, --ips-regex.

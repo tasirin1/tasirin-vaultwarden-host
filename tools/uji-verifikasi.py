@@ -21072,6 +21072,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--ips-regex mlr bernilai pola pemisah: gerbang gagal (Audit 1856)", rc != 0)
         shutil.rmtree(sub985, ignore_errors=True)
+        sub986 = klon(tmp, "sub986")
+        berkas_aksi986 = os.path.join(
+            sub986, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi986, encoding="utf-8") as f:
+            isi_aksi986 = f.read()
+        baris_aksi986 = [b for b in isi_aksi986.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru986 = isi_aksi986.replace(
+                baris_aksi986,
+                baris_aksi986.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dasel -f=stdin .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru986 != isi_aksi986, \
+            "suntikan aksi986 tidak menembak"
+        with open(berkas_aksi986, "w", encoding="utf-8") as f:
+            f.write(isi_baru986)
+        rc, out = jalan(sub986,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bentuk -f=stdin dasel (pflag) berarti stdin: gerbang gagal (Audit 1857)", rc != 0)
+        shutil.rmtree(sub986, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
