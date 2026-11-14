@@ -23739,6 +23739,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("pg_restore tanpa berkas membaca stdin: gerbang gagal (Audit 1987)", rc != 0)
         shutil.rmtree(sub1113, ignore_errors=True)
+        sub1114 = klon(tmp, "sub1114")
+        berkas_aksi1114 = os.path.join(
+            sub1114, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1114, encoding="utf-8") as f:
+            isi_aksi1114 = f.read()
+        baris_aksi1114 = [b for b in isi_aksi1114.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1114 = isi_aksi1114.replace(
+                baris_aksi1114,
+                baris_aksi1114.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(nats pub subjek; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1114 != isi_aksi1114, \
+            "suntikan aksi1114 tidak menembak"
+        with open(berkas_aksi1114, "w", encoding="utf-8") as f:
+            f.write(isi_baru1114)
+        rc, out = jalan(sub1114,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nats pub subjek saja membaca body dari stdin: gerbang gagal (Audit 1988)", rc != 0)
+        shutil.rmtree(sub1114, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

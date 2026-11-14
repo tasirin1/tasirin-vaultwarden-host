@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nats dinilai - pub/request subjek saja dari stdin (Audit 1988)
+
+- nats kini dinilai: pub/request dengan tepat subjek saja membaca body pesan dari stdin.
+
 ## [Belum rilis] — Gerbang: pg_restore dinilai - tanpa berkas membaca stdin (Audit 1987)
 
 - pg_restore kini dinilai: tanpa operand nama berkas ia membaca arsip dari stdin.

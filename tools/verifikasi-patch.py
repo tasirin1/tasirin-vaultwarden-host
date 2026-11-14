@@ -5791,6 +5791,20 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_pr:
             return False
         return not ops_pr
+    if perintah == "nats":
+        # Audit 1988: pub/request dengan subjek saja
+        # membaca body pesan dari stdin (README
+        # resmi natscli).
+        ops_nt = _operand_sesudah_opsi(
+            toks, awal, {"--server", "-s", "--user",
+                         "--password", "--creds",
+                         "--nkey", "--cert", "--key",
+                         "--ca", "--context", "--timeout",
+                         "--count", "--header", "-H"})
+        if "\x00gantung" in ops_nt:
+            return False
+        return (len(ops_nt) == 2
+                and ops_nt[0] in ("pub", "request", "req"))
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -7383,7 +7397,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "borg", "buildah", "clickhouse-client", "consul", "convert", "crictl", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "nano", "nerdctl", "oc", "pandoc", "pg_restore", "rclone", "restic", "s-nail", "sendmail", "skopeo", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "borg", "buildah", "clickhouse-client", "consul", "convert", "crictl", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "nano", "nats", "nerdctl", "oc", "pandoc", "pg_restore", "rclone", "restic", "s-nail", "sendmail", "skopeo", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
