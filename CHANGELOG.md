@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: aws s3 cp dari '-' dinilai mengunggah stdin (Audit 1934)
+
+- aws kini dinilai terbatas: s3 cp dengan operand sumber '-' mengunggah isi stdin; '-' di tujuan (stdout) tak dinilai.
+
 ## [Belum rilis] — Gerbang: clickhouse-client polos dinilai membaca stdin (Audit 1933)
 
 - clickhouse-client kini dinilai: tanpa --query ia membaca query dari stdin saat terpipa (mode batch).

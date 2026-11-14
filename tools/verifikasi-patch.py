@@ -5305,6 +5305,18 @@ def _menguras_khusus(perintah, toks, awal):
         # resmi ClickHouse); klaim dibatasi bentuk
         # tanpa --query.
         return "--query" not in mentah
+    if perintah == "aws":
+        # Audit 1934: hanya s3 cp dengan SUMBER '-'
+        # yang mengunggah isi stdin (AWS CLI User
+        # Guide); '-' di tujuan berarti stdout.
+        if len(mentah) >= 2 and mentah[0] == "s3" \
+                and mentah[1] == "cp":
+            ops_aw = _operand_sesudah_opsi(
+                toks, awal + 2, {"--region", "--endpoint-url"})
+            if "\x00gantung" in ops_aw:
+                return False
+            return len(ops_aw) >= 2 and ops_aw[0] == "-"
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6885,7 +6897,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "clickhouse-client", "consul", "etcdctl", "glab", "nerdctl", "oc", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "clickhouse-client", "consul", "etcdctl", "glab", "nerdctl", "oc", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
