@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: dc dinilai (Audit 1749)
+
+- dc kini dinilai penilai khusus gerbang mengikuti manual GNU dc: tanpa berkas dan tanpa -e/-f perintah dibaca dari stdin, nama berkas '-' adalah aliran stdin, dan berkas operand atau -e/-f menggantikan stdin. Sebelumnya dc tak dikenal dispatch gerbang.
+
 ## [Belum rilis] — Gerbang: bc dinilai (Audit 1748)
 
 - bc kini dinilai penilai khusus gerbang: ia membaca standard input sesudah semua berkas operand dibaca (POSIX bc; manual GNU bc), jadi semua bentuknya divonis menguras (penjaga informasional tetap berlaku untuk --help/--version). Sebelumnya bc tak dikenal dispatch gerbang sama sekali.

@@ -4103,6 +4103,33 @@ def _menguras_khusus(perintah, toks, awal):
     # diketahui gerbang.
     if perintah == "bc":
         return True
+    # Audit 1749: dc membaca perintah dari stdin bila tanpa
+    # berkas dan tanpa -e (manual GNU dc); berkas operand
+    # atau -e/-f menggantikan stdin, dan "-" adalah nama
+    # berkas aliran stdin.
+    if perintah == "dc":
+        i_dc = 0
+        aksi_dc = False
+        while i_dc < len(mentah):
+            t_dc = mentah[i_dc].lower()
+            if t_dc in ("-e", "--expression", "-f", "--file"):
+                if i_dc + 1 >= len(mentah):
+                    return False
+                aksi_dc = True
+                i_dc += 2
+                continue
+            if (t_dc.startswith("--expression=")
+                    or t_dc.startswith("--file=")):
+                aksi_dc = True
+                i_dc += 1
+                continue
+            if mentah[i_dc] == "-":
+                return True
+            if t_dc.startswith("-"):
+                i_dc += 1
+                continue
+            return False
+        return not aksi_dc
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5389,7 +5416,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # 1202/1204: penilai khusus putaran-7.
                         "pdftotext", "nft", "ip", "tc", "bridge",
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
-                        "pwsh", "powershell", "bc",
+                        "pwsh", "powershell", "bc", "dc",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

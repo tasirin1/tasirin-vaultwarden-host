@@ -17901,6 +17901,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("bc --version cetak versi lalu keluar: gerbang lolos (Audit 1748)", rc == 0)
         shutil.rmtree(sub834, ignore_errors=True)
+        sub835 = klon(tmp, "sub835")
+        berkas_aksi835 = os.path.join(
+            sub835, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi835, encoding="utf-8") as f:
+            isi_aksi835 = f.read()
+        baris_aksi835 = [b for b in isi_aksi835.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru835 = isi_aksi835.replace(
+                baris_aksi835,
+                baris_aksi835.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru835 != isi_aksi835, \
+            "suntikan aksi835 tidak menembak"
+        with open(berkas_aksi835, "w", encoding="utf-8") as f:
+            f.write(isi_baru835)
+        rc, out = jalan(sub835,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("dc telanjang membaca perintah dari stdin: gerbang gagal (Audit 1749)", rc != 0)
+        shutil.rmtree(sub835, ignore_errors=True)
+        sub836 = klon(tmp, "sub836")
+        berkas_aksi836 = os.path.join(
+            sub836, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi836, encoding="utf-8") as f:
+            isi_aksi836 = f.read()
+        baris_aksi836 = [b for b in isi_aksi836.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru836 = isi_aksi836.replace(
+                baris_aksi836,
+                baris_aksi836.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dc berkas.dc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru836 != isi_aksi836, \
+            "suntikan aksi836 tidak menembak"
+        with open(berkas_aksi836, "w", encoding="utf-8") as f:
+            f.write(isi_baru836)
+        rc, out = jalan(sub836,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("dc dengan berkas operand membaca berkas itu: gerbang lolos (Audit 1749)", rc == 0)
+        shutil.rmtree(sub836, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
