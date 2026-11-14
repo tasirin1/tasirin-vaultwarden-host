@@ -21366,6 +21366,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-b bukan opsi lbzip2 - 2 adalah operand berkas: gerbang lolos (Audit 1866)", rc == 0)
         shutil.rmtree(sub999, ignore_errors=True)
+        sub1000 = klon(tmp, "sub1000")
+        berkas_aksi1000 = os.path.join(
+            sub1000, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1000, encoding="utf-8") as f:
+            isi_aksi1000 = f.read()
+        baris_aksi1000 = [b for b in isi_aksi1000.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1000 = isi_aksi1000.replace(
+                baris_aksi1000,
+                baris_aksi1000.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(plzip -B 1MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1000 != isi_aksi1000, \
+            "suntikan aksi1000 tidak menembak"
+        with open(berkas_aksi1000, "w", encoding="utf-8") as f:
+            f.write(isi_baru1000)
+        rc, out = jalan(sub1000,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-B/--data-size plzip bernilai: gerbang gagal (Audit 1867)", rc != 0)
+        shutil.rmtree(sub1000, ignore_errors=True)
+        sub1001 = klon(tmp, "sub1001")
+        berkas_aksi1001 = os.path.join(
+            sub1001, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1001, encoding="utf-8") as f:
+            isi_aksi1001 = f.read()
+        baris_aksi1001 = [b for b in isi_aksi1001.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1001 = isi_aksi1001.replace(
+                baris_aksi1001,
+                baris_aksi1001.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(plzip --format lzip; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1001 != isi_aksi1001, \
+            "suntikan aksi1001 tidak menembak"
+        with open(berkas_aksi1001, "w", encoding="utf-8") as f:
+            f.write(isi_baru1001)
+        rc, out = jalan(sub1001,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("plzip tak punya --format - nilainya operand: gerbang lolos (Audit 1867)", rc == 0)
+        shutil.rmtree(sub1001, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

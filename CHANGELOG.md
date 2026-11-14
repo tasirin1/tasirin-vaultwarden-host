@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: entri plzip dilengkapi dan --format palsu dicabut (Audit 1867)
+
+- Entri plzip dilengkapi -B/--data-size, -s, -m, -o/--output per manual Texinfo plzip dan --format yang tidak ada di plzip dicabut.
+
 ## [Belum rilis] — Gerbang: entri lbzip2 diganti ke opsi bernilai sebenarnya -n (Audit 1866)
 
 - Ketiga entri keluarga lbzip2 (lbzip2, lbzcat, lbunzip2) diganti dari {-b, --block-size} yang tidak ada di lbzip2 menjadi {-n}: manual resmi lbzip2 2.5 menyebut -n (jumlah benang) satu-satunya opsi bernilai.

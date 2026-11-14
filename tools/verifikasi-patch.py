@@ -994,8 +994,9 @@ _OPSI_BERNILAI = {
     # Audit 1802: gzcat adalah nama varian zcat.
     "gzcat": {"-S", "--suffix"},
     # Audit 1819: opsi bernilai plzip.
-    "plzip": {"-n", "--threads", "--dictionary-size",
-              "--match-length", "--format"},
+    "plzip": {"-n", "--threads", "--dictionary-size", "-s",
+              "--match-length", "-m", "-B", "--data-size",
+              "-o", "--output"},
     # Audit 1820: opsi bernilai lbzip2.
     "lbzip2": {"-n"},
     # Audit 1821: opsi bernilai pixz.
