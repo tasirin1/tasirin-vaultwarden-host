@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: contoh header berperedaksi simbol dikunci sebagai residu diterima (Audit 1742)
+
+- Satu skenario uji-diri baru mengunci perilaku yang disadari: dokumen contoh header teredaksi bersimbol (@) dengan ekor >=16 huruf tertangkap pola bungkus. Bentuk itu tak bisa dibedakan pada lapisan blob dari header asli yang tersela komentar beraksara sama (yang wajib tertangkap sejak Audit 1733), jadi permukaannya diterima sebagai residu - sejajar perlakuan Audit 1554/1568 - dan skenario ini memastikan pelebaran/pempersempitan di masa depan adalah perubahan yang disengaja.
+
 ## [Belum rilis] — Label audit tidak dicabut pada peristiwa dibuka-ulang (Audit 1741)
 
 - Workflow label-audit kini mengecualikan peristiwa reopened dari cabang pencabut label: membuka ulang tidak mengubah badan issue, jadi label audit yang terpasang manual pada issue lama tanpa baris penanda tidak lagi gugur tepat saat issue itu dibuka ulang untuk dikerjakan (pencabutan Audit 625 tetap berlaku untuk suntingan badan).

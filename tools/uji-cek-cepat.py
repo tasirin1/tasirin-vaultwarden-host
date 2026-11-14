@@ -320,6 +320,17 @@ def main():
                 and "token-sela-at.txt" in out)
         shutil.rmtree(tokenselaat, ignore_errors=True)
 
+        contohsela = klon(tmp, "contohsela")
+        tanam(contohsela, "contoh-header.md",
+              "Contoh header teredaksi -----BEGIN RSA @ PRIVATE "
+              "KEY----- diikuti keterangan penjelasan panjang\n", "w")
+        rc, out = jalan(contohsela, ["bash", SKRIP])
+        periksa("contoh header berperedaksi simbol + ekor panjang "
+                "tertangkap - residu diterima (Audit 1742)",
+                rc != 0 and "pola rahasia" in out
+                and "contoh-header.md" in out)
+        shutil.rmtree(contohsela, ignore_errors=True)
+
         kunciselatitik = klon(tmp, "kunciselatitik")
         tanam(kunciselatitik, "kunci-sela-titik.txt",
               "-----BEGIN OPENSSH\n...\n"
