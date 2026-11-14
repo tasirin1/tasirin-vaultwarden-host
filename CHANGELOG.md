@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nano dinilai - '-' membaca stdin (Audit 1968)
+
+- nano kini dinilai: nama berkas '-' berarti membaca data dari stdin.
+
 ## [Belum rilis] — Cek-cepat: fase bungkus memakai jendela geser (anti-kuadratik) (Audit 1967)
 
 - Akumulasi blob fase bungkus kini jendela geser 8192 aksara dengan pemeriksaan tiap langkah: berkas 8 MB yang kemarin memakan ±293 detik kini selesai dalam hitungan detik, sedangkan rentang token (jauh di bawah jendela) tetap tertangkap utuh.

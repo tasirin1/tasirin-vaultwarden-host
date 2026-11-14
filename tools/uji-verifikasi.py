@@ -23319,6 +23319,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("bundel -it crictl meneruskan stdin: gerbang gagal (Audit 1966)", rc != 0)
         shutil.rmtree(sub1093, ignore_errors=True)
+        sub1094 = klon(tmp, "sub1094")
+        berkas_aksi1094 = os.path.join(
+            sub1094, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1094, encoding="utf-8") as f:
+            isi_aksi1094 = f.read()
+        baris_aksi1094 = [b for b in isi_aksi1094.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1094 = isi_aksi1094.replace(
+                baris_aksi1094,
+                baris_aksi1094.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(nano -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1094 != isi_aksi1094, \
+            "suntikan aksi1094 tidak menembak"
+        with open(berkas_aksi1094, "w", encoding="utf-8") as f:
+            f.write(isi_baru1094)
+        rc, out = jalan(sub1094,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nano - membaca stdin: gerbang gagal (Audit 1968)", rc != 0)
+        shutil.rmtree(sub1094, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
