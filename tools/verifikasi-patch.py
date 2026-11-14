@@ -4163,6 +4163,27 @@ def _menguras_khusus(perintah, toks, awal):
     # suntingan, sumber perintahnya tetap stdin.
     if perintah == "ed":
         return True
+    # Audit 1757: hexdump menampilkan berkas yang disebut,
+    # atau standard input bila tak ada berkas (hexdump(1));
+    # hd adalah nama panggil yang sama. Opsi bernilai -n/-s
+    # (angka) dan -e/-f (string/berkas format) dilompati
+    # beserta nilainya.
+    if perintah in ("hexdump", "hd"):
+        i_hx = 0
+        while i_hx < len(mentah):
+            t_hx = mentah[i_hx].lower()
+            if t_hx in ("-n", "-s", "-e", "-f"):
+                if i_hx + 1 >= len(mentah):
+                    return False
+                i_hx += 2
+                continue
+            if mentah[i_hx] == "-":
+                return True
+            if t_hx.startswith("-"):
+                i_hx += 1
+                continue
+            return False
+        return True
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5450,6 +5471,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "pdftotext", "nft", "ip", "tc", "bridge",
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
                         "pwsh", "powershell", "bc", "dc", "ed",
+                        "hexdump", "hd",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

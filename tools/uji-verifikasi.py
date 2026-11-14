@@ -18153,6 +18153,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gpg dekripsi berkas operand membaca berkas itu: gerbang lolos (Audit 1756)", rc == 0)
         shutil.rmtree(sub846, ignore_errors=True)
+        sub847 = klon(tmp, "sub847")
+        berkas_aksi847 = os.path.join(
+            sub847, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi847, encoding="utf-8") as f:
+            isi_aksi847 = f.read()
+        baris_aksi847 = [b for b in isi_aksi847.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru847 = isi_aksi847.replace(
+                baris_aksi847,
+                baris_aksi847.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(hexdump -C; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru847 != isi_aksi847, \
+            "suntikan aksi847 tidak menembak"
+        with open(berkas_aksi847, "w", encoding="utf-8") as f:
+            f.write(isi_baru847)
+        rc, out = jalan(sub847,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("hexdump tanpa berkas membaca stdin: gerbang gagal (Audit 1757)", rc != 0)
+        shutil.rmtree(sub847, ignore_errors=True)
+        sub848 = klon(tmp, "sub848")
+        berkas_aksi848 = os.path.join(
+            sub848, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi848, encoding="utf-8") as f:
+            isi_aksi848 = f.read()
+        baris_aksi848 = [b for b in isi_aksi848.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru848 = isi_aksi848.replace(
+                baris_aksi848,
+                baris_aksi848.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(hexdump berkas.bin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru848 != isi_aksi848, \
+            "suntikan aksi848 tidak menembak"
+        with open(berkas_aksi848, "w", encoding="utf-8") as f:
+            f.write(isi_baru848)
+        rc, out = jalan(sub848,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("hexdump berkas operand menampilkan berkas itu: gerbang lolos (Audit 1757)", rc == 0)
+        shutil.rmtree(sub848, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

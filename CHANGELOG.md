@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: hexdump dan hd dinilai (Audit 1757)
+
+- hexdump dan nama panggilnya hd kini dinilai penilai khusus gerbang mengikuti hexdump(1): berkas yang disebut ditampilkan, tanpa berkas standard input yang dibaca; opsi bernilai -n/-s/-e/-f dilompati beserta nilainya dan operand '-' berarti stdin.
+
 ## [Belum rilis] — Gerbang: gpg modus kripto mengenal operand '-' (Audit 1756)
 
 - Ekor cabang gpg kini mengenali operand '-' sebagai stdin juga pada modus kripto dan pada gpg nyaris telanjang (hanya bendera global), sejajar keluarga verify Audit 1150 - terprobe biner nyata: gpg --decrypt -, -d -, -c -, dan gpg - semuanya membaca pesan dari stdin.
