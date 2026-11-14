@@ -4658,6 +4658,8 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         i_m = 0
         kata_kerja = False
+        kata = ""
+        ekspresi_ditelan = False
         while i_m < len(mentah):
             t_m = mentah[i_m]
             if t_m == "--":
@@ -4680,11 +4682,19 @@ def _menguras_khusus(perintah, toks, awal):
                             return False
                         i_m += 1
                         continue
-                    i_m += 2 if t_m == "--from" else 1
+                    # Audit 1849: opsi global bernilai
+                    # lain nilainya ditelan, bukan kata
+                    # kerja/berkas.
+                    i_m += 2 if t_m in (
+                        "--ofmt", "--ofmte", "--ofmtf",
+                        "--ofmtg", "--seed", "--tz", "--load",
+                        "--files", "--profile", "-P",
+                        "--nr-progress-mod") else 1
                     continue
                 if "." in t_m or "/" in t_m:
                     return False
                 kata_kerja = True
+                kata = t_m
                 i_m += 1
                 continue
             if t_m == "-":
@@ -4693,6 +4703,11 @@ def _menguras_khusus(perintah, toks, awal):
                 i_m += 1
                 continue
             if mentah[i_m - 1].startswith("-"):
+                i_m += 1
+                continue
+            if (kata in ("put", "filter")
+                    and not ekspresi_ditelan):
+                ekspresi_ditelan = True
                 i_m += 1
                 continue
             return False

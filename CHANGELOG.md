@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mlr - opsi global bernilai ditelan (Audit 1849)
+
+- Nilai opsi global mlr (--ofmt dan keluarga, --seed, --tz, --load, --files, --profile/-P, --nr-progress-mod) kini ditelan sebelum kata kerja dinilai; operand pertama kata kerja ekspresi put/filter adalah ekspresi DSL, bukan berkas.
+
 ## [Belum rilis] — Gerbang: cabang mlr - --from/--mfrom menamai berkas masukan (Audit 1848)
 
 - Cabang mlr kini mencatat --from/--mfrom sebagai sumber berkas: nilai selain '-' berarti stdin tak dibaca; nilai '-' tetap berarti stdin.
