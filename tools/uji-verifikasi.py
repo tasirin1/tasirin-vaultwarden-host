@@ -20400,6 +20400,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--block-size lbunzip2 bernilai: gerbang gagal (Audit 1845)", rc != 0)
         shutil.rmtree(sub953, ignore_errors=True)
+        sub954 = klon(tmp, "sub954")
+        berkas_aksi954 = os.path.join(
+            sub954, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi954, encoding="utf-8") as f:
+            isi_aksi954 = f.read()
+        baris_aksi954 = [b for b in isi_aksi954.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru954 = isi_aksi954.replace(
+                baris_aksi954,
+                baris_aksi954.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lziprecover -o hasil; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru954 != isi_aksi954, \
+            "suntikan aksi954 tidak menembak"
+        with open(berkas_aksi954, "w", encoding="utf-8") as f:
+            f.write(isi_baru954)
+        rc, out = jalan(sub954,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-o lziprecover berkas keluaran bernilai - tanpa FILE ia mendekompresi stdin: gerbang gagal (Audit 1846)", rc != 0)
+        shutil.rmtree(sub954, ignore_errors=True)
+        sub955 = klon(tmp, "sub955")
+        berkas_aksi955 = os.path.join(
+            sub955, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi955, encoding="utf-8") as f:
+            isi_aksi955 = f.read()
+        baris_aksi955 = [b for b in isi_aksi955.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru955 = isi_aksi955.replace(
+                baris_aksi955,
+                baris_aksi955.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lziprecover --output hasil; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru955 != isi_aksi955, \
+            "suntikan aksi955 tidak menembak"
+        with open(berkas_aksi955, "w", encoding="utf-8") as f:
+            f.write(isi_baru955)
+        rc, out = jalan(sub955,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--output lziprecover bernilai: gerbang gagal (Audit 1846)", rc != 0)
+        shutil.rmtree(sub955, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai lziprecover didaftarkan (Audit 1846)
+
+- Entri opsi bernilai lziprecover (-o/--output berkas keluaran) ditambahkan: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: lbzcat dan lbunzip2 berbagi entri lbzip2 (Audit 1845)
 
 - Kedua alias lbzip2 kini berentri {-b, --block-size} seperti lbzip2: nilainya tak lagi terhitung operand.
