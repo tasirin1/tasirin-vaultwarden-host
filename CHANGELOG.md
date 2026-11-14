@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai bun lengkap (Audit 1788)
+
+- Himpunan opsi bernilai bun yang dilompati nilainya diperluas dari hanya -e/--eval menjadi juga --cwd, --config, --env-file, --port, --host, dan --hostname: nilai terpisahnya dulu jatuh sebagai operand dan menyembunyikan skrip '-' dari stdin (terprobe fungsional bun).
+
 ## [Belum rilis] — Gerbang: 7z @listfile bukan arsip (Audit 1787)
 
 - Uji operand arsip pada cabang 7z kini mengecualikan token @listfile: token itu memasok daftar isi menurut manual sintaks resmi, bukan nama arsip, jadi bentuk -si tanpa nama arsip divonis gugur perintah.

@@ -18909,6 +18909,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("@listfile bukan nama arsip 7z - tanpa arsip perintah gugur: gerbang lolos (Audit 1787)", rc == 0)
         shutil.rmtree(sub882, ignore_errors=True)
+        sub883 = klon(tmp, "sub883")
+        berkas_aksi883 = os.path.join(
+            sub883, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi883, encoding="utf-8") as f:
+            isi_aksi883 = f.read()
+        baris_aksi883 = [b for b in isi_aksi883.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru883 = isi_aksi883.replace(
+                baris_aksi883,
+                baris_aksi883.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(bun --cwd /tmp -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru883 != isi_aksi883, \
+            "suntikan aksi883 tidak menembak"
+        with open(berkas_aksi883, "w", encoding="utf-8") as f:
+            f.write(isi_baru883)
+        rc, out = jalan(sub883,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai opsi global bun dilompati, '-' adalah skrip stdin: gerbang gagal (Audit 1788)", rc != 0)
+        shutil.rmtree(sub883, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

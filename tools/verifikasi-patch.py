@@ -4474,7 +4474,14 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
-        ops_bn = _operand_sesudah_opsi(toks, awal, {"-e", "--eval"})
+        # Audit 1788: opsi global bernilai bun dilompati
+        # beserta nilainya (--cwd/--config/--env-file/dll),
+        # bukan hanya -e/--eval - nilai terpisahnya dulu
+        # jatuh sebagai operand dan menyembunyikan '-'.
+        ops_bn = _operand_sesudah_opsi(
+            toks, awal, {"-e", "--eval", "--cwd", "--config",
+                         "--env-file", "--port", "--host",
+                         "--hostname"})
         if not ops_bn:
             return False
         # Audit 1732: `bun -` dan `bun run -` menjalankan
