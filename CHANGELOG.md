@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: varian 7za/7zr/7zz dinilai (Audit 1784)
+
+- Nama varian 7za, 7zr, dan 7zz kini masuk tuple penilai khusus dan cabang 7z: halaman man ketiganya memuat semantik -si yang identik dengan 7z(1).
+
 ## [Belum rilis] — Gerbang: 7z u -si dinilai (Audit 1783)
 
 - Syarat perintah cabang 7z diperluas dari hanya a menjadi a dan u: referensi saklar resmi 7-Zip mencantumkan -si 'To Use With: a, u', jadi update dari stdin sama mengurasnya dengan add.

@@ -18825,6 +18825,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("7z u -si membaca data dari stdin untuk update: gerbang gagal (Audit 1783)", rc != 0)
         shutil.rmtree(sub878, ignore_errors=True)
+        sub879 = klon(tmp, "sub879")
+        berkas_aksi879 = os.path.join(
+            sub879, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi879, encoding="utf-8") as f:
+            isi_aksi879 = f.read()
+        baris_aksi879 = [b for b in isi_aksi879.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru879 = isi_aksi879.replace(
+                baris_aksi879,
+                baris_aksi879.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(7za a -si arsip.7z; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru879 != isi_aksi879, \
+            "suntikan aksi879 tidak menembak"
+        with open(berkas_aksi879, "w", encoding="utf-8") as f:
+            f.write(isi_baru879)
+        rc, out = jalan(sub879,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("varian 7za dengan a -si membaca stdin seperti 7z: gerbang gagal (Audit 1784)", rc != 0)
+        shutil.rmtree(sub879, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
