@@ -5990,6 +5990,33 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             break
                         if ch_b != "t":
                             break
+                if (t0 == "watch" and len(opsi) > 2
+                        and opsi.startswith("-")
+                        and not opsi.startswith("--")):
+                    # Audit 1877: bundel watch diurai setia
+                    # getopt - 'n' opsi bernilai di posisi mana
+                    # pun: sisa token adalah nilainya, atau
+                    # token berikutnya bila ia huruf terakhir.
+                    # Sisa tak diawali digit/titik (termasuk
+                    # bentuk -n=...) membuat watch galat
+                    # sebelum menjalankan anak: tak ada anak.
+                    for j_w in range(1, len(opsi)):
+                        ch_w = opsi[j_w]
+                        if ch_w == "n":
+                            sisa_w = opsi[j_w + 1:]
+                            if sisa_w:
+                                if sisa_w[0] not in "0123456789.":
+                                    awal = len(toks)
+                            else:
+                                awal = _sesudah_redirect_berantai(
+                                    toks, awal, _batas_argv)
+                                if awal < 0:
+                                    return False
+                                if awal < len(toks):
+                                    awal += 1
+                            break
+                        if ch_w not in "degptx":
+                            break
                 if opsi in bernilai:
                     # Audit 968: redirect yang menyela bukan nilai
                     # opsi — lompati dulu, baru telan nilainya.

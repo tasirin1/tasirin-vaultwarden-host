@@ -21639,6 +21639,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--pipe + --scope konflik: gerbang lolos (Audit 1876)", rc == 0)
         shutil.rmtree(sub1013, ignore_errors=True)
+        sub1014 = klon(tmp, "sub1014")
+        berkas_aksi1014 = os.path.join(
+            sub1014, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1014, encoding="utf-8") as f:
+            isi_aksi1014 = f.read()
+        baris_aksi1014 = [b for b in isi_aksi1014.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1014 = isi_aksi1014.replace(
+                baris_aksi1014,
+                baris_aksi1014.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(watch -tn 1 cpan -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1014 != isi_aksi1014, \
+            "suntikan aksi1014 tidak menembak"
+        with open(berkas_aksi1014, "w", encoding="utf-8") as f:
+            f.write(isi_baru1014)
+        rc, out = jalan(sub1014,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel watch -tn: -n di ujung menelan nilai: gerbang gagal (Audit 1877)", rc != 0)
+        shutil.rmtree(sub1014, ignore_errors=True)
+        sub1015 = klon(tmp, "sub1015")
+        berkas_aksi1015 = os.path.join(
+            sub1015, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1015, encoding="utf-8") as f:
+            isi_aksi1015 = f.read()
+        baris_aksi1015 = [b for b in isi_aksi1015.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1015 = isi_aksi1015.replace(
+                baris_aksi1015,
+                baris_aksi1015.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(watch -nt cpan -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1015 != isi_aksi1015, \
+            "suntikan aksi1015 tidak menembak"
+        with open(berkas_aksi1015, "w", encoding="utf-8") as f:
+            f.write(isi_baru1015)
+        rc, out = jalan(sub1015,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel watch -nt: nilai bundel tak sah, anak tak jalan: gerbang lolos (Audit 1877)", rc == 0)
+        shutil.rmtree(sub1015, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

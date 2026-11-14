@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bundel opsi watch diurai setia getopt di resolver pembungkus (Audit 1877)
+
+- Resolver pembungkus kini mengurai bundel huruf watch huruf demi huruf: -n bernilai di posisi mana pun menelan sisa token atau token berikutnya sebagai nilainya; sisa yang tak diawali digit/titik (termasuk -n=...) membuat watch galat sebelum menjalankan anak, jadi tak ada anak yang dinilai.
+
 ## [Belum rilis] — Gerbang: systemd-run menolak --pipe=x/--scope=x dan kombinasi --pipe+--scope (Audit 1876)
 
 - Cabang systemd-run kini menolak bentuk berargumen pada bendera boolean --pipe/--scope dan kombinasi --pipe bersama --scope: keduanya ditolak systemd-run sungguhan sehingga tak ada perintah yang berjalan.
