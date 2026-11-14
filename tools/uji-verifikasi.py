@@ -19077,6 +19077,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xargs tanpa -a di depan perintah khusus tetap menguras untuk itemnya: gerbang gagal (Audit 1796)", rc != 0)
         shutil.rmtree(sub890, ignore_errors=True)
+        sub891 = klon(tmp, "sub891")
+        berkas_aksi891 = os.path.join(
+            sub891, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi891, encoding="utf-8") as f:
+            isi_aksi891 = f.read()
+        baris_aksi891 = [b for b in isi_aksi891.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru891 = isi_aksi891.replace(
+                baris_aksi891,
+                baris_aksi891.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cpio -iFarsip.cpio; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru891 != isi_aksi891, \
+            "suntikan aksi891 tidak menembak"
+        with open(berkas_aksi891, "w", encoding="utf-8") as f:
+            f.write(isi_baru891)
+        rc, out = jalan(sub891,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("cluster cpio dengan -F di tengah token adalah arsip berkas: gerbang lolos (Audit 1797)", rc == 0)
+        shutil.rmtree(sub891, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

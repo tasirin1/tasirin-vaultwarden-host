@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cluster cpio -F di tengah token dikenali (Audit 1797)
+
+- Opsi -F di tengah cluster (mis. -iFarsip.cpio) kini diperlakukan berargumen wajib seperti getopt: huruf sesudah F adalah nilai berkas, hanya kepala cluster yang dipindai huruf modusnya.
+
 ## [Belum rilis] — Gerbang: bendera xargs_sendiri berlaku di semua jalur dispatch (Audit 1796)
 
 - Jalur interpreter, kompiler ternormalkan, mapfile, dan penilai khusus kini meng-OR-kan bendera xargs (Audit 971): `xargs dc berkas.dc` dan sekelasnya tak lagi lolos - xargs tanpa -a menguras stdin untuk itemnya apa pun perintah anaknya.

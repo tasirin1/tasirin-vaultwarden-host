@@ -4354,9 +4354,18 @@ def _menguras_khusus(perintah, toks, awal):
             elif t_cp in ("--extract", "--list"):
                 modus_cp = "baca"
             elif t_cp.startswith("-") and t_cp != "-":
-                if "o" in t_cp or "p" in t_cp:
+                # Audit 1797: -F di tengah cluster juga
+                # berargumen wajib (getopt) - huruf
+                # sesudahnya nilai berkas, bukan huruf
+                # modus; kepala cluster tetap dipindai.
+                kepala_cp = t_cp
+                if not t_cp.startswith("--") and "F" in t_cp:
+                    pos_cp = t_cp.index("F")
+                    berkas_cp = t_cp[pos_cp + 1:]
+                    kepala_cp = t_cp[:pos_cp]
+                if "o" in kepala_cp or "p" in kepala_cp:
                     modus_cp = "tulis"
-                elif "i" in t_cp or "t" in t_cp:
+                elif "i" in kepala_cp or "t" in kepala_cp:
                     modus_cp = "baca"
             i_cp += 1
         if modus_cp == "tulis":
