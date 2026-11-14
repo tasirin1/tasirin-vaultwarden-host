@@ -4061,7 +4061,8 @@ def _menguras_khusus(perintah, toks, awal):
             t_pw = mentah[i_pw].lower()
             if t_pw == "-noexit":
                 return True
-            if t_pw in ("-file", "-command", "-c"):
+            if t_pw in ("-file", "-command", "-c",
+                        "-encodedcommand"):
                 # Audit 1744: -File dan -Command tidak bisa
                 # digabung dalam satu perintah (dokumentasi
                 # about_Pwsh) - aksi kedua membuat host menolak
@@ -4071,9 +4072,23 @@ def _menguras_khusus(perintah, toks, awal):
                     return False
                 if i_pw + 1 >= len(mentah):
                     return False
-                if mentah[i_pw + 1] == "-":
+                if (mentah[i_pw + 1] == "-"
+                        and t_pw != "-encodedcommand"):
                     return True
                 aksi_pw = True
+                i_pw += 2
+                continue
+            if t_pw in ("-configurationname",
+                        "-configurationfile", "-custompipename",
+                        "-executionpolicy", "-inputformat",
+                        "-outputformat", "-settingsfile",
+                        "-windowstyle", "-workingdirectory"):
+                # Audit 1745: opsi bernilai lain - nilainya
+                # bukan operand naskah; lompati beserta nilainya
+                # agar bentuk tanpa -File/-Command tetap divonis
+                # interaktif (membaca perintah dari stdin).
+                if i_pw + 1 >= len(mentah):
+                    return False
                 i_pw += 2
                 continue
             if t_pw.startswith("-"):

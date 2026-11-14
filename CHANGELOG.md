@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai pwsh dikenal (Audit 1745)
+
+- Cabang pwsh kini mengenal -EncodedCommand sebagai aksi (string berkode dieksekusi lalu keluar; nilai '-' bukan stdin) dan sembilan opsi bernilai lain (-WorkingDirectory, -InputFormat, -OutputFormat, -ExecutionPolicy, -ConfigurationName, -ConfigurationFile, -CustomPipeName, -SettingsFile, -WindowStyle) yang nilainya dilompati: bentuk tanpa -File/-Command seperti `pwsh -WorkingDirectory /tmp` kini benar divonis interaktif.
+
 ## [Belum rilis] — Gerbang: aksi kedua pwsh ditolak (Audit 1744)
 
 - Pindaian pwsh kini menolak aksi kedua: -File dan -Command tidak bisa digabung dalam satu perintah (dokumentasi about_Pwsh) sehingga host keluar sebelum membaca stdin - `pwsh -File x -Command -` tidak lagi divonis menguras (perubahan tak diniatkan dari restruktur Audit 1740).
