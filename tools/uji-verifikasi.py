@@ -22605,6 +22605,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("glab api --input - membaca badan dari stdin: gerbang gagal (Audit 1932)", rc != 0)
         shutil.rmtree(sub1059, ignore_errors=True)
+        sub1060 = klon(tmp, "sub1060")
+        berkas_aksi1060 = os.path.join(
+            sub1060, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1060, encoding="utf-8") as f:
+            isi_aksi1060 = f.read()
+        baris_aksi1060 = [b for b in isi_aksi1060.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1060 = isi_aksi1060.replace(
+                baris_aksi1060,
+                baris_aksi1060.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(clickhouse-client; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1060 != isi_aksi1060, \
+            "suntikan aksi1060 tidak menembak"
+        with open(berkas_aksi1060, "w", encoding="utf-8") as f:
+            f.write(isi_baru1060)
+        rc, out = jalan(sub1060,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("clickhouse-client polos membaca query dari stdin: gerbang gagal (Audit 1933)", rc != 0)
+        shutil.rmtree(sub1060, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

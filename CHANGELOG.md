@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: clickhouse-client polos dinilai membaca stdin (Audit 1933)
+
+- clickhouse-client kini dinilai: tanpa --query ia membaca query dari stdin saat terpipa (mode batch).
+
 ## [Belum rilis] — Gerbang: glab dinilai - api --input - dan auth login --stdin (Audit 1932)
 
 - glab kini dinilai: api --input -/field @- dan auth login --stdin membaca dari stdin.
