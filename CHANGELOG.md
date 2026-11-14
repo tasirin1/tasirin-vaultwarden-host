@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: perwujudan indeks memakai perbandingan indeks-pohon kerja (Audit 1925)
+
+- Syarat perwujudan indeks kini memakai git diff --quiet (indeks vs pohon kerja), bukan --cached (indeks vs HEAD): isi ter-stage/ter-commit yang berbeda dari pohon kerja selalu diwujudkan.
+
 ## [Belum rilis] — Cek-cepat: escape \U 8 digit didekode perata bungkus (Audit 1924)
 
 - Fungsi proses() kini turut mendekode escape \UXXXXXXXX (8 digit heksa) sesudah \uXXXX, dengan pemotongan byte rendah yang sama untuk nilai di atas ASCII.

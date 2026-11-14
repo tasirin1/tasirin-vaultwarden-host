@@ -912,6 +912,19 @@ def main():
                 "(Audit 1924)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(escape_umodal, ignore_errors=True)
+        komit_ganti = klon(tmp, "komitganti")
+        tanam(komit_ganti, "token-komit-ganti.txt",
+              "token: " + token_palsu[:paruh] + "\n"
+              + token_palsu[paruh:] + "\n", "w")
+        with open(os.path.join(
+                komit_ganti, "token-komit-ganti.txt"),
+                "w") as f_kg:
+            f_kg.write("isi jinak sesudah commit\n")
+        rc, out = jalan(komit_ganti, ["bash", SKRIP])
+        periksa("token terbelah ter-commit lalu ditimpa "
+                "jinak tertangkap (Audit 1925)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(komit_ganti, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
