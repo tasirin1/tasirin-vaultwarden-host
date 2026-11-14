@@ -790,6 +790,15 @@ def main():
                 "tertangkap (Audit 1882)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(sela_taklihat, ignore_errors=True)
+        sela_spasi = klon(tmp, "selaspasi")
+        tanam(sela_spasi, "token-sela-spasi.txt",
+              "token: " + token_palsu[:15] + "\u2009"
+              + token_palsu[15:] + "\n", "w")
+        rc, out = jalan(sela_spasi, ["bash", SKRIP])
+        periksa("token tersela spasi tipis U+2009 tertangkap "
+                "(Audit 1883)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(sela_spasi, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

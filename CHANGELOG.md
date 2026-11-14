@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: keluarga spasi Unicode dikupas perata bungkus (Audit 1883)
+
+- Fungsi proses() kini mengupas seluruh keluarga spasi Unicode (U+2000-U+200A, U+2028, U+2029, U+202F, U+205F, U+3000) selain NBSP dan U+2003 yang sudah ada.
+
 ## [Belum rilis] — Cek-cepat: aksara tak terlihat Unicode dikupas perata bungkus (Audit 1882)
 
 - Fungsi proses() kini juga mengupas aksara tak terlihat U+200B, U+200C, U+200D, U+2060, dan U+00AD sehingga token yang diselanya tersambung kembali dan tertangkap fase bungkus.
