@@ -22290,6 +22290,69 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--execute= mariadb menjalankan lalu keluar: gerbang lolos (Audit 1915)", rc == 0)
         shutil.rmtree(sub1044, ignore_errors=True)
+        sub1045 = klon(tmp, "sub1045")
+        berkas_aksi1045 = os.path.join(
+            sub1045, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1045, encoding="utf-8") as f:
+            isi_aksi1045 = f.read()
+        baris_aksi1045 = [b for b in isi_aksi1045.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1045 = isi_aksi1045.replace(
+                baris_aksi1045,
+                baris_aksi1045.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(docker exec --interactive x c; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1045 != isi_aksi1045, \
+            "suntikan aksi1045 tidak menembak"
+        with open(berkas_aksi1045, "w", encoding="utf-8") as f:
+            f.write(isi_baru1045)
+        rc, out = jalan(sub1045,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--interactive docker meneruskan stdin: gerbang gagal (Audit 1916)", rc != 0)
+        shutil.rmtree(sub1045, ignore_errors=True)
+        sub1046 = klon(tmp, "sub1046")
+        berkas_aksi1046 = os.path.join(
+            sub1046, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1046, encoding="utf-8") as f:
+            isi_aksi1046 = f.read()
+        baris_aksi1046 = [b for b in isi_aksi1046.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1046 = isi_aksi1046.replace(
+                baris_aksi1046,
+                baris_aksi1046.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(docker exec x grep -i pola berkas; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1046 != isi_aksi1046, \
+            "suntikan aksi1046 tidak menembak"
+        with open(berkas_aksi1046, "w", encoding="utf-8") as f:
+            f.write(isi_baru1046)
+        rc, out = jalan(sub1046,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'-i' wilayah perintah docker bukan bendera: gerbang lolos (Audit 1918)", rc == 0)
+        shutil.rmtree(sub1046, ignore_errors=True)
+        sub1047 = klon(tmp, "sub1047")
+        berkas_aksi1047 = os.path.join(
+            sub1047, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1047, encoding="utf-8") as f:
+            isi_aksi1047 = f.read()
+        baris_aksi1047 = [b for b in isi_aksi1047.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1047 = isi_aksi1047.replace(
+                baris_aksi1047,
+                baris_aksi1047.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(docker run -w/dir citra; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1047 != isi_aksi1047, \
+            "suntikan aksi1047 tidak menembak"
+        with open(berkas_aksi1047, "w", encoding="utf-8") as f:
+            f.write(isi_baru1047)
+        rc, out = jalan(sub1047,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel -w docker bernilai bukan -i: gerbang lolos (Audit 1921)", rc == 0)
+        shutil.rmtree(sub1047, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

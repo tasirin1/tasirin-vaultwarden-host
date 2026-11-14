@@ -4883,15 +4883,54 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1898: exec/run -i menjaga stdin tetap
         # terbuka dan meneruskannya ke kontainer
         # (docs.docker.com).
-        sub_dk = any(t_dk in ("exec", "run") for t_dk in mentah)
-        if not sub_dk:
+        # Audit 1916/1918/1921: wilayah opsi hanya
+        # sesudah sub-perintah dan sebelum operand
+        # pertama (nama kontainer/citra) - '-i' di
+        # wilayah perintah milik perintah kontainer;
+        # bentuk panjang --interactive berlaku; bundel
+        # diurai setia getopt (huruf bernilai menelan
+        # sisa bundel / token berikutnya).
+        sub_dk = None
+        for k_dk, t_dk in enumerate(mentah):
+            if t_dk in ("exec", "run"):
+                sub_dk = k_dk
+                break
+        if sub_dk is None:
             return False
-        for t_dk in mentah:
-            if t_dk == "-i":
+        nilai_dk = {"e", "u", "w", "v", "p", "m", "h"}
+        panjang_dk = {"--env", "--user", "--workdir",
+                      "--volume", "--publish", "--name",
+                      "--network", "--memory", "--env-file",
+                      "--entrypoint", "--hostname", "--mount",
+                      "--add-host", "--dns", "--label",
+                      "--label-file", "--ip", "--expose",
+                      "--restart", "--pull", "--platform",
+                      "--cidfile", "--detach-keys",
+                      "--log-driver", "--health-cmd"}
+        j_dk = sub_dk + 1
+        while j_dk < len(mentah):
+            t_dk = mentah[j_dk]
+            if t_dk == "--":
+                return False
+            if t_dk in ("-i", "--interactive",
+                        "--interactive=true"):
                 return True
-            if (t_dk.startswith("-") and not t_dk.startswith("--")
-                    and len(t_dk) > 2 and "i" in t_dk[1:]):
-                return True
+            if t_dk.startswith("--"):
+                j_dk += 2 if t_dk in panjang_dk else 1
+                continue
+            if t_dk.startswith("-") and len(t_dk) > 1:
+                lompat_dk = 1
+                huruf_dk = t_dk[1:]
+                for pos_dk, h_dk in enumerate(huruf_dk):
+                    if h_dk == "i":
+                        return True
+                    if h_dk in nilai_dk:
+                        if pos_dk == len(huruf_dk) - 1:
+                            lompat_dk = 2
+                        break
+                j_dk += lompat_dk
+                continue
+            return False
         return False
     if perintah == "podman":
         # Audit 1899: exec/run -i mengonsumsi stdin
