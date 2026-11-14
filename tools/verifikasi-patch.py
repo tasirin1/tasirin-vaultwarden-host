@@ -2099,6 +2099,10 @@ def _menguras_interpreter(perintah, toks, awal):
             # (bentuk spasi saja; bentuk = ditolak CPython
             # 3.12.3 terprobe) - nilainya bukan operand.
             if t == "--check-hash-based-pycs":
+                # Audit 1720: menggantung = "Argument expected"
+                # lalu keluar (sejajar -W/-X Audit 1708).
+                if i + 1 >= n:
+                    return False
                 i += 2
                 continue
             if t.split("=")[0] not in ("--safe-path",):

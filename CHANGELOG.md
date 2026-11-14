@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --check-hash-based-pycs tanpa nilai divonis galat (Audit 1720)
+
+- Bentuk `python3 --check-hash-based-pycs` tanpa nilai sesudahnya kini divonis galat lalu keluar (CPython: Argument expected); cabang Audit 1707 menelan dua token tanpa memeriksa sisa token sehingga bentuk menggantung ini divonis menguras stdin.
+
 ## [Belum rilis] — Gerbang: huruf h pada bundel python dikenali sebagai bantuan (Audit 1719)
 
 - Bundel opsi python yang memuat huruf `h` (mis. `python3 -hi skrip.py`) kini divonis sama seperti `-h`/`-V`: interpreter mencetak bantuan lalu keluar tanpa membaca masukan sebagai program. Sebelumnya huruf itu lolos dari daftar periksa bundel (Audit 1694/1705) sehingga bentuknya divonis menguras stdin.
