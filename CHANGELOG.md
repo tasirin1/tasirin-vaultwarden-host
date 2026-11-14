@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mariadb dinilai - mode polos terpipa membaca stdin (Audit 1905)
+
+- mariadb kini dinilai mencerminkan mysql: mode polos terpipa membaca stdin, -e menekan pembacaan itu.
+
 ## [Belum rilis] — Gerbang: mysql dinilai - mode polos terpipa membaca stdin (Audit 1904)
 
 - mysql kini dinilai: tanpa -e ia berjalan sebagai filter membaca stdin saat terpipa; -e/--execute menjalankan string lalu keluar.

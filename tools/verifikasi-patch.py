@@ -4913,6 +4913,18 @@ def _menguras_khusus(perintah, toks, awal):
                     and not t_my.startswith("--")):
                 return False
         return True
+    if perintah == "mariadb":
+        # Audit 1905: cermin mysql 1904 (klien MariaDB:
+        # mode masukan terpipa membaca stdin;
+        # dokumentasi mariadb.com).
+        for t_md in mentah:
+            if t_md in ("-e", "--execute", "-V", "--version",
+                        "--help"):
+                return False
+            if (t_md.startswith("-e") and len(t_md) > 2
+                    and not t_md.startswith("--")):
+                return False
+        return True
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6477,7 +6489,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "terraform", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "terraform", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
