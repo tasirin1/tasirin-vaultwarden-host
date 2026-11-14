@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang nc - --recv-only ncat tak meneruskan stdin (Audit 1910)
+
+- Cabang nc kini menilai --recv-only pada ncat sebagai tak meneruskan stdin (hanya menerima), mencerminkan --send-only yang sudah ada.
+
 ## [Belum rilis] — Gerbang: cabang nc - -I/-M/-m/-O/-P didaftarkan sebagai opsi bernilai (Audit 1909)
 
 - Himpunan opsi bernilai cabang nc kini memuat -I/-M/-m/-O/-P (OpenBSD nc): nilainya tak lagi terhitung host sehingga bentuk tanpa host divonis galat pemakaian.

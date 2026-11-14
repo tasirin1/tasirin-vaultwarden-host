@@ -3910,6 +3910,10 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1092: mode pindai -z hanya menguji port terbuka.
         if "-z" in mentah:
             return False
+        # Audit 1910: --recv-only ncat hanya menerima -
+        # stdin tak diteruskan (Ncat Reference Guide).
+        if perintah == "ncat" and "--recv-only" in mentah:
+            return False
         ops_nc = _operand_sesudah_opsi(
             toks, awal, {"-p", "-s", "-X", "-x", "-w", "-i", "-q",
                          "-I", "-M", "-m", "-O", "-P",
