@@ -19056,6 +19056,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai menempel -e pada dc adalah ekspresi aksi: gerbang lolos (Audit 1794)", rc == 0)
         shutil.rmtree(sub889, ignore_errors=True)
+        sub890 = klon(tmp, "sub890")
+        berkas_aksi890 = os.path.join(
+            sub890, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi890, encoding="utf-8") as f:
+            isi_aksi890 = f.read()
+        baris_aksi890 = [b for b in isi_aksi890.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru890 = isi_aksi890.replace(
+                baris_aksi890,
+                baris_aksi890.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xargs dc berkas.dc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru890 != isi_aksi890, \
+            "suntikan aksi890 tidak menembak"
+        with open(berkas_aksi890, "w", encoding="utf-8") as f:
+            f.write(isi_baru890)
+        rc, out = jalan(sub890,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xargs tanpa -a di depan perintah khusus tetap menguras untuk itemnya: gerbang gagal (Audit 1796)", rc != 0)
+        shutil.rmtree(sub890, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

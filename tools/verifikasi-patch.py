@@ -5794,9 +5794,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                            # (mksh = sh bawaan Android).
                            "mksh", "tcsh", "csh", "yash",
                            "ruby", "php", "lua", "luajit"):
-            return _menguras_interpreter(nama_interp, toks, awal)
+# Audit 1796: bendera xargs_sendiri (Audit 971) berlaku
+            # di semua jalur return dispatch - xargs tanpa -a
+            # menguras stdin untuk itemnya apa pun anaknya.
+            return xargs_sendiri or _menguras_interpreter(
+                nama_interp, toks, awal)
         if perintah in ("mapfile", "readarray"):
-            return _menguras_mapfile(toks, awal)
+            return xargs_sendiri or _menguras_mapfile(toks, awal)
         # Audit 1302-1304: nama kompiler bertriple/bersufiks
         # versi dinormalkan ke nama kanonisnya.
         m_komp = re.fullmatch(
@@ -5807,7 +5811,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             r"(gcc|g\+\+|cc|c\+\+|cpp|as)"
             r"(?:-\d+(?:\.\d+)?)?", perintah)
         if m_komp:
-            return _menguras_khusus(m_komp.group(1), toks, awal)
+            return xargs_sendiri or _menguras_khusus(
+                m_komp.group(1), toks, awal)
         if perintah in ("sqlite3", "openssl", "tar", "git",
                         "comm", "join", "diff", "diff3", "csplit",
                         "zip", "rsync", "socat", "gpg", "gpg2",
@@ -5877,7 +5882,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "npm",
                         "gm"):
             # Audit 1059-1072: penilai subcommand/bentuk khas.
-            return _menguras_khusus(perintah, toks, awal)
+            return xargs_sendiri or _menguras_khusus(
+                perintah, toks, awal)
         return xargs_sendiri
     if xargs_dari_berkas and perintah != "tee":
         # Audit 962: perintah anak menerima operand item dari berkas

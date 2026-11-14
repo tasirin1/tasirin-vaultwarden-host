@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bendera xargs_sendiri berlaku di semua jalur dispatch (Audit 1796)
+
+- Jalur interpreter, kompiler ternormalkan, mapfile, dan penilai khusus kini meng-OR-kan bendera xargs (Audit 971): `xargs dc berkas.dc` dan sekelasnya tak lagi lolos - xargs tanpa -a menguras stdin untuk itemnya apa pun perintah anaknya.
+
 ## [Belum rilis] — Cek-cepat: kupas byte NUL (Audit 1795)
 
 - Fungsi proses() kini membuang byte NUL dari tiap baris sebelum kupasan lain: pencocokan pola mawk berhenti di NUL (semantik string-C), jadi token yang rentangnya disisipi 0x00 dulu lolos; kini rentangnya menyambung dan tertangkap pola bungkus.
