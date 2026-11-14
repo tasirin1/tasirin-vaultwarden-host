@@ -23340,6 +23340,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nano - membaca stdin: gerbang gagal (Audit 1968)", rc != 0)
         shutil.rmtree(sub1094, ignore_errors=True)
+        sub1095 = klon(tmp, "sub1095")
+        berkas_aksi1095 = os.path.join(
+            sub1095, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1095, encoding="utf-8") as f:
+            isi_aksi1095 = f.read()
+        baris_aksi1095 = [b for b in isi_aksi1095.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1095 = isi_aksi1095.replace(
+                baris_aksi1095,
+                baris_aksi1095.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gnuplot; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1095 != isi_aksi1095, \
+            "suntikan aksi1095 tidak menembak"
+        with open(berkas_aksi1095, "w", encoding="utf-8") as f:
+            f.write(isi_baru1095)
+        rc, out = jalan(sub1095,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("gnuplot polos membaca stdin: gerbang gagal (Audit 1969)", rc != 0)
+        shutil.rmtree(sub1095, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

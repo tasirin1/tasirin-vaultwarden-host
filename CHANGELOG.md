@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gnuplot dinilai membaca stdin (Audit 1969)
+
+- gnuplot kini dinilai: tanpa berkas muatan atau dengan nama '-' ia membaca perintah dari stdin.
+
 ## [Belum rilis] — Gerbang: nano dinilai - '-' membaca stdin (Audit 1968)
 
 - nano kini dinilai: nama berkas '-' berarti membaca data dari stdin.
