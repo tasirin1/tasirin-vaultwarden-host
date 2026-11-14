@@ -819,7 +819,7 @@ _INFO_HURUF = {"cpan": {"-v", "-V", "-h"},
 
 _OPSI_BERNILAI = {
     "head": {"-n", "-c", "--lines", "--bytes"},
-    "tail": {"-n", "-c", "--lines", "--bytes", "--pid", "--sleep",
+    "tail": {"-n", "-c", "--lines", "--bytes", "--pid", "--sleep", "-s",
              # Audit 1166: nama resmi --sleep-interval (--sleep
              # hanya singkatan getopt yang kebetulan lolos).
              "--sleep-interval", "--max-unchanged-stats"},

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -s ditambahkan ke entri opsi bernilai tail (Audit 1878)
+
+- Entri tail kini memuat -s (bentuk pendek --sleep-interval): nilainya tak lagi terhitung operand berkas sehingga mode ikuti tanpa berkas dinilai membaca stdin.
+
 ## [Belum rilis] — Gerbang: bundel opsi watch diurai setia getopt di resolver pembungkus (Audit 1877)
 
 - Resolver pembungkus kini mengurai bundel huruf watch huruf demi huruf: -n bernilai di posisi mana pun menelan sisa token atau token berikutnya sebagai nilainya; sisa yang tak diawali digit/titik (termasuk -n=...) membuat watch galat sebelum menjalankan anak, jadi tak ada anak yang dinilai.
