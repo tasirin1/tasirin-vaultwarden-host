@@ -4665,6 +4665,21 @@ def _menguras_khusus(perintah, toks, awal):
                 return not sisa_m or "-" in sisa_m
             if not kata_kerja:
                 if t_m.startswith("-") and t_m != "-":
+                    # Audit 1848: --from/--mfrom menamai
+                    # berkas masukan - stdin tak dibaca
+                    # kecuali nilainya "-".
+                    if t_m in ("--from", "--mfrom"):
+                        if i_m + 1 >= len(mentah):
+                            return False
+                        if mentah[i_m + 1] != "-":
+                            return False
+                        i_m += 2
+                        continue
+                    if t_m.startswith(("--from=", "--mfrom=")):
+                        if t_m.split("=", 1)[1] != "-":
+                            return False
+                        i_m += 1
+                        continue
                     i_m += 2 if t_m == "--from" else 1
                     continue
                 if "." in t_m or "/" in t_m:

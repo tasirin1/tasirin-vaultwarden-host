@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mlr - --from/--mfrom menamai berkas masukan (Audit 1848)
+
+- Cabang mlr kini mencatat --from/--mfrom sebagai sumber berkas: nilai selain '-' berarti stdin tak dibaca; nilai '-' tetap berarti stdin.
+
 ## [Belum rilis] — Gerbang: opsi bernilai generasi baru zstd didaftarkan (Audit 1847)
 
 - --output-dir-flat dan --output-dir-mirror ditambahkan ke zstd, unzstd, zstdcat, dan zstdmt; --patch-from ke zstd dan zstdmt.

@@ -20547,6 +20547,69 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("zstdcat memuat --output-dir-flat: gerbang gagal (Audit 1847)", rc != 0)
         shutil.rmtree(sub960, ignore_errors=True)
+        sub961 = klon(tmp, "sub961")
+        berkas_aksi961 = os.path.join(
+            sub961, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi961, encoding="utf-8") as f:
+            isi_aksi961 = f.read()
+        baris_aksi961 = [b for b in isi_aksi961.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru961 = isi_aksi961.replace(
+                baris_aksi961,
+                baris_aksi961.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mlr --from stdin.csv cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru961 != isi_aksi961, \
+            "suntikan aksi961 tidak menembak"
+        with open(berkas_aksi961, "w", encoding="utf-8") as f:
+            f.write(isi_baru961)
+        rc, out = jalan(sub961,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--from mlr menamai berkas masukan - stdin tak dibaca: gerbang lolos (Audit 1848)", rc == 0)
+        shutil.rmtree(sub961, ignore_errors=True)
+        sub962 = klon(tmp, "sub962")
+        berkas_aksi962 = os.path.join(
+            sub962, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi962, encoding="utf-8") as f:
+            isi_aksi962 = f.read()
+        baris_aksi962 = [b for b in isi_aksi962.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru962 = isi_aksi962.replace(
+                baris_aksi962,
+                baris_aksi962.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mlr --from a.dat --from b.dat cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru962 != isi_aksi962, \
+            "suntikan aksi962 tidak menembak"
+        with open(berkas_aksi962, "w", encoding="utf-8") as f:
+            f.write(isi_baru962)
+        rc, out = jalan(sub962,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--from ganda mlr tetap berkas: gerbang lolos (Audit 1848)", rc == 0)
+        shutil.rmtree(sub962, ignore_errors=True)
+        sub963 = klon(tmp, "sub963")
+        berkas_aksi963 = os.path.join(
+            sub963, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi963, encoding="utf-8") as f:
+            isi_aksi963 = f.read()
+        baris_aksi963 = [b for b in isi_aksi963.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru963 = isi_aksi963.replace(
+                baris_aksi963,
+                baris_aksi963.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mlr --from - cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru963 != isi_aksi963, \
+            "suntikan aksi963 tidak menembak"
+        with open(berkas_aksi963, "w", encoding="utf-8") as f:
+            f.write(isi_baru963)
+        rc, out = jalan(sub963,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--from - mlr berarti stdin: gerbang gagal (Audit 1848)", rc != 0)
+        shutil.rmtree(sub963, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
