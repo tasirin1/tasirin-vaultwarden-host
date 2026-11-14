@@ -23172,6 +23172,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi global restic tak merusak sub: gerbang gagal (Audit 1959)", rc != 0)
         shutil.rmtree(sub1086, ignore_errors=True)
+        sub1087 = klon(tmp, "sub1087")
+        berkas_aksi1087 = os.path.join(
+            sub1087, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1087, encoding="utf-8") as f:
+            isi_aksi1087 = f.read()
+        baris_aksi1087 = [b for b in isi_aksi1087.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1087 = isi_aksi1087.replace(
+                baris_aksi1087,
+                baris_aksi1087.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(restic backup --stdin=true; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1087 != isi_aksi1087, \
+            "suntikan aksi1087 tidak menembak"
+        with open(berkas_aksi1087, "w", encoding="utf-8") as f:
+            f.write(isi_baru1087)
+        rc, out = jalan(sub1087,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--stdin=true restic membaca stdin: gerbang gagal (Audit 1960)", rc != 0)
+        shutil.rmtree(sub1087, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

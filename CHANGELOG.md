@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang restic mengenali --stdin=true (Audit 1960)
+
+- Cabang restic kini turut menilai bentuk bendera bool rekat --stdin=true sebagai pembaca stdin.
+
 ## [Belum rilis] — Gerbang: cabang restic melompati opsi global bernilai (Audit 1959)
 
 - Himpunan bernilai operand cabang restic kini memuat opsi globalnya (-r/--repo/--password-file/dll).

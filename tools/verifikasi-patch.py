@@ -5523,7 +5523,9 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         if not ops_re or ops_re[0] != "backup":
             return False
-        if "--stdin" in mentah:
+        # Audit 1960: bendera bool pflag menerima
+        # bentuk =true.
+        if "--stdin" in mentah or "--stdin=true" in mentah:
             return True
         for k_re, t_re in enumerate(mentah):
             if t_re in ("--files-from=-",
