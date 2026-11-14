@@ -21954,6 +21954,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("podman run -i mengonsumsi stdin: gerbang gagal (Audit 1899)", rc != 0)
         shutil.rmtree(sub1028, ignore_errors=True)
+        sub1029 = klon(tmp, "sub1029")
+        berkas_aksi1029 = os.path.join(
+            sub1029, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1029, encoding="utf-8") as f:
+            isi_aksi1029 = f.read()
+        baris_aksi1029 = [b for b in isi_aksi1029.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1029 = isi_aksi1029.replace(
+                baris_aksi1029,
+                baris_aksi1029.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(terraform console; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1029 != isi_aksi1029, \
+            "suntikan aksi1029 tidak menembak"
+        with open(berkas_aksi1029, "w", encoding="utf-8") as f:
+            f.write(isi_baru1029)
+        rc, out = jalan(sub1029,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("terraform console membaca perintah dari stdin: gerbang gagal (Audit 1900)", rc != 0)
+        shutil.rmtree(sub1029, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

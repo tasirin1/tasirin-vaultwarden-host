@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: terraform console dinilai membaca stdin (Audit 1900)
+
+- terraform kini dinilai: hanya sub-perintah console yang membaca perintah dari stdin saat terpipa; sub-perintah lain tak membaca stdin.
+
 ## [Belum rilis] — Gerbang: podman exec/run -i dinilai meneruskan stdin (Audit 1899)
 
 - podman kini dinilai: sub-perintah exec/run dengan -i mengonsumsi stdin, mencerminkan docker.
