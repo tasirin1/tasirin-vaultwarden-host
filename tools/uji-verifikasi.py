@@ -19665,6 +19665,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("yq dengan ekspresi tanpa berkas membaca stdin: gerbang gagal (Audit 1827)", rc != 0)
         shutil.rmtree(sub918, ignore_errors=True)
+        sub919 = klon(tmp, "sub919")
+        berkas_aksi919 = os.path.join(
+            sub919, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi919, encoding="utf-8") as f:
+            isi_aksi919 = f.read()
+        baris_aksi919 = [b for b in isi_aksi919.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru919 = isi_aksi919.replace(
+                baris_aksi919,
+                baris_aksi919.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(fq .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru919 != isi_aksi919, \
+            "suntikan aksi919 tidak menembak"
+        with open(berkas_aksi919, "w", encoding="utf-8") as f:
+            f.write(isi_baru919)
+        rc, out = jalan(sub919,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("fq dengan ekspresi tanpa berkas membaca stdin seperti jq: gerbang gagal (Audit 1828)", rc != 0)
+        shutil.rmtree(sub919, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

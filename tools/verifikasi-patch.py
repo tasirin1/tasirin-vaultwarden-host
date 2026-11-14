@@ -729,7 +729,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1038: keluarga beroperand skrip/pola —
                   # operand pertamanya bukan berkas (penilaian
                   # posisinya di _menguras_keluarga_skrip).
-                  "sed", "awk", "grep", "jq", "yq",
+                  "sed", "awk", "grep", "jq", "yq", "fq",
                   # Audit 1067: varian nama keluarga yang sama
                   # (dipetakan ke nama kanonis di penilainya).
                   "mawk", "nawk", "egrep", "fgrep", "rg",
@@ -1525,6 +1525,10 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
         "yq": {"--arg", "--argjson", "--rawfile",
                "--slurpfile", "-p", "--input-format",
                "-o", "--output-format", "--indent"},
+        # Audit 1828: opsi bernilai fq (meniru jq).
+        "fq": {"-L", "--library-path", "-f", "--from-file",
+               "--arg", "--argjson", "--rawfile",
+               "--slurpfile", "--indent"},
     }[perintah]
     if nama_asli in ("gawk", "pgawk", "igawk"):
         # Audit 1640: opsi bernilai khas GNU awk — tidak
@@ -5997,7 +6001,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         return xargs_sendiri
     if xargs_sendiri:
         return True
-    if perintah in ("sed", "awk", "grep", "jq", "yq",
+    if perintah in ("sed", "awk", "grep", "jq", "yq", "fq",
                     "mawk", "nawk", "egrep", "fgrep", "rg",
                     # Audit 1638: varian GNU awk.
                     "gawk", "pgawk", "igawk", "dgawk",

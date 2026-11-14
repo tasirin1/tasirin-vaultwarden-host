@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: fq dirutekan ke penilai keluarga skrip (Audit 1828)
+
+- fq masuk daftar pembaca stdin, tuple keluarga skrip, dan tabel opsi bernilai (meniru jq): ekspresi tanpa berkas membaca stdin, -n tidak.
+
 ## [Belum rilis] — Gerbang: yq dirutekan ke penilai keluarga skrip (Audit 1827)
 
 - yq masuk daftar pembaca stdin, tuple keluarga skrip, dan tabel opsi bernilai; penjaga -n/--null-input jq kini berlaku juga untuknya: ekspresi tanpa berkas membaca stdin, -n tidak.
