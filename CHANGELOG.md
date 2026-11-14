@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gnuplot - --persist bendera polos, bukan bernilai (Audit 1977)
+
+- --persist dikeluarkan dari himpunan bernilai gnuplot dan disaring dari operand: dengan berkas gnuplot keluar (lolos), telanjang ia membaca stdin (gagal).
+
 ## [Belum rilis] — Gerbang: R dinilai membaca stdin (Audit 1976)
 
 - R kini dinilai: polos/--slave tanpa -f/-e dan bentuk -f -/--file=- membaca dari stdin; -f berkas dan -e tidak.

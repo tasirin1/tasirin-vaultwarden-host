@@ -5598,8 +5598,12 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1969: tanpa berkas muatan gnuplot
         # membaca perintah dari stdin; nama berkas
         # '-' juga memaksa stdin (dokumentasi resmi).
+        # Audit 1977: --persist bendera polos, bukan
+        # bernilai - ia disaring dari operand.
         ops_gp = _operand_sesudah_opsi(
-            toks, awal, {"-e", "-c", "--persist"})
+            toks, awal, {"-e", "-c"})
+        ops_gp = [o_gp for o_gp in ops_gp
+                  if o_gp not in ("--persist", "-p")]
         if "\x00gantung" in ops_gp:
             return False
         return not ops_gp or "-" in ops_gp
