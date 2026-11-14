@@ -4342,6 +4342,29 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return True
+    # Audit 1768: bat/batcat membaca standard input bila
+    # tak ada FILE atau FILE adalah '-' (bat(1)). Opsi
+    # bernilai lazim dilompati beserta nilainya.
+    if perintah in ("bat", "batcat"):
+        i_bt = 0
+        while i_bt < len(mentah):
+            t_bt = mentah[i_bt].lower()
+            if t_bt in ("-l", "--language", "--theme",
+                        "--style", "--file-name", "--line-range",
+                        "--map-syntax", "--wrap",
+                        "--terminal-width", "--highlight-line",
+                        "--diff-context"):
+                if i_bt + 1 >= len(mentah):
+                    return False
+                i_bt += 2
+                continue
+            if mentah[i_bt] == "-":
+                return True
+            if t_bt.startswith("-"):
+                i_bt += 1
+                continue
+            return False
+        return True
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5630,7 +5653,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
                         "pwsh", "powershell", "bc", "dc", "ed",
                         "hexdump", "hd", "xxd", "cpio", "pax",
-                        "pg",
+                        "pg", "bat", "batcat",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

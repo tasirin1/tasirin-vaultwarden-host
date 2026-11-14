@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bat dan batcat dinilai (Audit 1768)
+
+- bat dan batcat kini dinilai penilai khusus mengikuti bat(1): tanpa FILE atau FILE '-' masukan dibaca dari standard input; opsi bernilai lazim dilompati beserta nilainya.
+
 ## [Belum rilis] — Gerbang: pg dinilai (Audit 1767)
 
 - pg kini dinilai penilai khusus mengikuti pg(1) util-linux: tanpa nama berkas ia membaca standard input; opsi -p bernilai dilompati beserta nilainya.

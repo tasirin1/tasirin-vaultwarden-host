@@ -18552,6 +18552,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("pg tanpa berkas membaca stdin: gerbang gagal (Audit 1767)", rc != 0)
         shutil.rmtree(sub865, ignore_errors=True)
+        sub866 = klon(tmp, "sub866")
+        berkas_aksi866 = os.path.join(
+            sub866, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi866, encoding="utf-8") as f:
+            isi_aksi866 = f.read()
+        baris_aksi866 = [b for b in isi_aksi866.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru866 = isi_aksi866.replace(
+                baris_aksi866,
+                baris_aksi866.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(bat -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru866 != isi_aksi866, \
+            "suntikan aksi866 tidak menembak"
+        with open(berkas_aksi866, "w", encoding="utf-8") as f:
+            f.write(isi_baru866)
+        rc, out = jalan(sub866,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bat dengan FILE - membaca stdin: gerbang gagal (Audit 1768)", rc != 0)
+        shutil.rmtree(sub866, ignore_errors=True)
+        sub867 = klon(tmp, "sub867")
+        berkas_aksi867 = os.path.join(
+            sub867, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi867, encoding="utf-8") as f:
+            isi_aksi867 = f.read()
+        baris_aksi867 = [b for b in isi_aksi867.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru867 = isi_aksi867.replace(
+                baris_aksi867,
+                baris_aksi867.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(bat berkas.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru867 != isi_aksi867, \
+            "suntikan aksi867 tidak menembak"
+        with open(berkas_aksi867, "w", encoding="utf-8") as f:
+            f.write(isi_baru867)
+        rc, out = jalan(sub867,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bat ber-FILE berkas menampilkan berkas itu: gerbang lolos (Audit 1768)", rc == 0)
+        shutil.rmtree(sub867, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
