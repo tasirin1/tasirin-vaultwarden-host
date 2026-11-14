@@ -73,6 +73,7 @@ public class MainActivity extends Activity {
     // beranda; diputar-balik tick berikut bila asalnya ujung
     // buffer (barisnya ditempel ulang utuh, bukan dibuang).
     private int ekorParsialBeranda = 0;
+    private String deltaTertahanBeranda = "";
     private boolean ekorPutarBalik = false;
     private int barisLogBeranda = 0;
 
@@ -737,6 +738,7 @@ public class MainActivity extends Activity {
                 barisLogBeranda = 0;
                 hintShown = false;
                 ekorParsialBeranda = 0;
+                deltaTertahanBeranda = "";
                 ekorPutarBalik = false;
             } else if (ekorPutarBalik && n > lastLogLen && lastLogLen > 0
                     && lastLogLen <= n
@@ -759,6 +761,7 @@ public class MainActivity extends Activity {
                     barisLogBeranda = Math.max(0, barisLogBeranda - 1);
                 }
                 ekorParsialBeranda = 0;
+                deltaTertahanBeranda = "";
                 ekorPutarBalik = false;
             }
             if (n > lastLogLen) {
@@ -784,6 +787,22 @@ public class MainActivity extends Activity {
             }
         }
 
+        // Audit 1799: ekor delta yang belum berujung baris
+        // ditahan - penyamaran per delta bisa membelah
+        // token yang melintasi batas potong (jendela baris
+        // raksasa Audit 1476); ekor yang ditahan disambung
+        // dan disamarkan bersama delta berikutnya.
+        delta = deltaTertahanBeranda + delta;
+        if (!delta.isEmpty()
+                && delta.charAt(delta.length() - 1) != '\n') {
+            int tahan = Math.min(delta.length(),
+                    BATAS_TAHAN_SAMARAN);
+            deltaTertahanBeranda = delta.substring(
+                    delta.length() - tahan);
+            delta = delta.substring(0, delta.length() - tahan);
+        } else {
+            deltaTertahanBeranda = "";
+        }
         if (!delta.isEmpty() && LogActivity.butuhSamaran(delta)) {
             delta = LogActivity.samarkanLog(delta);
         }
@@ -972,6 +991,7 @@ public class MainActivity extends Activity {
     private boolean warnaCacheSiap = false;
 
     private static final int BATAS_DELTA_TICK = 8192;
+    private static final int BATAS_TAHAN_SAMARAN = 256;
 
     private static final int BATAS_LOMPATAN = BATAS_DELTA_TICK * 4;
 

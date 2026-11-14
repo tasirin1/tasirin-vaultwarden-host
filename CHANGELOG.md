@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Beranda: ekor log yang belum berujung baris ditahan sebelum disamarkan (Audit 1799)
+
+- Delta log beranda yang belum berakhir newline kini menahan 256 aksara terakhirnya untuk disamarkan bersama delta berikutnya - token yang melintasi batas jendela baris raksasa (8192 aksara) tidak lagi tampil terbelah tanpa samaran; ekor tertahan dibersihkan saat tampilan direset atau ditarik balik.
+
 ## [Belum rilis] — Gerbang: nama arsip 7z sesudah '--' tetap dicari (Audit 1798)
 
 - Putaran 7z tidak lagi berhenti total di '--': token sesudahnya adalah nama berkas biasa, jadi `7z a -si -- arsip.7z` vonisnya menguras; '-si' sesudah '--' tetap bukan saklar.
