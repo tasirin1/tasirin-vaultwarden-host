@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: lua -e tanpa skrip tidak membaca stdin (Audit 1725)
+
+- Bentuk `lua -e <kode>` tanpa skrip dan tanpa -i kini divonis menjalankan aksinya lalu keluar (lua.c 5.4 pmain: syarat membaca stdin sebagai program memakai masker has_e|has_v). Paruh -l dari temuan ini GUGUR oleh bukti sumber yang sama: collectargs tidak memberi bit untuk -l, jadi `lua -l lib` tanpa skrip tetap mengeksekusi stdin — vonis lama (Audit 1641/1653) dipertahankan.
+
 ## [Belum rilis] — Gerbang: ruby -0 sah (Audit 1724)
 
 - Huruf `0` ditambahkan ke himpunan huruf opsi sah ruby: pemisah rekaman `-0` boleh tampil tanpa digit oktal (man ruby(1): -0[octal]), jadi `ruby -0` tanpa skrip kini divonis membaca program dari stdin, bukan ditolak sebagai huruf asing oleh penjaga Audit 1714.

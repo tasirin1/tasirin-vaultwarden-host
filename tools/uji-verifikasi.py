@@ -17355,6 +17355,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("ruby -0 opsi sah; ruby telanjang membaca program dari stdin: penguras - gerbang gagal (Audit 1724)", rc != 0)
         shutil.rmtree(sub808, ignore_errors=True)
+        sub809 = klon(tmp, "sub809")
+        berkas_aksi809 = os.path.join(
+            sub809, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi809, encoding="utf-8") as f:
+            isi_aksi809 = f.read()
+        baris_aksi809 = [b for b in isi_aksi809.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru809 = isi_aksi809.replace(
+                baris_aksi809,
+                baris_aksi809.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lua -e x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru809 != isi_aksi809, \
+            "suntikan aksi809 tidak menembak"
+        with open(berkas_aksi809, "w", encoding="utf-8") as f:
+            f.write(isi_baru809)
+        rc, out = jalan(sub809,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lua -e tanpa skrip: aksi jalan lalu keluar - gerbang lolos (Audit 1725)", rc == 0)
+        shutil.rmtree(sub809, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

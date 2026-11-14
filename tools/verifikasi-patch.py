@@ -1815,6 +1815,10 @@ def _menguras_interpreter(perintah, toks, awal):
             return t == "-"
         return True
     interaktif = False
+    # Audit 1725/1726: penanda aksi lua (-e) dan -v —
+    # dinilai di ekor lingkar.
+    aksi_lua = False
+    versi_lua = False
     while i < n:
         t = toks[i]
         bersih_t = t.strip("\"'")
@@ -2216,9 +2220,18 @@ def _menguras_interpreter(perintah, toks, awal):
                 # Audit 1713: -e menggantung sama seperti -l.
                 if i + 1 >= n:
                     return False
+                aksi_lua = True
                 i += 2
                 continue
-            if t in ("-i", "-v", "-E", "-W"):
+            if t == "-i":
+                interaktif = True
+                i += 1
+                continue
+            if t == "-v":
+                versi_lua = True
+                i += 1
+                continue
+            if t in ("-E", "-W"):
                 i += 1
                 continue
             return False
@@ -2230,6 +2243,17 @@ def _menguras_interpreter(perintah, toks, awal):
         # Operand berkas skrip: tak membaca stdin, KECUALI REPL
         # interaktif python menyusul (Audit 1049).
         return interaktif if perintah.startswith("python") else False
+    # Audit 1725/1726: lua yang sudah menerima aksi -e
+    # atau -v — TANPA skrip dan TANPA REPL (-i) — menjalankan
+    # aksinya lalu keluar; stdin tidak dibaca sebagai program
+    # (lua.c 5.4 pmain: syarat baca-stdin memakai masker
+    # has_e|has_v saja). -l SENGAJA tidak menyetel penanda:
+    # collectargs tidak memberi bit untuk -l, jadi
+    # `lua -l lib` tanpa skrip tetap mengeksekusi stdin
+    # sebagai program (terkunci Audit 1641/1653).
+    if perintah == "lua" and (aksi_lua or versi_lua) \
+            and not interaktif:
+        return False
     return True
 
 
