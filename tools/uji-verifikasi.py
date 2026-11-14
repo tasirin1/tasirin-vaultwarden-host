@@ -17733,6 +17733,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("pwsh -File berkas tanpa -NoExit: jalankan skrip lalu keluar - gerbang lolos (Audit 1740)", rc == 0)
         shutil.rmtree(sub826, ignore_errors=True)
+        sub827 = klon(tmp, "sub827")
+        berkas_aksi827 = os.path.join(
+            sub827, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi827, encoding="utf-8") as f:
+            isi_aksi827 = f.read()
+        baris_aksi827 = [b for b in isi_aksi827.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru827 = isi_aksi827.replace(
+                baris_aksi827,
+                baris_aksi827.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(busybox X=1 cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru827 != isi_aksi827, \
+            "suntikan aksi827 tidak menembak"
+        with open(berkas_aksi827, "w", encoding="utf-8") as f:
+            f.write(isi_baru827)
+        rc, out = jalan(sub827,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("penetapan di posisi applet busybox adalah nama applet tak dikenal: gerbang lolos (Audit 1743)", rc == 0)
+        shutil.rmtree(sub827, ignore_errors=True)
+        sub828 = klon(tmp, "sub828")
+        berkas_aksi828 = os.path.join(
+            sub828, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi828, encoding="utf-8") as f:
+            isi_aksi828 = f.read()
+        baris_aksi828 = [b for b in isi_aksi828.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru828 = isi_aksi828.replace(
+                baris_aksi828,
+                baris_aksi828.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(busybox env X=1 cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru828 != isi_aksi828, \
+            "suntikan aksi828 tidak menembak"
+        with open(berkas_aksi828, "w", encoding="utf-8") as f:
+            f.write(isi_baru828)
+        rc, out = jalan(sub828,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("env di posisi applet memulihkan wilayah penetapan, cat membaca stdin: gerbang gagal (Audit 1743)", rc != 0)
+        shutil.rmtree(sub828, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

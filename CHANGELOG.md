@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: penetapan sesudah busybox bukan penetapan shell (Audit 1743)
+
+- Cabang busybox/toybox kini menandai sudah-lewat-pembungkus sesudah menggeser ke applet: token berbentuk penetapan di posisi applet adalah nama applet yang tak dikenal (Audit 966), bukan penetapan shell transparan - `busybox X=1 cat` kini divonis tidak menguras, sejajar `timeout 5 X=1 cat`.
+
 ## [Belum rilis] — Cek-cepat: contoh header berperedaksi simbol dikunci sebagai residu diterima (Audit 1742)
 
 - Satu skenario uji-diri baru mengunci perilaku yang disadari: dokumen contoh header teredaksi bersimbol (@) dengan ekor >=16 huruf tertangkap pola bungkus. Bentuk itu tak bisa dibedakan pada lapisan blob dari header asli yang tersela komentar beraksara sama (yang wajib tertangkap sejak Audit 1733), jadi permukaannya diterima sebagai residu - sejajar perlakuan Audit 1554/1568 - dan skenario ini memastikan pelebaran/pempersempitan di masa depan adalah perubahan yang disengaja.

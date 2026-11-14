@@ -4672,6 +4672,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             applet = _kata_shell(toks[awal + 1])
             if not applet or applet.startswith("-"):
                 return False
+            # Audit 1743: sesudah multi-biner, token berbentuk
+            # penetapan adalah nama applet (Audit 966), bukan
+            # penetapan shell - tandai sudah lewat pembungkus.
+            lewat_pembungkus = True
             awal += 1
             continue
         if t0 == "env":
