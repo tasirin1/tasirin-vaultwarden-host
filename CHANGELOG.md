@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: tab vertikal dan form feed diratakan perata bungkus (Audit 1884)
+
+- Perataan blob dan pemangkas ekor di proses() kini membuang \x0B (tab vertikal) dan \x0C (form feed), menyelaraskan dengan kelas [[:space:]] yang sudah dipakai uji barisnya sendiri.
+
 ## [Belum rilis] — Cek-cepat: keluarga spasi Unicode dikupas perata bungkus (Audit 1883)
 
 - Fungsi proses() kini mengupas seluruh keluarga spasi Unicode (U+2000-U+200A, U+2028, U+2029, U+202F, U+205F, U+3000) selain NBSP dan U+2003 yang sudah ada.

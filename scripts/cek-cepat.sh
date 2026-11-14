@@ -218,11 +218,11 @@ function proses(line,   awal, hd, sp, pos, s, ekort) {
   s = $0; gsub(/[[:space:]\r]/, "", s)
   if (s != "-----" && s ~ /^[^A-Za-z0-9]*$/) { return "" }
   if ($0 ~ /[0-9]/) {
-    ekort = $0; sub(/[ \t\r]+$/, "", ekort)
+    ekort = $0; sub(/[ \t\r\013\014]+$/, "", ekort)
     if (ekort ~ /^[0-9]+$/) { ekordgt = ekordgt + length(ekort) }
     else { ekordgt = 0; if (match(ekort, /[0-9]+$/)) ekordgt = RLENGTH }
   } else { ekordgt = 0 }
-  gsub(/[ \t\r]/, "", $0)
+  gsub(/[ \t\r\013\014]/, "", $0)
   return $0
 }
 BEGIN {

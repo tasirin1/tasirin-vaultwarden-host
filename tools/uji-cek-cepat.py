@@ -799,6 +799,15 @@ def main():
                 "(Audit 1883)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(sela_spasi, ignore_errors=True)
+        sela_vt = klon(tmp, "selavt")
+        tanam(sela_vt, "token-sela-vt.txt",
+              ("token: " + token_palsu[:14]).encode() + b"\x0b"
+              + token_palsu[14:].encode() + b"\n", "wb")
+        rc, out = jalan(sela_vt, ["bash", SKRIP])
+        periksa("token tersela tab vertikal tertangkap "
+                "(Audit 1884)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(sela_vt, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
