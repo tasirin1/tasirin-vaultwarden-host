@@ -18531,6 +18531,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("pax read ber-f berkas membaca arsip itu: gerbang lolos (Audit 1766)", rc == 0)
         shutil.rmtree(sub864, ignore_errors=True)
+        sub865 = klon(tmp, "sub865")
+        berkas_aksi865 = os.path.join(
+            sub865, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi865, encoding="utf-8") as f:
+            isi_aksi865 = f.read()
+        baris_aksi865 = [b for b in isi_aksi865.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru865 = isi_aksi865.replace(
+                baris_aksi865,
+                baris_aksi865.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pg; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru865 != isi_aksi865, \
+            "suntikan aksi865 tidak menembak"
+        with open(berkas_aksi865, "w", encoding="utf-8") as f:
+            f.write(isi_baru865)
+        rc, out = jalan(sub865,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pg tanpa berkas membaca stdin: gerbang gagal (Audit 1767)", rc != 0)
+        shutil.rmtree(sub865, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

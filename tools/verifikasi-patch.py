@@ -4323,6 +4323,25 @@ def _menguras_khusus(perintah, toks, awal):
         if tulis_px:
             return not ada_operand_px
         return arsip_px is None or arsip_px == "-"
+    # Audit 1767: pg (util-linux) membaca standard input
+    # bila tak ada nama berkas (pg(1)); opsi -p bernilai
+    # string prompt.
+    if perintah == "pg":
+        i_pg = 0
+        while i_pg < len(mentah):
+            t_pg = mentah[i_pg].lower()
+            if t_pg == "-p":
+                if i_pg + 1 >= len(mentah):
+                    return False
+                i_pg += 2
+                continue
+            if mentah[i_pg] == "-":
+                return True
+            if t_pg.startswith("-"):
+                i_pg += 1
+                continue
+            return False
+        return True
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5611,6 +5630,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
                         "pwsh", "powershell", "bc", "dc", "ed",
                         "hexdump", "hd", "xxd", "cpio", "pax",
+                        "pg",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

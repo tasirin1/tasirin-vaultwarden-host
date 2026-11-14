@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pg dinilai (Audit 1767)
+
+- pg kini dinilai penilai khusus mengikuti pg(1) util-linux: tanpa nama berkas ia membaca standard input; opsi -p bernilai dilompati beserta nilainya.
+
 ## [Belum rilis] — Gerbang: pax dinilai (Audit 1766)
 
 - pax kini dinilai penilai khusus mengikuti spesifikasi POSIX: mode list/read membaca arsip dari stdin kecuali -f menyebut berkas (termasuk bentuk tergabung -rf), mode write tanpa operand membaca daftar pathname dari stdin.
