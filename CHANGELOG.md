@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: awalan -Version dibedakan per nama (Audit 1774)
+
+- Cek awalan unik informasional kini digerbang khusus pwsh; untuk powershell awalan yang sama (-ver dst.) masuk jalur opsi bernilai -Version (memilih mesin lalu interaktif) lengkap dengan validasi nilai bersaklar dari Audit 1760.
+
 ## [Belum rilis] — Gerbang: awalan -ve pwsh informasional (Audit 1773)
 
 - Ambang awalan unik -Version pwsh diturunkan dari 4 ke 3 aksara: -ve juga awalan unik karena hanya -Version yang berawalan Ve di daftar parameter pwsh, jadi ia terikat informasional seperti -ver.

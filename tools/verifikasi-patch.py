@@ -4126,7 +4126,10 @@ def _menguras_khusus(perintah, toks, awal):
                         "-outputformat", "-settingsfile",
                         "-windowstyle", "-workingdirectory")
                     or (perintah == "powershell"
-                        and t_pw == "-version")):
+                        and (t_pw == "-version"
+                             or (len(t_pw) >= 3
+                                 and "-version".startswith(
+                                     t_pw))))):
                 # Audit 1745: opsi bernilai lain - nilainya
                 # bukan operand naskah; lompati beserta nilainya
                 # agar bentuk tanpa -File/-Command tetap divonis
@@ -4137,12 +4140,14 @@ def _menguras_khusus(perintah, toks, awal):
                 # harus versi yang terpasang - token bersaklar
                 # bukan versi sah dan host keluar dengan galat.
                 if (perintah == "powershell"
-                        and t_pw == "-version"
+                        and (t_pw == "-version"
+                             or (len(t_pw) >= 3
+                                 and "-version".startswith(t_pw)))
                         and mentah[i_pw + 1].startswith("-")):
                     return False
                 i_pw += 2
                 continue
-            if (len(t_pw) >= 3
+            if (perintah == "pwsh" and len(t_pw) >= 3
                     and "-version".startswith(t_pw)):
                 # Audit 1762: awalan unik -Version (mis. -ver);
                 # Audit 1773: ambang diturunkan ke 3 aksara -

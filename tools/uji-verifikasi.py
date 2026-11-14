@@ -18699,6 +18699,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("awalan unik -ve terikat sebagai -Version pwsh informasional: gerbang lolos (Audit 1773)", rc == 0)
         shutil.rmtree(sub872, ignore_errors=True)
+        sub873 = klon(tmp, "sub873")
+        berkas_aksi873 = os.path.join(
+            sub873, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi873, encoding="utf-8") as f:
+            isi_aksi873 = f.read()
+        baris_aksi873 = [b for b in isi_aksi873.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru873 = isi_aksi873.replace(
+                baris_aksi873,
+                baris_aksi873.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(powershell -ver 5.1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru873 != isi_aksi873, \
+            "suntikan aksi873 tidak menembak"
+        with open(berkas_aksi873, "w", encoding="utf-8") as f:
+            f.write(isi_baru873)
+        rc, out = jalan(sub873,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("awalan -ver pada powershell adalah -Version bernilai, interaktif: gerbang gagal (Audit 1774)", rc != 0)
+        shutil.rmtree(sub873, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
