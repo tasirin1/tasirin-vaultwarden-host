@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -I cpio diakui sebagai berkas arsip sekelas -F (Audit 1879)
+
+- Cabang cpio kini memperlakukan -I persis seperti -F di ketiga jalurnya (terpisah, menempel, dan di tengah cluster): arsip dibaca dari berkas yang disebut, bukan stdin.
+
 ## [Belum rilis] — Gerbang: -s ditambahkan ke entri opsi bernilai tail (Audit 1878)
 
 - Entri tail kini memuat -s (bentuk pendek --sleep-interval): nilainya tak lagi terhitung operand berkas sehingga mode ikuti tanpa berkas dinilai membaca stdin.

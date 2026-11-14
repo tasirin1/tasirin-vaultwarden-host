@@ -21702,6 +21702,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-s tail bernilai (interval tidur): gerbang gagal (Audit 1878)", rc != 0)
         shutil.rmtree(sub1016, ignore_errors=True)
+        sub1017 = klon(tmp, "sub1017")
+        berkas_aksi1017 = os.path.join(
+            sub1017, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1017, encoding="utf-8") as f:
+            isi_aksi1017 = f.read()
+        baris_aksi1017 = [b for b in isi_aksi1017.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1017 = isi_aksi1017.replace(
+                baris_aksi1017,
+                baris_aksi1017.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cpio -i -I berkas.cpio; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1017 != isi_aksi1017, \
+            "suntikan aksi1017 tidak menembak"
+        with open(berkas_aksi1017, "w", encoding="utf-8") as f:
+            f.write(isi_baru1017)
+        rc, out = jalan(sub1017,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-I cpio berkas arsip sekelas -F: gerbang lolos (Audit 1879)", rc == 0)
+        shutil.rmtree(sub1017, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

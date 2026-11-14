@@ -4487,7 +4487,7 @@ def _menguras_khusus(perintah, toks, awal):
         i_cp = 0
         while i_cp < len(mentah):
             t_cp = mentah[i_cp]
-            if t_cp in ("-F", "--file"):
+            if t_cp in ("-F", "-I", "--file"):
                 if i_cp + 1 >= len(mentah):
                     return False
                 berkas_cp = mentah[i_cp + 1]
@@ -4497,7 +4497,7 @@ def _menguras_khusus(perintah, toks, awal):
                 berkas_cp = t_cp.split("=", 1)[1]
                 i_cp += 1
                 continue
-            if (t_cp.startswith("-F") and len(t_cp) > 2
+            if (t_cp[:2] in ("-F", "-I") and len(t_cp) > 2
                     and not t_cp.startswith("--")):
                 # Audit 1786: nilai -F menempel (getopt:
                 # argumen wajib boleh menempel) - berkas
@@ -4516,8 +4516,12 @@ def _menguras_khusus(perintah, toks, awal):
                 # sesudahnya nilai berkas, bukan huruf
                 # modus; kepala cluster tetap dipindai.
                 kepala_cp = t_cp
-                if not t_cp.startswith("--") and "F" in t_cp:
-                    pos_cp = t_cp.index("F")
+                # Audit 1879: -I sekelas -F (berkas arsip).
+                if not t_cp.startswith("--") and (
+                        "F" in t_cp or "I" in t_cp):
+                    pos_cp = min(
+                        t_cp.index(h_cp)
+                        for h_cp in "FI" if h_cp in t_cp)
                     berkas_cp = t_cp[pos_cp + 1:]
                     kepala_cp = t_cp[:pos_cp]
                 if "o" in kepala_cp or "p" in kepala_cp:
