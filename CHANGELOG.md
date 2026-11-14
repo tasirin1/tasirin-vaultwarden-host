@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mksh/tcsh/csh/yash dinilai sebagai shell (Audit 1737)
+
+- Empat shell keluarga kedua - mksh (sh bawaan Android), tcsh, csh, yash - kini ikut dinilai cabang shell gerbang: tanpa skrip mereka membaca perintah dari stdin seperti bash/sh. Sebelumnya tuple shell hanya memuat keluarga pertama sehingga keempatnya lolos tak dinilai.
+
 ## [Belum rilis] — Gerbang: wish dan expectk dinilai (Audit 1736)
 
 - wish (tclsh+Tk) kini dinilai cabang tclsh dan expectk (expect+Tk) cabang expect, termasuk nama berversi wish8.6: tanpa nama berkas keduanya membaca perintah/skrip dari stdin (wish(1)). Sebelumnya dispatch gerbang tak mengenal keduanya.

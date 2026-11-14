@@ -1763,7 +1763,9 @@ def _menguras_interpreter(perintah, toks, awal):
                     "rzsh",
                     # Audit 1638: shell lain sekeluarga —
                     # tanpa skrip membaca perintah dari stdin.
-                    "ash", "ksh", "fish"):
+                    "ash", "ksh", "fish",
+                    # Audit 1737: shell keluarga kedua.
+                    "mksh", "tcsh", "csh", "yash"):
         # Audit 1058: shell tanpa skrip membaca perintah dari
         # stdin; -c menekan; operand "-" memintanya eksplisit.
         # Audit 1083: sesudah -s, operand pertama adalah $0 (nama
@@ -5293,6 +5295,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                            # — tanpa skrip membaca dari stdin
                            # seperti keluarganya.
                            "ash", "ksh", "fish",
+                           # Audit 1737: shell keluarga kedua
+                           # (mksh = sh bawaan Android).
+                           "mksh", "tcsh", "csh", "yash",
                            "ruby", "php", "lua", "luajit"):
             return _menguras_interpreter(nama_interp, toks, awal)
         if perintah in ("mapfile", "readarray"):
