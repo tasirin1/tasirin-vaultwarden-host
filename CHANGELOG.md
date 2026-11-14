@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: lzop dikenal sebagai pembaca stdin (Audit 1811)
+
+- Nama lzop masuk daftar pembaca stdin: tanpa berkas atau nama berkas '-' ia mengompres stdin ke stdout.
+
 ## [Belum rilis] — Gerbang: keluarga brotli dikenal sebagai pembaca stdin (Audit 1810)
 
 - Nama brotli, unbrotli, dan brcat masuk daftar pembaca stdin: tanpa berkas atau berkas '-' ketiganya membaca dari stdin.

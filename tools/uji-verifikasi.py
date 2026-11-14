@@ -19308,6 +19308,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("brotli tanpa berkas membaca stdin: gerbang gagal (Audit 1810)", rc != 0)
         shutil.rmtree(sub901, ignore_errors=True)
+        sub902 = klon(tmp, "sub902")
+        berkas_aksi902 = os.path.join(
+            sub902, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi902, encoding="utf-8") as f:
+            isi_aksi902 = f.read()
+        baris_aksi902 = [b for b in isi_aksi902.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru902 = isi_aksi902.replace(
+                baris_aksi902,
+                baris_aksi902.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lzop; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru902 != isi_aksi902, \
+            "suntikan aksi902 tidak menembak"
+        with open(berkas_aksi902, "w", encoding="utf-8") as f:
+            f.write(isi_baru902)
+        rc, out = jalan(sub902,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lzop tanpa berkas mengompres stdin: gerbang gagal (Audit 1811)", rc != 0)
+        shutil.rmtree(sub902, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
