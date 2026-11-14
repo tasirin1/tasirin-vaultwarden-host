@@ -441,7 +441,9 @@ public final class TgBackup {
             ui.catat("[tg] Backup otomatis saat Start dilewati: token/chat belum diisi.");
             return;
         }
-        long last = amanLong(sp, KEY_TG_LAST, 0);
+        long last = stempelEfektif(amanLong(sp, KEY_TG_LAST, 0),
+                amanString(sp, KEY_TG_LAST_BOT_ID, null),
+                TgBot.idBotDariToken(token));
         if (last > 0 && !sudahGantiHari(last, System.currentTimeMillis())) {
             return;
         }
@@ -2724,6 +2726,14 @@ public final class TgBackup {
         return idPenanda != null && idKini != null
                 && !idPenanda.isEmpty() && !idKini.isEmpty()
                 && !idPenanda.equals(idKini);
+    }
+
+    // Audit 1754: stempel waktu backup terakhir hanya memenuhi
+    // kuota harian bot yang membuatnya - bagi bot lain nilainya
+    // dianggap belum pernah backup (0), sejajar ikatan penanda
+    // berkas Audit 1727.
+    static long stempelEfektif(long last, String idPenanda, String idKini) {
+        return penandaBotLain(idPenanda, idKini) ? 0 : last;
     }
 
     public static String downloadLastBackup(Context ctx, File dest) throws Exception {

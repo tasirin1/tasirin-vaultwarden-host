@@ -1204,7 +1204,11 @@ public class ServerService extends Service {
                         appendLog("[tg] Backup terjadwal dilewati: auto-backup sudah dimatikan.");
                         return;
                     }
-                    long last = TgBackup.amanLong(cek, TgBackup.KEY_TG_LAST, 0);
+                    long last = TgBackup.stempelEfektif(
+                            TgBackup.amanLong(cek, TgBackup.KEY_TG_LAST, 0),
+                            TgBackup.amanString(cek, TgBackup.KEY_TG_LAST_BOT_ID, null),
+                            TgBot.idBotDariToken(TgBackup.amanString(
+                                    cek, TgBackup.KEY_TG_TOKEN, "")));
                     if (last > 0 && !TgBackup.sudahGantiHari(last, System.currentTimeMillis())) {
                         appendLog("[tg] Backup hari ini sudah ada - terjadwal dilewati.");
                     } else if (!TgBackup.bolehBackupOtomatis(

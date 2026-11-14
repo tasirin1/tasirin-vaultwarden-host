@@ -1835,6 +1835,18 @@ public class TgBackupTest {
     }
 
     @Test
+    public void stempelEfektifNolBilaPenandaBotLain() {
+        // Audit 1754: stempel backup terakhir hanya memenuhi
+        // kuota harian bot pembuatnya; bot lain dianggap belum
+        // pernah backup, penanda warisan/tak terbaca fail-open.
+        assertEquals(0L, TgBackup.stempelEfektif(123L, "111", "222"));
+        assertEquals(123L, TgBackup.stempelEfektif(123L, "111", "111"));
+        assertEquals(123L, TgBackup.stempelEfektif(123L, null, "222"));
+        assertEquals(123L, TgBackup.stempelEfektif(123L, "111", null));
+        assertEquals(0L, TgBackup.stempelEfektif(0L, "111", "222"));
+    }
+
+    @Test
     public void pinOnHasilRestoreIkutPerangkat() {
         assertTrue(TgBackup.pinOnHasilRestore(true, "PBKDF2$120000$aa$bb"));
         assertFalse(TgBackup.pinOnHasilRestore(false, "PBKDF2$120000$aa$bb"));

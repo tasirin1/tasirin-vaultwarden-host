@@ -136,7 +136,11 @@ public class AlarmReceiver extends BroadcastReceiver {
             if (!TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
                 return;
             }
-            long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
+            long last = TgBackup.stempelEfektif(
+                    TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0),
+                    TgBackup.amanString(sp, TgBackup.KEY_TG_LAST_BOT_ID, null),
+                    TgBot.idBotDariToken(TgBackup.amanString(
+                            sp, TgBackup.KEY_TG_TOKEN, "")));
             long kini = System.currentTimeMillis();
             if (TgBackup.bolehBackupSusulanBoot(last, kini)) {
                 mulaiBackup(context);
@@ -178,7 +182,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             if (token.isEmpty() || chat.isEmpty()) {
                 return;
             }
-            long last = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
+            long last = TgBackup.stempelEfektif(
+                    TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0),
+                    TgBackup.amanString(sp, TgBackup.KEY_TG_LAST_BOT_ID, null),
+                    TgBot.idBotDariToken(token));
             long kini = System.currentTimeMillis();
 
             // Audit 1073: keputusan diekstrak ke fungsi murni

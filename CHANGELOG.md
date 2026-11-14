@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Stempel backup terakhir kini terikat bot untuk kuota harian (Audit 1754)
+
+- Helper murni baru TgBackup.stempelEfektif menolkan stempel backup terakhir bagi bot lain (mengikuti ikatan penanda berkas Audit 1727), dan keempat keputusan kuota/kejar backup harian - maybeAutoBackup, jalur terjadwal ServerService, susulan boot dan kejar waktu AlarmReceiver - kini memakainya: mengganti bot di hari yang sama tidak lagi membungkam backup otomatis ke bot baru seharian. Teruji JVM.
+
 ## [Belum rilis] — Gerbang: powershell -Version bernilai (Audit 1753)
 
 - Untuk nama powershell (beda dari pwsh), -Version kini diperlakukan sebagai opsi bernilai: ia memilih versi mesin yang dijalankan (about_PowerShell_exe), jadi `powershell -Version 5.1` tanpa aksi divonis interaktif membaca stdin, bukan gugur sebagai operand.
