@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: 7z menghormati penghenti '--' (Audit 1782)
+
+- Pindaian -si dan operand pada cabang 7z kini berhenti di token '--': sesudahnya parsing saklar berhenti menurut 7z(1), jadi '-si' di sana adalah nama berkas harfiah, bukan saklar stdin.
+
 ## [Belum rilis] — Gerbang: 7z -si mensyaratkan nama arsip (Audit 1781)
 
 - Cabang 7z kini mensyaratkan operand polos (nama arsip) di samping saklar -si: tanpa nama arsip perintah gugur dengan galat baris perintah sebelum membaca data stdin, sejajar preseden zip Audit 1094.

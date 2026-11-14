@@ -4437,10 +4437,18 @@ def _menguras_khusus(perintah, toks, awal):
             # Audit 1781: nama arsip wajib - tanpa operand
             # polos perintah gugur sebelum membaca stdin
             # (sejajar zip Audit 1094).
-            return (any(t.lower().startswith("-si")
-                        for t in mentah[1:])
-                    and any(not t.startswith("-")
-                            for t in mentah[1:]))
+            # Audit 1782: '--' menghentikan parsing saklar -
+            # '-si' sesudahnya nama berkas, bukan saklar.
+            si_7z = False
+            arsip_7z = False
+            for t_7z in mentah[1:]:
+                if t_7z == "--":
+                    break
+                if t_7z.lower().startswith("-si"):
+                    si_7z = True
+                elif not t_7z.startswith("-"):
+                    arsip_7z = True
+            return si_7z and arsip_7z
         return False
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
