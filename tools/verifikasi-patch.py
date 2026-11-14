@@ -4053,6 +4053,17 @@ def _menguras_khusus(perintah, toks, awal):
     # input); tanpa -b, mode interaktif membaca perintah dari
     # stdin yang ter-redirect; -b berkas membacanya dari berkas.
     if perintah == "sftp":
+        # Audit 1791: nilai -o berupa '-' adalah kata kunci
+        # konfigurasi ssh yang tak sah - sftp gugur fatal
+        # sebelum koneksi, mengalahkan jalur -b mana pun
+        # (terprobe OpenSSH 9.6p1).
+        for k_sf, t_sf in enumerate(mentah):
+            if t_sf == "-o" and k_sf + 1 < len(mentah) \
+                    and mentah[k_sf + 1] == "-":
+                return False
+            if t_sf.startswith("-o") and len(t_sf) > 2 \
+                    and t_sf[2:] == "-":
+                return False
         for k_sf, t_sf in enumerate(mentah):
             if t_sf == "-b":
                 if k_sf + 1 >= len(mentah):

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sftp -o '-' fatal (Audit 1791)
+
+- Prapindai cabang sftp menolak nilai -o berupa '-' (termasuk bentuk menempel): kata kunci konfigurasi ssh tak sah itu menggagalkan sftp sebelum koneksi, mengalahkan jalur -b mana pun (terprobe OpenSSH).
+
 ## [Belum rilis] — Gerbang: sftp menolak host '-' (Audit 1790)
 
 - Jalur sftp tanpa -b kini memeriksa operand: operand '-' adalah nama host tak sah yang membuat sftp keluar saat resolusi host (sftp(1) hanya mendokumentasikan '-' untuk nilai -b).
