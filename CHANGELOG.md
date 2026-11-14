@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: 7z u -si dinilai (Audit 1783)
+
+- Syarat perintah cabang 7z diperluas dari hanya a menjadi a dan u: referensi saklar resmi 7-Zip mencantumkan -si 'To Use With: a, u', jadi update dari stdin sama mengurasnya dengan add.
+
 ## [Belum rilis] — Gerbang: 7z menghormati penghenti '--' (Audit 1782)
 
 - Pindaian -si dan operand pada cabang 7z kini berhenti di token '--': sesudahnya parsing saklar berhenti menurut 7z(1), jadi '-si' di sana adalah nama berkas harfiah, bukan saklar stdin.

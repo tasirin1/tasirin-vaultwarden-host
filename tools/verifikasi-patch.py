@@ -4433,7 +4433,9 @@ def _menguras_khusus(perintah, toks, awal):
     # data dari StdIn, termasuk bentuk menempel -sinama);
     # bentuk x -/l - tak didukung dokumentasi.
     if perintah == "7z":
-        if mentah and mentah[0].lower() == "a":
+        # Audit 1783: -si juga berlaku untuk perintah u
+        # (update) menurut referensi saklar resmi 7-Zip.
+        if mentah and mentah[0].lower() in ("a", "u"):
             # Audit 1781: nama arsip wajib - tanpa operand
             # polos perintah gugur sebelum membaca stdin
             # (sejajar zip Audit 1094).
