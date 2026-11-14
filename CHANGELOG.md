@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Shim: uji interpose menutup kasus tepi gabungan dan hasil parsial (Audit 1747)
+
+- test_interpose kini menguji gabungan flags-tak-dikenal + buffer NULL di kedua pintu (vonis EINVAL), buffer NULL panjang 0 lewat pintu syscall (0), dan kasus hasil parsial halaman-terlarang Audit 1746 di kedua pintu - kasus terakhir terverifikasi gagal pada shim lama dan lolos pada kernel serta shim baru.
+
 ## [Belum rilis] — Shim: hasil parsial pengisian dikembalikan, permintaan dibatasi INT_MAX (Audit 1746)
 
 - Shim getrandom kini meniru kontrak kernel untuk buffer yang fault di tengah: pengisian dipotong per 4096 byte, byte yang sudah terkirim dikembalikan sebagai hasil parsial (bukan kegagalan total EFAULT), dan permintaan dibatasi ke INT_MAX di getrandom_bendera - terverifikasi probe dua dunia (tanpa shim dan dengan shim hasil identik 4096 di kedua pintu masuk).

@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/random.h>
 #include <sys/syscall.h>
+#include <sys/mman.h>
 
 extern ssize_t getrandom(void *buf, size_t buflen, unsigned int flags);
 
@@ -81,6 +82,59 @@ int main(void) {
         printf("GAGAL buffer NULL panjang 0 harus 0 (ret=%zd errno=%d)\n",
                nolnull, errno);
         return 1;
+    }
+    /* Audit 1747: gabungan flags tak dikenal + buffer NULL -
+     * flags diperiksa lebih dulu, jadi vonisnya EINVAL di
+     * kedua pintu (identik kernel). */
+    errno = 0;
+    ssize_t gab = getrandom(NULL, 16, 0xFFFFu);
+    if (gab != -1 || errno != EINVAL) {
+        printf("GAGAL flags+NULL harus EINVAL (ret=%zd errno=%d)\n",
+               gab, errno);
+        return 1;
+    }
+    errno = 0;
+    long gab2 = syscall(SYS_getrandom, NULL, 16, 0xFFFFu);
+    if (gab2 != -1 || errno != EINVAL) {
+        printf("GAGAL syscall flags+NULL harus EINVAL (ret=%ld errno=%d)\n",
+               gab2, errno);
+        return 1;
+    }
+    /* Audit 1747: panjang 0 + NULL lewat pintu syscall juga 0. */
+    errno = 0;
+    long nolnull2 = syscall(SYS_getrandom, NULL, 0, 0);
+    if (nolnull2 != 0) {
+        printf("GAGAL syscall buffer NULL panjang 0 harus 0 (ret=%ld errno=%d)\n",
+               nolnull2, errno);
+        return 1;
+    }
+    /* Audit 1746/1747: buffer yang berakhir di halaman
+     * terlarang - hasil parsial sejumlah byte halaman sah,
+     * bukan kegagalan total (kedua pintu). */
+    long hlm = sysconf(_SC_PAGESIZE);
+    if (hlm > 0) {
+        char *peta = mmap(NULL, (size_t) hlm * 2, PROT_READ | PROT_WRITE,
+                          MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        if (peta != MAP_FAILED) {
+            if (mprotect(peta + hlm, (size_t) hlm, PROT_NONE) == 0) {
+                errno = 0;
+                ssize_t pars = getrandom(peta, (size_t) hlm * 2, 0);
+                if (pars != (ssize_t) hlm) {
+                    printf("GAGAL hasil parsial harus %ld (ret=%zd errno=%d)\n",
+                           hlm, pars, errno);
+                    return 1;
+                }
+                errno = 0;
+                long pars2 = syscall(SYS_getrandom, peta,
+                                     (size_t) hlm * 2, 0);
+                if (pars2 != hlm) {
+                    printf("GAGAL syscall hasil parsial harus %ld (ret=%ld errno=%d)\n",
+                           hlm, pars2, errno);
+                    return 1;
+                }
+            }
+            munmap(peta, (size_t) hlm * 2);
+        }
     }
     unsigned char r[32];
     ssize_t nr = getrandom(r, sizeof r, 0x0002u);
