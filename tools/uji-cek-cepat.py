@@ -296,6 +296,30 @@ def main():
                 and "token-sela-bintang.txt" in out)
         shutil.rmtree(tokenselabintang, ignore_errors=True)
 
+        kunciselaat = klon(tmp, "kunciselaat")
+        tanam(kunciselaat, "kunci-sela-at.txt",
+              "-----BEGIN RSA\n# cc @tim jeda\n"
+              "PRIVATE KEY-----\n"
+              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+        rc, out = jalan(kunciselaat, ["bash", SKRIP])
+        periksa("header tersela komentar beraksara '@' tertangkap "
+                "(Audit 1733)",
+                rc != 0 and "pola rahasia" in out
+                and "kunci-sela-at.txt" in out)
+        shutil.rmtree(kunciselaat, ignore_errors=True)
+
+        tokenselaat = klon(tmp, "tokenselaat")
+        tanam(tokenselaat, "token-sela-at.txt",
+              token_palsu[:paruh] + "\n"
+              "# cc @tim\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(tokenselaat, ["bash", SKRIP])
+        periksa("token tersela komentar beraksara '@' tertangkap "
+                "(Audit 1733)",
+                rc != 0 and "pola rahasia" in out
+                and "token-sela-at.txt" in out)
+        shutil.rmtree(tokenselaat, ignore_errors=True)
+
         kunciselatitik = klon(tmp, "kunciselatitik")
         tanam(kunciselatitik, "kunci-sela-titik.txt",
               "-----BEGIN OPENSSH\n...\n"

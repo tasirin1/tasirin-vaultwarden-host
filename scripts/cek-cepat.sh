@@ -185,6 +185,7 @@ function proses(line,   awal, hd, sp, pos, s, ekort) {
   $0 = line
   sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, "")
   gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, "")
+  gsub(/[@=+%&~$^?{}\[\]]/, "")
   awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0
   if (match(awal, /^[0-9]+/)) hd = RLENGTH
   if (ekordgt + hd >= 5 && substr(awal, hd + 1, 1) == ":" && substr(awal, hd + 2, 1) ~ /[[:space:]]/) {

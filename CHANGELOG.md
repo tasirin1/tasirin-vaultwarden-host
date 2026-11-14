@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: 11 aksara sela tambahan ikut dikupas pada rangkai blob (Audit 1733)
+
+- Fungsi proses() perangkai blob kini juga mengupas 11 aksara sela (@ = + % & ~ $ ^ ? { } [ ]) yang sebelumnya mematahkan pola bungkus: rahasia terbelah baris komentar bersela aksara itu kini tertangkap (terverifikasi end-to-end dua arah pada fixture sela-@/plus/sama dan token). Empat aksara lain dari temuan - tanda kutip dan kurung buka/tutup - SENGAJA tidak ikut dikupas: keduanya pematah pola yang diandalkan konten jinak (kutip memisahkan literal fixture di berkas uji; kurung membingkai contoh header berelepsis di CHANGELOG) dan mengupasnya menimbulkan positif palsu terverifikasi pada pohon asli - sela kutip/kurung dicatat sebagai residu yang diterima, sejajar Audit 1554/1568. Dua skenario uji-diri baru mengunci arah tertangkapnya.
+
 ## [Belum rilis] — Gerbang: bun - dan bun run - membaca stdin (Audit 1732)
 
 - Cabang bun di gerbang kini juga memberi vonis menguras untuk operand `-`: `bun -` dan `bun run -` menjalankan skrip dari stdin (terprobe dua arah), sejajar `bun repl` yang sudah dikenal sejak Audit 1204.
