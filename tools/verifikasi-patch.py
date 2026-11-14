@@ -5157,10 +5157,14 @@ def _menguras_khusus(perintah, toks, awal):
             if (t_md == "--execute"
                     or t_md.startswith("--execute=")):
                 return False
+            # Audit 1944: cermin 1943 pada mariadb.
             if (t_md.startswith("-")
-                    and not t_md.startswith("--")
-                    and "e" in t_md[1:]):
-                return False
+                    and not t_md.startswith("--")):
+                for h_md in t_md[1:]:
+                    if h_md == "e":
+                        return False
+                    if h_md in ("p", "D", "h", "u", "S", "P"):
+                        break
         return True
     if perintah == "nerdctl":
         # Audit 1926: cermin docker untuk nerdctl -

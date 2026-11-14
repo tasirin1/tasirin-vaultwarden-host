@@ -22836,6 +22836,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("'e' di nilai -p mysql bukan -e: gerbang gagal menguras (Audit 1943)", rc != 0)
         shutil.rmtree(sub1070, ignore_errors=True)
+        sub1071 = klon(tmp, "sub1071")
+        berkas_aksi1071 = os.path.join(
+            sub1071, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1071, encoding="utf-8") as f:
+            isi_aksi1071 = f.read()
+        baris_aksi1071 = [b for b in isi_aksi1071.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1071 = isi_aksi1071.replace(
+                baris_aksi1071,
+                baris_aksi1071.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mariadb -psecret db; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1071 != isi_aksi1071, \
+            "suntikan aksi1071 tidak menembak"
+        with open(berkas_aksi1071, "w", encoding="utf-8") as f:
+            f.write(isi_baru1071)
+        rc, out = jalan(sub1071,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'e' di nilai -p mariadb bukan -e: gerbang gagal menguras (Audit 1944)", rc != 0)
+        shutil.rmtree(sub1071, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

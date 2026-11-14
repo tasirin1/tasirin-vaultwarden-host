@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mariadb mengurai bundel setia getopt (Audit 1944)
+
+- Cermin perbaikan mysql 1943 pada cabang mariadb.
+
 ## [Belum rilis] — Gerbang: cabang mysql mengurai bundel setia getopt (Audit 1943)
 
 - Aturan bundel mysql kini berjalan huruf demi huruf: huruf bernilai pertama (p/D/h/u/S/P) menelan sisa bundel, jadi 'e' di dalam nilai (mis. -psecret) bukan lagi -e.
