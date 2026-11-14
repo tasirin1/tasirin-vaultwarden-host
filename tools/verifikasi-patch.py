@@ -4639,14 +4639,25 @@ def _menguras_khusus(perintah, toks, awal):
     # -f/--file; tanpa itu ia membaca stdin dan
     # operandnya selektor (dokumentasi dasel v2).
     if perintah == "dasel":
-        for t_d in mentah:
+        i_d = 0
+        while i_d < len(mentah):
+            t_d = mentah[i_d]
             if t_d == "--":
                 break
-            if (t_d in ("-f", "--file")
-                    or t_d.startswith("--file=")
-                    or (t_d.startswith("-f")
-                        and not t_d.startswith("--"))):
-                return False
+            nilai_d = None
+            if t_d in ("-f", "--file"):
+                nilai_d = (mentah[i_d + 1]
+                           if i_d + 1 < len(mentah) else "")
+            elif t_d.startswith("--file="):
+                nilai_d = t_d.split("=", 1)[1]
+            elif (t_d.startswith("-f")
+                    and not t_d.startswith("--")):
+                nilai_d = t_d[2:]
+            if nilai_d is not None:
+                # Audit 1850: nilai harfiah "stdin" pada
+                # -f adalah cara dasel menyebut stdin.
+                return nilai_d == "stdin"
+            i_d += 1
         return True
     # Audit 1830: mlr [bendera] KATA-KERJA [opsi kata
     # kerja] [berkas]... - tanpa nama berkas membaca

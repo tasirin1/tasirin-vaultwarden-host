@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang dasel - nilai -f 'stdin' berarti stdin (Audit 1850)
+
+- Cabang dasel kini membaca nilai -f/--file: nilai harfiah 'stdin' berarti masukan stdin; nilai lain tetap berkas seperti sebelumnya.
+
 ## [Belum rilis] — Gerbang: cabang mlr - opsi global bernilai ditelan (Audit 1849)
 
 - Nilai opsi global mlr (--ofmt dan keluarga, --seed, --tz, --load, --files, --profile/-P, --nr-progress-mod) kini ditelan sebelum kata kerja dinilai; operand pertama kata kerja ekspresi put/filter adalah ekspresi DSL, bukan berkas.
