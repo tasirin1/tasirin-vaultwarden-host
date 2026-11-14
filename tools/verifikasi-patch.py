@@ -5149,7 +5149,12 @@ def _menguras_khusus(perintah, toks, awal):
         # filter membaca stdin saat terpipa (MySQL
         # Reference Manual); -e/--execute menjalankan
         # string lalu keluar.
-        for t_my in mentah:
+        # Audit 1955: gelung indeks agar nilai opsi
+        # terpisah bisa dilompati.
+        i_my = 0
+        while i_my < len(mentah):
+            t_my = mentah[i_my]
+            lompat_my = False
             if t_my in ("-V", "--version", "--help"):
                 return False
             # Audit 1914: --execute=<..> dan huruf e di
@@ -5158,17 +5163,23 @@ def _menguras_khusus(perintah, toks, awal):
             if (t_my == "--execute"
                     or t_my.startswith("--execute=")):
                 return False
-            # Audit 1943: urai bundel setia getopt -
-            # huruf bernilai pertama (p/D/h/u/S/P)
-            # menelan sisa bundel sebagai nilai,
-            # jadi 'e' di dalam nilai bukan -e.
-            if (t_my.startswith("-")
+            # Audit 1943 + 1955: urai setia getopt -
+            # opsi bernilai TERPISAH menelan token
+            # berikutnya utuh ('-e' sebagai nilai -h
+            # bukan -e); di dalam bundel, huruf
+            # bernilai pertama menelan sisa bundel.
+            if t_my in ("-h", "-u", "-p", "-D", "-S",
+                        "--host", "--user", "--password",
+                        "--database", "--socket", "--port"):
+                lompat_my = True
+            elif (t_my.startswith("-")
                     and not t_my.startswith("--")):
                 for h_my in t_my[1:]:
                     if h_my == "e":
                         return False
                     if h_my in ("p", "D", "h", "u", "S", "P"):
                         break
+            i_my += 2 if lompat_my else 1
         return True
     if perintah == "mariadb":
         # Audit 1905: cermin mysql 1904 (klien MariaDB:

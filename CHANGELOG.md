@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mysql melewati '-e' yang tertelan sebagai nilai opsi (Audit 1955)
+
+- Gelung cabang mysql kini berjalan per indeks dan melompati nilai opsi bernilai terpisah: '-e' yang menjadi nilai -h/-u tak lagi dihitung maupun terlewat secara salah.
+
 ## [Belum rilis] — Gerbang: cabang rsync menilai --exclude-from/--include-from '-' (Audit 1954)
 
 - Cabang rsync kini turut menilai --exclude-from/--include-from bernilai '-' (terpisah maupun rekat) sebagai pembaca daftar dari stdin.

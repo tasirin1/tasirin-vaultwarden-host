@@ -23067,6 +23067,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("rsync --exclude-from=- membaca daftar dari stdin: gerbang gagal (Audit 1954)", rc != 0)
         shutil.rmtree(sub1081, ignore_errors=True)
+        sub1082 = klon(tmp, "sub1082")
+        berkas_aksi1082 = os.path.join(
+            sub1082, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1082, encoding="utf-8") as f:
+            isi_aksi1082 = f.read()
+        baris_aksi1082 = [b for b in isi_aksi1082.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1082 = isi_aksi1082.replace(
+                baris_aksi1082,
+                baris_aksi1082.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mysql -h -e x db; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1082 != isi_aksi1082, \
+            "suntikan aksi1082 tidak menembak"
+        with open(berkas_aksi1082, "w", encoding="utf-8") as f:
+            f.write(isi_baru1082)
+        rc, out = jalan(sub1082,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'-e' nilai -h mysql bukan -e: gerbang gagal menguras (Audit 1955)", rc != 0)
+        shutil.rmtree(sub1082, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
