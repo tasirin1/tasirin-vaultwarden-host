@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: applet pembungkus busybox/toybox dinilai tuntas (Audit 1739)
+
+- Resolusi busybox/toybox pindah ke dalam putaran pengupasan pembungkus gerbang: applet yang berupa pembungkus (timeout/nice/env/xargs/sudo) kini dikupas tahap yang sama sebelum perintah dalamnya dinilai - sebelumnya `busybox timeout 5 cat` lolos karena pergeseran applet Audit 1738 melompati tahap itu.
+
 ## [Belum rilis] — Gerbang: busybox/toybox dinilai via applet (Audit 1738)
 
 - Dispatch gerbang kini mengalihkan penilaian busybox/toybox ke applet sesudahnya (busybox sh dinilai sebagai sh, toybox cat sebagai cat): multi-biner itu sebelumnya tak terlihat gerbang karena hanya token pertamanya yang dinilai. busybox telanjang atau beropsi (--list/--install) tetap divonis tak membaca stdin.
