@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cypher-shell dinilai membaca stdin (Audit 1989)
+
+- cypher-shell kini dinilai: bentuk polos terpipa membaca pernyataan dari stdin; argumen pernyataan dan -f menekannya.
+
 ## [Belum rilis] — Gerbang: nats dinilai - pub/request subjek saja dari stdin (Audit 1988)
 
 - nats kini dinilai: pub/request dengan tepat subjek saja membaca body pesan dari stdin.
