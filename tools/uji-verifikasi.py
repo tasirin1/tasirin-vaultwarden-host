@@ -18594,6 +18594,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("bat ber-FILE berkas menampilkan berkas itu: gerbang lolos (Audit 1768)", rc == 0)
         shutil.rmtree(sub867, ignore_errors=True)
+        sub868 = klon(tmp, "sub868")
+        berkas_aksi868 = os.path.join(
+            sub868, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi868, encoding="utf-8") as f:
+            isi_aksi868 = f.read()
+        baris_aksi868 = [b for b in isi_aksi868.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru868 = isi_aksi868.replace(
+                baris_aksi868,
+                baris_aksi868.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lzip -dc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru868 != isi_aksi868, \
+            "suntikan aksi868 tidak menembak"
+        with open(berkas_aksi868, "w", encoding="utf-8") as f:
+            f.write(isi_baru868)
+        rc, out = jalan(sub868,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lzip tanpa berkas membuka dari stdin: gerbang gagal (Audit 1769)", rc != 0)
+        shutil.rmtree(sub868, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

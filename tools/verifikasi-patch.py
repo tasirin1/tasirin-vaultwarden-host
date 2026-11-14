@@ -4365,6 +4365,28 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return True
+    # Audit 1769: lzip tanpa nama berkas memampatkan /
+    # membuka dari standard input, dan argumen '-' juga
+    # stdin (manual GNU lzip) - keluarga gzip.
+    if perintah == "lzip":
+        i_lz = 0
+        while i_lz < len(mentah):
+            t_lz = mentah[i_lz].lower()
+            if t_lz in ("-o", "--output", "-S", "--suffix",
+                        "-s", "--dictionary-size", "-b",
+                        "--member-size", "-m", "--match-length",
+                        "-n", "--threads"):
+                if i_lz + 1 >= len(mentah):
+                    return False
+                i_lz += 2
+                continue
+            if mentah[i_lz] == "-":
+                return True
+            if t_lz.startswith("-"):
+                i_lz += 1
+                continue
+            return False
+        return True
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5653,7 +5675,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
                         "pwsh", "powershell", "bc", "dc", "ed",
                         "hexdump", "hd", "xxd", "cpio", "pax",
-                        "pg", "bat", "batcat",
+                        "pg", "bat", "batcat", "lzip",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

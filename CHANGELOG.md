@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: lzip dinilai (Audit 1769)
+
+- lzip kini dinilai penilai khusus mengikuti manual GNU lzip: tanpa nama berkas ia memampatkan/membuka dari standard input dan argumen '-' juga berarti stdin.
+
 ## [Belum rilis] — Gerbang: bat dan batcat dinilai (Audit 1768)
 
 - bat dan batcat kini dinilai penilai khusus mengikuti bat(1): tanpa FILE atau FILE '-' masukan dibaca dari standard input; opsi bernilai lazim dilompati beserta nilainya.
