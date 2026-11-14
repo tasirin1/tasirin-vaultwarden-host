@@ -20274,6 +20274,69 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-o derdump berkas keluaran bernilai - tanpa operand ia membaca stdin: gerbang gagal (Audit 1843)", rc != 0)
         shutil.rmtree(sub947, ignore_errors=True)
+        sub948 = klon(tmp, "sub948")
+        berkas_aksi948 = os.path.join(
+            sub948, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi948, encoding="utf-8") as f:
+            isi_aksi948 = f.read()
+        baris_aksi948 = [b for b in isi_aksi948.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru948 = isi_aksi948.replace(
+                baris_aksi948,
+                baris_aksi948.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unbrotli -o hasil; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru948 != isi_aksi948, \
+            "suntikan aksi948 tidak menembak"
+        with open(berkas_aksi948, "w", encoding="utf-8") as f:
+            f.write(isi_baru948)
+        rc, out = jalan(sub948,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("unbrotli berbagi entri brotli - -o bernilai: gerbang gagal (Audit 1844)", rc != 0)
+        shutil.rmtree(sub948, ignore_errors=True)
+        sub949 = klon(tmp, "sub949")
+        berkas_aksi949 = os.path.join(
+            sub949, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi949, encoding="utf-8") as f:
+            isi_aksi949 = f.read()
+        baris_aksi949 = [b for b in isi_aksi949.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru949 = isi_aksi949.replace(
+                baris_aksi949,
+                baris_aksi949.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unbrotli -w 22; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru949 != isi_aksi949, \
+            "suntikan aksi949 tidak menembak"
+        with open(berkas_aksi949, "w", encoding="utf-8") as f:
+            f.write(isi_baru949)
+        rc, out = jalan(sub949,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-w unbrotli bernilai: gerbang gagal (Audit 1844)", rc != 0)
+        shutil.rmtree(sub949, ignore_errors=True)
+        sub950 = klon(tmp, "sub950")
+        berkas_aksi950 = os.path.join(
+            sub950, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi950, encoding="utf-8") as f:
+            isi_aksi950 = f.read()
+        baris_aksi950 = [b for b in isi_aksi950.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru950 = isi_aksi950.replace(
+                baris_aksi950,
+                baris_aksi950.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(brcat -o hasil; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru950 != isi_aksi950, \
+            "suntikan aksi950 tidak menembak"
+        with open(berkas_aksi950, "w", encoding="utf-8") as f:
+            f.write(isi_baru950)
+        rc, out = jalan(sub950,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("brcat berbagi entri brotli: gerbang gagal (Audit 1844)", rc != 0)
+        shutil.rmtree(sub950, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

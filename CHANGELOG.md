@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: unbrotli dan brcat berbagi entri brotli (Audit 1844)
+
+- Kedua alias brotli kini berentri menyamai brotli (-q/--quality, -o/--output, -w/--window, -S/--suffix).
+
 ## [Belum rilis] — Gerbang: opsi bernilai derdump didaftarkan (Audit 1843)
 
 - Entri opsi bernilai derdump (-o berkas keluaran) ditambahkan: nilainya tak lagi terhitung operand.

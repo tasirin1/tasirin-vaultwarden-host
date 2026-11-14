@@ -1007,6 +1007,11 @@ _OPSI_BERNILAI = {
     "hexyl": {"-n", "--length", "-s", "--skip"},
     # Audit 1843: opsi bernilai derdump.
     "derdump": {"-o"},
+    # Audit 1844: alias brotli berbagi entri brotli.
+    "unbrotli": {"-q", "--quality", "-o", "--output",
+                 "-w", "--window", "-S", "--suffix"},
+    "brcat": {"-q", "--quality", "-o", "--output",
+              "-w", "--window", "-S", "--suffix"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",
