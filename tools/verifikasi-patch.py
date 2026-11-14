@@ -4572,7 +4572,8 @@ def _menguras_khusus(perintah, toks, awal):
     # pertama adalah request pengkodean, bukan berkas;
     # tanpa FILE ia filter stdin (manual GNU recode).
     if perintah == "recode":
-        ops_rc = _operand_sesudah_opsi(toks, awal, set())
+        ops_rc = _operand_sesudah_opsi(
+            toks, awal, {"-x", "--ignore", "--sequence"})
         if "\x00gantung" in ops_rc:
             return False
         return len(ops_rc) == 1

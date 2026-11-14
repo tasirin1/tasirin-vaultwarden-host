@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang recode sadar opsi bernilai -x/--ignore (Audit 1826)
+
+- Penghitung operand recode kini melewatkan nilai -x/--ignore dan --sequence, jadi request tanpa FILE sesudahnya dinilai filter stdin dengan benar.
+
 ## [Belum rilis] — Gerbang: opsi bernilai keluarga dos2unix didaftarkan (Audit 1825)
 
 - Entri opsi bernilai -c/--convmode ditambahkan untuk dos2unix, unix2dos, mac2unix, dan unix2mac.

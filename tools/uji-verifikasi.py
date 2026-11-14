@@ -19623,6 +19623,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai -c dos2unix bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1825)", rc != 0)
         shutil.rmtree(sub916, ignore_errors=True)
+        sub917 = klon(tmp, "sub917")
+        berkas_aksi917 = os.path.join(
+            sub917, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi917, encoding="utf-8") as f:
+            isi_aksi917 = f.read()
+        baris_aksi917 = [b for b in isi_aksi917.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru917 = isi_aksi917.replace(
+                baris_aksi917,
+                baris_aksi917.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(recode -x latin1 utf8..latin1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru917 != isi_aksi917, \
+            "suntikan aksi917 tidak menembak"
+        with open(berkas_aksi917, "w", encoding="utf-8") as f:
+            f.write(isi_baru917)
+        rc, out = jalan(sub917,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-x recode menelan nilai charset - request tanpa FILE adalah filter stdin: gerbang gagal (Audit 1826)", rc != 0)
+        shutil.rmtree(sub917, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
