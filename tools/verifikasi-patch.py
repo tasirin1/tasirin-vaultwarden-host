@@ -929,7 +929,8 @@ _OPSI_BERNILAI = {
            "--memlimit", "--memlimit-compress",
            "--memlimit-decompress",
            # Audit 1172: -F/--format bernilai.
-           "-F", "--format", "--block-list"},
+           "-F", "--format", "--block-list",
+           "-S", "--suffix"},
     # Audit 1639: opsi bernilai gpgv.
     # Audit 1648: --weak-digest terprobe real menguras;
     # --output/-o & --log-file bernilai menurut man gpgv(1).

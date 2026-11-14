@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -S/--suffix didaftarkan untuk xz (Audit 1852)
+
+- Entri xz kini memuat -S/--suffix seperti semua saudara xz lainnya (unxz, lzma, lzcat): nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: yq - opsi -f dicatat dan penjaga cerminnya menolak (Audit 1851)
 
 - Dict yq kini memuat -f/--from-file agar penjaga cermin keluarga skrip terjangkau, dan penjaga itu menolak semua bentuk -f untuk yq: yq memang tak punya opsi itu (galat, tak membaca stdin).
