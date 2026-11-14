@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang gh - saklar stdin digerbang konteks sub-perintah (Audit 1949)
+
+- Pindaian saklar stdin gh kini hanya berjalan pada konteks api / pr create / issue create / release create.
+
 ## [Belum rilis] — Gerbang: cabang crictl menggugurkan opsi tak dikenal (Audit 1948)
 
 - Cabang crictl kini mengenal -t/--tty dan --timeout (bernilai); opsi lain sebelum id kontainer dianggap galat parsing dan menggugurkan vonis.

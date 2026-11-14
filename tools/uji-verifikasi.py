@@ -22941,6 +22941,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi tak dikenal crictl galat parsing: gerbang lolos (Audit 1948)", rc == 0)
         shutil.rmtree(sub1075, ignore_errors=True)
+        sub1076 = klon(tmp, "sub1076")
+        berkas_aksi1076 = os.path.join(
+            sub1076, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1076, encoding="utf-8") as f:
+            isi_aksi1076 = f.read()
+        baris_aksi1076 = [b for b in isi_aksi1076.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1076 = isi_aksi1076.replace(
+                baris_aksi1076,
+                baris_aksi1076.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gh --hostname ghexample --input - auth; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1076 != isi_aksi1076, \
+            "suntikan aksi1076 tidak menembak"
+        with open(berkas_aksi1076, "w", encoding="utf-8") as f:
+            f.write(isi_baru1076)
+        rc, out = jalan(sub1076,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--input gh di luar konteks sub-perintah bukan saklar: gerbang lolos (Audit 1949)", rc == 0)
+        shutil.rmtree(sub1076, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

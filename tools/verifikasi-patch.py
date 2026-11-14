@@ -6139,7 +6139,19 @@ def _menguras_khusus(perintah, toks, awal):
         # api --input -, field -F berisi @-, dan berkas
         # badan/catatan berupa '-' pada pr/issue/release.
         sisa_gh = mentah[k_gh:]
+        # Audit 1949: saklar stdin hanya ada pada
+        # api / pr create / issue create /
+        # release create - di luar konteks itu
+        # kemunculannya (mis. sebagai teks bebas)
+        # bukan saklar.
+        konteks_gh = (
+            sisa_gh[:1] == ["api"]
+            or sisa_gh[:2] in (["pr", "create"],
+                               ["issue", "create"],
+                               ["release", "create"]))
         for k2_gh, t2_gh in enumerate(sisa_gh):
+            if not konteks_gh:
+                break
             if t2_gh in ("--input", "--body-file",
                          "--notes-file"):
                 if (k2_gh + 1 < len(sisa_gh)
