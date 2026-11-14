@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -o/--output didaftarkan untuk zstdcat (Audit 1868)
+
+- Entri zstdcat kini memuat -o/--output seperti ketiga saudara zstd-nya dari manual bersama: nilai berkas keluarannya tak lagi terhitung operand masukan.
+
 ## [Belum rilis] — Gerbang: entri plzip dilengkapi dan --format palsu dicabut (Audit 1867)
 
 - Entri plzip dilengkapi -B/--data-size, -s, -m, -o/--output per manual Texinfo plzip dan --format yang tidak ada di plzip dicabut.

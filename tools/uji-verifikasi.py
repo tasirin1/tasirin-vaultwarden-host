@@ -21408,6 +21408,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("plzip tak punya --format - nilainya operand: gerbang lolos (Audit 1867)", rc == 0)
         shutil.rmtree(sub1001, ignore_errors=True)
+        sub1002 = klon(tmp, "sub1002")
+        berkas_aksi1002 = os.path.join(
+            sub1002, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1002, encoding="utf-8") as f:
+            isi_aksi1002 = f.read()
+        baris_aksi1002 = [b for b in isi_aksi1002.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1002 = isi_aksi1002.replace(
+                baris_aksi1002,
+                baris_aksi1002.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(zstdcat -o hasil; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1002 != isi_aksi1002, \
+            "suntikan aksi1002 tidak menembak"
+        with open(berkas_aksi1002, "w", encoding="utf-8") as f:
+            f.write(isi_baru1002)
+        rc, out = jalan(sub1002,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-o zstdcat berkas keluaran dari manual bersama zstd: gerbang gagal (Audit 1868)", rc != 0)
+        shutil.rmtree(sub1002, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

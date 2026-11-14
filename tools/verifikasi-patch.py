@@ -950,7 +950,7 @@ _OPSI_BERNILAI = {
                "--output-dir-flat",
                "--output-dir-mirror", "--patch-from"},
     "zstdcat": {"-D", "-T", "--threads",
-                "-M", "--memory", "--format",
+                "-M", "--memory", "--format", "-o", "--output",
                 "--output-dir-flat",
                 "--output-dir-mirror", "--patch-from"},
     # Audit 1642: zstdmt varian multithread zstd.
