@@ -19476,6 +19476,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("recode dengan request tanpa FILE adalah filter stdin: gerbang gagal (Audit 1818)", rc != 0)
         shutil.rmtree(sub909, ignore_errors=True)
+        sub910 = klon(tmp, "sub910")
+        berkas_aksi910 = os.path.join(
+            sub910, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi910, encoding="utf-8") as f:
+            isi_aksi910 = f.read()
+        baris_aksi910 = [b for b in isi_aksi910.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru910 = isi_aksi910.replace(
+                baris_aksi910,
+                baris_aksi910.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(plzip --threads 2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru910 != isi_aksi910, \
+            "suntikan aksi910 tidak menembak"
+        with open(berkas_aksi910, "w", encoding="utf-8") as f:
+            f.write(isi_baru910)
+        rc, out = jalan(sub910,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai --threads plzip bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1819)", rc != 0)
+        shutil.rmtree(sub910, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

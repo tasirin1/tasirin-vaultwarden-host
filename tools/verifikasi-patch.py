@@ -966,6 +966,9 @@ _OPSI_BERNILAI = {
                "-o", "--output-separator"},
     # Audit 1802: gzcat adalah nama varian zcat.
     "gzcat": {"-S", "--suffix"},
+    # Audit 1819: opsi bernilai plzip.
+    "plzip": {"-n", "--threads", "--dictionary-size",
+              "--match-length", "--format"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

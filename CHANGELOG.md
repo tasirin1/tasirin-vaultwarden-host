@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai plzip didaftarkan (Audit 1819)
+
+- Entri opsi bernilai plzip (-n/--threads, --dictionary-size, --match-length, --format) ditambahkan: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Layar: konten disegel ulang saat resume bila PIN ditagih lagi (Audit 1805)
 
 - onResume MainActivity dan SettingsActivity kini memasang lagi segel INVISIBLE bila PinGate menagih layar PIN, jadi konten lama tidak tampil polos selama jendela transisi sesudah grace kedaluwarsa; segel dibuka jalur refresh biasa sesudah PIN lolos.
