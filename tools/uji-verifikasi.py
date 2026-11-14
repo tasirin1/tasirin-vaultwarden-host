@@ -18741,6 +18741,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai -f hexdump adalah berkas format harfiah, bukan stdin: gerbang lolos (Audit 1775)", rc == 0)
         shutil.rmtree(sub874, ignore_errors=True)
+        sub875 = klon(tmp, "sub875")
+        berkas_aksi875 = os.path.join(
+            sub875, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi875, encoding="utf-8") as f:
+            isi_aksi875 = f.read()
+        baris_aksi875 = [b for b in isi_aksi875.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru875 = isi_aksi875.replace(
+                baris_aksi875,
+                baris_aksi875.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cpio -i -F -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru875 != isi_aksi875, \
+            "suntikan aksi875 tidak menembak"
+        with open(berkas_aksi875, "w", encoding="utf-8") as f:
+            f.write(isi_baru875)
+        rc, out = jalan(sub875,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai -F cpio berupa - adalah berkas harfiah, bukan stdin: gerbang lolos (Audit 1780)", rc == 0)
+        shutil.rmtree(sub875, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -4297,7 +4297,11 @@ def _menguras_khusus(perintah, toks, awal):
         if modus_cp == "tulis":
             return True
         if modus_cp == "baca":
-            return berkas_cp is None or berkas_cp == "-"
+            # Audit 1780: nilai -F berupa '-' adalah nama
+            # berkas harfiah - manual GNU cpio tidak
+            # mendokumentasikan '-' sebagai stdin di sini
+            # (beda dari tar/gzip yang eksplisit).
+            return berkas_cp is None
         return False
     # Audit 1766: pax (POSIX) - mode list dan read membaca
     # arsip dari standard input kecuali -f menyebut berkas;

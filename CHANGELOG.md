@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cpio -F - berkas harfiah (Audit 1780)
+
+- Syarat stdin copy-in cpio kini hanya ketiadaan -F: nilai '-' untuk -F/--file adalah nama berkas harfiah karena manual GNU cpio tidak mendokumentasikannya sebagai stdin - sejajar keputusan hexdump -f - (Audit 1775).
+
 ## [Belum rilis] — Shim menolak kombinasi flags RANDOM|INSECURE (Audit 1779)
 
 - getrandom_bendera kini menolak kombinasi GRND_RANDOM|GRND_INSECURE dengan EINVAL persis seperti kernel - kedua bit itu saling meniadakan maknanya; sebelumnya shim diam-diam memilih INSECURE dan mengisi byte urandom. Uji interposisi menambah kasus kombinasi itu di kedua pintu (fungsi dan syscall).
