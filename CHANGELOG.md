@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gcloud storage cp '-' dan -I dinilai membaca stdin (Audit 1936)
+
+- gcloud kini dinilai terbatas pada storage cp, mencerminkan gsutil: sumber '-' dan -I membaca dari stdin.
+
 ## [Belum rilis] — Gerbang: gsutil cp '-' dan -I dinilai membaca stdin (Audit 1935)
 
 - gsutil kini dinilai: cp dengan sumber '-' mengunggah stdin dan -I membaca daftar URL dari stdin.

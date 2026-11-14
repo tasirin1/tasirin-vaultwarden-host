@@ -5330,6 +5330,21 @@ def _menguras_khusus(perintah, toks, awal):
         if not ops_gu or ops_gu[0] != "cp":
             return False
         return "-" in ops_gu[1:-1]
+    if perintah == "gcloud":
+        # Audit 1936: hanya storage cp yang dinilai
+        # (cermin gsutil 1935): sumber '-' = unggah
+        # stdin, -I membaca daftar dari stdin
+        # (dokumentasi cloud.google.com).
+        if "-I" in mentah:
+            sub_gc = _operand_sesudah_opsi(toks, awal, set())
+            return len(sub_gc) >= 2 and sub_gc[:2] == ["storage", "cp"]
+        ops_gc = _operand_sesudah_opsi(
+            toks, awal, {"--project", "--account"})
+        if "\x00gantung" in ops_gc:
+            return False
+        if len(ops_gc) < 3 or ops_gc[:2] != ["storage", "cp"]:
+            return False
+        return "-" in ops_gc[2:-1]
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6910,7 +6925,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "clickhouse-client", "consul", "etcdctl", "glab", "gsutil", "nerdctl", "oc", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "clickhouse-client", "consul", "etcdctl", "glab", "gcloud", "gsutil", "nerdctl", "oc", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
