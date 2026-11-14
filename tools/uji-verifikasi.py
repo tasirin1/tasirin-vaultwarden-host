@@ -22038,6 +22038,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("psql -f - membaca stdin: gerbang gagal (Audit 1903)", rc != 0)
         shutil.rmtree(sub1032, ignore_errors=True)
+        sub1033 = klon(tmp, "sub1033")
+        berkas_aksi1033 = os.path.join(
+            sub1033, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1033, encoding="utf-8") as f:
+            isi_aksi1033 = f.read()
+        baris_aksi1033 = [b for b in isi_aksi1033.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1033 = isi_aksi1033.replace(
+                baris_aksi1033,
+                baris_aksi1033.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mysql db; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1033 != isi_aksi1033, \
+            "suntikan aksi1033 tidak menembak"
+        with open(berkas_aksi1033, "w", encoding="utf-8") as f:
+            f.write(isi_baru1033)
+        rc, out = jalan(sub1033,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("mysql polos terpipa membaca stdin: gerbang gagal (Audit 1904)", rc != 0)
+        shutil.rmtree(sub1033, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

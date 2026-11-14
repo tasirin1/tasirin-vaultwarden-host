@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mysql dinilai - mode polos terpipa membaca stdin (Audit 1904)
+
+- mysql kini dinilai: tanpa -e ia berjalan sebagai filter membaca stdin saat terpipa; -e/--execute menjalankan string lalu keluar.
+
 ## [Belum rilis] — Gerbang: psql dinilai - polos dan -f - membaca stdin (Audit 1903)
 
 - psql kini dinilai: -f - membaca stdin dan mode polos (tanpa -c/-f) membaca perintah dari stdin saat terpipa; -c dan -f berkas menekan pembacaan itu.
