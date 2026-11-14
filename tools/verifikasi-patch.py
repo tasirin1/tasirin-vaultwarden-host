@@ -5255,6 +5255,32 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return any(t_vl == "-" or t_vl.endswith("=-")
                    for t_vl in mentah)
+    if perintah == "etcdctl":
+        # Audit 1930: put tanpa nilai membaca nilai
+        # dari stdin; txn membaca interaksi dari
+        # stdin (README resmi etcdctl).
+        sub_et = None
+        for k_et, t_et in enumerate(mentah):
+            if t_et in ("put", "txn"):
+                sub_et = k_et
+                break
+        if sub_et is None:
+            return False
+        if mentah[sub_et] == "txn":
+            return True
+        sisa_et = []
+        j_et = sub_et + 1
+        while j_et < len(mentah):
+            t_et = mentah[j_et]
+            if t_et == "--lease":
+                j_et += 2
+                continue
+            if t_et.startswith("-"):
+                j_et += 1
+                continue
+            sisa_et.append(t_et)
+            j_et += 1
+        return len(sisa_et) == 1
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6819,7 +6845,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "consul", "nerdctl", "oc", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "consul", "etcdctl", "nerdctl", "oc", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

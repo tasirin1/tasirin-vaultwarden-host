@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: etcdctl put tanpa nilai dan txn dinilai (Audit 1930)
+
+- etcdctl kini dinilai: put dengan tepat satu operand (kunci saja) membaca nilainya dari stdin; txn membaca interaksi dari stdin.
+
 ## [Belum rilis] — Gerbang: vault bentuk tulis dengan '-' dinilai (Audit 1929)
 
 - vault kini dinilai: sub-perintah tulis (put/write) dengan operand '-' atau 'kunci=-' membaca nilai dari stdin; bentuk baca tak dinilai.

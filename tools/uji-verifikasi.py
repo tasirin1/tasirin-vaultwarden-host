@@ -22542,6 +22542,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("vault kv put '-' membaca nilai dari stdin: gerbang gagal (Audit 1929)", rc != 0)
         shutil.rmtree(sub1056, ignore_errors=True)
+        sub1057 = klon(tmp, "sub1057")
+        berkas_aksi1057 = os.path.join(
+            sub1057, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1057, encoding="utf-8") as f:
+            isi_aksi1057 = f.read()
+        baris_aksi1057 = [b for b in isi_aksi1057.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1057 = isi_aksi1057.replace(
+                baris_aksi1057,
+                baris_aksi1057.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(etcdctl put kunci; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1057 != isi_aksi1057, \
+            "suntikan aksi1057 tidak menembak"
+        with open(berkas_aksi1057, "w", encoding="utf-8") as f:
+            f.write(isi_baru1057)
+        rc, out = jalan(sub1057,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("etcdctl put tanpa nilai membaca stdin: gerbang gagal (Audit 1930)", rc != 0)
+        shutil.rmtree(sub1057, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
