@@ -724,6 +724,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1833: hck, klon cut - tanpa
                   # berkas atau '-' membaca stdin.
                   "hck",
+                  # Audit 1834: hexyl - tanpa FILE
+                  # membaca stdin (hexyl(1)).
+                  "hexyl",
                   # Audit 1112: pembaca interaktif/kueri — operand
                   # berkas/nama menekan seperti filter biasa.
                   "wall", "c++filt", "nslookup",
@@ -990,6 +993,8 @@ _OPSI_BERNILAI = {
     "unix2mac": {"-c", "--convmode"},
     # Audit 1833: opsi bernilai hck.
     "hck": {"-f", "--fields", "-d", "--delimiter"},
+    # Audit 1834: opsi bernilai hexyl.
+    "hexyl": {"-n", "--length", "-s", "--skip"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

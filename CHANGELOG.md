@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: hexyl dikenal sebagai pembaca stdin (Audit 1834)
+
+- Nama hexyl masuk daftar pembaca stdin beserta opsi bernilainya (-n/--length, -s/--skip): tanpa FILE ia membaca stdin.
+
 ## [Belum rilis] — Gerbang: hck dikenal sebagai pembaca stdin (Audit 1833)
 
 - Nama hck masuk daftar pembaca stdin beserta opsi bernilainya (-f/--fields, -d/--delimiter): klon cut ini membaca stdin tanpa berkas.
