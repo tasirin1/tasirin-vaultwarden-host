@@ -4142,9 +4142,11 @@ def _menguras_khusus(perintah, toks, awal):
                     return False
                 i_pw += 2
                 continue
-            if (len(t_pw) >= 4
+            if (len(t_pw) >= 3
                     and "-version".startswith(t_pw)):
-                # Audit 1762: awalan unik -Version (mis. -ver)
+                # Audit 1762: awalan unik -Version (mis. -ver);
+                # Audit 1773: ambang diturunkan ke 3 aksara -
+                # -ve juga awalan unik ("Ve" hanya -Version).
                 # terikat oleh pengikat parameter sebagai
                 # -Version itu sendiri (informatif), bukan
                 # sesi interaktif.

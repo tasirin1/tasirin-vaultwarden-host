@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: awalan -ve pwsh informasional (Audit 1773)
+
+- Ambang awalan unik -Version pwsh diturunkan dari 4 ke 3 aksara: -ve juga awalan unik karena hanya -Version yang berawalan Ve di daftar parameter pwsh, jadi ia terikat informasional seperti -ver.
+
 ## [Belum rilis] — Gerbang: 7z -si dinilai (Audit 1772)
 
 - 7z kini dinilai penilai khusus mengikuti 7z(1): perintah a dengan saklar -si (termasuk bentuk menempel -sinama) membaca data dari StdIn; bentuk x -/l - memang tak didukung dokumentasi dan tetap tak menguras.

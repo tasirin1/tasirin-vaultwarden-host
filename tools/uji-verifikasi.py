@@ -18678,6 +18678,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("7z a -si membaca data dari stdin: gerbang gagal (Audit 1772)", rc != 0)
         shutil.rmtree(sub871, ignore_errors=True)
+        sub872 = klon(tmp, "sub872")
+        berkas_aksi872 = os.path.join(
+            sub872, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi872, encoding="utf-8") as f:
+            isi_aksi872 = f.read()
+        baris_aksi872 = [b for b in isi_aksi872.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru872 = isi_aksi872.replace(
+                baris_aksi872,
+                baris_aksi872.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pwsh -ve; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru872 != isi_aksi872, \
+            "suntikan aksi872 tidak menembak"
+        with open(berkas_aksi872, "w", encoding="utf-8") as f:
+            f.write(isi_baru872)
+        rc, out = jalan(sub872,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("awalan unik -ve terikat sebagai -Version pwsh informasional: gerbang lolos (Audit 1773)", rc == 0)
+        shutil.rmtree(sub872, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
