@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: redis-cli dinilai - polos/-x/--pipe membaca stdin (Audit 1902)
+
+- redis-cli kini dinilai: -x dan --pipe membaca dari stdin, dan tanpa kata perintah ia membaca perintah dari stdin saat terpipa; dengan kata perintah ia menjalankan lalu keluar.
+
 ## [Belum rilis] — Gerbang: websocat dinilai - alamat stdio dan mode klien sederhana (Audit 1901)
 
 - websocat kini dinilai: alamat '-'/'stdio:' dan mode klien sederhana (satu alamat ws:// atau wss:// tanpa mode dengar) meneruskan stdin.

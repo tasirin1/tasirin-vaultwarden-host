@@ -21996,6 +21996,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("websocat klien sederhana meneruskan stdin: gerbang gagal (Audit 1901)", rc != 0)
         shutil.rmtree(sub1030, ignore_errors=True)
+        sub1031 = klon(tmp, "sub1031")
+        berkas_aksi1031 = os.path.join(
+            sub1031, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1031, encoding="utf-8") as f:
+            isi_aksi1031 = f.read()
+        baris_aksi1031 = [b for b in isi_aksi1031.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1031 = isi_aksi1031.replace(
+                baris_aksi1031,
+                baris_aksi1031.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(redis-cli; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1031 != isi_aksi1031, \
+            "suntikan aksi1031 tidak menembak"
+        with open(berkas_aksi1031, "w", encoding="utf-8") as f:
+            f.write(isi_baru1031)
+        rc, out = jalan(sub1031,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("redis-cli polos terpipa membaca perintah dari stdin: gerbang gagal (Audit 1902)", rc != 0)
+        shutil.rmtree(sub1031, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

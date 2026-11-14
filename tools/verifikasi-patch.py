@@ -4868,6 +4868,22 @@ def _menguras_khusus(perintah, toks, awal):
         return (len(ops_ws) == 1
                 and (ops_ws[0].startswith("ws://")
                      or ops_ws[0].startswith("wss://")))
+    if perintah == "redis-cli":
+        # Audit 1902: -x membaca argumen terakhir dari
+        # stdin dan --pipe membaca protokol dari stdin;
+        # tanpa kata perintah ia membaca perintah dari
+        # stdin saat terpipa (redis.io). Dengan kata
+        # perintah (tanpa -x) ia menjalankan lalu keluar.
+        if "-x" in mentah or "--pipe" in mentah:
+            return True
+        ops_rc = _operand_sesudah_opsi(
+            toks, awal, {"-h", "-p", "-a", "-u", "--user",
+                         "--pass", "-n", "--db", "-s",
+                         "--cacert", "--cert", "--key",
+                         "--tls-cacertdir"})
+        if "\x00gantung" in ops_rc:
+            return False
+        return len(ops_rc) == 0
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6432,7 +6448,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mosquitto_pub", "podman", "rsh", "terraform", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mosquitto_pub", "podman", "redis-cli", "rsh", "terraform", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
