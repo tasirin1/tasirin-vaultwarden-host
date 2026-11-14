@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: escape unicode \uXXXX didekode perata bungkus (Audit 1890)
+
+- Fungsi proses() kini mendekode escape \uXXXX: nilai di bawah 0x80 (semua aksara token) persis, di atasnya terpotong ke byte rendah yang untuk keluarga spasi/tak-terlihat jatuh ke kelas terlarut perataan.
+
 ## [Belum rilis] — Cek-cepat: escape oktal dua digit didekode perata bungkus (Audit 1889)
 
 - Sesudah gelung oktal 3 digit menghabiskan bentuk panjangnya, gelung oktal 2 digit kini turut mendekode bentuk seperti $'\72' (':') sehingga token ter-encode tersambung kembali.

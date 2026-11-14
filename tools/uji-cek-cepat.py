@@ -850,6 +850,15 @@ def main():
                 "(Audit 1889)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(oktal_dua, ignore_errors=True)
+        escape_unicode = klon(tmp, "escapeunicode")
+        tanam(escape_unicode, "token-unicode.sh",
+              "TOKEN=$'" + token_palsu.replace(":", "\\u003a")
+              + "'\n", "w")
+        rc, out = jalan(escape_unicode, ["bash", SKRIP])
+        periksa("token ter-encode escape unicode tertangkap "
+                "(Audit 1890)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(escape_unicode, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

@@ -215,6 +215,16 @@ function proses(line,   awal, hd, sp, pos, s, ekort, hx, hv, ox, ov) {
     ov = (substr(ox, 1, 1) + 0) * 64 + (substr(ox, 2, 1) + 0) * 8 + (substr(ox, 3, 1) + 0)
     $0 = substr($0, 1, RSTART - 1) sprintf("%c", ov) substr($0, RSTART + 4)
   }
+  # Audit 1890: escape unicode \uXXXX - nilai di
+  # bawah 0x80 (semua aksara token) didekode persis;
+  # di atasnya %c memotong ke byte rendah, yang untuk
+  # keluarga spasi/tak-terlihat jatuh ke kelas yang
+  # ikut terlarut perataan (atau memutus rantai).
+  while (match($0, /\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]/)) {
+    ux = substr($0, RSTART + 2, 4)
+    uv = (index("0123456789abcdef", tolower(substr(ux, 1, 1))) - 1) * 4096 + (index("0123456789abcdef", tolower(substr(ux, 2, 1))) - 1) * 256 + (index("0123456789abcdef", tolower(substr(ux, 3, 1))) - 1) * 16 + (index("0123456789abcdef", tolower(substr(ux, 4, 1))) - 1)
+    $0 = substr($0, 1, RSTART - 1) sprintf("%c", uv) substr($0, RSTART + 6)
+  }
   # Audit 1889: oktal dua digit ($'\72' = ':') juga
   # didekode - gelung 3 digit di atas sudah menghabiskan
   # bentuk panjangnya lebih dulu.
