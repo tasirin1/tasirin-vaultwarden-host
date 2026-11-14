@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: yq dirutekan ke penilai keluarga skrip (Audit 1827)
+
+- yq masuk daftar pembaca stdin, tuple keluarga skrip, dan tabel opsi bernilai; penjaga -n/--null-input jq kini berlaku juga untuknya: ekspresi tanpa berkas membaca stdin, -n tidak.
+
 ## [Belum rilis] — Gerbang: cabang recode sadar opsi bernilai -x/--ignore (Audit 1826)
 
 - Penghitung operand recode kini melewatkan nilai -x/--ignore dan --sequence, jadi request tanpa FILE sesudahnya dinilai filter stdin dengan benar.

@@ -729,7 +729,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1038: keluarga beroperand skrip/pola —
                   # operand pertamanya bukan berkas (penilaian
                   # posisinya di _menguras_keluarga_skrip).
-                  "sed", "awk", "grep", "jq",
+                  "sed", "awk", "grep", "jq", "yq",
                   # Audit 1067: varian nama keluarga yang sama
                   # (dipetakan ke nama kanonis di penilainya).
                   "mawk", "nawk", "egrep", "fgrep", "rg",
@@ -1521,6 +1521,10 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                "--arg", "--argjson", "--rawfile", "--slurpfile",
                # Audit 1126: --indent bernilai.
                "--indent"},
+        # Audit 1827: opsi bernilai yq (keluarga skrip).
+        "yq": {"--arg", "--argjson", "--rawfile",
+               "--slurpfile", "-p", "--input-format",
+               "-o", "--output-format", "--indent"},
     }[perintah]
     if nama_asli in ("gawk", "pgawk", "igawk"):
         # Audit 1640: opsi bernilai khas GNU awk — tidak
@@ -1564,7 +1568,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             i += 1
             continue
         if bersih.startswith("-") and bersih != "-":
-            if perintah == "jq" and bersih in ("-n", "--null-input"):
+            if perintah in ("jq", "yq", "fq") and bersih in ("-n", "--null-input"):
                 # jq -n tak membaca stdin sama sekali.
                 return False
             dasar = bersih.split("=", 1)[0]
@@ -1583,7 +1587,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                                 if i + 1 < n else None)
                         if nilai_f == "-":
                             return True
-                if perintah == "jq" and dasar in (
+                if perintah in ("jq", "yq", "fq") and dasar in (
                         "-f", "--from-file"):
                     # Audit 1103 (cermin): jq menolak "-" sebagai
                     # berkas filter — tak membaca stdin.
@@ -5993,7 +5997,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         return xargs_sendiri
     if xargs_sendiri:
         return True
-    if perintah in ("sed", "awk", "grep", "jq",
+    if perintah in ("sed", "awk", "grep", "jq", "yq",
                     "mawk", "nawk", "egrep", "fgrep", "rg",
                     # Audit 1638: varian GNU awk.
                     "gawk", "pgawk", "igawk", "dgawk",
