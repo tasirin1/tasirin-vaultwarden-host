@@ -4124,6 +4124,13 @@ def _menguras_khusus(perintah, toks, awal):
                 # interaktif (membaca perintah dari stdin).
                 if i_pw + 1 >= len(mentah):
                     return False
+                # Audit 1760: nilai -Version pada powershell
+                # harus versi yang terpasang - token bersaklar
+                # bukan versi sah dan host keluar dengan galat.
+                if (perintah == "powershell"
+                        and t_pw == "-version"
+                        and mentah[i_pw + 1].startswith("-")):
+                    return False
                 i_pw += 2
                 continue
             if t_pw.startswith("-"):

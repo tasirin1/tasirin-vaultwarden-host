@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nilai -Version powershell divalidasi (Audit 1760)
+
+- Nilai -Version pada powershell kini diperiksa: token bersaklar (mis. -Command atau -) bukan versi yang terpasang, host keluar dengan galat sebelum membaca stdin - bentuk itu tidak lagi lolos sebagai interaktif.
+
 ## [Belum rilis] — Gerbang: -Version pwsh didahulukan (Audit 1759)
 
 - Deteksi -Version/-v pwsh kini berupa prapindai yang melompati nilai aksi: -Version mengabaikan parameter lain (about_Pwsh), jadi token penentu yang lebih awal seperti -NoExit atau -File - tidak lagi menembak lebih dulu dan memvonisnya interaktif.

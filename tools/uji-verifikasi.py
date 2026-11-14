@@ -18279,6 +18279,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-Version pwsh sesudah -File - tetap informasional: gerbang lolos (Audit 1759)", rc == 0)
         shutil.rmtree(sub852, ignore_errors=True)
+        sub853 = klon(tmp, "sub853")
+        berkas_aksi853 = os.path.join(
+            sub853, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi853, encoding="utf-8") as f:
+            isi_aksi853 = f.read()
+        baris_aksi853 = [b for b in isi_aksi853.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru853 = isi_aksi853.replace(
+                baris_aksi853,
+                baris_aksi853.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(powershell -Version -Command -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru853 != isi_aksi853, \
+            "suntikan aksi853 tidak menembak"
+        with open(berkas_aksi853, "w", encoding="utf-8") as f:
+            f.write(isi_baru853)
+        rc, out = jalan(sub853,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai -Version powershell bersaklar bukan versi sah, host galat: gerbang lolos (Audit 1760)", rc == 0)
+        shutil.rmtree(sub853, ignore_errors=True)
+        sub854 = klon(tmp, "sub854")
+        berkas_aksi854 = os.path.join(
+            sub854, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi854, encoding="utf-8") as f:
+            isi_aksi854 = f.read()
+        baris_aksi854 = [b for b in isi_aksi854.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru854 = isi_aksi854.replace(
+                baris_aksi854,
+                baris_aksi854.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(powershell -Version 5.1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru854 != isi_aksi854, \
+            "suntikan aksi854 tidak menembak"
+        with open(berkas_aksi854, "w", encoding="utf-8") as f:
+            f.write(isi_baru854)
+        rc, out = jalan(sub854,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("powershell -Version bernilai sah interaktif membaca stdin: gerbang gagal (Audit 1760)", rc != 0)
+        shutil.rmtree(sub854, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
