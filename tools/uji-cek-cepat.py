@@ -760,6 +760,17 @@ def main():
                 rc != 0 and "pola rahasia" in out
                 and "token-escape.txt" in out)
         shutil.rmtree(tokenescape, ignore_errors=True)
+        tokenbom = klon(tmp, "tokenbom")
+        tanam(tokenbom, "token-bom.txt",
+              (token_palsu[:paruh] + "\n").encode("utf-8")
+              + b"\xef\xbb\xbf"
+              + (token_palsu[paruh:] + "\n").encode("utf-8"), "wb")
+        rc, out = jalan(tokenbom, ["bash", SKRIP])
+        periksa("token terbelah dengan BOM di awal baris "
+                "lanjutan tertangkap (Audit 1778)",
+                rc != 0 and "pola rahasia" in out
+                and "token-bom.txt" in out)
+        shutil.rmtree(tokenbom, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

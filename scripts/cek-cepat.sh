@@ -187,6 +187,7 @@ function proses(line,   awal, hd, sp, pos, s, ekort) {
   gsub(/\\[tnr]/, "")
   gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, "")
   gsub(/[@=+%&~$^?{}\[\]]/, "")
+  gsub("\357\273\277", "")
   gsub("\302\240", ""); gsub("\342\200\203", "")
   awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0
   if (match(awal, /^[0-9]+/)) hd = RLENGTH

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: BOM dikupas (Audit 1778)
+
+- Fungsi proses() cek-cepat kini mengupas urutan byte BOM (EF BB BF) di posisi mana pun: belahan token yang baris lanjutannya diawali BOM (mis. gabungan berkas ber-BOM) kemarin lolos dari pola bungkus.
+
 ## [Belum rilis] — Cek-cepat: escape harfiah dikupas (Audit 1777)
 
 - Fungsi proses() cek-cepat kini mengupas urutan escape harfiah backslash-t/n/r (dua aksara teks) sebelum pengupasan aksara tunggal: huruf sisanya kemarin mematahkan run digit token yang ditulis di dalam string berkode-escape.
