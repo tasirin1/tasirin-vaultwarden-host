@@ -18342,6 +18342,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("perpanjangan nama -Version bukan parameter pwsh: gerbang lolos (Audit 1761)", rc == 0)
         shutil.rmtree(sub855, ignore_errors=True)
+        sub856 = klon(tmp, "sub856")
+        berkas_aksi856 = os.path.join(
+            sub856, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi856, encoding="utf-8") as f:
+            isi_aksi856 = f.read()
+        baris_aksi856 = [b for b in isi_aksi856.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru856 = isi_aksi856.replace(
+                baris_aksi856,
+                baris_aksi856.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pwsh -ver; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru856 != isi_aksi856, \
+            "suntikan aksi856 tidak menembak"
+        with open(berkas_aksi856, "w", encoding="utf-8") as f:
+            f.write(isi_baru856)
+        rc, out = jalan(sub856,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("awalan unik -ver terikat sebagai -Version informasional: gerbang lolos (Audit 1762)", rc == 0)
+        shutil.rmtree(sub856, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

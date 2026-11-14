@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: awalan unik -Version pwsh informasional (Audit 1762)
+
+- Awalan unik -Version sepanjang >= 4 aksara (mis. -ver, -versi) kini divonis informasional: pengikat parameter PowerShell mengikatnya sebagai -Version itu sendiri yang mencetak versi lalu keluar.
+
 ## [Belum rilis] — Gerbang: perpanjangan -Version pwsh ditolak (Audit 1761)
 
 - Token yang memperpanjang nama -Version (mis. -Versionx) kini divonis bukan parameter: ia bukan parameter pwsh dan bukan singkatan sah, parser menggalalkan atau berkasnya tak ada sehingga host keluar tanpa sesi interaktif.
