@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: entri unlzma dilengkapi menyamai lzma (Audit 1842)
+
+- unlzma kini berentri penuh (-F/--format, -T/--threads, --block-size, -C/--check di samping yang sudah ada): ia xz mode lzma dengan seluruh opsi xz.
+
 ## [Belum rilis] — Gerbang: -C/--check didaftarkan untuk unxz dan xzcat (Audit 1841)
 
 - Entri unxz dan xzcat kini memuat -C/--check seperti saudara xz lainnya: nilainya tak lagi terhitung operand.

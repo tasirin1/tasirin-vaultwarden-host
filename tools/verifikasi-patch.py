@@ -1116,9 +1116,13 @@ _OPSI_BERNILAI = {
              "-F", "--format", "--block-list", "--memlimit",
              "--memlimit-compress",
              "--memlimit-decompress"},
+    # Audit 1842: unlzma = xz mode lzma - entri
+    # penuh menyamai lzma.
     "unlzma": {"--suffix", "-S", "--block-list",
                "--memlimit", "--memlimit-compress",
-               "--memlimit-decompress"},
+               "--memlimit-decompress",
+               "-F", "--format", "-T", "--threads",
+               "--block-size", "-C", "--check"},
 }
 
 
