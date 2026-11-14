@@ -5650,6 +5650,18 @@ def _menguras_khusus(perintah, toks, awal):
                for t_sm in mentah):
             return False
         return True
+    if perintah in ("mailx", "s-nail", "mail"):
+        # Audit 1975: mode kirim (operand alamat)
+        # membaca isi surat dari stdin; mode baca
+        # (-f kotak) tidak (POSIX mailx + s-nail(1)).
+        if "-f" in mentah:
+            return False
+        ops_mx = _operand_sesudah_opsi(
+            toks, awal, {"-s", "-c", "-b", "-a", "-r",
+                         "-S", "-A", "-m", "-T"})
+        if "\x00gantung" in ops_mx:
+            return False
+        return len(ops_mx) >= 1
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -7242,7 +7254,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "borg", "buildah", "clickhouse-client", "consul", "convert", "crictl", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "identify", "ipfs", "kak", "magick", "micro", "nano", "nerdctl", "oc", "pandoc", "rclone", "restic", "sendmail", "skopeo", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "aws", "borg", "buildah", "clickhouse-client", "consul", "convert", "crictl", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "identify", "ipfs", "kak", "magick", "mail", "mailx", "micro", "nano", "nerdctl", "oc", "pandoc", "rclone", "restic", "s-nail", "sendmail", "skopeo", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

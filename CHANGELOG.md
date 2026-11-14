@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga mailx dinilai membaca isi surat dari stdin (Audit 1975)
+
+- mailx/s-nail/mail kini dinilai: mode kirim dengan operand alamat membaca isi surat dari stdin; mode baca -f tidak.
+
 ## [Belum rilis] — Gerbang: sendmail dinilai membaca pesan dari stdin (Audit 1974)
 
 - sendmail kini dinilai: mode kirim (polos/-t/alamat) membaca pesan dari stdin; mode antrean/versi/verifikasi digugurkan.
