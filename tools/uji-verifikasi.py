@@ -23592,6 +23592,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("R CMD BATCH membaca berkas: gerbang lolos (Audit 1980)", rc == 0)
         shutil.rmtree(sub1106, ignore_errors=True)
+        sub1107 = klon(tmp, "sub1107")
+        berkas_aksi1107 = os.path.join(
+            sub1107, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1107, encoding="utf-8") as f:
+            isi_aksi1107 = f.read()
+        baris_aksi1107 = [b for b in isi_aksi1107.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1107 = isi_aksi1107.replace(
+                baris_aksi1107,
+                baris_aksi1107.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mysql -h; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1107 != isi_aksi1107, \
+            "suntikan aksi1107 tidak menembak"
+        with open(berkas_aksi1107, "w", encoding="utf-8") as f:
+            f.write(isi_baru1107)
+        rc, out = jalan(sub1107,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-h menggantung mysql galat: gerbang lolos (Audit 1981)", rc == 0)
+        shutil.rmtree(sub1107, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -5173,16 +5173,34 @@ def _menguras_khusus(perintah, toks, awal):
             # berikutnya utuh ('-e' sebagai nilai -h
             # bukan -e); di dalam bundel, huruf
             # bernilai pertama menelan sisa bundel.
-            if t_my in ("-h", "-u", "-p", "-D", "-S",
-                        "--host", "--user", "--password",
+            # Audit 1981: opsi bernilai WAJIB yang
+            # menggantung di token terakhir adalah
+            # galat; -p/--password bernilai opsional.
+            if t_my in ("-h", "-u", "-D", "-S",
+                        "--host", "--user",
                         "--database", "--socket", "--port"):
+                if i_my + 1 >= len(mentah):
+                    return False
+                lompat_my = True
+            elif t_my in ("-p", "--password"):
                 lompat_my = True
             elif (t_my.startswith("-")
                     and not t_my.startswith("--")):
-                for h_my in t_my[1:]:
+                for pos_my, h_my in enumerate(t_my[1:]):
                     if h_my == "e":
                         return False
                     if h_my in ("p", "D", "h", "u", "S", "P"):
+                        # Audit 1981: huruf bernilai di
+                        # UJUNG bundel menelan token
+                        # berikut; menggantung = galat
+                        # (kecuali p: prompt sandi).
+                        if pos_my == len(t_my) - 2:
+                            if h_my == "p":
+                                pass
+                            elif i_my + 1 >= len(mentah):
+                                return False
+                            else:
+                                lompat_my = True
                         break
             i_my += 2 if lompat_my else 1
         return True

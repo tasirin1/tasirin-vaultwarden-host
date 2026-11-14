@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mysql - opsi bernilai wajib menggantung digugurkan (Audit 1981)
+
+- Opsi bernilai wajib mysql (-h/-u/--host/dll, termasuk huruf di ujung bundel) yang menggantung tanpa nilai kini digugurkan sebagai galat; -p menggantung tetap prompt sandi.
+
 ## [Belum rilis] — Gerbang: R - bentuk R CMD digugurkan (Audit 1980)
 
 - Cabang R kini menggugurkan bentuk R CMD (BATCH/INSTALL/check membaca berkas, bukan stdin).
