@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai pinentry-curses didaftarkan (Audit 1862)
+
+- pinentry-curses berbagi himpunan opsi bernilai pinentry dan kini berentri sama: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: opsi bernilai pinentry didaftarkan (Audit 1861)
 
 - Entri opsi bernilai pinentry (-o/--timeout, -D/--display, -T/--ttyname, -C/--lc-ctype, -M/--lc-messages) ditambahkan: ia membaca perintah Assuan dari stdin.

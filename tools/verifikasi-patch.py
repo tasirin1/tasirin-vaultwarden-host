@@ -1035,6 +1035,11 @@ _OPSI_BERNILAI = {
     "pinentry": {"-o", "--timeout", "-D", "--display",
                  "-T", "--ttyname", "-C", "--lc-ctype",
                  "-M", "--lc-messages"},
+    # Audit 1862: pinentry-curses berbagi opsi pinentry.
+    "pinentry-curses": {"-o", "--timeout", "-D",
+                        "--display", "-T", "--ttyname",
+                        "-C", "--lc-ctype", "-M",
+                        "--lc-messages"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

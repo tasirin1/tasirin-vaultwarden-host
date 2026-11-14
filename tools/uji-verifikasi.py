@@ -21219,6 +21219,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--timeout pinentry bernilai detik - ia membaca perintah Assuan dari stdin: gerbang gagal (Audit 1861)", rc != 0)
         shutil.rmtree(sub992, ignore_errors=True)
+        sub993 = klon(tmp, "sub993")
+        berkas_aksi993 = os.path.join(
+            sub993, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi993, encoding="utf-8") as f:
+            isi_aksi993 = f.read()
+        baris_aksi993 = [b for b in isi_aksi993.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru993 = isi_aksi993.replace(
+                baris_aksi993,
+                baris_aksi993.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pinentry-curses --display :0; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru993 != isi_aksi993, \
+            "suntikan aksi993 tidak menembak"
+        with open(berkas_aksi993, "w", encoding="utf-8") as f:
+            f.write(isi_baru993)
+        rc, out = jalan(sub993,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--display pinentry-curses bernilai - berbagi opsi pinentry: gerbang gagal (Audit 1862)", rc != 0)
+        shutil.rmtree(sub993, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
