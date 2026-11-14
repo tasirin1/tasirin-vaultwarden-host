@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ncat tercakup cabang nc (Audit 1835)
+
+- Nama ncat ditambahkan ke cabang dan tuple nc: ia meneruskan stdin ke koneksi persis seperti nc.
+
 ## [Belum rilis] — Gerbang: hexyl dikenal sebagai pembaca stdin (Audit 1834)
 
 - Nama hexyl masuk daftar pembaca stdin beserta opsi bernilainya (-n/--length, -s/--skip): tanpa FILE ia membaca stdin.

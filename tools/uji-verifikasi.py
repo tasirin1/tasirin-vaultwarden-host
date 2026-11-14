@@ -19812,6 +19812,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("hexyl tanpa FILE membaca stdin, -n opsi bernilai: gerbang gagal (Audit 1834)", rc != 0)
         shutil.rmtree(sub925, ignore_errors=True)
+        sub926 = klon(tmp, "sub926")
+        berkas_aksi926 = os.path.join(
+            sub926, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi926, encoding="utf-8") as f:
+            isi_aksi926 = f.read()
+        baris_aksi926 = [b for b in isi_aksi926.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru926 = isi_aksi926.replace(
+                baris_aksi926,
+                baris_aksi926.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ncat contoh 80; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru926 != isi_aksi926, \
+            "suntikan aksi926 tidak menembak"
+        with open(berkas_aksi926, "w", encoding="utf-8") as f:
+            f.write(isi_baru926)
+        rc, out = jalan(sub926,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("ncat meneruskan stdin ke koneksi seperti nc: gerbang gagal (Audit 1835)", rc != 0)
+        shutil.rmtree(sub926, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
