@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pax dinilai (Audit 1766)
+
+- pax kini dinilai penilai khusus mengikuti spesifikasi POSIX: mode list/read membaca arsip dari stdin kecuali -f menyebut berkas (termasuk bentuk tergabung -rf), mode write tanpa operand membaca daftar pathname dari stdin.
+
 ## [Belum rilis] — Gerbang: cpio dinilai (Audit 1765)
 
 - cpio kini dinilai penilai khusus mengikuti GNU cpio: copy-in membaca arsip dari stdin (kecuali -F berkas), copy-out dan copy-pass membaca daftar nama dari stdin; mode ditentukan dari opsi pendek maupun panjang.

@@ -4287,6 +4287,42 @@ def _menguras_khusus(perintah, toks, awal):
         if modus_cp == "baca":
             return berkas_cp is None or berkas_cp == "-"
         return False
+    # Audit 1766: pax (POSIX) - mode list dan read membaca
+    # arsip dari standard input kecuali -f menyebut berkas;
+    # mode write membaca daftar pathname dari stdin bila
+    # tanpa operand berkas.
+    if perintah == "pax":
+        tulis_px = False
+        arsip_px = None
+        ada_operand_px = False
+        i_px = 0
+        while i_px < len(mentah):
+            t_px = mentah[i_px]
+            if (t_px.startswith("-")
+                    and not t_px.startswith("--")
+                    and "f" in t_px):
+                if "w" in t_px:
+                    tulis_px = True
+                sisa_px = t_px[t_px.index("f") + 1:]
+                if sisa_px:
+                    arsip_px = sisa_px
+                    i_px += 1
+                    continue
+                if i_px + 1 >= len(mentah):
+                    return False
+                arsip_px = mentah[i_px + 1]
+                i_px += 2
+                continue
+            if t_px.startswith("-"):
+                if "w" in t_px:
+                    tulis_px = True
+                i_px += 1
+                continue
+            ada_operand_px = True
+            i_px += 1
+        if tulis_px:
+            return not ada_operand_px
+        return arsip_px is None or arsip_px == "-"
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5574,7 +5610,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "pdftotext", "nft", "ip", "tc", "bridge",
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
                         "pwsh", "powershell", "bc", "dc", "ed",
-                        "hexdump", "hd", "xxd", "cpio",
+                        "hexdump", "hd", "xxd", "cpio", "pax",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
