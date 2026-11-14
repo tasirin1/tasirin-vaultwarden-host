@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mlr - --files opsi sumber seperti --from (Audit 1855)
+
+- --files dipindah dari himpunan telan generik ke perlakuan sumber Audit 1848: nilainya menamai berkas daftar masukan (stdin tak dibaca), nilai '-' tetap stdin.
+
 ## [Belum rilis] — Gerbang: derdump dinilai cabang khusus dari opsi -i (Audit 1854)
 
 - derdump keluar dari himpunan generik dan dinilai cabang khusus (pola dasel): kehadiran -i dalam bentuk apa pun berarti berkas/galat, bukan stdin; -o tetap berkas keluaran bernilai; nama ditambahkan ke tuple dispatch.

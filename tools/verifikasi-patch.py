@@ -4706,14 +4706,16 @@ def _menguras_khusus(perintah, toks, awal):
                     # Audit 1848: --from/--mfrom menamai
                     # berkas masukan - stdin tak dibaca
                     # kecuali nilainya "-".
-                    if t_m in ("--from", "--mfrom"):
+                    if t_m in ("--from", "--mfrom",
+                               "--files"):
                         if i_m + 1 >= len(mentah):
                             return False
                         if mentah[i_m + 1] != "-":
                             return False
                         i_m += 2
                         continue
-                    if t_m.startswith(("--from=", "--mfrom=")):
+                    if t_m.startswith(("--from=", "--mfrom=",
+                                       "--files=")):
                         if t_m.split("=", 1)[1] != "-":
                             return False
                         i_m += 1
@@ -4724,7 +4726,7 @@ def _menguras_khusus(perintah, toks, awal):
                     i_m += 2 if t_m in (
                         "--ofmt", "--ofmte", "--ofmtf",
                         "--ofmtg", "--seed", "--tz", "--load",
-                        "--files", "--profile", "-P",
+                        "--profile", "-P",
                         "--nr-progress-mod") else 1
                     continue
                 if "." in t_m or "/" in t_m:
