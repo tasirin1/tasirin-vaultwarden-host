@@ -5290,8 +5290,14 @@ def _menguras_khusus(perintah, toks, awal):
         # baca (kv get) tak membaca stdin.
         if not any(t_vl in ("put", "write") for t_vl in mentah):
             return False
-        return any(t_vl == "-" or t_vl.endswith("=-")
-                   for t_vl in mentah)
+        # Audit 1947: nilai stdin hanya bila token
+        # '-' sendiri atau nilai sesudah '=' pertama
+        # PERSIS '-' (bukan berakhiran '=-').
+        return any(
+            t_vl == "-"
+            or ("=" in t_vl
+                and t_vl.split("=", 1)[1] == "-")
+            for t_vl in mentah)
     if perintah == "etcdctl":
         # Audit 1930: put tanpa nilai membaca nilai
         # dari stdin; txn membaca interaksi dari

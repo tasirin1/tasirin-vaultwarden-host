@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang vault - nilai stdin harus persis '-' sesudah '=' (Audit 1947)
+
+- Aturan 'kunci=-' cabang vault kini memakai nilai sesudah '=' pertama yang harus persis '-'; nilai berakhiran '=-' di tengah teks tak lagi terhitung.
+
 ## [Belum rilis] — Gerbang: mosquitto_pub memindai dengan menghormati nilai opsi (Audit 1946)
 
 - Cabang mosquitto_pub kini melompati nilai opsi bernilai terpisah lebih dulu; '-s' sebagai nilai -t bukan mode stdin.

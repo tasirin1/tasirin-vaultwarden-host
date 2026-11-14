@@ -22899,6 +22899,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("'-s' nilai -t mosquitto bukan mode stdin: gerbang lolos (Audit 1946)", rc == 0)
         shutil.rmtree(sub1073, ignore_errors=True)
+        sub1074 = klon(tmp, "sub1074")
+        berkas_aksi1074 = os.path.join(
+            sub1074, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1074, encoding="utf-8") as f:
+            isi_aksi1074 = f.read()
+        baris_aksi1074 = [b for b in isi_aksi1074.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1074 = isi_aksi1074.replace(
+                baris_aksi1074,
+                baris_aksi1074.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(vault kv put jalur catatan=teks=-; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1074 != isi_aksi1074, \
+            "suntikan aksi1074 tidak menembak"
+        with open(berkas_aksi1074, "w", encoding="utf-8") as f:
+            f.write(isi_baru1074)
+        rc, out = jalan(sub1074,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai vault berakhiran '=-' di tengah bukan stdin: gerbang lolos (Audit 1947)", rc == 0)
+        shutil.rmtree(sub1074, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
