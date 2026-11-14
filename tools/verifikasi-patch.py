@@ -5259,9 +5259,14 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1928: kv put/import dengan nilai '-'
         # membaca nilai dari stdin (dokumentasi
         # HashiCorp + contoh resmi).
+        # Audit 1945: '-' hanya berarti stdin di
+        # posisi NILAI (operand terakhir) - di posisi
+        # kunci ia nama kunci harfiah dengan data
+        # tersedia.
         if len(mentah) >= 2 and mentah[0] == "kv" \
                 and mentah[1] in ("put", "import"):
-            return "-" in mentah[2:]
+            sisa_cs = mentah[2:]
+            return bool(sisa_cs) and sisa_cs[-1] == "-"
         return False
     if perintah == "vault":
         # Audit 1929: bentuk tulis vault dengan '-'

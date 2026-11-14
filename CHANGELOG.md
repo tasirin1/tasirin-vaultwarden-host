@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang consul - '-' hanya stdin di posisi nilai (Audit 1945)
+
+- Cabang consul kini hanya menilai '-' sebagai stdin bila ia operand terakhir (posisi nilai); '-' di posisi kunci adalah nama kunci harfiah.
+
 ## [Belum rilis] — Gerbang: cabang mariadb mengurai bundel setia getopt (Audit 1944)
 
 - Cermin perbaikan mysql 1943 pada cabang mariadb.
