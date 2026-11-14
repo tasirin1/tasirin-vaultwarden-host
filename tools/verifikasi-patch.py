@@ -3829,13 +3829,13 @@ def _menguras_khusus(perintah, toks, awal):
         while i < len(mentah):
             t = mentah[i]
             if t in ("-d", "--data", "--data-ascii",
-                     "--data-binary", "--data-urlencode", "-T",
+                     "--data-binary", "--data-urlencode", "--json", "-T",
                      "--upload-file", "-K", "--config", "-F",
                      "--form"):
                 if i + 1 < len(mentah):
                     v = mentah[i + 1]
                     if t in ("-d", "--data", "--data-ascii",
-                             "--data-binary"):
+                             "--data-binary", "--json"):
                         if v == "@-" or v.startswith("@-"):
                             return True
                     elif t == "--data-urlencode":
@@ -3857,6 +3857,7 @@ def _menguras_khusus(perintah, toks, awal):
                 i += 2 if t == "--data-raw" else 1
                 continue
             if (t.startswith("--data") and "@-" in t) or (
+                    t.startswith("--json") and "@-" in t) or (
                     t.startswith("--form") and "@-" in t
                     and "--form-string" not in t) or (
                     t.startswith("-T") and len(t) > 2

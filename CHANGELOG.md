@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --json ditambahkan ke keluarga opsi data curl (Audit 1880)
+
+- Cabang curl kini memuat --json di daftar opsi data (terpisah, bentuk --json=..., dan rekat @-): nilai @- dinilai dibaca dari stdin seperti --data.
+
 ## [Belum rilis] — Gerbang: -I cpio diakui sebagai berkas arsip sekelas -F (Audit 1879)
 
 - Cabang cpio kini memperlakukan -I persis seperti -F di ketiga jalurnya (terpisah, menempel, dan di tengah cluster): arsip dibaca dari berkas yang disebut, bukan stdin.
