@@ -18447,6 +18447,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("less +N tanpa berkas membaca stdin: gerbang gagal (Audit 1764)", rc != 0)
         shutil.rmtree(sub860, ignore_errors=True)
+        sub861 = klon(tmp, "sub861")
+        berkas_aksi861 = os.path.join(
+            sub861, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi861, encoding="utf-8") as f:
+            isi_aksi861 = f.read()
+        baris_aksi861 = [b for b in isi_aksi861.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru861 = isi_aksi861.replace(
+                baris_aksi861,
+                baris_aksi861.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cpio -o; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru861 != isi_aksi861, \
+            "suntikan aksi861 tidak menembak"
+        with open(berkas_aksi861, "w", encoding="utf-8") as f:
+            f.write(isi_baru861)
+        rc, out = jalan(sub861,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("cpio copy-out membaca daftar nama dari stdin: gerbang gagal (Audit 1765)", rc != 0)
+        shutil.rmtree(sub861, ignore_errors=True)
+        sub862 = klon(tmp, "sub862")
+        berkas_aksi862 = os.path.join(
+            sub862, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi862, encoding="utf-8") as f:
+            isi_aksi862 = f.read()
+        baris_aksi862 = [b for b in isi_aksi862.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru862 = isi_aksi862.replace(
+                baris_aksi862,
+                baris_aksi862.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cpio -i -F arsip.cpio; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru862 != isi_aksi862, \
+            "suntikan aksi862 tidak menembak"
+        with open(berkas_aksi862, "w", encoding="utf-8") as f:
+            f.write(isi_baru862)
+        rc, out = jalan(sub862,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("cpio copy-in ber-F berkas membaca arsip itu: gerbang lolos (Audit 1765)", rc == 0)
+        shutil.rmtree(sub862, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

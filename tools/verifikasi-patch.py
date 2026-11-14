@@ -4251,6 +4251,42 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return True
+    # Audit 1765: cpio membaca dari stdin pada modusnya
+    # (GNU cpio): copy-in arsipnya dari stdin (kecuali -F
+    # berkas), copy-out dan copy-pass daftar namanya dari
+    # stdin. Operand posisi pada copy-in adalah pola nama,
+    # bukan sumber arsip.
+    if perintah == "cpio":
+        modus_cp = ""
+        berkas_cp = None
+        i_cp = 0
+        while i_cp < len(mentah):
+            t_cp = mentah[i_cp]
+            if t_cp in ("-F", "--file"):
+                if i_cp + 1 >= len(mentah):
+                    return False
+                berkas_cp = mentah[i_cp + 1]
+                i_cp += 2
+                continue
+            if t_cp.startswith("--file="):
+                berkas_cp = t_cp.split("=", 1)[1]
+                i_cp += 1
+                continue
+            if t_cp in ("--create", "--pass"):
+                modus_cp = "tulis"
+            elif t_cp in ("--extract", "--list"):
+                modus_cp = "baca"
+            elif t_cp.startswith("-") and t_cp != "-":
+                if "o" in t_cp or "p" in t_cp:
+                    modus_cp = "tulis"
+                elif "i" in t_cp or "t" in t_cp:
+                    modus_cp = "baca"
+            i_cp += 1
+        if modus_cp == "tulis":
+            return True
+        if modus_cp == "baca":
+            return berkas_cp is None or berkas_cp == "-"
+        return False
     # Audit 1204: bun repl mengevaluasi masukan pipa; bentuk
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
@@ -5538,7 +5574,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "pdftotext", "nft", "ip", "tc", "bridge",
                         "dpkg", "file", "date", "sysctl", "bun", "sftp",
                         "pwsh", "powershell", "bc", "dc", "ed",
-                        "hexdump", "hd", "xxd",
+                        "hexdump", "hd", "xxd", "cpio",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cpio dinilai (Audit 1765)
+
+- cpio kini dinilai penilai khusus mengikuti GNU cpio: copy-in membaca arsip dari stdin (kecuali -F berkas), copy-out dan copy-pass membaca daftar nama dari stdin; mode ditentukan dari opsi pendek maupun panjang.
+
 ## [Belum rilis] — Gerbang: less +N beroperand berkas benar (Audit 1764)
 
 - Aturan +N cabang less kini memeriksa operand sesudahnya: +N dengan operand berkas divonis membuka berkas itu (terprobe biner nyata fixture utuh), hanya +N sendirian atau diikuti '-' yang menguras.
