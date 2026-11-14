@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: podman exec/run -i dinilai meneruskan stdin (Audit 1899)
+
+- podman kini dinilai: sub-perintah exec/run dengan -i mengonsumsi stdin, mencerminkan docker.
+
 ## [Belum rilis] — Gerbang: docker exec/run -i dinilai meneruskan stdin (Audit 1898)
 
 - docker kini dinilai: sub-perintah exec/run dengan -i (termasuk bundel seperti -it) meneruskan stdin ke kontainer.

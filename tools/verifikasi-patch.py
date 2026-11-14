@@ -4827,6 +4827,19 @@ def _menguras_khusus(perintah, toks, awal):
                     and len(t_dk) > 2 and "i" in t_dk[1:]):
                 return True
         return False
+    if perintah == "podman":
+        # Audit 1899: exec/run -i mengonsumsi stdin
+        # (docs.podman.io) - cermin docker 1898.
+        sub_pm = any(t_pm in ("exec", "run") for t_pm in mentah)
+        if not sub_pm:
+            return False
+        for t_pm in mentah:
+            if t_pm == "-i":
+                return True
+            if (t_pm.startswith("-") and not t_pm.startswith("--")
+                    and len(t_pm) > 2 and "i" in t_pm[1:]):
+                return True
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6391,7 +6404,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mosquitto_pub", "rsh", "write",
+                        "docker", "grpcurl", "kubectl", "mosquitto_pub", "podman", "rsh", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
