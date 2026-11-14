@@ -4030,7 +4030,14 @@ def _menguras_khusus(perintah, toks, awal):
     # lain (skrip/bantuan) tak membaca stdin.
     if perintah == "bun":
         ops_bn = _operand_sesudah_opsi(toks, awal, {"-e", "--eval"})
-        return bool(ops_bn) and ops_bn[0] == "repl"
+        if not ops_bn:
+            return False
+        # Audit 1732: `bun -` dan `bun run -` menjalankan
+        # skrip dari stdin, sama seperti repl.
+        if ops_bn[0] in ("repl", "-"):
+            return True
+        return (ops_bn[0] == "run" and len(ops_bn) > 1
+                and ops_bn[1] == "-")
     # Audit 1302/1303/1304: kompiler & assembler — '-' atau
     # tanpa berkas sumber (untuk -E) berarti stdin.
     if perintah == "cpp":

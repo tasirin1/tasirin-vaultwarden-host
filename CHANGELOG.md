@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bun - dan bun run - membaca stdin (Audit 1732)
+
+- Cabang bun di gerbang kini juga memberi vonis menguras untuk operand `-`: `bun -` dan `bun run -` menjalankan skrip dari stdin (terprobe dua arah), sejajar `bun repl` yang sudah dikenal sejak Audit 1204.
+
 ## [Belum rilis] — Shim getrandom: buffer NULL ber-errno EFAULT sesuai kontrak kernel (Audit 1730)
 
 - Jalur buffer NULL pada shim getrandom (isi_dari_inti) kini mengembalikan EFAULT, bukan EINVAL, untuk panjang > 0 — kontrak kernel yang sebenarnya; EINVAL di jalur ini juga merupakan tanda khas kegagalan kernel lama sehingga errno lama mengaburkan diagnosis. Uji interpose menambah kasus NULL untuk kedua pintu masuk (getrandom + syscall) dan kasus panjang 0 yang tetap sah; terverifikasi lolos dengan shim terpasang (LD_PRELOAD) dan cocok dengan perilaku kernel tanpa shim.
