@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: uuencode satu operand dinilai membaca stdin (Audit 1803)
+
+- Cabang khusus uuencode: satu-satunya operand adalah NAME keluaran dan masukannya stdin; dua operand membaca berkas masukan; tanpa operand galat; nilai -o dilompati.
+
 ## [Belum rilis] — Gerbang: gzcat dikenal sebagai nama varian zcat (Audit 1802)
 
 - Nama gzcat - nama varian resmi zcat menurut gzip(1) - masuk daftar pembaca stdin dengan opsi bernilai yang sama seperti zcat.

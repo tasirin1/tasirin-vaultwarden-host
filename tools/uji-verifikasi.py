@@ -19161,6 +19161,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("gzcat adalah zcat - tanpa operand membaca aliran dari stdin: gerbang gagal (Audit 1802)", rc != 0)
         shutil.rmtree(sub894, ignore_errors=True)
+        sub895 = klon(tmp, "sub895")
+        berkas_aksi895 = os.path.join(
+            sub895, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi895, encoding="utf-8") as f:
+            isi_aksi895 = f.read()
+        baris_aksi895 = [b for b in isi_aksi895.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru895 = isi_aksi895.replace(
+                baris_aksi895,
+                baris_aksi895.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(uuencode laporan.bin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru895 != isi_aksi895, \
+            "suntikan aksi895 tidak menembak"
+        with open(berkas_aksi895, "w", encoding="utf-8") as f:
+            f.write(isi_baru895)
+        rc, out = jalan(sub895,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("satu-satunya operand uuencode adalah nama keluaran, masukan dari stdin: gerbang gagal (Audit 1803)", rc != 0)
+        shutil.rmtree(sub895, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

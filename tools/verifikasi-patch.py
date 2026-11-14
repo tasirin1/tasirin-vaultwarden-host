@@ -4505,6 +4505,15 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return True
+    # Audit 1803: uuencode [INPUT] NAME - satu-satunya
+    # operand adalah NAME keluaran dan masukan dari
+    # stdin; dua operand membaca berkas INPUT; tanpa
+    # operand galat (manual GNU sharutils).
+    if perintah == "uuencode":
+        ops_uu = _operand_sesudah_opsi(toks, awal, {"-o"})
+        if "\x00gantung" in ops_uu:
+            return False
+        return len(ops_uu) == 1
     # Audit 1771: rpm2cpio tanpa argumen membaca aliran
     # RPM dari standard input (rpm2cpio(1)).
     if perintah == "rpm2cpio":
@@ -5855,7 +5864,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "hexdump", "hd", "xxd", "cpio", "pax",
                         "pg", "bat", "batcat", "lzip", "lz4",
                         "unlz4", "lz4cat", "rpm2cpio", "7z",
-                        "7za", "7zr", "7zz",
+                        "7za", "7zr", "7zz", "uuencode",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
