@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: lziprecover dikenal sebagai pembaca stdin (Audit 1812)
+
+- Nama lziprecover masuk daftar pembaca stdin: pada mode dekompresi/uji tanpa nama berkas ia membaca dari stdin.
+
 ## [Belum rilis] — Gerbang: lzop dikenal sebagai pembaca stdin (Audit 1811)
 
 - Nama lzop masuk daftar pembaca stdin: tanpa berkas atau nama berkas '-' ia mengompres stdin ke stdout.

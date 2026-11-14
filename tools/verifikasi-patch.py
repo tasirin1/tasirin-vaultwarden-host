@@ -714,6 +714,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1811: lzop - tanpa berkas atau
                   # '-' mengompres stdin.
                   "lzop",
+                  # Audit 1812: lziprecover - mode
+                  # dekompresi/uji tanpa berkas stdin.
+                  "lziprecover",
                   # Audit 1112: pembaca interaktif/kueri — operand
                   # berkas/nama menekan seperti filter biasa.
                   "wall", "c++filt", "nslookup",

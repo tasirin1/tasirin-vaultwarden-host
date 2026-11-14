@@ -19329,6 +19329,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("lzop tanpa berkas mengompres stdin: gerbang gagal (Audit 1811)", rc != 0)
         shutil.rmtree(sub902, ignore_errors=True)
+        sub903 = klon(tmp, "sub903")
+        berkas_aksi903 = os.path.join(
+            sub903, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi903, encoding="utf-8") as f:
+            isi_aksi903 = f.read()
+        baris_aksi903 = [b for b in isi_aksi903.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru903 = isi_aksi903.replace(
+                baris_aksi903,
+                baris_aksi903.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lziprecover; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru903 != isi_aksi903, \
+            "suntikan aksi903 tidak menembak"
+        with open(berkas_aksi903, "w", encoding="utf-8") as f:
+            f.write(isi_baru903)
+        rc, out = jalan(sub903,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lziprecover tanpa berkas mendekompres dari stdin: gerbang gagal (Audit 1812)", rc != 0)
+        shutil.rmtree(sub903, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
