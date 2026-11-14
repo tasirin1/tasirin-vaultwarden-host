@@ -23004,6 +23004,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("restic backup --stdin membaca stdin: gerbang gagal (Audit 1951)", rc != 0)
         shutil.rmtree(sub1078, ignore_errors=True)
+        sub1079 = klon(tmp, "sub1079")
+        berkas_aksi1079 = os.path.join(
+            sub1079, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1079, encoding="utf-8") as f:
+            isi_aksi1079 = f.read()
+        baris_aksi1079 = [b for b in isi_aksi1079.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1079 = isi_aksi1079.replace(
+                baris_aksi1079,
+                baris_aksi1079.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(borg create repo::arsip -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1079 != isi_aksi1079, \
+            "suntikan aksi1079 tidak menembak"
+        with open(berkas_aksi1079, "w", encoding="utf-8") as f:
+            f.write(isi_baru1079)
+        rc, out = jalan(sub1079,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("borg create path '-' membaca stdin: gerbang gagal (Audit 1952)", rc != 0)
+        shutil.rmtree(sub1079, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

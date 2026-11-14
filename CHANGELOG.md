@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: borg dinilai - create path '-' dan --paths-from-stdin (Audit 1952)
+
+- borg kini dinilai: create dengan path '-' membaca data dari stdin; --paths-from-stdin membaca daftar path dari stdin.
+
 ## [Belum rilis] — Gerbang: restic dinilai - backup --stdin dan --files-from - (Audit 1951)
 
 - restic kini dinilai: backup --stdin membaca data dari stdin; --files-from/--files-from-raw bernilai '-' membaca daftar dari stdin.
