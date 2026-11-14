@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: oc dinilai - exec/attach -i cermin kubectl (Audit 1927)
+
+- oc kini dinilai mencerminkan kubectl: exec/attach dengan -i/--stdin sebelum '--' meneruskan stdin.
+
 ## [Belum rilis] — Gerbang: nerdctl dinilai - exec/run -i dan load dari stdin (Audit 1926)
 
 - nerdctl kini dinilai mencerminkan docker (exec/run -i/--interactive wilayah-sadar) ditambah load polos yang membaca arsip dari stdin.

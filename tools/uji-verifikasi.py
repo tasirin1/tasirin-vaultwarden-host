@@ -22479,6 +22479,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nerdctl run -i meneruskan stdin: gerbang gagal (Audit 1926)", rc != 0)
         shutil.rmtree(sub1053, ignore_errors=True)
+        sub1054 = klon(tmp, "sub1054")
+        berkas_aksi1054 = os.path.join(
+            sub1054, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1054, encoding="utf-8") as f:
+            isi_aksi1054 = f.read()
+        baris_aksi1054 = [b for b in isi_aksi1054.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1054 = isi_aksi1054.replace(
+                baris_aksi1054,
+                baris_aksi1054.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(oc exec -i pod -- c; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1054 != isi_aksi1054, \
+            "suntikan aksi1054 tidak menembak"
+        with open(berkas_aksi1054, "w", encoding="utf-8") as f:
+            f.write(isi_baru1054)
+        rc, out = jalan(sub1054,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("oc exec -i meneruskan stdin: gerbang gagal (Audit 1927)", rc != 0)
+        shutil.rmtree(sub1054, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -5199,6 +5199,45 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             return False
         return False
+    if perintah == "oc":
+        # Audit 1927: cermin kubectl untuk oc -
+        # exec/attach -i/--stdin meneruskan stdin
+        # (man page oc). Wilayah pindai dan urai
+        # bundel sama dengan kubectl.
+        sub_oc = None
+        for k_oc, t_oc in enumerate(mentah):
+            if t_oc in ("exec", "attach"):
+                sub_oc = k_oc
+                break
+        if sub_oc is None:
+            return False
+        j_oc = sub_oc + 1
+        while j_oc < len(mentah):
+            t_oc = mentah[j_oc]
+            if t_oc == "--":
+                return False
+            if t_oc in ("-i", "--stdin", "--stdin=true"):
+                return True
+            if t_oc in ("-c", "--container"):
+                j_oc += 2
+                continue
+            if t_oc.startswith("--"):
+                j_oc += 1
+                continue
+            if t_oc.startswith("-") and len(t_oc) > 1:
+                lompat_oc = 1
+                huruf_oc = t_oc[1:]
+                for pos_oc, h_oc in enumerate(huruf_oc):
+                    if h_oc == "i":
+                        return True
+                    if h_oc == "c":
+                        if pos_oc == len(huruf_oc) - 1:
+                            lompat_oc = 2
+                        break
+                j_oc += lompat_oc
+                continue
+            j_oc += 1
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6763,7 +6802,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "nerdctl", "terraform", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "nerdctl", "oc", "terraform", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
