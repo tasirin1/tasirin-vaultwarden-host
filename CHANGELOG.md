@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: spasi unicode dikupas (Audit 1776)
+
+- Fungsi proses() cek-cepat kini mengupas urutan byte spasi unicode U+00A0 (NBSP) dan U+2003 (EM SPACE): keduanya bukan whitespace bagi awk di locale POSIX sehingga belahan token yang disela spasi itu kemarin lolos dari pola bungkus.
+
 ## [Belum rilis] — Gerbang: hexdump -f - berkas harfiah (Audit 1775)
 
 - Nilai opsi -f hexdump kini diperiksa: '-' di sana adalah nama berkas format harfiah (dibuka dengan fopen menurut sumber BSD-nya; galat bila tak ada), bukan stdin - beda dengan dc -f - yang manualnya memang mendokumentasikan stdin.

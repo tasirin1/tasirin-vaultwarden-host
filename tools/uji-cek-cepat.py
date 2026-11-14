@@ -741,6 +741,16 @@ def main():
                 and "token-sela-kosong.txt" in out)
         shutil.rmtree(tokenselakosong, ignore_errors=True)
 
+        tokennbsp = klon(tmp, "tokennbsp")
+        tanam(tokennbsp, "token-unicode.txt",
+              (token_palsu[:9] + "\u00a0" + token_palsu[9:]
+               + "\n").encode("utf-8"), "wb")
+        rc, out = jalan(tokennbsp, ["bash", SKRIP])
+        periksa("token tersela spasi unicode NBSP tertangkap "
+                "(Audit 1776)",
+                rc != 0 and "pola rahasia" in out
+                and "token-unicode.txt" in out)
+        shutil.rmtree(tokennbsp, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
