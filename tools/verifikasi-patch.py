@@ -661,7 +661,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Assuan & pengurai NSS — tanpa operand
                   # membaca protokol/objek dari stdin.
                   "pinentry", "pinentry-curses", "dirmngr",
-                  "gpg-connect-agent", "derdump",
+                  "gpg-connect-agent",
                   # Audit 1639: gpgv — verifikator tanda tangan;
                   # tanpa operand data membaca dari stdin.
                   "gpgv",
@@ -4643,6 +4643,23 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_rc:
             return False
         return len(ops_rc) == 1
+    # Audit 1854: derdump - sumber masukannya opsi
+    # -i (bawaan stdin); -i dalam bentuk apa pun
+    # berarti berkas/galat, bukan stdin. -o berkas
+    # keluaran bernilai.
+    if perintah == "derdump":
+        for t_e in mentah:
+            if t_e == "--":
+                break
+            if (t_e in ("-i", "--input")
+                    or t_e.startswith("--input=")
+                    or (t_e.startswith("-i")
+                        and not t_e.startswith("--"))):
+                return False
+        ops_e = _operand_sesudah_opsi(toks, awal, {"-o"})
+        if "\x00gantung" in ops_e:
+            return False
+        return not ops_e
     # Audit 1829: dasel - sumber berkasnya hanya opsi
     # -f/--file; tanpa itu ia membaca stdin dan
     # operandnya selektor (dokumentasi dasel v2).
@@ -6127,7 +6144,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "unlz4", "lz4cat", "rpm2cpio", "7z",
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
-                        "aria2c", "choose", "dasel", "envsubst", "mlr", "sd", "recode",
+                        "aria2c", "choose", "dasel", "derdump", "envsubst", "mlr", "sd", "recode",
                         "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.

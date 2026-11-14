@@ -20904,6 +20904,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--block-size unxz bernilai menyamai keluarga xz: gerbang gagal (Audit 1853)", rc != 0)
         shutil.rmtree(sub977, ignore_errors=True)
+        sub978 = klon(tmp, "sub978")
+        berkas_aksi978 = os.path.join(
+            sub978, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi978, encoding="utf-8") as f:
+            isi_aksi978 = f.read()
+        baris_aksi978 = [b for b in isi_aksi978.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru978 = isi_aksi978.replace(
+                baris_aksi978,
+                baris_aksi978.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(derdump -i -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru978 != isi_aksi978, \
+            "suntikan aksi978 tidak menembak"
+        with open(berkas_aksi978, "w", encoding="utf-8") as f:
+            f.write(isi_baru978)
+        rc, out = jalan(sub978,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("derdump -i - galat membuka - - tak membaca stdin: gerbang lolos (Audit 1854)", rc == 0)
+        shutil.rmtree(sub978, ignore_errors=True)
+        sub979 = klon(tmp, "sub979")
+        berkas_aksi979 = os.path.join(
+            sub979, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi979, encoding="utf-8") as f:
+            isi_aksi979 = f.read()
+        baris_aksi979 = [b for b in isi_aksi979.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru979 = isi_aksi979.replace(
+                baris_aksi979,
+                baris_aksi979.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(derdump -o hasil; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru979 != isi_aksi979, \
+            "suntikan aksi979 tidak menembak"
+        with open(berkas_aksi979, "w", encoding="utf-8") as f:
+            f.write(isi_baru979)
+        rc, out = jalan(sub979,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-o derdump berkas keluaran - tanpa -i ia membaca stdin: gerbang gagal (Audit 1854)", rc != 0)
+        shutil.rmtree(sub979, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

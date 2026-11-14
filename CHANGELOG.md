@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: derdump dinilai cabang khusus dari opsi -i (Audit 1854)
+
+- derdump keluar dari himpunan generik dan dinilai cabang khusus (pola dasel): kehadiran -i dalam bentuk apa pun berarti berkas/galat, bukan stdin; -o tetap berkas keluaran bernilai; nama ditambahkan ke tuple dispatch.
+
 ## [Belum rilis] — Gerbang: --block-size didaftarkan untuk unxz (Audit 1853)
 
 - Entri unxz kini memuat --block-size seperti seluruh keluarga xz: penyeragaman Audit 1840 dilengkapi.
