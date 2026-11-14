@@ -21597,6 +21597,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("perintah sesudah & tunggal adalah segmen sendiri: gerbang gagal (Audit 1875)", rc != 0)
         shutil.rmtree(sub1010, ignore_errors=True)
+        sub1012 = klon(tmp, "sub1012")
+        berkas_aksi1012 = os.path.join(
+            sub1012, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1012, encoding="utf-8") as f:
+            isi_aksi1012 = f.read()
+        baris_aksi1012 = [b for b in isi_aksi1012.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1012 = isi_aksi1012.replace(
+                baris_aksi1012,
+                baris_aksi1012.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(systemd-run --pipe=x cpan -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1012 != isi_aksi1012, \
+            "suntikan aksi1012 tidak menembak"
+        with open(berkas_aksi1012, "w", encoding="utf-8") as f:
+            f.write(isi_baru1012)
+        rc, out = jalan(sub1012,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--pipe berargumen ditolak systemd-run: gerbang lolos (Audit 1876)", rc == 0)
+        shutil.rmtree(sub1012, ignore_errors=True)
+        sub1013 = klon(tmp, "sub1013")
+        berkas_aksi1013 = os.path.join(
+            sub1013, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1013, encoding="utf-8") as f:
+            isi_aksi1013 = f.read()
+        baris_aksi1013 = [b for b in isi_aksi1013.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1013 = isi_aksi1013.replace(
+                baris_aksi1013,
+                baris_aksi1013.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(systemd-run --pipe --scope cpan -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1013 != isi_aksi1013, \
+            "suntikan aksi1013 tidak menembak"
+        with open(berkas_aksi1013, "w", encoding="utf-8") as f:
+            f.write(isi_baru1013)
+        rc, out = jalan(sub1013,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--pipe + --scope konflik: gerbang lolos (Audit 1876)", rc == 0)
+        shutil.rmtree(sub1013, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

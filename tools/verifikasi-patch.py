@@ -5287,6 +5287,12 @@ def _menguras_khusus(perintah, toks, awal):
                     scope_sr = True
                 if nama_sr == "--pipe":
                     pipe_sr = True
+                # Audit 1876: --scope/--pipe bendera boolean -
+                # bentuk berargumen (--pipe=x) ditolak
+                # systemd-run, tak ada yang berjalan.
+                if (nama_sr in ("--scope", "--pipe")
+                        and "=" in t_sr):
+                    return False
                 if (nama_sr in timer_sr
                         or nama_sr in ("--remain-after-exit",
                                        "--service-type")):
@@ -5315,6 +5321,10 @@ def _menguras_khusus(perintah, toks, awal):
         # --remain-after-exit, tetapi pemicu timer/jalur/
         # soket tetap bukan pewaris langsung.
         if anak_sr is None:
+            return False
+        # Audit 1876: --pipe dan --scope tak bisa digabung
+        # (systemd-run menolak kombinasi itu).
+        if scope_sr and pipe_sr:
             return False
         if scope_sr:
             if ditolak_sr:

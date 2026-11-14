@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: systemd-run menolak --pipe=x/--scope=x dan kombinasi --pipe+--scope (Audit 1876)
+
+- Cabang systemd-run kini menolak bentuk berargumen pada bendera boolean --pipe/--scope dan kombinasi --pipe bersama --scope: keduanya ditolak systemd-run sungguhan sehingga tak ada perintah yang berjalan.
+
 ## [Belum rilis] — Gerbang: '&' tunggal menjadi pemisah segmen (Audit 1875)
 
 - pecah_segmen_shell kini memecah juga pada '&' tunggal (perintah latar belakang = segmen sendiri), dengan pengecualian bentuk saluran '&>', duplikasi fd '>&', dan pipa '|&' yang bukan pemisah.
