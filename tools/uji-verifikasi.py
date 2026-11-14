@@ -19287,6 +19287,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("compress tanpa berkas mengompres stdin: gerbang gagal (Audit 1809)", rc != 0)
         shutil.rmtree(sub900, ignore_errors=True)
+        sub901 = klon(tmp, "sub901")
+        berkas_aksi901 = os.path.join(
+            sub901, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi901, encoding="utf-8") as f:
+            isi_aksi901 = f.read()
+        baris_aksi901 = [b for b in isi_aksi901.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru901 = isi_aksi901.replace(
+                baris_aksi901,
+                baris_aksi901.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(brotli; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru901 != isi_aksi901, \
+            "suntikan aksi901 tidak menembak"
+        with open(berkas_aksi901, "w", encoding="utf-8") as f:
+            f.write(isi_baru901)
+        rc, out = jalan(sub901,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("brotli tanpa berkas membaca stdin: gerbang gagal (Audit 1810)", rc != 0)
+        shutil.rmtree(sub901, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga brotli dikenal sebagai pembaca stdin (Audit 1810)
+
+- Nama brotli, unbrotli, dan brcat masuk daftar pembaca stdin: tanpa berkas atau berkas '-' ketiganya membaca dari stdin.
+
 ## [Belum rilis] — Gerbang: compress dikenal sebagai pembaca stdin (Audit 1809)
 
 - Nama compress masuk daftar pembaca stdin, menyusul pasangannya uncompress yang sudah lama anggota: tanpa berkas ia mengompres stdin ke stdout.

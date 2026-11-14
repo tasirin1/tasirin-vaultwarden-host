@@ -708,6 +708,9 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # Audit 1809: compress - pasangan
                   # uncompress yang sudah anggota.
                   "compress",
+                  # Audit 1810: keluarga brotli - tanpa
+                  # berkas atau '-' membaca stdin.
+                  "brotli", "unbrotli", "brcat",
                   # Audit 1112: pembaca interaktif/kueri — operand
                   # berkas/nama menekan seperti filter biasa.
                   "wall", "c++filt", "nslookup",
