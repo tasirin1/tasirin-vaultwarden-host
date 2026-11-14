@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi bernilai utmpdump didaftarkan (Audit 1860)
+
+- Entri opsi bernilai utmpdump (-o/--output berkas keluaran) ditambahkan: sumber bawaannya stdin kini dinilai benar.
+
 ## [Belum rilis] — Gerbang: opsi bernilai c++filt didaftarkan (Audit 1859)
 
 - Entri opsi bernilai c++filt (-s/--format gaya demangling) ditambahkan: nilainya tak lagi terhitung operand.

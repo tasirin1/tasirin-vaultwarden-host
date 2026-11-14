@@ -1029,6 +1029,8 @@ _OPSI_BERNILAI = {
     "lziprecover": {"-o", "--output"},
     # Audit 1859: opsi bernilai c++filt.
     "c++filt": {"-s", "--format"},
+    # Audit 1860: opsi bernilai utmpdump.
+    "utmpdump": {"-o", "--output"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",

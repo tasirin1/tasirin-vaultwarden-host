@@ -21177,6 +21177,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--format c++filt bernilai: gerbang gagal (Audit 1859)", rc != 0)
         shutil.rmtree(sub990, ignore_errors=True)
+        sub991 = klon(tmp, "sub991")
+        berkas_aksi991 = os.path.join(
+            sub991, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi991, encoding="utf-8") as f:
+            isi_aksi991 = f.read()
+        baris_aksi991 = [b for b in isi_aksi991.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru991 = isi_aksi991.replace(
+                baris_aksi991,
+                baris_aksi991.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(utmpdump -o hasil; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru991 != isi_aksi991, \
+            "suntikan aksi991 tidak menembak"
+        with open(berkas_aksi991, "w", encoding="utf-8") as f:
+            f.write(isi_baru991)
+        rc, out = jalan(sub991,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-o utmpdump berkas keluaran - sumber bawaannya stdin: gerbang gagal (Audit 1860)", rc != 0)
+        shutil.rmtree(sub991, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
