@@ -925,6 +925,16 @@ def main():
                 "jinak tertangkap (Audit 1925)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(komit_ganti, ignore_errors=True)
+        jendela_besar = klon(tmp, "jendelabesar")
+        tanam(jendela_besar, "besar-jendela.txt",
+              ("pengisi jinak baris biasa\n" * 900)
+              + "token: " + token_palsu[:paruh] + "\n"
+              + token_palsu[paruh:] + "\n", "w")
+        rc, out = jalan(jendela_besar, ["bash", SKRIP])
+        periksa("token terbelah di berkas besar tertangkap "
+                "jendela geser (Audit 1967)",
+                rc != 0 and "pola rahasia" in out)
+        shutil.rmtree(jendela_besar, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

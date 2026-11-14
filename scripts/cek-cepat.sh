@@ -290,10 +290,23 @@ function proses(line,   awal, hd, sp, pos, s, ekort, hx, hv, ox, ov) {
 BEGIN {
   for (i = 1; i < ARGC; i++) {
     f = ARGV[i]
-    blob = ""; ekordgt = 0
-    while ((getline baris < f) > 0) { blob = blob proses(baris) }
+    blob = ""; ekordgt = 0; kena = 0
+    while ((getline baris < f) > 0) {
+      blob = blob proses(baris)
+      # Audit 1967: jendela geser - akumulasi blob
+      # utuh kuadratik di mawk (berkas 8 MB = menit).
+      # Rentang kecocokan pola bungkus pendek (awalan
+      # digit + ':' + ekor token, jauh di bawah
+      # 8192), jadi ekor 8192 aksara terakhir cukup
+      # memuatnya; kecocokan diperiksa sebelum
+      # pemangkasan dan sekali di akhir berkas.
+      if (length(blob) > 8192) {
+        if (blob ~ POLA) kena = 1
+        blob = substr(blob, length(blob) - 8191)
+      }
+    }
     close(f)
-    if (blob ~ POLA) { print f }
+    if (kena || blob ~ POLA) { print f }
   }
   exit
 }' "${DAFTAR_BUNGKUS[@]}" || true)"

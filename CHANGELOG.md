@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: fase bungkus memakai jendela geser (anti-kuadratik) (Audit 1967)
+
+- Akumulasi blob fase bungkus kini jendela geser 8192 aksara dengan pemeriksaan tiap langkah: berkas 8 MB yang kemarin memakan ±293 detik kini selesai dalam hitungan detik, sedangkan rentang token (jauh di bawah jendela) tetap tertangkap utuh.
+
 ## [Belum rilis] — Gerbang: cabang crictl mengurai bundel huruf pendek (Audit 1966)
 
 - Cabang crictl kini mengurai bundel (mis. -it): huruf i di bundel tetap -i; huruf asing menggugurkan vonis.
