@@ -20988,6 +20988,90 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--files - mlr berarti stdin: gerbang gagal (Audit 1855)", rc != 0)
         shutil.rmtree(sub981, ignore_errors=True)
+        sub982 = klon(tmp, "sub982")
+        berkas_aksi982 = os.path.join(
+            sub982, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi982, encoding="utf-8") as f:
+            isi_aksi982 = f.read()
+        baris_aksi982 = [b for b in isi_aksi982.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru982 = isi_aksi982.replace(
+                baris_aksi982,
+                baris_aksi982.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mlr --ifs ';' cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru982 != isi_aksi982, \
+            "suntikan aksi982 tidak menembak"
+        with open(berkas_aksi982, "w", encoding="utf-8") as f:
+            f.write(isi_baru982)
+        rc, out = jalan(sub982,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai --ifs mlr pemisah bernilai, ditelan sebelum kata kerja: gerbang gagal (Audit 1856)", rc != 0)
+        shutil.rmtree(sub982, ignore_errors=True)
+        sub983 = klon(tmp, "sub983")
+        berkas_aksi983 = os.path.join(
+            sub983, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi983, encoding="utf-8") as f:
+            isi_aksi983 = f.read()
+        baris_aksi983 = [b for b in isi_aksi983.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru983 = isi_aksi983.replace(
+                baris_aksi983,
+                baris_aksi983.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mlr --ofs '|' cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru983 != isi_aksi983, \
+            "suntikan aksi983 tidak menembak"
+        with open(berkas_aksi983, "w", encoding="utf-8") as f:
+            f.write(isi_baru983)
+        rc, out = jalan(sub983,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--ofs mlr bernilai pemisah: gerbang gagal (Audit 1856)", rc != 0)
+        shutil.rmtree(sub983, ignore_errors=True)
+        sub984 = klon(tmp, "sub984")
+        berkas_aksi984 = os.path.join(
+            sub984, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi984, encoding="utf-8") as f:
+            isi_aksi984 = f.read()
+        baris_aksi984 = [b for b in isi_aksi984.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru984 = isi_aksi984.replace(
+                baris_aksi984,
+                baris_aksi984.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mlr --rs lf cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru984 != isi_aksi984, \
+            "suntikan aksi984 tidak menembak"
+        with open(berkas_aksi984, "w", encoding="utf-8") as f:
+            f.write(isi_baru984)
+        rc, out = jalan(sub984,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--rs mlr bernilai pemisah: gerbang gagal (Audit 1856)", rc != 0)
+        shutil.rmtree(sub984, ignore_errors=True)
+        sub985 = klon(tmp, "sub985")
+        berkas_aksi985 = os.path.join(
+            sub985, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi985, encoding="utf-8") as f:
+            isi_aksi985 = f.read()
+        baris_aksi985 = [b for b in isi_aksi985.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru985 = isi_aksi985.replace(
+                baris_aksi985,
+                baris_aksi985.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mlr --ips-regex x cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru985 != isi_aksi985, \
+            "suntikan aksi985 tidak menembak"
+        with open(berkas_aksi985, "w", encoding="utf-8") as f:
+            f.write(isi_baru985)
+        rc, out = jalan(sub985,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--ips-regex mlr bernilai pola pemisah: gerbang gagal (Audit 1856)", rc != 0)
+        shutil.rmtree(sub985, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

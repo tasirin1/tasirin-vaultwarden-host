@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang mlr - keluarga opsi pemisah bernilai ditelan (Audit 1856)
+
+- Himpunan telan mlr dilengkapi keluarga pemisah resmi Miller: --rs, --irs, --ors, --fs, --ifs, --ofs, --ps, --ips, --ops, --ifs-regex, --ips-regex.
+
 ## [Belum rilis] — Gerbang: cabang mlr - --files opsi sumber seperti --from (Audit 1855)
 
 - --files dipindah dari himpunan telan generik ke perlakuan sumber Audit 1848: nilainya menamai berkas daftar masukan (stdin tak dibaca), nilai '-' tetap stdin.

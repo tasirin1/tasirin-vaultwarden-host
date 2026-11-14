@@ -4727,7 +4727,10 @@ def _menguras_khusus(perintah, toks, awal):
                         "--ofmt", "--ofmte", "--ofmtf",
                         "--ofmtg", "--seed", "--tz", "--load",
                         "--profile", "-P",
-                        "--nr-progress-mod") else 1
+                        "--nr-progress-mod", "--rs",
+                        "--irs", "--ors", "--fs", "--ifs",
+                        "--ofs", "--ps", "--ips", "--ops",
+                        "--ifs-regex", "--ips-regex") else 1
                     continue
                 if "." in t_m or "/" in t_m:
                     return False
