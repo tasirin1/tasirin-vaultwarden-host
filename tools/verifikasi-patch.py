@@ -3833,7 +3833,10 @@ def _menguras_khusus(perintah, toks, awal):
             return True
         # Audit 1080: operand +N (posisi awal) bukan berkas.
         if re.fullmatch(r"\+\d+", ops[0]):
-            return True
+            # Audit 1764: +N hanya posisi awal - operand
+            # berkas sesudahnya berarti berkas itu yang
+            # dibuka, bukan stdin (terprobe biner nyata).
+            return len(ops) == 1 or "-" in ops[1:]
         return ops[0] == "-"
     if perintah in ("vi", "vim", "nvim", "view", "ex",
                     # Audit 1316: alias vim/editor sistem.

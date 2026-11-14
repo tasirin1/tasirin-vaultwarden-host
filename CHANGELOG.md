@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: less +N beroperand berkas benar (Audit 1764)
+
+- Aturan +N cabang less kini memeriksa operand sesudahnya: +N dengan operand berkas divonis membuka berkas itu (terprobe biner nyata fixture utuh), hanya +N sendirian atau diikuti '-' yang menguras.
+
 ## [Belum rilis] — Gerbang: zip mengenal operand '-' (Audit 1763)
 
 - Cabang zip kini mengenali operand berkas masukan '-' sebagai pengarsipan isi stdin (terprobe biner nyata Info-ZIP: entri '-' tersimpan di arsip), di samping pemodelan daftar -@ yang sudah ada.

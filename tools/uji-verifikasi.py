@@ -18405,6 +18405,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("zip berkas masukan biasa membaca berkas itu: gerbang lolos (Audit 1763)", rc == 0)
         shutil.rmtree(sub858, ignore_errors=True)
+        sub859 = klon(tmp, "sub859")
+        berkas_aksi859 = os.path.join(
+            sub859, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi859, encoding="utf-8") as f:
+            isi_aksi859 = f.read()
+        baris_aksi859 = [b for b in isi_aksi859.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru859 = isi_aksi859.replace(
+                baris_aksi859,
+                baris_aksi859.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(less +10 berkas.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru859 != isi_aksi859, \
+            "suntikan aksi859 tidak menembak"
+        with open(berkas_aksi859, "w", encoding="utf-8") as f:
+            f.write(isi_baru859)
+        rc, out = jalan(sub859,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("less +N beroperand berkas membuka berkasnya: gerbang lolos (Audit 1764)", rc == 0)
+        shutil.rmtree(sub859, ignore_errors=True)
+        sub860 = klon(tmp, "sub860")
+        berkas_aksi860 = os.path.join(
+            sub860, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi860, encoding="utf-8") as f:
+            isi_aksi860 = f.read()
+        baris_aksi860 = [b for b in isi_aksi860.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru860 = isi_aksi860.replace(
+                baris_aksi860,
+                baris_aksi860.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(less +10; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru860 != isi_aksi860, \
+            "suntikan aksi860 tidak menembak"
+        with open(berkas_aksi860, "w", encoding="utf-8") as f:
+            f.write(isi_baru860)
+        rc, out = jalan(sub860,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("less +N tanpa berkas membaca stdin: gerbang gagal (Audit 1764)", rc != 0)
+        shutil.rmtree(sub860, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
