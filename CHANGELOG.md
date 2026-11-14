@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: 7z -si dinilai (Audit 1772)
+
+- 7z kini dinilai penilai khusus mengikuti 7z(1): perintah a dengan saklar -si (termasuk bentuk menempel -sinama) membaca data dari StdIn; bentuk x -/l - memang tak didukung dokumentasi dan tetap tak menguras.
+
 ## [Belum rilis] — Gerbang: rpm2cpio dinilai (Audit 1771)
 
 - rpm2cpio kini dinilai penilai khusus mengikuti rpm2cpio(1): tanpa argumen aliran RPM dibaca dari standard input, dan argumen '-' juga stdin.

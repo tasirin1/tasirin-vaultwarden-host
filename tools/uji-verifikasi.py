@@ -18657,6 +18657,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("rpm2cpio tanpa argumen membaca aliran RPM dari stdin: gerbang gagal (Audit 1771)", rc != 0)
         shutil.rmtree(sub870, ignore_errors=True)
+        sub871 = klon(tmp, "sub871")
+        berkas_aksi871 = os.path.join(
+            sub871, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi871, encoding="utf-8") as f:
+            isi_aksi871 = f.read()
+        baris_aksi871 = [b for b in isi_aksi871.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru871 = isi_aksi871.replace(
+                baris_aksi871,
+                baris_aksi871.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(7z a -si arsip.7z; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru871 != isi_aksi871, \
+            "suntikan aksi871 tidak menembak"
+        with open(berkas_aksi871, "w", encoding="utf-8") as f:
+            f.write(isi_baru871)
+        rc, out = jalan(sub871,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("7z a -si membaca data dari stdin: gerbang gagal (Audit 1772)", rc != 0)
+        shutil.rmtree(sub871, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
