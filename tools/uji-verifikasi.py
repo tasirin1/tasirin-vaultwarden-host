@@ -17376,6 +17376,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("lua -e tanpa skrip: aksi jalan lalu keluar - gerbang lolos (Audit 1725)", rc == 0)
         shutil.rmtree(sub809, ignore_errors=True)
+        sub810 = klon(tmp, "sub810")
+        berkas_aksi810 = os.path.join(
+            sub810, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi810, encoding="utf-8") as f:
+            isi_aksi810 = f.read()
+        baris_aksi810 = [b for b in isi_aksi810.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru810 = isi_aksi810.replace(
+                baris_aksi810,
+                baris_aksi810.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lua -v; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru810 != isi_aksi810, \
+            "suntikan aksi810 tidak menembak"
+        with open(berkas_aksi810, "w", encoding="utf-8") as f:
+            f.write(isi_baru810)
+        rc, out = jalan(sub810,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lua -v telanjang: cetak versi lalu keluar - gerbang lolos (Audit 1726)", rc == 0)
+        shutil.rmtree(sub810, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

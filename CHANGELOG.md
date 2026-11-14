@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: lua -v telanjang tidak membaca stdin (Audit 1726)
+
+- Bentuk `lua -v` tanpa skrip kini divonis mencetak versi lalu keluar (lua.c: has_v menghalangi pembacaan stdin sebagai program); bentuk -v bersama skrip tidak berubah.
+
 ## [Belum rilis] — Gerbang: lua -e tanpa skrip tidak membaca stdin (Audit 1725)
 
 - Bentuk `lua -e <kode>` tanpa skrip dan tanpa -i kini divonis menjalankan aksinya lalu keluar (lua.c 5.4 pmain: syarat membaca stdin sebagai program memakai masker has_e|has_v). Paruh -l dari temuan ini GUGUR oleh bukti sumber yang sama: collectargs tidak memberi bit untuk -l, jadi `lua -l lib` tanpa skrip tetap mengeksekusi stdin — vonis lama (Audit 1641/1653) dipertahankan.
