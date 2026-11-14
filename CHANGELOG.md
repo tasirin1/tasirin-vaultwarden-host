@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: vault bentuk tulis dengan '-' dinilai (Audit 1929)
+
+- vault kini dinilai: sub-perintah tulis (put/write) dengan operand '-' atau 'kunci=-' membaca nilai dari stdin; bentuk baca tak dinilai.
+
 ## [Belum rilis] — Gerbang: consul kv put/import dengan nilai '-' dinilai (Audit 1928)
 
 - consul kini dinilai: kv put/import dengan operand nilai '-' membaca nilai dari stdin.

@@ -5246,6 +5246,15 @@ def _menguras_khusus(perintah, toks, awal):
                 and mentah[1] in ("put", "import"):
             return "-" in mentah[2:]
         return False
+    if perintah == "vault":
+        # Audit 1929: bentuk tulis vault dengan '-'
+        # atau 'kunci=-' membaca nilai dari stdin
+        # (dokumentasi HashiCorp seksi stdin). Bentuk
+        # baca (kv get) tak membaca stdin.
+        if not any(t_vl in ("put", "write") for t_vl in mentah):
+            return False
+        return any(t_vl == "-" or t_vl.endswith("=-")
+                   for t_vl in mentah)
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -6810,7 +6819,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "consul", "nerdctl", "oc", "terraform", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "consul", "nerdctl", "oc", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
