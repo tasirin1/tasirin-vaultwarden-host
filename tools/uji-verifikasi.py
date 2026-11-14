@@ -19413,6 +19413,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("ts memberi stempel waktu pada aliran stdin: gerbang gagal (Audit 1815)", rc != 0)
         shutil.rmtree(sub906, ignore_errors=True)
+        sub907 = klon(tmp, "sub907")
+        berkas_aksi907 = os.path.join(
+            sub907, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi907, encoding="utf-8") as f:
+            isi_aksi907 = f.read()
+        baris_aksi907 = [b for b in isi_aksi907.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru907 = isi_aksi907.replace(
+                baris_aksi907,
+                baris_aksi907.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(vipe; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru907 != isi_aksi907, \
+            "suntikan aksi907 tidak menembak"
+        with open(berkas_aksi907, "w", encoding="utf-8") as f:
+            f.write(isi_baru907)
+        rc, out = jalan(sub907,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("vipe membaca seluruh stdin ke editor: gerbang gagal (Audit 1816)", rc != 0)
+        shutil.rmtree(sub907, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

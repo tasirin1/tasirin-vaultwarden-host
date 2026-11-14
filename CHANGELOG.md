@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: vipe dinilai selalu membaca stdin (Audit 1816)
+
+- vipe moreutils masuk cabang selalu-menguras: ia membaca seluruh stdin ke editor lalu menulis hasilnya ke stdout.
+
 ## [Belum rilis] — Gerbang: ts dinilai selalu membaca stdin (Audit 1815)
 
 - ts moreutils masuk cabang selalu-menguras: operand non-opsinya pola format strftime, bukan berkas - dengan atau tanpa operand ia memberi stempel waktu pada aliran stdin.
