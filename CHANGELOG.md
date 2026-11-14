@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang aws melompati opsi global sebelum sub-perintah (Audit 1942)
+
+- Cabang aws kini melompati opsi global bernilai (--region/--profile/dll, terpisah maupun rekat '=') sebelum mencari pasangan s3 cp.
+
 ## [Belum rilis] — Gerbang: clickhouse-client dengan --query tetap membaca stdin (Audit 1941)
 
 - Cabang clickhouse-client kini selalu menilai membaca stdin: dokumentasi resmi menegaskan mode batch menerima query, stdin, atau keduanya (request = query + isi stdin).

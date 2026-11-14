@@ -5317,10 +5317,25 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1934: hanya s3 cp dengan SUMBER '-'
         # yang mengunggah isi stdin (AWS CLI User
         # Guide); '-' di tujuan berarti stdout.
-        if len(mentah) >= 2 and mentah[0] == "s3" \
-                and mentah[1] == "cp":
+        # Audit 1942: opsi global bernilai aws bisa
+        # mendahului sub-perintah - lompati dulu.
+        k_aw = 0
+        global_aw = {"--region", "--profile",
+                     "--endpoint-url", "--output", "--query",
+                     "--ca-bundle", "--cli-read-timeout",
+                     "--cli-connect-timeout"}
+        while k_aw < len(mentah) and mentah[k_aw].startswith("--"):
+            if "=" in mentah[k_aw]:
+                k_aw += 1
+            elif mentah[k_aw] in global_aw:
+                k_aw += 2
+            else:
+                k_aw += 1
+        if len(mentah) - k_aw >= 2 and mentah[k_aw] == "s3" \
+                and mentah[k_aw + 1] == "cp":
             ops_aw = _operand_sesudah_opsi(
-                toks, awal + 2, {"--region", "--endpoint-url"})
+                toks, awal + 2 + k_aw,
+                {"--region", "--endpoint-url"})
             if "\x00gantung" in ops_aw:
                 return False
             return len(ops_aw) >= 2 and ops_aw[0] == "-"

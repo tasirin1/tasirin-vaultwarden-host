@@ -22794,6 +22794,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("clickhouse --query tetap menambahkan stdin: gerbang gagal (Audit 1941)", rc != 0)
         shutil.rmtree(sub1068, ignore_errors=True)
+        sub1069 = klon(tmp, "sub1069")
+        berkas_aksi1069 = os.path.join(
+            sub1069, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1069, encoding="utf-8") as f:
+            isi_aksi1069 = f.read()
+        baris_aksi1069 = [b for b in isi_aksi1069.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1069 = isi_aksi1069.replace(
+                baris_aksi1069,
+                baris_aksi1069.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(aws --region x s3 cp - s3://b/k; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1069 != isi_aksi1069, \
+            "suntikan aksi1069 tidak menembak"
+        with open(berkas_aksi1069, "w", encoding="utf-8") as f:
+            f.write(isi_baru1069)
+        rc, out = jalan(sub1069,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("aws opsi global sebelum s3 cp dari '-': gerbang gagal (Audit 1942)", rc != 0)
+        shutil.rmtree(sub1069, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
