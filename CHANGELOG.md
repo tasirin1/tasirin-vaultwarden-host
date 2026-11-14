@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang rsync menilai --exclude-from/--include-from '-' (Audit 1954)
+
+- Cabang rsync kini turut menilai --exclude-from/--include-from bernilai '-' (terpisah maupun rekat) sebagai pembaca daftar dari stdin.
+
 ## [Belum rilis] — Gerbang: ipfs dinilai - dag put, block put, add tanpa path (Audit 1953)
 
 - ipfs kini dinilai: dag put dan block put membaca dari stdin; add tanpa operand path membaca data dari stdin.

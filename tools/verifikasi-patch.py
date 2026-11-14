@@ -3583,8 +3583,17 @@ def _menguras_khusus(perintah, toks, awal):
                    for t in mentah)
     if perintah == "rsync":
         # Audit 1064: --files-from=- membaca daftar dari stdin.
+        # Audit 1954: --exclude-from/--include-from
+        # bernilai '-' juga membaca daftar dari stdin
+        # (man rsync; terprobe rsync terpasang).
         for i, t in enumerate(mentah):
-            if t == "--files-from=-":
+            if t in ("--files-from=-", "--exclude-from=-",
+                     "--include-from=-"):
+                return True
+            if (t in ("--files-from", "--exclude-from",
+                      "--include-from")
+                    and i + 1 < len(mentah)
+                    and mentah[i + 1] == "-"):
                 return True
             if t == "--files-from" and i + 1 < len(mentah) \
                     and mentah[i + 1] == "-":
