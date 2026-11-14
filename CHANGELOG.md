@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gzcat dikenal sebagai nama varian zcat (Audit 1802)
+
+- Nama gzcat - nama varian resmi zcat menurut gzip(1) - masuk daftar pembaca stdin dengan opsi bernilai yang sama seperti zcat.
+
 ## [Belum rilis] — Gerbang: column (util-linux) dikenal sebagai pembaca stdin (Audit 1801)
 
 - Nama column masuk daftar pembaca stdin beserta opsi bernilainya: tanpa berkas (termasuk modus -t) ia membaca stdin, dengan berkas ia membaca berkas itu.

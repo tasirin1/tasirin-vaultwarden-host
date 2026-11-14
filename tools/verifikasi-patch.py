@@ -682,7 +682,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "xz", "bzip2", "lzma", "zcat",
                   # Audit 1801: column util-linux -
                   # membaca stdin bila tanpa berkas.
-                  "column",
+                  "column", "gzcat",
                   # Audit 1638: kompresor generasi berikut —
                   # tanpa operand membaca stdin seperti gzip.
                   "zstd", "pigz",
@@ -939,6 +939,8 @@ _OPSI_BERNILAI = {
     # Audit 1801: opsi bernilai column util-linux.
     "column": {"-s", "--separator", "-c", "--columns",
                "-o", "--output-separator"},
+    # Audit 1802: gzcat adalah nama varian zcat.
+    "gzcat": {"-S", "--suffix"},
     # Audit 1196: opsi bernilai pemulih tabel firewall.
     "iptables-restore": {"-T", "--table", "-M", "--modprobe",
                          "-w", "--wait",
