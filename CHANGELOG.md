@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -C/--check didaftarkan untuk unxz dan xzcat (Audit 1841)
+
+- Entri unxz dan xzcat kini memuat -C/--check seperti saudara xz lainnya: nilainya tak lagi terhitung operand.
+
 ## [Belum rilis] — Gerbang: keluarga --memlimit xz diseragamkan (Audit 1840)
 
 - Bentuk --memlimit polos ditambahkan ke xz; ketiganya (--memlimit, --memlimit-compress, --memlimit-decompress) kini ada di lzma, xzcat, lzcat, unxz, dan unlzma.

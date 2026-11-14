@@ -962,6 +962,7 @@ _OPSI_BERNILAI = {
              "--memlimit-compress",
              "--memlimit-decompress"},
     "xzcat": {"-F", "--format", "-T", "--threads",
+              "-C", "--check",
               # Audit 1237: -S/--suffix hilang dari entri ini.
               "-S", "--suffix",
               # Audit 1292: --block-size (entri xz memuatnya).
@@ -1110,6 +1111,7 @@ _OPSI_BERNILAI = {
     # Audit 1098: saudara kompresor berbagi opsi sufiks.
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",
+             "-C", "--check",
              # Audit 1172: -F/--format bernilai.
              "-F", "--format", "--block-list", "--memlimit",
              "--memlimit-compress",

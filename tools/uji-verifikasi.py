@@ -20148,6 +20148,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("unlzma memuat --memlimit: gerbang gagal (Audit 1840)", rc != 0)
         shutil.rmtree(sub941, ignore_errors=True)
+        sub942 = klon(tmp, "sub942")
+        berkas_aksi942 = os.path.join(
+            sub942, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi942, encoding="utf-8") as f:
+            isi_aksi942 = f.read()
+        baris_aksi942 = [b for b in isi_aksi942.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru942 = isi_aksi942.replace(
+                baris_aksi942,
+                baris_aksi942.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unxz -C crc32; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru942 != isi_aksi942, \
+            "suntikan aksi942 tidak menembak"
+        with open(berkas_aksi942, "w", encoding="utf-8") as f:
+            f.write(isi_baru942)
+        rc, out = jalan(sub942,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-C unxz bernilai nama checksum: gerbang gagal (Audit 1841)", rc != 0)
+        shutil.rmtree(sub942, ignore_errors=True)
+        sub943 = klon(tmp, "sub943")
+        berkas_aksi943 = os.path.join(
+            sub943, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi943, encoding="utf-8") as f:
+            isi_aksi943 = f.read()
+        baris_aksi943 = [b for b in isi_aksi943.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru943 = isi_aksi943.replace(
+                baris_aksi943,
+                baris_aksi943.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xzcat --check crc32; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru943 != isi_aksi943, \
+            "suntikan aksi943 tidak menembak"
+        with open(berkas_aksi943, "w", encoding="utf-8") as f:
+            f.write(isi_baru943)
+        rc, out = jalan(sub943,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--check xzcat bernilai: gerbang gagal (Audit 1841)", rc != 0)
+        shutil.rmtree(sub943, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
