@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: recode dengan request tanpa FILE dinilai membaca stdin (Audit 1818)
+
+- Cabang khusus recode: operand pertama adalah request pengkodean - tepat satu operand berarti filter stdin; request plus berkas membaca berkas itu; tanpa request bukan filter.
+
 ## [Belum rilis] — Gerbang: pee dinilai selalu membaca stdin (Audit 1817)
 
 - pee moreutils masuk cabang selalu-menguras: operandnya perintah-perintah tujuan, stdin dibaca selalu.
