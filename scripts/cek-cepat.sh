@@ -288,11 +288,24 @@ BEGIN {
   }
   exit
 }' "${DAFTAR_BUNGKUS[@]}" || true)"
-for i1886 in "${!PETA_TMP1886[@]}"; do
-  if [ -n "$BUNGKUS" ]; then
-    BUNGKUS="$(printf '%s\n' "$BUNGKUS" | sed "s|^${PETA_TMP1886[$i1886]}$|${PETA_ASAL1886[$i1886]}|")"
-  fi
-done
+# Audit 1892/1893: pemetaan nama tampil TANPA sed -
+# pencocokan string persis bash, jadi aksara '&'
+# (pengembang sisi pengganti) dan '|' (delimiter)
+# di nama berkas tak merusak nama maupun skrip.
+if [ -n "$BUNGKUS" ]; then
+  BUNGKUS_PETA=""
+  while IFS= read -r baris1886; do
+    tampil1886="$baris1886"
+    for i1886 in "${!PETA_TMP1886[@]}"; do
+      if [ "$baris1886" = "${PETA_TMP1886[$i1886]}" ]; then
+        tampil1886="${PETA_ASAL1886[$i1886]}"
+        break
+      fi
+    done
+    BUNGKUS_PETA="${BUNGKUS_PETA:+$BUNGKUS_PETA$'\n'}$tampil1886"
+  done <<< "$BUNGKUS"
+  BUNGKUS="$BUNGKUS_PETA"
+fi
 rm -rf "$TMPBUNGKUS"
 for entri in "${ENTRI_BUNGKUS[@]}"; do
   f=${entri#?:}

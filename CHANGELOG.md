@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: pemetaan nama tampil berkas indeks tanpa sed (Audit 1892, 1893)
+
+- Pemetaan nama tampil berkas perwujudan indeks kini memakai pencocokan string persis bash, bukan sed: aksara '&' tak lagi merusak nama tampil dan aksara '|' tak lagi membunuh skrip tanpa pesan (Audit 1893).
+
 ## [Belum rilis] — Cek-cepat: isi staged yang berbeda dari pohon kerja diwujudkan dari indeks (Audit 1891)
 
 - Perwujudan indeks kini juga berjalan bila isi ter-stage berbeda dari pohon kerja (diganti jinak sesudah stage atau berkas hilang), bukan hanya bila berkas tak ada.

@@ -874,6 +874,35 @@ def main():
                 "tertangkap (Audit 1891)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(staged_ganti, ignore_errors=True)
+        nama_amp = klon(tmp, "namaamp")
+        berkas_amp = os.path.join(nama_amp, "a&b.txt")
+        with open(berkas_amp, "w") as f_amp:
+            f_amp.write(
+                "token: " + token_palsu[:paruh] + "\n"
+                + token_palsu[paruh:] + "\n")
+        git(nama_amp, "add", "a&b.txt")
+        os.remove(berkas_amp)
+        rc, out = jalan(nama_amp, ["bash", SKRIP])
+        periksa("token terbelah indeks bernama '&' tertangkap "
+                "dengan nama benar (Audit 1892)",
+                rc != 0 and "pola rahasia" in out
+                and "a&b.txt" in out)
+        shutil.rmtree(nama_amp, ignore_errors=True)
+        nama_pipa = klon(tmp, "namapipa")
+        tanam(nama_pipa, "token-lain.txt",
+              "token: " + token_palsu + "\n", "w")
+        berkas_pipa = os.path.join(
+            nama_pipa, "jinak|pipa.txt")
+        with open(berkas_pipa, "w") as f_pipa:
+            f_pipa.write("isi jinak\n")
+        git(nama_pipa, "add", "jinak|pipa.txt")
+        os.remove(berkas_pipa)
+        rc, out = jalan(nama_pipa, ["bash", SKRIP])
+        periksa("nama '|' tak membungkam temuan berkas lain "
+                "(Audit 1893)",
+                rc != 0 and "pola rahasia" in out
+                and "token-lain.txt" in out)
+        shutil.rmtree(nama_pipa, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
