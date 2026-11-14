@@ -926,7 +926,8 @@ _OPSI_BERNILAI = {
     "basenc": {"-w", "--wrap"},
     # Audit 1057: opsi bernilai kompresor.
     "xz": {"-T", "--threads", "-C", "--check", "--block-size",
-           "--memlimit-compress", "--memlimit-decompress",
+           "--memlimit", "--memlimit-compress",
+           "--memlimit-decompress",
            # Audit 1172: -F/--format bernilai.
            "-F", "--format", "--block-list"},
     # Audit 1639: opsi bernilai gpgv.
@@ -957,17 +958,23 @@ _OPSI_BERNILAI = {
     # Audit 1213: kompresor tanpa entri untuk opsi bersamanya.
     "lzma": {"-F", "--format", "-S", "--suffix", "-T", "--threads",
              "--block-size", "-C", "--check",
-             "--block-list"},
+             "--block-list", "--memlimit",
+             "--memlimit-compress",
+             "--memlimit-decompress"},
     "xzcat": {"-F", "--format", "-T", "--threads",
               # Audit 1237: -S/--suffix hilang dari entri ini.
               "-S", "--suffix",
               # Audit 1292: --block-size (entri xz memuatnya).
-              "--block-size", "--block-list"},
+              "--block-size", "--block-list", "--memlimit",
+              "--memlimit-compress",
+              "--memlimit-decompress"},
     # Audit 1238: lzcat tanpa entri sama sekali (Audit 1199
     # hanya menambah namanya ke daftar pembaca).
     "lzcat": {"-F", "--format", "-S", "--suffix", "-T",
               "--threads", "--block-size", "-C", "--check",
-              "--block-list"},
+              "--block-list", "--memlimit",
+              "--memlimit-compress",
+              "--memlimit-decompress"},
     "zcat": {"-S", "--suffix"},
     # Audit 1801: opsi bernilai column util-linux.
     "column": {"-s", "--separator", "-c", "--columns",
@@ -1104,8 +1111,12 @@ _OPSI_BERNILAI = {
     "bunzip2": {"--suffix", "-S"},
     "unxz": {"--suffix", "-S", "-T", "--threads",
              # Audit 1172: -F/--format bernilai.
-             "-F", "--format", "--block-list"},
-    "unlzma": {"--suffix", "-S", "--block-list"},
+             "-F", "--format", "--block-list", "--memlimit",
+             "--memlimit-compress",
+             "--memlimit-decompress"},
+    "unlzma": {"--suffix", "-S", "--block-list",
+               "--memlimit", "--memlimit-compress",
+               "--memlimit-decompress"},
 }
 
 

@@ -20022,6 +20022,132 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai --block-list unlzma bukan operand: gerbang gagal (Audit 1839)", rc != 0)
         shutil.rmtree(sub935, ignore_errors=True)
+        sub936 = klon(tmp, "sub936")
+        berkas_aksi936 = os.path.join(
+            sub936, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi936, encoding="utf-8") as f:
+            isi_aksi936 = f.read()
+        baris_aksi936 = [b for b in isi_aksi936.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru936 = isi_aksi936.replace(
+                baris_aksi936,
+                baris_aksi936.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xz --memlimit 100MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru936 != isi_aksi936, \
+            "suntikan aksi936 tidak menembak"
+        with open(berkas_aksi936, "w", encoding="utf-8") as f:
+            f.write(isi_baru936)
+        rc, out = jalan(sub936,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai --memlimit xz bukan operand: gerbang gagal (Audit 1840)", rc != 0)
+        shutil.rmtree(sub936, ignore_errors=True)
+        sub937 = klon(tmp, "sub937")
+        berkas_aksi937 = os.path.join(
+            sub937, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi937, encoding="utf-8") as f:
+            isi_aksi937 = f.read()
+        baris_aksi937 = [b for b in isi_aksi937.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru937 = isi_aksi937.replace(
+                baris_aksi937,
+                baris_aksi937.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xz --memlimit-compress 100MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru937 != isi_aksi937, \
+            "suntikan aksi937 tidak menembak"
+        with open(berkas_aksi937, "w", encoding="utf-8") as f:
+            f.write(isi_baru937)
+        rc, out = jalan(sub937,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("keluarga --memlimit xz seragam di semua entri: gerbang gagal (Audit 1840)", rc != 0)
+        shutil.rmtree(sub937, ignore_errors=True)
+        sub938 = klon(tmp, "sub938")
+        berkas_aksi938 = os.path.join(
+            sub938, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi938, encoding="utf-8") as f:
+            isi_aksi938 = f.read()
+        baris_aksi938 = [b for b in isi_aksi938.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru938 = isi_aksi938.replace(
+                baris_aksi938,
+                baris_aksi938.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unxz --memlimit-compress 100MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru938 != isi_aksi938, \
+            "suntikan aksi938 tidak menembak"
+        with open(berkas_aksi938, "w", encoding="utf-8") as f:
+            f.write(isi_baru938)
+        rc, out = jalan(sub938,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("unxz memuat --memlimit-compress: gerbang gagal (Audit 1840)", rc != 0)
+        shutil.rmtree(sub938, ignore_errors=True)
+        sub939 = klon(tmp, "sub939")
+        berkas_aksi939 = os.path.join(
+            sub939, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi939, encoding="utf-8") as f:
+            isi_aksi939 = f.read()
+        baris_aksi939 = [b for b in isi_aksi939.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru939 = isi_aksi939.replace(
+                baris_aksi939,
+                baris_aksi939.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(lzma --memlimit 100MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru939 != isi_aksi939, \
+            "suntikan aksi939 tidak menembak"
+        with open(berkas_aksi939, "w", encoding="utf-8") as f:
+            f.write(isi_baru939)
+        rc, out = jalan(sub939,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("lzma memuat --memlimit: gerbang gagal (Audit 1840)", rc != 0)
+        shutil.rmtree(sub939, ignore_errors=True)
+        sub940 = klon(tmp, "sub940")
+        berkas_aksi940 = os.path.join(
+            sub940, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi940, encoding="utf-8") as f:
+            isi_aksi940 = f.read()
+        baris_aksi940 = [b for b in isi_aksi940.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru940 = isi_aksi940.replace(
+                baris_aksi940,
+                baris_aksi940.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xzcat --memlimit-decompress 100MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru940 != isi_aksi940, \
+            "suntikan aksi940 tidak menembak"
+        with open(berkas_aksi940, "w", encoding="utf-8") as f:
+            f.write(isi_baru940)
+        rc, out = jalan(sub940,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xzcat memuat --memlimit-decompress: gerbang gagal (Audit 1840)", rc != 0)
+        shutil.rmtree(sub940, ignore_errors=True)
+        sub941 = klon(tmp, "sub941")
+        berkas_aksi941 = os.path.join(
+            sub941, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi941, encoding="utf-8") as f:
+            isi_aksi941 = f.read()
+        baris_aksi941 = [b for b in isi_aksi941.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru941 = isi_aksi941.replace(
+                baris_aksi941,
+                baris_aksi941.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unlzma --memlimit 100MiB; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru941 != isi_aksi941, \
+            "suntikan aksi941 tidak menembak"
+        with open(berkas_aksi941, "w", encoding="utf-8") as f:
+            f.write(isi_baru941)
+        rc, out = jalan(sub941,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("unlzma memuat --memlimit: gerbang gagal (Audit 1840)", rc != 0)
+        shutil.rmtree(sub941, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

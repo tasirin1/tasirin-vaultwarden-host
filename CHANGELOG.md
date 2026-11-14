@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga --memlimit xz diseragamkan (Audit 1840)
+
+- Bentuk --memlimit polos ditambahkan ke xz; ketiganya (--memlimit, --memlimit-compress, --memlimit-decompress) kini ada di lzma, xzcat, lzcat, unxz, dan unlzma.
+
 ## [Belum rilis] — Gerbang: --block-list didaftarkan di semua entri keluarga xz (Audit 1839)
 
 - Opsi bernilai --block-list ditambahkan ke entri xz, lzma, xzcat, lzcat, unxz, dan unlzma: nilainya tak lagi terhitung operand.
