@@ -113,9 +113,12 @@ RAHASIA_HDR=""
 # (gagal-terbuka terkendali, bukan mati diam).
 biner_atau_tak_teruji() {
   if ! command -v od >/dev/null 2>&1; then return 0; fi
-  out_od="$(od -An -tx1 2>/dev/null || true)"
-  if [ -z "$out_od" ]; then return 0; fi
-  printf '%s' "$out_od" | grep -q ' 00'
+  # Audit 2067: alirkan lewat awk (berhenti di
+  # NUL pertama, ingatan terbatas) - jangan
+  # tampung seluruh keluaran od ke variabel.
+  # Keluaran KOSONG tetap dianggap biner (2032).
+  hasil_od="$(od -An -tx1 2>/dev/null | awk '{ if (index($0, " 00") > 0) { print "ada"; exit } } END { if (NR == 0) print "ada" }' || true)"
+  [ -n "$hasil_od" ]
 }
 while IFS= read -r -d '' f_hdr; do
   [ -n "$f_hdr" ] || continue

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: uji NUL dialirkan, ingatan terbatas (Audit 2067)
+
+- biner_atau_tak_teruji kini mengalirkan keluaran od lewat awk yang berhenti di NUL pertama (ingatan terbatas, tetap tanpa batas jendela); keluaran od kosong tetap dianggap biner sesuai doktrin 2032.
+
 ## [Belum rilis] — Cek-cepat: TMPDIR rusak menghasilkan vonis rancangan (Audit 2066)
 
 - Kedua pembuatan berkas/direktori sementara kini dijaga: TMPDIR rusak menghasilkan satu pesan GAGAL rancangan yang menyebut TMPDIR dan keluar 1, bukan kematian mentah oleh set -e di tengah jalan.
