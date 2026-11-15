@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: buildah - opsi global sebelum sub dikenal bernilai (Audit 2062)
+
+- Penentu sub buildah kini melewatkan nilai opsi globalnya (--root, --runroot, --storage-driver, --registries-conf, peta userns, --cgroup-manager) sehingga 'buildah --root /x bud --stdin .' terbaca benar.
+
 ## [Belum rilis] — Gerbang: buildah - 12 opsi bernilai build dilengkapi (Audit 2061)
 
 - Himpunan opsi bernilai pindai buildah ditambah --add-host, --cap-add, --cap-drop, --isolation, --sign-by, --timestamp, --cgroup-parent, --runtime, --from, --authfile, --memory/-m, --user (buildah-build(1)).

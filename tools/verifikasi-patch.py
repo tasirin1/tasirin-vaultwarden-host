@@ -5653,7 +5653,17 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "buildah":
         # Audit 1937: build/bud --stdin meneruskan
         # stdin ke kontainer RUN (buildah-build(1)).
-        ops_ba = _operand_sesudah_opsi(toks, awal, set())
+        # Audit 2062: opsi global buildah
+        # (buildah(1) '[OPTIONS] COMMAND')
+        # bernilai - nilainya jangan terhitung
+        # operand penentu sub.
+        ops_ba = _operand_sesudah_opsi(
+            toks, awal, {"--root", "--runroot",
+                         "--storage-driver",
+                         "--registries-conf",
+                         "--userns-gid-map",
+                         "--userns-uid-map",
+                         "--cgroup-manager"})
         if "\x00gantung" in ops_ba:
             return False
         # Audit 2010: '-f -' pada bud/build berarti
