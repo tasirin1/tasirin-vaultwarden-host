@@ -6742,13 +6742,19 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2099: tanpa nama berkas ia menerima
         # input terpipa via STDIN (csvlook(1)
         # csvkit).
+        # Audit 2110: himpunan dilengkapi dari
+        # csvlook(1) csvkit 2.2.0 penuh.
+        if _jebakan_argparse(
+                mentah, _CSVKIT | {"--max-rows",
+                                   "--max-columns",
+                                   "--max-column-width",
+                                   "--max-precision"}):
+            return False
         ops_cl = _operand_sesudah_opsi(
-            toks, awal, {"-d", "--delimiter", "-q",
-                         "--quotechar", "-u", "--quoting",
-                         "-p", "--escapechar", "-z",
-                         "--maxfieldsize", "-e",
-                         "--encoding",
-                         "-y", "--snifflimit"})
+            toks, awal, _CSVKIT | {"--max-rows",
+                                   "--max-columns",
+                                   "--max-column-width",
+                                   "--max-precision"})
         if "\x00gantung" in ops_cl:
             return False
         return not ops_cl

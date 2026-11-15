@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvlook - himpunan dilengkapi dari csvlook(1) penuh (Audit 2110)
+
+- Cabang csvlook memakai _CSVKIT ditambah --max-rows, --max-columns, --max-column-width, --max-precision (csvlook(1) csvkit 2.2.0), lengkap dengan penjaga jebakan argparse.
+
 ## [Belum rilis] — Gerbang: csvlook - ejaan '--maxrows' karangan dicabut (Audit 2109)
 
 - Himpunan csvlook: '--maxrows' (bukan opsi sah, bukan awalan '--max-rows' bagi argparse) diganti ejaan resmi '--maxfieldsize' pasangan -z.
