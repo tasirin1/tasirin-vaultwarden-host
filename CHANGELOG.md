@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: agregasi - nama ber-newline tampil utuh ter-escape (Audit 2130)
+
+- Nama berkas yang dicetak fase bungkus (awk) dan lintasan per-baris kini di-escape (backslash digandakan, newline menjadi \n) sehingga satu berkas tampil sebagai satu nama utuh, bukan fragmen yang menyerupai berkas lain.
+
 ## [Belum rilis] — Cek-cepat: agregasi - berkas '-' dilaporkan satu kali (Audit 2129)
 
 - Lintasan per-baris fase rahasia kini menambahkan nama ternormalisasi './-' (bukan nama mentah '-') ke daftar temuan sehingga sort -u menggabungkannya dengan entri fase bungkus.

@@ -381,7 +381,7 @@ BEGIN {
       }
     }
     close(f)
-    if (kena || blob ~ POLA) { print f }
+    if (kena || blob ~ POLA) { nama2130 = f; gsub(/\\/, "\\\\", nama2130); gsub(/\n/, "\\n", nama2130); print nama2130 }
   }
   exit
 }' "${DAFTAR_BUNGKUS[@]}" || true)"
@@ -411,7 +411,9 @@ for entri in "${ENTRI_BUNGKUS[@]}"; do
   sasaran2097="$f"
   if [ "$f" = "-" ]; then sasaran2097="./-"; fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$sasaran2097" 2>/dev/null; then
-    BUNGKUS="$(printf '%s\n%s\n' "$BUNGKUS" "$sasaran2097")"
+    tampil2130="${sasaran2097//\\/\\\\}"
+    tampil2130="${tampil2130//$'\n'/\\n}"
+    BUNGKUS="$(printf '%s\n%s\n' "$BUNGKUS" "$tampil2130")"
   fi
 done
 RAHASIA="$(printf '%s\n%s\n' "$RAHASIA" "$BUNGKUS" | sed '/^$/d' | sort -u || true)"
