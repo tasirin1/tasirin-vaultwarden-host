@@ -941,6 +941,17 @@ def main():
         periksa("lari dari subdirektori setara akar "
                 "(Audit 2001)", rc == 0)
         shutil.rmtree(subdir_lari, ignore_errors=True)
+        biner_hdr = klon(tmp, "binerhdr")
+        with open(biner_hdr + "/biner-hdr.bin", "wb") as fh:
+            fh.write(bytes([0, 1]) + b"-----BEGIN "
+                     + b"PRIVATE" + b" KEY-----"
+                     + bytes([10, 0, 255]))
+        git(biner_hdr, "add", "-A")
+        rc, out = jalan(biner_hdr, ["bash", SKRIP])
+        periksa("header kunci tunggal di biner terlacak "
+                "tertangkap (Audit 2002)",
+                rc != 0 and "biner-hdr.bin" in out)
+        shutil.rmtree(biner_hdr, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

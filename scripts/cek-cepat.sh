@@ -77,6 +77,25 @@ POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Za-z0-9[:blank:]]*PRIVATE KEY-----|$POL
 # (diterima — label asli tak pernah berstrip).
 POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN([A-Za-z0-9_]|--+){0,200}PRIVATE([A-Za-z0-9_]|--+){0,200}KEY[A-Za-z0-9_-]{0,200}-----[A-Za-z0-9+/=]{16,}"
 RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | sort -u || true)"
+# Audit 2002: header kunci TUNGGAL (tanpa badan
+# base64) di berkas biner terlacak dulu lolos
+# semua fase: pola rahasia menuntut badan, fase
+# bungkus menuntut ekor base64, dan git grep -I
+# melewatkan biner. Grep header-saja dengan -a
+# (indeks + pohon kerja) menutupnya.
+KANDIDAT_HDR="$( { git -c core.quotepath=false grep --cached -a -l -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; } | sort -u || true)"
+RAHASIA_HDR=""
+while IFS= read -r f_hdr; do
+  [ -n "$f_hdr" ] || continue
+  if [ -f "$f_hdr" ] && head -c 8000 "$f_hdr" 2>/dev/null | od -An -tx1 2>/dev/null | grep -q ' 00'; then
+    RAHASIA_HDR="$(printf '%s\n%s' "$RAHASIA_HDR" "$f_hdr")"
+  fi
+done <<EOF_HDR
+$KANDIDAT_HDR
+EOF_HDR
+if [ -n "$RAHASIA_HDR" ]; then
+  RAHASIA="$(printf '%s\n%s\n' "$RAHASIA" "$RAHASIA_HDR" | sed '/^$/d' | sort -u || true)"
+fi
 # Audit 1458: satu lintasan untuk dua cabang — entri bertanda t:
 # (terlacak) / u: (tak terlacak/terabaikan); berkas u: juga diuji
 # pola per-baris di lintasan yang sama (dulu loop terpisah

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: header kunci tunggal di berkas biner terlacak tertangkap (Audit 2002)
+
+- Pola rahasia menuntut badan dan fase bungkus menuntut ekor base64, sehingga header kunci privat tunggal di berkas biner terlacak lolos semua fase. Ditambah grep header-saja dengan -a (indeks + pohon kerja) yang hasilnya disaring hanya berkas berbau biner (mengandung NUL) - berkas teks sah yang menyebut header (CHANGELOG, TlsCert, skrip ini) tidak ikut tertuduh.
+
 ## [Belum rilis] — Cek-cepat: skrip pindah ke akar repo sebelum memeriksa (Audit 2001)
 
 - Lari dari subdirektori dulu buta terhadap berkas akar dan memicu alarm palsu 'berkas wajib hilang'. Skrip kini cd ke 'git rev-parse --show-toplevel' lebih dulu (bila git sehat).
