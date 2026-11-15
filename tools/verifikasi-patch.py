@@ -5094,29 +5094,83 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1917/1918/1921: cermin perbaikan docker
         # 1916 (wilayah opsi, --interactive, bundel
         # getopt) pada cabang podman.
-        # Audit 2007/2008/2009: cermin docker pada
-        # podman - import '-', build '-f -', dan
-        # load tanpa -i membaca dari stdin (man).
-        for k0_pm, t0_pm in enumerate(mentah):
-            if t0_pm in ("exec", "run"):
-                break
-            if t0_pm == "import":
-                return "-" in mentah[k0_pm + 1:]
-            if t0_pm == "load":
-                sisa_lp = mentah[k0_pm + 1:]
-                return ("-i" not in sisa_lp
-                        and "--input" not in sisa_lp
+        # Audit 2019: cermin 2018 pada podman
+        # (opsi global bernilai: --connection/
+        # --url/--config/--identity/--log-level/
+        # --namespace/--runtime/--root/--runroot).
+        global_pm = {"--connection", "--url",
+                     "--config", "--identity",
+                     "--log-level", "--namespace",
+                     "--runtime", "--root", "--runroot"}
+        j0_pm = 0
+        sub0_pm = None
+        while j0_pm < len(mentah):
+            t0_pm = mentah[j0_pm]
+            if t0_pm in global_pm:
+                j0_pm += 2
+                continue
+            if any(t0_pm.startswith(g + "=")
+                   for g in global_pm):
+                j0_pm += 1
+                continue
+            if t0_pm.startswith("-"):
+                j0_pm += 1
+                continue
+            sub0_pm = j0_pm
+            break
+        if sub0_pm is not None:
+            nama_pm = mentah[sub0_pm]
+            sisa_pm = mentah[sub0_pm + 1:]
+            if nama_pm == "import":
+                return "-" in sisa_pm
+            if nama_pm == "load":
+                return ("-i" not in sisa_pm
+                        and "--input" not in sisa_pm
                         and not any(x.startswith("--input=")
-                                    for x in sisa_lp))
-            if t0_pm == "build":
-                sisa_bp = mentah[k0_pm + 1:]
-                for k3_pm, t3_pm in enumerate(sisa_bp):
-                    if (t3_pm in ("-f", "--file")
-                            and k3_pm + 1 < len(sisa_bp)
-                            and sisa_bp[k3_pm + 1] == "-"):
+                                    for x in sisa_pm))
+            if nama_pm == "machine":
+                # Audit 2020: machine ssh = sesi
+                # interaktif ke mesin podman (man).
+                return bool(sisa_pm) and sisa_pm[0] == "ssh"
+            if nama_pm == "build":
+                nilai_bp = {"-f", "--file", "-t",
+                            "--tag", "--build-arg",
+                            "--label", "--network",
+                            "--target", "--platform",
+                            "--output", "-o", "--cache-from",
+                            "--cache-to", "--secret",
+                            "--ssh", "--add-host",
+                            "--progress", "--iidfile",
+                            "--metadata-file"}
+                j_bp = 0
+                while j_bp < len(sisa_pm):
+                    t_bp = sisa_pm[j_bp]
+                    if t_bp in ("-f", "--file"):
+                        if (j_bp + 1 < len(sisa_pm)
+                                and sisa_pm[j_bp + 1] == "-"):
+                            return True
+                        j_bp += 2
+                        continue
+                    if t_bp in nilai_bp:
+                        j_bp += 2
+                        continue
+                    if any(t_bp.startswith(v + "=")
+                           for v in nilai_bp):
+                        j_bp += 1
+                        continue
+                    if t_bp == "--file=-":
                         return True
-                    if t3_pm == "--file=-":
+                    if (t_bp.startswith("-f")
+                            and len(t_bp) > 2
+                            and t_bp[2:].lstrip("=") == "-"):
                         return True
+                    if (t_bp in ("-f", "--file")
+                            and j_bp + 1 < len(sisa_pm)
+                            and sisa_pm[j_bp + 1] == "-"):
+                        return True
+                    j_bp += 1
+                return False
+            if nama_pm not in ("exec", "run"):
                 return False
         sub_pm = None
         for k_pm, t_pm in enumerate(mentah):

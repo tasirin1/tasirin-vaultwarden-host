@@ -24243,6 +24243,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("load sebagai nilai --format bukan sub: gerbang lolos (Audit 2018)", rc == 0)
         shutil.rmtree(sub1137, ignore_errors=True)
+        sub1138 = klon(tmp, "sub1138")
+        berkas_aksi1138 = os.path.join(
+            sub1138, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1138, encoding="utf-8") as f:
+            isi_aksi1138 = f.read()
+        baris_aksi1138 = [b for b in isi_aksi1138.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1138 = isi_aksi1138.replace(
+                baris_aksi1138,
+                baris_aksi1138.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(podman machine ssh; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1138 != isi_aksi1138, \
+            "suntikan aksi1138 tidak menembak"
+        with open(berkas_aksi1138, "w", encoding="utf-8") as f:
+            f.write(isi_baru1138)
+        rc, out = jalan(sub1138,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("podman machine ssh sesi interaktif: gerbang gagal (Audit 2020)", rc != 0)
+        shutil.rmtree(sub1138, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sub podman sadar nilai global dan machine ssh dinilai (Audit 2019-2020)
+
+- Cermin perbaikan docker pada podman (Audit 2019) dan 'podman machine ssh' kini dinilai sebagai sesi interaktif pembaca stdin (Audit 2020).
+
 ## [Belum rilis] — Gerbang: sub docker ditentukan sadar nilai opsi global (Audit 2018)
 
 - Pra-pindai sub docker kini melewatkan nilai opsi global (--config/--context/-H/--host/--log-level): 'docker --config build load' terbaca benar sebagai load dari stdin, 'docker ps --format load' tidak lagi tertuduh, dan konteks '-' pada build hanya dihitung di posisi operand (Audit 2018, 2026; bentuk merekat '-f-' ikut dinilai, Audit 2021).
