@@ -5537,9 +5537,19 @@ def _menguras_khusus(perintah, toks, awal):
         ops_ba = _operand_sesudah_opsi(toks, awal, set())
         if "\x00gantung" in ops_ba:
             return False
+        # Audit 2010: '-f -' pada bud/build berarti
+        # Containerfile dibaca dari stdin (man).
+        fstdin_ba = False
+        for k_ba, t_ba in enumerate(mentah):
+            if (t_ba in ("-f", "--file")
+                    and k_ba + 1 < len(mentah)
+                    and mentah[k_ba + 1] == "-"):
+                fstdin_ba = True
+            if t_ba == "--file=-":
+                fstdin_ba = True
         return (bool(ops_ba)
                 and ops_ba[0] in ("build", "bud")
-                and "--stdin" in mentah)
+                and ("--stdin" in mentah or fstdin_ba))
     if perintah == "skopeo":
         # Audit 1938: copy dari docker-archive:/dev/stdin
         # membaca aliran stdin (containers-transports(5)).

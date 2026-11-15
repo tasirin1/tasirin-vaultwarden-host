@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: buildah bud/build '-f -' dinilai membaca stdin (Audit 2010)
+
+- Cabang buildah hanya menilai token --stdin; man buildah-bud menegaskan '-f -' berarti Containerfile dibaca dari stdin - kini ikut dinilai.
+
 ## [Belum rilis] — Gerbang: podman import/build/load dari stdin dinilai (Audit 2007-2009)
 
 - Cermin docker pada podman menurut halaman man: import '-' True; build '-f -' True; load tanpa -i True (bawaan membaca stdin).
