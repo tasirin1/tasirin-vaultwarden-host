@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: minikube ssh dinilai sesi interaktif (Audit 2013)
+
+- Nama baru minikube: sub-perintah ssh True (sesi SSH interaktif; DUGAAN kuat).
+
 ## [Belum rilis] — Gerbang: vagrant ssh dinilai sesi interaktif (Audit 2012)
 
 - Nama baru vagrant: sub-perintah ssh True (sesi SSH interaktif, kelas sama ssh polos; DUGAAN kuat berbasis dokumentasi HashiCorp).
