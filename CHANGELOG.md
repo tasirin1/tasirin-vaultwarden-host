@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: entr dinilai - daftar berkas dari stdin (Audit 2070)
+
+- entr kini dinilai: daftar berkas yang diawasinya dibaca dari stdin (man entr), selalu menguras.
+
 ## [Belum rilis] — Gerbang: GNU parallel dinilai - membangun perintah dari stdin (Audit 2069)
 
 - parallel kini dinilai: ia membangun baris perintah dari stdin (parallel(1)); argumen ':::' atau berkas -a/--arg-file menggantikan stdin.

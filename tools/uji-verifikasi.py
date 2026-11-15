@@ -25041,6 +25041,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("GNU parallel membangun perintah dari stdin: gerbang gagal (Audit 2069)", rc != 0)
         shutil.rmtree(sub1175, ignore_errors=True)
+        sub1176 = klon(tmp, "sub1176")
+        berkas_aksi1176 = os.path.join(
+            sub1176, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1176, encoding="utf-8") as f:
+            isi_aksi1176 = f.read()
+        baris_aksi1176 = [b for b in isi_aksi1176.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1176 = isi_aksi1176.replace(
+                baris_aksi1176,
+                baris_aksi1176.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(entr make; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1176 != isi_aksi1176, \
+            "suntikan aksi1176 tidak menembak"
+        with open(berkas_aksi1176, "w", encoding="utf-8") as f:
+            f.write(isi_baru1176)
+        rc, out = jalan(sub1176,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("entr membaca daftar berkas dari stdin: gerbang gagal (Audit 2070)", rc != 0)
+        shutil.rmtree(sub1176, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
