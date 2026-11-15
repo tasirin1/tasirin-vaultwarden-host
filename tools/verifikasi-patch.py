@@ -6128,8 +6128,17 @@ def _menguras_khusus(perintah, toks, awal):
         # HashiCorp). Audit 2025: argumen sesudah
         # '--' diteruskan ke ssh - '-n' di sana
         # mengalihkan stdin dari /dev/null.
-        if "-h" in mentah:
-            return False
+        # Audit 2046: -h yang duduk sebagai NILAI
+        # -c/--command bukan bantuan - pindai
+        # sadar nilai.
+        j_vg = 0
+        while j_vg < len(mentah):
+            if mentah[j_vg] in ("-c", "--command"):
+                j_vg += 2
+                continue
+            if mentah[j_vg] == "-h":
+                return False
+            j_vg += 1
         ops_vg = _operand_sesudah_opsi(toks, awal, set())
         if not ops_vg or ops_vg[0] != "ssh":
             return False

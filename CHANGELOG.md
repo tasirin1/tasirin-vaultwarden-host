@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: vagrant - cek -h sadar nilai --command (Audit 2046)
+
+- Pindai -h pada vagrant kini sadar nilai: '-h' yang duduk sebagai nilai -c/--command bukan bantuan, sehingga 'vagrant ssh --command -h' dinilai benar sebagai sesi SSH pembaca stdin.
+
 ## [Belum rilis] — Gerbang: minikube - opsi warisan bernilai dilengkapi (Audit 2045)
 
 - Himpunan opsi bernilai minikube ditambah opsi warisan resmi halaman minikube ssh: -b/--bootstrapper, --user, --log_dir.

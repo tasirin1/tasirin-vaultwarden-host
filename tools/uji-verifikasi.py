@@ -24705,6 +24705,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi warisan minikube --user bernilai: gerbang gagal (Audit 2045)", rc != 0)
         shutil.rmtree(sub1159, ignore_errors=True)
+        sub1160 = klon(tmp, "sub1160")
+        berkas_aksi1160 = os.path.join(
+            sub1160, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1160, encoding="utf-8") as f:
+            isi_aksi1160 = f.read()
+        baris_aksi1160 = [b for b in isi_aksi1160.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1160 = isi_aksi1160.replace(
+                baris_aksi1160,
+                baris_aksi1160.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(vagrant ssh --command -h; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1160 != isi_aksi1160, \
+            "suntikan aksi1160 tidak menembak"
+        with open(berkas_aksi1160, "w", encoding="utf-8") as f:
+            f.write(isi_baru1160)
+        rc, out = jalan(sub1160,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-h nilai --command vagrant bukan bantuan: gerbang gagal (Audit 2046)", rc != 0)
+        shutil.rmtree(sub1160, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
