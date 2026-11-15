@@ -5004,6 +5004,19 @@ def _menguras_khusus(perintah, toks, awal):
             # perintah seperti bentuk panjangnya.
             if t0_dk in ("-h", "-v"):
                 return False
+            # Audit 2092: bundel yang memuat h/v
+            # di antara huruf bool murni juga
+            # informasional ('-vD', '-Dv',
+            # '-v=true') - pflag mengurai bundel
+            # huruf demi huruf.
+            badan_dk = t0_dk[1:].split("=")[0]
+            if (len(t0_dk) > 2 and t0_dk[1] != "-"
+                    and badan_dk
+                    and all(ch in "Dhv"
+                            for ch in badan_dk)
+                    and any(ch in "hv"
+                            for ch in badan_dk)):
+                return False
             # Audit 2080: bundel huruf pendek
             # bool+nilai ('-Dc') diurai - huruf
             # terakhir bernilai menelan token

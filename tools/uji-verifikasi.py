@@ -25482,6 +25482,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("'-' mawk teks program: gerbang lolos (Audit 2090)", rc == 0)
         shutil.rmtree(sub1196, ignore_errors=True)
+        sub1197 = klon(tmp, "sub1197")
+        berkas_aksi1197 = os.path.join(
+            sub1197, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1197, encoding="utf-8") as f:
+            isi_aksi1197 = f.read()
+        baris_aksi1197 = [b for b in isi_aksi1197.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1197 = isi_aksi1197.replace(
+                baris_aksi1197,
+                baris_aksi1197.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(docker -vD load; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1197 != isi_aksi1197, \
+            "suntikan aksi1197 tidak menembak"
+        with open(berkas_aksi1197, "w", encoding="utf-8") as f:
+            f.write(isi_baru1197)
+        rc, out = jalan(sub1197,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel -vD docker informasional: gerbang lolos (Audit 2092)", rc == 0)
+        shutil.rmtree(sub1197, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: docker - bundel informasional '-vD' ikut dipegang (Audit 2092)
+
+- Pindai sub docker kini memegang bundel huruf bool murni yang memuat h/v ('-vD', '-Dv', '-v=true') sebagai informasional, mengikuti penguraian bundel pflag.
+
 ## [Belum rilis] — Gerbang: awk - '-' operand pertama adalah teks program (Audit 2090)
 
 - Penilai keluarga skrip kini menolak operand pertama '-' untuk awk: itu teks program, bukan stdin (terprobe mawk keluar tanpa menguras).
