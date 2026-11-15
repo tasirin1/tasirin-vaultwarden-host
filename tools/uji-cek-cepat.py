@@ -935,6 +935,12 @@ def main():
                 "jendela geser (Audit 1967)",
                 rc != 0 and "pola rahasia" in out)
         shutil.rmtree(jendela_besar, ignore_errors=True)
+        subdir_lari = klon(tmp, "subdirlari")
+        rc, out = jalan(subdir_lari + "/tools",
+                        ["bash", "../scripts/cek-cepat.sh"])
+        periksa("lari dari subdirektori setara akar "
+                "(Audit 2001)", rc == 0)
+        shutil.rmtree(subdir_lari, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

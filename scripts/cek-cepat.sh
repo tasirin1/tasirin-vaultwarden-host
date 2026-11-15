@@ -10,6 +10,14 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1 || ! git ls-files >/dev
   gagal_msg "git tak bisa dipakai di sini - cek berbasis git (biner terlarang, pola rahasia) tak berjalan, hasil tak bisa dipercaya; jalankan dari clone git yang sehat"
 fi
 
+# Audit 2001: pindah ke akar repo - semua
+# pemeriksaan memakai jalur relatif akar; lari
+# dari subdirektori dulu buta akar dan memicu
+# alarm palsu berkas wajib hilang.
+if AKAR2001="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+  cd "$AKAR2001" || gagal_msg "gagal pindah ke akar repo"
+fi
+
 if rg --version >/dev/null 2>&1; then ADA_RG=1; else ADA_RG=0; fi
 
 if [ "$ADA_RG" = 1 ] && rg --pcre2 -n '' app/src/main/res/drawable >/dev/null 2>&1; then

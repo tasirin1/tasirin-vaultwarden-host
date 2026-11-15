@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: skrip pindah ke akar repo sebelum memeriksa (Audit 2001)
+
+- Lari dari subdirektori dulu buta terhadap berkas akar dan memicu alarm palsu 'berkas wajib hilang'. Skrip kini cd ke 'git rev-parse --show-toplevel' lebih dulu (bila git sehat).
+
 ## [Belum rilis] — Gerbang: R CMD BATCH - dinilai membaca stdin (Audit 2000)
 
 - Skrip BATCH R menjalankan 'R -f ${in}'; infile '-' menjadi 'R -f -' (stdin menurut aturan R). Pengecualian ditambahkan sebelum pengguguran menyeluruh R CMD (Audit 1980).
