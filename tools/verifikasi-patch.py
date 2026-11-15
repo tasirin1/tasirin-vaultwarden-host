@@ -6937,9 +6937,16 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "tsv-summarize":
         # Audit 2123: tanpa berkas ia membaca
         # standard input (dok resmi tsv-utils).
+        # Audit 2136: operasi resmi tsv-summarize
+        # adalah opsi bernilai field (daftar
+        # operasi di referensi resmi).
         ops_tsm = _operand_sesudah_opsi(
             toks, awal, {"--group-by", "-d",
-                         "--delimiter"})
+                         "--delimiter", "--sum",
+                         "--mean", "--median", "--min",
+                         "--max", "--mode", "--first",
+                         "--last", "--stdev",
+                         "--variance"})
         if "\x00gantung" in ops_tsm:
             return False
         return not ops_tsm or "-" in ops_tsm

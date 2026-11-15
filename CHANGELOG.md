@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-summarize - opsi operasi dilengkapi (Audit 2136)
+
+- Himpunan bernilai tsv-summarize ditambah daftar operasi resmi bernilai field: --sum, --mean, --median, --min, --max, --mode, --first, --last, --stdev, --variance.
+
 ## [Belum rilis] — Gerbang: tsv-join - filter '-' membalik syarat berkas data (Audit 2135)
 
 - Cabang tsv-join kini menilai filter dari stdin: '-f -' menuntut berkas data ada (stdin terpakai sebagai filter); tanpa berkas data ia galat.

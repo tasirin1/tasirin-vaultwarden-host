@@ -26322,6 +26322,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-join filter dari stdin: gerbang gagal (Audit 2135)", rc != 0)
         shutil.rmtree(sub1236, ignore_errors=True)
+        sub1237 = klon(tmp, "sub1237")
+        berkas_aksi1237 = os.path.join(
+            sub1237, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1237, encoding="utf-8") as f:
+            isi_aksi1237 = f.read()
+        baris_aksi1237 = [b for b in isi_aksi1237.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1237 = isi_aksi1237.replace(
+                baris_aksi1237,
+                baris_aksi1237.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize --sum 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1237 != isi_aksi1237, \
+            "suntikan aksi1237 tidak menembak"
+        with open(berkas_aksi1237, "w", encoding="utf-8") as f:
+            f.write(isi_baru1237)
+        rc, out = jalan(sub1237,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("operasi tsv-summarize bernilai: gerbang gagal (Audit 2136)", rc != 0)
+        shutil.rmtree(sub1237, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
