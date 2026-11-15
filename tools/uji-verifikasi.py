@@ -24453,6 +24453,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("mpv '-' membaca media dari stdin: gerbang gagal (Audit 2034)", rc != 0)
         shutil.rmtree(sub1147, ignore_errors=True)
+        sub1148 = klon(tmp, "sub1148")
+        berkas_aksi1148 = os.path.join(
+            sub1148, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1148, encoding="utf-8") as f:
+            isi_aksi1148 = f.read()
+        baris_aksi1148 = [b for b in isi_aksi1148.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1148 = isi_aksi1148.replace(
+                baris_aksi1148,
+                baris_aksi1148.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sox - out.wav; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1148 != isi_aksi1148, \
+            "suntikan aksi1148 tidak menembak"
+        with open(berkas_aksi1148, "w", encoding="utf-8") as f:
+            f.write(isi_baru1148)
+        rc, out = jalan(sub1148,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sox '-' masukan adalah stdin: gerbang gagal (Audit 2035)", rc != 0)
+        shutil.rmtree(sub1148, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
