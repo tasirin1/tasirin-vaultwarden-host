@@ -25641,7 +25641,7 @@ def main():
                 baris_aksi1204,
                 baris_aksi1204.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tsv-select; cat >> \"$GITHUB_OUTPUT\")"), 1)
+                    "> >(tsv-select -f 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
         assert isi_baru1204 != isi_aksi1204, \
             "suntikan aksi1204 tidak menembak"
         with open(berkas_aksi1204, "w", encoding="utf-8") as f:
@@ -25902,6 +25902,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--rest tsv-select bernilai: gerbang gagal (Audit 2112)", rc != 0)
         shutil.rmtree(sub1216, ignore_errors=True)
+        sub1217 = klon(tmp, "sub1217")
+        berkas_aksi1217 = os.path.join(
+            sub1217, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1217, encoding="utf-8") as f:
+            isi_aksi1217 = f.read()
+        baris_aksi1217 = [b for b in isi_aksi1217.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1217 = isi_aksi1217.replace(
+                baris_aksi1217,
+                baris_aksi1217.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-select; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1217 != isi_aksi1217, \
+            "suntikan aksi1217 tidak menembak"
+        with open(berkas_aksi1217, "w", encoding="utf-8") as f:
+            f.write(isi_baru1217)
+        rc, out = jalan(sub1217,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-select tanpa -f/-e galat: gerbang lolos (Audit 2113)", rc == 0)
+        shutil.rmtree(sub1217, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

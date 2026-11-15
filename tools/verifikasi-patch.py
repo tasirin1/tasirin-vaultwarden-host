@@ -6762,6 +6762,24 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2100: tanpa argumen berkas ia
         # membaca standard input (dok resmi
         # tsv-utils).
+        # Audit 2113 (koreksi 2100): -f/--fields
+        # atau -e/--exclude WAJIB - sumber
+        # tsv-select.d menegakkan 'One of
+        # --f|fields or --e|exclude is required.'
+        ada_pilih = False
+        for t_ts in mentah:
+            if t_ts in ("-f", "--fields", "-e",
+                        "--exclude"):
+                ada_pilih = True
+            elif t_ts.startswith(("--fields=",
+                                   "--exclude=")):
+                ada_pilih = True
+            elif (len(t_ts) > 2 and t_ts[0] == "-"
+                  and not t_ts.startswith("--")
+                  and t_ts[1] in "fe"):
+                ada_pilih = True
+        if not ada_pilih:
+            return False
         # Audit 2111: --exclude/-e bernilai ikut
         # dilengkapi (referensi tsv-utils).
         ops_ts = _operand_sesudah_opsi(
