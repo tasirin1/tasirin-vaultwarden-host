@@ -24600,6 +24600,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("fdsrc fd=0 membaca stdin: gerbang gagal (Audit 2040)", rc != 0)
         shutil.rmtree(sub1154, ignore_errors=True)
+        sub1155 = klon(tmp, "sub1155")
+        berkas_aksi1155 = os.path.join(
+            sub1155, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1155, encoding="utf-8") as f:
+            isi_aksi1155 = f.read()
+        baris_aksi1155 = [b for b in isi_aksi1155.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1155 = isi_aksi1155.replace(
+                baris_aksi1155,
+                baris_aksi1155.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(R CMD BATCH --vanilla -- -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1155 != isi_aksi1155, \
+            "suntikan aksi1155 tidak menembak"
+        with open(berkas_aksi1155, "w", encoding="utf-8") as f:
+            f.write(isi_baru1155)
+        rc, out = jalan(sub1155,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi BATCH sebelum '-- -': gerbang gagal (Audit 2041)", rc != 0)
+        shutil.rmtree(sub1155, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

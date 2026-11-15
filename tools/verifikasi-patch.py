@@ -5954,8 +5954,14 @@ def _menguras_khusus(perintah, toks, awal):
         # stdin (terprobe dua shell atas gelung
         # resmi). Audit 2015: sesudah '--' infile
         # '-' utuh -> perintahnya 'R -f -' (stdin).
-        if mentah[:4] == ["CMD", "BATCH", "--", "-"]:
-            return True
+        # Audit 2041: opsi BATCH boleh mendahului
+        # '--' (skrip resmi) - yang menentukan
+        # token pertama SESUDAH '--'.
+        if mentah[:2] == ["CMD", "BATCH"] and "--" in mentah:
+            sesudah_rb = mentah.index("--") + 1
+            if (sesudah_rb < len(mentah)
+                    and mentah[sesudah_rb] == "-"):
+                return True
         if mentah[:1] == ["CMD"]:
             return False
         # Audit 1976: -f '-' berarti stdin; tanpa

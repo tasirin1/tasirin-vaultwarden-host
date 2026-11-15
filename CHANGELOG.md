@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: R CMD BATCH - opsi boleh mendahului '-- -' (Audit 2041)
+
+- Pola posisi persis Audit 2015 dilonggarkan mengikuti skrip BATCH resmi: opsi BATCH boleh mendahului '--', yang menentukan adalah token pertama sesudah '--' ('R CMD BATCH --vanilla -- -' = 'R -f -').
+
 ## [Belum rilis] — Cek-cepat: saringan biner header - jendela lebar, isi indeks, od lumpuh (Audit 2030-2032)
 
 - Saringan biner untuk header kunci tunggal diperkuat tiga arah: jendela uji NUL diperlebar dari 8000 byte ke 16 MB (Audit 2030), kandidat dari indeks diuji dari isi indeks juga (Audit 2031), dan od yang hilang atau keluarannya kosong membuat kandidat dianggap biner, bukan mati diam-diam (Audit 2032).
