@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: exiftool dinilai - operand '-' membaca stdin (Audit 2086)
+
+- exiftool kini dinilai: operand '-' membaca stdin (dok resmi); tanpa operand ia menunggu nama berkas.
+
 ## [Belum rilis] — Gerbang: parallel - modus --semaphore dari argv (Audit 2085)
 
 - Cabang parallel menolak modus --semaphore: perintahnya datang dari argv, stdin bukan sumber masukan (parallel(1)).
