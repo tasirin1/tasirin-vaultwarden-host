@@ -26952,6 +26952,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv stats cache-threshold bernilai: gerbang gagal (Audit 2169)", rc != 0)
         shutil.rmtree(sub1266, ignore_errors=True)
+        sub1267 = klon(tmp, "sub1267")
+        berkas_aksi1267 = os.path.join(
+            sub1267, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1267, encoding="utf-8") as f:
+            isi_aksi1267 = f.read()
+        baris_aksi1267 = [b for b in isi_aksi1267.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1267 = isi_aksi1267.replace(
+                baris_aksi1267,
+                baris_aksi1267.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv headers -d ';'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1267 != isi_aksi1267, \
+            "suntikan aksi1267 tidak menembak"
+        with open(berkas_aksi1267, "w", encoding="utf-8") as f:
+            f.write(isi_baru1267)
+        rc, out = jalan(sub1267,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv headers delimiter bernilai: gerbang gagal (Audit 2170)", rc != 0)
+        shutil.rmtree(sub1267, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

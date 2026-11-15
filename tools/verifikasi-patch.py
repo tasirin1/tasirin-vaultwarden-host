@@ -6827,7 +6827,8 @@ def _menguras_khusus(perintah, toks, awal):
         # dukungan masukan diperluas).
         if mentah and mentah[0] == "headers":
             ops_qh = _operand_sesudah_opsi(
-                toks, awal + 1, set())
+                toks, awal + 1,
+                {"-d", "--delimiter"})
             if "\x00gantung" in ops_qh:
                 return False
             return not ops_qh or "-" in ops_qh

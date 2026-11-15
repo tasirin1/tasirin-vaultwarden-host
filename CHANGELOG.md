@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv headers - delimiter dinilai (Audit 2170)
+
+- Cabang qsv headers kini memakai himpunan bernilai {-d, --delimiter} (headers.rs).
+
 ## [Belum rilis] — Gerbang: qsv stats - cache-threshold ditambah (Audit 2169)
 
 - Himpunan bernilai qsv stats ditambah -c/--cache-threshold (USAGE stats.rs 0.128.0).
