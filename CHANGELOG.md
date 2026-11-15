@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub select membaca stdin (Audit 2179)
+
+- Cabang qsv ditambah sub select: operand pertama pilihan kolom, masukan kedua (select.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub sort membaca stdin (Audit 2178)
 
 - Cabang qsv ditambah sub sort: masukan [<input>] opsional (sort.rs).

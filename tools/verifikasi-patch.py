@@ -6844,6 +6844,18 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_qso
                     or all(o == "-" for o in ops_qso))
+        # Audit 2179: sub 'select' qsv - operand
+        # pertama pilihan kolom, masukan kedua
+        # (select.rs).
+        if mentah and mentah[0] == "select":
+            ops_qse = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-o", "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qse:
+                return False
+            return (len(ops_qse) == 1
+                    or (len(ops_qse) >= 2
+                        and ops_qse[1] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
