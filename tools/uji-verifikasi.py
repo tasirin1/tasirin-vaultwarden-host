@@ -24915,6 +24915,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("alias -c docker bernilai: gerbang gagal (Audit 2059)", rc != 0)
         shutil.rmtree(sub1169, ignore_errors=True)
+        sub1170 = klon(tmp, "sub1170")
+        berkas_aksi1170 = os.path.join(
+            sub1170, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1170, encoding="utf-8") as f:
+            isi_aksi1170 = f.read()
+        baris_aksi1170 = [b for b in isi_aksi1170.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1170 = isi_aksi1170.replace(
+                baris_aksi1170,
+                baris_aksi1170.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(podman --conmon /x load; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1170 != isi_aksi1170, \
+            "suntikan aksi1170 tidak menembak"
+        with open(berkas_aksi1170, "w", encoding="utf-8") as f:
+            f.write(isi_baru1170)
+        rc, out = jalan(sub1170,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi global podman --conmon bernilai: gerbang gagal (Audit 2060)", rc != 0)
+        shutil.rmtree(sub1170, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

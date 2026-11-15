@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: podman - 11 opsi global bernilai dilengkapi (Audit 2060)
+
+- Himpunan opsi global bernilai podman ditambah -c, --conmon, --hooks-dir, --imagestore, --module, --network-cmd-path, --network-config-dir, --out, --runtime-flag, --ssh, --cdi-spec-dir (indeks GLOBAL OPTIONS podman(1)).
+
 ## [Belum rilis] — Gerbang: docker - alias -c untuk --context dilengkapi (Audit 2059)
 
 - Himpunan opsi global bernilai docker ditambah alias -c (tabel resmi mencantumkan '-c, --context') sehingga nilai konteks tak lagi tertukar dengan sub-perintah.

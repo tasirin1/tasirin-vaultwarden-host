@@ -5110,7 +5110,12 @@ def _menguras_khusus(perintah, toks, awal):
                      "--storage-driver",
                      "--cgroup-manager",
                      "--events-backend", "--tmpdir",
-                     "--storage-opt"}
+                     "--storage-opt", "-c", "--conmon",
+                     "--hooks-dir", "--imagestore",
+                     "--module", "--network-cmd-path",
+                     "--network-config-dir", "--out",
+                     "--runtime-flag", "--ssh",
+                     "--cdi-spec-dir"}
         j0_pm = 0
         sub0_pm = None
         while j0_pm < len(mentah):
