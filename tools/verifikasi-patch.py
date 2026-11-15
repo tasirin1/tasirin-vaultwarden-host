@@ -6816,7 +6816,8 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, awal + 1,
                 {"-o", "--output", "-s", "--select",
                  "--round", "--dates-whitelist", "-j",
-                 "--jobs", "-d", "--delimiter"})
+                 "--jobs", "-d", "--delimiter", "-c",
+                 "--cache-threshold"})
             if "\x00gantung" in ops_qst:
                 return False
             return (not ops_qst

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv stats - cache-threshold ditambah (Audit 2169)
+
+- Himpunan bernilai qsv stats ditambah -c/--cache-threshold (USAGE stats.rs 0.128.0).
+
 ## [Belum rilis] — Gerbang: xsv sort - '-r' kecil ditolak (Audit 2168)
 
 - Cabang xsv sort kini menolak token '-r': sort.rs hanya mengenal -R, --reverse.
