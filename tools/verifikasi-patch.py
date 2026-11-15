@@ -6082,8 +6082,20 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2012: vagrant ssh adalah sesi SSH
         # interaktif (meneruskan stdin seperti ssh
         # polos; dokumentasi HashiCorp, DUGAAN).
+        # Audit 2024: -h adalah bantuan (dok
+        # HashiCorp). Audit 2025: argumen sesudah
+        # '--' diteruskan ke ssh - '-n' di sana
+        # mengalihkan stdin dari /dev/null.
+        if "-h" in mentah:
+            return False
         ops_vg = _operand_sesudah_opsi(toks, awal, set())
-        return bool(ops_vg) and ops_vg[0] == "ssh"
+        if not ops_vg or ops_vg[0] != "ssh":
+            return False
+        if "--" in mentah:
+            sesudah_vg = mentah[mentah.index("--") + 1:]
+            if "-n" in sesudah_vg:
+                return False
+        return True
     if perintah == "minikube":
         # Audit 2013: minikube ssh adalah sesi SSH
         # interaktif (kelas sama vagrant ssh/ssh;

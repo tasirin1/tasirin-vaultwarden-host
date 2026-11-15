@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: vagrant ssh -h bantuan dan penerusan '--' ke ssh (Audit 2024-2025)
+
+- 'vagrant ssh -h' kini bantuan (Audit 2024), dan argumen sesudah '--' yang diteruskan ke ssh dikenali: '-n' di sana mengalihkan stdin dari /dev/null (Audit 2025).
+
 ## [Belum rilis] — Gerbang: minikube -p/--profile bernilai dan -h bantuan (Audit 2022-2023)
 
 - Opsi warisan minikube -p/--profile kini tertelan sebagai opsi bernilai sehingga 'minikube -p profil ssh' terbaca benar (Audit 2022), dan '-h' dikenali sebagai bantuan (Audit 2023).
