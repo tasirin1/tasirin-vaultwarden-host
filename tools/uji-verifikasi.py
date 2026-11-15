@@ -25083,6 +25083,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("pv tanpa operand membaca stdin: gerbang gagal (Audit 2071)", rc != 0)
         shutil.rmtree(sub1177, ignore_errors=True)
+        sub1179 = klon(tmp, "sub1179")
+        berkas_aksi1179 = os.path.join(
+            sub1179, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1179, encoding="utf-8") as f:
+            isi_aksi1179 = f.read()
+        baris_aksi1179 = [b for b in isi_aksi1179.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1179 = isi_aksi1179.replace(
+                baris_aksi1179,
+                baris_aksi1179.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(rev -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1179 != isi_aksi1179, \
+            "suntikan aksi1179 tidak menembak"
+        with open(berkas_aksi1179, "w", encoding="utf-8") as f:
+            f.write(isi_baru1179)
+        rc, out = jalan(sub1179,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'-' bagi rev nama berkas harfiah: gerbang lolos (Audit 2073)", rc == 0)
+        shutil.rmtree(sub1179, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

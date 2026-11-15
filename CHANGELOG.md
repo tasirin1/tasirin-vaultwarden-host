@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: rev - '-' adalah nama berkas, bukan stdin (Audit 2073)
+
+- rev keluar dari himpunan pembaca polos ke cabang khusus: '-' baginya nama berkas harfiah (terprobe membuka berkas '-'), hanya bentuk tanpa operand yang membaca stdin.
+
 ## [Belum rilis] — Gerbang: pv dinilai - membaca stdin tanpa operand berkas (Audit 2071)
 
 - pv kini dinilai: tanpa operand berkas (atau operand '-') ia membaca stdin (pv(1)).
