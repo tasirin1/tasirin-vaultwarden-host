@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xonsh - '-D' terpisah bernilai dilewatkan (Audit 2095)
+
+- Gelung xonsh kini melewatkan nilai -D terpisah (xonsh(1) '[-D ITEM]'); bentuk menggantung tertolak.
+
 ## [Belum rilis] — Gerbang: parallel - --semaphore hanya modus sebelum perintah (Audit 2094)
 
 - Penjaga --semaphore kini sadar posisi: hanya modus bila duduk sebelum token perintah pertama; sesudah perintah ia argumen biasa dan parallel menilai normal (menguras).

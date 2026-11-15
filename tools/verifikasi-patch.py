@@ -6540,6 +6540,14 @@ def _menguras_khusus(perintah, toks, awal):
         k_xn = 0
         while k_xn < len(mentah):
             t_xn = mentah[k_xn]
+            # Audit 2095: -D terpisah juga bernilai
+            # (xonsh(1) '[-D ITEM]') - definisinya
+            # dilewatkan, bukan skrip.
+            if t_xn == "-D":
+                if k_xn + 1 >= len(mentah):
+                    return False
+                k_xn += 2
+                continue
             # Audit 2083: -st/--shell-type bernilai
             # (xonsh(1)) - nilainya dilewatkan.
             if t_xn in ("-st", "--shell-type"):
