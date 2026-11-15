@@ -24390,6 +24390,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--stdin sebagai nilai --label buildah: gerbang lolos (Audit 2027)", rc == 0)
         shutil.rmtree(sub1144, ignore_errors=True)
+        sub1145 = klon(tmp, "sub1145")
+        berkas_aksi1145 = os.path.join(
+            sub1145, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1145, encoding="utf-8") as f:
+            isi_aksi1145 = f.read()
+        baris_aksi1145 = [b for b in isi_aksi1145.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1145 = isi_aksi1145.replace(
+                baris_aksi1145,
+                baris_aksi1145.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ffmpeg -i berkas.mp4 out.mp4; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1145 != isi_aksi1145, \
+            "suntikan aksi1145 tidak menembak"
+        with open(berkas_aksi1145, "w", encoding="utf-8") as f:
+            f.write(isi_baru1145)
+        rc, out = jalan(sub1145,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("interaksi stdin ffmpeg bawaan aktif: gerbang gagal (Audit 2033)", rc != 0)
+        shutil.rmtree(sub1145, ignore_errors=True)
+        sub1146 = klon(tmp, "sub1146")
+        berkas_aksi1146 = os.path.join(
+            sub1146, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1146, encoding="utf-8") as f:
+            isi_aksi1146 = f.read()
+        baris_aksi1146 = [b for b in isi_aksi1146.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1146 = isi_aksi1146.replace(
+                baris_aksi1146,
+                baris_aksi1146.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ffmpeg -nostdin -i berkas.mp4 out.mp4; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1146 != isi_aksi1146, \
+            "suntikan aksi1146 tidak menembak"
+        with open(berkas_aksi1146, "w", encoding="utf-8") as f:
+            f.write(isi_baru1146)
+        rc, out = jalan(sub1146,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-nostdin ffmpeg menekan interaksi: gerbang lolos (Audit 2033)", rc == 0)
+        shutil.rmtree(sub1146, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

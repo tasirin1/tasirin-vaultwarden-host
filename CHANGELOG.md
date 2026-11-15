@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ffmpeg - interaksi stdin bawaan dinilai (Audit 2033)
+
+- ffmpeg membaca perintah dari stdin secara bawaan (opsi -stdin aktif kecuali dimatikan -nostdin), jadi bentuk masukan berkas biasa kini dinilai menguras; '-nostdin' tepat lolos (Audit 2033).
+
 ## [Belum rilis] — Gerbang: buildah - pindai --stdin dan -f sadar nilai (Audit 2027)
 
 - Pindai buildah kini sadar nilai: '--stdin' yang duduk sebagai nilai --label tidak lagi tertuduh (Audit 2027) dan bentuk merekat '-f-' ikut dinilai (Audit 2021).

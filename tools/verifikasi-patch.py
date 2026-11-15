@@ -6791,7 +6791,12 @@ def _menguras_khusus(perintah, toks, awal):
                                             "pipe:0",
                                             "/dev/stdin"):
                         return True
-            return False
+            # Audit 2033: interaksi stdin ffmpeg
+            # AKTIF secara bawaan (ffmpeg(1) -stdin:
+            # "On by default unless standard input
+            # is used as an input") - tanpa -nostdin
+            # ia membaca perintah dari stdin.
+            return "-nostdin" not in mentah
         ops_ff = _operand_sesudah_opsi(
             toks, awal, {"-i", "-x", "-y", "-volume", "-seek",
                          "-ss", "-t", "-of", "-print_format",
