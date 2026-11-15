@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: guix dinilai - 'guix repl' tanpa berkas dari stdin (Audit 2037)
+
+- 'guix repl' tanpa berkas membaca dari stdin secara bawaan; bentuk --listen (server) tepat lolos (Audit 2037).
+
 ## [Belum rilis] — Gerbang: tesseract dinilai - masukan 'stdin'/'-' dari stdin (Audit 2036)
 
 - tesseract kini dinilai: masukan 'stdin' atau '-' berarti gambar dibaca dari stdin (Audit 2036).

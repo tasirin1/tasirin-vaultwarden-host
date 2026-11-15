@@ -6172,6 +6172,16 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_ts:
             return False
         return bool(ops_ts) and ops_ts[0] in ("stdin", "-")
+    if perintah == "guix":
+        # Audit 2037: 'guix repl' tanpa berkas
+        # membaca dari stdin secara bawaan
+        # (manual Guix); --listen menggantikannya
+        # dengan server (tepat False).
+        if any(t_gx.startswith("--listen")
+               for t_gx in mentah):
+            return False
+        ops_gx = _operand_sesudah_opsi(toks, awal, set())
+        return ops_gx == ["repl"]
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -7769,7 +7779,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "minikube", "mpv", "nano", "nats", "nerdctl", "oc", "pandoc", "pg_restore", "rclone", "restic", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "vagrant", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "guix", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "minikube", "mpv", "nano", "nats", "nerdctl", "oc", "pandoc", "pg_restore", "rclone", "restic", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "vagrant", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
