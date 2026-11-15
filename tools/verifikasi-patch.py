@@ -6832,6 +6832,18 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qh:
                 return False
             return not ops_qh or "-" in ops_qh
+        # Audit 2173: sub 'validate' - masukan
+        # [<input>] opsional; tanpa masukan
+        # membaca stdin (validate.rs).
+        if mentah and mentah[0] == "validate":
+            ops_qv = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--valid", "--invalid", "--valid-output",
+                 "-j", "--jobs", "-b", "--batch",
+                 "--timeout", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qv:
+                return False
+            return not ops_qv or ops_qv[0] == "-"
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "rowskey",
                                   "columns")):

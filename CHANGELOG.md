@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub validate membaca stdin (Audit 2173)
+
+- Cabang qsv ditambah sub validate: masukan [<input>] opsional, tanpa masukan membaca stdin (validate.rs).
+
 ## [Belum rilis] — Gerbang: xsv - sub split membaca stdin (Audit 2172)
 
 - Cabang xsv ditambah sub split: operand pertama direktori keluaran, masukan operand kedua (split.rs).
