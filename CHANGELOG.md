@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvgrep - pencocok pendek merekat terdeteksi (Audit 2120)
+
+- Pendeteksi pencocok csvgrep kini memegang bentuk pendek merekat -rfoo/-mfoo/-fberkas, bukan hanya token persis dan bentuk --panjang=.
+
 ## [Belum rilis] — Gerbang: tsv-append dinilai - tanpa berkas membaca stdin (Audit 2119)
 
 - tsv-append kini dinilai: daftar berkas kosong diganti ['-'] = stdin (sumber tsv-append.d).

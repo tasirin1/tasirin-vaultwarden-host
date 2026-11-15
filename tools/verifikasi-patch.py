@@ -6830,6 +6830,9 @@ def _menguras_khusus(perintah, toks, awal):
             or t_cg.startswith(("--regex=",
                                  "--match=",
                                  "--pattern-file="))
+            or (len(t_cg) > 2
+                and not t_cg.startswith("--")
+                and t_cg[1] in "rmf")
             for t_cg in mentah)
         return ada_c and ada_m and not ops_cg
     if perintah == "csvstat":

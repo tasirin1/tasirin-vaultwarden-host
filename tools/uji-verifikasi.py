@@ -26049,6 +26049,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-append tanpa berkas stdin: gerbang gagal (Audit 2119)", rc != 0)
         shutil.rmtree(sub1223, ignore_errors=True)
+        sub1224 = klon(tmp, "sub1224")
+        berkas_aksi1224 = os.path.join(
+            sub1224, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1224, encoding="utf-8") as f:
+            isi_aksi1224 = f.read()
+        baris_aksi1224 = [b for b in isi_aksi1224.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1224 = isi_aksi1224.replace(
+                baris_aksi1224,
+                baris_aksi1224.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvgrep -c1 -rfoo; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1224 != isi_aksi1224, \
+            "suntikan aksi1224 tidak menembak"
+        with open(berkas_aksi1224, "w", encoding="utf-8") as f:
+            f.write(isi_baru1224)
+        rc, out = jalan(sub1224,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("pencocok csvgrep merekat terdeteksi: gerbang gagal (Audit 2120)", rc != 0)
+        shutil.rmtree(sub1224, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
