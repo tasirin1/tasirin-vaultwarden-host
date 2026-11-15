@@ -7035,6 +7035,18 @@ def _menguras_khusus(perintah, toks, awal):
                  "--filename", "-d", "--delimiter"})
             if "\x00gantung" in ops_xsp:
                 return False
+            # Audit 2176: template --filename wajib
+            # memuat tepat satu '{}'.
+            for i_sp, t_sp in enumerate(mentah):
+                nilai_sp = None
+                if (t_sp == "--filename"
+                        and i_sp + 1 < len(mentah)):
+                    nilai_sp = mentah[i_sp + 1]
+                elif t_sp.startswith("--filename="):
+                    nilai_sp = t_sp.split("=", 1)[1]
+                if (nilai_sp is not None
+                        and nilai_sp.count("{}") != 1):
+                    return False
             return (len(ops_xsp) == 1
                     or (len(ops_xsp) >= 2
                         and ops_xsp[1] == "-"))

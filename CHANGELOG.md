@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv split - template filename divalidasi (Audit 2176)
+
+- Cabang xsv split kini menolak nilai --filename yang tidak memuat tepat satu '{}' (FilenameTemplate).
+
 ## [Belum rilis] — Gerbang: xsv sample - ukuran wajib angka (Audit 2175)
 
 - Cabang xsv sample kini menolak operand pertama yang bukan angka murni (u64 docopt): 'abc'/'5.5'/'-' galat parse.
