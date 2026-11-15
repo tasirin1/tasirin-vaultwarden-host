@@ -6898,6 +6898,18 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qj) == 4
                     and (ops_qj[1] == "-"
                          or ops_qj[3] == "-"))
+        # Audit 2183: sub 'dedup' qsv - masukan
+        # [<input>] opsional (dedup.rs).
+        if mentah and mentah[0] == "dedup":
+            ops_qdd = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--select", "-D", "--dupes-output",
+                 "-j", "--jobs", "-o", "--output", "-d",
+                 "--delimiter"})
+            if "\x00gantung" in ops_qdd:
+                return False
+            return (not ops_qdd
+                    or all(o == "-" for o in ops_qdd))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).

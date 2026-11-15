@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub dedup membaca stdin (Audit 2183)
+
+- Cabang qsv ditambah sub dedup: masukan [<input>] opsional (dedup.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub join membaca stdin lewat strip (Audit 2182)
 
 - Cabang qsv ditambah sub join: empat operand; '-' pada posisi masukan berarti stdin (join.rs).
