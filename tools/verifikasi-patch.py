@@ -5043,6 +5043,30 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1917/1918/1921: cermin perbaikan docker
         # 1916 (wilayah opsi, --interactive, bundel
         # getopt) pada cabang podman.
+        # Audit 2007/2008/2009: cermin docker pada
+        # podman - import '-', build '-f -', dan
+        # load tanpa -i membaca dari stdin (man).
+        for k0_pm, t0_pm in enumerate(mentah):
+            if t0_pm in ("exec", "run"):
+                break
+            if t0_pm == "import":
+                return "-" in mentah[k0_pm + 1:]
+            if t0_pm == "load":
+                sisa_lp = mentah[k0_pm + 1:]
+                return ("-i" not in sisa_lp
+                        and "--input" not in sisa_lp
+                        and not any(x.startswith("--input=")
+                                    for x in sisa_lp))
+            if t0_pm == "build":
+                sisa_bp = mentah[k0_pm + 1:]
+                for k3_pm, t3_pm in enumerate(sisa_bp):
+                    if (t3_pm in ("-f", "--file")
+                            and k3_pm + 1 < len(sisa_bp)
+                            and sisa_bp[k3_pm + 1] == "-"):
+                        return True
+                    if t3_pm == "--file=-":
+                        return True
+                return False
         sub_pm = None
         for k_pm, t_pm in enumerate(mentah):
             if t_pm in ("exec", "run"):

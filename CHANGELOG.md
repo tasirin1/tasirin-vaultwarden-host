@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: podman import/build/load dari stdin dinilai (Audit 2007-2009)
+
+- Cermin docker pada podman menurut halaman man: import '-' True; build '-f -' True; load tanpa -i True (bawaan membaca stdin).
+
 ## [Belum rilis] — Gerbang: docker build/import/load dari stdin dinilai (Audit 2004-2006)
 
 - Cabang docker hanya menilai exec/run. Kini: build dengan konteks '-' atau '-f -' True; import dengan operand '-' True; load tanpa -i/--input True (bawaan membaca stdin) - semua menurut docs.docker.com.

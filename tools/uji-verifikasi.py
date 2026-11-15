@@ -23991,6 +23991,69 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("docker load tanpa -i dari stdin: gerbang gagal (Audit 2006)", rc != 0)
         shutil.rmtree(sub1125, ignore_errors=True)
+        sub1126 = klon(tmp, "sub1126")
+        berkas_aksi1126 = os.path.join(
+            sub1126, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1126, encoding="utf-8") as f:
+            isi_aksi1126 = f.read()
+        baris_aksi1126 = [b for b in isi_aksi1126.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1126 = isi_aksi1126.replace(
+                baris_aksi1126,
+                baris_aksi1126.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(podman import -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1126 != isi_aksi1126, \
+            "suntikan aksi1126 tidak menembak"
+        with open(berkas_aksi1126, "w", encoding="utf-8") as f:
+            f.write(isi_baru1126)
+        rc, out = jalan(sub1126,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("podman import - dari stdin: gerbang gagal (Audit 2007)", rc != 0)
+        shutil.rmtree(sub1126, ignore_errors=True)
+        sub1127 = klon(tmp, "sub1127")
+        berkas_aksi1127 = os.path.join(
+            sub1127, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1127, encoding="utf-8") as f:
+            isi_aksi1127 = f.read()
+        baris_aksi1127 = [b for b in isi_aksi1127.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1127 = isi_aksi1127.replace(
+                baris_aksi1127,
+                baris_aksi1127.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(podman build -f - .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1127 != isi_aksi1127, \
+            "suntikan aksi1127 tidak menembak"
+        with open(berkas_aksi1127, "w", encoding="utf-8") as f:
+            f.write(isi_baru1127)
+        rc, out = jalan(sub1127,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("podman build -f - dari stdin: gerbang gagal (Audit 2008)", rc != 0)
+        shutil.rmtree(sub1127, ignore_errors=True)
+        sub1128 = klon(tmp, "sub1128")
+        berkas_aksi1128 = os.path.join(
+            sub1128, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1128, encoding="utf-8") as f:
+            isi_aksi1128 = f.read()
+        baris_aksi1128 = [b for b in isi_aksi1128.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1128 = isi_aksi1128.replace(
+                baris_aksi1128,
+                baris_aksi1128.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(podman load; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1128 != isi_aksi1128, \
+            "suntikan aksi1128 tidak menembak"
+        with open(berkas_aksi1128, "w", encoding="utf-8") as f:
+            f.write(isi_baru1128)
+        rc, out = jalan(sub1128,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("podman load tanpa -i dari stdin: gerbang gagal (Audit 2009)", rc != 0)
+        shutil.rmtree(sub1128, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
