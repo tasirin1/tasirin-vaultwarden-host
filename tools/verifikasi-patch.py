@@ -5115,7 +5115,9 @@ def _menguras_khusus(perintah, toks, awal):
                      "--module", "--network-cmd-path",
                      "--network-config-dir", "--out",
                      "--runtime-flag", "--ssh",
-                     "--cdi-spec-dir"}
+                     "--cdi-spec-dir", "--tls-ca",
+                     "--tls-cert", "--tls-details",
+                     "--tls-key", "--volumepath"}
         j0_pm = 0
         sub0_pm = None
         while j0_pm < len(mentah):

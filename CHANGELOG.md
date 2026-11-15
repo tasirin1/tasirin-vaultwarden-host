@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: podman - keluarga TLS + --volumepath dilengkapi (Audit 2075)
+
+- Himpunan opsi global bernilai podman ditambah --tls-ca/--tls-cert/--tls-details/--tls-key/--volumepath (podman(1)).
+
 ## [Belum rilis] — CI: batas waktu job verifikasi-cek dinaikkan ke 30 menit (Audit 2074)
 
 - Job verifikasi-cek di build-apk.yml tercancel pada 15 menit karena suite cek-cepat sudah 92 skenario (Audit 1594 memasang 15 saat suite terukur 4:30) - Assemble APK ikut terlewati pada push maraton-126/127. Batas dinaikkan ke 30 menit.

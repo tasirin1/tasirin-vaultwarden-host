@@ -25125,6 +25125,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xonsh terpipa mode script-from-stdin: gerbang gagal (Audit 2072)", rc != 0)
         shutil.rmtree(sub1178, ignore_errors=True)
+        sub1180 = klon(tmp, "sub1180")
+        berkas_aksi1180 = os.path.join(
+            sub1180, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1180, encoding="utf-8") as f:
+            isi_aksi1180 = f.read()
+        baris_aksi1180 = [b for b in isi_aksi1180.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1180 = isi_aksi1180.replace(
+                baris_aksi1180,
+                baris_aksi1180.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(podman --tls-cert cert.pem load; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1180 != isi_aksi1180, \
+            "suntikan aksi1180 tidak menembak"
+        with open(berkas_aksi1180, "w", encoding="utf-8") as f:
+            f.write(isi_baru1180)
+        rc, out = jalan(sub1180,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi TLS global podman bernilai: gerbang gagal (Audit 2075)", rc != 0)
+        shutil.rmtree(sub1180, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
