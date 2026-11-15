@@ -6984,6 +6984,15 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_xsl
                     or all(o == "-" for o in ops_xsl))
+        # Audit 2154: sub 'headers' xsv - daftar
+        # masukan Vec lewat many_configs (kosong
+        # diganti '-'), seperti cat.
+        if mentah and mentah[0] == "headers":
+            ops_xh = _operand_sesudah_opsi(
+                toks, awal + 1, set())
+            if "\x00gantung" in ops_xh:
+                return False
+            return not ops_xh or "-" in ops_xh
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "columns")):
             ops_xs = _operand_sesudah_opsi(

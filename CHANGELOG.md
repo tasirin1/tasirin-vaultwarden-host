@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub headers membaca stdin (Audit 2154)
+
+- Cabang xsv ditambah sub headers: daftar masukan Vec lewat many_configs (kosong diganti '-'), seperti cat.
+
 ## [Belum rilis] — Gerbang: csvsql dinilai - data CSV dari stdin (Audit 2153)
 
 - csvsql kini dinilai: tanpa FILE data CSV dibaca dari STDIN (csvsql(1)); SQL berasal dari --query.
