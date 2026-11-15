@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-select - --rest/-r bernilai dilengkapi (Audit 2112)
+
+- Himpunan tsv-select ditambah -r/--rest ('--r|rest first|last' di referensi resmi).
+
 ## [Belum rilis] — Gerbang: tsv-select - --exclude/-e dilengkapi (Audit 2111)
 
 - Himpunan opsi bernilai tsv-select ditambah -e/--exclude (referensi resmi tsv-utils).

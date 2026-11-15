@@ -25881,6 +25881,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--exclude tsv-select bernilai: gerbang gagal (Audit 2111)", rc != 0)
         shutil.rmtree(sub1215, ignore_errors=True)
+        sub1216 = klon(tmp, "sub1216")
+        berkas_aksi1216 = os.path.join(
+            sub1216, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1216, encoding="utf-8") as f:
+            isi_aksi1216 = f.read()
+        baris_aksi1216 = [b for b in isi_aksi1216.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1216 = isi_aksi1216.replace(
+                baris_aksi1216,
+                baris_aksi1216.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-select -f 1 --rest last; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1216 != isi_aksi1216, \
+            "suntikan aksi1216 tidak menembak"
+        with open(berkas_aksi1216, "w", encoding="utf-8") as f:
+            f.write(isi_baru1216)
+        rc, out = jalan(sub1216,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--rest tsv-select bernilai: gerbang gagal (Audit 2112)", rc != 0)
+        shutil.rmtree(sub1216, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

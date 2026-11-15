@@ -6767,7 +6767,8 @@ def _menguras_khusus(perintah, toks, awal):
         ops_ts = _operand_sesudah_opsi(
             toks, awal, {"-f", "--fields", "-d",
                          "--delimiter", "-e",
-                         "--exclude"})
+                         "--exclude", "-r",
+                         "--rest"})
         if "\x00gantung" in ops_ts:
             return False
         return not ops_ts or "-" in ops_ts
