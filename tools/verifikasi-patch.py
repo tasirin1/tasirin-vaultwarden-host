@@ -6726,6 +6726,18 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_qc
                     or all(o == "-" for o in ops_qc))
+        # Audit 2124: sub 'search' memakai
+        # Config::new(&args.arg_input) yang sama
+        # (search.rs) - pola operand pertama,
+        # masukan opsional sesudahnya.
+        if len(mentah) >= 2 and mentah[0] == "search":
+            ops_qse = _operand_sesudah_opsi(
+                toks, awal + 1, {"-c", "--columns"})
+            if "\x00gantung" in ops_qse:
+                return False
+            return (len(ops_qse) == 1
+                    or (len(ops_qse) >= 2
+                        and ops_qse[1] == "-"))
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "rowskey",
                                   "columns")):

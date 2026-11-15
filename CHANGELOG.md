@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub search membaca stdin (Audit 2124)
+
+- Cabang qsv ditambah sub search: memakai Config::new(&args.arg_input) yang sama seperti cat/count (search.rs) - pola operand pertama, masukan opsional.
+
 ## [Belum rilis] — Gerbang: tsv-summarize dinilai - membaca standard input (Audit 2123)
 
 - tsv-summarize kini dinilai: tanpa berkas membaca standard input (dok resmi tsv-utils).
