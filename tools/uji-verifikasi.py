@@ -23907,6 +23907,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-cmd berjalan sebelum stdin duckdb: gerbang gagal (Audit 1997)", rc != 0)
         shutil.rmtree(sub1121, ignore_errors=True)
+        sub1122 = klon(tmp, "sub1122")
+        berkas_aksi1122 = os.path.join(
+            sub1122, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1122, encoding="utf-8") as f:
+            isi_aksi1122 = f.read()
+        baris_aksi1122 = [b for b in isi_aksi1122.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1122 = isi_aksi1122.replace(
+                baris_aksi1122,
+                baris_aksi1122.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(R CMD BATCH -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1122 != isi_aksi1122, \
+            "suntikan aksi1122 tidak menembak"
+        with open(berkas_aksi1122, "w", encoding="utf-8") as f:
+            f.write(isi_baru1122)
+        rc, out = jalan(sub1122,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("R CMD BATCH - adalah R -f -: gerbang gagal (Audit 2000)", rc != 0)
+        shutil.rmtree(sub1122, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

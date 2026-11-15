@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: R CMD BATCH - dinilai membaca stdin (Audit 2000)
+
+- Skrip BATCH R menjalankan 'R -f ${in}'; infile '-' menjadi 'R -f -' (stdin menurut aturan R). Pengecualian ditambahkan sebelum pengguguran menyeluruh R CMD (Audit 1980).
+
 ## [Belum rilis] — Gerbang: cabang duckdb ditulis ulang setia ejaan resmi strip tunggal (Audit 1994-1999)
 
 - Enam selisih satu cabang (Audit 1986): -s/-f/-manual adalah penjalan yang menekan stdin tetapi tak dikenal, sedangkan -cmd (berjalan sebelum stdin), -separator, -newline, dan -storage-version adalah opsi resmi yang hilang/salah eja sehingga nilainya terhitung operand. Cabang kini memakai himpunan resmi: penekan {-c, -s, -f, -manual}, bernilai {-init, -cmd, -separator, -newline, -nullvalue, -storage-version}.
