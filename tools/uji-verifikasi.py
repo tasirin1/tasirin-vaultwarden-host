@@ -26343,6 +26343,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("operasi tsv-summarize bernilai: gerbang gagal (Audit 2136)", rc != 0)
         shutil.rmtree(sub1237, ignore_errors=True)
+        sub1238 = klon(tmp, "sub1238")
+        berkas_aksi1238 = os.path.join(
+            sub1238, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1238, encoding="utf-8") as f:
+            isi_aksi1238 = f.read()
+        baris_aksi1238 = [b for b in isi_aksi1238.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1238 = isi_aksi1238.replace(
+                baris_aksi1238,
+                baris_aksi1238.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvformat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1238 != isi_aksi1238, \
+            "suntikan aksi1238 tidak menembak"
+        with open(berkas_aksi1238, "w", encoding="utf-8") as f:
+            f.write(isi_baru1238)
+        rc, out = jalan(sub1238,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvformat menerima data terpipa: gerbang gagal (Audit 2138)", rc != 0)
+        shutil.rmtree(sub1238, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

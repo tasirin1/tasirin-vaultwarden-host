@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvformat dinilai - membaca stdin tanpa FILE (Audit 2138)
+
+- csvformat kini dinilai: tanpa FILE menerima input terpipa via STDIN (csvformat(1)); himpunan _CSVKIT dengan penjaga jebakan argparse.
+
 ## [Belum rilis] — Gerbang: tsv-summarize - opsi operasi dilengkapi (Audit 2136)
 
 - Himpunan bernilai tsv-summarize ditambah daftar operasi resmi bernilai field: --sum, --mean, --median, --min, --max, --mode, --first, --last, --stdev, --variance.
