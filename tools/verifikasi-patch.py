@@ -5774,15 +5774,21 @@ def _menguras_khusus(perintah, toks, awal):
         # dari stdin untuk dikirim (bantuan resmi).
         return True
     if perintah == "duckdb":
-        # Audit 1986: polos / basis data saja membaca
-        # perintah dari stdin (dokumentasi DuckDB);
-        # -c dan operand kueri kedua menekannya.
-        if "-c" in mentah:
+        # Audit 1986 + 1994-1999: ejaan resmi DuckDB
+        # strip TUNGGAL. Penjalan lalu keluar: -c/-s
+        # (perintah), -f (skrip), -manual. -cmd
+        # berjalan SEBELUM membaca stdin (tak
+        # menekan). Opsi bernilai resmi: -init,
+        # -cmd, -separator, -newline, -nullvalue,
+        # -storage-version.
+        if any(t_dd in ("-c", "-s", "-f", "-manual")
+               for t_dd in mentah):
             return False
         ops_dd = _operand_sesudah_opsi(
-            toks, awal, {"-init", "--init", "-s",
-                         "--separator", "-nullvalue",
-                         "-box", "-column"})
+            toks, awal, {"-init", "--init", "-cmd",
+                         "-separator", "-newline",
+                         "-nullvalue", "--nullvalue",
+                         "-storage-version"})
         if "\x00gantung" in ops_dd:
             return False
         return len(ops_dd) <= 1

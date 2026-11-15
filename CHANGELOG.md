@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cabang duckdb ditulis ulang setia ejaan resmi strip tunggal (Audit 1994-1999)
+
+- Enam selisih satu cabang (Audit 1986): -s/-f/-manual adalah penjalan yang menekan stdin tetapi tak dikenal, sedangkan -cmd (berjalan sebelum stdin), -separator, -newline, dan -storage-version adalah opsi resmi yang hilang/salah eja sehingga nilainya terhitung operand. Cabang kini memakai himpunan resmi: penekan {-c, -s, -f, -manual}, bernilai {-init, -cmd, -separator, -newline, -nullvalue, -storage-version}.
+
 ## [Belum rilis] — Gerbang: redis-cli - mode khusus digugurkan (Audit 1993)
 
 - Mode khusus redis-cli (--bigkeys/--scan/--latency/--stat/--memkeys/--hotkeys/--replica) kini digugurkan di posisi opsi: mode itu menjalankan aksinya sendiri dan tak membaca stdin.
