@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - apply dynfmt/emptyreplace/datefmt dinilai (Audit 2148)
+
+- Cabang qsv apply ditambah tiga sub-sub ber-[<input>] opsional: dynfmt (wajib --formatstr + --new-column), emptyreplace (wajib --replacement + kolom), datefmt (kolom).
+
 ## [Belum rilis] — Gerbang: csvformat - opsi keluaran bernilai ditambah (Audit 2147)
 
 - Cabang csvformat kini memakai himpunan _CSVKIT ditambah opsi keluaran resmi: -D/--out-delimiter, -Q/--out-quotechar, -U/--out-quoting, -P/--out-escapechar, -M/--out-lineterminator.

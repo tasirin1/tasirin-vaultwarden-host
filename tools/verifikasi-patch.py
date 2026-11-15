@@ -6756,6 +6756,48 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qap) == 2
                     or (len(ops_qap) >= 3
                         and ops_qap[2] == "-"))
+        # Audit 2148: sub-sub apply lain juga
+        # ber-[<input>] opsional (apply.rs).
+        if len(mentah) >= 2 and mentah[0] == "apply":
+            sub_ap = mentah[1]
+            if sub_ap == "dynfmt":
+                if not (any(
+                        t_ap == "--formatstr"
+                        or t_ap.startswith("--formatstr=")
+                        for t_ap in mentah)
+                        and any(
+                        t_ap == "--new-column"
+                        or t_ap.startswith("--new-column=")
+                        for t_ap in mentah)):
+                    return False
+                ops_ap = _operand_sesudah_opsi(
+                    toks, awal + 2,
+                    {"--formatstr", "--new-column",
+                     "-o", "--output"})
+                if "\x00gantung" in ops_ap:
+                    return False
+                return not ops_ap or "-" in ops_ap
+            if sub_ap == "emptyreplace":
+                if not any(
+                        t_ap == "--replacement"
+                        or t_ap.startswith("--replacement=")
+                        for t_ap in mentah):
+                    return False
+                ops_ap = _operand_sesudah_opsi(
+                    toks, awal + 2, {"--replacement"})
+                if "\x00gantung" in ops_ap:
+                    return False
+                return (len(ops_ap) == 1
+                        or (len(ops_ap) >= 2
+                            and ops_ap[1] == "-"))
+            if sub_ap == "datefmt":
+                ops_ap = _operand_sesudah_opsi(
+                    toks, awal + 2, set())
+                if "\x00gantung" in ops_ap:
+                    return False
+                return (len(ops_ap) == 1
+                        or (len(ops_ap) >= 2
+                            and ops_ap[1] == "-"))
         # Audit 2142: sub 'slice' - tanpa masukan
         # membaca stdin (slice.rs).
         if mentah and mentah[0] == "slice":
