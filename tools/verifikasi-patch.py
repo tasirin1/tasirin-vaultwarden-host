@@ -6471,11 +6471,29 @@ def _menguras_khusus(perintah, toks, awal):
         # -c dan operand skrip menekan.
         if "-c" in mentah or "--command" in mentah:
             return False
-        ops_xn = _operand_sesudah_opsi(
-            toks, awal, {"--rc"})
-        if "\x00gantung" in ops_xn:
-            return False
-        return not ops_xn
+        # Audit 2082: --rc bernilai JAMAK - semua
+        # token non-opsi sesudahnya berkas rc
+        # sampai opsi/'--' berikutnya; operand
+        # sesudah '--' barulah skrip.
+        sisa_xn = []
+        k_xn = 0
+        while k_xn < len(mentah):
+            t_xn = mentah[k_xn]
+            if t_xn == "--rc":
+                if k_xn + 1 >= len(mentah):
+                    return False
+                k_xn += 1
+                while (k_xn < len(mentah)
+                       and not mentah[k_xn].startswith("-")):
+                    k_xn += 1
+                continue
+            if t_xn == "--":
+                sisa_xn.extend(mentah[k_xn + 1:])
+                break
+            if not t_xn.startswith("-"):
+                sisa_xn.append(t_xn)
+            k_xn += 1
+        return not sisa_xn
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xonsh - --rc bernilai jamak (Audit 2082)
+
+- Cabang xonsh ditulis ulang sebagai gelung sadar posisi: --rc menelan semua token non-opsi sesudahnya sebagai berkas rc; operand sesudah '--' barulah skrip; --rc menggantung tertolak.
+
 ## [Belum rilis] — Gerbang: pv - 6 opsi bernilai dilengkapi (Audit 2081)
 
 - Himpunan opsi bernilai pv ditambah -A/--last-written, -F/--format, -D/--delay-start, -w/--width, -H/--height, -P/--pidfile (pv(1)).
