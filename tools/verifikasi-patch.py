@@ -6844,6 +6844,18 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qv:
                 return False
             return not ops_qv or ops_qv[0] == "-"
+        # Audit 2174: sub 'schema' - tanpa
+        # masukan seluruh stdin disalin lebih
+        # dulu (schema.rs).
+        if mentah and mentah[0] == "schema":
+            ops_qsc = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--enum-threshold", "--pattern-columns",
+                 "--dates-whitelist", "-j", "--jobs",
+                 "-d", "--delimiter"})
+            if "\x00gantung" in ops_qsc:
+                return False
+            return not ops_qsc or ops_qsc[0] == "-"
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "rowskey",
                                   "columns")):

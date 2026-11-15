@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub schema membaca stdin (Audit 2174)
+
+- Cabang qsv ditambah sub schema: tanpa masukan seluruh stdin disalin lebih dulu (schema.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub validate membaca stdin (Audit 2173)
 
 - Cabang qsv ditambah sub validate: masukan [<input>] opsional, tanpa masukan membaca stdin (validate.rs).
