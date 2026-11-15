@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pv - -d/-R/-Q modus pantau, bukan penyalin stdin (Audit 2102)
+
+- Cabang pv kini menolak -d/--watchfd, -R/--remote, -Q/--query dalam semua bentuk (terpisah, merekat, '=', menggantung): modus pantau proses lain tak pernah menyalin stdin (pv 1.12.7). Sapuan pv kini lengkap.
+
 ## [Belum rilis] — Gerbang: podman - bundel informasional ikut dipegang (Audit 2101)
 
 - Pindai sub podman kini memegang bundel huruf bool murni yang memuat h/v ('-vD', '-Dv') sebagai informasional/parse berhenti, cermin aturan docker 2092 (podman juga pflag).

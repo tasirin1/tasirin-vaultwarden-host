@@ -6502,6 +6502,21 @@ def _menguras_khusus(perintah, toks, awal):
         # operand '-') pv membaca stdin (pv(1)).
         # Audit 2081: enam opsi bernilai pv lagi
         # dari pv(1) ikut dilengkapi.
+        # Audit 2102: -d/--watchfd, -R/--remote,
+        # -Q/--query bernilai dan modusnya memantau
+        # proses lain - tak pernah menyalin stdin;
+        # bentuk menggantung pun ditolak getopt
+        # (pv 1.12.7).
+        for t_pv2 in mentah:
+            if (t_pv2 in ("-d", "--watchfd", "-R",
+                          "--remote", "-Q", "--query")
+                    or t_pv2.startswith(("--watchfd=",
+                                          "--remote=",
+                                          "--query="))
+                    or (len(t_pv2) > 2
+                        and not t_pv2.startswith("--")
+                        and t_pv2[1] in "dRQ")):
+                return False
         ops_pv = _operand_sesudah_opsi(
             toks, awal, {"-L", "--rate-limit", "-B",
                          "--buffer-size", "-s", "--size",
