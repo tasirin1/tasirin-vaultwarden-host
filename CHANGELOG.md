@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv flatten - bentuk panjang ditambah (Audit 2165)
+
+- Himpunan bernilai xsv flatten ditambah --condense dan --separator (flatten.rs).
+
 ## [Belum rilis] — Gerbang: xsv - sub sample membaca stdin sesudah ukuran (Audit 2164)
 
 - Cabang xsv ditambah sub sample: operand pertama selalu ukuran contoh, masukan adalah operand kedua (sample.rs).

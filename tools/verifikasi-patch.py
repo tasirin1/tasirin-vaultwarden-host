@@ -6992,7 +6992,8 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "flatten":
             ops_xf = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"-c", "-s", "-d", "--delimiter"})
+                {"-c", "--condense", "-s",
+                 "--separator", "-d", "--delimiter"})
             if "\x00gantung" in ops_xf:
                 return False
             return (not ops_xf
