@@ -5668,7 +5668,13 @@ def _menguras_khusus(perintah, toks, awal):
                     "--build-arg", "--network",
                     "--target", "--platform", "--output",
                     "-o", "--iidfile", "--metadata-file",
-                    "--volume", "-v", "--env", "-e"}
+                    "--volume", "-v", "--env", "-e",
+                    "--add-host", "--cap-add",
+                    "--cap-drop", "--isolation",
+                    "--sign-by", "--timestamp",
+                    "--cgroup-parent", "--runtime",
+                    "--from", "--authfile", "--memory",
+                    "-m", "--user"}
         j_ba = 0
         while j_ba < len(mentah):
             t_ba = mentah[j_ba]

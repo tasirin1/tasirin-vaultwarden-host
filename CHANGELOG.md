@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: buildah - 12 opsi bernilai build dilengkapi (Audit 2061)
+
+- Himpunan opsi bernilai pindai buildah ditambah --add-host, --cap-add, --cap-drop, --isolation, --sign-by, --timestamp, --cgroup-parent, --runtime, --from, --authfile, --memory/-m, --user (buildah-build(1)).
+
 ## [Belum rilis] — Gerbang: podman - 11 opsi global bernilai dilengkapi (Audit 2060)
 
 - Himpunan opsi global bernilai podman ditambah -c, --conmon, --hooks-dir, --imagestore, --module, --network-cmd-path, --network-config-dir, --out, --runtime-flag, --ssh, --cdi-spec-dir (indeks GLOBAL OPTIONS podman(1)).

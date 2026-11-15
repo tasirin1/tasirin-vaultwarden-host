@@ -24936,6 +24936,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi global podman --conmon bernilai: gerbang gagal (Audit 2060)", rc != 0)
         shutil.rmtree(sub1170, ignore_errors=True)
+        sub1171 = klon(tmp, "sub1171")
+        berkas_aksi1171 = os.path.join(
+            sub1171, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1171, encoding="utf-8") as f:
+            isi_aksi1171 = f.read()
+        baris_aksi1171 = [b for b in isi_aksi1171.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1171 = isi_aksi1171.replace(
+                baris_aksi1171,
+                baris_aksi1171.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(buildah bud --add-host --stdin .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1171 != isi_aksi1171, \
+            "suntikan aksi1171 tidak menembak"
+        with open(berkas_aksi1171, "w", encoding="utf-8") as f:
+            f.write(isi_baru1171)
+        rc, out = jalan(sub1171,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--add-host buildah menelan --stdin: gerbang lolos (Audit 2061)", rc == 0)
+        shutil.rmtree(sub1171, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
