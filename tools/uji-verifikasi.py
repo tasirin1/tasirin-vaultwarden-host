@@ -26154,6 +26154,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv search membaca stdin: gerbang gagal (Audit 2124)", rc != 0)
         shutil.rmtree(sub1228, ignore_errors=True)
+        sub1229 = klon(tmp, "sub1229")
+        berkas_aksi1229 = os.path.join(
+            sub1229, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1229, encoding="utf-8") as f:
+            isi_aksi1229 = f.read()
+        baris_aksi1229 = [b for b in isi_aksi1229.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1229 = isi_aksi1229.replace(
+                baris_aksi1229,
+                baris_aksi1229.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvjoin - b.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1229 != isi_aksi1229, \
+            "suntikan aksi1229 tidak menembak"
+        with open(berkas_aksi1229, "w", encoding="utf-8") as f:
+            f.write(isi_baru1229)
+        rc, out = jalan(sub1229,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvjoin operand '-' adalah stdin: gerbang gagal (Audit 2125)", rc != 0)
+        shutil.rmtree(sub1229, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

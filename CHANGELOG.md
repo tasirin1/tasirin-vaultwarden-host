@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvjoin dinilai - operand '-' adalah stdin (Audit 2125)
+
+- csvjoin kini dinilai: alat multi-masukan yang polosnya tak menguras, tetapi operand '-' berarti STDIN (Tips resmi csvkit).
+
 ## [Belum rilis] — Gerbang: qsv - sub search membaca stdin (Audit 2124)
 
 - Cabang qsv ditambah sub search: memakai Config::new(&args.arg_input) yang sama seperti cat/count (search.rs) - pola operand pertama, masukan opsional.
