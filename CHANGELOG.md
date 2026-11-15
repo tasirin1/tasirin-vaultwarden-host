@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: agregasi - berkas '-' dilaporkan satu kali (Audit 2129)
+
+- Lintasan per-baris fase rahasia kini menambahkan nama ternormalisasi './-' (bukan nama mentah '-') ke daftar temuan sehingga sort -u menggabungkannya dengan entri fase bungkus.
+
 ## [Belum rilis] — Cek-cepat: fase vektor - rg mengikuti symlink (Audit 2128)
 
 - Panggilan rg di fase vektor kini memakai --follow sehingga symlink di app/src/main/res/ yang menunjuk berkas luar ikut dipindai, sejajar cabang cadangan grep -R.

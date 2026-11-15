@@ -411,7 +411,7 @@ for entri in "${ENTRI_BUNGKUS[@]}"; do
   sasaran2097="$f"
   if [ "$f" = "-" ]; then sasaran2097="./-"; fi
   if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$sasaran2097" 2>/dev/null; then
-    BUNGKUS="$(printf '%s\n%s\n' "$BUNGKUS" "$f")"
+    BUNGKUS="$(printf '%s\n%s\n' "$BUNGKUS" "$sasaran2097")"
   fi
 done
 RAHASIA="$(printf '%s\n%s\n' "$RAHASIA" "$BUNGKUS" | sed '/^$/d' | sort -u || true)"
