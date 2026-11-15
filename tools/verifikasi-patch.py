@@ -6885,6 +6885,19 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qsp) == 1
                     or (len(ops_qsp) >= 2
                         and ops_qsp[1] == "-"))
+        # Audit 2182: sub 'join' qsv - empat
+        # operand (kolom, masukan1, kolom,
+        # masukan2); '-' pada masukan = stdin
+        # (join.rs).
+        if mentah and mentah[0] == "join":
+            ops_qj = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-o", "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qj:
+                return False
+            return (len(ops_qj) == 4
+                    and (ops_qj[1] == "-"
+                         or ops_qj[3] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).

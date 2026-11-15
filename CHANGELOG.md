@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub join membaca stdin lewat strip (Audit 2182)
+
+- Cabang qsv ditambah sub join: empat operand; '-' pada posisi masukan berarti stdin (join.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub split membaca stdin (Audit 2181)
 
 - Cabang qsv ditambah sub split: operand pertama direktori keluaran, masukan kedua (split.rs).
