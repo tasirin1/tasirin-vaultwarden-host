@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-select dinilai - membaca standard input (Audit 2100)
+
+- tsv-select kini dinilai: tanpa argumen berkas ia membaca standard input (dok resmi tsv-utils).
+
 ## [Belum rilis] — Gerbang: csvlook dinilai - menerima data terpipa (Audit 2099)
 
 - csvlook kini dinilai: tanpa nama berkas ia menerima input terpipa via STDIN (csvlook(1) csvkit), dengan himpunan opsi bernilai csvkit umum.
