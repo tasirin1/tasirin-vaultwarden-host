@@ -25692,6 +25692,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-d pv menggantung modus pantau: gerbang lolos (Audit 2102)", rc == 0)
         shutil.rmtree(sub1206, ignore_errors=True)
+        sub1207 = klon(tmp, "sub1207")
+        berkas_aksi1207 = os.path.join(
+            sub1207, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1207, encoding="utf-8") as f:
+            isi_aksi1207 = f.read()
+        baris_aksi1207 = [b for b in isi_aksi1207.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1207 = isi_aksi1207.replace(
+                baris_aksi1207,
+                baris_aksi1207.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pv -Mboth -- cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1207 != isi_aksi1207, \
+            "suntikan aksi1207 tidak menembak"
+        with open(berkas_aksi1207, "w", encoding="utf-8") as f:
+            f.write(isi_baru1207)
+        rc, out = jalan(sub1207,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("monitor pv merekat terdeteksi: gerbang gagal (Audit 2103)", rc != 0)
+        shutil.rmtree(sub1207, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

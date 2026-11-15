@@ -6539,7 +6539,11 @@ def _menguras_khusus(perintah, toks, awal):
         # perintah sisa sebagai pipa - stdin luar
         # mengalir lewat pv apa pun operandnya
         # (contoh resmi pv(1)).
-        if "-M" in mentah or "--monitor" in mentah:
+        if any(t_pv3 == "-M"
+               or t_pv3.startswith("--monitor")
+               or (len(t_pv3) > 2
+                   and t_pv3.startswith("-M"))
+               for t_pv3 in mentah):
             return True
         return all(o_pv == "-" for o_pv in ops_pv)
     if perintah == "rev":

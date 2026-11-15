@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pv - modus monitor bentuk '=' dan merekat terdeteksi (Audit 2103)
+
+- Pendeteksi modus monitor pv kini memegang --monitor=both dan -Mboth, bukan hanya token persis.
+
 ## [Belum rilis] — Gerbang: pv - -d/-R/-Q modus pantau, bukan penyalin stdin (Audit 2102)
 
 - Cabang pv kini menolak -d/--watchfd, -R/--remote, -Q/--query dalam semua bentuk (terpisah, merekat, '=', menggantung): modus pantau proses lain tak pernah menyalin stdin (pv 1.12.7). Sapuan pv kini lengkap.
