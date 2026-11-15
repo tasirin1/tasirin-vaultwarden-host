@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: parallel - --semaphore hanya modus sebelum perintah (Audit 2094)
+
+- Penjaga --semaphore kini sadar posisi: hanya modus bila duduk sebelum token perintah pertama; sesudah perintah ia argumen biasa dan parallel menilai normal (menguras).
+
 ## [Belum rilis] — Gerbang: pv - 8 opsi bernilai generasi baru dilengkapi (Audit 2093)
 
 - Himpunan opsi bernilai pv ditambah -o/--output, -u/--bar-style, -x/--extra-display, -J/--pipe-buffer-size, -m/--average-rate-window, -Z/--error-skip-block, -U/--store-and-forward, -M/--monitor (pv(1)); modus monitor selalu mengalirkan stdin lewat pv.

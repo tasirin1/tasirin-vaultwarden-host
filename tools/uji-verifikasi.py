@@ -25524,6 +25524,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi pv generasi baru -o bernilai: gerbang gagal (Audit 2093)", rc != 0)
         shutil.rmtree(sub1198, ignore_errors=True)
+        sub1199 = klon(tmp, "sub1199")
+        berkas_aksi1199 = os.path.join(
+            sub1199, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1199, encoding="utf-8") as f:
+            isi_aksi1199 = f.read()
+        baris_aksi1199 = [b for b in isi_aksi1199.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1199 = isi_aksi1199.replace(
+                baris_aksi1199,
+                baris_aksi1199.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(parallel echo --semaphore; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1199 != isi_aksi1199, \
+            "suntikan aksi1199 tidak menembak"
+        with open(berkas_aksi1199, "w", encoding="utf-8") as f:
+            f.write(isi_baru1199)
+        rc, out = jalan(sub1199,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--semaphore sesudah perintah argumen biasa: gerbang gagal (Audit 2094)", rc != 0)
+        shutil.rmtree(sub1199, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -6447,7 +6447,28 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2085: modus --semaphore menjalankan
         # perintah dari argv; stdin bukan sumber
         # masukan (parallel(1) Synopsis).
-        if "--semaphore" in mentah:
+        # Audit 2094: --semaphore hanya modus bila
+        # duduk SEBELUM token perintah pertama -
+        # sesudah perintah ia argumen biasa bagi
+        # perintah itu.
+        nilai_pl = {"--jobs", "-j", "-a", "--arg-file",
+                    "--joblog", "--semaphorename",
+                    "--tagstring", "--tmpdir"}
+        k_sem = 0
+        modus_sem = False
+        while k_sem < len(mentah):
+            t_sem = mentah[k_sem]
+            if t_sem == "--semaphore":
+                modus_sem = True
+                break
+            if t_sem in nilai_pl:
+                k_sem += 2
+                continue
+            if t_sem.startswith("-"):
+                k_sem += 1
+                continue
+            break
+        if modus_sem:
             return False
         # Audit 2069: GNU parallel membangun
         # baris perintah dari stdin (parallel(1));
