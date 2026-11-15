@@ -25566,6 +25566,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-D xonsh terpisah bernilai: gerbang gagal (Audit 2095)", rc != 0)
         shutil.rmtree(sub1200, ignore_errors=True)
+        sub1201 = klon(tmp, "sub1201")
+        berkas_aksi1201 = os.path.join(
+            sub1201, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1201, encoding="utf-8") as f:
+            isi_aksi1201 = f.read()
+        baris_aksi1201 = [b for b in isi_aksi1201.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1201 = isi_aksi1201.replace(
+                baris_aksi1201,
+                baris_aksi1201.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(in2csv --format -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1201 != isi_aksi1201, \
+            "suntikan aksi1201 tidak menembak"
+        with open(berkas_aksi1201, "w", encoding="utf-8") as f:
+            f.write(isi_baru1201)
+        rc, out = jalan(sub1201,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("format '-' in2csv ditolak: gerbang lolos (Audit 2096)", rc == 0)
+        shutil.rmtree(sub1201, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

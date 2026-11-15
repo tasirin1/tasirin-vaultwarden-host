@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: in2csv - nilai format '-' ditolak (Audit 2096)
+
+- Cabang in2csv menolak nilai format '-' (terpisah maupun merekat): argparse csvkit pilihan formatnya tertutup sehingga perintah berhenti sebelum membaca stdin.
+
 ## [Belum rilis] — Gerbang: xonsh - '-D' terpisah bernilai dilewatkan (Audit 2095)
 
 - Gelung xonsh kini melewatkan nilai -D terpisah (xonsh(1) '[-D ITEM]'); bentuk menggantung tertolak.

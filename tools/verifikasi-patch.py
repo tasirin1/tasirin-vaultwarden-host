@@ -6604,6 +6604,18 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2087: tanpa nama berkas ia
         # menerima data terpipa lewat STDIN
         # (dok csvkit).
+        # Audit 2096: nilai format '-' ditolak
+        # argparse csvkit (pilihan tertutup)
+        # sebelum stdin dibaca.
+        for t_i2 in mentah:
+            if (t_i2 == "-f-"
+                    or t_i2.startswith("--format=-")):
+                return False
+        for k_i2, t_i2 in enumerate(mentah):
+            if t_i2 in ("-f", "--format"):
+                if (k_i2 + 1 < len(mentah)
+                        and mentah[k_i2 + 1] == "-"):
+                    return False
         ops_i2 = _operand_sesudah_opsi(
             toks, awal, {"-f", "--format", "-s",
                          "--schema", "-k", "--key",
