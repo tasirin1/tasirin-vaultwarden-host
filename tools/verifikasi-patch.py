@@ -6249,7 +6249,7 @@ def _menguras_khusus(perintah, toks, awal):
         ops_mk = _operand_sesudah_opsi(
             toks, awal, {"-p", "--profile", "-b",
                          "--bootstrapper", "--user",
-                         "--log_dir",
+                         "--log_dir", "--log_file",
                          "--alsologtostderrthreshold",
                          "--log_backtrace_at",
                          "--log_file_max_size",

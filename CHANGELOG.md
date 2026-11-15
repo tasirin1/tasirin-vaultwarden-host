@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: minikube - --log_file dilengkapi (Audit 2079)
+
+- Himpunan opsi bernilai minikube ditambah --log_file, satu-satunya sisa bernilai di daftar resmi Options inherited.
+
 ## [Belum rilis] — Gerbang: buildah - pindai bendera sadar nilai opsi global (Audit 2078)
 
 - Gelung pindai bendera buildah kini melewatkan nilai opsi global (global_ba) sehingga '--stdin' yang duduk sebagai nilai --root bukan saklar.
