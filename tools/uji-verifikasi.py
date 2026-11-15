@@ -26385,6 +26385,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sql2csv kueri dari stdin: gerbang gagal (Audit 2139)", rc != 0)
         shutil.rmtree(sub1239, ignore_errors=True)
+        sub1240 = klon(tmp, "sub1240")
+        berkas_aksi1240 = os.path.join(
+            sub1240, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1240, encoding="utf-8") as f:
+            isi_aksi1240 = f.read()
+        baris_aksi1240 = [b for b in isi_aksi1240.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1240 = isi_aksi1240.replace(
+                baris_aksi1240,
+                baris_aksi1240.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-uniq; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1240 != isi_aksi1240, \
+            "suntikan aksi1240 tidak menembak"
+        with open(berkas_aksi1240, "w", encoding="utf-8") as f:
+            f.write(isi_baru1240)
+        rc, out = jalan(sub1240,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-uniq membaca standard input: gerbang gagal (Audit 2140)", rc != 0)
+        shutil.rmtree(sub1240, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

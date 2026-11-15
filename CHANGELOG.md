@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-uniq dinilai - membaca standard input (Audit 2140)
+
+- tsv-uniq kini dinilai: tanpa berkas membaca standard input (dok resmi tsv-utils).
+
 ## [Belum rilis] — Gerbang: sql2csv dinilai - kueri dari stdin (Audit 2139)
 
 - sql2csv kini dinilai: tanpa FILE dan tanpa --query, kueri SQL dibaca dari STDIN; --query menimpa FILE dan STDIN.
