@@ -1153,6 +1153,17 @@ def main():
                 rc != 0 and out.count("./-") == 1)
         shutil.rmtree(namamin, ignore_errors=True)
 
+        belahnl = klon(tmp, "belahnl")
+        with open(belahnl + "/belah.txt", "w") as fh:
+            fh.write("isi: " + token_palsu[:20] + "\\x0a"
+                     + token_palsu[20:] + "\n")
+        git(belahnl, "add", "-A")
+        git(belahnl, "commit", "-qm", "tanam")
+        rc, out = jalan(belahnl, ["bash", SKRIP])
+        periksa("token terbelah escape newline tertangkap "
+                "(Audit 2177)", rc != 0)
+        shutil.rmtree(belahnl, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

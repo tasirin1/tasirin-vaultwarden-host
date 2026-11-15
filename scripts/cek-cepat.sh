@@ -383,7 +383,7 @@ function proses(line,   awal, hd, sp, pos, s, ekort, hx, hv, ox, ov) {
     if (ekort ~ /^[0-9]+$/) { ekordgt = ekordgt + length(ekort) }
     else { ekordgt = 0; if (match(ekort, /[0-9]+$/)) ekordgt = RLENGTH }
   } else { ekordgt = 0 }
-  gsub(/[ \t\r\013\014]/, "", $0)
+  gsub(/[ \t\r\013\014\012]/, "", $0)
   return $0
 }
 BEGIN {

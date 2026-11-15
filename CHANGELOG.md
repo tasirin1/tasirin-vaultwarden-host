@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: kupas akhir memuat newline (Audit 2177)
+
+- Set kupas akhir proses() ditambah newline (\012): token yang dibelah escape \x0a/\012/\u000a kini tertangkap sesudah dekode.
+
 ## [Belum rilis] — Gerbang: xsv split - template filename divalidasi (Audit 2176)
 
 - Cabang xsv split kini menolak nilai --filename yang tidak memuat tepat satu '{}' (FilenameTemplate).
