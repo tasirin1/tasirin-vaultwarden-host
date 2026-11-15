@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pv - 8 opsi bernilai generasi baru dilengkapi (Audit 2093)
+
+- Himpunan opsi bernilai pv ditambah -o/--output, -u/--bar-style, -x/--extra-display, -J/--pipe-buffer-size, -m/--average-rate-window, -Z/--error-skip-block, -U/--store-and-forward, -M/--monitor (pv(1)); modus monitor selalu mengalirkan stdin lewat pv.
+
 ## [Belum rilis] — Gerbang: docker - bundel informasional '-vD' ikut dipegang (Audit 2092)
 
 - Pindai sub docker kini memegang bundel huruf bool murni yang memuat h/v ('-vD', '-Dv', '-v=true') sebagai informasional, mengikuti penguraian bundel pflag.

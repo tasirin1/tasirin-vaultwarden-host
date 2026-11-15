@@ -6478,9 +6478,23 @@ def _menguras_khusus(perintah, toks, awal):
                          "-A", "--last-written", "-F",
                          "--format", "-D", "--delay-start",
                          "-w", "--width", "-H", "--height",
-                         "-P", "--pidfile"})
+                         "-P", "--pidfile",
+                         "-o", "--output", "-u",
+                         "--bar-style", "-x",
+                         "--extra-display", "-J",
+                         "--pipe-buffer-size", "-m",
+                         "--average-rate-window", "-Z",
+                         "--error-skip-block", "-U",
+                         "--store-and-forward", "-M",
+                         "--monitor"})
         if "\x00gantung" in ops_pv:
             return False
+        # Audit 2093: modus -M/--monitor menjalankan
+        # perintah sisa sebagai pipa - stdin luar
+        # mengalir lewat pv apa pun operandnya
+        # (contoh resmi pv(1)).
+        if "-M" in mentah or "--monitor" in mentah:
+            return True
         return all(o_pv == "-" for o_pv in ops_pv)
     if perintah == "rev":
         # Audit 2073: '-' bagi rev adalah NAMA

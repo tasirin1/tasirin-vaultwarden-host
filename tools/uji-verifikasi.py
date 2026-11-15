@@ -25503,6 +25503,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("bundel -vD docker informasional: gerbang lolos (Audit 2092)", rc == 0)
         shutil.rmtree(sub1197, ignore_errors=True)
+        sub1198 = klon(tmp, "sub1198")
+        berkas_aksi1198 = os.path.join(
+            sub1198, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1198, encoding="utf-8") as f:
+            isi_aksi1198 = f.read()
+        baris_aksi1198 = [b for b in isi_aksi1198.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1198 = isi_aksi1198.replace(
+                baris_aksi1198,
+                baris_aksi1198.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(pv -o out; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1198 != isi_aksi1198, \
+            "suntikan aksi1198 tidak menembak"
+        with open(berkas_aksi1198, "w", encoding="utf-8") as f:
+            f.write(isi_baru1198)
+        rc, out = jalan(sub1198,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi pv generasi baru -o bernilai: gerbang gagal (Audit 2093)", rc != 0)
+        shutil.rmtree(sub1198, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
