@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvsql - sembilan opsi bernilai dilengkapi (Audit 2157)
+
+- Himpunan bernilai csvsql ditambah -i/--dialect, --prefix, --sql-delimiter, --tables, --unique-constraint, --db-schema, --min-col-len, --col-len-multiplier, --engine-option (csvsql(1)).
+
 ## [Belum rilis] — Gerbang: tsv-summarize - '--mad' ditambah (Audit 2156)
 
 - Operator bernilai --mad dari referensi resmi tsv-utils ditambahkan; satu-satunya operator resmi yang absen sesudah 2145.

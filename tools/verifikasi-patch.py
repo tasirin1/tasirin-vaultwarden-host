@@ -7181,7 +7181,12 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "csvsql":
         # Audit 2153: tanpa FILE data CSV dibaca
         # dari STDIN (csvsql(1)); SQL dari --query.
-        bernilai_csq = _CSVKIT | {"--db", "--query"}
+        bernilai_csq = _CSVKIT | {
+            "--db", "--query", "-i", "--dialect",
+            "--prefix", "--sql-delimiter", "--tables",
+            "--unique-constraint", "--db-schema",
+            "--min-col-len", "--col-len-multiplier",
+            "--engine-option"}
         if _jebakan_argparse(mentah, bernilai_csq):
             return False
         ops_csq = _operand_sesudah_opsi(

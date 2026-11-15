@@ -26700,6 +26700,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-summarize --mad bernilai: gerbang gagal (Audit 2156)", rc != 0)
         shutil.rmtree(sub1254, ignore_errors=True)
+        sub1255 = klon(tmp, "sub1255")
+        berkas_aksi1255 = os.path.join(
+            sub1255, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1255, encoding="utf-8") as f:
+            isi_aksi1255 = f.read()
+        baris_aksi1255 = [b for b in isi_aksi1255.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1255 = isi_aksi1255.replace(
+                baris_aksi1255,
+                baris_aksi1255.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvsql --tables t; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1255 != isi_aksi1255, \
+            "suntikan aksi1255 tidak menembak"
+        with open(berkas_aksi1255, "w", encoding="utf-8") as f:
+            f.write(isi_baru1255)
+        rc, out = jalan(sub1255,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvsql opsi bernilai lengkap: gerbang gagal (Audit 2157)", rc != 0)
+        shutil.rmtree(sub1255, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
