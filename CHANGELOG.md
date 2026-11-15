@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv search - kolom resmi -s/--select (Audit 2132)
+
+- Himpunan bernilai xsv search diganti {-s, --select, -o, --output} sesuai README resmi xsv.
+
 ## [Belum rilis] — Gerbang: qsv search - kosakata opsi diperbaiki (Audit 2131)
 
 - Himpunan bernilai qsv search diganti kosakata resmi search.rs: -s/--select, -f/--flag, --preview-match, --size-limit, --dfa-size-limit, -o/--output, -d/--delimiter (-c/--count bool).

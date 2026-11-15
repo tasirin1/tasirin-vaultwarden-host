@@ -6873,8 +6873,11 @@ def _menguras_khusus(perintah, toks, awal):
         # operand pertama, masukan [<input>]
         # opsional sesudahnya (config.rs xsv).
         if len(mentah) >= 2 and mentah[0] == "search":
+            # Audit 2132: kolom xsv search resmi
+            # -s/--select (README xsv).
             ops_xse = _operand_sesudah_opsi(
-                toks, awal + 1, {"-c", "--columns"})
+                toks, awal + 1,
+                {"-s", "--select", "-o", "--output"})
             if "\x00gantung" in ops_xse:
                 return False
             return (len(ops_xse) == 1
