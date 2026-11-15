@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv sample - operand '-' ditolak (Audit 2167)
+
+- Cabang xsv sample kini menolak operand pertama '-': terikat sebagai ukuran u64 sehingga galat parse di realitas.
+
 ## [Belum rilis] — Gerbang: xsv table - bentuk panjang ditambah (Audit 2166)
 
 - Himpunan bernilai xsv table ditambah --width, --pad, --condense (table.rs).

@@ -26889,6 +26889,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xsv table bentuk panjang bernilai: gerbang gagal (Audit 2166)", rc != 0)
         shutil.rmtree(sub1263, ignore_errors=True)
+        sub1264 = klon(tmp, "sub1264")
+        berkas_aksi1264 = os.path.join(
+            sub1264, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1264, encoding="utf-8") as f:
+            isi_aksi1264 = f.read()
+        baris_aksi1264 = [b for b in isi_aksi1264.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1264 = isi_aksi1264.replace(
+                baris_aksi1264,
+                baris_aksi1264.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv sample -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1264 != isi_aksi1264, \
+            "suntikan aksi1264 tidak menembak"
+        with open(berkas_aksi1264, "w", encoding="utf-8") as f:
+            f.write(isi_baru1264)
+        rc, out = jalan(sub1264,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv sample '-' galat parse: gerbang lolos (Audit 2167)", rc == 0)
+        shutil.rmtree(sub1264, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

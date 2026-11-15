@@ -7052,6 +7052,10 @@ def _menguras_khusus(perintah, toks, awal):
                 {"-o", "--output", "-d", "--delimiter"})
             if "\x00gantung" in ops_xsa:
                 return False
+            # Audit 2167: operand pertama '-' terikat
+            # sebagai ukuran u64 - galat parse.
+            if ops_xsa and ops_xsa[0] == "-":
+                return False
             return (len(ops_xsa) == 1
                     or (len(ops_xsa) >= 2
                         and ops_xsa[1] == "-"))
