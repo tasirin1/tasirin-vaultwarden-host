@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub sample membaca stdin sesudah ukuran (Audit 2164)
+
+- Cabang xsv ditambah sub sample: operand pertama selalu ukuran contoh, masukan adalah operand kedua (sample.rs).
+
 ## [Belum rilis] — Gerbang: xsv - sub sort membaca stdin (Audit 2163)
 
 - Cabang xsv ditambah sub sort: masukan [<input>] opsional (sort.rs).

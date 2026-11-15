@@ -7041,6 +7041,18 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_xso
                     or all(o == "-" for o in ops_xso))
+        # Audit 2164: sub 'sample' xsv - operand
+        # pertama selalu ukuran; masukan adalah
+        # operand kedua (sample.rs).
+        if mentah and mentah[0] == "sample":
+            ops_xsa = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-o", "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_xsa:
+                return False
+            return (len(ops_xsa) == 1
+                    or (len(ops_xsa) >= 2
+                        and ops_xsa[1] == "-"))
         # Audit 2154: sub 'headers' xsv - daftar
         # masukan Vec lewat many_configs (kosong
         # diganti '-'), seperti cat.
