@@ -26490,6 +26490,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-join --delimiter bernilai: gerbang gagal (Audit 2144)", rc != 0)
         shutil.rmtree(sub1244, ignore_errors=True)
+        sub1245 = klon(tmp, "sub1245")
+        berkas_aksi1245 = os.path.join(
+            sub1245, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1245, encoding="utf-8") as f:
+            isi_aksi1245 = f.read()
+        baris_aksi1245 = [b for b in isi_aksi1245.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1245 = isi_aksi1245.replace(
+                baris_aksi1245,
+                baris_aksi1245.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize --quantile 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1245 != isi_aksi1245, \
+            "suntikan aksi1245 tidak menembak"
+        with open(berkas_aksi1245, "w", encoding="utf-8") as f:
+            f.write(isi_baru1245)
+        rc, out = jalan(sub1245,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("operasi tsv-summarize diperluas: gerbang gagal (Audit 2145)", rc != 0)
+        shutil.rmtree(sub1245, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

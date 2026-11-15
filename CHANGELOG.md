@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-summarize - 15 opsi bernilai resmi dilengkapi (Audit 2145)
+
+- Himpunan bernilai tsv-summarize ditambah dari tabel operasi resmi: --range, --quantile, --retain, --values, --unique-values, --unique-count, --mode-count, --missing-count, --not-missing-count, --count-header, -g, -v/--values-delimiter, -p/--float-precision, -r/--replace-missing.
+
 ## [Belum rilis] — Gerbang: tsv-join - '--delimiter' long-only ditambah (Audit 2144)
 
 - Himpunan bernilai tsv-join ditambah '--delimiter' (opsi long-only resmi tsv_join.d) yang hilang dari kosakata.

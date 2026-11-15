@@ -6980,7 +6980,16 @@ def _menguras_khusus(perintah, toks, awal):
                          "--mean", "--median", "--min",
                          "--max", "--mode", "--first",
                          "--last", "--stdev",
-                         "--variance"})
+                         "--variance", "--range",
+                         "--quantile", "--retain",
+                         "--values", "--unique-values",
+                         "--unique-count", "--mode-count",
+                         "--missing-count",
+                         "--not-missing-count",
+                         "--count-header", "-g", "-v",
+                         "--values-delimiter", "-p",
+                         "--float-precision", "-r",
+                         "--replace-missing"})
         if "\x00gantung" in ops_tsm:
             return False
         return not ops_tsm or "-" in ops_tsm
