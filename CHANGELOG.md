@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvformat - opsi keluaran bernilai ditambah (Audit 2147)
+
+- Cabang csvformat kini memakai himpunan _CSVKIT ditambah opsi keluaran resmi: -D/--out-delimiter, -Q/--out-quotechar, -U/--out-quoting, -P/--out-escapechar, -M/--out-lineterminator.
+
 ## [Belum rilis] — Gerbang: tsv-summarize - '--variance' diganti '--var' (Audit 2146)
 
 - Nama hantu --variance dicabut dari himpunan; nama resmi operasi varians adalah --var.

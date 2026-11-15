@@ -26532,6 +26532,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--variance hantu ditolak: gerbang lolos (Audit 2146)", rc == 0)
         shutil.rmtree(sub1246, ignore_errors=True)
+        sub1247 = klon(tmp, "sub1247")
+        berkas_aksi1247 = os.path.join(
+            sub1247, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1247, encoding="utf-8") as f:
+            isi_aksi1247 = f.read()
+        baris_aksi1247 = [b for b in isi_aksi1247.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1247 = isi_aksi1247.replace(
+                baris_aksi1247,
+                baris_aksi1247.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvformat -D '|' ;; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1247 != isi_aksi1247, \
+            "suntikan aksi1247 tidak menembak"
+        with open(berkas_aksi1247, "w", encoding="utf-8") as f:
+            f.write(isi_baru1247)
+        rc, out = jalan(sub1247,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi keluaran csvformat bernilai: gerbang gagal (Audit 2147)", rc != 0)
+        shutil.rmtree(sub1247, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

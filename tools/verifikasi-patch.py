@@ -7067,10 +7067,17 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "csvformat":
         # Audit 2138: tanpa FILE ia menerima input
         # terpipa via STDIN (csvformat(1) csvkit).
-        if _jebakan_argparse(mentah, _CSVKIT):
+        # Audit 2147: opsi keluaran csvformat
+        # bernilai resmi di luar _CSVKIT.
+        bernilai_cf = _CSVKIT | {
+            "-D", "--out-delimiter", "-Q",
+            "--out-quotechar", "-U", "--out-quoting",
+            "-P", "--out-escapechar", "-M",
+            "--out-lineterminator"}
+        if _jebakan_argparse(mentah, bernilai_cf):
             return False
         ops_cf = _operand_sesudah_opsi(
-            toks, awal, _CSVKIT)
+            toks, awal, bernilai_cf)
         if "\x00gantung" in ops_cf:
             return False
         return not ops_cf
