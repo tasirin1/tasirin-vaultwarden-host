@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-join - kosakata opsi diperbaiki (Audit 2134)
+
+- Himpunan bernilai tsv-join diganti kosakata resmi tsv_join.d: --key-fields, --data-fields, --append-fields, --prefix, --write-all (-d adalah data-fields).
+
 ## [Belum rilis] — Gerbang: csvjoin - '--inner' ditolak (Audit 2133)
 
 - Cabang csvjoin kini menolak --inner: bukan bendera resmi csvjoin (argparse EXIT2); yang resmi hanya --outer/--left/--right.

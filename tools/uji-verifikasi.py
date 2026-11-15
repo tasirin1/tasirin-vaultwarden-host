@@ -26280,6 +26280,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--inner csvjoin ditolak: gerbang lolos (Audit 2133)", rc == 0)
         shutil.rmtree(sub1234, ignore_errors=True)
+        sub1235 = klon(tmp, "sub1235")
+        berkas_aksi1235 = os.path.join(
+            sub1235, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1235, encoding="utf-8") as f:
+            isi_aksi1235 = f.read()
+        baris_aksi1235 = [b for b in isi_aksi1235.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1235 = isi_aksi1235.replace(
+                baris_aksi1235,
+                baris_aksi1235.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-join -f luar.tsv --append-fields 3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1235 != isi_aksi1235, \
+            "suntikan aksi1235 tidak menembak"
+        with open(berkas_aksi1235, "w", encoding="utf-8") as f:
+            f.write(isi_baru1235)
+        rc, out = jalan(sub1235,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-join --append-fields bernilai: gerbang gagal (Audit 2134)", rc != 0)
+        shutil.rmtree(sub1235, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

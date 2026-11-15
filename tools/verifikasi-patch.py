@@ -6983,9 +6983,16 @@ def _menguras_khusus(perintah, toks, awal):
                        and not t_tj.startswith("--"))
                    for t_tj in mentah):
             return False
+        # Audit 2134: kosakata resmi tsv_join.d -
+        # k|key-fields, d|data-fields,
+        # a|append-fields, p|prefix, w|write-all.
         ops_tj = _operand_sesudah_opsi(
             toks, awal, {"-f", "--filter-file", "-k",
-                         "--key", "-d", "--delimiter"})
+                         "--key-fields", "-d",
+                         "--data-fields", "-a",
+                         "--append-fields", "-p",
+                         "--prefix", "-w",
+                         "--write-all"})
         if "\x00gantung" in ops_tj:
             return False
         return not ops_tj or "-" in ops_tj
