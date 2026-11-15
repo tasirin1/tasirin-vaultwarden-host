@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: buildah - pindai --stdin dan -f sadar nilai (Audit 2027)
+
+- Pindai buildah kini sadar nilai: '--stdin' yang duduk sebagai nilai --label tidak lagi tertuduh (Audit 2027) dan bentuk merekat '-f-' ikut dinilai (Audit 2021).
+
 ## [Belum rilis] — Gerbang: vagrant ssh -h bantuan dan penerusan '--' ke ssh (Audit 2024-2025)
 
 - 'vagrant ssh -h' kini bantuan (Audit 2024), dan argumen sesudah '--' yang diteruskan ke ssh dikenali: '-n' di sana mengalihkan stdin dari /dev/null (Audit 2025).

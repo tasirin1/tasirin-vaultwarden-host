@@ -5644,17 +5644,43 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         # Audit 2010: '-f -' pada bud/build berarti
         # Containerfile dibaca dari stdin (man).
+        # Audit 2021: bentuk merekat '-f-' ikut.
+        # Audit 2027: pindai sadar nilai - token
+        # yang duduk sebagai nilai opsi lain
+        # (--label --stdin) BUKAN saklar.
         fstdin_ba = False
-        for k_ba, t_ba in enumerate(mentah):
-            if (t_ba in ("-f", "--file")
-                    and k_ba + 1 < len(mentah)
-                    and mentah[k_ba + 1] == "-"):
-                fstdin_ba = True
+        stdin_ba = False
+        nilai_ba = {"--label", "-l", "--tag", "-t",
+                    "--build-arg", "--network",
+                    "--target", "--platform", "--output",
+                    "-o", "--iidfile", "--metadata-file"}
+        j_ba = 0
+        while j_ba < len(mentah):
+            t_ba = mentah[j_ba]
+            if t_ba in nilai_ba:
+                j_ba += 2
+                continue
+            if any(t_ba.startswith(v + "=")
+                   for v in nilai_ba):
+                j_ba += 1
+                continue
+            if t_ba == "--stdin":
+                stdin_ba = True
             if t_ba == "--file=-":
                 fstdin_ba = True
+            if (t_ba.startswith("-f") and len(t_ba) > 2
+                    and t_ba[2:].lstrip("=") == "-"):
+                fstdin_ba = True
+            if (t_ba in ("-f", "--file")
+                    and j_ba + 1 < len(mentah)
+                    and mentah[j_ba + 1] == "-"):
+                fstdin_ba = True
+                j_ba += 2
+                continue
+            j_ba += 1
         return (bool(ops_ba)
                 and ops_ba[0] in ("build", "bud")
-                and ("--stdin" in mentah or fstdin_ba))
+                and (stdin_ba or fstdin_ba))
     if perintah == "skopeo":
         # Audit 1938: copy dari docker-archive:/dev/stdin
         # membaca aliran stdin (containers-transports(5)).
