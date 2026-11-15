@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mpv dinilai - operand '-' dari stdin (Audit 2034)
+
+- mpv kini dinilai: operand '-' tunggal berarti data media dibaca dari stdin (Audit 2034).
+
 ## [Belum rilis] — Gerbang: ffmpeg - interaksi stdin bawaan dinilai (Audit 2033)
 
 - ffmpeg membaca perintah dari stdin secara bawaan (opsi -stdin aktif kecuali dimatikan -nostdin), jadi bentuk masukan berkas biasa kini dinilai menguras; '-nostdin' tepat lolos (Audit 2033).
