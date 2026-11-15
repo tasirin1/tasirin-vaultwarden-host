@@ -96,6 +96,9 @@ RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHAS
 # sementara - nama ber-newline tak lagi terbelah
 # (variabel bash tak bisa memuat NUL).
 KANDIDAT_HDR_BERKAS="$(mktemp)"
+# Audit 2065: bersihkan artefak sementara juga
+# saat skrip dibunuh sinyal di tengah jalan.
+trap 'rm -f "$KANDIDAT_HDR_BERKAS"' EXIT
 { git -c core.quotepath=false grep --cached -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false ls-files --others --exclude-standard -z 2>/dev/null | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" -- 2>/dev/null; } | sort -z -u > "$KANDIDAT_HDR_BERKAS" || true
 RAHASIA_HDR=""
 # Audit 2030: jendela uji NUL diperlebar ke
@@ -238,6 +241,7 @@ DAFTAR_BUNGKUS=()
 # berkas sementara agar fase bungkus tetap meratakannya;
 # nama tampil dipetakan kembali sesudah awk berjalan.
 TMPBUNGKUS="$(mktemp -d)"
+trap 'rm -f "$KANDIDAT_HDR_BERKAS"; rm -rf "$TMPBUNGKUS"' EXIT
 PETA_TMP1886=()
 PETA_ASAL1886=()
 for entri in "${ENTRI_BUNGKUS[@]}"; do

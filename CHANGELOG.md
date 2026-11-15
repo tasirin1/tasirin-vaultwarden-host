@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: artefak sementara dibersihkan juga saat sinyal (Audit 2065)
+
+- Trap EXIT kini menghapus berkas kandidat dan direktori bungkus sementara, sehingga skrip yang dibunuh sinyal di tengah lari tak lagi meninggalkan artefak di TMPDIR.
+
 ## [Belum rilis] — Gerbang: sbcl - --quit ikut menekan REPL (Audit 2064)
 
 - Penekan cabang sbcl ditambah --quit (sbcl(1): keluar sesudah pemrosesan opsi toplevel) sehingga 'sbcl --quit' tak lagi tertuduh membaca stdin.

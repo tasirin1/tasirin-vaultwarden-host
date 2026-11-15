@@ -1057,6 +1057,32 @@ def main():
                 "tertangkap (Audit 2051)",
                 rc != 0 and "besar.bin" in out)
         shutil.rmtree(besar, ignore_errors=True)
+        import signal as _signal128
+        import subprocess as _sp128
+        import time as _time128
+        tmpd_rusak = klon(tmp, "tmpd-rusak")
+        rc, out = jalan(tmpd_rusak, ["bash", SKRIP],
+                        env={"TMPDIR": "/proc/tak-ada-128"})
+        periksa("TMPDIR rusak: vonis rancangan menyebut "
+                "TMPDIR (Audit 2066)",
+                rc != 0 and "GAGAL:" in out
+                and "TMPDIR" in out)
+        shutil.rmtree(tmpd_rusak, ignore_errors=True)
+
+        klon_sig = klon(tmp, "sinyal")
+        tmpd_sinyal = tempfile.mkdtemp()
+        p_sig = _sp128.Popen(
+            ["bash", SKRIP], cwd=klon_sig,
+            env={**os.environ, "TMPDIR": tmpd_sinyal},
+            stdout=_sp128.DEVNULL, stderr=_sp128.DEVNULL)
+        _time128.sleep(1.2)
+        p_sig.send_signal(_signal128.SIGTERM)
+        p_sig.wait()
+        periksa("sinyal di tengah lari: artefak sementara "
+                "dibersihkan trap (Audit 2065)",
+                os.listdir(tmpd_sinyal) == [])
+        shutil.rmtree(tmpd_sinyal, ignore_errors=True)
+        shutil.rmtree(klon_sig, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
