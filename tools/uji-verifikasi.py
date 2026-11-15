@@ -24642,6 +24642,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi TLS global docker bernilai: gerbang gagal (Audit 2042)", rc != 0)
         shutil.rmtree(sub1156, ignore_errors=True)
+        sub1157 = klon(tmp, "sub1157")
+        berkas_aksi1157 = os.path.join(
+            sub1157, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1157, encoding="utf-8") as f:
+            isi_aksi1157 = f.read()
+        baris_aksi1157 = [b for b in isi_aksi1157.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1157 = isi_aksi1157.replace(
+                baris_aksi1157,
+                baris_aksi1157.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(podman --storage-driver build load; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1157 != isi_aksi1157, \
+            "suntikan aksi1157 tidak menembak"
+        with open(berkas_aksi1157, "w", encoding="utf-8") as f:
+            f.write(isi_baru1157)
+        rc, out = jalan(sub1157,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi global podman tambahan bernilai: gerbang gagal (Audit 2043)", rc != 0)
+        shutil.rmtree(sub1157, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: podman - opsi global bernilai tambahan dilengkapi (Audit 2043)
+
+- Himpunan opsi global bernilai podman ditambah --storage-driver/--cgroup-manager/--events-backend/--tmpdir/--storage-opt (docs.podman.io).
+
 ## [Belum rilis] — Gerbang: docker - opsi TLS global bernilai dilengkapi (Audit 2042)
 
 - Himpunan opsi global bernilai docker ditambah --tlscacert/--tlscert/--tlskey (docs.docker.com) sehingga token di posisi nilainya tak lagi tertukar dengan sub-perintah.

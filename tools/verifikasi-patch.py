@@ -5106,7 +5106,11 @@ def _menguras_khusus(perintah, toks, awal):
         global_pm = {"--connection", "--url",
                      "--config", "--identity",
                      "--log-level", "--namespace",
-                     "--runtime", "--root", "--runroot"}
+                     "--runtime", "--root", "--runroot",
+                     "--storage-driver",
+                     "--cgroup-manager",
+                     "--events-backend", "--tmpdir",
+                     "--storage-opt"}
         j0_pm = 0
         sub0_pm = None
         while j0_pm < len(mentah):
