@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: akar repo dari lokasi skrip dan penjaga git membaca keluaran (Audit 2028-2029)
+
+- Akar pemeriksaan kini diambil dari lokasi skrip ini sendiri sehingga repo git lain yang bersarang tidak merebut pemeriksaan (Audit 2028), dan penjaga kewarasan git membaca keluaran 'true'/'false' dari rev-parse sehingga lari dari dalam .git/ memicu pesan rancangannya (Audit 2029).
+
 ## [Belum rilis] — Gerbang: gst-launch-1.0 dinilai - fdsrc fd=0 dari stdin (Audit 2040)
 
 - gst-launch-1.0 kini dinilai: elemen fdsrc dengan fd=0 membaca dari stdin (Audit 2040). Bentuk fdsrc tanpa fd tetap tertahan.

@@ -6,7 +6,7 @@ gagal=0
 if [ "${GITHUB_ACTIONS:-}" = "true" ]; then ANO_ERR="::error::"; else ANO_ERR=""; fi
 gagal_msg() { echo "${ANO_ERR}GAGAL: $*"; gagal=1; }
 
-if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1 || ! git ls-files >/dev/null 2>&1; then
+if [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" != "true" ] || ! git ls-files >/dev/null 2>&1; then
   gagal_msg "git tak bisa dipakai di sini - cek berbasis git (biner terlarang, pola rahasia) tak berjalan, hasil tak bisa dipercaya; jalankan dari clone git yang sehat"
 fi
 
@@ -14,7 +14,12 @@ fi
 # pemeriksaan memakai jalur relatif akar; lari
 # dari subdirektori dulu buta akar dan memicu
 # alarm palsu berkas wajib hilang.
-if AKAR2001="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+# Audit 2028: akar diambil dari LOKASI SKRIP
+# ini (induk folder scripts/), bukan dari repo
+# tempat berdiri - repo git lain yang bersarang
+# di dalam repo ini dulu merebut pemeriksaan.
+AKAR2001="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)"
+if [ -n "$AKAR2001" ]; then
   cd "$AKAR2001" || gagal_msg "gagal pindah ke akar repo"
 fi
 

@@ -962,6 +962,28 @@ def main():
         periksa("vektor .9 di drawable-nodpi tertangkap "
                 "(Audit 2003)", rc != 0 and "vektor" in out)
         shutil.rmtree(nodpi, ignore_errors=True)
+        sarang = klon(tmp, "sarang")
+        dalam = os.path.join(sarang, "sarang", "dalam")
+        shutil.copytree(sarang, dalam)
+        os.makedirs(sarang + "/app/src/main/res/drawable-nodpi",
+                    exist_ok=True)
+        tanam(sarang,
+              "app/src/main/res/drawable-nodpi/uji.xml",
+              '<vector android:pathData="M.9,2"/>', "w")
+        git(sarang, "add", "-A")
+        rc, out = jalan(dalam, ["bash",
+                                "../../scripts/cek-cepat.sh"])
+        periksa("lari dari repo bersarang menilai repo "
+                "pemilik skrip (Audit 2028)",
+                rc != 0 and "vektor" in out)
+        shutil.rmtree(sarang, ignore_errors=True)
+        darigit = klon(tmp, "darigit")
+        rc, out = jalan(darigit + "/.git",
+                        ["bash", os.path.join(darigit, SKRIP)])
+        periksa("lari dari dalam .git memicu pesan git tak "
+                "bisa dipercaya (Audit 2029)",
+                rc != 0 and "tak bisa dipercaya" in out)
+        shutil.rmtree(darigit, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
