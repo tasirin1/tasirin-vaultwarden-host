@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: usql dinilai - masukan dari pipa (Audit 2055)
+
+- usql kini dinilai: masukannya bisa berasal dari pipa dan dikirim di akhir berkas seperti psql (sumber resmi); -c/--command menekan.
+
 ## [Belum rilis] — Gerbang: mycli dinilai - modus batch dari stdin (Audit 2054)
 
 - mycli kini dinilai: bila stdin bukan TTY ia masuk modus batch dari stdin (sumber resmi); -e/--execute menekan.
