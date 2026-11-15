@@ -6995,6 +6995,23 @@ def _menguras_khusus(perintah, toks, awal):
                          "--write-all"})
         if "\x00gantung" in ops_tj:
             return False
+        # Audit 2135: filter dari stdin ('-f -')
+        # membalik syarat - berkas data WAJIB ada
+        # (sumber tsv_join.d); stdin tetap terpakai
+        # sebagai filter.
+        nilai_f = None
+        for k_tj, t_tj in enumerate(mentah):
+            if t_tj in ("-f", "--filter-file") \
+                    and k_tj + 1 < len(mentah):
+                nilai_f = mentah[k_tj + 1]
+            elif t_tj.startswith("--filter-file="):
+                nilai_f = t_tj.split("=", 1)[1]
+            elif (len(t_tj) > 2
+                    and t_tj.startswith("-f")
+                    and not t_tj.startswith("--")):
+                nilai_f = t_tj[2:]
+        if nilai_f == "-":
+            return len(ops_tj) >= 1 and ops_tj[0] != "-"
         return not ops_tj or "-" in ops_tj
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun

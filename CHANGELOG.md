@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-join - filter '-' membalik syarat berkas data (Audit 2135)
+
+- Cabang tsv-join kini menilai filter dari stdin: '-f -' menuntut berkas data ada (stdin terpakai sebagai filter); tanpa berkas data ia galat.
+
 ## [Belum rilis] — Gerbang: tsv-join - kosakata opsi diperbaiki (Audit 2134)
 
 - Himpunan bernilai tsv-join diganti kosakata resmi tsv_join.d: --key-fields, --data-fields, --append-fields, --prefix, --write-all (-d adalah data-fields).
