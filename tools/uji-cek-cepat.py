@@ -1142,6 +1142,17 @@ def main():
                 and '"pecah' not in out)
         shutil.rmtree(namakutip, ignore_errors=True)
 
+        namamin = klon(tmp, "namamin")
+        with open(namamin + "/-", "w") as fh:
+            fh.write("token uji: " + token_palsu + "\n")
+        git(namamin, "add", "-A")
+        git(namamin, "commit", "-qm", "tanam")
+        rc, out = jalan(namamin, ["bash", SKRIP])
+        periksa("berkas terlacak '-' tampil satu kali "
+                "sebagai ./- (Audit 2158)",
+                rc != 0 and out.count("./-") == 1)
+        shutil.rmtree(namamin, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

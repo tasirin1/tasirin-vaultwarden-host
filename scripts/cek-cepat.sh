@@ -103,6 +103,7 @@ RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHAS
     }
     nama = hasil
   }
+  if (nama == "-") nama = "./-"
   gsub(/\\/, "\\\\", nama); gsub(/\n/, "\\n", nama)
   print nama
 }' | sort -u || true)"

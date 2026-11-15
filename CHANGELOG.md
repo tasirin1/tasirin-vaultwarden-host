@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: nama '-' dari fase rahasia dinormalkan ke ./- (Audit 2158)
+
+- Dekoder awk fase rahasia-awal kini memetakan nama '-' menjadi './-' seperti daftar bungkus, sehingga berkas terlacak bernama '-' tampil satu kali.
+
 ## [Belum rilis] — Gerbang: csvsql - sembilan opsi bernilai dilengkapi (Audit 2157)
 
 - Himpunan bernilai csvsql ditambah -i/--dialect, --prefix, --sql-delimiter, --tables, --unique-constraint, --db-schema, --min-col-len, --col-len-multiplier, --engine-option (csvsql(1)).
