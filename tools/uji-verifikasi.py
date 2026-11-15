@@ -24096,6 +24096,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("az rest --body @- dari pipa: gerbang gagal (Audit 2011)", rc != 0)
         shutil.rmtree(sub1130, ignore_errors=True)
+        sub1131 = klon(tmp, "sub1131")
+        berkas_aksi1131 = os.path.join(
+            sub1131, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1131, encoding="utf-8") as f:
+            isi_aksi1131 = f.read()
+        baris_aksi1131 = [b for b in isi_aksi1131.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1131 = isi_aksi1131.replace(
+                baris_aksi1131,
+                baris_aksi1131.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(vagrant ssh; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1131 != isi_aksi1131, \
+            "suntikan aksi1131 tidak menembak"
+        with open(berkas_aksi1131, "w", encoding="utf-8") as f:
+            f.write(isi_baru1131)
+        rc, out = jalan(sub1131,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("vagrant ssh sesi interaktif: gerbang gagal (Audit 2012)", rc != 0)
+        shutil.rmtree(sub1131, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

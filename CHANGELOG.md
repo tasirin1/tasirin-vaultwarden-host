@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: vagrant ssh dinilai sesi interaktif (Audit 2012)
+
+- Nama baru vagrant: sub-perintah ssh True (sesi SSH interaktif, kelas sama ssh polos; DUGAAN kuat berbasis dokumentasi HashiCorp).
+
 ## [Belum rilis] — Gerbang: az rest --body @- dinilai membaca pipa (Audit 2011)
 
 - Nama baru az: hanya 'az rest' dengan --body '@-' (terpisah atau =) yang True - mekanisme '@-' dari pipa menurut Microsoft Learn (DUGAAN kuat untuk penerapan khususnya).
