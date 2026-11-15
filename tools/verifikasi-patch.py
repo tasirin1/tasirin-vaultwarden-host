@@ -6088,7 +6088,14 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2013: minikube ssh adalah sesi SSH
         # interaktif (kelas sama vagrant ssh/ssh;
         # DUGAAN kuat).
-        ops_mk = _operand_sesudah_opsi(toks, awal, set())
+        # Audit 2022: opsi warisan minikube
+        # -p/--profile bernilai (dok resmi) -
+        # nilainya jangan terhitung operand.
+        # Audit 2023: -h adalah bantuan.
+        if "-h" in mentah:
+            return False
+        ops_mk = _operand_sesudah_opsi(
+            toks, awal, {"-p", "--profile"})
         return bool(ops_mk) and ops_mk[0] == "ssh"
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun

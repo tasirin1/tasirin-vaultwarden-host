@@ -24264,6 +24264,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("podman machine ssh sesi interaktif: gerbang gagal (Audit 2020)", rc != 0)
         shutil.rmtree(sub1138, ignore_errors=True)
+        sub1140 = klon(tmp, "sub1140")
+        berkas_aksi1140 = os.path.join(
+            sub1140, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1140, encoding="utf-8") as f:
+            isi_aksi1140 = f.read()
+        baris_aksi1140 = [b for b in isi_aksi1140.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1140 = isi_aksi1140.replace(
+                baris_aksi1140,
+                baris_aksi1140.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(minikube -p profil ssh; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1140 != isi_aksi1140, \
+            "suntikan aksi1140 tidak menembak"
+        with open(berkas_aksi1140, "w", encoding="utf-8") as f:
+            f.write(isi_baru1140)
+        rc, out = jalan(sub1140,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-p minikube bernilai: gerbang gagal (Audit 2022)", rc != 0)
+        shutil.rmtree(sub1140, ignore_errors=True)
+        sub1141 = klon(tmp, "sub1141")
+        berkas_aksi1141 = os.path.join(
+            sub1141, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1141, encoding="utf-8") as f:
+            isi_aksi1141 = f.read()
+        baris_aksi1141 = [b for b in isi_aksi1141.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1141 = isi_aksi1141.replace(
+                baris_aksi1141,
+                baris_aksi1141.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(minikube ssh -h; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1141 != isi_aksi1141, \
+            "suntikan aksi1141 tidak menembak"
+        with open(berkas_aksi1141, "w", encoding="utf-8") as f:
+            f.write(isi_baru1141)
+        rc, out = jalan(sub1141,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-h minikube bantuan: gerbang lolos (Audit 2023)", rc == 0)
+        shutil.rmtree(sub1141, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

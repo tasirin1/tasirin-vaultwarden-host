@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: minikube -p/--profile bernilai dan -h bantuan (Audit 2022-2023)
+
+- Opsi warisan minikube -p/--profile kini tertelan sebagai opsi bernilai sehingga 'minikube -p profil ssh' terbaca benar (Audit 2022), dan '-h' dikenali sebagai bantuan (Audit 2023).
+
 ## [Belum rilis] — Gerbang: sub podman sadar nilai global dan machine ssh dinilai (Audit 2019-2020)
 
 - Cermin perbaikan docker pada podman (Audit 2019) dan 'podman machine ssh' kini dinilai sebagai sesi interaktif pembaca stdin (Audit 2020).
