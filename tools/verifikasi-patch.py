@@ -6818,6 +6818,15 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_qst
                     or all(o == "-" for o in ops_qst))
+        # Audit 2152: sub 'headers' - masukan
+        # kosong/'-' berarti stdin (README qsv:
+        # dukungan masukan diperluas).
+        if mentah and mentah[0] == "headers":
+            ops_qh = _operand_sesudah_opsi(
+                toks, awal + 1, set())
+            if "\x00gantung" in ops_qh:
+                return False
+            return not ops_qh or "-" in ops_qh
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "rowskey",
                                   "columns")):

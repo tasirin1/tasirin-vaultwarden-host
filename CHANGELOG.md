@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub headers membaca stdin (Audit 2152)
+
+- Cabang qsv ditambah sub headers: masukan kosong/'-' berarti stdin (dukungan masukan diperluas, README qsv).
+
 ## [Belum rilis] — Gerbang: qsv - sub stats membaca stdin (Audit 2151)
 
 - Cabang qsv ditambah sub stats: masukan [<input>] opsional (stats.rs), pola Config yang sama seperti cat/count.
