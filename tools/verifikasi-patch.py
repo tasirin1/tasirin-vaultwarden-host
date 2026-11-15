@@ -7025,7 +7025,8 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "table":
             ops_xt = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"-w", "-p", "-c", "-o", "--output",
+                {"-w", "--width", "-p", "--pad",
+                 "-c", "--condense", "-o", "--output",
                  "-d", "--delimiter"})
             if "\x00gantung" in ops_xt:
                 return False

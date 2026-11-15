@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv table - bentuk panjang ditambah (Audit 2166)
+
+- Himpunan bernilai xsv table ditambah --width, --pad, --condense (table.rs).
+
 ## [Belum rilis] — Gerbang: xsv flatten - bentuk panjang ditambah (Audit 2165)
 
 - Himpunan bernilai xsv flatten ditambah --condense dan --separator (flatten.rs).
