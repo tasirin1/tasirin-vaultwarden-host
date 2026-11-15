@@ -6717,6 +6717,15 @@ def _menguras_khusus(perintah, toks, awal):
         # galat dan stdin tak tersentuh. Dengan
         # sub-subperintah, masukan kosong/'-'
         # membaca stdin (config.rs).
+        # Audit 2108: 'count' memakai Config yang
+        # sama seperti cat (None/'-' -> stdin).
+        if mentah and mentah[0] == "count":
+            ops_qc = _operand_sesudah_opsi(
+                toks, awal + 1, set())
+            if "\x00gantung" in ops_qc:
+                return False
+            return (not ops_qc
+                    or all(o == "-" for o in ops_qc))
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "rowskey",
                                   "columns")):

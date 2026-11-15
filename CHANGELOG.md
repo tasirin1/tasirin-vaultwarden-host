@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - 'count' ikut membaca stdin (Audit 2108)
+
+- Cabang qsv ditambah sub count: memakai Config yang sama seperti cat (masukan kosong/'-' menjadi io::stdin()).
+
 ## [Belum rilis] — Gerbang: qsv - 'cat' mewajibkan sub-subperintah (koreksi 2098) (Audit 2107)
 
 - Cabang qsv ditulis ulang: cat tanpa rows/rowskey/columns adalah galat parse (USAGE cat.rs); bentuk itulah yang dinilai menguras sekarang. Uji skenario 2098 dibalik bentuknya ke 'qsv cat rows'.
