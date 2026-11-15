@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: saringan biner header - jendela lebar, isi indeks, od lumpuh (Audit 2030-2032)
+
+- Saringan biner untuk header kunci tunggal diperkuat tiga arah: jendela uji NUL diperlebar dari 8000 byte ke 16 MB (Audit 2030), kandidat dari indeks diuji dari isi indeks juga (Audit 2031), dan od yang hilang atau keluarannya kosong membuat kandidat dianggap biner, bukan mati diam-diam (Audit 2032).
+
 ## [Belum rilis] — Cek-cepat: akar repo dari lokasi skrip dan penjaga git membaca keluaran (Audit 2028-2029)
 
 - Akar pemeriksaan kini diambil dari lokasi skrip ini sendiri sehingga repo git lain yang bersarang tidak merebut pemeriksaan (Audit 2028), dan penjaga kewarasan git membaca keluaran 'true'/'false' dari rev-parse sehingga lari dari dalam .git/ memicu pesan rancangannya (Audit 2029).

@@ -984,6 +984,42 @@ def main():
                 "bisa dipercaya (Audit 2029)",
                 rc != 0 and "tak bisa dipercaya" in out)
         shutil.rmtree(darigit, ignore_errors=True)
+        nuljauh = klon(tmp, "nuljauh")
+        hdr126 = (b"-----BEGIN " + b"PRIVATE"
+                  + b" KEY-----" + bytes([10]))
+        with open(nuljauh + "/biner-jauh.bin", "wb") as fh:
+            fh.write(hdr126 + b"A" * 9050 + bytes([0]))
+        git(nuljauh, "add", "-A")
+        rc, out = jalan(nuljauh, ["bash", SKRIP])
+        periksa("header biner dengan NUL pertama jauh "
+                "tertangkap (Audit 2030)",
+                rc != 0 and "biner-jauh.bin" in out)
+        shutil.rmtree(nuljauh, ignore_errors=True)
+        idxvs = klon(tmp, "idxvs")
+        with open(idxvs + "/biner-idx.bin", "wb") as fh:
+            fh.write(bytes([0, 1]) + hdr126 + bytes([0]))
+        git(idxvs, "add", "-A")
+        with open(idxvs + "/biner-idx.bin", "w") as fh:
+            fh.write("teks jinak biasa saja.\n")
+        rc, out = jalan(idxvs, ["bash", SKRIP])
+        periksa("kandidat indeks diuji dari isi indeks "
+                "(Audit 2031)",
+                rc != 0 and "biner-idx.bin" in out)
+        shutil.rmtree(idxvs, ignore_errors=True)
+        odlumpuh = klon(tmp, "odlumpuh")
+        stubbin = os.path.join(odlumpuh, "stubbin")
+        os.makedirs(stubbin, exist_ok=True)
+        tanam(odlumpuh, "stubbin/od", "#!/bin/sh\nexit 0\n", "w")
+        os.chmod(stubbin + "/od", 0o755)
+        with open(odlumpuh + "/biner-od.bin", "wb") as fh:
+            fh.write(bytes([0, 1]) + hdr126 + bytes([0]))
+        git(odlumpuh, "add", "-A")
+        rc, out = jalan(odlumpuh, ["bash", SKRIP],
+                        env={"PATH": stubbin + ":/usr/bin:/bin"})
+        periksa("od lumpuh membuat kandidat dianggap biner "
+                "(Audit 2032)",
+                rc != 0 and "biner-od.bin" in out)
+        shutil.rmtree(odlumpuh, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

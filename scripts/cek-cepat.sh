@@ -90,9 +90,29 @@ RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHAS
 # (indeks + pohon kerja) menutupnya.
 KANDIDAT_HDR="$( { git -c core.quotepath=false grep --cached -a -l -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; } | sort -u || true)"
 RAHASIA_HDR=""
+# Audit 2030: jendela uji NUL diperlebar ke
+# 16 MB (8000 byte dulu melewatkan NUL pertama
+# yang duduk lebih jauh). Audit 2031: kandidat
+# dari indeks diuji dari ISI INDEKS juga, bukan
+# hanya pohon kerja. Audit 2032: od hilang /
+# keluarannya kosong = kandidat dianggap biner
+# (gagal-terbuka terkendali, bukan mati diam).
+biner_atau_tak_teruji() {
+  if ! command -v od >/dev/null 2>&1; then return 0; fi
+  out_od="$(od -An -tx1 2>/dev/null || true)"
+  if [ -z "$out_od" ]; then return 0; fi
+  printf '%s' "$out_od" | grep -q ' 00'
+}
 while IFS= read -r f_hdr; do
   [ -n "$f_hdr" ] || continue
-  if [ -f "$f_hdr" ] && head -c 8000 "$f_hdr" 2>/dev/null | od -An -tx1 2>/dev/null | grep -q ' 00'; then
+  kena_hdr=0
+  if [ -f "$f_hdr" ] && head -c 16777216 "$f_hdr" 2>/dev/null | biner_atau_tak_teruji; then
+    kena_hdr=1
+  fi
+  if [ "$kena_hdr" = 0 ] && git show ":$f_hdr" 2>/dev/null | head -c 16777216 | biner_atau_tak_teruji; then
+    kena_hdr=1
+  fi
+  if [ "$kena_hdr" = 1 ]; then
     RAHASIA_HDR="$(printf '%s\n%s' "$RAHASIA_HDR" "$f_hdr")"
   fi
 done <<EOF_HDR
