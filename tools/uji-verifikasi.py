@@ -24516,6 +24516,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("guix repl membaca stdin: gerbang gagal (Audit 2037)", rc != 0)
         shutil.rmtree(sub1150, ignore_errors=True)
+        sub1151 = klon(tmp, "sub1151")
+        berkas_aksi1151 = os.path.join(
+            sub1151, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1151, encoding="utf-8") as f:
+            isi_aksi1151 = f.read()
+        baris_aksi1151 = [b for b in isi_aksi1151.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1151 = isi_aksi1151.replace(
+                baris_aksi1151,
+                baris_aksi1151.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(nix eval --arg-from-stdin x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1151 != isi_aksi1151, \
+            "suntikan aksi1151 tidak menembak"
+        with open(berkas_aksi1151, "w", encoding="utf-8") as f:
+            f.write(isi_baru1151)
+        rc, out = jalan(sub1151,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--arg-from-stdin nix meneruskan stdin: gerbang gagal (Audit 2038)", rc != 0)
+        shutil.rmtree(sub1151, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

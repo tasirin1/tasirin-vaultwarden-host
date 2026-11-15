@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nix dinilai - flag stdin resmi (Audit 2038)
+
+- nix kini dinilai untuk flag stdin resminya: '--stdin', '--arg-from-stdin', dan '-f -' (Audit 2038). 'nix repl' polos tetap tertahan tanpa bukti verbatim.
+
 ## [Belum rilis] — Gerbang: guix dinilai - 'guix repl' tanpa berkas dari stdin (Audit 2037)
 
 - 'guix repl' tanpa berkas membaca dari stdin secara bawaan; bentuk --listen (server) tepat lolos (Audit 2037).
