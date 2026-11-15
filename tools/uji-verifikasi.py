@@ -23926,7 +23926,7 @@ def main():
             f.write(isi_baru1122)
         rc, out = jalan(sub1122,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("R CMD BATCH - adalah R -f -: gerbang gagal (Audit 2000)", rc != 0)
+        periksa("R CMD BATCH - berakhir galat, bukan stdin: gerbang lolos (Audit 2014)", rc == 0)
         shutil.rmtree(sub1122, ignore_errors=True)
         sub1123 = klon(tmp, "sub1123")
         berkas_aksi1123 = os.path.join(
@@ -24138,6 +24138,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("minikube ssh sesi interaktif: gerbang gagal (Audit 2013)", rc != 0)
         shutil.rmtree(sub1132, ignore_errors=True)
+        sub1133 = klon(tmp, "sub1133")
+        berkas_aksi1133 = os.path.join(
+            sub1133, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1133, encoding="utf-8") as f:
+            isi_aksi1133 = f.read()
+        baris_aksi1133 = [b for b in isi_aksi1133.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1133 = isi_aksi1133.replace(
+                baris_aksi1133,
+                baris_aksi1133.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(R CMD BATCH -- -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1133 != isi_aksi1133, \
+            "suntikan aksi1133 tidak menembak"
+        with open(berkas_aksi1133, "w", encoding="utf-8") as f:
+            f.write(isi_baru1133)
+        rc, out = jalan(sub1133,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("R CMD BATCH -- - adalah R -f -: gerbang gagal (Audit 2015)", rc != 0)
+        shutil.rmtree(sub1133, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

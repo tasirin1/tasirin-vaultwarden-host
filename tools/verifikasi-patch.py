@@ -5814,9 +5814,13 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1980: R CMD menjalankan sub-perintah
         # perkakas (BATCH membaca berkas), bukan R
         # interaktif.
-        # Audit 2000: R CMD BATCH - menjalankan
-        # R -f - (stdin) - pengecualian pengguguran.
-        if mentah[:3] == ["CMD", "BATCH", "-"]:
+        # Audit 2014 (KOREKSI 2000): gelung opsi
+        # skrip BATCH menelan '-' sebagai opsi -
+        # 'R CMD BATCH -' berakhir galat, BUKAN
+        # stdin (terprobe dua shell atas gelung
+        # resmi). Audit 2015: sesudah '--' infile
+        # '-' utuh -> perintahnya 'R -f -' (stdin).
+        if mentah[:4] == ["CMD", "BATCH", "--", "-"]:
             return True
         if mentah[:1] == ["CMD"]:
             return False

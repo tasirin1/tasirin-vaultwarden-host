@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: koreksi vonis R CMD BATCH - dan pengenalan R CMD BATCH -- - (Audit 2014-2015)
+
+- Audit 2014 membatalkan Audit 2000 dari bukti gelung opsi skrip BATCH resmi (terprobe dua shell): '-' tertelan sebagai opsi sehingga perintah berakhir galat, bukan membaca stdin; vonis suite 1122 ikut dibalik. Audit 2015: 'R CMD BATCH -- -' menempatkan '-' sebagai infile sesudah '--' sehingga perintahnya benar 'R -f -' (stdin).
+
 ## [Belum rilis] — Gerbang: minikube ssh dinilai sesi interaktif (Audit 2013)
 
 - Nama baru minikube: sub-perintah ssh True (sesi SSH interaktif; DUGAAN kuat).
