@@ -25734,6 +25734,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai_pl parallel lengkap: gerbang lolos (Audit 2104)", rc == 0)
         shutil.rmtree(sub1208, ignore_errors=True)
+        sub1209 = klon(tmp, "sub1209")
+        berkas_aksi1209 = os.path.join(
+            sub1209, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1209, encoding="utf-8") as f:
+            isi_aksi1209 = f.read()
+        baris_aksi1209 = [b for b in isi_aksi1209.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1209 = isi_aksi1209.replace(
+                baris_aksi1209,
+                baris_aksi1209.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(parallel --semaphorename nm echo; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1209 != isi_aksi1209, \
+            "suntikan aksi1209 tidak menembak"
+        with open(berkas_aksi1209, "w", encoding="utf-8") as f:
+            f.write(isi_baru1209)
+        rc, out = jalan(sub1209,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--semaphorename menyiratkan semaphore: gerbang lolos (Audit 2105)", rc == 0)
+        shutil.rmtree(sub1209, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

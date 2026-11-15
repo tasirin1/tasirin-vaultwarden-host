@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: parallel - --semaphorename/--id menyiratkan semaphore (Audit 2105)
+
+- Pindai parallel kini memperlakukan --semaphorename/--id sebelum perintah sebagai penanda modus semaphore (parallel(1): 'Implies --semaphore').
+
 ## [Belum rilis] — Gerbang: parallel - himpunan nilai pindai semaphore dilengkapi (Audit 2104)
 
 - nilai_pl pindai semaphore ditambah 17 opsi bernilai resmi parallel (--max-args/-n, --max-procs/-P, --sshlogin(file), --env, --workdir, --results, --timeout, --delay, --block, --header:, --colsep, --delimiter, --return, --transferfile, --basefile, --semaphoretimeout).

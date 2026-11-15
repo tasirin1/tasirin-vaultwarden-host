@@ -6481,6 +6481,11 @@ def _menguras_khusus(perintah, toks, awal):
             if t_sem == "--semaphore":
                 modus_sem = True
                 break
+            # Audit 2105: --semaphorename/--id
+            # MENYIRATKAN semaphore (parallel(1)).
+            if t_sem in ("--semaphorename", "--id"):
+                modus_sem = True
+                break
             if t_sem in nilai_pl:
                 k_sem += 2
                 continue
