@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: parallel - himpunan nilai pindai semaphore dilengkapi (Audit 2104)
+
+- nilai_pl pindai semaphore ditambah 17 opsi bernilai resmi parallel (--max-args/-n, --max-procs/-P, --sshlogin(file), --env, --workdir, --results, --timeout, --delay, --block, --header:, --colsep, --delimiter, --return, --transferfile, --basefile, --semaphoretimeout).
+
 ## [Belum rilis] — Gerbang: pv - modus monitor bentuk '=' dan merekat terdeteksi (Audit 2103)
 
 - Pendeteksi modus monitor pv kini memegang --monitor=both dan -Mboth, bukan hanya token persis.

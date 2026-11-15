@@ -6461,9 +6461,19 @@ def _menguras_khusus(perintah, toks, awal):
         # duduk SEBELUM token perintah pertama -
         # sesudah perintah ia argumen biasa bagi
         # perintah itu.
+        # Audit 2104: himpunan dilengkapi dari
+        # parallel(1) - 17 opsi bernilai lagi.
         nilai_pl = {"--jobs", "-j", "-a", "--arg-file",
                     "--joblog", "--semaphorename",
-                    "--tagstring", "--tmpdir"}
+                    "--tagstring", "--tmpdir",
+                    "--max-args", "-n", "--max-procs",
+                    "-P", "--sshlogin", "--sshloginfile",
+                    "--env", "--workdir", "--results",
+                    "--timeout", "--delay", "--block",
+                    "--header:", "--colsep",
+                    "--delimiter", "--return",
+                    "--transferfile", "--basefile",
+                    "--semaphoretimeout"}
         k_sem = 0
         modus_sem = False
         while k_sem < len(mentah):

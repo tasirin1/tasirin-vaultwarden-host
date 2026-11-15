@@ -25713,6 +25713,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("monitor pv merekat terdeteksi: gerbang gagal (Audit 2103)", rc != 0)
         shutil.rmtree(sub1207, ignore_errors=True)
+        sub1208 = klon(tmp, "sub1208")
+        berkas_aksi1208 = os.path.join(
+            sub1208, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1208, encoding="utf-8") as f:
+            isi_aksi1208 = f.read()
+        baris_aksi1208 = [b for b in isi_aksi1208.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1208 = isi_aksi1208.replace(
+                baris_aksi1208,
+                baris_aksi1208.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(parallel --max-args 2 --semaphore echo; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1208 != isi_aksi1208, \
+            "suntikan aksi1208 tidak menembak"
+        with open(berkas_aksi1208, "w", encoding="utf-8") as f:
+            f.write(isi_baru1208)
+        rc, out = jalan(sub1208,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("nilai_pl parallel lengkap: gerbang lolos (Audit 2104)", rc == 0)
+        shutil.rmtree(sub1208, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
