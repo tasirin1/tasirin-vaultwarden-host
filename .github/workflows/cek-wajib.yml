@@ -26,7 +26,12 @@ jobs:
     runs-on: ubuntu-24.04
     # Audit 1380: suite uji-diri kini berjalan +-19-25 menit;
     # batas lama 15 menit membunuh job di tengah suite.
-    timeout-minutes: 45
+    # Audit 2149: job ini menjalankan DUA suite serial -
+    # komponen terukurnya 22:18 (uji-verifikasi, Audit
+    # 1617) + melampaui 15 menit (uji-cek-cepat, Audit
+    # 2074) dan keduanya terus tumbuh; margin di 45
+    # menipis - batas dinaikkan ke 75.
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:

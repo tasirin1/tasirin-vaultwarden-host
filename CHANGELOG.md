@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — CI: cek-wajib - timeout 45 ke 75 (dua suite serial) (Audit 2149)
+
+- Job cek-wajib menjalankan uji-verifikasi + uji-cek-cepat serial; komponen terukurnya 22:18 + melampaui 15 menit dan terus tumbuh - margin di 45 menipis (kandidat insiden 2074 berikutnya). Batas dinaikkan ke 75.
+
 ## [Belum rilis] — Gerbang: qsv - apply dynfmt/emptyreplace/datefmt dinilai (Audit 2148)
 
 - Cabang qsv apply ditambah tiga sub-sub ber-[<input>] opsional: dynfmt (wajib --formatstr + --new-column), emptyreplace (wajib --replacement + kolom), datefmt (kolom).
