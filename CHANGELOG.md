@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub search membaca stdin (Audit 2121)
+
+- Cabang xsv ditambah sub search: pola adalah operand pertama dan masukan [<input>] opsional sesudahnya; tanpa masukan ia membaca stdin (config.rs xsv).
+
 ## [Belum rilis] — Gerbang: csvgrep - pencocok pendek merekat terdeteksi (Audit 2120)
 
 - Pendeteksi pencocok csvgrep kini memegang bentuk pendek merekat -rfoo/-mfoo/-fberkas, bukan hanya token persis dan bentuk --panjang=.

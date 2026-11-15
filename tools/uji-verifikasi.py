@@ -26070,6 +26070,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("pencocok csvgrep merekat terdeteksi: gerbang gagal (Audit 2120)", rc != 0)
         shutil.rmtree(sub1224, ignore_errors=True)
+        sub1225 = klon(tmp, "sub1225")
+        berkas_aksi1225 = os.path.join(
+            sub1225, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1225, encoding="utf-8") as f:
+            isi_aksi1225 = f.read()
+        baris_aksi1225 = [b for b in isi_aksi1225.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1225 = isi_aksi1225.replace(
+                baris_aksi1225,
+                baris_aksi1225.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv search pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1225 != isi_aksi1225, \
+            "suntikan aksi1225 tidak menembak"
+        with open(berkas_aksi1225, "w", encoding="utf-8") as f:
+            f.write(isi_baru1225)
+        rc, out = jalan(sub1225,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv search membaca stdin: gerbang gagal (Audit 2121)", rc != 0)
+        shutil.rmtree(sub1225, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

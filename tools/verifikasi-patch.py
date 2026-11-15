@@ -6851,6 +6851,17 @@ def _menguras_khusus(perintah, toks, awal):
         # kosong diganti '-' (stdin); cat
         # mewajibkan rows/columns, count polos
         # menguras (util.rs/config.rs).
+        # Audit 2121: sub 'search' - pola adalah
+        # operand pertama, masukan [<input>]
+        # opsional sesudahnya (config.rs xsv).
+        if len(mentah) >= 2 and mentah[0] == "search":
+            ops_xse = _operand_sesudah_opsi(
+                toks, awal + 1, {"-c", "--columns"})
+            if "\x00gantung" in ops_xse:
+                return False
+            return (len(ops_xse) == 1
+                    or (len(ops_xse) >= 2
+                        and ops_xse[1] == "-"))
         if mentah and mentah[0] == "count":
             ops_xc = _operand_sesudah_opsi(
                 toks, awal + 1, set())
