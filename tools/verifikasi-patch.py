@@ -6240,6 +6240,16 @@ def _menguras_khusus(perintah, toks, awal):
         # stdin POSIX). Tanpa fd TERTAHAN
         # (bawaan -1 tak terdokumentasi).
         return "fdsrc" in mentah and "fd=0" in mentah
+    if perintah == "irb":
+        # Audit 2052: IRB mengeksekusi ekspresi
+        # Ruby yang dibaca dari stdin (RDoc
+        # resmi); operand berkas = skrip.
+        ops_ir = _operand_sesudah_opsi(
+            toks, awal, {"-r", "-I", "-E",
+                         "--prompt", "--echo-limit"})
+        if "\x00gantung" in ops_ir:
+            return False
+        return not ops_ir
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -7837,7 +7847,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "guix", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "pg_restore", "rclone", "restic", "rlogin", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "vagrant", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "guix", "identify", "ipfs", "irb", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "pg_restore", "rclone", "restic", "rlogin", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "vagrant", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

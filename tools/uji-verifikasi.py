@@ -24747,6 +24747,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-t guix repl bernilai: gerbang gagal (Audit 2047)", rc != 0)
         shutil.rmtree(sub1161, ignore_errors=True)
+        sub1162 = klon(tmp, "sub1162")
+        berkas_aksi1162 = os.path.join(
+            sub1162, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1162, encoding="utf-8") as f:
+            isi_aksi1162 = f.read()
+        baris_aksi1162 = [b for b in isi_aksi1162.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1162 = isi_aksi1162.replace(
+                baris_aksi1162,
+                baris_aksi1162.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(irb; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1162 != isi_aksi1162, \
+            "suntikan aksi1162 tidak menembak"
+        with open(berkas_aksi1162, "w", encoding="utf-8") as f:
+            f.write(isi_baru1162)
+        rc, out = jalan(sub1162,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("irb membaca ekspresi dari stdin: gerbang gagal (Audit 2052)", rc != 0)
+        shutil.rmtree(sub1162, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

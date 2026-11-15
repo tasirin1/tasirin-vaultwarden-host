@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: irb dinilai - REPL Ruby dari stdin (Audit 2052)
+
+- irb kini dinilai: tanpa operand berkas ia mengeksekusi ekspresi Ruby yang dibaca dari stdin (RDoc resmi).
+
 ## [Belum rilis] — Cek-cepat: kandidat header - tak terlacak ikut, nama NUL-aman, tanpa batas jendela (Audit 2049-2051)
 
 - Fase header kunci tunggal diperkuat tiga arah: kandidat kini juga dari berkas tak terlacak (Audit 2049), seluruh daftar kandidat dialirkan dengan pemisah NUL ke berkas sementara sehingga nama ber-newline utuh (Audit 2050), dan batas jendela uji NUL dicabut sehingga NUL pertama sejauh apa pun tertangkap (Audit 2051).
