@@ -6762,9 +6762,12 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2100: tanpa argumen berkas ia
         # membaca standard input (dok resmi
         # tsv-utils).
+        # Audit 2111: --exclude/-e bernilai ikut
+        # dilengkapi (referensi tsv-utils).
         ops_ts = _operand_sesudah_opsi(
             toks, awal, {"-f", "--fields", "-d",
-                         "--delimiter"})
+                         "--delimiter", "-e",
+                         "--exclude"})
         if "\x00gantung" in ops_ts:
             return False
         return not ops_ts or "-" in ops_ts

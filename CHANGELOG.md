@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-select - --exclude/-e dilengkapi (Audit 2111)
+
+- Himpunan opsi bernilai tsv-select ditambah -e/--exclude (referensi resmi tsv-utils).
+
 ## [Belum rilis] — Gerbang: csvlook - himpunan dilengkapi dari csvlook(1) penuh (Audit 2110)
 
 - Cabang csvlook memakai _CSVKIT ditambah --max-rows, --max-columns, --max-column-width, --max-precision (csvlook(1) csvkit 2.2.0), lengkap dengan penjaga jebakan argparse.
