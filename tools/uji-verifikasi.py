@@ -25755,6 +25755,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--semaphorename menyiratkan semaphore: gerbang lolos (Audit 2105)", rc == 0)
         shutil.rmtree(sub1209, ignore_errors=True)
+        sub1210 = klon(tmp, "sub1210")
+        berkas_aksi1210 = os.path.join(
+            sub1210, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1210, encoding="utf-8") as f:
+            isi_aksi1210 = f.read()
+        baris_aksi1210 = [b for b in isi_aksi1210.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1210 = isi_aksi1210.replace(
+                baris_aksi1210,
+                baris_aksi1210.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(in2csv --delimiter --format; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1210 != isi_aksi1210, \
+            "suntikan aksi1210 tidak menembak"
+        with open(berkas_aksi1210, "w", encoding="utf-8") as f:
+            f.write(isi_baru1210)
+        rc, out = jalan(sub1210,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("jebakan nilai argparse in2csv: gerbang lolos (Audit 2106)", rc == 0)
+        shutil.rmtree(sub1210, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

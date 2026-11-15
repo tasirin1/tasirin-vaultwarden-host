@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: jebakan nilai argparse dikenali (in2csv) (Audit 2106)
+
+- Helper _jebakan_argparse ditambahkan: nilai yang mirip opsi sesudah opsi bernilai membuat argparse galat sebelum membaca stdin; diterapkan di in2csv dan dipakai cabang-cabang csvkit. Konstanta _CSVKIT memuat himpunan opsi bernilai csvkit umum.
+
 ## [Belum rilis] — Gerbang: parallel - --semaphorename/--id menyiratkan semaphore (Audit 2105)
 
 - Pindai parallel kini memperlakukan --semaphorename/--id sebelum perintah sebagai penanda modus semaphore (parallel(1): 'Implies --semaphore').

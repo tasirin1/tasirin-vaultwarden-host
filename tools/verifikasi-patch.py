@@ -2520,6 +2520,30 @@ def _uri_store_ke_jalur(o_s):
         sisa = "/" + sisa.lstrip("/")
     return sisa
 
+def _jebakan_argparse(mentah, bernilai):
+    # Audit 2106: argparse menolak nilai yang
+    # mirip opsi ('expected one argument') -
+    # perintah berhenti sebelum membaca stdin.
+    # Angka negatif dan '-' tunggal adalah nilai
+    # sah bagi heuristik argparse.
+    for k_jb, t_jb in enumerate(mentah):
+        if t_jb in bernilai and k_jb + 1 < len(mentah):
+            b_jb = mentah[k_jb + 1]
+            if (b_jb.startswith("-") and b_jb != "-"
+                    and not (len(b_jb) > 1
+                             and b_jb[1].isdigit())):
+                return True
+    return False
+
+
+_CSVKIT = {"-d", "--delimiter", "-q", "--quotechar",
+           "-u", "--quoting", "-p", "--escapechar",
+           "-z", "--maxfieldsize", "-e", "--encoding",
+           "-y", "--snifflimit", "-L", "--locale",
+           "-K", "--skip-lines", "--null-value",
+           "--date-format", "--datetime-format"}
+
+
 def _menguras_khusus(perintah, toks, awal):
     """Audit 1059-1072: penilai perintah yang pengurasannya
     bergantung pada subcommand / bentuk opsi khas — tak bisa
@@ -6651,6 +6675,15 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2096: nilai format '-' ditolak
         # argparse csvkit (pilihan tertutup)
         # sebelum stdin dibaca.
+        # Audit 2106: nilai mirip-opsi adalah
+        # jebakan argparse (galat sebelum stdin).
+        if _jebakan_argparse(
+                mentah, {"-f", "--format", "-s",
+                         "--schema", "-k", "--key",
+                         "-y", "--snifflimit",
+                         "--delimiter", "-e",
+                         "--encoding"}):
+            return False
         for t_i2 in mentah:
             if (t_i2 == "-f-"
                     or t_i2.startswith("--format=-")):
