@@ -688,7 +688,7 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   # berkas menekan; factor/logger operandnya nilai/
                   # pesan sehingga vonis operand generik selaras).
                   "fmt", "pr", "expand", "unexpand", "tsort", "ptx",
-                  "split", "factor", "strings", "base32",
+                  "split", "strings", "base32",
                   "iconv", "logger", "numfmt",
                   # Audit 1057: kompresor saudara gzip + zcat.
                   "xz", "bzip2", "lzma", "zcat",
@@ -6517,6 +6517,15 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_xf:
             return False
         return "-" in ops_xf
+    if perintah == "factor":
+        # Audit 2091: tanpa operand ia membaca
+        # angka dari stdin (coreutils); operand
+        # '-' BUKAN stdin - galat angka tak sah
+        # (terprobe).
+        ops_fc = _operand_sesudah_opsi(toks, awal, set())
+        if "\x00gantung" in ops_fc:
+            return False
+        return not ops_fc
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -8114,7 +8123,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "exiftool", "etcdctl", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "guix", "helm", "identify", "ipfs", "irb", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rev", "rlogin", "sbcl", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "usql", "vagrant", "vault", "websocat", "xonsh", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "exiftool", "etcdctl", "factor", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "guix", "helm", "identify", "ipfs", "irb", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rev", "rlogin", "sbcl", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "usql", "vagrant", "vault", "websocat", "xonsh", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

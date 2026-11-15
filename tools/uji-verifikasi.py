@@ -25377,6 +25377,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("exiftool '-' membaca stdin: gerbang gagal (Audit 2086)", rc != 0)
         shutil.rmtree(sub1191, ignore_errors=True)
+        sub1192 = klon(tmp, "sub1192")
+        berkas_aksi1192 = os.path.join(
+            sub1192, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1192, encoding="utf-8") as f:
+            isi_aksi1192 = f.read()
+        baris_aksi1192 = [b for b in isi_aksi1192.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1192 = isi_aksi1192.replace(
+                baris_aksi1192,
+                baris_aksi1192.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(factor -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1192 != isi_aksi1192, \
+            "suntikan aksi1192 tidak menembak"
+        with open(berkas_aksi1192, "w", encoding="utf-8") as f:
+            f.write(isi_baru1192)
+        rc, out = jalan(sub1192,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("'-' factor galat angka: gerbang lolos (Audit 2091)", rc == 0)
+        shutil.rmtree(sub1192, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

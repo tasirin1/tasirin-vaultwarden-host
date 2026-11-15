@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: factor - '-' galat angka, bukan stdin (Audit 2091)
+
+- factor keluar dari himpunan pembaca polos ke cabang khusus: tanpa operand ia membaca angka dari stdin (coreutils), operand '-' adalah galat angka tak sah (terprobe).
+
 ## [Belum rilis] — Gerbang: exiftool dinilai - operand '-' membaca stdin (Audit 2086)
 
 - exiftool kini dinilai: operand '-' membaca stdin (dok resmi); tanpa operand ia menunggu nama berkas.
