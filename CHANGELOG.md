@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub sort membaca stdin (Audit 2178)
+
+- Cabang qsv ditambah sub sort: masukan [<input>] opsional (sort.rs).
+
 ## [Belum rilis] — Cek-cepat: kupas akhir memuat newline (Audit 2177)
 
 - Set kupas akhir proses() ditambah newline (\012): token yang dibelah escape \x0a/\012/\u000a kini tertangkap sesudah dekode.
