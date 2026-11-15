@@ -24726,6 +24726,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-h nilai --command vagrant bukan bantuan: gerbang gagal (Audit 2046)", rc != 0)
         shutil.rmtree(sub1160, ignore_errors=True)
+        sub1161 = klon(tmp, "sub1161")
+        berkas_aksi1161 = os.path.join(
+            sub1161, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1161, encoding="utf-8") as f:
+            isi_aksi1161 = f.read()
+        baris_aksi1161 = [b for b in isi_aksi1161.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1161 = isi_aksi1161.replace(
+                baris_aksi1161,
+                baris_aksi1161.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(guix repl -t machine; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1161 != isi_aksi1161, \
+            "suntikan aksi1161 tidak menembak"
+        with open(berkas_aksi1161, "w", encoding="utf-8") as f:
+            f.write(isi_baru1161)
+        rc, out = jalan(sub1161,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-t guix repl bernilai: gerbang gagal (Audit 2047)", rc != 0)
+        shutil.rmtree(sub1161, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

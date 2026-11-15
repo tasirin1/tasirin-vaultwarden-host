@@ -6210,7 +6210,12 @@ def _menguras_khusus(perintah, toks, awal):
         if any(t_gx.startswith("--listen")
                for t_gx in mentah):
             return False
-        ops_gx = _operand_sesudah_opsi(toks, awal, set())
+        # Audit 2047: opsi repl bernilai
+        # -t/--type dan -L/--load-path (man
+        # guix-repl) jangan terhitung operand.
+        ops_gx = _operand_sesudah_opsi(
+            toks, awal, {"-t", "--type", "-L",
+                         "--load-path"})
         return ops_gx == ["repl"]
     if perintah == "nix":
         # Audit 2038: flag stdin resmi Nix -

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: guix repl - opsi bernilai -t/-L dilengkapi (Audit 2047)
+
+- Himpunan opsi bernilai guix ditambah -t/--type dan -L/--load-path (guix-repl(1)) sehingga 'guix repl -t machine' tak lagi terhitung beroperand berkas.
+
 ## [Belum rilis] — Gerbang: vagrant - cek -h sadar nilai --command (Audit 2046)
 
 - Pindai -h pada vagrant kini sadar nilai: '-h' yang duduk sebagai nilai -c/--command bukan bantuan, sehingga 'vagrant ssh --command -h' dinilai benar sebagai sesi SSH pembaca stdin.
