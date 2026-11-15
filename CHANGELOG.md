@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub slice membaca stdin (Audit 2142)
+
+- Cabang qsv ditambah sub slice: tanpa masukan membaca stdin (slice.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub apply operations membaca stdin (Audit 2141)
 
 - Cabang qsv ditambah sub apply operations: operand operasi + kolom, masukan [<input>] opsional (apply.rs).

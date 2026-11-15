@@ -6756,6 +6756,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qap) == 2
                     or (len(ops_qap) >= 3
                         and ops_qap[2] == "-"))
+        # Audit 2142: sub 'slice' - tanpa masukan
+        # membaca stdin (slice.rs).
+        if mentah and mentah[0] == "slice":
+            ops_qsl = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--start", "-e", "--end",
+                 "-l", "--len", "-i", "--index"})
+            if "\x00gantung" in ops_qsl:
+                return False
+            return (not ops_qsl
+                    or all(o == "-" for o in ops_qsl))
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "rowskey",
                                   "columns")):
