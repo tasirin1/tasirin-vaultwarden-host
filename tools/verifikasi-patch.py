@@ -7058,7 +7058,8 @@ def _menguras_khusus(perintah, toks, awal):
                          "--unique-count", "--mode-count",
                          "--missing-count",
                          "--not-missing-count",
-                         "--count-header", "-g", "-v",
+                         "--count-header", "--mad",
+                         "-g", "-v",
                          "--values-delimiter", "-p",
                          "--float-precision", "-r",
                          "--replace-missing"})

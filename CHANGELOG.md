@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-summarize - '--mad' ditambah (Audit 2156)
+
+- Operator bernilai --mad dari referensi resmi tsv-utils ditambahkan; satu-satunya operator resmi yang absen sesudah 2145.
+
 ## [Belum rilis] — Gerbang: qsv stats - lima opsi bernilai dilengkapi (Audit 2155)
 
 - Himpunan bernilai qsv stats ditambah -s/--select, --round, --dates-whitelist, -j/--jobs, -d/--delimiter dari USAGE resmi stats.rs.
