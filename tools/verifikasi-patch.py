@@ -6731,8 +6731,14 @@ def _menguras_khusus(perintah, toks, awal):
         # (search.rs) - pola operand pertama,
         # masukan opsional sesudahnya.
         if len(mentah) >= 2 and mentah[0] == "search":
+            # Audit 2131: kosakata search resmi
+            # (search.rs) - kolom -s/--select.
             ops_qse = _operand_sesudah_opsi(
-                toks, awal + 1, {"-c", "--columns"})
+                toks, awal + 1,
+                {"-s", "--select", "-f", "--flag",
+                 "--preview-match", "--size-limit",
+                 "--dfa-size-limit", "-o", "--output",
+                 "-d", "--delimiter"})
             if "\x00gantung" in ops_qse:
                 return False
             return (len(ops_qse) == 1

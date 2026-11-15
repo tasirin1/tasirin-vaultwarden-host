@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv search - kosakata opsi diperbaiki (Audit 2131)
+
+- Himpunan bernilai qsv search diganti kosakata resmi search.rs: -s/--select, -f/--flag, --preview-match, --size-limit, --dfa-size-limit, -o/--output, -d/--delimiter (-c/--count bool).
+
 ## [Belum rilis] — Cek-cepat: agregasi - nama ber-newline tampil utuh ter-escape (Audit 2130)
 
 - Nama berkas yang dicetak fase bungkus (awk) dan lintasan per-baris kini di-escape (backslash digandakan, newline menjadi \n) sehingga satu berkas tampil sebagai satu nama utuh, bukan fragmen yang menyerupai berkas lain.
