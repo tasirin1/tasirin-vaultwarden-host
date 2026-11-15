@@ -7001,6 +7001,19 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_xse) == 1
                     or (len(ops_xse) >= 2
                         and ops_xse[1] == "-"))
+        # Audit 2172: sub 'split' xsv - operand
+        # pertama direktori keluaran, masukan
+        # kedua (split.rs).
+        if mentah and mentah[0] == "split":
+            ops_xsp = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--size", "-j", "--jobs",
+                 "--filename", "-d", "--delimiter"})
+            if "\x00gantung" in ops_xsp:
+                return False
+            return (len(ops_xsp) == 1
+                    or (len(ops_xsp) >= 2
+                        and ops_xsp[1] == "-"))
         # Audit 2159: sub 'flatten' xsv - masukan
         # [<input>] opsional (flatten.rs).
         if mentah and mentah[0] == "flatten":

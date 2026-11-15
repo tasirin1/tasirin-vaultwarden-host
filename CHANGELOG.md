@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub split membaca stdin (Audit 2172)
+
+- Cabang xsv ditambah sub split: operand pertama direktori keluaran, masukan operand kedua (split.rs).
+
 ## [Belum rilis] — Gerbang: xsv - sub select membaca stdin (Audit 2171)
 
 - Cabang xsv ditambah sub select: operand pertama pilihan kolom, masukan operand kedua (select.rs).
