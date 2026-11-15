@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: podman - bundel informasional ikut dipegang (Audit 2101)
+
+- Pindai sub podman kini memegang bundel huruf bool murni yang memuat h/v ('-vD', '-Dv') sebagai informasional/parse berhenti, cermin aturan docker 2092 (podman juga pflag).
+
 ## [Belum rilis] — Gerbang: tsv-select dinilai - membaca standard input (Audit 2100)
 
 - tsv-select kini dinilai: tanpa argumen berkas ia membaca standard input (dok resmi tsv-utils).

@@ -5170,6 +5170,16 @@ def _menguras_khusus(perintah, toks, awal):
             # pendek sebelum sub.
             if t0_pm in ("-h", "-v"):
                 return False
+            # Audit 2101: bundel informasional
+            # cermin docker (podman juga pflag).
+            badan_pm = t0_pm[1:].split("=")[0]
+            if (len(t0_pm) > 2 and t0_pm[1] != "-"
+                    and badan_pm
+                    and all(ch in "Dhv"
+                            for ch in badan_pm)
+                    and any(ch in "hv"
+                            for ch in badan_pm)):
+                return False
             if t0_pm.startswith("-"):
                 j0_pm += 1
                 continue

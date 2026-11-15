@@ -25650,6 +25650,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-select membaca standard input: gerbang gagal (Audit 2100)", rc != 0)
         shutil.rmtree(sub1204, ignore_errors=True)
+        sub1205 = klon(tmp, "sub1205")
+        berkas_aksi1205 = os.path.join(
+            sub1205, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1205, encoding="utf-8") as f:
+            isi_aksi1205 = f.read()
+        baris_aksi1205 = [b for b in isi_aksi1205.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1205 = isi_aksi1205.replace(
+                baris_aksi1205,
+                baris_aksi1205.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(podman -vD load; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1205 != isi_aksi1205, \
+            "suntikan aksi1205 tidak menembak"
+        with open(berkas_aksi1205, "w", encoding="utf-8") as f:
+            f.write(isi_baru1205)
+        rc, out = jalan(sub1205,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel -vD podman informasional: gerbang lolos (Audit 2101)", rc == 0)
+        shutil.rmtree(sub1205, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
