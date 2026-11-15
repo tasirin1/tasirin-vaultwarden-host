@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sbcl - --quit ikut menekan REPL (Audit 2064)
+
+- Penekan cabang sbcl ditambah --quit (sbcl(1): keluar sesudah pemrosesan opsi toplevel) sehingga 'sbcl --quit' tak lagi tertuduh membaca stdin.
+
 ## [Belum rilis] — Gerbang: minikube - opsi warisan glog bernilai dilengkapi (Audit 2063)
 
 - Himpunan opsi bernilai minikube ditambah opsi warisan glog resmi: -v/--v, --vmodule, --alsologtostderrthreshold, --log_backtrace_at, --log_file_max_size, --stderrthreshold.

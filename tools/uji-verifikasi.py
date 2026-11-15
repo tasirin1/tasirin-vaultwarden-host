@@ -24999,6 +24999,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi warisan minikube -v bernilai: gerbang gagal (Audit 2063)", rc != 0)
         shutil.rmtree(sub1173, ignore_errors=True)
+        sub1174 = klon(tmp, "sub1174")
+        berkas_aksi1174 = os.path.join(
+            sub1174, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1174, encoding="utf-8") as f:
+            isi_aksi1174 = f.read()
+        baris_aksi1174 = [b for b in isi_aksi1174.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1174 = isi_aksi1174.replace(
+                baris_aksi1174,
+                baris_aksi1174.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sbcl --quit; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1174 != isi_aksi1174, \
+            "suntikan aksi1174 tidak menembak"
+        with open(berkas_aksi1174, "w", encoding="utf-8") as f:
+            f.write(isi_baru1174)
+        rc, out = jalan(sub1174,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--quit sbcl menekan REPL: gerbang lolos (Audit 2064)", rc == 0)
+        shutil.rmtree(sub1174, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -6313,8 +6313,12 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2057: REPL SBCL berjalan di atas
         # stdin (sbcl(1)); --script dan
         # --non-interactive menekan REPL.
+        # Audit 2064: --quit juga menekan REPL
+        # (sbcl(1): keluar sesudah pemrosesan
+        # opsi toplevel).
         return ("--script" not in mentah
-                and "--non-interactive" not in mentah)
+                and "--non-interactive" not in mentah
+                and "--quit" not in mentah)
     if perintah == "racket":
         # Audit 2058: polos menambahkan REPL
         # secara efektif dan '-f -' membaca
