@@ -7008,6 +7008,17 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_xfm
                     or all(o == "-" for o in ops_xfm))
+        # Audit 2161: sub 'input' xsv - masukan
+        # [<input>] opsional (input.rs).
+        if mentah and mentah[0] == "input":
+            ops_xi = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--quote", "--escape", "-o",
+                 "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_xi:
+                return False
+            return (not ops_xi
+                    or all(o == "-" for o in ops_xi))
         # Audit 2154: sub 'headers' xsv - daftar
         # masukan Vec lewat many_configs (kosong
         # diganti '-'), seperti cat.

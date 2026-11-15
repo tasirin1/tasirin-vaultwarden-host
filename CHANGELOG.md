@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub input membaca stdin (Audit 2161)
+
+- Cabang xsv ditambah sub input: masukan [<input>] opsional (input.rs).
+
 ## [Belum rilis] — Gerbang: xsv - sub fmt membaca stdin (Audit 2160)
 
 - Cabang xsv ditambah sub fmt: masukan [<input>] opsional (fmt.rs).
