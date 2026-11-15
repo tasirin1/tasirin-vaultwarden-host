@@ -93,7 +93,11 @@ jobs:
     # dalam job (cek-wajib.yml sudah menjalankannya), sama
     # seperti sebelumnya — job tetap jalan agar needs
     # build-apk terpenuhi.
-    timeout-minutes: 15
+    # Audit 2074: suite kini 92 skenario (berkas 20 MB,
+    # pindai penuh) dan melampaui 15 menit di runner -
+    # job tercancel dan Assemble APK terlewati pada push
+    # maraton-126/127; batas dinaikkan ke 30.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
