@@ -4976,8 +4976,8 @@ def _menguras_khusus(perintah, toks, awal):
         # opsi global (docs: --config/--context/
         # -H/--host/--log-level bernilai) - token
         # di posisi nilai BUKAN sub-perintah.
-        global_dk = {"--config", "--context", "-H",
-                     "--host", "--log-level", "-l",
+        global_dk = {"--config", "--context", "-c",
+                     "-H", "--host", "--log-level", "-l",
                      "--tlscacert", "--tlscert",
                      "--tlskey"}
         j0_dk = 0

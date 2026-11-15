@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: docker - alias -c untuk --context dilengkapi (Audit 2059)
+
+- Himpunan opsi global bernilai docker ditambah alias -c (tabel resmi mencantumkan '-c, --context') sehingga nilai konteks tak lagi tertukar dengan sub-perintah.
+
 ## [Belum rilis] — Gerbang: racket dinilai - REPL efektif dan '-f -' (Audit 2058)
 
 - racket kini dinilai: bentuk polos menambahkan REPL secara efektif dan '-f -' membaca ekspresi dari stdin (Racket Reference); -e/operand berkas menekan.
