@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: agregasi - ejaan nama fase rahasia dinormalkan (Audit 2137)
+
+- Nama dari fase rahasia-awal (git grep, ejaan kutip-C) kini didekodekan lalu di-escape dengan skema yang sama seperti fase bungkus, sehingga satu berkas tampil satu ejaan di laporan akhir.
+
 ## [Belum rilis] — Gerbang: xsv - sub slice membaca stdin (Audit 2143)
 
 - Cabang xsv ditambah sub slice: masukan [<input>] opsional dengan Config yang sama seperti cat/count.

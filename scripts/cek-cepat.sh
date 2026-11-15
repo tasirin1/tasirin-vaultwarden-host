@@ -82,7 +82,30 @@ POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Za-z0-9[:blank:]]*PRIVATE KEY-----|$POL
 # berstrip tunggal di dalam label kini lolos
 # (diterima — label asli tak pernah berstrip).
 POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN([A-Za-z0-9_]|--+){0,200}PRIVATE([A-Za-z0-9_]|--+){0,200}KEY[A-Za-z0-9_-]{0,200}-----[A-Za-z0-9+/=]{16,}"
-RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | sort -u || true)"
+RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | awk '
+{
+  nama = $0
+  if (nama ~ /^".*"$/ && length(nama) >= 2) {
+    inti = substr(nama, 2, length(nama) - 2)
+    hasil = ""; i = 1
+    while (i <= length(inti)) {
+      c = substr(inti, i, 1)
+      if (c == "\\" && i < length(inti)) {
+        d = substr(inti, i + 1, 1)
+        if (d == "n") { hasil = hasil "\n"; i += 2 }
+        else if (d == "t") { hasil = hasil "\t"; i += 2 }
+        else if (d == "r") { hasil = hasil "\r"; i += 2 }
+        else if (d == "\\") { hasil = hasil "\\"; i += 2 }
+        else if (d == "\"") { hasil = hasil "\""; i += 2 }
+        else if (d ~ /[0-7]/ && substr(inti, i + 2, 1) ~ /[0-7]/ && substr(inti, i + 3, 1) ~ /[0-7]/) { hasil = hasil sprintf("%c", (index("01234567", d) - 1) * 64 + (index("01234567", substr(inti, i + 2, 1)) - 1) * 8 + (index("01234567", substr(inti, i + 3, 1)) - 1)); i += 4 }
+        else { hasil = hasil d; i += 2 }
+      } else { hasil = hasil c; i += 1 }
+    }
+    nama = hasil
+  }
+  gsub(/\\/, "\\\\", nama); gsub(/\n/, "\\n", nama)
+  print nama
+}' | sort -u || true)"
 # Audit 2002: header kunci TUNGGAL (tanpa badan
 # base64) di berkas biner terlacak dulu lolos
 # semua fase: pola rahasia menuntut badan, fase

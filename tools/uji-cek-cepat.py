@@ -1130,6 +1130,18 @@ def main():
                 rc != 0 and "pecah\\nbaris.txt" in out)
         shutil.rmtree(namabaris, ignore_errors=True)
 
+        namakutip = klon(tmp, "namakutip")
+        with open(namakutip + "/pecah\nbaris.txt", "w") as fh:
+            fh.write("token uji: " + token_palsu + "\n")
+        git(namakutip, "add", "-A")
+        git(namakutip, "commit", "-qm", "tanam")
+        rc, out = jalan(namakutip, ["bash", SKRIP])
+        periksa("nama ber-newline terlacak tampil satu "
+                "ejaan utuh (Audit 2137)",
+                rc != 0 and out.count("pecah\\nbaris.txt") == 1
+                and '"pecah' not in out)
+        shutil.rmtree(namakutip, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
