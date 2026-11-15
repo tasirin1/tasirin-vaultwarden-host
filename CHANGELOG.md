@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub split membaca stdin (Audit 2181)
+
+- Cabang qsv ditambah sub split: operand pertama direktori keluaran, masukan kedua (split.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub sample membaca stdin (Audit 2180)
 
 - Cabang qsv ditambah sub sample: operand pertama ukuran, masukan kedua (sample.rs).

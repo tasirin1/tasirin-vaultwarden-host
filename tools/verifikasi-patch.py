@@ -6870,6 +6870,21 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qsa) == 1
                     or (len(ops_qsa) >= 2
                         and ops_qsa[1] == "-"))
+        # Audit 2181: sub 'split' qsv - operand
+        # pertama direktori keluaran, masukan
+        # kedua (split.rs).
+        if mentah and mentah[0] == "split":
+            ops_qsp = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--size", "-c", "--chunks",
+                 "-k", "--kb-size", "-j", "--jobs",
+                 "--filename", "--pad", "-d",
+                 "--delimiter"})
+            if "\x00gantung" in ops_qsp:
+                return False
+            return (len(ops_qsp) == 1
+                    or (len(ops_qsp) >= 2
+                        and ops_qsp[1] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
