@@ -4977,7 +4977,9 @@ def _menguras_khusus(perintah, toks, awal):
         # -H/--host/--log-level bernilai) - token
         # di posisi nilai BUKAN sub-perintah.
         global_dk = {"--config", "--context", "-H",
-                     "--host", "--log-level", "-l"}
+                     "--host", "--log-level", "-l",
+                     "--tlscacert", "--tlscert",
+                     "--tlskey"}
         j0_dk = 0
         sub0_dk = None
         while j0_dk < len(mentah):

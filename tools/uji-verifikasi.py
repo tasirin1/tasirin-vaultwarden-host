@@ -24621,6 +24621,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi BATCH sebelum '-- -': gerbang gagal (Audit 2041)", rc != 0)
         shutil.rmtree(sub1155, ignore_errors=True)
+        sub1156 = klon(tmp, "sub1156")
+        berkas_aksi1156 = os.path.join(
+            sub1156, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1156, encoding="utf-8") as f:
+            isi_aksi1156 = f.read()
+        baris_aksi1156 = [b for b in isi_aksi1156.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1156 = isi_aksi1156.replace(
+                baris_aksi1156,
+                baris_aksi1156.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(docker --tlscert cert.pem load; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1156 != isi_aksi1156, \
+            "suntikan aksi1156 tidak menembak"
+        with open(berkas_aksi1156, "w", encoding="utf-8") as f:
+            f.write(isi_baru1156)
+        rc, out = jalan(sub1156,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi TLS global docker bernilai: gerbang gagal (Audit 2042)", rc != 0)
+        shutil.rmtree(sub1156, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

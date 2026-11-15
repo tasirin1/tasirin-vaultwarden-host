@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: docker - opsi TLS global bernilai dilengkapi (Audit 2042)
+
+- Himpunan opsi global bernilai docker ditambah --tlscacert/--tlscert/--tlskey (docs.docker.com) sehingga token di posisi nilainya tak lagi tertukar dengan sub-perintah.
+
 ## [Belum rilis] — Gerbang: R CMD BATCH - opsi boleh mendahului '-- -' (Audit 2041)
 
 - Pola posisi persis Audit 2015 dilonggarkan mengikuti skrip BATCH resmi: opsi BATCH boleh mendahului '--', yang menentukan adalah token pertama sesudah '--' ('R CMD BATCH --vanilla -- -' = 'R -f -').
