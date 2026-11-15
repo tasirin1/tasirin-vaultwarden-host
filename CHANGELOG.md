@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pv - 6 opsi bernilai dilengkapi (Audit 2081)
+
+- Himpunan opsi bernilai pv ditambah -A/--last-written, -F/--format, -D/--delay-start, -w/--width, -H/--height, -P/--pidfile (pv(1)).
+
 ## [Belum rilis] — Gerbang: docker - bundel huruf pendek bool+nilai diurai (Audit 2080)
 
 - Pindai global docker mengurai bundel satu huruf (dok resmi: opsi satu huruf boleh digabung) - '-Dc' diperlakukan sebagai -D plus -c bernilai.

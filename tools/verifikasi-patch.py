@@ -6443,10 +6443,16 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "pv":
         # Audit 2071: tanpa operand berkas (atau
         # operand '-') pv membaca stdin (pv(1)).
+        # Audit 2081: enam opsi bernilai pv lagi
+        # dari pv(1) ikut dilengkapi.
         ops_pv = _operand_sesudah_opsi(
             toks, awal, {"-L", "--rate-limit", "-B",
                          "--buffer-size", "-s", "--size",
-                         "-i", "--interval", "-N", "--name"})
+                         "-i", "--interval", "-N", "--name",
+                         "-A", "--last-written", "-F",
+                         "--format", "-D", "--delay-start",
+                         "-w", "--width", "-H", "--height",
+                         "-P", "--pidfile"})
         if "\x00gantung" in ops_pv:
             return False
         return all(o_pv == "-" for o_pv in ops_pv)
