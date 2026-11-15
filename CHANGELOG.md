@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: GNU parallel dinilai - membangun perintah dari stdin (Audit 2069)
+
+- parallel kini dinilai: ia membangun baris perintah dari stdin (parallel(1)); argumen ':::' atau berkas -a/--arg-file menggantikan stdin.
+
 ## [Belum rilis] — Cek-cepat: penembus symlink cadangan lewat python3 (Audit 2068)
 
 - Rantai penembus symlink lokasi skrip ditambah cadangan os.path.realpath python3 di antara readlink -f dan printf, sehingga lingkungan tanpa readlink tetap berakar benar lewat symlink.
