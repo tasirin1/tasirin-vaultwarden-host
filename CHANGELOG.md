@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sql2csv dinilai - kueri dari stdin (Audit 2139)
+
+- sql2csv kini dinilai: tanpa FILE dan tanpa --query, kueri SQL dibaca dari STDIN; --query menimpa FILE dan STDIN.
+
 ## [Belum rilis] — Gerbang: csvformat dinilai - membaca stdin tanpa FILE (Audit 2138)
 
 - csvformat kini dinilai: tanpa FILE menerima input terpipa via STDIN (csvformat(1)); himpunan _CSVKIT dengan penjaga jebakan argparse.
