@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub slice membaca stdin (Audit 2143)
+
+- Cabang xsv ditambah sub slice: masukan [<input>] opsional dengan Config yang sama seperti cat/count.
+
 ## [Belum rilis] — Gerbang: qsv - sub slice membaca stdin (Audit 2142)
 
 - Cabang qsv ditambah sub slice: tanpa masukan membaca stdin (slice.rs).

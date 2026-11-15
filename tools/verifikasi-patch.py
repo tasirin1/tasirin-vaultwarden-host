@@ -6913,6 +6913,17 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_xc
                     or all(o == "-" for o in ops_xc))
+        # Audit 2143: sub 'slice' xsv - masukan
+        # [<input>] opsional, Config yang sama.
+        if mentah and mentah[0] == "slice":
+            ops_xsl = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--start", "-e", "--end",
+                 "-l", "--len"})
+            if "\x00gantung" in ops_xsl:
+                return False
+            return (not ops_xsl
+                    or all(o == "-" for o in ops_xsl))
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "columns")):
             ops_xs = _operand_sesudah_opsi(
