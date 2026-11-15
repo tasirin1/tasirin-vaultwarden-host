@@ -95,7 +95,10 @@ RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHAS
 # dengan pemisah NUL (-z/-Z + sort -z) ke berkas
 # sementara - nama ber-newline tak lagi terbelah
 # (variabel bash tak bisa memuat NUL).
-KANDIDAT_HDR_BERKAS="$(mktemp)"
+# Audit 2066: TMPDIR rusak jangan membunuh
+# skrip dengan pesan mentah mktemp - vonis
+# rancangan + keluar 1.
+KANDIDAT_HDR_BERKAS="$(mktemp 2>/dev/null)" || { echo "${ANO_ERR}GAGAL: berkas sementara tak bisa dibuat - periksa TMPDIR (fase header tak berjalan, hasil tak bisa dipercaya)"; exit 1; }
 # Audit 2065: bersihkan artefak sementara juga
 # saat skrip dibunuh sinyal di tengah jalan.
 trap 'rm -f "$KANDIDAT_HDR_BERKAS"' EXIT
@@ -240,7 +243,7 @@ DAFTAR_BUNGKUS=()
 # (terhapus dari pohon kerja) diwujudkan dari indeks ke
 # berkas sementara agar fase bungkus tetap meratakannya;
 # nama tampil dipetakan kembali sesudah awk berjalan.
-TMPBUNGKUS="$(mktemp -d)"
+TMPBUNGKUS="$(mktemp -d 2>/dev/null)" || { echo "${ANO_ERR}GAGAL: direktori sementara tak bisa dibuat - periksa TMPDIR (fase bungkus tak berjalan, hasil tak bisa dipercaya)"; exit 1; }
 trap 'rm -f "$KANDIDAT_HDR_BERKAS"; rm -rf "$TMPBUNGKUS"' EXIT
 PETA_TMP1886=()
 PETA_ASAL1886=()

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: TMPDIR rusak menghasilkan vonis rancangan (Audit 2066)
+
+- Kedua pembuatan berkas/direktori sementara kini dijaga: TMPDIR rusak menghasilkan satu pesan GAGAL rancangan yang menyebut TMPDIR dan keluar 1, bukan kematian mentah oleh set -e di tengah jalan.
+
 ## [Belum rilis] — Cek-cepat: artefak sementara dibersihkan juga saat sinyal (Audit 2065)
 
 - Trap EXIT kini menghapus berkas kandidat dan direktori bungkus sementara, sehingga skrip yang dibunuh sinyal di tengah lari tak lagi meninggalkan artefak di TMPDIR.
