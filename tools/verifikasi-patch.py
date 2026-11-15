@@ -6947,6 +6947,10 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2125: alat multi-masukan - polos
         # tak menguras, tetapi operand '-' berarti
         # STDIN (Tips resmi csvkit).
+        # Audit 2133: --inner BUKAN bendera resmi
+        # csvjoin - argparse menolaknya (EXIT2).
+        if "--inner" in mentah:
+            return False
         bernilai_cj = _CSVKIT | {"-c", "--columns"}
         if _jebakan_argparse(mentah, bernilai_cj):
             return False

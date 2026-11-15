@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvjoin - '--inner' ditolak (Audit 2133)
+
+- Cabang csvjoin kini menolak --inner: bukan bendera resmi csvjoin (argparse EXIT2); yang resmi hanya --outer/--left/--right.
+
 ## [Belum rilis] — Gerbang: xsv search - kolom resmi -s/--select (Audit 2132)
 
 - Himpunan bernilai xsv search diganti {-s, --select, -o, --output} sesuai README resmi xsv.
