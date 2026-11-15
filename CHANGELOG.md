@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xonsh - -st/--shell-type bernilai dilewatkan (Audit 2083)
+
+- Gelung xonsh kini melewatkan nilai -st/--shell-type (xonsh(1)); bentuk menggantung tertolak.
+
 ## [Belum rilis] — Gerbang: xonsh - --rc bernilai jamak (Audit 2082)
 
 - Cabang xonsh ditulis ulang sebagai gelung sadar posisi: --rc menelan semua token non-opsi sesudahnya sebagai berkas rc; operand sesudah '--' barulah skrip; --rc menggantung tertolak.
