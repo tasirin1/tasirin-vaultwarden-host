@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub table membaca stdin (Audit 2162)
+
+- Cabang xsv ditambah sub table: masukan [<input>] opsional (table.rs).
+
 ## [Belum rilis] — Gerbang: xsv - sub input membaca stdin (Audit 2161)
 
 - Cabang xsv ditambah sub input: masukan [<input>] opsional (input.rs).
