@@ -6423,6 +6423,11 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return not ops_rk
     if perintah == "parallel":
+        # Audit 2085: modus --semaphore menjalankan
+        # perintah dari argv; stdin bukan sumber
+        # masukan (parallel(1) Synopsis).
+        if "--semaphore" in mentah:
+            return False
         # Audit 2069: GNU parallel membangun
         # baris perintah dari stdin (parallel(1));
         # argumen ':::' atau berkas -a/--arg-file

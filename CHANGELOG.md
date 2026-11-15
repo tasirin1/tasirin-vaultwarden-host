@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: parallel - modus --semaphore dari argv (Audit 2085)
+
+- Cabang parallel menolak modus --semaphore: perintahnya datang dari argv, stdin bukan sumber masukan (parallel(1)).
+
 ## [Belum rilis] — Gerbang: xonsh - -st/--shell-type bernilai dilewatkan (Audit 2083)
 
 - Gelung xonsh kini melewatkan nilai -st/--shell-type (xonsh(1)); bentuk menggantung tertolak.
