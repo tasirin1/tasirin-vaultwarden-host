@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub select membaca stdin (Audit 2171)
+
+- Cabang xsv ditambah sub select: operand pertama pilihan kolom, masukan operand kedua (select.rs).
+
 ## [Belum rilis] — Gerbang: qsv headers - delimiter dinilai (Audit 2170)
 
 - Cabang qsv headers kini memakai himpunan bernilai {-d, --delimiter} (headers.rs).

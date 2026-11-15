@@ -26973,6 +26973,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv headers delimiter bernilai: gerbang gagal (Audit 2170)", rc != 0)
         shutil.rmtree(sub1267, ignore_errors=True)
+        sub1268 = klon(tmp, "sub1268")
+        berkas_aksi1268 = os.path.join(
+            sub1268, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1268, encoding="utf-8") as f:
+            isi_aksi1268 = f.read()
+        baris_aksi1268 = [b for b in isi_aksi1268.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1268 = isi_aksi1268.replace(
+                baris_aksi1268,
+                baris_aksi1268.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv select 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1268 != isi_aksi1268, \
+            "suntikan aksi1268 tidak menembak"
+        with open(berkas_aksi1268, "w", encoding="utf-8") as f:
+            f.write(isi_baru1268)
+        rc, out = jalan(sub1268,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv select membaca stdin: gerbang gagal (Audit 2171)", rc != 0)
+        shutil.rmtree(sub1268, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

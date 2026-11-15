@@ -6989,6 +6989,18 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_xsl
                     or all(o == "-" for o in ops_xsl))
+        # Audit 2171: sub 'select' xsv - operand
+        # pertama pilihan kolom, masukan kedua
+        # (select.rs).
+        if mentah and mentah[0] == "select":
+            ops_xse = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-o", "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_xse:
+                return False
+            return (len(ops_xse) == 1
+                    or (len(ops_xse) >= 2
+                        and ops_xse[1] == "-"))
         # Audit 2159: sub 'flatten' xsv - masukan
         # [<input>] opsional (flatten.rs).
         if mentah and mentah[0] == "flatten":
