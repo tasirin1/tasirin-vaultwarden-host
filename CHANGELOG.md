@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-join dinilai - -f tanpa berkas data membaca stdin (Audit 2127)
+
+- tsv-join kini dinilai: --filter-file wajib (sumber tsv_join.d); dengan -f dan tanpa berkas data, aliran data utama dari standard input.
+
 ## [Belum rilis] — Gerbang: csvstack dinilai - operand '-' adalah stdin (Audit 2126)
 
 - csvstack kini dinilai: sama seperti csvjoin - operand '-' berarti STDIN (Tips resmi csvkit).
