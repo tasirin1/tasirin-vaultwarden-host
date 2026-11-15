@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: racket dinilai - REPL efektif dan '-f -' (Audit 2058)
+
+- racket kini dinilai: bentuk polos menambahkan REPL secara efektif dan '-f -' membaca ekspresi dari stdin (Racket Reference); -e/operand berkas menekan.
+
 ## [Belum rilis] — Gerbang: sbcl dinilai - REPL di atas stdin (Audit 2057)
 
 - sbcl kini dinilai: REPL-nya berjalan di atas stdin (sbcl(1)); --script dan --non-interactive menekan.
