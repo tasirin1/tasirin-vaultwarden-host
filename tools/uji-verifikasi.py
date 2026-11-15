@@ -24474,6 +24474,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sox '-' masukan adalah stdin: gerbang gagal (Audit 2035)", rc != 0)
         shutil.rmtree(sub1148, ignore_errors=True)
+        sub1149 = klon(tmp, "sub1149")
+        berkas_aksi1149 = os.path.join(
+            sub1149, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1149, encoding="utf-8") as f:
+            isi_aksi1149 = f.read()
+        baris_aksi1149 = [b for b in isi_aksi1149.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1149 = isi_aksi1149.replace(
+                baris_aksi1149,
+                baris_aksi1149.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tesseract - stdout; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1149 != isi_aksi1149, \
+            "suntikan aksi1149 tidak menembak"
+        with open(berkas_aksi1149, "w", encoding="utf-8") as f:
+            f.write(isi_baru1149)
+        rc, out = jalan(sub1149,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tesseract '-' masukan adalah stdin: gerbang gagal (Audit 2036)", rc != 0)
+        shutil.rmtree(sub1149, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

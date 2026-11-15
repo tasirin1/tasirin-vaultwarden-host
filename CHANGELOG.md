@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tesseract dinilai - masukan 'stdin'/'-' dari stdin (Audit 2036)
+
+- tesseract kini dinilai: masukan 'stdin' atau '-' berarti gambar dibaca dari stdin (Audit 2036).
+
 ## [Belum rilis] — Gerbang: sox/play dinilai - nama berkas '-' masukan adalah stdin (Audit 2035)
 
 - sox dan play kini dinilai: nama berkas '-' sebagai masukan pertama berarti data audio dari stdin; '-' di posisi keluaran tetap stdout (Audit 2035).
