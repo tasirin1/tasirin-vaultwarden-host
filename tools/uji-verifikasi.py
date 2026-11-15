@@ -25587,6 +25587,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("format '-' in2csv ditolak: gerbang lolos (Audit 2096)", rc == 0)
         shutil.rmtree(sub1201, ignore_errors=True)
+        sub1202 = klon(tmp, "sub1202")
+        berkas_aksi1202 = os.path.join(
+            sub1202, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1202, encoding="utf-8") as f:
+            isi_aksi1202 = f.read()
+        baris_aksi1202 = [b for b in isi_aksi1202.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1202 = isi_aksi1202.replace(
+                baris_aksi1202,
+                baris_aksi1202.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1202 != isi_aksi1202, \
+            "suntikan aksi1202 tidak menembak"
+        with open(berkas_aksi1202, "w", encoding="utf-8") as f:
+            f.write(isi_baru1202)
+        rc, out = jalan(sub1202,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv cat membaca stdin: gerbang gagal (Audit 2098)", rc != 0)
+        shutil.rmtree(sub1202, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

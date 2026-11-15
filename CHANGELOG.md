@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv dinilai - 'qsv cat' membaca stdin (Audit 2098)
+
+- qsv kini dinilai: sub cat tanpa masukan (atau masukan '-') membaca stdin (sumber resmi qsv config.rs); sub lain tidak.
+
 ## [Belum rilis] — Cek-cepat: berkas bernama persis '-' tak lagi lolos/menggantung (Audit 2097)
 
 - Nama berkas persis '-' kini diserahkan sebagai './-' di tiga titik: grep sumber tak-terlacak fase header (sed), daftar berkas fase bungkus (awk), dan grep per-baris fase rahasia - grep/awk membaca operand '-' sebagai stdin sehingga berkas itu lolos semua fase dan bisa menggantungkan skrip.
