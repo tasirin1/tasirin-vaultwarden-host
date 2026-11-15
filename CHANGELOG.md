@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-summarize dinilai - membaca standard input (Audit 2123)
+
+- tsv-summarize kini dinilai: tanpa berkas membaca standard input (dok resmi tsv-utils).
+
 ## [Belum rilis] — Gerbang: csvsort dinilai - membaca stdin tanpa FILE (Audit 2122)
 
 - csvsort kini dinilai: tanpa FILE menerima input terpipa via STDIN (csvsort(1)); himpunan _CSVKIT ditambah -c/--columns dengan penjaga jebakan argparse.
