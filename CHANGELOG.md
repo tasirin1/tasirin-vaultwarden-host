@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv dinilai - cat rows/count membaca stdin (Audit 2117)
+
+- xsv kini dinilai dari sumbernya: cat mewajibkan rows/columns, count polos menguras; daftar masukan kosong diganti '-' (util.rs), None/'-' menjadi io::stdin() (config.rs).
+
 ## [Belum rilis] — Gerbang: csvstat dinilai - membaca stdin tanpa FILE (Audit 2116)
 
 - csvstat kini dinilai: tanpa FILE menerima input terpipa via STDIN (csvstat(1)); himpunan _CSVKIT ditambah -c/--columns.
