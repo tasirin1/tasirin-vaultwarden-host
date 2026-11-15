@@ -24852,6 +24852,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("helm values '-' dari stdin: gerbang gagal (Audit 2056)", rc != 0)
         shutil.rmtree(sub1166, ignore_errors=True)
+        sub1167 = klon(tmp, "sub1167")
+        berkas_aksi1167 = os.path.join(
+            sub1167, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1167, encoding="utf-8") as f:
+            isi_aksi1167 = f.read()
+        baris_aksi1167 = [b for b in isi_aksi1167.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1167 = isi_aksi1167.replace(
+                baris_aksi1167,
+                baris_aksi1167.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sbcl; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1167 != isi_aksi1167, \
+            "suntikan aksi1167 tidak menembak"
+        with open(berkas_aksi1167, "w", encoding="utf-8") as f:
+            f.write(isi_baru1167)
+        rc, out = jalan(sub1167,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("REPL sbcl berjalan di stdin: gerbang gagal (Audit 2057)", rc != 0)
+        shutil.rmtree(sub1167, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

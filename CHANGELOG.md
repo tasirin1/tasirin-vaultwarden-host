@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sbcl dinilai - REPL di atas stdin (Audit 2057)
+
+- sbcl kini dinilai: REPL-nya berjalan di atas stdin (sbcl(1)); --script dan --non-interactive menekan.
+
 ## [Belum rilis] — Gerbang: helm dinilai - values '-' dari stdin (Audit 2056)
 
 - helm kini dinilai: values '-' pada -f/--values dibaca dari stdin (sumber resmi helm).
