@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sub docker ditentukan sadar nilai opsi global (Audit 2018)
+
+- Pra-pindai sub docker kini melewatkan nilai opsi global (--config/--context/-H/--host/--log-level): 'docker --config build load' terbaca benar sebagai load dari stdin, 'docker ps --format load' tidak lagi tertuduh, dan konteks '-' pada build hanya dihitung di posisi operand (Audit 2018, 2026; bentuk merekat '-f-' ikut dinilai, Audit 2021).
+
 ## [Belum rilis] — Gerbang: duckdb sadar posisi - bendera info, -no-stdin, penekan sebagai nilai (Audit 2016-2017)
 
 - Pindai penekan duckdb kini sadar posisi: bendera info strip-tunggal -h/-help/-version dan penekan -no-stdin dikenali (Audit 2016), dan penekan yang duduk sebagai nilai opsi ('duckdb -cmd -c db') tidak lagi dianggap saklar (Audit 2017).

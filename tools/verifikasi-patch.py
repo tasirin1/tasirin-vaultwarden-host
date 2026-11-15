@@ -4969,31 +4969,82 @@ def _menguras_khusus(perintah, toks, awal):
         # bentuk panjang --interactive berlaku; bundel
         # diurai setia getopt (huruf bernilai menelan
         # sisa bundel / token berikutnya).
-        # Audit 2004/2005/2006: build/import/load -
-        # konteks & Dockerfile '-', import '-', dan
-        # load tanpa -i membaca dari stdin (docs).
-        for k0_dk, t0_dk in enumerate(mentah):
-            if t0_dk in ("exec", "run"):
-                break
-            if t0_dk == "import":
-                return "-" in mentah[k0_dk + 1:]
-            if t0_dk == "load":
-                sisa_ld = mentah[k0_dk + 1:]
-                return ("-i" not in sisa_ld
-                        and "--input" not in sisa_ld
+        # Audit 2018: sub ditentukan sadar nilai
+        # opsi global (docs: --config/--context/
+        # -H/--host/--log-level bernilai) - token
+        # di posisi nilai BUKAN sub-perintah.
+        global_dk = {"--config", "--context", "-H",
+                     "--host", "--log-level", "-l"}
+        j0_dk = 0
+        sub0_dk = None
+        while j0_dk < len(mentah):
+            t0_dk = mentah[j0_dk]
+            if t0_dk in global_dk:
+                j0_dk += 2
+                continue
+            if any(t0_dk.startswith(g + "=")
+                   for g in global_dk):
+                j0_dk += 1
+                continue
+            if t0_dk.startswith("-"):
+                j0_dk += 1
+                continue
+            sub0_dk = j0_dk
+            break
+        if sub0_dk is not None:
+            nama_sub = mentah[sub0_dk]
+            sisa_dk = mentah[sub0_dk + 1:]
+            if nama_sub == "import":
+                return "-" in sisa_dk
+            if nama_sub == "load":
+                return ("-i" not in sisa_dk
+                        and "--input" not in sisa_dk
                         and not any(x.startswith("--input=")
-                                    for x in sisa_ld))
-            if t0_dk == "build":
-                sisa_bd = mentah[k0_dk + 1:]
-                if "-" in sisa_bd:
-                    return True
-                for k3_dk, t3_dk in enumerate(sisa_bd):
-                    if (t3_dk in ("-f", "--file")
-                            and k3_dk + 1 < len(sisa_bd)
-                            and sisa_bd[k3_dk + 1] == "-"):
+                                    for x in sisa_dk))
+            if nama_sub == "build":
+                # Audit 2026: '-' konteks hanya di
+                # posisi operand (nilai opsi dilewati);
+                # Audit 2021: bentuk merekat '-f-'.
+                nilai_bd = {"-f", "--file", "-t",
+                            "--tag", "--build-arg",
+                            "--label", "--network",
+                            "--target", "--platform",
+                            "--output", "-o", "--cache-from",
+                            "--cache-to", "--secret",
+                            "--ssh", "--add-host",
+                            "--progress", "--iidfile",
+                            "--metadata-file"}
+                j_bd = 0
+                while j_bd < len(sisa_dk):
+                    t_bd = sisa_dk[j_bd]
+                    if t_bd in ("-f", "--file"):
+                        if (j_bd + 1 < len(sisa_dk)
+                                and sisa_dk[j_bd + 1] == "-"):
+                            return True
+                        j_bd += 2
+                        continue
+                    if t_bd in nilai_bd:
+                        j_bd += 2
+                        continue
+                    if any(t_bd.startswith(v + "=")
+                           for v in nilai_bd):
+                        j_bd += 1
+                        continue
+                    if t_bd == "-":
                         return True
-                    if t3_dk == "--file=-":
+                    if t_bd == "--file=-":
                         return True
+                    if (t_bd.startswith("-f")
+                            and len(t_bd) > 2
+                            and t_bd[2:].lstrip("=") == "-"):
+                        return True
+                    if (t_bd in ("-f", "--file")
+                            and j_bd + 1 < len(sisa_dk)
+                            and sisa_dk[j_bd + 1] == "-"):
+                        return True
+                    j_bd += 1
+                return False
+            if nama_sub not in ("exec", "run"):
                 return False
         sub_dk = None
         for k_dk, t_dk in enumerate(mentah):

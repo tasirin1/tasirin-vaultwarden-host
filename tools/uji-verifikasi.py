@@ -24201,6 +24201,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("-c sebagai nilai -cmd duckdb bukan penekan: gerbang gagal (Audit 2017)", rc != 0)
         shutil.rmtree(sub1135, ignore_errors=True)
+        sub1136 = klon(tmp, "sub1136")
+        berkas_aksi1136 = os.path.join(
+            sub1136, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1136, encoding="utf-8") as f:
+            isi_aksi1136 = f.read()
+        baris_aksi1136 = [b for b in isi_aksi1136.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1136 = isi_aksi1136.replace(
+                baris_aksi1136,
+                baris_aksi1136.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(docker --config build load; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1136 != isi_aksi1136, \
+            "suntikan aksi1136 tidak menembak"
+        with open(berkas_aksi1136, "w", encoding="utf-8") as f:
+            f.write(isi_baru1136)
+        rc, out = jalan(sub1136,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sub docker sadar nilai opsi global: gerbang gagal (Audit 2018)", rc != 0)
+        shutil.rmtree(sub1136, ignore_errors=True)
+        sub1137 = klon(tmp, "sub1137")
+        berkas_aksi1137 = os.path.join(
+            sub1137, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1137, encoding="utf-8") as f:
+            isi_aksi1137 = f.read()
+        baris_aksi1137 = [b for b in isi_aksi1137.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1137 = isi_aksi1137.replace(
+                baris_aksi1137,
+                baris_aksi1137.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(docker ps --format load; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1137 != isi_aksi1137, \
+            "suntikan aksi1137 tidak menembak"
+        with open(berkas_aksi1137, "w", encoding="utf-8") as f:
+            f.write(isi_baru1137)
+        rc, out = jalan(sub1137,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("load sebagai nilai --format bukan sub: gerbang lolos (Audit 2018)", rc == 0)
+        shutil.rmtree(sub1137, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
