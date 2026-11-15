@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: minikube - opsi warisan glog bernilai dilengkapi (Audit 2063)
+
+- Himpunan opsi bernilai minikube ditambah opsi warisan glog resmi: -v/--v, --vmodule, --alsologtostderrthreshold, --log_backtrace_at, --log_file_max_size, --stderrthreshold.
+
 ## [Belum rilis] — Gerbang: buildah - opsi global sebelum sub dikenal bernilai (Audit 2062)
 
 - Penentu sub buildah kini melewatkan nilai opsi globalnya (--root, --runroot, --storage-driver, --registries-conf, peta userns, --cgroup-manager) sehingga 'buildah --root /x bud --stdin .' terbaca benar.

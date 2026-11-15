@@ -6181,10 +6181,18 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2045: opsi warisan bernilai lain
         # dari halaman resmi minikube ssh
         # (-b/--bootstrapper, --user, --log_dir).
+        # Audit 2063: opsi warisan glog bernilai
+        # (-v/--v, --vmodule, ambang log) ikut
+        # dilengkapi dari daftar resmi.
         ops_mk = _operand_sesudah_opsi(
             toks, awal, {"-p", "--profile", "-b",
                          "--bootstrapper", "--user",
-                         "--log_dir"})
+                         "--log_dir",
+                         "--alsologtostderrthreshold",
+                         "--log_backtrace_at",
+                         "--log_file_max_size",
+                         "--stderrthreshold", "-v",
+                         "--v", "--vmodule"})
         return bool(ops_mk) and ops_mk[0] == "ssh"
     if perintah == "mpv":
         # Audit 2034: operand '-' tunggal berarti
