@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: minikube - opsi warisan bernilai dilengkapi (Audit 2045)
+
+- Himpunan opsi bernilai minikube ditambah opsi warisan resmi halaman minikube ssh: -b/--bootstrapper, --user, --log_dir.
+
 ## [Belum rilis] — Gerbang: buildah - opsi bernilai -v/--volume dan -e/--env dilengkapi (Audit 2044)
 
 - Himpunan opsi bernilai pindai buildah ditambah --volume/-v dan --env/-e (buildah-build(1)) sehingga '--stdin' yang tertelan sebagai nilainya tak lagi tertuduh.

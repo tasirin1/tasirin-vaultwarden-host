@@ -6148,8 +6148,13 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2023: -h adalah bantuan.
         if "-h" in mentah:
             return False
+        # Audit 2045: opsi warisan bernilai lain
+        # dari halaman resmi minikube ssh
+        # (-b/--bootstrapper, --user, --log_dir).
         ops_mk = _operand_sesudah_opsi(
-            toks, awal, {"-p", "--profile"})
+            toks, awal, {"-p", "--profile", "-b",
+                         "--bootstrapper", "--user",
+                         "--log_dir"})
         return bool(ops_mk) and ops_mk[0] == "ssh"
     if perintah == "mpv":
         # Audit 2034: operand '-' tunggal berarti
