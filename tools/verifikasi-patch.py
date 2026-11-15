@@ -4996,6 +4996,17 @@ def _menguras_khusus(perintah, toks, awal):
             # perintah seperti bentuk panjangnya.
             if t0_dk in ("-h", "-v"):
                 return False
+            # Audit 2080: bundel huruf pendek
+            # bool+nilai ('-Dc') diurai - huruf
+            # terakhir bernilai menelan token
+            # berikutnya (dok: opsi satu huruf
+            # boleh digabung).
+            if (len(t0_dk) > 2 and t0_dk[1] != "-"
+                    and t0_dk[-1] in ("c", "H", "l")
+                    and all(ch in "D"
+                            for ch in t0_dk[1:-1])):
+                j0_dk += 2
+                continue
             if t0_dk.startswith("-"):
                 j0_dk += 1
                 continue

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: docker - bundel huruf pendek bool+nilai diurai (Audit 2080)
+
+- Pindai global docker mengurai bundel satu huruf (dok resmi: opsi satu huruf boleh digabung) - '-Dc' diperlakukan sebagai -D plus -c bernilai.
+
 ## [Belum rilis] — Gerbang: docker/podman - -h/-v pendek sebelum sub informasional (Audit 2084)
 
 - Pindai sub docker dan podman kini memegang -h/-v pendek sebelum sub sebagai informasional, sama seperti bentuk panjangnya.
