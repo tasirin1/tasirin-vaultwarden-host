@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvlook dinilai - menerima data terpipa (Audit 2099)
+
+- csvlook kini dinilai: tanpa nama berkas ia menerima input terpipa via STDIN (csvlook(1) csvkit), dengan himpunan opsi bernilai csvkit umum.
+
 ## [Belum rilis] — Gerbang: qsv dinilai - 'qsv cat' membaca stdin (Audit 2098)
 
 - qsv kini dinilai: sub cat tanpa masukan (atau masukan '-') membaca stdin (sumber resmi qsv config.rs); sub lain tidak.

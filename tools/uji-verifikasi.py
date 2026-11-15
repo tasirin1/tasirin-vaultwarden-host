@@ -25608,6 +25608,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv cat membaca stdin: gerbang gagal (Audit 2098)", rc != 0)
         shutil.rmtree(sub1202, ignore_errors=True)
+        sub1203 = klon(tmp, "sub1203")
+        berkas_aksi1203 = os.path.join(
+            sub1203, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1203, encoding="utf-8") as f:
+            isi_aksi1203 = f.read()
+        baris_aksi1203 = [b for b in isi_aksi1203.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1203 = isi_aksi1203.replace(
+                baris_aksi1203,
+                baris_aksi1203.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvlook; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1203 != isi_aksi1203, \
+            "suntikan aksi1203 tidak menembak"
+        with open(berkas_aksi1203, "w", encoding="utf-8") as f:
+            f.write(isi_baru1203)
+        rc, out = jalan(sub1203,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvlook menerima data terpipa: gerbang gagal (Audit 2099)", rc != 0)
+        shutil.rmtree(sub1203, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
