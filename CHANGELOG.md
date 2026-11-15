@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: units dinilai - membaca pasangan dari stdin (Audit 2088)
+
+- units kini dinilai: tanpa argumen non-opsi ia membaca pasangan HAVE/WANT dari stdin (GNU Units Manual).
+
 ## [Belum rilis] — Gerbang: in2csv dinilai - menerima data terpipa (Audit 2087)
 
 - in2csv kini dinilai: tanpa nama berkas ia menerima data terpipa lewat STDIN (dok csvkit).
