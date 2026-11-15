@@ -952,6 +952,16 @@ def main():
                 "tertangkap (Audit 2002)",
                 rc != 0 and "biner-hdr.bin" in out)
         shutil.rmtree(biner_hdr, ignore_errors=True)
+        nodpi = klon(tmp, "nodpi")
+        os.makedirs(nodpi + "/app/src/main/res/drawable-nodpi",
+                    exist_ok=True)
+        tanam(nodpi,
+              "app/src/main/res/drawable-nodpi/uji.xml",
+              '<vector android:pathData="M.9,2"/>', "w")
+        rc, out = jalan(nodpi, ["bash", SKRIP])
+        periksa("vektor .9 di drawable-nodpi tertangkap "
+                "(Audit 2003)", rc != 0 and "vektor" in out)
+        shutil.rmtree(nodpi, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

@@ -20,19 +20,19 @@ fi
 
 if rg --version >/dev/null 2>&1; then ADA_RG=1; else ADA_RG=0; fi
 
-if [ "$ADA_RG" = 1 ] && rg --pcre2 -n '' app/src/main/res/drawable >/dev/null 2>&1; then
+if [ "$ADA_RG" = 1 ] && rg --pcre2 -n '' app/src/main/res >/dev/null 2>&1; then
 
-  TEMUAN="$(rg -n --pcre2 '(?<![0-9])\.-?[0-9]' app/src/main/res/drawable 2>/dev/null || true)"
+  TEMUAN="$(rg -n --pcre2 '(?<![0-9])\.-?[0-9]' app/src/main/res 2>/dev/null || true)"
   if [ -n "$TEMUAN" ]; then
     gagal_msg "path vektor tanpa nol depan (pakai 0.9 bukan .9)";
   fi
 elif grep -R -P '' . >/dev/null 2>&1; then
-  TEMUAN="$(grep -R -n -P '(?<![0-9])\.-?[0-9]' app/src/main/res/drawable 2>/dev/null || true)"
+  TEMUAN="$(grep -R -n -P '(?<![0-9])\.-?[0-9]' app/src/main/res 2>/dev/null || true)"
   if [ -n "$TEMUAN" ]; then
     gagal_msg "path vektor tanpa nol depan (pakai 0.9 bukan .9)";
   fi
 else
-  TEMUAN="$(grep -R -E -n '(^|[^0-9])\.-?[0-9]' app/src/main/res/drawable 2>/dev/null || true)"
+  TEMUAN="$(grep -R -E -n '(^|[^0-9])\.-?[0-9]' app/src/main/res 2>/dev/null || true)"
   if [ -n "$TEMUAN" ]; then
     gagal_msg "path vektor tanpa nol depan (pakai 0.9 bukan .9)";
   fi

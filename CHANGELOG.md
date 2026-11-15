@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: pemeriksaan vektor mencakup semua folder drawable (Audit 2003)
+
+- Ketiga mesin (rg/grep -P/grep -E) hanya memindai app/src/main/res/drawable; vektor '.9' di drawable-nodpi/ lolos. Sasaran kini app/src/main/res (rekursif semua drawable*).
+
 ## [Belum rilis] — Cek-cepat: header kunci tunggal di berkas biner terlacak tertangkap (Audit 2002)
 
 - Pola rahasia menuntut badan dan fase bungkus menuntut ekor base64, sehingga header kunci privat tunggal di berkas biner terlacak lolos semua fase. Ditambah grep header-saja dengan -a (indeks + pohon kerja) yang hasilnya disaring hanya berkas berbau biner (mengandung NUL) - berkas teks sah yang menyebut header (CHANGELOG, TlsCert, skrip ini) tidak ikut tertuduh.
