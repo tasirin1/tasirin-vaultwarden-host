@@ -7033,7 +7033,8 @@ def _menguras_khusus(perintah, toks, awal):
                          "--data-fields", "-a",
                          "--append-fields", "-p",
                          "--prefix", "-w",
-                         "--write-all"})
+                         "--write-all",
+                         "--delimiter"})
         if "\x00gantung" in ops_tj:
             return False
         # Audit 2135: filter dari stdin ('-f -')

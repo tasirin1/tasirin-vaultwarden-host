@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-join - '--delimiter' long-only ditambah (Audit 2144)
+
+- Himpunan bernilai tsv-join ditambah '--delimiter' (opsi long-only resmi tsv_join.d) yang hilang dari kosakata.
+
 ## [Belum rilis] — Cek-cepat: agregasi - ejaan nama fase rahasia dinormalkan (Audit 2137)
 
 - Nama dari fase rahasia-awal (git grep, ejaan kutip-C) kini didekodekan lalu di-escape dengan skema yang sama seperti fase bungkus, sehingga satu berkas tampil satu ejaan di laporan akhir.
