@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: docker/podman - -h/-v pendek sebelum sub informasional (Audit 2084)
+
+- Pindai sub docker dan podman kini memegang -h/-v pendek sebelum sub sebagai informasional, sama seperti bentuk panjangnya.
+
 ## [Belum rilis] — Gerbang: minikube - --log_file dilengkapi (Audit 2079)
 
 - Himpunan opsi bernilai minikube ditambah --log_file, satu-satunya sisa bernilai di daftar resmi Options inherited.

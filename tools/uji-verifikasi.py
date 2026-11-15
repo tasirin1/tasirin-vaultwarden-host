@@ -25230,6 +25230,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--log_file minikube bernilai: gerbang gagal (Audit 2079)", rc != 0)
         shutil.rmtree(sub1184, ignore_errors=True)
+        sub1185 = klon(tmp, "sub1185")
+        berkas_aksi1185 = os.path.join(
+            sub1185, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1185, encoding="utf-8") as f:
+            isi_aksi1185 = f.read()
+        baris_aksi1185 = [b for b in isi_aksi1185.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1185 = isi_aksi1185.replace(
+                baris_aksi1185,
+                baris_aksi1185.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(docker -v load; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1185 != isi_aksi1185, \
+            "suntikan aksi1185 tidak menembak"
+        with open(berkas_aksi1185, "w", encoding="utf-8") as f:
+            f.write(isi_baru1185)
+        rc, out = jalan(sub1185,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-v pendek docker informasional: gerbang lolos (Audit 2084)", rc == 0)
+        shutil.rmtree(sub1185, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

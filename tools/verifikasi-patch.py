@@ -4991,6 +4991,11 @@ def _menguras_khusus(perintah, toks, awal):
                    for g in global_dk):
                 j0_dk += 1
                 continue
+            # Audit 2084: huruf informasional
+            # pendek -h/-v sebelum sub mematikan
+            # perintah seperti bentuk panjangnya.
+            if t0_dk in ("-h", "-v"):
+                return False
             if t0_dk.startswith("-"):
                 j0_dk += 1
                 continue
@@ -5129,6 +5134,10 @@ def _menguras_khusus(perintah, toks, awal):
                    for g in global_pm):
                 j0_pm += 1
                 continue
+            # Audit 2084: cermin docker - -h/-v
+            # pendek sebelum sub.
+            if t0_pm in ("-h", "-v"):
+                return False
             if t0_pm.startswith("-"):
                 j0_pm += 1
                 continue
