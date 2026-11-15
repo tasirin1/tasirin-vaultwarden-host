@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub flatten membaca stdin (Audit 2159)
+
+- Cabang xsv ditambah sub flatten: masukan [<input>] opsional (flatten.rs).
+
 ## [Belum rilis] — Cek-cepat: nama '-' dari fase rahasia dinormalkan ke ./- (Audit 2158)
 
 - Dekoder awk fase rahasia-awal kini memetakan nama '-' menjadi './-' seperti daftar bungkus, sehingga berkas terlacak bernama '-' tampil satu kali.

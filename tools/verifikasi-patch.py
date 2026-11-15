@@ -6987,6 +6987,16 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_xsl
                     or all(o == "-" for o in ops_xsl))
+        # Audit 2159: sub 'flatten' xsv - masukan
+        # [<input>] opsional (flatten.rs).
+        if mentah and mentah[0] == "flatten":
+            ops_xf = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-c", "-s", "-d", "--delimiter"})
+            if "\x00gantung" in ops_xf:
+                return False
+            return (not ops_xf
+                    or all(o == "-" for o in ops_xf))
         # Audit 2154: sub 'headers' xsv - daftar
         # masukan Vec lewat many_configs (kosong
         # diganti '-'), seperti cat.
