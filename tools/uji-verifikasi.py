@@ -24789,6 +24789,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("litecli membaca stdin saat terpipa: gerbang gagal (Audit 2053)", rc != 0)
         shutil.rmtree(sub1163, ignore_errors=True)
+        sub1164 = klon(tmp, "sub1164")
+        berkas_aksi1164 = os.path.join(
+            sub1164, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1164, encoding="utf-8") as f:
+            isi_aksi1164 = f.read()
+        baris_aksi1164 = [b for b in isi_aksi1164.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1164 = isi_aksi1164.replace(
+                baris_aksi1164,
+                baris_aksi1164.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(mycli; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1164 != isi_aksi1164, \
+            "suntikan aksi1164 tidak menembak"
+        with open(berkas_aksi1164, "w", encoding="utf-8") as f:
+            f.write(isi_baru1164)
+        rc, out = jalan(sub1164,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("mycli modus batch dari stdin: gerbang gagal (Audit 2054)", rc != 0)
+        shutil.rmtree(sub1164, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

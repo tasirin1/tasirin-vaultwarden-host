@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mycli dinilai - modus batch dari stdin (Audit 2054)
+
+- mycli kini dinilai: bila stdin bukan TTY ia masuk modus batch dari stdin (sumber resmi); -e/--execute menekan.
+
 ## [Belum rilis] — Gerbang: litecli dinilai - membaca stdin saat terpipa (Audit 2053)
 
 - litecli kini dinilai: bila stdin bukan TTY ia membaca seluruh stdin dan menjalankannya sebagai kueri (sumber resmi); -e/--execute menekan.
