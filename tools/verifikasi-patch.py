@@ -5662,7 +5662,8 @@ def _menguras_khusus(perintah, toks, awal):
         nilai_ba = {"--label", "-l", "--tag", "-t",
                     "--build-arg", "--network",
                     "--target", "--platform", "--output",
-                    "-o", "--iidfile", "--metadata-file"}
+                    "-o", "--iidfile", "--metadata-file",
+                    "--volume", "-v", "--env", "-e"}
         j_ba = 0
         while j_ba < len(mentah):
             t_ba = mentah[j_ba]

@@ -24663,6 +24663,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi global podman tambahan bernilai: gerbang gagal (Audit 2043)", rc != 0)
         shutil.rmtree(sub1157, ignore_errors=True)
+        sub1158 = klon(tmp, "sub1158")
+        berkas_aksi1158 = os.path.join(
+            sub1158, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1158, encoding="utf-8") as f:
+            isi_aksi1158 = f.read()
+        baris_aksi1158 = [b for b in isi_aksi1158.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1158 = isi_aksi1158.replace(
+                baris_aksi1158,
+                baris_aksi1158.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(buildah bud -v --stdin .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1158 != isi_aksi1158, \
+            "suntikan aksi1158 tidak menembak"
+        with open(berkas_aksi1158, "w", encoding="utf-8") as f:
+            f.write(isi_baru1158)
+        rc, out = jalan(sub1158,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-v buildah menelan --stdin: gerbang lolos (Audit 2044)", rc == 0)
+        shutil.rmtree(sub1158, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

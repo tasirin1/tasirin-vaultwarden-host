@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: buildah - opsi bernilai -v/--volume dan -e/--env dilengkapi (Audit 2044)
+
+- Himpunan opsi bernilai pindai buildah ditambah --volume/-v dan --env/-e (buildah-build(1)) sehingga '--stdin' yang tertelan sebagai nilainya tak lagi tertuduh.
+
 ## [Belum rilis] — Gerbang: podman - opsi global bernilai tambahan dilengkapi (Audit 2043)
 
 - Himpunan opsi global bernilai podman ditambah --storage-driver/--cgroup-manager/--events-backend/--tmpdir/--storage-opt (docs.podman.io).
