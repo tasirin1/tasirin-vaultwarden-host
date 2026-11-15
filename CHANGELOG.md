@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-append dinilai - tanpa berkas membaca stdin (Audit 2119)
+
+- tsv-append kini dinilai: daftar berkas kosong diganti ['-'] = stdin (sumber tsv-append.d).
+
 ## [Belum rilis] — Gerbang: tsv-filter dinilai - membaca standard input (Audit 2118)
 
 - tsv-filter kini dinilai: tanpa berkas membaca standard input (dok resmi tsv-utils); opsi predikatnya bernilai FIELD:NILAI.
