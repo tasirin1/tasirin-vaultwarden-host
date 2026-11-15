@@ -25419,6 +25419,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("groff tanpa operand membaca stdin: gerbang gagal (Audit 2089)", rc != 0)
         shutil.rmtree(sub1193, ignore_errors=True)
+        sub1194 = klon(tmp, "sub1194")
+        berkas_aksi1194 = os.path.join(
+            sub1194, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1194, encoding="utf-8") as f:
+            isi_aksi1194 = f.read()
+        baris_aksi1194 = [b for b in isi_aksi1194.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1194 = isi_aksi1194.replace(
+                baris_aksi1194,
+                baris_aksi1194.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(in2csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1194 != isi_aksi1194, \
+            "suntikan aksi1194 tidak menembak"
+        with open(berkas_aksi1194, "w", encoding="utf-8") as f:
+            f.write(isi_baru1194)
+        rc, out = jalan(sub1194,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("in2csv menerima data terpipa: gerbang gagal (Audit 2087)", rc != 0)
+        shutil.rmtree(sub1194, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

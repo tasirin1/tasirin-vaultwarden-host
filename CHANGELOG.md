@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: in2csv dinilai - menerima data terpipa (Audit 2087)
+
+- in2csv kini dinilai: tanpa nama berkas ia menerima data terpipa lewat STDIN (dok csvkit).
+
 ## [Belum rilis] — Gerbang: groff dinilai - membaca stdin tanpa operand (Audit 2089)
 
 - groff kini dinilai: tanpa operand berkas (atau operand '-') ia membaca stdin (groff(1)).
