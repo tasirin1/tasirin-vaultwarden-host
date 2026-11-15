@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: buildah - pindai bendera sadar nilai opsi global (Audit 2078)
+
+- Gelung pindai bendera buildah kini melewatkan nilai opsi global (global_ba) sehingga '--stdin' yang duduk sebagai nilai --root bukan saklar.
+
 ## [Belum rilis] — Gerbang: buildah - 74 opsi build bernilai dilengkapi (Audit 2077)
 
 - Himpunan opsi bernilai pindai buildah dilengkapi hasil panen penuh buildah-build(1): keluarga cache, cpu, dns, sbom, userns, dan 60-an opsi lain sehingga --stdin yang tertelan sebagai nilai tak lagi tertuduh.

@@ -25188,6 +25188,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--cache-from buildah menelan --stdin: gerbang lolos (Audit 2077)", rc == 0)
         shutil.rmtree(sub1182, ignore_errors=True)
+        sub1183 = klon(tmp, "sub1183")
+        berkas_aksi1183 = os.path.join(
+            sub1183, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1183, encoding="utf-8") as f:
+            isi_aksi1183 = f.read()
+        baris_aksi1183 = [b for b in isi_aksi1183.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1183 = isi_aksi1183.replace(
+                baris_aksi1183,
+                baris_aksi1183.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(buildah --root --stdin bud; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1183 != isi_aksi1183, \
+            "suntikan aksi1183 tidak menembak"
+        with open(berkas_aksi1183, "w", encoding="utf-8") as f:
+            f.write(isi_baru1183)
+        rc, out = jalan(sub1183,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("--stdin nilai --root bukan saklar: gerbang lolos (Audit 2078)", rc == 0)
+        shutil.rmtree(sub1183, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

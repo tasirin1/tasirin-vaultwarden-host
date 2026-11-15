@@ -5743,6 +5743,13 @@ def _menguras_khusus(perintah, toks, awal):
         j_ba = 0
         while j_ba < len(mentah):
             t_ba = mentah[j_ba]
+            # Audit 2078: nilai opsi GLOBAL juga
+            # dilewatkan pindai bendera ini -
+            # '--stdin' sebagai nilai --root bukan
+            # saklar.
+            if t_ba in global_ba:
+                j_ba += 2
+                continue
             if t_ba in nilai_ba:
                 j_ba += 2
                 continue
