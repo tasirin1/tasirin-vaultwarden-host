@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvsort dinilai - membaca stdin tanpa FILE (Audit 2122)
+
+- csvsort kini dinilai: tanpa FILE menerima input terpipa via STDIN (csvsort(1)); himpunan _CSVKIT ditambah -c/--columns dengan penjaga jebakan argparse.
+
 ## [Belum rilis] — Gerbang: xsv - sub search membaca stdin (Audit 2121)
 
 - Cabang xsv ditambah sub search: pola adalah operand pertama dan masukan [<input>] opsional sesudahnya; tanpa masukan ia membaca stdin (config.rs xsv).
