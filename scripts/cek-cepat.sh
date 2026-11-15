@@ -18,7 +18,7 @@ fi
 # ini (induk folder scripts/), bukan dari repo
 # tempat berdiri - repo git lain yang bersarang
 # di dalam repo ini dulu merebut pemeriksaan.
-SUMBER2001="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || printf '%s' "${BASH_SOURCE[0]}")"
+SUMBER2001="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}" 2>/dev/null || printf '%s' "${BASH_SOURCE[0]}")"
 AKAR2001="$(cd "$(dirname "$SUMBER2001")/.." 2>/dev/null && pwd)"
 if [ -n "$AKAR2001" ]; then
   cd "$AKAR2001" || gagal_msg "gagal pindah ke akar repo"

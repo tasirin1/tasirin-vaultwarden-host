@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: penembus symlink cadangan lewat python3 (Audit 2068)
+
+- Rantai penembus symlink lokasi skrip ditambah cadangan os.path.realpath python3 di antara readlink -f dan printf, sehingga lingkungan tanpa readlink tetap berakar benar lewat symlink.
+
 ## [Belum rilis] — Cek-cepat: uji NUL dialirkan, ingatan terbatas (Audit 2067)
 
 - biner_atau_tak_teruji kini mengalirkan keluaran od lewat awk yang berhenti di NUL pertama (ingatan terbatas, tetap tanpa batas jendela); keluaran od kosong tetap dianggap biner sesuai doktrin 2032.
