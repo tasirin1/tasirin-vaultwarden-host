@@ -18,7 +18,8 @@ fi
 # ini (induk folder scripts/), bukan dari repo
 # tempat berdiri - repo git lain yang bersarang
 # di dalam repo ini dulu merebut pemeriksaan.
-AKAR2001="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)"
+SUMBER2001="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || printf '%s' "${BASH_SOURCE[0]}")"
+AKAR2001="$(cd "$(dirname "$SUMBER2001")/.." 2>/dev/null && pwd)"
 if [ -n "$AKAR2001" ]; then
   cd "$AKAR2001" || gagal_msg "gagal pindah ke akar repo"
 fi

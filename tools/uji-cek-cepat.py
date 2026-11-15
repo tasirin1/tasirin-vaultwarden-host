@@ -1020,6 +1020,13 @@ def main():
                 "(Audit 2032)",
                 rc != 0 and "biner-od.bin" in out)
         shutil.rmtree(odlumpuh, ignore_errors=True)
+        pautan = klon(tmp, "pautan")
+        os.symlink("scripts/cek-cepat.sh", pautan + "/cek-link")
+        rc, out = jalan(pautan,
+                        ["bash", pautan + "/cek-link"])
+        periksa("akar repo ditembus lewat symlink skrip "
+                "(Audit 2048)", rc == 0)
+        shutil.rmtree(pautan, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

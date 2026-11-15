@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: akar repo menembus symlink skrip (Audit 2048)
+
+- Lokasi skrip kini ditembus symlink (readlink -f) sebelum akarnya dihitung, sehingga menjalankan skrip lewat tautan di akar repo sendiri tak lagi salah akar dan memicu alarm palsu.
+
 ## [Belum rilis] — Gerbang: guix repl - opsi bernilai -t/-L dilengkapi (Audit 2047)
 
 - Himpunan opsi bernilai guix ditambah -t/--type dan -L/--load-path (guix-repl(1)) sehingga 'guix repl -t machine' tak lagi terhitung beroperand berkas.
