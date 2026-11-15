@@ -24075,6 +24075,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("buildah bud -f - dari stdin: gerbang gagal (Audit 2010)", rc != 0)
         shutil.rmtree(sub1129, ignore_errors=True)
+        sub1130 = klon(tmp, "sub1130")
+        berkas_aksi1130 = os.path.join(
+            sub1130, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1130, encoding="utf-8") as f:
+            isi_aksi1130 = f.read()
+        baris_aksi1130 = [b for b in isi_aksi1130.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1130 = isi_aksi1130.replace(
+                baris_aksi1130,
+                baris_aksi1130.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(az rest --body @-; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1130 != isi_aksi1130, \
+            "suntikan aksi1130 tidak menembak"
+        with open(berkas_aksi1130, "w", encoding="utf-8") as f:
+            f.write(isi_baru1130)
+        rc, out = jalan(sub1130,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("az rest --body @- dari pipa: gerbang gagal (Audit 2011)", rc != 0)
+        shutil.rmtree(sub1130, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

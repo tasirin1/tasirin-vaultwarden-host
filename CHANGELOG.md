@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: az rest --body @- dinilai membaca pipa (Audit 2011)
+
+- Nama baru az: hanya 'az rest' dengan --body '@-' (terpisah atau =) yang True - mekanisme '@-' dari pipa menurut Microsoft Learn (DUGAAN kuat untuk penerapan khususnya).
+
 ## [Belum rilis] — Gerbang: buildah bud/build '-f -' dinilai membaca stdin (Audit 2010)
 
 - Cabang buildah hanya menilai token --stdin; man buildah-bud menegaskan '-f -' berarti Containerfile dibaca dari stdin - kini ikut dinilai.

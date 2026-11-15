@@ -5925,6 +5925,27 @@ def _menguras_khusus(perintah, toks, awal):
                for t_sq in mentah):
             return False
         return True
+    if perintah == "az":
+        # Audit 2011: az rest --body @- mengambil
+        # body dari pipa (mekanisme '@-' Azure CLI
+        # menurut Microsoft Learn; DUGAAN kuat).
+        ops_az = _operand_sesudah_opsi(
+            toks, awal, {"--output", "-o", "--query",
+                         "--subscription", "--resource-group",
+                         "-g", "--name", "-n", "--body",
+                         "--headers", "--uri", "--method",
+                         "-m", "--uri-parameters"})
+        if "\x00gantung" in ops_az:
+            return False
+        if not ops_az or ops_az[0] != "rest":
+            return False
+        for k_az, t_az in enumerate(mentah):
+            if t_az == "--body=@-":
+                return True
+            if (t_az == "--body" and k_az + 1 < len(mentah)
+                    and mentah[k_az + 1] == "@-"):
+                return True
+        return False
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -7517,7 +7538,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "nano", "nats", "nerdctl", "oc", "pandoc", "pg_restore", "rclone", "restic", "s-nail", "sendmail", "skopeo", "snowsql", "terraform", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "nano", "nats", "nerdctl", "oc", "pandoc", "pg_restore", "rclone", "restic", "s-nail", "sendmail", "skopeo", "snowsql", "terraform", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
