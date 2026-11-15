@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pv dinilai - membaca stdin tanpa operand berkas (Audit 2071)
+
+- pv kini dinilai: tanpa operand berkas (atau operand '-') ia membaca stdin (pv(1)).
+
 ## [Belum rilis] — Gerbang: entr dinilai - daftar berkas dari stdin (Audit 2070)
 
 - entr kini dinilai: daftar berkas yang diawasinya dibaca dari stdin (man entr), selalu menguras.

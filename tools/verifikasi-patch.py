@@ -6358,6 +6358,16 @@ def _menguras_khusus(perintah, toks, awal):
         # dibaca dari stdin (man entr) - selalu
         # menguras.
         return True
+    if perintah == "pv":
+        # Audit 2071: tanpa operand berkas (atau
+        # operand '-') pv membaca stdin (pv(1)).
+        ops_pv = _operand_sesudah_opsi(
+            toks, awal, {"-L", "--rate-limit", "-B",
+                         "--buffer-size", "-s", "--size",
+                         "-i", "--interval", "-N", "--name"})
+        if "\x00gantung" in ops_pv:
+            return False
+        return all(o_pv == "-" for o_pv in ops_pv)
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -7955,7 +7965,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "etcdctl", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "guix", "helm", "identify", "ipfs", "irb", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "racket", "restic", "rlogin", "sbcl", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "usql", "vagrant", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "etcdctl", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "guix", "helm", "identify", "ipfs", "irb", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rlogin", "sbcl", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "usql", "vagrant", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
