@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv sort - '-r' kecil ditolak (Audit 2168)
+
+- Cabang xsv sort kini menolak token '-r': sort.rs hanya mengenal -R, --reverse.
+
 ## [Belum rilis] — Gerbang: xsv sample - operand '-' ditolak (Audit 2167)
 
 - Cabang xsv sample kini menolak operand pertama '-': terikat sebagai ukuran u64 sehingga galat parse di realitas.

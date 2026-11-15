@@ -7035,6 +7035,10 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2163: sub 'sort' xsv - masukan
         # [<input>] opsional (sort.rs).
         if mentah and mentah[0] == "sort":
+            # Audit 2168: '-r' kecil tak dikenal
+            # sort.rs (resmi -R, --reverse).
+            if "-r" in mentah:
+                return False
             ops_xso = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-o", "--output",
