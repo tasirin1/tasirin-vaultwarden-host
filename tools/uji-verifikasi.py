@@ -25146,6 +25146,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("opsi TLS global podman bernilai: gerbang gagal (Audit 2075)", rc != 0)
         shutil.rmtree(sub1180, ignore_errors=True)
+        sub1181 = klon(tmp, "sub1181")
+        berkas_aksi1181 = os.path.join(
+            sub1181, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1181, encoding="utf-8") as f:
+            isi_aksi1181 = f.read()
+        baris_aksi1181 = [b for b in isi_aksi1181.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1181 = isi_aksi1181.replace(
+                baris_aksi1181,
+                baris_aksi1181.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(buildah --log-level debug bud --stdin .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1181 != isi_aksi1181, \
+            "suntikan aksi1181 tidak menembak"
+        with open(berkas_aksi1181, "w", encoding="utf-8") as f:
+            f.write(isi_baru1181)
+        rc, out = jalan(sub1181,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("opsi global buildah --log-level bernilai: gerbang gagal (Audit 2076)", rc != 0)
+        shutil.rmtree(sub1181, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

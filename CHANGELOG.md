@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: buildah - 5 opsi global bernilai dilengkapi (Audit 2076)
+
+- Penentu sub buildah dan pindai benderanya kini melewatkan nilai --imagestore, --log-level, --registries-conf-dir, --short-name-alias-conf, --storage-opt (buildah(1)); himpunan global bersama global_ba dibentuk untuk kedua jalur.
+
 ## [Belum rilis] — Gerbang: podman - keluarga TLS + --volumepath dilengkapi (Audit 2075)
 
 - Himpunan opsi global bernilai podman ditambah --tls-ca/--tls-cert/--tls-details/--tls-key/--volumepath (podman(1)).

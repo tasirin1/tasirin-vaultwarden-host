@@ -5659,13 +5659,29 @@ def _menguras_khusus(perintah, toks, awal):
         # (buildah(1) '[OPTIONS] COMMAND')
         # bernilai - nilainya jangan terhitung
         # operand penentu sub.
+        # Audit 2076: lima opsi global bernilai
+        # lagi (buildah(1)) ikut dilengkapi.
         ops_ba = _operand_sesudah_opsi(
             toks, awal, {"--root", "--runroot",
                          "--storage-driver",
                          "--registries-conf",
                          "--userns-gid-map",
                          "--userns-uid-map",
-                         "--cgroup-manager"})
+                         "--cgroup-manager",
+                         "--imagestore", "--log-level",
+                         "--registries-conf-dir",
+                         "--short-name-alias-conf",
+                         "--storage-opt"})
+        global_ba = {"--root", "--runroot",
+                     "--storage-driver",
+                     "--registries-conf",
+                     "--registries-conf-dir",
+                     "--userns-gid-map",
+                     "--userns-uid-map",
+                     "--cgroup-manager",
+                     "--imagestore", "--log-level",
+                     "--short-name-alias-conf",
+                     "--storage-opt"}
         if "\x00gantung" in ops_ba:
             return False
         # Audit 2010: '-f -' pada bud/build berarti
