@@ -24768,6 +24768,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("irb membaca ekspresi dari stdin: gerbang gagal (Audit 2052)", rc != 0)
         shutil.rmtree(sub1162, ignore_errors=True)
+        sub1163 = klon(tmp, "sub1163")
+        berkas_aksi1163 = os.path.join(
+            sub1163, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1163, encoding="utf-8") as f:
+            isi_aksi1163 = f.read()
+        baris_aksi1163 = [b for b in isi_aksi1163.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1163 = isi_aksi1163.replace(
+                baris_aksi1163,
+                baris_aksi1163.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(litecli; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1163 != isi_aksi1163, \
+            "suntikan aksi1163 tidak menembak"
+        with open(berkas_aksi1163, "w", encoding="utf-8") as f:
+            f.write(isi_baru1163)
+        rc, out = jalan(sub1163,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("litecli membaca stdin saat terpipa: gerbang gagal (Audit 2053)", rc != 0)
+        shutil.rmtree(sub1163, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

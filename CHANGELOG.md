@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: litecli dinilai - membaca stdin saat terpipa (Audit 2053)
+
+- litecli kini dinilai: bila stdin bukan TTY ia membaca seluruh stdin dan menjalankannya sebagai kueri (sumber resmi); -e/--execute menekan.
+
 ## [Belum rilis] — Gerbang: irb dinilai - REPL Ruby dari stdin (Audit 2052)
 
 - irb kini dinilai: tanpa operand berkas ia mengeksekusi ekspresi Ruby yang dibaca dari stdin (RDoc resmi).
