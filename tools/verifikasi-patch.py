@@ -4969,6 +4969,32 @@ def _menguras_khusus(perintah, toks, awal):
         # bentuk panjang --interactive berlaku; bundel
         # diurai setia getopt (huruf bernilai menelan
         # sisa bundel / token berikutnya).
+        # Audit 2004/2005/2006: build/import/load -
+        # konteks & Dockerfile '-', import '-', dan
+        # load tanpa -i membaca dari stdin (docs).
+        for k0_dk, t0_dk in enumerate(mentah):
+            if t0_dk in ("exec", "run"):
+                break
+            if t0_dk == "import":
+                return "-" in mentah[k0_dk + 1:]
+            if t0_dk == "load":
+                sisa_ld = mentah[k0_dk + 1:]
+                return ("-i" not in sisa_ld
+                        and "--input" not in sisa_ld
+                        and not any(x.startswith("--input=")
+                                    for x in sisa_ld))
+            if t0_dk == "build":
+                sisa_bd = mentah[k0_dk + 1:]
+                if "-" in sisa_bd:
+                    return True
+                for k3_dk, t3_dk in enumerate(sisa_bd):
+                    if (t3_dk in ("-f", "--file")
+                            and k3_dk + 1 < len(sisa_bd)
+                            and sisa_bd[k3_dk + 1] == "-"):
+                        return True
+                    if t3_dk == "--file=-":
+                        return True
+                return False
         sub_dk = None
         for k_dk, t_dk in enumerate(mentah):
             if t_dk in ("exec", "run"):

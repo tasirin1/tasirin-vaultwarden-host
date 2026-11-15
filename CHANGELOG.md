@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: docker build/import/load dari stdin dinilai (Audit 2004-2006)
+
+- Cabang docker hanya menilai exec/run. Kini: build dengan konteks '-' atau '-f -' True; import dengan operand '-' True; load tanpa -i/--input True (bawaan membaca stdin) - semua menurut docs.docker.com.
+
 ## [Belum rilis] — Cek-cepat: pemeriksaan vektor mencakup semua folder drawable (Audit 2003)
 
 - Ketiga mesin (rg/grep -P/grep -E) hanya memindai app/src/main/res/drawable; vektor '.9' di drawable-nodpi/ lolos. Sasaran kini app/src/main/res (rekursif semua drawable*).
