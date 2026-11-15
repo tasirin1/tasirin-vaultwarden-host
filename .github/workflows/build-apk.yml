@@ -97,7 +97,10 @@ jobs:
     # pindai penuh) dan melampaui 15 menit di runner -
     # job tercancel dan Assemble APK terlewati pada push
     # maraton-126/127; batas dinaikkan ke 30.
-    timeout-minutes: 30
+    # Audit 2150: suite sudah 98 skenario - batas
+    # dinaikkan lagi ke 45 agar margin tak menipis
+    # seperti pola insiden 2074.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:

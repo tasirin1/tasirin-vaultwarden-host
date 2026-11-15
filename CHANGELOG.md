@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — CI: build-apk verifikasi-cek - timeout 30 ke 45 (Audit 2150)
+
+- Suite cek sudah 98 skenario (dari 92 saat insiden 2074); batas verifikasi-cek dinaikkan ke 45 agar margin tak menipis dengan pola yang sama.
+
 ## [Belum rilis] — CI: cek-wajib - timeout 45 ke 75 (dua suite serial) (Audit 2149)
 
 - Job cek-wajib menjalankan uji-verifikasi + uji-cek-cepat serial; komponen terukurnya 22:18 + melampaui 15 menit dan terus tumbuh - margin di 45 menipis (kandidat insiden 2074 berikutnya). Batas dinaikkan ke 75.
