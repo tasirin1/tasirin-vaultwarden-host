@@ -26175,6 +26175,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvjoin operand '-' adalah stdin: gerbang gagal (Audit 2125)", rc != 0)
         shutil.rmtree(sub1229, ignore_errors=True)
+        sub1230 = klon(tmp, "sub1230")
+        berkas_aksi1230 = os.path.join(
+            sub1230, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1230, encoding="utf-8") as f:
+            isi_aksi1230 = f.read()
+        baris_aksi1230 = [b for b in isi_aksi1230.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1230 = isi_aksi1230.replace(
+                baris_aksi1230,
+                baris_aksi1230.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvstack -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1230 != isi_aksi1230, \
+            "suntikan aksi1230 tidak menembak"
+        with open(berkas_aksi1230, "w", encoding="utf-8") as f:
+            f.write(isi_baru1230)
+        rc, out = jalan(sub1230,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvstack operand '-' adalah stdin: gerbang gagal (Audit 2126)", rc != 0)
+        shutil.rmtree(sub1230, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

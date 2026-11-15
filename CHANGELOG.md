@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvstack dinilai - operand '-' adalah stdin (Audit 2126)
+
+- csvstack kini dinilai: sama seperti csvjoin - operand '-' berarti STDIN (Tips resmi csvkit).
+
 ## [Belum rilis] — Gerbang: csvjoin dinilai - operand '-' adalah stdin (Audit 2125)
 
 - csvjoin kini dinilai: alat multi-masukan yang polosnya tak menguras, tetapi operand '-' berarti STDIN (Tips resmi csvkit).
