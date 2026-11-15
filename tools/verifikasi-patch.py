@@ -4848,19 +4848,22 @@ def _menguras_khusus(perintah, toks, awal):
             i_sh += 1
             continue
         return tujuan_sh
-    if perintah == "rsh":
+    if perintah in ("rsh", "rlogin"):
         # Audit 1894: rsh menyalin stdin-nya ke perintah
         # jauh (rsh(1): "copies its standard input to
         # the remote command"); -n mengalihkan stdin
-        # dari /dev/null. Tanpa perintah jauh ia mode
-        # rlogin (di luar klaim ronde ini).
+        # dari /dev/null.
+        # Audit 2039: tanpa perintah jauh rsh masuk
+        # mode rlogin (rsh(1) verbatim) - sesi
+        # interaktif yang sama; rlogin sendiri
+        # kini ikut dinilai.
         if "-n" in mentah:
             return False
         ops_rsh = _operand_sesudah_opsi(
             toks, awal, {"-l", "-e", "-t", "-p"})
         if "\x00gantung" in ops_rsh:
             return False
-        return len(ops_rsh) >= 2
+        return len(ops_rsh) >= 1
     if perintah == "mosquitto_pub":
         # Audit 1895: -s/--stdin-file dan -l/--stdin-line
         # membaca pesan dari stdin (man mosquitto_pub);
@@ -7795,7 +7798,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "guix", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "pg_restore", "rclone", "restic", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "vagrant", "vault", "websocat", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "etcdctl", "glab", "gcloud", "gnuplot", "gsutil", "guix", "identify", "ipfs", "kak", "kafka-console-producer", "kafka-console-producer.sh", "magick", "mail", "mailx", "micro", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "pg_restore", "rclone", "restic", "rlogin", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "vagrant", "vault", "websocat", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

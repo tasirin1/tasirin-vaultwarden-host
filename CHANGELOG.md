@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: rlogin dinilai dan rsh tanpa perintah mode rlogin (Audit 2039)
+
+- rlogin kini dinilai, dan rsh tanpa perintah jauh (mode rlogin menurut rsh(1)) dinilai menguras seperti sesi interaktifnya (Audit 2039).
+
 ## [Belum rilis] — Gerbang: nix dinilai - flag stdin resmi (Audit 2038)
 
 - nix kini dinilai untuk flag stdin resminya: '--stdin', '--arg-from-stdin', dan '-f -' (Audit 2038). 'nix repl' polos tetap tertahan tanpa bukti verbatim.

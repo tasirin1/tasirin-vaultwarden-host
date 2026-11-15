@@ -24537,6 +24537,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("--arg-from-stdin nix meneruskan stdin: gerbang gagal (Audit 2038)", rc != 0)
         shutil.rmtree(sub1151, ignore_errors=True)
+        sub1152 = klon(tmp, "sub1152")
+        berkas_aksi1152 = os.path.join(
+            sub1152, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1152, encoding="utf-8") as f:
+            isi_aksi1152 = f.read()
+        baris_aksi1152 = [b for b in isi_aksi1152.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1152 = isi_aksi1152.replace(
+                baris_aksi1152,
+                baris_aksi1152.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(rlogin host; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1152 != isi_aksi1152, \
+            "suntikan aksi1152 tidak menembak"
+        with open(berkas_aksi1152, "w", encoding="utf-8") as f:
+            f.write(isi_baru1152)
+        rc, out = jalan(sub1152,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("rlogin sesi interaktif: gerbang gagal (Audit 2039)", rc != 0)
+        shutil.rmtree(sub1152, ignore_errors=True)
+        sub1153 = klon(tmp, "sub1153")
+        berkas_aksi1153 = os.path.join(
+            sub1153, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1153, encoding="utf-8") as f:
+            isi_aksi1153 = f.read()
+        baris_aksi1153 = [b for b in isi_aksi1153.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1153 = isi_aksi1153.replace(
+                baris_aksi1153,
+                baris_aksi1153.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(rsh host; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1153 != isi_aksi1153, \
+            "suntikan aksi1153 tidak menembak"
+        with open(berkas_aksi1153, "w", encoding="utf-8") as f:
+            f.write(isi_baru1153)
+        rc, out = jalan(sub1153,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("rsh tanpa perintah mode rlogin: gerbang gagal (Audit 2039)", rc != 0)
+        shutil.rmtree(sub1153, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
