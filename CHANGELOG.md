@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvlook - ejaan '--maxrows' karangan dicabut (Audit 2109)
+
+- Himpunan csvlook: '--maxrows' (bukan opsi sah, bukan awalan '--max-rows' bagi argparse) diganti ejaan resmi '--maxfieldsize' pasangan -z.
+
 ## [Belum rilis] — Gerbang: qsv - 'count' ikut membaca stdin (Audit 2108)
 
 - Cabang qsv ditambah sub count: memakai Config yang sama seperti cat (masukan kosong/'-' menjadi io::stdin()).

@@ -6746,7 +6746,8 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"-d", "--delimiter", "-q",
                          "--quotechar", "-u", "--quoting",
                          "-p", "--escapechar", "-z",
-                         "--maxrows", "-e", "--encoding",
+                         "--maxfieldsize", "-e",
+                         "--encoding",
                          "-y", "--snifflimit"})
         if "\x00gantung" in ops_cl:
             return False
