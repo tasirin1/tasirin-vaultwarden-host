@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv sample - ukuran wajib angka (Audit 2175)
+
+- Cabang xsv sample kini menolak operand pertama yang bukan angka murni (u64 docopt): 'abc'/'5.5'/'-' galat parse.
+
 ## [Belum rilis] — Gerbang: qsv - sub schema membaca stdin (Audit 2174)
 
 - Cabang qsv ditambah sub schema: tanpa masukan seluruh stdin disalin lebih dulu (schema.rs).

@@ -7107,9 +7107,10 @@ def _menguras_khusus(perintah, toks, awal):
                 {"-o", "--output", "-d", "--delimiter"})
             if "\x00gantung" in ops_xsa:
                 return False
-            # Audit 2167: operand pertama '-' terikat
-            # sebagai ukuran u64 - galat parse.
-            if ops_xsa and ops_xsa[0] == "-":
+            # Audit 2167 + 2175: operand pertama
+            # wajib angka u64 ('-' maupun bukan
+            # angka = galat parse).
+            if ops_xsa and not ops_xsa[0].isdigit():
                 return False
             return (len(ops_xsa) == 1
                     or (len(ops_xsa) >= 2
