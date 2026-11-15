@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub stats membaca stdin (Audit 2151)
+
+- Cabang qsv ditambah sub stats: masukan [<input>] opsional (stats.rs), pola Config yang sama seperti cat/count.
+
 ## [Belum rilis] — CI: build-apk verifikasi-cek - timeout 30 ke 45 (Audit 2150)
 
 - Suite cek sudah 98 skenario (dari 92 saat insiden 2074); batas verifikasi-cek dinaikkan ke 45 agar margin tak menipis dengan pola yang sama.

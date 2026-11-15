@@ -26574,6 +26574,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv apply dynfmt stdin: gerbang gagal (Audit 2148)", rc != 0)
         shutil.rmtree(sub1248, ignore_errors=True)
+        sub1249 = klon(tmp, "sub1249")
+        berkas_aksi1249 = os.path.join(
+            sub1249, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1249, encoding="utf-8") as f:
+            isi_aksi1249 = f.read()
+        baris_aksi1249 = [b for b in isi_aksi1249.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1249 = isi_aksi1249.replace(
+                baris_aksi1249,
+                baris_aksi1249.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv stats; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1249 != isi_aksi1249, \
+            "suntikan aksi1249 tidak menembak"
+        with open(berkas_aksi1249, "w", encoding="utf-8") as f:
+            f.write(isi_baru1249)
+        rc, out = jalan(sub1249,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv stats membaca stdin: gerbang gagal (Audit 2151)", rc != 0)
+        shutil.rmtree(sub1249, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

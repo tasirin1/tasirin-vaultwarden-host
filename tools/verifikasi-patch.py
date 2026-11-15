@@ -6809,6 +6809,15 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_qsl
                     or all(o == "-" for o in ops_qsl))
+        # Audit 2151: sub 'stats' - masukan
+        # [<input>] opsional (stats.rs).
+        if mentah and mentah[0] == "stats":
+            ops_qst = _operand_sesudah_opsi(
+                toks, awal + 1, {"-o", "--output"})
+            if "\x00gantung" in ops_qst:
+                return False
+            return (not ops_qst
+                    or all(o == "-" for o in ops_qst))
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "rowskey",
                                   "columns")):
