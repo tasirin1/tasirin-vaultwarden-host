@@ -6864,6 +6864,22 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_xs
                     or all(o == "-" for o in ops_xs))
         return False
+    if perintah == "tsv-filter":
+        # Audit 2118: tanpa berkas ia membaca
+        # standard input (dok resmi tsv-utils);
+        # opsi predikatnya bernilai FIELD:NILAI.
+        ops_tf = _operand_sesudah_opsi(
+            toks, awal, {"--eq", "--ne", "--gt",
+                         "--lt", "--ge", "--le",
+                         "--str-eq", "--str-ne",
+                         "--regex", "--iregex",
+                         "--not-regex", "--in",
+                         "--not-in", "--ff",
+                         "--filter-file", "-d",
+                         "--delimiter"})
+        if "\x00gantung" in ops_tf:
+            return False
+        return not ops_tf or "-" in ops_tf
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
@@ -8461,7 +8477,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "csvstat", "csvgrep", "csvcut", "csvlook", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "exiftool", "etcdctl", "factor", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "groff", "guix", "helm", "identify", "ipfs", "irb", "in2csv", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rev", "rlogin", "qsv", "sbcl", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "tsv-select", "units", "usql", "vagrant", "vault", "websocat", "xonsh", "xsv", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "csvstat", "csvgrep", "csvcut", "csvlook", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "exiftool", "etcdctl", "factor", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "groff", "guix", "helm", "identify", "ipfs", "irb", "in2csv", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rev", "rlogin", "qsv", "sbcl", "s-nail", "sendmail", "skopeo", "snowsql", "sox", "play", "tesseract", "terraform", "tsv-filter", "tsv-select", "units", "usql", "vagrant", "vault", "websocat", "xonsh", "xsv", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tsv-filter dinilai - membaca standard input (Audit 2118)
+
+- tsv-filter kini dinilai: tanpa berkas membaca standard input (dok resmi tsv-utils); opsi predikatnya bernilai FIELD:NILAI.
+
 ## [Belum rilis] — Gerbang: xsv dinilai - cat rows/count membaca stdin (Audit 2117)
 
 - xsv kini dinilai dari sumbernya: cat mewajibkan rows/columns, count polos menguras; daftar masukan kosong diganti '-' (util.rs), None/'-' menjadi io::stdin() (config.rs).
