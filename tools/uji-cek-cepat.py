@@ -1100,6 +1100,36 @@ def main():
                 "(Audit 2097)", rc == 0)
         shutil.rmtree(stripjinak, ignore_errors=True)
 
+        pautan = klon(tmp, "pautan")
+        sasaran_pautan = os.path.join(tmp, "sasaran-pautan.xml")
+        with open(sasaran_pautan, "w") as fh:
+            fh.write("<vector><path android:pathData="
+                     "\"M.9,9 L10,10\"/></vector>\n")
+        os.symlink(sasaran_pautan, pautan + "/app/src/main/res/"
+                   "drawable-nodpi/uji_link.xml")
+        git(pautan, "add", "-A")
+        git(pautan, "commit", "-qm", "pautan")
+        rc, out = jalan(pautan, ["bash", SKRIP])
+        periksa("symlink vektor di res/: pola .9 di target "
+                "tertangkap (Audit 2128)", rc != 0)
+        shutil.rmtree(pautan, ignore_errors=True)
+        stripganda = klon(tmp, "stripganda")
+        with open(stripganda + "/-", "w") as fh:
+            fh.write("token uji: " + token_palsu + "\n")
+        rc, out = jalan(stripganda, ["bash", SKRIP])
+        periksa("berkas '-' token utuh dilaporkan tepat "
+                "satu kali (Audit 2129)",
+                rc != 0 and out.count("./-") == 1)
+        shutil.rmtree(stripganda, ignore_errors=True)
+        namabaris = klon(tmp, "namabaris")
+        with open(namabaris + "/pecah\nbaris.txt", "w") as fh:
+            fh.write("token uji: " + token_palsu + "\n")
+        rc, out = jalan(namabaris, ["bash", SKRIP])
+        periksa("nama berkas ber-newline tampil utuh "
+                "ter-escape (Audit 2130)",
+                rc != 0 and "pecah\\nbaris.txt" in out)
+        shutil.rmtree(namabaris, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: fase vektor - rg mengikuti symlink (Audit 2128)
+
+- Panggilan rg di fase vektor kini memakai --follow sehingga symlink di app/src/main/res/ yang menunjuk berkas luar ikut dipindai, sejajar cabang cadangan grep -R.
+
 ## [Belum rilis] — Gerbang: tsv-join dinilai - -f tanpa berkas data membaca stdin (Audit 2127)
 
 - tsv-join kini dinilai: --filter-file wajib (sumber tsv_join.d); dengan -f dan tanpa berkas data, aliran data utama dari standard input.
