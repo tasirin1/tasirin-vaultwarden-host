@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvstat dinilai - membaca stdin tanpa FILE (Audit 2116)
+
+- csvstat kini dinilai: tanpa FILE menerima input terpipa via STDIN (csvstat(1)); himpunan _CSVKIT ditambah -c/--columns.
+
 ## [Belum rilis] — Gerbang: csvgrep dinilai - menguras bila -c + pencocok ada (Audit 2115)
 
 - csvgrep kini dinilai: menguras hanya bila -c/--columns dan pencocok (-r/--regex, -m/--match, -f/--pattern-file) ada serta FILE kosong; tanpa -c ia menolak lebih dulu.
