@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - 'cat' mewajibkan sub-subperintah (koreksi 2098) (Audit 2107)
+
+- Cabang qsv ditulis ulang: cat tanpa rows/rowskey/columns adalah galat parse (USAGE cat.rs); bentuk itulah yang dinilai menguras sekarang. Uji skenario 2098 dibalik bentuknya ke 'qsv cat rows'.
+
 ## [Belum rilis] — Gerbang: jebakan nilai argparse dikenali (in2csv) (Audit 2106)
 
 - Helper _jebakan_argparse ditambahkan: nilai yang mirip opsi sesudah opsi bernilai membuat argparse galat sebelum membaca stdin; diterapkan di in2csv dan dipakai cabang-cabang csvkit. Konstanta _CSVKIT memuat himpunan opsi bernilai csvkit umum.

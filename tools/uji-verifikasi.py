@@ -25599,7 +25599,7 @@ def main():
                 baris_aksi1202,
                 baris_aksi1202.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(qsv cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+                    "> >(qsv cat rows; cat >> \"$GITHUB_OUTPUT\")"), 1)
         assert isi_baru1202 != isi_aksi1202, \
             "suntikan aksi1202 tidak menembak"
         with open(berkas_aksi1202, "w", encoding="utf-8") as f:
@@ -25776,6 +25776,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("jebakan nilai argparse in2csv: gerbang lolos (Audit 2106)", rc == 0)
         shutil.rmtree(sub1210, ignore_errors=True)
+        sub1211 = klon(tmp, "sub1211")
+        berkas_aksi1211 = os.path.join(
+            sub1211, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1211, encoding="utf-8") as f:
+            isi_aksi1211 = f.read()
+        baris_aksi1211 = [b for b in isi_aksi1211.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1211 = isi_aksi1211.replace(
+                baris_aksi1211,
+                baris_aksi1211.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1211 != isi_aksi1211, \
+            "suntikan aksi1211 tidak menembak"
+        with open(berkas_aksi1211, "w", encoding="utf-8") as f:
+            f.write(isi_baru1211)
+        rc, out = jalan(sub1211,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv cat tanpa sub-subperintah galat: gerbang lolos (Audit 2107)", rc == 0)
+        shutil.rmtree(sub1211, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

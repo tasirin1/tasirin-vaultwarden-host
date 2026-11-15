@@ -6711,12 +6711,19 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return not ops_un
     if perintah == "qsv":
-        # Audit 2098: sub 'cat' tanpa masukan (atau
-        # masukan '-') membaca stdin (sumber resmi
-        # qsv config.rs: kosong/'-' -> io::stdin()).
-        if mentah and mentah[0] == "cat":
+        # Audit 2107 (koreksi 2098): sub 'cat'
+        # mewajibkan sub-subperintah rows/rowskey/
+        # columns (USAGE cat.rs) - tanpa itu parse
+        # galat dan stdin tak tersentuh. Dengan
+        # sub-subperintah, masukan kosong/'-'
+        # membaca stdin (config.rs).
+        if (len(mentah) >= 2 and mentah[0] == "cat"
+                and mentah[1] in ("rows", "rowskey",
+                                  "columns")):
             ops_qs = _operand_sesudah_opsi(
-                toks, awal + 1, set())
+                toks, awal + 2,
+                {"-o", "--output", "-g", "--group-by",
+                 "--delimiter"})
             if "\x00gantung" in ops_qs:
                 return False
             return (not ops_qs
