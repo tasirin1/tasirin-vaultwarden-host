@@ -24579,6 +24579,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("rsh tanpa perintah mode rlogin: gerbang gagal (Audit 2039)", rc != 0)
         shutil.rmtree(sub1153, ignore_errors=True)
+        sub1154 = klon(tmp, "sub1154")
+        berkas_aksi1154 = os.path.join(
+            sub1154, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1154, encoding="utf-8") as f:
+            isi_aksi1154 = f.read()
+        baris_aksi1154 = [b for b in isi_aksi1154.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1154 = isi_aksi1154.replace(
+                baris_aksi1154,
+                baris_aksi1154.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(gst-launch-1.0 fdsrc fd=0 ! fakesink; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1154 != isi_aksi1154, \
+            "suntikan aksi1154 tidak menembak"
+        with open(berkas_aksi1154, "w", encoding="utf-8") as f:
+            f.write(isi_baru1154)
+        rc, out = jalan(sub1154,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("fdsrc fd=0 membaca stdin: gerbang gagal (Audit 2040)", rc != 0)
+        shutil.rmtree(sub1154, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

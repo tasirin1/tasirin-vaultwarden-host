@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: gst-launch-1.0 dinilai - fdsrc fd=0 dari stdin (Audit 2040)
+
+- gst-launch-1.0 kini dinilai: elemen fdsrc dengan fd=0 membaca dari stdin (Audit 2040). Bentuk fdsrc tanpa fd tetap tertahan.
+
 ## [Belum rilis] — Gerbang: rlogin dinilai dan rsh tanpa perintah mode rlogin (Audit 2039)
 
 - rlogin kini dinilai, dan rsh tanpa perintah jauh (mode rlogin menurut rsh(1)) dinilai menguras seperti sesi interaktifnya (Audit 2039).
