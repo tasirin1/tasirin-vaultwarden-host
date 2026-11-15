@@ -25398,6 +25398,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("'-' factor galat angka: gerbang lolos (Audit 2091)", rc == 0)
         shutil.rmtree(sub1192, ignore_errors=True)
+        sub1193 = klon(tmp, "sub1193")
+        berkas_aksi1193 = os.path.join(
+            sub1193, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1193, encoding="utf-8") as f:
+            isi_aksi1193 = f.read()
+        baris_aksi1193 = [b for b in isi_aksi1193.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1193 = isi_aksi1193.replace(
+                baris_aksi1193,
+                baris_aksi1193.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(groff; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1193 != isi_aksi1193, \
+            "suntikan aksi1193 tidak menembak"
+        with open(berkas_aksi1193, "w", encoding="utf-8") as f:
+            f.write(isi_baru1193)
+        rc, out = jalan(sub1193,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("groff tanpa operand membaca stdin: gerbang gagal (Audit 2089)", rc != 0)
+        shutil.rmtree(sub1193, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

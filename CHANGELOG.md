@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: groff dinilai - membaca stdin tanpa operand (Audit 2089)
+
+- groff kini dinilai: tanpa operand berkas (atau operand '-') ia membaca stdin (groff(1)).
+
 ## [Belum rilis] — Gerbang: factor - '-' galat angka, bukan stdin (Audit 2091)
 
 - factor keluar dari himpunan pembaca polos ke cabang khusus: tanpa operand ia membaca angka dari stdin (coreutils), operand '-' adalah galat angka tak sah (terprobe).
