@@ -6980,7 +6980,7 @@ def _menguras_khusus(perintah, toks, awal):
                          "--mean", "--median", "--min",
                          "--max", "--mode", "--first",
                          "--last", "--stdev",
-                         "--variance", "--range",
+                         "--var", "--range",
                          "--quantile", "--retain",
                          "--values", "--unique-values",
                          "--unique-count", "--mode-count",
