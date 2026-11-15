@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: buildah - 74 opsi build bernilai dilengkapi (Audit 2077)
+
+- Himpunan opsi bernilai pindai buildah dilengkapi hasil panen penuh buildah-build(1): keluarga cache, cpu, dns, sbom, userns, dan 60-an opsi lain sehingga --stdin yang tertelan sebagai nilai tak lagi tertuduh.
+
 ## [Belum rilis] — Gerbang: buildah - 5 opsi global bernilai dilengkapi (Audit 2076)
 
 - Penentu sub buildah dan pindai benderanya kini melewatkan nilai --imagestore, --log-level, --registries-conf-dir, --short-name-alias-conf, --storage-opt (buildah(1)); himpunan global bersama global_ba dibentuk untuk kedua jalur.
