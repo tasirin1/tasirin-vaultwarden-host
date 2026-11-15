@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv stats - lima opsi bernilai dilengkapi (Audit 2155)
+
+- Himpunan bernilai qsv stats ditambah -s/--select, --round, --dates-whitelist, -j/--jobs, -d/--delimiter dari USAGE resmi stats.rs.
+
 ## [Belum rilis] — Gerbang: xsv - sub headers membaca stdin (Audit 2154)
 
 - Cabang xsv ditambah sub headers: daftar masukan Vec lewat many_configs (kosong diganti '-'), seperti cat.

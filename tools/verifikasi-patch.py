@@ -6813,7 +6813,10 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional (stats.rs).
         if mentah and mentah[0] == "stats":
             ops_qst = _operand_sesudah_opsi(
-                toks, awal + 1, {"-o", "--output"})
+                toks, awal + 1,
+                {"-o", "--output", "-s", "--select",
+                 "--round", "--dates-whitelist", "-j",
+                 "--jobs", "-d", "--delimiter"})
             if "\x00gantung" in ops_qst:
                 return False
             return (not ops_qst
