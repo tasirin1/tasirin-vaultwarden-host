@@ -26406,6 +26406,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-uniq membaca standard input: gerbang gagal (Audit 2140)", rc != 0)
         shutil.rmtree(sub1240, ignore_errors=True)
+        sub1241 = klon(tmp, "sub1241")
+        berkas_aksi1241 = os.path.join(
+            sub1241, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1241, encoding="utf-8") as f:
+            isi_aksi1241 = f.read()
+        baris_aksi1241 = [b for b in isi_aksi1241.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1241 = isi_aksi1241.replace(
+                baris_aksi1241,
+                baris_aksi1241.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv apply operations trim kolom; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1241 != isi_aksi1241, \
+            "suntikan aksi1241 tidak menembak"
+        with open(berkas_aksi1241, "w", encoding="utf-8") as f:
+            f.write(isi_baru1241)
+        rc, out = jalan(sub1241,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv apply operations stdin: gerbang gagal (Audit 2141)", rc != 0)
+        shutil.rmtree(sub1241, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

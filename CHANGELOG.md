@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub apply operations membaca stdin (Audit 2141)
+
+- Cabang qsv ditambah sub apply operations: operand operasi + kolom, masukan [<input>] opsional (apply.rs).
+
 ## [Belum rilis] — Gerbang: tsv-uniq dinilai - membaca standard input (Audit 2140)
 
 - tsv-uniq kini dinilai: tanpa berkas membaca standard input (dok resmi tsv-utils).

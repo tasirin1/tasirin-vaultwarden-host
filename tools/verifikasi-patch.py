@@ -6744,6 +6744,18 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qse) == 1
                     or (len(ops_qse) >= 2
                         and ops_qse[1] == "-"))
+        # Audit 2141: sub 'apply operations' -
+        # operand operasi + kolom, masukan
+        # [<input>] opsional (apply.rs).
+        if (len(mentah) >= 2 and mentah[0] == "apply"
+                and mentah[1] == "operations"):
+            ops_qap = _operand_sesudah_opsi(
+                toks, awal + 2, set())
+            if "\x00gantung" in ops_qap:
+                return False
+            return (len(ops_qap) == 2
+                    or (len(ops_qap) >= 3
+                        and ops_qap[2] == "-"))
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "rowskey",
                                   "columns")):
