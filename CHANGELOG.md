@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: berkas bernama persis '-' tak lagi lolos/menggantung (Audit 2097)
+
+- Nama berkas persis '-' kini diserahkan sebagai './-' di tiga titik: grep sumber tak-terlacak fase header (sed), daftar berkas fase bungkus (awk), dan grep per-baris fase rahasia - grep/awk membaca operand '-' sebagai stdin sehingga berkas itu lolos semua fase dan bisa menggantungkan skrip.
+
 ## [Belum rilis] — Gerbang: in2csv - nilai format '-' ditolak (Audit 2096)
 
 - Cabang in2csv menolak nilai format '-' (terpisah maupun merekat): argparse csvkit pilihan formatnya tertutup sehingga perintah berhenti sebelum membaca stdin.

@@ -1083,6 +1083,23 @@ def main():
                 os.listdir(tmpd_sinyal) == [])
         shutil.rmtree(tmpd_sinyal, ignore_errors=True)
         shutil.rmtree(klon_sig, ignore_errors=True)
+        stripnama = klon(tmp, "stripnama")
+        with open(stripnama + "/-", "w") as fh:
+            fh.write("token uji: " + token_palsu[:paruh] + "\n"
+                     + token_palsu[paruh:] + "\n")
+        rc, out = jalan(stripnama, ["bash", SKRIP])
+        periksa("berkas bernama '-' tak terlacak: token "
+                "terbelah tertangkap (Audit 2097)",
+                rc != 0 and "./-" in out)
+        shutil.rmtree(stripnama, ignore_errors=True)
+        stripjinak = klon(tmp, "stripjinak")
+        with open(stripjinak + "/-", "w") as fh:
+            fh.write("halo dunia\n")
+        rc, out = jalan(stripjinak, ["bash", SKRIP])
+        periksa("berkas bernama '-' jinak lolos "
+                "(Audit 2097)", rc == 0)
+        shutil.rmtree(stripjinak, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

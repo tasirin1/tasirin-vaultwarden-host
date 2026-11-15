@@ -102,7 +102,7 @@ KANDIDAT_HDR_BERKAS="$(mktemp 2>/dev/null)" || { echo "${ANO_ERR}GAGAL: berkas s
 # Audit 2065: bersihkan artefak sementara juga
 # saat skrip dibunuh sinyal di tengah jalan.
 trap 'rm -f "$KANDIDAT_HDR_BERKAS"' EXIT
-{ git -c core.quotepath=false grep --cached -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false ls-files --others --exclude-standard -z 2>/dev/null | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" -- 2>/dev/null; } | sort -z -u > "$KANDIDAT_HDR_BERKAS" || true
+{ git -c core.quotepath=false grep --cached -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false ls-files --others --exclude-standard -z 2>/dev/null | sed -z 's/^-$/.\//' | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" -- 2>/dev/null; } | sort -z -u > "$KANDIDAT_HDR_BERKAS" || true
 RAHASIA_HDR=""
 # Audit 2030: jendela uji NUL diperlebar ke
 # 16 MB (8000 byte dulu melewatkan NUL pertama
@@ -253,7 +253,13 @@ PETA_ASAL1886=()
 for entri in "${ENTRI_BUNGKUS[@]}"; do
   f=${entri#?:}
   if [ -f "$f" ]; then
-    DAFTAR_BUNGKUS+=("$f")
+    # Audit 2097: nama persis '-' dibaca grep/awk
+    # sebagai stdin - serahkan sebagai ./-
+    if [ "$f" = "-" ]; then
+      DAFTAR_BUNGKUS+=("./-")
+    else
+      DAFTAR_BUNGKUS+=("$f")
+    fi
   fi
   # Audit 1891: isi ter-stage yang berbeda dari pohon
   # kerja (diganti jinak sesudah stage, atau berkasnya
@@ -400,7 +406,11 @@ fi
 rm -rf "$TMPBUNGKUS"
 for entri in "${ENTRI_BUNGKUS[@]}"; do
   f=${entri#?:}
-  if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$f" 2>/dev/null; then
+  # Audit 2097: grep atas nama persis '-' membaca
+  # stdin (menggantung/menelan) - pakai ./-
+  sasaran2097="$f"
+  if [ "$f" = "-" ]; then sasaran2097="./-"; fi
+  if [ "${entri%%:*}" = "u" ] && [ -f "$f" ] && grep -q -E -- "$POLA_RAHASIA" "$sasaran2097" 2>/dev/null; then
     BUNGKUS="$(printf '%s\n%s\n' "$BUNGKUS" "$f")"
   fi
 done
