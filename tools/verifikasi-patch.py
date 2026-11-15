@@ -6856,6 +6856,20 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qse) == 1
                     or (len(ops_qse) >= 2
                         and ops_qse[1] == "-"))
+        # Audit 2180: sub 'sample' qsv - operand
+        # pertama ukuran, masukan kedua
+        # (sample.rs).
+        if mentah and mentah[0] == "sample":
+            ops_qsa = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--seed", "--rng", "--user-agent",
+                 "--timeout", "-o", "--output", "-d",
+                 "--delimiter"})
+            if "\x00gantung" in ops_qsa:
+                return False
+            return (len(ops_qsa) == 1
+                    or (len(ops_qsa) >= 2
+                        and ops_qsa[1] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).

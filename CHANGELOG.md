@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub sample membaca stdin (Audit 2180)
+
+- Cabang qsv ditambah sub sample: operand pertama ukuran, masukan kedua (sample.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub select membaca stdin (Audit 2179)
 
 - Cabang qsv ditambah sub select: operand pertama pilihan kolom, masukan kedua (select.rs).
