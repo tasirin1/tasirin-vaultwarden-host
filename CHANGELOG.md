@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: csvcut dinilai - membaca stdin tanpa FILE (Audit 2114)
+
+- csvcut kini dinilai: tanpa FILE menerima input terpipa via STDIN (csvcut(1)); himpunan _CSVKIT ditambah -c/--columns dan -C/--not-columns, dengan penjaga jebakan argparse.
+
 ## [Belum rilis] — Gerbang: tsv-select - -f/-e wajib (koreksi 2100) (Audit 2113)
 
 - Cabang tsv-select kini menolak bentuk tanpa -f/--fields dan tanpa -e/--exclude (sumber tsv-select.d menegakkannya sebelum berkas dibaca). Uji skenario 2100 dibalik bentuknya ke 'tsv-select -f 1'.
