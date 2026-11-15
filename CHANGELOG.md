@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cek-cepat: kandidat header - tak terlacak ikut, nama NUL-aman, tanpa batas jendela (Audit 2049-2051)
+
+- Fase header kunci tunggal diperkuat tiga arah: kandidat kini juga dari berkas tak terlacak (Audit 2049), seluruh daftar kandidat dialirkan dengan pemisah NUL ke berkas sementara sehingga nama ber-newline utuh (Audit 2050), dan batas jendela uji NUL dicabut sehingga NUL pertama sejauh apa pun tertangkap (Audit 2051).
+
 ## [Belum rilis] — Cek-cepat: akar repo menembus symlink skrip (Audit 2048)
 
 - Lokasi skrip kini ditembus symlink (readlink -f) sebelum akarnya dihitung, sehingga menjalankan skrip lewat tautan di akar repo sendiri tak lagi salah akar dan memicu alarm palsu.

@@ -1027,6 +1027,36 @@ def main():
         periksa("akar repo ditembus lewat symlink skrip "
                 "(Audit 2048)", rc == 0)
         shutil.rmtree(pautan, ignore_errors=True)
+        longgar = klon(tmp, "longgar")
+        hdr127 = (b"-----BEGIN " + b"PRIVATE"
+                  + b" KEY-----" + bytes([10]))
+        with open(longgar + "/longgar.bin", "wb") as fh:
+            fh.write(b"XX" + hdr127 + bytes([0, 1]))
+        rc, out = jalan(longgar, ["bash", SKRIP])
+        periksa("header tak di awal baris pada biner tak "
+                "terlacak tertangkap (Audit 2049)",
+                rc != 0 and "longgar.bin" in out)
+        shutil.rmtree(longgar, ignore_errors=True)
+        nl = klon(tmp, "nl")
+        with open(nl + "/nama\nbaru.bin", "wb") as fh:
+            fh.write(bytes([0, 1]) + hdr127 + bytes([0]))
+        git(nl, "add", "-A")
+        rc, out = jalan(nl, ["bash", SKRIP])
+        periksa("nama berkas ber-newline utuh sebagai "
+                "kandidat (Audit 2050)",
+                rc != 0 and "baru.bin" in out)
+        shutil.rmtree(nl, ignore_errors=True)
+        besar = klon(tmp, "besar")
+        with open(besar + "/besar.bin", "wb") as fh:
+            fh.write(b"Z" * 64 + hdr127
+                     + b"A" * (17000000 - 64 - len(hdr127))
+                     + bytes([0]))
+        git(besar, "add", "-A")
+        rc, out = jalan(besar, ["bash", SKRIP])
+        periksa("NUL pertama jauh di berkas besar "
+                "tertangkap (Audit 2051)",
+                rc != 0 and "besar.bin" in out)
+        shutil.rmtree(besar, ignore_errors=True)
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

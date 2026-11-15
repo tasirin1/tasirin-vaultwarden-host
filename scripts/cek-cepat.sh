@@ -89,7 +89,14 @@ RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHAS
 # bungkus menuntut ekor base64, dan git grep -I
 # melewatkan biner. Grep header-saja dengan -a
 # (indeks + pohon kerja) menutupnya.
-KANDIDAT_HDR="$( { git -c core.quotepath=false grep --cached -a -l -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; } | sort -u || true)"
+# Audit 2049: kandidat kini juga dari berkas
+# TAK TERLACAK (dulu hanya git grep = terlacak).
+# Audit 2050: seluruh daftar kandidat dialirkan
+# dengan pemisah NUL (-z/-Z + sort -z) ke berkas
+# sementara - nama ber-newline tak lagi terbelah
+# (variabel bash tak bisa memuat NUL).
+KANDIDAT_HDR_BERKAS="$(mktemp)"
+{ git -c core.quotepath=false grep --cached -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false ls-files --others --exclude-standard -z 2>/dev/null | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" -- 2>/dev/null; } | sort -z -u > "$KANDIDAT_HDR_BERKAS" || true
 RAHASIA_HDR=""
 # Audit 2030: jendela uji NUL diperlebar ke
 # 16 MB (8000 byte dulu melewatkan NUL pertama
@@ -104,21 +111,20 @@ biner_atau_tak_teruji() {
   if [ -z "$out_od" ]; then return 0; fi
   printf '%s' "$out_od" | grep -q ' 00'
 }
-while IFS= read -r f_hdr; do
+while IFS= read -r -d '' f_hdr; do
   [ -n "$f_hdr" ] || continue
   kena_hdr=0
-  if [ -f "$f_hdr" ] && head -c 16777216 "$f_hdr" 2>/dev/null | biner_atau_tak_teruji; then
+  if [ -f "$f_hdr" ] && biner_atau_tak_teruji < "$f_hdr"; then
     kena_hdr=1
   fi
-  if [ "$kena_hdr" = 0 ] && git show ":$f_hdr" 2>/dev/null | head -c 16777216 | biner_atau_tak_teruji; then
+  if [ "$kena_hdr" = 0 ] && git show ":$f_hdr" 2>/dev/null | biner_atau_tak_teruji; then
     kena_hdr=1
   fi
   if [ "$kena_hdr" = 1 ]; then
     RAHASIA_HDR="$(printf '%s\n%s' "$RAHASIA_HDR" "$f_hdr")"
   fi
-done <<EOF_HDR
-$KANDIDAT_HDR
-EOF_HDR
+done < "$KANDIDAT_HDR_BERKAS"
+rm -f "$KANDIDAT_HDR_BERKAS"
 if [ -n "$RAHASIA_HDR" ]; then
   RAHASIA="$(printf '%s\n%s\n' "$RAHASIA" "$RAHASIA_HDR" | sed '/^$/d' | sort -u || true)"
 fi
