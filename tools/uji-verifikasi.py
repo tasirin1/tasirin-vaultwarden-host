@@ -25104,6 +25104,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("'-' bagi rev nama berkas harfiah: gerbang lolos (Audit 2073)", rc == 0)
         shutil.rmtree(sub1179, ignore_errors=True)
+        sub1178 = klon(tmp, "sub1178")
+        berkas_aksi1178 = os.path.join(
+            sub1178, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1178, encoding="utf-8") as f:
+            isi_aksi1178 = f.read()
+        baris_aksi1178 = [b for b in isi_aksi1178.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1178 = isi_aksi1178.replace(
+                baris_aksi1178,
+                baris_aksi1178.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xonsh; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1178 != isi_aksi1178, \
+            "suntikan aksi1178 tidak menembak"
+        with open(berkas_aksi1178, "w", encoding="utf-8") as f:
+            f.write(isi_baru1178)
+        rc, out = jalan(sub1178,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xonsh terpipa mode script-from-stdin: gerbang gagal (Audit 2072)", rc != 0)
+        shutil.rmtree(sub1178, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

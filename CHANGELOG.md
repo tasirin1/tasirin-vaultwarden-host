@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xonsh dinilai - mode script-from-stdin saat terpipa (Audit 2072)
+
+- xonsh kini dinilai: masukan terpipa masuk mode script-from-stdin (dok resmi); -c/--command dan operand skrip menekan.
+
 ## [Belum rilis] — Gerbang: rev - '-' adalah nama berkas, bukan stdin (Audit 2073)
 
 - rev keluar dari himpunan pembaca polos ke cabang khusus: '-' baginya nama berkas harfiah (terprobe membuka berkas '-'), hanya bentuk tanpa operand yang membaca stdin.
