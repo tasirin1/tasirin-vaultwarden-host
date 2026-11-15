@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: awk - '-' operand pertama adalah teks program (Audit 2090)
+
+- Penilai keluarga skrip kini menolak operand pertama '-' untuk awk: itu teks program, bukan stdin (terprobe mawk keluar tanpa menguras).
+
 ## [Belum rilis] — Gerbang: units dinilai - membaca pasangan dari stdin (Audit 2088)
 
 - units kini dinilai: tanpa argumen non-opsi ia membaca pasangan HAVE/WANT dari stdin (GNU Units Manual).

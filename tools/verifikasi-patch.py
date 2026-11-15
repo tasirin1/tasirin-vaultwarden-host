@@ -1623,6 +1623,14 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                "--arg", "--argjson", "--rawfile",
                "--slurpfile", "--indent"},
     }[perintah]
+    if perintah == "awk":
+        # Audit 2090: operand pertama awk adalah
+        # TEKS PROGRAM - '-' di sana adalah teks
+        # program, bukan stdin (terprobe mawk:
+        # keluar tanpa menguras).
+        ops_awk9 = _operand_sesudah_opsi(toks, awal, nilai)
+        if ops_awk9 and ops_awk9[0] == "-":
+            return False
     if nama_asli in ("gawk", "pgawk", "igawk"):
         # Audit 1640: opsi bernilai khas GNU awk — tidak
         # ditambahkan ke himpunan awk bersama karena awk
