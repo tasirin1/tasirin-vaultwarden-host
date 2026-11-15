@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: helm dinilai - values '-' dari stdin (Audit 2056)
+
+- helm kini dinilai: values '-' pada -f/--values dibaca dari stdin (sumber resmi helm).
+
 ## [Belum rilis] — Gerbang: usql dinilai - masukan dari pipa (Audit 2055)
 
 - usql kini dinilai: masukannya bisa berasal dari pipa dan dikirim di akhir berkas seperti psql (sumber resmi); -c/--command menekan.

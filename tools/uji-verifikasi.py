@@ -24831,6 +24831,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("usql membaca masukan dari pipa: gerbang gagal (Audit 2055)", rc != 0)
         shutil.rmtree(sub1165, ignore_errors=True)
+        sub1166 = klon(tmp, "sub1166")
+        berkas_aksi1166 = os.path.join(
+            sub1166, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1166, encoding="utf-8") as f:
+            isi_aksi1166 = f.read()
+        baris_aksi1166 = [b for b in isi_aksi1166.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1166 = isi_aksi1166.replace(
+                baris_aksi1166,
+                baris_aksi1166.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(helm install x repo/c -f -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1166 != isi_aksi1166, \
+            "suntikan aksi1166 tidak menembak"
+        with open(berkas_aksi1166, "w", encoding="utf-8") as f:
+            f.write(isi_baru1166)
+        rc, out = jalan(sub1166,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("helm values '-' dari stdin: gerbang gagal (Audit 2056)", rc != 0)
+        shutil.rmtree(sub1166, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
