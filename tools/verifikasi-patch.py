@@ -5849,9 +5849,32 @@ def _menguras_khusus(perintah, toks, awal):
         # menekan). Opsi bernilai resmi: -init,
         # -cmd, -separator, -newline, -nullvalue,
         # -storage-version.
-        if any(t_dd in ("-c", "-s", "-f", "-manual")
-               for t_dd in mentah):
-            return False
+        # Audit 2016/2017: pindai penekan sadar
+        # posisi - bendera info strip-tunggal
+        # (-h/-help/-version), penekan -no-stdin,
+        # dan penekan yang duduk sebagai NILAI
+        # opsi (-cmd -c) tidak lagi tertukar.
+        bernilai_dd = {"-init", "--init", "-cmd",
+                       "-separator", "-newline",
+                       "-nullvalue", "--nullvalue",
+                       "-storage-version",
+                       "-c", "-s", "-f"}
+        j_dd = 0
+        while j_dd < len(mentah):
+            t_dd = mentah[j_dd]
+            if t_dd in ("-c", "-s", "-f", "-manual",
+                        "-h", "-help", "-version",
+                        "-no-stdin"):
+                return False
+            if t_dd in bernilai_dd:
+                j_dd += 2
+                continue
+            if ("=" in t_dd
+                    and t_dd.split("=", 1)[0]
+                    in bernilai_dd):
+                j_dd += 1
+                continue
+            j_dd += 1
         ops_dd = _operand_sesudah_opsi(
             toks, awal, {"-init", "--init", "-cmd",
                          "-separator", "-newline",

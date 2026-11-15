@@ -24159,6 +24159,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("R CMD BATCH -- - adalah R -f -: gerbang gagal (Audit 2015)", rc != 0)
         shutil.rmtree(sub1133, ignore_errors=True)
+        sub1134 = klon(tmp, "sub1134")
+        berkas_aksi1134 = os.path.join(
+            sub1134, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1134, encoding="utf-8") as f:
+            isi_aksi1134 = f.read()
+        baris_aksi1134 = [b for b in isi_aksi1134.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1134 = isi_aksi1134.replace(
+                baris_aksi1134,
+                baris_aksi1134.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(duckdb -no-stdin db; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1134 != isi_aksi1134, \
+            "suntikan aksi1134 tidak menembak"
+        with open(berkas_aksi1134, "w", encoding="utf-8") as f:
+            f.write(isi_baru1134)
+        rc, out = jalan(sub1134,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-no-stdin duckdb menekan stdin: gerbang lolos (Audit 2016)", rc == 0)
+        shutil.rmtree(sub1134, ignore_errors=True)
+        sub1135 = klon(tmp, "sub1135")
+        berkas_aksi1135 = os.path.join(
+            sub1135, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1135, encoding="utf-8") as f:
+            isi_aksi1135 = f.read()
+        baris_aksi1135 = [b for b in isi_aksi1135.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1135 = isi_aksi1135.replace(
+                baris_aksi1135,
+                baris_aksi1135.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(duckdb -cmd -c db; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1135 != isi_aksi1135, \
+            "suntikan aksi1135 tidak menembak"
+        with open(berkas_aksi1135, "w", encoding="utf-8") as f:
+            f.write(isi_baru1135)
+        rc, out = jalan(sub1135,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("-c sebagai nilai -cmd duckdb bukan penekan: gerbang gagal (Audit 2017)", rc != 0)
+        shutil.rmtree(sub1135, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: duckdb sadar posisi - bendera info, -no-stdin, penekan sebagai nilai (Audit 2016-2017)
+
+- Pindai penekan duckdb kini sadar posisi: bendera info strip-tunggal -h/-help/-version dan penekan -no-stdin dikenali (Audit 2016), dan penekan yang duduk sebagai nilai opsi ('duckdb -cmd -c db') tidak lagi dianggap saklar (Audit 2017).
+
 ## [Belum rilis] — Gerbang: koreksi vonis R CMD BATCH - dan pengenalan R CMD BATCH -- - (Audit 2014-2015)
 
 - Audit 2014 membatalkan Audit 2000 dari bukti gelung opsi skrip BATCH resmi (terprobe dua shell): '-' tertelan sebagai opsi sehingga perintah berakhir galat, bukan membaca stdin; vonis suite 1122 ikut dibalik. Audit 2015: 'R CMD BATCH -- -' menempatkan '-' sebagai infile sesudah '--' sehingga perintahnya benar 'R -f -' (stdin).
