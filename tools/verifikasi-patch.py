@@ -7122,7 +7122,8 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "partition":
             ops_xpa = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"--filename", "-d", "--delimiter"})
+                {"--filename", "-d", "--delimiter",
+                 "-p", "--prefix-length"})
             if "\x00gantung" in ops_xpa:
                 return False
             return (len(ops_xpa) == 2

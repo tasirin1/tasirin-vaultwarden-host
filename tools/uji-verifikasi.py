@@ -27372,6 +27372,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xsv stats jobs bernilai: gerbang gagal (Audit 2191)", rc != 0)
         shutil.rmtree(sub1286, ignore_errors=True)
+        sub1287 = klon(tmp, "sub1287")
+        berkas_aksi1287 = os.path.join(
+            sub1287, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1287, encoding="utf-8") as f:
+            isi_aksi1287 = f.read()
+        baris_aksi1287 = [b for b in isi_aksi1287.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1287 = isi_aksi1287.replace(
+                baris_aksi1287,
+                baris_aksi1287.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv partition -p 2 1 outdir; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1287 != isi_aksi1287, \
+            "suntikan aksi1287 tidak menembak"
+        with open(berkas_aksi1287, "w", encoding="utf-8") as f:
+            f.write(isi_baru1287)
+        rc, out = jalan(sub1287,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv partition prefix-length bernilai: gerbang gagal (Audit 2192)", rc != 0)
+        shutil.rmtree(sub1287, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

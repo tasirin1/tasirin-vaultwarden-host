@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv partition - prefix-length bernilai (Audit 2192)
+
+- Himpunan bernilai xsv partition ditambah -p/--prefix-length (partition.rs).
+
 ## [Belum rilis] — Gerbang: xsv stats - jobs bernilai (Audit 2191)
 
 - Himpunan bernilai xsv stats ditambah -j/--jobs (stats.rs).
