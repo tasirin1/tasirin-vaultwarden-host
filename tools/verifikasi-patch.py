@@ -7527,6 +7527,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qln
                     or (len(ops_qln) == 1
                         and ops_qln[0] == "-"))
+        # Audit 2261: sub 'tojsonl' - masukan
+        # [<input>] opsional; tojsonl.rs:106-107 - tanpa masukan
+        # dibaca sebagai '-' (stdin).
+        if mentah and mentah[0] == "tojsonl":
+            ops_qtj = _operand_sesudah_opsi(
+                toks, awal + 1, {"-b", "--batch", "-j", "--jobs", "-d", "--delimiter", "-o", "--output"})
+            if "\x00gantung" in ops_qtj:
+                return False
+            return (not ops_qtj
+                    or (len(ops_qtj) == 1
+                        and ops_qtj[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

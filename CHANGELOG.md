@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv tojsonl kini bercabang sadar stdin (Audit 144)
+
+- tojsonl.rs:106-107 — tanpa masukan dibaca sebagai '-' (stdin), kelompok Limited Extended Input. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv lens kini bercabang sadar stdin (Audit 144)
 
 - lens.rs:148 — tanpa berkas atau '-' ditangani sebagai stdin (csvlens). Cabang baru pola masukan-tunggal.
