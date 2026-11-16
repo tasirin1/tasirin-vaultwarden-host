@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv moarstats kini bercabang sadar stdin (Audit 144)
+
+- moarstats.rs — is_stdin + pass_stdin_spool; kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv tojsonl kini bercabang sadar stdin (Audit 144)
 
 - tojsonl.rs:106-107 — tanpa masukan dibaca sebagai '-' (stdin), kelompok Limited Extended Input. Cabang baru pola masukan-tunggal.

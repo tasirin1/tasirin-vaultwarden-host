@@ -7538,6 +7538,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qtj
                     or (len(ops_qtj) == 1
                         and ops_qtj[0] == "-"))
+        # Audit 2262: sub 'moarstats' - masukan
+        # [<input>] opsional; moarstats.rs - is_stdin +
+        # pass_stdin_spool; kosong/'-' stdin.
+        if mentah and mentah[0] == "moarstats":
+            ops_qms = _operand_sesudah_opsi(
+                toks, awal + 1, {"-j", "--jobs", "-o", "--output", "-e", "--epsilon", "-C", "--cardinality-threshold", "-T", "--pct-thresholds", "-S", "--stats-options", "-J", "--join-inputs", "-K", "--join-keys", "--join-type", "--bivariate-stats", "--bivariate-batch", "--round", "--xsd-gdate-scan"})
+            if "\x00gantung" in ops_qms:
+                return False
+            return (not ops_qms
+                    or (len(ops_qms) == 1
+                        and ops_qms[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
