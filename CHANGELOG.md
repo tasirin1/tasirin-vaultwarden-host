@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — sql2csv: aritas FILE nargs='?' — dua positional ditolak (Audit 150)
+
+- Vonis sql2csv kini: operand kosong atau tepat ['-']; `sql2csv berkas.sql -` berhenti di argparse nyata dan tak lagi divonis menguras.
+
 ## [Belum rilis] — sql2csv: kelas token terlarang (override_flags menolak hampir semua _CSVKIT) (Audit 150)
 
 - sql2csv menolak -d -q -u -p -z -y -L -K --null-value --date-format --datetime-format --zero --blanks -t -S dan pasangan panjangnya (biner 2.2.0: 'unrecognized arguments'); _token_terlarang kini menjaga cabang sql2csv.

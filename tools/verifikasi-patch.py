@@ -8899,7 +8899,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks_sq, awal, bernilai_sq)
         if "\x00gantung" in ops_sq:
             return False
-        return not ops_sq or "-" in ops_sq
+        return not ops_sq or ops_sq == ["-"]
     if perintah == "tsv-uniq":
         # Audit 2140: tanpa berkas ia membaca
         # standard input (dok resmi tsv-utils).
