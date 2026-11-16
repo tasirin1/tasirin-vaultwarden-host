@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv viz: --enum-threshold hantu dikeluarkan dari himpunan gerbang (Audit 146)
+
+- grep di qsv-viz.rs master: --enum-threshold bukan opsi CLI viz (hanya literal internal util::SchemaArgs); entri yang ditambahkan maraton-145 itu dikeluarkan — himpunan viz kini persis 68 entri USAGE.
+
 ## [Belum rilis] — qsv cat: bentuk pendek -d ditambahkan ke himpunan gerbang (Audit 145)
 
 - cat.rs:101 menetapkan -d sebagai pendek --delimiter; himpunan cabang cat kini memuatnya.

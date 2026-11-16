@@ -7658,7 +7658,6 @@ def _menguras_khusus(perintah, toks, awal):
                  "--denominator-key",
                  "--denominator-unit", "--dictionary",
                  "--dictionary-context",
-                 "--enum-threshold",
                  "--feature-id-key",
                  "--feature-name-key",
                  "--geocode-admin1", "--geocode-country",
