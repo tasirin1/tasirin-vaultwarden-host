@@ -29850,6 +29850,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv sample --max-size bernilai: penguras - gerbang gagal (Audit 2307)", rc != 0)
         shutil.rmtree(sub1404, ignore_errors=True)
+        sub1405 = klon(tmp, "sub1405")
+        berkas_aksi1405 = os.path.join(
+            sub1405, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1405, encoding="utf-8") as f:
+            isi_aksi1405 = f.read()
+        baris_aksi1405 = [b for b in isi_aksi1405.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1405 = isi_aksi1405.replace(
+                baris_aksi1405,
+                baris_aksi1405.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv split --filter gzip outdir; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1405 != isi_aksi1405, \
+            "suntikan aksi1405 tidak menembak"
+        with open(berkas_aksi1405, "w", encoding="utf-8") as f:
+            f.write(isi_baru1405)
+        rc, out = jalan(sub1405,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv split --filter bernilai: penguras - gerbang gagal (Audit 2308)", rc != 0)
+        shutil.rmtree(sub1405, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

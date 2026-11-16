@@ -6921,8 +6921,8 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, awal + 1,
                 {"-s", "--size", "-c", "--chunks",
                  "-k", "--kb-size", "-j", "--jobs",
-                 "--filename", "--pad", "-d",
-                 "--delimiter"})
+                 "--filename", "--pad", "--filter",
+                 "-d", "--delimiter"})
             if "\x00gantung" in ops_qsp:
                 return False
             # Audit 2185: template --filename qsv
