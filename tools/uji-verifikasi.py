@@ -30753,6 +30753,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sql2csv --execution-option nargs=2 tanpa berkas: penguras - gerbang gagal (Audit 2350)", rc != 0)
         shutil.rmtree(sub1447, ignore_errors=True)
+        sub1448 = klon(tmp, "sub1448")
+        berkas_aksi1448 = os.path.join(
+            sub1448, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1448, encoding="utf-8") as f:
+            isi_aksi1448 = f.read()
+        baris_aksi1448 = [b for b in isi_aksi1448.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1448 = isi_aksi1448.replace(
+                baris_aksi1448,
+                baris_aksi1448.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sql2csv -d ';' -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1448 != isi_aksi1448, \
+            "suntikan aksi1448 tidak menembak"
+        with open(berkas_aksi1448, "w", encoding="utf-8") as f:
+            f.write(isi_baru1448)
+        rc, out = jalan(sub1448,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sql2csv tak mengenal -d: argparse berhenti - gerbang lolos (Audit 2351)", rc == 0)
+        shutil.rmtree(sub1448, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

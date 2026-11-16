@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — sql2csv: kelas token terlarang (override_flags menolak hampir semua _CSVKIT) (Audit 150)
+
+- sql2csv menolak -d -q -u -p -z -y -L -K --null-value --date-format --datetime-format --zero --blanks -t -S dan pasangan panjangnya (biner 2.2.0: 'unrecognized arguments'); _token_terlarang kini menjaga cabang sql2csv.
+
 ## [Belum rilis] — sql2csv: --engine-option/--execution-option nargs=2 dimodelkan (Audit 150)
 
 - Operand sql2csv kini dihitung dari toks tersaring _saring_csvkit: kedua opsi menelan tepat dua token (terverifikasi biner 2.2.0 membaca kueri bermarker dari stdin).
