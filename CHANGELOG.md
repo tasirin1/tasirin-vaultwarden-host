@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv sample - ukuran dibatasi u64 (Audit 2187)
+
+- Cabang xsv sample kini menolak ukuran digit yang melampaui 18446744073709551615 (luapan u64).
+
 ## [Belum rilis] — Gerbang: aritas operand disamakan USAGE (Audit 2186)
 
 - Cabang masukan-tunggal menolak operand '-' ganda dan cabang sadar-posisi menolak operand berlebih (aritas docopt).

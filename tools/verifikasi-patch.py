@@ -7230,7 +7230,9 @@ def _menguras_khusus(perintah, toks, awal):
             # Audit 2167 + 2175: operand pertama
             # wajib angka u64 ('-' maupun bukan
             # angka = galat parse).
-            if ops_xsa and not ops_xsa[0].isdigit():
+            if ops_xsa and (not ops_xsa[0].isdigit()
+                    or int(ops_xsa[0])
+                    > 18446744073709551615):
                 return False
             return (len(ops_xsa) == 1
                     or (len(ops_xsa) == 2
