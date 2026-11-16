@@ -31026,6 +31026,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvgrep --file pola resmi tanpa berkas data: penguras - gerbang gagal (Audit 2364)", rc != 0)
         shutil.rmtree(sub1461, ignore_errors=True)
+        sub1462 = klon(tmp, "sub1462")
+        berkas_aksi1462 = os.path.join(
+            sub1462, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1462, encoding="utf-8") as f:
+            isi_aksi1462 = f.read()
+        baris_aksi1462 = [b for b in isi_aksi1462.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1462 = isi_aksi1462.replace(
+                baris_aksi1462,
+                baris_aksi1462.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvstat -i 2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1462 != isi_aksi1462, \
+            "suntikan aksi1462 tidak menembak"
+        with open(berkas_aksi1462, "w", encoding="utf-8") as f:
+            f.write(isi_baru1462)
+        rc, out = jalan(sub1462,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvstat -i indent tanpa berkas: penguras - gerbang gagal (Audit 2365)", rc != 0)
+        shutil.rmtree(sub1462, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

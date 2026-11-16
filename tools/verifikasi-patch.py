@@ -8428,7 +8428,7 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "csvstat":
         # Audit 2116: tanpa FILE ia menerima input
         # terpipa via STDIN (csvstat(1) csvkit).
-        bernilai_cs = _CSVKIT | {"-c", "--columns"}
+        bernilai_cs = _CSVKIT | {"-c", "--columns", "-i", "--indent", "--freq-count", "--decimal-format"}
         if _jebakan_argparse(mentah, bernilai_cs):
             return False
         toks_cs = _saring_csvkit(toks, awal, "csvstat")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvstat: -i/--indent, --freq-count, --decimal-format dilengkapi (Audit 151)
+
+- Tiga opsi bernilai khas csvstat.py ditambahkan ke himpunan cabang (terverifikasi biner 2.2.0).
+
 ## [Belum rilis] — csvgrep: --pattern-file hantu diganti --file resmi (Audit 151)
 
 - csvgrep.py:31 mendefinisikan -f/--file (dest matchfile); --pattern-file tidak pernah ada. Himpunan bernilai_cg dan pemeriksa ada_m kini memakai --file (terverifikasi biner 2.2.0 dua arah).
