@@ -29409,6 +29409,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv prompt polos dialog GUI: bukan penguras - gerbang lolos (Audit 2286)", rc == 0)
         shutil.rmtree(sub1383, ignore_errors=True)
+        sub1384 = klon(tmp, "sub1384")
+        berkas_aksi1384 = os.path.join(
+            sub1384, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1384, encoding="utf-8") as f:
+            isi_aksi1384 = f.read()
+        baris_aksi1384 = [b for b in isi_aksi1384.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1384 = isi_aksi1384.replace(
+                baris_aksi1384,
+                baris_aksi1384.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv count -d ';'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1384 != isi_aksi1384, \
+            "suntikan aksi1384 tidak menembak"
+        with open(berkas_aksi1384, "w", encoding="utf-8") as f:
+            f.write(isi_baru1384)
+        rc, out = jalan(sub1384,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv count -d bernilai: penguras - gerbang gagal (Audit 2287)", rc != 0)
+        shutil.rmtree(sub1384, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

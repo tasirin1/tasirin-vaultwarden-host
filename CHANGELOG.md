@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv count: himpunan opsi bernilai kini memuat -d/--delimiter (Audit 145)
+
+- count.rs:84 menetapkan -d/--delimiter bernilai; himpunan cabang count yang semula kosong kini memuatnya.
+
 ## [Belum rilis] — qsv prompt kini bercabang sadar --output/--fd-output (Audit 145)
 
 - prompt.rs:79-87 — bentuk polos membuka dialog pemilih berkas GUI (tak menyentuh stdin), tetapi -o/--output dan -f/--fd-output menyalin stdin ke berkas tujuan. Cabang baru sadar bendera.
