@@ -7424,7 +7424,8 @@ def _menguras_khusus(perintah, toks, awal):
                  "--mem-cache-size", "--disk-cache-dir",
                  "--globals-json", "--content-type",
                  "--default-encoding", "--user-agent",
-                 "-d", "--delimiter", "-o", "--output"})
+                 "-j", "--globals-json", "-d",
+                 "--delimiter", "-o", "--output"})
             if "\x00gantung" in ops_qfp:
                 return False
             dasar_qfp = (1 if ("--payload-tpl" in mentah

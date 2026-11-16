@@ -29304,6 +29304,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv fetchpost -t payload-tpl: penguras - gerbang gagal (Audit 2282)", rc != 0)
         shutil.rmtree(sub1378, ignore_errors=True)
+        sub1379 = klon(tmp, "sub1379")
+        berkas_aksi1379 = os.path.join(
+            sub1379, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1379, encoding="utf-8") as f:
+            isi_aksi1379 = f.read()
+        baris_aksi1379 = [b for b in isi_aksi1379.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1379 = isi_aksi1379.replace(
+                baris_aksi1379,
+                baris_aksi1379.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv fetchpost urlkol daftar -j g.json; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1379 != isi_aksi1379, \
+            "suntikan aksi1379 tidak menembak"
+        with open(berkas_aksi1379, "w", encoding="utf-8") as f:
+            f.write(isi_baru1379)
+        rc, out = jalan(sub1379,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv fetchpost -j globals-json: penguras - gerbang gagal (Audit 2283)", rc != 0)
+        shutil.rmtree(sub1379, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

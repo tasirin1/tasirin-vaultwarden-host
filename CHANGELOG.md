@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fetchpost: bentuk pendek -j (--globals-json) ditambahkan (Audit 145)
+
+- fetchpost.rs menetapkan -j sebagai pendek --globals-json; himpunan cabang fetchpost kini memuat -j dan --globals-json.
+
 ## [Belum rilis] — qsv fetchpost: pemeriksa dasar operand kini sadar -t (--payload-tpl) (Audit 145)
 
 - fetchpost.rs:163 menetapkan -t sebagai pendek --payload-tpl; dasar_qfp kini mengenali token -t dan bentuk merekatnya sehingga dasar operand menjadi 1.
