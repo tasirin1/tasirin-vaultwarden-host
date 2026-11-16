@@ -2535,6 +2535,99 @@ def _opsi_hadir(mentah, mulai, bernilai, dicari):
         i_oh += 1
     return ditemukan
 
+def _ada_duplikat(mentah, mulai, bernilai, pasangan):
+    # Audit 2326: docopt menolak opsi yang
+    # muncul lebih dari sekali (maks 1 per
+    # opsi; alias pendek/panjang disatukan
+    # lewat dict pasangan).
+    hitung_du = {}
+    i_du = mulai
+    while i_du < len(mentah):
+        t_du = mentah[i_du]
+        if t_du == "--":
+            break
+        if t_du in bernilai:
+            k_du = pasangan.get(t_du, t_du)
+            hitung_du[k_du] = hitung_du.get(k_du, 0) + 1
+            i_du += 2
+            continue
+        if t_du.startswith("--"):
+            nama_du = t_du.split("=", 1)[0]
+            k_du = pasangan.get(nama_du, nama_du)
+            hitung_du[k_du] = hitung_du.get(k_du, 0) + 1
+            i_du += 1
+            continue
+        if t_du.startswith("-") and len(t_du) > 1:
+            j_du = 1
+            while j_du < len(t_du):
+                eja_du = "-" + t_du[j_du]
+                k_du = pasangan.get(eja_du, eja_du)
+                hitung_du[k_du] = hitung_du.get(k_du, 0) + 1
+                if eja_du in bernilai:
+                    break
+                j_du += 1
+            i_du += 1
+            continue
+        i_du += 1
+    return any(v_du > 1 for v_du in hitung_du.values())
+
+
+def _saring_csvkit(toks, awal, perintah):
+    # Audit 2335/2336/2337/2340/2341: csvkit
+    # --null-value ber-nargs='+' menelan semua
+    # token non-opsi sesudahnya (cli.py:222);
+    # csvsql --engine-option ber-nargs=2.
+    # Mengembalikan daftar toks tersaring,
+    # atau None bila --null-value tanpa nilai
+    # (argparse berhenti dengan galat).
+    segmen_sc = list(toks[awal:])
+    hasil_sc = []
+    i_sc = 0
+    while i_sc < len(segmen_sc):
+        t_sc = segmen_sc[i_sc]
+        if t_sc == "--null-value":
+            j_sc = i_sc + 1
+            while (j_sc < len(segmen_sc)
+                   and (not segmen_sc[j_sc].startswith("-")
+                        or segmen_sc[j_sc] == "-"
+                        or (len(segmen_sc[j_sc]) > 1
+                            and segmen_sc[j_sc][1].isdigit()))):
+                j_sc += 1
+            if j_sc == i_sc + 1:
+                return None
+            i_sc = j_sc
+            continue
+        if t_sc.startswith("--null-value="):
+            i_sc += 1
+            continue
+        if perintah == "csvsql" and t_sc == "--engine-option":
+            i_sc += 3
+            continue
+        if (perintah == "csvsql"
+                and t_sc.startswith("--engine-option=")):
+            i_sc += 2
+            continue
+        hasil_sc.append(t_sc)
+        i_sc += 1
+    return list(toks[:awal]) + hasil_sc
+
+
+def _token_terlarang(mentah, terlarang):
+    # Audit 2338/2339/2342: token yang tak
+    # dikenal utilitas csvkit tertentu
+    # (override_flags di sumbernya) membuat
+    # argparse berhenti sebelum membaca stdin.
+    for t_tt in mentah:
+        if t_tt == "--":
+            break
+        if t_tt in terlarang:
+            return True
+        if any(t_tt.startswith(n_tt + "=")
+               for n_tt in terlarang
+               if n_tt.startswith("--")):
+            return True
+    return False
+
 
 def _uri_store_ke_jalur(o_s):
     # Audit 1564: normalisasi operand storeutl —
@@ -7887,7 +7980,8 @@ def _menguras_khusus(perintah, toks, awal):
             ops_qfx = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-l", "--length", "-o", "--output",
-                 "-d", "--delimiter", "--escape"})
+                 "-d", "--delimiter", "--escape",
+                 "-i", "--insert", "--quote"})
             if "\x00gantung" in ops_qfx:
                 return False
             if not (not ops_qfx or ops_qfx == ["-"]):
@@ -7914,7 +8008,8 @@ def _menguras_khusus(perintah, toks, awal):
                     i_qfx += 1
                     continue
                 if t_qfx in ("-o", "--output", "-d",
-                             "--delimiter", "--escape"):
+                             "--delimiter", "--escape",
+                             "-i", "--insert", "--quote"):
                     if i_qfx + 1 >= len(mentah):
                         return False
                     i_qfx += 2
@@ -7922,7 +8017,9 @@ def _menguras_khusus(perintah, toks, awal):
                 if any(t_qfx.startswith(p_qfx + "=")
                        for p_qfx in ("--output",
                                      "--delimiter",
-                                     "--escape")):
+                                     "--escape",
+                                     "--insert",
+                                     "--quote")):
                     i_qfx += 1
                     continue
                 if (t_qfx.startswith("-")
@@ -7936,6 +8033,9 @@ def _menguras_khusus(perintah, toks, awal):
                             buang_qfx = True
                             j_qfx += 1
                             continue
+                        if h_qfx == "q":
+                            j_qfx += 1
+                            continue
                         if h_qfx == "l":
                             sisa_qfx = t_qfx[j_qfx + 1:]
                             if sisa_qfx:
@@ -7947,7 +8047,7 @@ def _menguras_khusus(perintah, toks, awal):
                                 return False
                             j_qfx = len(t_qfx)
                             continue
-                        if h_qfx in ("o", "d"):
+                        if h_qfx in ("o", "d", "i"):
                             if j_qfx + 1 >= len(t_qfx):
                                 if i_qfx + 1 >= len(mentah):
                                     return False

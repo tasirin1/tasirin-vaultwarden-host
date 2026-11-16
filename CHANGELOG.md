@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fixlengths: -i/--insert, --quote, -q/--quiet kini dikenali (Audit 149)
+
+- Cabang qsv fixlengths (Audit 2322) kehilangan tiga opsi resmi fixlengths.rs: -i/--insert dan --quote bernilai, -q/--quiet boolean. Ketiganya kini dikenali pindaian cabang. Commit ini juga memasang tiga helper bersama: _ada_duplikat (penolakan opsi duplikat docopt), _saring_csvkit (penelan --null-value nargs='+' csvkit), dan _token_terlarang (token tak dikenal override_flags csvkit).
+
 ## [Belum rilis] — qsv table: sub qsv kini bercabang di gerbang (Audit 148)
 
 - Cabang table yang ada selama ini milik xsv. table.rs qsv membaca [<input>] opsional tanpa penjaga stdin; cabang qsv-nya menumpang commit Audit 2322 tepat sebelumnya, entri ini mencatat perbaikannya beserta skenario ujinya.
