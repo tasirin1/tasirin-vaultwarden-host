@@ -298,7 +298,7 @@ jobs:
           key: vw-cargo-armv7-${{ needs.resolve.outputs.vw }}-${{ hashFiles('.github/workflows/build-binary.yml') }}
 
           restore-keys: |
-            vw-cargo-armv7-
+            vw-cargo-armv7-${{ needs.resolve.outputs.vw }}-
 
       - name: Cross-compile vaultwarden for Android (armv7)
         run: |

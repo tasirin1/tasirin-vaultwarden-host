@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — CI: build-binary restore-keys dipersempit (Audit 2202)
+
+- restore-keys cache cargo dipersempit ke awalan versi upstream yang sama (sebelumnya lintas versi).
+
 ## [Belum rilis] — CI: build-binary terpacu perubahan resolve-vw (Audit 2201)
 
 - Paths pemicu build-binary.yml ditambah .github/actions/resolve-vw/** (dipakai job resolve).
