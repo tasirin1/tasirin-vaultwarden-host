@@ -7857,40 +7857,58 @@ def _menguras_khusus(perintah, toks, awal):
         # (prompt.rs:79-87).
         if mentah and mentah[0] == "prompt":
             # Audit 2298/2299: pindaian sadar nilai
+            # Audit 2319: bendera duplikat ditolak
+            # docopt (maks 1 kemunculan per opsi).
             # opsi + bundel docopt + '--' + gantung.
             bernilai_qpr = {"-m", "--msg", "-F",
                             "--filters", "-d", "--workdir",
                             "--save-fname", "--base-delay-ms"}
+            kanon_qpr = {"-m": "m", "--msg": "m",
+                         "-F": "F", "--filters": "F",
+                         "-d": "d", "--workdir": "d",
+                         "--save-fname": "s",
+                         "--base-delay-ms": "b"}
             ada_qpr = False
             fd_qpr = False
+            hitung_qpr = {}
             i_qpr = 1
             while i_qpr < len(mentah):
                 t_qpr = mentah[i_qpr]
                 if t_qpr == "--":
                     return (ada_qpr != fd_qpr
-                            and i_qpr == len(mentah) - 1)
+                            and i_qpr == len(mentah) - 1
+                            and max(hitung_qpr.values(),
+                                    default=0) <= 1)
                 if t_qpr in ("-f", "--fd-output"):
                     fd_qpr = True
+                    hitung_qpr["f"] = hitung_qpr.get("f", 0) + 1
                     i_qpr += 1
                     continue
                 if t_qpr in ("-o", "--output"):
                     if i_qpr + 1 >= len(mentah):
                         return False
                     ada_qpr = True
+                    hitung_qpr["o"] = hitung_qpr.get("o", 0) + 1
                     i_qpr += 2
                     continue
                 if t_qpr.startswith("--output="):
                     ada_qpr = True
+                    hitung_qpr["o"] = hitung_qpr.get("o", 0) + 1
                     i_qpr += 1
                     continue
                 if t_qpr in bernilai_qpr:
                     if i_qpr + 1 >= len(mentah):
                         return False
+                    k_qpr = kanon_qpr[t_qpr]
+                    hitung_qpr[k_qpr] = hitung_qpr.get(k_qpr, 0) + 1
                     i_qpr += 2
                     continue
-                if any(t_qpr.startswith(p_qpr + "=")
-                       for p_qpr in bernilai_qpr
-                       if p_qpr.startswith("--")):
+                nama_qpr = [p_qpr for p_qpr in bernilai_qpr
+                            if p_qpr.startswith("--")
+                            and t_qpr.startswith(p_qpr + "=")]
+                if nama_qpr:
+                    k_qpr = kanon_qpr[nama_qpr[0]]
+                    hitung_qpr[k_qpr] = hitung_qpr.get(k_qpr, 0) + 1
                     i_qpr += 1
                     continue
                 if (t_qpr.startswith("-")
@@ -7902,13 +7920,16 @@ def _menguras_khusus(perintah, toks, awal):
                         h_qpr = t_qpr[j_qpr]
                         if h_qpr == "f":
                             fd_qpr = True
+                            hitung_qpr["f"] = hitung_qpr.get("f", 0) + 1
                             j_qpr += 1
                             continue
                         if h_qpr == "q":
+                            hitung_qpr["q"] = hitung_qpr.get("q", 0) + 1
                             j_qpr += 1
                             continue
                         if h_qpr == "o":
                             ada_qpr = True
+                            hitung_qpr["o"] = hitung_qpr.get("o", 0) + 1
                             if j_qpr + 1 >= len(t_qpr):
                                 if i_qpr + 1 >= len(mentah):
                                     return False
@@ -7916,6 +7937,7 @@ def _menguras_khusus(perintah, toks, awal):
                             j_qpr = len(t_qpr)
                             continue
                         if h_qpr in ("m", "F", "d"):
+                            hitung_qpr[h_qpr] = hitung_qpr.get(h_qpr, 0) + 1
                             if j_qpr + 1 >= len(t_qpr):
                                 if i_qpr + 1 >= len(mentah):
                                     return False
@@ -7929,7 +7951,9 @@ def _menguras_khusus(perintah, toks, awal):
                     i_qpr += 1
                     continue
                 return False
-            return ada_qpr != fd_qpr
+            return (ada_qpr != fd_qpr
+                    and max(hitung_qpr.values(),
+                            default=0) <= 1)
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
