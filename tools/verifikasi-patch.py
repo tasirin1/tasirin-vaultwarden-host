@@ -7261,7 +7261,7 @@ def _menguras_khusus(perintah, toks, awal):
                  "--ds-updated", "--enum-threshold",
                  "--export-prompt", "--format",
                  "--freq-options", "--language",
-                 "--limit", "--markdown-template",
+                 "--markdown-template",
                  "--num-tags", "--okf-type",
                  "--prompt-file", "--sample-size",
                  "--score-max-retries",
@@ -7269,8 +7269,7 @@ def _menguras_khusus(perintah, toks, awal):
                  "--session-len", "--sql-results",
                  "--stats-options", "--tag-vocab",
                  "--timeout", "--tour-audience",
-                 "--user-agent",
-                 "--fewshot-examples"})
+                 "--user-agent"})
             if "\x00gantung" in ops_qdg:
                 return False
             return (not ops_qdg

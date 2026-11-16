@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv describegpt: --fewshot-examples boolean dan --limit hantu dikeluarkan dari himpunan bernilai (Audit 144)
+
+- Struct Args describegpt.rs master membuktikan flag_fewshot_examples bertipe bool dan --limit tak punya flag apa pun (hanya teks deskripsi opsi lain); keduanya dikeluarkan dari himpunan opsi bernilai cabang describegpt.
+
 ## [Belum rilis] — csvclean: skenario uji cabang stdin (Audit 143)
 
 - Cabang csvclean mendarat pada commit csvjson (satu blok teks yang sama, Audit 2239); commit ini memasang skenario uji dan entri changelog-nya.
