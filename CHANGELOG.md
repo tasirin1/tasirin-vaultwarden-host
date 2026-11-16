@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — CI: build-binary terpacu perubahan resolve-vw (Audit 2201)
+
+- Paths pemicu build-binary.yml ditambah .github/actions/resolve-vw/** (dipakai job resolve).
+
 ## [Belum rilis] — Gerbang: qsv sample - parse f64 diperketat (Audit 2200)
 
 - Validasi ukuran qsv sample menolak spasi tepi dan underscore (parse f64 Rust, dok std).

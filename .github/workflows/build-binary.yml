@@ -6,11 +6,13 @@ on:
 
     paths:
       - '.github/workflows/build-binary.yml'
+      - '.github/actions/resolve-vw/**'
       - 'shim/**'
   pull_request:
 
     paths:
       - '.github/workflows/build-binary.yml'
+      - '.github/actions/resolve-vw/**'
       - 'shim/**'
   workflow_dispatch:
 
