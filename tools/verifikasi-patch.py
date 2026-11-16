@@ -7060,6 +7060,31 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qsn
                     or (len(ops_qsn) == 1
                         and ops_qsn[0] == "-"))
+        # Audit 2215: sub 'fetch' - operand
+        # pertama nama kolom URL, masukan kedua
+        # (fetch.rs).
+        if mentah and mentah[0] == "fetch":
+            ops_qfe = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--url-template", "--jql", "--jqlfile",
+                 "-c", "--new-column", "--rate-limit",
+                 "--timeout", "-H", "--http-header",
+                 "--max-retries", "--max-errors",
+                 "--user-agent", "--report",
+                 "--mem-cache-size", "--disk-cache-dir",
+                 "-o", "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qfe:
+                return False
+            ada_templat = any(
+                t_qfe == "--url-template"
+                or t_qfe.startswith("--url-template=")
+                for t_qfe in mentah)
+            if ada_templat:
+                return (not ops_qfe
+                        or ops_qfe == ["-"])
+            return (len(ops_qfe) == 1
+                    or (len(ops_qfe) == 2
+                        and ops_qfe[1] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).

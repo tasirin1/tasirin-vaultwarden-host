@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub fetch membaca stdin (Audit 2215)
+
+- Cabang qsv ditambah sub fetch sadar posisi/modus: operand pertama nama kolom URL; modus --url-template masukan adalah operand pertama (fetch.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub snappy membaca stdin (Audit 2214)
 
 - Cabang qsv ditambah sub snappy: compress/decompress/check ber-[<input>] opsional; validate menolak stdin (snappy.rs).
