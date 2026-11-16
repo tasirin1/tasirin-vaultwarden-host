@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — CI: auto-merge - kelas manual untuk PR workflow gerbang (Audit 2219)
+
+- auto-merge.yml: kelas GERBANG_PR baru - PR yang menyentuh cek-wajib.yml (penghasil check wajib itu sendiri) kini ditangani manual, bukan digerbang check buatannya sendiri.
+
 ## [Belum rilis] — Gerbang: xsv fixlengths - panjang nol ditolak (Audit 2218)
 
 - Cabang xsv fixlengths menolak nilai --length/-l 0, sejajar penolakan run() perintah asli.
