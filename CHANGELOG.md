@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv clipboard: pindaian kini menghormati pemisah -- (Audit 146)
+
+- Penulisan ulang pemeriksa clipboard (Audit 2301) sekaligus menghormati '--': token -s sesudah pemisah adalah operand (galat, clipboard tak punya operand) dan divonis bukan penguras. Commit ini memasang skenario uji dan entri changelog-nya.
+
 ## [Belum rilis] — qsv clipboard: bundel huruf pendek kini ketat (hanya s/h sah) (Audit 146)
 
 - Pemeriksa clipboard ditulis ulang: bundel hanya boleh memuat s (h = bantuan, bukan penguras); huruf asing seperti x pada -xs adalah galat docopt dan divonis bukan penguras.
