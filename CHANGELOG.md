@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv denull kini bercabang sadar stdin (Audit 144)
+
+- [<input>] via Config qsv (denull.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv datefmt mandiri kini bercabang sadar stdin (Audit 144)
 
 - datefmt.rs mandiri (beda dari apply datefmt): <column> [<input>] via Config — kosong/'-' sesudah kolom = stdin. Cabang baru sadar kolom.

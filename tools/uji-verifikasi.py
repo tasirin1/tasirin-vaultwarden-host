@@ -28506,6 +28506,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv datefmt kolom tanpa masukan: penguras - gerbang gagal (Audit 2247)", rc != 0)
         shutil.rmtree(sub1340, ignore_errors=True)
+        sub1341 = klon(tmp, "sub1341")
+        berkas_aksi1341 = os.path.join(
+            sub1341, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1341, encoding="utf-8") as f:
+            isi_aksi1341 = f.read()
+        baris_aksi1341 = [b for b in isi_aksi1341.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1341 = isi_aksi1341.replace(
+                baris_aksi1341,
+                baris_aksi1341.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv denull; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1341 != isi_aksi1341, \
+            "suntikan aksi1341 tidak menembak"
+        with open(berkas_aksi1341, "w", encoding="utf-8") as f:
+            f.write(isi_baru1341)
+        rc, out = jalan(sub1341,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv denull polos: penguras - gerbang gagal (Audit 2248)", rc != 0)
+        shutil.rmtree(sub1341, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -7361,6 +7361,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qdf) == 1
                     or (len(ops_qdf) == 2
                         and ops_qdf[1] == "-"))
+        # Audit 2248: sub 'denull' - masukan
+        # [<input>] opsional; Config qsv memakai stdin bila
+        # masukan kosong atau '-' (denull.rs).
+        if mentah and mentah[0] == "denull":
+            ops_qdn = _operand_sesudah_opsi(
+                toks, awal + 1, {"-s", "--select", "-d", "--delimiter", "-o", "--output", "--add-vocab", "--vocab", "--max-distinct"})
+            if "\x00gantung" in ops_qdn:
+                return False
+            return (not ops_qdn
+                    or (len(ops_qdn) == 1
+                        and ops_qdn[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
