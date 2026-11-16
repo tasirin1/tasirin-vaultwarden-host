@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv replace: -j/--jobs ditambahkan ke himpunan gerbang (Audit 146)
+
+- replace.rs USAGE:75 menetapkan -j/--jobs bernilai; himpunan cabang replace kini memuatnya.
+
 ## [Belum rilis] — qsv transpose: -s/--select dan --long ditambahkan ke himpunan gerbang (Audit 146)
 
 - transpose.rs:91-92 menetapkan flag_select dan flag_long bertipe Option; himpunan cabang transpose kini memuat -s/--select dan --long.

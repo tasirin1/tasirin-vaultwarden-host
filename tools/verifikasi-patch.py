@@ -7009,8 +7009,9 @@ def _menguras_khusus(perintah, toks, awal):
             ops_qrp = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "--size-limit",
-                 "--dfa-size-limit", "-o", "--output",
-                 "-d", "--delimiter"})
+                 "--dfa-size-limit", "-j", "--jobs",
+                 "-o", "--output", "-d",
+                 "--delimiter"})
             if "\x00gantung" in ops_qrp:
                 return False
             return (len(ops_qrp) == 2
