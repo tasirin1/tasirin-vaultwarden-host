@@ -7083,6 +7083,20 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qfe) == 1
                     or (len(ops_qfe) == 2
                         and ops_qfe[1] == "-"))
+        # Audit 2220: sub 'input' - masukan
+        # [<input>] opsional (input.rs).
+        if mentah and mentah[0] == "input":
+            ops_qin = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--quote", "--escape", "--quote-style",
+                 "--skip-lines", "--skip-lastlines",
+                 "--comment", "--encoding-errors", "-o",
+                 "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qin:
+                return False
+            return (not ops_qin
+                    or (len(ops_qin) == 1
+                        and ops_qin[0] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).

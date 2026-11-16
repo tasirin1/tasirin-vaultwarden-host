@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub input membaca stdin (Audit 2220)
+
+- Cabang qsv ditambah sub input: masukan [<input>] opsional (input.rs).
+
 ## [Belum rilis] — CI: auto-merge - kelas manual untuk PR workflow gerbang (Audit 2219)
 
 - auto-merge.yml: kelas GERBANG_PR baru - PR yang menyentuh cek-wajib.yml (penghasil check wajib itu sendiri) kini ditangani manual, bukan digerbang check buatannya sendiri.
