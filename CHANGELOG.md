@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv table: sub qsv kini bercabang di gerbang (Audit 148)
+
+- Cabang table yang ada selama ini milik xsv. table.rs qsv membaca [<input>] opsional tanpa penjaga stdin; cabang qsv-nya menumpang commit Audit 2322 tepat sebelumnya, entri ini mencatat perbaikannya beserta skenario ujinya.
+
 ## [Belum rilis] — qsv fixlengths: sub qsv kini bercabang di gerbang (Audit 148)
 
 - Cabang fixlengths yang ada selama ini milik xsv. fixlengths.rs qsv: stdin hanya sah bila --length terpasang sah (digit, > 0, <= u64 maks) dan --remove-empty absen; tanpa --length atau dengan --remove-empty stdin ditolak. Cabang qsv baru menilai persis itu (pindaian sadar posisi untuk nilai --length dan --remove-empty).

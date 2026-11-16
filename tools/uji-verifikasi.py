@@ -30165,6 +30165,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv fixlengths --length sah tanpa masukan: penguras - gerbang gagal (Audit 2322)", rc != 0)
         shutil.rmtree(sub1419, ignore_errors=True)
+        sub1420 = klon(tmp, "sub1420")
+        berkas_aksi1420 = os.path.join(
+            sub1420, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1420, encoding="utf-8") as f:
+            isi_aksi1420 = f.read()
+        baris_aksi1420 = [b for b in isi_aksi1420.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1420 = isi_aksi1420.replace(
+                baris_aksi1420,
+                baris_aksi1420.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv table; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1420 != isi_aksi1420, \
+            "suntikan aksi1420 tidak menembak"
+        with open(berkas_aksi1420, "w", encoding="utf-8") as f:
+            f.write(isi_baru1420)
+        rc, out = jalan(sub1420,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv table polos: penguras - gerbang gagal (Audit 2323)", rc != 0)
+        shutil.rmtree(sub1420, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
