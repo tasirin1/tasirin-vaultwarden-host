@@ -6803,16 +6803,12 @@ def _menguras_khusus(perintah, toks, awal):
         if len(mentah) >= 2 and mentah[0] == "apply":
             sub_ap = mentah[1]
             if sub_ap == "dynfmt":
-                if not (any(
-                        t_ap == "--formatstr"
-                        or t_ap.startswith("--formatstr=")
-                        or t_ap == "-f"
-                        for t_ap in mentah)
-                        and any(
-                        t_ap == "--new-column"
-                        or t_ap.startswith("--new-column=")
-                        or t_ap == "-c"
-                        for t_ap in mentah)):
+                if not (_opsi_hadir(
+                        mentah, 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"},
+                        {"-f", "--formatstr"})
+                        and _opsi_hadir(
+                        mentah, 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"},
+                        {"-c", "--new-column"})):
                     return False
                 ops_ap = _operand_sesudah_opsi(
                     toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"})
@@ -6823,16 +6819,12 @@ def _menguras_khusus(perintah, toks, awal):
                 # Audit 2194: calcconv sejajar dynfmt
                 # (wajib --formatstr + --new-column,
                 # operand [<input>] tunggal).
-                if not (any(
-                        t_ap == "--formatstr"
-                        or t_ap.startswith("--formatstr=")
-                        or t_ap == "-f"
-                        for t_ap in mentah)
-                        and any(
-                        t_ap == "--new-column"
-                        or t_ap.startswith("--new-column=")
-                        or t_ap == "-c"
-                        for t_ap in mentah)):
+                if not (_opsi_hadir(
+                        mentah, 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"},
+                        {"-f", "--formatstr"})
+                        and _opsi_hadir(
+                        mentah, 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"},
+                        {"-c", "--new-column"})):
                     return False
                 ops_ap = _operand_sesudah_opsi(
                     toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"})
@@ -6840,11 +6832,9 @@ def _menguras_khusus(perintah, toks, awal):
                     return False
                 return not ops_ap or ops_ap == ["-"]
             if sub_ap == "emptyreplace":
-                if not any(
-                        t_ap == "--replacement"
-                        or t_ap.startswith("--replacement=")
-                        or t_ap == "-R"
-                        for t_ap in mentah):
+                if not _opsi_hadir(
+                        mentah, 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"},
+                        {"-R", "--replacement"}):
                     return False
                 ops_ap = _operand_sesudah_opsi(
                     toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"})

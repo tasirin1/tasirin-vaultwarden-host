@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv apply dynfmt/calcconv/emptyreplace: syarat wajib kini sadar posisi (Audit 148)
+
+- Cacat leksikal yang sama pada pola lama Audit 2148/2194 diperbaiki dengan helper yang sama: --formatstr -c dan -C -R tak lagi lolos semu, dan bentuk merekat -ffmt -cnama kini dikenali.
+
 ## [Belum rilis] — qsv apply summarize: syarat --new-column kini sadar posisi (Audit 148)
 
 - Pemeriksa any() leksikal tertipu token yang tertelan sebagai nilai opsi lain (--prompt -c) dan buta bentuk merekat (-cj). Helper baru _opsi_hadir menilai kehadiran opsi secara sadar posisi (nilai dilompati verbatim, bentuk = dan bundel docopt dikenali); cabang summarize memakainya.
