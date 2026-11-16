@@ -7616,6 +7616,20 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_xs
                     or all(o == "-" for o in ops_xs))
+        # Audit 2236: sub 'frequency' xsv -
+        # masukan [<input>] opsional via Config
+        # (frequency.rs xsv).
+        if mentah and mentah[0] == "frequency":
+            ops_xfr = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--select", "-l", "--limit",
+                 "-j", "--jobs", "-o", "--output",
+                 "-d", "--delimiter"})
+            if "\x00gantung" in ops_xfr:
+                return False
+            return (not ops_xfr
+                    or (len(ops_xfr) == 1
+                        and ops_xfr[0] == "-"))
         return False
     if perintah == "tsv-filter":
         # Audit 2118: tanpa berkas ia membaca

@@ -28107,6 +28107,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv extsort -s col tanpa masukan: penguras - gerbang gagal (Audit 2235)", rc != 0)
         shutil.rmtree(sub1321, ignore_errors=True)
+        sub1322 = klon(tmp, "sub1322")
+        berkas_aksi1322 = os.path.join(
+            sub1322, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1322, encoding="utf-8") as f:
+            isi_aksi1322 = f.read()
+        baris_aksi1322 = [b for b in isi_aksi1322.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1322 = isi_aksi1322.replace(
+                baris_aksi1322,
+                baris_aksi1322.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv frequency; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1322 != isi_aksi1322, \
+            "suntikan aksi1322 tidak menembak"
+        with open(berkas_aksi1322, "w", encoding="utf-8") as f:
+            f.write(isi_baru1322)
+        rc, out = jalan(sub1322,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv frequency polos: penguras - gerbang gagal (Audit 2236)", rc != 0)
+        shutil.rmtree(sub1322, ignore_errors=True)
+        sub1323 = klon(tmp, "sub1323")
+        berkas_aksi1323 = os.path.join(
+            sub1323, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1323, encoding="utf-8") as f:
+            isi_aksi1323 = f.read()
+        baris_aksi1323 = [b for b in isi_aksi1323.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1323 = isi_aksi1323.replace(
+                baris_aksi1323,
+                baris_aksi1323.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv frequency data.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1323 != isi_aksi1323, \
+            "suntikan aksi1323 tidak menembak"
+        with open(berkas_aksi1323, "w", encoding="utf-8") as f:
+            f.write(isi_baru1323)
+        rc, out = jalan(sub1323,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv frequency berkas: bukan penguras - gerbang lolos (Audit 2236)", rc == 0)
+        shutil.rmtree(sub1323, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

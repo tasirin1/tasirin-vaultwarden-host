@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv frequency kini bercabang sadar stdin (Audit 143)
+
+- xsv frequency belum bercabang sehingga selalu dinilai tak menguras; USAGE resminya [<input>] opsional via Config (kosong atau '-' = stdin). Cabang baru pola masukan-tunggal; opsi bernilai {-s/--select, -l/--limit, -j/--jobs, -o/--output, -d/--delimiter}.
+
 ## [Belum rilis] — qsv extsort: himpunan opsi bernilai dilengkapi -s/--select dan -d/--delimiter (Audit 143)
 
 - USAGE extsort di qsv master kini memuat -s/--select (mode CSV) dan -d/--delimiter sebagai opsi bernilai; himpunan cabang 2227 belum memuatnya sehingga bentuk menggantung dinilai menguras. Klaim audit soal operand '-' gugur: extsort master memang memperlakukan '-' sebagai stdin.
