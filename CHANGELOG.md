@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — cek-cepat: fase rahasia ikut memindai isi commit HEAD (Audit 142)
+
+- Token yang sudah ter-commit lalu dihapus dari worktree (git rm) lolos semua fase karena tak ada fase yang membaca HEAD. Fase rahasia kini menambah sumber ketiga git grep atas HEAD; awalan nama HEAD: dibuang agar ejaan nama tetap satu (menjaga Audit 2137).
+
 ## [Belum rilis] — xsv fixlengths: nilai --length divalidasi angka sah (bukan nol/u64) (Audit 142)
 
 - Cabang xsv fixlengths hanya menolak nilai panjang yang persis "0", sehingga -l 00, -l abc, dan -l -1 dinilai menguras padahal ditolak perintah aslinya (usize). Kini nilai sah hanya bila seluruhnya digit dan 0 < n <= 18446744073709551615.

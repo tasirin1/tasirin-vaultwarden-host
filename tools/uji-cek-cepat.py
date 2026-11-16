@@ -1164,6 +1164,18 @@ def main():
                 "(Audit 2177)", rc != 0)
         shutil.rmtree(belahnl, ignore_errors=True)
 
+        kepalasaja = klon(tmp, "kepalasaja")
+        with open(kepalasaja + "/kepala.txt", "w") as fh:
+            fh.write("token uji: " + token_palsu + "\n")
+        git(kepalasaja, "add", "-A")
+        git(kepalasaja, "commit", "-qm", "tanam")
+        git(kepalasaja, "rm", "-q", "kepala.txt")
+        rc, out = jalan(kepalasaja, ["bash", SKRIP])
+        periksa("token hanya di HEAD tertangkap "
+                "(Audit 2225)", rc != 0)
+        shutil.rmtree(kepalasaja, ignore_errors=True)
+
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))

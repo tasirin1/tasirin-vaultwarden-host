@@ -82,7 +82,7 @@ POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Za-z0-9[:blank:]]*PRIVATE KEY-----|$POL
 # berstrip tunggal di dalam label kini lolos
 # (diterima — label asli tak pernah berstrip).
 POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN([A-Za-z0-9_]|--+){0,200}PRIVATE([A-Za-z0-9_]|--+){0,200}KEY[A-Za-z0-9_-]{0,200}-----[A-Za-z0-9+/=]{16,}"
-RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; } | awk '
+RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E "$POLA_RAHASIA" HEAD 2>/dev/null; } | sed 's/^HEAD://' | awk '
 {
   nama = $0
   if (nama ~ /^".*"$/ && length(nama) >= 2) {
