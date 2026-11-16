@@ -8461,7 +8461,7 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "fmt":
             ops_xfm = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"-t", "--quote", "--escape", "-o",
+                {"-t", "--out-delimiter", "--quote", "--escape", "-o",
                  "--output", "-d", "--delimiter"})
             if "\x00gantung" in ops_xfm:
                 return False

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv fmt: --out-delimiter kini dikenali (Audit 149)
+
+- Pasangan resmi -t adalah --out-delimiter (fmt.rs); bentuk panjangnya hilang dari himpunan xsv fmt dan kini ditambahkan.
+
 ## [Belum rilis] — xsv slice: -i/--index, -o/--output, -d/--delimiter kini dikenali (Audit 149)
 
 - Himpunan xsv slice dilengkapi tiga opsi bernilai dari USAGE slice.rs.
