@@ -7326,6 +7326,19 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_qs
                     or all(o == "-" for o in ops_qs))
+        # Audit 2245: sub 'blake3' - [<input>...]
+        # variadik; tanpa berkas atau ada '-'
+        # membaca stdin; --keyed membaca kunci
+        # dari stdin (blake3.rs:6,96).
+        if mentah and mentah[0] == "blake3":
+            ops_qb3 = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-j", "--jobs", "-l", "--length",
+                 "--derive-key", "-o", "--output"})
+            if "\x00gantung" in ops_qb3:
+                return False
+            return (not ops_qb3 or "-" in ops_qb3
+                    or "--keyed" in mentah)
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

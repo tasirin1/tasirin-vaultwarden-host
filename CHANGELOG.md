@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv blake3 kini bercabang sadar stdin (Audit 144)
+
+- blake3.rs:6,96 — [<input>...] variadik; tanpa berkas atau ada '-' membaca stdin, dan --keyed membaca kunci dari stdin. Cabang baru sadar variadik.
+
 ## [Belum rilis] — csvkit: operand '-' berarti stdin di sembilan cabang alat csvkit (Audit 144)
 
 - csvkit/cli.py:273 menetapkan konvensi generik `path == '-'` = sys.stdin untuk semua alat csvkit; sembilan cabang (csvlook, csvcut, csvgrep, csvstat, csvsort, csvformat, csvsql, csvjson, csvclean) kini menilai operand tunggal '-' sebagai penguras.
