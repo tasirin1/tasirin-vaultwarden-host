@@ -7023,7 +7023,13 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "sqlp":
             ops_qsq = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"-o", "--output"})
+                {"--format", "--infer-len",
+                 "--rnull-values", "--datetime-format",
+                 "--date-format", "--time-format",
+                 "--float-precision", "--wnull-value",
+                 "--compression", "--compress-level",
+                 "-o", "--output", "-d",
+                 "--delimiter"})
             if "\x00gantung" in ops_qsq:
                 return False
             return (len(ops_qsq) >= 2

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv sqlp - himpunan bernilai dilengkapi (Audit 2211)
+
+- Himpunan bernilai qsv sqlp ditambah 11 opsi resmi sqlp.rs (--format, --infer-len, --rnull-values, format tanggal/waktu, --float-precision, --wnull-value, --compression, --compress-level, -d/--delimiter).
+
 ## [Belum rilis] — CI: label-audit juga membaca judul issue (Audit 2209)
 
 - label-audit.yml kini juga mencocokkan pola '(Audit NNN)' di judul issue (env JUDUL), bukan hanya penanda 'Ronde:' di badan - format issue generasi sekarang menaruh penanda di judul.
