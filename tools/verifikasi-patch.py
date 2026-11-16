@@ -7116,6 +7116,18 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_xsl
                     or (len(ops_xsl) == 1
                         and ops_xsl[0] == "-"))
+        # Audit 2189: sub 'partition' xsv -
+        # operand kolom + direktori keluaran,
+        # masukan ketiga (partition.rs).
+        if mentah and mentah[0] == "partition":
+            ops_xpa = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--filename", "-d", "--delimiter"})
+            if "\x00gantung" in ops_xpa:
+                return False
+            return (len(ops_xpa) == 2
+                    or (len(ops_xpa) == 3
+                        and ops_xpa[2] == "-"))
         # Audit 2171: sub 'select' xsv - operand
         # pertama pilihan kolom, masukan kedua
         # (select.rs).

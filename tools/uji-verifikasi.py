@@ -27309,6 +27309,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xsv sample ukuran meluap u64: gerbang lolos (Audit 2187)", rc == 0)
         shutil.rmtree(sub1283, ignore_errors=True)
+        sub1284 = klon(tmp, "sub1284")
+        berkas_aksi1284 = os.path.join(
+            sub1284, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1284, encoding="utf-8") as f:
+            isi_aksi1284 = f.read()
+        baris_aksi1284 = [b for b in isi_aksi1284.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1284 = isi_aksi1284.replace(
+                baris_aksi1284,
+                baris_aksi1284.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv partition 1 outdir; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1284 != isi_aksi1284, \
+            "suntikan aksi1284 tidak menembak"
+        with open(berkas_aksi1284, "w", encoding="utf-8") as f:
+            f.write(isi_baru1284)
+        rc, out = jalan(sub1284,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv partition membaca stdin: gerbang gagal (Audit 2189)", rc != 0)
+        shutil.rmtree(sub1284, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

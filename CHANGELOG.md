@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub partition membaca stdin (Audit 2189)
+
+- Cabang xsv ditambah sub partition: operand kolom + direktori keluaran, masukan ketiga (partition.rs).
+
 ## [Belum rilis] — Shim: kasus uji clamp INT_MAX ditambah (Audit 2188)
 
 - test_interpose.c ditambah kasus mmap >INT_MAX yang mengharapkan hasil tepat INT_MAX (clamp Audit 1746 kini teruji di CI).
