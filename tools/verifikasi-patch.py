@@ -7679,6 +7679,19 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qxc:
                 return False
             return ops_qxc == ["-"]
+        # Audit 2274: sub 'exclude' - <columns1>
+        # <input1> <columns2> <input2>; salah satu
+        # input '-' berarti stdin, keduanya '-'
+        # galat (exclude.rs:16,116).
+        if mentah and mentah[0] == "exclude":
+            ops_qxu = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-d", "--delimiter", "-o", "--output"})
+            if "\x00gantung" in ops_qxu:
+                return False
+            return (len(ops_qxu) == 4
+                    and (ops_qxu[1] == "-"
+                         or ops_qxu[3] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

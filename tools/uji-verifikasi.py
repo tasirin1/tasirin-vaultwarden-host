@@ -29115,6 +29115,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv excel polos: argumen wajib - gerbang lolos (Audit 2273)", rc == 0)
         shutil.rmtree(sub1369, ignore_errors=True)
+        sub1370 = klon(tmp, "sub1370")
+        berkas_aksi1370 = os.path.join(
+            sub1370, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1370, encoding="utf-8") as f:
+            isi_aksi1370 = f.read()
+        baris_aksi1370 = [b for b in isi_aksi1370.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1370 = isi_aksi1370.replace(
+                baris_aksi1370,
+                baris_aksi1370.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv exclude c1 - c2 data.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1370 != isi_aksi1370, \
+            "suntikan aksi1370 tidak menembak"
+        with open(berkas_aksi1370, "w", encoding="utf-8") as f:
+            f.write(isi_baru1370)
+        rc, out = jalan(sub1370,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv exclude input1 '-': penguras - gerbang gagal (Audit 2274)", rc != 0)
+        shutil.rmtree(sub1370, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

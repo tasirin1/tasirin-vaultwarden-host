@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv exclude kini bercabang sadar stdin (Audit 144)
+
+- exclude.rs:16,116 — <columns1> <input1> <columns2> <input2>; salah satu input '-' = stdin (keduanya '-' galat). Cabang baru sadar posisi.
+
 ## [Belum rilis] — qsv excel: '-' kini dinilai stdin (membalik vonis 0.128.0) (Audit 144)
 
 - excel.rs master:78,459-474 — '-' dibaca dari stdin ke berkas temp; tanpa operand docopt menolak (arg_input wajib). Membalik vonis Audit 141 yang berbasis 0.128.0.
