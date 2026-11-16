@@ -6778,6 +6778,26 @@ def _menguras_khusus(perintah, toks, awal):
                 if "\x00gantung" in ops_ap:
                     return False
                 return not ops_ap or "-" in ops_ap
+            if sub_ap == "calcconv":
+                # Audit 2194: calcconv sejajar dynfmt
+                # (wajib --formatstr + --new-column,
+                # operand [<input>] tunggal).
+                if not (any(
+                        t_ap == "--formatstr"
+                        or t_ap.startswith("--formatstr=")
+                        or t_ap == "-f"
+                        for t_ap in mentah)
+                        and any(
+                        t_ap == "--new-column"
+                        or t_ap.startswith("--new-column=")
+                        or t_ap == "-c"
+                        for t_ap in mentah)):
+                    return False
+                ops_ap = _operand_sesudah_opsi(
+                    toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter"})
+                if "\x00gantung" in ops_ap:
+                    return False
+                return not ops_ap or ops_ap == ["-"]
             if sub_ap == "emptyreplace":
                 if not any(
                         t_ap == "--replacement"

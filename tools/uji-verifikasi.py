@@ -27414,6 +27414,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xsv partition template tanpa kurung: gerbang lolos (Audit 2193)", rc == 0)
         shutil.rmtree(sub1288, ignore_errors=True)
+        sub1289 = klon(tmp, "sub1289")
+        berkas_aksi1289 = os.path.join(
+            sub1289, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1289, encoding="utf-8") as f:
+            isi_aksi1289 = f.read()
+        baris_aksi1289 = [b for b in isi_aksi1289.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1289 = isi_aksi1289.replace(
+                baris_aksi1289,
+                baris_aksi1289.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv apply calcconv --formatstr {a} --new-column n; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1289 != isi_aksi1289, \
+            "suntikan aksi1289 tidak menembak"
+        with open(berkas_aksi1289, "w", encoding="utf-8") as f:
+            f.write(isi_baru1289)
+        rc, out = jalan(sub1289,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv apply calcconv membaca stdin: gerbang gagal (Audit 2194)", rc != 0)
+        shutil.rmtree(sub1289, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

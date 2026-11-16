@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv apply - sub calcconv ditambah (Audit 2194)
+
+- Cabang qsv apply ditambah sub calcconv (wajib --formatstr + --new-column, masukan opsional).
+
 ## [Belum rilis] — Gerbang: xsv partition - template filename divalidasi (Audit 2193)
 
 - Cabang xsv partition kini menolak nilai --filename yang tidak memuat tepat satu '{}'.
