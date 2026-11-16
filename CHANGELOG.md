@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv geocode: bentuk pendek -f (--formatstr) ditambahkan (Audit 147)
+
+- geocode.rs:716 menetapkan -f sebagai pendek resmi --formatstr; himpunan cabang geocode kini memuatnya (master bergerak sejak vonis benar putaran 143/144).
+
 ## [Belum rilis] — qsv prompt: gabungan --fd-output dengan --output kini divonis galat (Audit 147)
 
 - prompt.rs:119-120 menolak kombinasi flag_fd_output dan flag_output di awal run() sebelum pembaca stdin tercapai; pindaian prompt kini melacak kedua bendera terpisah dan hanya menyala bila tepat satu yang hadir.

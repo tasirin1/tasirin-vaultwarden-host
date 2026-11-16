@@ -30018,6 +30018,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv prompt -f + --output bersamaan: galat usage - gerbang lolos (Audit 2315)", rc == 0)
         shutil.rmtree(sub1412, ignore_errors=True)
+        sub1413 = klon(tmp, "sub1413")
+        berkas_aksi1413 = os.path.join(
+            sub1413, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1413, encoding="utf-8") as f:
+            isi_aksi1413 = f.read()
+        baris_aksi1413 = [b for b in isi_aksi1413.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1413 = isi_aksi1413.replace(
+                baris_aksi1413,
+                baris_aksi1413.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv geocode suggest kolom -f %city -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1413 != isi_aksi1413, \
+            "suntikan aksi1413 tidak menembak"
+        with open(berkas_aksi1413, "w", encoding="utf-8") as f:
+            f.write(isi_baru1413)
+        rc, out = jalan(sub1413,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv geocode -f formatstr bernilai lalu '-': penguras - gerbang gagal (Audit 2316)", rc != 0)
+        shutil.rmtree(sub1413, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

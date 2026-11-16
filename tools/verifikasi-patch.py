@@ -7247,7 +7247,7 @@ def _menguras_khusus(perintah, toks, awal):
                              "census"):
                 ops_qge = _operand_sesudah_opsi(
                     toks, awal + 2,
-                    {"--formatstr", "-c",
+                    {"--formatstr", "-f", "-c",
                      "--new-column", "-r", "--rename",
                      "--country", "--min-score",
                      "--admin1", "-k", "--k_weight",
