@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv template kini bercabang sadar stdin (Audit 144)
+
+- [<input>] [<outdir>] via Config qsv (template.rs) — masukan pertama kosong/'-' = stdin. Cabang baru sadar posisi masukan.
+
 ## [Belum rilis] — qsv sniff kini bercabang sadar stdin (Audit 144)
 
 - sniff.rs:53,796 — stdin dibaca ke berkas temp. Cabang baru pola masukan-tunggal.

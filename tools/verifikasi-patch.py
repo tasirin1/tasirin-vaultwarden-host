@@ -7603,6 +7603,23 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qsn2
                     or (len(ops_qsn2) == 1
                         and ops_qsn2[0] == "-"))
+        # Audit 2268: sub 'template' - [<input>]
+        # [<outdir>]; Config qsv - masukan pertama
+        # kosong/'-' berarti stdin (template.rs).
+        if mentah and mentah[0] == "template":
+            ops_qtp = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-t", "--template", "--template-file",
+                 "-b", "--batch", "-j", "--jobs",
+                 "--cache-dir", "--ckan-api",
+                 "--ckan-token", "--customfilter-error",
+                 "--globals-json", "--outfilename",
+                 "--outsubdir-size", "--timeout",
+                 "-d", "--delimiter", "-o", "--output"})
+            if "\x00gantung" in ops_qtp:
+                return False
+            return (not ops_qtp
+                    or ops_qtp[0] == "-")
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
