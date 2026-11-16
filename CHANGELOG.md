@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — sql2csv: --engine-option/--execution-option masuk bernilai_sq (Audit 151)
+
+- Dengan kedua opsi mesin dikenal _jebakan_argparse, bentuk yang menelan token mirip-opsi (--engine-option --db x -) kini berhenti sebagai galat argparse, sejajar csvsql.
+
 ## [Belum rilis] — sql2csv: -b/--no-doublequote masuk himpunan terlarang (Audit 151)
 
 - override_flags sql2csv memuat 'b' (sql2csv.py csvkit 2.2.0); terverifikasi biner: -b/--no-doublequote/-lb berhenti sebelum stdin.
