@@ -7581,6 +7581,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qps) == 1
                     or (len(ops_qps) == 2
                         and ops_qps[1] == "-"))
+        # Audit 2266: sub 'safenames' - masukan
+        # [<input>] opsional; Config qsv memakai stdin bila
+        # masukan kosong atau '-' (safenames.rs).
+        if mentah and mentah[0] == "safenames":
+            ops_qsf = _operand_sesudah_opsi(
+                toks, awal + 1, {"-d", "--delimiter", "-o", "--output", "--mode", "--prefix", "--reserved"})
+            if "\x00gantung" in ops_qsf:
+                return False
+            return (not ops_qsf
+                    or (len(ops_qsf) == 1
+                        and ops_qsf[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
