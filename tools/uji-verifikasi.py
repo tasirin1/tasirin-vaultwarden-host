@@ -30984,6 +30984,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sql2csv --engine-option menelan token mirip-opsi: argparse berhenti - gerbang lolos (Audit 2361)", rc == 0)
         shutil.rmtree(sub1458, ignore_errors=True)
+        sub1459 = klon(tmp, "sub1459")
+        berkas_aksi1459 = os.path.join(
+            sub1459, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1459, encoding="utf-8") as f:
+            isi_aksi1459 = f.read()
+        baris_aksi1459 = [b for b in isi_aksi1459.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1459 = isi_aksi1459.replace(
+                baris_aksi1459,
+                baris_aksi1459.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(in2csv -f xyz -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1459 != isi_aksi1459, \
+            "suntikan aksi1459 tidak menembak"
+        with open(berkas_aksi1459, "w", encoding="utf-8") as f:
+            f.write(isi_baru1459)
+        rc, out = jalan(sub1459,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("in2csv -f di luar choices: argparse menolak - gerbang lolos (Audit 2362)", rc == 0)
+        shutil.rmtree(sub1459, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

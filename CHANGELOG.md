@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — in2csv: nilai -f divalidasi ke SUPPORTED_FORMATS + -n hanya Excel (Audit 151)
+
+- Vonis '-' kini memindai penentu format secara sadar posisi: nilai -f di luar {csv, dbf, fixed, geojson, json, ndjson, xls, xlsx} (in2csv.py) ditolak; -n/--names dengan format non-Excel (termasuk penentu -s/-k) ditolak sesuai galat sumbernya (Audit 2363 menumpang commit ini).
+
 ## [Belum rilis] — sql2csv: --engine-option/--execution-option masuk bernilai_sq (Audit 151)
 
 - Dengan kedua opsi mesin dikenal _jebakan_argparse, bentuk yang menelan token mirip-opsi (--engine-option --db x -) kini berhenti sebagai galat argparse, sejajar csvsql.

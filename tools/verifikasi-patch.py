@@ -6862,18 +6862,52 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         if not ops_i2:
             return True
-        return (ops_i2 == ["-"]
-                and bool(_opsi_hadir(
-                    mentah, 0,
-                    {"-f", "--format", "-s",
-                     "--schema", "-k", "--key",
-                     "-y", "--snifflimit", "-d",
-                     "--delimiter", "-e",
-                     "--encoding", "--sheet",
-                     "--write-sheets",
-                     "--encoding-xls"},
-                    {"-f", "--format", "-s",
-                     "--schema", "-k", "--key"})))
+        if ops_i2 != ["-"]:
+            return False
+        # Audit 2362: nilai -f wajib anggota
+        # SUPPORTED_FORMATS in2csv.py - di luar
+        # itu argparse menolak sebelum membaca.
+        # Audit 2363: -n/--names hanya sah bagi
+        # format Excel (xls/xlsx).
+        format_i2 = None
+        i_fi2 = 0
+        while i_fi2 < len(mentah):
+            t_fi2 = mentah[i_fi2]
+            if t_fi2 == "--":
+                break
+            if t_fi2 in ("-f", "--format"):
+                if i_fi2 + 1 < len(mentah):
+                    format_i2 = mentah[i_fi2 + 1]
+                i_fi2 += 2
+                continue
+            if t_fi2.startswith("--format="):
+                format_i2 = t_fi2.split("=", 1)[1]
+            elif (t_fi2.startswith("-f")
+                    and len(t_fi2) > 2):
+                format_i2 = t_fi2[2:]
+            elif t_fi2 in ("-s", "--schema", "-k",
+                           "--key"):
+                format_i2 = "skema"
+                i_fi2 += 2
+                continue
+            elif t_fi2.startswith(("--schema=",
+                                   "--key=")):
+                format_i2 = "skema"
+            i_fi2 += 1
+        if format_i2 is None:
+            return False
+        if (format_i2 != "skema"
+                and format_i2 not in ("csv", "dbf",
+                                      "fixed",
+                                      "geojson",
+                                      "json", "ndjson",
+                                      "xls", "xlsx")):
+            return False
+        if any(t_ni2 in ("-n", "--names")
+               for t_ni2 in mentah):
+            if format_i2 not in ("xls", "xlsx"):
+                return False
+        return True
     if perintah == "units":
         # Audit 2088: tanpa argumen non-opsi ia
         # membaca pasangan HAVE/WANT dari stdin
