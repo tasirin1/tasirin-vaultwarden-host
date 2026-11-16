@@ -6947,7 +6947,8 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "join":
             ops_qj = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"-o", "--output", "-d", "--delimiter"})
+                {"-o", "--output", "-d", "--delimiter",
+                 "--keys-output"})
             if "\x00gantung" in ops_qj:
                 return False
             return (len(ops_qj) == 4

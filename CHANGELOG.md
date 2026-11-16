@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv join: --keys-output ditambahkan ke himpunan gerbang (Audit 146)
+
+- join.rs USAGE:70 menetapkan --keys-output bernilai; himpunan cabang join kini memuatnya.
+
 ## [Belum rilis] — qsv split: --filter ditambahkan ke himpunan gerbang (Audit 146)
 
 - split.rs USAGE:108 menetapkan --filter bernilai; himpunan cabang split kini memuatnya.
