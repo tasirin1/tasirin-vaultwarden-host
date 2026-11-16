@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fill kini bercabang sadar stdin (Audit 144)
+
+- <selection> [<input>] via Config qsv (fill.rs) — kosong/'-' sesudah seleksi = stdin. Cabang baru sadar posisi.
+
 ## [Belum rilis] — qsv fetchpost kini bercabang sadar stdin (Audit 144)
 
 - (<url-column>) (<column-list>|--payload-tpl) [<input>] via Config qsv (fetchpost.rs) — masukan kosong/'-' = stdin. Cabang baru sadar dasar operand menurut --payload-tpl.

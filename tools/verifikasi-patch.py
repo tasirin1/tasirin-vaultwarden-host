@@ -7435,6 +7435,18 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qfp) == dasar_qfp
                     or (len(ops_qfp) == dasar_qfp + 1
                         and ops_qfp[dasar_qfp] == "-"))
+        # Audit 2253: sub 'fill' - <selection>
+        # [<input>]; Config qsv (fill.rs).
+        if mentah and mentah[0] == "fill":
+            ops_qfl = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-g", "--groupby", "-v", "--default",
+                 "-d", "--delimiter", "-o", "--output"})
+            if "\x00gantung" in ops_qfl:
+                return False
+            return (len(ops_qfl) == 1
+                    or (len(ops_qfl) == 2
+                        and ops_qfl[1] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

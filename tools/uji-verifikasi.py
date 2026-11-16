@@ -28611,6 +28611,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv fetchpost tanpa masukan: penguras - gerbang gagal (Audit 2252)", rc != 0)
         shutil.rmtree(sub1345, ignore_errors=True)
+        sub1346 = klon(tmp, "sub1346")
+        berkas_aksi1346 = os.path.join(
+            sub1346, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1346, encoding="utf-8") as f:
+            isi_aksi1346 = f.read()
+        baris_aksi1346 = [b for b in isi_aksi1346.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1346 = isi_aksi1346.replace(
+                baris_aksi1346,
+                baris_aksi1346.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv fill grup; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1346 != isi_aksi1346, \
+            "suntikan aksi1346 tidak menembak"
+        with open(berkas_aksi1346, "w", encoding="utf-8") as f:
+            f.write(isi_baru1346)
+        rc, out = jalan(sub1346,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv fill tanpa masukan: penguras - gerbang gagal (Audit 2253)", rc != 0)
+        shutil.rmtree(sub1346, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
