@@ -28191,6 +28191,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv geocode suggestnow lokasi harfiah: bukan penguras - gerbang lolos (Audit 2237)", rc == 0)
         shutil.rmtree(sub1325, ignore_errors=True)
+        sub1326 = klon(tmp, "sub1326")
+        berkas_aksi1326 = os.path.join(
+            sub1326, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1326, encoding="utf-8") as f:
+            isi_aksi1326 = f.read()
+        baris_aksi1326 = [b for b in isi_aksi1326.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1326 = isi_aksi1326.replace(
+                baris_aksi1326,
+                baris_aksi1326.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv describegpt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1326 != isi_aksi1326, \
+            "suntikan aksi1326 tidak menembak"
+        with open(berkas_aksi1326, "w", encoding="utf-8") as f:
+            f.write(isi_baru1326)
+        rc, out = jalan(sub1326,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv describegpt polos: penguras - gerbang gagal (Audit 2238)", rc != 0)
+        shutil.rmtree(sub1326, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
