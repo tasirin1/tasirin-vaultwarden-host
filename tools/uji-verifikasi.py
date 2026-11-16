@@ -27792,6 +27792,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv fetch membaca stdin: gerbang gagal (Audit 2215)", rc != 0)
         shutil.rmtree(sub1306, ignore_errors=True)
+        sub1307 = klon(tmp, "sub1307")
+        berkas_aksi1307 = os.path.join(
+            sub1307, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1307, encoding="utf-8") as f:
+            isi_aksi1307 = f.read()
+        baris_aksi1307 = [b for b in isi_aksi1307.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1307 = isi_aksi1307.replace(
+                baris_aksi1307,
+                baris_aksi1307.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv fixlengths -l 5 -o hasil.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1307 != isi_aksi1307, \
+            "suntikan aksi1307 tidak menembak"
+        with open(berkas_aksi1307, "w", encoding="utf-8") as f:
+            f.write(isi_baru1307)
+        rc, out = jalan(sub1307,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv fixlengths output bernilai: gerbang gagal (Audit 2216)", rc != 0)
+        shutil.rmtree(sub1307, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -7441,7 +7441,8 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             ops_xfl = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"-l", "--length", "-d", "--delimiter"})
+                {"-l", "--length", "-o", "--output",
+                 "-d", "--delimiter"})
             if "\x00gantung" in ops_xfl:
                 return False
             return (not ops_xfl

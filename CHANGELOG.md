@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv fixlengths - output bernilai (Audit 2216)
+
+- Himpunan bernilai xsv fixlengths ditambah -o/--output (fixlengths.rs flag_output).
+
 ## [Belum rilis] — Gerbang: qsv - sub fetch membaca stdin (Audit 2215)
 
 - Cabang qsv ditambah sub fetch sadar posisi/modus: operand pertama nama kolom URL; modus --url-template masukan adalah operand pertama (fetch.rs).
