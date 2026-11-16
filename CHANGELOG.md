@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv snappy - strip bukan stdin (Audit 2217)
+
+- Cabang qsv snappy kini hanya menguras bila masukan kosong: operand '-' dibuka sebagai berkas harfiah oleh snappy.rs dan gagal.
+
 ## [Belum rilis] — Gerbang: xsv fixlengths - output bernilai (Audit 2216)
 
 - Himpunan bernilai xsv fixlengths ditambah -o/--output (fixlengths.rs flag_output).

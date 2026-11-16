@@ -7057,9 +7057,7 @@ def _menguras_khusus(perintah, toks, awal):
                  "--jobs", "-o", "--output"})
             if "\x00gantung" in ops_qsn:
                 return False
-            return (not ops_qsn
-                    or (len(ops_qsn) == 1
-                        and ops_qsn[0] == "-"))
+            return not ops_qsn
         # Audit 2215: sub 'fetch' - operand
         # pertama nama kolom URL, masukan kedua
         # (fetch.rs).
