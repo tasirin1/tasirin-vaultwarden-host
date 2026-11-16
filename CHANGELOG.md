@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — mlr: -n dikenali di seluruh fase pra-kata-kerja (Audit 151)
+
+- Manpage: -n memproses tanpa masukan apa pun; cabang kini menolak -n di posisi mana pun sebelum kata kerja, bukan hanya token pertama (menumpang commit Audit 2367).
+
+## [Belum rilis] — mlr: rantai 'then' dimodelkan (Audit 151)
+
+- Dok resmi mlr: kata kerja boleh dirantai dengan 'then' dan boleh diawali 'then'; berkas hanya di ujung rantai. Cabang kini melewati 'then' perdana dan memperlakukan token sesudah 'then' sebagai kata kerja baru (penelan ekspresi put/filter diatur ulang).
+
 ## [Belum rilis] — csvjson: --type dan --geometry dilengkapi (Audit 151)
 
 - Dua opsi bernilai csvjson.py (sah dengan --lat/--lon) ditambahkan ke himpunan cabang (terverifikasi biner 2.2.0).

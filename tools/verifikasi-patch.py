@@ -9073,6 +9073,11 @@ def _menguras_khusus(perintah, toks, awal):
                 sisa_m = mentah[i_m + 1:]
                 return not sisa_m or "-" in sisa_m
             if not kata_kerja:
+                if t_m == "then":
+                    i_m += 1
+                    continue
+                if t_m == "-n":
+                    return False
                 if t_m.startswith("-") and t_m != "-":
                     # Audit 1848: --from/--mfrom menamai
                     # berkas masukan - stdin tak dibaca
@@ -9116,6 +9121,17 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             if mentah[i_m - 1].startswith("-"):
                 i_m += 1
+                continue
+            if t_m == "then":
+                if i_m + 1 >= len(mentah):
+                    return False
+                if (mentah[i_m + 1].startswith("-")
+                        or "." in mentah[i_m + 1]
+                        or "/" in mentah[i_m + 1]):
+                    return False
+                kata = mentah[i_m + 1]
+                ekspresi_ditelan = False
+                i_m += 2
                 continue
             if (kata in ("put", "filter")
                     and not ekspresi_ditelan):
