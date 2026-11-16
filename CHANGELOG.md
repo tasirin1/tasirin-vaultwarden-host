@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv template: -d hantu dikeluarkan dari himpunan gerbang (Audit 146)
+
+- template.rs:147 menetapkan --delimiter tanpa bentuk pendek; entri -d dikeluarkan dari himpunan cabang template.
+
 ## [Belum rilis] — qsv clipboard: pindaian kini menghormati pemisah -- (Audit 146)
 
 - Penulisan ulang pemeriksa clipboard (Audit 2301) sekaligus menghormati '--': token -s sesudah pemisah adalah operand (galat, clipboard tak punya operand) dan divonis bukan penguras. Commit ini memasang skenario uji dan entri changelog-nya.
