@@ -8515,7 +8515,7 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "sample":
             ops_xsa = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"-o", "--output", "-d", "--delimiter"})
+                {"-o", "--output", "-d", "--delimiter", "--seed"})
             if "\x00gantung" in ops_xsa:
                 return False
             # Audit 2167 + 2175: operand pertama

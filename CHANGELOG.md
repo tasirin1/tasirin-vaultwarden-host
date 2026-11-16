@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv sample: --seed kini dikenali (Audit 149)
+
+- Himpunan xsv sample dilengkapi --seed bernilai dari USAGE sample.rs.
+
 ## [Belum rilis] — xsv fmt: --out-delimiter kini dikenali (Audit 149)
 
 - Pasangan resmi -t adalah --out-delimiter (fmt.rs); bentuk panjangnya hilang dari himpunan xsv fmt dan kini ditambahkan.
