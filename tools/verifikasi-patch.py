@@ -7168,6 +7168,19 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_qex
                     or ops_qex[0] == "-")
+        # Audit 2228: sub 'partition' qsv -
+        # <column> <outdir> [<input>]
+        # (partition.rs qsv).
+        if mentah and mentah[0] == "partition":
+            ops_qpa = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--filename", "-p", "--prefix-length",
+                 "-d", "--delimiter"})
+            if "\x00gantung" in ops_qpa:
+                return False
+            return (len(ops_qpa) == 2
+                    or (len(ops_qpa) == 3
+                        and ops_qpa[2] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).

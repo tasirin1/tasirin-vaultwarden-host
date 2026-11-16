@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv partition kini bercabang sadar stdin (Audit 142)
+
+- qsv partition belum bercabang; bentuknya <column> <outdir> [<input>] dan membaca stdin bila masukan kosong atau '-'. Cabang baru: True iff tepat 2 operand atau operand ketiga '-'; opsi bernilai {--filename, -p, --prefix-length, -d, --delimiter}.
+
 ## [Belum rilis] — qsv extsort kini bercabang sadar stdin (Audit 142)
 
 - qsv extsort belum bercabang; USAGE-nya [<input>] [<output>] dengan stdin bila masukan kosong. Cabang baru sadar posisi: tanpa operand atau operand pertama '-' berarti stdin; opsi bernilai {--memory-limit, --tmp-dir, -j, --jobs}.
