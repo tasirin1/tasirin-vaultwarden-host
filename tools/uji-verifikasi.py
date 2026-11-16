@@ -28359,6 +28359,69 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv describegpt --limit hantu: galat docopt - gerbang lolos (Audit 2243)", rc == 0)
         shutil.rmtree(sub1333, ignore_errors=True)
+        sub1334 = klon(tmp, "sub1334")
+        berkas_aksi1334 = os.path.join(
+            sub1334, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1334, encoding="utf-8") as f:
+            isi_aksi1334 = f.read()
+        baris_aksi1334 = [b for b in isi_aksi1334.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1334 = isi_aksi1334.replace(
+                baris_aksi1334,
+                baris_aksi1334.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvjson -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1334 != isi_aksi1334, \
+            "suntikan aksi1334 tidak menembak"
+        with open(berkas_aksi1334, "w", encoding="utf-8") as f:
+            f.write(isi_baru1334)
+        rc, out = jalan(sub1334,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvjson '-': penguras - gerbang gagal (Audit 2244)", rc != 0)
+        shutil.rmtree(sub1334, ignore_errors=True)
+        sub1335 = klon(tmp, "sub1335")
+        berkas_aksi1335 = os.path.join(
+            sub1335, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1335, encoding="utf-8") as f:
+            isi_aksi1335 = f.read()
+        baris_aksi1335 = [b for b in isi_aksi1335.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1335 = isi_aksi1335.replace(
+                baris_aksi1335,
+                baris_aksi1335.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvlook -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1335 != isi_aksi1335, \
+            "suntikan aksi1335 tidak menembak"
+        with open(berkas_aksi1335, "w", encoding="utf-8") as f:
+            f.write(isi_baru1335)
+        rc, out = jalan(sub1335,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvlook '-': penguras - gerbang gagal (Audit 2244)", rc != 0)
+        shutil.rmtree(sub1335, ignore_errors=True)
+        sub1336 = klon(tmp, "sub1336")
+        berkas_aksi1336 = os.path.join(
+            sub1336, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1336, encoding="utf-8") as f:
+            isi_aksi1336 = f.read()
+        baris_aksi1336 = [b for b in isi_aksi1336.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1336 = isi_aksi1336.replace(
+                baris_aksi1336,
+                baris_aksi1336.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvgrep -c 1 -r x -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1336 != isi_aksi1336, \
+            "suntikan aksi1336 tidak menembak"
+        with open(berkas_aksi1336, "w", encoding="utf-8") as f:
+            f.write(isi_baru1336)
+        rc, out = jalan(sub1336,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvgrep '-': penguras - gerbang gagal (Audit 2244)", rc != 0)
+        shutil.rmtree(sub1336, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

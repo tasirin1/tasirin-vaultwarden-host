@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvkit: operand '-' berarti stdin di sembilan cabang alat csvkit (Audit 144)
+
+- csvkit/cli.py:273 menetapkan konvensi generik `path == '-'` = sys.stdin untuk semua alat csvkit; sembilan cabang (csvlook, csvcut, csvgrep, csvstat, csvsort, csvformat, csvsql, csvjson, csvclean) kini menilai operand tunggal '-' sebagai penguras.
+
 ## [Belum rilis] — qsv describegpt: --fewshot-examples boolean dan --limit hantu dikeluarkan dari himpunan bernilai (Audit 144)
 
 - Struct Args describegpt.rs master membuktikan flag_fewshot_examples bertipe bool dan --limit tak punya flag apa pun (hanya teks deskripsi opsi lain); keduanya dikeluarkan dari himpunan opsi bernilai cabang describegpt.

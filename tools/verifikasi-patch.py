@@ -7353,7 +7353,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, bernilai_cjn)
         if "\x00gantung" in ops_cjn:
             return False
-        return not ops_cjn
+        return not ops_cjn or ops_cjn == ["-"]
     if perintah == "csvclean":
         # Audit 2242: tanpa FILE ia menerima
         # input pada STDIN (csvclean(1) csvkit);
@@ -7364,7 +7364,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, _CSVKIT)
         if "\x00gantung" in ops_ccl:
             return False
-        return not ops_ccl
+        return not ops_ccl or ops_ccl == ["-"]
     if perintah == "csvlook":
         # Audit 2099: tanpa nama berkas ia menerima
         # input terpipa via STDIN (csvlook(1)
@@ -7384,7 +7384,7 @@ def _menguras_khusus(perintah, toks, awal):
                                    "--max-precision"})
         if "\x00gantung" in ops_cl:
             return False
-        return not ops_cl
+        return not ops_cl or ops_cl == ["-"]
     if perintah == "tsv-select":
         # Audit 2100: tanpa argumen berkas ia
         # membaca standard input (dok resmi
@@ -7428,7 +7428,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, bernilai_ck)
         if "\x00gantung" in ops_ck:
             return False
-        return not ops_ck
+        return not ops_ck or ops_ck == ["-"]
     if perintah == "csvgrep":
         # Audit 2115: menguras hanya bila -c dan
         # pencocok (-r/-m/-f) ada dan FILE kosong -
@@ -7461,7 +7461,8 @@ def _menguras_khusus(perintah, toks, awal):
                 and not t_cg.startswith("--")
                 and t_cg[1] in "rmf")
             for t_cg in mentah)
-        return ada_c and ada_m and not ops_cg
+        return ada_c and ada_m and (not ops_cg
+                                    or ops_cg == ["-"])
     if perintah == "csvstat":
         # Audit 2116: tanpa FILE ia menerima input
         # terpipa via STDIN (csvstat(1) csvkit).
@@ -7472,7 +7473,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, bernilai_cs)
         if "\x00gantung" in ops_cs:
             return False
-        return not ops_cs
+        return not ops_cs or ops_cs == ["-"]
     if perintah == "xsv":
         # Audit 2117: sumber xsv - daftar masukan
         # kosong diganti '-' (stdin); cat
@@ -7773,7 +7774,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, bernilai_cso)
         if "\x00gantung" in ops_cso:
             return False
-        return not ops_cso
+        return not ops_cso or ops_cso == ["-"]
     if perintah == "tsv-summarize":
         # Audit 2123: tanpa berkas ia membaca
         # standard input (dok resmi tsv-utils).
@@ -7887,7 +7888,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, bernilai_cf)
         if "\x00gantung" in ops_cf:
             return False
-        return not ops_cf
+        return not ops_cf or ops_cf == ["-"]
     if perintah == "sql2csv":
         # Audit 2139: tanpa FILE dan tanpa --query,
         # kueri SQL dibaca dari STDIN (sql2csv(1));
@@ -7927,7 +7928,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, bernilai_csq)
         if "\x00gantung" in ops_csq:
             return False
-        return not ops_csq
+        return not ops_csq or ops_csq == ["-"]
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas
