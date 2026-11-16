@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — CI: label-audit juga membaca judul issue (Audit 2209)
+
+- label-audit.yml kini juga mencocokkan pola '(Audit NNN)' di judul issue (env JUDUL), bukan hanya penanda 'Ronde:' di badan - format issue generasi sekarang menaruh penanda di judul.
+
 ## [Belum rilis] — Gerbang: qsv - sub sqlp membaca stdin lewat strip (Audit 2208)
 
 - Cabang qsv ditambah sub sqlp: '-' di daftar masukan berarti stdin (sqlp.rs).
