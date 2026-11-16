@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — cek-cepat: kandidat header ikut dari berkas terabaikan (Audit 142)
+
+- Header kunci privat di tengah baris pada berkas biner yang terabaikan (.gitignore) lolos karena kandidat header hanya dari indeks/worktree/tak-terlacak. Sumber keempat ls-files --others --ignored ditambahkan dengan saringan sempit __pycache__/*.pyc (berkas turunan perkakas sendiri memuat literal pola dari kode gerbang).
+
 ## [Belum rilis] — cek-cepat: fase rahasia ikut memindai isi commit HEAD (Audit 142)
 
 - Token yang sudah ter-commit lalu dihapus dari worktree (git rm) lolos semua fase karena tak ada fase yang membaca HEAD. Fase rahasia kini menambah sumber ketiga git grep atas HEAD; awalan nama HEAD: dibuang agar ejaan nama tetap satu (menjaga Audit 2137).

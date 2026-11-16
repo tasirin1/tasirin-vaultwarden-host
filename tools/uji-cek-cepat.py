@@ -1176,6 +1176,19 @@ def main():
         shutil.rmtree(kepalasaja, ignore_errors=True)
 
 
+        hdrignore = klon(tmp, "hdrignore")
+        with open(hdrignore + "/.gitignore", "a") as fh:
+            fh.write("abaikan.bin\n")
+        git(hdrignore, "add", "-A")
+        git(hdrignore, "commit", "-qm", "abaikan")
+        with open(hdrignore + "/abaikan.bin", "wb") as fh:
+            fh.write(b"\x00\x01xxxx -----BEGIN RSA "
+                     b"PRIVATE KEY----- yyyy\x00")
+        rc, out = jalan(hdrignore, ["bash", SKRIP])
+        periksa("header kunci di berkas biner terabaikan "
+                "tertangkap (Audit 2226)", rc != 0)
+        shutil.rmtree(hdrignore, ignore_errors=True)
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
