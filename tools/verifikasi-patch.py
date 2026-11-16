@@ -7592,6 +7592,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qsf
                     or (len(ops_qsf) == 1
                         and ops_qsf[0] == "-"))
+        # Audit 2267: sub 'sniff' - masukan
+        # [<input>] opsional; sniff.rs:53,796 - stdin dibaca ke
+        # berkas temp.
+        if mentah and mentah[0] == "sniff":
+            ops_qsn2 = _operand_sesudah_opsi(
+                toks, awal + 1, {"-d", "--delimiter", "--quote", "--sample", "--save-urlsample", "--timeout", "--user-agent"})
+            if "\x00gantung" in ops_qsn2:
+                return False
+            return (not ops_qsn2
+                    or (len(ops_qsn2) == 1
+                        and ops_qsn2[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

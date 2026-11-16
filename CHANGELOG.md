@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv sniff kini bercabang sadar stdin (Audit 144)
+
+- sniff.rs:53,796 — stdin dibaca ke berkas temp. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv safenames kini bercabang sadar stdin (Audit 144)
 
 - [<input>] via Config qsv (safenames.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
