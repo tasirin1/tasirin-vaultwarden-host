@@ -29367,6 +29367,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv clipboard -ss bundel save: penguras - gerbang gagal (Audit 2285)", rc != 0)
         shutil.rmtree(sub1381, ignore_errors=True)
+        sub1382 = klon(tmp, "sub1382")
+        berkas_aksi1382 = os.path.join(
+            sub1382, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1382, encoding="utf-8") as f:
+            isi_aksi1382 = f.read()
+        baris_aksi1382 = [b for b in isi_aksi1382.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1382 = isi_aksi1382.replace(
+                baris_aksi1382,
+                baris_aksi1382.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv prompt --output hasil.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1382 != isi_aksi1382, \
+            "suntikan aksi1382 tidak menembak"
+        with open(berkas_aksi1382, "w", encoding="utf-8") as f:
+            f.write(isi_baru1382)
+        rc, out = jalan(sub1382,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv prompt --output: penguras - gerbang gagal (Audit 2286)", rc != 0)
+        shutil.rmtree(sub1382, ignore_errors=True)
+        sub1383 = klon(tmp, "sub1383")
+        berkas_aksi1383 = os.path.join(
+            sub1383, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1383, encoding="utf-8") as f:
+            isi_aksi1383 = f.read()
+        baris_aksi1383 = [b for b in isi_aksi1383.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1383 = isi_aksi1383.replace(
+                baris_aksi1383,
+                baris_aksi1383.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv prompt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1383 != isi_aksi1383, \
+            "suntikan aksi1383 tidak menembak"
+        with open(berkas_aksi1383, "w", encoding="utf-8") as f:
+            f.write(isi_baru1383)
+        rc, out = jalan(sub1383,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv prompt polos dialog GUI: bukan penguras - gerbang lolos (Audit 2286)", rc == 0)
+        shutil.rmtree(sub1383, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

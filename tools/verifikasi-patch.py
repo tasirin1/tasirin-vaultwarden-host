@@ -7755,6 +7755,17 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (len(ops_qsq) >= 2
                     and "-" in ops_qsq[:-1])
+        # Audit 2286: sub 'prompt' - bentuk
+        # polos membuka dialog pemilih berkas
+        # GUI (tak menyentuh stdin); bentuk
+        # -o/--output dan -f/--fd-output
+        # menyalin stdin ke berkas tujuan
+        # (prompt.rs:79-87).
+        if mentah and mentah[0] == "prompt":
+            return any(t in ("-o", "--output", "-f",
+                             "--fd-output")
+                       or t.startswith("--output=")
+                       for t in mentah[1:])
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

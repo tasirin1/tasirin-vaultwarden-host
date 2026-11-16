@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv prompt kini bercabang sadar --output/--fd-output (Audit 145)
+
+- prompt.rs:79-87 — bentuk polos membuka dialog pemilih berkas GUI (tak menyentuh stdin), tetapi -o/--output dan -f/--fd-output menyalin stdin ke berkas tujuan. Cabang baru sadar bendera.
+
 ## [Belum rilis] — qsv clipboard: bundel huruf pendek yang memuat s kini dikenali (Audit 145)
 
 - docopt.rs menumpuk huruf pendek sehingga bundel seperti -ss menyalakan flag_save; pemeriksa clipboard kini mengenali bundel huruf pendek yang memuat s.
