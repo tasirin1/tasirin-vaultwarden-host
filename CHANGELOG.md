@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv excel: '-' kini dinilai stdin (membalik vonis 0.128.0) (Audit 144)
+
+- excel.rs master:78,459-474 — '-' dibaca dari stdin ke berkas temp; tanpa operand docopt menolak (arg_input wajib). Membalik vonis Audit 141 yang berbasis 0.128.0.
+
 ## [Belum rilis] — qsv edit kini bercabang sadar stdin (Audit 144)
 
 - edit.rs:87-92 — <input> <column> <row> <value>; input '-' menguras kecuali --in-place yang menolak stdin eksplisit. Cabang baru sadar posisi + bendera.

@@ -7663,6 +7663,22 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qet) == 4
                     and ops_qet[0] == "-"
                     and "--in-place" not in mentah)
+        # Audit 2273: sub 'excel' - MEMBALIK
+        # vonis 0.128.0 Audit 141: di master,
+        # '-' dibaca dari stdin ke berkas temp
+        # (excel.rs:78,459-474); tanpa operand
+        # docopt menolak (arg_input wajib).
+        if mentah and mentah[0] == "excel":
+            ops_qxc = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--sheet", "--range", "--cell",
+                 "--metadata", "--date-format",
+                 "--error-format", "--header-row",
+                 "--table", "-j", "--jobs",
+                 "-d", "--delimiter", "-o", "--output"})
+            if "\x00gantung" in ops_qxc:
+                return False
+            return ops_qxc == ["-"]
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
