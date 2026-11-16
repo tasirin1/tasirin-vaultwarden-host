@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv apply: 12 opsi bernilai khusus summarize ditambahkan ke himpunan bersama (Audit 147)
+
+- USAGE/Args apply adalah satu kesatuan bersama semua sub — docopt menelan nilai opsi ini di sub mana pun: -u/--base-url, -m/--model, -k/--api-key, -t/--max-tokens, --timeout, --addl-props, --prompt, --prompt-file, --rate-limit, --on-error, --user-agent, --cache-dir kini memuat di himpunan bersama keempat cabang apply lama dan cabang summarize.
+
 ## [Belum rilis] — qsv apply: sub summarize kini bercabang di gerbang (Audit 147)
 
 - apply.rs:257 — sub summarize resmi di master (kolom + [<input>] opsional, syarat wajib -c/--new-column, Config::new atas arg_input). Cabang baru sejajar sub apply lain kini menilainya.

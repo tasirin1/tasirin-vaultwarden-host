@@ -6751,7 +6751,7 @@ def _menguras_khusus(perintah, toks, awal):
         if (len(mentah) >= 2 and mentah[0] == "apply"
                 and mentah[1] == "operations"):
             ops_qap = _operand_sesudah_opsi(
-                toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter"})
+                toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"})
             if "\x00gantung" in ops_qap:
                 return False
             return (len(ops_qap) == 2
@@ -6774,7 +6774,7 @@ def _menguras_khusus(perintah, toks, awal):
                         for t_ap in mentah)):
                     return False
                 ops_ap = _operand_sesudah_opsi(
-                    toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter"})
+                    toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"})
                 if "\x00gantung" in ops_ap:
                     return False
                 return not ops_ap or ops_ap == ["-"]
@@ -6794,7 +6794,7 @@ def _menguras_khusus(perintah, toks, awal):
                         for t_ap in mentah)):
                     return False
                 ops_ap = _operand_sesudah_opsi(
-                    toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter"})
+                    toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"})
                 if "\x00gantung" in ops_ap:
                     return False
                 return not ops_ap or ops_ap == ["-"]
@@ -6806,7 +6806,7 @@ def _menguras_khusus(perintah, toks, awal):
                         for t_ap in mentah):
                     return False
                 ops_ap = _operand_sesudah_opsi(
-                    toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter"})
+                    toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"})
                 if "\x00gantung" in ops_ap:
                     return False
                 return (len(ops_ap) == 1

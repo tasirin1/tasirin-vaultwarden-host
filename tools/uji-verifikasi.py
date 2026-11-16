@@ -30060,6 +30060,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv apply summarize tanpa masukan: penguras - gerbang gagal (Audit 2317)", rc != 0)
         shutil.rmtree(sub1414, ignore_errors=True)
+        sub1415 = klon(tmp, "sub1415")
+        berkas_aksi1415 = os.path.join(
+            sub1415, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1415, encoding="utf-8") as f:
+            isi_aksi1415 = f.read()
+        baris_aksi1415 = [b for b in isi_aksi1415.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1415 = isi_aksi1415.replace(
+                baris_aksi1415,
+                baris_aksi1415.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv apply operations trim kolom --prompt x -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1415 != isi_aksi1415, \
+            "suntikan aksi1415 tidak menembak"
+        with open(berkas_aksi1415, "w", encoding="utf-8") as f:
+            f.write(isi_baru1415)
+        rc, out = jalan(sub1415,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv apply operations --prompt bernilai lalu '-': penguras - gerbang gagal (Audit 2318)", rc != 0)
+        shutil.rmtree(sub1415, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
