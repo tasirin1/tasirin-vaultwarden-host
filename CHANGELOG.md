@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub sqlp membaca stdin lewat strip (Audit 2208)
+
+- Cabang qsv ditambah sub sqlp: '-' di daftar masukan berarti stdin (sqlp.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub to membaca stdin (Audit 2207)
 
 - Cabang qsv ditambah sub to: sesudah sub-format, operand pertama target keluaran, daftar masukan boleh kosong (to.rs).

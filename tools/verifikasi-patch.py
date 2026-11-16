@@ -7017,6 +7017,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qto) == 1
                     or (len(ops_qto) >= 2
                         and ops_qto[1] == "-"))
+        # Audit 2208: sub 'sqlp' - daftar
+        # masukan lalu SQL terakhir; '-' di
+        # masukan berarti stdin (sqlp.rs).
+        if mentah and mentah[0] == "sqlp":
+            ops_qsq = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-o", "--output"})
+            if "\x00gantung" in ops_qsq:
+                return False
+            return (len(ops_qsq) >= 2
+                    and "-" in ops_qsq[:-1])
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
