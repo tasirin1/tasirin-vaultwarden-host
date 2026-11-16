@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv luau: --luau-path hantu dikeluarkan dari himpunan gerbang (Audit 145)
+
+- grep luau-path/luau_path di luau.rs master = 0 — opsi itu tak pernah ada; dikeluarkan dari himpunan cabang luau.
+
 ## [Belum rilis] — qsv fetch: --jaq, --jaqfile, --default-encoding ditambahkan ke himpunan gerbang (Audit 145)
 
 - fetch.rs:168,170,186 menetapkan ketiganya bernilai; himpunan cabang fetch kini memuatnya.

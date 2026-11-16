@@ -7107,7 +7107,7 @@ def _menguras_khusus(perintah, toks, awal):
             ops_qlu = _operand_sesudah_opsi(
                 toks, awal + 2,
                 {"-B", "--begin", "-E", "--end",
-                 "--luau-path", "--max-errors",
+                 "--max-errors",
                  "--timeout", "--ckan-api",
                  "--ckan-token", "--cache-dir", "-o",
                  "--output", "-d", "--delimiter"})

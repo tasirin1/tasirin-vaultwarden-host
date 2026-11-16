@@ -29493,6 +29493,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv fetch --jaq bernilai: penguras - gerbang gagal (Audit 2290)", rc != 0)
         shutil.rmtree(sub1387, ignore_errors=True)
+        sub1388 = klon(tmp, "sub1388")
+        berkas_aksi1388 = os.path.join(
+            sub1388, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1388, encoding="utf-8") as f:
+            isi_aksi1388 = f.read()
+        baris_aksi1388 = [b for b in isi_aksi1388.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1388 = isi_aksi1388.replace(
+                baris_aksi1388,
+                baris_aksi1388.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv luau filter --luau-path x expr; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1388 != isi_aksi1388, \
+            "suntikan aksi1388 tidak menembak"
+        with open(berkas_aksi1388, "w", encoding="utf-8") as f:
+            f.write(isi_baru1388)
+        rc, out = jalan(sub1388,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv luau --luau-path hantu: galat - gerbang lolos (Audit 2291)", rc == 0)
+        shutil.rmtree(sub1388, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
