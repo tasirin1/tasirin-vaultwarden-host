@@ -28275,6 +28275,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv cat rows --group-by hantu: galat docopt - gerbang lolos (Audit 2240)", rc == 0)
         shutil.rmtree(sub1329, ignore_errors=True)
+        sub1330 = klon(tmp, "sub1330")
+        berkas_aksi1330 = os.path.join(
+            sub1330, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1330, encoding="utf-8") as f:
+            isi_aksi1330 = f.read()
+        baris_aksi1330 = [b for b in isi_aksi1330.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1330 = isi_aksi1330.replace(
+                baris_aksi1330,
+                baris_aksi1330.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv searchset pola.txt; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1330 != isi_aksi1330, \
+            "suntikan aksi1330 tidak menembak"
+        with open(berkas_aksi1330, "w", encoding="utf-8") as f:
+            f.write(isi_baru1330)
+        rc, out = jalan(sub1330,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv searchset tanpa masukan: penguras - gerbang gagal (Audit 2241)", rc != 0)
+        shutil.rmtree(sub1330, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

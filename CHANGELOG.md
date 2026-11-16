@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv searchset kini bercabang sadar stdin (Audit 143)
+
+- qsv searchset belum bercabang; bentuknya (<regexset-file>) [<input>] dan masuk daftar pembaca pipa qsv — masukan kosong atau '-' berarti stdin. Cabang baru sadar posisi operand mendarat pada commit geocode (satu blok teks yang sama); commit ini memasang skenario uji dan entri changelog-nya.
+
 ## [Belum rilis] — qsv cat: --group-by hantu diganti --group dan --group-name resmi (Audit 143)
 
 - Himpunan bernilai qsv cat memuat --group-by yang tak ada di USAGE/struct cat mana pun dan kehilangan -g/--group serta -N/--group-name resmi (cat.rs dibaca penuh) — dampak dua arah fail-open dan fail-CLOSED. Naik dari dugaan Audit 132.
