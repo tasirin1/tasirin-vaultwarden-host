@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv split - template filename divalidasi (Audit 2185)
+
+- Cabang qsv split kini menolak nilai --filename yang tidak memuat tepat satu '{}' (FilenameTemplate).
+
 ## [Belum rilis] — Gerbang: qsv sample - ukuran wajib angka (Audit 2184)
 
 - Cabang qsv sample kini menolak operand pertama yang tidak terurai sebagai f64 ('abc' galat parse; '0.5' sah).

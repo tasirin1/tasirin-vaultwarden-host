@@ -27246,6 +27246,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv sample ukuran bukan angka: gerbang lolos (Audit 2184)", rc == 0)
         shutil.rmtree(sub1280, ignore_errors=True)
+        sub1281 = klon(tmp, "sub1281")
+        berkas_aksi1281 = os.path.join(
+            sub1281, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1281, encoding="utf-8") as f:
+            isi_aksi1281 = f.read()
+        baris_aksi1281 = [b for b in isi_aksi1281.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1281 = isi_aksi1281.replace(
+                baris_aksi1281,
+                baris_aksi1281.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv split --filename potong.csv outdir; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1281 != isi_aksi1281, \
+            "suntikan aksi1281 tidak menembak"
+        with open(berkas_aksi1281, "w", encoding="utf-8") as f:
+            f.write(isi_baru1281)
+        rc, out = jalan(sub1281,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv split template tanpa kurung: gerbang lolos (Audit 2185)", rc == 0)
+        shutil.rmtree(sub1281, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

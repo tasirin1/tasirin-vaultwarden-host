@@ -6889,6 +6889,18 @@ def _menguras_khusus(perintah, toks, awal):
                  "--delimiter"})
             if "\x00gantung" in ops_qsp:
                 return False
+            # Audit 2185: template --filename qsv
+            # split wajib tepat satu '{}'.
+            for i_qp, t_qp in enumerate(mentah):
+                nilai_qp = None
+                if (t_qp == "--filename"
+                        and i_qp + 1 < len(mentah)):
+                    nilai_qp = mentah[i_qp + 1]
+                elif t_qp.startswith("--filename="):
+                    nilai_qp = t_qp.split("=", 1)[1]
+                if (nilai_qp is not None
+                        and nilai_qp.count("{}") != 1):
+                    return False
             return (len(ops_qsp) == 1
                     or (len(ops_qsp) >= 2
                         and ops_qsp[1] == "-"))
