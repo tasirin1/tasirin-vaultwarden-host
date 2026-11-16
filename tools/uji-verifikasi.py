@@ -31047,6 +31047,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvstat -i indent tanpa berkas: penguras - gerbang gagal (Audit 2365)", rc != 0)
         shutil.rmtree(sub1462, ignore_errors=True)
+        sub1463 = klon(tmp, "sub1463")
+        berkas_aksi1463 = os.path.join(
+            sub1463, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1463, encoding="utf-8") as f:
+            isi_aksi1463 = f.read()
+        baris_aksi1463 = [b for b in isi_aksi1463.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1463 = isi_aksi1463.replace(
+                baris_aksi1463,
+                baris_aksi1463.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvjson --lat 1 --lon 2 --type Point --geometry x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1463 != isi_aksi1463, \
+            "suntikan aksi1463 tidak menembak"
+        with open(berkas_aksi1463, "w", encoding="utf-8") as f:
+            f.write(isi_baru1463)
+        rc, out = jalan(sub1463,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvjson --type/--geometry tanpa berkas: penguras - gerbang gagal (Audit 2366)", rc != 0)
+        shutil.rmtree(sub1463, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

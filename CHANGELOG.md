@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvjson: --type dan --geometry dilengkapi (Audit 151)
+
+- Dua opsi bernilai csvjson.py (sah dengan --lat/--lon) ditambahkan ke himpunan cabang (terverifikasi biner 2.2.0).
+
 ## [Belum rilis] — csvstat: -i/--indent, --freq-count, --decimal-format dilengkapi (Audit 151)
 
 - Tiga opsi bernilai khas csvstat.py ditambahkan ke himpunan cabang (terverifikasi biner 2.2.0).

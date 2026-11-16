@@ -8296,7 +8296,7 @@ def _menguras_khusus(perintah, toks, awal):
         # csvkit).
         bernilai_cjn = _CSVKIT | {
             "-i", "--indent", "-k", "--key",
-            "--lat", "--lon", "--crs"}
+            "--lat", "--lon", "--crs", "--type", "--geometry"}
         if _jebakan_argparse(mentah, bernilai_cjn):
             return False
         toks_cjn = _saring_csvkit(toks, awal, "csvjson")
