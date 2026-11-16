@@ -30816,6 +30816,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("in2csv -f csv '-': stdin dengan format - penguras, gerbang gagal (Audit 2353)", rc != 0)
         shutil.rmtree(sub1450, ignore_errors=True)
+        sub1451 = klon(tmp, "sub1451")
+        berkas_aksi1451 = os.path.join(
+            sub1451, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1451, encoding="utf-8") as f:
+            isi_aksi1451 = f.read()
+        baris_aksi1451 = [b for b in isi_aksi1451.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1451 = isi_aksi1451.replace(
+                baris_aksi1451,
+                baris_aksi1451.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(in2csv -f csv --sheet Sheet1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1451 != isi_aksi1451, \
+            "suntikan aksi1451 tidak menembak"
+        with open(berkas_aksi1451, "w", encoding="utf-8") as f:
+            f.write(isi_baru1451)
+        rc, out = jalan(sub1451,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("in2csv --sheet bernilai tanpa berkas: penguras - gerbang gagal (Audit 2354)", rc != 0)
+        shutil.rmtree(sub1451, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

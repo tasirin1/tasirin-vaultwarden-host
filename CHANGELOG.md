@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — in2csv: --sheet, --write-sheets, --encoding-xls, -d pendek dilengkapi (Audit 150)
+
+- Empat opsi bernilai resmi in2csv (in2csv.py + biner 2.2.0) ditambahkan ke kedua himpunan cabang (jebakan argparse + operand).
+
 ## [Belum rilis] — in2csv: operand '-' menguras hanya dengan penentu format (Audit 150)
 
 - cli.py csvkit memetakan path '-' ke stdin, tetapi tanpa -f/-s/-k perintah berhenti ('You must specify a format') sebelum membaca. Vonis kini: '-' + penentu format hadir (lewat _opsi_hadir) = menguras; '-' polos = tidak.

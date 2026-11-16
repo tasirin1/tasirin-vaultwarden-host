@@ -6839,8 +6839,10 @@ def _menguras_khusus(perintah, toks, awal):
                 mentah, {"-f", "--format", "-s",
                          "--schema", "-k", "--key",
                          "-y", "--snifflimit",
-                         "--delimiter", "-e",
-                         "--encoding"}):
+                         "-d", "--delimiter", "-e",
+                         "--encoding", "--sheet",
+                         "--write-sheets",
+                         "--encoding-xls"}):
             return False
         for t_i2 in mentah:
             if (t_i2 == "-f-"
@@ -6855,7 +6857,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, {"-f", "--format", "-s",
                          "--schema", "-k", "--key",
                          "-y", "--snifflimit",
-                         "--delimiter", "-e", "--encoding"})
+                         "-d", "--delimiter", "-e", "--encoding", "--sheet", "--write-sheets", "--encoding-xls"})
         if "\x00gantung" in ops_i2:
             return False
         if not ops_i2:
