@@ -7409,6 +7409,32 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_qed
                     or ops_qed[0] == "-")
+        # Audit 2252: sub 'fetchpost' -
+        # (<url-column>) (<column-list> |
+        # --payload-tpl <file>) [<input>]; Config
+        # qsv (fetchpost.rs).
+        if mentah and mentah[0] == "fetchpost":
+            ops_qfp = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-H", "--http-header", "-c",
+                 "--new-column", "--jaq", "--jaqfile",
+                 "--payload-tpl", "-t", "--timeout",
+                 "--rate-limit", "--max-retries",
+                 "--max-errors", "--report",
+                 "--mem-cache-size", "--disk-cache-dir",
+                 "--globals-json", "--content-type",
+                 "--default-encoding", "--user-agent",
+                 "-d", "--delimiter", "-o", "--output"})
+            if "\x00gantung" in ops_qfp:
+                return False
+            dasar_qfp = (1 if ("--payload-tpl" in mentah
+                               or any(t.startswith(
+                                      "--payload-tpl=")
+                                      for t in mentah))
+                         else 2)
+            return (len(ops_qfp) == dasar_qfp
+                    or (len(ops_qfp) == dasar_qfp + 1
+                        and ops_qfp[dasar_qfp] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
