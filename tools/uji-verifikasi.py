@@ -29451,6 +29451,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv search -j bernilai: penguras - gerbang gagal (Audit 2288)", rc != 0)
         shutil.rmtree(sub1385, ignore_errors=True)
+        sub1386 = klon(tmp, "sub1386")
+        berkas_aksi1386 = os.path.join(
+            sub1386, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1386, encoding="utf-8") as f:
+            isi_aksi1386 = f.read()
+        baris_aksi1386 = [b for b in isi_aksi1386.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1386 = isi_aksi1386.replace(
+                baris_aksi1386,
+                baris_aksi1386.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv slice -o out.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1386 != isi_aksi1386, \
+            "suntikan aksi1386 tidak menembak"
+        with open(berkas_aksi1386, "w", encoding="utf-8") as f:
+            f.write(isi_baru1386)
+        rc, out = jalan(sub1386,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv slice -o bernilai: penguras - gerbang gagal (Audit 2289)", rc != 0)
+        shutil.rmtree(sub1386, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

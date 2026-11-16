@@ -6818,7 +6818,8 @@ def _menguras_khusus(perintah, toks, awal):
             ops_qsl = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--start", "-e", "--end",
-                 "-l", "--len", "-i", "--index"})
+                 "-l", "--len", "-i", "--index",
+                 "-d", "--delimiter", "-o", "--output"})
             if "\x00gantung" in ops_qsl:
                 return False
             return (not ops_qsl

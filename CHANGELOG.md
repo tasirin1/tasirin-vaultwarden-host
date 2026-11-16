@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv slice: -d/--delimiter dan -o/--output ditambahkan ke himpunan gerbang (Audit 145)
+
+- slice.rs:75,79 menetapkan keduanya bernilai; himpunan cabang slice kini memuatnya.
+
 ## [Belum rilis] — qsv search: -j/--jobs ditambahkan ke himpunan gerbang (Audit 145)
 
 - search.rs:113 menetapkan -j/--jobs bernilai; himpunan cabang search kini memuatnya.
