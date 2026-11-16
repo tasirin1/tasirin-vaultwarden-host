@@ -31005,6 +31005,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("in2csv -f di luar choices: argparse menolak - gerbang lolos (Audit 2362)", rc == 0)
         shutil.rmtree(sub1459, ignore_errors=True)
+        sub1461 = klon(tmp, "sub1461")
+        berkas_aksi1461 = os.path.join(
+            sub1461, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1461, encoding="utf-8") as f:
+            isi_aksi1461 = f.read()
+        baris_aksi1461 = [b for b in isi_aksi1461.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1461 = isi_aksi1461.replace(
+                baris_aksi1461,
+                baris_aksi1461.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvgrep -c nama --file pola.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1461 != isi_aksi1461, \
+            "suntikan aksi1461 tidak menembak"
+        with open(berkas_aksi1461, "w", encoding="utf-8") as f:
+            f.write(isi_baru1461)
+        rc, out = jalan(sub1461,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvgrep --file pola resmi tanpa berkas data: penguras - gerbang gagal (Audit 2364)", rc != 0)
+        shutil.rmtree(sub1461, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

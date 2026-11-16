@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvgrep: --pattern-file hantu diganti --file resmi (Audit 151)
+
+- csvgrep.py:31 mendefinisikan -f/--file (dest matchfile); --pattern-file tidak pernah ada. Himpunan bernilai_cg dan pemeriksa ada_m kini memakai --file (terverifikasi biner 2.2.0 dua arah).
+
 ## [Belum rilis] — in2csv: nilai -f divalidasi ke SUPPORTED_FORMATS + -n hanya Excel (Audit 151)
 
 - Vonis '-' kini memindai penentu format secara sadar posisi: nilai -f di luar {csv, dbf, fixed, geojson, json, ndjson, xls, xlsx} (in2csv.py) ditolak; -n/--names dengan format non-Excel (termasuk penentu -s/-k) ditolak sesuai galat sumbernya (Audit 2363 menumpang commit ini).

@@ -8397,7 +8397,7 @@ def _menguras_khusus(perintah, toks, awal):
         bernilai_cg = _CSVKIT | {"-c", "--columns",
                                  "-r", "--regex",
                                  "-m", "--match",
-                                 "-f", "--pattern-file"}
+                                 "-f", "--file"}
         if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}, bernilai_cg):
             return False
         if _jebakan_argparse(mentah, bernilai_cg):
@@ -8415,10 +8415,10 @@ def _menguras_khusus(perintah, toks, awal):
             for t_cg in mentah)
         ada_m = any(
             t_cg in ("-r", "--regex", "-m", "--match",
-                     "-f", "--pattern-file")
+                     "-f", "--file")
             or t_cg.startswith(("--regex=",
                                  "--match=",
-                                 "--pattern-file="))
+                                 "--file="))
             or (len(t_cg) > 2
                 and not t_cg.startswith("--")
                 and t_cg[1] in "rmf")
