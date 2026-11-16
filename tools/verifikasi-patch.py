@@ -6903,10 +6903,28 @@ def _menguras_khusus(perintah, toks, awal):
                                       "json", "ndjson",
                                       "xls", "xlsx")):
             return False
-        if any(t_ni2 in ("-n", "--names")
-               for t_ni2 in mentah):
-            if format_i2 not in ("xls", "xlsx"):
+        # Audit 2372: -n di dalam bundel huruf
+        # pendek ikut dikembangkan argparse.
+        # Audit 2373: --names=<x> ditolak
+        # argparse (store_true berargumen).
+        ada_ni2 = False
+        for t_ni2 in mentah:
+            if t_ni2 == "--":
+                break
+            if t_ni2.startswith("--names="):
                 return False
+            if t_ni2 == "--names":
+                ada_ni2 = True
+            elif (t_ni2.startswith("-")
+                    and not t_ni2.startswith("--")):
+                for huruf_ni2 in t_ni2[1:]:
+                    if huruf_ni2 == "n":
+                        ada_ni2 = True
+                        break
+                    if huruf_ni2 in "fskyde":
+                        break
+        if ada_ni2 and format_i2 not in ("xls", "xlsx"):
+            return False
         return True
     if perintah == "units":
         # Audit 2088: tanpa argumen non-opsi ia

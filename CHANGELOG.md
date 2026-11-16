@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — in2csv: --names=<x> ditolak (Audit 152)
+
+- --names adalah store_true; bentuk berargumen ditolak argparse sebelum membaca, kini juga oleh model (menumpang commit Audit 2372).
+
+## [Belum rilis] — in2csv: pemeriksa -n sadar bundel huruf (Audit 152)
+
+- Pindaian -n/--names kini mengembangkan bundel huruf pendek ala argparse (berhenti di huruf bernilai pertama) — -tn/-nt tertangkap.
+
 ## [Belum rilis] — qsv apply: pasangan -p/--progressbar dilengkapi (Audit 152)
 
 - Sisa Audit 2359: USAGE bersama apply punya dua pasangan bool (-n dan -p); pasangan dict kedua situs penjaga apply kini memuat -p/--progressbar.
