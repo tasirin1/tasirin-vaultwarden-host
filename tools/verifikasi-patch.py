@@ -7549,6 +7549,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qms
                     or (len(ops_qms) == 1
                         and ops_qms[0] == "-"))
+        # Audit 2263: sub 'pragmastat' - masukan
+        # [<input>] opsional; Config qsv memakai stdin bila
+        # masukan kosong atau '-' (pragmastat.rs).
+        if mentah and mentah[0] == "pragmastat":
+            ops_qpm = _operand_sesudah_opsi(
+                toks, awal + 1, {"-s", "--select", "-d", "--delimiter", "-j", "--jobs", "-o", "--output", "-m", "--misrate", "--compare1", "--compare2", "--round", "--seed", "--stats-options", "--subsample"})
+            if "\x00gantung" in ops_qpm:
+                return False
+            return (not ops_qpm
+                    or (len(ops_qpm) == 1
+                        and ops_qpm[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv pragmastat kini bercabang sadar stdin (Audit 144)
+
+- [<input>] via Config qsv (pragmastat.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv moarstats kini bercabang sadar stdin (Audit 144)
 
 - moarstats.rs — is_stdin + pass_stdin_spool; kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
