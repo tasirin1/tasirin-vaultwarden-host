@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — cek-cepat: sed HEAD: hanya pada keluaran grep HEAD (Audit 143)
+
+- Perbaikan 2225 memasang sed 's/^HEAD://' pada gabungan tiga sumber sehingga berkas terlacak yang harfiah bernama HEAD:... ikut terpotong dan memunculkan nama hantu di pesan gagal. Sed kini hanya menyaring keluaran git grep HEAD itu sendiri.
+
 ## [Belum rilis] — cek-cepat: fase vektor hanya memindai berkas XML (Audit 143)
 
 - Fase vektor mengikuti symlink direktori di res/ ke mana pun (Audit 2128) sehingga isi kode Java di luar res (mis. string "X.509" di TlsCert.java) dituduh sebagai path vektor tanpa nol depan. Pindai rg dan cadangan grep kini dibatasi glob *.xml — pathData vektor memang hanya hidup di XML.

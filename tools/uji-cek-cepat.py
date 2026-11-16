@@ -1198,6 +1198,18 @@ def main():
         shutil.rmtree(tautan, ignore_errors=True)
 
 
+        kepalah = klon(tmp, "kepalah")
+        with open(kepalah + "/HEAD:probe.txt", "w") as fh:
+            fh.write("token uji: " + token_palsu + "\n")
+        git(kepalah, "add", "-A")
+        git(kepalah, "commit", "-qm", "tanam")
+        rc, out = jalan(kepalah, ["bash", SKRIP])
+        periksa("nama berkas HEAD: utuh satu ejaan "
+                "(Audit 2233)", rc != 0
+                and out.count("HEAD:probe.txt") == 1)
+        shutil.rmtree(kepalah, ignore_errors=True)
+
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
