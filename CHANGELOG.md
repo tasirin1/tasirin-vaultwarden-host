@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv clipboard: bundel huruf pendek yang memuat s kini dikenali (Audit 145)
+
+- docopt.rs menumpuk huruf pendek sehingga bundel seperti -ss menyalakan flag_save; pemeriksa clipboard kini mengenali bundel huruf pendek yang memuat s.
+
 ## [Belum rilis] — qsv writestat: --enum-threshold dan --pattern-columns hantu dikeluarkan (Audit 145)
 
 - Args CLI writestat.rs hanya 7 field; kedua nama itu field struct stats internal, bukan opsi CLI — dikeluarkan dari himpunan bernilai cabang writestat.

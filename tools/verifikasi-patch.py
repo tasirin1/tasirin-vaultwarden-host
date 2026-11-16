@@ -7684,7 +7684,10 @@ def _menguras_khusus(perintah, toks, awal):
         # (clipboard.rs:75-77 membaca io::stdin);
         # tanpa itu ia menulis clipboard ke stdout.
         if mentah and mentah[0] == "clipboard":
-            return any(t == "-s" or t == "--save"
+            return any(t == "--save"
+                       or (t.startswith("-")
+                           and not t.startswith("--")
+                           and "s" in t[1:])
                        for t in mentah[1:])
         # Audit 2272: sub 'edit' - <input>
         # <column> <row> <value>; input '-'

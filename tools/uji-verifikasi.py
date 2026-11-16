@@ -29346,6 +29346,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv writestat --enum-threshold hantu: galat - gerbang lolos (Audit 2284)", rc == 0)
         shutil.rmtree(sub1380, ignore_errors=True)
+        sub1381 = klon(tmp, "sub1381")
+        berkas_aksi1381 = os.path.join(
+            sub1381, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1381, encoding="utf-8") as f:
+            isi_aksi1381 = f.read()
+        baris_aksi1381 = [b for b in isi_aksi1381.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1381 = isi_aksi1381.replace(
+                baris_aksi1381,
+                baris_aksi1381.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv clipboard -ss; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1381 != isi_aksi1381, \
+            "suntikan aksi1381 tidak menembak"
+        with open(berkas_aksi1381, "w", encoding="utf-8") as f:
+            f.write(isi_baru1381)
+        rc, out = jalan(sub1381,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv clipboard -ss bundel save: penguras - gerbang gagal (Audit 2285)", rc != 0)
+        shutil.rmtree(sub1381, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
