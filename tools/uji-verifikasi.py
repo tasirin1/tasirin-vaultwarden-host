@@ -29472,6 +29472,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv slice -o bernilai: penguras - gerbang gagal (Audit 2289)", rc != 0)
         shutil.rmtree(sub1386, ignore_errors=True)
+        sub1387 = klon(tmp, "sub1387")
+        berkas_aksi1387 = os.path.join(
+            sub1387, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1387, encoding="utf-8") as f:
+            isi_aksi1387 = f.read()
+        baris_aksi1387 = [b for b in isi_aksi1387.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1387 = isi_aksi1387.replace(
+                baris_aksi1387,
+                baris_aksi1387.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv fetch --jaq .x urlkol; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1387 != isi_aksi1387, \
+            "suntikan aksi1387 tidak menembak"
+        with open(berkas_aksi1387, "w", encoding="utf-8") as f:
+            f.write(isi_baru1387)
+        rc, out = jalan(sub1387,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv fetch --jaq bernilai: penguras - gerbang gagal (Audit 2290)", rc != 0)
+        shutil.rmtree(sub1387, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

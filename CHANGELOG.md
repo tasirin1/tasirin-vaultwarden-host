@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fetch: --jaq, --jaqfile, --default-encoding ditambahkan ke himpunan gerbang (Audit 145)
+
+- fetch.rs:168,170,186 menetapkan ketiganya bernilai; himpunan cabang fetch kini memuatnya.
+
 ## [Belum rilis] — qsv slice: -d/--delimiter dan -o/--output ditambahkan ke himpunan gerbang (Audit 145)
 
 - slice.rs:75,79 menetapkan keduanya bernilai; himpunan cabang slice kini memuatnya.

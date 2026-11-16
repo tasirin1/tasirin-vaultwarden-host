@@ -7066,6 +7066,8 @@ def _menguras_khusus(perintah, toks, awal):
             ops_qfe = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--url-template", "--jql", "--jqlfile",
+                 "--jaq", "--jaqfile",
+                 "--default-encoding",
                  "-c", "--new-column", "--rate-limit",
                  "--timeout", "-H", "--http-header",
                  "--max-retries", "--max-errors",
