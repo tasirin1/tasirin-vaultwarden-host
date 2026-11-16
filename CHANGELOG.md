@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — tsv-uniq: himpunan opsi bernilai dilengkapi (Audit 149)
+
+- Dari getopt tsv-uniq.d resmi: -f/--fields, -a/--at-least, -m/--max, --equiv-header, --equiv-start, --number-header semuanya bernilai dan kini dikenali (sebelumnya hanya -d/--delimiter).
+
 ## [Belum rilis] — csvclean/csvcut/csvgrep: token grup 'I'/'L' + -y kini ditolak gerbang (Audit 149)
 
 - Ketiganya override_flags ['L','I'] dan tak mendefinisikan -y (csvcut --null-value terverifikasi biner: 'unrecognized arguments'). _token_terlarang menolak bentuk yang memuat token tak dikenal itu.

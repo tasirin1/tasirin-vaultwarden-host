@@ -30585,6 +30585,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvclean tak mengenal --null-value: argparse berhenti - gerbang lolos (Audit 2342)", rc == 0)
         shutil.rmtree(sub1439, ignore_errors=True)
+        sub1440 = klon(tmp, "sub1440")
+        berkas_aksi1440 = os.path.join(
+            sub1440, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1440, encoding="utf-8") as f:
+            isi_aksi1440 = f.read()
+        baris_aksi1440 = [b for b in isi_aksi1440.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1440 = isi_aksi1440.replace(
+                baris_aksi1440,
+                baris_aksi1440.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-uniq -f 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1440 != isi_aksi1440, \
+            "suntikan aksi1440 tidak menembak"
+        with open(berkas_aksi1440, "w", encoding="utf-8") as f:
+            f.write(isi_baru1440)
+        rc, out = jalan(sub1440,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-uniq -f fields bernilai tanpa berkas: penguras - gerbang gagal (Audit 2343)", rc != 0)
+        shutil.rmtree(sub1440, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

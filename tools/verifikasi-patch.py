@@ -8832,7 +8832,7 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2140: tanpa berkas ia membaca
         # standard input (dok resmi tsv-utils).
         ops_tu = _operand_sesudah_opsi(
-            toks, awal, {"-d", "--delimiter"})
+            toks, awal, {"-d", "--delimiter", "-f", "--fields", "-a", "--at-least", "-m", "--max", "--equiv-header", "--equiv-start", "--number-header"})
         if "\x00gantung" in ops_tu:
             return False
         return not ops_tu or "-" in ops_tu
