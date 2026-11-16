@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fetch: --jql dan --jqlfile hantu dikeluarkan dari himpunan gerbang (Audit 146)
+
+- grep jql di fetch.rs master = 0 — keduanya warisan era jq yang sudah digantikan --jaq/--jaqfile (Audit 2290); dikeluarkan dari himpunan cabang fetch.
+
 ## [Belum rilis] — qsv template: -d hantu dikeluarkan dari himpunan gerbang (Audit 146)
 
 - template.rs:147 menetapkan --delimiter tanpa bentuk pendek; entri -d dikeluarkan dari himpunan cabang template.

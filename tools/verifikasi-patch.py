@@ -7065,7 +7065,7 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "fetch":
             ops_qfe = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"--url-template", "--jql", "--jqlfile",
+                {"--url-template",
                  "--jaq", "--jaqfile",
                  "--default-encoding",
                  "-c", "--new-column", "--rate-limit",
