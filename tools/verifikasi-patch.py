@@ -8707,8 +8707,11 @@ def _menguras_khusus(perintah, toks, awal):
         bernilai_cj = _CSVKIT | {"-c", "--columns"}
         if _jebakan_argparse(mentah, bernilai_cj):
             return False
+        toks_cj = _saring_csvkit(toks, awal, "csvjoin")
+        if toks_cj is None:
+            return False
         ops_cj = _operand_sesudah_opsi(
-            toks, awal, bernilai_cj)
+            toks_cj, awal, bernilai_cj)
         if "\x00gantung" in ops_cj:
             return False
         return "-" in ops_cj

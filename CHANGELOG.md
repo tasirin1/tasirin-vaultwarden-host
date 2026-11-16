@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvjoin: --null-value ber-nargs='+' kini dimodelkan (Audit 149)
+
+- Operand csvjoin kini dihitung dari toks tersaring _saring_csvkit: nama berkas yang tertelan --null-value tak lagi dihitung operand (parse nyata CSVJoin terverifikasi: input_paths bawaan ['-']).
+
 ## [Belum rilis] — csvsql: --null-value ber-nargs='+' kini dimodelkan (Audit 149)
 
 - --null-value csvkit (cli.py:222) menelan semua token non-opsi sesudahnya; operand csvsql kini dihitung dari toks tersaring _saring_csvkit. --null-value tanpa nilai = galat argparse.
