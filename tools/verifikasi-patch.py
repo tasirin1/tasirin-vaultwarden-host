@@ -7307,7 +7307,12 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, awal + 1,
                 {"--valid", "--invalid", "--valid-output",
                  "-j", "--jobs", "-b", "--batch",
-                 "--timeout", "-d", "--delimiter"})
+                 "--timeout", "-d", "--delimiter",
+                 "--backtrack-limit", "--cache-dir",
+                 "--ckan-api", "--ckan-token",
+                 "--dfa-size-limit",
+                 "--email-min-subdomains", "--sarif",
+                 "--sarif-max-results", "--size-limit"})
             if "\x00gantung" in ops_qv:
                 return False
             return not ops_qv or ops_qv[0] == "-"
