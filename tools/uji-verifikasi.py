@@ -30690,6 +30690,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvsql --engine-option bentuk '=' tak memenuhi nargs=2 - gerbang lolos (Audit 2347)", rc == 0)
         shutil.rmtree(sub1444, ignore_errors=True)
+        sub1445 = klon(tmp, "sub1445")
+        berkas_aksi1445 = os.path.join(
+            sub1445, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1445, encoding="utf-8") as f:
+            isi_aksi1445 = f.read()
+        baris_aksi1445 = [b for b in isi_aksi1445.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1445 = isi_aksi1445.replace(
+                baris_aksi1445,
+                baris_aksi1445.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvstack -Ly -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1445 != isi_aksi1445, \
+            "suntikan aksi1445 tidak menembak"
+        with open(berkas_aksi1445, "w", encoding="utf-8") as f:
+            f.write(isi_baru1445)
+        rc, out = jalan(sub1445,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvstack bundel -Ly memuat token terlarang - gerbang lolos (Audit 2348)", rc == 0)
+        shutil.rmtree(sub1445, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — _token_terlarang: bentuk merekat/bundel huruf pendek dipindai (Audit 150)
+
+- Pemeriksa token terlarang csvkit kini juga memindai bundel huruf pendek (-Ly, -y100, -Lx — semua rc=2 di biner 2.2.0), berhenti di huruf bernilai yang sisanya adalah nilai; tanda tangan helper menerima himpunan opsi bernilai cabang.
+
 ## [Belum rilis] — csvsql --engine-option: bentuk menggantung dan '=' = galat (Audit 150)
 
 - nargs=2 tak bisa dipenuhi bentuk '=' atau nilai kurang dari dua (biner 2.2.0: rc=2 'expected 2 arguments'); _saring_csvkit kini mengembalikan None untuk bentuk itu. Perlakuan yang sama berlaku untuk sql2csv (dipakai Audit 2350).

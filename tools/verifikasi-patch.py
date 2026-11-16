@@ -2623,11 +2623,15 @@ def _saring_csvkit(toks, awal, perintah):
     return list(toks[:awal]) + hasil_sc
 
 
-def _token_terlarang(mentah, terlarang):
+def _token_terlarang(mentah, terlarang, bernilai):
     # Audit 2338/2339/2342: token yang tak
     # dikenal utilitas csvkit tertentu
     # (override_flags di sumbernya) membuat
     # argparse berhenti sebelum membaca stdin.
+    # Audit 2348: bentuk merekat/
+    # bundel huruf pendek (-Ly, -y100) ikut
+    # dipindai; huruf bernilai menghentikan
+    # pindaian bundel (sisanya nilai).
     for t_tt in mentah:
         if t_tt == "--":
             break
@@ -2637,6 +2641,15 @@ def _token_terlarang(mentah, terlarang):
                for n_tt in terlarang
                if n_tt.startswith("--")):
             return True
+        if (t_tt.startswith("-")
+                and not t_tt.startswith("--")
+                and len(t_tt) > 1):
+            for h_tt in t_tt[1:]:
+                eja_tt = "-" + h_tt
+                if eja_tt in terlarang:
+                    return True
+                if eja_tt in bernilai:
+                    break
     return False
 
 
@@ -8243,7 +8256,7 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2242: tanpa FILE ia menerima
         # input pada STDIN (csvclean(1) csvkit);
         # opsi khasnya semua boolean.
-        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}):
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}, _CSVKIT):
             return False
         if _jebakan_argparse(mentah, _CSVKIT):
             return False
@@ -8312,7 +8325,7 @@ def _menguras_khusus(perintah, toks, awal):
         # terpipa via STDIN (csvcut(1) csvkit).
         bernilai_ck = _CSVKIT | {"-c", "--columns",
                                  "-C", "--not-columns"}
-        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}):
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}, bernilai_ck):
             return False
         if _jebakan_argparse(mentah, bernilai_ck):
             return False
@@ -8330,7 +8343,7 @@ def _menguras_khusus(perintah, toks, awal):
                                  "-r", "--regex",
                                  "-m", "--match",
                                  "-f", "--pattern-file"}
-        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}):
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}, bernilai_cg):
             return False
         if _jebakan_argparse(mentah, bernilai_cg):
             return False
@@ -8752,7 +8765,7 @@ def _menguras_khusus(perintah, toks, awal):
         # (Tips resmi csvkit).
         bernilai_cst = _CSVKIT | {"-g", "--groups",
                                   "-n", "--group-name"}
-        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}):
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}, bernilai_cst):
             return False
         if _jebakan_argparse(mentah, bernilai_cst):
             return False
@@ -8813,7 +8826,7 @@ def _menguras_khusus(perintah, toks, awal):
             "--out-quotechar", "-U", "--out-quoting",
             "-P", "--out-escapechar", "-M",
             "--out-lineterminator"}
-        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-y", "--snifflimit"}):
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-y", "--snifflimit"}, bernilai_cf):
             return False
         if _jebakan_argparse(mentah, bernilai_cf):
             return False
