@@ -8735,7 +8735,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks_cj, awal, bernilai_cj)
         if "\x00gantung" in ops_cj:
             return False
-        return "-" in ops_cj
+        return not ops_cj or "-" in ops_cj
     if perintah == "csvstack":
         # Audit 2126: sama seperti csvjoin - polos
         # tak menguras, operand '-' berarti STDIN
@@ -8750,7 +8750,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, bernilai_cst)
         if "\x00gantung" in ops_cst:
             return False
-        return "-" in ops_cst
+        return not ops_cst or "-" in ops_cst
     if perintah == "tsv-join":
         # Audit 2127: --filter-file WAJIB (sumber
         # tsv_join.d); dengan -f dan tanpa berkas

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvjoin/csvstack: bentuk polos terbukti menguras (koreksi Audit 2125/2126) (Audit 149)
+
+- Terverifikasi biner csvkit 2.2.0 dengan fixture bermarker: csvjoin polos menggabungkan stdin dengan dirinya dan csvstack polos menumpuk stdin; tepat 1 berkas nyata tidak menguras. Vonis kedua cabang kini: operand kosong ATAU '-' termasuk operand.
+
 ## [Belum rilis] — tsv-uniq: himpunan opsi bernilai dilengkapi (Audit 149)
 
 - Dari getopt tsv-uniq.d resmi: -f/--fields, -a/--at-least, -m/--max, --equiv-header, --equiv-start, --number-header semuanya bernilai dan kini dikenali (sebelumnya hanya -d/--delimiter).

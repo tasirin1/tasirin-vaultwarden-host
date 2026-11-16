@@ -30606,6 +30606,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-uniq -f fields bernilai tanpa berkas: penguras - gerbang gagal (Audit 2343)", rc != 0)
         shutil.rmtree(sub1440, ignore_errors=True)
+        sub1441 = klon(tmp, "sub1441")
+        berkas_aksi1441 = os.path.join(
+            sub1441, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1441, encoding="utf-8") as f:
+            isi_aksi1441 = f.read()
+        baris_aksi1441 = [b for b in isi_aksi1441.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1441 = isi_aksi1441.replace(
+                baris_aksi1441,
+                baris_aksi1441.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvjoin; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1441 != isi_aksi1441, \
+            "suntikan aksi1441 tidak menembak"
+        with open(berkas_aksi1441, "w", encoding="utf-8") as f:
+            f.write(isi_baru1441)
+        rc, out = jalan(sub1441,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvjoin polos membaca stdin (gabung dengan dirinya) - gerbang gagal (Audit 2344)", rc != 0)
+        shutil.rmtree(sub1441, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
