@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv schema: -o/--output ditambahkan ke himpunan gerbang (Audit 145)
+
+- schema.rs:108 menetapkan -o/--output bernilai; himpunan cabang schema kini memuatnya.
+
 ## [Belum rilis] — qsv validate: 9 opsi bernilai ditambahkan ke himpunan gerbang (Audit 145)
 
 - validate.rs master — --backtrack-limit, --cache-dir, --ckan-api, --ckan-token, --dfa-size-limit, --email-min-subdomains, --sarif, --sarif-max-results, --size-limit semuanya bertipe bernilai; himpunan cabang validate kini memuatnya.

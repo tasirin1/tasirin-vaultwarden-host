@@ -7324,7 +7324,7 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, awal + 1,
                 {"--enum-threshold", "--pattern-columns",
                  "--dates-whitelist", "-j", "--jobs",
-                 "-d", "--delimiter"})
+                 "-d", "--delimiter", "-o", "--output"})
             if "\x00gantung" in ops_qsc:
                 return False
             return not ops_qsc or ops_qsc[0] == "-"

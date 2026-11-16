@@ -29577,6 +29577,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv validate --size-limit bernilai: penguras - gerbang gagal (Audit 2294)", rc != 0)
         shutil.rmtree(sub1391, ignore_errors=True)
+        sub1392 = klon(tmp, "sub1392")
+        berkas_aksi1392 = os.path.join(
+            sub1392, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1392, encoding="utf-8") as f:
+            isi_aksi1392 = f.read()
+        baris_aksi1392 = [b for b in isi_aksi1392.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1392 = isi_aksi1392.replace(
+                baris_aksi1392,
+                baris_aksi1392.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv schema -o out.json; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1392 != isi_aksi1392, \
+            "suntikan aksi1392 tidak menembak"
+        with open(berkas_aksi1392, "w", encoding="utf-8") as f:
+            f.write(isi_baru1392)
+        rc, out = jalan(sub1392,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv schema -o bernilai: penguras - gerbang gagal (Audit 2295)", rc != 0)
+        shutil.rmtree(sub1392, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
