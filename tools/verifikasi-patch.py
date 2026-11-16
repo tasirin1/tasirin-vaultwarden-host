@@ -6878,6 +6878,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2108: 'count' memakai Config yang
         # sama seperti cat (None/'-' -> stdin).
         if mentah and mentah[0] == "count":
+            if _ada_duplikat(mentah, 1, {"-d", "--delimiter"}, {"-d": "--delimiter"}):
+                return False
             ops_qc = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter"})
             if "\x00gantung" in ops_qc:
@@ -7019,6 +7021,8 @@ def _menguras_khusus(perintah, toks, awal):
         # kosong/'-' berarti stdin (README qsv:
         # dukungan masukan diperluas).
         if mentah and mentah[0] == "headers":
+            if _ada_duplikat(mentah, 1, {"-d", "--delimiter"}, {"-d": "--delimiter"}):
+                return False
             ops_qh = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-d", "--delimiter"})
@@ -7277,6 +7281,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2220: sub 'input' - masukan
         # [<input>] opsional (input.rs).
         if mentah and mentah[0] == "input":
+            if _ada_duplikat(mentah, 1, {"--quote", "--escape", "--quote-style", "--skip-lines", "--skip-lastlines", "--comment", "--encoding-errors", "-o", "--output", "-d", "--delimiter"}, {"-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_qin = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--quote", "--escape", "--quote-style",
@@ -8395,6 +8401,8 @@ def _menguras_khusus(perintah, toks, awal):
         if len(mentah) >= 2 and mentah[0] == "search":
             # Audit 2132: kolom xsv search resmi
             # -s/--select (README xsv).
+            if _ada_duplikat(mentah, 1, {"-s", "--select", "-o", "--output", "-d", "--delimiter"}, {"-s": "--select", "-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xse = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-o", "--output", "-d", "--delimiter"})
@@ -8404,6 +8412,8 @@ def _menguras_khusus(perintah, toks, awal):
                     or (len(ops_xse) == 2
                         and ops_xse[1] == "-"))
         if mentah and mentah[0] == "count":
+            if _ada_duplikat(mentah, 1, {"-d", "--delimiter"}, {"-d": "--delimiter"}):
+                return False
             ops_xc = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter"})
             if "\x00gantung" in ops_xc:
@@ -8413,6 +8423,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2143: sub 'slice' xsv - masukan
         # [<input>] opsional, Config yang sama.
         if mentah and mentah[0] == "slice":
+            if _ada_duplikat(mentah, 1, {"-s", "--start", "-e", "--end", "-l", "--len", "-i", "--index", "-o", "--output", "-d", "--delimiter"}, {"-s": "--start", "-e": "--end", "-l": "--len", "-i": "--index", "-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xsl = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--start", "-e", "--end",
@@ -8427,6 +8439,8 @@ def _menguras_khusus(perintah, toks, awal):
         # operand kolom + direktori keluaran,
         # masukan ketiga (partition.rs).
         if mentah and mentah[0] == "partition":
+            if _ada_duplikat(mentah, 1, {"--filename", "-d", "--delimiter", "-p", "--prefix-length"}, {"-d": "--delimiter", "-p": "--prefix-length"}):
+                return False
             ops_xpa = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--filename", "-d", "--delimiter",
@@ -8452,6 +8466,8 @@ def _menguras_khusus(perintah, toks, awal):
         # pertama pilihan kolom, masukan kedua
         # (select.rs).
         if mentah and mentah[0] == "select":
+            if _ada_duplikat(mentah, 1, {"-o", "--output", "-d", "--delimiter"}, {"-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xse = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-o", "--output", "-d", "--delimiter"})
@@ -8464,6 +8480,8 @@ def _menguras_khusus(perintah, toks, awal):
         # pertama direktori keluaran, masukan
         # kedua (split.rs).
         if mentah and mentah[0] == "split":
+            if _ada_duplikat(mentah, 1, {"-s", "--size", "-j", "--jobs", "--filename", "-d", "--delimiter"}, {"-s": "--size", "-j": "--jobs", "-d": "--delimiter"}):
+                return False
             ops_xsp = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--size", "-j", "--jobs",
@@ -8488,6 +8506,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2159: sub 'flatten' xsv - masukan
         # [<input>] opsional (flatten.rs).
         if mentah and mentah[0] == "flatten":
+            if _ada_duplikat(mentah, 1, {"-c", "--condense", "-s", "--separator", "-d", "--delimiter"}, {"-c": "--condense", "-s": "--separator", "-d": "--delimiter"}):
+                return False
             ops_xf = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-c", "--condense", "-s",
@@ -8500,6 +8520,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2160: sub 'fmt' xsv - masukan
         # [<input>] opsional (fmt.rs).
         if mentah and mentah[0] == "fmt":
+            if _ada_duplikat(mentah, 1, {"-t", "--out-delimiter", "--quote", "--escape", "-o", "--output", "-d", "--delimiter"}, {"-t": "--out-delimiter", "-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xfm = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-t", "--out-delimiter", "--quote", "--escape", "-o",
@@ -8512,6 +8534,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2161: sub 'input' xsv - masukan
         # [<input>] opsional (input.rs).
         if mentah and mentah[0] == "input":
+            if _ada_duplikat(mentah, 1, {"--quote", "--escape", "-o", "--output", "-d", "--delimiter"}, {"-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xi = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--quote", "--escape", "-o",
@@ -8524,6 +8548,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2162: sub 'table' xsv - masukan
         # [<input>] opsional (table.rs).
         if mentah and mentah[0] == "table":
+            if _ada_duplikat(mentah, 1, {"-w", "--width", "-p", "--pad", "-c", "--condense", "-o", "--output", "-d", "--delimiter"}, {"-w": "--width", "-p": "--pad", "-c": "--condense", "-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xt = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-w", "--width", "-p", "--pad",
@@ -8541,6 +8567,8 @@ def _menguras_khusus(perintah, toks, awal):
             # sort.rs (resmi -R, --reverse).
             if "-r" in mentah:
                 return False
+            if _ada_duplikat(mentah, 1, {"-s", "--select", "-o", "--output", "-d", "--delimiter"}, {"-s": "--select", "-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xso = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-o", "--output",
@@ -8554,6 +8582,8 @@ def _menguras_khusus(perintah, toks, awal):
         # pertama selalu ukuran; masukan adalah
         # operand kedua (sample.rs).
         if mentah and mentah[0] == "sample":
+            if _ada_duplikat(mentah, 1, {"-o", "--output", "-d", "--delimiter", "--seed"}, {"-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xsa = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-o", "--output", "-d", "--delimiter", "--seed"})
@@ -8572,6 +8602,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2190: sub 'stats' xsv - masukan
         # [<input>] opsional (stats.rs).
         if mentah and mentah[0] == "stats":
+            if _ada_duplikat(mentah, 1, {"-s", "--select", "-o", "--output", "-d", "--delimiter", "-j", "--jobs"}, {"-s": "--select", "-o": "--output", "-d": "--delimiter", "-j": "--jobs"}):
+                return False
             ops_xst = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-o", "--output",
@@ -8610,6 +8642,8 @@ def _menguras_khusus(perintah, toks, awal):
                     and 0 < int(nilai_panjang)
                     <= 18446744073709551615):
                 return False
+            if _ada_duplikat(mentah, 1, {"-l", "--length", "-o", "--output", "-d", "--delimiter"}, {"-l": "--length", "-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xfl = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-l", "--length", "-o", "--output",
@@ -8623,6 +8657,8 @@ def _menguras_khusus(perintah, toks, awal):
         # masukan Vec lewat many_configs (kosong
         # diganti '-'), seperti cat.
         if mentah and mentah[0] == "headers":
+            if _ada_duplikat(mentah, 1, {"-d", "--delimiter"}, {"-d": "--delimiter"}):
+                return False
             ops_xh = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter"})
             if "\x00gantung" in ops_xh:
@@ -8630,6 +8666,8 @@ def _menguras_khusus(perintah, toks, awal):
             return not ops_xh or "-" in ops_xh
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "columns")):
+            if _ada_duplikat(mentah, 2, {"-o", "--output", "-d", "--delimiter"}, {"-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xs = _operand_sesudah_opsi(
                 toks, awal + 2, {"-o", "--output", "-d", "--delimiter"})
             if "\x00gantung" in ops_xs:
@@ -8640,6 +8678,8 @@ def _menguras_khusus(perintah, toks, awal):
         # masukan [<input>] opsional via Config
         # (frequency.rs xsv).
         if mentah and mentah[0] == "frequency":
+            if _ada_duplikat(mentah, 1, {"-s", "--select", "-l", "--limit", "-j", "--jobs", "-o", "--output", "-d", "--delimiter"}, {"-s": "--select", "-l": "--limit", "-j": "--jobs", "-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xfr = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-l", "--limit",
@@ -8654,6 +8694,8 @@ def _menguras_khusus(perintah, toks, awal):
         # masukan [<input>] opsional via Config
         # xsv (config.rs:77 - '-' = stdin).
         if mentah and mentah[0] == "reverse":
+            if _ada_duplikat(mentah, 1, {"-o", "--output", "-d", "--delimiter"}, {"-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xrv = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-o", "--output", "-d", "--delimiter"})
@@ -8667,6 +8709,8 @@ def _menguras_khusus(perintah, toks, awal):
         # MEMBALIK vonis Audit 136: config.rs
         # xsv memetakan '-' ke stdin.
         if mentah and mentah[0] == "join":
+            if _ada_duplikat(mentah, 1, {"-o", "--output", "-d", "--delimiter"}, {"-o": "--output", "-d": "--delimiter"}):
+                return False
             ops_xjn = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-o", "--output", "-d", "--delimiter"})

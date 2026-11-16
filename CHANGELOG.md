@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kelas duplikat docopt: penjaga dipasang di semua cabang xsv + qsv count/headers/input (Audit 150)
+
+- xsv juga docopt (crate docopt 1.1.1, state_valid_num_flags terverifikasi) tetapi penjaga Audit 2326 hanya mencakup sebagian cabang qsv. _ada_duplikat kini menjaga 19 cabang xsv (search/count/slice/partition/select/split/flatten/fmt/input/table/sort/sample/stats/fixlengths/headers/cat/frequency/reverse/join) dan qsv count/headers/input, masing-masing dengan himpunan + pasangan alias cabangnya.
+
 ## [Belum rilis] — _token_terlarang: bentuk merekat/bundel huruf pendek dipindai (Audit 150)
 
 - Pemeriksa token terlarang csvkit kini juga memindai bundel huruf pendek (-Ly, -y100, -Lx — semua rc=2 di biner 2.2.0), berhenti di huruf bernilai yang sisanya adalah nilai; tanda tangan helper menerima himpunan opsi bernilai cabang.

@@ -30711,6 +30711,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvstack bundel -Ly memuat token terlarang - gerbang lolos (Audit 2348)", rc == 0)
         shutil.rmtree(sub1445, ignore_errors=True)
+        sub1446 = klon(tmp, "sub1446")
+        berkas_aksi1446 = os.path.join(
+            sub1446, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1446, encoding="utf-8") as f:
+            isi_aksi1446 = f.read()
+        baris_aksi1446 = [b for b in isi_aksi1446.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1446 = isi_aksi1446.replace(
+                baris_aksi1446,
+                baris_aksi1446.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv slice -l 1 -l 2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1446 != isi_aksi1446, \
+            "suntikan aksi1446 tidak menembak"
+        with open(berkas_aksi1446, "w", encoding="utf-8") as f:
+            f.write(isi_baru1446)
+        rc, out = jalan(sub1446,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv slice -l duplikat: docopt menolak - gerbang lolos (Audit 2349)", rc == 0)
+        shutil.rmtree(sub1446, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
