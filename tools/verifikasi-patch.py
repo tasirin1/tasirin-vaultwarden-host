@@ -6887,6 +6887,11 @@ def _menguras_khusus(perintah, toks, awal):
             # Audit 2184: ukuran qsv sample f64 -
             # bukan angka = galat parse.
             if ops_qsa:
+                # Audit 2200: f64 Rust menolak spasi
+                # tepi + underscore (dok std).
+                if (ops_qsa[0] != ops_qsa[0].strip()
+                        or "_" in ops_qsa[0]):
+                    return False
                 try:
                     float(ops_qsa[0])
                 except ValueError:

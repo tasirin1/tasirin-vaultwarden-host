@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv sample - parse f64 diperketat (Audit 2200)
+
+- Validasi ukuran qsv sample menolak spasi tepi dan underscore (parse f64 Rust, dok std).
+
 ## [Belum rilis] — Gerbang: qsv apply emptyreplace - '-R' diterima (Audit 2199)
 
 - Penjaga + himpunan emptyreplace kini menerima -R pendek di samping --replacement.

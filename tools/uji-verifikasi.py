@@ -27540,6 +27540,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv apply emptyreplace -R bernilai: gerbang gagal (Audit 2199)", rc != 0)
         shutil.rmtree(sub1294, ignore_errors=True)
+        sub1295 = klon(tmp, "sub1295")
+        berkas_aksi1295 = os.path.join(
+            sub1295, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1295, encoding="utf-8") as f:
+            isi_aksi1295 = f.read()
+        baris_aksi1295 = [b for b in isi_aksi1295.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1295 = isi_aksi1295.replace(
+                baris_aksi1295,
+                baris_aksi1295.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv sample 1_000; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1295 != isi_aksi1295, \
+            "suntikan aksi1295 tidak menembak"
+        with open(berkas_aksi1295, "w", encoding="utf-8") as f:
+            f.write(isi_baru1295)
+        rc, out = jalan(sub1295,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv sample underscore ditolak f64: gerbang lolos (Audit 2200)", rc == 0)
+        shutil.rmtree(sub1295, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
