@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv stats - jobs bernilai (Audit 2191)
+
+- Himpunan bernilai xsv stats ditambah -j/--jobs (stats.rs).
+
 ## [Belum rilis] — Gerbang: xsv - sub stats membaca stdin (Audit 2190)
 
 - Cabang xsv ditambah sub stats: masukan [<input>] opsional (stats.rs).
