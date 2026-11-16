@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub replace membaca stdin (Audit 2206)
+
+- Cabang qsv ditambah sub replace: operand pola + pengganti, masukan ketiga (replace.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub rename membaca stdin (Audit 2205)
 
 - Cabang qsv ditambah sub rename: operand pertama nama kolom baru, masukan kedua (rename.rs).

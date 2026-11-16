@@ -6986,6 +6986,20 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qrn) == 1
                     or (len(ops_qrn) == 2
                         and ops_qrn[1] == "-"))
+        # Audit 2206: sub 'replace' - operand
+        # pola + pengganti, masukan ketiga
+        # (replace.rs).
+        if mentah and mentah[0] == "replace":
+            ops_qrp = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--select", "--size-limit",
+                 "--dfa-size-limit", "-o", "--output",
+                 "-d", "--delimiter"})
+            if "\x00gantung" in ops_qrp:
+                return False
+            return (len(ops_qrp) == 2
+                    or (len(ops_qrp) == 3
+                        and ops_qrp[2] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
