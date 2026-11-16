@@ -7775,10 +7775,79 @@ def _menguras_khusus(perintah, toks, awal):
         # menyalin stdin ke berkas tujuan
         # (prompt.rs:79-87).
         if mentah and mentah[0] == "prompt":
-            return any(t in ("-o", "--output", "-f",
-                             "--fd-output")
-                       or t.startswith("--output=")
-                       for t in mentah[1:])
+            # Audit 2298/2299: pindaian sadar nilai
+            # opsi + bundel docopt + '--' + gantung.
+            bernilai_qpr = {"-m", "--msg", "-F",
+                            "--filters", "-d", "--workdir",
+                            "--save-fname", "--base-delay-ms"}
+            ada_qpr = False
+            i_qpr = 1
+            while i_qpr < len(mentah):
+                t_qpr = mentah[i_qpr]
+                if t_qpr == "--":
+                    return (ada_qpr
+                            and i_qpr == len(mentah) - 1)
+                if t_qpr in ("-f", "--fd-output"):
+                    ada_qpr = True
+                    i_qpr += 1
+                    continue
+                if t_qpr in ("-o", "--output"):
+                    if i_qpr + 1 >= len(mentah):
+                        return False
+                    ada_qpr = True
+                    i_qpr += 2
+                    continue
+                if t_qpr.startswith("--output="):
+                    ada_qpr = True
+                    i_qpr += 1
+                    continue
+                if t_qpr in bernilai_qpr:
+                    if i_qpr + 1 >= len(mentah):
+                        return False
+                    i_qpr += 2
+                    continue
+                if any(t_qpr.startswith(p_qpr + "=")
+                       for p_qpr in bernilai_qpr
+                       if p_qpr.startswith("--")):
+                    i_qpr += 1
+                    continue
+                if (t_qpr.startswith("-")
+                        and not t_qpr.startswith("--")
+                        and len(t_qpr) > 1):
+                    sah_qpr = True
+                    j_qpr = 1
+                    while j_qpr < len(t_qpr):
+                        h_qpr = t_qpr[j_qpr]
+                        if h_qpr == "f":
+                            ada_qpr = True
+                            j_qpr += 1
+                            continue
+                        if h_qpr == "q":
+                            j_qpr += 1
+                            continue
+                        if h_qpr == "o":
+                            ada_qpr = True
+                            if j_qpr + 1 >= len(t_qpr):
+                                if i_qpr + 1 >= len(mentah):
+                                    return False
+                                i_qpr += 1
+                            j_qpr = len(t_qpr)
+                            continue
+                        if h_qpr in ("m", "F", "d"):
+                            if j_qpr + 1 >= len(t_qpr):
+                                if i_qpr + 1 >= len(mentah):
+                                    return False
+                                i_qpr += 1
+                            j_qpr = len(t_qpr)
+                            continue
+                        sah_qpr = False
+                        break
+                    if not sah_qpr:
+                        return False
+                    i_qpr += 1
+                    continue
+                return False
+            return ada_qpr
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

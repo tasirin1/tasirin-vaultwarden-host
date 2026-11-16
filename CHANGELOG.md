@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv prompt: pindaian kini sadar bundel huruf pendek docopt (Audit 146)
+
+- Cabang prompt ditulis ulang sebagai pindaian sadar posisi: bundel seperti -of, -fo <file>, -qf kini dikenali (docopt menumpuk huruf pendek; -o bernilai menelan sisa token atau token berikutnya).
+
 ## [Belum rilis] — qsv viz: --enum-threshold hantu dikeluarkan dari himpunan gerbang (Audit 146)
 
 - grep di qsv-viz.rs master: --enum-threshold bukan opsi CLI viz (hanya literal internal util::SchemaArgs); entri yang ditambahkan maraton-145 itu dikeluarkan — himpunan viz kini persis 68 entri USAGE.
