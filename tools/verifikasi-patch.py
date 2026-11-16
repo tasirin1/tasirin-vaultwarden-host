@@ -7845,14 +7845,15 @@ def _menguras_khusus(perintah, toks, awal):
                             "--filters", "-d", "--workdir",
                             "--save-fname", "--base-delay-ms"}
             ada_qpr = False
+            fd_qpr = False
             i_qpr = 1
             while i_qpr < len(mentah):
                 t_qpr = mentah[i_qpr]
                 if t_qpr == "--":
-                    return (ada_qpr
+                    return (ada_qpr != fd_qpr
                             and i_qpr == len(mentah) - 1)
                 if t_qpr in ("-f", "--fd-output"):
-                    ada_qpr = True
+                    fd_qpr = True
                     i_qpr += 1
                     continue
                 if t_qpr in ("-o", "--output"):
@@ -7883,7 +7884,7 @@ def _menguras_khusus(perintah, toks, awal):
                     while j_qpr < len(t_qpr):
                         h_qpr = t_qpr[j_qpr]
                         if h_qpr == "f":
-                            ada_qpr = True
+                            fd_qpr = True
                             j_qpr += 1
                             continue
                         if h_qpr == "q":
@@ -7911,7 +7912,7 @@ def _menguras_khusus(perintah, toks, awal):
                     i_qpr += 1
                     continue
                 return False
-            return ada_qpr
+            return ada_qpr != fd_qpr
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

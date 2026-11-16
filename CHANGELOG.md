@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv prompt: gabungan --fd-output dengan --output kini divonis galat (Audit 147)
+
+- prompt.rs:119-120 menolak kombinasi flag_fd_output dan flag_output di awal run() sebelum pembaca stdin tercapai; pindaian prompt kini melacak kedua bendera terpisah dan hanya menyala bila tepat satu yang hadir.
+
 ## [Belum rilis] — qsv to: stdin hanya untuk '-' eksplisit sesudah tujuan (Audit 146)
 
 - to.rs (EMPTY_STDIN_ERRMSG) — tanpa masukan adalah galat, bukan pembacaan stdin; aturan cabang to kini menuntut '-' di posisi masukan (operand kedua dan seterusnya). Skenario lama Audit 2207 yang mengunci premis lama diperbarui di commit yang sama (bentuk suntiknya kini membawa '-' eksplisit).
