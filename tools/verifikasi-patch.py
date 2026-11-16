@@ -8590,7 +8590,7 @@ def _menguras_khusus(perintah, toks, awal):
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "columns")):
             ops_xs = _operand_sesudah_opsi(
-                toks, awal + 2, {"-o", "--output"})
+                toks, awal + 2, {"-o", "--output", "-d", "--delimiter"})
             if "\x00gantung" in ops_xs:
                 return False
             return (not ops_xs

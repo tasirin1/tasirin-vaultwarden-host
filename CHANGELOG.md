@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv cat: -d/--delimiter kini dikenali (Audit 149)
+
+- Himpunan xsv cat dilengkapi -d/--delimiter dari USAGE cat.rs.
+
 ## [Belum rilis] — xsv headers: -d/--delimiter kini dikenali (Audit 149)
 
 - Himpunan xsv headers tadinya kosong; USAGE headers.rs memuat -d/--delimiter bernilai.
