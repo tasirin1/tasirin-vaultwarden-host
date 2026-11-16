@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv to: sub ods kini tercakup cabang gerbang (Audit 146)
+
+- USAGE to.rs:219 dan contoh resmi :183 memuat sub ods; daftar sub cabang to kini memuatnya.
+
 ## [Belum rilis] — qsv to: -t/--table, --compression, --compress-level, --infer-len ditambahkan (Audit 146)
 
 - USAGE bersama to.rs master memuat keempatnya bernilai; himpunan cabang to kini memuat -t/--table, --compression, --compress-level, dan --infer-len.

@@ -7023,7 +7023,7 @@ def _menguras_khusus(perintah, toks, awal):
         if (len(mentah) >= 2 and mentah[0] == "to"
                 and mentah[1] in ("postgres", "sqlite",
                                   "xlsx", "parquet",
-                                  "datapackage")):
+                                  "datapackage", "ods")):
             ops_qto = _operand_sesudah_opsi(
                 toks, awal + 2,
                 {"-c", "--stats-csv", "-s", "--schema",
