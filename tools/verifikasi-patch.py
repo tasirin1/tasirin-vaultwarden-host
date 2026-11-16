@@ -7505,6 +7505,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qjs
                     or (len(ops_qjs) == 1
                         and ops_qjs[0] == "-"))
+        # Audit 2259: sub 'jsonl' - masukan
+        # [<input>] opsional; jsonl.rs:165-168 - None/'-' =
+        # io::stdin().lock().
+        if mentah and mentah[0] == "jsonl":
+            ops_qjl = _operand_sesudah_opsi(
+                toks, awal + 1, {"-b", "--batch", "-j", "--jobs", "-d", "--delimiter", "-o", "--output"})
+            if "\x00gantung" in ops_qjl:
+                return False
+            return (not ops_qjl
+                    or (len(ops_qjl) == 1
+                        and ops_qjl[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
