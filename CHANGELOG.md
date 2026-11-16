@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fixlengths: sub qsv kini bercabang di gerbang (Audit 148)
+
+- Cabang fixlengths yang ada selama ini milik xsv. fixlengths.rs qsv: stdin hanya sah bila --length terpasang sah (digit, > 0, <= u64 maks) dan --remove-empty absen; tanpa --length atau dengan --remove-empty stdin ditolak. Cabang qsv baru menilai persis itu (pindaian sadar posisi untuk nilai --length dan --remove-empty).
+
 ## [Belum rilis] — qsv apply dynfmt/calcconv/emptyreplace: syarat wajib kini sadar posisi (Audit 148)
 
 - Cacat leksikal yang sama pada pola lama Audit 2148/2194 diperbaiki dengan helper yang sama: --formatstr -c dan -C -R tak lagi lolos semu, dan bentuk merekat -ffmt -cnama kini dikenali.

@@ -7878,6 +7878,106 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (len(ops_qsq) >= 2
                     and "-" in ops_qsq[:-1])
+        # Audit 2322: sub 'fixlengths' qsv -
+        # stdin hanya sah bila --length terpasang
+        # sah (digit, > 0) dan --remove-empty
+        # absen (fixlengths.rs:77-80,113-141);
+        # cabang fixlengths lama milik xsv.
+        if mentah and mentah[0] == "fixlengths":
+            ops_qfx = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-l", "--length", "-o", "--output",
+                 "-d", "--delimiter", "--escape"})
+            if "\x00gantung" in ops_qfx:
+                return False
+            if not (not ops_qfx or ops_qfx == ["-"]):
+                return False
+            nilai_qfx = None
+            buang_qfx = False
+            i_qfx = 1
+            while i_qfx < len(mentah):
+                t_qfx = mentah[i_qfx]
+                if t_qfx == "--":
+                    break
+                if t_qfx in ("-r", "--remove-empty"):
+                    buang_qfx = True
+                    i_qfx += 1
+                    continue
+                if t_qfx in ("-l", "--length"):
+                    if i_qfx + 1 >= len(mentah):
+                        return False
+                    nilai_qfx = mentah[i_qfx + 1]
+                    i_qfx += 2
+                    continue
+                if t_qfx.startswith("--length="):
+                    nilai_qfx = t_qfx.split("=", 1)[1]
+                    i_qfx += 1
+                    continue
+                if t_qfx in ("-o", "--output", "-d",
+                             "--delimiter", "--escape"):
+                    if i_qfx + 1 >= len(mentah):
+                        return False
+                    i_qfx += 2
+                    continue
+                if any(t_qfx.startswith(p_qfx + "=")
+                       for p_qfx in ("--output",
+                                     "--delimiter",
+                                     "--escape")):
+                    i_qfx += 1
+                    continue
+                if (t_qfx.startswith("-")
+                        and not t_qfx.startswith("--")
+                        and len(t_qfx) > 1):
+                    sah_qfx = True
+                    j_qfx = 1
+                    while j_qfx < len(t_qfx):
+                        h_qfx = t_qfx[j_qfx]
+                        if h_qfx == "r":
+                            buang_qfx = True
+                            j_qfx += 1
+                            continue
+                        if h_qfx == "l":
+                            sisa_qfx = t_qfx[j_qfx + 1:]
+                            if sisa_qfx:
+                                nilai_qfx = sisa_qfx
+                            elif i_qfx + 1 < len(mentah):
+                                nilai_qfx = mentah[i_qfx + 1]
+                                i_qfx += 1
+                            else:
+                                return False
+                            j_qfx = len(t_qfx)
+                            continue
+                        if h_qfx in ("o", "d"):
+                            if j_qfx + 1 >= len(t_qfx):
+                                if i_qfx + 1 >= len(mentah):
+                                    return False
+                                i_qfx += 1
+                            j_qfx = len(t_qfx)
+                            continue
+                        sah_qfx = False
+                        break
+                    if not sah_qfx:
+                        return False
+                    i_qfx += 1
+                    continue
+                i_qfx += 1
+            if buang_qfx or nilai_qfx is None:
+                return False
+            return (nilai_qfx.isdigit()
+                    and 0 < int(nilai_qfx)
+                    <= 18446744073709551615)
+        # Audit 2323: sub 'table' qsv - masukan
+        # [<input>] opsional tanpa penjaga stdin
+        # (table.rs); cabang table lama milik xsv.
+        if mentah and mentah[0] == "table":
+            ops_qtb = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-w", "--width", "-a", "--align",
+                 "-c", "--condense", "-o", "--output",
+                 "-d", "--delimiter"})
+            if "\x00gantung" in ops_qtb:
+                return False
+            return not ops_qtb or ops_qtb == ["-"]
         # Audit 2286: sub 'prompt' - bentuk
         # polos membuka dialog pemilih berkas
         # GUI (tak menyentuh stdin); bentuk
