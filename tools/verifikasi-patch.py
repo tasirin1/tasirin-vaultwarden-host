@@ -6777,7 +6777,7 @@ def _menguras_khusus(perintah, toks, awal):
                     toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter"})
                 if "\x00gantung" in ops_ap:
                     return False
-                return not ops_ap or "-" in ops_ap
+                return not ops_ap or ops_ap == ["-"]
             if sub_ap == "calcconv":
                 # Audit 2194: calcconv sejajar dynfmt
                 # (wajib --formatstr + --new-column,

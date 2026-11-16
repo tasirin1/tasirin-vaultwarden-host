@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv apply dynfmt - aritas masukan tunggal (Audit 2198)
+
+- Return dynfmt menjadi 'not ops or ops == [-]': resmi hanya [<input>] tunggal tanpa <column>.
+
 ## [Belum rilis] — Gerbang: qsv apply dynfmt - himpunan bernilai diisi (Audit 2197)
 
 - Cabang dynfmt kini memakai himpunan bernilai apply penuh dan penjaga menerima -f/-c pendek.
