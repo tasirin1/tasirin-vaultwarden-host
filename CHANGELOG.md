@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub py membaca stdin (Audit 2222)
+
+- Cabang qsv ditambah sub py sadar sub map/filter (python.rs, pola sama dengan luau).
+
 ## [Belum rilis] — Gerbang: qsv - sub luau membaca stdin (Audit 2221)
 
 - Cabang qsv ditambah sub luau sadar sub map/filter (pola docopt luau.rs: map -n/<kolom baru> <skrip>, filter <skrip>).

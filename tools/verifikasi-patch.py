@@ -7122,6 +7122,28 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qlu) == 1
                     or (len(ops_qlu) == 2
                         and ops_qlu[1] == "-"))
+        # Audit 2222: sub 'py' - map/filter
+        # sadar sub (python.rs).
+        if (len(mentah) >= 2 and mentah[0] == "py"
+                and mentah[1] in ("map", "filter")):
+            ops_qpy = _operand_sesudah_opsi(
+                toks, awal + 2,
+                {"-f", "--helper", "-b", "--batch",
+                 "-o", "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qpy:
+                return False
+            if mentah[1] == "map":
+                ada_n = any(
+                    t_qpy == "-n"
+                    or t_qpy == "--no-headers"
+                    for t_qpy in mentah)
+                return ((ada_n and len(ops_qpy) == 1)
+                        or len(ops_qpy) == 2
+                        or (len(ops_qpy) == 3
+                            and ops_qpy[2] == "-"))
+            return (len(ops_qpy) == 1
+                    or (len(ops_qpy) == 2
+                        and ops_qpy[1] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
