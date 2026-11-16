@@ -8890,8 +8890,11 @@ def _menguras_khusus(perintah, toks, awal):
         bernilai_sq = _CSVKIT | {"--db", "--query"}
         if _jebakan_argparse(mentah, bernilai_sq):
             return False
+        toks_sq = _saring_csvkit(toks, awal, "sql2csv")
+        if toks_sq is None:
+            return False
         ops_sq = _operand_sesudah_opsi(
-            toks, awal, bernilai_sq)
+            toks_sq, awal, bernilai_sq)
         if "\x00gantung" in ops_sq:
             return False
         return not ops_sq or "-" in ops_sq
