@@ -8736,6 +8736,17 @@ def _menguras_khusus(perintah, toks, awal):
                          or ops_xjn[3] == "-"))
         return False
     if perintah == "tsv-filter":
+        # Audit 2358: --in/--not-in/--ff/
+        # --filter-file HANTU - tak ada di
+        # getopt tsv-filter.d master saat ini.
+        if any(t_tf in ("--in", "--not-in", "--ff",
+                        "--filter-file")
+               or t_tf.startswith(("--in=",
+                                   "--not-in=",
+                                   "--ff=",
+                                   "--filter-file="))
+               for t_tf in mentah):
+            return False
         # Audit 2118: tanpa berkas ia membaca
         # standard input (dok resmi tsv-utils);
         # opsi predikatnya bernilai FIELD:NILAI.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — tsv-filter: 4 opsi hantu ditolak eksplisit (Audit 150)
+
+- --in, --not-in, --ff, --filter-file tidak ada di getopt master maupun docs saat ini; cabang kini menolak bentuk yang memuatnya (termasuk bentuk '='). Keempatnya juga dibuang dari himpunan opsi bernilai di commit Audit 2357.
+
 ## [Belum rilis] — tsv-filter: himpunan dilengkapi 49 opsi bernilai master (Audit 150)
 
 - Dari getopt tsv-filter.d master: --label/--label-values, --empty/--not-empty/--blank/--not-blank, --is-numeric/--is-finite/--is-nan/--is-infinity, --istr-eq/--istr-ne, keluarga --str-*-fld + --str-le/lt/ge/gt, --not-iregex, --char-len-* (6), --byte-len-* (6), keluarga --ff-* (14).
