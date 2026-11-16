@@ -7644,6 +7644,13 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qws
                     or (len(ops_qws) == 1
                         and ops_qws[0] == "-"))
+        # Audit 2271: sub 'clipboard' - tanpa
+        # operand; hanya --save/-s yang menguras
+        # (clipboard.rs:75-77 membaca io::stdin);
+        # tanpa itu ia menulis clipboard ke stdout.
+        if mentah and mentah[0] == "clipboard":
+            return any(t == "-s" or t == "--save"
+                       for t in mentah[1:])
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

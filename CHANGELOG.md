@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv clipboard kini bercabang sadar --save (Audit 144)
+
+- clipboard.rs:75-77 — hanya --save/-s yang membaca io::stdin penuh; tanpa itu ia menulis isi clipboard ke stdout. Cabang baru sadar bendera.
+
 ## [Belum rilis] — qsv writestat kini bercabang sadar stdin (Audit 144)
 
 - writestat.rs:411-418 — stdin disepul ke stdin.csv. Cabang baru pola masukan-tunggal.
