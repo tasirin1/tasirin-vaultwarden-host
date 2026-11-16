@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv search: -j/--jobs ditambahkan ke himpunan gerbang (Audit 145)
+
+- search.rs:113 menetapkan -j/--jobs bernilai; himpunan cabang search kini memuatnya.
+
 ## [Belum rilis] — qsv count: himpunan opsi bernilai kini memuat -d/--delimiter (Audit 145)
 
 - count.rs:84 menetapkan -d/--delimiter bernilai; himpunan cabang count yang semula kosong kini memuatnya.

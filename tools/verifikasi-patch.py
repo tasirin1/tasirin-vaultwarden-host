@@ -6738,8 +6738,8 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, awal + 1,
                 {"-s", "--select", "-f", "--flag",
                  "--preview-match", "--size-limit",
-                 "--dfa-size-limit", "-o", "--output",
-                 "-d", "--delimiter"})
+                 "--dfa-size-limit", "-j", "--jobs",
+                 "-o", "--output", "-d", "--delimiter"})
             if "\x00gantung" in ops_qse:
                 return False
             return (len(ops_qse) == 1
