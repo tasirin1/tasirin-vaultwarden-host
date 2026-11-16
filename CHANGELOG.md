@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv stats: 6 opsi bernilai ditambahkan ke himpunan gerbang (Audit 146)
+
+- stats.rs Args master — --boolean-patterns, --cardinality-method, --mode-cardinality-cap, --percentile-list, --quantile-method, --weight semuanya bertipe bernilai; himpunan cabang stats kini memuatnya.
+
 ## [Belum rilis] — qsv fetch: --jql dan --jqlfile hantu dikeluarkan dari himpunan gerbang (Audit 146)
 
 - grep jql di fetch.rs master = 0 — keduanya warisan era jq yang sudah digantikan --jaq/--jaqfile (Audit 2290); dikeluarkan dari himpunan cabang fetch.

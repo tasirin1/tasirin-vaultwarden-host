@@ -6833,7 +6833,12 @@ def _menguras_khusus(perintah, toks, awal):
                 {"-o", "--output", "-s", "--select",
                  "--round", "--dates-whitelist", "-j",
                  "--jobs", "-d", "--delimiter", "-c",
-                 "--cache-threshold"})
+                 "--cache-threshold",
+                 "--boolean-patterns",
+                 "--cardinality-method",
+                 "--mode-cardinality-cap",
+                 "--percentile-list",
+                 "--quantile-method", "--weight"})
             if "\x00gantung" in ops_qst:
                 return False
             return (not ops_qst
