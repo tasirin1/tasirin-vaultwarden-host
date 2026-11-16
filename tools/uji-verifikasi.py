@@ -30102,6 +30102,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv prompt -f duplikat: docopt menolak - gerbang lolos (Audit 2319)", rc == 0)
         shutil.rmtree(sub1416, ignore_errors=True)
+        sub1417 = klon(tmp, "sub1417")
+        berkas_aksi1417 = os.path.join(
+            sub1417, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1417, encoding="utf-8") as f:
+            isi_aksi1417 = f.read()
+        baris_aksi1417 = [b for b in isi_aksi1417.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1417 = isi_aksi1417.replace(
+                baris_aksi1417,
+                baris_aksi1417.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv apply summarize -cj kolom; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1417 != isi_aksi1417, \
+            "suntikan aksi1417 tidak menembak"
+        with open(berkas_aksi1417, "w", encoding="utf-8") as f:
+            f.write(isi_baru1417)
+        rc, out = jalan(sub1417,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv apply summarize -c merekat tanpa masukan: penguras - gerbang gagal (Audit 2320)", rc != 0)
+        shutil.rmtree(sub1417, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

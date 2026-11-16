@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv apply summarize: syarat --new-column kini sadar posisi (Audit 148)
+
+- Pemeriksa any() leksikal tertipu token yang tertelan sebagai nilai opsi lain (--prompt -c) dan buta bentuk merekat (-cj). Helper baru _opsi_hadir menilai kehadiran opsi secara sadar posisi (nilai dilompati verbatim, bentuk = dan bundel docopt dikenali); cabang summarize memakainya.
+
 ## [Belum rilis] — qsv prompt: bendera duplikat kini ditolak pindaian (Audit 148)
 
 - qsv_docopt menolak opsi yang muncul lebih dari sekali (maks 1 per opsi); pindaian prompt kini menghitung kemunculan kanonik tiap opsi (alias pendek/panjang disatukan) dan menolak bentuk duplikat seperti -f -f, -ff, -o a -o b.

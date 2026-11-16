@@ -2494,6 +2494,47 @@ def _operand_sesudah_opsi(toks, awal, bernilai):
         i += 1
     return hasil
 
+def _opsi_hadir(mentah, mulai, bernilai, dicari):
+    # Audit 2320/2321: kehadiran opsi sadar
+    # posisi - nilai opsi lain dilompati
+    # verbatim; bentuk merekat '--x=v' dan
+    # bundel pendek docopt dikenali.
+    ditemukan = set()
+    i_oh = mulai
+    while i_oh < len(mentah):
+        t_oh = mentah[i_oh]
+        if t_oh == "--":
+            break
+        if t_oh in bernilai:
+            if t_oh in dicari:
+                ditemukan.add(t_oh)
+            i_oh += 2
+            continue
+        if t_oh.startswith("--") and "=" in t_oh:
+            nama_oh = t_oh.split("=", 1)[0]
+            if nama_oh in dicari:
+                ditemukan.add(nama_oh)
+            i_oh += 1
+            continue
+        if (t_oh.startswith("-")
+                and not t_oh.startswith("--")
+                and len(t_oh) > 1):
+            j_oh = 1
+            while j_oh < len(t_oh):
+                eja_oh = "-" + t_oh[j_oh]
+                if eja_oh in bernilai:
+                    if eja_oh in dicari:
+                        ditemukan.add(eja_oh)
+                    j_oh = len(t_oh)
+                    break
+                if eja_oh in dicari:
+                    ditemukan.add(eja_oh)
+                j_oh += 1
+            i_oh += 1
+            continue
+        i_oh += 1
+    return ditemukan
+
 
 def _uri_store_ke_jalur(o_s):
     # Audit 1564: normalisasi operand storeutl —
@@ -6816,11 +6857,9 @@ def _menguras_khusus(perintah, toks, awal):
                 # Audit 2317: sub summarize -
                 # <column> [<input>] dengan syarat
                 # wajib -c/--new-column (apply.rs).
-                if not any(
-                        t_ap == "--new-column"
-                        or t_ap.startswith("--new-column=")
-                        or t_ap == "-c"
-                        for t_ap in mentah):
+                if not _opsi_hadir(
+                        mentah, 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"},
+                        {"-c", "--new-column"}):
                     return False
                 ops_ap = _operand_sesudah_opsi(
                     toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"})
