@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv profile kini bercabang sadar stdin (Audit 144)
+
+- profile.rs:101,360 — stdin dimaterialkan ke berkas temp. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv pragmastat kini bercabang sadar stdin (Audit 144)
 
 - [<input>] via Config qsv (pragmastat.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.

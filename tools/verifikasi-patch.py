@@ -7560,6 +7560,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qpm
                     or (len(ops_qpm) == 1
                         and ops_qpm[0] == "-"))
+        # Audit 2264: sub 'profile' - masukan
+        # [<input>] opsional; profile.rs:101,360 - stdin
+        # dimaterialkan ke berkas temp.
+        if mentah and mentah[0] == "profile":
+            ops_qpf = _operand_sesudah_opsi(
+                toks, awal + 1, {"-d", "--delimiter", "-j", "--jobs", "-o", "--output", "--describegpt", "--initial-context", "--locate", "--profile", "--spec", "--tag-vocab", "--dcat-discovery-timeout"})
+            if "\x00gantung" in ops_qpf:
+                return False
+            return (not ops_qpf
+                    or (len(ops_qpf) == 1
+                        and ops_qpf[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
