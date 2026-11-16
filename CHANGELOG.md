@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — tsv-append: -s/--source-header dan -f/--file dilengkapi (Audit 150)
+
+- Dari getopt tsv-append.d resmi; bawaan tanpa berkas = ['-'].
+
 ## [Belum rilis] — csvsql: aritas input_paths nargs='*' — berkas + '-' menguras (Audit 150)
 
 - Vonis csvsql kini '-' termasuk operand dalam jumlah berapa pun (biner 2.2.0: csvsql berkas.csv - memuat CREATE TABLE stdin). Himpunan opsi csvsql sendiri terverifikasi persis.

@@ -8755,7 +8755,7 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2119: daftar berkas kosong diganti
         # ['-'] = stdin (sumber tsv-append.d).
         ops_ta = _operand_sesudah_opsi(
-            toks, awal, {"-d", "--delimiter"})
+            toks, awal, {"-d", "--delimiter", "-s", "--source-header", "-f", "--file"})
         if "\x00gantung" in ops_ta:
             return False
         return not ops_ta or "-" in ops_ta
