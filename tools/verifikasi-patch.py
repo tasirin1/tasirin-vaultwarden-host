@@ -8375,7 +8375,8 @@ def _menguras_khusus(perintah, toks, awal):
             ops_xsl = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--start", "-e", "--end",
-                 "-l", "--len"})
+                 "-l", "--len", "-i", "--index",
+                 "-o", "--output", "-d", "--delimiter"})
             if "\x00gantung" in ops_xsl:
                 return False
             return (not ops_xsl

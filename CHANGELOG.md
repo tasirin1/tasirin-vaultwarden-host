@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv slice: -i/--index, -o/--output, -d/--delimiter kini dikenali (Audit 149)
+
+- Himpunan xsv slice dilengkapi tiga opsi bernilai dari USAGE slice.rs.
+
 ## [Belum rilis] — xsv search: -d/--delimiter kini dikenali (Audit 149)
 
 - Himpunan xsv search dilengkapi -d/--delimiter dari USAGE search.rs.
