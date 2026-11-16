@@ -7458,6 +7458,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qfw
                     or (len(ops_qfw) == 1
                         and ops_qfw[0] == "-"))
+        # Audit 2255: sub 'flatten' - masukan
+        # [<input>] opsional; Config qsv memakai stdin bila
+        # masukan kosong atau '-' (flatten.rs).
+        if mentah and mentah[0] == "flatten":
+            ops_qft = _operand_sesudah_opsi(
+                toks, awal + 1, {"-s", "--separator", "-f", "--field-separator", "-c", "--condense", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qft:
+                return False
+            return (not ops_qft
+                    or (len(ops_qft) == 1
+                        and ops_qft[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

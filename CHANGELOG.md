@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv flatten kini bercabang sadar stdin (Audit 144)
+
+- [<input>] via Config qsv (flatten.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv fixedwidth kini bercabang sadar stdin (Audit 144)
 
 - [<input>] via Config::new (fixedwidth.rs:134) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
