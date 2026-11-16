@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — cek-cepat: fase vektor hanya memindai berkas XML (Audit 143)
+
+- Fase vektor mengikuti symlink direktori di res/ ke mana pun (Audit 2128) sehingga isi kode Java di luar res (mis. string "X.509" di TlsCert.java) dituduh sebagai path vektor tanpa nol depan. Pindai rg dan cadangan grep kini dibatasi glob *.xml — pathData vektor memang hanya hidup di XML.
+
 ## [Belum rilis] — csvpy berkas kini dinilai menguras (REPL interaktif) (Audit 142)
 
 - csvpy data.csv menguras karena sesudah berkas dimuat csvpy selalu masuk REPL Python interaktif yang membaca stdin sampai EOF (preseden sqlite3 berkas); selama ini csvpy hanya lolos jebakan argparse csvkit. Cabang khusus baru: True iff tepat satu operand bukan '-'; nama csvpy masuk tuple dispatch.

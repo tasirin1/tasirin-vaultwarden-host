@@ -1189,6 +1189,15 @@ def main():
                 "tertangkap (Audit 2226)", rc != 0)
         shutil.rmtree(hdrignore, ignore_errors=True)
 
+        tautan = klon(tmp, "tautan")
+        os.symlink("../../java",
+                   tautan + "/app/src/main/res/drawable/tautan-java")
+        rc, out = jalan(tautan, ["bash", SKRIP])
+        periksa("symlink res ke kode Java tak dituduh vektor "
+                "(Audit 2232)", rc == 0)
+        shutil.rmtree(tautan, ignore_errors=True)
+
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
