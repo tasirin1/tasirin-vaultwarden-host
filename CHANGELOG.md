@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: aritas operand disamakan USAGE (Audit 2186)
+
+- Cabang masukan-tunggal menolak operand '-' ganda dan cabang sadar-posisi menolak operand berlebih (aritas docopt).
+
 ## [Belum rilis] — Gerbang: qsv split - template filename divalidasi (Audit 2185)
 
 - Cabang qsv split kini menolak nilai --filename yang tidak memuat tepat satu '{}' (FilenameTemplate).

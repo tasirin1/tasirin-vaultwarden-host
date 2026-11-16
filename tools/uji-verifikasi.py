@@ -27267,6 +27267,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv split template tanpa kurung: gerbang lolos (Audit 2185)", rc == 0)
         shutil.rmtree(sub1281, ignore_errors=True)
+        sub1282 = klon(tmp, "sub1282")
+        berkas_aksi1282 = os.path.join(
+            sub1282, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1282, encoding="utf-8") as f:
+            isi_aksi1282 = f.read()
+        baris_aksi1282 = [b for b in isi_aksi1282.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1282 = isi_aksi1282.replace(
+                baris_aksi1282,
+                baris_aksi1282.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv sort - -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1282 != isi_aksi1282, \
+            "suntikan aksi1282 tidak menembak"
+        with open(berkas_aksi1282, "w", encoding="utf-8") as f:
+            f.write(isi_baru1282)
+        rc, out = jalan(sub1282,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("operand strip ganda masukan tunggal: gerbang lolos (Audit 2186)", rc == 0)
+        shutil.rmtree(sub1282, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

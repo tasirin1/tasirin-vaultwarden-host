@@ -6725,7 +6725,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qc:
                 return False
             return (not ops_qc
-                    or all(o == "-" for o in ops_qc))
+                    or (len(ops_qc) == 1
+                        and ops_qc[0] == "-"))
         # Audit 2124: sub 'search' memakai
         # Config::new(&args.arg_input) yang sama
         # (search.rs) - pola operand pertama,
@@ -6742,7 +6743,7 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qse:
                 return False
             return (len(ops_qse) == 1
-                    or (len(ops_qse) >= 2
+                    or (len(ops_qse) == 2
                         and ops_qse[1] == "-"))
         # Audit 2141: sub 'apply operations' -
         # operand operasi + kolom, masukan
@@ -6754,7 +6755,7 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qap:
                 return False
             return (len(ops_qap) == 2
-                    or (len(ops_qap) >= 3
+                    or (len(ops_qap) == 3
                         and ops_qap[2] == "-"))
         # Audit 2148: sub-sub apply lain juga
         # ber-[<input>] opsional (apply.rs).
@@ -6788,7 +6789,7 @@ def _menguras_khusus(perintah, toks, awal):
                 if "\x00gantung" in ops_ap:
                     return False
                 return (len(ops_ap) == 1
-                        or (len(ops_ap) >= 2
+                        or (len(ops_ap) == 2
                             and ops_ap[1] == "-"))
             if sub_ap == "datefmt":
                 ops_ap = _operand_sesudah_opsi(
@@ -6796,7 +6797,7 @@ def _menguras_khusus(perintah, toks, awal):
                 if "\x00gantung" in ops_ap:
                     return False
                 return (len(ops_ap) == 1
-                        or (len(ops_ap) >= 2
+                        or (len(ops_ap) == 2
                             and ops_ap[1] == "-"))
         # Audit 2142: sub 'slice' - tanpa masukan
         # membaca stdin (slice.rs).
@@ -6808,7 +6809,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qsl:
                 return False
             return (not ops_qsl
-                    or all(o == "-" for o in ops_qsl))
+                    or (len(ops_qsl) == 1
+                        and ops_qsl[0] == "-"))
         # Audit 2151: sub 'stats' - masukan
         # [<input>] opsional (stats.rs).
         if mentah and mentah[0] == "stats":
@@ -6821,7 +6823,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qst:
                 return False
             return (not ops_qst
-                    or all(o == "-" for o in ops_qst))
+                    or (len(ops_qst) == 1
+                        and ops_qst[0] == "-"))
         # Audit 2152: sub 'headers' - masukan
         # kosong/'-' berarti stdin (README qsv:
         # dukungan masukan diperluas).
@@ -6843,7 +6846,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qso:
                 return False
             return (not ops_qso
-                    or all(o == "-" for o in ops_qso))
+                    or (len(ops_qso) == 1
+                        and ops_qso[0] == "-"))
         # Audit 2179: sub 'select' qsv - operand
         # pertama pilihan kolom, masukan kedua
         # (select.rs).
@@ -6854,7 +6858,7 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qse:
                 return False
             return (len(ops_qse) == 1
-                    or (len(ops_qse) >= 2
+                    or (len(ops_qse) == 2
                         and ops_qse[1] == "-"))
         # Audit 2180: sub 'sample' qsv - operand
         # pertama ukuran, masukan kedua
@@ -6875,7 +6879,7 @@ def _menguras_khusus(perintah, toks, awal):
                 except ValueError:
                     return False
             return (len(ops_qsa) == 1
-                    or (len(ops_qsa) >= 2
+                    or (len(ops_qsa) == 2
                         and ops_qsa[1] == "-"))
         # Audit 2181: sub 'split' qsv - operand
         # pertama direktori keluaran, masukan
@@ -6902,7 +6906,7 @@ def _menguras_khusus(perintah, toks, awal):
                         and nilai_qp.count("{}") != 1):
                     return False
             return (len(ops_qsp) == 1
-                    or (len(ops_qsp) >= 2
+                    or (len(ops_qsp) == 2
                         and ops_qsp[1] == "-"))
         # Audit 2182: sub 'join' qsv - empat
         # operand (kolom, masukan1, kolom,
@@ -6928,7 +6932,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qdd:
                 return False
             return (not ops_qdd
-                    or all(o == "-" for o in ops_qdd))
+                    or (len(ops_qdd) == 1
+                        and ops_qdd[0] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
@@ -7090,7 +7095,7 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_xse:
                 return False
             return (len(ops_xse) == 1
-                    or (len(ops_xse) >= 2
+                    or (len(ops_xse) == 2
                         and ops_xse[1] == "-"))
         if mentah and mentah[0] == "count":
             ops_xc = _operand_sesudah_opsi(
@@ -7109,7 +7114,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_xsl:
                 return False
             return (not ops_xsl
-                    or all(o == "-" for o in ops_xsl))
+                    or (len(ops_xsl) == 1
+                        and ops_xsl[0] == "-"))
         # Audit 2171: sub 'select' xsv - operand
         # pertama pilihan kolom, masukan kedua
         # (select.rs).
@@ -7120,7 +7126,7 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_xse:
                 return False
             return (len(ops_xse) == 1
-                    or (len(ops_xse) >= 2
+                    or (len(ops_xse) == 2
                         and ops_xse[1] == "-"))
         # Audit 2172: sub 'split' xsv - operand
         # pertama direktori keluaran, masukan
@@ -7145,7 +7151,7 @@ def _menguras_khusus(perintah, toks, awal):
                         and nilai_sp.count("{}") != 1):
                     return False
             return (len(ops_xsp) == 1
-                    or (len(ops_xsp) >= 2
+                    or (len(ops_xsp) == 2
                         and ops_xsp[1] == "-"))
         # Audit 2159: sub 'flatten' xsv - masukan
         # [<input>] opsional (flatten.rs).
@@ -7157,7 +7163,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_xf:
                 return False
             return (not ops_xf
-                    or all(o == "-" for o in ops_xf))
+                    or (len(ops_xf) == 1
+                        and ops_xf[0] == "-"))
         # Audit 2160: sub 'fmt' xsv - masukan
         # [<input>] opsional (fmt.rs).
         if mentah and mentah[0] == "fmt":
@@ -7168,7 +7175,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_xfm:
                 return False
             return (not ops_xfm
-                    or all(o == "-" for o in ops_xfm))
+                    or (len(ops_xfm) == 1
+                        and ops_xfm[0] == "-"))
         # Audit 2161: sub 'input' xsv - masukan
         # [<input>] opsional (input.rs).
         if mentah and mentah[0] == "input":
@@ -7179,7 +7187,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_xi:
                 return False
             return (not ops_xi
-                    or all(o == "-" for o in ops_xi))
+                    or (len(ops_xi) == 1
+                        and ops_xi[0] == "-"))
         # Audit 2162: sub 'table' xsv - masukan
         # [<input>] opsional (table.rs).
         if mentah and mentah[0] == "table":
@@ -7191,7 +7200,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_xt:
                 return False
             return (not ops_xt
-                    or all(o == "-" for o in ops_xt))
+                    or (len(ops_xt) == 1
+                        and ops_xt[0] == "-"))
         # Audit 2163: sub 'sort' xsv - masukan
         # [<input>] opsional (sort.rs).
         if mentah and mentah[0] == "sort":
@@ -7206,7 +7216,8 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_xso:
                 return False
             return (not ops_xso
-                    or all(o == "-" for o in ops_xso))
+                    or (len(ops_xso) == 1
+                        and ops_xso[0] == "-"))
         # Audit 2164: sub 'sample' xsv - operand
         # pertama selalu ukuran; masukan adalah
         # operand kedua (sample.rs).
@@ -7222,7 +7233,7 @@ def _menguras_khusus(perintah, toks, awal):
             if ops_xsa and not ops_xsa[0].isdigit():
                 return False
             return (len(ops_xsa) == 1
-                    or (len(ops_xsa) >= 2
+                    or (len(ops_xsa) == 2
                         and ops_xsa[1] == "-"))
         # Audit 2154: sub 'headers' xsv - daftar
         # masukan Vec lewat many_configs (kosong
