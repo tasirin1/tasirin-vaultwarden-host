@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv apply: pasangan -p/--progressbar dilengkapi (Audit 152)
+
+- Sisa Audit 2359: USAGE bersama apply punya dua pasangan bool (-n dan -p); pasangan dict kedua situs penjaga apply kini memuat -p/--progressbar.
+
 ## [Belum rilis] — tsv-summarize: tanpa operator kini ditolak model (Audit 152)
 
 - tsv-summarize.d menegakkan operator tak kosong sebelum masukan dibuka; vonis kini menuntut kehadiran operator (--sum/--mean/.../--count/--count-header) secara sadar posisi — --group-by bukan operator. --count (bool panjang) diperiksa terpisah karena tak terlihat _opsi_hadir.
