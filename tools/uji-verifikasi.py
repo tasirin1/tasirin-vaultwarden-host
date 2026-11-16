@@ -26124,7 +26124,7 @@ def main():
                 baris_aksi1227,
                 baris_aksi1227.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(tsv-summarize; cat >> \"$GITHUB_OUTPUT\")"), 1)
+                    "> >(tsv-summarize --count; cat >> \"$GITHUB_OUTPUT\")"), 1)
         assert isi_baru1227 != isi_aksi1227, \
             "suntikan aksi1227 tidak menembak"
         with open(berkas_aksi1227, "w", encoding="utf-8") as f:
@@ -31152,6 +31152,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv search -s duplikat: docopt menolak - gerbang lolos (Audit 2369)", rc == 0)
         shutil.rmtree(sub1466, ignore_errors=True)
+        sub1467 = klon(tmp, "sub1467")
+        berkas_aksi1467 = os.path.join(
+            sub1467, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1467, encoding="utf-8") as f:
+            isi_aksi1467 = f.read()
+        baris_aksi1467 = [b for b in isi_aksi1467.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1467 = isi_aksi1467.replace(
+                baris_aksi1467,
+                baris_aksi1467.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize -g 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1467 != isi_aksi1467, \
+            "suntikan aksi1467 tidak menembak"
+        with open(berkas_aksi1467, "w", encoding="utf-8") as f:
+            f.write(isi_baru1467)
+        rc, out = jalan(sub1467,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-summarize tanpa operator: ditolak sebelum membaca - gerbang lolos (Audit 2370)", rc == 0)
+        shutil.rmtree(sub1467, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

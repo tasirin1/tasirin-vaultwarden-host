@@ -8882,6 +8882,42 @@ def _menguras_khusus(perintah, toks, awal):
                          "--replace-missing"})
         if "\x00gantung" in ops_tsm:
             return False
+        # Audit 2370: tanpa operator perintah
+        # ditolak sebelum masukan dibuka
+        # (tsv-summarize.d enforce operator).
+        # --count bool panjang tak terlihat
+        # _opsi_hadir - diperiksa terpisah.
+        ada_op_tsm = bool(_opsi_hadir(
+                mentah, 0,
+                {"--group-by", "-d", "--delimiter",
+                 "--sum", "--mean", "--median",
+                 "--min", "--max", "--mode", "--first",
+                 "--last", "--stdev", "--var",
+                 "--range", "--quantile", "--retain",
+                 "--values", "--unique-values",
+                 "--unique-count", "--mode-count",
+                 "--missing-count",
+                 "--not-missing-count",
+                 "--count-header", "--mad", "-g", "-v",
+                 "--values-delimiter", "-p",
+                 "--float-precision", "-r",
+                 "--replace-missing"},
+                {"--sum", "--mean", "--median",
+                 "--min", "--max", "--mode", "--first",
+                 "--last", "--stdev", "--var",
+                 "--range", "--quantile", "--retain",
+                 "--values", "--unique-values",
+                 "--unique-count", "--mode-count",
+                 "--missing-count",
+                 "--not-missing-count",
+                 "--count-header", "--mad"}))
+        for t_tsm in mentah:
+            if t_tsm == "--":
+                break
+            if t_tsm == "--count":
+                ada_op_tsm = True
+        if not ada_op_tsm:
+            return False
         return not ops_tsm or "-" in ops_tsm
     if perintah == "csvjoin":
         # Audit 2125: alat multi-masukan - polos

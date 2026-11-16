@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — tsv-summarize: tanpa operator kini ditolak model (Audit 152)
+
+- tsv-summarize.d menegakkan operator tak kosong sebelum masukan dibuka; vonis kini menuntut kehadiran operator (--sum/--mean/.../--count/--count-header) secara sadar posisi — --group-by bukan operator. --count (bool panjang) diperiksa terpisah karena tak terlihat _opsi_hadir.
+
 ## [Belum rilis] — Kelas duplikat docopt dijaga di 8 cabang qsv lagi (Audit 152)
 
 - Penjaga _ada_duplikat kini dipasang di cabang search, sort, select, sample, split, partition, sortcheck, dan frequency dengan himpunan bernilai cabangnya dan pasangan alias PENUH dari USAGE master (bernilai + bool, mis. search -i/-v/-Q/-c/-p/-q, sort -N/-R/-i/-u, select -R/-S, sortcheck -N/-i/-p). Kedelapan sub memakai util::get_args pola [options]; duplikat kini berhenti sebagai galat parse di model, sejajar cabang yang sudah dijaga (2326/2349/2359).
