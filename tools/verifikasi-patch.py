@@ -7428,8 +7428,14 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qfp:
                 return False
             dasar_qfp = (1 if ("--payload-tpl" in mentah
+                               or "-t" in mentah
                                or any(t.startswith(
                                       "--payload-tpl=")
+                                      for t in mentah)
+                               or any(len(t) > 2
+                                      and t.startswith("-t")
+                                      and not t.startswith(
+                                          "--")
                                       for t in mentah))
                          else 2)
             return (len(ops_qfp) == dasar_qfp

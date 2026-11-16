@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fetchpost: pemeriksa dasar operand kini sadar -t (--payload-tpl) (Audit 145)
+
+- fetchpost.rs:163 menetapkan -t sebagai pendek --payload-tpl; dasar_qfp kini mengenali token -t dan bentuk merekatnya sehingga dasar operand menjadi 1.
+
 ## [Belum rilis] — qsv template: bentuk pendek -J (--globals-json) ditambahkan (Audit 145)
 
 - template.rs:108 menetapkan -J sebagai pendek resmi --globals-json; himpunan cabang template kini memuatnya.
