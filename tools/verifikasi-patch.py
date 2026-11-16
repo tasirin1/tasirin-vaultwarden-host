@@ -2588,6 +2588,9 @@ def _saring_csvkit(toks, awal, perintah):
     i_sc = 0
     while i_sc < len(segmen_sc):
         t_sc = segmen_sc[i_sc]
+        if t_sc == "--":
+            hasil_sc.extend(segmen_sc[i_sc:])
+            break
         if t_sc == "--null-value":
             j_sc = i_sc + 1
             while (j_sc < len(segmen_sc)

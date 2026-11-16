@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — _saring_csvkit: '--' kini menghentikan penyaringan (Audit 150)
+
+- Sesudah '--', --null-value adalah operand, bukan opsi; saringan kini menyalin sisa token apa adanya (terverifikasi biner csvkit 2.2.0: csvlook -- --null-value file.csv berhenti rc=2).
+
 ## [Belum rilis] — _ada_duplikat: huruf bernilai di ujung bundel melompati nilainya (Audit 150)
 
 - Penghitung duplikat docopt kini memperlakukan huruf bernilai di ujung bundel seperti docopt: token berikutnya adalah nilainya dan dilompati (parse.rs qsv_docopt). Sekalian, cabang qsv fixlengths menghitung operand dari pindaian cabangnya sendiri yang sadar bundel (helper generik buta bundel membuat --output sesudah bundel menelan opsi berikutnya).
