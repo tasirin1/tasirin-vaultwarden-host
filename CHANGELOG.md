@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub fixlengths membaca stdin bersyarat (Audit 2212)
+
+- Cabang xsv ditambah sub fixlengths: stdin hanya bila --length/-l terpasang (fixlengths.rs).
+
 ## [Belum rilis] — Gerbang: qsv sqlp - himpunan bernilai dilengkapi (Audit 2211)
 
 - Himpunan bernilai qsv sqlp ditambah 11 opsi resmi sqlp.rs (--format, --infer-len, --rnull-values, format tanggal/waktu, --float-precision, --wnull-value, --compression, --compress-level, -d/--delimiter).

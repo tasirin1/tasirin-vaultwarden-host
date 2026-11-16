@@ -7374,6 +7374,28 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_xst
                     or (len(ops_xst) == 1
                         and ops_xst[0] == "-"))
+        # Audit 2212: sub 'fixlengths' xsv -
+        # stdin hanya bila --length terpasang
+        # (fixlengths.rs).
+        if mentah and mentah[0] == "fixlengths":
+            ada_panjang = any(
+                t_xfl == "--length"
+                or t_xfl.startswith("--length=")
+                or t_xfl == "-l"
+                or (t_xfl.startswith("-l")
+                    and len(t_xfl) > 2
+                    and t_xfl[2:].isdigit())
+                for t_xfl in mentah)
+            if not ada_panjang:
+                return False
+            ops_xfl = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-l", "--length", "-d", "--delimiter"})
+            if "\x00gantung" in ops_xfl:
+                return False
+            return (not ops_xfl
+                    or (len(ops_xfl) == 1
+                        and ops_xfl[0] == "-"))
         # Audit 2154: sub 'headers' xsv - daftar
         # masukan Vec lewat many_configs (kosong
         # diganti '-'), seperti cat.
