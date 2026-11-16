@@ -7350,6 +7350,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qco
                     or (len(ops_qco) == 1
                         and ops_qco[0] == "-"))
+        # Audit 2247: sub 'datefmt' - <kolom>
+        # [<input>]; Config qsv (datefmt.rs mandiri,
+        # beda dari apply datefmt).
+        if mentah and mentah[0] == "datefmt":
+            ops_qdf = _operand_sesudah_opsi(
+                toks, awal + 1, {"-f", "--formatstr", "-c", "--new-column", "-r", "--rename", "--input-tz", "--output-tz", "--default-tz", "-R", "--ts-resolution", "-b", "--batch", "-j", "--jobs", "-d", "--delimiter", "-o", "--output"})
+            if "\x00gantung" in ops_qdf:
+                return False
+            return (len(ops_qdf) == 1
+                    or (len(ops_qdf) == 2
+                        and ops_qdf[1] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
