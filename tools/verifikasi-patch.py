@@ -7243,6 +7243,19 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qs
                     or all(o == "-" for o in ops_qs))
         return False
+    if perintah == "csvpy":
+        # Audit 2231: csvpy memuat berkas lalu
+        # masuk shell Python interaktif yang
+        # membaca stdin sampai EOF; bentuk polos
+        # dan '-' ditolak eksplisit (csvpy.py).
+        if _jebakan_argparse(mentah, _CSVKIT):
+            return False
+        ops_cpy = _operand_sesudah_opsi(
+            toks, awal, _CSVKIT)
+        if "\x00gantung" in ops_cpy:
+            return False
+        return (len(ops_cpy) == 1
+                and ops_cpy[0] != "-")
     if perintah == "csvlook":
         # Audit 2099: tanpa nama berkas ia menerima
         # input terpipa via STDIN (csvlook(1)
@@ -9389,7 +9402,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "csvstat", "csvgrep", "csvstack", "csvformat", "csvjoin", "csvsql", "csvsort", "csvcut", "csvlook", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "exiftool", "etcdctl", "factor", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "groff", "guix", "helm", "identify", "ipfs", "irb", "in2csv", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rev", "rlogin", "qsv", "sbcl", "s-nail", "sendmail", "skopeo", "sql2csv", "snowsql", "sox", "play", "tesseract", "terraform", "tsv-append", "tsv-join", "tsv-uniq", "tsv-summarize", "tsv-filter", "tsv-select", "units", "usql", "vagrant", "vault", "websocat", "xonsh", "xsv", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "csvstat", "csvgrep", "csvstack", "csvformat", "csvjoin", "csvsql", "csvsort", "csvcut", "csvlook", "csvpy", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "exiftool", "etcdctl", "factor", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "groff", "guix", "helm", "identify", "ipfs", "irb", "in2csv", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rev", "rlogin", "qsv", "sbcl", "s-nail", "sendmail", "skopeo", "sql2csv", "snowsql", "sox", "play", "tesseract", "terraform", "tsv-append", "tsv-join", "tsv-uniq", "tsv-summarize", "tsv-filter", "tsv-select", "units", "usql", "vagrant", "vault", "websocat", "xonsh", "xsv", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

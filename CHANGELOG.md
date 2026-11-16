@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvpy berkas kini dinilai menguras (REPL interaktif) (Audit 142)
+
+- csvpy data.csv menguras karena sesudah berkas dimuat csvpy selalu masuk REPL Python interaktif yang membaca stdin sampai EOF (preseden sqlite3 berkas); selama ini csvpy hanya lolos jebakan argparse csvkit. Cabang khusus baru: True iff tepat satu operand bukan '-'; nama csvpy masuk tuple dispatch.
+
 ## [Belum rilis] — qsv frequency kini bercabang sadar stdin (Audit 142)
 
 - qsv frequency belum bercabang; masukan [<input>] Option. Cabang baru pola masukan-tunggal; opsi bernilai {-s, --select, -l, --limit, -u, --unq-limit, --lmt-threshold, --pct-dec-places, --other-text, -j, --jobs, -o, --output, -d, --delimiter}.
