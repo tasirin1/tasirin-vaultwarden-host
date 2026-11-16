@@ -8583,7 +8583,7 @@ def _menguras_khusus(perintah, toks, awal):
         # diganti '-'), seperti cat.
         if mentah and mentah[0] == "headers":
             ops_xh = _operand_sesudah_opsi(
-                toks, awal + 1, set())
+                toks, awal + 1, {"-d", "--delimiter"})
             if "\x00gantung" in ops_xh:
                 return False
             return not ops_xh or "-" in ops_xh

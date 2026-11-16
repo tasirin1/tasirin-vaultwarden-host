@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv headers: -d/--delimiter kini dikenali (Audit 149)
+
+- Himpunan xsv headers tadinya kosong; USAGE headers.rs memuat -d/--delimiter bernilai.
+
 ## [Belum rilis] — xsv sample: --seed kini dikenali (Audit 149)
 
 - Himpunan xsv sample dilengkapi --seed bernilai dari USAGE sample.rs.
