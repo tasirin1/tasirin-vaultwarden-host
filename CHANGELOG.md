@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv viz kini bercabang sadar stdin per tipe chart (Audit 144)
+
+- viz.rs:125,257 — semua tipe chart kecuali smart menerima '-' sebagai stdin; <input> wajib. Cabang baru sadar sub dengan smart sebagai pengecualian.
+
 ## [Belum rilis] — qsv template kini bercabang sadar stdin (Audit 144)
 
 - [<input>] [<outdir>] via Config qsv (template.rs) — masukan pertama kosong/'-' = stdin. Cabang baru sadar posisi masukan.

@@ -7620,6 +7620,19 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_qtp
                     or ops_qtp[0] == "-")
+        # Audit 2269: sub 'viz' - <input> wajib;
+        # semua tipe chart kecuali smart menerima
+        # '-' sebagai stdin (viz.rs:125,257).
+        if mentah and mentah[0] == "viz":
+            if len(mentah) < 2 or mentah[1] == "smart":
+                return False
+            ops_qvz = _operand_sesudah_opsi(
+                toks, awal + 2,
+                {"-o", "--output", "-d", "--delimiter",
+                 "--x", "--y", "--title", "-j", "--jobs"})
+            if "\x00gantung" in ops_qvz:
+                return False
+            return ops_qvz == ["-"]
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
