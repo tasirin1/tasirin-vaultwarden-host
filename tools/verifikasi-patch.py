@@ -8074,7 +8074,7 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, awal + 1,
                 {"-w", "--width", "-a", "--align",
                  "-c", "--condense", "-o", "--output",
-                 "-d", "--delimiter"})
+                 "-d", "--delimiter", "-p", "--pad"})
             if "\x00gantung" in ops_qtb:
                 return False
             return not ops_qtb or ops_qtb == ["-"]

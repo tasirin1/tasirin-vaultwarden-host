@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv table: -p/--pad kini dikenali (Audit 149)
+
+- Cabang qsv table (Audit 2323) kehilangan -p/--pad bernilai dari table.rs; kini masuk himpunan opsi bernilai cabang.
+
 ## [Belum rilis] — qsv fixlengths: -i/--insert, --quote, -q/--quiet kini dikenali (Audit 149)
 
 - Cabang qsv fixlengths (Audit 2322) kehilangan tiga opsi resmi fixlengths.rs: -i/--insert dan --quote bernilai, -q/--quiet boolean. Ketiganya kini dikenali pindaian cabang. Commit ini juga memasang tiga helper bersama: _ada_duplikat (penolakan opsi duplikat docopt), _saring_csvkit (penelan --null-value nargs='+' csvkit), dan _token_terlarang (token tak dikenal override_flags csvkit).
