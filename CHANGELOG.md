@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv cat: bentuk pendek -d ditambahkan ke himpunan gerbang (Audit 145)
+
+- cat.rs:101 menetapkan -d sebagai pendek --delimiter; himpunan cabang cat kini memuatnya.
+
 ## [Belum rilis] — qsv schema: -o/--output ditambahkan ke himpunan gerbang (Audit 145)
 
 - schema.rs:108 menetapkan -o/--output bernilai; himpunan cabang schema kini memuatnya.

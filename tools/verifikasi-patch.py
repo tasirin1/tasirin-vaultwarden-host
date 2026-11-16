@@ -7334,7 +7334,7 @@ def _menguras_khusus(perintah, toks, awal):
             ops_qs = _operand_sesudah_opsi(
                 toks, awal + 2,
                 {"-o", "--output", "-g", "--group",
-                 "-N", "--group-name",
+                 "-N", "--group-name", "-d",
                  "--delimiter"})
             if "\x00gantung" in ops_qs:
                 return False
