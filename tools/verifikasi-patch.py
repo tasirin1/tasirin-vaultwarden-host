@@ -7673,7 +7673,7 @@ def _menguras_khusus(perintah, toks, awal):
         # disepul ke stdin.csv.
         if mentah and mentah[0] == "writestat":
             ops_qws = _operand_sesudah_opsi(
-                toks, awal + 1, {"-d", "--delimiter", "-o", "--output", "--dictionary", "--format", "--table-name", "--pattern-columns", "--enum-threshold"})
+                toks, awal + 1, {"-d", "--delimiter", "-o", "--output", "--dictionary", "--format", "--table-name"})
             if "\x00gantung" in ops_qws:
                 return False
             return (not ops_qws

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv writestat: --enum-threshold dan --pattern-columns hantu dikeluarkan (Audit 145)
+
+- Args CLI writestat.rs hanya 7 field; kedua nama itu field struct stats internal, bukan opsi CLI — dikeluarkan dari himpunan bernilai cabang writestat.
+
 ## [Belum rilis] — qsv fetchpost: bentuk pendek -j (--globals-json) ditambahkan (Audit 145)
 
 - fetchpost.rs menetapkan -j sebagai pendek --globals-json; himpunan cabang fetchpost kini memuat -j dan --globals-json.

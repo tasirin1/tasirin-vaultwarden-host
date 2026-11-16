@@ -29325,6 +29325,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv fetchpost -j globals-json: penguras - gerbang gagal (Audit 2283)", rc != 0)
         shutil.rmtree(sub1379, ignore_errors=True)
+        sub1380 = klon(tmp, "sub1380")
+        berkas_aksi1380 = os.path.join(
+            sub1380, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1380, encoding="utf-8") as f:
+            isi_aksi1380 = f.read()
+        baris_aksi1380 = [b for b in isi_aksi1380.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1380 = isi_aksi1380.replace(
+                baris_aksi1380,
+                baris_aksi1380.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv writestat --enum-threshold 5; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1380 != isi_aksi1380, \
+            "suntikan aksi1380 tidak menembak"
+        with open(berkas_aksi1380, "w", encoding="utf-8") as f:
+            f.write(isi_baru1380)
+        rc, out = jalan(sub1380,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv writestat --enum-threshold hantu: galat - gerbang lolos (Audit 2284)", rc == 0)
+        shutil.rmtree(sub1380, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
