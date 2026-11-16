@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub behead membaca stdin (Audit 2213)
+
+- Cabang qsv ditambah sub behead: masukan [<input>] opsional (behead.rs).
+
 ## [Belum rilis] — Gerbang: xsv - sub fixlengths membaca stdin bersyarat (Audit 2212)
 
 - Cabang xsv ditambah sub fixlengths: stdin hanya bila --length/-l terpasang (fixlengths.rs).

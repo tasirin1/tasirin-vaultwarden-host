@@ -7034,6 +7034,16 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (len(ops_qsq) >= 2
                     and "-" in ops_qsq[:-1])
+        # Audit 2213: sub 'behead' - masukan
+        # [<input>] opsional (behead.rs).
+        if mentah and mentah[0] == "behead":
+            ops_qbh = _operand_sesudah_opsi(
+                toks, awal + 1, {"-o", "--output"})
+            if "\x00gantung" in ops_qbh:
+                return False
+            return (not ops_qbh
+                    or (len(ops_qbh) == 1
+                        and ops_qbh[0] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
