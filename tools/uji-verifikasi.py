@@ -30879,6 +30879,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-append -s source-header tanpa berkas: penguras - gerbang gagal (Audit 2356)", rc != 0)
         shutil.rmtree(sub1453, ignore_errors=True)
+        sub1454 = klon(tmp, "sub1454")
+        berkas_aksi1454 = os.path.join(
+            sub1454, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1454, encoding="utf-8") as f:
+            isi_aksi1454 = f.read()
+        baris_aksi1454 = [b for b in isi_aksi1454.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1454 = isi_aksi1454.replace(
+                baris_aksi1454,
+                baris_aksi1454.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-filter --label Lulus; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1454 != isi_aksi1454, \
+            "suntikan aksi1454 tidak menembak"
+        with open(berkas_aksi1454, "w", encoding="utf-8") as f:
+            f.write(isi_baru1454)
+        rc, out = jalan(sub1454,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-filter --label mode label tanpa berkas: penguras - gerbang gagal (Audit 2357)", rc != 0)
+        shutil.rmtree(sub1454, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

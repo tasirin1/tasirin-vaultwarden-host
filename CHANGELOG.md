@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — tsv-filter: himpunan dilengkapi 49 opsi bernilai master (Audit 150)
+
+- Dari getopt tsv-filter.d master: --label/--label-values, --empty/--not-empty/--blank/--not-blank, --is-numeric/--is-finite/--is-nan/--is-infinity, --istr-eq/--istr-ne, keluarga --str-*-fld + --str-le/lt/ge/gt, --not-iregex, --char-len-* (6), --byte-len-* (6), keluarga --ff-* (14).
+
 ## [Belum rilis] — tsv-append: -s/--source-header dan -f/--file dilengkapi (Audit 150)
 
 - Dari getopt tsv-append.d resmi; bawaan tanpa berkas = ['-'].
