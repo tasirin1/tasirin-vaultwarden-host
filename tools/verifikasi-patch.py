@@ -8142,6 +8142,19 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_xrv
                     or (len(ops_xrv) == 1
                         and ops_xrv[0] == "-"))
+        # Audit 2278: sub 'join' xsv -
+        # <columns1> <input1> <columns2> <input2>;
+        # MEMBALIK vonis Audit 136: config.rs
+        # xsv memetakan '-' ke stdin.
+        if mentah and mentah[0] == "join":
+            ops_xjn = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-o", "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_xjn:
+                return False
+            return (len(ops_xjn) == 4
+                    and (ops_xjn[1] == "-"
+                         or ops_xjn[3] == "-"))
         return False
     if perintah == "tsv-filter":
         # Audit 2118: tanpa berkas ia membaca

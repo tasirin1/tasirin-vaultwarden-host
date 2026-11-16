@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv join kini bercabang sadar stdin (membalik vonis Audit 136) (Audit 144)
+
+- xsv join <columns1> <input1> <columns2> <input2> — config.rs:77,265 memetakan '-' ke stdin. Membalik vonis Audit 136 yang tak membaca config.rs.
+
 ## [Belum rilis] — xsv reverse kini bercabang sadar stdin (Audit 144)
 
 - xsv reverse [<input>] via Config xsv — config.rs:77 memetakan '-' ke stdin. Cabang baru pola masukan-tunggal.

@@ -29199,6 +29199,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xsv reverse polos: penguras - gerbang gagal (Audit 2277)", rc != 0)
         shutil.rmtree(sub1373, ignore_errors=True)
+        sub1374 = klon(tmp, "sub1374")
+        berkas_aksi1374 = os.path.join(
+            sub1374, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1374, encoding="utf-8") as f:
+            isi_aksi1374 = f.read()
+        baris_aksi1374 = [b for b in isi_aksi1374.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1374 = isi_aksi1374.replace(
+                baris_aksi1374,
+                baris_aksi1374.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv join c1 - c2 data.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1374 != isi_aksi1374, \
+            "suntikan aksi1374 tidak menembak"
+        with open(berkas_aksi1374, "w", encoding="utf-8") as f:
+            f.write(isi_baru1374)
+        rc, out = jalan(sub1374,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv join input1 '-': penguras - gerbang gagal (Audit 2278)", rc != 0)
+        shutil.rmtree(sub1374, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
