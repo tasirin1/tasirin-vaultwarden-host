@@ -7629,7 +7629,35 @@ def _menguras_khusus(perintah, toks, awal):
             ops_qvz = _operand_sesudah_opsi(
                 toks, awal + 2,
                 {"-o", "--output", "-d", "--delimiter",
-                 "--x", "--y", "--title", "-j", "--jobs"})
+                 "--agg", "--annotation", "--bins",
+                 "--box-points", "--close",
+                 "--cluster", "--color",
+                 "--color-scale", "--cols",
+                 "--dataset-pid", "--denominator",
+                 "--denominator-key",
+                 "--denominator-unit", "--dictionary",
+                 "--dictionary-context",
+                 "--enum-threshold",
+                 "--feature-id-key",
+                 "--feature-name-key",
+                 "--geocode-admin1", "--geocode-country",
+                 "--geojson", "--grid-cols",
+                 "--heatmap-density", "--height",
+                 "--hierarchy-style", "--high",
+                 "--language", "--lat", "--limit",
+                 "--location-mode", "--locations",
+                 "--log-scale", "--lon", "--low",
+                 "--max-charts", "--ohlc-open",
+                 "--preview-threshold", "--projection",
+                 "--region-state", "--scale",
+                 "--series", "--size", "--slider",
+                 "--slider-speed", "--snap-max-dist",
+                 "--source", "--style", "--target",
+                 "--text", "--theme", "--title",
+                 "--tour-audience", "--tour-steps",
+                 "--value", "--violin", "--width",
+                 "--x", "-x", "--y", "-y", "--z", "-z",
+                 "--x-title", "--y-range", "--y-title"})
             if "\x00gantung" in ops_qvz:
                 return False
             return ops_qvz == ["-"]

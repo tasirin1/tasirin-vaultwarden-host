@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv viz: himpunan opsi bernilai dilengkapi penuh (68 entri) (Audit 145)
+
+- USAGE/Args qsv-viz.rs master memuat 65 opsi panjang bernilai + pendek -x/-y/-z (+ --enum-threshold); himpunan cabang viz kini memuat semuanya sehingga nilai opsi tak lagi terbaca sebagai operand masukan.
+
 ## [Belum rilis] — xsv join kini bercabang sadar stdin (membalik vonis Audit 136) (Audit 144)
 
 - xsv join <columns1> <input1> <columns2> <input2> — config.rs:77,265 memetakan '-' ke stdin. Membalik vonis Audit 136 yang tak membaca config.rs.
