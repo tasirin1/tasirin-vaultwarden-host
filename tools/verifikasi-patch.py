@@ -7028,7 +7028,9 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, awal + 2,
                 {"-c", "--stats-csv", "-s", "--schema",
                  "-p", "--separator", "-j", "--jobs",
-                 "-d", "--delimiter"})
+                 "-d", "--delimiter", "-t", "--table",
+                 "--compression", "--compress-level",
+                 "--infer-len"})
             if "\x00gantung" in ops_qto:
                 return False
             return (len(ops_qto) == 1

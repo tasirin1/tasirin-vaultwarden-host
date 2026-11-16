@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv to: -t/--table, --compression, --compress-level, --infer-len ditambahkan (Audit 146)
+
+- USAGE bersama to.rs master memuat keempatnya bernilai; himpunan cabang to kini memuat -t/--table, --compression, --compress-level, dan --infer-len.
+
 ## [Belum rilis] — qsv replace: -j/--jobs ditambahkan ke himpunan gerbang (Audit 146)
 
 - replace.rs USAGE:75 menetapkan -j/--jobs bernilai; himpunan cabang replace kini memuatnya.
