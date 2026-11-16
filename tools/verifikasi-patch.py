@@ -7516,6 +7516,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qjl
                     or (len(ops_qjl) == 1
                         and ops_qjl[0] == "-"))
+        # Audit 2260: sub 'lens' - masukan
+        # [<input>] opsional; lens.rs:148 - tanpa berkas atau '-'
+        # ditangani sebagai stdin.
+        if mentah and mentah[0] == "lens":
+            ops_qln = _operand_sesudah_opsi(
+                toks, awal + 1, {"-d", "--delimiter", "-f", "--filter", "--find", "--columns", "--echo-column", "--freeze-columns", "-P", "--prompt", "-W", "--wrap-mode"})
+            if "\x00gantung" in ops_qln:
+                return False
+            return (not ops_qln
+                    or (len(ops_qln) == 1
+                        and ops_qln[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv lens kini bercabang sadar stdin (Audit 144)
+
+- lens.rs:148 — tanpa berkas atau '-' ditangani sebagai stdin (csvlens). Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv jsonl kini bercabang sadar stdin (Audit 144)
 
 - jsonl.rs:165-168 — None/'-' = io::stdin().lock(). Cabang baru pola masukan-tunggal.

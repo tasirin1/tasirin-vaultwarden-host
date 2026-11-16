@@ -28758,6 +28758,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv jsonl polos: penguras - gerbang gagal (Audit 2259)", rc != 0)
         shutil.rmtree(sub1352, ignore_errors=True)
+        sub1353 = klon(tmp, "sub1353")
+        berkas_aksi1353 = os.path.join(
+            sub1353, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1353, encoding="utf-8") as f:
+            isi_aksi1353 = f.read()
+        baris_aksi1353 = [b for b in isi_aksi1353.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1353 = isi_aksi1353.replace(
+                baris_aksi1353,
+                baris_aksi1353.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv lens; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1353 != isi_aksi1353, \
+            "suntikan aksi1353 tidak menembak"
+        with open(berkas_aksi1353, "w", encoding="utf-8") as f:
+            f.write(isi_baru1353)
+        rc, out = jalan(sub1353,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv lens polos: penguras - gerbang gagal (Audit 2260)", rc != 0)
+        shutil.rmtree(sub1353, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
