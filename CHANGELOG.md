@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kelas duplikat docopt dijaga di 8 cabang qsv lagi (Audit 152)
+
+- Penjaga _ada_duplikat kini dipasang di cabang search, sort, select, sample, split, partition, sortcheck, dan frequency dengan himpunan bernilai cabangnya dan pasangan alias PENUH dari USAGE master (bernilai + bool, mis. search -i/-v/-Q/-c/-p/-q, sort -N/-R/-i/-u, select -R/-S, sortcheck -N/-i/-p). Kedelapan sub memakai util::get_args pola [options]; duplikat kini berhenti sebagai galat parse di model, sejajar cabang yang sudah dijaga (2326/2349/2359).
+
 ## [Belum rilis] — mlr: -n dikenali di seluruh fase pra-kata-kerja (Audit 151)
 
 - Manpage: -n memproses tanpa masukan apa pun; cabang kini menolak -n di posisi mana pun sebelum kata kerja, bukan hanya token pertama (menumpang commit Audit 2367).

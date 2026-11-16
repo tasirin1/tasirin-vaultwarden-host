@@ -6943,6 +6943,8 @@ def _menguras_khusus(perintah, toks, awal):
         if len(mentah) >= 2 and mentah[0] == "search":
             # Audit 2131: kosakata search resmi
             # (search.rs) - kolom -s/--select.
+            if _ada_duplikat(mentah, 1, {"-s", "--select", "-f", "--flag", "--preview-match", "--size-limit", "--dfa-size-limit", "-j", "--jobs", "-o", "--output", "-d", "--delimiter"}, {"-s": "--select", "-f": "--flag", "-j": "--jobs", "-o": "--output", "-d": "--delimiter", "-i": "--ignore-case", "-v": "--invert-match", "-u": "--unicode", "-Q": "--quick", "-c": "--count", "-n": "--no-headers", "-p": "--progressbar", "-q": "--quiet"}):
+                return False
             ops_qse = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-f", "--flag",
@@ -7081,6 +7083,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2178: sub 'sort' qsv - masukan
         # [<input>] opsional (sort.rs).
         if mentah and mentah[0] == "sort":
+            if _ada_duplikat(mentah, 1, {"-s", "--select", "--seed", "--rng", "-j", "--jobs", "-o", "--output", "-d", "--delimiter"}, {"-s": "--select", "-j": "--jobs", "-o": "--output", "-d": "--delimiter", "-N": "--numeric", "-R": "--reverse", "-i": "--ignore-case", "-u": "--unique", "-n": "--no-headers"}):
+                return False
             ops_qso = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "--seed", "--rng",
@@ -7095,6 +7099,8 @@ def _menguras_khusus(perintah, toks, awal):
         # pertama pilihan kolom, masukan kedua
         # (select.rs).
         if mentah and mentah[0] == "select":
+            if _ada_duplikat(mentah, 1, {"-o", "--output", "-d", "--delimiter", "--seed"}, {"-o": "--output", "-d": "--delimiter", "-R": "--random", "-S": "--sort", "-n": "--no-headers"}):
+                return False
             ops_qse = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-o", "--output", "-d", "--delimiter",
@@ -7108,6 +7114,8 @@ def _menguras_khusus(perintah, toks, awal):
         # pertama ukuran, masukan kedua
         # (sample.rs).
         if mentah and mentah[0] == "sample":
+            if _ada_duplikat(mentah, 1, {"--seed", "--rng", "--user-agent", "--timeout", "-o", "--output", "-d", "--delimiter", "--max-size", "--systematic", "--stratified", "--weighted", "--varopt", "--sketch-in", "--sketch-out", "--cluster", "--timeseries", "--ts-interval", "--ts-start", "--ts-adaptive", "--ts-aggregate", "--ts-input-tz"}, {"-o": "--output", "-d": "--delimiter", "-n": "--no-headers"}):
+                return False
             ops_qsa = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--seed", "--rng", "--user-agent",
@@ -7141,6 +7149,8 @@ def _menguras_khusus(perintah, toks, awal):
         # pertama direktori keluaran, masukan
         # kedua (split.rs).
         if mentah and mentah[0] == "split":
+            if _ada_duplikat(mentah, 1, {"-s", "--size", "-c", "--chunks", "-k", "--kb-size", "-j", "--jobs", "--filename", "--pad", "--filter", "-d", "--delimiter"}, {"-s": "--size", "-c": "--chunks", "-k": "--kb-size", "-j": "--jobs", "-d": "--delimiter", "-n": "--no-headers", "-q": "--quiet"}):
+                return False
             ops_qsp = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--size", "-c", "--chunks",
@@ -7419,6 +7429,8 @@ def _menguras_khusus(perintah, toks, awal):
         # <column> <outdir> [<input>]
         # (partition.rs qsv).
         if mentah and mentah[0] == "partition":
+            if _ada_duplikat(mentah, 1, {"--filename", "-p", "--prefix-length", "--limit", "-d", "--delimiter"}, {"-p": "--prefix-length", "-d": "--delimiter", "-n": "--no-headers"}):
+                return False
             ops_qpa = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--filename", "-p", "--prefix-length",
@@ -7431,6 +7443,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2229: sub 'sortcheck' - masukan
         # [<input>] opsional (sortcheck.rs).
         if mentah and mentah[0] == "sortcheck":
+            if _ada_duplikat(mentah, 1, {"-s", "--select", "-d", "--delimiter"}, {"-s": "--select", "-d": "--delimiter", "-N": "--numeric", "-i": "--ignore-case", "-n": "--no-headers", "-p": "--progressbar"}):
+                return False
             ops_qsc = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-d", "--delimiter"})
@@ -7442,6 +7456,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2230: sub 'frequency' - masukan
         # [<input>] opsional (frequency.rs).
         if mentah and mentah[0] == "frequency":
+            if _ada_duplikat(mentah, 1, {"-s", "--select", "-l", "--limit", "-u", "--unq-limit", "--lmt-threshold", "--pct-dec-places", "--other-text", "-j", "--jobs", "-o", "--output", "-d", "--delimiter", "--weight", "--null-text", "--no-float", "--all-unique-text", "--high-card-pct", "--high-card-threshold", "--sketch-map-size", "--sketch-method", "--stats-filter", "-r", "--rank-strategy"}, {"-s": "--select", "-l": "--limit", "-u": "--unq-limit", "-j": "--jobs", "-o": "--output", "-d": "--delimiter", "-r": "--rank-strategy", "-a": "--asc", "-i": "--ignore-case", "-n": "--no-headers"}):
+                return False
             ops_qfr = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-l", "--limit", "-u",

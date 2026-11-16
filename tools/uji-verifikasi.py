@@ -31131,6 +31131,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("mlr -n sesudah opsi global: tak membaca apa pun - gerbang lolos (Audit 2368)", rc == 0)
         shutil.rmtree(sub1465, ignore_errors=True)
+        sub1466 = klon(tmp, "sub1466")
+        berkas_aksi1466 = os.path.join(
+            sub1466, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1466, encoding="utf-8") as f:
+            isi_aksi1466 = f.read()
+        baris_aksi1466 = [b for b in isi_aksi1466.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1466 = isi_aksi1466.replace(
+                baris_aksi1466,
+                baris_aksi1466.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv search -s a -s b pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1466 != isi_aksi1466, \
+            "suntikan aksi1466 tidak menembak"
+        with open(berkas_aksi1466, "w", encoding="utf-8") as f:
+            f.write(isi_baru1466)
+        rc, out = jalan(sub1466,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv search -s duplikat: docopt menolak - gerbang lolos (Audit 2369)", rc == 0)
+        shutil.rmtree(sub1466, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
