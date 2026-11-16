@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — _ada_duplikat: huruf bernilai di ujung bundel melompati nilainya (Audit 150)
+
+- Penghitung duplikat docopt kini memperlakukan huruf bernilai di ujung bundel seperti docopt: token berikutnya adalah nilainya dan dilompati (parse.rs qsv_docopt). Sekalian, cabang qsv fixlengths menghitung operand dari pindaian cabangnya sendiri yang sadar bundel (helper generik buta bundel membuat --output sesudah bundel menelan opsi berikutnya).
+
 ## [Belum rilis] — csvjoin/csvstack: bentuk polos terbukti menguras (koreksi Audit 2125/2126) (Audit 149)
 
 - Terverifikasi biner csvkit 2.2.0 dengan fixture bermarker: csvjoin polos menggabungkan stdin dengan dirinya dan csvstack polos menumpuk stdin; tepat 1 berkas nyata tidak menguras. Vonis kedua cabang kini: operand kosong ATAU '-' termasuk operand.

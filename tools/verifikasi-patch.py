@@ -2559,14 +2559,17 @@ def _ada_duplikat(mentah, mulai, bernilai, pasangan):
             continue
         if t_du.startswith("-") and len(t_du) > 1:
             j_du = 1
+            lompat_du = False
             while j_du < len(t_du):
                 eja_du = "-" + t_du[j_du]
                 k_du = pasangan.get(eja_du, eja_du)
                 hitung_du[k_du] = hitung_du.get(k_du, 0) + 1
                 if eja_du in bernilai:
+                    if j_du == len(t_du) - 1:
+                        lompat_du = True
                     break
                 j_du += 1
-            i_du += 1
+            i_du += 2 if lompat_du else 1
             continue
         i_du += 1
     return any(v_du > 1 for v_du in hitung_du.values())
@@ -7987,21 +7990,14 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "fixlengths":
             if _ada_duplikat(mentah, 1, {"-l", "--length", "-o", "--output", "-d", "--delimiter", "--escape", "-i", "--insert", "--quote"}, {"-l": "--length", "-o": "--output", "-d": "--delimiter", "-r": "--remove-empty", "-i": "--insert", "-q": "--quiet"}):
                 return False
-            ops_qfx = _operand_sesudah_opsi(
-                toks, awal + 1,
-                {"-l", "--length", "-o", "--output",
-                 "-d", "--delimiter", "--escape",
-                 "-i", "--insert", "--quote"})
-            if "\x00gantung" in ops_qfx:
-                return False
-            if not (not ops_qfx or ops_qfx == ["-"]):
-                return False
             nilai_qfx = None
+            ops_qfx = []
             buang_qfx = False
             i_qfx = 1
             while i_qfx < len(mentah):
                 t_qfx = mentah[i_qfx]
                 if t_qfx == "--":
+                    ops_qfx.extend(mentah[i_qfx + 1:])
                     break
                 if t_qfx in ("-r", "--remove-empty"):
                     buang_qfx = True
@@ -8070,7 +8066,13 @@ def _menguras_khusus(perintah, toks, awal):
                         return False
                     i_qfx += 1
                     continue
+                if t_qfx == "-" or not t_qfx.startswith("-"):
+                    ops_qfx.append(t_qfx)
+                elif t_qfx.startswith("--"):
+                    return False
                 i_qfx += 1
+            if not (not ops_qfx or ops_qfx == ["-"]):
+                return False
             if buang_qfx or nilai_qfx is None:
                 return False
             return (nilai_qfx.isdigit()
