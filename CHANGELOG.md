@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvjson dan csvclean kini dikenal gerbang (Audit 143)
+
+- csvjson dan csvclean resmi csvkit (tanpa FILE menerima pipa STDIN) selama ini tak dikenal gerbang sama sekali sehingga selalu dinilai tak menguras. Dua cabang baru pola csvkit (jebakan argparse + operand) ditambah nama di tuple dispatch.
+
 ## [Belum rilis] — qsv describegpt kini bercabang sadar stdin (Audit 143)
 
 - qsv describegpt belum bercabang; ia kelompok Limited Extended Input qsv — masukan [<input>] kosong/'-' memakai stdin. Cabang baru pola masukan-tunggal dengan himpunan opsi bernilai penuh dari describegpt.rs. Cabangnya mendarat pada commit geocode (satu blok teks yang sama); commit ini memasang skenario uji dan entri changelog-nya.

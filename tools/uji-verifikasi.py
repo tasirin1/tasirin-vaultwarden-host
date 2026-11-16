@@ -28212,6 +28212,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv describegpt polos: penguras - gerbang gagal (Audit 2238)", rc != 0)
         shutil.rmtree(sub1326, ignore_errors=True)
+        sub1327 = klon(tmp, "sub1327")
+        berkas_aksi1327 = os.path.join(
+            sub1327, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1327, encoding="utf-8") as f:
+            isi_aksi1327 = f.read()
+        baris_aksi1327 = [b for b in isi_aksi1327.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1327 = isi_aksi1327.replace(
+                baris_aksi1327,
+                baris_aksi1327.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvjson; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1327 != isi_aksi1327, \
+            "suntikan aksi1327 tidak menembak"
+        with open(berkas_aksi1327, "w", encoding="utf-8") as f:
+            f.write(isi_baru1327)
+        rc, out = jalan(sub1327,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvjson polos: penguras - gerbang gagal (Audit 2239)", rc != 0)
+        shutil.rmtree(sub1327, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
