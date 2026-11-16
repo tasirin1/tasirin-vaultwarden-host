@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv cat: --group-by hantu diganti --group dan --group-name resmi (Audit 143)
+
+- Himpunan bernilai qsv cat memuat --group-by yang tak ada di USAGE/struct cat mana pun dan kehilangan -g/--group serta -N/--group-name resmi (cat.rs dibaca penuh) — dampak dua arah fail-open dan fail-CLOSED. Naik dari dugaan Audit 132.
+
 ## [Belum rilis] — csvjson dan csvclean kini dikenal gerbang (Audit 143)
 
 - csvjson dan csvclean resmi csvkit (tanpa FILE menerima pipa STDIN) selama ini tak dikenal gerbang sama sekali sehingga selalu dinilai tak menguras. Dua cabang baru pola csvkit (jebakan argparse + operand) ditambah nama di tuple dispatch.
