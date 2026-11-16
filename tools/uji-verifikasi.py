@@ -28023,6 +28023,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv sortcheck membaca stdin: gerbang gagal (Audit 2229)", rc != 0)
         shutil.rmtree(sub1317, ignore_errors=True)
+        sub1318 = klon(tmp, "sub1318")
+        berkas_aksi1318 = os.path.join(
+            sub1318, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1318, encoding="utf-8") as f:
+            isi_aksi1318 = f.read()
+        baris_aksi1318 = [b for b in isi_aksi1318.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1318 = isi_aksi1318.replace(
+                baris_aksi1318,
+                baris_aksi1318.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv frequency; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1318 != isi_aksi1318, \
+            "suntikan aksi1318 tidak menembak"
+        with open(berkas_aksi1318, "w", encoding="utf-8") as f:
+            f.write(isi_baru1318)
+        rc, out = jalan(sub1318,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv frequency membaca stdin: gerbang gagal (Audit 2230)", rc != 0)
+        shutil.rmtree(sub1318, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

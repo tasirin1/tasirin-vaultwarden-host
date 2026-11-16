@@ -7192,6 +7192,21 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qsc
                     or (len(ops_qsc) == 1
                         and ops_qsc[0] == "-"))
+        # Audit 2230: sub 'frequency' - masukan
+        # [<input>] opsional (frequency.rs).
+        if mentah and mentah[0] == "frequency":
+            ops_qfr = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--select", "-l", "--limit", "-u",
+                 "--unq-limit", "--lmt-threshold",
+                 "--pct-dec-places", "--other-text", "-j",
+                 "--jobs", "-o", "--output", "-d",
+                 "--delimiter"})
+            if "\x00gantung" in ops_qfr:
+                return False
+            return (not ops_qfr
+                    or (len(ops_qfr) == 1
+                        and ops_qfr[0] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).

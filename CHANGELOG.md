@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv frequency kini bercabang sadar stdin (Audit 142)
+
+- qsv frequency belum bercabang; masukan [<input>] Option. Cabang baru pola masukan-tunggal; opsi bernilai {-s, --select, -l, --limit, -u, --unq-limit, --lmt-threshold, --pct-dec-places, --other-text, -j, --jobs, -o, --output, -d, --delimiter}.
+
 ## [Belum rilis] — qsv sortcheck kini bercabang sadar stdin (Audit 142)
 
 - qsv sortcheck belum bercabang; masukannya [<input>] Option dengan stdin sebagai bawaan. Cabang baru pola masukan-tunggal; opsi bernilai {-s, --select, -d, --delimiter}.
