@@ -28548,6 +28548,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv enum polos: penguras - gerbang gagal (Audit 2249)", rc != 0)
         shutil.rmtree(sub1342, ignore_errors=True)
+        sub1343 = klon(tmp, "sub1343")
+        berkas_aksi1343 = os.path.join(
+            sub1343, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1343, encoding="utf-8") as f:
+            isi_aksi1343 = f.read()
+        baris_aksi1343 = [b for b in isi_aksi1343.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1343 = isi_aksi1343.replace(
+                baris_aksi1343,
+                baris_aksi1343.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv explode kolom ,; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1343 != isi_aksi1343, \
+            "suntikan aksi1343 tidak menembak"
+        with open(berkas_aksi1343, "w", encoding="utf-8") as f:
+            f.write(isi_baru1343)
+        rc, out = jalan(sub1343,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv explode tanpa masukan: penguras - gerbang gagal (Audit 2250)", rc != 0)
+        shutil.rmtree(sub1343, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

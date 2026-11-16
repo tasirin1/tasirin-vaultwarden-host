@@ -7383,6 +7383,19 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qen
                     or (len(ops_qen) == 1
                         and ops_qen[0] == "-"))
+        # Audit 2250: sub 'explode' - <column>
+        # <separator> [<input>]; Config qsv
+        # (explode.rs).
+        if mentah and mentah[0] == "explode":
+            ops_qex = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-r", "--rename", "-d", "--delimiter",
+                 "-o", "--output"})
+            if "\x00gantung" in ops_qex:
+                return False
+            return (len(ops_qex) == 2
+                    or (len(ops_qex) == 3
+                        and ops_qex[2] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
