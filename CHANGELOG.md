@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvformat: token grup 'I' + -y kini ditolak gerbang (Audit 149)
+
+- csvformat override_flags ['I'] dan tak mendefinisikan -y: --null-value, --date-format, --datetime-format, --blanks, --no-leading-zeroes, -y/--snifflimit tak dikenal nyata; -L tetap dikenal. _token_terlarang menolak bentuk yang memuat token terlarang csvformat.
+
 ## [Belum rilis] — csvstack: token grup 'I'/'L' + -y kini ditolak gerbang (Audit 149)
 
 - csvstack override_flags ['f','L','I'] dan tak mendefinisikan -y: --null-value, --date-format, --datetime-format, --blanks, --no-leading-zeroes, -L/--locale, -y/--snifflimit tak dikenal nyata (argparse EXIT2). _token_terlarang menolak bentuk yang memuatnya.

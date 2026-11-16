@@ -8782,6 +8782,8 @@ def _menguras_khusus(perintah, toks, awal):
             "--out-quotechar", "-U", "--out-quoting",
             "-P", "--out-escapechar", "-M",
             "--out-lineterminator"}
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-y", "--snifflimit"}):
+            return False
         if _jebakan_argparse(mentah, bernilai_cf):
             return False
         ops_cf = _operand_sesudah_opsi(
