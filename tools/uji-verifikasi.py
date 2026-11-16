@@ -30921,6 +30921,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-filter --in hantu: getopt menolak - gerbang lolos (Audit 2358)", rc == 0)
         shutil.rmtree(sub1455, ignore_errors=True)
+        sub1456 = klon(tmp, "sub1456")
+        berkas_aksi1456 = os.path.join(
+            sub1456, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1456, encoding="utf-8") as f:
+            isi_aksi1456 = f.read()
+        baris_aksi1456 = [b for b in isi_aksi1456.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1456 = isi_aksi1456.replace(
+                baris_aksi1456,
+                baris_aksi1456.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv count -n --no-headers; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1456 != isi_aksi1456, \
+            "suntikan aksi1456 tidak menembak"
+        with open(berkas_aksi1456, "w", encoding="utf-8") as f:
+            f.write(isi_baru1456)
+        rc, out = jalan(sub1456,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv count -n + --no-headers: alias bool duplikat ditolak docopt - gerbang lolos (Audit 2359)", rc == 0)
+        shutil.rmtree(sub1456, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

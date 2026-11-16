@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — _ada_duplikat: alias bool kini dikanonikkan di 21 situs (Audit 151)
+
+- Docopt mengkanonikkan flag sebelum menghitung (parse.rs resolve + state_valid_num_flags): pasangan dict di 21 situs penjaga (15 cabang xsv, qsv count/headers/slice/stats, 2 situs apply) kini memuat pasangan alias bool cabangnya (-n/--no-headers, -i/--ignore-case, -N/--numeric, -j/--just-names, -H/--human-readable, -E/--everything, dsb. dari USAGE masing-masing). Preseden qsv fixlengths memang sudah memuat pasangan bool.
+
 ## [Belum rilis] — tsv-filter: 4 opsi hantu ditolak eksplisit (Audit 150)
 
 - --in, --not-in, --ff, --filter-file tidak ada di getopt master maupun docs saat ini; cabang kini menolak bentuk yang memuatnya (termasuk bentuk '='). Keempatnya juga dibuang dari himpunan opsi bernilai di commit Audit 2357.
