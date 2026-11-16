@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv apply emptyreplace - '-R' diterima (Audit 2199)
+
+- Penjaga + himpunan emptyreplace kini menerima -R pendek di samping --replacement.
+
 ## [Belum rilis] — Gerbang: qsv apply dynfmt - aritas masukan tunggal (Audit 2198)
 
 - Return dynfmt menjadi 'not ops or ops == [-]': resmi hanya [<input>] tunggal tanpa <column>.

@@ -6802,10 +6802,11 @@ def _menguras_khusus(perintah, toks, awal):
                 if not any(
                         t_ap == "--replacement"
                         or t_ap.startswith("--replacement=")
+                        or t_ap == "-R"
                         for t_ap in mentah):
                     return False
                 ops_ap = _operand_sesudah_opsi(
-                    toks, awal + 2, {"--replacement"})
+                    toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter"})
                 if "\x00gantung" in ops_ap:
                     return False
                 return (len(ops_ap) == 1
