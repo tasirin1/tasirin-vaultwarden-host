@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvsql: --before-insert, --after-insert, --chunk-size kini dikenali (Audit 149)
+
+- Tiga opsi bernilai khas csvsql.py (terverifikasi biner csvkit 2.2.0) ditambahkan ke himpunan cabang csvsql.
+
 ## [Belum rilis] — xsv cat: -d/--delimiter kini dikenali (Audit 149)
 
 - Himpunan xsv cat dilengkapi -d/--delimiter dari USAGE cat.rs.

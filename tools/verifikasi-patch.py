@@ -8816,7 +8816,8 @@ def _menguras_khusus(perintah, toks, awal):
             "--prefix", "--sql-delimiter", "--tables",
             "--unique-constraint", "--db-schema",
             "--min-col-len", "--col-len-multiplier",
-            "--engine-option"}
+            "--engine-option", "--before-insert",
+            "--after-insert", "--chunk-size"}
         if _jebakan_argparse(mentah, bernilai_csq):
             return False
         ops_csq = _operand_sesudah_opsi(
