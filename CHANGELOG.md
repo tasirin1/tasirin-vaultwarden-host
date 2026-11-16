@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv apply operations - himpunan bernilai diisi (Audit 2196)
+
+- Cabang operations kini memakai himpunan bernilai apply penuh (-c/-r/-C/-R/-f/-j/-b/-o/-d + panjang).
+
 ## [Belum rilis] — Gerbang: qsv apply - cabang datefmt hantu dihapus (Audit 2195)
 
 - Cabang sub 'datefmt' dihapus: sub itu tidak ada di apply.rs (enum resmi hanya Operations/DynFmt/EmptyReplace/CalcConv).

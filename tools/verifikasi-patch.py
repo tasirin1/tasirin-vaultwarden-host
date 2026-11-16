@@ -6751,7 +6751,7 @@ def _menguras_khusus(perintah, toks, awal):
         if (len(mentah) >= 2 and mentah[0] == "apply"
                 and mentah[1] == "operations"):
             ops_qap = _operand_sesudah_opsi(
-                toks, awal + 2, set())
+                toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter"})
             if "\x00gantung" in ops_qap:
                 return False
             return (len(ops_qap) == 2
