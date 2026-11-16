@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv clipboard: bundel huruf pendek kini ketat (hanya s/h sah) (Audit 146)
+
+- Pemeriksa clipboard ditulis ulang: bundel hanya boleh memuat s (h = bantuan, bukan penguras); huruf asing seperti x pada -xs adalah galat docopt dan divonis bukan penguras.
+
 ## [Belum rilis] — qsv fetchpost: pemeriksa dasar operand kini sadar posisi opsi (Audit 146)
 
 - Kehadiran --payload-tpl kini dinilai dengan penelusuran yang melompati nilai opsi bernilai lain, sehingga '-t' yang tertelan sebagai nilai -c/--new-column tak lagi mengecilkan dasar operand.

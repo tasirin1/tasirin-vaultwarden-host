@@ -7726,11 +7726,29 @@ def _menguras_khusus(perintah, toks, awal):
         # (clipboard.rs:75-77 membaca io::stdin);
         # tanpa itu ia menulis clipboard ke stdout.
         if mentah and mentah[0] == "clipboard":
-            return any(t == "--save"
-                       or (t.startswith("-")
-                           and not t.startswith("--")
-                           and "s" in t[1:])
-                       for t in mentah[1:])
+            # Audit 2301/2302: bundel hanya boleh
+            # memuat s/h; '--' dan token asing =
+            # galat docopt (tak menguras).
+            ada_qcb = False
+            for i_qcb, t_qcb in enumerate(mentah[1:]):
+                if t_qcb == "--":
+                    return (ada_qcb
+                            and i_qcb == len(mentah) - 2)
+                if t_qcb == "--save":
+                    ada_qcb = True
+                    continue
+                if t_qcb.startswith("--"):
+                    return False
+                if (t_qcb.startswith("-")
+                        and len(t_qcb) > 1):
+                    for h_qcb in t_qcb[1:]:
+                        if h_qcb == "s":
+                            ada_qcb = True
+                        else:
+                            return False
+                    continue
+                return False
+            return ada_qcb
         # Audit 2272: sub 'edit' - <input>
         # <column> <row> <value>; input '-'
         # menguras kecuali --in-place yang
