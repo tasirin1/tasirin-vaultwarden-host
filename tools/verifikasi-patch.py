@@ -6972,7 +6972,8 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "transpose":
             ops_qtr = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"-o", "--output", "-d", "--delimiter"})
+                {"-o", "--output", "-d", "--delimiter",
+                 "-s", "--select", "--long"})
             if "\x00gantung" in ops_qtr:
                 return False
             return (not ops_qtr

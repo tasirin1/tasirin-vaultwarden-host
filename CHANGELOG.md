@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv transpose: -s/--select dan --long ditambahkan ke himpunan gerbang (Audit 146)
+
+- transpose.rs:91-92 menetapkan flag_select dan flag_long bertipe Option; himpunan cabang transpose kini memuat -s/--select dan --long.
+
 ## [Belum rilis] — qsv join: --keys-output ditambahkan ke himpunan gerbang (Audit 146)
 
 - join.rs USAGE:70 menetapkan --keys-output bernilai; himpunan cabang join kini memuatnya.
