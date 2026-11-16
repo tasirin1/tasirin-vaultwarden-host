@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub foreach membaca stdin (Audit 2223)
+
+- Cabang qsv ditambah sub foreach: operand kolom + perintah, masukan ketiga (foreach.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub py membaca stdin (Audit 2222)
 
 - Cabang qsv ditambah sub py sadar sub map/filter (python.rs, pola sama dengan luau).

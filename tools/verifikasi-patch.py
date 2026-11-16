@@ -7144,6 +7144,19 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qpy) == 1
                     or (len(ops_qpy) == 2
                         and ops_qpy[1] == "-"))
+        # Audit 2223: sub 'foreach' - operand
+        # kolom + perintah, masukan ketiga
+        # (foreach.rs).
+        if mentah and mentah[0] == "foreach":
+            ops_qfo = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-c", "--new-column", "--dry-run", "-d",
+                 "--delimiter"})
+            if "\x00gantung" in ops_qfo:
+                return False
+            return (len(ops_qfo) == 2
+                    or (len(ops_qfo) == 3
+                        and ops_qfo[2] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
