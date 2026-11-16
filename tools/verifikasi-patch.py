@@ -8130,6 +8130,18 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_xfr
                     or (len(ops_xfr) == 1
                         and ops_xfr[0] == "-"))
+        # Audit 2277: sub 'reverse' xsv -
+        # masukan [<input>] opsional via Config
+        # xsv (config.rs:77 - '-' = stdin).
+        if mentah and mentah[0] == "reverse":
+            ops_xrv = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-o", "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_xrv:
+                return False
+            return (not ops_xrv
+                    or (len(ops_xrv) == 1
+                        and ops_xrv[0] == "-"))
         return False
     if perintah == "tsv-filter":
         # Audit 2118: tanpa berkas ia membaca

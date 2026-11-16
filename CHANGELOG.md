@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv reverse kini bercabang sadar stdin (Audit 144)
+
+- xsv reverse [<input>] via Config xsv — config.rs:77 memetakan '-' ke stdin. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv scoresql kini bercabang sadar stdin (Audit 144)
 
 - scoresql.rs:248-257 — <input>... <sql>; input '-' disepul dari stdin. Cabang baru sadar posisi (semua operand kecuali terakhir).
