@@ -7613,7 +7613,7 @@ def _menguras_khusus(perintah, toks, awal):
                  "-b", "--batch", "-j", "--jobs",
                  "--cache-dir", "--ckan-api",
                  "--ckan-token", "--customfilter-error",
-                 "--globals-json", "--outfilename",
+                 "--globals-json", "-J", "--outfilename",
                  "--outsubdir-size", "--timeout",
                  "-d", "--delimiter", "-o", "--output"})
             if "\x00gantung" in ops_qtp:

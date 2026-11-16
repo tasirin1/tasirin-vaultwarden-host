@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv template: bentuk pendek -J (--globals-json) ditambahkan (Audit 145)
+
+- template.rs:108 menetapkan -J sebagai pendek resmi --globals-json; himpunan cabang template kini memuatnya.
+
 ## [Belum rilis] — qsv viz: -j/--jobs hantu dikeluarkan dari himpunan gerbang (Audit 145)
 
 - viz tak mengenal --jobs di USAGE/struct mana pun; entri hantu itu dibuang pada commit pelengkapan himpunan viz (Audit 2279) — commit ini memasang skenario uji dan entri changelog-nya.
