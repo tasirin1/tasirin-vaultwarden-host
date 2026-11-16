@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv writestat kini bercabang sadar stdin (Audit 144)
+
+- writestat.rs:411-418 — stdin disepul ke stdin.csv. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv viz kini bercabang sadar stdin per tipe chart (Audit 144)
 
 - viz.rs:125,257 — semua tipe chart kecuali smart menerima '-' sebagai stdin; <input> wajib. Cabang baru sadar sub dengan smart sebagai pengecualian.

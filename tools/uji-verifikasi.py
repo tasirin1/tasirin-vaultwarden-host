@@ -28989,6 +28989,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv viz smart '-': smart tak membaca stdin - gerbang lolos (Audit 2269)", rc == 0)
         shutil.rmtree(sub1363, ignore_errors=True)
+        sub1364 = klon(tmp, "sub1364")
+        berkas_aksi1364 = os.path.join(
+            sub1364, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1364, encoding="utf-8") as f:
+            isi_aksi1364 = f.read()
+        baris_aksi1364 = [b for b in isi_aksi1364.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1364 = isi_aksi1364.replace(
+                baris_aksi1364,
+                baris_aksi1364.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv writestat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1364 != isi_aksi1364, \
+            "suntikan aksi1364 tidak menembak"
+        with open(berkas_aksi1364, "w", encoding="utf-8") as f:
+            f.write(isi_baru1364)
+        rc, out = jalan(sub1364,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv writestat polos: penguras - gerbang gagal (Audit 2270)", rc != 0)
+        shutil.rmtree(sub1364, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

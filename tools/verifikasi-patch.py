@@ -7633,6 +7633,17 @@ def _menguras_khusus(perintah, toks, awal):
             if "\x00gantung" in ops_qvz:
                 return False
             return ops_qvz == ["-"]
+        # Audit 2270: sub 'writestat' - masukan
+        # [<input>] opsional; writestat.rs:411-418 - stdin
+        # disepul ke stdin.csv.
+        if mentah and mentah[0] == "writestat":
+            ops_qws = _operand_sesudah_opsi(
+                toks, awal + 1, {"-d", "--delimiter", "-o", "--output", "--dictionary", "--format", "--table-name", "--pattern-columns", "--enum-threshold"})
+            if "\x00gantung" in ops_qws:
+                return False
+            return (not ops_qws
+                    or (len(ops_qws) == 1
+                        and ops_qws[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
