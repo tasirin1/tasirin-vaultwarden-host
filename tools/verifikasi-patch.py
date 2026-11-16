@@ -6858,7 +6858,20 @@ def _menguras_khusus(perintah, toks, awal):
                          "--delimiter", "-e", "--encoding"})
         if "\x00gantung" in ops_i2:
             return False
-        return not ops_i2
+        if not ops_i2:
+            return True
+        return (ops_i2 == ["-"]
+                and bool(_opsi_hadir(
+                    mentah, 0,
+                    {"-f", "--format", "-s",
+                     "--schema", "-k", "--key",
+                     "-y", "--snifflimit", "-d",
+                     "--delimiter", "-e",
+                     "--encoding", "--sheet",
+                     "--write-sheets",
+                     "--encoding-xls"},
+                    {"-f", "--format", "-s",
+                     "--schema", "-k", "--key"})))
     if perintah == "units":
         # Audit 2088: tanpa argumen non-opsi ia
         # membaca pasangan HAVE/WANT dari stdin

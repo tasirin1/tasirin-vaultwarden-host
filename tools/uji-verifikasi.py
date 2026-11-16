@@ -30795,6 +30795,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("sql2csv dua positional: argparse menolak '-' - gerbang lolos (Audit 2352)", rc == 0)
         shutil.rmtree(sub1449, ignore_errors=True)
+        sub1450 = klon(tmp, "sub1450")
+        berkas_aksi1450 = os.path.join(
+            sub1450, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1450, encoding="utf-8") as f:
+            isi_aksi1450 = f.read()
+        baris_aksi1450 = [b for b in isi_aksi1450.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1450 = isi_aksi1450.replace(
+                baris_aksi1450,
+                baris_aksi1450.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(in2csv -f csv -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1450 != isi_aksi1450, \
+            "suntikan aksi1450 tidak menembak"
+        with open(berkas_aksi1450, "w", encoding="utf-8") as f:
+            f.write(isi_baru1450)
+        rc, out = jalan(sub1450,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("in2csv -f csv '-': stdin dengan format - penguras, gerbang gagal (Audit 2353)", rc != 0)
+        shutil.rmtree(sub1450, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

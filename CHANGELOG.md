@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — in2csv: operand '-' menguras hanya dengan penentu format (Audit 150)
+
+- cli.py csvkit memetakan path '-' ke stdin, tetapi tanpa -f/-s/-k perintah berhenti ('You must specify a format') sebelum membaca. Vonis kini: '-' + penentu format hadir (lewat _opsi_hadir) = menguras; '-' polos = tidak.
+
 ## [Belum rilis] — sql2csv: aritas FILE nargs='?' — dua positional ditolak (Audit 150)
 
 - Vonis sql2csv kini: operand kosong atau tepat ['-']; `sql2csv berkas.sql -` berhenti di argparse nyata dan tak lagi divonis menguras.
