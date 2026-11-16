@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv count: -d/--delimiter kini dikenali (Audit 149)
+
+- Himpunan opsi bernilai xsv count tadinya kosong; USAGE count.rs memuat -d/--delimiter bernilai.
+
 ## [Belum rilis] — Kelas duplikat docopt: cabang qsv selain prompt kini menolak opsi ganda (Audit 149)
 
 - qsv_docopt menolak opsi yang muncul lebih dari sekali; gerbang kini memakai _ada_duplikat (alias pendek/panjang disatukan) di cabang apply (operations/dynfmt/calcconv/emptyreplace/summarize), fixlengths, table, stats, dan slice qsv.

@@ -8364,7 +8364,7 @@ def _menguras_khusus(perintah, toks, awal):
                         and ops_xse[1] == "-"))
         if mentah and mentah[0] == "count":
             ops_xc = _operand_sesudah_opsi(
-                toks, awal + 1, set())
+                toks, awal + 1, {"-d", "--delimiter"})
             if "\x00gantung" in ops_xc:
                 return False
             return (not ops_xc
