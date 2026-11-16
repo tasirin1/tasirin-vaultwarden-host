@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv search: -d/--delimiter kini dikenali (Audit 149)
+
+- Himpunan xsv search dilengkapi -d/--delimiter dari USAGE search.rs.
+
 ## [Belum rilis] — xsv count: -d/--delimiter kini dikenali (Audit 149)
 
 - Himpunan opsi bernilai xsv count tadinya kosong; USAGE count.rs memuat -d/--delimiter bernilai.

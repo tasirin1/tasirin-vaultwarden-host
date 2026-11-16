@@ -30270,6 +30270,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xsv count -d delimiter lalu '-': penguras - gerbang gagal (Audit 2327)", rc != 0)
         shutil.rmtree(sub1424, ignore_errors=True)
+        sub1425 = klon(tmp, "sub1425")
+        berkas_aksi1425 = os.path.join(
+            sub1425, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1425, encoding="utf-8") as f:
+            isi_aksi1425 = f.read()
+        baris_aksi1425 = [b for b in isi_aksi1425.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1425 = isi_aksi1425.replace(
+                baris_aksi1425,
+                baris_aksi1425.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv search pola -d ';' -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1425 != isi_aksi1425, \
+            "suntikan aksi1425 tidak menembak"
+        with open(berkas_aksi1425, "w", encoding="utf-8") as f:
+            f.write(isi_baru1425)
+        rc, out = jalan(sub1425,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv search -d delimiter lalu '-': penguras - gerbang gagal (Audit 2328)", rc != 0)
+        shutil.rmtree(sub1425, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

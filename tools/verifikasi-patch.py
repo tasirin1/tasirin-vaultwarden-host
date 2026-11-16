@@ -8356,7 +8356,7 @@ def _menguras_khusus(perintah, toks, awal):
             # -s/--select (README xsv).
             ops_xse = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"-s", "--select", "-o", "--output"})
+                {"-s", "--select", "-o", "--output", "-d", "--delimiter"})
             if "\x00gantung" in ops_xse:
                 return False
             return (len(ops_xse) == 1
