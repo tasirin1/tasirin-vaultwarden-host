@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvstack: token grup 'I'/'L' + -y kini ditolak gerbang (Audit 149)
+
+- csvstack override_flags ['f','L','I'] dan tak mendefinisikan -y: --null-value, --date-format, --datetime-format, --blanks, --no-leading-zeroes, -L/--locale, -y/--snifflimit tak dikenal nyata (argparse EXIT2). _token_terlarang menolak bentuk yang memuatnya.
+
 ## [Belum rilis] — csvjoin: --null-value ber-nargs='+' kini dimodelkan (Audit 149)
 
 - Operand csvjoin kini dihitung dari toks tersaring _saring_csvkit: nama berkas yang tertelan --null-value tak lagi dihitung operand (parse nyata CSVJoin terverifikasi: input_paths bawaan ['-']).

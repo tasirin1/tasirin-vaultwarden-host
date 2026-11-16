@@ -8721,6 +8721,8 @@ def _menguras_khusus(perintah, toks, awal):
         # (Tips resmi csvkit).
         bernilai_cst = _CSVKIT | {"-g", "--groups",
                                   "-n", "--group-name"}
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}):
+            return False
         if _jebakan_argparse(mentah, bernilai_cst):
             return False
         ops_cst = _operand_sesudah_opsi(
