@@ -30039,6 +30039,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv geocode -f formatstr bernilai lalu '-': penguras - gerbang gagal (Audit 2316)", rc != 0)
         shutil.rmtree(sub1413, ignore_errors=True)
+        sub1414 = klon(tmp, "sub1414")
+        berkas_aksi1414 = os.path.join(
+            sub1414, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1414, encoding="utf-8") as f:
+            isi_aksi1414 = f.read()
+        baris_aksi1414 = [b for b in isi_aksi1414.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1414 = isi_aksi1414.replace(
+                baris_aksi1414,
+                baris_aksi1414.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv apply summarize kolom -c ringkasan; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1414 != isi_aksi1414, \
+            "suntikan aksi1414 tidak menembak"
+        with open(berkas_aksi1414, "w", encoding="utf-8") as f:
+            f.write(isi_baru1414)
+        rc, out = jalan(sub1414,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv apply summarize tanpa masukan: penguras - gerbang gagal (Audit 2317)", rc != 0)
+        shutil.rmtree(sub1414, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

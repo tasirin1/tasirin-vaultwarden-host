@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv apply: sub summarize kini bercabang di gerbang (Audit 147)
+
+- apply.rs:257 — sub summarize resmi di master (kolom + [<input>] opsional, syarat wajib -c/--new-column, Config::new atas arg_input). Cabang baru sejajar sub apply lain kini menilainya.
+
 ## [Belum rilis] — qsv geocode: bentuk pendek -f (--formatstr) ditambahkan (Audit 147)
 
 - geocode.rs:716 menetapkan -f sebagai pendek resmi --formatstr; himpunan cabang geocode kini memuatnya (master bergerak sejak vonis benar putaran 143/144).

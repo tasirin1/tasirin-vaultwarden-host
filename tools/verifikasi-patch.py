@@ -6812,6 +6812,23 @@ def _menguras_khusus(perintah, toks, awal):
                 return (len(ops_ap) == 1
                         or (len(ops_ap) == 2
                             and ops_ap[1] == "-"))
+            if sub_ap == "summarize":
+                # Audit 2317: sub summarize -
+                # <column> [<input>] dengan syarat
+                # wajib -c/--new-column (apply.rs).
+                if not any(
+                        t_ap == "--new-column"
+                        or t_ap.startswith("--new-column=")
+                        or t_ap == "-c"
+                        for t_ap in mentah):
+                    return False
+                ops_ap = _operand_sesudah_opsi(
+                    toks, awal + 2, {"-c", "--new-column", "-r", "--rename", "-C", "--comparand", "-R", "--replacement", "-f", "--formatstr", "-j", "--jobs", "-b", "--batch", "-o", "--output", "-d", "--delimiter", "-u", "--base-url", "-m", "--model", "-k", "--api-key", "-t", "--max-tokens", "--timeout", "--addl-props", "--prompt", "--prompt-file", "--rate-limit", "--on-error", "--user-agent", "--cache-dir"})
+                if "\x00gantung" in ops_ap:
+                    return False
+                return (len(ops_ap) == 1
+                        or (len(ops_ap) == 2
+                            and ops_ap[1] == "-"))
         # Audit 2142: sub 'slice' - tanpa masukan
         # membaca stdin (slice.rs).
         if mentah and mentah[0] == "slice":
