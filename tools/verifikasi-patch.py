@@ -6888,7 +6888,14 @@ def _menguras_khusus(perintah, toks, awal):
                 toks, awal + 1,
                 {"--seed", "--rng", "--user-agent",
                  "--timeout", "-o", "--output", "-d",
-                 "--delimiter"})
+                 "--delimiter", "--max-size",
+                 "--systematic", "--stratified",
+                 "--weighted", "--varopt",
+                 "--sketch-in", "--sketch-out",
+                 "--cluster", "--timeseries",
+                 "--ts-interval", "--ts-start",
+                 "--ts-adaptive", "--ts-aggregate",
+                 "--ts-input-tz"})
             if "\x00gantung" in ops_qsa:
                 return False
             # Audit 2184: ukuran qsv sample f64 -

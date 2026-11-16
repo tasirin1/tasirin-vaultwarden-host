@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv sample: 14 opsi bernilai ditambahkan ke himpunan gerbang (Audit 146)
+
+- sample.rs Args master — --max-size, --systematic, --stratified, --weighted, --varopt, --sketch-in, --sketch-out, --cluster, --timeseries, --ts-interval, --ts-start, --ts-adaptive, --ts-aggregate, --ts-input-tz semuanya Option bernilai; himpunan cabang sample kini memuatnya.
+
 ## [Belum rilis] — qsv select: --seed ditambahkan ke himpunan gerbang (Audit 146)
 
 - select.rs USAGE:85 menetapkan --seed bernilai; himpunan cabang select kini memuatnya.
