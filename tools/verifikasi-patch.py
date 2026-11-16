@@ -7396,6 +7396,19 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qex) == 2
                     or (len(ops_qex) == 3
                         and ops_qex[2] == "-"))
+        # Audit 2251: sub 'extdedup' - [<input>]
+        # [<output>]; Config qsv - masukan pertama
+        # kosong/'-' berarti stdin (extdedup.rs).
+        if mentah and mentah[0] == "extdedup":
+            ops_qed = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--select", "-D", "--dupes-output",
+                 "--memory-limit", "--temp-dir",
+                 "-d", "--delimiter"})
+            if "\x00gantung" in ops_qed:
+                return False
+            return (not ops_qed
+                    or ops_qed[0] == "-")
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

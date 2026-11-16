@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv extdedup kini bercabang sadar stdin (Audit 144)
+
+- [<input>] [<output>] via Config qsv (extdedup.rs) — masukan pertama kosong/'-' = stdin. Cabang baru sadar posisi masukan.
+
 ## [Belum rilis] — qsv explode kini bercabang sadar stdin (Audit 144)
 
 - <column> <separator> [<input>] via Config qsv (explode.rs) — kosong/'-' di posisi ketiga = stdin. Cabang baru sadar posisi.
