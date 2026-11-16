@@ -8942,7 +8942,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks_csq, awal, bernilai_csq)
         if "\x00gantung" in ops_csq:
             return False
-        return not ops_csq or ops_csq == ["-"]
+        return not ops_csq or "-" in ops_csq
     # Audit 1854: derdump - sumber masukannya opsi
     # -i (bawaan stdin); -i dalam bentuk apa pun
     # berarti berkas/galat, bukan stdin. -o berkas

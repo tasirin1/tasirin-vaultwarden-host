@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvsql: aritas input_paths nargs='*' — berkas + '-' menguras (Audit 150)
+
+- Vonis csvsql kini '-' termasuk operand dalam jumlah berapa pun (biner 2.2.0: csvsql berkas.csv - memuat CREATE TABLE stdin). Himpunan opsi csvsql sendiri terverifikasi persis.
+
 ## [Belum rilis] — in2csv: --sheet, --write-sheets, --encoding-xls, -d pendek dilengkapi (Audit 150)
 
 - Empat opsi bernilai resmi in2csv (in2csv.py + biner 2.2.0) ditambahkan ke kedua himpunan cabang (jebakan argparse + operand).
