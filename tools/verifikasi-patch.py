@@ -7521,7 +7521,10 @@ def _menguras_khusus(perintah, toks, awal):
                 elif (t_xfl.startswith("-l")
                         and len(t_xfl) > 2):
                     nilai_panjang = t_xfl[2:]
-            if nilai_panjang == "0":
+            if nilai_panjang is not None and not (
+                    nilai_panjang.isdigit()
+                    and 0 < int(nilai_panjang)
+                    <= 18446744073709551615):
                 return False
             ops_xfl = _operand_sesudah_opsi(
                 toks, awal + 1,

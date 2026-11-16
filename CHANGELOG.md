@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — xsv fixlengths: nilai --length divalidasi angka sah (bukan nol/u64) (Audit 142)
+
+- Cabang xsv fixlengths hanya menolak nilai panjang yang persis "0", sehingga -l 00, -l abc, dan -l -1 dinilai menguras padahal ditolak perintah aslinya (usize). Kini nilai sah hanya bila seluruhnya digit dan 0 < n <= 18446744073709551615.
+
 ## [Belum rilis] — Gerbang: qsv - sub foreach membaca stdin (Audit 2223)
 
 - Cabang qsv ditambah sub foreach: operand kolom + perintah, masukan ketiga (foreach.rs).
