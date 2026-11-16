@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv extsort: himpunan opsi bernilai dilengkapi -s/--select dan -d/--delimiter (Audit 143)
+
+- USAGE extsort di qsv master kini memuat -s/--select (mode CSV) dan -d/--delimiter sebagai opsi bernilai; himpunan cabang 2227 belum memuatnya sehingga bentuk menggantung dinilai menguras. Klaim audit soal operand '-' gugur: extsort master memang memperlakukan '-' sebagai stdin.
+
 ## [Belum rilis] — cek-cepat: saringan .pyc dipersempit ke __pycache__ (Audit 143)
 
 - Saringan fase header membuang semua berkas terabaikan *.pyc di mana pun, sehingga header kunci di berkas kunci.pyc akar lolos. Pola dipersempit menjadi __pycache__/<nama>.pyc — pengecualian yang memang dimaksud untuk berkas turunan perkakas sendiri.

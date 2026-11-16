@@ -7163,7 +7163,8 @@ def _menguras_khusus(perintah, toks, awal):
             ops_qex = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--memory-limit", "--tmp-dir", "-j",
-                 "--jobs"})
+                 "--jobs", "-s", "--select", "-d",
+                 "--delimiter"})
             if "\x00gantung" in ops_qex:
                 return False
             return (not ops_qex
