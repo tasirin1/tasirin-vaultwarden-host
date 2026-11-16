@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fixedwidth kini bercabang sadar stdin (Audit 144)
+
+- [<input>] via Config::new (fixedwidth.rs:134) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv fill kini bercabang sadar stdin (Audit 144)
 
 - <selection> [<input>] via Config qsv (fill.rs) — kosong/'-' sesudah seleksi = stdin. Cabang baru sadar posisi.

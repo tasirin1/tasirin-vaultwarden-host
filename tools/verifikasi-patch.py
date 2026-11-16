@@ -7447,6 +7447,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qfl) == 1
                     or (len(ops_qfl) == 2
                         and ops_qfl[1] == "-"))
+        # Audit 2254: sub 'fixedwidth' - masukan
+        # [<input>] opsional; Config::new di fixedwidth.rs:134 -
+        # stdin bila kosong atau '-'.
+        if mentah and mentah[0] == "fixedwidth":
+            ops_qfw = _operand_sesudah_opsi(
+                toks, awal + 1, {"--positions", "--widths", "-o", "--output"})
+            if "\x00gantung" in ops_qfw:
+                return False
+            return (not ops_qfw
+                    or (len(ops_qfw) == 1
+                        and ops_qfw[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
