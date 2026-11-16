@@ -7480,6 +7480,20 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qfm
                     or (len(ops_qfm) == 1
                         and ops_qfm[0] == "-"))
+        # Audit 2257: sub 'implode' - <separator>
+        # [<input>] (-k/-v wajib bernilai); Config
+        # qsv (implode.rs).
+        if mentah and mentah[0] == "implode":
+            ops_qim = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-k", "--keys", "-v", "--value",
+                 "-r", "--rename", "-d", "--delimiter",
+                 "-o", "--output"})
+            if "\x00gantung" in ops_qim:
+                return False
+            return (len(ops_qim) == 1
+                    or (len(ops_qim) == 2
+                        and ops_qim[1] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

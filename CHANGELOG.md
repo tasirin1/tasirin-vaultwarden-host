@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv implode kini bercabang sadar stdin (Audit 144)
+
+- -k/-v wajib bernilai + <separator> [<input>] via Config qsv (implode.rs) — kosong/'-' sesudah pemisah = stdin. Cabang baru sadar posisi.
+
 ## [Belum rilis] — qsv fmt kini bercabang sadar stdin (Audit 144)
 
 - [<input>] via Config qsv (fmt.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
