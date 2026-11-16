@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvpy: --null-value ber-nargs='+' kini dimodelkan (Audit 149)
+
+- Terverifikasi biner 2.2.0: csvpy --null-value x file.csv berhenti dengan galat penolakan stdin karena nama berkas tertelan. Operand csvpy kini dihitung dari toks tersaring sehingga vonisnya False.
+
 ## [Belum rilis] — csvlook/csvstat/csvsort/csvjson: --null-value ber-nargs='+' kini dimodelkan (Audit 149)
 
 - Keempatnya pemakai _CSVKIT tanpa override 'I'; terverifikasi biner csvkit 2.2.0 dengan fixture bermarker bahwa --null-value menelan nama berkas dan input bawaan menjadi stdin. Operand kini dihitung dari toks tersaring _saring_csvkit.

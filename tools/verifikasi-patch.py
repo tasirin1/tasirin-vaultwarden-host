@@ -8203,8 +8203,11 @@ def _menguras_khusus(perintah, toks, awal):
         # dan '-' ditolak eksplisit (csvpy.py).
         if _jebakan_argparse(mentah, _CSVKIT):
             return False
+        toks_cpy = _saring_csvkit(toks, awal, "csvpy")
+        if toks_cpy is None:
+            return False
         ops_cpy = _operand_sesudah_opsi(
-            toks, awal, _CSVKIT)
+            toks_cpy, awal, _CSVKIT)
         if "\x00gantung" in ops_cpy:
             return False
         return (len(ops_cpy) == 1
