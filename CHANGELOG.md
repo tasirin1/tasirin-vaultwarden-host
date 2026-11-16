@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv geoconvert kini bercabang sadar stdin (Audit 144)
+
+- geoconvert.rs:8,240 — (<input>) (<fmt>) (<fmt>); '-' = stdin. Cabang baru sadar posisi.
+
 ## [Belum rilis] — qsv exclude kini bercabang sadar stdin (Audit 144)
 
 - exclude.rs:16,116 — <columns1> <input1> <columns2> <input2>; salah satu input '-' = stdin (keduanya '-' galat). Cabang baru sadar posisi.

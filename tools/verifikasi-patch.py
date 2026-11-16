@@ -7692,6 +7692,19 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qxu) == 4
                     and (ops_qxu[1] == "-"
                          or ops_qxu[3] == "-"))
+        # Audit 2275: sub 'geoconvert' - (<input>)
+        # (<input-format>) (<output-format>); '-'
+        # berarti stdin (geoconvert.rs:8,240).
+        if mentah and mentah[0] == "geoconvert":
+            ops_qgc = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-d", "--delimiter", "-g", "--geometry",
+                 "-x", "--longitude", "-y", "--latitude",
+                 "--max-length", "-o", "--output"})
+            if "\x00gantung" in ops_qgc:
+                return False
+            return (len(ops_qgc) == 3
+                    and ops_qgc[0] == "-")
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
