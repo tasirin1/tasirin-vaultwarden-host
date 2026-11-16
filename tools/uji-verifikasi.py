@@ -27561,6 +27561,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv sample underscore ditolak f64: gerbang lolos (Audit 2200)", rc == 0)
         shutil.rmtree(sub1295, ignore_errors=True)
+        sub1296 = klon(tmp, "sub1296")
+        berkas_aksi1296 = os.path.join(
+            sub1296, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1296, encoding="utf-8") as f:
+            isi_aksi1296 = f.read()
+        baris_aksi1296 = [b for b in isi_aksi1296.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1296 = isi_aksi1296.replace(
+                baris_aksi1296,
+                baris_aksi1296.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv transpose; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1296 != isi_aksi1296, \
+            "suntikan aksi1296 tidak menembak"
+        with open(berkas_aksi1296, "w", encoding="utf-8") as f:
+            f.write(isi_baru1296)
+        rc, out = jalan(sub1296,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv transpose membaca stdin: gerbang gagal (Audit 2203)", rc != 0)
+        shutil.rmtree(sub1296, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

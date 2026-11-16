@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub transpose membaca stdin (Audit 2203)
+
+- Cabang qsv ditambah sub transpose: masukan [<input>] opsional (transpose.rs).
+
 ## [Belum rilis] — CI: build-binary restore-keys dipersempit (Audit 2202)
 
 - restore-keys cache cargo dipersempit ke awalan versi upstream yang sama (sebelumnya lintas versi).
