@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv - sub stats membaca stdin (Audit 2190)
+
+- Cabang xsv ditambah sub stats: masukan [<input>] opsional (stats.rs).
+
 ## [Belum rilis] — Gerbang: xsv - sub partition membaca stdin (Audit 2189)
 
 - Cabang xsv ditambah sub partition: operand kolom + direktori keluaran, masukan ketiga (partition.rs).
