@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv apply dynfmt - himpunan bernilai diisi (Audit 2197)
+
+- Cabang dynfmt kini memakai himpunan bernilai apply penuh dan penjaga menerima -f/-c pendek.
+
 ## [Belum rilis] — Gerbang: qsv apply operations - himpunan bernilai diisi (Audit 2196)
 
 - Cabang operations kini memakai himpunan bernilai apply penuh (-c/-r/-C/-R/-f/-j/-b/-o/-d + panjang).

@@ -27477,6 +27477,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv apply operations opsi bernilai: gerbang gagal (Audit 2196)", rc != 0)
         shutil.rmtree(sub1291, ignore_errors=True)
+        sub1292 = klon(tmp, "sub1292")
+        berkas_aksi1292 = os.path.join(
+            sub1292, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1292, encoding="utf-8") as f:
+            isi_aksi1292 = f.read()
+        baris_aksi1292 = [b for b in isi_aksi1292.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1292 = isi_aksi1292.replace(
+                baris_aksi1292,
+                baris_aksi1292.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv apply dynfmt -f {a} -c baru; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1292 != isi_aksi1292, \
+            "suntikan aksi1292 tidak menembak"
+        with open(berkas_aksi1292, "w", encoding="utf-8") as f:
+            f.write(isi_baru1292)
+        rc, out = jalan(sub1292,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv apply dynfmt pendek bernilai: gerbang gagal (Audit 2197)", rc != 0)
+        shutil.rmtree(sub1292, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
