@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvclean/csvcut/csvgrep: token grup 'I'/'L' + -y kini ditolak gerbang (Audit 149)
+
+- Ketiganya override_flags ['L','I'] dan tak mendefinisikan -y (csvcut --null-value terverifikasi biner: 'unrecognized arguments'). _token_terlarang menolak bentuk yang memuat token tak dikenal itu.
+
 ## [Belum rilis] — csvpy: --null-value ber-nargs='+' kini dimodelkan (Audit 149)
 
 - Terverifikasi biner 2.2.0: csvpy --null-value x file.csv berhenti dengan galat penolakan stdin karena nama berkas tertelan. Operand csvpy kini dihitung dari toks tersaring sehingga vonisnya False.

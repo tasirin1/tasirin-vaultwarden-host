@@ -8233,6 +8233,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2242: tanpa FILE ia menerima
         # input pada STDIN (csvclean(1) csvkit);
         # opsi khasnya semua boolean.
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}):
+            return False
         if _jebakan_argparse(mentah, _CSVKIT):
             return False
         ops_ccl = _operand_sesudah_opsi(
@@ -8300,6 +8302,8 @@ def _menguras_khusus(perintah, toks, awal):
         # terpipa via STDIN (csvcut(1) csvkit).
         bernilai_ck = _CSVKIT | {"-c", "--columns",
                                  "-C", "--not-columns"}
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}):
+            return False
         if _jebakan_argparse(mentah, bernilai_ck):
             return False
         ops_ck = _operand_sesudah_opsi(
@@ -8316,6 +8320,8 @@ def _menguras_khusus(perintah, toks, awal):
                                  "-r", "--regex",
                                  "-m", "--match",
                                  "-f", "--pattern-file"}
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}):
+            return False
         if _jebakan_argparse(mentah, bernilai_cg):
             return False
         ops_cg = _operand_sesudah_opsi(
