@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv geocode kini bercabang sadar sub dan stdin (Audit 143)
+
+- qsv geocode belum bercabang; sub kolomnya (suggest/reverse/countryinfo/iplookup/opencage/geoclient/census) berbentuk <column> [<input>] dengan stdin bila masukan kosong/'-', sedangkan sub *now dan index-*/cache-* tak membaca stdin. Cabang baru sadar sub meniru pola fetch. Satu blok sisipan yang sama juga memuat cabang describegpt (Audit 2238) dan searchset (Audit 2241).
+
 ## [Belum rilis] — xsv frequency kini bercabang sadar stdin (Audit 143)
 
 - xsv frequency belum bercabang sehingga selalu dinilai tak menguras; USAGE resminya [<input>] opsional via Config (kosong atau '-' = stdin). Cabang baru pola masukan-tunggal; opsi bernilai {-s/--select, -l/--limit, -j/--jobs, -o/--output, -d/--delimiter}.

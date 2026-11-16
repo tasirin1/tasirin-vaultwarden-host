@@ -28149,6 +28149,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xsv frequency berkas: bukan penguras - gerbang lolos (Audit 2236)", rc == 0)
         shutil.rmtree(sub1323, ignore_errors=True)
+        sub1324 = klon(tmp, "sub1324")
+        berkas_aksi1324 = os.path.join(
+            sub1324, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1324, encoding="utf-8") as f:
+            isi_aksi1324 = f.read()
+        baris_aksi1324 = [b for b in isi_aksi1324.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1324 = isi_aksi1324.replace(
+                baris_aksi1324,
+                baris_aksi1324.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv geocode suggest kolom; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1324 != isi_aksi1324, \
+            "suntikan aksi1324 tidak menembak"
+        with open(berkas_aksi1324, "w", encoding="utf-8") as f:
+            f.write(isi_baru1324)
+        rc, out = jalan(sub1324,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv geocode suggest kolom tanpa masukan: penguras - gerbang gagal (Audit 2237)", rc != 0)
+        shutil.rmtree(sub1324, ignore_errors=True)
+        sub1325 = klon(tmp, "sub1325")
+        berkas_aksi1325 = os.path.join(
+            sub1325, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1325, encoding="utf-8") as f:
+            isi_aksi1325 = f.read()
+        baris_aksi1325 = [b for b in isi_aksi1325.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1325 = isi_aksi1325.replace(
+                baris_aksi1325,
+                baris_aksi1325.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv geocode suggestnow paris; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1325 != isi_aksi1325, \
+            "suntikan aksi1325 tidak menembak"
+        with open(berkas_aksi1325, "w", encoding="utf-8") as f:
+            f.write(isi_baru1325)
+        rc, out = jalan(sub1325,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv geocode suggestnow lokasi harfiah: bukan penguras - gerbang lolos (Audit 2237)", rc == 0)
+        shutil.rmtree(sub1325, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

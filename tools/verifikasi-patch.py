@@ -7208,6 +7208,89 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qfr
                     or (len(ops_qfr) == 1
                         and ops_qfr[0] == "-"))
+        # Audit 2237: sub 'geocode' - sub kolom
+        # <column> [<input>] membaca stdin bila
+        # masukan kosong/'-' (geocode.rs); sub
+        # *now lokasi harfiah dan index-*/cache-*
+        # tak membaca stdin.
+        if (len(mentah) >= 2
+                and mentah[0] == "geocode"):
+            if mentah[1] in ("suggest", "reverse",
+                             "countryinfo", "iplookup",
+                             "opencage", "geoclient",
+                             "census"):
+                ops_qge = _operand_sesudah_opsi(
+                    toks, awal + 2,
+                    {"--formatstr", "-c",
+                     "--new-column", "-r", "--rename",
+                     "--country", "--min-score",
+                     "--admin1", "-k", "--k_weight",
+                     "--api-key", "--rate-limit",
+                     "--cache-ttl", "--endpoint",
+                     "--params", "--benchmark",
+                     "--vintage", "--census-mode",
+                     "-l", "--language",
+                     "--invalid-result", "-j",
+                     "--jobs", "-b", "--batch",
+                     "--timeout", "--cache-dir",
+                     "--older-than", "--languages",
+                     "--cities-url", "-o", "--output",
+                     "-d", "--delimiter"})
+                if "\x00gantung" in ops_qge:
+                    return False
+                return (len(ops_qge) == 1
+                        or (len(ops_qge) == 2
+                            and ops_qge[1] == "-"))
+            return False
+        # Audit 2238: sub 'describegpt' -
+        # masukan [<input>] kelompok Limited
+        # Extended Input: kosong/'-' = stdin
+        # (describegpt.rs).
+        if mentah and mentah[0] == "describegpt":
+            ops_qdg = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-p", "--prompt", "-u", "--base-url",
+                 "-m", "--model", "-k", "--api-key",
+                 "-t", "--max-tokens", "-o",
+                 "--output", "--num-examples",
+                 "--truncate-str", "--addl-cols-list",
+                 "--addl-props", "--cache-dir",
+                 "--ckan-api", "--ckan-token",
+                 "--context-file", "--disk-cache-dir",
+                 "--ds-license", "--ds-source",
+                 "--ds-updated", "--enum-threshold",
+                 "--export-prompt", "--format",
+                 "--freq-options", "--language",
+                 "--limit", "--markdown-template",
+                 "--num-tags", "--okf-type",
+                 "--prompt-file", "--sample-size",
+                 "--score-max-retries",
+                 "--score-threshold", "--session",
+                 "--session-len", "--sql-results",
+                 "--stats-options", "--tag-vocab",
+                 "--timeout", "--tour-audience",
+                 "--user-agent",
+                 "--fewshot-examples"})
+            if "\x00gantung" in ops_qdg:
+                return False
+            return (not ops_qdg
+                    or (len(ops_qdg) == 1
+                        and ops_qdg[0] == "-"))
+        # Audit 2241: sub 'searchset' -
+        # (<regexset-file>) [<input>]
+        # (searchset.rs).
+        if mentah and mentah[0] == "searchset":
+            ops_qss = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--select", "-f", "--flag",
+                 "--unmatched-output", "--size-limit",
+                 "--dfa-size-limit", "--jobs", "-o",
+                 "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qss:
+                return False
+            return (len(ops_qss) == 1
+                    or (len(ops_qss) == 2
+                        and ops_qss[1] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
