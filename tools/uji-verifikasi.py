@@ -30942,6 +30942,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xsv count -n + --no-headers: alias bool duplikat ditolak docopt - gerbang lolos (Audit 2359)", rc == 0)
         shutil.rmtree(sub1456, ignore_errors=True)
+        sub1457 = klon(tmp, "sub1457")
+        berkas_aksi1457 = os.path.join(
+            sub1457, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1457, encoding="utf-8") as f:
+            isi_aksi1457 = f.read()
+        baris_aksi1457 = [b for b in isi_aksi1457.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1457 = isi_aksi1457.replace(
+                baris_aksi1457,
+                baris_aksi1457.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sql2csv -b -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1457 != isi_aksi1457, \
+            "suntikan aksi1457 tidak menembak"
+        with open(berkas_aksi1457, "w", encoding="utf-8") as f:
+            f.write(isi_baru1457)
+        rc, out = jalan(sub1457,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("sql2csv tak mengenal -b: argparse berhenti - gerbang lolos (Audit 2360)", rc == 0)
+        shutil.rmtree(sub1457, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

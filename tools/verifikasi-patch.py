@@ -8937,7 +8937,7 @@ def _menguras_khusus(perintah, toks, awal):
                for t_sq in mentah):
             return False
         bernilai_sq = _CSVKIT | {"--db", "--query"}
-        if _token_terlarang(mentah, {"-d", "--delimiter", "-q", "--quotechar", "-u", "--quoting", "-p", "--escapechar", "-z", "--maxfieldsize", "-y", "--snifflimit", "-L", "--locale", "-K", "--skip-lines", "--null-value", "--date-format", "--datetime-format", "--zero", "--add-bom", "--blanks", "--no-leading-zeroes", "-t", "--tabs", "-S", "--skipinitialspace"}, bernilai_sq):
+        if _token_terlarang(mentah, {"-d", "--delimiter", "-q", "--quotechar", "-u", "--quoting", "-p", "--escapechar", "-z", "--maxfieldsize", "-y", "--snifflimit", "-L", "--locale", "-K", "--skip-lines", "--null-value", "--date-format", "--datetime-format", "--zero", "--add-bom", "--blanks", "--no-leading-zeroes", "-t", "--tabs", "-S", "--skipinitialspace", "-b", "--no-doublequote"}, bernilai_sq):
             return False
         if _jebakan_argparse(mentah, bernilai_sq):
             return False
