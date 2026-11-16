@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub to membaca stdin (Audit 2207)
+
+- Cabang qsv ditambah sub to: sesudah sub-format, operand pertama target keluaran, daftar masukan boleh kosong (to.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub replace membaca stdin (Audit 2206)
 
 - Cabang qsv ditambah sub replace: operand pola + pengganti, masukan ketiga (replace.rs).

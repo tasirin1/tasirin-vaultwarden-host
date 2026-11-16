@@ -7000,6 +7000,23 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qrp) == 2
                     or (len(ops_qrp) == 3
                         and ops_qrp[2] == "-"))
+        # Audit 2207: sub 'to' - operand sesudah
+        # sub-format adalah target keluaran,
+        # daftar masukan boleh kosong (to.rs).
+        if (len(mentah) >= 2 and mentah[0] == "to"
+                and mentah[1] in ("postgres", "sqlite",
+                                  "xlsx", "parquet",
+                                  "datapackage")):
+            ops_qto = _operand_sesudah_opsi(
+                toks, awal + 2,
+                {"-c", "--stats-csv", "-s", "--schema",
+                 "-p", "--separator", "-j", "--jobs",
+                 "-d", "--delimiter"})
+            if "\x00gantung" in ops_qto:
+                return False
+            return (len(ops_qto) == 1
+                    or (len(ops_qto) >= 2
+                        and ops_qto[1] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
