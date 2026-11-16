@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv extsort kini bercabang sadar stdin (Audit 142)
+
+- qsv extsort belum bercabang; USAGE-nya [<input>] [<output>] dengan stdin bila masukan kosong. Cabang baru sadar posisi: tanpa operand atau operand pertama '-' berarti stdin; opsi bernilai {--memory-limit, --tmp-dir, -j, --jobs}.
+
 ## [Belum rilis] — cek-cepat: kandidat header ikut dari berkas terabaikan (Audit 142)
 
 - Header kunci privat di tengah baris pada berkas biner yang terabaikan (.gitignore) lolos karena kandidat header hanya dari indeks/worktree/tak-terlacak. Sumber keempat ls-files --others --ignored ditambahkan dengan saringan sempit __pycache__/*.pyc (berkas turunan perkakas sendiri memuat literal pola dari kode gerbang).

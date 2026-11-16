@@ -7157,6 +7157,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qfo) == 2
                     or (len(ops_qfo) == 3
                         and ops_qfo[2] == "-"))
+        # Audit 2227: sub 'extsort' - masukan
+        # [<input>] [<output>] (extsort.rs).
+        if mentah and mentah[0] == "extsort":
+            ops_qex = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"--memory-limit", "--tmp-dir", "-j",
+                 "--jobs"})
+            if "\x00gantung" in ops_qex:
+                return False
+            return (not ops_qex
+                    or ops_qex[0] == "-")
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
