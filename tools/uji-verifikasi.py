@@ -27876,6 +27876,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv input membaca stdin: gerbang gagal (Audit 2220)", rc != 0)
         shutil.rmtree(sub1310, ignore_errors=True)
+        sub1311 = klon(tmp, "sub1311")
+        berkas_aksi1311 = os.path.join(
+            sub1311, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1311, encoding="utf-8") as f:
+            isi_aksi1311 = f.read()
+        baris_aksi1311 = [b for b in isi_aksi1311.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1311 = isi_aksi1311.replace(
+                baris_aksi1311,
+                baris_aksi1311.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv luau map kolom skrip; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1311 != isi_aksi1311, \
+            "suntikan aksi1311 tidak menembak"
+        with open(berkas_aksi1311, "w", encoding="utf-8") as f:
+            f.write(isi_baru1311)
+        rc, out = jalan(sub1311,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv luau map membaca stdin: gerbang gagal (Audit 2221)", rc != 0)
+        shutil.rmtree(sub1311, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

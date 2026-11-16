@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub luau membaca stdin (Audit 2221)
+
+- Cabang qsv ditambah sub luau sadar sub map/filter (pola docopt luau.rs: map -n/<kolom baru> <skrip>, filter <skrip>).
+
 ## [Belum rilis] — Gerbang: qsv - sub input membaca stdin (Audit 2220)
 
 - Cabang qsv ditambah sub input: masukan [<input>] opsional (input.rs).

@@ -7097,6 +7097,31 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qin
                     or (len(ops_qin) == 1
                         and ops_qin[0] == "-"))
+        # Audit 2221: sub 'luau' - map/filter
+        # sadar sub (luau.rs).
+        if (len(mentah) >= 2 and mentah[0] == "luau"
+                and mentah[1] in ("map", "filter")):
+            ops_qlu = _operand_sesudah_opsi(
+                toks, awal + 2,
+                {"-B", "--begin", "-E", "--end",
+                 "--luau-path", "--max-errors",
+                 "--timeout", "--ckan-api",
+                 "--ckan-token", "--cache-dir", "-o",
+                 "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qlu:
+                return False
+            if mentah[1] == "map":
+                ada_n = any(
+                    t_qlu == "-n"
+                    or t_qlu == "--no-headers"
+                    for t_qlu in mentah)
+                return ((ada_n and len(ops_qlu) == 1)
+                        or len(ops_qlu) == 2
+                        or (len(ops_qlu) == 3
+                            and ops_qlu[2] == "-"))
+            return (len(ops_qlu) == 1
+                    or (len(ops_qlu) == 2
+                        and ops_qlu[1] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
