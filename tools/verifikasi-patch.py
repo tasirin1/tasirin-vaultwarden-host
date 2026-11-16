@@ -8218,8 +8218,11 @@ def _menguras_khusus(perintah, toks, awal):
             "--lat", "--lon", "--crs"}
         if _jebakan_argparse(mentah, bernilai_cjn):
             return False
+        toks_cjn = _saring_csvkit(toks, awal, "csvjson")
+        if toks_cjn is None:
+            return False
         ops_cjn = _operand_sesudah_opsi(
-            toks, awal, bernilai_cjn)
+            toks_cjn, awal, bernilai_cjn)
         if "\x00gantung" in ops_cjn:
             return False
         return not ops_cjn or ops_cjn == ["-"]
@@ -8246,8 +8249,11 @@ def _menguras_khusus(perintah, toks, awal):
                                    "--max-column-width",
                                    "--max-precision"}):
             return False
+        toks_cl = _saring_csvkit(toks, awal, "csvlook")
+        if toks_cl is None:
+            return False
         ops_cl = _operand_sesudah_opsi(
-            toks, awal, _CSVKIT | {"--max-rows",
+            toks_cl, awal, _CSVKIT | {"--max-rows",
                                    "--max-columns",
                                    "--max-column-width",
                                    "--max-precision"})
@@ -8338,8 +8344,11 @@ def _menguras_khusus(perintah, toks, awal):
         bernilai_cs = _CSVKIT | {"-c", "--columns"}
         if _jebakan_argparse(mentah, bernilai_cs):
             return False
+        toks_cs = _saring_csvkit(toks, awal, "csvstat")
+        if toks_cs is None:
+            return False
         ops_cs = _operand_sesudah_opsi(
-            toks, awal, bernilai_cs)
+            toks_cs, awal, bernilai_cs)
         if "\x00gantung" in ops_cs:
             return False
         return not ops_cs or ops_cs == ["-"]
@@ -8665,8 +8674,11 @@ def _menguras_khusus(perintah, toks, awal):
         bernilai_cso = _CSVKIT | {"-c", "--columns"}
         if _jebakan_argparse(mentah, bernilai_cso):
             return False
+        toks_cso = _saring_csvkit(toks, awal, "csvsort")
+        if toks_cso is None:
+            return False
         ops_cso = _operand_sesudah_opsi(
-            toks, awal, bernilai_cso)
+            toks_cso, awal, bernilai_cso)
         if "\x00gantung" in ops_cso:
             return False
         return not ops_cso or ops_cso == ["-"]

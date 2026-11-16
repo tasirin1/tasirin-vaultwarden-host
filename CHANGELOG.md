@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvlook/csvstat/csvsort/csvjson: --null-value ber-nargs='+' kini dimodelkan (Audit 149)
+
+- Keempatnya pemakai _CSVKIT tanpa override 'I'; terverifikasi biner csvkit 2.2.0 dengan fixture bermarker bahwa --null-value menelan nama berkas dan input bawaan menjadi stdin. Operand kini dihitung dari toks tersaring _saring_csvkit.
+
 ## [Belum rilis] — csvformat: token grup 'I' + -y kini ditolak gerbang (Audit 149)
 
 - csvformat override_flags ['I'] dan tak mendefinisikan -y: --null-value, --date-format, --datetime-format, --blanks, --no-leading-zeroes, -y/--snifflimit tak dikenal nyata; -L tetap dikenal. _token_terlarang menolak bentuk yang memuat token terlarang csvformat.
