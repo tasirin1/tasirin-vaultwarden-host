@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv select: --seed ditambahkan ke himpunan gerbang (Audit 146)
+
+- select.rs USAGE:85 menetapkan --seed bernilai; himpunan cabang select kini memuatnya.
+
 ## [Belum rilis] — qsv stats: 6 opsi bernilai ditambahkan ke himpunan gerbang (Audit 146)
 
 - stats.rs Args master — --boolean-patterns, --cardinality-method, --mode-cardinality-cap, --percentile-list, --quantile-method, --weight semuanya bertipe bernilai; himpunan cabang stats kini memuatnya.

@@ -6873,7 +6873,8 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "select":
             ops_qse = _operand_sesudah_opsi(
                 toks, awal + 1,
-                {"-o", "--output", "-d", "--delimiter"})
+                {"-o", "--output", "-d", "--delimiter",
+                 "--seed"})
             if "\x00gantung" in ops_qse:
                 return False
             return (len(ops_qse) == 1
