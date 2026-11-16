@@ -7126,6 +7126,18 @@ def _menguras_khusus(perintah, toks, awal):
                  "-p", "--prefix-length"})
             if "\x00gantung" in ops_xpa:
                 return False
+            # Audit 2193: template --filename
+            # partition wajib tepat satu '{}'.
+            for i_pa, t_pa in enumerate(mentah):
+                nilai_pa = None
+                if (t_pa == "--filename"
+                        and i_pa + 1 < len(mentah)):
+                    nilai_pa = mentah[i_pa + 1]
+                elif t_pa.startswith("--filename="):
+                    nilai_pa = t_pa.split("=", 1)[1]
+                if (nilai_pa is not None
+                        and nilai_pa.count("{}") != 1):
+                    return False
             return (len(ops_xpa) == 2
                     or (len(ops_xpa) == 3
                         and ops_xpa[2] == "-"))

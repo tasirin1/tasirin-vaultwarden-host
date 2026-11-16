@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv partition - template filename divalidasi (Audit 2193)
+
+- Cabang xsv partition kini menolak nilai --filename yang tidak memuat tepat satu '{}'.
+
 ## [Belum rilis] — Gerbang: xsv partition - prefix-length bernilai (Audit 2192)
 
 - Himpunan bernilai xsv partition ditambah -p/--prefix-length (partition.rs).
