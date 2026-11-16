@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv frequency: 10 opsi bernilai ditambahkan ke himpunan gerbang (Audit 145)
+
+- frequency.rs master — --weight, --null-text, --no-float (Option<String>), --all-unique-text, --high-card-pct, --high-card-threshold, --sketch-map-size, --sketch-method, --stats-filter, -r/--rank-strategy semuanya bertipe bernilai; himpunan cabang frequency kini memuatnya.
+
 ## [Belum rilis] — qsv partition: --limit ditambahkan ke himpunan gerbang (Audit 145)
 
 - partition.rs:54 menetapkan --limit bernilai; himpunan cabang partition kini memuatnya.

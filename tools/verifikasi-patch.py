@@ -7205,7 +7205,13 @@ def _menguras_khusus(perintah, toks, awal):
                  "--unq-limit", "--lmt-threshold",
                  "--pct-dec-places", "--other-text", "-j",
                  "--jobs", "-o", "--output", "-d",
-                 "--delimiter"})
+                 "--delimiter", "--weight",
+                 "--null-text", "--no-float",
+                 "--all-unique-text", "--high-card-pct",
+                 "--high-card-threshold",
+                 "--sketch-map-size", "--sketch-method",
+                 "--stats-filter", "-r",
+                 "--rank-strategy"})
             if "\x00gantung" in ops_qfr:
                 return False
             return (not ops_qfr
