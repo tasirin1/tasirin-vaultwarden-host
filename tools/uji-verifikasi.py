@@ -29157,6 +29157,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv geoconvert '-': penguras - gerbang gagal (Audit 2275)", rc != 0)
         shutil.rmtree(sub1371, ignore_errors=True)
+        sub1372 = klon(tmp, "sub1372")
+        berkas_aksi1372 = os.path.join(
+            sub1372, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1372, encoding="utf-8") as f:
+            isi_aksi1372 = f.read()
+        baris_aksi1372 = [b for b in isi_aksi1372.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1372 = isi_aksi1372.replace(
+                baris_aksi1372,
+                baris_aksi1372.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv scoresql - SELECT; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1372 != isi_aksi1372, \
+            "suntikan aksi1372 tidak menembak"
+        with open(berkas_aksi1372, "w", encoding="utf-8") as f:
+            f.write(isi_baru1372)
+        rc, out = jalan(sub1372,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv scoresql input '-': penguras - gerbang gagal (Audit 2276)", rc != 0)
+        shutil.rmtree(sub1372, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

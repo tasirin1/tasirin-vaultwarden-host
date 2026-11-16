@@ -7705,6 +7705,18 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (len(ops_qgc) == 3
                     and ops_qgc[0] == "-")
+        # Audit 2276: sub 'scoresql' - <input>...
+        # <sql>; input '-' disepul dari stdin
+        # (scoresql.rs:248-257).
+        if mentah and mentah[0] == "scoresql":
+            ops_qsq = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-d", "--delimiter", "--infer-len",
+                 "-o", "--output"})
+            if "\x00gantung" in ops_qsq:
+                return False
+            return (len(ops_qsq) >= 2
+                    and "-" in ops_qsq[:-1])
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

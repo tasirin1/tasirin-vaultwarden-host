@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv scoresql kini bercabang sadar stdin (Audit 144)
+
+- scoresql.rs:248-257 — <input>... <sql>; input '-' disepul dari stdin. Cabang baru sadar posisi (semua operand kecuali terakhir).
+
 ## [Belum rilis] — qsv geoconvert kini bercabang sadar stdin (Audit 144)
 
 - geoconvert.rs:8,240 — (<input>) (<fmt>) (<fmt>); '-' = stdin. Cabang baru sadar posisi.
