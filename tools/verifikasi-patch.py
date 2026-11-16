@@ -7181,6 +7181,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qpa) == 2
                     or (len(ops_qpa) == 3
                         and ops_qpa[2] == "-"))
+        # Audit 2229: sub 'sortcheck' - masukan
+        # [<input>] opsional (sortcheck.rs).
+        if mentah and mentah[0] == "sortcheck":
+            ops_qsc = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-s", "--select", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qsc:
+                return False
+            return (not ops_qsc
+                    or (len(ops_qsc) == 1
+                        and ops_qsc[0] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).

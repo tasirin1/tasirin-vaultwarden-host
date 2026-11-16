@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv sortcheck kini bercabang sadar stdin (Audit 142)
+
+- qsv sortcheck belum bercabang; masukannya [<input>] Option dengan stdin sebagai bawaan. Cabang baru pola masukan-tunggal; opsi bernilai {-s, --select, -d, --delimiter}.
+
 ## [Belum rilis] — qsv partition kini bercabang sadar stdin (Audit 142)
 
 - qsv partition belum bercabang; bentuknya <column> <outdir> [<input>] dan membaca stdin bila masukan kosong atau '-'. Cabang baru: True iff tepat 2 operand atau operand ketiga '-'; opsi bernilai {--filename, -p, --prefix-length, -d, --delimiter}.
