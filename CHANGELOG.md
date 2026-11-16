@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvclean: skenario uji cabang stdin (Audit 143)
+
+- Cabang csvclean mendarat pada commit csvjson (satu blok teks yang sama, Audit 2239); commit ini memasang skenario uji dan entri changelog-nya.
+
 ## [Belum rilis] — qsv searchset kini bercabang sadar stdin (Audit 143)
 
 - qsv searchset belum bercabang; bentuknya (<regexset-file>) [<input>] dan masuk daftar pembaca pipa qsv — masukan kosong atau '-' berarti stdin. Cabang baru sadar posisi operand mendarat pada commit geocode (satu blok teks yang sama); commit ini memasang skenario uji dan entri changelog-nya.
