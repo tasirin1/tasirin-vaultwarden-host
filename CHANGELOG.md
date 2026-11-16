@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — cek-cepat: saringan .pyc dipersempit ke __pycache__ (Audit 143)
+
+- Saringan fase header membuang semua berkas terabaikan *.pyc di mana pun, sehingga header kunci di berkas kunci.pyc akar lolos. Pola dipersempit menjadi __pycache__/<nama>.pyc — pengecualian yang memang dimaksud untuk berkas turunan perkakas sendiri.
+
 ## [Belum rilis] — cek-cepat: sed HEAD: hanya pada keluaran grep HEAD (Audit 143)
 
 - Perbaikan 2225 memasang sed 's/^HEAD://' pada gabungan tiga sumber sehingga berkas terlacak yang harfiah bernama HEAD:... ikut terpotong dan memunculkan nama hantu di pesan gagal. Sed kini hanya menyaring keluaran git grep HEAD itu sendiri.

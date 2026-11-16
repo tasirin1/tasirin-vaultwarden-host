@@ -1210,6 +1210,18 @@ def main():
         shutil.rmtree(kepalah, ignore_errors=True)
 
 
+        pycakar = klon(tmp, "pycakar")
+        with open(pycakar + "/.gitignore", "a") as fh:
+            fh.write("kunci.pyc\n")
+        with open(pycakar + "/kunci.pyc", "wb") as fh:
+            fh.write(b"\x00\x01xxxx -----BEGIN RSA "
+                     b"PRIVATE KEY----- yyyy\x00")
+        rc, out = jalan(pycakar, ["bash", SKRIP])
+        periksa("header kunci di *.pyc akar terabaikan "
+                "tertangkap (Audit 2234)", rc != 0)
+        shutil.rmtree(pycakar, ignore_errors=True)
+
+
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
