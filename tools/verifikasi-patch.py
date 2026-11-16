@@ -7339,6 +7339,17 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             return (not ops_qb3 or "-" in ops_qb3
                     or "--keyed" in mentah)
+        # Audit 2246: sub 'color' - masukan
+        # [<input>] opsional; Config qsv memakai stdin bila
+        # masukan kosong atau '-' (color.rs).
+        if mentah and mentah[0] == "color":
+            ops_qco = _operand_sesudah_opsi(
+                toks, awal + 1, {"-d", "--delimiter", "-o", "--output", "-t", "--title"})
+            if "\x00gantung" in ops_qco:
+                return False
+            return (not ops_qco
+                    or (len(ops_qco) == 1
+                        and ops_qco[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

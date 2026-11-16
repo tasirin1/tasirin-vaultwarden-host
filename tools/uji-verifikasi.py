@@ -28464,6 +28464,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv blake3 berkas: bukan penguras - gerbang lolos (Audit 2245)", rc == 0)
         shutil.rmtree(sub1338, ignore_errors=True)
+        sub1339 = klon(tmp, "sub1339")
+        berkas_aksi1339 = os.path.join(
+            sub1339, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1339, encoding="utf-8") as f:
+            isi_aksi1339 = f.read()
+        baris_aksi1339 = [b for b in isi_aksi1339.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1339 = isi_aksi1339.replace(
+                baris_aksi1339,
+                baris_aksi1339.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv color; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1339 != isi_aksi1339, \
+            "suntikan aksi1339 tidak menembak"
+        with open(berkas_aksi1339, "w", encoding="utf-8") as f:
+            f.write(isi_baru1339)
+        rc, out = jalan(sub1339,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv color polos: penguras - gerbang gagal (Audit 2246)", rc != 0)
+        shutil.rmtree(sub1339, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

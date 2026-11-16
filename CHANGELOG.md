@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv color kini bercabang sadar stdin (Audit 144)
+
+- [<input>] via Config qsv (color.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv blake3 kini bercabang sadar stdin (Audit 144)
 
 - blake3.rs:6,96 — [<input>...] variadik; tanpa berkas atau ada '-' membaca stdin, dan --keyed membaca kunci dari stdin. Cabang baru sadar variadik.
