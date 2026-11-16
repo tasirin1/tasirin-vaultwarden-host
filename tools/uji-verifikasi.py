@@ -27225,6 +27225,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv dedup membaca stdin: gerbang gagal (Audit 2183)", rc != 0)
         shutil.rmtree(sub1279, ignore_errors=True)
+        sub1280 = klon(tmp, "sub1280")
+        berkas_aksi1280 = os.path.join(
+            sub1280, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1280, encoding="utf-8") as f:
+            isi_aksi1280 = f.read()
+        baris_aksi1280 = [b for b in isi_aksi1280.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1280 = isi_aksi1280.replace(
+                baris_aksi1280,
+                baris_aksi1280.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv sample abc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1280 != isi_aksi1280, \
+            "suntikan aksi1280 tidak menembak"
+        with open(berkas_aksi1280, "w", encoding="utf-8") as f:
+            f.write(isi_baru1280)
+        rc, out = jalan(sub1280,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv sample ukuran bukan angka: gerbang lolos (Audit 2184)", rc == 0)
+        shutil.rmtree(sub1280, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

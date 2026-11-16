@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv sample - ukuran wajib angka (Audit 2184)
+
+- Cabang qsv sample kini menolak operand pertama yang tidak terurai sebagai f64 ('abc' galat parse; '0.5' sah).
+
 ## [Belum rilis] — Gerbang: qsv - sub dedup membaca stdin (Audit 2183)
 
 - Cabang qsv ditambah sub dedup: masukan [<input>] opsional (dedup.rs).

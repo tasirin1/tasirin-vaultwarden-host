@@ -6867,6 +6867,13 @@ def _menguras_khusus(perintah, toks, awal):
                  "--delimiter"})
             if "\x00gantung" in ops_qsa:
                 return False
+            # Audit 2184: ukuran qsv sample f64 -
+            # bukan angka = galat parse.
+            if ops_qsa:
+                try:
+                    float(ops_qsa[0])
+                except ValueError:
+                    return False
             return (len(ops_qsa) == 1
                     or (len(ops_qsa) >= 2
                         and ops_qsa[1] == "-"))
