@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fetchpost: pemeriksa dasar operand kini sadar posisi opsi (Audit 146)
+
+- Kehadiran --payload-tpl kini dinilai dengan penelusuran yang melompati nilai opsi bernilai lain, sehingga '-t' yang tertelan sebagai nilai -c/--new-column tak lagi mengecilkan dasar operand.
+
 ## [Belum rilis] — qsv prompt: pindaian tak lagi tertipu nilai opsi, --, dan opsi menggantung (Audit 146)
 
 - Satu penulisan ulang pindaian prompt (Audit 2298) sekaligus menutup tiga ketertipuan: nilai opsi yang berbunyi --output, token sesudah --, dan --output menggantung tanpa nilai — ketiganya kini divonis bukan penguras. Commit ini memasang skenario uji dan entri changelog-nya.

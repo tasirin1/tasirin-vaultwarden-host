@@ -29682,6 +29682,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv prompt -m menelan --output sebagai nilai: bukan penguras - gerbang lolos (Audit 2299)", rc == 0)
         shutil.rmtree(sub1396, ignore_errors=True)
+        sub1397 = klon(tmp, "sub1397")
+        berkas_aksi1397 = os.path.join(
+            sub1397, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1397, encoding="utf-8") as f:
+            isi_aksi1397 = f.read()
+        baris_aksi1397 = [b for b in isi_aksi1397.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1397 = isi_aksi1397.replace(
+                baris_aksi1397,
+                baris_aksi1397.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv fetchpost urlkol -c -t daftar; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1397 != isi_aksi1397, \
+            "suntikan aksi1397 tidak menembak"
+        with open(berkas_aksi1397, "w", encoding="utf-8") as f:
+            f.write(isi_baru1397)
+        rc, out = jalan(sub1397,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv fetchpost -t tertelan -c: dua operand penguras - gerbang gagal (Audit 2300)", rc != 0)
+        shutil.rmtree(sub1397, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

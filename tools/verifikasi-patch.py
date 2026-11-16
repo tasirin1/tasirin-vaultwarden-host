@@ -7442,17 +7442,46 @@ def _menguras_khusus(perintah, toks, awal):
                  "--delimiter", "-o", "--output"})
             if "\x00gantung" in ops_qfp:
                 return False
-            dasar_qfp = (1 if ("--payload-tpl" in mentah
-                               or "-t" in mentah
-                               or any(t.startswith(
-                                      "--payload-tpl=")
-                                      for t in mentah)
-                               or any(len(t) > 2
-                                      and t.startswith("-t")
-                                      and not t.startswith(
-                                          "--")
-                                      for t in mentah))
-                         else 2)
+            # Audit 2300: kehadiran --payload-tpl
+            # dinilai sadar posisi opsi (nilai opsi
+            # lain yang berbunyi '-t' tak dihitung).
+            ada_tpl_qfp = False
+            lewat_qfp = False
+            for t_qfp2 in mentah[1:]:
+                if lewat_qfp:
+                    lewat_qfp = False
+                    continue
+                if t_qfp2 == "--":
+                    break
+                if t_qfp2 in ("--payload-tpl", "-t"):
+                    ada_tpl_qfp = True
+                    lewat_qfp = True
+                    continue
+                if t_qfp2.startswith("--payload-tpl="):
+                    ada_tpl_qfp = True
+                    continue
+                if (len(t_qfp2) > 2
+                        and t_qfp2.startswith("-t")
+                        and not t_qfp2.startswith("--")):
+                    ada_tpl_qfp = True
+                    continue
+                if ("=" not in t_qfp2
+                        and t_qfp2 in (
+                            "-H", "--http-header", "-c",
+                            "--new-column", "--jaq",
+                            "--jaqfile", "--timeout",
+                            "--rate-limit", "--max-retries",
+                            "--max-errors", "--report",
+                            "--mem-cache-size",
+                            "--disk-cache-dir",
+                            "--globals-json",
+                            "--content-type",
+                            "--default-encoding",
+                            "--user-agent", "-j", "-d",
+                            "--delimiter", "-o",
+                            "--output")):
+                    lewat_qfp = True
+            dasar_qfp = 1 if ada_tpl_qfp else 2
             return (len(ops_qfp) == dasar_qfp
                     or (len(ops_qfp) == dasar_qfp + 1
                         and ops_qfp[dasar_qfp] == "-"))
