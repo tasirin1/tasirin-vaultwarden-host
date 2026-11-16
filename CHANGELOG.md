@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub reverse membaca stdin (Audit 2204)
+
+- Cabang qsv ditambah sub reverse: masukan [<input>] opsional (reverse.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub transpose membaca stdin (Audit 2203)
 
 - Cabang qsv ditambah sub transpose: masukan [<input>] opsional (transpose.rs).

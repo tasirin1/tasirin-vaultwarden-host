@@ -6963,6 +6963,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qtr
                     or (len(ops_qtr) == 1
                         and ops_qtr[0] == "-"))
+        # Audit 2204: sub 'reverse' - masukan
+        # [<input>] opsional (reverse.rs).
+        if mentah and mentah[0] == "reverse":
+            ops_qrv = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-o", "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qrv:
+                return False
+            return (not ops_qrv
+                    or (len(ops_qrv) == 1
+                        and ops_qrv[0] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
