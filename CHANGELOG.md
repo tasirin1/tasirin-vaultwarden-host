@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv enum kini bercabang sadar stdin (Audit 144)
+
+- [<input>] via Config qsv (enumerate.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv denull kini bercabang sadar stdin (Audit 144)
 
 - [<input>] via Config qsv (denull.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.

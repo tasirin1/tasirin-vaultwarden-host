@@ -7372,6 +7372,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qdn
                     or (len(ops_qdn) == 1
                         and ops_qdn[0] == "-"))
+        # Audit 2249: sub 'enum' - masukan
+        # [<input>] opsional; Config qsv memakai stdin bila
+        # masukan kosong atau '-' (enumerate.rs).
+        if mentah and mentah[0] == "enum":
+            ops_qen = _operand_sesudah_opsi(
+                toks, awal + 1, {"-c", "--new-column", "--copy", "--constant", "--start", "--increment", "--hash", "-d", "--delimiter", "-o", "--output"})
+            if "\x00gantung" in ops_qen:
+                return False
+            return (not ops_qen
+                    or (len(ops_qen) == 1
+                        and ops_qen[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
