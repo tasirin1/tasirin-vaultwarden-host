@@ -7571,6 +7571,16 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qpf
                     or (len(ops_qpf) == 1
                         and ops_qpf[0] == "-"))
+        # Audit 2265: sub 'pseudo' - <kolom>
+        # [<input>]; Config qsv (pseudo.rs).
+        if mentah and mentah[0] == "pseudo":
+            ops_qps = _operand_sesudah_opsi(
+                toks, awal + 1, {"-f", "--formatstr", "--start", "--increment", "-d", "--delimiter", "-o", "--output"})
+            if "\x00gantung" in ops_qps:
+                return False
+            return (len(ops_qps) == 1
+                    or (len(ops_qps) == 2
+                        and ops_qps[1] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

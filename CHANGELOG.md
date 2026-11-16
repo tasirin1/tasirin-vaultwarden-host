@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv pseudo kini bercabang sadar stdin (Audit 144)
+
+- <column> [<input>] via Config qsv (pseudo.rs) — kosong/'-' sesudah kolom = stdin. Cabang baru sadar kolom.
+
 ## [Belum rilis] — qsv profile kini bercabang sadar stdin (Audit 144)
 
 - profile.rs:101,360 — stdin dimaterialkan ke berkas temp. Cabang baru pola masukan-tunggal.

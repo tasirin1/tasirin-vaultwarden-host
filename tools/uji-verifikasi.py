@@ -28863,6 +28863,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv profile polos: penguras - gerbang gagal (Audit 2264)", rc != 0)
         shutil.rmtree(sub1357, ignore_errors=True)
+        sub1358 = klon(tmp, "sub1358")
+        berkas_aksi1358 = os.path.join(
+            sub1358, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1358, encoding="utf-8") as f:
+            isi_aksi1358 = f.read()
+        baris_aksi1358 = [b for b in isi_aksi1358.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1358 = isi_aksi1358.replace(
+                baris_aksi1358,
+                baris_aksi1358.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv pseudo kolom; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1358 != isi_aksi1358, \
+            "suntikan aksi1358 tidak menembak"
+        with open(berkas_aksi1358, "w", encoding="utf-8") as f:
+            f.write(isi_baru1358)
+        rc, out = jalan(sub1358,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv pseudo kolom tanpa masukan: penguras - gerbang gagal (Audit 2265)", rc != 0)
+        shutil.rmtree(sub1358, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
