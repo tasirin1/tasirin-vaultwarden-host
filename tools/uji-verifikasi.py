@@ -29052,6 +29052,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv clipboard polos: bukan penguras - gerbang lolos (Audit 2271)", rc == 0)
         shutil.rmtree(sub1366, ignore_errors=True)
+        sub1367 = klon(tmp, "sub1367")
+        berkas_aksi1367 = os.path.join(
+            sub1367, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1367, encoding="utf-8") as f:
+            isi_aksi1367 = f.read()
+        baris_aksi1367 = [b for b in isi_aksi1367.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1367 = isi_aksi1367.replace(
+                baris_aksi1367,
+                baris_aksi1367.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv edit - kolom 1 nilai; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1367 != isi_aksi1367, \
+            "suntikan aksi1367 tidak menembak"
+        with open(berkas_aksi1367, "w", encoding="utf-8") as f:
+            f.write(isi_baru1367)
+        rc, out = jalan(sub1367,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv edit '-' tanpa --in-place: penguras - gerbang gagal (Audit 2272)", rc != 0)
+        shutil.rmtree(sub1367, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

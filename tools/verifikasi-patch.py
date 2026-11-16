@@ -7651,6 +7651,18 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "clipboard":
             return any(t == "-s" or t == "--save"
                        for t in mentah[1:])
+        # Audit 2272: sub 'edit' - <input>
+        # <column> <row> <value>; input '-'
+        # menguras kecuali --in-place yang
+        # menolak stdin (edit.rs:87-92).
+        if mentah and mentah[0] == "edit":
+            ops_qet = _operand_sesudah_opsi(
+                toks, awal + 1, {"-o", "--output"})
+            if "\x00gantung" in ops_qet:
+                return False
+            return (len(ops_qet) == 4
+                    and ops_qet[0] == "-"
+                    and "--in-place" not in mentah)
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

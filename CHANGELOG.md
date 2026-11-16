@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv edit kini bercabang sadar stdin (Audit 144)
+
+- edit.rs:87-92 — <input> <column> <row> <value>; input '-' menguras kecuali --in-place yang menolak stdin eksplisit. Cabang baru sadar posisi + bendera.
+
 ## [Belum rilis] — qsv clipboard kini bercabang sadar --save (Audit 144)
 
 - clipboard.rs:75-77 — hanya --save/-s yang membaca io::stdin penuh; tanpa itu ia menulis isi clipboard ke stdout. Cabang baru sadar bendera.
