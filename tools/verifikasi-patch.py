@@ -2606,13 +2606,18 @@ def _saring_csvkit(toks, awal, perintah):
         if t_sc.startswith("--null-value="):
             i_sc += 1
             continue
-        if perintah == "csvsql" and t_sc == "--engine-option":
+        if (perintah in ("csvsql", "sql2csv")
+                and t_sc in ("--engine-option",
+                             "--execution-option")):
+            if i_sc + 2 >= len(segmen_sc):
+                return None
             i_sc += 3
             continue
-        if (perintah == "csvsql"
-                and t_sc.startswith("--engine-option=")):
-            i_sc += 2
-            continue
+        if (perintah in ("csvsql", "sql2csv")
+                and (t_sc.startswith("--engine-option=")
+                     or t_sc.startswith(
+                         "--execution-option="))):
+            return None
         hasil_sc.append(t_sc)
         i_sc += 1
     return list(toks[:awal]) + hasil_sc

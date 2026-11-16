@@ -30669,6 +30669,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvlook sesudah '--': --null-value operand kedua - argparse berhenti, gerbang lolos (Audit 2346)", rc == 0)
         shutil.rmtree(sub1443, ignore_errors=True)
+        sub1444 = klon(tmp, "sub1444")
+        berkas_aksi1444 = os.path.join(
+            sub1444, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1444, encoding="utf-8") as f:
+            isi_aksi1444 = f.read()
+        baris_aksi1444 = [b for b in isi_aksi1444.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1444 = isi_aksi1444.replace(
+                baris_aksi1444,
+                baris_aksi1444.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvsql --engine-option=key value -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1444 != isi_aksi1444, \
+            "suntikan aksi1444 tidak menembak"
+        with open(berkas_aksi1444, "w", encoding="utf-8") as f:
+            f.write(isi_baru1444)
+        rc, out = jalan(sub1444,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvsql --engine-option bentuk '=' tak memenuhi nargs=2 - gerbang lolos (Audit 2347)", rc == 0)
+        shutil.rmtree(sub1444, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

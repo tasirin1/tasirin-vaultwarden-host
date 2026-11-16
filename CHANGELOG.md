@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvsql --engine-option: bentuk menggantung dan '=' = galat (Audit 150)
+
+- nargs=2 tak bisa dipenuhi bentuk '=' atau nilai kurang dari dua (biner 2.2.0: rc=2 'expected 2 arguments'); _saring_csvkit kini mengembalikan None untuk bentuk itu. Perlakuan yang sama berlaku untuk sql2csv (dipakai Audit 2350).
+
 ## [Belum rilis] — _saring_csvkit: '--' kini menghentikan penyaringan (Audit 150)
 
 - Sesudah '--', --null-value adalah operand, bukan opsi; saringan kini menyalin sisa token apa adanya (terverifikasi biner csvkit 2.2.0: csvlook -- --null-value file.csv berhenti rc=2).
