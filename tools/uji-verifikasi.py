@@ -27834,6 +27834,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv snappy strip bukan stdin: gerbang lolos (Audit 2217)", rc == 0)
         shutil.rmtree(sub1308, ignore_errors=True)
+        sub1309 = klon(tmp, "sub1309")
+        berkas_aksi1309 = os.path.join(
+            sub1309, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1309, encoding="utf-8") as f:
+            isi_aksi1309 = f.read()
+        baris_aksi1309 = [b for b in isi_aksi1309.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1309 = isi_aksi1309.replace(
+                baris_aksi1309,
+                baris_aksi1309.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(xsv fixlengths -l 0; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1309 != isi_aksi1309, \
+            "suntikan aksi1309 tidak menembak"
+        with open(berkas_aksi1309, "w", encoding="utf-8") as f:
+            f.write(isi_baru1309)
+        rc, out = jalan(sub1309,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("xsv fixlengths panjang nol ditolak: gerbang lolos (Audit 2218)", rc == 0)
+        shutil.rmtree(sub1309, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

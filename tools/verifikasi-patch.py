@@ -7437,6 +7437,18 @@ def _menguras_khusus(perintah, toks, awal):
                 for t_xfl in mentah)
             if not ada_panjang:
                 return False
+            nilai_panjang = None
+            for i_xfl, t_xfl in enumerate(mentah):
+                if (t_xfl in ("-l", "--length")
+                        and i_xfl + 1 < len(mentah)):
+                    nilai_panjang = mentah[i_xfl + 1]
+                elif t_xfl.startswith("--length="):
+                    nilai_panjang = t_xfl.split("=", 1)[1]
+                elif (t_xfl.startswith("-l")
+                        and len(t_xfl) > 2):
+                    nilai_panjang = t_xfl[2:]
+            if nilai_panjang == "0":
+                return False
             ops_xfl = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-l", "--length", "-o", "--output",

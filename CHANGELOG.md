@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: xsv fixlengths - panjang nol ditolak (Audit 2218)
+
+- Cabang xsv fixlengths menolak nilai --length/-l 0, sejajar penolakan run() perintah asli.
+
 ## [Belum rilis] — Gerbang: qsv snappy - strip bukan stdin (Audit 2217)
 
 - Cabang qsv snappy kini hanya menguras bila masukan kosong: operand '-' dibuka sebagai berkas harfiah oleh snappy.rs dan gagal.
