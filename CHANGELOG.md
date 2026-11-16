@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kelas duplikat docopt: cabang qsv selain prompt kini menolak opsi ganda (Audit 149)
+
+- qsv_docopt menolak opsi yang muncul lebih dari sekali; gerbang kini memakai _ada_duplikat (alias pendek/panjang disatukan) di cabang apply (operations/dynfmt/calcconv/emptyreplace/summarize), fixlengths, table, stats, dan slice qsv.
+
 ## [Belum rilis] — qsv table: -p/--pad kini dikenali (Audit 149)
 
 - Cabang qsv table (Audit 2323) kehilangan -p/--pad bernilai dari table.rs; kini masuk himpunan opsi bernilai cabang.
