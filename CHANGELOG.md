@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv json kini bercabang sadar stdin (Audit 144)
+
+- json.rs:108,173 — stdin bila tanpa path atau '-'. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv implode kini bercabang sadar stdin (Audit 144)
 
 - -k/-v wajib bernilai + <separator> [<input>] via Config qsv (implode.rs) — kosong/'-' sesudah pemisah = stdin. Cabang baru sadar posisi.

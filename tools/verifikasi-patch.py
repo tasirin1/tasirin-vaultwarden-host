@@ -7494,6 +7494,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_qim) == 1
                     or (len(ops_qim) == 2
                         and ops_qim[1] == "-"))
+        # Audit 2258: sub 'json' - masukan
+        # [<input>] opsional; json.rs:108,173 - stdin bila tanpa
+        # path atau '-'.
+        if mentah and mentah[0] == "json":
+            ops_qjs = _operand_sesudah_opsi(
+                toks, awal + 1, {"-s", "--select", "--jaq", "-o", "--output"})
+            if "\x00gantung" in ops_qjs:
+                return False
+            return (not ops_qjs
+                    or (len(ops_qjs) == 1
+                        and ops_qjs[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu
