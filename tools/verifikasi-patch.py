@@ -7179,7 +7179,7 @@ def _menguras_khusus(perintah, toks, awal):
             ops_qpa = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--filename", "-p", "--prefix-length",
-                 "-d", "--delimiter"})
+                 "--limit", "-d", "--delimiter"})
             if "\x00gantung" in ops_qpa:
                 return False
             return (len(ops_qpa) == 2

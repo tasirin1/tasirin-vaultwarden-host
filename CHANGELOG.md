@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv partition: --limit ditambahkan ke himpunan gerbang (Audit 145)
+
+- partition.rs:54 menetapkan --limit bernilai; himpunan cabang partition kini memuatnya.
+
 ## [Belum rilis] — qsv luau: --luau-path hantu dikeluarkan dari himpunan gerbang (Audit 145)
 
 - grep luau-path/luau_path di luau.rs master = 0 — opsi itu tak pernah ada; dikeluarkan dari himpunan cabang luau.
