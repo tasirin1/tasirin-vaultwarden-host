@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Shim: kasus uji clamp INT_MAX ditambah (Audit 2188)
+
+- test_interpose.c ditambah kasus mmap >INT_MAX yang mengharapkan hasil tepat INT_MAX (clamp Audit 1746 kini teruji di CI).
+
 ## [Belum rilis] — Gerbang: xsv sample - ukuran dibatasi u64 (Audit 2187)
 
 - Cabang xsv sample kini menolak ukuran digit yang melampaui 18446744073709551615 (luapan u64).

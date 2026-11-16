@@ -226,5 +226,27 @@ int main(void) {
         printf("GAGAL pass-through SYS_write (ret=%ld)\n", tulis);
         return 1;
     }
+    /* Audit 2188: clamp INT_MAX (Audit 1746) wajib
+     * teruji: permintaan INT_MAX + 4096 atas mmap
+     * sebesar itu harus menghasilkan tepat INT_MAX
+     * (kernel asli juga membatasi ke INT_MAX). */
+    {
+        size_t panjang = (size_t) 2147483647 + 4096;
+        unsigned char *besar = mmap(NULL, panjang,
+            PROT_READ | PROT_WRITE,
+            MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        if (besar == MAP_FAILED) {
+            printf("GAGAL prasyarat mmap untuk kasus clamp\n");
+            return 1;
+        }
+        errno = 0;
+        ssize_t hasil = getrandom(besar, panjang, 0);
+        if (hasil != (ssize_t) 2147483647) {
+            printf("GAGAL clamp INT_MAX (ret=%zd errno=%d)\n",
+                   hasil, errno);
+            return 1;
+        }
+        munmap(besar, panjang);
+    }
     return 0;
 }
