@@ -29241,6 +29241,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv viz bar --color bernilai lalu '-': penguras - gerbang gagal (Audit 2279)", rc != 0)
         shutil.rmtree(sub1375, ignore_errors=True)
+        sub1376 = klon(tmp, "sub1376")
+        berkas_aksi1376 = os.path.join(
+            sub1376, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1376, encoding="utf-8") as f:
+            isi_aksi1376 = f.read()
+        baris_aksi1376 = [b for b in isi_aksi1376.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1376 = isi_aksi1376.replace(
+                baris_aksi1376,
+                baris_aksi1376.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv viz bar --jobs 4 -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1376 != isi_aksi1376, \
+            "suntikan aksi1376 tidak menembak"
+        with open(berkas_aksi1376, "w", encoding="utf-8") as f:
+            f.write(isi_baru1376)
+        rc, out = jalan(sub1376,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv viz bar --jobs hantu: galat docopt - gerbang lolos (Audit 2280)", rc == 0)
+        shutil.rmtree(sub1376, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

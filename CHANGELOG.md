@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv viz: -j/--jobs hantu dikeluarkan dari himpunan gerbang (Audit 145)
+
+- viz tak mengenal --jobs di USAGE/struct mana pun; entri hantu itu dibuang pada commit pelengkapan himpunan viz (Audit 2279) — commit ini memasang skenario uji dan entri changelog-nya.
+
 ## [Belum rilis] — qsv viz: himpunan opsi bernilai dilengkapi penuh (68 entri) (Audit 145)
 
 - USAGE/Args qsv-viz.rs master memuat 65 opsi panjang bernilai + pendek -x/-y/-z (+ --enum-threshold); himpunan cabang viz kini memuat semuanya sehingga nilai opsi tak lagi terbaca sebagai operand masukan.
