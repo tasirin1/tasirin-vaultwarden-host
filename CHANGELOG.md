@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub rename membaca stdin (Audit 2205)
+
+- Cabang qsv ditambah sub rename: operand pertama nama kolom baru, masukan kedua (rename.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub reverse membaca stdin (Audit 2204)
 
 - Cabang qsv ditambah sub reverse: masukan [<input>] opsional (reverse.rs).

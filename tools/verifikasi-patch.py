@@ -6974,6 +6974,18 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qrv
                     or (len(ops_qrv) == 1
                         and ops_qrv[0] == "-"))
+        # Audit 2205: sub 'rename' - operand
+        # pertama nama kolom baru, masukan
+        # kedua (rename.rs).
+        if mentah and mentah[0] == "rename":
+            ops_qrn = _operand_sesudah_opsi(
+                toks, awal + 1,
+                {"-o", "--output", "-d", "--delimiter"})
+            if "\x00gantung" in ops_qrn:
+                return False
+            return (len(ops_qrn) == 1
+                    or (len(ops_qrn) == 2
+                        and ops_qrn[1] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
