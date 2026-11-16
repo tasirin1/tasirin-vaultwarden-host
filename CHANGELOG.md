@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv apply - cabang datefmt hantu dihapus (Audit 2195)
+
+- Cabang sub 'datefmt' dihapus: sub itu tidak ada di apply.rs (enum resmi hanya Operations/DynFmt/EmptyReplace/CalcConv).
+
 ## [Belum rilis] — Gerbang: qsv apply - sub calcconv ditambah (Audit 2194)
 
 - Cabang qsv apply ditambah sub calcconv (wajib --formatstr + --new-column, masukan opsional).

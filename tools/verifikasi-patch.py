@@ -6811,14 +6811,6 @@ def _menguras_khusus(perintah, toks, awal):
                 return (len(ops_ap) == 1
                         or (len(ops_ap) == 2
                             and ops_ap[1] == "-"))
-            if sub_ap == "datefmt":
-                ops_ap = _operand_sesudah_opsi(
-                    toks, awal + 2, set())
-                if "\x00gantung" in ops_ap:
-                    return False
-                return (len(ops_ap) == 1
-                        or (len(ops_ap) == 2
-                            and ops_ap[1] == "-"))
         # Audit 2142: sub 'slice' - tanpa masukan
         # membaca stdin (slice.rs).
         if mentah and mentah[0] == "slice":
