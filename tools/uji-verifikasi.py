@@ -27750,6 +27750,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv behead membaca stdin: gerbang gagal (Audit 2213)", rc != 0)
         shutil.rmtree(sub1304, ignore_errors=True)
+        sub1305 = klon(tmp, "sub1305")
+        berkas_aksi1305 = os.path.join(
+            sub1305, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1305, encoding="utf-8") as f:
+            isi_aksi1305 = f.read()
+        baris_aksi1305 = [b for b in isi_aksi1305.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1305 = isi_aksi1305.replace(
+                baris_aksi1305,
+                baris_aksi1305.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv snappy compress; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1305 != isi_aksi1305, \
+            "suntikan aksi1305 tidak menembak"
+        with open(berkas_aksi1305, "w", encoding="utf-8") as f:
+            f.write(isi_baru1305)
+        rc, out = jalan(sub1305,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv snappy compress membaca stdin: gerbang gagal (Audit 2214)", rc != 0)
+        shutil.rmtree(sub1305, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -7044,6 +7044,22 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qbh
                     or (len(ops_qbh) == 1
                         and ops_qbh[0] == "-"))
+        # Audit 2214: sub 'snappy' - sub
+        # compress/decompress/check ber-[<input>]
+        # opsional; validate menolak stdin
+        # (snappy.rs).
+        if (len(mentah) >= 2 and mentah[0] == "snappy"
+                and mentah[1] in ("compress",
+                                  "decompress", "check")):
+            ops_qsn = _operand_sesudah_opsi(
+                toks, awal + 2,
+                {"--user-agent", "--timeout", "-j",
+                 "--jobs", "-o", "--output"})
+            if "\x00gantung" in ops_qsn:
+                return False
+            return (not ops_qsn
+                    or (len(ops_qsn) == 1
+                        and ops_qsn[0] == "-"))
         # Audit 2173: sub 'validate' - masukan
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).

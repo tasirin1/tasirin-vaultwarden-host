@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: qsv - sub snappy membaca stdin (Audit 2214)
+
+- Cabang qsv ditambah sub snappy: compress/decompress/check ber-[<input>] opsional; validate menolak stdin (snappy.rs).
+
 ## [Belum rilis] — Gerbang: qsv - sub behead membaca stdin (Audit 2213)
 
 - Cabang qsv ditambah sub behead: masukan [<input>] opsional (behead.rs).
