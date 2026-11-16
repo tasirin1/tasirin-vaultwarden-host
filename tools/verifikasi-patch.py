@@ -7469,6 +7469,17 @@ def _menguras_khusus(perintah, toks, awal):
             return (not ops_qft
                     or (len(ops_qft) == 1
                         and ops_qft[0] == "-"))
+        # Audit 2256: sub 'fmt' - masukan
+        # [<input>] opsional; Config qsv memakai stdin bila
+        # masukan kosong atau '-' (fmt.rs).
+        if mentah and mentah[0] == "fmt":
+            ops_qfm = _operand_sesudah_opsi(
+                toks, awal + 1, {"-t", "--out-delimiter", "-d", "--delimiter", "--escape", "--quote", "-o", "--output"})
+            if "\x00gantung" in ops_qfm:
+                return False
+            return (not ops_qfm
+                    or (len(ops_qfm) == 1
+                        and ops_qfm[0] == "-"))
         return False
     if perintah == "csvpy":
         # Audit 2231: csvpy memuat berkas lalu

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fmt kini bercabang sadar stdin (Audit 144)
+
+- [<input>] via Config qsv (fmt.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
+
 ## [Belum rilis] — qsv flatten kini bercabang sadar stdin (Audit 144)
 
 - [<input>] via Config qsv (flatten.rs) — kosong/'-' = stdin. Cabang baru pola masukan-tunggal.
