@@ -30417,6 +30417,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvsql --before-insert bernilai lalu '-': penguras - gerbang gagal (Audit 2334)", rc != 0)
         shutil.rmtree(sub1431, ignore_errors=True)
+        sub1432 = klon(tmp, "sub1432")
+        berkas_aksi1432 = os.path.join(
+            sub1432, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1432, encoding="utf-8") as f:
+            isi_aksi1432 = f.read()
+        baris_aksi1432 = [b for b in isi_aksi1432.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1432 = isi_aksi1432.replace(
+                baris_aksi1432,
+                baris_aksi1432.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvsql --engine-option key value -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1432 != isi_aksi1432, \
+            "suntikan aksi1432 tidak menembak"
+        with open(berkas_aksi1432, "w", encoding="utf-8") as f:
+            f.write(isi_baru1432)
+        rc, out = jalan(sub1432,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvsql --engine-option nargs=2 lalu '-': penguras - gerbang gagal (Audit 2335)", rc != 0)
+        shutil.rmtree(sub1432, ignore_errors=True)
+        sub1433 = klon(tmp, "sub1433")
+        berkas_aksi1433 = os.path.join(
+            sub1433, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1433, encoding="utf-8") as f:
+            isi_aksi1433 = f.read()
+        baris_aksi1433 = [b for b in isi_aksi1433.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1433 = isi_aksi1433.replace(
+                baris_aksi1433,
+                baris_aksi1433.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvsql --null-value x y; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1433 != isi_aksi1433, \
+            "suntikan aksi1433 tidak menembak"
+        with open(berkas_aksi1433, "w", encoding="utf-8") as f:
+            f.write(isi_baru1433)
+        rc, out = jalan(sub1433,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvsql --null-value nargs+ menelan nilai: penguras - gerbang gagal (Audit 2336)", rc != 0)
+        shutil.rmtree(sub1433, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

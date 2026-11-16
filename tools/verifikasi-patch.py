@@ -8820,8 +8820,11 @@ def _menguras_khusus(perintah, toks, awal):
             "--after-insert", "--chunk-size"}
         if _jebakan_argparse(mentah, bernilai_csq):
             return False
+        toks_csq = _saring_csvkit(toks, awal, "csvsql")
+        if toks_csq is None:
+            return False
         ops_csq = _operand_sesudah_opsi(
-            toks, awal, bernilai_csq)
+            toks_csq, awal, bernilai_csq)
         if "\x00gantung" in ops_csq:
             return False
         return not ops_csq or ops_csq == ["-"]

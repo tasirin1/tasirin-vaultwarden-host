@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — csvsql: --null-value ber-nargs='+' kini dimodelkan (Audit 149)
+
+- --null-value csvkit (cli.py:222) menelan semua token non-opsi sesudahnya; operand csvsql kini dihitung dari toks tersaring _saring_csvkit. --null-value tanpa nilai = galat argparse.
+
+## [Belum rilis] — csvsql: --engine-option ber-nargs=2 kini dimodelkan (Audit 149)
+
+- csvsql --engine-option menelan DUA token (nargs=2); _saring_csvkit kini memotongnya beserta kedua nilainya sebelum analisis operand (menumpang commit Audit 2336).
+
 ## [Belum rilis] — csvsql: --before-insert, --after-insert, --chunk-size kini dikenali (Audit 149)
 
 - Tiga opsi bernilai khas csvsql.py (terverifikasi biner csvkit 2.2.0) ditambahkan ke himpunan cabang csvsql.
