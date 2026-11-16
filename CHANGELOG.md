@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv to: stdin hanya untuk '-' eksplisit sesudah tujuan (Audit 146)
+
+- to.rs (EMPTY_STDIN_ERRMSG) — tanpa masukan adalah galat, bukan pembacaan stdin; aturan cabang to kini menuntut '-' di posisi masukan (operand kedua dan seterusnya). Skenario lama Audit 2207 yang mengunci premis lama diperbarui di commit yang sama (bentuk suntiknya kini membawa '-' eksplisit).
+
 ## [Belum rilis] — qsv to: sub ods kini tercakup cabang gerbang (Audit 146)
 
 - USAGE to.rs:219 dan contoh resmi :183 memuat sub ods; daftar sub cabang to kini memuatnya.

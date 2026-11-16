@@ -7033,9 +7033,8 @@ def _menguras_khusus(perintah, toks, awal):
                  "--infer-len"})
             if "\x00gantung" in ops_qto:
                 return False
-            return (len(ops_qto) == 1
-                    or (len(ops_qto) >= 2
-                        and ops_qto[1] == "-"))
+            return (len(ops_qto) >= 2
+                    and "-" in ops_qto[1:])
         # Audit 2208: sub 'sqlp' - daftar
         # masukan lalu SQL terakhir; '-' di
         # masukan berarti stdin (sqlp.rs).

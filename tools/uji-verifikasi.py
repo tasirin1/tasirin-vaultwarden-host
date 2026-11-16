@@ -27657,7 +27657,7 @@ def main():
                 baris_aksi1300,
                 baris_aksi1300.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(qsv to xlsx data.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+                    "> >(qsv to xlsx data.xlsx -; cat >> \"$GITHUB_OUTPUT\")"), 1)
         assert isi_baru1300 != isi_aksi1300, \
             "suntikan aksi1300 tidak menembak"
         with open(berkas_aksi1300, "w", encoding="utf-8") as f:
@@ -29976,6 +29976,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv to ods '-': penguras - gerbang gagal (Audit 2313)", rc != 0)
         shutil.rmtree(sub1410, ignore_errors=True)
+        sub1411 = klon(tmp, "sub1411")
+        berkas_aksi1411 = os.path.join(
+            sub1411, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1411, encoding="utf-8") as f:
+            isi_aksi1411 = f.read()
+        baris_aksi1411 = [b for b in isi_aksi1411.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1411 = isi_aksi1411.replace(
+                baris_aksi1411,
+                baris_aksi1411.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv to sqlite test.db; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1411 != isi_aksi1411, \
+            "suntikan aksi1411 tidak menembak"
+        with open(berkas_aksi1411, "w", encoding="utf-8") as f:
+            f.write(isi_baru1411)
+        rc, out = jalan(sub1411,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv to sqlite tanpa masukan: galat - gerbang lolos (Audit 2314)", rc == 0)
+        shutil.rmtree(sub1411, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
