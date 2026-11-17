@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — in2csv: penjaga ambiguitas menghitung calon bool (Audit 158)
+
+- Cabang in2csv tidak memakai _operand_csvkit; penjaga 2410-nya kini menghitung calon dari semesta bool in2csv (_CSVKIT_BOOL + --no-doublequote/--no-inference): ambigu lintas himpunan dan informasional bool tunggal berhenti.
+
 ## [Belum rilis] — Token strip-angka docopt diperluas ke semua subperintah qsv/xsv (Audit 158)
 
 - Helper _ada_token_angka sadar-nilai dipakai peta bernilai per subperintah: 14 subperintah qsv dan 8 subperintah xsv yang sebelumnya hanya menolak di count kini menolak flag angka tak dikenal di posisi opsi mana pun sebelum --.

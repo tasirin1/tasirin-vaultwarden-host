@@ -7165,13 +7165,27 @@ def _menguras_khusus(perintah, toks, awal):
                       "--delimiter", "--encoding",
                       "--sheet", "--write-sheets",
                       "--encoding-xls"}
-        if any(t_i2.startswith("--")
-               and t_i2.split("=", 1)[0] not in semesta_i2
-               and sum(1 for b_i2 in semesta_i2
-                       if b_i2.startswith(
-                           t_i2.split("=", 1)[0])) > 1
-               for t_i2 in mentah):
-            return False
+        # Audit 2425: calon bool ikut
+        # dihitung (in2csv tak memakai
+        # _operand_csvkit) - ambigu lintas
+        # himpunan atau informasional bool
+        # tunggal = berhenti.
+        bool_i2 = _CSVKIT_BOOL | {
+            "--no-doublequote", "--no-inference"}
+        for t_i2 in mentah:
+            dasar_i2 = t_i2.split("=", 1)[0]
+            if (not t_i2.startswith("--")
+                    or dasar_i2 in semesta_i2):
+                continue
+            cv_i2 = [b_i2 for b_i2 in semesta_i2
+                     if b_i2.startswith(dasar_i2)]
+            cb_i2 = [b_i2 for b_i2 in bool_i2
+                     if b_i2.startswith(dasar_i2)]
+            if (len(cv_i2) + len(cb_i2) > 1
+                    or (not cv_i2 and len(cb_i2) == 1
+                        and cb_i2[0] in ("--help",
+                                         "--version"))):
+                return False
         for t_i2 in mentah:
             if (t_i2 == "-f-"
                     or t_i2.startswith("--format=-")):
