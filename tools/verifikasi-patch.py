@@ -8956,6 +8956,8 @@ def _menguras_khusus(perintah, toks, awal):
                         "--add-bom")
         semesta_cpy = _CSVKIT | (
             _CSVKIT_BOOL - set(tercabut_cpy))
+        mentah_cpy = (mentah[:mentah.index("--")]
+                      if "--" in mentah else mentah)
         if any(t_cpy2.startswith("--")
                and any(n_cpy.startswith(
                    t_cpy2.split("=", 1)[0])
@@ -8963,7 +8965,7 @@ def _menguras_khusus(perintah, toks, awal):
                and not any(n_cpy.startswith(
                    t_cpy2.split("=", 1)[0])
                    for n_cpy in semesta_cpy)
-               for t_cpy2 in mentah):
+               for t_cpy2 in mentah_cpy):
             return False
         toks_cpy = _saring_csvkit(toks, awal, "csvpy")
         if toks_cpy is None:

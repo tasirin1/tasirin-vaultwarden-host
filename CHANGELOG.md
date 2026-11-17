@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvpy: penjaga opsi tercabut berhenti di -- (Audit 159)
+
+- Pindaian penjaga Audit 2422 kini terpotong pada -- pertama: nama berkas sesudah -- adalah operand, bukan opsi, sehingga csvpy -- --zero kembali menguras seperti biner.
+
 ## [Belum rilis] — csvkit: opsi bool berbentuk --bool=nilai ditolak seperti argparse (Audit 159)
 
 - _operand_csvkit kini menggantungkan token ber-= yang calonnya hanya opsi bool (store_true menolak argumen eksplisit, rc=2); penjaga in2csv diperluas dengan aturan yang sama.
