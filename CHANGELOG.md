@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Peta token-angka qsv: describegpt + geocode ditambahkan manual (Audit 160)
+
+- Kedua subperintah kelewat ekstrak berjendela maraton-159; entrinya kini dibaca manual dari blok masing-masing sehingga token strip-angka diperiksa di keduanya.
+
 ## [Belum rilis] — Semesta bool khas alat dilengkapi dari sumber csvkit (Audit 160)
 
 - bool_cabang/bool_i2 kini memuat store_true khas tiap utilitas (csvstat 6, in2csv 3, csvjoin/csvjson/csvlook/csvsort/csvsql/csvformat/csvcut/csvstack) sehingga bentuk --boolkhas=nilai ikut ditolak oleh aturan 2426.
