@@ -7262,9 +7262,11 @@ def _menguras_khusus(perintah, toks, awal):
             i_oi2 += 1
         if "\x00gantung" in ops_i2:
             return False
-        if not ops_i2:
-            return True
-        if ops_i2 != ["-"]:
+        # Audit 2431: bentuk tanpa operand
+        # ikut divalidasi 2362/2363 di bawah
+        # (biner menolak format tak dikenal /
+        # names non-Excel sebelum membaca).
+        if ops_i2 and ops_i2 != ["-"]:
             return False
         # Audit 2362: nilai -f wajib anggota
         # SUPPORTED_FORMATS in2csv.py - di luar

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — in2csv: bentuk tanpa operand kini ikut validasi format/names (Audit 160)
+
+- Return dini operand-kosong dicabut: validasi Audit 2362/2363 kini menjangkau semua bentuk penguras, sehingga -f tak dikenal, --names non-Excel, dan in2csv telanjang tanpa format divonis galat seperti biner (rc=2).
+
 ## [Belum rilis] — Penjaga awalan: token -- adalah pemisah, bukan calon opsi (Audit 160)
 
 - Pindaian awalan in2csv dan csvsql kini berhenti di -- pertama; bentuk berisi -- tidak lagi divonis galat, dan operand sesudahnya dinilai mesin operand seperti biasa.

@@ -25438,7 +25438,7 @@ def main():
             f.write(isi_baru1194)
         rc, out = jalan(sub1194,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("in2csv menerima data terpipa: gerbang gagal (Audit 2087)", rc != 0)
+        periksa("in2csv telanjang tanpa format galat: gerbang lolos (Audit 2087, koreksi 2431)", rc == 0)
         shutil.rmtree(sub1194, ignore_errors=True)
         sub1195 = klon(tmp, "sub1195")
         berkas_aksi1195 = os.path.join(
@@ -32622,6 +32622,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvsql pemisah -- tak ditelan penjaga: membaca stdin - gerbang gagal (Audit 2430)", rc != 0)
         shutil.rmtree(sub1536, ignore_errors=True)
+        sub1537 = klon(tmp, "sub1537")
+        berkas_aksi1537 = os.path.join(
+            sub1537, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1537, encoding="utf-8") as f:
+            isi_aksi1537 = f.read()
+        baris_aksi1537 = [b for b in isi_aksi1537.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1537 = isi_aksi1537.replace(
+                baris_aksi1537,
+                baris_aksi1537.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(in2csv -f xyz; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1537 != isi_aksi1537, \
+            "suntikan aksi1537 tidak menembak"
+        with open(berkas_aksi1537, "w", encoding="utf-8") as f:
+            f.write(isi_baru1537)
+        rc, out = jalan(sub1537,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("in2csv format tak dikenal tanpa operand: galat - gerbang lolos (Audit 2431)", rc == 0)
+        shutil.rmtree(sub1537, ignore_errors=True)
+        sub1538 = klon(tmp, "sub1538")
+        berkas_aksi1538 = os.path.join(
+            sub1538, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1538, encoding="utf-8") as f:
+            isi_aksi1538 = f.read()
+        baris_aksi1538 = [b for b in isi_aksi1538.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1538 = isi_aksi1538.replace(
+                baris_aksi1538,
+                baris_aksi1538.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(in2csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1538 != isi_aksi1538, \
+            "suntikan aksi1538 tidak menembak"
+        with open(berkas_aksi1538, "w", encoding="utf-8") as f:
+            f.write(isi_baru1538)
+        rc, out = jalan(sub1538,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("in2csv telanjang tanpa format: galat argparse - gerbang lolos (Audit 2431)", rc == 0)
+        shutil.rmtree(sub1538, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
