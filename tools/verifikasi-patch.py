@@ -2494,6 +2494,18 @@ def _operand_sesudah_opsi(toks, awal, bernilai):
         i += 1
     return hasil
 
+def _numerik_penuh(tok):
+    # getopt_inorder.d isNumeric: seluruh token
+    # (sesudah tanda -) angka/titik desimal.
+    if not tok.startswith("-") or len(tok) < 2:
+        return False
+    badan = tok[1:]
+    return (any(c.isdigit() for c in badan)
+            and badan.count(".") <= 1
+            and all(c.isdigit() or c == "."
+                    for c in badan))
+
+
 def _operand_csvkit(toks, awal, bernilai):
     # Audit 2388: argparse mengembangkan bundel
     # huruf pendek - huruf bool menumpuk, huruf
@@ -9252,7 +9264,7 @@ def _menguras_khusus(perintah, toks, awal):
                     and not t_awal.startswith("--")
                     and len(t_awal) > 2
                     and t_awal[1].isalpha()
-                    and t_awal[1] not in "gdprv"):
+                    and t_awal[1].lower() not in "gdprv"):
                 return False
         # Audit 2374: getopt sumber tak peka
         # huruf - operand dihitung lokal dengan
@@ -9353,8 +9365,8 @@ def _menguras_khusus(perintah, toks, awal):
                             and not (
                                 nama_tsm in ("-r",
                                              "--replace-missing")
-                                and len(mentah[i_tsm + 1]) > 1
-                                and mentah[i_tsm + 1][1].isdigit())):
+                                and _numerik_penuh(
+                                    mentah[i_tsm + 1]))):
                         gantung_tsm = True
                     i_tsm += 2
                     continue

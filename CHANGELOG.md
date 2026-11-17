@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — tsv-summarize: pengecualian -r menuntut numerik penuh (Audit 155)
+
+- Helper _numerik_penuh meniru isNumeric getopt_inorder.d: -1x dan -12abc bukan nilai sah sehingga -r menggantung.
+
+## [Belum rilis] — tsv-summarize: cek kepala melipat huruf pertama bundel (Audit 155)
+
+- Daftar opsi bernilai di cek kepala kini dibandingkan tak peka huruf (-G1/-D/-P3/-Rfoo sah).
+
 ## [Belum rilis] — _saring_csvkit: nilai engine/execution-option mirip-opsi ditolak (Audit 155)
 
 - Kedua nilai nargs=2 kini diperiksa: token mirip-opsi (selain '-' dan angka negatif) membuat saringan mengembalikan None = galat argparse.
