@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — tsv-summarize: -r menerima nilai angka negatif (Audit 154)
+
+- Aturan gantung kini mengecualikan -r/--replace-missing dengan nilai numerik negatif — getopt memperlakukan token numerik negatif sebagai nilai, bukan opsi.
+
+## [Belum rilis] — tsv-summarize: -V/-h/bundel bool di cek kepala (Audit 154)
+
+- Cek kepala baru: token -V (version caseSensitive) dan -h persis (help) menghentikan; bundel huruf yang huruf pertamanya bukan opsi bernilai juga galat karena bundling Phobos mati (Audit 2385/2386 menumpang).
+
 ## [Belum rilis] — qsv fixedwidth: penjaga diisi himpunan nyata (Audit 154)
 
 - Panggilan penjaga sebelumnya memakai set/pasangan kosong; kini {--positions, --widths, -o, --output} + pasangan -o dari USAGE fixedwidth.rs.

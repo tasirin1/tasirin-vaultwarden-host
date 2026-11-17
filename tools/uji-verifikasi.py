@@ -31425,6 +31425,90 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv fixedwidth -o + --output duplikat - gerbang lolos (Audit 2382)", rc == 0)
         shutil.rmtree(sub1479, ignore_errors=True)
+        sub1480 = klon(tmp, "sub1480")
+        berkas_aksi1480 = os.path.join(
+            sub1480, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1480, encoding="utf-8") as f:
+            isi_aksi1480 = f.read()
+        baris_aksi1480 = [b for b in isi_aksi1480.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1480 = isi_aksi1480.replace(
+                baris_aksi1480,
+                baris_aksi1480.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize --count -V x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1480 != isi_aksi1480, \
+            "suntikan aksi1480 tidak menembak"
+        with open(berkas_aksi1480, "w", encoding="utf-8") as f:
+            f.write(isi_baru1480)
+        rc, out = jalan(sub1480,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-summarize -V versi: berhenti - gerbang lolos (Audit 2383)", rc == 0)
+        shutil.rmtree(sub1480, ignore_errors=True)
+        sub1481 = klon(tmp, "sub1481")
+        berkas_aksi1481 = os.path.join(
+            sub1481, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1481, encoding="utf-8") as f:
+            isi_aksi1481 = f.read()
+        baris_aksi1481 = [b for b in isi_aksi1481.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1481 = isi_aksi1481.replace(
+                baris_aksi1481,
+                baris_aksi1481.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize --count -r -1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1481 != isi_aksi1481, \
+            "suntikan aksi1481 tidak menembak"
+        with open(berkas_aksi1481, "w", encoding="utf-8") as f:
+            f.write(isi_baru1481)
+        rc, out = jalan(sub1481,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-summarize -r nilai negatif sah: penguras - gerbang gagal (Audit 2384)", rc != 0)
+        shutil.rmtree(sub1481, ignore_errors=True)
+        sub1482 = klon(tmp, "sub1482")
+        berkas_aksi1482 = os.path.join(
+            sub1482, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1482, encoding="utf-8") as f:
+            isi_aksi1482 = f.read()
+        baris_aksi1482 = [b for b in isi_aksi1482.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1482 = isi_aksi1482.replace(
+                baris_aksi1482,
+                baris_aksi1482.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize --count -Hg; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1482 != isi_aksi1482, \
+            "suntikan aksi1482 tidak menembak"
+        with open(berkas_aksi1482, "w", encoding="utf-8") as f:
+            f.write(isi_baru1482)
+        rc, out = jalan(sub1482,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-summarize -Hg bundel bool berekor: galat - gerbang lolos (Audit 2385)", rc == 0)
+        shutil.rmtree(sub1482, ignore_errors=True)
+        sub1483 = klon(tmp, "sub1483")
+        berkas_aksi1483 = os.path.join(
+            sub1483, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1483, encoding="utf-8") as f:
+            isi_aksi1483 = f.read()
+        baris_aksi1483 = [b for b in isi_aksi1483.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1483 = isi_aksi1483.replace(
+                baris_aksi1483,
+                baris_aksi1483.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize -h --count; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1483 != isi_aksi1483, \
+            "suntikan aksi1483 tidak menembak"
+        with open(berkas_aksi1483, "w", encoding="utf-8") as f:
+            f.write(isi_baru1483)
+        rc, out = jalan(sub1483,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-summarize -h help: berhenti - gerbang lolos (Audit 2386)", rc == 0)
+        shutil.rmtree(sub1483, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

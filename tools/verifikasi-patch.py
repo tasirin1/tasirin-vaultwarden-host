@@ -9058,6 +9058,23 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2136: operasi resmi tsv-summarize
         # adalah opsi bernilai field (daftar
         # operasi di referensi resmi).
+        # Audit 2383: -V = version
+        # caseSensitive (bukan -v). Audit 2385:
+        # bundel yang huruf pertamanya bukan
+        # opsi bernilai tak sah (bundling
+        # Phobos mati - bool berhuruf ekor =
+        # galat). Audit 2386: -h persis = help.
+        for t_awal in mentah:
+            if t_awal == "--":
+                break
+            if t_awal in ("-V", "-h"):
+                return False
+            if (t_awal.startswith("-")
+                    and not t_awal.startswith("--")
+                    and len(t_awal) > 2
+                    and t_awal[1].isalpha()
+                    and t_awal[1] not in "gdprv"):
+                return False
         # Audit 2374: getopt sumber tak peka
         # huruf - operand dihitung lokal dengan
         # nama opsi dilipat huruf kecil.
@@ -9153,7 +9170,12 @@ def _menguras_khusus(perintah, toks, awal):
                 if "=" not in t_tsm:
                     if (i_tsm + 1 < len(mentah)
                             and mentah[i_tsm + 1].startswith("-")
-                            and mentah[i_tsm + 1] != "-"):
+                            and mentah[i_tsm + 1] != "-"
+                            and not (
+                                nama_tsm in ("-r",
+                                             "--replace-missing")
+                                and len(mentah[i_tsm + 1]) > 1
+                                and mentah[i_tsm + 1][1].isdigit())):
                         gantung_tsm = True
                     i_tsm += 2
                     continue
