@@ -31362,6 +31362,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv clipboard --save duplikat: docopt menolak - gerbang lolos (Audit 2379)", rc == 0)
         shutil.rmtree(sub1476, ignore_errors=True)
+        sub1477 = klon(tmp, "sub1477")
+        berkas_aksi1477 = os.path.join(
+            sub1477, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1477, encoding="utf-8") as f:
+            isi_aksi1477 = f.read()
+        baris_aksi1477 = [b for b in isi_aksi1477.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1477 = isi_aksi1477.replace(
+                baris_aksi1477,
+                baris_aksi1477.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv to sqlite out.db -d ';' --delimiter ';' -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1477 != isi_aksi1477, \
+            "suntikan aksi1477 tidak menembak"
+        with open(berkas_aksi1477, "w", encoding="utf-8") as f:
+            f.write(isi_baru1477)
+        rc, out = jalan(sub1477,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv to -d = --delimiter: duplikat - gerbang lolos (Audit 2380)", rc == 0)
+        shutil.rmtree(sub1477, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

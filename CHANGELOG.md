@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv to: pasangan -d penjaga dikoreksi ke --delimiter (Audit 154)
+
+- USAGE to.rs mendefinisikan -d dua kali; SynonymMap qsv_docopt menimpa sehingga -d adalah --delimiter, bukan --drop. DUGAAN audit-146-C terselesaikan.
+
 ## [Belum rilis] — qsv clipboard: duplikat -s/--save kini ditolak (Audit 153)
 
 - Pindaian clipboard menghitung kemunculan s (token --save maupun huruf bundel); >1 = galat parse docopt. Premis Audit 2285 gugur oleh mekanisme hitungan qsv_docopt — skenario suite 1381 dibalik di commit yang sama.

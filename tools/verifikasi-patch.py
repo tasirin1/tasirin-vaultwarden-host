@@ -7354,7 +7354,7 @@ def _menguras_khusus(perintah, toks, awal):
                 and mentah[1] in ("postgres", "sqlite",
                                   "xlsx", "parquet",
                                   "datapackage", "ods")):
-            if _ada_duplikat(mentah, 1, {"--compress-level", "--compression", "--delimiter", "--infer-len", "--jobs", "--schema", "--separator", "--stats-csv", "--table", "-c", "-d", "-j", "-p", "-s", "-t"}, {"-A": "--all-strings", "-a": "--stats", "-c": "--stats-csv", "-d": "--drop", "-e": "--evolve", "-i": "--pipe", "-j": "--jobs", "-k": "--print-package", "-p": "--separator", "-q": "--quiet", "-s": "--schema", "-t": "--table", "-u": "--dump"}):
+            if _ada_duplikat(mentah, 1, {"--compress-level", "--compression", "--delimiter", "--infer-len", "--jobs", "--schema", "--separator", "--stats-csv", "--table", "-c", "-d", "-j", "-p", "-s", "-t"}, {"-A": "--all-strings", "-a": "--stats", "-c": "--stats-csv", "-d": "--delimiter", "-e": "--evolve", "-i": "--pipe", "-j": "--jobs", "-k": "--print-package", "-p": "--separator", "-q": "--quiet", "-s": "--schema", "-t": "--table", "-u": "--dump"}):
                 return False
             ops_qto = _operand_sesudah_opsi(
                 toks, awal + 2,
