@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — in2csv: singkatan --na/--nam/--name dikenali validasi names (Audit 161)
+
+- Pindaian Audit 2363 kini mengenali awalan unik --names (panjang >= 4) selain bentuk utuh dan bundel -n.
+
 ## [Belum rilis] — Bundel pendek ber-= kini dikembangkan dari kepalanya (Audit 161)
 
 - Token bundel ber-= tak lagi dilewati: huruf-huruf kepalanya dikembangkan seperti bundel biasa; = yang merekat pada bool terakhir menggantung, nilai sesudah huruf bernilai tetap sah.

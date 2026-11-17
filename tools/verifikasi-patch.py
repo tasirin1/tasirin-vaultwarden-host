@@ -7391,6 +7391,12 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             if t_ni2 == "--names":
                 ada_ni2 = True
+            elif (t_ni2.startswith("--")
+                    and len(t_ni2) >= 4
+                    and "--names".startswith(t_ni2)):
+                # Audit 2438: singkatan awalan
+                # unik --names ikut dikenali.
+                ada_ni2 = True
             elif (t_ni2.startswith("-")
                     and not t_ni2.startswith("--")):
                 for huruf_ni2 in t_ni2[1:]:
