@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Keluarga skrip: daftar pembawa nilai informasional dilengkapi (Audit 164)
+
+- Koreksi 2452: lewati menjadi penghitung; pembawa bertambah --regexp/--label/--glob/--pre/--pre-glob dan -v awk; jq --arg/--argjson/--rawfile/--slurpfile/--argfile melompati dua token; --regex (ejaan qsv) dicabut.
+
 ## [Belum rilis] — Penjaga qsv/xsv: pendahulu bernilai khas docopt (Audit 164)
 
 - Koreksi 2449/2450: _ada_informatif kini menambah pendahulu per perintah dari konstanta _PENDAHULU_QSV/_PENDAHULU_XSV (gabungan peta bernilai cabang + USAGE xsv) - -h/-V sebagai nilai opsi khas docopt (mis. --url-template) tak lagi memicu berhenti keliru.

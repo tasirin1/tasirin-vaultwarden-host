@@ -12284,18 +12284,41 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             tanda_info = info_awk
         else:
             tanda_info = info_grep
-        lewati_info = False
+        lewati_info = 0
         for t_isk in toks[awal + 1:]:
             b_isk = t_isk.strip("\"'")
-            if lewati_info:
-                lewati_info = False
+            if lewati_info > 0:
+                lewati_info -= 1
                 continue
             if b_isk == "--":
                 break
+            # Audit 2454: pembawa nilai keluarga
+            # skrip (pola/berkas/label/glob) -
+            # token berikutnya adalah nilai,
+            # bukan informasional. --regex
+            # dicabut: ejaan qsv, bukan rg/grep.
             if b_isk in ("-e", "-f", "--pattern",
                          "--file", "--expression",
-                         "--regex"):
-                lewati_info = True
+                         "--regexp", "--label",
+                         "--glob", "--pre",
+                         "--pre-glob"):
+                lewati_info = 1
+                continue
+            if (perintah == "jq"
+                    and b_isk in ("--arg",
+                                  "--argjson",
+                                  "--rawfile",
+                                  "--slurpfile",
+                                  "--argfile")):
+                # Audit 2454: pembawa dua token
+                # (nama + nilai/berkas).
+                lewati_info = 2
+                continue
+            if ((perintah == "awk"
+                    or kanon_skrip.get(perintah)
+                    == "awk")
+                    and b_isk == "-v"):
+                lewati_info = 1
                 continue
             if b_isk in tanda_info:
                 return False
