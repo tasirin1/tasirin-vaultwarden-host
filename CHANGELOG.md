@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Informatif pendek -h/-V kini berhenti di _operand_csvkit (Audit 162)
+
+- Token -h/-V yang tercapai sebagai bendera (tunggal atau hasil pengembangan bundel) menggantung seperti --help/--version; yang termakan sebagai nilai opsi tidak terpengaruh.
+
 ## [Belum rilis] — csvsql: pindaian pendamping mengenali singkatan awalan unik (Audit 162)
 
 - Dasar panjang yang bukan bentuk persis diselesaikan ke semesta opsi csvsql bila awalan unik; --ins/--over/--cre/--bef/--ch/--dial kini tertangkap dan --que memicu insert tersirat.

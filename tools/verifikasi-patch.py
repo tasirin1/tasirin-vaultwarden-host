@@ -2749,6 +2749,13 @@ def _operand_csvkit(toks, awal, bernilai,
             break
         if t_ck.startswith("-") and t_ck != "-":
             dasar_ck = t_ck.split("=", 1)[0]
+            # Audit 2444: informasional pendek
+            # -h/-V berhenti seperti bentuk
+            # panjangnya, bukan bool biasa.
+            if t_ck in ("-h", "-V"):
+                hasil_ck.append("\x00gantung")
+                i_ck += 1
+                continue
             # Audit 2436: huruf pendek tunggal
             # yang tak dikenal alat = galat.
             if (len(t_ck) == 2
