@@ -2571,7 +2571,12 @@ def _numerik_penuh(tok):
 
 
 _CSVKIT_BOOL = {"--verbose", "--no-header-row",
-                "--help", "--version"}
+                "--help", "--version",
+                "--add-bom", "--blanks",
+                "--linenumbers",
+                "--no-leading-zeroes",
+                "--skipinitialspace", "--tabs",
+                "--zero"}
 
 
 def _angka_negatif(tok):
@@ -2601,7 +2606,9 @@ def _hadir_unik(mentah, nama, semesta):
     return False
 
 
-def _operand_csvkit(toks, awal, bernilai):
+def _operand_csvkit(toks, awal, bernilai,
+                    bool_cabang=frozenset(),
+                    kecuali=frozenset()):
     # Audit 2388: argparse mengembangkan bundel
     # huruf pendek - huruf bool menumpuk, huruf
     # bernilai menelan sisa token (atau token
@@ -2675,14 +2682,26 @@ def _operand_csvkit(toks, awal, bernilai):
                     and dasar_ck not in bernilai):
                 cocok_ck = [b_ck for b_ck in bernilai
                             if b_ck.startswith(dasar_ck)]
-                # Audit 2403/2410: awalan yang
-                # cocok >1 opsi (atau ikut cocok
-                # opsi bool umum) = ambigu argparse.
+                # Audit 2403/2410/2416/2419:
+                # semesta bool = umum csvkit +
+                # khas cabang - yang dicabut.
+                # Ambigu lintas himpunan, atau
+                # informasional bool tunggal
+                # (--help/--version), = berhenti.
+                semesta_bool_ck = (
+                    (_CSVKIT_BOOL | bool_cabang)
+                    - kecuali)
+                bool_ck = [b_ck
+                           for b_ck in semesta_bool_ck
+                           if b_ck.startswith(dasar_ck)]
                 if (len(cocok_ck) > 1
                         or (len(cocok_ck) == 1
-                            and any(
-                                b_ck.startswith(dasar_ck)
-                                for b_ck in _CSVKIT_BOOL))):
+                            and bool_ck)
+                        or len(bool_ck) > 1
+                        or (not cocok_ck
+                            and len(bool_ck) == 1
+                            and bool_ck[0] in (
+                                "--help", "--version"))):
                     hasil_ck.append("\x00gantung")
                     i_ck += 1
                     continue
@@ -8807,7 +8826,15 @@ def _menguras_khusus(perintah, toks, awal):
         if _jebakan_argparse(mentah, bernilai_ccl):
             return False
         ops_ccl = _operand_csvkit(
-            toks, awal, bernilai_ccl)
+            toks, awal, bernilai_ccl,
+            bool_cabang={"--enable-all-checks",
+                         "--length-mismatch",
+                         "--empty-columns",
+                         "--header-normalize-space",
+                         "--join-short-rows",
+                         "--fill-short-rows"},
+            kecuali={"--blanks",
+                     "--no-leading-zeroes"})
         if "\x00gantung" in ops_ccl:
             return False
         # Audit 2390: tanpa satu pun pengaktif
@@ -8961,7 +8988,8 @@ def _menguras_khusus(perintah, toks, awal):
         if _jebakan_argparse(mentah, bernilai_ck):
             return False
         ops_ck = _operand_csvkit(
-            toks, awal, bernilai_ck)
+            toks, awal, bernilai_ck,
+            bool_cabang={"--delete-empty-rows"})
         if "\x00gantung" in ops_ck:
             return False
         return not ops_ck or ops_ck == ["-"]
@@ -9033,7 +9061,14 @@ def _menguras_khusus(perintah, toks, awal):
         if toks_cs is None:
             return False
         ops_cs = _operand_csvkit(
-            toks_cs, awal, bernilai_cs)
+            toks_cs, awal, bernilai_cs,
+            bool_cabang={"--count", "--freq",
+                         "--max", "--min", "--sum",
+                         "--mean", "--median",
+                         "--stdev", "--len",
+                         "--type", "--nulls",
+                         "--non-nulls", "--unique",
+                         "--percentile"})
         if "\x00gantung" in ops_cs:
             return False
         return not ops_cs or ops_cs == ["-"]
@@ -9782,7 +9817,12 @@ def _menguras_khusus(perintah, toks, awal):
         if toks_sq is None:
             return False
         ops_sq = _operand_csvkit(
-            toks_sq, awal, bernilai_sq)
+            toks_sq, awal, bernilai_sq,
+            kecuali={"--zero", "--add-bom",
+                     "--blanks",
+                     "--no-leading-zeroes",
+                     "--tabs",
+                     "--skipinitialspace"})
         if "\x00gantung" in ops_sq:
             return False
         return not ops_sq or ops_sq == ["-"]

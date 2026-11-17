@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Ambiguitas awalan: semesta bool umum csvkit + khas cabang (Audit 157)
+
+- _CSVKIT_BOOL dilengkapi opsi bool umum cli.py (Audit 2419); _operand_csvkit menerima bool_cabang/kecuali: calon bool tunggal informasional dan ambiguitas lintas himpunan kini berhenti (Audit 2416; csvclean --h ambigu tertangkap di sini, Audit 2417); csvclean/csvcut/csvstat membawa bool khasnya, sql2csv mengecualikan yang dicabut parsernya.
+
 ## [Belum rilis] — _numerik_penuh port 1:1 isNumeric Phobos + gerbang digit isOption (Audit 157)
 
 - Port setia std.string.isNumeric (eksponen bertanda wajib, sufiks ul/fi/li dan u/l/f/i bersyarat, bentuk kompleks) dan syarat arg[1].isDigit dari isOption getopt_inorder.d: -1i/-1.5fi/-1l kini sah, -.5 kini menggantung.
