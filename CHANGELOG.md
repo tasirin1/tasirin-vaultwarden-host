@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kelas bundel csvkit: operand sadar bundel di 13 cabang (Audit 154)
+
+- Helper baru _operand_csvkit mengembangkan bundel argparse (bool menumpuk, huruf bernilai menelan sisa/token berikutnya) sebelum menghitung operand; dipakai csvlook/csvcut/csvstat/csvsort/csvformat/csvclean/csvjson/csvjoin/csvstack/csvsql/sql2csv/csvpy/csvgrep. DUGAAN sejak Audit-144 kini tertutup.
+
 ## [Belum rilis] — in2csv: huruf tak dikenal di bundel = galat (Audit 154)
 
 - Pindaian operand lokal kini menandai bundel berhuruf tak dikenal (di luar bernilai dan bool t/n/H) sebagai gantung — argparse menolaknya (biner: -Zf csv rc=2).

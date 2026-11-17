@@ -2494,6 +2494,53 @@ def _operand_sesudah_opsi(toks, awal, bernilai):
         i += 1
     return hasil
 
+def _operand_csvkit(toks, awal, bernilai):
+    # Audit 2388: argparse mengembangkan bundel
+    # huruf pendek - huruf bool menumpuk, huruf
+    # bernilai menelan sisa token (atau token
+    # berikutnya) sebagai nilainya. Bundel
+    # dikembangkan dulu, lalu logika operand
+    # yang sama dengan _operand_sesudah_opsi.
+    mentah_ck = [t.strip("\"'") for t in toks[awal + 1:]]
+    kembang_ck = []
+    for t_ck in mentah_ck:
+        if (t_ck.startswith("-")
+                and not t_ck.startswith("--")
+                and len(t_ck) > 2
+                and "=" not in t_ck):
+            j_ck = 1
+            while j_ck < len(t_ck):
+                eja_ck = "-" + t_ck[j_ck]
+                kembang_ck.append(eja_ck)
+                if eja_ck in bernilai:
+                    if j_ck + 1 < len(t_ck):
+                        kembang_ck.append(t_ck[j_ck + 1:])
+                    break
+                j_ck += 1
+            continue
+        kembang_ck.append(t_ck)
+    hasil_ck = []
+    i_ck = 0
+    while i_ck < len(kembang_ck):
+        t_ck = kembang_ck[i_ck]
+        if t_ck == "--":
+            hasil_ck.extend(kembang_ck[i_ck + 1:])
+            break
+        if t_ck.startswith("-") and t_ck != "-":
+            dasar_ck = t_ck.split("=", 1)[0]
+            if dasar_ck in bernilai:
+                if ("=" not in t_ck
+                        and i_ck + 1 >= len(kembang_ck)):
+                    hasil_ck.append("\x00gantung")
+                i_ck += 1 if "=" in t_ck else 2
+                continue
+            i_ck += 1
+            continue
+        hasil_ck.append(t_ck)
+        i_ck += 1
+    return hasil_ck
+
+
 def _opsi_hadir(mentah, mulai, bernilai, dicari):
     # Audit 2320/2321: kehadiran opsi sadar
     # posisi - nilai opsi lain dilompati
@@ -8500,7 +8547,7 @@ def _menguras_khusus(perintah, toks, awal):
         toks_cpy = _saring_csvkit(toks, awal, "csvpy")
         if toks_cpy is None:
             return False
-        ops_cpy = _operand_sesudah_opsi(
+        ops_cpy = _operand_csvkit(
             toks_cpy, awal, _CSVKIT)
         if "\x00gantung" in ops_cpy:
             return False
@@ -8518,7 +8565,7 @@ def _menguras_khusus(perintah, toks, awal):
         toks_cjn = _saring_csvkit(toks, awal, "csvjson")
         if toks_cjn is None:
             return False
-        ops_cjn = _operand_sesudah_opsi(
+        ops_cjn = _operand_csvkit(
             toks_cjn, awal, bernilai_cjn)
         if "\x00gantung" in ops_cjn:
             return False
@@ -8551,7 +8598,7 @@ def _menguras_khusus(perintah, toks, awal):
         toks_cl = _saring_csvkit(toks, awal, "csvlook")
         if toks_cl is None:
             return False
-        ops_cl = _operand_sesudah_opsi(
+        ops_cl = _operand_csvkit(
             toks_cl, awal, _CSVKIT | {"--max-rows",
                                    "--max-columns",
                                    "--max-column-width",
@@ -8600,7 +8647,7 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         if _jebakan_argparse(mentah, bernilai_ck):
             return False
-        ops_ck = _operand_sesudah_opsi(
+        ops_ck = _operand_csvkit(
             toks, awal, bernilai_ck)
         if "\x00gantung" in ops_ck:
             return False
@@ -8618,7 +8665,7 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         if _jebakan_argparse(mentah, bernilai_cg):
             return False
-        ops_cg = _operand_sesudah_opsi(
+        ops_cg = _operand_csvkit(
             toks, awal, bernilai_cg)
         if "\x00gantung" in ops_cg:
             return False
@@ -8650,7 +8697,7 @@ def _menguras_khusus(perintah, toks, awal):
         toks_cs = _saring_csvkit(toks, awal, "csvstat")
         if toks_cs is None:
             return False
-        ops_cs = _operand_sesudah_opsi(
+        ops_cs = _operand_csvkit(
             toks_cs, awal, bernilai_cs)
         if "\x00gantung" in ops_cs:
             return False
@@ -9052,7 +9099,7 @@ def _menguras_khusus(perintah, toks, awal):
         toks_cso = _saring_csvkit(toks, awal, "csvsort")
         if toks_cso is None:
             return False
-        ops_cso = _operand_sesudah_opsi(
+        ops_cso = _operand_csvkit(
             toks_cso, awal, bernilai_cso)
         if "\x00gantung" in ops_cso:
             return False
@@ -9204,7 +9251,7 @@ def _menguras_khusus(perintah, toks, awal):
         toks_cj = _saring_csvkit(toks, awal, "csvjoin")
         if toks_cj is None:
             return False
-        ops_cj = _operand_sesudah_opsi(
+        ops_cj = _operand_csvkit(
             toks_cj, awal, bernilai_cj)
         if "\x00gantung" in ops_cj:
             return False
@@ -9219,7 +9266,7 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         if _jebakan_argparse(mentah, bernilai_cst):
             return False
-        ops_cst = _operand_sesudah_opsi(
+        ops_cst = _operand_csvkit(
             toks, awal, bernilai_cst)
         if "\x00gantung" in ops_cst:
             return False
@@ -9280,7 +9327,7 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         if _jebakan_argparse(mentah, bernilai_cf):
             return False
-        ops_cf = _operand_sesudah_opsi(
+        ops_cf = _operand_csvkit(
             toks, awal, bernilai_cf)
         if "\x00gantung" in ops_cf:
             return False
@@ -9301,7 +9348,7 @@ def _menguras_khusus(perintah, toks, awal):
         toks_sq = _saring_csvkit(toks, awal, "sql2csv")
         if toks_sq is None:
             return False
-        ops_sq = _operand_sesudah_opsi(
+        ops_sq = _operand_csvkit(
             toks_sq, awal, bernilai_sq)
         if "\x00gantung" in ops_sq:
             return False
@@ -9329,7 +9376,7 @@ def _menguras_khusus(perintah, toks, awal):
         toks_csq = _saring_csvkit(toks, awal, "csvsql")
         if toks_csq is None:
             return False
-        ops_csq = _operand_sesudah_opsi(
+        ops_csq = _operand_csvkit(
             toks_csq, awal, bernilai_csq)
         if "\x00gantung" in ops_csq:
             return False
