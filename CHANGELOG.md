@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — in2csv: huruf tak dikenal di bundel = galat (Audit 154)
+
+- Pindaian operand lokal kini menandai bundel berhuruf tak dikenal (di luar bernilai dan bool t/n/H) sebagai gantung — argparse menolaknya (biner: -Zf csv rc=2).
+
 ## [Belum rilis] — tsv-summarize: -r menerima nilai angka negatif (Audit 154)
 
 - Aturan gantung kini mengecualikan -r/--replace-missing dengan nilai numerik negatif — getopt memperlakukan token numerik negatif sebagai nilai, bukan opsi.

@@ -6894,6 +6894,11 @@ def _menguras_khusus(perintah, toks, awal):
                         if j_oi2 == len(t_oi2) - 1:
                             lompat_oi2 = True
                         break
+                    if t_oi2[j_oi2] not in "tnH":
+                        # Audit 2387: huruf tak
+                        # dikenal = galat argparse.
+                        ops_i2.append("\x00gantung")
+                        break
                     j_oi2 += 1
                 if lompat_oi2:
                     if i_oi2 + 1 >= len(mentah):
