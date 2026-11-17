@@ -31593,6 +31593,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvclean tanpa pengaktif: berhenti - gerbang lolos (Audit 2390)", rc == 0)
         shutil.rmtree(sub1487, ignore_errors=True)
+        sub1488 = klon(tmp, "sub1488")
+        berkas_aksi1488 = os.path.join(
+            sub1488, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1488, encoding="utf-8") as f:
+            isi_aksi1488 = f.read()
+        baris_aksi1488 = [b for b in isi_aksi1488.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1488 = isi_aksi1488.replace(
+                baris_aksi1488,
+                baris_aksi1488.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-select --FIELDS 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1488 != isi_aksi1488, \
+            "suntikan aksi1488 tidak menembak"
+        with open(berkas_aksi1488, "w", encoding="utf-8") as f:
+            f.write(isi_baru1488)
+        rc, out = jalan(sub1488,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-select --FIELDS huruf besar: syarat terpenuhi, penguras - gerbang gagal (Audit 2391)", rc != 0)
+        shutil.rmtree(sub1488, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

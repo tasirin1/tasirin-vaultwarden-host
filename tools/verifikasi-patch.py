@@ -8638,6 +8638,19 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return not ops_cl or ops_cl == ["-"]
     if perintah == "tsv-select":
+        # Audit 2391: getopt alat ini
+        # caseInsensitive (pulau caseSensitive
+        # hanya H/V bool) - lipat token opsi
+        # ke huruf kecil; -V persis = version.
+        for t_lp in mentah:
+            if t_lp == "--":
+                break
+            if t_lp == "-V":
+                return False
+        mentah = [t.lower() if t.startswith("-")
+                  else t for t in mentah]
+        toks = [t.lower() if t.startswith("-")
+                else t for t in toks]
         # Audit 2100: tanpa argumen berkas ia
         # membaca standard input (dok resmi
         # tsv-utils).
@@ -9075,6 +9088,19 @@ def _menguras_khusus(perintah, toks, awal):
                          or ops_xjn[3] == "-"))
         return False
     if perintah == "tsv-filter":
+        # Audit 2391: getopt alat ini
+        # caseInsensitive (pulau caseSensitive
+        # hanya H/V bool) - lipat token opsi
+        # ke huruf kecil; -V persis = version.
+        for t_lp in mentah:
+            if t_lp == "--":
+                break
+            if t_lp == "-V":
+                return False
+        mentah = [t.lower() if t.startswith("-")
+                  else t for t in mentah]
+        toks = [t.lower() if t.startswith("-")
+                else t for t in toks]
         # Audit 2358: --in/--not-in/--ff/
         # --filter-file HANTU - tak ada di
         # getopt tsv-filter.d master saat ini.
@@ -9125,6 +9151,19 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return not ops_tf or "-" in ops_tf
     if perintah == "tsv-append":
+        # Audit 2391: getopt alat ini
+        # caseInsensitive (pulau caseSensitive
+        # hanya H/V bool) - lipat token opsi
+        # ke huruf kecil; -V persis = version.
+        for t_lp in mentah:
+            if t_lp == "--":
+                break
+            if t_lp == "-V":
+                return False
+        mentah = [t.lower() if t.startswith("-")
+                  else t for t in mentah]
+        toks = [t.lower() if t.startswith("-")
+                else t for t in toks]
         # Audit 2119: daftar berkas kosong diganti
         # ['-'] = stdin (sumber tsv-append.d).
         ops_ta = _operand_sesudah_opsi(
@@ -9314,6 +9353,19 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return not ops_cst or "-" in ops_cst
     if perintah == "tsv-join":
+        # Audit 2391: getopt alat ini
+        # caseInsensitive (pulau caseSensitive
+        # hanya H/V bool) - lipat token opsi
+        # ke huruf kecil; -V persis = version.
+        for t_lp in mentah:
+            if t_lp == "--":
+                break
+            if t_lp == "-V":
+                return False
+        mentah = [t.lower() if t.startswith("-")
+                  else t for t in mentah]
+        toks = [t.lower() if t.startswith("-")
+                else t for t in toks]
         # Audit 2127: --filter-file WAJIB (sumber
         # tsv_join.d); dengan -f dan tanpa berkas
         # data, aliran data utama dari stdin.
@@ -9396,6 +9448,19 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return not ops_sq or ops_sq == ["-"]
     if perintah == "tsv-uniq":
+        # Audit 2391: getopt alat ini
+        # caseInsensitive (pulau caseSensitive
+        # hanya H/V bool) - lipat token opsi
+        # ke huruf kecil; -V persis = version.
+        for t_lp in mentah:
+            if t_lp == "--":
+                break
+            if t_lp == "-V":
+                return False
+        mentah = [t.lower() if t.startswith("-")
+                  else t for t in mentah]
+        toks = [t.lower() if t.startswith("-")
+                else t for t in toks]
         # Audit 2140: tanpa berkas ia membaca
         # standard input (dok resmi tsv-utils).
         ops_tu = _operand_sesudah_opsi(

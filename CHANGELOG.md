@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kelas caseInsensitive tsv-utils: 5 cabang dilipat huruf (Audit 155)
+
+- tsv-select/join/append/filter/uniq kini melipat token opsi ke huruf kecil sebelum menilai (getopt sumber caseInsensitive; pulau caseSensitive hanya H/V bool) dan token -V persis (version) menghentikan. 13 bentuk terprobe agen kini cocok.
+
 ## [Belum rilis] — csvclean: prasyarat pengaktif dimodelkan (Audit 154)
 
 - Tanpa satu pun pengaktif (--length-mismatch/--empty-columns/-a/--enable-all-checks/--header-normalize-space/--join-short-rows/--fill-short-rows/--remove-empty-columns, -a sadar bundel) csvclean berhenti sebelum membaca; --join-short-rows + --fill-short-rows bersama juga ditolak, sesuai csvclean.py main().
