@@ -6921,7 +6921,7 @@ def _menguras_khusus(perintah, toks, awal):
                     if huruf_ni2 == "n":
                         ada_ni2 = True
                         break
-                    if huruf_ni2 in "fskyde":
+                    if huruf_ni2 in "fskydequpzLK":
                         break
         if ada_ni2 and format_i2 not in ("xls", "xlsx"):
             return False

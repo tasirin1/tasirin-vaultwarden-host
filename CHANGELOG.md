@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — in2csv: huruf berhenti pindaian -n dilengkapi (Audit 153)
+
+- Set huruf bernilai untuk bundel kini {f,s,k,y,d,q,u,p,z,e,L,K} sesuai parser csvkit — bundel -qn/-pn tak lagi divonis memuat -n.
+
 ## [Belum rilis] — tsv-summarize: opsi bernilai menggantung oleh token dash = galat (Audit 153)
 
 - Pindaian yang sama menandai gantung: token berawalan dash sesudah opsi bernilai berarti opsi itu tak bernilai (getopt_inorder) — --sum --count dan kawanannya kini False (menumpang commit Audit 2374).
