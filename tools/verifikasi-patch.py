@@ -10399,7 +10399,7 @@ def _menguras_khusus(perintah, toks, awal):
                 dasar_acq = t_acq.split("=", 1)[0]
                 if dasar_acq in dicari_csq:
                     ada_csq.add(dasar_acq)
-                elif "=" not in t_acq:
+                else:
                     # Audit 2443: singkatan awalan
                     # unik ikut dikenali.
                     semesta_csq = (

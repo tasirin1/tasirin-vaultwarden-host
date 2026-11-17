@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvsql: resolusi awalan pindaian pendamping berlaku juga untuk bentuk ber-= (Audit 163)
+
+- Cabang resolusi tak lagi dikecualikan bagi token ber-=; --dial=x, --que=x, --ch= kini dikenali pindaian seperti bentuk polosnya.
+
 ## [Belum rilis] — yq sesudah --: token angka mengikuti logika slot skrip (Audit 163)
 
 - Koreksi 2441: sesudah --, token angka yq masuk blok slot skrip bersama jq/fq - mengisi slot ekspresi bila kosong (menguras), menjadi nama berkas bila slot terisi (tidak menguras).
