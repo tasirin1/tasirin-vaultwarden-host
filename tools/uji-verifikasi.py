@@ -31383,6 +31383,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv to -d = --delimiter: duplikat - gerbang lolos (Audit 2380)", rc == 0)
         shutil.rmtree(sub1477, ignore_errors=True)
+        sub1478 = klon(tmp, "sub1478")
+        berkas_aksi1478 = os.path.join(
+            sub1478, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1478, encoding="utf-8") as f:
+            isi_aksi1478 = f.read()
+        baris_aksi1478 = [b for b in isi_aksi1478.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1478 = isi_aksi1478.replace(
+                baris_aksi1478,
+                baris_aksi1478.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv fetch --http-header --output=x.csv --output y.csv -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1478 != isi_aksi1478, \
+            "suntikan aksi1478 tidak menembak"
+        with open(berkas_aksi1478, "w", encoding="utf-8") as f:
+            f.write(isi_baru1478)
+        rc, out = jalan(sub1478,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv fetch nilai --http-header mirip opsi: bukan duplikat - gerbang gagal (Audit 2381)", rc != 0)
+        shutil.rmtree(sub1478, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

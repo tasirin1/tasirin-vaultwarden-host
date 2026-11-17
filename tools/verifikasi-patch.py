@@ -7418,7 +7418,7 @@ def _menguras_khusus(perintah, toks, awal):
         # pertama nama kolom URL, masukan kedua
         # (fetch.rs).
         if mentah and mentah[0] == "fetch":
-            if _ada_duplikat(mentah, 1, {"--default-encoding", "--delimiter", "--disk-cache-dir", "--jaq", "--jaqfile", "--max-errors", "--max-retries", "--mem-cache-size", "--new-column", "--output", "--rate-limit", "--report", "--timeout", "--url-template", "--user-agent", "-H", "-c", "-d", "-o"}, {"-H": "--http-header", "-c": "--new-column", "-d": "--delimiter", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar"}, {"--http-header"}):
+            if _ada_duplikat(mentah, 1, {"--http-header", "--default-encoding", "--delimiter", "--disk-cache-dir", "--jaq", "--jaqfile", "--max-errors", "--max-retries", "--mem-cache-size", "--new-column", "--output", "--rate-limit", "--report", "--timeout", "--url-template", "--user-agent", "-H", "-c", "-d", "-o"}, {"-H": "--http-header", "-c": "--new-column", "-d": "--delimiter", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar"}, {"--http-header"}):
                 return False
             ops_qfe = _operand_sesudah_opsi(
                 toks, awal + 1,
@@ -7827,7 +7827,7 @@ def _menguras_khusus(perintah, toks, awal):
         # --payload-tpl <file>) [<input>]; Config
         # qsv (fetchpost.rs).
         if mentah and mentah[0] == "fetchpost":
-            if _ada_duplikat(mentah, 1, {"--content-type", "--default-encoding", "--delimiter", "--disk-cache-dir", "--globals-json", "--jaq", "--jaqfile", "--max-errors", "--max-retries", "--mem-cache-size", "--new-column", "--output", "--payload-tpl", "--rate-limit", "--report", "--timeout", "--user-agent", "-H", "-c", "-d", "-j", "-o", "-t"}, {"-H": "--http-header", "-c": "--new-column", "-d": "--delimiter", "-j": "--globals-json", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar", "-t": "--payload-tpl"}, {"--http-header"}):
+            if _ada_duplikat(mentah, 1, {"--http-header", "--content-type", "--default-encoding", "--delimiter", "--disk-cache-dir", "--globals-json", "--jaq", "--jaqfile", "--max-errors", "--max-retries", "--mem-cache-size", "--new-column", "--output", "--payload-tpl", "--rate-limit", "--report", "--timeout", "--user-agent", "-H", "-c", "-d", "-j", "-o", "-t"}, {"-H": "--http-header", "-c": "--new-column", "-d": "--delimiter", "-j": "--globals-json", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar", "-t": "--payload-tpl"}, {"--http-header"}):
                 return False
             ops_qfp = _operand_sesudah_opsi(
                 toks, awal + 1,

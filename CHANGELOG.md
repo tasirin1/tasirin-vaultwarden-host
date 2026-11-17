@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — fetch/fetchpost: --http-header masuk himpunan penjaga (Audit 154)
+
+- Nilai header kini dilompati penjaga duplikat (bentuk panjang sebelumnya hilang, hanya -H) sehingga token mirip opsi di nilai header tak lagi terhitung opsi.
+
 ## [Belum rilis] — qsv to: pasangan -d penjaga dikoreksi ke --delimiter (Audit 154)
 
 - USAGE to.rs mendefinisikan -d dua kali; SynonymMap qsv_docopt menimpa sehingga -d adalah --delimiter, bukan --drop. DUGAAN audit-146-C terselesaikan.
