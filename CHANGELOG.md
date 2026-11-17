@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvsql: validasi pendamping opsi dimodelkan dari csvsql.py (Audit 161)
+
+- Pindaian kehadiran sadar-posisi memeriksa: --dialect x --db/--query, --insert tanpa keduanya, turunan insert tanpa --insert tersurat/tersirat, --overwrite x --no-create, --no-create x --create-if-not-exists.
+
 ## [Belum rilis] — in2csv: singkatan --na/--nam/--name dikenali validasi names (Audit 161)
 
 - Pindaian Audit 2363 kini mengenali awalan unik --names (panjang >= 4) selain bentuk utuh dan bundel -n.

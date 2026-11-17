@@ -10339,6 +10339,76 @@ def _menguras_khusus(perintah, toks, awal):
                    t_csq.split("=", 1)[0])
                for t_csq in mentah_csq):
             return False
+        # Audit 2439: validasi pendamping
+        # csvsql.py - --dialect bertabrakan
+        # --db/--query; --insert butuh salah
+        # satunya; opsi turunan insert butuh
+        # --insert tersurat/tersirat (query
+        # tanpa db); --overwrite x --no-create
+        # dan --no-create x
+        # --create-if-not-exists terlarang.
+        dicari_csq = {"--db", "--query",
+                      "--insert", "--dialect",
+                      "-i", "--no-create",
+                      "--create-if-not-exists",
+                      "--overwrite",
+                      "--before-insert",
+                      "--after-insert",
+                      "--chunk-size"}
+        ada_csq = set()
+        i_acq = 0
+        while i_acq < len(mentah):
+            t_acq = mentah[i_acq]
+            if t_acq == "--":
+                break
+            if t_acq in bernilai_csq:
+                if t_acq in dicari_csq:
+                    ada_csq.add(t_acq)
+                i_acq += 2
+                continue
+            if t_acq.startswith("--"):
+                dasar_acq = t_acq.split("=", 1)[0]
+                if dasar_acq in dicari_csq:
+                    ada_csq.add(dasar_acq)
+                i_acq += 1
+                continue
+            if (t_acq.startswith("-")
+                    and len(t_acq) > 1):
+                for huruf_acq in t_acq[1:]:
+                    eja_acq = "-" + huruf_acq
+                    if eja_acq in dicari_csq:
+                        ada_csq.add(eja_acq)
+                    if eja_acq in bernilai_csq:
+                        break
+                i_acq += 1
+                continue
+            i_acq += 1
+        db_csq = "--db" in ada_csq
+        query_csq = "--query" in ada_csq
+        insert_csq = ("--insert" in ada_csq
+                      or (query_csq and not db_csq))
+        if (("--dialect" in ada_csq
+                or "-i" in ada_csq)
+                and (db_csq or query_csq)):
+            return False
+        if ("--insert" in ada_csq
+                and not (db_csq or query_csq)):
+            return False
+        if (ada_csq & {"--no-create",
+                       "--create-if-not-exists",
+                       "--overwrite",
+                       "--before-insert",
+                       "--after-insert",
+                       "--chunk-size"}
+                and not insert_csq):
+            return False
+        if ("--overwrite" in ada_csq
+                and "--no-create" in ada_csq):
+            return False
+        if ("--no-create" in ada_csq
+                and "--create-if-not-exists"
+                in ada_csq):
+            return False
         toks_csq = _saring_csvkit(toks, awal, "csvsql")
         if toks_csq is None:
             return False
