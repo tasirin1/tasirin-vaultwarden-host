@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — in2csv: daftar bool bundel dilengkapi ke semesta sahnya (Audit 162)
+
+- Daftar 'tnH' menjadi 'tnHISblv' sesuai sumber csvkit 2.2.0; -V sengaja tetap di luar (informatif versi). Bentuk sah -v/-l/-lv kini menguras seperti biner.
+
 ## [Belum rilis] — Informatif pendek -h/-V kini berhenti di _operand_csvkit (Audit 162)
 
 - Token -h/-V yang tercapai sebagai bendera (tunggal atau hasil pengembangan bundel) menggantung seperti --help/--version; yang termakan sebagai nilai opsi tidak terpengaruh.
