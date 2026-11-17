@@ -8816,11 +8816,30 @@ def _menguras_khusus(perintah, toks, awal):
         # dan '-' ditolak eksplisit (csvpy.py).
         if _jebakan_argparse(mentah, _CSVKIT):
             return False
+        # Audit 2422: csvpy mencabut tiga
+        # bool umum (override_flags) - awalan
+        # yang hanya cocok nama tercabut =
+        # tak dikenal argparse.
+        tercabut_cpy = ("--linenumbers", "--zero",
+                        "--add-bom")
+        semesta_cpy = _CSVKIT | (
+            _CSVKIT_BOOL - set(tercabut_cpy))
+        if any(t_cpy2.startswith("--")
+               and any(n_cpy.startswith(
+                   t_cpy2.split("=", 1)[0])
+                       for n_cpy in tercabut_cpy)
+               and not any(n_cpy.startswith(
+                   t_cpy2.split("=", 1)[0])
+                   for n_cpy in semesta_cpy)
+               for t_cpy2 in mentah):
+            return False
         toks_cpy = _saring_csvkit(toks, awal, "csvpy")
         if toks_cpy is None:
             return False
         ops_cpy = _operand_csvkit(
-            toks_cpy, awal, _CSVKIT)
+            toks_cpy, awal, _CSVKIT,
+            kecuali={"--linenumbers", "--zero",
+                     "--add-bom"})
         if "\x00gantung" in ops_cpy:
             return False
         return (len(ops_cpy) == 1

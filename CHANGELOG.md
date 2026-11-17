@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvpy: bool tercabut override_flags dikeluarkan dari semesta (Audit 158)
+
+- csvpy mencabut --linenumbers/--zero/--add-bom; titik panggilnya kini meneruskan kecuali dan awalan yang hanya cocok nama tercabut ditolak - regresi --l (kini unik ke --locale lagi) dan bentuk eksak hantu tertutup.
+
 ## [Belum rilis] — jq: angka negatif adalah program filter (Audit 157)
 
 - Di lingkar segmen umum, token angka negatif untuk jq kini mengisi slot skrip (atau berkas bila skrip sudah terisi), bukan bendera polos - jq -12 data.json kini benar membaca berkas.
