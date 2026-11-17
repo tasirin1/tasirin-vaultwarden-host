@@ -33084,6 +33084,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvlook nilai kosong merekat bukan -d: galat - gerbang lolos (Audit 2446)", rc == 0)
         shutil.rmtree(sub1558, ignore_errors=True)
+        sub1559 = klon(tmp, "sub1559")
+        berkas_aksi1559 = os.path.join(
+            sub1559, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1559, encoding="utf-8") as f:
+            isi_aksi1559 = f.read()
+        baris_aksi1559 = [b for b in isi_aksi1559.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1559 = isi_aksi1559.replace(
+                baris_aksi1559,
+                baris_aksi1559.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(yq -- -12 data.yaml; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1559 != isi_aksi1559, \
+            "suntikan aksi1559 tidak menembak"
+        with open(berkas_aksi1559, "w", encoding="utf-8") as f:
+            f.write(isi_baru1559)
+        rc, out = jalan(sub1559,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("yq angka sesudah -- bersama berkas: nama berkas - gerbang lolos (Audit 2447)", rc == 0)
+        shutil.rmtree(sub1559, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

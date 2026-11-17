@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — yq sesudah --: token angka mengikuti logika slot skrip (Audit 163)
+
+- Koreksi 2441: sesudah --, token angka yq masuk blok slot skrip bersama jq/fq - mengisi slot ekspresi bila kosong (menguras), menjadi nama berkas bila slot terisi (tidak menguras).
+
 ## [Belum rilis] — Bundel csvkit: nilai kosong merekat hanya untuk -d (Audit 163)
 
 - Koreksi 2440: sisa '=' kosong kini hanya diteruskan sebagai nilai bagi -d (delimiter); opsi bernilai lain mengirim penanda jebakan yang digantung loop utama - sesuai biner (rc=2/rc=1).

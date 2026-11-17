@@ -1687,7 +1687,9 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 # angka (unknown shorthand) -
                 # galat urai, stdin tak dibaca.
                 return False
-            if (perintah in ("jq", "fq")
+            if ((perintah in ("jq", "fq")
+                    or (perintah == "yq"
+                        and lewat_dd))
                     and _angka_negatif(bersih)):
                 # Audit 2421: angka negatif =
                 # program filter jq (atau nama
