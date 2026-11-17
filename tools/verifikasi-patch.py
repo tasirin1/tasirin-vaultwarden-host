@@ -8718,11 +8718,25 @@ def _menguras_khusus(perintah, toks, awal):
         # caseInsensitive (pulau caseSensitive
         # hanya H/V bool) - lipat token opsi
         # ke huruf kecil; -V persis = version.
-        for t_lp in mentah:
+        # Audit 2401/2406: pindaian -V/-h/
+        # --help/--version melewati posisi
+        # NILAI opsi bernilai (handleOption
+        # Phobos memakannya tanpa syarat).
+        bernilai_lp = ['--delimiter', '--exclude', '--fields', '--rest', '-V', '-d', '-e', '-f', '-r']
+        i_lp = 0
+        while i_lp < len(mentah):
+            t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
-            if t_lp == "-V":
+            if (t_lp in ("-V", "-h")
+                    or t_lp.lower() in ("--help",
+                                        "--version")):
                 return False
+            if (t_lp.split("=", 1)[0] in bernilai_lp
+                    and "=" not in t_lp):
+                i_lp += 2
+                continue
+            i_lp += 1
         mentah = [t.lower() if t.startswith("-")
                   else t for t in mentah]
         toks = [t.lower() if t.startswith("-")
@@ -9168,11 +9182,25 @@ def _menguras_khusus(perintah, toks, awal):
         # caseInsensitive (pulau caseSensitive
         # hanya H/V bool) - lipat token opsi
         # ke huruf kecil; -V persis = version.
-        for t_lp in mentah:
+        # Audit 2401/2406: pindaian -V/-h/
+        # --help/--version melewati posisi
+        # NILAI opsi bernilai (handleOption
+        # Phobos memakannya tanpa syarat).
+        bernilai_lp = ['--blank', '--byte-len-eq', '--byte-len-ge', '--byte-len-gt', '--byte-len-le', '--byte-len-lt', '--byte-len-ne', '--char-len-eq', '--char-len-ge', '--char-len-gt', '--char-len-le', '--char-len-lt', '--char-len-ne', '--delimiter', '--empty', '--eq', '--ff', '--ff-absdiff-gt', '--ff-absdiff-le', '--ff-eq', '--ff-ge', '--ff-gt', '--ff-istr-eq', '--ff-istr-ne', '--ff-le', '--ff-lt', '--ff-ne', '--ff-reldiff-gt', '--ff-reldiff-le', '--ff-str-eq', '--ff-str-ne', '--filter-file', '--ge', '--gt', '--in', '--iregex', '--is-finite', '--is-infinity', '--is-nan', '--is-numeric', '--istr-eq', '--istr-in-fld', '--istr-ne', '--istr-not-in-fld', '--label', '--label-values', '--le', '--lt', '--ne', '--not-blank', '--not-empty', '--not-in', '--not-iregex', '--not-regex', '--regex', '--str-eq', '--str-ge', '--str-gt', '--str-in-fld', '--str-le', '--str-lt', '--str-ne', '--str-not-in-fld', '-V', '-d']
+        i_lp = 0
+        while i_lp < len(mentah):
+            t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
-            if t_lp == "-V":
+            if (t_lp in ("-V", "-h")
+                    or t_lp.lower() in ("--help",
+                                        "--version")):
                 return False
+            if (t_lp.split("=", 1)[0] in bernilai_lp
+                    and "=" not in t_lp):
+                i_lp += 2
+                continue
+            i_lp += 1
         mentah = [t.lower() if t.startswith("-")
                   else t for t in mentah]
         toks = [t.lower() if t.startswith("-")
@@ -9231,11 +9259,25 @@ def _menguras_khusus(perintah, toks, awal):
         # caseInsensitive (pulau caseSensitive
         # hanya H/V bool) - lipat token opsi
         # ke huruf kecil; -V persis = version.
-        for t_lp in mentah:
+        # Audit 2401/2406: pindaian -V/-h/
+        # --help/--version melewati posisi
+        # NILAI opsi bernilai (handleOption
+        # Phobos memakannya tanpa syarat).
+        bernilai_lp = ['--delimiter', '--file', '--source-header', '-V', '-d', '-f', '-s']
+        i_lp = 0
+        while i_lp < len(mentah):
+            t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
-            if t_lp == "-V":
+            if (t_lp in ("-V", "-h")
+                    or t_lp.lower() in ("--help",
+                                        "--version")):
                 return False
+            if (t_lp.split("=", 1)[0] in bernilai_lp
+                    and "=" not in t_lp):
+                i_lp += 2
+                continue
+            i_lp += 1
         mentah = [t.lower() if t.startswith("-")
                   else t for t in mentah]
         toks = [t.lower() if t.startswith("-")
@@ -9433,11 +9475,25 @@ def _menguras_khusus(perintah, toks, awal):
         # caseInsensitive (pulau caseSensitive
         # hanya H/V bool) - lipat token opsi
         # ke huruf kecil; -V persis = version.
-        for t_lp in mentah:
+        # Audit 2401/2406: pindaian -V/-h/
+        # --help/--version melewati posisi
+        # NILAI opsi bernilai (handleOption
+        # Phobos memakannya tanpa syarat).
+        bernilai_lp = ['--append-fields', '--data-fields', '--delimiter', '--filter-file', '--key-fields', '--prefix', '--write-all', '-V', '-a', '-d', '-f', '-k', '-p', '-w']
+        i_lp = 0
+        while i_lp < len(mentah):
+            t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
-            if t_lp == "-V":
+            if (t_lp in ("-V", "-h")
+                    or t_lp.lower() in ("--help",
+                                        "--version")):
                 return False
+            if (t_lp.split("=", 1)[0] in bernilai_lp
+                    and "=" not in t_lp):
+                i_lp += 2
+                continue
+            i_lp += 1
         mentah = [t.lower() if t.startswith("-")
                   else t for t in mentah]
         toks = [t.lower() if t.startswith("-")
@@ -9528,11 +9584,25 @@ def _menguras_khusus(perintah, toks, awal):
         # caseInsensitive (pulau caseSensitive
         # hanya H/V bool) - lipat token opsi
         # ke huruf kecil; -V persis = version.
-        for t_lp in mentah:
+        # Audit 2401/2406: pindaian -V/-h/
+        # --help/--version melewati posisi
+        # NILAI opsi bernilai (handleOption
+        # Phobos memakannya tanpa syarat).
+        bernilai_lp = ['--at-least', '--delimiter', '--equiv-header', '--equiv-start', '--fields', '--max', '--number-header', '-V', '-a', '-d', '-f', '-m']
+        i_lp = 0
+        while i_lp < len(mentah):
+            t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
-            if t_lp == "-V":
+            if (t_lp in ("-V", "-h")
+                    or t_lp.lower() in ("--help",
+                                        "--version")):
                 return False
+            if (t_lp.split("=", 1)[0] in bernilai_lp
+                    and "=" not in t_lp):
+                i_lp += 2
+                continue
+            i_lp += 1
         mentah = [t.lower() if t.startswith("-")
                   else t for t in mentah]
         toks = [t.lower() if t.startswith("-")

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penjaga informasional tsv melewati posisi nilai (Audit 156)
+
+- Pindaian -V/-h/--help/--version di 5 cabang tsv hasil lipatan kini melewati token yang menjadi nilai opsi bernilai (handleOption Phobos memakannya) dan ikut menangkap bentuk informasional --help/--version/-h (Audit 2406).
+
 ## [Belum rilis] — csvclean: pengaktif --nama=x ditolak + opsi bernilai khas (Audit 155)
 
 - Bentuk --nama=x untuk ketujuh store_true pengaktif kini galat (Audit 2399); himpunan bernilai cabang dilengkapi --label/--separator/--fillvalue dari csvclean.py (Audit 2400, koreksi premis Audit 2242).
