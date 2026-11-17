@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penjaga awalan: token -- adalah pemisah, bukan calon opsi (Audit 160)
+
+- Pindaian awalan in2csv dan csvsql kini berhenti di -- pertama; bentuk berisi -- tidak lagi divonis galat, dan operand sesudahnya dinilai mesin operand seperti biasa.
+
 ## [Belum rilis] — Token strip-angka docopt: peta menyeluruh semua subperintah berblok (Audit 159)
 
 - Peta bernilai kini dibangun dari himpunan operand tiap blok (semua subperintah qsv/xsv berblok kecuali count yang berpindaian sendiri) dan pemeriksaan xsv dipindah ke kepala cabang sebelum blok search.

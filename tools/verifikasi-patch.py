@@ -7175,7 +7175,11 @@ def _menguras_khusus(perintah, toks, awal):
         # tunggal = berhenti.
         bool_i2 = _CSVKIT_BOOL | {
             "--no-doublequote", "--no-inference"}
-        for t_i2 in mentah:
+        # Audit 2430: token persis -- adalah
+        # pemisah, bukan calon opsi.
+        mentah_gi2 = (mentah[:mentah.index("--")]
+                      if "--" in mentah else mentah)
+        for t_i2 in mentah_gi2:
             dasar_i2 = t_i2.split("=", 1)[0]
             if (not t_i2.startswith("--")
                     or dasar_i2 in semesta_i2):
@@ -10213,6 +10217,9 @@ def _menguras_khusus(perintah, toks, awal):
             "--after-insert", "--chunk-size"}
         if _jebakan_argparse(mentah, bernilai_csq):
             return False
+        # Audit 2430: token -- adalah pemisah.
+        mentah_csq = (mentah[:mentah.index("--")]
+                      if "--" in mentah else mentah)
         # Audit 2410: awalan ambigu = galat
         # argparse (bukan nama persis).
         if any(t_csq.startswith("--")
@@ -10220,7 +10227,7 @@ def _menguras_khusus(perintah, toks, awal):
                and sum(1 for b_csq in bernilai_csq
                        if b_csq.startswith(
                            t_csq.split("=", 1)[0])) > 1
-               for t_csq in mentah):
+               for t_csq in mentah_csq):
             return False
         # Audit 2418: --execution-option
         # TIDAK ada di csvsql (hanya sql2csv) -
@@ -10230,7 +10237,7 @@ def _menguras_khusus(perintah, toks, awal):
                    t_csq.split("=", 1)[0])
                and not "--engine-option".startswith(
                    t_csq.split("=", 1)[0])
-               for t_csq in mentah):
+               for t_csq in mentah_csq):
             return False
         toks_csq = _saring_csvkit(toks, awal, "csvsql")
         if toks_csq is None:
