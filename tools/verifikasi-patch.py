@@ -3150,6 +3150,12 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah == "openssl" and _ada_informatif(
             ("-help", "-version")):
         return False
+    # Audit 2449/2450: qsv/xsv (docopt) juga
+    # berhenti pada informasional pendek
+    # -h/-V, bukan hanya bentuk panjang.
+    if perintah in ("qsv", "xsv") and _ada_informatif(
+            ("-h", "-V")):
+        return False
     # Audit 1088: redirect masukan di EKOR perintah mengganti atau
     # menutup stdin sebelum perintah berjalan — cabang khusus dulu
     # lolos dari pemeriksaannya (resolver hanya menangani redirect

@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — qsv: premis parser dikoreksi - qsv_docopt, bukan clap (Audit 163)
+
+- Komentar sumber qsv (src/util.rs) membuktikan docopt memintas informasional saat parse; pemodelan gerbang diselaraskan.
+
+## [Belum rilis] — qsv/xsv: informasional pendek -h/-V berhenti (Audit 163)
+
+- Penjaga _ada_informatif diperluas per perintah (pola openssl): qsv dan xsv kini berhenti pada -h/-V selain --help/--version; pengecualian pendahulu bernilai tetap berlaku.
+
 ## [Belum rilis] — csvsql: resolusi awalan pindaian pendamping berlaku juga untuk bentuk ber-= (Audit 163)
 
 - Cabang resolusi tak lagi dikecualikan bagi token ber-=; --dial=x, --que=x, --ch= kini dikenali pindaian seperti bentuk polosnya.
