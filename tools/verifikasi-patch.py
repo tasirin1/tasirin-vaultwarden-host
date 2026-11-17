@@ -1676,7 +1676,13 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             if perintah in ("jq", "yq", "fq") and bersih in ("-n", "--null-input"):
                 # jq -n tak membaca stdin sama sekali.
                 return False
-            if (perintah == "jq"
+            if (perintah == "yq"
+                    and _angka_negatif(bersih)):
+                # Audit 2435: yq menolak flag
+                # angka (unknown shorthand) -
+                # galat urai, stdin tak dibaca.
+                return False
+            if (perintah in ("jq", "fq")
                     and _angka_negatif(bersih)):
                 # Audit 2421: angka negatif =
                 # program filter jq (atau nama

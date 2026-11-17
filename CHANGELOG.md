@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — yq/fq: token angka negatif bukan penguras (DUGAAN E2 tertutup) (Audit 161)
+
+- Bukti biner resmi: yq menolak flag angka sebagai galat urai dan fq mengevaluasinya sebagai ekspresi atas berkas; cabang yq kini menolak token strip-angka dan fq berbagi perlakuan slot skrip jq.
+
 ## [Belum rilis] — Peta token-angka qsv: describegpt + geocode ditambahkan manual (Audit 160)
 
 - Kedua subperintah kelewat ekstrak berjendela maraton-159; entrinya kini dibaca manual dari blok masing-masing sehingga token strip-angka diperiksa di keduanya.
