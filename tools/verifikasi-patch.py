@@ -2528,6 +2528,37 @@ def _numerik_penuh(tok):
                            "LU")
 
 
+_CSVKIT_BOOL = {"--verbose", "--no-header-row",
+                "--help", "--version"}
+
+
+def _angka_negatif(tok):
+    # argparse: token mirip angka negatif
+    # adalah operand/nilai, bukan opsi.
+    return (len(tok) > 1 and tok[0] == "-"
+            and (tok[1].isdigit()
+                 or (tok[1] == "." and len(tok) > 2
+                     and tok[2].isdigit())))
+
+
+def _hadir_unik(mentah, nama, semesta):
+    # Audit 2405: kehadiran opsi panjang juga
+    # lewat singkatan awalan UNIK terhadap
+    # semesta opsi cabang.
+    for t_hu in mentah:
+        if t_hu == "--":
+            break
+        dasar_hu = t_hu.split("=", 1)[0]
+        if dasar_hu == nama:
+            return True
+        if (dasar_hu.startswith("--")
+                and nama.startswith(dasar_hu)
+                and sum(1 for s_hu in semesta
+                        if s_hu.startswith(dasar_hu)) == 1):
+            return True
+    return False
+
+
 def _operand_csvkit(toks, awal, bernilai):
     # Audit 2388: argparse mengembangkan bundel
     # huruf pendek - huruf bool menumpuk, huruf
@@ -2540,6 +2571,12 @@ def _operand_csvkit(toks, awal, bernilai):
     i_mentah_ck = 0
     while i_mentah_ck < len(mentah_ck):
         t_ck = mentah_ck[i_mentah_ck]
+        # Audit 2411: angka negatif = operand,
+        # jangan dikembangkan sebagai bundel.
+        if _angka_negatif(t_ck):
+            kembang_ck.append(t_ck)
+            i_mentah_ck += 1
+            continue
         if t_ck == "--":
             # Audit 2396: sesudah -- semua token
             # operand harfiah, tak dikembangkan.
@@ -2581,6 +2618,10 @@ def _operand_csvkit(toks, awal, bernilai):
     i_ck = 0
     while i_ck < len(kembang_ck):
         t_ck = kembang_ck[i_ck]
+        if _angka_negatif(t_ck):
+            hasil_ck.append(t_ck)
+            i_ck += 1
+            continue
         if t_ck == "--":
             hasil_ck.extend(kembang_ck[i_ck + 1:])
             break
@@ -2592,6 +2633,17 @@ def _operand_csvkit(toks, awal, bernilai):
                     and dasar_ck not in bernilai):
                 cocok_ck = [b_ck for b_ck in bernilai
                             if b_ck.startswith(dasar_ck)]
+                # Audit 2403/2410: awalan yang
+                # cocok >1 opsi (atau ikut cocok
+                # opsi bool umum) = ambigu argparse.
+                if (len(cocok_ck) > 1
+                        or (len(cocok_ck) == 1
+                            and any(
+                                b_ck.startswith(dasar_ck)
+                                for b_ck in _CSVKIT_BOOL))):
+                    hasil_ck.append("\x00gantung")
+                    i_ck += 1
+                    continue
                 if len(cocok_ck) == 1:
                     dasar_ck = cocok_ck[0]
             if dasar_ck in bernilai:

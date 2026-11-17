@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Resolusi awalan: ambiguitas opsi bool + angka negatif operand (Audit 156)
+
+- _CSVKIT_BOOL baru: awalan yang ikut cocok opsi bool umum (--n ~ --null-value/--no-header-row) atau >1 opsi bernilai kini gantung (Audit 2403, sekaligus awalan ambigu di cabang _operand_csvkit untuk Audit 2410); token mirip angka negatif kini operand harfiah, bukan bundel (Audit 2411, csvlook -12).
+
 ## [Belum rilis] — _numerik_penuh meniru isNumeric Phobos utuh (Audit 156)
 
 - Digit + satu titik + eksponen bertanda + sufiks f/L/u/ul kini sah (-1e-5, -1f, -12ul); eksponen tanpa tanda tetap bukan numerik (-1e5).
