@@ -2646,7 +2646,8 @@ def _ada_token_angka(mentah, bernilai):
 
 def _operand_csvkit(toks, awal, bernilai,
                     bool_cabang=frozenset(),
-                    kecuali=frozenset()):
+                    kecuali=frozenset(),
+                    pendek_bool=frozenset()):
     # Audit 2388: argparse mengembangkan bundel
     # huruf pendek - huruf bool menumpuk, huruf
     # bernilai menelan sisa token (atau token
@@ -2654,6 +2655,11 @@ def _operand_csvkit(toks, awal, bernilai,
     # dikembangkan dulu, lalu logika operand
     # yang sama dengan _operand_sesudah_opsi.
     mentah_ck = [t.strip("\"'") for t in toks[awal + 1:]]
+    # Audit 2436: semesta huruf pendek bool =
+    # umum csvkit (cli.py) + khas cabang.
+    bool_pendek_ck = ({"-h", "-H", "-S", "-V",
+                       "-b", "-l", "-t", "-v"}
+                      | pendek_bool)
     kembang_ck = []
     i_mentah_ck = 0
     while i_mentah_ck < len(mentah_ck):
@@ -2671,22 +2677,37 @@ def _operand_csvkit(toks, awal, bernilai,
             break
         if (t_ck.startswith("-")
                 and not t_ck.startswith("--")
-                and len(t_ck) > 2
-                and "=" not in t_ck):
+                and len(t_ck) > 2):
+            # Audit 2437: kepala bundel = bagian
+            # sebelum = pertama; nilai sesudah
+            # huruf bernilai boleh merekat lewat
+            # sisa kepala atau sesudah =.
+            kepala_ck = t_ck.split("=", 1)[0]
             j_ck = 1
-            while j_ck < len(t_ck):
+            while j_ck < len(kepala_ck):
                 # Audit 2395: aksara bukan
                 # alfanumerik di bundel = galat
                 # argparse (bukan '--' sintetis).
-                if not t_ck[j_ck].isalnum():
+                if not kepala_ck[j_ck].isalnum():
                     kembang_ck.append("\x00gantung")
                     break
-                eja_ck = "-" + t_ck[j_ck]
+                eja_ck = "-" + kepala_ck[j_ck]
+                # Audit 2436: huruf yang tak
+                # dikenal alat (bukan bernilai,
+                # bukan bool umum/khas) = galat.
+                if (eja_ck not in bernilai
+                        and eja_ck not in bool_pendek_ck):
+                    kembang_ck.append("\x00gantung")
+                    break
                 kembang_ck.append(eja_ck)
                 if eja_ck in bernilai:
-                    if j_ck + 1 < len(t_ck):
-                        kembang_ck.append(t_ck[j_ck + 1:])
-                    elif (i_mentah_ck + 1 < len(mentah_ck)
+                    sisa_ck = t_ck[j_ck + 1:]
+                    if sisa_ck.startswith("="):
+                        sisa_ck = sisa_ck[1:]
+                    if sisa_ck:
+                        kembang_ck.append(sisa_ck)
+                    elif ("=" not in t_ck
+                            and i_mentah_ck + 1 < len(mentah_ck)
                             and mentah_ck[i_mentah_ck + 1].startswith("-")
                             and mentah_ck[i_mentah_ck + 1] != "-"
                             and not (len(mentah_ck[i_mentah_ck + 1]) > 1
@@ -2697,6 +2718,12 @@ def _operand_csvkit(toks, awal, bernilai,
                         kembang_ck.append("\x00jebakan")
                     break
                 j_ck += 1
+            else:
+                # Audit 2437: semua huruf bool -
+                # = merekat berarti argumen bagi
+                # bool terakhir: ditolak.
+                if "=" in t_ck:
+                    kembang_ck.append("\x00gantung")
             i_mentah_ck += 1
             continue
         kembang_ck.append(t_ck)
@@ -2714,6 +2741,16 @@ def _operand_csvkit(toks, awal, bernilai,
             break
         if t_ck.startswith("-") and t_ck != "-":
             dasar_ck = t_ck.split("=", 1)[0]
+            # Audit 2436: huruf pendek tunggal
+            # yang tak dikenal alat = galat.
+            if (len(t_ck) == 2
+                    and not dasar_ck.startswith("--")
+                    and dasar_ck not in bernilai
+                    and dasar_ck not in bool_pendek_ck
+                    and not _angka_negatif(t_ck)):
+                hasil_ck.append("\x00gantung")
+                i_ck += 1
+                continue
             # Audit 2432: bentuk pendek ber-=
             # yang hurufnya bukan opsi bernilai
             # cabang ini = bool berargumen -
@@ -8983,7 +9020,8 @@ def _menguras_khusus(perintah, toks, awal):
         ops_cpy = _operand_csvkit(
             toks_cpy, awal, _CSVKIT,
             kecuali={"--linenumbers", "--zero",
-                     "--add-bom"})
+                     "--add-bom"},
+            pendek_bool={"-I"})
         if "\x00gantung" in ops_cpy:
             return False
         return (len(ops_cpy) == 1
@@ -9004,7 +9042,8 @@ def _menguras_khusus(perintah, toks, awal):
             toks_cjn, awal, bernilai_cjn,
             bool_cabang={"--no-bbox",
                          "--no-inference",
-                         "--stream"})
+                         "--stream"},
+            pendek_bool={"-I"})
         if "\x00gantung" in ops_cjn:
             return False
         return not ops_cjn or ops_cjn == ["-"]
@@ -9025,6 +9064,7 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         ops_ccl = _operand_csvkit(
             toks, awal, bernilai_ccl,
+            pendek_bool={"-a"},
             bool_cabang={"--enable-all-checks",
                          "--length-mismatch",
                          "--empty-columns",
@@ -9112,7 +9152,8 @@ def _menguras_khusus(perintah, toks, awal):
                                    "--max-column-width",
                                    "--max-precision"},
             bool_cabang={"--no-inference",
-                         "--no-number-ellipsis"})
+                         "--no-number-ellipsis"},
+            pendek_bool={"-I"})
         if "\x00gantung" in ops_cl:
             return False
         return not ops_cl or ops_cl == ["-"]
@@ -9203,7 +9244,8 @@ def _menguras_khusus(perintah, toks, awal):
         ops_ck = _operand_csvkit(
             toks, awal, bernilai_ck,
             bool_cabang={"--delete-empty-rows",
-                         "--names"})
+                         "--names"},
+            pendek_bool={"-I", "-n", "-x"})
         if "\x00gantung" in ops_ck:
             return False
         return not ops_ck or ops_ck == ["-"]
@@ -9221,7 +9263,9 @@ def _menguras_khusus(perintah, toks, awal):
         if _jebakan_argparse(mentah, bernilai_cg):
             return False
         ops_cg = _operand_csvkit(
-            toks, awal, bernilai_cg)
+            toks, awal, bernilai_cg,
+            pendek_bool={"-I", "-a", "-i",
+                         "-n"})
         if "\x00gantung" in ops_cg:
             return False
         ada_c = any(
@@ -9286,7 +9330,8 @@ def _menguras_khusus(perintah, toks, awal):
                          "--no-grouping-separator",
                          "--max-precision",
                          "--non-nulls", "--unique",
-                         "--percentile"})
+                         "--percentile"},
+            pendek_bool={"-G", "-I", "-n"})
         if "\x00gantung" in ops_cs:
             return False
         return not ops_cs or ops_cs == ["-"]
@@ -9841,7 +9886,9 @@ def _menguras_khusus(perintah, toks, awal):
             toks_cso, awal, bernilai_cso,
             bool_cabang={"--ignore-case",
                          "--names", "--no-inference",
-                         "--reverse"})
+                         "--reverse"},
+            pendek_bool={"-I", "-i", "-n",
+                         "-r"})
         if "\x00gantung" in ops_cso:
             return False
         return not ops_cso or ops_cso == ["-"]
@@ -10015,7 +10062,8 @@ def _menguras_khusus(perintah, toks, awal):
             toks_cj, awal, bernilai_cj,
             bool_cabang={"--left", "--outer",
                          "--right",
-                         "--no-inference"})
+                         "--no-inference"},
+            pendek_bool={"-I"})
         if "\x00gantung" in ops_cj:
             return False
         return not ops_cj or "-" in ops_cj
@@ -10139,7 +10187,9 @@ def _menguras_khusus(perintah, toks, awal):
             bool_cabang={"--out-asv",
                          "--out-no-doublequote",
                          "--out-tabs",
-                         "--skip-header"})
+                         "--skip-header"},
+            pendek_bool={"-A", "-B", "-E",
+                         "-T"})
         if "\x00gantung" in ops_cf:
             return False
         return not ops_cf or ops_cf == ["-"]
@@ -10293,7 +10343,8 @@ def _menguras_khusus(perintah, toks, awal):
                          "--no-constraints",
                          "--no-create",
                          "--no-inference",
-                         "--overwrite"})
+                         "--overwrite"},
+            pendek_bool={"-I"})
         if "\x00gantung" in ops_csq:
             return False
         return not ops_csq or "-" in ops_csq

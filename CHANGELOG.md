@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Bundel pendek ber-= kini dikembangkan dari kepalanya (Audit 161)
+
+- Token bundel ber-= tak lagi dilewati: huruf-huruf kepalanya dikembangkan seperti bundel biasa; = yang merekat pada bool terakhir menggantung, nilai sesudah huruf bernilai tetap sah.
+
+## [Belum rilis] — Huruf pendek tak dikenal csvkit kini menggantung (Audit 161)
+
+- _operand_csvkit mengenal semesta huruf pendek bool (umum cli.py + khas tiap alat dari sumber csvkit 2.2.0); huruf di luar semesta itu — tunggal maupun di dalam bundel — adalah galat argparse.
+
 ## [Belum rilis] — yq/fq: token angka negatif bukan penguras (DUGAAN E2 tertutup) (Audit 161)
 
 - Bukti biner resmi: yq menolak flag angka sebagai galat urai dan fq mengevaluasinya sebagai ekspresi atas berkas; cabang yq kini menolak token strip-angka dan fq berbagi perlakuan slot skrip jq.
