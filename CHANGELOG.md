@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — qsv fixedwidth: penjaga diisi himpunan nyata (Audit 154)
+
+- Panggilan penjaga sebelumnya memakai set/pasangan kosong; kini {--positions, --widths, -o, --output} + pasangan -o dari USAGE fixedwidth.rs.
+
 ## [Belum rilis] — fetch/fetchpost: --http-header masuk himpunan penjaga (Audit 154)
 
 - Nilai header kini dilompati penjaga duplikat (bentuk panjang sebelumnya hilang, hanya -H) sehingga token mirip opsi di nilai header tak lagi terhitung opsi.

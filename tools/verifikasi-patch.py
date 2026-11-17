@@ -7904,7 +7904,7 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; Config::new di fixedwidth.rs:134 -
         # stdin bila kosong atau '-'.
         if mentah and mentah[0] == "fixedwidth":
-            if _ada_duplikat(mentah, 1, {}, {}):
+            if _ada_duplikat(mentah, 1, {"--positions", "--widths", "-o", "--output"}, {"-o": "--output"}):
                 return False
             ops_qfw = _operand_sesudah_opsi(
                 toks, awal + 1, {"--positions", "--widths", "-o", "--output"})
