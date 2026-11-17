@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — _operand_csvkit: bool pendek berbentuk -x=nilai ditolak (Audit 160)
+
+- Token pendek satu huruf ber-= yang hurufnya bukan opsi bernilai cabang kini menggantung (argparse rc=2 ignored explicit argument); bentuk pendek bernilai ber-= tidak berubah.
+
 ## [Belum rilis] — in2csv: bentuk tanpa operand kini ikut validasi format/names (Audit 160)
 
 - Return dini operand-kosong dicabut: validasi Audit 2362/2363 kini menjangkau semua bentuk penguras, sehingga -f tak dikenal, --names non-Excel, dan in2csv telanjang tanpa format divonis galat seperti biner (rc=2).

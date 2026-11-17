@@ -2708,6 +2708,17 @@ def _operand_csvkit(toks, awal, bernilai,
             break
         if t_ck.startswith("-") and t_ck != "-":
             dasar_ck = t_ck.split("=", 1)[0]
+            # Audit 2432: bentuk pendek ber-=
+            # yang hurufnya bukan opsi bernilai
+            # cabang ini = bool berargumen -
+            # ditolak argparse (rc=2).
+            if ("=" in t_ck
+                    and not dasar_ck.startswith("--")
+                    and len(dasar_ck) == 2
+                    and dasar_ck not in bernilai):
+                hasil_ck.append("\x00gantung")
+                i_ck += 1
+                continue
             # Audit 2394: singkatan awalan unik
             # opsi panjang diterima argparse.
             if (dasar_ck.startswith("--")
