@@ -31866,6 +31866,69 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvlook --n ambigu vs opsi bool: galat - gerbang lolos (Audit 2403)", rc == 0)
         shutil.rmtree(sub1500, ignore_errors=True)
+        sub1501 = klon(tmp, "sub1501")
+        berkas_aksi1501 = os.path.join(
+            sub1501, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1501, encoding="utf-8") as f:
+            isi_aksi1501 = f.read()
+        baris_aksi1501 = [b for b in isi_aksi1501.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1501 = isi_aksi1501.replace(
+                baris_aksi1501,
+                baris_aksi1501.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvclean -a --remove-empty-columns; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1501 != isi_aksi1501, \
+            "suntikan aksi1501 tidak menembak"
+        with open(berkas_aksi1501, "w", encoding="utf-8") as f:
+            f.write(isi_baru1501)
+        rc, out = jalan(sub1501,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvclean pengaktif hantu: tak dikenal - gerbang lolos (Audit 2404)", rc == 0)
+        shutil.rmtree(sub1501, ignore_errors=True)
+        sub1502 = klon(tmp, "sub1502")
+        berkas_aksi1502 = os.path.join(
+            sub1502, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1502, encoding="utf-8") as f:
+            isi_aksi1502 = f.read()
+        baris_aksi1502 = [b for b in isi_aksi1502.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1502 = isi_aksi1502.replace(
+                baris_aksi1502,
+                baris_aksi1502.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvclean --enable-all; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1502 != isi_aksi1502, \
+            "suntikan aksi1502 tidak menembak"
+        with open(berkas_aksi1502, "w", encoding="utf-8") as f:
+            f.write(isi_baru1502)
+        rc, out = jalan(sub1502,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvclean singkatan pengaktif unik: penguras - gerbang gagal (Audit 2405)", rc != 0)
+        shutil.rmtree(sub1502, ignore_errors=True)
+        sub1503 = klon(tmp, "sub1503")
+        berkas_aksi1503 = os.path.join(
+            sub1503, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1503, encoding="utf-8") as f:
+            isi_aksi1503 = f.read()
+        baris_aksi1503 = [b for b in isi_aksi1503.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1503 = isi_aksi1503.replace(
+                baris_aksi1503,
+                baris_aksi1503.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvgrep --col 1 --reg x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1503 != isi_aksi1503, \
+            "suntikan aksi1503 tidak menembak"
+        with open(berkas_aksi1503, "w", encoding="utf-8") as f:
+            f.write(isi_baru1503)
+        rc, out = jalan(sub1503,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvgrep singkatan -c/-r unik: penguras - gerbang gagal (Audit 2405)", rc != 0)
+        shutil.rmtree(sub1503, ignore_errors=True)
         sub1504 = klon(tmp, "sub1504")
         berkas_aksi1504 = os.path.join(
             sub1504, ".github", "actions", "resolve-vw",

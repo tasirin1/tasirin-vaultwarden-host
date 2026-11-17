@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvclean: pengaktif hantu dicabut + kehadiran sadar singkatan (Audit 156)
+
+- --remove-empty-columns tidak ada di csvkit 2.2.0: keluar dari pengaktif, masuk daftar terlarang csvclean (Audit 2404). Helper _hadir_unik: kehadiran pengaktif csvclean, -c/pencocok csvgrep, dan --query sql2csv kini juga bentuk singkatan awalan unik (Audit 2405).
+
 ## [Belum rilis] — Singkatan awalan unik di tiga helper saringan/jebakan/terlarang (Audit 156)
 
 - _saring_csvkit menyelesaikan --null-v/--engine-opt (Audit 2407); _jebakan_argparse mengenali opsi bernilai bentuk singkatan (Audit 2408); _token_terlarang menangkap singkatan nama terlarang (Audit 2409).

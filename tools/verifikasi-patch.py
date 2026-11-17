@@ -8739,8 +8739,11 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2242: tanpa FILE ia menerima
         # input pada STDIN (csvclean(1) csvkit);
         # opsi khasnya semua boolean.
-        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}, _CSVKIT):
+        if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit", "--remove-empty-columns"}, _CSVKIT):
             return False
+        # Audit 2404: --remove-empty-columns
+        # HANTU (tak ada di csvkit 2.2.0) -
+        # terlarang, bukan pengaktif.
         # Audit 2400: --label/--separator/
         # --fillvalue csvclean BERNILAI
         # (csvclean.py) - bukan boolean.
@@ -8770,12 +8773,19 @@ def _menguras_khusus(perintah, toks, awal):
                for t_ccl2 in mentah):
             return False
         nama_ccl = set(mentah)
-        aktif_ccl = bool(nama_ccl & {
+        # Audit 2405: kehadiran pengaktif juga
+        # bentuk singkatan awalan unik;
+        # Audit 2404: --remove-empty-columns
+        # keluar dari himpunan ini.
+        semesta_ccl = {
             "--length-mismatch", "--empty-columns",
             "--enable-all-checks",
             "--header-normalize-space",
-            "--join-short-rows", "--fill-short-rows",
-            "--remove-empty-columns"})
+            "--join-short-rows", "--fill-short-rows"}
+        aktif_ccl = any(
+            _hadir_unik(mentah, n_ccl,
+                        semesta_ccl | bernilai_ccl)
+            for n_ccl in semesta_ccl)
         if not aktif_ccl:
             for t_ccl in mentah:
                 if t_ccl == "--":
@@ -8793,8 +8803,11 @@ def _menguras_khusus(perintah, toks, awal):
                         break
         if not aktif_ccl:
             return False
-        if ("--join-short-rows" in nama_ccl
-                and "--fill-short-rows" in nama_ccl):
+        if (_hadir_unik(mentah, "--join-short-rows",
+                         semesta_ccl | bernilai_ccl)
+                and _hadir_unik(
+                    mentah, "--fill-short-rows",
+                    semesta_ccl | bernilai_ccl)):
             return False
         return not ops_ccl or ops_ccl == ["-"]
     if perintah == "csvlook":
@@ -8921,6 +8934,17 @@ def _menguras_khusus(perintah, toks, awal):
                                  "--match=",
                                  "--file="))
             for t_cg in mentah)
+        # Audit 2405: kehadiran juga bentuk
+        # singkatan awalan unik.
+        semesta_cg = bernilai_cg | {
+            "--invert-match", "--no-header-row",
+            "--verbose", "--help", "--version"}
+        ada_c = ada_c or _hadir_unik(
+            mentah, "--columns", semesta_cg)
+        ada_m = ada_m or any(
+            _hadir_unik(mentah, n_cg, semesta_cg)
+            for n_cg in ("--regex", "--match",
+                         "--file"))
         # Audit 2389: kehadiran juga di huruf
         # bundel bukan-pertama (argparse
         # mengembangkan bundel; huruf bernilai
@@ -9669,9 +9693,16 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2139: tanpa FILE dan tanpa --query,
         # kueri SQL dibaca dari STDIN (sql2csv(1));
         # --query menimpa FILE dan STDIN.
-        if any(t_sq == "--query"
-               or t_sq.startswith("--query=")
-               for t_sq in mentah):
+        # Audit 2405: --query juga bentuk
+        # singkatan awalan uniknya.
+        if _hadir_unik(
+                mentah, "--query",
+                _CSVKIT | {"--db", "--query",
+                           "--engine-option",
+                           "--execution-option",
+                           "--verbose",
+                           "--no-header-row",
+                           "--help", "--version"}):
             return False
         bernilai_sq = _CSVKIT | {"--db", "--query", "--engine-option", "--execution-option"}
         if _token_terlarang(mentah, {"-d", "--delimiter", "-q", "--quotechar", "-u", "--quoting", "-p", "--escapechar", "-z", "--maxfieldsize", "-y", "--snifflimit", "-L", "--locale", "-K", "--skip-lines", "--null-value", "--date-format", "--datetime-format", "--zero", "--add-bom", "--blanks", "--no-leading-zeroes", "-t", "--tabs", "-S", "--skipinitialspace", "-b", "--no-doublequote"}, bernilai_sq):
