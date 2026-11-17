@@ -2503,22 +2503,46 @@ def _operand_csvkit(toks, awal, bernilai):
     # yang sama dengan _operand_sesudah_opsi.
     mentah_ck = [t.strip("\"'") for t in toks[awal + 1:]]
     kembang_ck = []
-    for t_ck in mentah_ck:
+    i_mentah_ck = 0
+    while i_mentah_ck < len(mentah_ck):
+        t_ck = mentah_ck[i_mentah_ck]
+        if t_ck == "--":
+            # Audit 2396: sesudah -- semua token
+            # operand harfiah, tak dikembangkan.
+            kembang_ck.extend(mentah_ck[i_mentah_ck:])
+            break
         if (t_ck.startswith("-")
                 and not t_ck.startswith("--")
                 and len(t_ck) > 2
                 and "=" not in t_ck):
             j_ck = 1
             while j_ck < len(t_ck):
+                # Audit 2395: aksara bukan
+                # alfanumerik di bundel = galat
+                # argparse (bukan '--' sintetis).
+                if not t_ck[j_ck].isalnum():
+                    kembang_ck.append("\x00gantung")
+                    break
                 eja_ck = "-" + t_ck[j_ck]
                 kembang_ck.append(eja_ck)
                 if eja_ck in bernilai:
                     if j_ck + 1 < len(t_ck):
                         kembang_ck.append(t_ck[j_ck + 1:])
+                    elif (i_mentah_ck + 1 < len(mentah_ck)
+                            and mentah_ck[i_mentah_ck + 1].startswith("-")
+                            and mentah_ck[i_mentah_ck + 1] != "-"
+                            and not (len(mentah_ck[i_mentah_ck + 1]) > 1
+                                     and mentah_ck[i_mentah_ck + 1][1].isdigit())):
+                        # Audit 2392: nilai bundel
+                        # mirip-opsi ditolak
+                        # argparse.
+                        kembang_ck.append("\x00jebakan")
                     break
                 j_ck += 1
+            i_mentah_ck += 1
             continue
         kembang_ck.append(t_ck)
+        i_mentah_ck += 1
     hasil_ck = []
     i_ck = 0
     while i_ck < len(kembang_ck):
@@ -2528,10 +2552,23 @@ def _operand_csvkit(toks, awal, bernilai):
             break
         if t_ck.startswith("-") and t_ck != "-":
             dasar_ck = t_ck.split("=", 1)[0]
+            # Audit 2394: singkatan awalan unik
+            # opsi panjang diterima argparse.
+            if (dasar_ck.startswith("--")
+                    and dasar_ck not in bernilai):
+                cocok_ck = [b_ck for b_ck in bernilai
+                            if b_ck.startswith(dasar_ck)]
+                if len(cocok_ck) == 1:
+                    dasar_ck = cocok_ck[0]
             if dasar_ck in bernilai:
                 if ("=" not in t_ck
                         and i_ck + 1 >= len(kembang_ck)):
                     hasil_ck.append("\x00gantung")
+                elif ("=" not in t_ck
+                        and kembang_ck[i_ck + 1] == "\x00jebakan"):
+                    hasil_ck.append("\x00gantung")
+                    i_ck += 2
+                    continue
                 i_ck += 1 if "=" in t_ck else 2
                 continue
             i_ck += 1

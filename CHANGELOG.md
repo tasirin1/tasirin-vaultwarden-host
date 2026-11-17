@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — _operand_csvkit: singkatan awalan + aksara bundel + sesudah -- (Audit 155)
+
+- Awalan unik opsi panjang kini diselesaikan ke anggota himpunan (Audit 2394); aksara bukan alfanumerik di bundel = gantung, bukan '--' sintetis (Audit 2395); token sesudah -- tak lagi dikembangkan (Audit 2396). Ketiganya menumpang tulis-ulang helper yang sama.
+
+## [Belum rilis] — Bundel csvkit: nilai mirip-opsi ditolak (penanda jebakan) (Audit 155)
+
+- Huruf bernilai di ujung bundel yang token berikutnya mirip-opsi kini menghasilkan penanda jebakan -> vonis gantung, meniru penolakan argparse (csvlook -ve --verbose).
+
 ## [Belum rilis] — Kelas caseInsensitive tsv-utils: 5 cabang dilipat huruf (Audit 155)
 
 - tsv-select/join/append/filter/uniq kini melipat token opsi ke huruf kecil sebelum menilai (getopt sumber caseInsensitive; pulau caseSensitive hanya H/V bool) dan token -V persis (version) menghentikan. 13 bentuk terprobe agen kini cocok.
