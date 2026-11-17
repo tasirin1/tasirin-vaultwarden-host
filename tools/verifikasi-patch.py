@@ -8881,60 +8881,109 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2136: operasi resmi tsv-summarize
         # adalah opsi bernilai field (daftar
         # operasi di referensi resmi).
-        ops_tsm = _operand_sesudah_opsi(
-            toks, awal, {"--group-by", "-d",
-                         "--delimiter", "--sum",
-                         "--mean", "--median", "--min",
-                         "--max", "--mode", "--first",
-                         "--last", "--stdev",
-                         "--var", "--range",
-                         "--quantile", "--retain",
-                         "--values", "--unique-values",
-                         "--unique-count", "--mode-count",
-                         "--missing-count",
-                         "--not-missing-count",
-                         "--count-header", "--mad",
-                         "-g", "-v",
-                         "--values-delimiter", "-p",
-                         "--float-precision", "-r",
-                         "--replace-missing"})
+        # Audit 2374: getopt sumber tak peka
+        # huruf - operand dihitung lokal dengan
+        # nama opsi dilipat huruf kecil.
+        ops_tsm = []
+        i_ot = 0
+        while i_ot < len(mentah):
+            t_ot = mentah[i_ot]
+            if t_ot == "--":
+                ops_tsm.extend(mentah[i_ot + 1:])
+                break
+            nama_ot = t_ot.lower().split("=", 1)[0]
+            if nama_ot in ("--group-by", "-d",
+                           "--delimiter", "--sum",
+                           "--mean", "--median",
+                           "--min", "--max", "--mode",
+                           "--first", "--last",
+                           "--stdev", "--var",
+                           "--range", "--quantile",
+                           "--retain", "--values",
+                           "--unique-values",
+                           "--unique-count",
+                           "--mode-count",
+                           "--missing-count",
+                           "--not-missing-count",
+                           "--count-header", "--mad",
+                           "-g", "-v",
+                           "--values-delimiter", "-p",
+                           "--float-precision", "-r",
+                           "--replace-missing"):
+                if "=" in t_ot:
+                    i_ot += 1
+                    continue
+                if i_ot + 1 >= len(mentah):
+                    ops_tsm.append("\x00gantung")
+                    break
+                i_ot += 2
+                continue
+            if t_ot.startswith("-") and t_ot != "-":
+                i_ot += 1
+                continue
+            ops_tsm.append(t_ot)
+            i_ot += 1
         if "\x00gantung" in ops_tsm:
             return False
         # Audit 2370: tanpa operator perintah
         # ditolak sebelum masukan dibuka
         # (tsv-summarize.d enforce operator).
-        # --count bool panjang tak terlihat
-        # _opsi_hadir - diperiksa terpisah.
-        ada_op_tsm = bool(_opsi_hadir(
-                mentah, 0,
-                {"--group-by", "-d", "--delimiter",
-                 "--sum", "--mean", "--median",
-                 "--min", "--max", "--mode", "--first",
-                 "--last", "--stdev", "--var",
-                 "--range", "--quantile", "--retain",
-                 "--values", "--unique-values",
-                 "--unique-count", "--mode-count",
-                 "--missing-count",
-                 "--not-missing-count",
-                 "--count-header", "--mad", "-g", "-v",
-                 "--values-delimiter", "-p",
-                 "--float-precision", "-r",
-                 "--replace-missing"},
-                {"--sum", "--mean", "--median",
-                 "--min", "--max", "--mode", "--first",
-                 "--last", "--stdev", "--var",
-                 "--range", "--quantile", "--retain",
-                 "--values", "--unique-values",
-                 "--unique-count", "--mode-count",
-                 "--missing-count",
-                 "--not-missing-count",
-                 "--count-header", "--mad"}))
-        for t_tsm in mentah:
+        # Audit 2374: nama getopt tak peka huruf
+        # (config.caseInsensitive sumber).
+        # Audit 2375: token berawalan dash
+        # sesudah opsi bernilai = opsi itu
+        # menggantung (galat getopt).
+        ada_op_tsm = False
+        gantung_tsm = False
+        i_tsm = 0
+        while i_tsm < len(mentah):
+            t_tsm = mentah[i_tsm]
             if t_tsm == "--":
                 break
-            if t_tsm == "--count":
+            nama_tsm = t_tsm.lower().split("=", 1)[0]
+            if nama_tsm in ("--sum", "--mean",
+                            "--median", "--min",
+                            "--max", "--mode",
+                            "--first", "--last",
+                            "--stdev", "--var",
+                            "--range", "--quantile",
+                            "--retain", "--values",
+                            "--unique-values",
+                            "--unique-count",
+                            "--mode-count",
+                            "--missing-count",
+                            "--not-missing-count",
+                            "--count-header", "--mad",
+                            "--count"):
                 ada_op_tsm = True
-        if not ada_op_tsm:
+                if ("=" not in t_tsm
+                        and nama_tsm != "--count"):
+                    if (i_tsm + 1 < len(mentah)
+                            and mentah[i_tsm + 1].startswith("-")
+                            and mentah[i_tsm + 1] != "-"):
+                        gantung_tsm = True
+                    i_tsm += 2
+                    continue
+                i_tsm += 1
+                continue
+            if nama_tsm in ("--group-by",
+                            "--delimiter",
+                            "--values-delimiter",
+                            "--float-precision",
+                            "--replace-missing",
+                            "-g", "-d", "-v", "-p",
+                            "-r"):
+                if "=" not in t_tsm:
+                    if (i_tsm + 1 < len(mentah)
+                            and mentah[i_tsm + 1].startswith("-")
+                            and mentah[i_tsm + 1] != "-"):
+                        gantung_tsm = True
+                    i_tsm += 2
+                    continue
+                i_tsm += 1
+                continue
+            i_tsm += 1
+        if gantung_tsm or not ada_op_tsm:
             return False
         return not ops_tsm or "-" in ops_tsm
     if perintah == "csvjoin":

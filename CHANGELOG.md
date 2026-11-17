@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — tsv-summarize: opsi bernilai menggantung oleh token dash = galat (Audit 153)
+
+- Pindaian yang sama menandai gantung: token berawalan dash sesudah opsi bernilai berarti opsi itu tak bernilai (getopt_inorder) — --sum --count dan kawanannya kini False (menumpang commit Audit 2374).
+
+## [Belum rilis] — tsv-summarize: pemeriksaan operator tak peka huruf + sadar posisi (Audit 153)
+
+- getopt sumber memasang caseInsensitive (tsv-summarize.d:226-232): pindaian operator kini melipat huruf dan operand cabang dihitung lokal dengan nama terlipat, sejajar semantik sumber.
+
 ## [Belum rilis] — in2csv: --names=<x> ditolak (Audit 152)
 
 - --names adalah store_true; bentuk berargumen ditolak argparse sebelum membaca, kini juga oleh model (menumpang commit Audit 2372).
