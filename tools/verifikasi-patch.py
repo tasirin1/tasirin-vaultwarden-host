@@ -12554,12 +12554,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 lewati_info = 1
                 continue
             # Audit 2460: pembawa khas jq/awk.
-            if ((keluarga == "jq" and b_isk == "-L")
+            if ((keluarga in ("jq", "fq")
+                    and b_isk == "-L")
                     or (keluarga == "awk"
                         and b_isk == "-F")):
                 lewati_info = 1
                 continue
-            if (perintah == "jq"
+            if (perintah in ("jq", "fq")
                     and b_isk in ("--arg",
                                   "--argjson",
                                   "--rawfile",
@@ -12589,7 +12590,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # operand tersisa = kelaparan pola/skrip,
         # alat berhenti dengan galat.
         if (info_termakan and not pola_opsi
-                and operand_isk == 0):
+                and operand_isk == 0
+                and keluarga != "jq"):
             return False
     if perintah in ("sed", "awk", "grep", "jq", "yq", "fq",
                     "mawk", "nawk", "egrep", "fgrep", "rg",

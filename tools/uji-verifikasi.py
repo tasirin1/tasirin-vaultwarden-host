@@ -33504,6 +33504,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv describegpt --limit asing: galat docopt - gerbang lolos (Audit 2464)", rc == 0)
         shutil.rmtree(sub1578, ignore_errors=True)
+        sub1579 = klon(tmp, "sub1579")
+        berkas_aksi1579 = os.path.join(
+            sub1579, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1579, encoding="utf-8") as f:
+            isi_aksi1579 = f.read()
+        baris_aksi1579 = [b for b in isi_aksi1579.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1579 = isi_aksi1579.replace(
+                baris_aksi1579,
+                baris_aksi1579.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(jq --arg x --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1579 != isi_aksi1579, \
+            "suntikan aksi1579 tidak menembak"
+        with open(berkas_aksi1579, "w", encoding="utf-8") as f:
+            f.write(isi_baru1579)
+        rc, out = jalan(sub1579,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("jq tanpa filter: filter implisit titik tetap menguras - gerbang menolak (Audit 2465)", rc != 0)
+        shutil.rmtree(sub1579, ignore_errors=True)
+        sub1580 = klon(tmp, "sub1580")
+        berkas_aksi1580 = os.path.join(
+            sub1580, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1580, encoding="utf-8") as f:
+            isi_aksi1580 = f.read()
+        baris_aksi1580 = [b for b in isi_aksi1580.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1580 = isi_aksi1580.replace(
+                baris_aksi1580,
+                baris_aksi1580.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(fq --arg x --help .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1580 != isi_aksi1580, \
+            "suntikan aksi1580 tidak menembak"
+        with open(berkas_aksi1580, "w", encoding="utf-8") as f:
+            f.write(isi_baru1580)
+        rc, out = jalan(sub1580,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("fq --arg dua token: --help adalah nilai - gerbang menolak (Audit 2466)", rc != 0)
+        shutil.rmtree(sub1580, ignore_errors=True)
         sub1581 = klon(tmp, "sub1581")
         berkas_aksi1581 = os.path.join(
             sub1581, ".github", "actions", "resolve-vw",

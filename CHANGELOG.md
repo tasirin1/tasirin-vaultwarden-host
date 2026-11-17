@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Klausa dua-token dan -L mencakup fq (Audit 166)
+
+- fq meniru opsi jq (biner fq 0.15.1: --arg dan -L menguras) - klausa --arg/--argjson/--rawfile/--slurpfile/--argfile dan -L kini berlaku untuk jq dan fq.
+
+## [Belum rilis] — Aturan kelaparan dikecualikan untuk jq: filter implisit '.' (Audit 166)
+
+- Koreksi 2458: jq 1.7 tanpa filter tetap menguras (filter implisit titik, terbukti biner termasuk pipa lambat) - aturan kelaparan kini melewati keluarga jq.
+
 ## [Belum rilis] — Pendahulu qsv/xsv diganti himpunan per subperintah, bukan digabung dasar (Audit 166)
 
 - Himpunan dasar bersama (memuat -f) tak lagi ikut melindungi qsv/xsv: untuk kedua perintah pendahulu adalah tepat himpunan subperintah yang berjalan.
