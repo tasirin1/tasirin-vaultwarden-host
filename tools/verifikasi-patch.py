@@ -7185,7 +7185,9 @@ def _menguras_khusus(perintah, toks, awal):
         # himpunan atau informasional bool
         # tunggal = berhenti.
         bool_i2 = _CSVKIT_BOOL | {
-            "--no-doublequote", "--no-inference"}
+            "--no-doublequote", "--no-inference",
+            "--names", "--use-sheet-names",
+            "--reset-dimensions"}
         # Audit 2430: token persis -- adalah
         # pemisah, bukan calon opsi.
         mentah_gi2 = (mentah[:mentah.index("--")]
@@ -8991,7 +8993,10 @@ def _menguras_khusus(perintah, toks, awal):
         if toks_cjn is None:
             return False
         ops_cjn = _operand_csvkit(
-            toks_cjn, awal, bernilai_cjn)
+            toks_cjn, awal, bernilai_cjn,
+            bool_cabang={"--no-bbox",
+                         "--no-inference",
+                         "--stream"})
         if "\x00gantung" in ops_cjn:
             return False
         return not ops_cjn or ops_cjn == ["-"]
@@ -9097,7 +9102,9 @@ def _menguras_khusus(perintah, toks, awal):
             toks_cl, awal, _CSVKIT | {"--max-rows",
                                    "--max-columns",
                                    "--max-column-width",
-                                   "--max-precision"})
+                                   "--max-precision"},
+            bool_cabang={"--no-inference",
+                         "--no-number-ellipsis"})
         if "\x00gantung" in ops_cl:
             return False
         return not ops_cl or ops_cl == ["-"]
@@ -9187,7 +9194,8 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         ops_ck = _operand_csvkit(
             toks, awal, bernilai_ck,
-            bool_cabang={"--delete-empty-rows"})
+            bool_cabang={"--delete-empty-rows",
+                         "--names"})
         if "\x00gantung" in ops_ck:
             return False
         return not ops_ck or ops_ck == ["-"]
@@ -9265,6 +9273,10 @@ def _menguras_khusus(perintah, toks, awal):
                          "--mean", "--median",
                          "--stdev", "--len",
                          "--type", "--nulls",
+                         "--csv", "--json",
+                         "--names", "--no-inference",
+                         "--no-grouping-separator",
+                         "--max-precision",
                          "--non-nulls", "--unique",
                          "--percentile"})
         if "\x00gantung" in ops_cs:
@@ -9818,7 +9830,10 @@ def _menguras_khusus(perintah, toks, awal):
         if toks_cso is None:
             return False
         ops_cso = _operand_csvkit(
-            toks_cso, awal, bernilai_cso)
+            toks_cso, awal, bernilai_cso,
+            bool_cabang={"--ignore-case",
+                         "--names", "--no-inference",
+                         "--reverse"})
         if "\x00gantung" in ops_cso:
             return False
         return not ops_cso or ops_cso == ["-"]
@@ -9989,7 +10004,10 @@ def _menguras_khusus(perintah, toks, awal):
         if toks_cj is None:
             return False
         ops_cj = _operand_csvkit(
-            toks_cj, awal, bernilai_cj)
+            toks_cj, awal, bernilai_cj,
+            bool_cabang={"--left", "--outer",
+                         "--right",
+                         "--no-inference"})
         if "\x00gantung" in ops_cj:
             return False
         return not ops_cj or "-" in ops_cj
@@ -10004,7 +10022,8 @@ def _menguras_khusus(perintah, toks, awal):
         if _jebakan_argparse(mentah, bernilai_cst):
             return False
         ops_cst = _operand_csvkit(
-            toks, awal, bernilai_cst)
+            toks, awal, bernilai_cst,
+            bool_cabang={"--filenames"})
         if "\x00gantung" in ops_cst:
             return False
         return not ops_cst or "-" in ops_cst
@@ -10108,7 +10127,11 @@ def _menguras_khusus(perintah, toks, awal):
         if _jebakan_argparse(mentah, bernilai_cf):
             return False
         ops_cf = _operand_csvkit(
-            toks, awal, bernilai_cf)
+            toks, awal, bernilai_cf,
+            bool_cabang={"--out-asv",
+                         "--out-no-doublequote",
+                         "--out-tabs",
+                         "--skip-header"})
         if "\x00gantung" in ops_cf:
             return False
         return not ops_cf or ops_cf == ["-"]
@@ -10256,7 +10279,13 @@ def _menguras_khusus(perintah, toks, awal):
         if toks_csq is None:
             return False
         ops_csq = _operand_csvkit(
-            toks_csq, awal, bernilai_csq)
+            toks_csq, awal, bernilai_csq,
+            bool_cabang={"--create-if-not-exists",
+                         "--insert",
+                         "--no-constraints",
+                         "--no-create",
+                         "--no-inference",
+                         "--overwrite"})
         if "\x00gantung" in ops_csq:
             return False
         return not ops_csq or "-" in ops_csq

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Semesta bool khas alat dilengkapi dari sumber csvkit (Audit 160)
+
+- bool_cabang/bool_i2 kini memuat store_true khas tiap utilitas (csvstat 6, in2csv 3, csvjoin/csvjson/csvlook/csvsort/csvsql/csvformat/csvcut/csvstack) sehingga bentuk --boolkhas=nilai ikut ditolak oleh aturan 2426.
+
 ## [Belum rilis] — _operand_csvkit: bool pendek berbentuk -x=nilai ditolak (Audit 160)
 
 - Token pendek satu huruf ber-= yang hurufnya bukan opsi bernilai cabang kini menggantung (argparse rc=2 ignored explicit argument); bentuk pendek bernilai ber-= tidak berubah.
