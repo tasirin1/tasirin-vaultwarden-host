@@ -2495,15 +2495,37 @@ def _operand_sesudah_opsi(toks, awal, bernilai):
     return hasil
 
 def _numerik_penuh(tok):
-    # getopt_inorder.d isNumeric: seluruh token
-    # (sesudah tanda -) angka/titik desimal.
+    # Audit 2402: std.string.isNumeric (Phobos)
+    # utuh: digit, satu titik, eksponen
+    # BERTANDA, sufiks f/L/u/ul. Eksponen
+    # tanpa tanda BUKAN numerik (-1e5).
     if not tok.startswith("-") or len(tok) < 2:
         return False
-    badan = tok[1:]
-    return (any(c.isdigit() for c in badan)
-            and badan.count(".") <= 1
-            and all(c.isdigit() or c == "."
-                    for c in badan))
+    b_np = tok[1:]
+    i_np = 0
+    digit_np = 0
+    while i_np < len(b_np) and b_np[i_np].isdigit():
+        i_np += 1
+        digit_np += 1
+    if i_np < len(b_np) and b_np[i_np] == ".":
+        i_np += 1
+        while i_np < len(b_np) and b_np[i_np].isdigit():
+            i_np += 1
+            digit_np += 1
+    if digit_np == 0:
+        return False
+    if i_np < len(b_np) and b_np[i_np] in "eE":
+        j_np = i_np + 1
+        if j_np < len(b_np) and b_np[j_np] in "+-":
+            j_np += 1
+            k_np = j_np
+            while k_np < len(b_np) and b_np[k_np].isdigit():
+                k_np += 1
+            if k_np > j_np:
+                i_np = k_np
+    return b_np[i_np:] in ("", "f", "F", "L", "u",
+                           "U", "ul", "UL", "lu",
+                           "LU")
 
 
 def _operand_csvkit(toks, awal, bernilai):

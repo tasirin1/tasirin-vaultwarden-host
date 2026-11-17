@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — _numerik_penuh meniru isNumeric Phobos utuh (Audit 156)
+
+- Digit + satu titik + eksponen bertanda + sufiks f/L/u/ul kini sah (-1e-5, -1f, -12ul); eksponen tanpa tanda tetap bukan numerik (-1e5).
+
 ## [Belum rilis] — Penjaga informasional tsv melewati posisi nilai (Audit 156)
 
 - Pindaian -V/-h/--help/--version di 5 cabang tsv hasil lipatan kini melewati token yang menjadi nilai opsi bernilai (handleOption Phobos memakannya) dan ikut menangkap bentuk informasional --help/--version/-h (Audit 2406).

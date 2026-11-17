@@ -31824,6 +31824,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-append -V jadi nilai -s: bukan version, penguras - gerbang gagal (Audit 2401)", rc != 0)
         shutil.rmtree(sub1498, ignore_errors=True)
+        sub1499 = klon(tmp, "sub1499")
+        berkas_aksi1499 = os.path.join(
+            sub1499, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1499, encoding="utf-8") as f:
+            isi_aksi1499 = f.read()
+        baris_aksi1499 = [b for b in isi_aksi1499.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1499 = isi_aksi1499.replace(
+                baris_aksi1499,
+                baris_aksi1499.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize --count -r -1e-5; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1499 != isi_aksi1499, \
+            "suntikan aksi1499 tidak menembak"
+        with open(berkas_aksi1499, "w", encoding="utf-8") as f:
+            f.write(isi_baru1499)
+        rc, out = jalan(sub1499,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-summarize -r eksponen bertanda sah: penguras - gerbang gagal (Audit 2402)", rc != 0)
+        shutil.rmtree(sub1499, ignore_errors=True)
         sub1504 = klon(tmp, "sub1504")
         berkas_aksi1504 = os.path.join(
             sub1504, ".github", "actions", "resolve-vw",
