@@ -813,6 +813,16 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
 # panjang --help/--version).
 _INFO_HURUF = {"cpan": {"-v", "-V", "-h"},
                "utmpdump": {"-h"},
+               # Audit 2451: pembaca coreutils -
+               # -h/-V tak sah (berhenti galat)
+               # atau informasional versi.
+               "head": {"-h", "-V"},
+               "tail": {"-h", "-V"},
+               "cat": {"-h", "-V"},
+               "wc": {"-h", "-V"},
+               "uniq": {"-h", "-V"},
+               "cut": {"-h", "-V"},
+               "tr": {"-h", "-V"},
                # Audit 1423: pl2pm (Audit 1398) ketinggalan
                # dari tabel ini.
                "pl2pm": {"-v", "-h"}}

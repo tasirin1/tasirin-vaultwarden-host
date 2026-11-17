@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — _INFO_HURUF: pembaca coreutils head/tail/cat/wc/uniq/cut/tr (Audit 163)
+
+- Ketujuh pembaca mendapat entri {-h, -V}: biner berhenti (informatif versi atau galat opsi tak sah) tanpa membaca stdin; sort sengaja di luar (bendera asli).
+
 ## [Belum rilis] — qsv: premis parser dikoreksi - qsv_docopt, bukan clap (Audit 163)
 
 - Komentar sumber qsv (src/util.rs) membuktikan docopt memintas informasional saat parse; pemodelan gerbang diselaraskan.
