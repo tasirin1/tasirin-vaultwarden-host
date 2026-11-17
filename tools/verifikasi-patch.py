@@ -8864,9 +8864,12 @@ def _menguras_khusus(perintah, toks, awal):
                 break
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
-                                        "--version")):
+                                        "--version",
+                                        "--help-verbose",
+                                        "--help-fields",
+                                        "--help-options")):
                 return False
-            if (t_lp.split("=", 1)[0] in bernilai_lp
+            if (t_lp.split("=", 1)[0].lower() in bernilai_lp
                     and "=" not in t_lp):
                 i_lp += 2
                 continue
@@ -9331,7 +9334,7 @@ def _menguras_khusus(perintah, toks, awal):
         # --help/--version melewati posisi
         # NILAI opsi bernilai (handleOption
         # Phobos memakannya tanpa syarat).
-        bernilai_lp = ['--blank', '--byte-len-eq', '--byte-len-ge', '--byte-len-gt', '--byte-len-le', '--byte-len-lt', '--byte-len-ne', '--char-len-eq', '--char-len-ge', '--char-len-gt', '--char-len-le', '--char-len-lt', '--char-len-ne', '--delimiter', '--empty', '--eq', '--ff', '--ff-absdiff-gt', '--ff-absdiff-le', '--ff-eq', '--ff-ge', '--ff-gt', '--ff-istr-eq', '--ff-istr-ne', '--ff-le', '--ff-lt', '--ff-ne', '--ff-reldiff-gt', '--ff-reldiff-le', '--ff-str-eq', '--ff-str-ne', '--filter-file', '--ge', '--gt', '--in', '--iregex', '--is-finite', '--is-infinity', '--is-nan', '--is-numeric', '--istr-eq', '--istr-in-fld', '--istr-ne', '--istr-not-in-fld', '--label', '--label-values', '--le', '--lt', '--ne', '--not-blank', '--not-empty', '--not-in', '--not-iregex', '--not-regex', '--regex', '--str-eq', '--str-ge', '--str-gt', '--str-in-fld', '--str-le', '--str-lt', '--str-ne', '--str-not-in-fld', '-V', '-d']
+        bernilai_lp = set()  # Audit 2413: getoptInorder - token strip sesudah opsi bernilai BUKAN nilai, jadi tanpa lewatan
         i_lp = 0
         while i_lp < len(mentah):
             t_lp = mentah[i_lp]
@@ -9339,9 +9342,12 @@ def _menguras_khusus(perintah, toks, awal):
                 break
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
-                                        "--version")):
+                                        "--version",
+                                        "--help-verbose",
+                                        "--help-fields",
+                                        "--help-options")):
                 return False
-            if (t_lp.split("=", 1)[0] in bernilai_lp
+            if (t_lp.split("=", 1)[0].lower() in bernilai_lp
                     and "=" not in t_lp):
                 i_lp += 2
                 continue
@@ -9416,9 +9422,12 @@ def _menguras_khusus(perintah, toks, awal):
                 break
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
-                                        "--version")):
+                                        "--version",
+                                        "--help-verbose",
+                                        "--help-fields",
+                                        "--help-options")):
                 return False
-            if (t_lp.split("=", 1)[0] in bernilai_lp
+            if (t_lp.split("=", 1)[0].lower() in bernilai_lp
                     and "=" not in t_lp):
                 i_lp += 2
                 continue
@@ -9632,9 +9641,12 @@ def _menguras_khusus(perintah, toks, awal):
                 break
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
-                                        "--version")):
+                                        "--version",
+                                        "--help-verbose",
+                                        "--help-fields",
+                                        "--help-options")):
                 return False
-            if (t_lp.split("=", 1)[0] in bernilai_lp
+            if (t_lp.split("=", 1)[0].lower() in bernilai_lp
                     and "=" not in t_lp):
                 i_lp += 2
                 continue
@@ -9748,9 +9760,12 @@ def _menguras_khusus(perintah, toks, awal):
                 break
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
-                                        "--version")):
+                                        "--version",
+                                        "--help-verbose",
+                                        "--help-fields",
+                                        "--help-options")):
                 return False
-            if (t_lp.split("=", 1)[0] in bernilai_lp
+            if (t_lp.split("=", 1)[0].lower() in bernilai_lp
                     and "=" not in t_lp):
                 i_lp += 2
                 continue

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penjaga tsv: lewatan tak peka huruf + informasional lengkap + filter inorder (Audit 157)
+
+- Perbandingan nama di lewatan penjaga kini dilipat huruf (Audit 2412); keluarga informasional dilengkapi --help-verbose/--help-fields/--help-options (Audit 2414); tsv-filter (getoptInorder) tanpa lewatan - token strip sesudah opsi bernilai adalah batas opsi (Audit 2413).
+
 ## [Belum rilis] — Awalan ambigu csvsql dan in2csv ditolak (Audit 156)
 
 - Token panjang yang menjadi awalan >1 opsi himpunan cabang (csvsql --d; in2csv --enc) kini galat, meniru 'ambiguous option' argparse.
