@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Token strip-angka ditolak di tsv-append/uniq + qsv/xsv count (Audit 157)
+
+- Pindaian sadar-nilai di 4 cabang: token strip-angka di posisi opsi = operand berkas/galat getopt atau flag tak dikenal docopt - tak pernah menguras.
+
 ## [Belum rilis] — _saring_csvkit: nama khas per alat + ambang awalan 5 (Audit 157)
 
 - csvsql hanya --engine-option, sql2csv keduanya, alat lain hanya --null-value; singkatan unik >=5 huruf kini diselesaikan; csvsql menolak --execution-option (tak ada di parsernya).

@@ -7310,6 +7310,22 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "count":
             if _ada_duplikat(mentah, 1, {"-d", "--delimiter"}, {"-d": "--delimiter", "-H": "--human-readable", "-f": "--flexible", "-n": "--no-headers"}):
                 return False
+            # Audit 2420: token strip-angka =
+            # flag tak dikenal docopt (galat
+            # parse, stdin tak tersentuh).
+            i_qc = 1
+            while i_qc < len(mentah):
+                t_qc = mentah[i_qc]
+                if t_qc == "--":
+                    break
+                if t_qc in ("-d", "--delimiter"):
+                    i_qc += 2
+                    continue
+                if (len(t_qc) > 1
+                        and t_qc[0] == "-"
+                        and t_qc[1].isdigit()):
+                    return False
+                i_qc += 1
             ops_qc = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter"})
             if "\x00gantung" in ops_qc:
@@ -9101,6 +9117,21 @@ def _menguras_khusus(perintah, toks, awal):
         if mentah and mentah[0] == "count":
             if _ada_duplikat(mentah, 1, {"-d", "--delimiter"}, {"-d": "--delimiter", "-n": "--no-headers"}):
                 return False
+            # Audit 2420: token strip-angka =
+            # flag tak dikenal docopt.
+            i_xc = 1
+            while i_xc < len(mentah):
+                t_xc = mentah[i_xc]
+                if t_xc == "--":
+                    break
+                if t_xc in ("-d", "--delimiter"):
+                    i_xc += 2
+                    continue
+                if (len(t_xc) > 1
+                        and t_xc[0] == "-"
+                        and t_xc[1].isdigit()):
+                    return False
+                i_xc += 1
             ops_xc = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter"})
             if "\x00gantung" in ops_xc:
@@ -9520,6 +9551,25 @@ def _menguras_khusus(perintah, toks, awal):
                 else t for t in toks]
         # Audit 2119: daftar berkas kosong diganti
         # ['-'] = stdin (sumber tsv-append.d).
+        # Audit 2420: token strip-angka di
+        # posisi opsi = operand berkas/galat
+        # getopt - tak pernah menguras.
+        i_da = 0
+        while i_da < len(mentah):
+            t_da = mentah[i_da]
+            if t_da == "--":
+                break
+            if (t_da.split("=", 1)[0]
+                    in ("-d", "--delimiter", "-s",
+                        "--source-header", "-f",
+                        "--file")
+                    and "=" not in t_da):
+                i_da += 2
+                continue
+            if (len(t_da) > 1 and t_da[0] == "-"
+                    and t_da[1].isdigit()):
+                return False
+            i_da += 1
         ops_ta = _operand_sesudah_opsi(
             toks, awal, {"-d", "--delimiter", "-s", "--source-header", "-f", "--file"})
         if "\x00gantung" in ops_ta:
@@ -9864,6 +9914,28 @@ def _menguras_khusus(perintah, toks, awal):
                 else t for t in toks]
         # Audit 2140: tanpa berkas ia membaca
         # standard input (dok resmi tsv-utils).
+        # Audit 2420: token strip-angka di
+        # posisi opsi = operand berkas/galat
+        # getopt - tak pernah menguras.
+        i_du = 0
+        while i_du < len(mentah):
+            t_du = mentah[i_du]
+            if t_du == "--":
+                break
+            if (t_du.split("=", 1)[0]
+                    in ("-d", "--delimiter", "-f",
+                        "--fields", "-a",
+                        "--at-least", "-m", "--max",
+                        "--equiv-header",
+                        "--equiv-start",
+                        "--number-header")
+                    and "=" not in t_du):
+                i_du += 2
+                continue
+            if (len(t_du) > 1 and t_du[0] == "-"
+                    and t_du[1].isdigit()):
+                return False
+            i_du += 1
         ops_tu = _operand_sesudah_opsi(
             toks, awal, {"-d", "--delimiter", "-f", "--fields", "-a", "--at-least", "-m", "--max", "--equiv-header", "--equiv-start", "--number-header"})
         if "\x00gantung" in ops_tu:
