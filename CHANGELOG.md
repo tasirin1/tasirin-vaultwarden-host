@@ -1,5 +1,25 @@
 # Changelog
 
+## [Belum rilis] — Pembawa menggantung di akhir segmen = berhenti (Audit 165)
+
+- Penghitung lewati yang masih menunggu nilai saat segmen berakhir kini memicu berhenti: argumen hilang adalah galat (grep -e, jq --arg x, rg --glob).
+
+## [Belum rilis] — Pembawa string bebas khas keluarga dilengkapi (Audit 165)
+
+- grep: --group-separator/--exclude/--include/--exclude-dir/--exclude-from; rg: -r/--replace/--iglob/--field-match-separator/--field-context-separator/--hostname-bin; jq: -L; awk: -F.
+
+## [Belum rilis] — --regexp/--regex pembawa pola grep di pemeriksaan dan handler (Audit 165)
+
+- Koreksi 2454: getopt_long menerima singkatan unik --regex bagi --regexp di GNU grep; keduanya kini pembawa pola khusus grep/rg di pemeriksaan, dan masuk himpunan bernilai + subset skrip-dari-opsi handler keluarga untuk grep.
+
+## [Belum rilis] — Aturan kelaparan pola/skrip di pemeriksaan informasional (Audit 165)
+
+- Pemeriksaan kini menghitung pola dari opsi dan operand: nilai informasional yang termakan pembawa tanpa keduanya tersisa berarti alat berhenti dengan galat (rg --glob --help, grep --label --help).
+
+## [Belum rilis] — Klausa -v awk dicabut: argumen -v adalah penugasan (Audit 165)
+
+- Koreksi 2454: awk memvalidasi argumen -v sebagai nama=nilai; token informasional telanjang sesudahnya selalu galat (mawk rc=2) - klausa pembawa -v dihapus.
+
 ## [Belum rilis] — Token asing bagi subperintah tak lagi melindungi informasional (Audit 165)
 
 - Dampak perbaikan yang sama: opsi milik subperintah lain tidak masuk pendahulu subperintah berjalan - docopt menggagalkannya lebih dulu, dan gerbang kini berhenti dengan benar.

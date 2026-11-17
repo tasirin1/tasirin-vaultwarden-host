@@ -1844,6 +1844,11 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 "--assign", "--file"},
         "grep": {"-e", "-f", "-m", "-A", "-B", "-C", "-d", "-D",
                  "--pattern", "--file", "--max-count",
+                 # Audit 2459: ejaan pola grep -
+                 # --regexp penuh dan singkatan
+                 # getopt --regex sama-sama pembawa
+                 # pola di handler keluarga.
+                 "--regexp", "--regex",
                  "--after-context", "--before-context", "--context",
                  "--devices", "--directories",
                  # Audit 1127: opsi penyaring berkas bernilai.
@@ -1948,7 +1953,8 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             if dasar in nilai:
                 if perintah in ("sed", "awk", "grep") and (
                         dasar in ("-e", "-f", "--expression",
-                                  "--file", "--pattern")):
+                                  "--file", "--pattern",
+                                  "--regexp", "--regex")):
                     skrip_dari_opsi = True
                     # Audit 1103: skrip/pola dari "-f -" dibaca dari
                     # stdin itu sendiri — menguras walau ada operand
@@ -12448,24 +12454,77 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             tanda_info = info_awk
         else:
             tanda_info = info_grep
+        if perintah in info_skrip:
+            keluarga = perintah
+        elif perintah in ("awk", "grep"):
+            keluarga = perintah
+        else:
+            keluarga = kanon_skrip.get(perintah, "")
         lewati_info = 0
-        for t_isk in toks[awal + 1:]:
+        pola_opsi = False
+        operand_isk = 0
+        info_termakan = False
+        sisa_isk = toks[awal + 1:]
+        for pos_isk, t_isk in enumerate(sisa_isk):
             b_isk = t_isk.strip("\"'")
             if lewati_info > 0:
                 lewati_info -= 1
+                if b_isk in tanda_info:
+                    info_termakan = True
                 continue
             if b_isk == "--":
+                operand_isk += len(sisa_isk) - pos_isk - 1
                 break
             # Audit 2454: pembawa nilai keluarga
             # skrip (pola/berkas/label/glob) -
             # token berikutnya adalah nilai,
-            # bukan informasional. --regex
-            # dicabut: ejaan qsv, bukan rg/grep.
+            # bukan informasional.
             if b_isk in ("-e", "-f", "--pattern",
                          "--file", "--expression",
-                         "--regexp", "--label",
-                         "--glob", "--pre",
-                         "--pre-glob"):
+                         "--label", "--glob",
+                         "--pre", "--pre-glob"):
+                if b_isk in ("-e", "-f", "--pattern",
+                             "--file", "--expression"):
+                    pola_opsi = True
+                lewati_info = 1
+                continue
+            # Audit 2459: --regex singkatan unik
+            # getopt bagi --regexp khusus grep;
+            # Audit 2460: pembawa string bebas
+            # khas grep.
+            if (keluarga == "grep"
+                    and b_isk in ("--regexp",
+                                  "--regex",
+                                  "--group-separator",
+                                  "--exclude",
+                                  "--include",
+                                  "--exclude-dir",
+                                  "--exclude-from")):
+                if b_isk in ("--regexp", "--regex"):
+                    pola_opsi = True
+                lewati_info = 1
+                continue
+            # Audit 2460: pembawa khas rg
+            # (--regexp pola rg ikut di sini;
+            # di luar grep/rg, --regexp bukan
+            # opsi yang sah).
+            if (keluarga == "rg"
+                    and b_isk in ("--regexp",
+                                  "-r", "--replace",
+                                  "--iglob",
+                                  "--field-match-"
+                                  "separator",
+                                  "--field-context-"
+                                  "separator",
+                                  "--hostname-bin")):
+                if b_isk == "--regexp":
+                    pola_opsi = True
+                lewati_info = 1
+                continue
+            # Audit 2460: pembawa khas jq/awk.
+            if ((keluarga == "jq" and b_isk == "-L")
+                    or (keluarga == "awk"
+                        and b_isk == "-F")):
                 lewati_info = 1
                 continue
             if (perintah == "jq"
@@ -12478,14 +12537,28 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # (nama + nilai/berkas).
                 lewati_info = 2
                 continue
-            if ((perintah == "awk"
-                    or kanon_skrip.get(perintah)
-                    == "awk")
-                    and b_isk == "-v"):
-                lewati_info = 1
-                continue
+            # Audit 2457: klausa -v awk DICABUT -
+            # argumen -v divalidasi sebagai
+            # penugasan nama=nilai, jadi token
+            # informasional telanjang sesudahnya
+            # selalu galat (berhenti), bukan nilai.
             if b_isk in tanda_info:
                 return False
+            if (not b_isk.startswith("-")
+                    or b_isk == "-"):
+                operand_isk += 1
+        # Audit 2461: pembawa yang masih menunggu
+        # nilai di akhir segmen = argumen hilang,
+        # alat berhenti sebelum membaca stdin.
+        if lewati_info > 0:
+            return False
+        # Audit 2458: nilai informasional termakan
+        # pembawa tanpa pola dari opsi dan tanpa
+        # operand tersisa = kelaparan pola/skrip,
+        # alat berhenti dengan galat.
+        if (info_termakan and not pola_opsi
+                and operand_isk == 0):
+            return False
     if perintah in ("sed", "awk", "grep", "jq", "yq", "fq",
                     "mawk", "nawk", "egrep", "fgrep", "rg",
                     # Audit 1638: varian GNU awk.
