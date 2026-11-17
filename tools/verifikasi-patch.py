@@ -10378,6 +10378,25 @@ def _menguras_khusus(perintah, toks, awal):
                 dasar_acq = t_acq.split("=", 1)[0]
                 if dasar_acq in dicari_csq:
                     ada_csq.add(dasar_acq)
+                elif "=" not in t_acq:
+                    # Audit 2443: singkatan awalan
+                    # unik ikut dikenali.
+                    semesta_csq = (
+                        bernilai_csq | dicari_csq
+                        | {"--create-if-not-exists",
+                           "--insert",
+                           "--no-constraints",
+                           "--no-create",
+                           "--no-inference",
+                           "--overwrite"})
+                    cocok_csq = [
+                        x_csq for x_csq in semesta_csq
+                        if x_csq.startswith("--")
+                        and x_csq.startswith(dasar_acq)]
+                    if (len(cocok_csq) == 1
+                            and cocok_csq[0]
+                            in dicari_csq):
+                        ada_csq.add(cocok_csq[0])
                 i_acq += 1
                 continue
             if (t_acq.startswith("-")

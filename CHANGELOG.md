@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvsql: pindaian pendamping mengenali singkatan awalan unik (Audit 162)
+
+- Dasar panjang yang bukan bentuk persis diselesaikan ke semesta opsi csvsql bila awalan unik; --ins/--over/--cre/--bef/--ch/--dial kini tertangkap dan --que memicu insert tersirat.
+
 ## [Belum rilis] — pendek_bool csvcut/csvgrep: -I dicabut (Audit 162)
 
 - -I bukan bendera kedua alat di csvkit 2.2.0 (biner rc=2); himpunan kini persis sumber.
