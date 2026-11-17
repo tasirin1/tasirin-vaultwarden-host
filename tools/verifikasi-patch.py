@@ -807,6 +807,82 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
                   "funzip", "json_pp"}
 
 
+# Audit 2453: pendahulu bernilai qsv/xsv untuk
+# penjaga informasional - gabungan himpunan
+# bernilai peta bernilai_angka kedua cabang
+# ditambah (xsv) gabungan USAGE sumbernya;
+# docopt memakan nilai verbatim.
+_PENDAHULU_QSV = frozenset({
+    '--add-vocab', '--addl-cols-list', '--addl-props', '--admin1',
+    '--align', '--all-unique-text', '--api-key', '--backtrack-limit',
+    '--base-url', '--batch', '--begin', '--benchmark', '--bivariate-batch',
+    '--bivariate-stats', '--boolean-patterns', '--cache-dir',
+    '--cache-threshold', '--cache-ttl', '--cardinality-method',
+    '--cardinality-threshold', '--cell', '--census-mode', '--chunks',
+    '--cities-url', '--ckan-api', '--ckan-token', '--cluster', '--columns',
+    '--comment', '--comparand', '--compare1', '--compare2',
+    '--compress-level', '--compression', '--condense', '--constant',
+    '--content-type', '--context-file', '--copy', '--country',
+    '--customfilter-error', '--date-format', '--dates-whitelist',
+    '--datetime-format', '--dcat-discovery-timeout', '--default',
+    '--default-encoding', '--default-tz', '--delimiter', '--derive-key',
+    '--describegpt', '--dfa-size-limit', '--dictionary',
+    '--disk-cache-dir', '--dry-run', '--ds-license', '--ds-source',
+    '--ds-updated', '--dupes-output', '--echo-column',
+    '--email-min-subdomains', '--encoding-errors', '--end', '--endpoint',
+    '--enum-threshold', '--epsilon', '--error-format', '--escape',
+    '--export-prompt', '--field-separator', '--filename', '--filter',
+    '--find', '--flag', '--float-precision', '--format', '--formatstr',
+    '--freeze-columns', '--freq-options', '--geometry', '--globals-json',
+    '--group', '--group-name', '--groupby', '--hash', '--header-row',
+    '--helper', '--high-card-pct', '--high-card-threshold',
+    '--http-header', '--increment', '--index', '--infer-len',
+    '--initial-context', '--input-tz', '--invalid', '--invalid-result',
+    '--jaq', '--jaqfile', '--jobs', '--join-inputs', '--join-keys',
+    '--join-type', '--k_weight', '--kb-size', '--keys', '--keys-output',
+    '--language', '--languages', '--latitude', '--len', '--length',
+    '--limit', '--lmt-threshold', '--locate', '--long', '--longitude',
+    '--markdown-template', '--max-distinct', '--max-errors',
+    '--max-length', '--max-retries', '--max-size', '--max-tokens',
+    '--mem-cache-size', '--memory-limit', '--metadata', '--min-score',
+    '--misrate', '--mode', '--mode-cardinality-cap', '--model',
+    '--new-column', '--no-float', '--null-text', '--num-examples',
+    '--num-tags', '--okf-type', '--older-than', '--on-error',
+    '--other-text', '--out-delimiter', '--outfilename', '--output',
+    '--output-tz', '--outsubdir-size', '--pad', '--params',
+    '--pattern-columns', '--payload-tpl', '--pct-dec-places',
+    '--pct-thresholds', '--percentile-list', '--positions', '--prefix',
+    '--prefix-length', '--preview-match', '--profile', '--prompt',
+    '--prompt-file', '--quantile-method', '--quote', '--quote-style',
+    '--range', '--rank-strategy', '--rate-limit', '--rename',
+    '--replacement', '--report', '--reserved', '--rng', '--rnull-values',
+    '--round', '--sample', '--sample-size', '--sarif',
+    '--sarif-max-results', '--save-urlsample', '--schema',
+    '--score-max-retries', '--score-threshold', '--seed', '--select',
+    '--separator', '--session', '--session-len', '--sheet', '--size',
+    '--size-limit', '--sketch-in', '--sketch-map-size', '--sketch-method',
+    '--sketch-out', '--skip-lastlines', '--skip-lines', '--spec',
+    '--sql-results', '--start', '--stats-csv', '--stats-filter',
+    '--stats-options', '--stratified', '--subsample', '--systematic',
+    '--table', '--table-name', '--tag-vocab', '--temp-dir', '--template',
+    '--template-file', '--time-format', '--timeout', '--timeseries',
+    '--title', '--tmp-dir', '--tour-audience', '--truncate-str',
+    '--ts-adaptive', '--ts-aggregate', '--ts-input-tz', '--ts-interval',
+    '--ts-resolution', '--ts-start', '--unmatched-output', '--unq-limit',
+    '--url-template', '--user-agent', '--valid', '--valid-output',
+    '--value', '--varopt', '--vintage', '--vocab', '--weight',
+    '--weighted', '--width', '--widths', '--wnull-value', '--wrap-mode',
+    '--xsd-gdate-scan', '-B', '-C', '-D', '-E', '-H', '-J', '-K', '-N',
+    '-P', '-R', '-S', '-T', '-W', '-a', '-b', '-c', '-d', '-e', '-f', '-g',
+    '-i', '-j', '-k', '-l', '-m', '-o', '-p', '-r', '-s', '-t', '-u', '-v',
+    '-w', '-x', '-y',})
+_PENDAHULU_XSV = frozenset({
+    '--condense', '--cross', '--delimiter', '--end', '--escape',
+    '--filename', '--index', '--jobs', '--len', '--length', '--limit',
+    '--out-delimiter', '--output', '--pad', '--prefix-length', '--quote',
+    '--seed', '--select', '--separator', '--size', '--start', '--width',
+    '-c', '-d', '-e', '-i', '-j', '-l', '-o', '-p', '-s', '-t', '-w',})
+
 # Audit 1407: bendera info huruf tunggal per perintah —
 # mencetak versi/bantuan lalu keluar tanpa membaca stdin
 # (penjaga informasional Audit 1102 hanya mengenal bentuk
@@ -3148,6 +3224,13 @@ def _menguras_khusus(perintah, toks, awal):
             pendahulu.discard("-f")
         if perintah == "sqlite3":
             pendahulu.add("-init")
+        # Audit 2453: pendahulu khas docopt -
+        # nilai opsi bernilai qsv/xsv dimakan
+        # verbatim, termasuk -h/-V.
+        if perintah == "qsv":
+            pendahulu |= _PENDAHULU_QSV
+        if perintah == "xsv":
+            pendahulu |= _PENDAHULU_XSV
         for k_i, t_i in enumerate(mentah):
             if t_i in tanda:
                 if k_i > 0 and mentah[k_i - 1] in pendahulu:

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penjaga qsv/xsv: pendahulu bernilai khas docopt (Audit 164)
+
+- Koreksi 2449/2450: _ada_informatif kini menambah pendahulu per perintah dari konstanta _PENDAHULU_QSV/_PENDAHULU_XSV (gabungan peta bernilai cabang + USAGE xsv) - -h/-V sebagai nilai opsi khas docopt (mis. --url-template) tak lagi memicu berhenti keliru.
+
 ## [Belum rilis] — Keluarga skrip: informasional diperiksa sebelum perutean (Audit 163)
 
 - Pemeriksaan per perintah mendahului _menguras_keluarga_skrip: jq/yq/fq/sed/awk/rg berhenti pada -h/--help/-V/--version, keluarga grep pada --help/-V/--version (grep -h bendera asli); token sesudah -- dan sesudah opsi pembawa pola dilewati.

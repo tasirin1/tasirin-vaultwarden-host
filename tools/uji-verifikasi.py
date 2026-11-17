@@ -33231,6 +33231,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("grep informasional panjang: bantuan tercetak - gerbang lolos (Audit 2452)", rc == 0)
         shutil.rmtree(sub1565, ignore_errors=True)
+        sub1566 = klon(tmp, "sub1566")
+        berkas_aksi1566 = os.path.join(
+            sub1566, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1566, encoding="utf-8") as f:
+            isi_aksi1566 = f.read()
+        baris_aksi1566 = [b for b in isi_aksi1566.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1566 = isi_aksi1566.replace(
+                baris_aksi1566,
+                baris_aksi1566.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv fetch --url-template -h; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1566 != isi_aksi1566, \
+            "suntikan aksi1566 tidak menembak"
+        with open(berkas_aksi1566, "w", encoding="utf-8") as f:
+            f.write(isi_baru1566)
+        rc, out = jalan(sub1566,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv -h nilai opsi khas docopt: template terbaca - gerbang menolak (Audit 2453)", rc != 0)
+        shutil.rmtree(sub1566, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
