@@ -7358,92 +7358,75 @@ def _menguras_khusus(perintah, toks, awal):
         # membaca stdin (config.rs).
         # Audit 2108: 'count' memakai Config yang
         # sama seperti cat (None/'-' -> stdin).
-        # Audit 2424: token strip-angka di
-        # subperintah lain juga flag tak
-        # dikenal docopt (qsv_docopt).
+        # Audit 2424/2429: token
+        # strip-angka di subperintah
+        # lain juga flag tak dikenal
+        # docopt (peta menyeluruh).
         bernilai_angka_qsv = {
-            "behead": {"-o", "--output"},
-            "dedup": {"-s", "--select", "-D",
-                      "--dupes-output", "-j",
-                      "--jobs", "-o", "--output",
-                      "-d", "--delimiter"},
-            "flatten": {"-c", "--condense", "-f",
-                        "--field-separator", "-s",
-                        "--separator", "-d",
-                        "--delimiter"},
-            "fmt": {"-d", "--delimiter",
-                    "--escape", "-t",
-                    "--out-delimiter", "-o",
-                    "--output", "--quote"},
-            "frequency": {"-d", "--delimiter",
-                          "-o", "--output", "-s",
-                          "--select", "-j",
-                          "--jobs", "-l", "--limit",
-                          "--lmt-threshold",
-                          "--all-unique-text",
-                          "--high-card-pct",
-                          "--high-card-threshold",
-                          "--no-float",
-                          "--null-text",
-                          "--other-text",
-                          "--pct-dec-places",
-                          "--rank-strategy",
-                          "--sketch-map-size",
-                          "--sketch-method",
-                          "--stats-filter",
-                          "--unq-limit", "--weight"},
-            "headers": {"-d", "--delimiter"},
-            "reverse": {"-o", "--output", "-d",
-                        "--delimiter"},
-            "slice": {"-s", "--start", "-e",
-                      "--end", "-l", "--len",
-                      "-i", "--index", "-d",
-                      "--delimiter", "-o",
-                      "--output"},
-            "sort": {"-s", "--select", "--seed",
-                     "--rng", "-j", "--jobs",
-                     "-o", "--output", "-d",
-                     "--delimiter"},
-            "stats": {"-o", "--output", "-s",
-                      "--select", "--round",
-                      "--dates-whitelist", "-j",
-                      "--jobs", "-d",
-                      "--delimiter", "-c",
-                      "--cache-threshold",
-                      "--boolean-patterns",
-                      "--cardinality-method",
-                      "--mode-cardinality-cap",
-                      "--percentile-list",
-                      "--quantile-method",
-                      "--weight"},
-            "table": {"-a", "--align", "-c",
-                      "--condense", "-d",
-                      "--delimiter", "-o",
-                      "--output", "-p", "--pad",
-                      "-w", "--width"},
-            "transpose": {"-o", "--output",
-                          "-d", "--delimiter",
-                          "-s", "--select",
-                          "--long"},
-            "validate": {"-d", "--delimiter",
-                         "-j", "--jobs", "-o",
-                         "--output",
-                         "--backtrack-limit",
-                         "--batch", "--cache-dir",
-                         "--ckan-api",
-                         "--ckan-token",
-                         "--email-min-subdomains",
-                         "--invalid", "--sarif",
-                         "--sarif-max-results",
-                         "--size-limit",
-                         "--timeout", "--valid",
-                         "--valid-output"},
-            "search": {"-s", "--select", "-f",
-                       "--flag", "--preview-match",
-                       "--size-limit",
-                       "--dfa-size-limit", "-j",
-                       "--jobs", "-o", "--output",
-                       "-d", "--delimiter"}}
+            "apply": {"--addl-props", "--api-key", "--base-url", "--batch", "--cache-dir", "--comparand", "--delimiter", "--formatstr", "--jobs", "--max-tokens", "--model", "--new-column", "--on-error", "--output", "--prompt", "--prompt-file", "--rate-limit", "--rename", "--replacement", "--timeout", "--user-agent", "-C", "-R", "-b", "-c", "-d", "-f", "-j", "-k", "-m", "-o", "-r", "-t", "-u"},
+            "behead": {"--output", "-o"},
+            "blake3": {"--derive-key", "--jobs", "--length", "--output", "-j", "-l", "-o"},
+            "cat": {"--delimiter", "--group", "--group-name", "--output", "-N", "-d", "-g", "-o"},
+            "color": {"--delimiter", "--output", "--title", "-d", "-o", "-t"},
+            "datefmt": {"--batch", "--default-tz", "--delimiter", "--formatstr", "--input-tz", "--jobs", "--new-column", "--output", "--output-tz", "--rename", "--ts-resolution", "-R", "-b", "-c", "-d", "-f", "-j", "-o", "-r"},
+            "dedup": {"--delimiter", "--dupes-output", "--jobs", "--output", "--select", "-D", "-d", "-j", "-o", "-s"},
+            "denull": {"--add-vocab", "--delimiter", "--max-distinct", "--output", "--select", "--vocab", "-d", "-o", "-s"},
+            "edit": {"--output", "-o"},
+            "enum": {"--constant", "--copy", "--delimiter", "--hash", "--increment", "--new-column", "--output", "--start", "-c", "-d", "-o"},
+            "excel": {"--cell", "--date-format", "--delimiter", "--error-format", "--header-row", "--jobs", "--metadata", "--output", "--range", "--sheet", "--table", "-d", "-j", "-o", "-s"},
+            "exclude": {"--delimiter", "--output", "-d", "-o"},
+            "explode": {"--delimiter", "--output", "--rename", "-d", "-o", "-r"},
+            "extdedup": {"--delimiter", "--dupes-output", "--memory-limit", "--select", "--temp-dir", "-D", "-d", "-s"},
+            "extsort": {"--delimiter", "--jobs", "--memory-limit", "--select", "--tmp-dir", "-d", "-j", "-s"},
+            "fetch": {"--default-encoding", "--delimiter", "--disk-cache-dir", "--http-header", "--jaq", "--jaqfile", "--max-errors", "--max-retries", "--mem-cache-size", "--new-column", "--output", "--rate-limit", "--report", "--timeout", "--url-template", "--user-agent", "-H", "-c", "-d", "-o"},
+            "fetchpost": {"--content-type", "--default-encoding", "--delimiter", "--disk-cache-dir", "--globals-json", "--http-header", "--jaq", "--jaqfile", "--max-errors", "--max-retries", "--mem-cache-size", "--new-column", "--output", "--payload-tpl", "--rate-limit", "--report", "--timeout", "--user-agent", "-H", "-c", "-d", "-j", "-o", "-t"},
+            "fill": {"--default", "--delimiter", "--groupby", "--output", "-d", "-g", "-o", "-v"},
+            "fixedwidth": {"--output", "--positions", "--widths", "-o"},
+            "flatten": {"--condense", "--delimiter", "--field-separator", "--separator", "-c", "-d", "-f", "-s"},
+            "fmt": {"--delimiter", "--escape", "--out-delimiter", "--output", "--quote", "-d", "-o", "-t"},
+            "foreach": {"--delimiter", "--dry-run", "--new-column", "-c", "-d"},
+            "frequency": {"--all-unique-text", "--delimiter", "--high-card-pct", "--high-card-threshold", "--jobs", "--limit", "--lmt-threshold", "--no-float", "--null-text", "--other-text", "--output", "--pct-dec-places", "--rank-strategy", "--select", "--sketch-map-size", "--sketch-method", "--stats-filter", "--unq-limit", "--weight", "-d", "-j", "-l", "-o", "-r", "-s", "-u"},
+            "geoconvert": {"--delimiter", "--geometry", "--latitude", "--longitude", "--max-length", "--output", "-d", "-g", "-o", "-x", "-y"},
+            "headers": {"--delimiter", "-d"},
+            "implode": {"--delimiter", "--keys", "--output", "--rename", "--value", "-d", "-k", "-o", "-r", "-v"},
+            "input": {"--comment", "--delimiter", "--encoding-errors", "--escape", "--output", "--quote", "--quote-style", "--skip-lastlines", "--skip-lines", "-d", "-o"},
+            "join": {"--delimiter", "--keys-output", "--output", "-d", "-o"},
+            "json": {"--jaq", "--output", "--select", "-o", "-s"},
+            "jsonl": {"--batch", "--delimiter", "--jobs", "--output", "-b", "-d", "-j", "-o"},
+            "lens": {"--columns", "--delimiter", "--echo-column", "--filter", "--find", "--freeze-columns", "--prompt", "--wrap-mode", "-P", "-W", "-d", "-f"},
+            "luau": {"--begin", "--cache-dir", "--ckan-api", "--ckan-token", "--delimiter", "--end", "--max-errors", "--output", "--timeout", "-B", "-E", "-d", "-o"},
+            "moarstats": {"--bivariate-batch", "--bivariate-stats", "--cardinality-threshold", "--epsilon", "--jobs", "--join-inputs", "--join-keys", "--join-type", "--output", "--pct-thresholds", "--round", "--stats-options", "--xsd-gdate-scan", "-C", "-J", "-K", "-S", "-T", "-e", "-j", "-o"},
+            "partition": {"--delimiter", "--filename", "--limit", "--prefix-length", "-d", "-p"},
+            "pragmastat": {"--compare1", "--compare2", "--delimiter", "--jobs", "--misrate", "--output", "--round", "--seed", "--select", "--stats-options", "--subsample", "-d", "-j", "-m", "-o", "-s"},
+            "profile": {"--dcat-discovery-timeout", "--delimiter", "--describegpt", "--initial-context", "--jobs", "--locate", "--output", "--profile", "--spec", "--tag-vocab", "-d", "-j", "-o"},
+            "pseudo": {"--delimiter", "--formatstr", "--increment", "--output", "--start", "-d", "-f", "-o"},
+            "py": {"--batch", "--delimiter", "--helper", "--output", "-b", "-d", "-f", "-o"},
+            "rename": {"--delimiter", "--output", "-d", "-o"},
+            "replace": {"--delimiter", "--dfa-size-limit", "--jobs", "--output", "--select", "--size-limit", "-d", "-j", "-o", "-s"},
+            "reverse": {"--delimiter", "--output", "-d", "-o"},
+            "safenames": {"--delimiter", "--mode", "--output", "--prefix", "--reserved", "-d", "-o"},
+            "sample": {"--cluster", "--delimiter", "--max-size", "--output", "--rng", "--seed", "--sketch-in", "--sketch-out", "--stratified", "--systematic", "--timeout", "--timeseries", "--ts-adaptive", "--ts-aggregate", "--ts-input-tz", "--ts-interval", "--ts-start", "--user-agent", "--varopt", "--weighted", "-d", "-o"},
+            "schema": {"--dates-whitelist", "--delimiter", "--enum-threshold", "--jobs", "--output", "--pattern-columns", "-d", "-j", "-o"},
+            "scoresql": {"--delimiter", "--infer-len", "--output", "-d", "-o"},
+            "search": {"--delimiter", "--dfa-size-limit", "--flag", "--jobs", "--output", "--preview-match", "--select", "--size-limit", "-d", "-f", "-j", "-o", "-s"},
+            "searchset": {"--delimiter", "--dfa-size-limit", "--flag", "--jobs", "--output", "--select", "--size-limit", "--unmatched-output", "-d", "-f", "-o", "-s"},
+            "select": {"--delimiter", "--output", "--seed", "-d", "-o"},
+            "slice": {"--delimiter", "--end", "--index", "--len", "--output", "--start", "-d", "-e", "-i", "-l", "-o", "-s"},
+            "snappy": {"--jobs", "--output", "--timeout", "--user-agent", "-j", "-o"},
+            "sniff": {"--delimiter", "--quote", "--sample", "--save-urlsample", "--timeout", "--user-agent", "-d"},
+            "sort": {"--delimiter", "--jobs", "--output", "--rng", "--seed", "--select", "-d", "-j", "-o", "-s"},
+            "sortcheck": {"--delimiter", "--select", "-d", "-s"},
+            "split": {"--chunks", "--delimiter", "--filename", "--filter", "--jobs", "--kb-size", "--pad", "--size", "-c", "-d", "-j", "-k", "-s"},
+            "sqlp": {"--compress-level", "--compression", "--date-format", "--datetime-format", "--delimiter", "--float-precision", "--format", "--infer-len", "--output", "--rnull-values", "--time-format", "--wnull-value", "-d", "-o"},
+            "stats": {"--boolean-patterns", "--cache-threshold", "--cardinality-method", "--dates-whitelist", "--delimiter", "--jobs", "--mode-cardinality-cap", "--output", "--percentile-list", "--quantile-method", "--round", "--select", "--weight", "-c", "-d", "-j", "-o", "-s"},
+            "table": {"--align", "--condense", "--delimiter", "--output", "--pad", "--width", "-a", "-c", "-d", "-o", "-p", "-w"},
+            "template": {"--batch", "--cache-dir", "--ckan-api", "--ckan-token", "--customfilter-error", "--delimiter", "--globals-json", "--jobs", "--outfilename", "--output", "--outsubdir-size", "--template", "--template-file", "--timeout", "-J", "-b", "-j", "-o", "-t"},
+            "to": {"--compress-level", "--compression", "--delimiter", "--infer-len", "--jobs", "--schema", "--separator", "--stats-csv", "--table", "-c", "-d", "-j", "-p", "-s", "-t"},
+            "tojsonl": {"--batch", "--delimiter", "--jobs", "--output", "-b", "-d", "-j", "-o"},
+            "transpose": {"--delimiter", "--long", "--output", "--select", "-d", "-o", "-s"},
+            "validate": {"--backtrack-limit", "--batch", "--cache-dir", "--ckan-api", "--ckan-token", "--delimiter", "--dfa-size-limit", "--email-min-subdomains", "--invalid", "--jobs", "--sarif", "--sarif-max-results", "--size-limit", "--timeout", "--valid", "--valid-output", "-b", "-d", "-j"},
+            "writestat": {"--delimiter", "--dictionary", "--format", "--output", "--table-name", "-d", "-o"},
+            }
         if (mentah
                 and mentah[0] in bernilai_angka_qsv
                 and _ada_token_angka(
@@ -9278,6 +9261,36 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2121: sub 'search' - pola adalah
         # operand pertama, masukan [<input>]
         # opsional sesudahnya (config.rs xsv).
+        # Audit 2424/2429: token
+        # strip-angka di subperintah
+        # lain juga flag tak dikenal
+        # docopt (peta menyeluruh).
+        bernilai_angka_xsv = {
+            "cat": {"--delimiter", "--output", "-d", "-o"},
+            "fixlengths": {"--delimiter", "--length", "--output", "-d", "-l", "-o"},
+            "flatten": {"--condense", "--delimiter", "--separator", "-c", "-d", "-s"},
+            "fmt": {"--delimiter", "--escape", "--out-delimiter", "--output", "--quote", "-d", "-o", "-t"},
+            "frequency": {"--delimiter", "--jobs", "--limit", "--output", "--select", "-d", "-j", "-l", "-o", "-s"},
+            "headers": {"--delimiter", "-d"},
+            "input": {"--delimiter", "--escape", "--output", "--quote", "-d", "-o"},
+            "join": {"--delimiter", "--output", "-d", "-o"},
+            "partition": {"--delimiter", "--filename", "--prefix-length", "-d", "-p"},
+            "reverse": {"--delimiter", "--output", "-d", "-o"},
+            "sample": {"--delimiter", "--output", "--seed", "-d", "-o"},
+            "search": {"--delimiter", "--output", "--select", "-d", "-o", "-s"},
+            "select": {"--delimiter", "--output", "-d", "-o"},
+            "slice": {"--delimiter", "--end", "--index", "--len", "--output", "--start", "-d", "-e", "-i", "-l", "-o", "-s"},
+            "sort": {"--delimiter", "--output", "--select", "-d", "-o", "-s"},
+            "split": {"--delimiter", "--filename", "--jobs", "--size", "-d", "-j", "-s"},
+            "stats": {"--delimiter", "--jobs", "--output", "--select", "-d", "-j", "-o", "-s"},
+            "table": {"--condense", "--delimiter", "--output", "--pad", "--width", "-c", "-d", "-o", "-p", "-w"},
+            }
+        if (mentah
+                and mentah[0] in bernilai_angka_xsv
+                and _ada_token_angka(
+                    mentah,
+                    bernilai_angka_xsv[mentah[0]])):
+            return False
         if len(mentah) >= 2 and mentah[0] == "search":
             # Audit 2132: kolom xsv search resmi
             # -s/--select (README xsv).
@@ -9291,43 +9304,6 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_xse) == 1
                     or (len(ops_xse) == 2
                         and ops_xse[1] == "-"))
-        # Audit 2424: token strip-angka di
-        # subperintah lain juga flag tak
-        # dikenal docopt (docopt.rs).
-        bernilai_angka_xsv = {
-            "flatten": {"-c", "--condense",
-                        "-s", "--separator",
-                        "-d", "--delimiter"},
-            "fmt": {"-t", "--out-delimiter",
-                    "--quote", "--escape", "-o",
-                    "--output", "-d",
-                    "--delimiter"},
-            "frequency": {"-s", "--select",
-                          "-l", "--limit", "-j",
-                          "--jobs", "-o",
-                          "--output", "-d",
-                          "--delimiter"},
-            "headers": {"-d", "--delimiter"},
-            "reverse": {"-o", "--output", "-d",
-                        "--delimiter"},
-            "slice": {"-s", "--start", "-e",
-                      "--end", "-l", "--len",
-                      "-i", "--index", "-o",
-                      "--output", "-d",
-                      "--delimiter"},
-            "sort": {"-s", "--select", "-o",
-                     "--output", "-d",
-                     "--delimiter"},
-            "stats": {"-s", "--select", "-o",
-                      "--output", "-d",
-                      "--delimiter", "-j",
-                      "--jobs"}}
-        if (mentah
-                and mentah[0] in bernilai_angka_xsv
-                and _ada_token_angka(
-                    mentah,
-                    bernilai_angka_xsv[mentah[0]])):
-            return False
         if mentah and mentah[0] == "count":
             if _ada_duplikat(mentah, 1, {"-d", "--delimiter"}, {"-d": "--delimiter", "-n": "--no-headers"}):
                 return False

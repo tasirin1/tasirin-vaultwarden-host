@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Token strip-angka docopt: peta menyeluruh semua subperintah berblok (Audit 159)
+
+- Peta bernilai kini dibangun dari himpunan operand tiap blok (semua subperintah qsv/xsv berblok kecuali count yang berpindaian sendiri) dan pemeriksaan xsv dipindah ke kepala cabang sebelum blok search.
+
 ## [Belum rilis] — tsv: pengecualian =false kini tak peka huruf (Audit 159)
 
 - std.conv.to!bool Phobos case-insensitive; perbandingan nilai di keenam titik cek Audit 2423 kini dilipat huruf, sehingga --version=False dan varian huruf lain berjalan normal seperti alat asli.
