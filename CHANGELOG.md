@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Singkatan awalan unik di tiga helper saringan/jebakan/terlarang (Audit 156)
+
+- _saring_csvkit menyelesaikan --null-v/--engine-opt (Audit 2407); _jebakan_argparse mengenali opsi bernilai bentuk singkatan (Audit 2408); _token_terlarang menangkap singkatan nama terlarang (Audit 2409).
+
 ## [Belum rilis] — Resolusi awalan: ambiguitas opsi bool + angka negatif operand (Audit 156)
 
 - _CSVKIT_BOOL baru: awalan yang ikut cocok opsi bool umum (--n ~ --null-value/--no-header-row) atau >1 opsi bernilai kini gantung (Audit 2403, sekaligus awalan ambigu di cabang _operand_csvkit untuk Audit 2410); token mirip angka negatif kini operand harfiah, bukan bundel (Audit 2411, csvlook -12).

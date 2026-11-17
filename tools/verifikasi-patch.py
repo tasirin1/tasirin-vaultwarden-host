@@ -2762,6 +2762,21 @@ def _saring_csvkit(toks, awal, perintah):
     i_sc = 0
     while i_sc < len(segmen_sc):
         t_sc = segmen_sc[i_sc]
+        # Audit 2407: singkatan awalan unik
+        # ketiga nama khas saringan.
+        dasar_sc = t_sc.split("=", 1)[0]
+        if (dasar_sc.startswith("--")
+                and len(dasar_sc) >= 7
+                and dasar_sc not in ("--null-value",
+                                     "--engine-option",
+                                     "--execution-option")):
+            cocok_sc = [n_sc for n_sc in
+                        ("--null-value",
+                         "--engine-option",
+                         "--execution-option")
+                        if n_sc.startswith(dasar_sc)]
+            if len(cocok_sc) == 1:
+                t_sc = cocok_sc[0] + t_sc[len(dasar_sc):]
         if t_sc == "--":
             hasil_sc.extend(segmen_sc[i_sc:])
             break
@@ -2824,6 +2839,15 @@ def _token_terlarang(mentah, terlarang, bernilai):
                for n_tt in terlarang
                if n_tt.startswith("--")):
             return True
+        # Audit 2409: singkatan awalan unik
+        # nama terlarang ikut tertangkap.
+        if t_tt.startswith("--"):
+            dasar_tt = t_tt.split("=", 1)[0]
+            cocok_tt = [n_tt for n_tt in terlarang
+                        if n_tt.startswith("--")
+                        and n_tt.startswith(dasar_tt)]
+            if len(cocok_tt) == 1 and dasar_tt != cocok_tt[0]:
+                return True
         if (t_tt.startswith("-")
                 and not t_tt.startswith("--")
                 and len(t_tt) > 1):
@@ -2868,7 +2892,16 @@ def _jebakan_argparse(mentah, bernilai):
     # Angka negatif dan '-' tunggal adalah nilai
     # sah bagi heuristik argparse.
     for k_jb, t_jb in enumerate(mentah):
-        if t_jb in bernilai and k_jb + 1 < len(mentah):
+        # Audit 2408: singkatan awalan unik
+        # opsi bernilai ikut dikenali.
+        nama_jb = t_jb
+        if (t_jb.startswith("--") and "=" not in t_jb
+                and t_jb not in bernilai):
+            cocok_jb = [b_jb for b_jb in bernilai
+                        if b_jb.startswith(t_jb)]
+            if len(cocok_jb) == 1:
+                nama_jb = cocok_jb[0]
+        if nama_jb in bernilai and k_jb + 1 < len(mentah):
             b_jb = mentah[k_jb + 1]
             if (b_jb.startswith("-") and b_jb != "-"
                     and not (len(b_jb) > 1
