@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — _numerik_penuh port 1:1 isNumeric Phobos + gerbang digit isOption (Audit 157)
+
+- Port setia std.string.isNumeric (eksponen bertanda wajib, sufiks ul/fi/li dan u/l/f/i bersyarat, bentuk kompleks) dan syarat arg[1].isDigit dari isOption getopt_inorder.d: -1i/-1.5fi/-1l kini sah, -.5 kini menggantung.
+
 ## [Belum rilis] — Penjaga tsv: lewatan tak peka huruf + informasional lengkap + filter inorder (Audit 157)
 
 - Perbandingan nama di lewatan penjaga kini dilipat huruf (Audit 2412); keluarga informasional dilengkapi --help-verbose/--help-fields/--help-options (Audit 2414); tsv-filter (getoptInorder) tanpa lewatan - token strip sesudah opsi bernilai adalah batas opsi (Audit 2413).

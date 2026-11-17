@@ -2495,37 +2495,79 @@ def _operand_sesudah_opsi(toks, awal, bernilai):
     return hasil
 
 def _numerik_penuh(tok):
-    # Audit 2402: std.string.isNumeric (Phobos)
-    # utuh: digit, satu titik, eksponen
-    # BERTANDA, sufiks f/L/u/ul. Eksponen
-    # tanpa tanda BUKAN numerik (-1e5).
-    if not tok.startswith("-") or len(tok) < 2:
+    # Audit 2415: port 1:1 std.string.isNumeric
+    # (Phobos, bAllowSep=false): digit, satu
+    # titik, eksponen bertanda wajib, sufiks
+    # ul/fi/li dan u/l/f/i bersyarat, bentuk
+    # kompleks a+b.
+    s_np = tok
+    if not s_np:
         return False
-    b_np = tok[1:]
+    if s_np.lower() in ("nan", "nani",
+                        "nan+nani", "inf", "-inf"):
+        return True
+    rest_np = s_np[1:] if s_np[0] in "-+" else s_np
+    L_np = len(rest_np)
+    bDec = bExp = bCplx = False
+    saw = False
     i_np = 0
-    digit_np = 0
-    while i_np < len(b_np) and b_np[i_np].isdigit():
-        i_np += 1
-        digit_np += 1
-    if i_np < len(b_np) and b_np[i_np] == ".":
-        i_np += 1
-        while i_np < len(b_np) and b_np[i_np].isdigit():
+    while i_np < L_np:
+        c_np = rest_np[i_np]
+        if ord(c_np) > 127:
+            return False
+        if c_np.isdigit():
+            saw = True
             i_np += 1
-            digit_np += 1
-    if digit_np == 0:
+            continue
+        if c_np == "+":
+            if i_np == 0:
+                return False
+            bDec = False
+            bExp = False
+            bCplx = True
+            saw = False
+            i_np += 1
+            continue
+        if c_np in "eE":
+            if bExp or i_np + 1 >= L_np:
+                return False
+            if rest_np[i_np + 1] not in "-+":
+                return False
+            bExp = True
+            i_np += 2
+            continue
+        if c_np == ".":
+            if bDec:
+                return False
+            bDec = True
+            i_np += 1
+            continue
+        if i_np == L_np - 2:
+            if not saw:
+                return False
+            dua_np = rest_np[i_np:].lower()
+            if dua_np == "ul" and not (bDec or bExp
+                                       or bCplx):
+                return True
+            if dua_np in ("fi", "li") and (bDec
+                                           or bExp
+                                           or bCplx):
+                return True
+            if dua_np == "ul" and (bDec or bExp
+                                   or bCplx):
+                return False
+            return dua_np in ("ul", "fi", "li")
+        if i_np == L_np - 1:
+            if not saw:
+                return False
+            if c_np in "uUlL" and not (bDec or bExp
+                                       or bCplx):
+                return True
+            if bCplx:
+                return c_np in "iI"
+            return c_np in "lLfFiI"
         return False
-    if i_np < len(b_np) and b_np[i_np] in "eE":
-        j_np = i_np + 1
-        if j_np < len(b_np) and b_np[j_np] in "+-":
-            j_np += 1
-            k_np = j_np
-            while k_np < len(b_np) and b_np[k_np].isdigit():
-                k_np += 1
-            if k_np > j_np:
-                i_np = k_np
-    return b_np[i_np:] in ("", "f", "F", "L", "u",
-                           "U", "ul", "UL", "lu",
-                           "LU")
+    return saw
 
 
 _CSVKIT_BOOL = {"--verbose", "--no-header-row",
@@ -9579,6 +9621,7 @@ def _menguras_khusus(perintah, toks, awal):
                             and not (
                                 nama_tsm in ("-r",
                                              "--replace-missing")
+                                and mentah[i_tsm + 1][1].isdigit()
                                 and _numerik_penuh(
                                     mentah[i_tsm + 1]))):
                         gantung_tsm = True
