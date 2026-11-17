@@ -2699,6 +2699,15 @@ def _saring_csvkit(toks, awal, perintah):
                              "--execution-option")):
             if i_sc + 2 >= len(segmen_sc):
                 return None
+            # Audit 2393: argparse menolak nilai
+            # mirip-opsi untuk nargs=2 (angka
+            # negatif tetap nilai).
+            if any(segmen_sc[i_sc + k].startswith("-")
+                   and segmen_sc[i_sc + k] != "-"
+                   and not (len(segmen_sc[i_sc + k]) > 1
+                            and segmen_sc[i_sc + k][1].isdigit())
+                   for k in (1, 2)):
+                return None
             i_sc += 3
             continue
         if (perintah in ("csvsql", "sql2csv")

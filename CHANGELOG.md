@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — _saring_csvkit: nilai engine/execution-option mirip-opsi ditolak (Audit 155)
+
+- Kedua nilai nargs=2 kini diperiksa: token mirip-opsi (selain '-' dan angka negatif) membuat saringan mengembalikan None = galat argparse.
+
 ## [Belum rilis] — _operand_csvkit: singkatan awalan + aksara bundel + sesudah -- (Audit 155)
 
 - Awalan unik opsi panjang kini diselesaikan ke anggota himpunan (Audit 2394); aksara bukan alfanumerik di bundel = gantung, bukan '--' sintetis (Audit 2395); token sesudah -- tak lagi dikembangkan (Audit 2396). Ketiganya menumpang tulis-ulang helper yang sama.

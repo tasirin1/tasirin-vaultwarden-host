@@ -31635,6 +31635,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvlook nilai bundel mirip-opsi: argparse menolak - gerbang lolos (Audit 2392)", rc == 0)
         shutil.rmtree(sub1489, ignore_errors=True)
+        sub1490 = klon(tmp, "sub1490")
+        berkas_aksi1490 = os.path.join(
+            sub1490, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1490, encoding="utf-8") as f:
+            isi_aksi1490 = f.read()
+        baris_aksi1490 = [b for b in isi_aksi1490.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1490 = isi_aksi1490.replace(
+                baris_aksi1490,
+                baris_aksi1490.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvsql --engine-option a --db -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1490 != isi_aksi1490, \
+            "suntikan aksi1490 tidak menembak"
+        with open(berkas_aksi1490, "w", encoding="utf-8") as f:
+            f.write(isi_baru1490)
+        rc, out = jalan(sub1490,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvsql nilai ke-2 engine-option mirip-opsi: galat - gerbang lolos (Audit 2393)", rc == 0)
+        shutil.rmtree(sub1490, ignore_errors=True)
         sub1491 = klon(tmp, "sub1491")
         berkas_aksi1491 = os.path.join(
             sub1491, ".github", "actions", "resolve-vw",
