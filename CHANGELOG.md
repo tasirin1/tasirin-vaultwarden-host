@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvclean: prasyarat pengaktif dimodelkan (Audit 154)
+
+- Tanpa satu pun pengaktif (--length-mismatch/--empty-columns/-a/--enable-all-checks/--header-normalize-space/--join-short-rows/--fill-short-rows/--remove-empty-columns, -a sadar bundel) csvclean berhenti sebelum membaca; --join-short-rows + --fill-short-rows bersama juga ditolak, sesuai csvclean.py main().
+
 ## [Belum rilis] — csvgrep: kehadiran -c/pencocok sadar bundel (Audit 154)
 
 - Pemeriksa ada_c/ada_m kini juga memindai huruf bundel bukan-pertama, berhenti di huruf bernilai pertama — -if dan -ic kini terbaca.

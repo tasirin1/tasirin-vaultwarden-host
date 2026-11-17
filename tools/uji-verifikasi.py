@@ -28315,7 +28315,7 @@ def main():
             f.write(isi_baru1331)
         rc, out = jalan(sub1331,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvclean polos: penguras - gerbang gagal (Audit 2242)", rc != 0)
+        periksa("csvclean polos: berhenti tanpa pengaktif - gerbang lolos (Audit 2242, dibalik Audit 2390)", rc == 0)
         shutil.rmtree(sub1331, ignore_errors=True)
         sub1332 = klon(tmp, "sub1332")
         berkas_aksi1332 = os.path.join(
@@ -31572,6 +31572,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvgrep -f di bundel: pencocok hadir, penguras - gerbang gagal (Audit 2389)", rc != 0)
         shutil.rmtree(sub1486, ignore_errors=True)
+        sub1487 = klon(tmp, "sub1487")
+        berkas_aksi1487 = os.path.join(
+            sub1487, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1487, encoding="utf-8") as f:
+            isi_aksi1487 = f.read()
+        baris_aksi1487 = [b for b in isi_aksi1487.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1487 = isi_aksi1487.replace(
+                baris_aksi1487,
+                baris_aksi1487.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvclean; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1487 != isi_aksi1487, \
+            "suntikan aksi1487 tidak menembak"
+        with open(berkas_aksi1487, "w", encoding="utf-8") as f:
+            f.write(isi_baru1487)
+        rc, out = jalan(sub1487,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvclean tanpa pengaktif: berhenti - gerbang lolos (Audit 2390)", rc == 0)
+        shutil.rmtree(sub1487, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

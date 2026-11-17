@@ -8578,9 +8578,40 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         if _jebakan_argparse(mentah, _CSVKIT):
             return False
-        ops_ccl = _operand_sesudah_opsi(
+        ops_ccl = _operand_csvkit(
             toks, awal, _CSVKIT)
         if "\x00gantung" in ops_ccl:
+            return False
+        # Audit 2390: tanpa satu pun pengaktif
+        # periksa/perbaiki csvclean berhenti
+        # sebelum masukan dibuka (csvclean.py
+        # main); join+fill bersama juga galat.
+        nama_ccl = {t.split("=", 1)[0] for t in mentah}
+        aktif_ccl = bool(nama_ccl & {
+            "--length-mismatch", "--empty-columns",
+            "--enable-all-checks",
+            "--header-normalize-space",
+            "--join-short-rows", "--fill-short-rows",
+            "--remove-empty-columns"})
+        if not aktif_ccl:
+            for t_ccl in mentah:
+                if t_ccl == "--":
+                    break
+                if (t_ccl.startswith("-")
+                        and not t_ccl.startswith("--")
+                        and len(t_ccl) > 1):
+                    for h_ccl in t_ccl[1:]:
+                        if h_ccl == "a":
+                            aktif_ccl = True
+                            break
+                        if ("-" + h_ccl) in _CSVKIT:
+                            break
+                    if aktif_ccl:
+                        break
+        if not aktif_ccl:
+            return False
+        if ("--join-short-rows" in nama_ccl
+                and "--fill-short-rows" in nama_ccl):
             return False
         return not ops_ccl or ops_ccl == ["-"]
     if perintah == "csvlook":
