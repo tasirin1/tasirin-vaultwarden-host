@@ -2733,7 +2733,10 @@ def _operand_csvkit(toks, awal, bernilai,
                         or (not cocok_ck
                             and len(bool_ck) == 1
                             and bool_ck[0] in (
-                                "--help", "--version"))):
+                                "--help", "--version"))
+                        or ("=" in t_ck
+                            and not cocok_ck
+                            and bool_ck)):
                     hasil_ck.append("\x00gantung")
                     i_ck += 1
                     continue
@@ -7184,7 +7187,9 @@ def _menguras_khusus(perintah, toks, awal):
             if (len(cv_i2) + len(cb_i2) > 1
                     or (not cv_i2 and len(cb_i2) == 1
                         and cb_i2[0] in ("--help",
-                                         "--version"))):
+                                         "--version"))
+                    or ("=" in t_i2 and not cv_i2
+                        and cb_i2)):
                 return False
         for t_i2 in mentah:
             if (t_i2 == "-f-"

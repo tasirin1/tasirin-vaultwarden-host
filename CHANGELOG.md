@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvkit: opsi bool berbentuk --bool=nilai ditolak seperti argparse (Audit 159)
+
+- _operand_csvkit kini menggantungkan token ber-= yang calonnya hanya opsi bool (store_true menolak argumen eksplisit, rc=2); penjaga in2csv diperluas dengan aturan yang sama.
+
 ## [Belum rilis] — in2csv: penjaga ambiguitas menghitung calon bool (Audit 158)
 
 - Cabang in2csv tidak memakai _operand_csvkit; penjaga 2410-nya kini menghitung calon dari semesta bool in2csv (_CSVKIT_BOOL + --no-doublequote/--no-inference): ambigu lintas himpunan dan informasional bool tunggal berhenti.
