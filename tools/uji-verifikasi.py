@@ -32013,6 +32013,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvclean singkatan nama terlarang: tak dikenal - gerbang lolos (Audit 2409)", rc == 0)
         shutil.rmtree(sub1507, ignore_errors=True)
+        sub1508 = klon(tmp, "sub1508")
+        berkas_aksi1508 = os.path.join(
+            sub1508, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1508, encoding="utf-8") as f:
+            isi_aksi1508 = f.read()
+        baris_aksi1508 = [b for b in isi_aksi1508.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1508 = isi_aksi1508.replace(
+                baris_aksi1508,
+                baris_aksi1508.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvsql --d -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1508 != isi_aksi1508, \
+            "suntikan aksi1508 tidak menembak"
+        with open(berkas_aksi1508, "w", encoding="utf-8") as f:
+            f.write(isi_baru1508)
+        rc, out = jalan(sub1508,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvsql awalan ambigu: galat - gerbang lolos (Audit 2410)", rc == 0)
+        shutil.rmtree(sub1508, ignore_errors=True)
         sub1509 = klon(tmp, "sub1509")
         berkas_aksi1509 = os.path.join(
             sub1509, ".github", "actions", "resolve-vw",

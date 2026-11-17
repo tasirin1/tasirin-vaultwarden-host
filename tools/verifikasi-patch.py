@@ -7060,6 +7060,20 @@ def _menguras_khusus(perintah, toks, awal):
                          "--write-sheets",
                          "--encoding-xls"}):
             return False
+        # Audit 2410: awalan ambigu = galat
+        # argparse (--enc ~ encoding/encoding-xls).
+        semesta_i2 = {"--format", "--schema",
+                      "--key", "--snifflimit",
+                      "--delimiter", "--encoding",
+                      "--sheet", "--write-sheets",
+                      "--encoding-xls"}
+        if any(t_i2.startswith("--")
+               and t_i2.split("=", 1)[0] not in semesta_i2
+               and sum(1 for b_i2 in semesta_i2
+                       if b_i2.startswith(
+                           t_i2.split("=", 1)[0])) > 1
+               for t_i2 in mentah):
+            return False
         for t_i2 in mentah:
             if (t_i2 == "-f-"
                     or t_i2.startswith("--format=-")):
@@ -9763,6 +9777,15 @@ def _menguras_khusus(perintah, toks, awal):
             "--engine-option", "--before-insert",
             "--after-insert", "--chunk-size"}
         if _jebakan_argparse(mentah, bernilai_csq):
+            return False
+        # Audit 2410: awalan ambigu = galat
+        # argparse (bukan nama persis).
+        if any(t_csq.startswith("--")
+               and t_csq.split("=", 1)[0] not in bernilai_csq
+               and sum(1 for b_csq in bernilai_csq
+                       if b_csq.startswith(
+                           t_csq.split("=", 1)[0])) > 1
+               for t_csq in mentah):
             return False
         toks_csq = _saring_csvkit(toks, awal, "csvsql")
         if toks_csq is None:

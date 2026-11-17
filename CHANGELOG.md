@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Awalan ambigu csvsql dan in2csv ditolak (Audit 156)
+
+- Token panjang yang menjadi awalan >1 opsi himpunan cabang (csvsql --d; in2csv --enc) kini galat, meniru 'ambiguous option' argparse.
+
 ## [Belum rilis] — csvclean: pengaktif hantu dicabut + kehadiran sadar singkatan (Audit 156)
 
 - --remove-empty-columns tidak ada di csvkit 2.2.0: keluar dari pengaktif, masuk daftar terlarang csvclean (Audit 2404). Helper _hadir_unik: kehadiran pengaktif csvclean, -c/pencocok csvgrep, dan --query sql2csv kini juga bentuk singkatan awalan unik (Audit 2405).
