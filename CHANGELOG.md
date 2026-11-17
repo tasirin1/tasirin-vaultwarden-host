@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvgrep: kehadiran -c/pencocok sadar bundel (Audit 154)
+
+- Pemeriksa ada_c/ada_m kini juga memindai huruf bundel bukan-pertama, berhenti di huruf bernilai pertama — -if dan -ic kini terbaca.
+
 ## [Belum rilis] — Kelas bundel csvkit: operand sadar bundel di 13 cabang (Audit 154)
 
 - Helper baru _operand_csvkit mengembangkan bundel argparse (bool menumpuk, huruf bernilai menelan sisa/token berikutnya) sebelum menghitung operand; dipakai csvlook/csvcut/csvstat/csvsort/csvformat/csvclean/csvjson/csvjoin/csvstack/csvsql/sql2csv/csvpy/csvgrep. DUGAAN sejak Audit-144 kini tertutup.

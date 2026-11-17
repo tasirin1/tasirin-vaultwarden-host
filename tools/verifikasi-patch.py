@@ -8672,9 +8672,6 @@ def _menguras_khusus(perintah, toks, awal):
         ada_c = any(
             t_cg in ("-c", "--columns")
             or t_cg.startswith("--columns=")
-            or (t_cg.startswith("-c")
-                and len(t_cg) > 2
-                and not t_cg.startswith("--"))
             for t_cg in mentah)
         ada_m = any(
             t_cg in ("-r", "--regex", "-m", "--match",
@@ -8682,10 +8679,24 @@ def _menguras_khusus(perintah, toks, awal):
             or t_cg.startswith(("--regex=",
                                  "--match=",
                                  "--file="))
-            or (len(t_cg) > 2
-                and not t_cg.startswith("--")
-                and t_cg[1] in "rmf")
             for t_cg in mentah)
+        # Audit 2389: kehadiran juga di huruf
+        # bundel bukan-pertama (argparse
+        # mengembangkan bundel; huruf bernilai
+        # menghentikan jalannya huruf).
+        for t_cg in mentah:
+            if t_cg == "--":
+                break
+            if (t_cg.startswith("-")
+                    and not t_cg.startswith("--")
+                    and len(t_cg) > 2):
+                for h_cg in t_cg[1:]:
+                    if h_cg == "c":
+                        ada_c = True
+                    if h_cg in "rmf":
+                        ada_m = True
+                    if ("-" + h_cg) in bernilai_cg:
+                        break
         return ada_c and ada_m and (not ops_cg
                                     or ops_cg == ["-"])
     if perintah == "csvstat":

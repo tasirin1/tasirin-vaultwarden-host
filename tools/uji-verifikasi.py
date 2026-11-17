@@ -31551,6 +31551,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvlook bundel bool+bernilai: nilai tertelan, penguras - gerbang gagal (Audit 2388)", rc != 0)
         shutil.rmtree(sub1485, ignore_errors=True)
+        sub1486 = klon(tmp, "sub1486")
+        berkas_aksi1486 = os.path.join(
+            sub1486, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1486, encoding="utf-8") as f:
+            isi_aksi1486 = f.read()
+        baris_aksi1486 = [b for b in isi_aksi1486.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1486 = isi_aksi1486.replace(
+                baris_aksi1486,
+                baris_aksi1486.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvgrep -c nama -if pola.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1486 != isi_aksi1486, \
+            "suntikan aksi1486 tidak menembak"
+        with open(berkas_aksi1486, "w", encoding="utf-8") as f:
+            f.write(isi_baru1486)
+        rc, out = jalan(sub1486,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvgrep -f di bundel: pencocok hadir, penguras - gerbang gagal (Audit 2389)", rc != 0)
+        shutil.rmtree(sub1486, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
