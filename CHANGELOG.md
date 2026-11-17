@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — tsv: bentuk = informasional mengikuti getopt Phobos (Audit 158)
+
+- Bantuan bawaan hanya cocok persis (bentuk = selalu galat); opsi bool alat mengurai nilai to!bool - selain false berhenti juga. Diterapkan di kelima penjaga dan loop awal tsv-summarize.
+
 ## [Belum rilis] — csvpy: bool tercabut override_flags dikeluarkan dari semesta (Audit 158)
 
 - csvpy mencabut --linenumbers/--zero/--add-bom; titik panggilnya kini meneruskan kecuali dan awalan yang hanya cocok nama tercabut ditolak - regresi --l (kini unik ke --locale lagi) dan bentuk eksak hantu tertutup.

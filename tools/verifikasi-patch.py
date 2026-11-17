@@ -8982,6 +8982,19 @@ def _menguras_khusus(perintah, toks, awal):
             t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
+            dasar_lp = t_lp.split("=", 1)[0]
+            if ("=" in t_lp
+                    and (dasar_lp in ("-V", "-h")
+                         or dasar_lp.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_lp in ("-h",)
+                         or dasar_lp.lower() == "--help"
+                         or t_lp.split("=", 1)[1]
+                         != "false")):
+                return False
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
                                         "--version",
@@ -9483,6 +9496,19 @@ def _menguras_khusus(perintah, toks, awal):
             t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
+            dasar_lp = t_lp.split("=", 1)[0]
+            if ("=" in t_lp
+                    and (dasar_lp in ("-V", "-h")
+                         or dasar_lp.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_lp in ("-h",)
+                         or dasar_lp.lower() == "--help"
+                         or t_lp.split("=", 1)[1]
+                         != "false")):
+                return False
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
                                         "--version",
@@ -9563,6 +9589,19 @@ def _menguras_khusus(perintah, toks, awal):
             t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
+            dasar_lp = t_lp.split("=", 1)[0]
+            if ("=" in t_lp
+                    and (dasar_lp in ("-V", "-h")
+                         or dasar_lp.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_lp in ("-h",)
+                         or dasar_lp.lower() == "--help"
+                         or t_lp.split("=", 1)[1]
+                         != "false")):
+                return False
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
                                         "--version",
@@ -9635,6 +9674,24 @@ def _menguras_khusus(perintah, toks, awal):
             if t_awal == "--":
                 break
             if t_awal in ("-V", "-h"):
+                return False
+            # Audit 2423: bentuk "=" opsi
+            # informasional - bawaan getopt
+            # hanya cocok persis (galat), opsi
+            # bool alat mengurai nilai: selain
+            # "false" berhenti juga.
+            dasar_aw = t_awal.split("=", 1)[0]
+            if ("=" in t_awal
+                    and (dasar_aw in ("-V", "-h")
+                         or dasar_aw.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_aw in ("-h",)
+                         or dasar_aw.lower() == "--help"
+                         or t_awal.split("=", 1)[1]
+                         != "false")):
                 return False
             if (t_awal.startswith("-")
                     and not t_awal.startswith("--")
@@ -9802,6 +9859,19 @@ def _menguras_khusus(perintah, toks, awal):
             t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
+            dasar_lp = t_lp.split("=", 1)[0]
+            if ("=" in t_lp
+                    and (dasar_lp in ("-V", "-h")
+                         or dasar_lp.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_lp in ("-h",)
+                         or dasar_lp.lower() == "--help"
+                         or t_lp.split("=", 1)[1]
+                         != "false")):
+                return False
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
                                         "--version",
@@ -9926,6 +9996,19 @@ def _menguras_khusus(perintah, toks, awal):
             t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
+            dasar_lp = t_lp.split("=", 1)[0]
+            if ("=" in t_lp
+                    and (dasar_lp in ("-V", "-h")
+                         or dasar_lp.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_lp in ("-h",)
+                         or dasar_lp.lower() == "--help"
+                         or t_lp.split("=", 1)[1]
+                         != "false")):
+                return False
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
                                         "--version",
