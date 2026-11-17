@@ -2703,8 +2703,11 @@ def _operand_csvkit(toks, awal, bernilai,
                 if eja_ck in bernilai:
                     sisa_ck = t_ck[j_ck + 1:]
                     if sisa_ck.startswith("="):
-                        sisa_ck = sisa_ck[1:]
-                    if sisa_ck:
+                        # Audit 2440: nilai kosong
+                        # merekat (-d=) tetap
+                        # sebuah nilai.
+                        kembang_ck.append(sisa_ck[1:])
+                    elif sisa_ck:
                         kembang_ck.append(sisa_ck)
                     elif ("=" not in t_ck
                             and i_mentah_ck + 1 < len(mentah_ck)

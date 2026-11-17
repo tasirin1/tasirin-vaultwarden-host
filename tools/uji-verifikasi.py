@@ -32916,6 +32916,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvsql turunan insert tersirat dari query: membaca stdin - gerbang gagal (Audit 2439)", rc != 0)
         shutil.rmtree(sub1550, ignore_errors=True)
+        sub1551 = klon(tmp, "sub1551")
+        berkas_aksi1551 = os.path.join(
+            sub1551, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1551, encoding="utf-8") as f:
+            isi_aksi1551 = f.read()
+        baris_aksi1551 = [b for b in isi_aksi1551.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1551 = isi_aksi1551.replace(
+                baris_aksi1551,
+                baris_aksi1551.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvlook -d=; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1551 != isi_aksi1551, \
+            "suntikan aksi1551 tidak menembak"
+        with open(berkas_aksi1551, "w", encoding="utf-8") as f:
+            f.write(isi_baru1551)
+        rc, out = jalan(sub1551,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvlook nilai kosong merekat: membaca stdin - gerbang gagal (Audit 2440)", rc != 0)
+        shutil.rmtree(sub1551, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

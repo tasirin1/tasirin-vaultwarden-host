@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Bundel csvkit: nilai kosong merekat (-d=) diakui lagi (Audit 162)
+
+- Regresi 2437: sisa sesudah '=' yang kosong kini tetap ditambahkan sebagai nilai, jadi -d= menguras dan -d= berkas membaca berkas - sesuai biner.
+
 ## [Belum rilis] — csvsql: validasi pendamping opsi dimodelkan dari csvsql.py (Audit 161)
 
 - Pindaian kehadiran sadar-posisi memeriksa: --dialect x --db/--query, --insert tanpa keduanya, turunan insert tanpa --insert tersurat/tersirat, --overwrite x --no-create, --no-create x --create-if-not-exists.
