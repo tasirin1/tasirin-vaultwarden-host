@@ -2819,6 +2819,18 @@ def _saring_csvkit(toks, awal, perintah):
     # atau None bila --null-value tanpa nilai
     # (argparse berhenti dengan galat).
     segmen_sc = list(toks[awal:])
+    # Audit 2418: nama khas per alat -
+    # csvsql hanya --engine-option; sql2csv
+    # keduanya; alat lain hanya --null-value.
+    if perintah == "csvsql":
+        khas_sc = ("--null-value",
+                   "--engine-option")
+    elif perintah == "sql2csv":
+        khas_sc = ("--null-value",
+                   "--engine-option",
+                   "--execution-option")
+    else:
+        khas_sc = ("--null-value",)
     hasil_sc = []
     i_sc = 0
     while i_sc < len(segmen_sc):
@@ -2827,14 +2839,9 @@ def _saring_csvkit(toks, awal, perintah):
         # ketiga nama khas saringan.
         dasar_sc = t_sc.split("=", 1)[0]
         if (dasar_sc.startswith("--")
-                and len(dasar_sc) >= 7
-                and dasar_sc not in ("--null-value",
-                                     "--engine-option",
-                                     "--execution-option")):
-            cocok_sc = [n_sc for n_sc in
-                        ("--null-value",
-                         "--engine-option",
-                         "--execution-option")
+                and len(dasar_sc) >= 5
+                and dasar_sc not in khas_sc):
+            cocok_sc = [n_sc for n_sc in khas_sc
                         if n_sc.startswith(dasar_sc)]
             if len(cocok_sc) == 1:
                 t_sc = cocok_sc[0] + t_sc[len(dasar_sc):]
@@ -2857,8 +2864,7 @@ def _saring_csvkit(toks, awal, perintah):
             i_sc += 1
             continue
         if (perintah in ("csvsql", "sql2csv")
-                and t_sc in ("--engine-option",
-                             "--execution-option")):
+                and t_sc in khas_sc[1:]):
             if i_sc + 2 >= len(segmen_sc):
                 return None
             # Audit 2393: argparse menolak nilai
@@ -2873,9 +2879,8 @@ def _saring_csvkit(toks, awal, perintah):
             i_sc += 3
             continue
         if (perintah in ("csvsql", "sql2csv")
-                and (t_sc.startswith("--engine-option=")
-                     or t_sc.startswith(
-                         "--execution-option="))):
+                and any(t_sc.startswith(n_sc + "=")
+                        for n_sc in khas_sc[1:])):
             return None
         hasil_sc.append(t_sc)
         i_sc += 1
@@ -9883,6 +9888,16 @@ def _menguras_khusus(perintah, toks, awal):
                and sum(1 for b_csq in bernilai_csq
                        if b_csq.startswith(
                            t_csq.split("=", 1)[0])) > 1
+               for t_csq in mentah):
+            return False
+        # Audit 2418: --execution-option
+        # TIDAK ada di csvsql (hanya sql2csv) -
+        # bentuk utuh/singkatannya galat.
+        if any(t_csq.startswith("--")
+               and "--execution-option".startswith(
+                   t_csq.split("=", 1)[0])
+               and not "--engine-option".startswith(
+                   t_csq.split("=", 1)[0])
                for t_csq in mentah):
             return False
         toks_csq = _saring_csvkit(toks, awal, "csvsql")

@@ -32202,6 +32202,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvclean --h ambigu help/header: galat - gerbang lolos (Audit 2417)", rc == 0)
         shutil.rmtree(sub1516, ignore_errors=True)
+        sub1517 = klon(tmp, "sub1517")
+        berkas_aksi1517 = os.path.join(
+            sub1517, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1517, encoding="utf-8") as f:
+            isi_aksi1517 = f.read()
+        baris_aksi1517 = [b for b in isi_aksi1517.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1517 = isi_aksi1517.replace(
+                baris_aksi1517,
+                baris_aksi1517.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvlook --null x berkas.csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1517 != isi_aksi1517, \
+            "suntikan aksi1517 tidak menembak"
+        with open(berkas_aksi1517, "w", encoding="utf-8") as f:
+            f.write(isi_baru1517)
+        rc, out = jalan(sub1517,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvlook --null singkatan pendek sah: penguras - gerbang gagal (Audit 2418)", rc != 0)
+        shutil.rmtree(sub1517, ignore_errors=True)
+        sub1518 = klon(tmp, "sub1518")
+        berkas_aksi1518 = os.path.join(
+            sub1518, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1518, encoding="utf-8") as f:
+            isi_aksi1518 = f.read()
+        baris_aksi1518 = [b for b in isi_aksi1518.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1518 = isi_aksi1518.replace(
+                baris_aksi1518,
+                baris_aksi1518.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvsql --execution-option a b -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1518 != isi_aksi1518, \
+            "suntikan aksi1518 tidak menembak"
+        with open(berkas_aksi1518, "w", encoding="utf-8") as f:
+            f.write(isi_baru1518)
+        rc, out = jalan(sub1518,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvsql --execution-option tak ada: galat - gerbang lolos (Audit 2418)", rc == 0)
+        shutil.rmtree(sub1518, ignore_errors=True)
         sub1519 = klon(tmp, "sub1519")
         berkas_aksi1519 = os.path.join(
             sub1519, ".github", "actions", "resolve-vw",

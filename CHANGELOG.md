@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — _saring_csvkit: nama khas per alat + ambang awalan 5 (Audit 157)
+
+- csvsql hanya --engine-option, sql2csv keduanya, alat lain hanya --null-value; singkatan unik >=5 huruf kini diselesaikan; csvsql menolak --execution-option (tak ada di parsernya).
+
 ## [Belum rilis] — Ambiguitas awalan: semesta bool umum csvkit + khas cabang (Audit 157)
 
 - _CSVKIT_BOOL dilengkapi opsi bool umum cli.py (Audit 2419); _operand_csvkit menerima bool_cabang/kecuali: calon bool tunggal informasional dan ambiguitas lintas himpunan kini berhenti (Audit 2416; csvclean --h ambigu tertangkap di sini, Audit 2417); csvclean/csvcut/csvstat membawa bool khasnya, sql2csv mengecualikan yang dicabut parsernya.
