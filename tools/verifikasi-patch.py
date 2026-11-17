@@ -1676,6 +1676,17 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             if perintah in ("jq", "yq", "fq") and bersih in ("-n", "--null-input"):
                 # jq -n tak membaca stdin sama sekali.
                 return False
+            if (perintah == "jq"
+                    and _angka_negatif(bersih)):
+                # Audit 2421: angka negatif =
+                # program filter jq (atau nama
+                # berkas sesudah skrip terisi),
+                # bukan bendera polos.
+                if skrip_terisi or skrip_dari_opsi:
+                    return False
+                skrip_terisi = True
+                i += 1
+                continue
             dasar = bersih.split("=", 1)[0]
             if dasar in nilai:
                 if perintah in ("sed", "awk", "grep") and (

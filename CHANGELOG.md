@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — jq: angka negatif adalah program filter (Audit 157)
+
+- Di lingkar segmen umum, token angka negatif untuk jq kini mengisi slot skrip (atau berkas bila skrip sudah terisi), bukan bendera polos - jq -12 data.json kini benar membaca berkas.
+
 ## [Belum rilis] — Token strip-angka ditolak di tsv-append/uniq + qsv/xsv count (Audit 157)
 
 - Pindaian sadar-nilai di 4 cabang: token strip-angka di posisi opsi = operand berkas/galat getopt atau flag tak dikenal docopt - tak pernah menguras.
