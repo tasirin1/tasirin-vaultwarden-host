@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — yq: blok angka negatif tak lagi menembak sesudah -- (Audit 162)
+
+- Regresi 2435: scanner kini mencatat posisi sesudah pemisah --; token angka di sana adalah ekspresi/operand (yq -- -12 membaca stdin).
+
 ## [Belum rilis] — Bundel csvkit: nilai kosong merekat (-d=) diakui lagi (Audit 162)
 
 - Regresi 2437: sisa sesudah '=' yang kosong kini tetap ditambahkan sebagai nilai, jadi -d= menguras dan -d= berkas membaca berkas - sesuai biner.

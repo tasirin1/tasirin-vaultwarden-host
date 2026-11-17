@@ -1640,6 +1640,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     nilai2 = {"--arg", "--argjson", "--rawfile", "--slurpfile"}
     skrip_dari_opsi = False
     skrip_terisi = False
+    lewat_dd = False
     # Audit 1138: sed -i (edit di tempat) tanpa operand berkas
     # adalah galat ("no input files"), bukan pembaca stdin.
     sed_i = False
@@ -1670,6 +1671,9 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 continue
         bersih = t.strip("\"'")
         if bersih == "--":
+            # Audit 2441: sesudah -- token
+            # adalah operand, bukan bendera.
+            lewat_dd = True
             i += 1
             continue
         if bersih.startswith("-") and bersih != "-":
@@ -1677,6 +1681,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 # jq -n tak membaca stdin sama sekali.
                 return False
             if (perintah == "yq"
+                    and not lewat_dd
                     and _angka_negatif(bersih)):
                 # Audit 2435: yq menolak flag
                 # angka (unknown shorthand) -
