@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Token strip-angka docopt diperluas ke semua subperintah qsv/xsv (Audit 158)
+
+- Helper _ada_token_angka sadar-nilai dipakai peta bernilai per subperintah: 14 subperintah qsv dan 8 subperintah xsv yang sebelumnya hanya menolak di count kini menolak flag angka tak dikenal di posisi opsi mana pun sebelum --.
+
 ## [Belum rilis] — tsv: bentuk = informasional mengikuti getopt Phobos (Audit 158)
 
 - Bantuan bawaan hanya cocok persis (bentuk = selalu galat); opsi bool alat mengurai nilai to!bool - selain false berhenti juga. Diterapkan di kelima penjaga dan loop awal tsv-summarize.

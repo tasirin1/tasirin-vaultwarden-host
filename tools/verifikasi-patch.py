@@ -2617,6 +2617,27 @@ def _hadir_unik(mentah, nama, semesta):
     return False
 
 
+def _ada_token_angka(mentah, bernilai):
+    # Audit 2424: token strip-angka di posisi
+    # opsi = flag tak dikenal docopt (galat
+    # parse sebelum stdin disentuh); token
+    # sesudah opsi bernilai adalah nilainya.
+    i_ta2 = 1
+    while i_ta2 < len(mentah):
+        t_ta2 = mentah[i_ta2]
+        if t_ta2 == "--":
+            return False
+        if (t_ta2.split("=", 1)[0] in bernilai
+                and "=" not in t_ta2):
+            i_ta2 += 2
+            continue
+        if (len(t_ta2) > 1 and t_ta2[0] == "-"
+                and t_ta2[1].isdigit()):
+            return True
+        i_ta2 += 1
+    return False
+
+
 def _operand_csvkit(toks, awal, bernilai,
                     bool_cabang=frozenset(),
                     kecuali=frozenset()):
@@ -7318,6 +7339,98 @@ def _menguras_khusus(perintah, toks, awal):
         # membaca stdin (config.rs).
         # Audit 2108: 'count' memakai Config yang
         # sama seperti cat (None/'-' -> stdin).
+        # Audit 2424: token strip-angka di
+        # subperintah lain juga flag tak
+        # dikenal docopt (qsv_docopt).
+        bernilai_angka_qsv = {
+            "behead": {"-o", "--output"},
+            "dedup": {"-s", "--select", "-D",
+                      "--dupes-output", "-j",
+                      "--jobs", "-o", "--output",
+                      "-d", "--delimiter"},
+            "flatten": {"-c", "--condense", "-f",
+                        "--field-separator", "-s",
+                        "--separator", "-d",
+                        "--delimiter"},
+            "fmt": {"-d", "--delimiter",
+                    "--escape", "-t",
+                    "--out-delimiter", "-o",
+                    "--output", "--quote"},
+            "frequency": {"-d", "--delimiter",
+                          "-o", "--output", "-s",
+                          "--select", "-j",
+                          "--jobs", "-l", "--limit",
+                          "--lmt-threshold",
+                          "--all-unique-text",
+                          "--high-card-pct",
+                          "--high-card-threshold",
+                          "--no-float",
+                          "--null-text",
+                          "--other-text",
+                          "--pct-dec-places",
+                          "--rank-strategy",
+                          "--sketch-map-size",
+                          "--sketch-method",
+                          "--stats-filter",
+                          "--unq-limit", "--weight"},
+            "headers": {"-d", "--delimiter"},
+            "reverse": {"-o", "--output", "-d",
+                        "--delimiter"},
+            "slice": {"-s", "--start", "-e",
+                      "--end", "-l", "--len",
+                      "-i", "--index", "-d",
+                      "--delimiter", "-o",
+                      "--output"},
+            "sort": {"-s", "--select", "--seed",
+                     "--rng", "-j", "--jobs",
+                     "-o", "--output", "-d",
+                     "--delimiter"},
+            "stats": {"-o", "--output", "-s",
+                      "--select", "--round",
+                      "--dates-whitelist", "-j",
+                      "--jobs", "-d",
+                      "--delimiter", "-c",
+                      "--cache-threshold",
+                      "--boolean-patterns",
+                      "--cardinality-method",
+                      "--mode-cardinality-cap",
+                      "--percentile-list",
+                      "--quantile-method",
+                      "--weight"},
+            "table": {"-a", "--align", "-c",
+                      "--condense", "-d",
+                      "--delimiter", "-o",
+                      "--output", "-p", "--pad",
+                      "-w", "--width"},
+            "transpose": {"-o", "--output",
+                          "-d", "--delimiter",
+                          "-s", "--select",
+                          "--long"},
+            "validate": {"-d", "--delimiter",
+                         "-j", "--jobs", "-o",
+                         "--output",
+                         "--backtrack-limit",
+                         "--batch", "--cache-dir",
+                         "--ckan-api",
+                         "--ckan-token",
+                         "--email-min-subdomains",
+                         "--invalid", "--sarif",
+                         "--sarif-max-results",
+                         "--size-limit",
+                         "--timeout", "--valid",
+                         "--valid-output"},
+            "search": {"-s", "--select", "-f",
+                       "--flag", "--preview-match",
+                       "--size-limit",
+                       "--dfa-size-limit", "-j",
+                       "--jobs", "-o", "--output",
+                       "-d", "--delimiter"}}
+        if (mentah
+                and mentah[0] in bernilai_angka_qsv
+                and _ada_token_angka(
+                    mentah,
+                    bernilai_angka_qsv[mentah[0]])):
+            return False
         if mentah and mentah[0] == "count":
             if _ada_duplikat(mentah, 1, {"-d", "--delimiter"}, {"-d": "--delimiter", "-H": "--human-readable", "-f": "--flexible", "-n": "--no-headers"}):
                 return False
@@ -9157,6 +9270,43 @@ def _menguras_khusus(perintah, toks, awal):
             return (len(ops_xse) == 1
                     or (len(ops_xse) == 2
                         and ops_xse[1] == "-"))
+        # Audit 2424: token strip-angka di
+        # subperintah lain juga flag tak
+        # dikenal docopt (docopt.rs).
+        bernilai_angka_xsv = {
+            "flatten": {"-c", "--condense",
+                        "-s", "--separator",
+                        "-d", "--delimiter"},
+            "fmt": {"-t", "--out-delimiter",
+                    "--quote", "--escape", "-o",
+                    "--output", "-d",
+                    "--delimiter"},
+            "frequency": {"-s", "--select",
+                          "-l", "--limit", "-j",
+                          "--jobs", "-o",
+                          "--output", "-d",
+                          "--delimiter"},
+            "headers": {"-d", "--delimiter"},
+            "reverse": {"-o", "--output", "-d",
+                        "--delimiter"},
+            "slice": {"-s", "--start", "-e",
+                      "--end", "-l", "--len",
+                      "-i", "--index", "-o",
+                      "--output", "-d",
+                      "--delimiter"},
+            "sort": {"-s", "--select", "-o",
+                     "--output", "-d",
+                     "--delimiter"},
+            "stats": {"-s", "--select", "-o",
+                      "--output", "-d",
+                      "--delimiter", "-j",
+                      "--jobs"}}
+        if (mentah
+                and mentah[0] in bernilai_angka_xsv
+                and _ada_token_angka(
+                    mentah,
+                    bernilai_angka_xsv[mentah[0]])):
+            return False
         if mentah and mentah[0] == "count":
             if _ada_duplikat(mentah, 1, {"-d", "--delimiter"}, {"-d": "--delimiter", "-n": "--no-headers"}):
                 return False
