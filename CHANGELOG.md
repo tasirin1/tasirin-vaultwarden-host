@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — tsv: pengecualian =false kini tak peka huruf (Audit 159)
+
+- std.conv.to!bool Phobos case-insensitive; perbandingan nilai di keenam titik cek Audit 2423 kini dilipat huruf, sehingga --version=False dan varian huruf lain berjalan normal seperti alat asli.
+
 ## [Belum rilis] — csvpy: penjaga opsi tercabut berhenti di -- (Audit 159)
 
 - Pindaian penjaga Audit 2422 kini terpotong pada -- pertama: nama berkas sesudah -- adalah operand, bukan opsi, sehingga csvpy -- --zero kembali menguras seperti biner.

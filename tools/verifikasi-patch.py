@@ -9126,7 +9126,7 @@ def _menguras_khusus(perintah, toks, awal):
                              "--help-options"))
                     and (dasar_lp in ("-h",)
                          or dasar_lp.lower() == "--help"
-                         or t_lp.split("=", 1)[1]
+                         or t_lp.split("=", 1)[1].lower()
                          != "false")):
                 return False
             if (t_lp in ("-V", "-h")
@@ -9677,7 +9677,7 @@ def _menguras_khusus(perintah, toks, awal):
                              "--help-options"))
                     and (dasar_lp in ("-h",)
                          or dasar_lp.lower() == "--help"
-                         or t_lp.split("=", 1)[1]
+                         or t_lp.split("=", 1)[1].lower()
                          != "false")):
                 return False
             if (t_lp in ("-V", "-h")
@@ -9770,7 +9770,7 @@ def _menguras_khusus(perintah, toks, awal):
                              "--help-options"))
                     and (dasar_lp in ("-h",)
                          or dasar_lp.lower() == "--help"
-                         or t_lp.split("=", 1)[1]
+                         or t_lp.split("=", 1)[1].lower()
                          != "false")):
                 return False
             if (t_lp in ("-V", "-h")
@@ -9861,7 +9861,7 @@ def _menguras_khusus(perintah, toks, awal):
                              "--help-options"))
                     and (dasar_aw in ("-h",)
                          or dasar_aw.lower() == "--help"
-                         or t_awal.split("=", 1)[1]
+                         or t_awal.split("=", 1)[1].lower()
                          != "false")):
                 return False
             if (t_awal.startswith("-")
@@ -10040,7 +10040,7 @@ def _menguras_khusus(perintah, toks, awal):
                              "--help-options"))
                     and (dasar_lp in ("-h",)
                          or dasar_lp.lower() == "--help"
-                         or t_lp.split("=", 1)[1]
+                         or t_lp.split("=", 1)[1].lower()
                          != "false")):
                 return False
             if (t_lp in ("-V", "-h")
@@ -10177,7 +10177,7 @@ def _menguras_khusus(perintah, toks, awal):
                              "--help-options"))
                     and (dasar_lp in ("-h",)
                          or dasar_lp.lower() == "--help"
-                         or t_lp.split("=", 1)[1]
+                         or t_lp.split("=", 1)[1].lower()
                          != "false")):
                 return False
             if (t_lp in ("-V", "-h")

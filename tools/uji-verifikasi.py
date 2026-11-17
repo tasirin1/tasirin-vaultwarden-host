@@ -32517,6 +32517,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("csvpy berkas bernama --zero sesudah --: konsol menguras - gerbang gagal (Audit 2427)", rc != 0)
         shutil.rmtree(sub1531, ignore_errors=True)
+        sub1532 = klon(tmp, "sub1532")
+        berkas_aksi1532 = os.path.join(
+            sub1532, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1532, encoding="utf-8") as f:
+            isi_aksi1532 = f.read()
+        baris_aksi1532 = [b for b in isi_aksi1532.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1532 = isi_aksi1532.replace(
+                baris_aksi1532,
+                baris_aksi1532.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-select --version=False -f 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1532 != isi_aksi1532, \
+            "suntikan aksi1532 tidak menembak"
+        with open(berkas_aksi1532, "w", encoding="utf-8") as f:
+            f.write(isi_baru1532)
+        rc, out = jalan(sub1532,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-select =False tak peka huruf Phobos: berjalan, penguras - gerbang gagal (Audit 2428)", rc != 0)
+        shutil.rmtree(sub1532, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
