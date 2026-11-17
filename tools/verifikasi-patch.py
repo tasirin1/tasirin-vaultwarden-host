@@ -12165,6 +12165,57 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         return xargs_sendiri
     if xargs_sendiri:
         return True
+    # Audit 2452: keluarga skrip dirutekan
+    # sebelum penjaga 1102 - informasionalnya
+    # diperiksa di sini, per perintah (grep
+    # -h bendera asli, dikecualikan).
+    info_skrip = {
+        "jq": {"-h", "--help", "-V", "--version"},
+        "yq": {"-h", "--help", "-V", "--version"},
+        "fq": {"-h", "--help", "-V", "--version"},
+        "sed": {"-h", "--help", "-V", "--version"},
+        "rg": {"-h", "--help", "-V", "--version"},
+    }
+    info_awk = {"-h", "--help", "-V", "--version"}
+    info_grep = {"--help", "-V", "--version"}
+    kanon_skrip = {
+        "mawk": "awk", "nawk": "awk", "gawk": "awk",
+        "pgawk": "awk", "igawk": "awk",
+        "dgawk": "awk", "original-awk": "awk",
+        "egrep": "grep", "fgrep": "grep",
+        "zgrep": "grep", "bzgrep": "grep",
+        "xzgrep": "grep", "lzgrep": "grep",
+        "zstdgrep": "grep", "zegrep": "grep",
+        "zfgrep": "grep", "bzegrep": "grep",
+        "bzfgrep": "grep", "xzegrep": "grep",
+        "xzfgrep": "grep", "lzegrep": "grep",
+        "lzfgrep": "grep",
+    }
+    if (perintah in info_skrip or perintah == "awk"
+            or perintah == "grep"
+            or perintah in kanon_skrip):
+        if perintah in info_skrip:
+            tanda_info = info_skrip[perintah]
+        elif (perintah == "awk"
+                or kanon_skrip.get(perintah) == "awk"):
+            tanda_info = info_awk
+        else:
+            tanda_info = info_grep
+        lewati_info = False
+        for t_isk in toks[awal + 1:]:
+            b_isk = t_isk.strip("\"'")
+            if lewati_info:
+                lewati_info = False
+                continue
+            if b_isk == "--":
+                break
+            if b_isk in ("-e", "-f", "--pattern",
+                         "--file", "--expression",
+                         "--regex"):
+                lewati_info = True
+                continue
+            if b_isk in tanda_info:
+                return False
     if perintah in ("sed", "awk", "grep", "jq", "yq", "fq",
                     "mawk", "nawk", "egrep", "fgrep", "rg",
                     # Audit 1638: varian GNU awk.

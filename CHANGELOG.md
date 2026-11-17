@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Keluarga skrip: informasional diperiksa sebelum perutean (Audit 163)
+
+- Pemeriksaan per perintah mendahului _menguras_keluarga_skrip: jq/yq/fq/sed/awk/rg berhenti pada -h/--help/-V/--version, keluarga grep pada --help/-V/--version (grep -h bendera asli); token sesudah -- dan sesudah opsi pembawa pola dilewati.
+
 ## [Belum rilis] — _INFO_HURUF: pembaca coreutils head/tail/cat/wc/uniq/cut/tr (Audit 163)
 
 - Ketujuh pembaca mendapat entri {-h, -V}: biner berhenti (informatif versi atau galat opsi tak sah) tanpa membaca stdin; sort sengaja di luar (bendera asli).
