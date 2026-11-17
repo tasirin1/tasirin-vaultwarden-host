@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Token asing bagi subperintah tak lagi melindungi informasional (Audit 165)
+
+- Dampak perbaikan yang sama: opsi milik subperintah lain tidak masuk pendahulu subperintah berjalan - docopt menggagalkannya lebih dulu, dan gerbang kini berhenti dengan benar.
+
+## [Belum rilis] — Penjaga qsv/xsv: pendahulu per subperintah (Audit 165)
+
+- Koreksi 2453: konstanta gabungan diganti peta _PENDAHULU_QSV_PER_SUB/_PENDAHULU_XSV_PER_SUB (peta bernilai cabang + USAGE tiap subperintah); penjaga hanya memakai himpunan subperintah yang berjalan (mentah[0]).
+
 ## [Belum rilis] — Keluarga skrip: daftar pembawa nilai informasional dilengkapi (Audit 164)
 
 - Koreksi 2452: lewati menjadi penghitung; pembawa bertambah --regexp/--label/--glob/--pre/--pre-glob dan -v awk; jq --arg/--argjson/--rawfile/--slurpfile/--argfile melompati dua token; --regex (ejaan qsv) dicabut.
