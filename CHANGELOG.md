@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — in2csv: pindaian format + operand sadar bundel (Audit 153)
+
+- -f di tengah bundel (-nf, -tnf) kini terbaca penentu formatnya, dan operand cabang dihitung lokal sadar bundel (huruf bernilai menelan sisa token/token berikutnya).
+
 ## [Belum rilis] — in2csv: huruf berhenti pindaian -n dilengkapi (Audit 153)
 
 - Set huruf bernilai untuk bundel kini {f,s,k,y,d,q,u,p,z,e,L,K} sesuai parser csvkit — bundel -qn/-pn tak lagi divonis memuat -n.

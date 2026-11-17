@@ -6853,11 +6853,57 @@ def _menguras_khusus(perintah, toks, awal):
                 if (k_i2 + 1 < len(mentah)
                         and mentah[k_i2 + 1] == "-"):
                     return False
-        ops_i2 = _operand_sesudah_opsi(
-            toks, awal, {"-f", "--format", "-s",
+        # Audit 2377: operand dihitung lokal
+        # sadar bundel - huruf bernilai di
+        # tengah bundel menelan sisa token
+        # atau token berikutnya.
+        ops_i2 = []
+        i_oi2 = 0
+        while i_oi2 < len(mentah):
+            t_oi2 = mentah[i_oi2]
+            if t_oi2 == "--":
+                ops_i2.extend(mentah[i_oi2 + 1:])
+                break
+            if t_oi2 in ("-f", "--format", "-s",
                          "--schema", "-k", "--key",
                          "-y", "--snifflimit",
-                         "-d", "--delimiter", "-e", "--encoding", "--sheet", "--write-sheets", "--encoding-xls"})
+                         "-d", "--delimiter", "-e",
+                         "--encoding", "--sheet",
+                         "--write-sheets",
+                         "--encoding-xls"):
+                if i_oi2 + 1 >= len(mentah):
+                    ops_i2.append("\x00gantung")
+                    break
+                i_oi2 += 2
+                continue
+            if (t_oi2.startswith("--")
+                    and "=" in t_oi2):
+                i_oi2 += 1
+                continue
+            if (t_oi2.startswith("-")
+                    and not t_oi2.startswith("--")
+                    and len(t_oi2) > 1):
+                j_oi2 = 1
+                lompat_oi2 = False
+                while j_oi2 < len(t_oi2):
+                    if t_oi2[j_oi2] in "fskydequpzLK":
+                        if j_oi2 == len(t_oi2) - 1:
+                            lompat_oi2 = True
+                        break
+                    j_oi2 += 1
+                if lompat_oi2:
+                    if i_oi2 + 1 >= len(mentah):
+                        ops_i2.append("\x00gantung")
+                        break
+                    i_oi2 += 2
+                else:
+                    i_oi2 += 1
+                continue
+            if t_oi2.startswith("-") and t_oi2 != "-":
+                i_oi2 += 1
+                continue
+            ops_i2.append(t_oi2)
+            i_oi2 += 1
         if "\x00gantung" in ops_i2:
             return False
         if not ops_i2:
@@ -6893,6 +6939,22 @@ def _menguras_khusus(perintah, toks, awal):
             elif t_fi2.startswith(("--schema=",
                                    "--key=")):
                 format_i2 = "skema"
+            elif (t_fi2.startswith("-")
+                    and not t_fi2.startswith("--")
+                    and len(t_fi2) > 2):
+                # Audit 2377: -f di dalam bundel
+                # sesudah huruf bool ikut terbaca.
+                for j_fi2 in range(1, len(t_fi2)):
+                    h_fi2 = t_fi2[j_fi2]
+                    if h_fi2 == "f":
+                        sisa_fi2 = t_fi2[j_fi2 + 1:]
+                        if sisa_fi2:
+                            format_i2 = sisa_fi2
+                        elif i_fi2 + 1 < len(mentah):
+                            format_i2 = mentah[i_fi2 + 1]
+                        break
+                    if h_fi2 in "skydequpzLK":
+                        break
             i_fi2 += 1
         if format_i2 is None:
             return False
