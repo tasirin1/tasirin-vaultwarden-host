@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — pendek_bool csvcut/csvgrep: -I dicabut (Audit 162)
+
+- -I bukan bendera kedua alat di csvkit 2.2.0 (biner rc=2); himpunan kini persis sumber.
+
 ## [Belum rilis] — yq: blok angka negatif tak lagi menembak sesudah -- (Audit 162)
 
 - Regresi 2435: scanner kini mencatat posisi sesudah pemisah --; token angka di sana adalah ekspresi/operand (yq -- -12 membaca stdin).

@@ -9259,7 +9259,7 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, bernilai_ck,
             bool_cabang={"--delete-empty-rows",
                          "--names"},
-            pendek_bool={"-I", "-n", "-x"})
+            pendek_bool={"-n", "-x"})
         if "\x00gantung" in ops_ck:
             return False
         return not ops_ck or ops_ck == ["-"]
@@ -9278,7 +9278,7 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         ops_cg = _operand_csvkit(
             toks, awal, bernilai_cg,
-            pendek_bool={"-I", "-a", "-i",
+            pendek_bool={"-a", "-i",
                          "-n"})
         if "\x00gantung" in ops_cg:
             return False
