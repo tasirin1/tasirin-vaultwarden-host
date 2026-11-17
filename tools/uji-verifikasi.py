@@ -29365,7 +29365,7 @@ def main():
             f.write(isi_baru1381)
         rc, out = jalan(sub1381,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv clipboard -ss bundel save: penguras - gerbang gagal (Audit 2285)", rc != 0)
+        periksa("qsv clipboard -ss bundel save: duplikat docopt - gerbang lolos (Audit 2379)", rc == 0)
         shutil.rmtree(sub1381, ignore_errors=True)
         sub1382 = klon(tmp, "sub1382")
         berkas_aksi1382 = os.path.join(
@@ -31341,6 +31341,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("qsv dedup -s duplikat: docopt menolak - gerbang lolos (Audit 2378)", rc == 0)
         shutil.rmtree(sub1475, ignore_errors=True)
+        sub1476 = klon(tmp, "sub1476")
+        berkas_aksi1476 = os.path.join(
+            sub1476, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1476, encoding="utf-8") as f:
+            isi_aksi1476 = f.read()
+        baris_aksi1476 = [b for b in isi_aksi1476.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1476 = isi_aksi1476.replace(
+                baris_aksi1476,
+                baris_aksi1476.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv clipboard --save --save; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1476 != isi_aksi1476, \
+            "suntikan aksi1476 tidak menembak"
+        with open(berkas_aksi1476, "w", encoding="utf-8") as f:
+            f.write(isi_baru1476)
+        rc, out = jalan(sub1476,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv clipboard --save duplikat: docopt menolak - gerbang lolos (Audit 2379)", rc == 0)
+        shutil.rmtree(sub1476, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

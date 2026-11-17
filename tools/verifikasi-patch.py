@@ -8167,12 +8167,16 @@ def _menguras_khusus(perintah, toks, awal):
             # memuat s/h; '--' dan token asing =
             # galat docopt (tak menguras).
             ada_qcb = False
+            jumlah_qcb = 0
             for i_qcb, t_qcb in enumerate(mentah[1:]):
                 if t_qcb == "--":
                     return (ada_qcb
                             and i_qcb == len(mentah) - 2)
                 if t_qcb == "--save":
                     ada_qcb = True
+                    jumlah_qcb += 1
+                    if jumlah_qcb > 1:
+                        return False
                     continue
                 if t_qcb.startswith("--"):
                     return False
@@ -8181,6 +8185,9 @@ def _menguras_khusus(perintah, toks, awal):
                     for h_qcb in t_qcb[1:]:
                         if h_qcb == "s":
                             ada_qcb = True
+                            jumlah_qcb += 1
+                            if jumlah_qcb > 1:
+                                return False
                         else:
                             return False
                     continue
