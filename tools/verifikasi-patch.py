@@ -2535,7 +2535,8 @@ def _opsi_hadir(mentah, mulai, bernilai, dicari):
         i_oh += 1
     return ditemukan
 
-def _ada_duplikat(mentah, mulai, bernilai, pasangan):
+def _ada_duplikat(mentah, mulai, bernilai, pasangan,
+                  boleh_ulang=frozenset()):
     # Audit 2326: docopt menolak opsi yang
     # muncul lebih dari sekali (maks 1 per
     # opsi; alias pendek/panjang disatukan
@@ -2548,13 +2549,15 @@ def _ada_duplikat(mentah, mulai, bernilai, pasangan):
             break
         if t_du in bernilai:
             k_du = pasangan.get(t_du, t_du)
-            hitung_du[k_du] = hitung_du.get(k_du, 0) + 1
+            if k_du not in boleh_ulang:
+                hitung_du[k_du] = hitung_du.get(k_du, 0) + 1
             i_du += 2
             continue
         if t_du.startswith("--"):
             nama_du = t_du.split("=", 1)[0]
             k_du = pasangan.get(nama_du, nama_du)
-            hitung_du[k_du] = hitung_du.get(k_du, 0) + 1
+            if k_du not in boleh_ulang:
+                hitung_du[k_du] = hitung_du.get(k_du, 0) + 1
             i_du += 1
             continue
         if t_du.startswith("-") and len(t_du) > 1:
@@ -2563,7 +2566,8 @@ def _ada_duplikat(mentah, mulai, bernilai, pasangan):
             while j_du < len(t_du):
                 eja_du = "-" + t_du[j_du]
                 k_du = pasangan.get(eja_du, eja_du)
-                hitung_du[k_du] = hitung_du.get(k_du, 0) + 1
+                if k_du not in boleh_ulang:
+                    hitung_du[k_du] = hitung_du.get(k_du, 0) + 1
                 if eja_du in bernilai:
                     if j_du == len(t_du) - 1:
                         lompat_du = True
@@ -7259,6 +7263,8 @@ def _menguras_khusus(perintah, toks, awal):
         # masukan2); '-' pada masukan = stdin
         # (join.rs).
         if mentah and mentah[0] == "join":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--keys-output", "--output", "-d", "-o"}, {"-d": "--delimiter", "-i": "--ignore-case", "-n": "--no-headers", "-o": "--output", "-z": "--ignore-leading-zeros"}):
+                return False
             ops_qj = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-o", "--output", "-d", "--delimiter",
@@ -7271,6 +7277,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2183: sub 'dedup' qsv - masukan
         # [<input>] opsional (dedup.rs).
         if mentah and mentah[0] == "dedup":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--dupes-output", "--jobs", "--output", "--select", "-D", "-d", "-j", "-o", "-s"}, {"-D": "--dupes-output", "-H": "--human-readable", "-N": "--numeric", "-d": "--delimiter", "-i": "--ignore-case", "-j": "--jobs", "-n": "--no-headers", "-o": "--output", "-q": "--quiet", "-s": "--select"}):
+                return False
             ops_qdd = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-D", "--dupes-output",
@@ -7284,6 +7292,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2203: sub 'transpose' - masukan
         # [<input>] opsional (transpose.rs).
         if mentah and mentah[0] == "transpose":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--long", "--output", "--select", "-d", "-o", "-s"}, {"-d": "--delimiter", "-m": "--multipass", "-o": "--output", "-s": "--select"}):
+                return False
             ops_qtr = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-o", "--output", "-d", "--delimiter",
@@ -7296,6 +7306,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2204: sub 'reverse' - masukan
         # [<input>] opsional (reverse.rs).
         if mentah and mentah[0] == "reverse":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--output", "-d", "-o"}, {"-d": "--delimiter", "-n": "--no-headers", "-o": "--output"}):
+                return False
             ops_qrv = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-o", "--output", "-d", "--delimiter"})
@@ -7308,6 +7320,8 @@ def _menguras_khusus(perintah, toks, awal):
         # pertama nama kolom baru, masukan
         # kedua (rename.rs).
         if mentah and mentah[0] == "rename":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--output", "-d", "-o"}, {"-d": "--delimiter", "-n": "--no-headers", "-o": "--output"}):
+                return False
             ops_qrn = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-o", "--output", "-d", "--delimiter"})
@@ -7320,6 +7334,8 @@ def _menguras_khusus(perintah, toks, awal):
         # pola + pengganti, masukan ketiga
         # (replace.rs).
         if mentah and mentah[0] == "replace":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--dfa-size-limit", "--jobs", "--output", "--select", "--size-limit", "-d", "-j", "-o", "-s"}, {"-d": "--delimiter", "-i": "--ignore-case", "-j": "--jobs", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar", "-q": "--quiet", "-s": "--select", "-u": "--unicode"}):
+                return False
             ops_qrp = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "--size-limit",
@@ -7338,6 +7354,8 @@ def _menguras_khusus(perintah, toks, awal):
                 and mentah[1] in ("postgres", "sqlite",
                                   "xlsx", "parquet",
                                   "datapackage", "ods")):
+            if _ada_duplikat(mentah, 1, {"--compress-level", "--compression", "--delimiter", "--infer-len", "--jobs", "--schema", "--separator", "--stats-csv", "--table", "-c", "-d", "-j", "-p", "-s", "-t"}, {"-A": "--all-strings", "-a": "--stats", "-c": "--stats-csv", "-d": "--drop", "-e": "--evolve", "-i": "--pipe", "-j": "--jobs", "-k": "--print-package", "-p": "--separator", "-q": "--quiet", "-s": "--schema", "-t": "--table", "-u": "--dump"}):
+                return False
             ops_qto = _operand_sesudah_opsi(
                 toks, awal + 2,
                 {"-c", "--stats-csv", "-s", "--schema",
@@ -7353,6 +7371,8 @@ def _menguras_khusus(perintah, toks, awal):
         # masukan lalu SQL terakhir; '-' di
         # masukan berarti stdin (sqlp.rs).
         if mentah and mentah[0] == "sqlp":
+            if _ada_duplikat(mentah, 1, {"--compress-level", "--compression", "--date-format", "--datetime-format", "--delimiter", "--float-precision", "--format", "--infer-len", "--output", "--rnull-values", "--time-format", "--wnull-value", "-d", "-o"}, {"-d": "--delimiter", "-o": "--output", "-q": "--quiet"}):
+                return False
             ops_qsq = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--format", "--infer-len",
@@ -7369,6 +7389,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2213: sub 'behead' - masukan
         # [<input>] opsional (behead.rs).
         if mentah and mentah[0] == "behead":
+            if _ada_duplikat(mentah, 1, {"--output", "-o"}, {"-f": "--flexible", "-o": "--output"}):
+                return False
             ops_qbh = _operand_sesudah_opsi(
                 toks, awal + 1, {"-o", "--output"})
             if "\x00gantung" in ops_qbh:
@@ -7383,6 +7405,8 @@ def _menguras_khusus(perintah, toks, awal):
         if (len(mentah) >= 2 and mentah[0] == "snappy"
                 and mentah[1] in ("compress",
                                   "decompress", "check")):
+            if _ada_duplikat(mentah, 1, {"--jobs", "--output", "--timeout", "--user-agent", "-j", "-o"}, {"-j": "--jobs", "-o": "--output", "-p": "--progressbar", "-q": "--quiet"}):
+                return False
             ops_qsn = _operand_sesudah_opsi(
                 toks, awal + 2,
                 {"--user-agent", "--timeout", "-j",
@@ -7394,6 +7418,8 @@ def _menguras_khusus(perintah, toks, awal):
         # pertama nama kolom URL, masukan kedua
         # (fetch.rs).
         if mentah and mentah[0] == "fetch":
+            if _ada_duplikat(mentah, 1, {"--default-encoding", "--delimiter", "--disk-cache-dir", "--jaq", "--jaqfile", "--max-errors", "--max-retries", "--mem-cache-size", "--new-column", "--output", "--rate-limit", "--report", "--timeout", "--url-template", "--user-agent", "-H", "-c", "-d", "-o"}, {"-H": "--http-header", "-c": "--new-column", "-d": "--delimiter", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar"}, {"--http-header"}):
+                return False
             ops_qfe = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--url-template",
@@ -7437,6 +7463,8 @@ def _menguras_khusus(perintah, toks, awal):
         # sadar sub (luau.rs).
         if (len(mentah) >= 2 and mentah[0] == "luau"
                 and mentah[1] in ("map", "filter")):
+            if _ada_duplikat(mentah, 1, {"--begin", "--cache-dir", "--ckan-api", "--ckan-token", "--delimiter", "--end", "--max-errors", "--output", "--timeout", "-B", "-E", "-d", "-o"}, {"-B": "--begin", "-E": "--end", "-d": "--delimiter", "-g": "--no-globals", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar", "-r": "--remap"}):
+                return False
             ops_qlu = _operand_sesudah_opsi(
                 toks, awal + 2,
                 {"-B", "--begin", "-E", "--end",
@@ -7462,6 +7490,8 @@ def _menguras_khusus(perintah, toks, awal):
         # sadar sub (python.rs).
         if (len(mentah) >= 2 and mentah[0] == "py"
                 and mentah[1] in ("map", "filter")):
+            if _ada_duplikat(mentah, 1, {"--batch", "--delimiter", "--helper", "--output", "-b", "-d", "-f", "-o"}, {"-b": "--batch", "-d": "--delimiter", "-f": "--helper", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar"}):
+                return False
             ops_qpy = _operand_sesudah_opsi(
                 toks, awal + 2,
                 {"-f", "--helper", "-b", "--batch",
@@ -7484,6 +7514,8 @@ def _menguras_khusus(perintah, toks, awal):
         # kolom + perintah, masukan ketiga
         # (foreach.rs).
         if mentah and mentah[0] == "foreach":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--dry-run", "--new-column", "-c", "-d"}, {"-c": "--new-column", "-d": "--delimiter", "-n": "--no-headers", "-p": "--progressbar", "-u": "--unify"}):
+                return False
             ops_qfo = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-c", "--new-column", "--dry-run", "-d",
@@ -7496,6 +7528,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2227: sub 'extsort' - masukan
         # [<input>] [<output>] (extsort.rs).
         if mentah and mentah[0] == "extsort":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--jobs", "--memory-limit", "--select", "--tmp-dir", "-d", "-j", "-s"}, {"-R": "--reverse", "-d": "--delimiter", "-j": "--jobs", "-n": "--no-headers", "-s": "--select"}):
+                return False
             ops_qex = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--memory-limit", "--tmp-dir", "-j",
@@ -7563,6 +7597,8 @@ def _menguras_khusus(perintah, toks, awal):
         # tak membaca stdin.
         if (len(mentah) >= 2
                 and mentah[0] == "geocode"):
+            if _ada_duplikat(mentah, 1, {"--admin1", "--api-key", "--batch", "--benchmark", "--cache-dir", "--cache-ttl", "--census-mode", "--cities-url", "--country", "--delimiter", "--endpoint", "--formatstr", "--invalid-result", "--jobs", "--k_weight", "--language", "--languages", "--min-score", "--new-column", "--older-than", "--output", "--params", "--rate-limit", "--rename", "--timeout", "--vintage", "-b", "-c", "-d", "-f", "-j", "-k", "-l", "-o", "-r"}, {"-b": "--batch", "-c": "--new-column", "-d": "--delimiter", "-f": "--formatstr", "-j": "--jobs", "-k": "--k_weight", "-l": "--language", "-o": "--output", "-p": "--progressbar", "-r": "--rename"}):
+                return False
             if mentah[1] in ("suggest", "reverse",
                              "countryinfo", "iplookup",
                              "opencage", "geoclient",
@@ -7595,6 +7631,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Extended Input: kosong/'-' = stdin
         # (describegpt.rs).
         if mentah and mentah[0] == "describegpt":
+            if _ada_duplikat(mentah, 1, {"--addl-cols-list", "--addl-props", "--api-key", "--base-url", "--cache-dir", "--ckan-api", "--ckan-token", "--context-file", "--disk-cache-dir", "--ds-license", "--ds-source", "--ds-updated", "--enum-threshold", "--export-prompt", "--format", "--freq-options", "--language", "--markdown-template", "--max-tokens", "--model", "--num-examples", "--num-tags", "--okf-type", "--output", "--prompt", "--prompt-file", "--sample-size", "--score-max-retries", "--score-threshold", "--session", "--session-len", "--sql-results", "--stats-options", "--tag-vocab", "--timeout", "--tour-audience", "--truncate-str", "--user-agent", "-k", "-m", "-o", "-p", "-t", "-u"}, {"-A": "--all", "-k": "--api-key", "-m": "--model", "-o": "--output", "-p": "--prompt", "-q": "--quiet", "-t": "--max-tokens", "-u": "--base-url"}):
+                return False
             ops_qdg = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-p", "--prompt", "-u", "--base-url",
@@ -7627,6 +7665,8 @@ def _menguras_khusus(perintah, toks, awal):
         # (<regexset-file>) [<input>]
         # (searchset.rs).
         if mentah and mentah[0] == "searchset":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--dfa-size-limit", "--flag", "--jobs", "--output", "--select", "--size-limit", "--unmatched-output", "-d", "-f", "-o", "-s"}, {"-Q": "--quick", "-c": "--count", "-d": "--delimiter", "-f": "--flag", "-i": "--ignore-case", "-j": "--json", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar", "-q": "--quiet", "-s": "--select", "-u": "--unicode", "-v": "--invert-match"}):
+                return False
             ops_qss = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-f", "--flag",
@@ -7642,6 +7682,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; tanpa masukan
         # membaca stdin (validate.rs).
         if mentah and mentah[0] == "validate":
+            if _ada_duplikat(mentah, 1, {"--backtrack-limit", "--batch", "--cache-dir", "--ckan-api", "--ckan-token", "--delimiter", "--dfa-size-limit", "--email-min-subdomains", "--invalid", "--jobs", "--sarif", "--sarif-max-results", "--size-limit", "--timeout", "--valid", "--valid-output", "-b", "-d", "-j"}, {"-b": "--batch", "-d": "--delimiter", "-j": "--jobs", "-n": "--no-headers", "-p": "--progressbar", "-q": "--quiet"}):
+                return False
             ops_qv = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--valid", "--invalid", "--valid-output",
@@ -7659,6 +7701,8 @@ def _menguras_khusus(perintah, toks, awal):
         # masukan seluruh stdin disalin lebih
         # dulu (schema.rs).
         if mentah and mentah[0] == "schema":
+            if _ada_duplikat(mentah, 1, {"--dates-whitelist", "--delimiter", "--enum-threshold", "--jobs", "--output", "--pattern-columns", "-d", "-j", "-o"}, {"-d": "--delimiter", "-i": "--ignore-case", "-j": "--jobs", "-n": "--no-headers", "-o": "--output"}):
+                return False
             ops_qsc = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"--enum-threshold", "--pattern-columns",
@@ -7670,6 +7714,8 @@ def _menguras_khusus(perintah, toks, awal):
         if (len(mentah) >= 2 and mentah[0] == "cat"
                 and mentah[1] in ("rows", "rowskey",
                                   "columns")):
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--group", "--group-name", "--output", "-N", "-d", "-g", "-o"}, {"-N": "--group-name", "-d": "--delimiter", "-g": "--group", "-n": "--no-headers", "-o": "--output", "-p": "--pad"}):
+                return False
             ops_qs = _operand_sesudah_opsi(
                 toks, awal + 2,
                 {"-o", "--output", "-g", "--group",
@@ -7684,6 +7730,8 @@ def _menguras_khusus(perintah, toks, awal):
         # membaca stdin; --keyed membaca kunci
         # dari stdin (blake3.rs:6,96).
         if mentah and mentah[0] == "blake3":
+            if _ada_duplikat(mentah, 1, {"--derive-key", "--jobs", "--length", "--output", "-j", "-l", "-o"}, {"-c": "--check", "-j": "--jobs", "-l": "--length", "-o": "--output", "-q": "--quiet"}):
+                return False
             ops_qb3 = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-j", "--jobs", "-l", "--length",
@@ -7696,6 +7744,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; Config qsv memakai stdin bila
         # masukan kosong atau '-' (color.rs).
         if mentah and mentah[0] == "color":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--output", "--title", "-d", "-o", "-t"}, {"-C": "--color", "-d": "--delimiter", "-n": "--row-numbers", "-o": "--output", "-t": "--title"}):
+                return False
             ops_qco = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter", "-o", "--output", "-t", "--title"})
             if "\x00gantung" in ops_qco:
@@ -7707,6 +7757,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>]; Config qsv (datefmt.rs mandiri,
         # beda dari apply datefmt).
         if mentah and mentah[0] == "datefmt":
+            if _ada_duplikat(mentah, 1, {"--batch", "--default-tz", "--delimiter", "--formatstr", "--input-tz", "--jobs", "--new-column", "--output", "--output-tz", "--rename", "--ts-resolution", "-R", "-b", "-c", "-d", "-j", "-o", "-r"}, {"-R": "--ts-resolution", "-b": "--batch", "-c": "--new-column", "-d": "--delimiter", "-j": "--jobs", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar", "-r": "--rename"}):
+                return False
             ops_qdf = _operand_sesudah_opsi(
                 toks, awal + 1, {"-f", "--formatstr", "-c", "--new-column", "-r", "--rename", "--input-tz", "--output-tz", "--default-tz", "-R", "--ts-resolution", "-b", "--batch", "-j", "--jobs", "-d", "--delimiter", "-o", "--output"})
             if "\x00gantung" in ops_qdf:
@@ -7718,6 +7770,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; Config qsv memakai stdin bila
         # masukan kosong atau '-' (denull.rs).
         if mentah and mentah[0] == "denull":
+            if _ada_duplikat(mentah, 1, {"--add-vocab", "--delimiter", "--max-distinct", "--output", "--select", "--vocab", "-d", "-o", "-s"}, {"-d": "--delimiter", "-n": "--no-headers", "-o": "--output", "-s": "--select"}):
+                return False
             ops_qdn = _operand_sesudah_opsi(
                 toks, awal + 1, {"-s", "--select", "-d", "--delimiter", "-o", "--output", "--add-vocab", "--vocab", "--max-distinct"})
             if "\x00gantung" in ops_qdn:
@@ -7729,6 +7783,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; Config qsv memakai stdin bila
         # masukan kosong atau '-' (enumerate.rs).
         if mentah and mentah[0] == "enum":
+            if _ada_duplikat(mentah, 1, {"--constant", "--copy", "--delimiter", "--hash", "--increment", "--new-column", "--output", "--start", "-c", "-d", "-o"}, {"-c": "--new-column", "-d": "--delimiter", "-n": "--no-headers", "-o": "--output"}):
+                return False
             ops_qen = _operand_sesudah_opsi(
                 toks, awal + 1, {"-c", "--new-column", "--copy", "--constant", "--start", "--increment", "--hash", "-d", "--delimiter", "-o", "--output"})
             if "\x00gantung" in ops_qen:
@@ -7740,6 +7796,8 @@ def _menguras_khusus(perintah, toks, awal):
         # <separator> [<input>]; Config qsv
         # (explode.rs).
         if mentah and mentah[0] == "explode":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--output", "--rename", "-d", "-o", "-r"}, {"-d": "--delimiter", "-n": "--no-headers", "-o": "--output", "-r": "--rename"}):
+                return False
             ops_qex = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-r", "--rename", "-d", "--delimiter",
@@ -7753,6 +7811,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<output>]; Config qsv - masukan pertama
         # kosong/'-' berarti stdin (extdedup.rs).
         if mentah and mentah[0] == "extdedup":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--dupes-output", "--memory-limit", "--no-output", "--select", "--temp-dir", "-D", "-d", "-s"}, {"-D": "--dupes-output", "-H": "--human-readable", "-d": "--delimiter", "-n": "--no-headers", "-q": "--quiet", "-s": "--select"}):
+                return False
             ops_qed = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--select", "-D", "--dupes-output",
@@ -7767,6 +7827,8 @@ def _menguras_khusus(perintah, toks, awal):
         # --payload-tpl <file>) [<input>]; Config
         # qsv (fetchpost.rs).
         if mentah and mentah[0] == "fetchpost":
+            if _ada_duplikat(mentah, 1, {"--content-type", "--default-encoding", "--delimiter", "--disk-cache-dir", "--globals-json", "--jaq", "--jaqfile", "--max-errors", "--max-retries", "--mem-cache-size", "--new-column", "--output", "--payload-tpl", "--rate-limit", "--report", "--timeout", "--user-agent", "-H", "-c", "-d", "-j", "-o", "-t"}, {"-H": "--http-header", "-c": "--new-column", "-d": "--delimiter", "-j": "--globals-json", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar", "-t": "--payload-tpl"}, {"--http-header"}):
+                return False
             ops_qfp = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-H", "--http-header", "-c",
@@ -7827,6 +7889,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2253: sub 'fill' - <selection>
         # [<input>]; Config qsv (fill.rs).
         if mentah and mentah[0] == "fill":
+            if _ada_duplikat(mentah, 1, {"--default", "--delimiter", "--groupby", "--output", "-d", "-g", "-o", "-v"}, {"-b": "--backfill", "-d": "--delimiter", "-f": "--first", "-g": "--groupby", "-n": "--no-headers", "-o": "--output", "-v": "--default"}):
+                return False
             ops_qfl = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-g", "--groupby", "-v", "--default",
@@ -7840,6 +7904,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; Config::new di fixedwidth.rs:134 -
         # stdin bila kosong atau '-'.
         if mentah and mentah[0] == "fixedwidth":
+            if _ada_duplikat(mentah, 1, {}, {}):
+                return False
             ops_qfw = _operand_sesudah_opsi(
                 toks, awal + 1, {"--positions", "--widths", "-o", "--output"})
             if "\x00gantung" in ops_qfw:
@@ -7851,6 +7917,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; Config qsv memakai stdin bila
         # masukan kosong atau '-' (flatten.rs).
         if mentah and mentah[0] == "flatten":
+            if _ada_duplikat(mentah, 1, {"--condense", "--delimiter", "--field-separator", "--separator", "-c", "-d", "-f", "-s"}, {"-c": "--condense", "-d": "--delimiter", "-f": "--field-separator", "-n": "--no-headers", "-s": "--separator"}):
+                return False
             ops_qft = _operand_sesudah_opsi(
                 toks, awal + 1, {"-s", "--separator", "-f", "--field-separator", "-c", "--condense", "-d", "--delimiter"})
             if "\x00gantung" in ops_qft:
@@ -7862,6 +7930,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; Config qsv memakai stdin bila
         # masukan kosong atau '-' (fmt.rs).
         if mentah and mentah[0] == "fmt":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--escape", "--out-delimiter", "--output", "--quote", "-d", "-o", "-t"}, {"-d": "--delimiter", "-o": "--output", "-t": "--out-delimiter"}):
+                return False
             ops_qfm = _operand_sesudah_opsi(
                 toks, awal + 1, {"-t", "--out-delimiter", "-d", "--delimiter", "--escape", "--quote", "-o", "--output"})
             if "\x00gantung" in ops_qfm:
@@ -7873,6 +7943,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] (-k/-v wajib bernilai); Config
         # qsv (implode.rs).
         if mentah and mentah[0] == "implode":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--keys", "--output", "--rename", "--value", "-d", "-k", "-o", "-r", "-v"}, {"-d": "--delimiter", "-k": "--keys", "-n": "--no-headers", "-o": "--output", "-r": "--rename", "-v": "--value"}):
+                return False
             ops_qim = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-k", "--keys", "-v", "--value",
@@ -7887,6 +7959,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; json.rs:108,173 - stdin bila tanpa
         # path atau '-'.
         if mentah and mentah[0] == "json":
+            if _ada_duplikat(mentah, 1, {"--jaq", "--output", "--select", "-o", "-s"}, {"-o": "--output", "-s": "--select"}):
+                return False
             ops_qjs = _operand_sesudah_opsi(
                 toks, awal + 1, {"-s", "--select", "--jaq", "-o", "--output"})
             if "\x00gantung" in ops_qjs:
@@ -7898,6 +7972,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; jsonl.rs:165-168 - None/'-' =
         # io::stdin().lock().
         if mentah and mentah[0] == "jsonl":
+            if _ada_duplikat(mentah, 1, {"--batch", "--delimiter", "--jobs", "--output", "-b", "-d", "-j", "-o"}, {"-b": "--batch", "-d": "--delimiter", "-j": "--jobs", "-o": "--output"}):
+                return False
             ops_qjl = _operand_sesudah_opsi(
                 toks, awal + 1, {"-b", "--batch", "-j", "--jobs", "-d", "--delimiter", "-o", "--output"})
             if "\x00gantung" in ops_qjl:
@@ -7909,6 +7985,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; lens.rs:148 - tanpa berkas atau '-'
         # ditangani sebagai stdin.
         if mentah and mentah[0] == "lens":
+            if _ada_duplikat(mentah, 1, {"--columns", "--delimiter", "--echo-column", "--filter", "--find", "--freeze-columns", "--prompt", "--wrap-mode", "-P", "-W", "-d", "-f"}, {"-A": "--auto-reload", "-P": "--prompt", "-S": "--streaming-stdin", "-W": "--wrap-mode", "-d": "--delimiter", "-f": "--freeze-columns", "-i": "--ignore-case", "-m": "--monochrome", "-t": "--tab-separated"}):
+                return False
             ops_qln = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter", "-f", "--filter", "--find", "--columns", "--echo-column", "--freeze-columns", "-P", "--prompt", "-W", "--wrap-mode"})
             if "\x00gantung" in ops_qln:
@@ -7920,6 +7998,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; tojsonl.rs:106-107 - tanpa masukan
         # dibaca sebagai '-' (stdin).
         if mentah and mentah[0] == "tojsonl":
+            if _ada_duplikat(mentah, 1, {"--batch", "--delimiter", "--jobs", "--output", "-b", "-d", "-j", "-o"}, {"-b": "--batch", "-d": "--delimiter", "-j": "--jobs", "-o": "--output", "-q": "--quiet"}):
+                return False
             ops_qtj = _operand_sesudah_opsi(
                 toks, awal + 1, {"-b", "--batch", "-j", "--jobs", "-d", "--delimiter", "-o", "--output"})
             if "\x00gantung" in ops_qtj:
@@ -7931,6 +8011,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; moarstats.rs - is_stdin +
         # pass_stdin_spool; kosong/'-' stdin.
         if mentah and mentah[0] == "moarstats":
+            if _ada_duplikat(mentah, 1, {"--bivariate-batch", "--bivariate-stats", "--cardinality-threshold", "--epsilon", "--jobs", "--join-inputs", "--join-keys", "--join-type", "--output", "--pct-thresholds", "--round", "--stats-options", "--xsd-gdate-scan", "-C", "-J", "-K", "-S", "-T", "-e", "-j", "-o"}, {"-B": "--bivariate", "-C": "--cardinality-threshold", "-J": "--join-inputs", "-K": "--join-keys", "-S": "--bivariate-stats", "-T": "--join-type", "-e": "--epsilon", "-j": "--jobs", "-o": "--output", "-p": "--progressbar"}):
+                return False
             ops_qms = _operand_sesudah_opsi(
                 toks, awal + 1, {"-j", "--jobs", "-o", "--output", "-e", "--epsilon", "-C", "--cardinality-threshold", "-T", "--pct-thresholds", "-S", "--stats-options", "-J", "--join-inputs", "-K", "--join-keys", "--join-type", "--bivariate-stats", "--bivariate-batch", "--round", "--xsd-gdate-scan"})
             if "\x00gantung" in ops_qms:
@@ -7942,6 +8024,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; Config qsv memakai stdin bila
         # masukan kosong atau '-' (pragmastat.rs).
         if mentah and mentah[0] == "pragmastat":
+            if _ada_duplikat(mentah, 1, {"--compare1", "--compare2", "--delimiter", "--jobs", "--misrate", "--output", "--round", "--seed", "--select", "--stats-options", "--subsample", "-d", "-j", "-m", "-o", "-s"}, {"-d": "--delimiter", "-j": "--jobs", "-m": "--misrate", "-n": "--no-headers", "-o": "--output", "-s": "--select", "-t": "--twosample"}):
+                return False
             ops_qpm = _operand_sesudah_opsi(
                 toks, awal + 1, {"-s", "--select", "-d", "--delimiter", "-j", "--jobs", "-o", "--output", "-m", "--misrate", "--compare1", "--compare2", "--round", "--seed", "--stats-options", "--subsample"})
             if "\x00gantung" in ops_qpm:
@@ -7953,6 +8037,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; profile.rs:101,360 - stdin
         # dimaterialkan ke berkas temp.
         if mentah and mentah[0] == "profile":
+            if _ada_duplikat(mentah, 1, {"--dcat-discovery-timeout", "--delimiter", "--describegpt", "--initial-context", "--jobs", "--locate", "--output", "--profile", "--spec", "--tag-vocab", "-d", "-j", "-o"}, {"-d": "--delimiter", "-j": "--jobs", "-n": "--no-headers", "-o": "--output"}):
+                return False
             ops_qpf = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter", "-j", "--jobs", "-o", "--output", "--describegpt", "--initial-context", "--locate", "--profile", "--spec", "--tag-vocab", "--dcat-discovery-timeout"})
             if "\x00gantung" in ops_qpf:
@@ -7963,6 +8049,8 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2265: sub 'pseudo' - <kolom>
         # [<input>]; Config qsv (pseudo.rs).
         if mentah and mentah[0] == "pseudo":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--formatstr", "--increment", "--output", "--start", "-d", "-o"}, {"-d": "--delimiter", "-n": "--no-headers", "-o": "--output"}):
+                return False
             ops_qps = _operand_sesudah_opsi(
                 toks, awal + 1, {"-f", "--formatstr", "--start", "--increment", "-d", "--delimiter", "-o", "--output"})
             if "\x00gantung" in ops_qps:
@@ -7974,6 +8062,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; Config qsv memakai stdin bila
         # masukan kosong atau '-' (safenames.rs).
         if mentah and mentah[0] == "safenames":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--mode", "--output", "--prefix", "--reserved", "-d", "-o"}, {"-d": "--delimiter", "-o": "--output"}):
+                return False
             ops_qsf = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter", "-o", "--output", "--mode", "--prefix", "--reserved"})
             if "\x00gantung" in ops_qsf:
@@ -7985,6 +8075,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; sniff.rs:53,796 - stdin dibaca ke
         # berkas temp.
         if mentah and mentah[0] == "sniff":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--quote", "--sample", "--save-urlsample", "--timeout", "--user-agent", "-d"}, {"-Q": "--quick", "-d": "--delimiter", "-p": "--progressbar"}):
+                return False
             ops_qsn2 = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter", "--quote", "--sample", "--save-urlsample", "--timeout", "--user-agent"})
             if "\x00gantung" in ops_qsn2:
@@ -7996,6 +8088,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<outdir>]; Config qsv - masukan pertama
         # kosong/'-' berarti stdin (template.rs).
         if mentah and mentah[0] == "template":
+            if _ada_duplikat(mentah, 1, {"--batch", "--cache-dir", "--ckan-api", "--ckan-token", "--customfilter-error", "--delimiter", "--globals-json", "--jobs", "--outfilename", "--output", "--outsubdir-size", "--template", "--template-file", "--timeout", "-J", "-b", "-j", "-o", "-t"}, {"-J": "--globals-json", "-b": "--batch", "-j": "--jobs", "-n": "--no-headers", "-o": "--output", "-p": "--progressbar", "-t": "--template-file"}):
+                return False
             ops_qtp = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-t", "--template", "--template-file",
@@ -8013,6 +8107,8 @@ def _menguras_khusus(perintah, toks, awal):
         # semua tipe chart kecuali smart menerima
         # '-' sebagai stdin (viz.rs:125,257).
         if mentah and mentah[0] == "viz":
+            if _ada_duplikat(mentah, 1, {"--agg", "--annotation", "--bins", "--box-points", "--close", "--cluster", "--color", "--color-scale", "--cols", "--dataset-pid", "--delimiter", "--denominator", "--denominator-key", "--denominator-unit", "--dictionary", "--dictionary-context", "--feature-id-key", "--feature-name-key", "--geocode-admin1", "--geocode-country", "--geojson", "--grid-cols", "--heatmap-density", "--height", "--hierarchy-style", "--high", "--language", "--lat", "--limit", "--location-mode", "--locations", "--log-scale", "--lon", "--low", "--max-charts", "--ohlc-open", "--output", "--preview-threshold", "--projection", "--region-state", "--scale", "--series", "--size", "--slider", "--slider-speed", "--snap-max-dist", "--source", "--style", "--target", "--text", "--theme", "--title", "--tour-audience", "--tour-steps", "--value", "--violin", "--width", "--x", "--x-title", "--y", "--y-range", "--y-title", "--z", "-d", "-o", "-x", "-y", "-z"}, {"-d": "--delimiter", "-n": "--no-headers", "-o": "--output", "-x": "--x", "-y": "--y", "-z": "--z"}):
+                return False
             if len(mentah) < 2 or mentah[1] == "smart":
                 return False
             ops_qvz = _operand_sesudah_opsi(
@@ -8053,6 +8149,8 @@ def _menguras_khusus(perintah, toks, awal):
         # [<input>] opsional; writestat.rs:411-418 - stdin
         # disepul ke stdin.csv.
         if mentah and mentah[0] == "writestat":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--dictionary", "--format", "--output", "--table-name", "-d", "-o"}, {"-d": "--delimiter", "-o": "--output"}):
+                return False
             ops_qws = _operand_sesudah_opsi(
                 toks, awal + 1, {"-d", "--delimiter", "-o", "--output", "--dictionary", "--format", "--table-name"})
             if "\x00gantung" in ops_qws:
@@ -8093,6 +8191,8 @@ def _menguras_khusus(perintah, toks, awal):
         # menguras kecuali --in-place yang
         # menolak stdin (edit.rs:87-92).
         if mentah and mentah[0] == "edit":
+            if _ada_duplikat(mentah, 1, {"--output", "-o"}, {"-i": "--in-place", "-n": "--no-headers", "-o": "--output"}):
+                return False
             ops_qet = _operand_sesudah_opsi(
                 toks, awal + 1, {"-o", "--output"})
             if "\x00gantung" in ops_qet:
@@ -8106,6 +8206,8 @@ def _menguras_khusus(perintah, toks, awal):
         # (excel.rs:78,459-474); tanpa operand
         # docopt menolak (arg_input wajib).
         if mentah and mentah[0] == "excel":
+            if _ada_duplikat(mentah, 1, {"--cell", "--date-format", "--delimiter", "--error-format", "--header-row", "--jobs", "--metadata", "--output", "--range", "--sheet", "--table", "-d", "-j", "-o", "-s"}, {"-d": "--delimiter", "-j": "--jobs", "-o": "--output", "-q": "--quiet", "-s": "--sheet"}):
+                return False
             ops_qxc = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-s", "--sheet", "--range", "--cell",
@@ -8121,6 +8223,8 @@ def _menguras_khusus(perintah, toks, awal):
         # input '-' berarti stdin, keduanya '-'
         # galat (exclude.rs:16,116).
         if mentah and mentah[0] == "exclude":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--memcheck", "--output", "-d", "-o"}, {"-d": "--delimiter", "-i": "--ignore-case", "-n": "--no-headers", "-o": "--output", "-v": "--invert"}):
+                return False
             ops_qxu = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-d", "--delimiter", "-o", "--output"})
@@ -8133,6 +8237,8 @@ def _menguras_khusus(perintah, toks, awal):
         # (<input-format>) (<output-format>); '-'
         # berarti stdin (geoconvert.rs:8,240).
         if mentah and mentah[0] == "geoconvert":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--geometry", "--latitude", "--longitude", "--max-length", "--output", "-d", "-g", "-l", "-o", "-x", "-y"}, {"-d": "--delimiter", "-g": "--geometry", "-l": "--max-length", "-o": "--output", "-x": "--longitude", "-y": "--latitude"}):
+                return False
             ops_qgc = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-d", "--delimiter", "-g", "--geometry",
@@ -8146,6 +8252,8 @@ def _menguras_khusus(perintah, toks, awal):
         # <sql>; input '-' disepul dari stdin
         # (scoresql.rs:248-257).
         if mentah and mentah[0] == "scoresql":
+            if _ada_duplikat(mentah, 1, {"--delimiter", "--infer-len", "--output", "-d", "-o"}, {"-d": "--delimiter", "-o": "--output", "-q": "--quiet"}):
+                return False
             ops_qsq = _operand_sesudah_opsi(
                 toks, awal + 1,
                 {"-d", "--delimiter", "--infer-len",

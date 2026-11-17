@@ -31320,6 +31320,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("in2csv -f di bundel dengan format Excel: penguras - gerbang gagal (Audit 2377)", rc != 0)
         shutil.rmtree(sub1474, ignore_errors=True)
+        sub1475 = klon(tmp, "sub1475")
+        berkas_aksi1475 = os.path.join(
+            sub1475, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1475, encoding="utf-8") as f:
+            isi_aksi1475 = f.read()
+        baris_aksi1475 = [b for b in isi_aksi1475.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1475 = isi_aksi1475.replace(
+                baris_aksi1475,
+                baris_aksi1475.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv dedup -s a -s b -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1475 != isi_aksi1475, \
+            "suntikan aksi1475 tidak menembak"
+        with open(berkas_aksi1475, "w", encoding="utf-8") as f:
+            f.write(isi_baru1475)
+        rc, out = jalan(sub1475,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv dedup -s duplikat: docopt menolak - gerbang lolos (Audit 2378)", rc == 0)
+        shutil.rmtree(sub1475, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
