@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csvclean: pengaktif --nama=x ditolak + opsi bernilai khas (Audit 155)
+
+- Bentuk --nama=x untuk ketujuh store_true pengaktif kini galat (Audit 2399); himpunan bernilai cabang dilengkapi --label/--separator/--fillvalue dari csvclean.py (Audit 2400, koreksi premis Audit 2242).
+
 ## [Belum rilis] — tsv-summarize: pengecualian -r menuntut numerik penuh (Audit 155)
 
 - Helper _numerik_penuh meniru isNumeric getopt_inorder.d: -1x dan -12abc bukan nilai sah sehingga -r menggantung.

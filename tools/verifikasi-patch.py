@@ -8634,17 +8634,35 @@ def _menguras_khusus(perintah, toks, awal):
         # opsi khasnya semua boolean.
         if _token_terlarang(mentah, {"--null-value", "--date-format", "--datetime-format", "--blanks", "--no-leading-zeroes", "-L", "--locale", "-y", "--snifflimit"}, _CSVKIT):
             return False
-        if _jebakan_argparse(mentah, _CSVKIT):
+        # Audit 2400: --label/--separator/
+        # --fillvalue csvclean BERNILAI
+        # (csvclean.py) - bukan boolean.
+        bernilai_ccl = _CSVKIT | {"--label", "--separator", "--fillvalue"}
+        if _jebakan_argparse(mentah, bernilai_ccl):
             return False
         ops_ccl = _operand_csvkit(
-            toks, awal, _CSVKIT)
+            toks, awal, bernilai_ccl)
         if "\x00gantung" in ops_ccl:
             return False
         # Audit 2390: tanpa satu pun pengaktif
         # periksa/perbaiki csvclean berhenti
         # sebelum masukan dibuka (csvclean.py
         # main); join+fill bersama juga galat.
-        nama_ccl = {t.split("=", 1)[0] for t in mentah}
+        # Audit 2399: bentuk --nama=x untuk
+        # store_true ditolak argparse - hanya
+        # token utuh yang mengaktifkan.
+        if any("=" in t_ccl2
+               and t_ccl2.split("=", 1)[0] in {
+                   "--length-mismatch",
+                   "--empty-columns",
+                   "--enable-all-checks",
+                   "--header-normalize-space",
+                   "--join-short-rows",
+                   "--fill-short-rows",
+                   "--remove-empty-columns"}
+               for t_ccl2 in mentah):
+            return False
+        nama_ccl = set(mentah)
         aktif_ccl = bool(nama_ccl & {
             "--length-mismatch", "--empty-columns",
             "--enable-all-checks",
