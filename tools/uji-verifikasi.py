@@ -33441,6 +33441,90 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("grep -e menggantung: argumen hilang - gerbang lolos (Audit 2461)", rc == 0)
         shutil.rmtree(sub1575, ignore_errors=True)
+        sub1576 = klon(tmp, "sub1576")
+        berkas_aksi1576 = os.path.join(
+            sub1576, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1576, encoding="utf-8") as f:
+            isi_aksi1576 = f.read()
+        baris_aksi1576 = [b for b in isi_aksi1576.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1576 = isi_aksi1576.replace(
+                baris_aksi1576,
+                baris_aksi1576.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv count -d -h; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1576 != isi_aksi1576, \
+            "suntikan aksi1576 tidak menembak"
+        with open(berkas_aksi1576, "w", encoding="utf-8") as f:
+            f.write(isi_baru1576)
+        rc, out = jalan(sub1576,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv count -d: -h nilai delimiter - gerbang menolak (Audit 2462)", rc != 0)
+        shutil.rmtree(sub1576, ignore_errors=True)
+        sub1577 = klon(tmp, "sub1577")
+        berkas_aksi1577 = os.path.join(
+            sub1577, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1577, encoding="utf-8") as f:
+            isi_aksi1577 = f.read()
+        baris_aksi1577 = [b for b in isi_aksi1577.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1577 = isi_aksi1577.replace(
+                baris_aksi1577,
+                baris_aksi1577.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv frequency --pct-nulls -h; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1577 != isi_aksi1577, \
+            "suntikan aksi1577 tidak menembak"
+        with open(berkas_aksi1577, "w", encoding="utf-8") as f:
+            f.write(isi_baru1577)
+        rc, out = jalan(sub1577,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv frequency --pct-nulls bool: bantuan terpintas - gerbang lolos (Audit 2463)", rc == 0)
+        shutil.rmtree(sub1577, ignore_errors=True)
+        sub1578 = klon(tmp, "sub1578")
+        berkas_aksi1578 = os.path.join(
+            sub1578, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1578, encoding="utf-8") as f:
+            isi_aksi1578 = f.read()
+        baris_aksi1578 = [b for b in isi_aksi1578.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1578 = isi_aksi1578.replace(
+                baris_aksi1578,
+                baris_aksi1578.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv describegpt --limit -h; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1578 != isi_aksi1578, \
+            "suntikan aksi1578 tidak menembak"
+        with open(berkas_aksi1578, "w", encoding="utf-8") as f:
+            f.write(isi_baru1578)
+        rc, out = jalan(sub1578,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv describegpt --limit asing: galat docopt - gerbang lolos (Audit 2464)", rc == 0)
+        shutil.rmtree(sub1578, ignore_errors=True)
+        sub1581 = klon(tmp, "sub1581")
+        berkas_aksi1581 = os.path.join(
+            sub1581, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1581, encoding="utf-8") as f:
+            isi_aksi1581 = f.read()
+        baris_aksi1581 = [b for b in isi_aksi1581.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1581 = isi_aksi1581.replace(
+                baris_aksi1581,
+                baris_aksi1581.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(qsv select -f -h 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1581 != isi_aksi1581, \
+            "suntikan aksi1581 tidak menembak"
+        with open(berkas_aksi1581, "w", encoding="utf-8") as f:
+            f.write(isi_baru1581)
+        rc, out = jalan(sub1581,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("qsv select -f asing: galat docopt - gerbang lolos (Audit 2467)", rc == 0)
+        shutil.rmtree(sub1581, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

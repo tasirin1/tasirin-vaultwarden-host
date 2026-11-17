@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — Pendahulu qsv/xsv diganti himpunan per subperintah, bukan digabung dasar (Audit 166)
+
+- Himpunan dasar bersama (memuat -f) tak lagi ikut melindungi qsv/xsv: untuk kedua perintah pendahulu adalah tepat himpunan subperintah yang berjalan.
+
+## [Belum rilis] — Entri asing berdampak dibuang dari peta (Audit 166)
+
+- describegpt --limit (hanya teks string), moarstats --percentile-list (milik stats), dan join --cross (bool) di kedua peta dikeluarkan.
+
+## [Belum rilis] — Entri bool/asing hasil ekstraksi dibuang dari peta (Audit 166)
+
+- frequency --pct-nulls, sniff --stats-types, dan luau -n terbukti bendera bool di USAGE - dikeluarkan dari himpunan bernilai subperintahnya.
+
+## [Belum rilis] — Peta pendahulu per subperintah dilengkapi dan dibersihkan (Audit 166)
+
+- Koreksi 2455: entri ditambah untuk subperintah handler-only (qsv count/viz/fixlengths/prompt, xsv count) dan -l geoconvert dari USAGE sumbernya.
+
 ## [Belum rilis] — Pembawa menggantung di akhir segmen = berhenti (Audit 165)
 
 - Penghitung lewati yang masih menunggu nilai saat segmen berakhir kini memicu berhenti: argumen hilang adalah galat (grep -e, jq --arg x, rg --glob).

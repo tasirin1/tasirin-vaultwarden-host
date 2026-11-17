@@ -813,6 +813,10 @@ _PEMBACA_STDIN = {"cat", "tee", "head", "tail", "wc", "dd", "sort",
 # dengan USAGE sumber tiap subperintah
 # (docopt memakan nilai verbatim; token
 # bool/asing subperintah lain tak melindungi).
+# Audit 2462: subperintah handler-only
+# (count/viz/fixlengths/prompt) kini punya
+# entri; Audit 2463/2464: entri bool/asing
+# hasil ekstraksi dibersihkan.
 _PENDAHULU_QSV_PER_SUB = {
     'apply': frozenset({'--addl-props', '--api-key', '--base-url',
         '--batch', '--cache-dir', '--comparand', '--delimiter',
@@ -828,6 +832,7 @@ _PENDAHULU_QSV_PER_SUB = {
         '--output', '-N', '-d', '-g', '-o',}),
     'color': frozenset({'--delimiter', '--output', '--title', '-d', '-o',
         '-t',}),
+    'count': frozenset({'--delimiter', '-d',}),
     'datefmt': frozenset({'--batch', '--default-tz', '--delimiter',
         '--formatstr', '--input-tz', '--jobs', '--new-column',
         '--output', '--output-tz', '--rename', '--ts-resolution', '-R',
@@ -841,7 +846,7 @@ _PENDAHULU_QSV_PER_SUB = {
         '--ckan-token', '--context-file', '--disk-cache-dir',
         '--ds-license', '--ds-source', '--ds-updated',
         '--enum-threshold', '--export-prompt', '--format',
-        '--freq-options', '--language', '--limit', '--markdown-template',
+        '--freq-options', '--language', '--markdown-template',
         '--max-tokens', '--model', '--num-examples', '--num-tags',
         '--okf-type', '--output', '--prompt', '--prompt-file',
         '--sample-size', '--score-max-retries', '--score-threshold',
@@ -878,6 +883,8 @@ _PENDAHULU_QSV_PER_SUB = {
     'fill': frozenset({'--default', '--delimiter', '--groupby',
         '--output', '-d', '-g', '-o', '-v',}),
     'fixedwidth': frozenset({'--output', '--positions', '--widths', '-o',}),
+    'fixlengths': frozenset({'--delimiter', '--escape', '--insert',
+        '--length', '--output', '--quote', '-d', '-i', '-l', '-o',}),
     'flatten': frozenset({'--condense', '--delimiter',
         '--field-separator', '--separator', '-c', '-d', '-f', '-s',}),
     'fmt': frozenset({'--delimiter', '--escape', '--out-delimiter',
@@ -887,10 +894,10 @@ _PENDAHULU_QSV_PER_SUB = {
     'frequency': frozenset({'--all-unique-text', '--delimiter',
         '--high-card-pct', '--high-card-threshold', '--jobs', '--limit',
         '--lmt-threshold', '--no-float', '--null-text', '--other-text',
-        '--output', '--pct-dec-places', '--pct-nulls', '--rank-strategy',
-        '--select', '--sketch-map-size', '--sketch-method',
-        '--stats-filter', '--unq-limit', '--weight', '-d', '-j', '-l',
-        '-o', '-r', '-s', '-u',}),
+        '--output', '--pct-dec-places', '--rank-strategy', '--select',
+        '--sketch-map-size', '--sketch-method', '--stats-filter',
+        '--unq-limit', '--weight', '-d', '-j', '-l', '-o', '-r', '-s',
+        '-u',}),
     'geocode': frozenset({'--admin1', '--api-key', '--batch',
         '--benchmark', '--cache-dir', '--cache-ttl', '--census-mode',
         '--cities-url', '--country', '--delimiter', '--endpoint',
@@ -900,16 +907,16 @@ _PENDAHULU_QSV_PER_SUB = {
         '--rename', '--timeout', '--vintage', '-b', '-c', '-d', '-f',
         '-j', '-k', '-l', '-o', '-r',}),
     'geoconvert': frozenset({'--delimiter', '--geometry', '--latitude',
-        '--longitude', '--max-length', '--output', '-d', '-g', '-o',
-        '-x', '-y',}),
+        '--longitude', '--max-length', '--output', '-d', '-g', '-l',
+        '-o', '-x', '-y',}),
     'headers': frozenset({'--delimiter', '-d',}),
     'implode': frozenset({'--delimiter', '--keys', '--output',
         '--rename', '--value', '-d', '-k', '-o', '-r', '-v',}),
     'input': frozenset({'--comment', '--delimiter', '--encoding-errors',
         '--escape', '--output', '--quote', '--quote-style',
         '--skip-lastlines', '--skip-lines', '-d', '-o',}),
-    'join': frozenset({'--cross', '--delimiter', '--keys-output',
-        '--output', '-d', '-o',}),
+    'join': frozenset({'--delimiter', '--keys-output', '--output', '-d',
+        '-o',}),
     'json': frozenset({'--jaq', '--output', '--select', '-o', '-s',}),
     'jsonl': frozenset({'--batch', '--delimiter', '--jobs', '--output',
         '-b', '-d', '-j', '-o',}),
@@ -918,13 +925,13 @@ _PENDAHULU_QSV_PER_SUB = {
         '--wrap-mode', '-P', '-W', '-d', '-f',}),
     'luau': frozenset({'--begin', '--cache-dir', '--ckan-api',
         '--ckan-token', '--delimiter', '--end', '--max-errors',
-        '--output', '--timeout', '-B', '-E', '-d', '-n', '-o',}),
+        '--output', '--timeout', '-B', '-E', '-d', '-o',}),
     'moarstats': frozenset({'--bivariate-batch', '--bivariate-stats',
         '--cardinality-threshold', '--epsilon', '--jobs',
         '--join-inputs', '--join-keys', '--join-type', '--output',
-        '--pct-thresholds', '--percentile-list', '--round',
-        '--stats-options', '--xsd-gdate-scan', '-C', '-J', '-K', '-S',
-        '-T', '-e', '-j', '-o',}),
+        '--pct-thresholds', '--round', '--stats-options',
+        '--xsd-gdate-scan', '-C', '-J', '-K', '-S', '-T', '-e', '-j',
+        '-o',}),
     'partition': frozenset({'--delimiter', '--filename', '--limit',
         '--prefix-length', '-d', '-p',}),
     'pragmastat': frozenset({'--compare1', '--compare2', '--delimiter',
@@ -935,6 +942,8 @@ _PENDAHULU_QSV_PER_SUB = {
         '--describegpt', '--initial-context', '--jobs', '--locate',
         '--output', '--profile', '--spec', '--tag-vocab', '-d', '-j',
         '-o',}),
+    'prompt': frozenset({'--base-delay-ms', '--filters', '--msg',
+        '--output', '--save-fname', '--workdir', '-F', '-d', '-m', '-o',}),
     'pseudo': frozenset({'--delimiter', '--formatstr', '--increment',
         '--output', '--start', '-d', '-f', '-o',}),
     'py': frozenset({'--batch', '--delimiter', '--helper', '--output',
@@ -968,8 +977,7 @@ _PENDAHULU_QSV_PER_SUB = {
     'snappy': frozenset({'--jobs', '--output', '--timeout',
         '--user-agent', '-j', '-o',}),
     'sniff': frozenset({'--delimiter', '--quote', '--sample',
-        '--save-urlsample', '--stats-types', '--timeout', '--user-agent',
-        '-d',}),
+        '--save-urlsample', '--timeout', '--user-agent', '-d',}),
     'sort': frozenset({'--delimiter', '--jobs', '--output', '--rng',
         '--seed', '--select', '-d', '-j', '-o', '-s',}),
     'sortcheck': frozenset({'--delimiter', '--select', '-d', '-s',}),
@@ -1005,11 +1013,28 @@ _PENDAHULU_QSV_PER_SUB = {
         '--email-min-subdomains', '--invalid', '--jobs', '--sarif',
         '--sarif-max-results', '--size-limit', '--timeout', '--valid',
         '--valid-output', '-b', '-d', '-j',}),
+    'viz': frozenset({'--agg', '--annotation', '--bins', '--box-points',
+        '--close', '--cluster', '--color', '--color-scale', '--cols',
+        '--dataset-pid', '--delimiter', '--denominator',
+        '--denominator-key', '--denominator-unit', '--dictionary',
+        '--dictionary-context', '--feature-id-key', '--feature-name-key',
+        '--geocode-admin1', '--geocode-country', '--geojson',
+        '--grid-cols', '--heatmap-density', '--height',
+        '--hierarchy-style', '--high', '--language', '--lat', '--limit',
+        '--location-mode', '--locations', '--log-scale', '--lon',
+        '--low', '--max-charts', '--ohlc-open', '--output',
+        '--preview-threshold', '--projection', '--region-state',
+        '--scale', '--series', '--size', '--slider', '--slider-speed',
+        '--snap-max-dist', '--source', '--style', '--target', '--text',
+        '--theme', '--title', '--tour-audience', '--tour-steps',
+        '--value', '--violin', '--width', '--x', '--x-title', '--y',
+        '--y-range', '--y-title', '--z', '-d', '-o', '-x', '-y', '-z',}),
     'writestat': frozenset({'--delimiter', '--dictionary', '--format',
         '--output', '--table-name', '-d', '-o',}),
 }
 _PENDAHULU_XSV_PER_SUB = {
     'cat': frozenset({'--delimiter', '--output', '-d', '-o',}),
+    'count': frozenset({'--delimiter', '-d',}),
     'fixlengths': frozenset({'--delimiter', '--length', '--output', '-d',
         '-l', '-o',}),
     'flatten': frozenset({'--condense', '--delimiter', '--separator',
@@ -1021,7 +1046,7 @@ _PENDAHULU_XSV_PER_SUB = {
     'headers': frozenset({'--delimiter', '-d',}),
     'input': frozenset({'--delimiter', '--escape', '--output', '--quote',
         '-d', '-o',}),
-    'join': frozenset({'--cross', '--delimiter', '--output', '-d', '-o',}),
+    'join': frozenset({'--delimiter', '--output', '-d', '-o',}),
     'partition': frozenset({'--delimiter', '--filename',
         '--prefix-length', '-d', '-p',}),
     'reverse': frozenset({'--delimiter', '--output', '-d', '-o',}),
@@ -3395,12 +3420,19 @@ def _menguras_khusus(perintah, toks, awal):
         # SUBPERINTAH (mentah[0]) - token bool
         # atau asing bagi subperintah yang
         # berjalan tidak lagi melindungi.
+        # Audit 2467: untuk qsv/xsv himpunan per
+        # subperintah MENGGANTIKAN pendahulu
+        # dasar bersama (bukan digabung) - token
+        # dasar yang asing bagi subperintah
+        # (mis. -f di select) tak lagi melindungi.
         if perintah == "qsv":
-            pendahulu |= _PENDAHULU_QSV_PER_SUB.get(
-                mentah[0], frozenset())
+            pendahulu = set(
+                _PENDAHULU_QSV_PER_SUB.get(
+                    mentah[0], frozenset()))
         if perintah == "xsv":
-            pendahulu |= _PENDAHULU_XSV_PER_SUB.get(
-                mentah[0], frozenset())
+            pendahulu = set(
+                _PENDAHULU_XSV_PER_SUB.get(
+                    mentah[0], frozenset()))
         for k_i, t_i in enumerate(mentah):
             if t_i in tanda:
                 if k_i > 0 and mentah[k_i - 1] in pendahulu:
