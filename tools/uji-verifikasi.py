@@ -33063,6 +33063,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("in2csv bundel bool sah -lv: membaca stdin - gerbang gagal (Audit 2445)", rc != 0)
         shutil.rmtree(sub1557, ignore_errors=True)
+        sub1558 = klon(tmp, "sub1558")
+        berkas_aksi1558 = os.path.join(
+            sub1558, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1558, encoding="utf-8") as f:
+            isi_aksi1558 = f.read()
+        baris_aksi1558 = [b for b in isi_aksi1558.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1558 = isi_aksi1558.replace(
+                baris_aksi1558,
+                baris_aksi1558.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csvlook -K=; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1558 != isi_aksi1558, \
+            "suntikan aksi1558 tidak menembak"
+        with open(berkas_aksi1558, "w", encoding="utf-8") as f:
+            f.write(isi_baru1558)
+        rc, out = jalan(sub1558,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csvlook nilai kosong merekat bukan -d: galat - gerbang lolos (Audit 2446)", rc == 0)
+        shutil.rmtree(sub1558, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

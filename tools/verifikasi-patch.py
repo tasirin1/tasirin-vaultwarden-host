@@ -2708,10 +2708,22 @@ def _operand_csvkit(toks, awal, bernilai,
                 if eja_ck in bernilai:
                     sisa_ck = t_ck[j_ck + 1:]
                     if sisa_ck.startswith("="):
-                        # Audit 2440: nilai kosong
-                        # merekat (-d=) tetap
-                        # sebuah nilai.
-                        kembang_ck.append(sisa_ck[1:])
+                        # Audit 2440/2446: nilai
+                        # kosong merekat hanya
+                        # diteruskan biner untuk
+                        # -d; opsi bernilai lain
+                        # berhenti galat.
+                        if sisa_ck[1:]:
+                            kembang_ck.append(sisa_ck[1:])
+                        elif eja_ck == "-d":
+                            kembang_ck.append("")
+                        else:
+                            # jebakan, bukan
+                            # gantung: token sesudah
+                            # huruf bernilai termakan
+                            # sebagai nilainya.
+                            kembang_ck.append(
+                                "\x00jebakan")
                     elif sisa_ck:
                         kembang_ck.append(sisa_ck)
                     elif ("=" not in t_ck

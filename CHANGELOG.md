@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Bundel csvkit: nilai kosong merekat hanya untuk -d (Audit 163)
+
+- Koreksi 2440: sisa '=' kosong kini hanya diteruskan sebagai nilai bagi -d (delimiter); opsi bernilai lain mengirim penanda jebakan yang digantung loop utama - sesuai biner (rc=2/rc=1).
+
 ## [Belum rilis] — in2csv: daftar bool bundel dilengkapi ke semesta sahnya (Audit 162)
 
 - Daftar 'tnH' menjadi 'tnHISblv' sesuai sumber csvkit 2.2.0; -V sengaja tetap di luar (informatif versi). Bentuk sah -v/-l/-lv kini menguras seperti biner.
