@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Pengecualian kelaparan mencakup fq (Audit 167)
+
+- fq juga berfilter implisit titik (biner: fq --arg x --help dan fq -L --help menguras, pipa lambat rc=124) - aturan kelaparan kini melewati keluarga jq dan fq.
+
+## [Belum rilis] — Daftar dua-token fq dipersempit ke opsi aslinya (Audit 167)
+
+- Koreksi 2466: biner fq 0.15.1 menolak --rawfile/--slurpfile/--argfile - klausa dua-token fq kini hanya --arg/--argjson; daftar jq utuh.
+
 ## [Belum rilis] — Klausa dua-token dan -L mencakup fq (Audit 166)
 
 - fq meniru opsi jq (biner fq 0.15.1: --arg dan -L menguras) - klausa --arg/--argjson/--rawfile/--slurpfile/--argfile dan -L kini berlaku untuk jq dan fq.

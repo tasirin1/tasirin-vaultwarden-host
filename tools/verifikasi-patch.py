@@ -12560,14 +12560,21 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         and b_isk == "-F")):
                 lewati_info = 1
                 continue
-            if (perintah in ("jq", "fq")
+            if ((perintah == "jq"
                     and b_isk in ("--arg",
                                   "--argjson",
                                   "--rawfile",
                                   "--slurpfile",
-                                  "--argfile")):
+                                  "--argfile"))
+                    or (perintah == "fq"
+                        and b_isk in ("--arg",
+                                      "--argjson"))):
                 # Audit 2454: pembawa dua token
                 # (nama + nilai/berkas).
+                # Audit 2468: daftar fq hanya
+                # --arg/--argjson - biner fq 0.15.1
+                # menolak --rawfile/--slurpfile/
+                # --argfile ("no such argument").
                 lewati_info = 2
                 continue
             # Audit 2457: klausa -v awk DICABUT -
@@ -12591,7 +12598,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # alat berhenti dengan galat.
         if (info_termakan and not pola_opsi
                 and operand_isk == 0
-                and keluarga != "jq"):
+                and keluarga not in ("jq", "fq")):
             return False
     if perintah in ("sed", "awk", "grep", "jq", "yq", "fq",
                     "mawk", "nawk", "egrep", "fgrep", "rg",
