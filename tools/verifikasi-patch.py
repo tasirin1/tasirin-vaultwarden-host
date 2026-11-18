@@ -1890,7 +1890,19 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                "-o", "--output-format", "--indent",
                # Audit 1851: -f dicatat agar penjaga
                # cerminnya terjangkau.
-               "-f", "--from-file"},
+               "-f", "--from-file",
+               # Audit 2480: dilengkapi ke yq --help
+               # v4.44.5 penuh (10 opsi bernilai +
+               # -I + --front-matter panjang).
+               "-I", "--front-matter",
+               "--csv-separator", "-s", "--split-exp",
+               "--split-exp-file", "--lua-prefix",
+               "--lua-suffix",
+               "--properties-separator",
+               "--xml-attribute-prefix",
+               "--xml-content-name",
+               "--xml-directive-name",
+               "--xml-proc-inst-prefix"},
         # Audit 1828: opsi bernilai fq (meniru jq).
         # Audit 2472/2473: diselaraskan ke fq
         # --help 0.15.1 asli - hantu jq dibuang
@@ -1902,7 +1914,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
         "fq": {"-L", "--include-path", "-f", "--from-file",
                "--arg", "--argjson", "--argdecode",
                "--raw-file", "-d", "--decode", "-o",
-               "--option", "--indent"},
+               "--option"},
     }[perintah]
     if perintah == "awk":
         # Audit 2090: operand pertama awk adalah
@@ -12538,7 +12550,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     info_skrip = {
         "jq": {"-h", "--help", "-V", "--version"},
         "yq": {"-h", "--help", "-V", "--version"},
-        "fq": {"-h", "--help", "-V", "--version"},
+        "fq": {"-h", "--help", "-v", "--version"},
         "sed": {"-h", "--help", "-V", "--version"},
         "rg": {"-h", "--help", "-V", "--version"},
     }

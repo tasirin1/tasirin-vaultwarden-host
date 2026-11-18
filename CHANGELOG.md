@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Himpunan handler yq dilengkapi ke yq --help penuh (Audit 169)
+
+- Ditambah 10 opsi bernilai yq v4.44.5 (--csv-separator, -s/--split-exp, --split-exp-file, --lua-prefix/suffix, --properties-separator, empat opsi --xml-*) plus -I dan --front-matter panjang.
+
+## [Belum rilis] — Peta informasional fq dibetulkan: -v version, -V value-output (Audit 169)
+
+- Warisan 2452 menyalin peta jq: di fq bendera version adalah -v/--version sedangkan -V adalah --value-output (bool, tetap menguras). Peta kini {-h, --help, -v, --version}.
+
+## [Belum rilis] — Hantu --indent dibuang dari himpunan handler fq (Audit 169)
+
+- Sisa penyelarasan 168: --indent adalah opsi jq; fq --help 0.15.1 tak memuatnya dan biner selalu menolaknya ('no such argument').
+
 ## [Belum rilis] — Cabang tsv-sample ditambahkan (Audit 168)
 
 - Alat tsv ketujuh kini termodelkan (sumber tsv-sample.d:351: tanpa berkas, masukan bawaan '-'): cabang khusus dengan himpunan bernilai dari sumber + didaftarkan ke penilai khusus.

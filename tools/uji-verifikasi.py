@@ -33777,6 +33777,69 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-sample tanpa berkas: bawaan stdin - gerbang menolak (Audit 2477)", rc != 0)
         shutil.rmtree(sub1591, ignore_errors=True)
+        sub1592 = klon(tmp, "sub1592")
+        berkas_aksi1592 = os.path.join(
+            sub1592, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1592, encoding="utf-8") as f:
+            isi_aksi1592 = f.read()
+        baris_aksi1592 = [b for b in isi_aksi1592.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1592 = isi_aksi1592.replace(
+                baris_aksi1592,
+                baris_aksi1592.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(fq --indent 2 .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1592 != isi_aksi1592, \
+            "suntikan aksi1592 tidak menembak"
+        with open(berkas_aksi1592, "w", encoding="utf-8") as f:
+            f.write(isi_baru1592)
+        rc, out = jalan(sub1592,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("fq --indent: opsi jq tak dikenal fq (biner 'no such argument') - gerbang lolos (Audit 2478)", rc == 0)
+        shutil.rmtree(sub1592, ignore_errors=True)
+        sub1593 = klon(tmp, "sub1593")
+        berkas_aksi1593 = os.path.join(
+            sub1593, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1593, encoding="utf-8") as f:
+            isi_aksi1593 = f.read()
+        baris_aksi1593 = [b for b in isi_aksi1593.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1593 = isi_aksi1593.replace(
+                baris_aksi1593,
+                baris_aksi1593.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(fq -V .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1593 != isi_aksi1593, \
+            "suntikan aksi1593 tidak menembak"
+        with open(berkas_aksi1593, "w", encoding="utf-8") as f:
+            f.write(isi_baru1593)
+        rc, out = jalan(sub1593,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("fq -V = --value-output bool, tetap membaca stdin - gerbang gagal (Audit 2479)", rc != 0)
+        shutil.rmtree(sub1593, ignore_errors=True)
+        sub1594 = klon(tmp, "sub1594")
+        berkas_aksi1594 = os.path.join(
+            sub1594, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1594, encoding="utf-8") as f:
+            isi_aksi1594 = f.read()
+        baris_aksi1594 = [b for b in isi_aksi1594.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1594 = isi_aksi1594.replace(
+                baris_aksi1594,
+                baris_aksi1594.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(yq --csv-separator , .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1594 != isi_aksi1594, \
+            "suntikan aksi1594 tidak menembak"
+        with open(berkas_aksi1594, "w", encoding="utf-8") as f:
+            f.write(isi_baru1594)
+        rc, out = jalan(sub1594,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("yq --csv-separator bernilai: tanpa operand berkas membaca stdin - gerbang gagal (Audit 2480)", rc != 0)
+        shutil.rmtree(sub1594, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
