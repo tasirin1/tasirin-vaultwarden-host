@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Bundel huruf getopt Phobos dimodelkan di cabang klon tsv (Audit 169)
+
+- -Hp kini diluaskan menjadi -H + -p sebelum penilaian (tabel huruf bool/bernilai per alat dari sumber) untuk tsv-sample, tsv-uniq, tsv-pretty, tsv-split, csv2tsv, number-lines.
+
 ## [Belum rilis] — Cabang baru tsv-pretty, tsv-split, csv2tsv, number-lines, keep-header (Audit 169)
 
 - Enumerasi penuh tsv-utils: ke-12 biner membaca stdin; lima yang tak termodelkan kini bercabang + terdaftar. csv2tsv tanpa pelipatan huruf (keempat opsi bernilainya caseSensitive); keep-header dimodelkan dari urai manualnya (berkas sebelum '--', tanpa '--' berhenti).

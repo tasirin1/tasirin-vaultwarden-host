@@ -34008,6 +34008,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("number-lines telanjang membaca stdin - gerbang gagal (Audit 2488)", rc != 0)
         shutil.rmtree(sub1602, ignore_errors=True)
+        sub1603 = klon(tmp, "sub1603")
+        berkas_aksi1603 = os.path.join(
+            sub1603, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1603, encoding="utf-8") as f:
+            isi_aksi1603 = f.read()
+        baris_aksi1603 = [b for b in isi_aksi1603.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1603 = isi_aksi1603.replace(
+                baris_aksi1603,
+                baris_aksi1603.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-sample -Hp 0.1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1603 != isi_aksi1603, \
+            "suntikan aksi1603 tidak menembak"
+        with open(berkas_aksi1603, "w", encoding="utf-8") as f:
+            f.write(isi_baru1603)
+        rc, out = jalan(sub1603,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel getopt Phobos -Hp = -H + -p bernilai: membaca stdin - gerbang gagal (Audit 2489)", rc != 0)
+        shutil.rmtree(sub1603, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
