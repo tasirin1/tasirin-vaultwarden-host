@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Tuple pindai digit + huruf -E di cabang tsv baru dibetulkan (Audit 170)
+
+- Generator cabang 169 gagal mengganti tuple pindai digit (isi warisan tsv-sample) di tsv-pretty/tsv-split/number-lines - kini sesuai sumber masing-masing. Khusus tsv-pretty: -E bernilai bertabrakan dengan -e bool sesudah pelipatan huruf; cabang itu kini melipat hanya opsi panjang dan pencocokan bernilai menerima bentuk apa adanya.
+
 ## [Belum rilis] — Ekspansi bundel getopt DICABUT: premis 2489 terbalik (Audit 170)
 
 - Dokumentasi resmi std.getopt: bundling tidak aktif secara bawaan (opt-in config.bundling) dan nol alat tsv-utils mengopernya. _luaskan_bundel + _BUNDEL_TSV dicabut; skenario 1603 dibalik di commit ini.

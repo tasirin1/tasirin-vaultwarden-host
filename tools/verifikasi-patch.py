@@ -10803,7 +10803,8 @@ def _menguras_khusus(perintah, toks, awal):
             if (d_cs.lower() == "--empty-replacement"
                     and d_cs != "--empty-replacement"):
                 return False
-            if (d_cs.lower() in bernilai_lp
+            if ((d_cs in bernilai_lp
+                    or d_cs.lower() in bernilai_lp)
                     and "=" not in t_cs):
                 i_cs += 2
                 continue
@@ -10833,14 +10834,16 @@ def _menguras_khusus(perintah, toks, awal):
                                         "--help-fields",
                                         "--help-options")):
                 return False
-            if (t_lp.split("=", 1)[0].lower() in bernilai_lp
+            if ((t_lp.split("=", 1)[0] in bernilai_lp
+                    or t_lp.split("=", 1)[0].lower()
+                    in bernilai_lp)
                     and "=" not in t_lp):
                 i_lp += 2
                 continue
             i_lp += 1
-        mentah = [t.lower() if t.startswith("-")
+        mentah = [t.lower() if t.startswith("--")
                   else t for t in mentah]
-        toks = [t.lower() if t.startswith("-")
+        toks = [t.lower() if t.startswith("--")
                 else t for t in toks]
         # Audit 2420: token strip-angka di
         # posisi opsi = operand berkas/galat
@@ -10851,12 +10854,9 @@ def _menguras_khusus(perintah, toks, awal):
             if t_ds == "--":
                 break
             if (t_ds.split("=", 1)[0]
-                    in ("-d", "--delimiter", "-k",
-                        "--key-fields", "-n", "--num",
-                        "-p", "--prob", "-v",
-                        "--seed-value", "-w",
-                        "--weight-field",
-                        "--random-value-header")
+                    in ('-d', '--delimiter', '-l', '--lookahead', '-r', '--repeat-header',
+                        '-p', '--precision', '-E', '--empty-replacement', '-s', '--space-between-fields',
+                        '-m', '--max-text-width', '-b', '--preamble')
                     and "=" not in t_ds):
                 i_ds += 2
                 continue
@@ -10940,12 +10940,9 @@ def _menguras_khusus(perintah, toks, awal):
             if t_ds == "--":
                 break
             if (t_ds.split("=", 1)[0]
-                    in ("-d", "--delimiter", "-k",
-                        "--key-fields", "-n", "--num",
-                        "-p", "--prob", "-v",
-                        "--seed-value", "-w",
-                        "--weight-field",
-                        "--random-value-header")
+                    in ('-d', '--delimiter', '-f', '--fields', '-k', '--key-fields',
+                        '-l', '--lines-per-file', '-n', '--num-files', '-v', '--seed-value',
+                        '-w', '--digit-width', '--dir', '--prefix', '--suffix', '--max-open-files')
                     and "=" not in t_ds):
                 i_ds += 2
                 continue
@@ -11072,12 +11069,7 @@ def _menguras_khusus(perintah, toks, awal):
             if t_ds == "--":
                 break
             if (t_ds.split("=", 1)[0]
-                    in ("-d", "--delimiter", "-k",
-                        "--key-fields", "-n", "--num",
-                        "-p", "--prob", "-v",
-                        "--seed-value", "-w",
-                        "--weight-field",
-                        "--random-value-header")
+                    in ('-d', '--delimiter', '-n', '--start-number', '-s', '--header-string')
                     and "=" not in t_ds):
                 i_ds += 2
                 continue

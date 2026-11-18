@@ -34050,6 +34050,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("bundel getopt tidak aktif di tsv-utils (opt-in config.bundling): -Hf galat - gerbang lolos (Audit 2490)", rc == 0)
         shutil.rmtree(sub1604, ignore_errors=True)
+        sub1605 = klon(tmp, "sub1605")
+        berkas_aksi1605 = os.path.join(
+            sub1605, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1605, encoding="utf-8") as f:
+            isi_aksi1605 = f.read()
+        baris_aksi1605 = [b for b in isi_aksi1605.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1605 = isi_aksi1605.replace(
+                baris_aksi1605,
+                baris_aksi1605.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-pretty -E -5; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1605 != isi_aksi1605, \
+            "suntikan aksi1605 tidak menembak"
+        with open(berkas_aksi1605, "w", encoding="utf-8") as f:
+            f.write(isi_baru1605)
+        rc, out = jalan(sub1605,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-pretty -E bernilai menelan -5 sebagai nilai: membaca stdin - gerbang gagal (Audit 2491)", rc != 0)
+        shutil.rmtree(sub1605, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
