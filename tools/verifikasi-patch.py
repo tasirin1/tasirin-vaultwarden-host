@@ -1994,7 +1994,41 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 i += 1
                 continue
             dasar = bersih.split("=", 1)[0]
+            if (perintah == "awk"
+                    and nama_asli in ("mawk", "nawk",
+                                      "original-awk")
+                    and dasar == "-e"):
+                # Audit 2482: ketiga awk itu tak
+                # punya -e sama sekali (galat
+                # "not an option", stdin tak
+                # dibaca); gawk memang punya -e.
+                return False
             if dasar in nilai:
+                # Audit 2481: opsi bernilai khusus
+                # handler yang menggantung di akhir
+                # segmen (token efektif sesudahnya
+                # kurang dari kebutuhan) - biner
+                # galat "needs an argument".
+                if "=" not in bersih:
+                    _perlu = (2 if dasar in nilai2
+                              else 1)
+                    _j = i + 1
+                    _ada = 0
+                    while _j < n and _ada < _perlu:
+                        _tj = toks[_j]
+                        if (_tj in (">", ">>", "1>",
+                                    "2>", "1>>", "2>>")
+                                or re.fullmatch(
+                                    r"\d*>>?", _tj)):
+                            _j += 2
+                            continue
+                        if re.match(r"\d*>>?\S", _tj):
+                            _j += 1
+                            continue
+                        _ada += 1
+                        _j += 1
+                    if _ada < _perlu:
+                        return False
                 if perintah in ("sed", "awk", "grep") and (
                         dasar in ("-e", "-f", "--expression",
                                   "--file", "--pattern",
@@ -12609,13 +12643,22 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                           "--label", "--glob",
                           "--pre", "--pre-glob")
                     and not (b_isk == "-e"
-                             and keluarga in ("jq",
-                                              "yq",
-                                              "fq"))):
+                             and (keluarga in ("jq",
+                                               "yq",
+                                               "fq")
+                                  or (keluarga == "awk"
+                                      and toks[awal]
+                                      .strip("\"'")
+                                      .split("/")[-1]
+                                      in ("mawk", "nawk",
+                                          "original-awk"))))):
                 # Audit 2476: -e di jq/yq adalah
                 # --exit-status (bool) dan fq tak
                 # punya -e sama sekali - bukan
                 # pembawa pola bagi ketiganya.
+                # Audit 2482: mawk/nawk/original-awk
+                # juga tak punya -e (nama asli dari
+                # token perintah, bukan keluarga).
                 if b_isk in ("-e", "-f", "--pattern",
                              "--file", "--expression"):
                     pola_opsi = True

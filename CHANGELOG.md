@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Pembawa -e tak lagi bocor ke mawk/nawk/original-awk (Audit 169)
+
+- Ketiga awk itu tak punya -e sama sekali (mawk: 'not an option'); pengecualian pindai kini sadar nama asli dan handler menolak -e untuk ketiganya. gawk tetap pembawa (punya -e asli).
+
+## [Belum rilis] — Opsi bernilai khusus-handler yang menggantung kini berhenti (Audit 169)
+
+- Handler keluarga skrip kini memeriksa token efektif sesudah opsi bernilai (redirect dilompati): kurang dari kebutuhan (1, atau 2 untuk opsi dua-token) berarti biner galat 'needs an argument' - vonis berhenti.
+
 ## [Belum rilis] — Himpunan handler yq dilengkapi ke yq --help penuh (Audit 169)
 
 - Ditambah 10 opsi bernilai yq v4.44.5 (--csv-separator, -s/--split-exp, --split-exp-file, --lua-prefix/suffix, --properties-separator, empat opsi --xml-*) plus -I dan --front-matter panjang.
