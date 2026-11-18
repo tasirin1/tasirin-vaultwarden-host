@@ -10701,6 +10701,24 @@ def _menguras_khusus(perintah, toks, awal):
         # -v/--seed-value, -w/--weight-field,
         # -k/--key-fields, --random-value-header.
         bernilai_lp = ['--delimiter', '--key-fields', '--num', '--prob', '--random-value-header', '--seed-value', '--weight-field', '-V', '-d', '-k', '-n', '-p', '-v', '-w']
+        # Audit 2483: --seed-value pulau
+        # caseSensitive di sumber (tsv-sample.d
+        # :305-307) - varian huruf lain galat
+        # getopt, bukan opsi bernilai.
+        i_cs = 0
+        while i_cs < len(mentah):
+            t_cs = mentah[i_cs]
+            if t_cs == "--":
+                break
+            d_cs = t_cs.split("=", 1)[0]
+            if (d_cs.lower() == "--seed-value"
+                    and d_cs != "--seed-value"):
+                return False
+            if (d_cs.lower() in bernilai_lp
+                    and "=" not in t_cs):
+                i_cs += 2
+                continue
+            i_cs += 1
         i_lp = 0
         while i_lp < len(mentah):
             t_lp = mentah[i_lp]
@@ -10762,6 +10780,344 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_ts:
             return False
         return not ops_ts or "-" in ops_ts
+    if perintah == "tsv-pretty":
+        # Audit 2484: cabang baru - sumber
+        # tsv-pretty.d:252: tanpa argumen berkas
+        # filepaths bawaan ['-'] = stdin.
+        # getopt caseInsensitive; opsi bernilai:
+        # -d/--delimiter, -l/--lookahead,
+        # -r/--repeat-header, -p/--precision,
+        # -E/--empty-replacement,
+        # -s/--space-between-fields,
+        # -m/--max-text-width, -b/--preamble.
+        bernilai_lp = ['--delimiter', '--empty-replacement', '--lookahead', '--max-text-width', '--preamble', '--precision', '--repeat-header', '--space-between-fields', '-E', '-V', '-b', '-d', '-l', '-m', '-p', '-r', '-s']
+        # Audit 2484: --empty-replacement pulau
+        # caseSensitive di sumber - varian
+        # huruf lain galat getopt.
+        i_cs = 0
+        while i_cs < len(mentah):
+            t_cs = mentah[i_cs]
+            if t_cs == "--":
+                break
+            d_cs = t_cs.split("=", 1)[0]
+            if (d_cs.lower() == "--empty-replacement"
+                    and d_cs != "--empty-replacement"):
+                return False
+            if (d_cs.lower() in bernilai_lp
+                    and "=" not in t_cs):
+                i_cs += 2
+                continue
+            i_cs += 1
+        i_lp = 0
+        while i_lp < len(mentah):
+            t_lp = mentah[i_lp]
+            if t_lp == "--":
+                break
+            dasar_lp = t_lp.split("=", 1)[0]
+            if ("=" in t_lp
+                    and (dasar_lp in ("-V", "-h")
+                         or dasar_lp.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_lp in ("-h",)
+                         or dasar_lp.lower() == "--help"
+                         or t_lp.split("=", 1)[1].lower()
+                         != "false")):
+                return False
+            if (t_lp in ("-V", "-h")
+                    or t_lp.lower() in ("--help",
+                                        "--version",
+                                        "--help-verbose",
+                                        "--help-fields",
+                                        "--help-options")):
+                return False
+            if (t_lp.split("=", 1)[0].lower() in bernilai_lp
+                    and "=" not in t_lp):
+                i_lp += 2
+                continue
+            i_lp += 1
+        mentah = [t.lower() if t.startswith("-")
+                  else t for t in mentah]
+        toks = [t.lower() if t.startswith("-")
+                else t for t in toks]
+        # Audit 2420: token strip-angka di
+        # posisi opsi = operand berkas/galat
+        # getopt - tak pernah menguras.
+        i_ds = 0
+        while i_ds < len(mentah):
+            t_ds = mentah[i_ds]
+            if t_ds == "--":
+                break
+            if (t_ds.split("=", 1)[0]
+                    in ("-d", "--delimiter", "-k",
+                        "--key-fields", "-n", "--num",
+                        "-p", "--prob", "-v",
+                        "--seed-value", "-w",
+                        "--weight-field",
+                        "--random-value-header")
+                    and "=" not in t_ds):
+                i_ds += 2
+                continue
+            if (len(t_ds) > 1 and t_ds[0] == "-"
+                    and t_ds[1].isdigit()):
+                return False
+            i_ds += 1
+        ops_ts = _operand_sesudah_opsi(
+            toks, awal, {'-d', '--delimiter', '-l', '--lookahead', '-r', '--repeat-header', '-p', '--precision', '-E', '--empty-replacement', '-s', '--space-between-fields', '-m', '--max-text-width', '-b', '--preamble'})
+        if "\x00gantung" in ops_ts:
+            return False
+        return not ops_ts or "-" in ops_ts
+    if perintah == "tsv-split":
+        # Audit 2485: cabang baru - sumber
+        # tsv-split.d:352: masukan bawaan ['-']
+        # = stdin (keluaran ke berkas pecahan).
+        # getopt caseInsensitive; opsi bernilai:
+        # -d/--delimiter, -f/--fields,
+        # -k/--key-fields, -l/--lines-per-file,
+        # -n/--num-files, -v/--seed-value,
+        # -w/--digit-width, --dir, --prefix,
+        # --suffix, --max-open-files.
+        bernilai_lp = ['--delimiter', '--digit-width', '--dir', '--fields', '--key-fields', '--lines-per-file', '--max-open-files', '--num-files', '--prefix', '--seed-value', '--suffix', '-V', '-d', '-f', '-k', '-l', '-n', '-v', '-w']
+        # Audit 2485: --seed-value pulau
+        # caseSensitive di sumber - varian
+        # huruf lain galat getopt.
+        i_cs = 0
+        while i_cs < len(mentah):
+            t_cs = mentah[i_cs]
+            if t_cs == "--":
+                break
+            d_cs = t_cs.split("=", 1)[0]
+            if (d_cs.lower() == "--seed-value"
+                    and d_cs != "--seed-value"):
+                return False
+            if (d_cs.lower() in bernilai_lp
+                    and "=" not in t_cs):
+                i_cs += 2
+                continue
+            i_cs += 1
+        i_lp = 0
+        while i_lp < len(mentah):
+            t_lp = mentah[i_lp]
+            if t_lp == "--":
+                break
+            dasar_lp = t_lp.split("=", 1)[0]
+            if ("=" in t_lp
+                    and (dasar_lp in ("-V", "-h")
+                         or dasar_lp.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_lp in ("-h",)
+                         or dasar_lp.lower() == "--help"
+                         or t_lp.split("=", 1)[1].lower()
+                         != "false")):
+                return False
+            if (t_lp in ("-V", "-h")
+                    or t_lp.lower() in ("--help",
+                                        "--version",
+                                        "--help-verbose",
+                                        "--help-fields",
+                                        "--help-options")):
+                return False
+            if (t_lp.split("=", 1)[0].lower() in bernilai_lp
+                    and "=" not in t_lp):
+                i_lp += 2
+                continue
+            i_lp += 1
+        mentah = [t.lower() if t.startswith("-")
+                  else t for t in mentah]
+        toks = [t.lower() if t.startswith("-")
+                else t for t in toks]
+        # Audit 2420: token strip-angka di
+        # posisi opsi = operand berkas/galat
+        # getopt - tak pernah menguras.
+        i_ds = 0
+        while i_ds < len(mentah):
+            t_ds = mentah[i_ds]
+            if t_ds == "--":
+                break
+            if (t_ds.split("=", 1)[0]
+                    in ("-d", "--delimiter", "-k",
+                        "--key-fields", "-n", "--num",
+                        "-p", "--prob", "-v",
+                        "--seed-value", "-w",
+                        "--weight-field",
+                        "--random-value-header")
+                    and "=" not in t_ds):
+                i_ds += 2
+                continue
+            if (len(t_ds) > 1 and t_ds[0] == "-"
+                    and t_ds[1].isdigit()):
+                return False
+            i_ds += 1
+        ops_ts = _operand_sesudah_opsi(
+            toks, awal, {'-d', '--delimiter', '-f', '--fields', '-k', '--key-fields', '-l', '--lines-per-file', '-n', '--num-files', '-v', '--seed-value', '-w', '--digit-width', '--dir', '--prefix', '--suffix', '--max-open-files'})
+        if "\x00gantung" in ops_ts:
+            return False
+        return not ops_ts or "-" in ops_ts
+    if perintah == "csv2tsv":
+        # Audit 2486: cabang baru - sumber
+        # csv2tsv.d:245: tanpa argumen berkas
+        # filepaths bawaan ['-'] = stdin.
+        # KEEMPAT opsi bernilainya caseSensitive
+        # di sumber (-c/--csv-delim, -t/--tsv-
+        # delim, -r/--tab-replacement,
+        # -n/--newline-replacement) - cabang ini
+        # TIDAK melipat huruf untuk pencocokan
+        # opsi bernilai.
+        bernilai_cs = {"-c", "--csv-delim", "-t",
+                       "--tsv-delim", "-r",
+                       "--tab-replacement", "-n",
+                       "--newline-replacement"}
+        i_lp = 0
+        while i_lp < len(mentah):
+            t_lp = mentah[i_lp]
+            if t_lp == "--":
+                break
+            dasar_lp = t_lp.split("=", 1)[0]
+            if ("=" in t_lp
+                    and (dasar_lp in ("-V", "-h")
+                         or dasar_lp.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_lp in ("-h",)
+                         or dasar_lp.lower() == "--help"
+                         or t_lp.split("=", 1)[1].lower()
+                         != "false")):
+                return False
+            if (t_lp in ("-V", "-h")
+                    or t_lp.lower() in ("--help",
+                                        "--version",
+                                        "--help-verbose",
+                                        "--help-fields",
+                                        "--help-options")):
+                return False
+            if (dasar_lp in bernilai_cs
+                    and "=" not in t_lp):
+                i_lp += 2
+                continue
+            i_lp += 1
+        i_ds = 0
+        while i_ds < len(mentah):
+            t_ds = mentah[i_ds]
+            if t_ds == "--":
+                break
+            if (t_ds.split("=", 1)[0] in bernilai_cs
+                    and "=" not in t_ds):
+                i_ds += 2
+                continue
+            if (len(t_ds) > 1 and t_ds[0] == "-"
+                    and t_ds[1].isdigit()):
+                return False
+            i_ds += 1
+        ops_cs = _operand_sesudah_opsi(
+            toks, awal, bernilai_cs)
+        if "\x00gantung" in ops_cs:
+            return False
+        return not ops_cs or "-" in ops_cs
+
+    if perintah == "number-lines":
+        # Audit 2488: cabang baru - sumber
+        # number-lines.d:146: tanpa argumen
+        # berkas filepaths bawaan ['-'] = stdin.
+        # getopt caseInsensitive; opsi bernilai:
+        # -d/--delimiter, -n/--start-number,
+        # -s/--header-string.
+        bernilai_lp = ['--delimiter', '--header-string', '--start-number', '-V', '-d', '-n', '-s']
+        i_lp = 0
+        while i_lp < len(mentah):
+            t_lp = mentah[i_lp]
+            if t_lp == "--":
+                break
+            dasar_lp = t_lp.split("=", 1)[0]
+            if ("=" in t_lp
+                    and (dasar_lp in ("-V", "-h")
+                         or dasar_lp.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_lp in ("-h",)
+                         or dasar_lp.lower() == "--help"
+                         or t_lp.split("=", 1)[1].lower()
+                         != "false")):
+                return False
+            if (t_lp in ("-V", "-h")
+                    or t_lp.lower() in ("--help",
+                                        "--version",
+                                        "--help-verbose",
+                                        "--help-fields",
+                                        "--help-options")):
+                return False
+            if (t_lp.split("=", 1)[0].lower() in bernilai_lp
+                    and "=" not in t_lp):
+                i_lp += 2
+                continue
+            i_lp += 1
+        mentah = [t.lower() if t.startswith("-")
+                  else t for t in mentah]
+        toks = [t.lower() if t.startswith("-")
+                else t for t in toks]
+        # Audit 2420: token strip-angka di
+        # posisi opsi = operand berkas/galat
+        # getopt - tak pernah menguras.
+        i_ds = 0
+        while i_ds < len(mentah):
+            t_ds = mentah[i_ds]
+            if t_ds == "--":
+                break
+            if (t_ds.split("=", 1)[0]
+                    in ("-d", "--delimiter", "-k",
+                        "--key-fields", "-n", "--num",
+                        "-p", "--prob", "-v",
+                        "--seed-value", "-w",
+                        "--weight-field",
+                        "--random-value-header")
+                    and "=" not in t_ds):
+                i_ds += 2
+                continue
+            if (len(t_ds) > 1 and t_ds[0] == "-"
+                    and t_ds[1].isdigit()):
+                return False
+            i_ds += 1
+        ops_ts = _operand_sesudah_opsi(
+            toks, awal, {'-d', '--delimiter', '-n', '--start-number', '-s', '--header-string'})
+        if "\x00gantung" in ops_ts:
+            return False
+        return not ops_ts or "-" in ops_ts
+
+    if perintah == "keep-header":
+        # Audit 2487: cabang baru - sumber
+        # keep-header.d:96: berkas SEBELUM '--'
+        # (bawaan ['-'] = stdin); sisa baris
+        # disalurkan ke stdin perintah anak
+        # SESUDAH '--'. Tanpa getopt (urai
+        # manual); tanpa '--' pipa anak gagal
+        # dibuat -> berhenti sebelum membaca.
+        berkas_kh = []
+        i_kh = 0
+        ketemu_kh = False
+        while i_kh < len(mentah):
+            t_kh = mentah[i_kh]
+            if t_kh == "--":
+                ketemu_kh = True
+                break
+            if t_kh in (">", ">>", "<", "2>", "2>>",
+                        "&>", "1>", "1>>"):
+                i_kh += 2
+                continue
+            berkas_kh.append(t_kh)
+            i_kh += 1
+        if not ketemu_kh:
+            return False
+        if i_kh >= len(mentah) - 1:
+            return False
+        return not berkas_kh or "-" in berkas_kh
     if perintah == "csvsql":
         # Audit 2153: tanpa FILE data CSV dibaca
         # dari STDIN (csvsql(1)); SQL dari --query.
@@ -12513,7 +12869,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "csvstat", "csvgrep", "csvstack", "csvformat", "csvjoin", "csvsql", "csvsort", "csvcut", "csvlook", "csvpy", "csvjson", "csvclean", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "exiftool", "etcdctl", "factor", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "groff", "guix", "helm", "identify", "ipfs", "irb", "in2csv", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rev", "rlogin", "qsv", "sbcl", "s-nail", "sendmail", "skopeo", "sql2csv", "snowsql", "sox", "play", "tesseract", "terraform", "tsv-append", "tsv-join", "tsv-uniq", "tsv-summarize", "tsv-filter", "tsv-select", "tsv-sample", "units", "usql", "vagrant", "vault", "websocat", "xonsh", "xsv", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "csvstat", "csvgrep", "csvstack", "csvformat", "csvjoin", "csvsql", "csvsort", "csvcut", "csvlook", "csvpy", "csvjson", "csvclean", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "exiftool", "etcdctl", "factor", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "groff", "guix", "helm", "identify", "ipfs", "irb", "in2csv", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rev", "rlogin", "qsv", "sbcl", "s-nail", "sendmail", "skopeo", "sql2csv", "snowsql", "sox", "play", "tesseract", "terraform", "tsv-append", "tsv-join", "tsv-uniq", "tsv-summarize", "tsv-filter", "tsv-select", "tsv-sample", "tsv-pretty", "tsv-split", "csv2tsv", "number-lines", "keep-header", "units", "usql", "vagrant", "vault", "websocat", "xonsh", "xsv", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",

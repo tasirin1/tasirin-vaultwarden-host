@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Cabang baru tsv-pretty, tsv-split, csv2tsv, number-lines, keep-header (Audit 169)
+
+- Enumerasi penuh tsv-utils: ke-12 biner membaca stdin; lima yang tak termodelkan kini bercabang + terdaftar. csv2tsv tanpa pelipatan huruf (keempat opsi bernilainya caseSensitive); keep-header dimodelkan dari urai manualnya (berkas sebelum '--', tanpa '--' berhenti).
+
+## [Belum rilis] — Pulau caseSensitive --seed-value dihormati di tsv-sample (Audit 169)
+
+- tsv-sample.d menempatkan v|seed-value di pulau caseSensitive; varian huruf lain (--SEED-VALUE) kini galat di model, sejajar getopt asli.
+
 ## [Belum rilis] — Pembawa -e tak lagi bocor ke mawk/nawk/original-awk (Audit 169)
 
 - Ketiga awk itu tak punya -e sama sekali (mawk: 'not an option'); pengecualian pindai kini sadar nama asli dan handler menolak -e untuk ketiganya. gawk tetap pembawa (punya -e asli).
