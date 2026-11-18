@@ -10643,6 +10643,79 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_tu:
             return False
         return not ops_tu or "-" in ops_tu
+    if perintah == "tsv-sample":
+        # Audit 2477: cabang baru - sumber
+        # tsv-sample.d:351: tanpa argumen berkas
+        # filepaths bawaan ['-'] = stdin (pola
+        # sama dengan enam saudara tsv lain).
+        # getopt caseInsensitive (2391); pindaian
+        # informasional melewati posisi nilai
+        # (2401/2406). Opsi bernilai dari sumber:
+        # -d/--delimiter, -n/--num, -p/--prob,
+        # -v/--seed-value, -w/--weight-field,
+        # -k/--key-fields, --random-value-header.
+        bernilai_lp = ['--delimiter', '--key-fields', '--num', '--prob', '--random-value-header', '--seed-value', '--weight-field', '-V', '-d', '-k', '-n', '-p', '-v', '-w']
+        i_lp = 0
+        while i_lp < len(mentah):
+            t_lp = mentah[i_lp]
+            if t_lp == "--":
+                break
+            dasar_lp = t_lp.split("=", 1)[0]
+            if ("=" in t_lp
+                    and (dasar_lp in ("-V", "-h")
+                         or dasar_lp.lower() in (
+                             "--help", "--version",
+                             "--help-verbose",
+                             "--help-fields",
+                             "--help-options"))
+                    and (dasar_lp in ("-h",)
+                         or dasar_lp.lower() == "--help"
+                         or t_lp.split("=", 1)[1].lower()
+                         != "false")):
+                return False
+            if (t_lp in ("-V", "-h")
+                    or t_lp.lower() in ("--help",
+                                        "--version",
+                                        "--help-verbose",
+                                        "--help-fields",
+                                        "--help-options")):
+                return False
+            if (t_lp.split("=", 1)[0].lower() in bernilai_lp
+                    and "=" not in t_lp):
+                i_lp += 2
+                continue
+            i_lp += 1
+        mentah = [t.lower() if t.startswith("-")
+                  else t for t in mentah]
+        toks = [t.lower() if t.startswith("-")
+                else t for t in toks]
+        # Audit 2420: token strip-angka di
+        # posisi opsi = operand berkas/galat
+        # getopt - tak pernah menguras.
+        i_ds = 0
+        while i_ds < len(mentah):
+            t_ds = mentah[i_ds]
+            if t_ds == "--":
+                break
+            if (t_ds.split("=", 1)[0]
+                    in ("-d", "--delimiter", "-k",
+                        "--key-fields", "-n", "--num",
+                        "-p", "--prob", "-v",
+                        "--seed-value", "-w",
+                        "--weight-field",
+                        "--random-value-header")
+                    and "=" not in t_ds):
+                i_ds += 2
+                continue
+            if (len(t_ds) > 1 and t_ds[0] == "-"
+                    and t_ds[1].isdigit()):
+                return False
+            i_ds += 1
+        ops_ts = _operand_sesudah_opsi(
+            toks, awal, {"-d", "--delimiter", "-k", "--key-fields", "-n", "--num", "-p", "--prob", "-v", "--seed-value", "-w", "--weight-field", "--random-value-header"})
+        if "\x00gantung" in ops_ts:
+            return False
+        return not ops_ts or "-" in ops_ts
     if perintah == "csvsql":
         # Audit 2153: tanpa FILE data CSV dibaca
         # dari STDIN (csvsql(1)); SQL dari --query.
@@ -12394,7 +12467,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "7za", "7zr", "7zz", "uuencode",
                         "uudecode", "sponge", "ts", "vipe", "pee",
                         "aria2c", "choose", "cpan", "dasel", "derdump", "envsubst", "mlr", "sd", "recode", "ssh",
-                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "csvstat", "csvgrep", "csvstack", "csvformat", "csvjoin", "csvsql", "csvsort", "csvcut", "csvlook", "csvpy", "csvjson", "csvclean", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "exiftool", "etcdctl", "factor", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "groff", "guix", "helm", "identify", "ipfs", "irb", "in2csv", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rev", "rlogin", "qsv", "sbcl", "s-nail", "sendmail", "skopeo", "sql2csv", "snowsql", "sox", "play", "tesseract", "terraform", "tsv-append", "tsv-join", "tsv-uniq", "tsv-summarize", "tsv-filter", "tsv-select", "units", "usql", "vagrant", "vault", "websocat", "xonsh", "xsv", "write",
+                        "docker", "grpcurl", "kubectl", "mariadb", "mosquitto_pub", "podman", "mysql", "psql", "redis-cli", "rsh", "R", "aws", "az", "borg", "buildah", "csvstat", "csvgrep", "csvstack", "csvformat", "csvjoin", "csvsql", "csvsort", "csvcut", "csvlook", "csvpy", "csvjson", "csvclean", "clickhouse", "clickhouse-client", "clickhouse-local", "consul", "convert", "crictl", "cqlsh", "cypher-shell", "duckdb", "entr", "exiftool", "etcdctl", "factor", "glab", "gcloud", "gnuplot", "gst-launch-1.0", "gsutil", "groff", "guix", "helm", "identify", "ipfs", "irb", "in2csv", "kak", "kafka-console-producer", "kafka-console-producer.sh", "litecli", "magick", "mail", "mailx", "micro", "mycli", "minikube", "mpv", "nano", "nats", "nerdctl", "nix", "oc", "pandoc", "parallel", "pg_restore", "rclone", "pv", "racket", "restic", "rev", "rlogin", "qsv", "sbcl", "s-nail", "sendmail", "skopeo", "sql2csv", "snowsql", "sox", "play", "tesseract", "terraform", "tsv-append", "tsv-join", "tsv-uniq", "tsv-summarize", "tsv-filter", "tsv-select", "tsv-sample", "units", "usql", "vagrant", "vault", "websocat", "xonsh", "xsv", "write",
                         # Audit 1249/1250/1252/1258/1259:
                         # penilai khusus putaran-8.
                         "sdiff", "socat1", "gmake", "pdfinfo",
@@ -12519,10 +12592,18 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # skrip (pola/berkas/label/glob) -
             # token berikutnya adalah nilai,
             # bukan informasional.
-            if b_isk in ("-e", "-f", "--pattern",
-                         "--file", "--expression",
-                         "--label", "--glob",
-                         "--pre", "--pre-glob"):
+            if (b_isk in ("-e", "-f", "--pattern",
+                          "--file", "--expression",
+                          "--label", "--glob",
+                          "--pre", "--pre-glob")
+                    and not (b_isk == "-e"
+                             and keluarga in ("jq",
+                                              "yq",
+                                              "fq"))):
+                # Audit 2476: -e di jq/yq adalah
+                # --exit-status (bool) dan fq tak
+                # punya -e sama sekali - bukan
+                # pembawa pola bagi ketiganya.
                 if b_isk in ("-e", "-f", "--pattern",
                              "--file", "--expression"):
                     pola_opsi = True

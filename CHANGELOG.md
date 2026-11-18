@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Cabang tsv-sample ditambahkan (Audit 168)
+
+- Alat tsv ketujuh kini termodelkan (sumber tsv-sample.d:351: tanpa berkas, masukan bawaan '-'): cabang khusus dengan himpunan bernilai dari sumber + didaftarkan ke penilai khusus.
+
+## [Belum rilis] — Pembawa pola -e dikecualikan untuk jq/yq/fq (Audit 168)
+
+- -e di jq/yq adalah --exit-status bool dan fq tak punya -e - ketiganya tak lagi memperlakukan -e sebagai pembawa pola di pemeriksaan informasional; grep/sed/rg/awk tak berubah.
+
 ## [Belum rilis] — Klausa -f yq dikoreksi: yq punya -f/--front-matter dan --from-file (Audit 168)
 
 - Koreksi Audit 1851: biner yq resmi membuktikan -f extract/process dan --from-file menguras (pipa lambat rc=124) - cabangan khusus yq yang memvonis berhenti dibuang, perlakuan disamakan dengan jq/fq.

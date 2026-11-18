@@ -33735,6 +33735,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("yq -f front-matter bernilai: menguras - gerbang menolak (Audit 2475)", rc != 0)
         shutil.rmtree(sub1589, ignore_errors=True)
+        sub1590 = klon(tmp, "sub1590")
+        berkas_aksi1590 = os.path.join(
+            sub1590, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1590, encoding="utf-8") as f:
+            isi_aksi1590 = f.read()
+        baris_aksi1590 = [b for b in isi_aksi1590.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1590 = isi_aksi1590.replace(
+                baris_aksi1590,
+                baris_aksi1590.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(jq -e --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1590 != isi_aksi1590, \
+            "suntikan aksi1590 tidak menembak"
+        with open(berkas_aksi1590, "w", encoding="utf-8") as f:
+            f.write(isi_baru1590)
+        rc, out = jalan(sub1590,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("jq -e bool exit-status: bantuan terpintas - gerbang lolos (Audit 2476)", rc == 0)
+        shutil.rmtree(sub1590, ignore_errors=True)
+        sub1591 = klon(tmp, "sub1591")
+        berkas_aksi1591 = os.path.join(
+            sub1591, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1591, encoding="utf-8") as f:
+            isi_aksi1591 = f.read()
+        baris_aksi1591 = [b for b in isi_aksi1591.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1591 = isi_aksi1591.replace(
+                baris_aksi1591,
+                baris_aksi1591.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-sample -p 0.1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1591 != isi_aksi1591, \
+            "suntikan aksi1591 tidak menembak"
+        with open(berkas_aksi1591, "w", encoding="utf-8") as f:
+            f.write(isi_baru1591)
+        rc, out = jalan(sub1591,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-sample tanpa berkas: bawaan stdin - gerbang menolak (Audit 2477)", rc != 0)
+        shutil.rmtree(sub1591, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
