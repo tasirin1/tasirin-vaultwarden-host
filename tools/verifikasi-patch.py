@@ -1994,6 +1994,36 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 i += 1
                 continue
             dasar = bersih.split("=", 1)[0]
+            if (perintah == "jq"
+                    and bersih.startswith("--")
+                    and "=" in bersih):
+                # Audit 2494: parser jq menolak
+                # SEMUA --opsi=nilai ("Unknown
+                # option", rc=2 - terprobe 1.7).
+                return False
+            if (perintah == "fq" and dasar in (
+                    "--rawfile", "--slurpfile",
+                    "--library-path", "--indent")):
+                # Audit 2493: nama hantu fq -
+                # biner selalu "no such argument"
+                # (bentuk = maupun pisah).
+                return False
+            if (perintah == "fq" and "=" in bersih
+                    and (dasar in nilai2
+                         or dasar not in nilai)):
+                # Audit 2493: bentuk = di fq hanya
+                # sah untuk opsi bernilai SATU
+                # token; dua-token "needs two
+                # argument", bool "takes no
+                # argument", tak dikenal ditolak.
+                return False
+            if (perintah == "yq" and dasar in (
+                    "--arg", "--argjson",
+                    "--rawfile", "--slurpfile")):
+                # Audit 2495: nama hantu yq -
+                # biner "unknown flag" untuk
+                # bentuk = maupun pisah.
+                return False
             if (perintah == "awk"
                     and nama_asli in ("mawk", "nawk",
                                       "original-awk")

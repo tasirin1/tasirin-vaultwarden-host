@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — yq: nama hantu ditolak dalam bentuk = maupun pisah (Audit 170)
+
+- --arg/--argjson/--rawfile/--slurpfile adalah opsi jq, bukan yq ('unknown flag'); handler kini menolak keempat nama itu untuk yq dalam bentuk apa pun.
+
+## [Belum rilis] — jq: semua opsi panjang berbentuk = ditolak (Audit 170)
+
+- jq 1.7 menolak setiap --opsi=nilai sebagai 'Unknown option' (rc=2); handler kini memvonis berhenti untuk token --*=* pada jq.
+
+## [Belum rilis] — fq: bentuk = di luar opsi bernilai satu-token + nama hantu ditolak (Audit 170)
+
+- Parser fq menolak = untuk opsi dua-token ('needs two argument'), bool ('takes no argument'), dan nama tak dikenal; empat nama hantu (--rawfile/--slurpfile/--library-path/--indent) kini ditolak dalam bentuk apa pun.
+
 ## [Belum rilis] — keep-header: perintah anak '--' kini berhenti (Audit 170)
 
 - Menurut findSplit di sumber, token pertama sesudah pemisah adalah nama program anak; '--' di sana membuat spawn gagal sebelum membaca - cabang kini memvonis berhenti.
