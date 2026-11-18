@@ -3431,62 +3431,11 @@ _CSVKIT = {"-d", "--delimiter", "-q", "--quotechar",
            "--date-format", "--datetime-format"}
 
 
-_BUNDEL_TSV = {
-    # Audit 2489: (huruf bool, huruf bernilai)
-    # per alat klon tsv - dari sumber getopt;
-    # getopt Phobos membundel huruf pendek
-    # secara bawaan (tanpa noBundling).
-    "tsv-sample": (frozenset("HirsV"),
-                   frozenset("dknpvw")),
-    "tsv-uniq": (frozenset("HeirzV"),
-                 frozenset("adfm")),
-    "tsv-pretty": (frozenset("HaefuxV"),
-                   frozenset("Ebdlmprs")),
-    "tsv-split": (frozenset("HIasV"),
-                  frozenset("dfklnvw")),
-    "csv2tsv": (frozenset("HV"),
-                frozenset("cnrt")),
-    "number-lines": (frozenset("HV"),
-                     frozenset("dns")),
-}
-
-
-def _luaskan_bundel(daftar, himpunan):
-    """Audit 2489: '-Hp' -> ['-H', '-p']; huruf
-    bernilai di tengah bundel menelan sisa
-    huruf sebagai nilai merekat ('-pH' tetap
-    satu token). Bundel berhuruf tak dikenal
-    dibiarkan apa adanya."""
-    bool_b, nilai_b = himpunan
-    hasil = []
-    for t in daftar:
-        m = re.fullmatch(r"-([A-Za-z]{2,})", t)
-        if (m and all(c in bool_b | nilai_b
-                      for c in m.group(1))):
-            huruf = m.group(1)
-            pos = next((k for k, c in enumerate(huruf)
-                        if c in nilai_b), None)
-            if pos is None:
-                hasil += ["-" + c for c in huruf]
-            else:
-                hasil += ["-" + c for c in huruf[:pos]]
-                hasil.append("-" + huruf[pos:])
-        else:
-            hasil.append(t)
-    return hasil
-
-
 def _menguras_khusus(perintah, toks, awal):
     """Audit 1059-1072: penilai perintah yang pengurasannya
     bergantung pada subcommand / bentuk opsi khas — tak bisa
     dinilai aturan operand generik."""
     sisa = toks[awal + 1:]
-    # Audit 2489: luaskan bundel huruf getopt
-    # untuk cabang klon tsv sebelum dinilai.
-    if perintah in _BUNDEL_TSV:
-        sisa = _luaskan_bundel(sisa,
-                                _BUNDEL_TSV[perintah])
-        toks = toks[:awal + 1] + sisa
     mentah = [t.strip("\"'") for t in sisa]
     # Audit 1136: panggilan informasional juga tak membaca pada
     # penilai khusus (celah 1102; untuk vi ini regresi dari 1108).

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Ekspansi bundel getopt DICABUT: premis 2489 terbalik (Audit 170)
+
+- Dokumentasi resmi std.getopt: bundling tidak aktif secara bawaan (opt-in config.bundling) dan nol alat tsv-utils mengopernya. _luaskan_bundel + _BUNDEL_TSV dicabut; skenario 1603 dibalik di commit ini.
+
 ## [Belum rilis] — Bundel huruf getopt Phobos dimodelkan di cabang klon tsv (Audit 169)
 
 - -Hp kini diluaskan menjadi -H + -p sebelum penilaian (tabel huruf bool/bernilai per alat dari sumber) untuk tsv-sample, tsv-uniq, tsv-pretty, tsv-split, csv2tsv, number-lines.

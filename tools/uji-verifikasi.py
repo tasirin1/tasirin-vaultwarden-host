@@ -34027,8 +34027,29 @@ def main():
             f.write(isi_baru1603)
         rc, out = jalan(sub1603,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bundel getopt Phobos -Hp = -H + -p bernilai: membaca stdin - gerbang gagal (Audit 2489)", rc != 0)
+        periksa("bundel getopt Phobos tidak aktif (opt-in config.bundling): -Hp galat getopt - gerbang lolos (Audit 2490)", rc == 0)
         shutil.rmtree(sub1603, ignore_errors=True)
+        sub1604 = klon(tmp, "sub1604")
+        berkas_aksi1604 = os.path.join(
+            sub1604, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1604, encoding="utf-8") as f:
+            isi_aksi1604 = f.read()
+        baris_aksi1604 = [b for b in isi_aksi1604.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1604 = isi_aksi1604.replace(
+                baris_aksi1604,
+                baris_aksi1604.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-uniq -Hf 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1604 != isi_aksi1604, \
+            "suntikan aksi1604 tidak menembak"
+        with open(berkas_aksi1604, "w", encoding="utf-8") as f:
+            f.write(isi_baru1604)
+        rc, out = jalan(sub1604,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("bundel getopt tidak aktif di tsv-utils (opt-in config.bundling): -Hf galat - gerbang lolos (Audit 2490)", rc == 0)
+        shutil.rmtree(sub1604, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
