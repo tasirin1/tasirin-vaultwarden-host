@@ -1886,8 +1886,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                # Audit 1126: --indent bernilai.
                "--indent"},
         # Audit 1827: opsi bernilai yq (keluarga skrip).
-        "yq": {"--arg", "--argjson", "--rawfile",
-               "--slurpfile", "-p", "--input-format",
+        "yq": {"-p", "--input-format",
                "-o", "--output-format", "--indent",
                # Audit 1851: -f dicatat agar penjaga
                # cerminnya terjangkau.
@@ -2001,10 +2000,11 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                             return True
                 if perintah in ("jq", "yq", "fq") and dasar in (
                         "-f", "--from-file"):
-                    # Audit 1851: yq tak punya opsi -f sama
-                    # sekali - bentuk apa pun galat.
-                    if perintah == "yq":
-                        return False
+                    # Audit 2475 (koreksi 1851): yq
+                    # PUNYA -f/--front-matter dan
+                    # --from-file (biner v4.44.5) -
+                    # keduanya bernilai dan menguras,
+                    # perlakuan sama dengan jq/fq.
                     # Audit 1103 (cermin): jq menolak "-" sebagai
                     # berkas filter — tak membaca stdin.
                     nilai_f = bersih.split("=", 1)[1] \

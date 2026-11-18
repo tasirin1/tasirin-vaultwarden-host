@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Klausa -f yq dikoreksi: yq punya -f/--front-matter dan --from-file (Audit 168)
+
+- Koreksi Audit 1851: biner yq resmi membuktikan -f extract/process dan --from-file menguras (pipa lambat rc=124) - cabangan khusus yq yang memvonis berhenti dibuang, perlakuan disamakan dengan jq/fq.
+
+## [Belum rilis] — Opsi hantu jq dibuang dari handler yq (Audit 168)
+
+- yq v4.44.5 tidak punya --arg/--argjson/--rawfile/--slurpfile ('unknown flag') - keempatnya dikeluarkan dari himpunan bernilai handler yq.
+
 ## [Belum rilis] — Opsi asli fq dimodelkan: --raw-file/--argdecode, -d/-o/--include-path (Audit 168)
 
 - Daftar dua-token fq lengkap dari fq --help (--arg, --argjson, --argdecode, --raw-file berstrip) kini termodelkan di handler dan klausa pemeriksaan; opsi satu-token -d/--decode, -o/--option, --include-path ditambahkan.
