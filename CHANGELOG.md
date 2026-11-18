@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — keep-header: perintah anak '--' kini berhenti (Audit 170)
+
+- Menurut findSplit di sumber, token pertama sesudah pemisah adalah nama program anak; '--' di sana membuat spawn gagal sebelum membaca - cabang kini memvonis berhenti.
+
 ## [Belum rilis] — Tuple pindai digit + huruf -E di cabang tsv baru dibetulkan (Audit 170)
 
 - Generator cabang 169 gagal mengganti tuple pindai digit (isi warisan tsv-sample) di tsv-pretty/tsv-split/number-lines - kini sesuai sumber masing-masing. Khusus tsv-pretty: -E bernilai bertabrakan dengan -e bool sesudah pelipatan huruf; cabang itu kini melipat hanya opsi panjang dan pencocokan bernilai menerima bentuk apa adanya.

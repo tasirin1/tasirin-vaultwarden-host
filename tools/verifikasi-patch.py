@@ -11109,6 +11109,11 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         if i_kh >= len(mentah) - 1:
             return False
+        # Audit 2492: perintah anak '--' =
+        # nama program tak sah - spawn gagal
+        # sebelum membaca (findSplit sumber).
+        if mentah[i_kh + 1] == "--":
+            return False
         return not berkas_kh or "-" in berkas_kh
     if perintah == "csvsql":
         # Audit 2153: tanpa FILE data CSV dibaca
