@@ -1893,9 +1893,17 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                # cerminnya terjangkau.
                "-f", "--from-file"},
         # Audit 1828: opsi bernilai fq (meniru jq).
-        "fq": {"-L", "--library-path", "-f", "--from-file",
-               "--arg", "--argjson", "--rawfile",
-               "--slurpfile", "--indent"},
+        # Audit 2472/2473: diselaraskan ke fq
+        # --help 0.15.1 asli - hantu jq dibuang
+        # (--rawfile/--slurpfile/--library-path),
+        # opsi asli ditambah (--raw-file dan
+        # --argdecode dua token; --include-path
+        # bentuk panjang -L; -d/--decode dan
+        # -o/--option satu token).
+        "fq": {"-L", "--include-path", "-f", "--from-file",
+               "--arg", "--argjson", "--argdecode",
+               "--raw-file", "-d", "--decode", "-o",
+               "--option", "--indent"},
     }[perintah]
     if perintah == "awk":
         # Audit 2090: operand pertama awk adalah
@@ -1911,7 +1919,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
         # POSIX yang tak mengenalnya akan galat dan tak
         # membaca stdin sama sekali.
         nilai = nilai | {"-i", "--include", "-l", "--load"}
-    nilai2 = {"--arg", "--argjson", "--rawfile", "--slurpfile"}
+    nilai2 = {"--arg", "--argjson", "--rawfile", "--slurpfile", "--argdecode", "--raw-file"}
     skrip_dari_opsi = False
     skrip_terisi = False
     lewat_dd = False
@@ -12568,7 +12576,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                   "--argfile"))
                     or (perintah == "fq"
                         and b_isk in ("--arg",
-                                      "--argjson"))):
+                                      "--argjson",
+                                      "--argdecode",
+                                      "--raw-file"))):
                 # Audit 2454: pembawa dua token
                 # (nama + nilai/berkas).
                 # Audit 2468: daftar fq hanya

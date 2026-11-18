@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Opsi asli fq dimodelkan: --raw-file/--argdecode, -d/-o/--include-path (Audit 168)
+
+- Daftar dua-token fq lengkap dari fq --help (--arg, --argjson, --argdecode, --raw-file berstrip) kini termodelkan di handler dan klausa pemeriksaan; opsi satu-token -d/--decode, -o/--option, --include-path ditambahkan.
+
+## [Belum rilis] — Himpunan bernilai handler fq diselaraskan ke fq asli (Audit 168)
+
+- Sisa 2468 di tempat kedua: --rawfile/--slurpfile/--library-path (ejaan jq, selalu 'no such argument' di biner fq 0.15.1) dibuang dari himpunan handler fq.
+
 ## [Belum rilis] — Token -f asing dibuang dari peta datefmt dan pseudo (Audit 167)
 
 - Kedua subperintah hanya punya --formatstr bentuk panjang di USAGE (alias -f asli milik apply/geocode) - -f dikeluarkan dari entri peta keduanya; temuan sapu kelengkapan sistematis 88 entri (85 cocok persis).
