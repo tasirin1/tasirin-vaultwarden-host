@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Token -f asing dibuang dari peta datefmt dan pseudo (Audit 167)
+
+- Kedua subperintah hanya punya --formatstr bentuk panjang di USAGE (alias -f asli milik apply/geocode) - -f dikeluarkan dari entri peta keduanya; temuan sapu kelengkapan sistematis 88 entri (85 cocok persis).
+
 ## [Belum rilis] — Pengecualian kelaparan mencakup fq (Audit 167)
 
 - fq juga berfilter implisit titik (biner: fq --arg x --help dan fq -L --help menguras, pipa lambat rc=124) - aturan kelaparan kini melewati keluarga jq dan fq.
