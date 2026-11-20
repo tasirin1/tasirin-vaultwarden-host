@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — keep-header: redirect sesudah -- bukan perintah anak (Audit 171)
+
+- Penentuan perintah anak kini melewati pasangan operator+target redirect (shell membuangnya sebelum exec); keep-header -- > hasil.txt divonis berhenti, keep-header -- > hasil.txt sort tetap menguras.
+
 ## [Belum rilis] — yq: -f adalah --front-matter, bukan from-file + perisai pindai 8 opsi (Audit 171)
 
 - Koreksi 2475: di yq v4.44.5, -f = --front-matter (string biasa) dan hanya --from-file panjang yang memuat ekspresi dari berkas - klausa from-file handler kini membedakan yq. Pindai mendapat klausa pembawa untuk 8 opsi string-bebas 2480 (--lua-prefix/--lua-suffix/--properties-separator/--xml-* x4/--front-matter) agar nilai informasional tertelan tak diveto. Skenario Audit 1851 dibalik: premis lamanya (yq tak punya -f) terbukti salah di binary - 'yq -f -' kini divonis menguras stdin.

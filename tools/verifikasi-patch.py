@@ -11304,12 +11304,22 @@ def _menguras_khusus(perintah, toks, awal):
             i_kh += 1
         if not ketemu_kh:
             return False
-        if i_kh >= len(mentah) - 1:
+        # Audit 2501: lewati pasangan redirect
+        # sesudah pemisah - shell membuangnya
+        # sebelum exec, jadi bukan anak.
+        anak_kh = i_kh + 1
+        while (anak_kh < len(mentah)
+               and mentah[anak_kh] in (">", ">>",
+                                       "<", "2>",
+                                       "2>>", "&>",
+                                       "1>", "1>>")):
+            anak_kh += 2
+        if anak_kh >= len(mentah):
             return False
         # Audit 2492: perintah anak '--' =
         # nama program tak sah - spawn gagal
         # sebelum membaca (findSplit sumber).
-        if mentah[i_kh + 1] == "--":
+        if mentah[anak_kh] == "--":
             return False
         return not berkas_kh or "-" in berkas_kh
     if perintah == "csvsql":
