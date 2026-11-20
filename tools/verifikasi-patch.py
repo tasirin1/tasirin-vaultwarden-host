@@ -11138,16 +11138,17 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2486: cabang baru - sumber
         # csv2tsv.d:245: tanpa argumen berkas
         # filepaths bawaan ['-'] = stdin.
-        # KEEMPAT opsi bernilainya caseSensitive
+        # KELIMA opsi bernilainya caseSensitive
         # di sumber (-c/--csv-delim, -t/--tsv-
         # delim, -r/--tab-replacement,
-        # -n/--newline-replacement) - cabang ini
-        # TIDAK melipat huruf untuk pencocokan
-        # opsi bernilai.
+        # -n/--newline-replacement, -q/--quote)
+        # - cabang ini TIDAK melipat huruf
+        # untuk pencocokan opsi bernilai.
         bernilai_cs = {"-c", "--csv-delim", "-t",
                        "--tsv-delim", "-r",
                        "--tab-replacement", "-n",
-                       "--newline-replacement"}
+                       "--newline-replacement", "-q",
+                       "--quote"}
         i_lp = 0
         while i_lp < len(mentah):
             t_lp = mentah[i_lp]

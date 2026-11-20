@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csv2tsv: opsi bernilai -q/--quote ditambahkan (Audit 171)
+
+- csv2tsv.d:103 q|quote terikat &csvQuoteChar (bernilai, caseSensitive) - terlewat saat ekstraksi 2486; kini masuk bernilai_cs sehingga nilainya tertelan dan vonis menguras benar.
+
 ## [Belum rilis] — Cabang klon tsv: nama opsi tak dikenal kini ditolak (Audit 171)
 
 - Tabel _SAH_TSV per cabang (nama panjang/pendek kanon + pulau caseSensitive + mode lipat dari sumber getopt) dan pemeriksa _nama_sah_tsv di pindai info keenam cabang klon: nama asing, varian huruf pulau (--HEADER), dan varian csv2tsv kini GetOptException di model juga. Lima cabang berdoktrin lain tidak ikut.
