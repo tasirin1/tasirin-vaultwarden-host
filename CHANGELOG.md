@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — yq: -f adalah --front-matter, bukan from-file + perisai pindai 8 opsi (Audit 171)
+
+- Koreksi 2475: di yq v4.44.5, -f = --front-matter (string biasa) dan hanya --from-file panjang yang memuat ekspresi dari berkas - klausa from-file handler kini membedakan yq. Pindai mendapat klausa pembawa untuk 8 opsi string-bebas 2480 (--lua-prefix/--lua-suffix/--properties-separator/--xml-* x4/--front-matter) agar nilai informasional tertelan tak diveto. Skenario Audit 1851 dibalik: premis lamanya (yq tak punya -f) terbukti salah di binary - 'yq -f -' kini divonis menguras stdin.
+
 ## [Belum rilis] — csv2tsv: opsi bernilai -q/--quote ditambahkan (Audit 171)
 
 - csv2tsv.d:103 q|quote terikat &csvQuoteChar (bernilai, caseSensitive) - terlewat saat ekstraksi 2486; kini masuk bernilai_cs sehingga nilainya tertelan dan vonis menguras benar.

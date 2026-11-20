@@ -2074,13 +2074,19 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                                 if i + 1 < n else None)
                         if nilai_f == "-":
                             return True
-                if perintah in ("jq", "yq", "fq") and dasar in (
-                        "-f", "--from-file"):
-                    # Audit 2475 (koreksi 1851): yq
-                    # PUNYA -f/--front-matter dan
-                    # --from-file (biner v4.44.5) -
-                    # keduanya bernilai dan menguras,
-                    # perlakuan sama dengan jq/fq.
+                if ((perintah in ("jq", "fq")
+                        and dasar in ("-f",
+                                      "--from-file"))
+                        or (perintah == "yq"
+                            and dasar
+                            == "--from-file")):
+                    # Audit 2500 (koreksi 2475): di
+                    # yq, -f adalah --front-matter
+                    # (string biasa), BUKAN from-file;
+                    # hanya --from-file panjang yang
+                    # memuat ekspresi dari berkas
+                    # (biner v4.44.5). jq/fq: -f dan
+                    # --from-file keduanya from-file.
                     # Audit 1103 (cermin): jq menolak "-" sebagai
                     # berkas filter — tak membaca stdin.
                     nilai_f = bersih.split("=", 1)[1] \
@@ -13246,6 +13252,20 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     and b_isk == "-L")
                     or (keluarga == "awk"
                         and b_isk == "-F")):
+                lewati_info = 1
+                continue
+            # Audit 2500: pembawa string bebas
+            # yq (opsi 2480) - pflag menelan
+            # nilainya mentah; token informasional
+            # sesudahnya bukan bendera.
+            if (perintah == "yq" and b_isk in (
+                    "--lua-prefix", "--lua-suffix",
+                    "--properties-separator",
+                    "--xml-attribute-prefix",
+                    "--xml-content-name",
+                    "--xml-directive-name",
+                    "--xml-proc-inst-prefix",
+                    "--front-matter")):
                 lewati_info = 1
                 continue
             if ((perintah == "jq"
