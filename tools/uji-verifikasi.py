@@ -34197,6 +34197,48 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-pretty -D varian besar -d caseInsensitive: membaca stdin - gerbang gagal (Audit 2497)", rc != 0)
         shutil.rmtree(sub1611, ignore_errors=True)
+        sub1612 = klon(tmp, "sub1612")
+        berkas_aksi1612 = os.path.join(
+            sub1612, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1612, encoding="utf-8") as f:
+            isi_aksi1612 = f.read()
+        baris_aksi1612 = [b for b in isi_aksi1612.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1612 = isi_aksi1612.replace(
+                baris_aksi1612,
+                baris_aksi1612.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-sample -Z; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1612 != isi_aksi1612, \
+            "suntikan aksi1612 tidak menembak"
+        with open(berkas_aksi1612, "w", encoding="utf-8") as f:
+            f.write(isi_baru1612)
+        rc, out = jalan(sub1612,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-sample -Z tak dikenal: GetOptException - gerbang lolos (Audit 2498)", rc == 0)
+        shutil.rmtree(sub1612, ignore_errors=True)
+        sub1613 = klon(tmp, "sub1613")
+        berkas_aksi1613 = os.path.join(
+            sub1613, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1613, encoding="utf-8") as f:
+            isi_aksi1613 = f.read()
+        baris_aksi1613 = [b for b in isi_aksi1613.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1613 = isi_aksi1613.replace(
+                baris_aksi1613,
+                baris_aksi1613.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csv2tsv --CSV-DELIM ,; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1613 != isi_aksi1613, \
+            "suntikan aksi1613 tidak menembak"
+        with open(berkas_aksi1613, "w", encoding="utf-8") as f:
+            f.write(isi_baru1613)
+        rc, out = jalan(sub1613,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("csv2tsv --CSV-DELIM varian huruf (serba caseSensitive): galat - gerbang lolos (Audit 2498)", rc == 0)
+        shutil.rmtree(sub1613, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

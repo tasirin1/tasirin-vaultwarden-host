@@ -3461,6 +3461,130 @@ _CSVKIT = {"-d", "--delimiter", "-q", "--quotechar",
            "--date-format", "--datetime-format"}
 
 
+
+_SAH_TSV = {
+    # Audit 2498: nama sah per cabang klon tsv
+    # dari sumber getopt masing-masing:
+    # (panjang kanon, pendek kanon, pulau
+    # panjang caseSensitive, pulau pendek,
+    # lipat huruf). Nama di luar himpunan =
+    # GetOptException - alat berhenti sebelum
+    # membaca. 'h'/'help' + varian help-* =
+    # bantuan implisit std.getopt.
+    "tsv-sample": (
+        frozenset({"delimiter", "key-fields",
+                   "num", "prob", "seed-value",
+                   "weight-field",
+                   "random-value-header", "header",
+                   "version", "inorder", "replace",
+                   "static-seed",
+                   "compatibility-mode",
+                   "gen-random-inorder",
+                   "print-random", "line-buffered",
+                   "prefer-skip-sampling",
+                   "prefer-algorithm-r", "help",
+                   "help-verbose", "help-fields",
+                   "help-options"}),
+        frozenset({"d", "k", "n", "p", "v", "w",
+                   "H", "V", "i", "r", "s", "h"}),
+        frozenset({"header", "seed-value",
+                   "version"}),
+        frozenset({"H", "v", "V"}), True),
+    "tsv-uniq": (
+        frozenset({"fields", "at-least", "max",
+                   "equiv-header", "equiv-start",
+                   "number-header", "delimiter",
+                   "header", "version",
+                   "ignore-case", "repeated",
+                   "equiv", "number",
+                   "line-buffered", "help",
+                   "help-verbose", "help-fields",
+                   "help-options"}),
+        frozenset({"f", "a", "m", "d", "H", "V",
+                   "i", "r", "e", "z", "h"}),
+        frozenset({"header", "version"}),
+        frozenset({"H", "V"}), True),
+    "tsv-pretty": (
+        frozenset({"delimiter", "lookahead",
+                   "repeat-header", "precision",
+                   "empty-replacement",
+                   "space-between-fields",
+                   "max-text-width", "preamble",
+                   "header", "no-header",
+                   "underline-header",
+                   "format-floats", "replace-empty",
+                   "auto-preamble", "version",
+                   "help", "help-verbose",
+                   "help-fields", "help-options"}),
+        frozenset({"d", "l", "r", "p", "E", "s",
+                   "m", "b", "H", "x", "u", "f",
+                   "e", "a", "V", "h"}),
+        frozenset({"header", "replace-empty",
+                   "empty-replacement", "version"}),
+        frozenset({"H", "e", "E", "V"}), True),
+    "tsv-split": (
+        frozenset({"delimiter", "digit-width",
+                   "dir", "key-fields",
+                   "lines-per-file",
+                   "max-open-files", "num-files",
+                   "prefix", "seed-value", "suffix",
+                   "header", "header-in-only",
+                   "append", "static-seed",
+                   "version", "help",
+                   "help-verbose", "help-fields",
+                   "help-options"}),
+        frozenset({"d", "k", "l", "n", "v", "w",
+                   "H", "I", "a", "s", "V", "h"}),
+        frozenset({"header", "header-in-only",
+                   "seed-value", "version"}),
+        frozenset({"H", "I", "v", "V"}), True),
+    "csv2tsv": (
+        frozenset({"quote", "csv-delim",
+                   "tsv-delim", "tab-replacement",
+                   "newline-replacement", "header",
+                   "version", "help-verbose",
+                   "help", "help-fields",
+                   "help-options"}),
+        frozenset({"q", "c", "t", "r", "n", "H",
+                   "V", "h"}),
+        frozenset(), frozenset(), False),
+    "number-lines": (
+        frozenset({"delimiter", "start-number",
+                   "header-string", "header",
+                   "line-buffered", "version",
+                   "help", "help-verbose",
+                   "help-fields", "help-options"}),
+        frozenset({"d", "n", "s", "H", "V", "h"}),
+        frozenset({"header", "version"}),
+        frozenset({"H", "V"}), True),
+}
+
+
+def _nama_sah_tsv(dasar, sah):
+    """Audit 2498: True bila dasar adalah nama
+    opsi yang dikenal getopt alat klon tsv
+    (atau bukan token opsi sama sekali)."""
+    pjg, pdk, pu_pjg, pu_pdk, lipat = sah
+    if (not dasar.startswith("-")
+            or dasar in ("-", "--")):
+        return True
+    if dasar.startswith("--"):
+        nama = dasar[2:]
+        if nama in pu_pjg:
+            return True
+        if nama.lower() in pu_pjg:
+            return False
+        if lipat:
+            return nama.lower() in pjg
+        return nama in pjg
+    huruf = dasar[1]
+    if huruf in pu_pdk:
+        return huruf in pdk
+    if huruf in pdk:
+        return True
+    return lipat and huruf.lower() in pdk
+
+
 def _menguras_khusus(perintah, toks, awal):
     """Audit 1059-1072: penilai perintah yang pengurasannya
     bergantung pada subcommand / bentuk opsi khas — tak bisa
@@ -10681,6 +10805,12 @@ def _menguras_khusus(perintah, toks, awal):
                                         "--help-fields",
                                         "--help-options")):
                 return False
+            if not _nama_sah_tsv(
+                    t_lp.split("=", 1)[0],
+                    _SAH_TSV["tsv-uniq"]):
+                # Audit 2498: nama tak dikenal =
+                # GetOptException - berhenti.
+                return False
             if (t_lp.split("=", 1)[0].lower() in bernilai_lp
                     and "=" not in t_lp):
                 i_lp += 2
@@ -10774,6 +10904,12 @@ def _menguras_khusus(perintah, toks, awal):
                                         "--help-fields",
                                         "--help-options")):
                 return False
+            if not _nama_sah_tsv(
+                    t_lp.split("=", 1)[0],
+                    _SAH_TSV["tsv-sample"]):
+                # Audit 2498: nama tak dikenal =
+                # GetOptException - berhenti.
+                return False
             if (t_lp.split("=", 1)[0].lower() in bernilai_lp
                     and "=" not in t_lp):
                 i_lp += 2
@@ -10864,6 +11000,12 @@ def _menguras_khusus(perintah, toks, awal):
                                         "--help-fields",
                                         "--help-options")):
                 return False
+            if not _nama_sah_tsv(
+                    t_lp.split("=", 1)[0],
+                    _SAH_TSV["tsv-pretty"]):
+                # Audit 2498: nama tak dikenal =
+                # GetOptException - berhenti.
+                return False
             if ((t_lp.split("=", 1)[0] in bernilai_lp
                     or t_lp.split("=", 1)[0].lower()
                     in bernilai_lp)
@@ -10953,6 +11095,12 @@ def _menguras_khusus(perintah, toks, awal):
                                         "--help-fields",
                                         "--help-options")):
                 return False
+            if not _nama_sah_tsv(
+                    t_lp.split("=", 1)[0],
+                    _SAH_TSV["tsv-split"]):
+                # Audit 2498: nama tak dikenal =
+                # GetOptException - berhenti.
+                return False
             if (t_lp.split("=", 1)[0].lower() in bernilai_lp
                     and "=" not in t_lp):
                 i_lp += 2
@@ -11025,6 +11173,11 @@ def _menguras_khusus(perintah, toks, awal):
                                         "--help-fields",
                                         "--help-options")):
                 return False
+            if not _nama_sah_tsv(
+                    dasar_lp, _SAH_TSV["csv2tsv"]):
+                # Audit 2498: nama tak dikenal =
+                # GetOptException - berhenti.
+                return False
             if (dasar_lp in bernilai_cs
                     and "=" not in t_lp):
                 i_lp += 2
@@ -11081,6 +11234,12 @@ def _menguras_khusus(perintah, toks, awal):
                                         "--help-verbose",
                                         "--help-fields",
                                         "--help-options")):
+                return False
+            if not _nama_sah_tsv(
+                    t_lp.split("=", 1)[0],
+                    _SAH_TSV["number-lines"]):
+                # Audit 2498: nama tak dikenal =
+                # GetOptException - berhenti.
                 return False
             if (t_lp.split("=", 1)[0].lower() in bernilai_lp
                     and "=" not in t_lp):

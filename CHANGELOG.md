@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cabang klon tsv: nama opsi tak dikenal kini ditolak (Audit 171)
+
+- Tabel _SAH_TSV per cabang (nama panjang/pendek kanon + pulau caseSensitive + mode lipat dari sumber getopt) dan pemeriksa _nama_sah_tsv di pindai info keenam cabang klon: nama asing, varian huruf pulau (--HEADER), dan varian csv2tsv kini GetOptException di model juga. Lima cabang berdoktrin lain tidak ikut.
+
 ## [Belum rilis] — tsv-pretty: varian huruf besar opsi pendek bernilai dikenal lagi (Audit 171)
 
 - Phobos optMatch melipat huruf untuk nama pendek juga; tuple pindai digit dan himpunan operand cabang tsv-pretty kini memuat -D/-L/-R/-P/-S/-M/-B sebagai pasangan varian d/l/r/p/s/m/b (regresi perbaikan -E 2491).
