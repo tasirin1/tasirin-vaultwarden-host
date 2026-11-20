@@ -55,6 +55,7 @@ public class SettingsActivity extends Activity {
     private EditText dataDirInput;
     private EditText portInput;
     private EditText adminTokenInput;
+    private EditText databaseUrlInput;
     private CheckBox autoStartCheck;
     private CheckBox tgAutoCheck;
     private EditText tgTokenInput;
@@ -288,6 +289,7 @@ public class SettingsActivity extends Activity {
     private TextView httpsBadge;
     private TextView dataDirError;
     private TextView portError;
+    private TextView databaseUrlError;
     private TextView labelDataDir;
     private TextView labelPort;
     private TextView labelAdmin;
@@ -346,6 +348,7 @@ public class SettingsActivity extends Activity {
     private String msgFolderSalah = "";
     private String msgPortSalah = "";
     private String msgAdminSalah = "";
+    private String msgDatabaseUrlSalah = "";
     private String msgTokenSalah = "";
     private String msgChatSalah = "";
     private String msgBinShaSalah = "";
@@ -473,6 +476,7 @@ public class SettingsActivity extends Activity {
         dataDirInput = findViewById(R.id.dataDir);
         portInput = findViewById(R.id.port);
         adminTokenInput = findViewById(R.id.adminToken);
+        databaseUrlInput = findViewById(R.id.databaseUrl);
         autoStartCheck = findViewById(R.id.autoStart);
         tgTokenInput = findViewById(R.id.tgToken);
         tgChatInput = findViewById(R.id.tgChat);
@@ -531,6 +535,7 @@ public class SettingsActivity extends Activity {
         msgFolderSalah = getString(R.string.folder_error);
         msgPortSalah = getString(R.string.port_error);
         msgAdminSalah = getString(R.string.admin_error);
+        msgDatabaseUrlSalah = getString(R.string.database_url_error);
         msgTokenSalah = getString(R.string.token_error);
         msgChatSalah = getString(R.string.chat_error);
         msgBinShaSalah = getString(R.string.bin_sha_error);
@@ -546,10 +551,12 @@ public class SettingsActivity extends Activity {
         adminStatus = findViewById(R.id.adminStatus);
         tgStatus = findViewById(R.id.tgStatus);
         adminError = findViewById(R.id.adminError);
+        databaseUrlError = findViewById(R.id.databaseUrlError);
         tokenError = findViewById(R.id.tokenError);
         chatError = findViewById(R.id.chatError);
         binShaError = findViewById(R.id.binShaError);
         awaliGalat(adminError, R.string.admin_error);
+        awaliGalat(databaseUrlError, R.string.database_url_error);
         awaliGalat(tokenError, R.string.token_error);
         awaliGalat(chatError, R.string.chat_error);
         awaliGalat(binShaError, R.string.bin_sha_error);
@@ -642,6 +649,7 @@ public class SettingsActivity extends Activity {
         dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()));
         portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""));
+        databaseUrlInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATABASE_URL, ""));
         autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
         sp.edit().putBoolean(ServerService.KEY_HTTPS, true).apply();
         tgTokenInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
@@ -663,6 +671,7 @@ public class SettingsActivity extends Activity {
         dasarDataDir = dataDirInput.getText().toString();
         dasarPort = portInput.getText().toString();
         dasarAdmin = adminTokenInput.getText().toString();
+        dasarDatabaseUrl = databaseUrlInput.getText().toString();
         return sp;
     }
 
@@ -716,6 +725,7 @@ public class SettingsActivity extends Activity {
         dataDirInput.addTextChangedListener(onTextChanged(this::validasiInline));
         portInput.addTextChangedListener(onTextChanged(this::validasiInline));
         adminTokenInput.addTextChangedListener(onTextChanged(this::validasiInline));
+        databaseUrlInput.addTextChangedListener(onTextChanged(this::validasiInline));
         tgTokenInput.addTextChangedListener(onTextChanged(this::validasiInline));
         tgChatInput.addTextChangedListener(onTextChanged(this::validasiInline));
         validasiInline();
@@ -1051,7 +1061,7 @@ public class SettingsActivity extends Activity {
     // BENAR-BENAR diubah user sejak itu — field yang tak disentuh tak
     // boleh menimpa perubahan eksternal (mis. prefs hasil restore bot)
     // dengan nilai tampilan yang sudah basi (Audit 588).
-    private String dasarDataDir, dasarPort, dasarAdmin;
+    private String dasarDataDir, dasarPort, dasarAdmin, dasarDatabaseUrl;
 
     static boolean berubahDariDasar(String teks, String dasar) {
         return dasar == null || !teks.equals(dasar);
@@ -1081,6 +1091,11 @@ public class SettingsActivity extends Activity {
                 && galatAdmin(admin, msgAdminSalah) == null) {
             ed = tulisBilaBeda(ed, sp, ServerService.KEY_ADMIN_TOKEN, admin.trim());
         }
+        String databaseUrl = databaseUrlInput.getText().toString();
+        if (berubahDariDasar(databaseUrl, dasarDatabaseUrl)
+                && galatDatabaseUrl(databaseUrl, msgDatabaseUrlSalah) == null) {
+            ed = tulisBilaBeda(ed, sp, ServerService.KEY_DATABASE_URL, databaseUrl.trim());
+        }
         if (ed != null) {
             ed.apply();
             paksaCacheUbah = true;
@@ -1088,6 +1103,7 @@ public class SettingsActivity extends Activity {
         dasarDataDir = dataDir;
         dasarPort = port;
         dasarAdmin = admin;
+        dasarDatabaseUrl = databaseUrl;
     }
 
     private SharedPreferences.Editor tulisBilaBeda(SharedPreferences.Editor ed,
@@ -1124,11 +1140,19 @@ public class SettingsActivity extends Activity {
         String dataDir = dataDirInput.getText().toString().trim();
         String port = portInput.getText().toString().trim();
         String adminToken = adminTokenInput.getText().toString().trim();
+        String databaseUrl = databaseUrlInput.getText().toString().trim();
 
         if (galatAdmin(adminToken, msgAdminSalah) != null) {
             toast(msgAdminSalah);
             appendUiLog("[app] Admin token terlalu pendek - Start dibatalkan.");
             adminTokenInput.requestFocus();
+            return;
+        }
+
+        if (galatDatabaseUrl(databaseUrl, msgDatabaseUrlSalah) != null) {
+            toast(msgDatabaseUrlSalah);
+            appendUiLog("[app] URL database tak valid - Start dibatalkan.");
+            databaseUrlInput.requestFocus();
             return;
         }
 
@@ -1172,6 +1196,7 @@ public class SettingsActivity extends Activity {
         ed.putString(ServerService.KEY_DATA_DIR, dataDirEfektif);
         ed.putString(ServerService.KEY_PORT, portEfektif);
         ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
+        ed.putString(ServerService.KEY_DATABASE_URL, databaseUrl);
         ed.apply();
         paksaCacheUbah = true;
 
@@ -3245,12 +3270,14 @@ public class SettingsActivity extends Activity {
         dataDirInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar()));
         portInput.setText(ServerService.effectivePort(sp));
         adminTokenInput.setText(TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""));
+        databaseUrlInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATABASE_URL, ""));
         // Nilai hasil reload adalah keadaan prefs, bukan suntingan user:
         // segarkan dasar simpan agar onPause tak menulisnya menang atas
         // perubahan eksternal berikutnya (Audit 596).
         dasarDataDir = dataDirInput.getText().toString();
         dasarPort = portInput.getText().toString();
         dasarAdmin = adminTokenInput.getText().toString();
+        dasarDatabaseUrl = databaseUrlInput.getText().toString();
         autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
         tgTokenInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
@@ -3909,6 +3936,9 @@ public class SettingsActivity extends Activity {
         String gAdmin = adminTokenInput != null ? galatAdmin(adminTokenInput.getText().toString(),
                 msgAdminSalah) : null;
         samakanVisibilitas(adminError, gAdmin == null ? View.GONE : View.VISIBLE);
+        String gDb = databaseUrlInput != null ? galatDatabaseUrl(databaseUrlInput.getText().toString(),
+                msgDatabaseUrlSalah) : null;
+        samakanVisibilitas(databaseUrlError, gDb == null ? View.GONE : View.VISIBLE);
         String gTok = tgTokenInput != null ? galatTgToken(tgTokenInput.getText().toString(),
                 msgTokenSalah) : null;
         samakanVisibilitas(tokenError, gTok == null ? View.GONE : View.VISIBLE);
@@ -3918,7 +3948,7 @@ public class SettingsActivity extends Activity {
         String gSha = binShaInput != null ? galatBinSha(binShaInput.getText().toString(),
                 msgBinShaSalah) : null;
         samakanVisibilitas(binShaError, gSha == null ? View.GONE : View.VISIBLE);
-        inputStartValid = gData == null && gPort == null && gAdmin == null;
+        inputStartValid = gData == null && gPort == null && gAdmin == null && gDb == null;
         perbaruiEnabledStartStop();
         perbaruiStatusIsian();
     }
@@ -3982,6 +4012,14 @@ public class SettingsActivity extends Activity {
             return null;
         }
         return isi.length() >= 8 ? null : msgSalah;
+    }
+
+    static String galatDatabaseUrl(String url, String msgSalah) {
+        String isi = url == null ? "" : url.trim();
+        if (isi.isEmpty()) {
+            return null;
+        }
+        return ServerService.databaseUrlValid(isi) ? null : msgSalah;
     }
 
     static String galatBinSha(String sha, String msgSalah) {

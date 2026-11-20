@@ -92,6 +92,7 @@ public class ServerService extends Service {
 
     public static final String KEY_HTTPS = "https";
     public static final String KEY_ADMIN_TOKEN = "admin_token";
+    public static final String KEY_DATABASE_URL = "database_url";
     public static final String KEY_AUTO_UPDATE = "auto_update_binary";
     public static final String KEY_AUTO_UPDATE_WV = "auto_update_webvault";
     public static final String KEY_AUTO_RESTART_UPDATE = "auto_restart_update";
@@ -128,6 +129,33 @@ public class ServerService extends Service {
         for (int i = 0; i < token.length(); i++) {
             char c = token.charAt(i);
             if (c <= ' ' || c == 127) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static boolean databaseUrlValid(String url) {
+        if (url == null) {
+            return false;
+        }
+        String u = url.trim();
+        String sisa;
+        if (u.startsWith("postgres://")) {
+            sisa = u.substring("postgres://".length());
+        } else if (u.startsWith("postgresql://")) {
+            sisa = u.substring("postgresql://".length());
+        } else if (u.startsWith("mysql://")) {
+            sisa = u.substring("mysql://".length());
+        } else {
+            return false;
+        }
+        if (sisa.length() < 3) {
+            return false;
+        }
+        for (int i = 0; i < u.length(); i++) {
+            char c = u.charAt(i);
+            if (c <= ' ' || c == 127 || c == '"' || c == '\'') {
                 return false;
             }
         }
@@ -2104,6 +2132,22 @@ public class ServerService extends Service {
 
         pb.environment().put("ROCKET_WORKERS", "1");
         pb.environment().put("DATABASE_MAX_CONNS", "2");
+
+        String databaseUrl = TgBackup.amanString(sp, KEY_DATABASE_URL, "");
+        String dbBersih = databaseUrl == null ? "" : databaseUrl.trim();
+        if (!dbBersih.isEmpty()) {
+            if (!databaseUrlValid(dbBersih)) {
+                appendLog("[app] FATAL: URL database mengandung spasi/baris baru"
+                        + " atau skemanya bukan postgres/mysql"
+                        + " - server TIDAK start. Perbaiki di Settings.");
+                setStatus("URL database tak valid - perbaiki di Settings.");
+                TgBackup.sendMessage(this, "Gagal start: URL database tak valid."
+                        + " Perbaiki di Settings.");
+                return null;
+            }
+            pb.environment().put("DATABASE_URL", dbBersih);
+            appendLog("[app] Database eksternal aktif (DATABASE_URL).");
+        }
 
         sesi.adminToken = TgBackup.amanString(sp, KEY_ADMIN_TOKEN, "");
 

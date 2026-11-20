@@ -4428,6 +4428,7 @@ public final class TgBackup {
     static final java.util.Set<String> KUNCI_STRING = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, ServerService.KEY_PORT,
                     ServerService.KEY_UPDATE_VERSION, ServerService.KEY_ADMIN_TOKEN,
+                    ServerService.KEY_DATABASE_URL,
                     ServerService.KEY_BIN_SHA, ServerService.KEY_BIN_PATCH,
                     ServerService.KEY_BIN_PILIH, ServerService.KEY_WV_PILIH,
                     KEY_TG_TOKEN, KEY_TG_CHAT, KEY_TG_PASS,

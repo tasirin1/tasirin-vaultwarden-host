@@ -50,6 +50,8 @@
     <string name="settings">Settings</string>
     <string name="admin_token">Admin Token</string>
     <string name="admin_token_hint">leave empty if not needed</string>
+    <string name="database_url">External Database URL</string>
+    <string name="database_url_hint">empty = local file database</string>
     <string name="auto_start_boot">Auto-start on boot</string>
     <string name="pin_label">App lock PIN</string>
     <string name="pin_hint">PIN min. 4 characters (letters/digits)</string>
@@ -143,6 +145,7 @@
     <string name="cert_info_tutup">Hide ▴</string>
     <string name="cert_hint_singkat">HTTPS is always on. Install the CA on each phone so Bitwarden trusts it.</string>
     <string name="admin_error">Token must be at least 8 characters when filled (may be empty).</string>
+    <string name="database_url_error">Database URL must start with postgres://, postgresql://, or mysql:// and contain no spaces (may be empty).</string>
     <string name="token_error">Token format: digits:id — example 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11.</string>
     <string name="chat_error">Chat ID must be numeric (may be negative, example -1001234567890).</string>
     <string name="bin_sha_error">SHA-256 must be exactly 64 hex characters (0–9, a-f) — check for spaces or a truncated paste.</string>

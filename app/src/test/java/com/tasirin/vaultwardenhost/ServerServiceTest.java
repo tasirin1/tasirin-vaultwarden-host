@@ -374,6 +374,19 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void databaseUrlValidHanyaPostgresMysql() {
+        assertTrue(ServerService.databaseUrlValid("postgres://user:pass@host:5432/db"));
+        assertTrue(ServerService.databaseUrlValid("postgresql://user:pass@host:5432/db"));
+        assertTrue(ServerService.databaseUrlValid("mysql://user:pass@host:3306/db"));
+        assertFalse(ServerService.databaseUrlValid(null));
+        assertFalse(ServerService.databaseUrlValid(""));
+        assertFalse(ServerService.databaseUrlValid("sqlite://db.sqlite3"));
+        assertFalse(ServerService.databaseUrlValid("postgres://"));
+        assertFalse(ServerService.databaseUrlValid("postgres://a b"));
+        assertFalse(ServerService.databaseUrlValid("https://host/db"));
+    }
+
+    @Test
     public void dataDirBawaanSegarTakKosongDanStabil() {
 
         String a = ServerService.dataDirBawaanSegar();

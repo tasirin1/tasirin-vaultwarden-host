@@ -82,6 +82,16 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void galatDatabaseUrlTerimaKosongDanSah() {
+        assertNull(SettingsActivity.galatDatabaseUrl(null, "SALAH"));
+        assertNull(SettingsActivity.galatDatabaseUrl("", "SALAH"));
+        assertNull(SettingsActivity.galatDatabaseUrl("postgres://u:p@h:5432/db", "SALAH"));
+        assertNull(SettingsActivity.galatDatabaseUrl("mysql://u:p@h:3306/db", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatDatabaseUrl("sqlite://x", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatDatabaseUrl("postgres://a b", "SALAH"));
+    }
+
+    @Test
     public void galatFolderTerimaKosongDanBawaan() {
         assertNull(SettingsActivity.galatFolder(null, "SALAH"));
         assertNull(SettingsActivity.galatFolder("", "SALAH"));

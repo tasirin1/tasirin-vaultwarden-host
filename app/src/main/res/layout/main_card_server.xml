@@ -160,7 +160,7 @@
 
             <EditText
                 android:id="@+id/port"
-                android:nextFocusDown="@id/adminToken"
+                android:nextFocusDown="@id/databaseUrl"
                 android:nextFocusUp="@id/dataDir"
                 style="@style/TasirinInput"
                 android:layout_width="match_parent"
@@ -173,6 +173,35 @@
                 android:id="@+id/portError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/status_off"
+                android:textSize="11sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/labelDatabaseUrl"
+                style="@style/TasirinLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@id/databaseUrl"
+                android:text="@string/database_url" />
+
+            <EditText
+                android:id="@+id/databaseUrl"
+                android:nextFocusDown="@id/adminToken"
+                android:nextFocusUp="@id/port"
+                style="@style/TasirinInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/database_url_hint"
+                android:inputType="text"
+                android:saveEnabled="false"
+                tools:ignore="LabelFor" />
+
+            <TextView
+                android:id="@+id/databaseUrlError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/database_url_error"
                 android:textColor="@color/status_off"
                 android:textSize="11sp"
                 android:visibility="gone" />

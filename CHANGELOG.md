@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pengaturan URL database eksternal (PostgreSQL/MySQL)
+
+- Kolom baru "URL Database Eksternal" di kartu Server: bila diisi (`postgres://`, `postgresql://`, atau `mysql://`), server Vaultwarden memakai database itu lewat `DATABASE_URL`; kosong = database berkas lokal seperti sebelumnya. URL tidak pernah ditulis ke log aplikasi. URL ikut tersimpan di ekspor konfigurasi, tetapi impor konfigurasi tidak menimpanya (perlakuan sama seperti admin token). Catatan: data lama TIDAK berpindah otomatis — database eksternal mulai dari kosong, dan lampiran tetap tersimpan di folder data lokal.
+
 ## [Belum rilis] — Folder data bawaan pindah ke folder pribadi Android/data
 
 - Pemasangan baru kini memakai `/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden` sebagai folder data bawaan (sebelumnya `/sdcard/vaultwarden`). Folder pribadi aplikasi tidak butuh izin penyimpanan — `butuhIzinEksternal` kini mengecualikan jalur Android/data milik aplikasi sendiri — dan tidak bisa diintip aplikasi lain. Pemasangan lama TIDAK berubah: folder yang sudah tersimpan di pengaturan tetap dipakai, data tidak dipindah otomatis. Catatan: folder pribadi ikut terhapus bila aplikasi dicopot.
