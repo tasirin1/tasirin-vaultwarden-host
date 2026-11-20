@@ -42,6 +42,10 @@ public final class StoragePerm {
         if (d.isEmpty()) {
             return true;
         }
+        if (d.contains("/Android/data/com.tasirin.vaultwardenhost/")
+                || d.endsWith("/Android/data/com.tasirin.vaultwardenhost")) {
+            return false;
+        }
         return d.equals("/sdcard") || d.startsWith("/sdcard/")
                 || d.equals("/storage") || d.startsWith("/storage/")
                 || d.equals("/mnt") || d.startsWith("/mnt/");

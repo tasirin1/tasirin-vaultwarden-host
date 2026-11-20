@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Folder data bawaan pindah ke folder pribadi Android/data
+
+- Pemasangan baru kini memakai `/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden` sebagai folder data bawaan (sebelumnya `/sdcard/vaultwarden`). Folder pribadi aplikasi tidak butuh izin penyimpanan — `butuhIzinEksternal` kini mengecualikan jalur Android/data milik aplikasi sendiri — dan tidak bisa diintip aplikasi lain. Pemasangan lama TIDAK berubah: folder yang sudah tersimpan di pengaturan tetap dipakai, data tidak dipindah otomatis. Catatan: folder pribadi ikut terhapus bila aplikasi dicopot.
+
 ## [Belum rilis] — keep-header: redirect sesudah -- bukan perintah anak (Audit 171)
 
 - Penentuan perintah anak kini melewati pasangan operator+target redirect (shell membuangnya sebelum exec); keep-header -- > hasil.txt divonis berhenti, keep-header -- > hasil.txt sort tetap menguras.

@@ -17,7 +17,7 @@
         <item>Access: web vault in browser plus Bitwarden app via HTTPS</item>
         <item>Security: app PIN lock, SHA-256 verified updates, HTTPS-only</item>
         <item>Performance: lightweight build for low-memory STBs</item>
-        <item>Storage: internal cache plus /sdcard/vaultwarden data</item>
+        <item>Storage: internal cache plus app-private Android/data folder</item>
         <item>License: GPL-3.0 (app) · AGPL-3.0 (Vaultwarden)</item>
     </string-array>
 </resources>

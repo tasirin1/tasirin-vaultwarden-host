@@ -8,7 +8,7 @@
         <item>Akses: web vault lewat browser plus aplikasi Bitwarden via HTTPS</item>
         <item>Keamanan: kunci PIN aplikasi, update terverifikasi SHA-256, HTTPS-only</item>
         <item>Performa: build ringan untuk STB bermemori kecil</item>
-        <item>Penyimpanan: cache internal plus data di /sdcard/vaultwarden</item>
+        <item>Penyimpanan: cache internal plus data di folder pribadi Android/data</item>
         <item>Lisensi: GPL-3.0 (app) · AGPL-3.0 (Vaultwarden)</item>
     </string-array>
 </resources>

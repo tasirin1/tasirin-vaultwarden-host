@@ -34,6 +34,16 @@ public class StoragePermTest {
     }
 
     @Test
+    public void folderPribadiAndroidDataTakButuhIzin() {
+        assertFalse(StoragePerm.butuhIzinEksternal(
+                "/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
+        assertFalse(StoragePerm.butuhIzinEksternal(
+                "/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost"));
+        assertTrue(StoragePerm.butuhIzinEksternal(
+                "/storage/emulated/0/Android/data/com.aplikasi.lain/files"));
+    }
+
+    @Test
     public void cukupAkses_api30TerimaLegacyAtauKelola() {
         assertTrue(StoragePerm.cukupAkses(30, true, false));
         assertTrue(StoragePerm.cukupAkses(34, true, true));

@@ -50,7 +50,11 @@ public class ServerService extends Service {
         return defaultDataDir();
     }
 
-    private static final String DATA_DIR_CADANGAN = "/sdcard/vaultwarden";
+    private static final String SUBDIR_DATA_BAWAAN =
+            "Android/data/com.tasirin.vaultwardenhost/files/vaultwarden";
+
+    private static final String DATA_DIR_CADANGAN =
+            "/storage/emulated/0/" + SUBDIR_DATA_BAWAAN;
 
     private static volatile String cacheDirBawaan = null;
 
@@ -64,7 +68,7 @@ public class ServerService extends Service {
         try {
             java.io.File ext = android.os.Environment.getExternalStorageDirectory();
             if (ext != null) {
-                hasil = new java.io.File(ext, "vaultwarden").getAbsolutePath();
+                hasil = new java.io.File(ext, SUBDIR_DATA_BAWAAN).getAbsolutePath();
             }
         } catch (Exception ignored) {
         }
