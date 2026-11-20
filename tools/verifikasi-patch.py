@@ -10886,7 +10886,8 @@ def _menguras_khusus(perintah, toks, awal):
             if (t_ds.split("=", 1)[0]
                     in ('-d', '--delimiter', '-l', '--lookahead', '-r', '--repeat-header',
                         '-p', '--precision', '-E', '--empty-replacement', '-s', '--space-between-fields',
-                        '-m', '--max-text-width', '-b', '--preamble')
+                        '-m', '--max-text-width', '-b', '--preamble',
+                        '-D', '-L', '-R', '-P', '-S', '-M', '-B')
                     and "=" not in t_ds):
                 i_ds += 2
                 continue
@@ -10895,7 +10896,7 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             i_ds += 1
         ops_ts = _operand_sesudah_opsi(
-            toks, awal, {'-d', '--delimiter', '-l', '--lookahead', '-r', '--repeat-header', '-p', '--precision', '-E', '--empty-replacement', '-s', '--space-between-fields', '-m', '--max-text-width', '-b', '--preamble'})
+            toks, awal, {'-d', '--delimiter', '-l', '--lookahead', '-r', '--repeat-header', '-p', '--precision', '-E', '--empty-replacement', '-s', '--space-between-fields', '-m', '--max-text-width', '-b', '--preamble', '-D', '-L', '-R', '-P', '-S', '-M', '-B'})
         if "\x00gantung" in ops_ts:
             return False
         return not ops_ts or "-" in ops_ts

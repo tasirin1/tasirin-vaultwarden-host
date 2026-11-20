@@ -34176,6 +34176,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("tsv-split -f hantu (sumber hanya k|key-fields): galat getopt - gerbang lolos (Audit 2496)", rc == 0)
         shutil.rmtree(sub1610, ignore_errors=True)
+        sub1611 = klon(tmp, "sub1611")
+        berkas_aksi1611 = os.path.join(
+            sub1611, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1611, encoding="utf-8") as f:
+            isi_aksi1611 = f.read()
+        baris_aksi1611 = [b for b in isi_aksi1611.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1611 = isi_aksi1611.replace(
+                baris_aksi1611,
+                baris_aksi1611.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-pretty -D ,; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1611 != isi_aksi1611, \
+            "suntikan aksi1611 tidak menembak"
+        with open(berkas_aksi1611, "w", encoding="utf-8") as f:
+            f.write(isi_baru1611)
+        rc, out = jalan(sub1611,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-pretty -D varian besar -d caseInsensitive: membaca stdin - gerbang gagal (Audit 2497)", rc != 0)
+        shutil.rmtree(sub1611, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

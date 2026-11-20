@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — tsv-pretty: varian huruf besar opsi pendek bernilai dikenal lagi (Audit 171)
+
+- Phobos optMatch melipat huruf untuk nama pendek juga; tuple pindai digit dan himpunan operand cabang tsv-pretty kini memuat -D/-L/-R/-P/-S/-M/-B sebagai pasangan varian d/l/r/p/s/m/b (regresi perbaikan -E 2491).
+
 ## [Belum rilis] — tsv-split: hantu -f/--fields dibuang dari tiga himpunan (Audit 171)
 
 - Sumber tsv-split.d hanya punya satu getopt tanpa f|fields (bidang hanya k|key-fields); hantu warisan generator 2485 dibuang dari bernilai_lp, tuple pindai digit, dan himpunan operand sekaligus.
