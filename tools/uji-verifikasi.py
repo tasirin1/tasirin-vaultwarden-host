@@ -34155,6 +34155,27 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("yq --arg nama hantu ('unknown flag') - gerbang lolos (Audit 2495)", rc == 0)
         shutil.rmtree(sub1609, ignore_errors=True)
+        sub1610 = klon(tmp, "sub1610")
+        berkas_aksi1610 = os.path.join(
+            sub1610, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1610, encoding="utf-8") as f:
+            isi_aksi1610 = f.read()
+        baris_aksi1610 = [b for b in isi_aksi1610.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1610 = isi_aksi1610.replace(
+                baris_aksi1610,
+                baris_aksi1610.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-split -f 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1610 != isi_aksi1610, \
+            "suntikan aksi1610 tidak menembak"
+        with open(berkas_aksi1610, "w", encoding="utf-8") as f:
+            f.write(isi_baru1610)
+        rc, out = jalan(sub1610,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("tsv-split -f hantu (sumber hanya k|key-fields): galat getopt - gerbang lolos (Audit 2496)", rc == 0)
+        shutil.rmtree(sub1610, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

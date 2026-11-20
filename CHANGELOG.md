@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — tsv-split: hantu -f/--fields dibuang dari tiga himpunan (Audit 171)
+
+- Sumber tsv-split.d hanya punya satu getopt tanpa f|fields (bidang hanya k|key-fields); hantu warisan generator 2485 dibuang dari bernilai_lp, tuple pindai digit, dan himpunan operand sekaligus.
+
 ## [Belum rilis] — yq: nama hantu ditolak dalam bentuk = maupun pisah (Audit 170)
 
 - --arg/--argjson/--rawfile/--slurpfile adalah opsi jq, bukan yq ('unknown flag'); handler kini menolak keempat nama itu untuk yq dalam bentuk apa pun.

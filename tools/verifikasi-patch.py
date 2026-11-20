@@ -10904,12 +10904,12 @@ def _menguras_khusus(perintah, toks, awal):
         # tsv-split.d:352: masukan bawaan ['-']
         # = stdin (keluaran ke berkas pecahan).
         # getopt caseInsensitive; opsi bernilai:
-        # -d/--delimiter, -f/--fields,
+        # -d/--delimiter,
         # -k/--key-fields, -l/--lines-per-file,
         # -n/--num-files, -v/--seed-value,
         # -w/--digit-width, --dir, --prefix,
         # --suffix, --max-open-files.
-        bernilai_lp = ['--delimiter', '--digit-width', '--dir', '--fields', '--key-fields', '--lines-per-file', '--max-open-files', '--num-files', '--prefix', '--seed-value', '--suffix', '-V', '-d', '-f', '-k', '-l', '-n', '-v', '-w']
+        bernilai_lp = ['--delimiter', '--digit-width', '--dir', '--key-fields', '--lines-per-file', '--max-open-files', '--num-files', '--prefix', '--seed-value', '--suffix', '-V', '-d', '-k', '-l', '-n', '-v', '-w']
         # Audit 2485: --seed-value pulau
         # caseSensitive di sumber - varian
         # huruf lain galat getopt.
@@ -10970,7 +10970,7 @@ def _menguras_khusus(perintah, toks, awal):
             if t_ds == "--":
                 break
             if (t_ds.split("=", 1)[0]
-                    in ('-d', '--delimiter', '-f', '--fields', '-k', '--key-fields',
+                    in ('-d', '--delimiter', '-k', '--key-fields',
                         '-l', '--lines-per-file', '-n', '--num-files', '-v', '--seed-value',
                         '-w', '--digit-width', '--dir', '--prefix', '--suffix', '--max-open-files')
                     and "=" not in t_ds):
@@ -10981,7 +10981,7 @@ def _menguras_khusus(perintah, toks, awal):
                 return False
             i_ds += 1
         ops_ts = _operand_sesudah_opsi(
-            toks, awal, {'-d', '--delimiter', '-f', '--fields', '-k', '--key-fields', '-l', '--lines-per-file', '-n', '--num-files', '-v', '--seed-value', '-w', '--digit-width', '--dir', '--prefix', '--suffix', '--max-open-files'})
+            toks, awal, {'-d', '--delimiter', '-k', '--key-fields', '-l', '--lines-per-file', '-n', '--num-files', '-v', '--seed-value', '-w', '--digit-width', '--dir', '--prefix', '--suffix', '--max-open-files'})
         if "\x00gantung" in ops_ts:
             return False
         return not ops_ts or "-" in ops_ts
