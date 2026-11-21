@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Peringatan git diff --check gerbang dihidupkan lagi (Audit 172)
+
+- Peringatan "Rapikan spasi diff --check" di `cek_pola_berisiko` mati total sejak lama: ia membaca hasil lewat `jalan()` yang mengembalikan stdout hanya bila kode keluar 0 — padahal `git diff --check` ber-temuan keluar bukan-0 dengan temuan di stdout (dibuang), dan saat bersih stdout-nya kosong (falsy). Kedua arah membuat cabang peringatan tak terjangkau. Kini panggilan itu memakai `jalan_longgar()` baru yang mengembalikan stdout apa pun kode keluarnya (None hanya bila proses gagal jalan). Terbukti dengan probe pohon kotor: spasi ekor kini memicu peringatan; pohon bersih tetap diam.
+
 ## [Belum rilis] — script -c dan systemd-run: semua segmen perintah dinilai (Audit 172)
 
 - Cabang `script` dan `systemd-run` di penganalisis penguras stdin gerbang sebelumnya hanya menilai segmen PERTAMA string perintah anak: `script -c 'echo x; cat'` dan `systemd-run --pipe sh -c 'echo x; cat'` divonis tidak menguras padahal `cat` di segmen kedua sungguh menguras stdin (fail-open). Kini semua segmen di-OR-kan, sejajar doktrin `_substitusi_masukan_menguras` dan jalur generik `sh -c` yang sudah benar. Skenario suite baru 1617–1619 mengunci kedua bentuk menguras dan satu kontrol tak-menguras dua segmen.

@@ -14499,6 +14499,18 @@ def jalan(*args):
         return None
     return hasil.stdout if hasil.returncode == 0 else None
 
+def jalan_longgar(*args):
+    args = list(args)
+    if args and args[0] == "git":
+        args = ["git", "-c", "core.quotepath=false"] + args[1:]
+    try:
+        hasil = subprocess.run(
+            args, cwd=AKAR, capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=60)
+    except Exception:
+        return None
+    return hasil.stdout
+
 def rentang_cadangan():
     if jalan("git", "rev-parse", "--verify", "HEAD~1") is None:
         return None
@@ -16152,9 +16164,9 @@ def cek_pola_berisiko(peringatan, diff, berubah, rentang=""):
 
     r = rentang_normal(rentang) if rentang else None
     if r is not None:
-        cek = jalan("git", "diff", "--check", r[0] + "..." + r[2])
+        cek = jalan_longgar("git", "diff", "--check", r[0] + "..." + r[2])
     else:
-        cek = jalan("git", "diff", "--check")
+        cek = jalan_longgar("git", "diff", "--check")
     if cek:
         peringatan.append("Rapikan spasi diff --check: " + cek.strip().splitlines()[0][:100])
 
