@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Tombol Start/Stop MainActivity diselaraskan ulang tiap tick (Audit 174)
+
+- Temuan 2542 (Sedang): sesudah rotasi di tengah unduhan web-vault dari dialog beranda, tombol Start/Stop instance baru macet nonaktif permanen — instance baru menonaktifkannya saat lahir (uiBusy masih true), sedangkan penyelesaian unduhan memanggil `setBusy(false)` pada instance lama yang berhenti di penjaga `uiHidup()`, dan loop refresh instance baru hanya menyelaraskan teks status, bukan keadaan tombol. `refreshFromService` kini menyelaraskan `setEnabled` tombol dari penanda statis `uiBusy` pada tiap tick (pelacak `tombolAktifSelaras`/`tombolAktifDiterapkan`, pola yang sama dengan penyelarasan teks tombol dan dengan obat Audit 591 di SettingsActivity). Closes #2316.
+
 ## [Belum rilis] — URL database tak lagi ikut terekspor di config backup (Audit 174)
 
 - Temuan 2541 (Tinggi): `database_url` tidak masuk `SECRET_PREF_KEYS`, sehingga URL lengkap database eksternal (user + kata sandi + host) tertulis polos di `config.json` setiap zip backup, termasuk backup tanpa enkripsi — padahal `admin_token` dan token bot sudah lama dipagari dari ekspor. Kunci itu kini anggota `SECRET_PREF_KEYS` sehingga `kunciDiekspor` menolaknya; sisi impor tidak berubah (memang sudah tak boleh diimpor). Uji 2520 yang mengunci perilaku lama dibalik di commit yang sama menjadi `databaseUrlRahasiaTakDieksporDanTakBolehImpor` plus asersi `kunciDiekspor` di blok uji ekspor. Closes #2315.

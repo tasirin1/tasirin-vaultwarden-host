@@ -89,6 +89,8 @@ public class MainActivity extends Activity {
 
     private boolean tombolJalan = false;
     private boolean tombolSelaras = false;
+    private boolean tombolAktifSelaras = false;
+    private boolean tombolAktifDiterapkan = true;
     private boolean hintShown = false;
     private boolean refreshActive = true;
 
@@ -551,6 +553,13 @@ public class MainActivity extends Activity {
         }
 
         ui.removeCallbacks(refreshLoop);
+
+        boolean tombolAktif = !uiBusy;
+        if (!tombolAktifSelaras || tombolAktifDiterapkan != tombolAktif) {
+            tombolAktifDiterapkan = tombolAktif;
+            tombolAktifSelaras = true;
+            startStopBtn.setEnabled(tombolAktif);
+        }
 
         if (uiBusy) {
             String dl = Updater.downloadStatus();
