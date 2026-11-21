@@ -14789,7 +14789,7 @@ def berkas_dihapus(rentang):
     if r is not None:
         out = jalan("git", "diff", "--name-status", r[0] + r[1] + r[2])
         if out is None:
-            return []
+            return None
         return [x.split(None, 1)[1] for x in out.splitlines()
                 if x.startswith("D")]
     hapus = set()
@@ -16299,9 +16299,20 @@ def utama():
     # eksplisit (CI) tetap murni rentang.
     if args.rentang:
         hapus = berkas_dihapus(rentang_cek)
+        if hapus is None:
+            gagal.append("Daftar berkas dihapus tak terbaca: git diff "
+                         "--name-status gagal untuk rentang — cek hapusan "
+                         "tidak bisa dijalankan")
+            hapus = []
     elif rentang_cek:
-        hapus = sorted(set(berkas_dihapus(rentang_cek))
-                       | set(berkas_dihapus("")))
+        hapus_rentang = berkas_dihapus(rentang_cek)
+        hapus_lokal = berkas_dihapus("")
+        if hapus_rentang is None or hapus_lokal is None:
+            gagal.append("Daftar berkas dihapus tak terbaca: git diff "
+                         "--name-status gagal untuk rentang — cek hapusan "
+                         "tidak bisa dijalankan")
+        hapus = sorted(set(hapus_rentang or [])
+                       | set(hapus_lokal or []))
     else:
         # rentang_cek kosong = sumber lokal itu sendiri; memanggilnya dua
         # kali (bentuk union lama) membuang separuh panggilan git (Audit 777).

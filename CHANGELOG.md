@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — berkas_dihapus mode rentang kini fail-closed (Audit 172)
+
+- `berkas_dihapus` mode rentang sebelumnya menelan kegagalan `git diff --name-status` sebagai "tidak ada hapusan" (`return []`), sehingga cek berkas-Java-dihapus dan cek metode hilang berjalan atas himpunan kosong — fail-open bila panggilan itu gagal di CI sementara diff utama berhasil. Kini mode rentang mengembalikan `None` saat git gagal dan `utama()` mencatatnya sebagai GAGAL ("Daftar berkas dihapus tak terbaca") pada kedua jalur pemanggil (rentang eksplisit dan union rentang+lokal). Terbukti dengan injeksi kegagalan: memaksa `--name-status` gagal membuat gerbang keluar 1 dengan pesan itu.
+
 ## [Belum rilis] — Peringatan git diff --check gerbang dihidupkan lagi (Audit 172)
 
 - Peringatan "Rapikan spasi diff --check" di `cek_pola_berisiko` mati total sejak lama: ia membaca hasil lewat `jalan()` yang mengembalikan stdout hanya bila kode keluar 0 — padahal `git diff --check` ber-temuan keluar bukan-0 dengan temuan di stdout (dibuang), dan saat bersih stdout-nya kosong (falsy). Kedua arah membuat cabang peringatan tak terjangkau. Kini panggilan itu memakai `jalan_longgar()` baru yang mengembalikan stdout apa pun kode keluarnya (None hanya bila proses gagal jalan). Terbukti dengan probe pohon kotor: spasi ekor kini memicu peringatan; pohon bersih tetap diam.
