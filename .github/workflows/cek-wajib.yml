@@ -6,7 +6,7 @@ name: Cek wajib PR
 # dan merge normalnya buntu selamanya (Audit 638). Workflow ringan ini
 # berjalan untuk SEMUA PR tanpa saringan path dan melaporkan check
 # wajib itu dengan langkah-langkah cek yang asli, agar PR dokumen
-# tetap bisa di-merge lewat jalur normal. # tetap bisa di-merge lewat jalur normal. Audit 2558: workflow ini
+# tetap bisa di-merge lewat jalur normal. Audit 2558: workflow ini
 # juga berjalan pada push ke main yang HANYA menyentuh berkas
 # workflow non-build (auto-merge/label-audit/labeler/stale/
 # cek-wajib sendiri) atau tools/pasang-hook.sh - berkas-berkas itu

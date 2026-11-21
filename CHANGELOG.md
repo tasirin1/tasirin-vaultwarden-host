@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Fragmen kalimat ganda di komentar cek-wajib dibersihkan (Audit 2569)
+
+- Temuan 2569 (Audit 175, Rendah, kosmetik): komentar
+  kepala `cek-wajib.yml` memuat fragmen "tetap bisa
+  di-merge lewat jalur normal" dua kali bertumpuk sisa
+  suntingan Audit 2558 — fragmen gandanya dibuang, isi
+  penjelasan 2558 utuh. Tanpa dampak fungsi.
+
 ## [Belum rilis] — Cek berkas dihapus kini membuka quoting gaya-C git (Audit 2568)
 
 - Temuan 2568 (Audit 175, Rendah, fail-open laten):
