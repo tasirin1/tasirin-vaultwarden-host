@@ -1066,7 +1066,7 @@ def main():
             f.write(isi_baru47)
         rc, out = jalan(sarang, [sys.executable, GERBANG, "--semua"])
         periksa("redirect dalam mengalahkan kredit luar: gerbang gagal "
-                "(Audit 920)", rc != 0)
+                "(Audit 920)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sarang, ignore_errors=True)
 
         sarangbalik = klon(tmp, "sarangbalik")
@@ -1157,7 +1157,7 @@ def main():
             f.write(isi_baru51)
         rc, out = jalan(grupgeser, [sys.executable, GERBANG, "--semua"])
         periksa("grup tak sah bergeser redirect tetap ditolak: gerbang "
-                "gagal (Audit 924)", rc != 0)
+                "gagal (Audit 924)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(grupgeser, ignore_errors=True)
 
         paramsub = klon(tmp, "paramsub")
@@ -1263,7 +1263,7 @@ def main():
             f.write(isi_baru56)
         rc, out = jalan(grupgeser2, [sys.executable, GERBANG, "--semua"])
         periksa("grup tak sah bergeser pipa tetap ditolak: gerbang "
-                "gagal (Audit 929)", rc != 0)
+                "gagal (Audit 929)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(grupgeser2, ignore_errors=True)
 
         hitung = klon(tmp, "hitung")
@@ -1284,7 +1284,7 @@ def main():
             f.write(isi_baru57)
         rc, out = jalan(hitung, [sys.executable, GERBANG, "--semua"])
         periksa("teks mirip echo di dalam aritmetika tak terkredit: "
-                "gerbang gagal (Audit 930)", rc != 0)
+                "gerbang gagal (Audit 930)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(hitung, ignore_errors=True)
 
         subbanyak = klon(tmp, "subbanyak")
@@ -1328,7 +1328,7 @@ def main():
             f.write(isi_baru59)
         rc, out = jalan(subkuras, [sys.executable, GERBANG, "--semua"])
         periksa("penulis kedua kehabisan stdin tak terkredit: gerbang "
-                "gagal (Audit 931)", rc != 0)
+                "gagal (Audit 931)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subkuras, ignore_errors=True)
 
         kurungekspansi = klon(tmp, "kurungekspansi")
@@ -1420,7 +1420,7 @@ def main():
             f.write(isi_baru63)
         rc, out = jalan(sublingkar, [sys.executable, GERBANG, "--semua"])
         periksa("lingkar while-read menguras stdin: penulis pembaca "
-                "sesudahnya tak terkredit (Audit 935)", rc != 0)
+                "sesudahnya tak terkredit (Audit 935)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sublingkar, ignore_errors=True)
 
         kurungtikus = klon(tmp, "kurungtikus")
@@ -1466,7 +1466,7 @@ def main():
             f.write(isi_baru65)
         rc, out = jalan(subbungkus, [sys.executable, GERBANG, "--semua"])
         periksa("penguras berawalan variabel lingkungan tetap "
-                "menguras: gerbang gagal (Audit 937)", rc != 0)
+                "menguras: gerbang gagal (Audit 937)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subbungkus, ignore_errors=True)
 
         subopsi = klon(tmp, "subopsi")
@@ -1488,7 +1488,7 @@ def main():
             f.write(isi_baru66)
         rc, out = jalan(subopsi, [sys.executable, GERBANG, "--semua"])
         periksa("nilai opsi sort -k bukan operand berkas: gerbang "
-                "gagal (Audit 938)", rc != 0)
+                "gagal (Audit 938)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subopsi, ignore_errors=True)
 
         subkutip = klon(tmp, "subkutip")
@@ -1532,7 +1532,7 @@ def main():
             f.write(isi_baru68)
         rc, out = jalan(subkunci, [sys.executable, GERBANG, "--semua"])
         periksa("penguras di badan lingkar sesudah do tetap "
-                "menguras: gerbang gagal (Audit 940)", rc != 0)
+                "menguras: gerbang gagal (Audit 940)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subkunci, ignore_errors=True)
 
         subputus = klon(tmp, "subputus")
@@ -1598,7 +1598,7 @@ def main():
             f.write(isi_baru71)
         rc, out = jalan(subenv, [sys.executable, GERBANG, "--semua"])
         periksa("penguras di balik opsi env tetap menguras: gerbang "
-                "gagal (Audit 951)", rc != 0)
+                "gagal (Audit 951)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subenv, ignore_errors=True)
 
         subkutipsebagian = klon(tmp, "subkutipsebagian")
@@ -1659,7 +1659,7 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("nilai opsi pembungkus bukan perintah: penguras di "
                 "balik nice -n tetap menguras, gerbang gagal "
-                "(Audit 957)", rc != 0)
+                "(Audit 957)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subbungkusnilai, ignore_errors=True)
 
         subteekutip = klon(tmp, "subteekutip")
@@ -1683,7 +1683,7 @@ def main():
         rc, out = jalan(subteekutip,
                         [sys.executable, GERBANG, "--semua"])
         periksa("operand tee berkutip tetap keluaran: tee tetap "
-                "menguras, gerbang gagal (Audit 958)", rc != 0)
+                "menguras, gerbang gagal (Audit 958)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subteekutip, ignore_errors=True)
 
         submerekat = klon(tmp, "submerekat")
@@ -1731,7 +1731,7 @@ def main():
             f.write(isi_baru76)
         rc, out = jalan(subenvs, [sys.executable, GERBANG, "--semua"])
         periksa("nilai env -S adalah perintah yang dijalankan: "
-                "tetap menguras, gerbang gagal (Audit 960)", rc != 0)
+                "tetap menguras, gerbang gagal (Audit 960)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subenvs, ignore_errors=True)
 
         subcommandv = klon(tmp, "subcommandv")
@@ -1855,7 +1855,7 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect di depan perintah tidak lagi menyembunyikan "
                 "pembaca: penulis menguras stdin, gerbang gagal "
-                "(Audit 965)", rc != 0)
+                "(Audit 965)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subredirdepan, ignore_errors=True)
 
         subtawar = klon(tmp, "subtawar")
@@ -2053,7 +2053,7 @@ def main():
         rc, out = jalan(subtutupout,
                         [sys.executable, GERBANG, "--semua"])
         periksa("stdout ditutup di awalan tidak menyembunyikan "
-                "pembaca: gerbang gagal (Audit 985)", rc != 0)
+                "pembaca: gerbang gagal (Audit 985)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subtutupout, ignore_errors=True)
 
         subxargsredir = klon(tmp, "subxargsredir")
@@ -2125,7 +2125,7 @@ def main():
         rc, out = jalan(subcommandganda,
                         [sys.executable, GERBANG, "--semua"])
         periksa("'command' sesudah 'command' tetap transparan: "
-                "gerbang gagal (Audit 988)", rc != 0)
+                "gerbang gagal (Audit 988)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subcommandganda, ignore_errors=True)
 
         subpidpalsu = klon(tmp, "subpidpalsu")
@@ -2323,7 +2323,7 @@ def main():
         rc, out = jalan(subionicebundel,
                         [sys.executable, GERBANG, "--semua"])
         periksa("bundel ionice -tc bernilai-terpisah adalah "
-                "penguras: gerbang gagal (Audit 1006)", rc != 0)
+                "penguras: gerbang gagal (Audit 1006)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subionicebundel, ignore_errors=True)
 
         subdupambig = klon(tmp, "subdupambig")
@@ -2372,7 +2372,7 @@ def main():
         rc, out = jalan(subpindahfd,
                         [sys.executable, GERBANG, "--semua"])
         periksa("duplikasi bersufiks pindah-fd <&0- adalah "
-                "penguras: gerbang gagal (Audit 1011)", rc != 0)
+                "penguras: gerbang gagal (Audit 1011)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subpindahfd, ignore_errors=True)
 
         subdupnol = klon(tmp, "subdupnol")
@@ -2396,7 +2396,7 @@ def main():
         rc, out = jalan(subdupnol,
                         [sys.executable, GERBANG, "--semua"])
         periksa("duplikasi berawalan fd 0<&0 adalah penguras: "
-                "gerbang gagal (Audit 1014)", rc != 0)
+                "gerbang gagal (Audit 1014)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subdupnol, ignore_errors=True)
 
         subflock = klon(tmp, "subflock")
@@ -2420,7 +2420,7 @@ def main():
         rc, out = jalan(subflock,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pembaca terbungkus flock adalah penguras: "
-                "gerbang gagal (Audit 1015)", rc != 0)
+                "gerbang gagal (Audit 1015)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subflock, ignore_errors=True)
 
         subpindahbatal = klon(tmp, "subpindahbatal")
@@ -2470,7 +2470,7 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("awalan kata kunci exec transparan: pembaca di "
                 "baliknya adalah penguras — gerbang gagal "
-                "(Audit 1020)", rc != 0)
+                "(Audit 1020)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subkata, ignore_errors=True)
 
         subgrup = klon(tmp, "subgrup")
@@ -2494,7 +2494,7 @@ def main():
         rc, out = jalan(subgrup,
                         [sys.executable, GERBANG, "--semua"])
         periksa("grup subshell terurai: (cat) adalah penguras — "
-                "gerbang gagal (Audit 1021)", rc != 0)
+                "gerbang gagal (Audit 1021)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subgrup, ignore_errors=True)
 
         subpipa = klon(tmp, "subpipa")
@@ -2518,7 +2518,7 @@ def main():
         rc, out = jalan(subpipa,
                         [sys.executable, GERBANG, "--semua"])
         periksa("pipa dalam segmen: elemen pertama yang dinilai — "
-                "gerbang gagal (Audit 1022)", rc != 0)
+                "gerbang gagal (Audit 1022)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subpipa, ignore_errors=True)
 
         subflockc = klon(tmp, "subflockc")
@@ -2542,7 +2542,7 @@ def main():
         rc, out = jalan(subflockc,
                         [sys.executable, GERBANG, "--semua"])
         periksa("flock bentuk string -c: nilainya adalah perintah "
-                "penguras — gerbang gagal (Audit 1023)", rc != 0)
+                "penguras — gerbang gagal (Audit 1023)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subflockc, ignore_errors=True)
 
         suboperand = klon(tmp, "suboperand")
@@ -2567,7 +2567,7 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("substitusi masukan sebagai operand: isinya "
                 "menguras stdin bersama — gerbang gagal "
-                "(Audit 1024)", rc != 0)
+                "(Audit 1024)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(suboperand, ignore_errors=True)
 
         with open(GERBANG, encoding="utf-8") as f:
@@ -2596,7 +2596,7 @@ def main():
             f.write(isi_baru116)
         rc, out = jalan(subcmdsub,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("substitusi perintah sebagai operand: isinya menguras — gerbang gagal (Audit 1036)", rc != 0)
+        periksa("substitusi perintah sebagai operand: isinya menguras — gerbang gagal (Audit 1036)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subcmdsub, ignore_errors=True)
 
         subflockstr = klon(tmp, "subflockstr")
@@ -2640,7 +2640,7 @@ def main():
             f.write(isi_baru117)
         rc, out = jalan(subsudo,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pembungkus sudo transparan: pembaca di baliknya penguras — gerbang gagal (Audit 1044)", rc != 0)
+        periksa("pembungkus sudo transparan: pembaca di baliknya penguras — gerbang gagal (Audit 1044)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subsudo, ignore_errors=True)
 
         subexecopsi = klon(tmp, "subexecopsi")
@@ -2662,7 +2662,7 @@ def main():
             f.write(isi_baru111)
         rc, out = jalan(subexecopsi,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi milik exec dilompati: exec -c cat adalah penguras — gerbang gagal (Audit 1031)", rc != 0)
+        periksa("opsi milik exec dilompati: exec -c cat adalah penguras — gerbang gagal (Audit 1031)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subexecopsi, ignore_errors=True)
 
         subtimeakh = klon(tmp, "subtimeakh")
@@ -2684,7 +2684,7 @@ def main():
             f.write(isi_baru112)
         rc, out = jalan(subtimeakh,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("time -- adalah akhir opsi: pembaca sesudahnya penguras — gerbang gagal (Audit 1032)", rc != 0)
+        periksa("time -- adalah akhir opsi: pembaca sesudahnya penguras — gerbang gagal (Audit 1032)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subtimeakh, ignore_errors=True)
 
         subexecset = klon(tmp, "subexecset")
@@ -2750,7 +2750,7 @@ def main():
             f.write(isi_baru118)
         rc, out = jalan(subfilter,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("filter aliran murni tanpa operand adalah penguras — gerbang gagal (Audit 1037)", rc != 0)
+        periksa("filter aliran murni tanpa operand adalah penguras — gerbang gagal (Audit 1037)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subfilter, ignore_errors=True)
 
         subskrip = klon(tmp, "subskrip")
@@ -2772,7 +2772,7 @@ def main():
             f.write(isi_baru119)
         rc, out = jalan(subskrip,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("perintah beroperand filter: jq tanpa berkas adalah penguras — gerbang gagal (Audit 1038)", rc != 0)
+        periksa("perintah beroperand filter: jq tanpa berkas adalah penguras — gerbang gagal (Audit 1038)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subskrip, ignore_errors=True)
 
         subinterp = klon(tmp, "subinterp")
@@ -2794,7 +2794,7 @@ def main():
             f.write(isi_baru120)
         rc, out = jalan(subinterp,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("interpreter membaca skrip dari stdin: python3 - adalah penguras — gerbang gagal (Audit 1039)", rc != 0)
+        periksa("interpreter membaca skrip dari stdin: python3 - adalah penguras — gerbang gagal (Audit 1039)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subinterp, ignore_errors=True)
 
         submapfile = klon(tmp, "submapfile")
@@ -2816,7 +2816,7 @@ def main():
             f.write(isi_baru121)
         rc, out = jalan(submapfile,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("builtin penampung tanpa batas menguras — gerbang gagal (Audit 1040)", rc != 0)
+        periksa("builtin penampung tanpa batas menguras — gerbang gagal (Audit 1040)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(submapfile, ignore_errors=True)
 
         subddstdin = klon(tmp, "subddstdin")
@@ -2838,7 +2838,7 @@ def main():
             f.write(isi_baru122)
         rc, out = jalan(subddstdin,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dd if=/dev/stdin membaca stdin itu sendiri — gerbang gagal (Audit 1041)", rc != 0)
+        periksa("dd if=/dev/stdin membaca stdin itu sendiri — gerbang gagal (Audit 1041)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subddstdin, ignore_errors=True)
 
         subbacktick = klon(tmp, "subbacktick")
@@ -2860,7 +2860,7 @@ def main():
             f.write(isi_baru123)
         rc, out = jalan(subbacktick,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("substitusi backtick dinilai isinya: penguras — gerbang gagal (Audit 1045)", rc != 0)
+        periksa("substitusi backtick dinilai isinya: penguras — gerbang gagal (Audit 1045)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subbacktick, ignore_errors=True)
 
         subkutipgabung = klon(tmp, "subkutipgabung")
@@ -2882,7 +2882,7 @@ def main():
             f.write(isi_baru124)
         rc, out = jalan(subkutipgabung,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("penggabungan kutip bersebelahan membentuk nama perintah — gerbang gagal (Audit 1046)", rc != 0)
+        periksa("penggabungan kutip bersebelahan membentuk nama perintah — gerbang gagal (Audit 1046)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subkutipgabung, ignore_errors=True)
 
         subsettr = klon(tmp, "subsettr")
@@ -2904,7 +2904,7 @@ def main():
             f.write(isi_baru125)
         rc, out = jalan(subsettr,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("set tr berkutip adalah operand himpunan: tetap menguras — gerbang gagal (Audit 1047)", rc != 0)
+        periksa("set tr berkutip adalah operand himpunan: tetap menguras — gerbang gagal (Audit 1047)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subsettr, ignore_errors=True)
 
         subspasikutip = klon(tmp, "subspasikutip")
@@ -2926,7 +2926,7 @@ def main():
             f.write(isi_baru126)
         rc, out = jalan(subspasikutip,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand berkutip berisi spasi satu token: pola grep menguras — gerbang gagal (Audit 1047)", rc != 0)
+        periksa("operand berkutip berisi spasi satu token: pola grep menguras — gerbang gagal (Audit 1047)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subspasikutip, ignore_errors=True)
 
         subtac = klon(tmp, "subtac")
@@ -2948,7 +2948,7 @@ def main():
             f.write(isi_baru132)
         rc, out = jalan(subtac,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai -s tac adalah opsi: tac tetap penguras — gerbang gagal (Audit 1048)", rc != 0)
+        periksa("nilai -s tac adalah opsi: tac tetap penguras — gerbang gagal (Audit 1048)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subtac, ignore_errors=True)
 
         subpyi = klon(tmp, "subpyi")
@@ -2970,7 +2970,7 @@ def main():
             f.write(isi_baru131)
         rc, out = jalan(subpyi,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("python3 -i jatuh ke REPL sesudah skrip: penguras — gerbang gagal (Audit 1049)", rc != 0)
+        periksa("python3 -i jatuh ke REPL sesudah skrip: penguras — gerbang gagal (Audit 1049)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subpyi, ignore_errors=True)
 
         subsudoshell = klon(tmp, "subsudoshell")
@@ -2992,7 +2992,7 @@ def main():
             f.write(isi_baru130)
         rc, out = jalan(subsudoshell,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sudo -s menjalankan shell pembaca perintah: penguras — gerbang gagal (Audit 1050)", rc != 0)
+        periksa("sudo -s menjalankan shell pembaca perintah: penguras — gerbang gagal (Audit 1050)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subsudoshell, ignore_errors=True)
 
         subexeckata = klon(tmp, "subexeckata")
@@ -3087,7 +3087,7 @@ def main():
             f.write(isi_baru133)
         rc, out = jalan(subchecksum,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sisa keluarga checksum adalah penguras — gerbang gagal (Audit 1055)", rc != 0)
+        periksa("sisa keluarga checksum adalah penguras — gerbang gagal (Audit 1055)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subchecksum, ignore_errors=True)
 
         subfilter3 = klon(tmp, "subfilter3")
@@ -3109,7 +3109,7 @@ def main():
             f.write(isi_baru134)
         rc, out = jalan(subfilter3,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("filter teks tingkat-3 adalah penguras — gerbang gagal (Audit 1056)", rc != 0)
+        periksa("filter teks tingkat-3 adalah penguras — gerbang gagal (Audit 1056)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subfilter3, ignore_errors=True)
 
         subkompres = klon(tmp, "subkompres")
@@ -3131,7 +3131,7 @@ def main():
             f.write(isi_baru135)
         rc, out = jalan(subkompres,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("kompresor saudara gzip adalah penguras — gerbang gagal (Audit 1057)", rc != 0)
+        periksa("kompresor saudara gzip adalah penguras — gerbang gagal (Audit 1057)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subkompres, ignore_errors=True)
 
         subshell = klon(tmp, "subshell")
@@ -3153,7 +3153,7 @@ def main():
             f.write(isi_baru136)
         rc, out = jalan(subshell,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("shell membaca perintah dari stdin: penguras — gerbang gagal (Audit 1058)", rc != 0)
+        periksa("shell membaca perintah dari stdin: penguras — gerbang gagal (Audit 1058)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subshell, ignore_errors=True)
 
         subsqlite = klon(tmp, "subsqlite")
@@ -3175,7 +3175,7 @@ def main():
             f.write(isi_baru137)
         rc, out = jalan(subsqlite,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sqlite3 membaca SQL dari stdin: penguras — gerbang gagal (Audit 1059)", rc != 0)
+        periksa("sqlite3 membaca SQL dari stdin: penguras — gerbang gagal (Audit 1059)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subsqlite, ignore_errors=True)
 
         subopenssl = klon(tmp, "subopenssl")
@@ -3197,7 +3197,7 @@ def main():
             f.write(isi_baru138)
         rc, out = jalan(subopenssl,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl dgst tanpa berkas adalah penguras — gerbang gagal (Audit 1060)", rc != 0)
+        periksa("openssl dgst tanpa berkas adalah penguras — gerbang gagal (Audit 1060)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subopenssl, ignore_errors=True)
 
         subtar = klon(tmp, "subtar")
@@ -3219,7 +3219,7 @@ def main():
             f.write(isi_baru139)
         rc, out = jalan(subtar,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tar membaca arsip dari stdin: penguras — gerbang gagal (Audit 1061)", rc != 0)
+        periksa("tar membaca arsip dari stdin: penguras — gerbang gagal (Audit 1061)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subtar, ignore_errors=True)
 
         subgitstdin = klon(tmp, "subgitstdin")
@@ -3241,7 +3241,7 @@ def main():
             f.write(isi_baru140)
         rc, out = jalan(subgitstdin,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git hash-object --stdin adalah penguras — gerbang gagal (Audit 1062)", rc != 0)
+        periksa("git hash-object --stdin adalah penguras — gerbang gagal (Audit 1062)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subgitstdin, ignore_errors=True)
 
         subdiff = klon(tmp, "subdiff")
@@ -3263,7 +3263,7 @@ def main():
             f.write(isi_baru141)
         rc, out = jalan(subdiff,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand '-' diff adalah stdin: penguras — gerbang gagal (Audit 1063)", rc != 0)
+        periksa("operand '-' diff adalah stdin: penguras — gerbang gagal (Audit 1063)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subdiff, ignore_errors=True)
 
         subziplist = klon(tmp, "subziplist")
@@ -3285,7 +3285,7 @@ def main():
             f.write(isi_baru142)
         rc, out = jalan(subziplist,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("zip -@ membaca daftar nama dari stdin: penguras — gerbang gagal (Audit 1064)", rc != 0)
+        periksa("zip -@ membaca daftar nama dari stdin: penguras — gerbang gagal (Audit 1064)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subziplist, ignore_errors=True)
 
         subunshare = klon(tmp, "subunshare")
@@ -3307,7 +3307,7 @@ def main():
             f.write(isi_baru143)
         rc, out = jalan(subunshare,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pembungkus unshare transparan: pembaca di baliknya penguras — gerbang gagal (Audit 1065)", rc != 0)
+        periksa("pembungkus unshare transparan: pembaca di baliknya penguras — gerbang gagal (Audit 1065)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subunshare, ignore_errors=True)
 
         subsocat = klon(tmp, "subsocat")
@@ -3329,7 +3329,7 @@ def main():
             f.write(isi_baru144)
         rc, out = jalan(subsocat,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("alamat STDIO socat membaca stdin: penguras — gerbang gagal (Audit 1066)", rc != 0)
+        periksa("alamat STDIO socat membaca stdin: penguras — gerbang gagal (Audit 1066)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subsocat, ignore_errors=True)
 
         submawk = klon(tmp, "submawk")
@@ -3351,7 +3351,7 @@ def main():
             f.write(isi_baru145)
         rc, out = jalan(submawk,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("varian nama awk dinilai keluarga skrip: penguras — gerbang gagal (Audit 1067)", rc != 0)
+        periksa("varian nama awk dinilai keluarga skrip: penguras — gerbang gagal (Audit 1067)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(submawk, ignore_errors=True)
 
         subcurl = klon(tmp, "subcurl")
@@ -3373,7 +3373,7 @@ def main():
             f.write(isi_baru146)
         rc, out = jalan(subcurl,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("curl -d @- membaca data dari stdin: penguras — gerbang gagal (Audit 1068)", rc != 0)
+        periksa("curl -d @- membaca data dari stdin: penguras — gerbang gagal (Audit 1068)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subcurl, ignore_errors=True)
 
         subgpg = klon(tmp, "subgpg")
@@ -3395,7 +3395,7 @@ def main():
             f.write(isi_baru147)
         rc, out = jalan(subgpg,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg batch simetris membaca plaintext dari stdin: penguras — gerbang gagal (Audit 1069)", rc != 0)
+        periksa("gpg batch simetris membaca plaintext dari stdin: penguras — gerbang gagal (Audit 1069)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subgpg, ignore_errors=True)
 
         subsyscat = klon(tmp, "subsyscat")
@@ -3417,7 +3417,7 @@ def main():
             f.write(isi_baru148)
         rc, out = jalan(subsyscat,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("systemd-cat tanpa perintah meneruskan stdin: penguras — gerbang gagal (Audit 1070)", rc != 0)
+        periksa("systemd-cat tanpa perintah meneruskan stdin: penguras — gerbang gagal (Audit 1070)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subsyscat, ignore_errors=True)
 
         submake = klon(tmp, "submake")
@@ -3439,7 +3439,7 @@ def main():
             f.write(isi_baru149)
         rc, out = jalan(submake,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("make -f - membaca makefile dari stdin: penguras — gerbang gagal (Audit 1071)", rc != 0)
+        periksa("make -f - membaca makefile dari stdin: penguras — gerbang gagal (Audit 1071)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(submake, ignore_errors=True)
 
         submore = klon(tmp, "submore")
@@ -3461,7 +3461,7 @@ def main():
             f.write(isi_baru150)
         rc, out = jalan(submore,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pager pada stdin pipa menguras: gerbang gagal (Audit 1072)", rc != 0)
+        periksa("pager pada stdin pipa menguras: gerbang gagal (Audit 1072)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(submore, ignore_errors=True)
 
         sub151 = klon(tmp, "sub151")
@@ -3483,7 +3483,7 @@ def main():
             f.write(isi_baru151)
         rc, out = jalan(sub151,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("comm -1 bendera: gerbang gagal (Audit 1074)", rc != 0)
+        periksa("comm -1 bendera: gerbang gagal (Audit 1074)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub151, ignore_errors=True)
 
         sub152 = klon(tmp, "sub152")
@@ -3505,7 +3505,7 @@ def main():
             f.write(isi_baru152)
         rc, out = jalan(sub152,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl dgst operand '-': gerbang gagal (Audit 1075)", rc != 0)
+        periksa("openssl dgst operand '-': gerbang gagal (Audit 1075)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub152, ignore_errors=True)
 
         sub153 = klon(tmp, "sub153")
@@ -3527,7 +3527,7 @@ def main():
             f.write(isi_baru153)
         rc, out = jalan(sub153,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl alias digest '-': gerbang gagal (Audit 1075)", rc != 0)
+        periksa("openssl alias digest '-': gerbang gagal (Audit 1075)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub153, ignore_errors=True)
 
         sub154 = klon(tmp, "sub154")
@@ -3549,7 +3549,7 @@ def main():
             f.write(isi_baru154)
         rc, out = jalan(sub154,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl enc -in '-': gerbang gagal (Audit 1075)", rc != 0)
+        periksa("openssl enc -in '-': gerbang gagal (Audit 1075)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub154, ignore_errors=True)
 
         sub155 = klon(tmp, "sub155")
@@ -3571,7 +3571,7 @@ def main():
             f.write(isi_baru155)
         rc, out = jalan(sub155,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl -rand bernilai: gerbang gagal (Audit 1076)", rc != 0)
+        periksa("openssl -rand bernilai: gerbang gagal (Audit 1076)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub155, ignore_errors=True)
 
         sub156 = klon(tmp, "sub156")
@@ -3593,7 +3593,7 @@ def main():
             f.write(isi_baru156)
         rc, out = jalan(sub156,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tar bundel gaya lama: gerbang gagal (Audit 1077)", rc != 0)
+        periksa("tar bundel gaya lama: gerbang gagal (Audit 1077)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub156, ignore_errors=True)
 
         sub157 = klon(tmp, "sub157")
@@ -3615,7 +3615,7 @@ def main():
             f.write(isi_baru157)
         rc, out = jalan(sub157,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tar nilai -f merekat: gerbang gagal (Audit 1077)", rc != 0)
+        periksa("tar nilai -f merekat: gerbang gagal (Audit 1077)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub157, ignore_errors=True)
 
         sub158 = klon(tmp, "sub158")
@@ -3659,7 +3659,7 @@ def main():
             f.write(isi_baru159)
         rc, out = jalan(sub159,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git hash-object --stdin-paths: gerbang gagal (Audit 1079)", rc != 0)
+        periksa("git hash-object --stdin-paths: gerbang gagal (Audit 1079)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub159, ignore_errors=True)
 
         sub160 = klon(tmp, "sub160")
@@ -3681,7 +3681,7 @@ def main():
             f.write(isi_baru160)
         rc, out = jalan(sub160,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git credential fill: gerbang gagal (Audit 1079)", rc != 0)
+        periksa("git credential fill: gerbang gagal (Audit 1079)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub160, ignore_errors=True)
 
         sub161 = klon(tmp, "sub161")
@@ -3703,7 +3703,7 @@ def main():
             f.write(isi_baru161)
         rc, out = jalan(sub161,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git mktree: gerbang gagal (Audit 1079)", rc != 0)
+        periksa("git mktree: gerbang gagal (Audit 1079)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub161, ignore_errors=True)
 
         sub162 = klon(tmp, "sub162")
@@ -3725,7 +3725,7 @@ def main():
             f.write(isi_baru162)
         rc, out = jalan(sub162,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git commit -F '-': gerbang gagal (Audit 1079)", rc != 0)
+        periksa("git commit -F '-': gerbang gagal (Audit 1079)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub162, ignore_errors=True)
 
         sub163 = klon(tmp, "sub163")
@@ -3747,7 +3747,7 @@ def main():
             f.write(isi_baru163)
         rc, out = jalan(sub163,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand +N pr: gerbang gagal (Audit 1080)", rc != 0)
+        periksa("operand +N pr: gerbang gagal (Audit 1080)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub163, ignore_errors=True)
 
         sub164 = klon(tmp, "sub164")
@@ -3769,7 +3769,7 @@ def main():
             f.write(isi_baru164)
         rc, out = jalan(sub164,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand +N tail: gerbang gagal (Audit 1080)", rc != 0)
+        periksa("operand +N tail: gerbang gagal (Audit 1080)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub164, ignore_errors=True)
 
         sub165 = klon(tmp, "sub165")
@@ -3791,7 +3791,7 @@ def main():
             f.write(isi_baru165)
         rc, out = jalan(sub165,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand +N sort: gerbang gagal (Audit 1080)", rc != 0)
+        periksa("operand +N sort: gerbang gagal (Audit 1080)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub165, ignore_errors=True)
 
         sub166 = klon(tmp, "sub166")
@@ -3813,7 +3813,7 @@ def main():
             f.write(isi_baru166)
         rc, out = jalan(sub166,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("python -i sesudah -c: gerbang gagal (Audit 1081)", rc != 0)
+        periksa("python -i sesudah -c: gerbang gagal (Audit 1081)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub166, ignore_errors=True)
 
         sub167 = klon(tmp, "sub167")
@@ -3835,7 +3835,7 @@ def main():
             f.write(isi_baru167)
         rc, out = jalan(sub167,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bundel shell -ec: gerbang gagal (Audit 1082)", rc != 0)
+        periksa("bundel shell -ec: gerbang gagal (Audit 1082)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub167, ignore_errors=True)
 
         sub168 = klon(tmp, "sub168")
@@ -3857,7 +3857,7 @@ def main():
             f.write(isi_baru168)
         rc, out = jalan(sub168,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bundel python -ic: gerbang gagal (Audit 1082)", rc != 0)
+        periksa("bundel python -ic: gerbang gagal (Audit 1082)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub168, ignore_errors=True)
 
         sub169 = klon(tmp, "sub169")
@@ -3879,7 +3879,7 @@ def main():
             f.write(isi_baru169)
         rc, out = jalan(sub169,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bundel sudo -ns: gerbang gagal (Audit 1082)", rc != 0)
+        periksa("bundel sudo -ns: gerbang gagal (Audit 1082)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub169, ignore_errors=True)
 
         sub170 = klon(tmp, "sub170")
@@ -3901,7 +3901,7 @@ def main():
             f.write(isi_baru170)
         rc, out = jalan(sub170,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("shell -s operand $0: gerbang gagal (Audit 1083)", rc != 0)
+        periksa("shell -s operand $0: gerbang gagal (Audit 1083)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub170, ignore_errors=True)
 
         sub171 = klon(tmp, "sub171")
@@ -3923,7 +3923,7 @@ def main():
             f.write(isi_baru171)
         rc, out = jalan(sub171,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("chroot tabel opsi: gerbang gagal (Audit 1084)", rc != 0)
+        periksa("chroot tabel opsi: gerbang gagal (Audit 1084)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub171, ignore_errors=True)
 
         sub172 = klon(tmp, "sub172")
@@ -3945,7 +3945,7 @@ def main():
             f.write(isi_baru172)
         rc, out = jalan(sub172,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("curl -d@- merekat: gerbang gagal (Audit 1085)", rc != 0)
+        periksa("curl -d@- merekat: gerbang gagal (Audit 1085)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub172, ignore_errors=True)
 
         sub173 = klon(tmp, "sub173")
@@ -3967,7 +3967,7 @@ def main():
             f.write(isi_baru173)
         rc, out = jalan(sub173,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("curl -F a=@-: gerbang gagal (Audit 1085)", rc != 0)
+        periksa("curl -F a=@-: gerbang gagal (Audit 1085)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub173, ignore_errors=True)
 
         sub174 = klon(tmp, "sub174")
@@ -3989,7 +3989,7 @@ def main():
             f.write(isi_baru174)
         rc, out = jalan(sub174,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("curl --form a=@-: gerbang gagal (Audit 1085)", rc != 0)
+        periksa("curl --form a=@-: gerbang gagal (Audit 1085)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub174, ignore_errors=True)
 
         sub175 = klon(tmp, "sub175")
@@ -4011,7 +4011,7 @@ def main():
             f.write(isi_baru175)
         rc, out = jalan(sub175,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("curl urlencode name@-: gerbang gagal (Audit 1085)", rc != 0)
+        periksa("curl urlencode name@-: gerbang gagal (Audit 1085)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub175, ignore_errors=True)
 
         sub176 = klon(tmp, "sub176")
@@ -4143,7 +4143,7 @@ def main():
             f.write(isi_baru181)
         rc, out = jalan(sub181,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("more beroperand tetap menguras: gerbang gagal (Audit 1089)", rc != 0)
+        periksa("more beroperand tetap menguras: gerbang gagal (Audit 1089)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub181, ignore_errors=True)
 
         sub182 = klon(tmp, "sub182")
@@ -4187,7 +4187,7 @@ def main():
             f.write(isi_baru183)
         rc, out = jalan(sub183,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("python -m asyncio REPL: gerbang gagal (Audit 1091)", rc != 0)
+        periksa("python -m asyncio REPL: gerbang gagal (Audit 1091)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub183, ignore_errors=True)
 
         sub184 = klon(tmp, "sub184")
@@ -4385,7 +4385,7 @@ def main():
             f.write(isi_baru192)
         rc, out = jalan(sub192,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bunzip2: gerbang gagal (Audit 1098)", rc != 0)
+        periksa("bunzip2: gerbang gagal (Audit 1098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub192, ignore_errors=True)
 
         sub193 = klon(tmp, "sub193")
@@ -4407,7 +4407,7 @@ def main():
             f.write(isi_baru193)
         rc, out = jalan(sub193,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bzcat: gerbang gagal (Audit 1098)", rc != 0)
+        periksa("bzcat: gerbang gagal (Audit 1098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub193, ignore_errors=True)
 
         sub194 = klon(tmp, "sub194")
@@ -4429,7 +4429,7 @@ def main():
             f.write(isi_baru194)
         rc, out = jalan(sub194,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xzcat: gerbang gagal (Audit 1098)", rc != 0)
+        periksa("xzcat: gerbang gagal (Audit 1098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub194, ignore_errors=True)
 
         sub195 = klon(tmp, "sub195")
@@ -4451,7 +4451,7 @@ def main():
             f.write(isi_baru195)
         rc, out = jalan(sub195,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("unxz: gerbang gagal (Audit 1098)", rc != 0)
+        periksa("unxz: gerbang gagal (Audit 1098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub195, ignore_errors=True)
 
         sub196 = klon(tmp, "sub196")
@@ -4473,7 +4473,7 @@ def main():
             f.write(isi_baru196)
         rc, out = jalan(sub196,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("unlzma: gerbang gagal (Audit 1098)", rc != 0)
+        periksa("unlzma: gerbang gagal (Audit 1098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub196, ignore_errors=True)
 
         sub197 = klon(tmp, "sub197")
@@ -4495,7 +4495,7 @@ def main():
             f.write(isi_baru197)
         rc, out = jalan(sub197,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand /dev/stdin: gerbang gagal (Audit 1099)", rc != 0)
+        periksa("operand /dev/stdin: gerbang gagal (Audit 1099)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub197, ignore_errors=True)
 
         sub198 = klon(tmp, "sub198")
@@ -4517,7 +4517,7 @@ def main():
             f.write(isi_baru198)
         rc, out = jalan(sub198,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand /dev/fd/0: gerbang gagal (Audit 1099)", rc != 0)
+        periksa("operand /dev/fd/0: gerbang gagal (Audit 1099)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub198, ignore_errors=True)
 
         sub199 = klon(tmp, "sub199")
@@ -4539,7 +4539,7 @@ def main():
             f.write(isi_baru199)
         rc, out = jalan(sub199,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("grep berkas /dev/stdin: gerbang gagal (Audit 1099)", rc != 0)
+        periksa("grep berkas /dev/stdin: gerbang gagal (Audit 1099)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub199, ignore_errors=True)
 
         sub200 = klon(tmp, "sub200")
@@ -4561,7 +4561,7 @@ def main():
             f.write(isi_baru200)
         rc, out = jalan(sub200,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sort --random-source bernilai: gerbang gagal (Audit 1100)", rc != 0)
+        periksa("sort --random-source bernilai: gerbang gagal (Audit 1100)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub200, ignore_errors=True)
 
         sub201 = klon(tmp, "sub201")
@@ -4583,7 +4583,7 @@ def main():
             f.write(isi_baru201)
         rc, out = jalan(sub201,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("wc --total bernilai: gerbang gagal (Audit 1100)", rc != 0)
+        periksa("wc --total bernilai: gerbang gagal (Audit 1100)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub201, ignore_errors=True)
 
         sub202 = klon(tmp, "sub202")
@@ -4605,7 +4605,7 @@ def main():
             f.write(isi_baru202)
         rc, out = jalan(sub202,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("fmt -p bernilai: gerbang gagal (Audit 1100)", rc != 0)
+        periksa("fmt -p bernilai: gerbang gagal (Audit 1100)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub202, ignore_errors=True)
 
         sub203 = klon(tmp, "sub203")
@@ -4649,7 +4649,7 @@ def main():
             f.write(isi_baru204)
         rc, out = jalan(sub204,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("basenc bermode: gerbang gagal (Audit 1101)", rc != 0)
+        periksa("basenc bermode: gerbang gagal (Audit 1101)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub204, ignore_errors=True)
 
         sub205 = klon(tmp, "sub205")
@@ -4737,7 +4737,7 @@ def main():
             f.write(isi_baru208)
         rc, out = jalan(sub208,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("grep -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0)
+        periksa("grep -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub208, ignore_errors=True)
 
         sub209 = klon(tmp, "sub209")
@@ -4759,7 +4759,7 @@ def main():
             f.write(isi_baru209)
         rc, out = jalan(sub209,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sed -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0)
+        periksa("sed -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub209, ignore_errors=True)
 
         sub210 = klon(tmp, "sub210")
@@ -4781,7 +4781,7 @@ def main():
             f.write(isi_baru210)
         rc, out = jalan(sub210,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("awk -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0)
+        periksa("awk -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub210, ignore_errors=True)
 
         sub211 = klon(tmp, "sub211")
@@ -4825,7 +4825,7 @@ def main():
             f.write(isi_baru212)
         rc, out = jalan(sub212,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl base64: gerbang gagal (Audit 1104)", rc != 0)
+        periksa("openssl base64: gerbang gagal (Audit 1104)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub212, ignore_errors=True)
 
         sub213 = klon(tmp, "sub213")
@@ -4847,7 +4847,7 @@ def main():
             f.write(isi_baru213)
         rc, out = jalan(sub213,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl smime: gerbang gagal (Audit 1104)", rc != 0)
+        periksa("openssl smime: gerbang gagal (Audit 1104)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub213, ignore_errors=True)
 
         sub214 = klon(tmp, "sub214")
@@ -4869,7 +4869,7 @@ def main():
             f.write(isi_baru214)
         rc, out = jalan(sub214,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl passwd -stdin: gerbang gagal (Audit 1104)", rc != 0)
+        periksa("openssl passwd -stdin: gerbang gagal (Audit 1104)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub214, ignore_errors=True)
 
         sub215 = klon(tmp, "sub215")
@@ -4891,7 +4891,7 @@ def main():
             f.write(isi_baru215)
         rc, out = jalan(sub215,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl pkeyutl: gerbang gagal (Audit 1104)", rc != 0)
+        periksa("openssl pkeyutl: gerbang gagal (Audit 1104)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub215, ignore_errors=True)
 
         sub216 = klon(tmp, "sub216")
@@ -4913,7 +4913,7 @@ def main():
             f.write(isi_baru216)
         rc, out = jalan(sub216,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl x509 tanpa -in: gerbang gagal (Audit 1105)", rc != 0)
+        periksa("openssl x509 tanpa -in: gerbang gagal (Audit 1105)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub216, ignore_errors=True)
 
         sub217 = klon(tmp, "sub217")
@@ -4935,7 +4935,7 @@ def main():
             f.write(isi_baru217)
         rc, out = jalan(sub217,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg --import: gerbang gagal (Audit 1106)", rc != 0)
+        periksa("gpg --import: gerbang gagal (Audit 1106)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub217, ignore_errors=True)
 
         sub218 = klon(tmp, "sub218")
@@ -4957,7 +4957,7 @@ def main():
             f.write(isi_baru218)
         rc, out = jalan(sub218,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg --dearmor: gerbang gagal (Audit 1106)", rc != 0)
+        periksa("gpg --dearmor: gerbang gagal (Audit 1106)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub218, ignore_errors=True)
 
         sub219 = klon(tmp, "sub219")
@@ -4979,7 +4979,7 @@ def main():
             f.write(isi_baru219)
         rc, out = jalan(sub219,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg --print-md: gerbang gagal (Audit 1106)", rc != 0)
+        periksa("gpg --print-md: gerbang gagal (Audit 1106)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub219, ignore_errors=True)
 
         sub220 = klon(tmp, "sub220")
@@ -5001,7 +5001,7 @@ def main():
             f.write(isi_baru220)
         rc, out = jalan(sub220,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("strace pembungkus: gerbang gagal (Audit 1107)", rc != 0)
+        periksa("strace pembungkus: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub220, ignore_errors=True)
 
         sub221 = klon(tmp, "sub221")
@@ -5023,7 +5023,7 @@ def main():
             f.write(isi_baru221)
         rc, out = jalan(sub221,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("strace beropsi: gerbang gagal (Audit 1107)", rc != 0)
+        periksa("strace beropsi: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub221, ignore_errors=True)
 
         sub222 = klon(tmp, "sub222")
@@ -5045,7 +5045,7 @@ def main():
             f.write(isi_baru222)
         rc, out = jalan(sub222,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dbus-run-session: gerbang gagal (Audit 1107)", rc != 0)
+        periksa("dbus-run-session: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub222, ignore_errors=True)
 
         sub223 = klon(tmp, "sub223")
@@ -5067,7 +5067,7 @@ def main():
             f.write(isi_baru223)
         rc, out = jalan(sub223,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("runuser: gerbang gagal (Audit 1107)", rc != 0)
+        periksa("runuser: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub223, ignore_errors=True)
 
         sub224 = klon(tmp, "sub224")
@@ -5089,7 +5089,7 @@ def main():
             f.write(isi_baru224)
         rc, out = jalan(sub224,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("su -c string: gerbang gagal (Audit 1107)", rc != 0)
+        periksa("su -c string: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub224, ignore_errors=True)
 
         sub225 = klon(tmp, "sub225")
@@ -5111,7 +5111,7 @@ def main():
             f.write(isi_baru225)
         rc, out = jalan(sub225,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sg -c string: gerbang gagal (Audit 1107)", rc != 0)
+        periksa("sg -c string: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub225, ignore_errors=True)
 
         sub226 = klon(tmp, "sub226")
@@ -5133,7 +5133,7 @@ def main():
             f.write(isi_baru226)
         rc, out = jalan(sub226,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("vi beroperand: gerbang gagal (Audit 1108)", rc != 0)
+        periksa("vi beroperand: gerbang gagal (Audit 1108)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub226, ignore_errors=True)
 
         sub227 = klon(tmp, "sub227")
@@ -5155,7 +5155,7 @@ def main():
             f.write(isi_baru227)
         rc, out = jalan(sub227,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("view beroperand: gerbang gagal (Audit 1108)", rc != 0)
+        periksa("view beroperand: gerbang gagal (Audit 1108)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub227, ignore_errors=True)
 
         sub228 = klon(tmp, "sub228")
@@ -5177,7 +5177,7 @@ def main():
             f.write(isi_baru228)
         rc, out = jalan(sub228,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ex polos: gerbang gagal (Audit 1108)", rc != 0)
+        periksa("ex polos: gerbang gagal (Audit 1108)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub228, ignore_errors=True)
 
         sub229 = klon(tmp, "sub229")
@@ -5199,7 +5199,7 @@ def main():
             f.write(isi_baru229)
         rc, out = jalan(sub229,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("less -p pola bernilai: gerbang gagal (Audit 1109)", rc != 0)
+        periksa("less -p pola bernilai: gerbang gagal (Audit 1109)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub229, ignore_errors=True)
 
         sub230 = klon(tmp, "sub230")
@@ -5243,7 +5243,7 @@ def main():
             f.write(isi_baru231)
         rc, out = jalan(sub231,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("du --files0-from=-: gerbang gagal (Audit 1111)", rc != 0)
+        periksa("du --files0-from=-: gerbang gagal (Audit 1111)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub231, ignore_errors=True)
 
         sub232 = klon(tmp, "sub232")
@@ -5265,7 +5265,7 @@ def main():
             f.write(isi_baru232)
         rc, out = jalan(sub232,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("find -files0-from: gerbang gagal (Audit 1111)", rc != 0)
+        periksa("find -files0-from: gerbang gagal (Audit 1111)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub232, ignore_errors=True)
 
         sub233 = klon(tmp, "sub233")
@@ -5287,7 +5287,7 @@ def main():
             f.write(isi_baru233)
         rc, out = jalan(sub233,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("wall polos: gerbang gagal (Audit 1112)", rc != 0)
+        periksa("wall polos: gerbang gagal (Audit 1112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub233, ignore_errors=True)
 
         sub234 = klon(tmp, "sub234")
@@ -5309,7 +5309,7 @@ def main():
             f.write(isi_baru234)
         rc, out = jalan(sub234,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("c++filt polos: gerbang gagal (Audit 1112)", rc != 0)
+        periksa("c++filt polos: gerbang gagal (Audit 1112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub234, ignore_errors=True)
 
         sub235 = klon(tmp, "sub235")
@@ -5331,7 +5331,7 @@ def main():
             f.write(isi_baru235)
         rc, out = jalan(sub235,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("addr2line -e: gerbang gagal (Audit 1112)", rc != 0)
+        periksa("addr2line -e: gerbang gagal (Audit 1112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub235, ignore_errors=True)
 
         sub236 = klon(tmp, "sub236")
@@ -5353,7 +5353,7 @@ def main():
             f.write(isi_baru236)
         rc, out = jalan(sub236,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dig -f '-': gerbang gagal (Audit 1112)", rc != 0)
+        periksa("dig -f '-': gerbang gagal (Audit 1112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub236, ignore_errors=True)
 
         sub237 = klon(tmp, "sub237")
@@ -5375,7 +5375,7 @@ def main():
             f.write(isi_baru237)
         rc, out = jalan(sub237,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nslookup polos: gerbang gagal (Audit 1112)", rc != 0)
+        periksa("nslookup polos: gerbang gagal (Audit 1112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub237, ignore_errors=True)
 
         sub238 = klon(tmp, "sub238")
@@ -5397,7 +5397,7 @@ def main():
             f.write(isi_baru238)
         rc, out = jalan(sub238,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("original-awk: gerbang gagal (Audit 1113)", rc != 0)
+        periksa("original-awk: gerbang gagal (Audit 1113)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub238, ignore_errors=True)
 
         sub239 = klon(tmp, "sub239")
@@ -5419,7 +5419,7 @@ def main():
             f.write(isi_baru239)
         rc, out = jalan(sub239,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("perl telanjang: gerbang gagal (Audit 1119)", rc != 0)
+        periksa("perl telanjang: gerbang gagal (Audit 1119)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub239, ignore_errors=True)
         sub240 = klon(tmp, "sub240")
         berkas_aksi240 = os.path.join(
@@ -5440,7 +5440,7 @@ def main():
             f.write(isi_baru240)
         rc, out = jalan(sub240,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("perl -w: gerbang gagal (Audit 1119)", rc != 0)
+        periksa("perl -w: gerbang gagal (Audit 1119)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub240, ignore_errors=True)
         sub241 = klon(tmp, "sub241")
         berkas_aksi241 = os.path.join(
@@ -5503,7 +5503,7 @@ def main():
             f.write(isi_baru243)
         rc, out = jalan(sub243,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tar t tanpa -f: gerbang gagal (Audit 1120)", rc != 0)
+        periksa("tar t tanpa -f: gerbang gagal (Audit 1120)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub243, ignore_errors=True)
         sub244 = klon(tmp, "sub244")
         berkas_aksi244 = os.path.join(
@@ -5524,7 +5524,7 @@ def main():
             f.write(isi_baru244)
         rc, out = jalan(sub244,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tar x tanpa -f: gerbang gagal (Audit 1120)", rc != 0)
+        periksa("tar x tanpa -f: gerbang gagal (Audit 1120)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub244, ignore_errors=True)
         sub245 = klon(tmp, "sub245")
         berkas_aksi245 = os.path.join(
@@ -5587,7 +5587,7 @@ def main():
             f.write(isi_baru247)
         rc, out = jalan(sub247,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("unshare tanpa perintah: gerbang gagal (Audit 1121)", rc != 0)
+        periksa("unshare tanpa perintah: gerbang gagal (Audit 1121)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub247, ignore_errors=True)
         sub248 = klon(tmp, "sub248")
         berkas_aksi248 = os.path.join(
@@ -5608,7 +5608,7 @@ def main():
             f.write(isi_baru248)
         rc, out = jalan(sub248,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("chroot tanpa perintah: gerbang gagal (Audit 1121)", rc != 0)
+        periksa("chroot tanpa perintah: gerbang gagal (Audit 1121)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub248, ignore_errors=True)
         sub249 = klon(tmp, "sub249")
         berkas_aksi249 = os.path.join(
@@ -5650,7 +5650,7 @@ def main():
             f.write(isi_baru250)
         rc, out = jalan(sub250,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("expect telanjang: gerbang gagal (Audit 1122)", rc != 0)
+        periksa("expect telanjang: gerbang gagal (Audit 1122)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub250, ignore_errors=True)
         sub251 = klon(tmp, "sub251")
         berkas_aksi251 = os.path.join(
@@ -5671,7 +5671,7 @@ def main():
             f.write(isi_baru251)
         rc, out = jalan(sub251,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("expect -f -: gerbang gagal (Audit 1122)", rc != 0)
+        periksa("expect -f -: gerbang gagal (Audit 1122)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub251, ignore_errors=True)
         sub252 = klon(tmp, "sub252")
         berkas_aksi252 = os.path.join(
@@ -5713,7 +5713,7 @@ def main():
             f.write(isi_baru253)
         rc, out = jalan(sub253,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg --verify: gerbang gagal (Audit 1123)", rc != 0)
+        periksa("gpg --verify: gerbang gagal (Audit 1123)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub253, ignore_errors=True)
         sub254 = klon(tmp, "sub254")
         berkas_aksi254 = os.path.join(
@@ -5755,7 +5755,7 @@ def main():
             f.write(isi_baru255)
         rc, out = jalan(sub255,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git stripspace: gerbang gagal (Audit 1124)", rc != 0)
+        periksa("git stripspace: gerbang gagal (Audit 1124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub255, ignore_errors=True)
         sub256 = klon(tmp, "sub256")
         berkas_aksi256 = os.path.join(
@@ -5776,7 +5776,7 @@ def main():
             f.write(isi_baru256)
         rc, out = jalan(sub256,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git patch-id: gerbang gagal (Audit 1124)", rc != 0)
+        periksa("git patch-id: gerbang gagal (Audit 1124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub256, ignore_errors=True)
         sub257 = klon(tmp, "sub257")
         berkas_aksi257 = os.path.join(
@@ -5797,7 +5797,7 @@ def main():
             f.write(isi_baru257)
         rc, out = jalan(sub257,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git mktag: gerbang gagal (Audit 1124)", rc != 0)
+        periksa("git mktag: gerbang gagal (Audit 1124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub257, ignore_errors=True)
         sub258 = klon(tmp, "sub258")
         berkas_aksi258 = os.path.join(
@@ -5818,7 +5818,7 @@ def main():
             f.write(isi_baru258)
         rc, out = jalan(sub258,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git update-index --index-info: gerbang gagal (Audit 1124)", rc != 0)
+        periksa("git update-index --index-info: gerbang gagal (Audit 1124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub258, ignore_errors=True)
         sub259 = klon(tmp, "sub259")
         berkas_aksi259 = os.path.join(
@@ -5839,7 +5839,7 @@ def main():
             f.write(isi_baru259)
         rc, out = jalan(sub259,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git index-pack --stdin: gerbang gagal (Audit 1124)", rc != 0)
+        periksa("git index-pack --stdin: gerbang gagal (Audit 1124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub259, ignore_errors=True)
         sub260 = klon(tmp, "sub260")
         berkas_aksi260 = os.path.join(
@@ -5881,7 +5881,7 @@ def main():
             f.write(isi_baru261)
         rc, out = jalan(sub261,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("numfmt --from: gerbang gagal (Audit 1125)", rc != 0)
+        periksa("numfmt --from: gerbang gagal (Audit 1125)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub261, ignore_errors=True)
         sub262 = klon(tmp, "sub262")
         berkas_aksi262 = os.path.join(
@@ -5902,7 +5902,7 @@ def main():
             f.write(isi_baru262)
         rc, out = jalan(sub262,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("numfmt --to: gerbang gagal (Audit 1125)", rc != 0)
+        periksa("numfmt --to: gerbang gagal (Audit 1125)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub262, ignore_errors=True)
         sub263 = klon(tmp, "sub263")
         berkas_aksi263 = os.path.join(
@@ -5923,7 +5923,7 @@ def main():
             f.write(isi_baru263)
         rc, out = jalan(sub263,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("numfmt --from-unit: gerbang gagal (Audit 1125)", rc != 0)
+        periksa("numfmt --from-unit: gerbang gagal (Audit 1125)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub263, ignore_errors=True)
         sub264 = klon(tmp, "sub264")
         berkas_aksi264 = os.path.join(
@@ -5965,7 +5965,7 @@ def main():
             f.write(isi_baru265)
         rc, out = jalan(sub265,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("jq --indent: gerbang gagal (Audit 1126)", rc != 0)
+        periksa("jq --indent: gerbang gagal (Audit 1126)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub265, ignore_errors=True)
         sub266 = klon(tmp, "sub266")
         berkas_aksi266 = os.path.join(
@@ -6007,7 +6007,7 @@ def main():
             f.write(isi_baru267)
         rc, out = jalan(sub267,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("grep --exclude-from: gerbang gagal (Audit 1127)", rc != 0)
+        periksa("grep --exclude-from: gerbang gagal (Audit 1127)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub267, ignore_errors=True)
         sub268 = klon(tmp, "sub268")
         berkas_aksi268 = os.path.join(
@@ -6028,7 +6028,7 @@ def main():
             f.write(isi_baru268)
         rc, out = jalan(sub268,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("grep --label: gerbang gagal (Audit 1127)", rc != 0)
+        periksa("grep --label: gerbang gagal (Audit 1127)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub268, ignore_errors=True)
         sub269 = klon(tmp, "sub269")
         berkas_aksi269 = os.path.join(
@@ -6070,7 +6070,7 @@ def main():
             f.write(isi_baru270)
         rc, out = jalan(sub270,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl crl: gerbang gagal (Audit 1128)", rc != 0)
+        periksa("openssl crl: gerbang gagal (Audit 1128)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub270, ignore_errors=True)
         sub271 = klon(tmp, "sub271")
         berkas_aksi271 = os.path.join(
@@ -6091,7 +6091,7 @@ def main():
             f.write(isi_baru271)
         rc, out = jalan(sub271,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl pkcs7: gerbang gagal (Audit 1128)", rc != 0)
+        periksa("openssl pkcs7: gerbang gagal (Audit 1128)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub271, ignore_errors=True)
         sub272 = klon(tmp, "sub272")
         berkas_aksi272 = os.path.join(
@@ -6112,7 +6112,7 @@ def main():
             f.write(isi_baru272)
         rc, out = jalan(sub272,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl verify: gerbang gagal (Audit 1128)", rc != 0)
+        periksa("openssl verify: gerbang gagal (Audit 1128)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub272, ignore_errors=True)
         sub273 = klon(tmp, "sub273")
         berkas_aksi273 = os.path.join(
@@ -6175,7 +6175,7 @@ def main():
             f.write(isi_baru275)
         rc, out = jalan(sub275,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dgst -mac: gerbang gagal (Audit 1129)", rc != 0)
+        periksa("dgst -mac: gerbang gagal (Audit 1129)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub275, ignore_errors=True)
         sub276 = klon(tmp, "sub276")
         berkas_aksi276 = os.path.join(
@@ -6217,7 +6217,7 @@ def main():
             f.write(isi_baru277)
         rc, out = jalan(sub277,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("zip -@ -: gerbang gagal (Audit 1130)", rc != 0)
+        periksa("zip -@ -: gerbang gagal (Audit 1130)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub277, ignore_errors=True)
         sub278 = klon(tmp, "sub278")
         berkas_aksi278 = os.path.join(
@@ -6238,7 +6238,7 @@ def main():
             f.write(isi_baru278)
         rc, out = jalan(sub278,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("zip - -@: gerbang gagal (Audit 1130)", rc != 0)
+        periksa("zip - -@: gerbang gagal (Audit 1130)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub278, ignore_errors=True)
         sub279 = klon(tmp, "sub279")
         berkas_aksi279 = os.path.join(
@@ -6280,7 +6280,7 @@ def main():
             f.write(isi_baru280)
         rc, out = jalan(sub280,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("patch -i-: gerbang gagal (Audit 1131)", rc != 0)
+        periksa("patch -i-: gerbang gagal (Audit 1131)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub280, ignore_errors=True)
         sub281 = klon(tmp, "sub281")
         berkas_aksi281 = os.path.join(
@@ -6322,7 +6322,7 @@ def main():
             f.write(isi_baru282)
         rc, out = jalan(sub282,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("addr2line --target: gerbang gagal (Audit 1132)", rc != 0)
+        periksa("addr2line --target: gerbang gagal (Audit 1132)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub282, ignore_errors=True)
         sub283 = klon(tmp, "sub283")
         berkas_aksi283 = os.path.join(
@@ -6364,7 +6364,7 @@ def main():
             f.write(isi_baru284)
         rc, out = jalan(sub284,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("diff label berkutip <: gerbang gagal (Audit 1133)", rc != 0)
+        periksa("diff label berkutip <: gerbang gagal (Audit 1133)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub284, ignore_errors=True)
         sub285 = klon(tmp, "sub285")
         berkas_aksi285 = os.path.join(
@@ -6406,7 +6406,7 @@ def main():
             f.write(isi_baru286)
         rc, out = jalan(sub286,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xargs -a -: gerbang gagal (Audit 1134)", rc != 0)
+        periksa("xargs -a -: gerbang gagal (Audit 1134)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub286, ignore_errors=True)
         sub287 = klon(tmp, "sub287")
         berkas_aksi287 = os.path.join(
@@ -6511,7 +6511,7 @@ def main():
             f.write(isi_baru291)
         rc, out = jalan(sub291,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dgst - kontrol: gerbang gagal (Audit 1135)", rc != 0)
+        periksa("dgst - kontrol: gerbang gagal (Audit 1135)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub291, ignore_errors=True)
         sub292 = klon(tmp, "sub292")
         berkas_aksi292 = os.path.join(
@@ -6616,7 +6616,7 @@ def main():
             f.write(isi_baru296)
         rc, out = jalan(sub296,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("vim telanjang kontrol: gerbang gagal (Audit 1136)", rc != 0)
+        periksa("vim telanjang kontrol: gerbang gagal (Audit 1136)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub296, ignore_errors=True)
         sub297 = klon(tmp, "sub297")
         berkas_aksi297 = os.path.join(
@@ -6658,7 +6658,7 @@ def main():
             f.write(isi_baru298)
         rc, out = jalan(sub298,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("basenc polos bermode: gerbang gagal (Audit 1137)", rc != 0)
+        periksa("basenc polos bermode: gerbang gagal (Audit 1137)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub298, ignore_errors=True)
         sub299 = klon(tmp, "sub299")
         berkas_aksi299 = os.path.join(
@@ -6679,7 +6679,7 @@ def main():
             f.write(isi_baru299)
         rc, out = jalan(sub299,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("basenc operand -: gerbang gagal (Audit 1137)", rc != 0)
+        periksa("basenc operand -: gerbang gagal (Audit 1137)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub299, ignore_errors=True)
         sub300 = klon(tmp, "sub300")
         berkas_aksi300 = os.path.join(
@@ -6742,7 +6742,7 @@ def main():
             f.write(isi_baru302)
         rc, out = jalan(sub302,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sed polos kontrol: gerbang gagal (Audit 1138)", rc != 0)
+        periksa("sed polos kontrol: gerbang gagal (Audit 1138)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub302, ignore_errors=True)
         sub303 = klon(tmp, "sub303")
         berkas_aksi303 = os.path.join(
@@ -6805,7 +6805,7 @@ def main():
             f.write(isi_baru305)
         rc, out = jalan(sub305,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sort --files0-from=-: gerbang gagal (Audit 1139)", rc != 0)
+        periksa("sort --files0-from=-: gerbang gagal (Audit 1139)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub305, ignore_errors=True)
         sub306 = klon(tmp, "sub306")
         berkas_aksi306 = os.path.join(
@@ -6847,7 +6847,7 @@ def main():
             f.write(isi_baru307)
         rc, out = jalan(sub307,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("su -mc cat: gerbang gagal (Audit 1140)", rc != 0)
+        periksa("su -mc cat: gerbang gagal (Audit 1140)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub307, ignore_errors=True)
         sub308 = klon(tmp, "sub308")
         berkas_aksi308 = os.path.join(
@@ -6910,7 +6910,7 @@ def main():
             f.write(isi_baru310)
         rc, out = jalan(sub310,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("uniq --group polos: gerbang gagal (Audit 1141)", rc != 0)
+        periksa("uniq --group polos: gerbang gagal (Audit 1141)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub310, ignore_errors=True)
         sub311 = klon(tmp, "sub311")
         berkas_aksi311 = os.path.join(
@@ -6931,7 +6931,7 @@ def main():
             f.write(isi_baru311)
         rc, out = jalan(sub311,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("expect -c 'puts x' -f -: gerbang gagal (Audit 1145)", rc != 0)
+        periksa("expect -c 'puts x' -f -: gerbang gagal (Audit 1145)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub311, ignore_errors=True)
         sub312 = klon(tmp, "sub312")
         berkas_aksi312 = os.path.join(
@@ -6973,7 +6973,7 @@ def main():
             f.write(isi_baru313)
         rc, out = jalan(sub313,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("expect -D 0 -f -: gerbang gagal (Audit 1146)", rc != 0)
+        periksa("expect -D 0 -f -: gerbang gagal (Audit 1146)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub313, ignore_errors=True)
         sub314 = klon(tmp, "sub314")
         berkas_aksi314 = os.path.join(
@@ -7015,7 +7015,7 @@ def main():
             f.write(isi_baru315)
         rc, out = jalan(sub315,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("diff - --label --help berkas: gerbang gagal (Audit 1147)", rc != 0)
+        periksa("diff - --label --help berkas: gerbang gagal (Audit 1147)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub315, ignore_errors=True)
         sub316 = klon(tmp, "sub316")
         berkas_aksi316 = os.path.join(
@@ -7036,7 +7036,7 @@ def main():
             f.write(isi_baru316)
         rc, out = jalan(sub316,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csplit - -f --help 2: gerbang gagal (Audit 1147)", rc != 0)
+        periksa("csplit - -f --help 2: gerbang gagal (Audit 1147)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub316, ignore_errors=True)
         sub317 = klon(tmp, "sub317")
         berkas_aksi317 = os.path.join(
@@ -7078,7 +7078,7 @@ def main():
             f.write(isi_baru318)
         rc, out = jalan(sub318,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl dgst -sha256 -hmac kunci: gerbang gagal (Audit 1148)", rc != 0)
+        periksa("openssl dgst -sha256 -hmac kunci: gerbang gagal (Audit 1148)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub318, ignore_errors=True)
         sub319 = klon(tmp, "sub319")
         berkas_aksi319 = os.path.join(
@@ -7099,7 +7099,7 @@ def main():
             f.write(isi_baru319)
         rc, out = jalan(sub319,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl dgst -sha256 -sigopt rsa_padding_mode:pss: gerbang gagal (Audit 1148)", rc != 0)
+        periksa("openssl dgst -sha256 -sigopt rsa_padding_mode:pss: gerbang gagal (Audit 1148)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub319, ignore_errors=True)
         sub320 = klon(tmp, "sub320")
         berkas_aksi320 = os.path.join(
@@ -7141,7 +7141,7 @@ def main():
             f.write(isi_baru321)
         rc, out = jalan(sub321,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl verify -verify_hostname contoh.com: gerbang gagal (Audit 1149)", rc != 0)
+        periksa("openssl verify -verify_hostname contoh.com: gerbang gagal (Audit 1149)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub321, ignore_errors=True)
         sub322 = klon(tmp, "sub322")
         berkas_aksi322 = os.path.join(
@@ -7162,7 +7162,7 @@ def main():
             f.write(isi_baru322)
         rc, out = jalan(sub322,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl verify -CAfile ca.pem -verify_email a@b.c: gerbang gagal (Audit 1149)", rc != 0)
+        periksa("openssl verify -CAfile ca.pem -verify_email a@b.c: gerbang gagal (Audit 1149)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub322, ignore_errors=True)
         sub323 = klon(tmp, "sub323")
         berkas_aksi323 = os.path.join(
@@ -7204,7 +7204,7 @@ def main():
             f.write(isi_baru324)
         rc, out = jalan(sub324,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg --verify - data.txt: gerbang gagal (Audit 1150)", rc != 0)
+        periksa("gpg --verify - data.txt: gerbang gagal (Audit 1150)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub324, ignore_errors=True)
         sub325 = klon(tmp, "sub325")
         berkas_aksi325 = os.path.join(
@@ -7246,7 +7246,7 @@ def main():
             f.write(isi_baru326)
         rc, out = jalan(sub326,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tar -t -T daftar.txt: gerbang gagal (Audit 1151)", rc != 0)
+        periksa("tar -t -T daftar.txt: gerbang gagal (Audit 1151)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub326, ignore_errors=True)
         sub327 = klon(tmp, "sub327")
         berkas_aksi327 = os.path.join(
@@ -7267,7 +7267,7 @@ def main():
             f.write(isi_baru327)
         rc, out = jalan(sub327,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tar -x -T daftar.txt: gerbang gagal (Audit 1151)", rc != 0)
+        periksa("tar -x -T daftar.txt: gerbang gagal (Audit 1151)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub327, ignore_errors=True)
         sub328 = klon(tmp, "sub328")
         berkas_aksi328 = os.path.join(
@@ -7351,7 +7351,7 @@ def main():
             f.write(isi_baru331)
         rc, out = jalan(sub331,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("unshare --propagation private: gerbang gagal (Audit 1153)", rc != 0)
+        periksa("unshare --propagation private: gerbang gagal (Audit 1153)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub331, ignore_errors=True)
         sub332 = klon(tmp, "sub332")
         berkas_aksi332 = os.path.join(
@@ -7414,7 +7414,7 @@ def main():
             f.write(isi_baru334)
         rc, out = jalan(sub334,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("setpriv --reuid=1000 --regid=1000 --clear-groups cat: gerbang gagal (Audit 1155)", rc != 0)
+        periksa("setpriv --reuid=1000 --regid=1000 --clear-groups cat: gerbang gagal (Audit 1155)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub334, ignore_errors=True)
         sub335 = klon(tmp, "sub335")
         berkas_aksi335 = os.path.join(
@@ -7456,7 +7456,7 @@ def main():
             f.write(isi_baru336)
         rc, out = jalan(sub336,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("prlimit --nproc=100 cat: gerbang gagal (Audit 1156)", rc != 0)
+        periksa("prlimit --nproc=100 cat: gerbang gagal (Audit 1156)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub336, ignore_errors=True)
         sub337 = klon(tmp, "sub337")
         berkas_aksi337 = os.path.join(
@@ -7498,7 +7498,7 @@ def main():
             f.write(isi_baru338)
         rc, out = jalan(sub338,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("netcat contoh.com 80: gerbang gagal (Audit 1157)", rc != 0)
+        periksa("netcat contoh.com 80: gerbang gagal (Audit 1157)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub338, ignore_errors=True)
         sub339 = klon(tmp, "sub339")
         berkas_aksi339 = os.path.join(
@@ -7519,7 +7519,7 @@ def main():
             f.write(isi_baru339)
         rc, out = jalan(sub339,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nc.openbsd contoh.com 80: gerbang gagal (Audit 1157)", rc != 0)
+        periksa("nc.openbsd contoh.com 80: gerbang gagal (Audit 1157)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub339, ignore_errors=True)
         sub340 = klon(tmp, "sub340")
         berkas_aksi340 = os.path.join(
@@ -7540,7 +7540,7 @@ def main():
             f.write(isi_baru340)
         rc, out = jalan(sub340,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("rbash: gerbang gagal (Audit 1158)", rc != 0)
+        periksa("rbash: gerbang gagal (Audit 1158)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub340, ignore_errors=True)
         sub341 = klon(tmp, "sub341")
         berkas_aksi341 = os.path.join(
@@ -7561,7 +7561,7 @@ def main():
             f.write(isi_baru341)
         rc, out = jalan(sub341,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("rzsh: gerbang gagal (Audit 1158)", rc != 0)
+        periksa("rzsh: gerbang gagal (Audit 1158)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub341, ignore_errors=True)
         sub342 = klon(tmp, "sub342")
         berkas_aksi342 = os.path.join(
@@ -7582,7 +7582,7 @@ def main():
             f.write(isi_baru342)
         rc, out = jalan(sub342,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("python3.12: gerbang gagal (Audit 1159)", rc != 0)
+        periksa("python3.12: gerbang gagal (Audit 1159)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub342, ignore_errors=True)
         sub343 = klon(tmp, "sub343")
         berkas_aksi343 = os.path.join(
@@ -7603,7 +7603,7 @@ def main():
             f.write(isi_baru343)
         rc, out = jalan(sub343,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tclsh8.6: gerbang gagal (Audit 1159)", rc != 0)
+        periksa("tclsh8.6: gerbang gagal (Audit 1159)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub343, ignore_errors=True)
         sub344 = klon(tmp, "sub344")
         berkas_aksi344 = os.path.join(
@@ -7645,7 +7645,7 @@ def main():
             f.write(isi_baru345)
         rc, out = jalan(sub345,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl dsa: gerbang gagal (Audit 1160)", rc != 0)
+        periksa("openssl dsa: gerbang gagal (Audit 1160)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub345, ignore_errors=True)
         sub346 = klon(tmp, "sub346")
         berkas_aksi346 = os.path.join(
@@ -7666,7 +7666,7 @@ def main():
             f.write(isi_baru346)
         rc, out = jalan(sub346,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl pkcs12: gerbang gagal (Audit 1160)", rc != 0)
+        periksa("openssl pkcs12: gerbang gagal (Audit 1160)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub346, ignore_errors=True)
         sub347 = klon(tmp, "sub347")
         berkas_aksi347 = os.path.join(
@@ -7687,7 +7687,7 @@ def main():
             f.write(isi_baru347)
         rc, out = jalan(sub347,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl crl2pkcs7: gerbang gagal (Audit 1160)", rc != 0)
+        periksa("openssl crl2pkcs7: gerbang gagal (Audit 1160)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub347, ignore_errors=True)
         sub348 = klon(tmp, "sub348")
         berkas_aksi348 = os.path.join(
@@ -7729,7 +7729,7 @@ def main():
             f.write(isi_baru349)
         rc, out = jalan(sub349,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl rsautl -sign -inkey k.pem: gerbang gagal (Audit 1161)", rc != 0)
+        periksa("openssl rsautl -sign -inkey k.pem: gerbang gagal (Audit 1161)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub349, ignore_errors=True)
         sub350 = klon(tmp, "sub350")
         berkas_aksi350 = os.path.join(
@@ -7771,7 +7771,7 @@ def main():
             f.write(isi_baru351)
         rc, out = jalan(sub351,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git commit-tree abc123: gerbang gagal (Audit 1162)", rc != 0)
+        periksa("git commit-tree abc123: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub351, ignore_errors=True)
         sub352 = klon(tmp, "sub352")
         berkas_aksi352 = os.path.join(
@@ -7792,7 +7792,7 @@ def main():
             f.write(isi_baru352)
         rc, out = jalan(sub352,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git interpret-trailers: gerbang gagal (Audit 1162)", rc != 0)
+        periksa("git interpret-trailers: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub352, ignore_errors=True)
         sub353 = klon(tmp, "sub353")
         berkas_aksi353 = os.path.join(
@@ -7813,7 +7813,7 @@ def main():
             f.write(isi_baru353)
         rc, out = jalan(sub353,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git mailinfo msg patch: gerbang gagal (Audit 1162)", rc != 0)
+        periksa("git mailinfo msg patch: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub353, ignore_errors=True)
         sub354 = klon(tmp, "sub354")
         berkas_aksi354 = os.path.join(
@@ -7834,7 +7834,7 @@ def main():
             f.write(isi_baru354)
         rc, out = jalan(sub354,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git mailsplit -o/tmp/x: gerbang gagal (Audit 1162)", rc != 0)
+        periksa("git mailsplit -o/tmp/x: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub354, ignore_errors=True)
         sub355 = klon(tmp, "sub355")
         berkas_aksi355 = os.path.join(
@@ -7876,7 +7876,7 @@ def main():
             f.write(isi_baru356)
         rc, out = jalan(sub356,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git pack-objects dasar: gerbang gagal (Audit 1162)", rc != 0)
+        periksa("git pack-objects dasar: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub356, ignore_errors=True)
         sub357 = klon(tmp, "sub357")
         berkas_aksi357 = os.path.join(
@@ -7897,7 +7897,7 @@ def main():
             f.write(isi_baru357)
         rc, out = jalan(sub357,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git column --mode=column: gerbang gagal (Audit 1162)", rc != 0)
+        periksa("git column --mode=column: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub357, ignore_errors=True)
         sub358 = klon(tmp, "sub358")
         berkas_aksi358 = os.path.join(
@@ -7918,7 +7918,7 @@ def main():
             f.write(isi_baru358)
         rc, out = jalan(sub358,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git imap-send: gerbang gagal (Audit 1162)", rc != 0)
+        periksa("git imap-send: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub358, ignore_errors=True)
         sub359 = klon(tmp, "sub359")
         berkas_aksi359 = os.path.join(
@@ -7939,7 +7939,7 @@ def main():
             f.write(isi_baru359)
         rc, out = jalan(sub359,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git rev-list --stdin: gerbang gagal (Audit 1163)", rc != 0)
+        periksa("git rev-list --stdin: gerbang gagal (Audit 1163)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub359, ignore_errors=True)
         sub360 = klon(tmp, "sub360")
         berkas_aksi360 = os.path.join(
@@ -7960,7 +7960,7 @@ def main():
             f.write(isi_baru360)
         rc, out = jalan(sub360,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git check-mailmap --stdin: gerbang gagal (Audit 1163)", rc != 0)
+        periksa("git check-mailmap --stdin: gerbang gagal (Audit 1163)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub360, ignore_errors=True)
         sub361 = klon(tmp, "sub361")
         berkas_aksi361 = os.path.join(
@@ -7981,7 +7981,7 @@ def main():
             f.write(isi_baru361)
         rc, out = jalan(sub361,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git credential-store get: gerbang gagal (Audit 1163)", rc != 0)
+        periksa("git credential-store get: gerbang gagal (Audit 1163)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub361, ignore_errors=True)
         sub362 = klon(tmp, "sub362")
         berkas_aksi362 = os.path.join(
@@ -8023,7 +8023,7 @@ def main():
             f.write(isi_baru363)
         rc, out = jalan(sub363,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sort --key 2: gerbang gagal (Audit 1164)", rc != 0)
+        periksa("sort --key 2: gerbang gagal (Audit 1164)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub363, ignore_errors=True)
         sub364 = klon(tmp, "sub364")
         berkas_aksi364 = os.path.join(
@@ -8044,7 +8044,7 @@ def main():
             f.write(isi_baru364)
         rc, out = jalan(sub364,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("uniq --skip-chars 2: gerbang gagal (Audit 1165)", rc != 0)
+        periksa("uniq --skip-chars 2: gerbang gagal (Audit 1165)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub364, ignore_errors=True)
         sub365 = klon(tmp, "sub365")
         berkas_aksi365 = os.path.join(
@@ -8065,7 +8065,7 @@ def main():
             f.write(isi_baru365)
         rc, out = jalan(sub365,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tail --sleep-interval 1: gerbang gagal (Audit 1166)", rc != 0)
+        periksa("tail --sleep-interval 1: gerbang gagal (Audit 1166)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub365, ignore_errors=True)
         sub366 = klon(tmp, "sub366")
         berkas_aksi366 = os.path.join(
@@ -8107,7 +8107,7 @@ def main():
             f.write(isi_baru367)
         rc, out = jalan(sub367,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pr -D %Y: gerbang gagal (Audit 1167)", rc != 0)
+        periksa("pr -D %Y: gerbang gagal (Audit 1167)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub367, ignore_errors=True)
         sub368 = klon(tmp, "sub368")
         berkas_aksi368 = os.path.join(
@@ -8128,7 +8128,7 @@ def main():
             f.write(isi_baru368)
         rc, out = jalan(sub368,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("strings -T elf64-x86-64: gerbang gagal (Audit 1168)", rc != 0)
+        periksa("strings -T elf64-x86-64: gerbang gagal (Audit 1168)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub368, ignore_errors=True)
         sub369 = klon(tmp, "sub369")
         berkas_aksi369 = os.path.join(
@@ -8149,7 +8149,7 @@ def main():
             f.write(isi_baru369)
         rc, out = jalan(sub369,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("split --filter cat -l 1 -: gerbang gagal (Audit 1169)", rc != 0)
+        periksa("split --filter cat -l 1 -: gerbang gagal (Audit 1169)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub369, ignore_errors=True)
         sub370 = klon(tmp, "sub370")
         berkas_aksi370 = os.path.join(
@@ -8170,7 +8170,7 @@ def main():
             f.write(isi_baru370)
         rc, out = jalan(sub370,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("logger --msgid abc: gerbang gagal (Audit 1170)", rc != 0)
+        periksa("logger --msgid abc: gerbang gagal (Audit 1170)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub370, ignore_errors=True)
         sub371 = klon(tmp, "sub371")
         berkas_aksi371 = os.path.join(
@@ -8191,7 +8191,7 @@ def main():
             f.write(isi_baru371)
         rc, out = jalan(sub371,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("cksum -a blake2b -l 32: gerbang gagal (Audit 1171)", rc != 0)
+        periksa("cksum -a blake2b -l 32: gerbang gagal (Audit 1171)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub371, ignore_errors=True)
         sub372 = klon(tmp, "sub372")
         berkas_aksi372 = os.path.join(
@@ -8212,7 +8212,7 @@ def main():
             f.write(isi_baru372)
         rc, out = jalan(sub372,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xz -F lzma -c: gerbang gagal (Audit 1172)", rc != 0)
+        periksa("xz -F lzma -c: gerbang gagal (Audit 1172)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub372, ignore_errors=True)
         sub373 = klon(tmp, "sub373")
         berkas_aksi373 = os.path.join(
@@ -8233,7 +8233,7 @@ def main():
             f.write(isi_baru373)
         rc, out = jalan(sub373,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("unxz -F lzma: gerbang gagal (Audit 1172)", rc != 0)
+        periksa("unxz -F lzma: gerbang gagal (Audit 1172)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub373, ignore_errors=True)
         sub374 = klon(tmp, "sub374")
         berkas_aksi374 = os.path.join(
@@ -8254,7 +8254,7 @@ def main():
             f.write(isi_baru374)
         rc, out = jalan(sub374,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("od --endian little: gerbang gagal (Audit 1173)", rc != 0)
+        periksa("od --endian little: gerbang gagal (Audit 1173)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub374, ignore_errors=True)
         sub375 = klon(tmp, "sub375")
         berkas_aksi375 = os.path.join(
@@ -8275,7 +8275,7 @@ def main():
             f.write(isi_baru375)
         rc, out = jalan(sub375,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ptx -o daftar: gerbang gagal (Audit 1174)", rc != 0)
+        periksa("ptx -o daftar: gerbang gagal (Audit 1174)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub375, ignore_errors=True)
         sub376 = klon(tmp, "sub376")
         berkas_aksi376 = os.path.join(
@@ -8296,7 +8296,7 @@ def main():
             f.write(isi_baru376)
         rc, out = jalan(sub376,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sqlite3 -newline X berkas.db: gerbang gagal (Audit 1175)", rc != 0)
+        periksa("sqlite3 -newline X berkas.db: gerbang gagal (Audit 1175)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub376, ignore_errors=True)
         sub377 = klon(tmp, "sub377")
         berkas_aksi377 = os.path.join(
@@ -8338,7 +8338,7 @@ def main():
             f.write(isi_baru378)
         rc, out = jalan(sub378,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("grep --group-separator SEP pola: gerbang gagal (Audit 1176)", rc != 0)
+        periksa("grep --group-separator SEP pola: gerbang gagal (Audit 1176)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub378, ignore_errors=True)
         sub379 = klon(tmp, "sub379")
         berkas_aksi379 = os.path.join(
@@ -8401,7 +8401,7 @@ def main():
             f.write(isi_baru381)
         rc, out = jalan(sub381,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sqlite3 -init --help contoh.db: gerbang gagal (Audit 1181)", rc != 0)
+        periksa("sqlite3 -init --help contoh.db: gerbang gagal (Audit 1181)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub381, ignore_errors=True)
         sub382 = klon(tmp, "sub382")
         berkas_aksi382 = os.path.join(
@@ -8422,7 +8422,7 @@ def main():
             f.write(isi_baru382)
         rc, out = jalan(sub382,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("expect -c 'puts x' -: gerbang gagal (Audit 1182)", rc != 0)
+        periksa("expect -c 'puts x' -: gerbang gagal (Audit 1182)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub382, ignore_errors=True)
         sub383 = klon(tmp, "sub383")
         berkas_aksi383 = os.path.join(
@@ -8443,7 +8443,7 @@ def main():
             f.write(isi_baru383)
         rc, out = jalan(sub383,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tclsh8.6 -encoding utf-8: gerbang gagal (Audit 1183)", rc != 0)
+        periksa("tclsh8.6 -encoding utf-8: gerbang gagal (Audit 1183)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub383, ignore_errors=True)
         sub384 = klon(tmp, "sub384")
         berkas_aksi384 = os.path.join(
@@ -8464,7 +8464,7 @@ def main():
             f.write(isi_baru384)
         rc, out = jalan(sub384,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git column --indent xx: gerbang gagal (Audit 1184)", rc != 0)
+        periksa("git column --indent xx: gerbang gagal (Audit 1184)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub384, ignore_errors=True)
         sub385 = klon(tmp, "sub385")
         berkas_aksi385 = os.path.join(
@@ -8590,7 +8590,7 @@ def main():
             f.write(isi_baru390)
         rc, out = jalan(sub390,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("funzip: gerbang gagal (Audit 1191)", rc != 0)
+        periksa("funzip: gerbang gagal (Audit 1191)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub390, ignore_errors=True)
         sub391 = klon(tmp, "sub391")
         berkas_aksi391 = os.path.join(
@@ -8611,7 +8611,7 @@ def main():
             f.write(isi_baru391)
         rc, out = jalan(sub391,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("json_pp: gerbang gagal (Audit 1192)", rc != 0)
+        periksa("json_pp: gerbang gagal (Audit 1192)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub391, ignore_errors=True)
         sub392 = klon(tmp, "sub392")
         berkas_aksi392 = os.path.join(
@@ -8632,7 +8632,7 @@ def main():
             f.write(isi_baru392)
         rc, out = jalan(sub392,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pdftotext - -: gerbang gagal (Audit 1193)", rc != 0)
+        periksa("pdftotext - -: gerbang gagal (Audit 1193)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub392, ignore_errors=True)
         sub393 = klon(tmp, "sub393")
         berkas_aksi393 = os.path.join(
@@ -8653,7 +8653,7 @@ def main():
             f.write(isi_baru393)
         rc, out = jalan(sub393,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("newgrp: gerbang gagal (Audit 1194)", rc != 0)
+        periksa("newgrp: gerbang gagal (Audit 1194)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub393, ignore_errors=True)
         sub394 = klon(tmp, "sub394")
         berkas_aksi394 = os.path.join(
@@ -8674,7 +8674,7 @@ def main():
             f.write(isi_baru394)
         rc, out = jalan(sub394,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nft -f -: gerbang gagal (Audit 1195)", rc != 0)
+        periksa("nft -f -: gerbang gagal (Audit 1195)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub394, ignore_errors=True)
         sub395 = klon(tmp, "sub395")
         berkas_aksi395 = os.path.join(
@@ -8695,7 +8695,7 @@ def main():
             f.write(isi_baru395)
         rc, out = jalan(sub395,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("iptables-restore: gerbang gagal (Audit 1196)", rc != 0)
+        periksa("iptables-restore: gerbang gagal (Audit 1196)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub395, ignore_errors=True)
         sub396 = klon(tmp, "sub396")
         berkas_aksi396 = os.path.join(
@@ -8716,7 +8716,7 @@ def main():
             f.write(isi_baru396)
         rc, out = jalan(sub396,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ip6tables-restore --table filter: gerbang gagal (Audit 1196)", rc != 0)
+        periksa("ip6tables-restore --table filter: gerbang gagal (Audit 1196)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub396, ignore_errors=True)
         sub397 = klon(tmp, "sub397")
         berkas_aksi397 = os.path.join(
@@ -8737,7 +8737,7 @@ def main():
             f.write(isi_baru397)
         rc, out = jalan(sub397,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ip -batch -: gerbang gagal (Audit 1197)", rc != 0)
+        periksa("ip -batch -: gerbang gagal (Audit 1197)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub397, ignore_errors=True)
         sub398 = klon(tmp, "sub398")
         berkas_aksi398 = os.path.join(
@@ -8779,7 +8779,7 @@ def main():
             f.write(isi_baru399)
         rc, out = jalan(sub399,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dpkg --set-selections: gerbang gagal (Audit 1198)", rc != 0)
+        periksa("dpkg --set-selections: gerbang gagal (Audit 1198)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub399, ignore_errors=True)
         sub400 = klon(tmp, "sub400")
         berkas_aksi400 = os.path.join(
@@ -8800,7 +8800,7 @@ def main():
             f.write(isi_baru400)
         rc, out = jalan(sub400,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lzcat: gerbang gagal (Audit 1199)", rc != 0)
+        periksa("lzcat: gerbang gagal (Audit 1199)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub400, ignore_errors=True)
         sub401 = klon(tmp, "sub401")
         berkas_aksi401 = os.path.join(
@@ -8821,7 +8821,7 @@ def main():
             f.write(isi_baru401)
         rc, out = jalan(sub401,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("file -: gerbang gagal (Audit 1200)", rc != 0)
+        periksa("file -: gerbang gagal (Audit 1200)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub401, ignore_errors=True)
         sub402 = klon(tmp, "sub402")
         berkas_aksi402 = os.path.join(
@@ -8842,7 +8842,7 @@ def main():
             f.write(isi_baru402)
         rc, out = jalan(sub402,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("file -f -: gerbang gagal (Audit 1200)", rc != 0)
+        periksa("file -f -: gerbang gagal (Audit 1200)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub402, ignore_errors=True)
         sub403 = klon(tmp, "sub403")
         berkas_aksi403 = os.path.join(
@@ -8863,7 +8863,7 @@ def main():
             f.write(isi_baru403)
         rc, out = jalan(sub403,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("date -f -: gerbang gagal (Audit 1201)", rc != 0)
+        periksa("date -f -: gerbang gagal (Audit 1201)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub403, ignore_errors=True)
         sub404 = klon(tmp, "sub404")
         berkas_aksi404 = os.path.join(
@@ -8884,7 +8884,7 @@ def main():
             f.write(isi_baru404)
         rc, out = jalan(sub404,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sysctl -p -: gerbang gagal (Audit 1202)", rc != 0)
+        periksa("sysctl -p -: gerbang gagal (Audit 1202)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub404, ignore_errors=True)
         sub405 = klon(tmp, "sub405")
         berkas_aksi405 = os.path.join(
@@ -8905,7 +8905,7 @@ def main():
             f.write(isi_baru405)
         rc, out = jalan(sub405,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ssh-agent cat: gerbang gagal (Audit 1203)", rc != 0)
+        periksa("ssh-agent cat: gerbang gagal (Audit 1203)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub405, ignore_errors=True)
         sub406 = klon(tmp, "sub406")
         berkas_aksi406 = os.path.join(
@@ -8926,7 +8926,7 @@ def main():
             f.write(isi_baru406)
         rc, out = jalan(sub406,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bun repl: gerbang gagal (Audit 1204)", rc != 0)
+        periksa("bun repl: gerbang gagal (Audit 1204)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub406, ignore_errors=True)
         sub407 = klon(tmp, "sub407")
         berkas_aksi407 = os.path.join(
@@ -8968,7 +8968,7 @@ def main():
             f.write(isi_baru408)
         rc, out = jalan(sub408,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git am: gerbang gagal (Audit 1205)", rc != 0)
+        periksa("git am: gerbang gagal (Audit 1205)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub408, ignore_errors=True)
         sub409 = klon(tmp, "sub409")
         berkas_aksi409 = os.path.join(
@@ -8989,7 +8989,7 @@ def main():
             f.write(isi_baru409)
         rc, out = jalan(sub409,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git shortlog: gerbang gagal (Audit 1205)", rc != 0)
+        periksa("git shortlog: gerbang gagal (Audit 1205)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub409, ignore_errors=True)
         sub410 = klon(tmp, "sub410")
         berkas_aksi410 = os.path.join(
@@ -9010,7 +9010,7 @@ def main():
             f.write(isi_baru410)
         rc, out = jalan(sub410,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git update-ref --stdin: gerbang gagal (Audit 1206)", rc != 0)
+        periksa("git update-ref --stdin: gerbang gagal (Audit 1206)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub410, ignore_errors=True)
         sub411 = klon(tmp, "sub411")
         berkas_aksi411 = os.path.join(
@@ -9031,7 +9031,7 @@ def main():
             f.write(isi_baru411)
         rc, out = jalan(sub411,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git name-rev --stdin: gerbang gagal (Audit 1206)", rc != 0)
+        periksa("git name-rev --stdin: gerbang gagal (Audit 1206)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub411, ignore_errors=True)
         sub412 = klon(tmp, "sub412")
         berkas_aksi412 = os.path.join(
@@ -9052,7 +9052,7 @@ def main():
             f.write(isi_baru412)
         rc, out = jalan(sub412,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git notes add -F - HEAD: gerbang gagal (Audit 1207)", rc != 0)
+        periksa("git notes add -F - HEAD: gerbang gagal (Audit 1207)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub412, ignore_errors=True)
         sub413 = klon(tmp, "sub413")
         berkas_aksi413 = os.path.join(
@@ -9073,7 +9073,7 @@ def main():
             f.write(isi_baru413)
         rc, out = jalan(sub413,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("git add --pathspec-from-file=-: gerbang gagal (Audit 1207)", rc != 0)
+        periksa("git add --pathspec-from-file=-: gerbang gagal (Audit 1207)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub413, ignore_errors=True)
         sub414 = klon(tmp, "sub414")
         berkas_aksi414 = os.path.join(
@@ -9094,7 +9094,7 @@ def main():
             f.write(isi_baru414)
         rc, out = jalan(sub414,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pr --columns 2: gerbang gagal (Audit 1208)", rc != 0)
+        periksa("pr --columns 2: gerbang gagal (Audit 1208)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub414, ignore_errors=True)
         sub415 = klon(tmp, "sub415")
         berkas_aksi415 = os.path.join(
@@ -9136,7 +9136,7 @@ def main():
             f.write(isi_baru416)
         rc, out = jalan(sub416,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nl --section-delimiter xx: gerbang gagal (Audit 1209)", rc != 0)
+        periksa("nl --section-delimiter xx: gerbang gagal (Audit 1209)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub416, ignore_errors=True)
         sub417 = klon(tmp, "sub417")
         berkas_aksi417 = os.path.join(
@@ -9157,7 +9157,7 @@ def main():
             f.write(isi_baru417)
         rc, out = jalan(sub417,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ptx -g 3: gerbang gagal (Audit 1210)", rc != 0)
+        periksa("ptx -g 3: gerbang gagal (Audit 1210)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub417, ignore_errors=True)
         sub418 = klon(tmp, "sub418")
         berkas_aksi418 = os.path.join(
@@ -9199,7 +9199,7 @@ def main():
             f.write(isi_baru419)
         rc, out = jalan(sub419,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("wall -t 5: gerbang gagal (Audit 1211)", rc != 0)
+        periksa("wall -t 5: gerbang gagal (Audit 1211)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub419, ignore_errors=True)
         sub420 = klon(tmp, "sub420")
         berkas_aksi420 = os.path.join(
@@ -9241,7 +9241,7 @@ def main():
             f.write(isi_baru421)
         rc, out = jalan(sub421,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lzma -F lzma -c: gerbang gagal (Audit 1213)", rc != 0)
+        periksa("lzma -F lzma -c: gerbang gagal (Audit 1213)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub421, ignore_errors=True)
         sub422 = klon(tmp, "sub422")
         berkas_aksi422 = os.path.join(
@@ -9262,7 +9262,7 @@ def main():
             f.write(isi_baru422)
         rc, out = jalan(sub422,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("zcat --suffix .zz: gerbang gagal (Audit 1213)", rc != 0)
+        periksa("zcat --suffix .zz: gerbang gagal (Audit 1213)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub422, ignore_errors=True)
         sub423 = klon(tmp, "sub423")
         berkas_aksi423 = os.path.join(
@@ -9346,7 +9346,7 @@ def main():
             f.write(isi_baru426)
         rc, out = jalan(sub426,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl x509: gerbang gagal (Audit 1215)", rc != 0)
+        periksa("openssl x509: gerbang gagal (Audit 1215)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub426, ignore_errors=True)
         sub427 = klon(tmp, "sub427")
         berkas_aksi427 = os.path.join(
@@ -9367,7 +9367,7 @@ def main():
             f.write(isi_baru427)
         rc, out = jalan(sub427,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl pkcs7 -in -: gerbang gagal (Audit 1215)", rc != 0)
+        periksa("openssl pkcs7 -in -: gerbang gagal (Audit 1215)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub427, ignore_errors=True)
         sub428 = klon(tmp, "sub428")
         berkas_aksi428 = os.path.join(
@@ -9493,7 +9493,7 @@ def main():
             f.write(isi_baru433)
         rc, out = jalan(sub433, [sys.executable, GERBANG, "--semua"])
         periksa("git credential-store get: "
-                "gerbang gagal (Audit 1220)", rc != 0)
+                "gerbang gagal (Audit 1220)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub433, ignore_errors=True)
         sub434 = klon(tmp, "sub434")
         berkas_aksi434 = os.path.join(
@@ -9514,7 +9514,7 @@ def main():
             f.write(isi_baru434)
         rc, out = jalan(sub434, [sys.executable, GERBANG, "--semua"])
         periksa("git am --exclude foo: "
-                "gerbang gagal (Audit 1221)", rc != 0)
+                "gerbang gagal (Audit 1221)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub434, ignore_errors=True)
         sub435 = klon(tmp, "sub435")
         berkas_aksi435 = os.path.join(
@@ -9556,7 +9556,7 @@ def main():
             f.write(isi_baru436)
         rc, out = jalan(sub436, [sys.executable, GERBANG, "--semua"])
         periksa("git shortlog --group author: "
-                "gerbang gagal (Audit 1223)", rc != 0)
+                "gerbang gagal (Audit 1223)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub436, ignore_errors=True)
         sub437 = klon(tmp, "sub437")
         berkas_aksi437 = os.path.join(
@@ -9598,7 +9598,7 @@ def main():
             f.write(isi_baru438)
         rc, out = jalan(sub438, [sys.executable, GERBANG, "--semua"])
         periksa("git notes add -F- HEAD: "
-                "gerbang gagal (Audit 1225)", rc != 0)
+                "gerbang gagal (Audit 1225)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub438, ignore_errors=True)
         sub439 = klon(tmp, "sub439")
         berkas_aksi439 = os.path.join(
@@ -9619,7 +9619,7 @@ def main():
             f.write(isi_baru439)
         rc, out = jalan(sub439, [sys.executable, GERBANG, "--semua"])
         periksa("git add --pathspec-from-file -: "
-                "gerbang gagal (Audit 1226)", rc != 0)
+                "gerbang gagal (Audit 1226)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub439, ignore_errors=True)
         sub440 = klon(tmp, "sub440")
         berkas_aksi440 = os.path.join(
@@ -9661,7 +9661,7 @@ def main():
             f.write(isi_baru441)
         rc, out = jalan(sub441, [sys.executable, GERBANG, "--semua"])
         periksa("prlimit tail --pid 999999: "
-                "gerbang gagal (Audit 1228)", rc != 0)
+                "gerbang gagal (Audit 1228)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub441, ignore_errors=True)
         sub442 = klon(tmp, "sub442")
         berkas_aksi442 = os.path.join(
@@ -9703,7 +9703,7 @@ def main():
             f.write(isi_baru443)
         rc, out = jalan(sub443, [sys.executable, GERBANG, "--semua"])
         periksa("file - -f daftar.txt: "
-                "gerbang gagal (Audit 1229)", rc != 0)
+                "gerbang gagal (Audit 1229)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub443, ignore_errors=True)
         sub444 = klon(tmp, "sub444")
         berkas_aksi444 = os.path.join(
@@ -9724,7 +9724,7 @@ def main():
             f.write(isi_baru444)
         rc, out = jalan(sub444, [sys.executable, GERBANG, "--semua"])
         periksa("date -f-: "
-                "gerbang gagal (Audit 1230)", rc != 0)
+                "gerbang gagal (Audit 1230)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub444, ignore_errors=True)
         sub445 = klon(tmp, "sub445")
         berkas_aksi445 = os.path.join(
@@ -9745,7 +9745,7 @@ def main():
             f.write(isi_baru445)
         rc, out = jalan(sub445, [sys.executable, GERBANG, "--semua"])
         periksa("sysctl -p berkas.conf -p -: "
-                "gerbang gagal (Audit 1231)", rc != 0)
+                "gerbang gagal (Audit 1231)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub445, ignore_errors=True)
         sub446 = klon(tmp, "sub446")
         berkas_aksi446 = os.path.join(
@@ -9787,7 +9787,7 @@ def main():
             f.write(isi_baru447)
         rc, out = jalan(sub447, [sys.executable, GERBANG, "--semua"])
         periksa("nft -f-: "
-                "gerbang gagal (Audit 1233)", rc != 0)
+                "gerbang gagal (Audit 1233)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub447, ignore_errors=True)
         sub448 = klon(tmp, "sub448")
         berkas_aksi448 = os.path.join(
@@ -9850,7 +9850,7 @@ def main():
             f.write(isi_baru450)
         rc, out = jalan(sub450, [sys.executable, GERBANG, "--semua"])
         periksa("ptx -F xx: "
-                "gerbang gagal (Audit 1235)", rc != 0)
+                "gerbang gagal (Audit 1235)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub450, ignore_errors=True)
         sub451 = klon(tmp, "sub451")
         berkas_aksi451 = os.path.join(
@@ -9871,7 +9871,7 @@ def main():
             f.write(isi_baru451)
         rc, out = jalan(sub451, [sys.executable, GERBANG, "--semua"])
         periksa("wall -g users: "
-                "gerbang gagal (Audit 1236)", rc != 0)
+                "gerbang gagal (Audit 1236)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub451, ignore_errors=True)
         sub452 = klon(tmp, "sub452")
         berkas_aksi452 = os.path.join(
@@ -9892,7 +9892,7 @@ def main():
             f.write(isi_baru452)
         rc, out = jalan(sub452, [sys.executable, GERBANG, "--semua"])
         periksa("xzcat --suffix .zz: "
-                "gerbang gagal (Audit 1237)", rc != 0)
+                "gerbang gagal (Audit 1237)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub452, ignore_errors=True)
         sub453 = klon(tmp, "sub453")
         berkas_aksi453 = os.path.join(
@@ -9913,7 +9913,7 @@ def main():
             f.write(isi_baru453)
         rc, out = jalan(sub453, [sys.executable, GERBANG, "--semua"])
         periksa("lzcat --suffix .zz: "
-                "gerbang gagal (Audit 1238)", rc != 0)
+                "gerbang gagal (Audit 1238)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub453, ignore_errors=True)
         sub454 = klon(tmp, "sub454")
         berkas_aksi454 = os.path.join(
@@ -9934,7 +9934,7 @@ def main():
             f.write(isi_baru454)
         rc, out = jalan(sub454, [sys.executable, GERBANG, "--semua"])
         periksa("openssl x509 -in /dev/stdin: "
-                "gerbang gagal (Audit 1239)", rc != 0)
+                "gerbang gagal (Audit 1239)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub454, ignore_errors=True)
         sub455 = klon(tmp, "sub455")
         berkas_aksi455 = os.path.join(
@@ -9955,7 +9955,7 @@ def main():
             f.write(isi_baru455)
         rc, out = jalan(sub455, [sys.executable, GERBANG, "--semua"])
         periksa("openssl pkcs7 -in /dev/stdin: "
-                "gerbang gagal (Audit 1239)", rc != 0)
+                "gerbang gagal (Audit 1239)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub455, ignore_errors=True)
         sub456 = klon(tmp, "sub456")
         berkas_aksi456 = os.path.join(
@@ -9997,7 +9997,7 @@ def main():
             f.write(isi_baru457)
         rc, out = jalan(sub457, [sys.executable, GERBANG, "--semua"])
         periksa("od -S 3: "
-                "gerbang gagal (Audit 1241)", rc != 0)
+                "gerbang gagal (Audit 1241)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub457, ignore_errors=True)
         sub458 = klon(tmp, "sub458")
         berkas_aksi458 = os.path.join(
@@ -10039,7 +10039,7 @@ def main():
             f.write(isi_baru459)
         rc, out = jalan(sub459, [sys.executable, GERBANG, "--semua"])
         periksa("od +16: "
-                "gerbang gagal (Audit 1241)", rc != 0)
+                "gerbang gagal (Audit 1241)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub459, ignore_errors=True)
         sub460 = klon(tmp, "sub460")
         berkas_aksi460 = os.path.join(
@@ -10060,7 +10060,7 @@ def main():
             f.write(isi_baru460)
         rc, out = jalan(sub460, [sys.executable, GERBANG, "--semua"])
         periksa("strings -s X: "
-                "gerbang gagal (Audit 1242)", rc != 0)
+                "gerbang gagal (Audit 1242)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub460, ignore_errors=True)
         sub461 = klon(tmp, "sub461")
         berkas_aksi461 = os.path.join(
@@ -10081,7 +10081,7 @@ def main():
             f.write(isi_baru461)
         rc, out = jalan(sub461, [sys.executable, GERBANG, "--semua"])
         periksa("strings -U d: "
-                "gerbang gagal (Audit 1242)", rc != 0)
+                "gerbang gagal (Audit 1242)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub461, ignore_errors=True)
         sub462 = klon(tmp, "sub462")
         berkas_aksi462 = os.path.join(
@@ -10102,7 +10102,7 @@ def main():
             f.write(isi_baru462)
         rc, out = jalan(sub462, [sys.executable, GERBANG, "--semua"])
         periksa("json_pp -f json: "
-                "gerbang gagal (Audit 1243)", rc != 0)
+                "gerbang gagal (Audit 1243)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub462, ignore_errors=True)
         sub463 = klon(tmp, "sub463")
         berkas_aksi463 = os.path.join(
@@ -10123,7 +10123,7 @@ def main():
             f.write(isi_baru463)
         rc, out = jalan(sub463, [sys.executable, GERBANG, "--semua"])
         periksa("zgrep pola: "
-                "gerbang gagal (Audit 1244)", rc != 0)
+                "gerbang gagal (Audit 1244)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub463, ignore_errors=True)
         sub464 = klon(tmp, "sub464")
         berkas_aksi464 = os.path.join(
@@ -10144,7 +10144,7 @@ def main():
             f.write(isi_baru464)
         rc, out = jalan(sub464, [sys.executable, GERBANG, "--semua"])
         periksa("xzgrep pola: "
-                "gerbang gagal (Audit 1244)", rc != 0)
+                "gerbang gagal (Audit 1244)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub464, ignore_errors=True)
         sub465 = klon(tmp, "sub465")
         berkas_aksi465 = os.path.join(
@@ -10165,7 +10165,7 @@ def main():
             f.write(isi_baru465)
         rc, out = jalan(sub465, [sys.executable, GERBANG, "--semua"])
         periksa("shasum: "
-                "gerbang gagal (Audit 1245)", rc != 0)
+                "gerbang gagal (Audit 1245)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub465, ignore_errors=True)
         sub466 = klon(tmp, "sub466")
         berkas_aksi466 = os.path.join(
@@ -10186,7 +10186,7 @@ def main():
             f.write(isi_baru466)
         rc, out = jalan(sub466, [sys.executable, GERBANG, "--semua"])
         periksa("md5sum.textutils: "
-                "gerbang gagal (Audit 1245)", rc != 0)
+                "gerbang gagal (Audit 1245)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub466, ignore_errors=True)
         sub467 = klon(tmp, "sub467")
         berkas_aksi467 = os.path.join(
@@ -10207,7 +10207,7 @@ def main():
             f.write(isi_baru467)
         rc, out = jalan(sub467, [sys.executable, GERBANG, "--semua"])
         periksa("uconv -f UTF-8 -t UTF-8: "
-                "gerbang gagal (Audit 1246)", rc != 0)
+                "gerbang gagal (Audit 1246)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub467, ignore_errors=True)
         sub468 = klon(tmp, "sub468")
         berkas_aksi468 = os.path.join(
@@ -10228,7 +10228,7 @@ def main():
             f.write(isi_baru468)
         rc, out = jalan(sub468, [sys.executable, GERBANG, "--semua"])
         periksa("piconv -f utf8 -t utf8: "
-                "gerbang gagal (Audit 1247)", rc != 0)
+                "gerbang gagal (Audit 1247)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub468, ignore_errors=True)
         sub469 = klon(tmp, "sub469")
         berkas_aksi469 = os.path.join(
@@ -10249,7 +10249,7 @@ def main():
             f.write(isi_baru469)
         rc, out = jalan(sub469, [sys.executable, GERBANG, "--semua"])
         periksa("pod2text: "
-                "gerbang gagal (Audit 1248)", rc != 0)
+                "gerbang gagal (Audit 1248)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub469, ignore_errors=True)
         sub470 = klon(tmp, "sub470")
         berkas_aksi470 = os.path.join(
@@ -10270,7 +10270,7 @@ def main():
             f.write(isi_baru470)
         rc, out = jalan(sub470, [sys.executable, GERBANG, "--semua"])
         periksa("sdiff berkas.txt -: "
-                "gerbang gagal (Audit 1249)", rc != 0)
+                "gerbang gagal (Audit 1249)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub470, ignore_errors=True)
         sub471 = klon(tmp, "sub471")
         berkas_aksi471 = os.path.join(
@@ -10291,7 +10291,7 @@ def main():
             f.write(isi_baru471)
         rc, out = jalan(sub471, [sys.executable, GERBANG, "--semua"])
         periksa("socat1 - -: "
-                "gerbang gagal (Audit 1250)", rc != 0)
+                "gerbang gagal (Audit 1250)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub471, ignore_errors=True)
         sub472 = klon(tmp, "sub472")
         berkas_aksi472 = os.path.join(
@@ -10312,7 +10312,7 @@ def main():
             f.write(isi_baru472)
         rc, out = jalan(sub472, [sys.executable, GERBANG, "--semua"])
         periksa("nodejs: "
-                "gerbang gagal (Audit 1251)", rc != 0)
+                "gerbang gagal (Audit 1251)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub472, ignore_errors=True)
         sub473 = klon(tmp, "sub473")
         berkas_aksi473 = os.path.join(
@@ -10333,7 +10333,7 @@ def main():
             f.write(isi_baru473)
         rc, out = jalan(sub473, [sys.executable, GERBANG, "--semua"])
         periksa("gmake -f -: "
-                "gerbang gagal (Audit 1252)", rc != 0)
+                "gerbang gagal (Audit 1252)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub473, ignore_errors=True)
         sub474 = klon(tmp, "sub474")
         berkas_aksi474 = os.path.join(
@@ -10354,7 +10354,7 @@ def main():
             f.write(isi_baru474)
         rc, out = jalan(sub474, [sys.executable, GERBANG, "--semua"])
         periksa("setarch x86_64 cat: "
-                "gerbang gagal (Audit 1253)", rc != 0)
+                "gerbang gagal (Audit 1253)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub474, ignore_errors=True)
         sub475 = klon(tmp, "sub475")
         berkas_aksi475 = os.path.join(
@@ -10375,7 +10375,7 @@ def main():
             f.write(isi_baru475)
         rc, out = jalan(sub475, [sys.executable, GERBANG, "--semua"])
         periksa("linux64 cat: "
-                "gerbang gagal (Audit 1253)", rc != 0)
+                "gerbang gagal (Audit 1253)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub475, ignore_errors=True)
         sub476 = klon(tmp, "sub476")
         berkas_aksi476 = os.path.join(
@@ -10396,7 +10396,7 @@ def main():
             f.write(isi_baru476)
         rc, out = jalan(sub476, [sys.executable, GERBANG, "--semua"])
         periksa("uclampset -m 0 cat: "
-                "gerbang gagal (Audit 1254)", rc != 0)
+                "gerbang gagal (Audit 1254)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub476, ignore_errors=True)
         sub477 = klon(tmp, "sub477")
         berkas_aksi477 = os.path.join(
@@ -10417,7 +10417,7 @@ def main():
             f.write(isi_baru477)
         rc, out = jalan(sub477, [sys.executable, GERBANG, "--semua"])
         periksa("choom -n 0 -- cat: "
-                "gerbang gagal (Audit 1255)", rc != 0)
+                "gerbang gagal (Audit 1255)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub477, ignore_errors=True)
         sub478 = klon(tmp, "sub478")
         berkas_aksi478 = os.path.join(
@@ -10438,7 +10438,7 @@ def main():
             f.write(isi_baru478)
         rc, out = jalan(sub478, [sys.executable, GERBANG, "--semua"])
         periksa("xvfb-run -a cat: "
-                "gerbang gagal (Audit 1256)", rc != 0)
+                "gerbang gagal (Audit 1256)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub478, ignore_errors=True)
         sub479 = klon(tmp, "sub479")
         berkas_aksi479 = os.path.join(
@@ -10459,7 +10459,7 @@ def main():
             f.write(isi_baru479)
         rc, out = jalan(sub479, [sys.executable, GERBANG, "--semua"])
         periksa("iptables-nft-restore: "
-                "gerbang gagal (Audit 1257)", rc != 0)
+                "gerbang gagal (Audit 1257)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub479, ignore_errors=True)
         sub480 = klon(tmp, "sub480")
         berkas_aksi480 = os.path.join(
@@ -10480,7 +10480,7 @@ def main():
             f.write(isi_baru480)
         rc, out = jalan(sub480, [sys.executable, GERBANG, "--semua"])
         periksa("ebtables-restore: "
-                "gerbang gagal (Audit 1257)", rc != 0)
+                "gerbang gagal (Audit 1257)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub480, ignore_errors=True)
         sub481 = klon(tmp, "sub481")
         berkas_aksi481 = os.path.join(
@@ -10501,7 +10501,7 @@ def main():
             f.write(isi_baru481)
         rc, out = jalan(sub481, [sys.executable, GERBANG, "--semua"])
         periksa("pdfinfo -: "
-                "gerbang gagal (Audit 1258)", rc != 0)
+                "gerbang gagal (Audit 1258)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub481, ignore_errors=True)
         sub482 = klon(tmp, "sub482")
         berkas_aksi482 = os.path.join(
@@ -10522,7 +10522,7 @@ def main():
             f.write(isi_baru482)
         rc, out = jalan(sub482, [sys.executable, GERBANG, "--semua"])
         periksa("pdftops - -: "
-                "gerbang gagal (Audit 1258)", rc != 0)
+                "gerbang gagal (Audit 1258)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub482, ignore_errors=True)
         sub483 = klon(tmp, "sub483")
         berkas_aksi483 = os.path.join(
@@ -10543,7 +10543,7 @@ def main():
             f.write(isi_baru483)
         rc, out = jalan(sub483, [sys.executable, GERBANG, "--semua"])
         periksa("gm identify -: "
-                "gerbang gagal (Audit 1259)", rc != 0)
+                "gerbang gagal (Audit 1259)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub483, ignore_errors=True)
         sub484 = klon(tmp, "sub484")
         berkas_aksi484 = os.path.join(
@@ -10564,7 +10564,7 @@ def main():
             f.write(isi_baru484)
         rc, out = jalan(sub484, [sys.executable, GERBANG, "--semua"])
         periksa("chardetect: "
-                "gerbang gagal (Audit 1260)", rc != 0)
+                "gerbang gagal (Audit 1260)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub484, ignore_errors=True)
         sub485 = klon(tmp, "sub485")
         berkas_aksi485 = os.path.join(
@@ -10585,7 +10585,7 @@ def main():
             f.write(isi_baru485)
         rc, out = jalan(sub485, [sys.executable, GERBANG, "--semua"])
         periksa("git cat-file --batch-check=%(objectname): "
-                "gerbang gagal (Audit 1261)", rc != 0)
+                "gerbang gagal (Audit 1261)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub485, ignore_errors=True)
         sub486 = klon(tmp, "sub486")
         berkas_aksi486 = os.path.join(
@@ -10606,7 +10606,7 @@ def main():
             f.write(isi_baru486)
         rc, out = jalan(sub486, [sys.executable, GERBANG, "--semua"])
         periksa("git apply --build-fake-ancestor idx: "
-                "gerbang gagal (Audit 1262)", rc != 0)
+                "gerbang gagal (Audit 1262)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub486, ignore_errors=True)
         sub487 = klon(tmp, "sub487")
         berkas_aksi487 = os.path.join(
@@ -10711,7 +10711,7 @@ def main():
             f.write(isi_baru491)
         rc, out = jalan(sub491, [sys.executable, GERBANG, "--semua"])
         periksa("git commit --pathspec-from-file=-: "
-                "gerbang gagal (Audit 1268)", rc != 0)
+                "gerbang gagal (Audit 1268)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub491, ignore_errors=True)
         sub492 = klon(tmp, "sub492")
         berkas_aksi492 = os.path.join(
@@ -10753,7 +10753,7 @@ def main():
             f.write(isi_baru493)
         rc, out = jalan(sub493, [sys.executable, GERBANG, "--semua"])
         periksa("git check-mailmap --stdin 'A <a@b.c>': "
-                "gerbang gagal (Audit 1270)", rc != 0)
+                "gerbang gagal (Audit 1270)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub493, ignore_errors=True)
         sub494 = klon(tmp, "sub494")
         berkas_aksi494 = os.path.join(
@@ -10774,7 +10774,7 @@ def main():
             f.write(isi_baru494)
         rc, out = jalan(sub494, [sys.executable, GERBANG, "--semua"])
         periksa("git credential-cache --timeout 300 get: "
-                "gerbang gagal (Audit 1271)", rc != 0)
+                "gerbang gagal (Audit 1271)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub494, ignore_errors=True)
         sub495 = klon(tmp, "sub495")
         berkas_aksi495 = os.path.join(
@@ -10795,7 +10795,7 @@ def main():
             f.write(isi_baru495)
         rc, out = jalan(sub495, [sys.executable, GERBANG, "--semua"])
         periksa("git shortlog --since yesterday: "
-                "gerbang gagal (Audit 1272)", rc != 0)
+                "gerbang gagal (Audit 1272)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub495, ignore_errors=True)
         sub496 = klon(tmp, "sub496")
         berkas_aksi496 = os.path.join(
@@ -10816,7 +10816,7 @@ def main():
             f.write(isi_baru496)
         rc, out = jalan(sub496, [sys.executable, GERBANG, "--semua"])
         periksa("git am --whitespace fix: "
-                "gerbang gagal (Audit 1273)", rc != 0)
+                "gerbang gagal (Audit 1273)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub496, ignore_errors=True)
         sub497 = klon(tmp, "sub497")
         berkas_aksi497 = os.path.join(
@@ -10837,7 +10837,7 @@ def main():
             f.write(isi_baru497)
         rc, out = jalan(sub497, [sys.executable, GERBANG, "--semua"])
         periksa("git notes add -fF- HEAD: "
-                "gerbang gagal (Audit 1274)", rc != 0)
+                "gerbang gagal (Audit 1274)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub497, ignore_errors=True)
         sub498 = klon(tmp, "sub498")
         berkas_aksi498 = os.path.join(
@@ -10879,7 +10879,7 @@ def main():
             f.write(isi_baru499)
         rc, out = jalan(sub499, [sys.executable, GERBANG, "--semua"])
         periksa("iconv -o --usage: "
-                "gerbang gagal (Audit 1276)", rc != 0)
+                "gerbang gagal (Audit 1276)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub499, ignore_errors=True)
         sub500 = klon(tmp, "sub500")
         berkas_aksi500 = os.path.join(
@@ -10942,7 +10942,7 @@ def main():
             f.write(isi_baru502)
         rc, out = jalan(sub502, [sys.executable, GERBANG, "--semua"])
         periksa("file -f /dev/stdin: "
-                "gerbang gagal (Audit 1279)", rc != 0)
+                "gerbang gagal (Audit 1279)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub502, ignore_errors=True)
         sub503 = klon(tmp, "sub503")
         berkas_aksi503 = os.path.join(
@@ -10963,7 +10963,7 @@ def main():
             f.write(isi_baru503)
         rc, out = jalan(sub503, [sys.executable, GERBANG, "--semua"])
         periksa("date -Rf-: "
-                "gerbang gagal (Audit 1280)", rc != 0)
+                "gerbang gagal (Audit 1280)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub503, ignore_errors=True)
         sub504 = klon(tmp, "sub504")
         berkas_aksi504 = os.path.join(
@@ -10984,7 +10984,7 @@ def main():
             f.write(isi_baru504)
         rc, out = jalan(sub504, [sys.executable, GERBANG, "--semua"])
         periksa("sysctl -f -: "
-                "gerbang gagal (Audit 1281)", rc != 0)
+                "gerbang gagal (Audit 1281)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub504, ignore_errors=True)
         sub505 = klon(tmp, "sub505")
         berkas_aksi505 = os.path.join(
@@ -11005,7 +11005,7 @@ def main():
             f.write(isi_baru505)
         rc, out = jalan(sub505, [sys.executable, GERBANG, "--semua"])
         periksa("sdiff -W - target.txt: "
-                "gerbang gagal (Audit 1282)", rc != 0)
+                "gerbang gagal (Audit 1282)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub505, ignore_errors=True)
         sub506 = klon(tmp, "sub506")
         berkas_aksi506 = os.path.join(
@@ -11026,7 +11026,7 @@ def main():
             f.write(isi_baru506)
         rc, out = jalan(sub506, [sys.executable, GERBANG, "--semua"])
         periksa("pdfinfo -enc UTF-8 -: "
-                "gerbang gagal (Audit 1283)", rc != 0)
+                "gerbang gagal (Audit 1283)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub506, ignore_errors=True)
         sub507 = klon(tmp, "sub507")
         berkas_aksi507 = os.path.join(
@@ -11068,7 +11068,7 @@ def main():
             f.write(isi_baru508)
         rc, out = jalan(sub508, [sys.executable, GERBANG, "--semua"])
         periksa("gm convert - -: "
-                "gerbang gagal (Audit 1285)", rc != 0)
+                "gerbang gagal (Audit 1285)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub508, ignore_errors=True)
         sub509 = klon(tmp, "sub509")
         berkas_aksi509 = os.path.join(
@@ -11089,7 +11089,7 @@ def main():
             f.write(isi_baru509)
         rc, out = jalan(sub509, [sys.executable, GERBANG, "--semua"])
         periksa("pr --separator - berkas.txt: "
-                "gerbang gagal (Audit 1286)", rc != 0)
+                "gerbang gagal (Audit 1286)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub509, ignore_errors=True)
         sub510 = klon(tmp, "sub510")
         berkas_aksi510 = os.path.join(
@@ -11110,7 +11110,7 @@ def main():
             f.write(isi_baru510)
         rc, out = jalan(sub510, [sys.executable, GERBANG, "--semua"])
         periksa("json_pp -t json: "
-                "gerbang gagal (Audit 1287)", rc != 0)
+                "gerbang gagal (Audit 1287)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub510, ignore_errors=True)
         sub511 = klon(tmp, "sub511")
         berkas_aksi511 = os.path.join(
@@ -11131,7 +11131,7 @@ def main():
             f.write(isi_baru511)
         rc, out = jalan(sub511, [sys.executable, GERBANG, "--semua"])
         periksa("uconv -b 4096 -f UTF-8 -t UTF-8: "
-                "gerbang gagal (Audit 1288)", rc != 0)
+                "gerbang gagal (Audit 1288)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub511, ignore_errors=True)
         sub512 = klon(tmp, "sub512")
         berkas_aksi512 = os.path.join(
@@ -11152,7 +11152,7 @@ def main():
             f.write(isi_baru512)
         rc, out = jalan(sub512, [sys.executable, GERBANG, "--semua"])
         periksa("piconv -S scheme -f utf8 -t utf8: "
-                "gerbang gagal (Audit 1289)", rc != 0)
+                "gerbang gagal (Audit 1289)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub512, ignore_errors=True)
         sub513 = klon(tmp, "sub513")
         berkas_aksi513 = os.path.join(
@@ -11173,7 +11173,7 @@ def main():
             f.write(isi_baru513)
         rc, out = jalan(sub513, [sys.executable, GERBANG, "--semua"])
         periksa("pod2text -e utf8: "
-                "gerbang gagal (Audit 1290)", rc != 0)
+                "gerbang gagal (Audit 1290)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub513, ignore_errors=True)
         sub514 = klon(tmp, "sub514")
         berkas_aksi514 = os.path.join(
@@ -11194,7 +11194,7 @@ def main():
             f.write(isi_baru514)
         rc, out = jalan(sub514, [sys.executable, GERBANG, "--semua"])
         periksa("shasum -a 256: "
-                "gerbang gagal (Audit 1291)", rc != 0)
+                "gerbang gagal (Audit 1291)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub514, ignore_errors=True)
         sub515 = klon(tmp, "sub515")
         berkas_aksi515 = os.path.join(
@@ -11215,7 +11215,7 @@ def main():
             f.write(isi_baru515)
         rc, out = jalan(sub515, [sys.executable, GERBANG, "--semua"])
         periksa("xzcat --block-size 1MiB: "
-                "gerbang gagal (Audit 1292)", rc != 0)
+                "gerbang gagal (Audit 1292)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub515, ignore_errors=True)
         sub516 = klon(tmp, "sub516")
         berkas_aksi516 = os.path.join(
@@ -11236,7 +11236,7 @@ def main():
             f.write(isi_baru516)
         rc, out = jalan(sub516, [sys.executable, GERBANG, "--semua"])
         periksa("iptables-nft-restore -W 1000: "
-                "gerbang gagal (Audit 1293)", rc != 0)
+                "gerbang gagal (Audit 1293)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub516, ignore_errors=True)
         sub517 = klon(tmp, "sub517")
         berkas_aksi517 = os.path.join(
@@ -11257,7 +11257,7 @@ def main():
             f.write(isi_baru517)
         rc, out = jalan(sub517, [sys.executable, GERBANG, "--semua"])
         periksa("numfmt --round up: "
-                "gerbang gagal (Audit 1294)", rc != 0)
+                "gerbang gagal (Audit 1294)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub517, ignore_errors=True)
         sub518 = klon(tmp, "sub518")
         berkas_aksi518 = os.path.join(
@@ -11278,7 +11278,7 @@ def main():
             f.write(isi_baru518)
         rc, out = jalan(sub518, [sys.executable, GERBANG, "--semua"])
         periksa("uclampset -M 0 cat: "
-                "gerbang gagal (Audit 1295)", rc != 0)
+                "gerbang gagal (Audit 1295)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub518, ignore_errors=True)
         sub519 = klon(tmp, "sub519")
         berkas_aksi519 = os.path.join(
@@ -11320,7 +11320,7 @@ def main():
             f.write(isi_baru520)
         rc, out = jalan(sub520, [sys.executable, GERBANG, "--semua"])
         periksa("xvfb-run -p MIT-MAGIC-COOKIE-1 cat: "
-                "gerbang gagal (Audit 1297)", rc != 0)
+                "gerbang gagal (Audit 1297)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub520, ignore_errors=True)
         sub521 = klon(tmp, "sub521")
         berkas_aksi521 = os.path.join(
@@ -11362,7 +11362,7 @@ def main():
             f.write(isi_baru522)
         rc, out = jalan(sub522, [sys.executable, GERBANG, "--semua"])
         periksa("nodejs -r fs: "
-                "gerbang gagal (Audit 1299)", rc != 0)
+                "gerbang gagal (Audit 1299)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub522, ignore_errors=True)
         sub523 = klon(tmp, "sub523")
         berkas_aksi523 = os.path.join(
@@ -11383,7 +11383,7 @@ def main():
             f.write(isi_baru523)
         rc, out = jalan(sub523, [sys.executable, GERBANG, "--semua"])
         periksa("gmake -f /dev/stdin: "
-                "gerbang gagal (Audit 1300)", rc != 0)
+                "gerbang gagal (Audit 1300)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub523, ignore_errors=True)
         sub524 = klon(tmp, "sub524")
         berkas_aksi524 = os.path.join(
@@ -11404,7 +11404,7 @@ def main():
             f.write(isi_baru524)
         rc, out = jalan(sub524, [sys.executable, GERBANG, "--semua"])
         periksa("perl5.38.2: "
-                "gerbang gagal (Audit 1301)", rc != 0)
+                "gerbang gagal (Audit 1301)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub524, ignore_errors=True)
         sub525 = klon(tmp, "sub525")
         berkas_aksi525 = os.path.join(
@@ -11425,7 +11425,7 @@ def main():
             f.write(isi_baru525)
         rc, out = jalan(sub525, [sys.executable, GERBANG, "--semua"])
         periksa("cpp: "
-                "gerbang gagal (Audit 1302)", rc != 0)
+                "gerbang gagal (Audit 1302)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub525, ignore_errors=True)
         sub526 = klon(tmp, "sub526")
         berkas_aksi526 = os.path.join(
@@ -11446,7 +11446,7 @@ def main():
             f.write(isi_baru526)
         rc, out = jalan(sub526, [sys.executable, GERBANG, "--semua"])
         periksa("gcc -x c -E -: "
-                "gerbang gagal (Audit 1303)", rc != 0)
+                "gerbang gagal (Audit 1303)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub526, ignore_errors=True)
         sub527 = klon(tmp, "sub527")
         berkas_aksi527 = os.path.join(
@@ -11467,7 +11467,7 @@ def main():
             f.write(isi_baru527)
         rc, out = jalan(sub527, [sys.executable, GERBANG, "--semua"])
         periksa("as -o out -: "
-                "gerbang gagal (Audit 1304)", rc != 0)
+                "gerbang gagal (Audit 1304)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub527, ignore_errors=True)
         sub528 = klon(tmp, "sub528")
         berkas_aksi528 = os.path.join(
@@ -11488,7 +11488,7 @@ def main():
             f.write(isi_baru528)
         rc, out = jalan(sub528, [sys.executable, GERBANG, "--semua"])
         periksa("zcmp - -: "
-                "gerbang gagal (Audit 1305)", rc != 0)
+                "gerbang gagal (Audit 1305)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub528, ignore_errors=True)
         sub529 = klon(tmp, "sub529")
         berkas_aksi529 = os.path.join(
@@ -11509,7 +11509,7 @@ def main():
             f.write(isi_baru529)
         rc, out = jalan(sub529, [sys.executable, GERBANG, "--semua"])
         periksa("zegrep UTUH: "
-                "gerbang gagal (Audit 1306)", rc != 0)
+                "gerbang gagal (Audit 1306)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub529, ignore_errors=True)
         sub530 = klon(tmp, "sub530")
         berkas_aksi530 = os.path.join(
@@ -11530,7 +11530,7 @@ def main():
             f.write(isi_baru530)
         rc, out = jalan(sub530, [sys.executable, GERBANG, "--semua"])
         periksa("bzegrep UTUH: "
-                "gerbang gagal (Audit 1307)", rc != 0)
+                "gerbang gagal (Audit 1307)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub530, ignore_errors=True)
         sub531 = klon(tmp, "sub531")
         berkas_aksi531 = os.path.join(
@@ -11551,7 +11551,7 @@ def main():
             f.write(isi_baru531)
         rc, out = jalan(sub531, [sys.executable, GERBANG, "--semua"])
         periksa("xzcmp - -: "
-                "gerbang gagal (Audit 1308)", rc != 0)
+                "gerbang gagal (Audit 1308)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub531, ignore_errors=True)
         sub532 = klon(tmp, "sub532")
         berkas_aksi532 = os.path.join(
@@ -11572,7 +11572,7 @@ def main():
             f.write(isi_baru532)
         rc, out = jalan(sub532, [sys.executable, GERBANG, "--semua"])
         periksa("lzcmp - -: "
-                "gerbang gagal (Audit 1309)", rc != 0)
+                "gerbang gagal (Audit 1309)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub532, ignore_errors=True)
         sub533 = klon(tmp, "sub533")
         berkas_aksi533 = os.path.join(
@@ -11593,7 +11593,7 @@ def main():
             f.write(isi_baru533)
         rc, out = jalan(sub533, [sys.executable, GERBANG, "--semua"])
         periksa("uncompress: "
-                "gerbang gagal (Audit 1310)", rc != 0)
+                "gerbang gagal (Audit 1310)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub533, ignore_errors=True)
         sub534 = klon(tmp, "sub534")
         berkas_aksi534 = os.path.join(
@@ -11614,7 +11614,7 @@ def main():
             f.write(isi_baru534)
         rc, out = jalan(sub534, [sys.executable, GERBANG, "--semua"])
         periksa("cmp berkas -: "
-                "gerbang gagal (Audit 1311)", rc != 0)
+                "gerbang gagal (Audit 1311)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub534, ignore_errors=True)
         sub535 = klon(tmp, "sub535")
         berkas_aksi535 = os.path.join(
@@ -11635,7 +11635,7 @@ def main():
             f.write(isi_baru535)
         rc, out = jalan(sub535, [sys.executable, GERBANG, "--semua"])
         periksa("ptar -t -f -: "
-                "gerbang gagal (Audit 1312)", rc != 0)
+                "gerbang gagal (Audit 1312)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub535, ignore_errors=True)
         sub536 = klon(tmp, "sub536")
         berkas_aksi536 = os.path.join(
@@ -11656,7 +11656,7 @@ def main():
             f.write(isi_baru536)
         rc, out = jalan(sub536, [sys.executable, GERBANG, "--semua"])
         periksa("streamzip: "
-                "gerbang gagal (Audit 1313)", rc != 0)
+                "gerbang gagal (Audit 1313)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub536, ignore_errors=True)
         sub537 = klon(tmp, "sub537")
         berkas_aksi537 = os.path.join(
@@ -11677,7 +11677,7 @@ def main():
             f.write(isi_baru537)
         rc, out = jalan(sub537, [sys.executable, GERBANG, "--semua"])
         periksa("zless: "
-                "gerbang gagal (Audit 1314)", rc != 0)
+                "gerbang gagal (Audit 1314)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub537, ignore_errors=True)
         sub538 = klon(tmp, "sub538")
         berkas_aksi538 = os.path.join(
@@ -11698,7 +11698,7 @@ def main():
             f.write(isi_baru538)
         rc, out = jalan(sub538, [sys.executable, GERBANG, "--semua"])
         periksa("sensible-pager: "
-                "gerbang gagal (Audit 1315)", rc != 0)
+                "gerbang gagal (Audit 1315)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub538, ignore_errors=True)
         sub539 = klon(tmp, "sub539")
         berkas_aksi539 = os.path.join(
@@ -11719,7 +11719,7 @@ def main():
             f.write(isi_baru539)
         rc, out = jalan(sub539, [sys.executable, GERBANG, "--semua"])
         periksa("vim.tiny -n: "
-                "gerbang gagal (Audit 1316)", rc != 0)
+                "gerbang gagal (Audit 1316)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub539, ignore_errors=True)
         sub540 = klon(tmp, "sub540")
         berkas_aksi540 = os.path.join(
@@ -11740,7 +11740,7 @@ def main():
             f.write(isi_baru540)
         rc, out = jalan(sub540, [sys.executable, GERBANG, "--semua"])
         periksa("script -qec cat /dev/null: "
-                "gerbang gagal (Audit 1317)", rc != 0)
+                "gerbang gagal (Audit 1317)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub540, ignore_errors=True)
         sub541 = klon(tmp, "sub541")
         berkas_aksi541 = os.path.join(
@@ -11761,7 +11761,7 @@ def main():
             f.write(isi_baru541)
         rc, out = jalan(sub541, [sys.executable, GERBANG, "--semua"])
         periksa("i386 cat: "
-                "gerbang gagal (Audit 1318)", rc != 0)
+                "gerbang gagal (Audit 1318)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub541, ignore_errors=True)
         sub542 = klon(tmp, "sub542")
         berkas_aksi542 = os.path.join(
@@ -11782,7 +11782,7 @@ def main():
             f.write(isi_baru542)
         rc, out = jalan(sub542, [sys.executable, GERBANG, "--semua"])
         periksa("systemd-run --scope --quiet cat: "
-                "gerbang gagal (Audit 1319)", rc != 0)
+                "gerbang gagal (Audit 1319)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub542, ignore_errors=True)
         sub543 = klon(tmp, "sub543")
         berkas_aksi543 = os.path.join(
@@ -11803,7 +11803,7 @@ def main():
             f.write(isi_baru543)
         rc, out = jalan(sub543, [sys.executable, GERBANG, "--semua"])
         periksa("tmux load-buffer -: "
-                "gerbang gagal (Audit 1320)", rc != 0)
+                "gerbang gagal (Audit 1320)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub543, ignore_errors=True)
         sub544 = klon(tmp, "sub544")
         berkas_aksi544 = os.path.join(
@@ -11824,7 +11824,7 @@ def main():
             f.write(isi_baru544)
         rc, out = jalan(sub544, [sys.executable, GERBANG, "--semua"])
         periksa("systemd-sysusers --root=/tmp -: "
-                "gerbang gagal (Audit 1321)", rc != 0)
+                "gerbang gagal (Audit 1321)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub544, ignore_errors=True)
         sub545 = klon(tmp, "sub545")
         berkas_aksi545 = os.path.join(
@@ -11845,7 +11845,7 @@ def main():
             f.write(isi_baru545)
         rc, out = jalan(sub545, [sys.executable, GERBANG, "--semua"])
         periksa("systemd-tmpfiles --root=/tmp --create -: "
-                "gerbang gagal (Audit 1322)", rc != 0)
+                "gerbang gagal (Audit 1322)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub545, ignore_errors=True)
         sub546 = klon(tmp, "sub546")
         berkas_aksi546 = os.path.join(
@@ -11866,7 +11866,7 @@ def main():
             f.write(isi_baru546)
         rc, out = jalan(sub546, [sys.executable, GERBANG, "--semua"])
         periksa("systemd-creds encrypt --name=uji - out: "
-                "gerbang gagal (Audit 1323)", rc != 0)
+                "gerbang gagal (Audit 1323)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub546, ignore_errors=True)
         sub547 = klon(tmp, "sub547")
         berkas_aksi547 = os.path.join(
@@ -11887,7 +11887,7 @@ def main():
             f.write(isi_baru547)
         rc, out = jalan(sub547, [sys.executable, GERBANG, "--semua"])
         periksa("debconf-set-selections --checkonly: "
-                "gerbang gagal (Audit 1324)", rc != 0)
+                "gerbang gagal (Audit 1324)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub547, ignore_errors=True)
         sub548 = klon(tmp, "sub548")
         berkas_aksi548 = os.path.join(
@@ -11908,7 +11908,7 @@ def main():
             f.write(isi_baru548)
         rc, out = jalan(sub548, [sys.executable, GERBANG, "--semua"])
         periksa("debconf-communicate paketuji: "
-                "gerbang gagal (Audit 1325)", rc != 0)
+                "gerbang gagal (Audit 1325)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub548, ignore_errors=True)
         sub549 = klon(tmp, "sub549")
         berkas_aksi549 = os.path.join(
@@ -11929,7 +11929,7 @@ def main():
             f.write(isi_baru549)
         rc, out = jalan(sub549, [sys.executable, GERBANG, "--semua"])
         periksa("dpkg-deb --contents -: "
-                "gerbang gagal (Audit 1326)", rc != 0)
+                "gerbang gagal (Audit 1326)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub549, ignore_errors=True)
         sub550 = klon(tmp, "sub550")
         berkas_aksi550 = os.path.join(
@@ -11950,7 +11950,7 @@ def main():
             f.write(isi_baru550)
         rc, out = jalan(sub550, [sys.executable, GERBANG, "--semua"])
         periksa("dpkg-parsechangelog -l -: "
-                "gerbang gagal (Audit 1327)", rc != 0)
+                "gerbang gagal (Audit 1327)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub550, ignore_errors=True)
         sub551 = klon(tmp, "sub551")
         berkas_aksi551 = os.path.join(
@@ -11971,7 +11971,7 @@ def main():
             f.write(isi_baru551)
         rc, out = jalan(sub551, [sys.executable, GERBANG, "--semua"])
         periksa("cvtsudoers -f json: "
-                "gerbang gagal (Audit 1328)", rc != 0)
+                "gerbang gagal (Audit 1328)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub551, ignore_errors=True)
         sub552 = klon(tmp, "sub552")
         berkas_aksi552 = os.path.join(
@@ -11992,7 +11992,7 @@ def main():
             f.write(isi_baru552)
         rc, out = jalan(sub552, [sys.executable, GERBANG, "--semua"])
         periksa("tic -o out -: "
-                "gerbang gagal (Audit 1329)", rc != 0)
+                "gerbang gagal (Audit 1329)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub552, ignore_errors=True)
         sub553 = klon(tmp, "sub553")
         berkas_aksi553 = os.path.join(
@@ -12013,7 +12013,7 @@ def main():
             f.write(isi_baru553)
         rc, out = jalan(sub553, [sys.executable, GERBANG, "--semua"])
         periksa("lesskey -o out -: "
-                "gerbang gagal (Audit 1330)", rc != 0)
+                "gerbang gagal (Audit 1330)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub553, ignore_errors=True)
         sub554 = klon(tmp, "sub554")
         berkas_aksi554 = os.path.join(
@@ -12034,7 +12034,7 @@ def main():
             f.write(isi_baru554)
         rc, out = jalan(sub554, [sys.executable, GERBANG, "--semua"])
         periksa("xkbcomp -xkb - out: "
-                "gerbang gagal (Audit 1331)", rc != 0)
+                "gerbang gagal (Audit 1331)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub554, ignore_errors=True)
         sub555 = klon(tmp, "sub555")
         berkas_aksi555 = os.path.join(
@@ -12055,7 +12055,7 @@ def main():
             f.write(isi_baru555)
         rc, out = jalan(sub555, [sys.executable, GERBANG, "--semua"])
         periksa("wayland-scanner client-header /dev/stdin out: "
-                "gerbang gagal (Audit 1332)", rc != 0)
+                "gerbang gagal (Audit 1332)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub555, ignore_errors=True)
         sub556 = klon(tmp, "sub556")
         berkas_aksi556 = os.path.join(
@@ -12076,7 +12076,7 @@ def main():
             f.write(isi_baru556)
         rc, out = jalan(sub556, [sys.executable, GERBANG, "--semua"])
         periksa("localedef --prefix=/tmp -i - -f UTF-8 uji_XX: "
-                "gerbang gagal (Audit 1333)", rc != 0)
+                "gerbang gagal (Audit 1333)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub556, ignore_errors=True)
         sub557 = klon(tmp, "sub557")
         berkas_aksi557 = os.path.join(
@@ -12097,7 +12097,7 @@ def main():
             f.write(isi_baru557)
         rc, out = jalan(sub557, [sys.executable, GERBANG, "--semua"])
         periksa("glib-genmarshal -: "
-                "gerbang gagal (Audit 1334)", rc != 0)
+                "gerbang gagal (Audit 1334)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub557, ignore_errors=True)
         sub558 = klon(tmp, "sub558")
         berkas_aksi558 = os.path.join(
@@ -12118,7 +12118,7 @@ def main():
             f.write(isi_baru558)
         rc, out = jalan(sub558, [sys.executable, GERBANG, "--semua"])
         periksa("genrb -d outdir -: "
-                "gerbang gagal (Audit 1335)", rc != 0)
+                "gerbang gagal (Audit 1335)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub558, ignore_errors=True)
         sub559 = klon(tmp, "sub559")
         berkas_aksi559 = os.path.join(
@@ -12139,7 +12139,7 @@ def main():
             f.write(isi_baru559)
         rc, out = jalan(sub559, [sys.executable, GERBANG, "--semua"])
         periksa("pod2man: "
-                "gerbang gagal (Audit 1336)", rc != 0)
+                "gerbang gagal (Audit 1336)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub559, ignore_errors=True)
         sub560 = klon(tmp, "sub560")
         berkas_aksi560 = os.path.join(
@@ -12160,7 +12160,7 @@ def main():
             f.write(isi_baru560)
         rc, out = jalan(sub560, [sys.executable, GERBANG, "--semua"])
         periksa("splain: "
-                "gerbang gagal (Audit 1337)", rc != 0)
+                "gerbang gagal (Audit 1337)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub560, ignore_errors=True)
         sub561 = klon(tmp, "sub561")
         berkas_aksi561 = os.path.join(
@@ -12181,7 +12181,7 @@ def main():
             f.write(isi_baru561)
         rc, out = jalan(sub561, [sys.executable, GERBANG, "--semua"])
         periksa("instmodsh: "
-                "gerbang gagal (Audit 1338)", rc != 0)
+                "gerbang gagal (Audit 1338)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub561, ignore_errors=True)
         sub562 = klon(tmp, "sub562")
         berkas_aksi562 = os.path.join(
@@ -12202,7 +12202,7 @@ def main():
             f.write(isi_baru562)
         rc, out = jalan(sub562, [sys.executable, GERBANG, "--semua"])
         periksa("pygettext3 -o out -: "
-                "gerbang gagal (Audit 1339)", rc != 0)
+                "gerbang gagal (Audit 1339)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub562, ignore_errors=True)
         sub563 = klon(tmp, "sub563")
         berkas_aksi563 = os.path.join(
@@ -12223,7 +12223,7 @@ def main():
             f.write(isi_baru563)
         rc, out = jalan(sub563, [sys.executable, GERBANG, "--semua"])
         periksa("nsupdate: "
-                "gerbang gagal (Audit 1340)", rc != 0)
+                "gerbang gagal (Audit 1340)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub563, ignore_errors=True)
         sub564 = klon(tmp, "sub564")
         berkas_aksi564 = os.path.join(
@@ -12244,7 +12244,7 @@ def main():
             f.write(isi_baru564)
         rc, out = jalan(sub564, [sys.executable, GERBANG, "--semua"])
         periksa("ssh-keygen -L -f -: "
-                "gerbang gagal (Audit 1341)", rc != 0)
+                "gerbang gagal (Audit 1341)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub564, ignore_errors=True)
         sub565 = klon(tmp, "sub565")
         berkas_aksi565 = os.path.join(
@@ -12265,7 +12265,7 @@ def main():
             f.write(isi_baru565)
         rc, out = jalan(sub565, [sys.executable, GERBANG, "--semua"])
         periksa("tree --fromfile: "
-                "gerbang gagal (Audit 1342)", rc != 0)
+                "gerbang gagal (Audit 1342)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub565, ignore_errors=True)
         sub566 = klon(tmp, "sub566")
         berkas_aksi566 = os.path.join(
@@ -12286,7 +12286,7 @@ def main():
             f.write(isi_baru566)
         rc, out = jalan(sub566, [sys.executable, GERBANG, "--semua"])
         periksa("gio save tujuan: "
-                "gerbang gagal (Audit 1343)", rc != 0)
+                "gerbang gagal (Audit 1343)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub566, ignore_errors=True)
         sub567 = klon(tmp, "sub567")
         berkas_aksi567 = os.path.join(
@@ -12307,7 +12307,7 @@ def main():
             f.write(isi_baru567)
         rc, out = jalan(sub567, [sys.executable, GERBANG, "--semua"])
         periksa("debugfs /tmp/citra.img: "
-                "gerbang gagal (Audit 1344)", rc != 0)
+                "gerbang gagal (Audit 1344)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub567, ignore_errors=True)
         sub568 = klon(tmp, "sub568")
         berkas_aksi568 = os.path.join(
@@ -12328,7 +12328,7 @@ def main():
             f.write(isi_baru568)
         rc, out = jalan(sub568, [sys.executable, GERBANG, "--semua"])
         periksa("xauth -f berkas: "
-                "gerbang gagal (Audit 1345)", rc != 0)
+                "gerbang gagal (Audit 1345)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub568, ignore_errors=True)
         sub569 = klon(tmp, "sub569")
         berkas_aksi569 = os.path.join(
@@ -12370,7 +12370,7 @@ def main():
             f.write(isi_baru570)
         rc, out = jalan(sub570, [sys.executable, GERBANG, "--semua"])
         periksa("gm convert -append - gabung.png: "
-                "gerbang gagal (Audit 1348)", rc != 0)
+                "gerbang gagal (Audit 1348)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub570, ignore_errors=True)
         sub571 = klon(tmp, "sub571")
         berkas_aksi571 = os.path.join(
@@ -12391,7 +12391,7 @@ def main():
             f.write(isi_baru571)
         rc, out = jalan(sub571, [sys.executable, GERBANG, "--semua"])
         periksa("pr berkas.txt -: "
-                "gerbang gagal (Audit 1349)", rc != 0)
+                "gerbang gagal (Audit 1349)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub571, ignore_errors=True)
         sub572 = klon(tmp, "sub572")
         berkas_aksi572 = os.path.join(
@@ -12412,7 +12412,7 @@ def main():
             f.write(isi_baru572)
         rc, out = jalan(sub572, [sys.executable, GERBANG, "--semua"])
         periksa("make --file=/dev/stdin: "
-                "gerbang gagal (Audit 1350)", rc != 0)
+                "gerbang gagal (Audit 1350)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub572, ignore_errors=True)
         sub573 = klon(tmp, "sub573")
         berkas_aksi573 = os.path.join(
@@ -12433,7 +12433,7 @@ def main():
             f.write(isi_baru573)
         rc, out = jalan(sub573, [sys.executable, GERBANG, "--semua"])
         periksa("aarch64-linux-gnu-gcc -x c -E -: "
-                "gerbang gagal (Audit 1351)", rc != 0)
+                "gerbang gagal (Audit 1351)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub573, ignore_errors=True)
         sub574 = klon(tmp, "sub574")
         berkas_aksi574 = os.path.join(
@@ -12454,7 +12454,7 @@ def main():
             f.write(isi_baru574)
         rc, out = jalan(sub574, [sys.executable, GERBANG, "--semua"])
         periksa("as -o out.o: "
-                "gerbang gagal (Audit 1352)", rc != 0)
+                "gerbang gagal (Audit 1352)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub574, ignore_errors=True)
         sub575 = klon(tmp, "sub575")
         berkas_aksi575 = os.path.join(
@@ -12496,7 +12496,7 @@ def main():
             f.write(isi_baru576)
         rc, out = jalan(sub576, [sys.executable, GERBANG, "--semua"])
         periksa("tmux -S /tmp/sok load-buffer -: "
-                "gerbang gagal (Audit 1354)", rc != 0)
+                "gerbang gagal (Audit 1354)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub576, ignore_errors=True)
         sub577 = klon(tmp, "sub577")
         berkas_aksi577 = os.path.join(
@@ -12517,7 +12517,7 @@ def main():
             f.write(isi_baru577)
         rc, out = jalan(sub577, [sys.executable, GERBANG, "--semua"])
         periksa("localedef --prefix=/tmp -i- -f UTF-8 uji_XX: "
-                "gerbang gagal (Audit 1355)", rc != 0)
+                "gerbang gagal (Audit 1355)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub577, ignore_errors=True)
         sub578 = klon(tmp, "sub578")
         berkas_aksi578 = os.path.join(
@@ -12580,7 +12580,7 @@ def main():
             f.write(isi_baru580)
         rc, out = jalan(sub580, [sys.executable, GERBANG, "--semua"])
         periksa("ffmpeg -i - -f null -: "
-                "gerbang gagal (Audit 1358)", rc != 0)
+                "gerbang gagal (Audit 1358)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub580, ignore_errors=True)
         sub581 = klon(tmp, "sub581")
         berkas_aksi581 = os.path.join(
@@ -12601,7 +12601,7 @@ def main():
             f.write(isi_baru581)
         rc, out = jalan(sub581, [sys.executable, GERBANG, "--semua"])
         periksa("chpasswd: "
-                "gerbang gagal (Audit 1359)", rc != 0)
+                "gerbang gagal (Audit 1359)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub581, ignore_errors=True)
         sub582 = klon(tmp, "sub582")
         berkas_aksi582 = os.path.join(
@@ -12644,7 +12644,7 @@ def main():
             f.write(isi_baru583)
         rc, out = jalan(sub583, [sys.executable, GERBANG, "--semua"])
         periksa("make --file=/dev/fd/0: "
-                "gerbang gagal (Audit 1365)", rc != 0)
+                "gerbang gagal (Audit 1365)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub583, ignore_errors=True)
 
         sub584 = klon(tmp, "sub584")
@@ -12776,7 +12776,7 @@ def main():
             f.write(isi_baru589)
         rc, out = jalan(sub589, [sys.executable, GERBANG, "--semua"])
         periksa("chpasswd berkasuji: "
-                "gerbang gagal (Audit 1371)", rc != 0)
+                "gerbang gagal (Audit 1371)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub589, ignore_errors=True)
 
         sub590 = klon(tmp, "sub590")
@@ -12798,7 +12798,7 @@ def main():
             f.write(isi_baru590)
         rc, out = jalan(sub590, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m sqlite3: "
-                "gerbang gagal (Audit 1372)", rc != 0)
+                "gerbang gagal (Audit 1372)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub590, ignore_errors=True)
 
         sub591 = klon(tmp, "sub591")
@@ -12820,7 +12820,7 @@ def main():
             f.write(isi_baru591)
         rc, out = jalan(sub591, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m tokenize: "
-                "gerbang gagal (Audit 1373)", rc != 0)
+                "gerbang gagal (Audit 1373)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub591, ignore_errors=True)
 
         sub592 = klon(tmp, "sub592")
@@ -12842,7 +12842,7 @@ def main():
             f.write(isi_baru592)
         rc, out = jalan(sub592, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m code: "
-                "gerbang gagal (Audit 1374)", rc != 0)
+                "gerbang gagal (Audit 1374)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub592, ignore_errors=True)
 
         sub593 = klon(tmp, "sub593")
@@ -12864,7 +12864,7 @@ def main():
             f.write(isi_baru593)
         rc, out = jalan(sub593, [sys.executable, GERBANG, "--semua"])
         periksa("perl -d skrip.pl: "
-                "gerbang gagal (Audit 1375)", rc != 0)
+                "gerbang gagal (Audit 1375)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub593, ignore_errors=True)
 
         sub594 = klon(tmp, "sub594")
@@ -12886,7 +12886,7 @@ def main():
             f.write(isi_baru594)
         rc, out = jalan(sub594, [sys.executable, GERBANG, "--semua"])
         periksa("cpan: "
-                "gerbang gagal (Audit 1376)", rc != 0)
+                "gerbang gagal (Audit 1376)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub594, ignore_errors=True)
 
         sub595 = klon(tmp, "sub595")
@@ -12908,7 +12908,7 @@ def main():
             f.write(isi_baru595)
         rc, out = jalan(sub595, [sys.executable, GERBANG, "--semua"])
         periksa("gh auth login --with-token: "
-                "gerbang gagal (Audit 1377)", rc != 0)
+                "gerbang gagal (Audit 1377)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub595, ignore_errors=True)
 
         sub596 = klon(tmp, "sub596")
@@ -12930,7 +12930,7 @@ def main():
             f.write(isi_baru596)
         rc, out = jalan(sub596, [sys.executable, GERBANG, "--semua"])
         periksa("utmpdump: "
-                "gerbang gagal (Audit 1378)", rc != 0)
+                "gerbang gagal (Audit 1378)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub596, ignore_errors=True)
 
         sub597 = klon(tmp, "sub597")
@@ -13015,7 +13015,7 @@ def main():
             f.write(isi_baru600)
         rc, out = jalan(sub600, [sys.executable, GERBANG, "--semua"])
         periksa("tmux -LV load-buffer -: "
-                "gerbang gagal (Audit 1386)", rc != 0)
+                "gerbang gagal (Audit 1386)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub600, ignore_errors=True)
         sub601 = klon(tmp, "sub601")
         berkas_aksi601 = os.path.join(
@@ -13057,7 +13057,7 @@ def main():
             f.write(isi_baru602)
         rc, out = jalan(sub602, [sys.executable, GERBANG, "--semua"])
         periksa("make -f/dev/fd/0: "
-                "gerbang gagal (Audit 1388)", rc != 0)
+                "gerbang gagal (Audit 1388)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub602, ignore_errors=True)
         sub603 = klon(tmp, "sub603")
         berkas_aksi603 = os.path.join(
@@ -13078,7 +13078,7 @@ def main():
             f.write(isi_baru603)
         rc, out = jalan(sub603, [sys.executable, GERBANG, "--semua"])
         periksa("make -nf /dev/fd/0: "
-                "gerbang gagal (Audit 1389)", rc != 0)
+                "gerbang gagal (Audit 1389)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub603, ignore_errors=True)
         sub604 = klon(tmp, "sub604")
         berkas_aksi604 = os.path.join(
@@ -13141,7 +13141,7 @@ def main():
             f.write(isi_baru606)
         rc, out = jalan(sub606, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m gzip -: "
-                "gerbang gagal (Audit 1391)", rc != 0)
+                "gerbang gagal (Audit 1391)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub606, ignore_errors=True)
         sub607 = klon(tmp, "sub607")
         berkas_aksi607 = os.path.join(
@@ -13162,7 +13162,7 @@ def main():
             f.write(isi_baru607)
         rc, out = jalan(sub607, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m json.tool -: "
-                "gerbang gagal (Audit 1391)", rc != 0)
+                "gerbang gagal (Audit 1391)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub607, ignore_errors=True)
         sub608 = klon(tmp, "sub608")
         berkas_aksi608 = os.path.join(
@@ -13246,7 +13246,7 @@ def main():
             f.write(isi_baru611)
         rc, out = jalan(sub611, [sys.executable, GERBANG, "--semua"])
         periksa("debugfs -z -f citra.img: "
-                "gerbang gagal (Audit 1394)", rc != 0)
+                "gerbang gagal (Audit 1394)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub611, ignore_errors=True)
         sub612 = klon(tmp, "sub612")
         berkas_aksi612 = os.path.join(
@@ -13267,7 +13267,7 @@ def main():
             f.write(isi_baru612)
         rc, out = jalan(sub612, [sys.executable, GERBANG, "--semua"])
         periksa("debugfs -zf citra.img: "
-                "gerbang gagal (Audit 1394)", rc != 0)
+                "gerbang gagal (Audit 1394)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub612, ignore_errors=True)
         sub613 = klon(tmp, "sub613")
         berkas_aksi613 = os.path.join(
@@ -13288,7 +13288,7 @@ def main():
             f.write(isi_baru613)
         rc, out = jalan(sub613, [sys.executable, GERBANG, "--semua"])
         periksa("gh --hostname contoh.invalid auth login --with-token: "
-                "gerbang gagal (Audit 1395)", rc != 0)
+                "gerbang gagal (Audit 1395)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub613, ignore_errors=True)
         sub614 = klon(tmp, "sub614")
         berkas_aksi614 = os.path.join(
@@ -13309,7 +13309,7 @@ def main():
             f.write(isi_baru614)
         rc, out = jalan(sub614, [sys.executable, GERBANG, "--semua"])
         periksa("/bin/cat: "
-                "gerbang gagal (Audit 1396)", rc != 0)
+                "gerbang gagal (Audit 1396)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub614, ignore_errors=True)
         sub615 = klon(tmp, "sub615")
         berkas_aksi615 = os.path.join(
@@ -13330,7 +13330,7 @@ def main():
             f.write(isi_baru615)
         rc, out = jalan(sub615, [sys.executable, GERBANG, "--semua"])
         periksa("/usr/bin/openssl sha256: "
-                "gerbang gagal (Audit 1396)", rc != 0)
+                "gerbang gagal (Audit 1396)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub615, ignore_errors=True)
         sub616 = klon(tmp, "sub616")
         berkas_aksi616 = os.path.join(
@@ -13351,7 +13351,7 @@ def main():
             f.write(isi_baru616)
         rc, out = jalan(sub616, [sys.executable, GERBANG, "--semua"])
         periksa("setsid /bin/cat: "
-                "gerbang gagal (Audit 1396)", rc != 0)
+                "gerbang gagal (Audit 1396)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub616, ignore_errors=True)
         sub617 = klon(tmp, "sub617")
         berkas_aksi617 = os.path.join(
@@ -13372,7 +13372,7 @@ def main():
             f.write(isi_baru617)
         rc, out = jalan(sub617, [sys.executable, GERBANG, "--semua"])
         periksa("chgpasswd: "
-                "gerbang gagal (Audit 1397)", rc != 0)
+                "gerbang gagal (Audit 1397)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub617, ignore_errors=True)
         sub618 = klon(tmp, "sub618")
         berkas_aksi618 = os.path.join(
@@ -13393,7 +13393,7 @@ def main():
             f.write(isi_baru618)
         rc, out = jalan(sub618, [sys.executable, GERBANG, "--semua"])
         periksa("chgpasswd berkasuji: "
-                "gerbang gagal (Audit 1397)", rc != 0)
+                "gerbang gagal (Audit 1397)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub618, ignore_errors=True)
         sub619 = klon(tmp, "sub619")
         berkas_aksi619 = os.path.join(
@@ -13414,7 +13414,7 @@ def main():
             f.write(isi_baru619)
         rc, out = jalan(sub619, [sys.executable, GERBANG, "--semua"])
         periksa("pl2pm: "
-                "gerbang gagal (Audit 1398)", rc != 0)
+                "gerbang gagal (Audit 1398)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub619, ignore_errors=True)
         sub620 = klon(tmp, "sub620")
         berkas_aksi620 = os.path.join(
@@ -13435,7 +13435,7 @@ def main():
             f.write(isi_baru620)
         rc, out = jalan(sub620, [sys.executable, GERBANG, "--semua"])
         periksa("git credential approve: "
-                "gerbang gagal (Audit 1399)", rc != 0)
+                "gerbang gagal (Audit 1399)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub620, ignore_errors=True)
         sub621 = klon(tmp, "sub621")
         berkas_aksi621 = os.path.join(
@@ -13456,7 +13456,7 @@ def main():
             f.write(isi_baru621)
         rc, out = jalan(sub621, [sys.executable, GERBANG, "--semua"])
         periksa("git format-patch --stdin: "
-                "gerbang gagal (Audit 1400)", rc != 0)
+                "gerbang gagal (Audit 1400)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub621, ignore_errors=True)
         sub622 = klon(tmp, "sub622")
         berkas_aksi622 = os.path.join(
@@ -13477,7 +13477,7 @@ def main():
             f.write(isi_baru622)
         rc, out = jalan(sub622, [sys.executable, GERBANG, "--semua"])
         periksa("git add -p: "
-                "gerbang gagal (Audit 1401)", rc != 0)
+                "gerbang gagal (Audit 1401)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub622, ignore_errors=True)
         sub623 = klon(tmp, "sub623")
         berkas_aksi623 = os.path.join(
@@ -13498,7 +13498,7 @@ def main():
             f.write(isi_baru623)
         rc, out = jalan(sub623, [sys.executable, GERBANG, "--semua"])
         periksa("git clean -i: "
-                "gerbang gagal (Audit 1401)", rc != 0)
+                "gerbang gagal (Audit 1401)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub623, ignore_errors=True)
         sub624 = klon(tmp, "sub624")
         berkas_aksi624 = os.path.join(
@@ -13519,7 +13519,7 @@ def main():
             f.write(isi_baru624)
         rc, out = jalan(sub624, [sys.executable, GERBANG, "--semua"])
         periksa("openssl sess_id: "
-                "gerbang gagal (Audit 1402)", rc != 0)
+                "gerbang gagal (Audit 1402)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub624, ignore_errors=True)
         sub625 = klon(tmp, "sub625")
         berkas_aksi625 = os.path.join(
@@ -13561,7 +13561,7 @@ def main():
             f.write(isi_baru626)
         rc, out = jalan(sub626, [sys.executable, GERBANG, "--semua"])
         periksa("openssl req -new -key kunci.pem: "
-                "gerbang gagal (Audit 1403)", rc != 0)
+                "gerbang gagal (Audit 1403)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub626, ignore_errors=True)
         sub627 = klon(tmp, "sub627")
         berkas_aksi627 = os.path.join(
@@ -13582,7 +13582,7 @@ def main():
             f.write(isi_baru627)
         rc, out = jalan(sub627, [sys.executable, GERBANG, "--semua"])
         periksa("pdftoppm - hasil: "
-                "gerbang gagal (Audit 1404)", rc != 0)
+                "gerbang gagal (Audit 1404)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub627, ignore_errors=True)
         sub628 = klon(tmp, "sub628")
         berkas_aksi628 = os.path.join(
@@ -13603,7 +13603,7 @@ def main():
             f.write(isi_baru628)
         rc, out = jalan(sub628, [sys.executable, GERBANG, "--semua"])
         periksa("pdftocairo -png - hasil.png: "
-                "gerbang gagal (Audit 1404)", rc != 0)
+                "gerbang gagal (Audit 1404)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub628, ignore_errors=True)
         sub629 = klon(tmp, "sub629")
         berkas_aksi629 = os.path.join(
@@ -13624,7 +13624,7 @@ def main():
             f.write(isi_baru629)
         rc, out = jalan(sub629, [sys.executable, GERBANG, "--semua"])
         periksa("npm init: "
-                "gerbang gagal (Audit 1405)", rc != 0)
+                "gerbang gagal (Audit 1405)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub629, ignore_errors=True)
         sub630 = klon(tmp, "sub630")
         berkas_aksi630 = os.path.join(
@@ -13709,7 +13709,7 @@ def main():
             f.write(isi_baru633)
         rc, out = jalan(sub633, [sys.executable, GERBANG, "--semua"])
         periksa("X=/a/b cat: "
-                "gerbang gagal (Audit 1408)", rc != 0)
+                "gerbang gagal (Audit 1408)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub633, ignore_errors=True)
         sub634 = klon(tmp, "sub634")
         berkas_aksi634 = os.path.join(
@@ -13751,7 +13751,7 @@ def main():
             f.write(isi_baru635)
         rc, out = jalan(sub635, [sys.executable, GERBANG, "--semua"])
         periksa("openssl asn1parse: "
-                "gerbang gagal (Audit 1409)", rc != 0)
+                "gerbang gagal (Audit 1409)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub635, ignore_errors=True)
         sub636 = klon(tmp, "sub636")
         berkas_aksi636 = os.path.join(
@@ -13772,7 +13772,7 @@ def main():
             f.write(isi_baru636)
         rc, out = jalan(sub636, [sys.executable, GERBANG, "--semua"])
         periksa("perl -0777pe skrip.pl: "
-                "gerbang gagal (Audit 1411)", rc != 0)
+                "gerbang gagal (Audit 1411)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub636, ignore_errors=True)
         sub637 = klon(tmp, "sub637")
         berkas_aksi637 = os.path.join(
@@ -13835,7 +13835,7 @@ def main():
             f.write(isi_baru639)
         rc, out = jalan(sub639, [sys.executable, GERBANG, "--semua"])
         periksa("debugfs -f -: "
-                "gerbang gagal (Audit 1414)", rc != 0)
+                "gerbang gagal (Audit 1414)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub639, ignore_errors=True)
         sub640 = klon(tmp, "sub640")
         berkas_aksi640 = os.path.join(
@@ -13919,7 +13919,7 @@ def main():
             f.write(isi_baru643)
         rc, out = jalan(sub643, [sys.executable, GERBANG, "--semua"])
         periksa("openssl asn1parse -length 100: "
-                "gerbang gagal (Audit 1417)", rc != 0)
+                "gerbang gagal (Audit 1417)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub643, ignore_errors=True)
         sub644 = klon(tmp, "sub644")
         berkas_aksi644 = os.path.join(
@@ -13940,7 +13940,7 @@ def main():
             f.write(isi_baru644)
         rc, out = jalan(sub644, [sys.executable, GERBANG, "--semua"])
         periksa("openssl sess_id -context abc: "
-                "gerbang gagal (Audit 1418)", rc != 0)
+                "gerbang gagal (Audit 1418)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub644, ignore_errors=True)
         sub645 = klon(tmp, "sub645")
         berkas_aksi645 = os.path.join(
@@ -13961,7 +13961,7 @@ def main():
             f.write(isi_baru645)
         rc, out = jalan(sub645, [sys.executable, GERBANG, "--semua"])
         periksa("openssl req -text -noout: "
-                "gerbang gagal (Audit 1419)", rc != 0)
+                "gerbang gagal (Audit 1419)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub645, ignore_errors=True)
         sub646 = klon(tmp, "sub646")
         berkas_aksi646 = os.path.join(
@@ -13982,7 +13982,7 @@ def main():
             f.write(isi_baru646)
         rc, out = jalan(sub646, [sys.executable, GERBANG, "--semua"])
         periksa("pdftoppm -scale-to 800 - hasil: "
-                "gerbang gagal (Audit 1420)", rc != 0)
+                "gerbang gagal (Audit 1420)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub646, ignore_errors=True)
         sub647 = klon(tmp, "sub647")
         berkas_aksi647 = os.path.join(
@@ -14003,7 +14003,7 @@ def main():
             f.write(isi_baru647)
         rc, out = jalan(sub647, [sys.executable, GERBANG, "--semua"])
         periksa("npm --loglevel warn init: "
-                "gerbang gagal (Audit 1421)", rc != 0)
+                "gerbang gagal (Audit 1421)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub647, ignore_errors=True)
         sub648 = klon(tmp, "sub648")
         berkas_aksi648 = os.path.join(
@@ -14024,7 +14024,7 @@ def main():
             f.write(isi_baru648)
         rc, out = jalan(sub648, [sys.executable, GERBANG, "--semua"])
         periksa("python3 -m gzip berkas.gz -: "
-                "gerbang gagal (Audit 1422)", rc != 0)
+                "gerbang gagal (Audit 1422)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub648, ignore_errors=True)
         sub649 = klon(tmp, "sub649")
         berkas_aksi649 = os.path.join(
@@ -14087,7 +14087,7 @@ def main():
             f.write(isi_baru651)
         rc, out = jalan(sub651, [sys.executable, GERBANG, "--semua"])
         periksa("pinentry: "
-                "gerbang gagal (Audit 1425)", rc != 0)
+                "gerbang gagal (Audit 1425)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub651, ignore_errors=True)
         sub652 = klon(tmp, "sub652")
         berkas_aksi652 = os.path.join(
@@ -14108,7 +14108,7 @@ def main():
             f.write(isi_baru652)
         rc, out = jalan(sub652, [sys.executable, GERBANG, "--semua"])
         periksa("dirmngr: "
-                "gerbang gagal (Audit 1426)", rc != 0)
+                "gerbang gagal (Audit 1426)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub652, ignore_errors=True)
         sub653 = klon(tmp, "sub653")
         berkas_aksi653 = os.path.join(
@@ -14129,7 +14129,7 @@ def main():
             f.write(isi_baru653)
         rc, out = jalan(sub653, [sys.executable, GERBANG, "--semua"])
         periksa("gpg-connect-agent: "
-                "gerbang gagal (Audit 1427)", rc != 0)
+                "gerbang gagal (Audit 1427)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub653, ignore_errors=True)
         sub654 = klon(tmp, "sub654")
         berkas_aksi654 = os.path.join(
@@ -14150,7 +14150,7 @@ def main():
             f.write(isi_baru654)
         rc, out = jalan(sub654, [sys.executable, GERBANG, "--semua"])
         periksa("gpgsm --decrypt: "
-                "gerbang gagal (Audit 1428)", rc != 0)
+                "gerbang gagal (Audit 1428)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub654, ignore_errors=True)
         sub655 = klon(tmp, "sub655")
         berkas_aksi655 = os.path.join(
@@ -14171,7 +14171,7 @@ def main():
             f.write(isi_baru655)
         rc, out = jalan(sub655, [sys.executable, GERBANG, "--semua"])
         periksa("derdump: "
-                "gerbang gagal (Audit 1429)", rc != 0)
+                "gerbang gagal (Audit 1429)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub655, ignore_errors=True)
         sub656 = klon(tmp, "sub656")
         berkas_aksi656 = os.path.join(
@@ -14192,7 +14192,7 @@ def main():
             f.write(isi_baru656)
         rc, out = jalan(sub656, [sys.executable, GERBANG, "--semua"])
         periksa("certutil -A -n nama -t ,, -d db: "
-                "gerbang gagal (Audit 1430)", rc != 0)
+                "gerbang gagal (Audit 1430)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub656, ignore_errors=True)
         sub657 = klon(tmp, "sub657")
         berkas_aksi657 = os.path.join(
@@ -14213,7 +14213,7 @@ def main():
             f.write(isi_baru657)
         rc, out = jalan(sub657, [sys.executable, GERBANG, "--semua"])
         periksa("cmsutil -D: "
-                "gerbang gagal (Audit 1431)", rc != 0)
+                "gerbang gagal (Audit 1431)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub657, ignore_errors=True)
         sub658 = klon(tmp, "sub658")
         berkas_aksi658 = os.path.join(
@@ -14234,7 +14234,7 @@ def main():
             f.write(isi_baru658)
         rc, out = jalan(sub658, [sys.executable, GERBANG, "--semua"])
         periksa("openssl ts -query: "
-                "gerbang gagal (Audit 1432)", rc != 0)
+                "gerbang gagal (Audit 1432)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub658, ignore_errors=True)
         sub659 = klon(tmp, "sub659")
         berkas_aksi659 = os.path.join(
@@ -14255,7 +14255,7 @@ def main():
             f.write(isi_baru659)
         rc, out = jalan(sub659, [sys.executable, GERBANG, "--semua"])
         periksa("openssl ca -in -: "
-                "gerbang gagal (Audit 1433)", rc != 0)
+                "gerbang gagal (Audit 1433)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub659, ignore_errors=True)
         sub660 = klon(tmp, "sub660")
         berkas_aksi660 = os.path.join(
@@ -14276,7 +14276,7 @@ def main():
             f.write(isi_baru660)
         rc, out = jalan(sub660, [sys.executable, GERBANG, "--semua"])
         periksa("git fmt-merge-msg: "
-                "gerbang gagal (Audit 1434)", rc != 0)
+                "gerbang gagal (Audit 1434)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub660, ignore_errors=True)
         sub661 = klon(tmp, "sub661")
         berkas_aksi661 = os.path.join(
@@ -14297,7 +14297,7 @@ def main():
             f.write(isi_baru661)
         rc, out = jalan(sub661, [sys.executable, GERBANG, "--semua"])
         periksa("apt-key add -: "
-                "gerbang gagal (Audit 1435)", rc != 0)
+                "gerbang gagal (Audit 1435)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub661, ignore_errors=True)
 
         sub662 = klon(tmp, "sub662")
@@ -14319,7 +14319,7 @@ def main():
             f.write(isi_baru662)
         rc, out = jalan(sub662, [sys.executable, GERBANG, "--semua"])
         periksa("git fmt-merge-msg -m judul: "
-                "gerbang gagal (Audit 1441)", rc != 0)
+                "gerbang gagal (Audit 1441)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub662, ignore_errors=True)
         sub663 = klon(tmp, "sub663")
         berkas_aksi663 = os.path.join(
@@ -14340,7 +14340,7 @@ def main():
             f.write(isi_baru663)
         rc, out = jalan(sub663, [sys.executable, GERBANG, "--semua"])
         periksa("git fmt-merge-msg -F -: "
-                "gerbang gagal (Audit 1442)", rc != 0)
+                "gerbang gagal (Audit 1442)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub663, ignore_errors=True)
         sub664 = klon(tmp, "sub664")
         berkas_aksi664 = os.path.join(
@@ -14361,7 +14361,7 @@ def main():
             f.write(isi_baru664)
         rc, out = jalan(sub664, [sys.executable, GERBANG, "--semua"])
         periksa("openssl asn1parse -item: "
-                "gerbang gagal (Audit 1443)", rc != 0)
+                "gerbang gagal (Audit 1443)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub664, ignore_errors=True)
         sub665 = klon(tmp, "sub665")
         berkas_aksi665 = os.path.join(
@@ -14382,7 +14382,7 @@ def main():
             f.write(isi_baru665)
         rc, out = jalan(sub665, [sys.executable, GERBANG, "--semua"])
         periksa("openssl ts -query -data -: "
-                "gerbang gagal (Audit 1444)", rc != 0)
+                "gerbang gagal (Audit 1444)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub665, ignore_errors=True)
         sub666 = klon(tmp, "sub666")
         berkas_aksi666 = os.path.join(
@@ -14403,7 +14403,7 @@ def main():
             f.write(isi_baru666)
         rc, out = jalan(sub666, [sys.executable, GERBANG, "--semua"])
         periksa("npm --init-module init: "
-                "gerbang gagal (Audit 1445)", rc != 0)
+                "gerbang gagal (Audit 1445)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub666, ignore_errors=True)
         sub667 = klon(tmp, "sub667")
         berkas_aksi667 = os.path.join(
@@ -14424,7 +14424,7 @@ def main():
             f.write(isi_baru667)
         rc, out = jalan(sub667, [sys.executable, GERBANG, "--semua"])
         periksa("gpgsm --decrypt --cipher-algo: "
-                "gerbang gagal (Audit 1446)", rc != 0)
+                "gerbang gagal (Audit 1446)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub667, ignore_errors=True)
         sub668 = klon(tmp, "sub668")
         berkas_aksi668 = os.path.join(
@@ -14445,7 +14445,7 @@ def main():
             f.write(isi_baru668)
         rc, out = jalan(sub668, [sys.executable, GERBANG, "--semua"])
         periksa("cmsutil -D -p -i: "
-                "gerbang gagal (Audit 1447)", rc != 0)
+                "gerbang gagal (Audit 1447)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub668, ignore_errors=True)
         sub669 = klon(tmp, "sub669")
         berkas_aksi669 = os.path.join(
@@ -14466,7 +14466,7 @@ def main():
             f.write(isi_baru669)
         rc, out = jalan(sub669, [sys.executable, GERBANG, "--semua"])
         periksa("pdftoppm -aa yes - hasil: "
-                "gerbang gagal (Audit 1448)", rc != 0)
+                "gerbang gagal (Audit 1448)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub669, ignore_errors=True)
         sub670 = klon(tmp, "sub670")
         berkas_aksi670 = os.path.join(
@@ -15336,7 +15336,7 @@ def main():
             f.write(isi_baru712)
         rc, out = jalan(sub712,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl sha3-256 di substitusi proses: gerbang gagal (Audit 1580)", rc != 0)
+        periksa("openssl sha3-256 di substitusi proses: gerbang gagal (Audit 1580)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub712, ignore_errors=True)
         sub713 = klon(tmp, "sub713")
         berkas_aksi713 = os.path.join(
@@ -15357,7 +15357,7 @@ def main():
             f.write(isi_baru713)
         rc, out = jalan(sub713,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl dgst -signature di substitusi proses: gerbang gagal (Audit 1581)", rc != 0)
+        periksa("openssl dgst -signature di substitusi proses: gerbang gagal (Audit 1581)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub713, ignore_errors=True)
         sub714 = klon(tmp, "sub714")
         berkas_aksi714 = os.path.join(
@@ -15378,7 +15378,7 @@ def main():
             f.write(isi_baru714)
         rc, out = jalan(sub714,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("openssl enc -out -in: gerbang gagal (Audit 1582)", rc != 0)
+        periksa("openssl enc -out -in: gerbang gagal (Audit 1582)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub714, ignore_errors=True)
         sub715 = klon(tmp, "sub715")
         berkas_aksi715 = os.path.join(
@@ -15442,7 +15442,7 @@ def main():
             f.write(isi_baru717)
         rc, out = jalan(sub717,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg --cert-notation di substitusi proses: gerbang gagal (Audit 1587)", rc != 0)
+        periksa("gpg --cert-notation di substitusi proses: gerbang gagal (Audit 1587)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub717, ignore_errors=True)
         sub718 = klon(tmp, "sub718")
         berkas_aksi718 = os.path.join(
@@ -15463,7 +15463,7 @@ def main():
             f.write(isi_baru718)
         rc, out = jalan(sub718,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg -N di substitusi proses: gerbang gagal (Audit 1588)", rc != 0)
+        periksa("gpg -N di substitusi proses: gerbang gagal (Audit 1588)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub718, ignore_errors=True)
         sub719 = klon(tmp, "sub719")
         berkas_aksi719 = os.path.join(
@@ -15484,7 +15484,7 @@ def main():
             f.write(isi_baru719)
         rc, out = jalan(sub719,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg --remote-user di substitusi proses: gerbang gagal (Audit 1589)", rc != 0)
+        periksa("gpg --remote-user di substitusi proses: gerbang gagal (Audit 1589)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub719, ignore_errors=True)
         sub720 = klon(tmp, "sub720")
         berkas_aksi720 = os.path.join(
@@ -15505,7 +15505,7 @@ def main():
             f.write(isi_baru720)
         rc, out = jalan(sub720,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg --ungroup di substitusi proses: gerbang gagal (Audit 1590)", rc != 0)
+        periksa("gpg --ungroup di substitusi proses: gerbang gagal (Audit 1590)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub720, ignore_errors=True)
         sub721 = klon(tmp, "sub721")
         berkas_aksi721 = os.path.join(
@@ -15547,7 +15547,7 @@ def main():
             f.write(isi_baru722)
         rc, out = jalan(sub722,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("varian GNU awk gawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("varian GNU awk gawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub722, ignore_errors=True)
         sub723 = klon(tmp, "sub723")
         berkas_aksi723 = os.path.join(
@@ -15589,7 +15589,7 @@ def main():
             f.write(isi_baru724)
         rc, out = jalan(sub724,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("varian GNU awk pgawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("varian GNU awk pgawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub724, ignore_errors=True)
         sub725 = klon(tmp, "sub725")
         berkas_aksi725 = os.path.join(
@@ -15610,7 +15610,7 @@ def main():
             f.write(isi_baru725)
         rc, out = jalan(sub725,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("varian GNU awk igawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("varian GNU awk igawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub725, ignore_errors=True)
         sub726 = klon(tmp, "sub726")
         berkas_aksi726 = os.path.join(
@@ -15631,7 +15631,7 @@ def main():
             f.write(isi_baru726)
         rc, out = jalan(sub726,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpg2 dinilai sama dengan gpg di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("gpg2 dinilai sama dengan gpg di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub726, ignore_errors=True)
         sub727 = klon(tmp, "sub727")
         berkas_aksi727 = os.path.join(
@@ -15652,7 +15652,7 @@ def main():
             f.write(isi_baru727)
         rc, out = jalan(sub727,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("kompresor zstd tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("kompresor zstd tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub727, ignore_errors=True)
         sub728 = klon(tmp, "sub728")
         berkas_aksi728 = os.path.join(
@@ -15694,7 +15694,7 @@ def main():
             f.write(isi_baru729)
         rc, out = jalan(sub729,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("kompresor pigz tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("kompresor pigz tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub729, ignore_errors=True)
         sub730 = klon(tmp, "sub730")
         berkas_aksi730 = os.path.join(
@@ -15715,7 +15715,7 @@ def main():
             f.write(isi_baru730)
         rc, out = jalan(sub730,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("interpreter ruby tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("interpreter ruby tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub730, ignore_errors=True)
         sub731 = klon(tmp, "sub731")
         berkas_aksi731 = os.path.join(
@@ -15757,7 +15757,7 @@ def main():
             f.write(isi_baru732)
         rc, out = jalan(sub732,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("interpreter php tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("interpreter php tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub732, ignore_errors=True)
         sub733 = klon(tmp, "sub733")
         berkas_aksi733 = os.path.join(
@@ -15778,7 +15778,7 @@ def main():
             f.write(isi_baru733)
         rc, out = jalan(sub733,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("interpreter lua tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("interpreter lua tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub733, ignore_errors=True)
         sub734 = klon(tmp, "sub734")
         berkas_aksi734 = os.path.join(
@@ -15799,7 +15799,7 @@ def main():
             f.write(isi_baru734)
         rc, out = jalan(sub734,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("shell ash tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("shell ash tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub734, ignore_errors=True)
         sub735 = klon(tmp, "sub735")
         berkas_aksi735 = os.path.join(
@@ -15820,7 +15820,7 @@ def main():
             f.write(isi_baru735)
         rc, out = jalan(sub735,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("shell ksh tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("shell ksh tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub735, ignore_errors=True)
         sub736 = klon(tmp, "sub736")
         berkas_aksi736 = os.path.join(
@@ -15841,7 +15841,7 @@ def main():
             f.write(isi_baru736)
         rc, out = jalan(sub736,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("shell fish tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0)
+        periksa("shell fish tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub736, ignore_errors=True)
         sub737 = klon(tmp, "sub737")
         berkas_aksi737 = os.path.join(
@@ -15862,7 +15862,7 @@ def main():
             f.write(isi_baru737)
         rc, out = jalan(sub737,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv tanpa operand data di substitusi proses: penguras — gerbang gagal (Audit 1639)", rc != 0)
+        periksa("gpgv tanpa operand data di substitusi proses: penguras — gerbang gagal (Audit 1639)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub737, ignore_errors=True)
         sub738 = klon(tmp, "sub738")
         berkas_aksi738 = os.path.join(
@@ -15904,7 +15904,7 @@ def main():
             f.write(isi_baru739)
         rc, out = jalan(sub739,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gawk -i bernilai GNU di substitusi proses: penguras — gerbang gagal (Audit 1640)", rc != 0)
+        periksa("gawk -i bernilai GNU di substitusi proses: penguras — gerbang gagal (Audit 1640)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub739, ignore_errors=True)
         sub740 = klon(tmp, "sub740")
         berkas_aksi740 = os.path.join(
@@ -15925,7 +15925,7 @@ def main():
             f.write(isi_baru740)
         rc, out = jalan(sub740,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gawk -l bernilai GNU di substitusi proses: penguras — gerbang gagal (Audit 1640)", rc != 0)
+        periksa("gawk -l bernilai GNU di substitusi proses: penguras — gerbang gagal (Audit 1640)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub740, ignore_errors=True)
         sub741 = klon(tmp, "sub741")
         berkas_aksi741 = os.path.join(
@@ -15946,7 +15946,7 @@ def main():
             f.write(isi_baru741)
         rc, out = jalan(sub741,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ruby -I bernilai di substitusi proses: penguras — gerbang gagal (Audit 1641)", rc != 0)
+        periksa("ruby -I bernilai di substitusi proses: penguras — gerbang gagal (Audit 1641)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub741, ignore_errors=True)
         sub742 = klon(tmp, "sub742")
         berkas_aksi742 = os.path.join(
@@ -15967,7 +15967,7 @@ def main():
             f.write(isi_baru742)
         rc, out = jalan(sub742,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("php -d bernilai di substitusi proses: penguras — gerbang gagal (Audit 1641)", rc != 0)
+        periksa("php -d bernilai di substitusi proses: penguras — gerbang gagal (Audit 1641)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub742, ignore_errors=True)
         sub743 = klon(tmp, "sub743")
         berkas_aksi743 = os.path.join(
@@ -15988,7 +15988,7 @@ def main():
             f.write(isi_baru743)
         rc, out = jalan(sub743,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lua -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1641)", rc != 0)
+        periksa("lua -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1641)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub743, ignore_errors=True)
         sub744 = klon(tmp, "sub744")
         berkas_aksi744 = os.path.join(
@@ -16030,7 +16030,7 @@ def main():
             f.write(isi_baru745)
         rc, out = jalan(sub745,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("zstd -M bernilai di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0)
+        periksa("zstd -M bernilai di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub745, ignore_errors=True)
         sub746 = klon(tmp, "sub746")
         berkas_aksi746 = os.path.join(
@@ -16051,7 +16051,7 @@ def main():
             f.write(isi_baru746)
         rc, out = jalan(sub746,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("zstd --format bernilai di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0)
+        periksa("zstd --format bernilai di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub746, ignore_errors=True)
         sub747 = klon(tmp, "sub747")
         berkas_aksi747 = os.path.join(
@@ -16072,7 +16072,7 @@ def main():
             f.write(isi_baru747)
         rc, out = jalan(sub747,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("varian zstdmt tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0)
+        periksa("varian zstdmt tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub747, ignore_errors=True)
         sub748 = klon(tmp, "sub748")
         berkas_aksi748 = os.path.join(
@@ -16093,7 +16093,7 @@ def main():
             f.write(isi_baru748)
         rc, out = jalan(sub748,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("zstdgrep tanpa operand berkas di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0)
+        periksa("zstdgrep tanpa operand berkas di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub748, ignore_errors=True)
         sub749 = klon(tmp, "sub749")
         berkas_aksi749 = os.path.join(
@@ -16135,7 +16135,7 @@ def main():
             f.write(isi_baru750)
         rc, out = jalan(sub750,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv --weak-digest bernilai di substitusi proses: penguras — gerbang gagal (Audit 1648)", rc != 0)
+        periksa("gpgv --weak-digest bernilai di substitusi proses: penguras — gerbang gagal (Audit 1648)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub750, ignore_errors=True)
         sub751 = klon(tmp, "sub751")
         berkas_aksi751 = os.path.join(
@@ -16156,7 +16156,7 @@ def main():
             f.write(isi_baru751)
         rc, out = jalan(sub751,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv --output bernilai di substitusi proses: penguras — gerbang gagal (Audit 1648)", rc != 0)
+        periksa("gpgv --output bernilai di substitusi proses: penguras — gerbang gagal (Audit 1648)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub751, ignore_errors=True)
         sub752 = klon(tmp, "sub752")
         berkas_aksi752 = os.path.join(
@@ -16177,7 +16177,7 @@ def main():
             f.write(isi_baru752)
         rc, out = jalan(sub752,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv sigfile + operand '-' di substitusi proses: data dari stdin, penguras — gerbang gagal (Audit 1649)", rc != 0)
+        periksa("gpgv sigfile + operand '-' di substitusi proses: data dari stdin, penguras — gerbang gagal (Audit 1649)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub752, ignore_errors=True)
         sub753 = klon(tmp, "sub753")
         berkas_aksi753 = os.path.join(
@@ -16219,7 +16219,7 @@ def main():
             f.write(isi_baru754)
         rc, out = jalan(sub754,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ruby -C bernilai di substitusi proses: penguras — gerbang gagal (Audit 1650)", rc != 0)
+        periksa("ruby -C bernilai di substitusi proses: penguras — gerbang gagal (Audit 1650)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub754, ignore_errors=True)
         sub755 = klon(tmp, "sub755")
         berkas_aksi755 = os.path.join(
@@ -16240,7 +16240,7 @@ def main():
             f.write(isi_baru755)
         rc, out = jalan(sub755,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ruby -E bernilai di substitusi proses: penguras — gerbang gagal (Audit 1650)", rc != 0)
+        periksa("ruby -E bernilai di substitusi proses: penguras — gerbang gagal (Audit 1650)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub755, ignore_errors=True)
         sub756 = klon(tmp, "sub756")
         berkas_aksi756 = os.path.join(
@@ -16261,7 +16261,7 @@ def main():
             f.write(isi_baru756)
         rc, out = jalan(sub756,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("php -z bernilai di substitusi proses: penguras — gerbang gagal (Audit 1651)", rc != 0)
+        periksa("php -z bernilai di substitusi proses: penguras — gerbang gagal (Audit 1651)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub756, ignore_errors=True)
         sub757 = klon(tmp, "sub757")
         berkas_aksi757 = os.path.join(
@@ -16282,7 +16282,7 @@ def main():
             f.write(isi_baru757)
         rc, out = jalan(sub757,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("php -R pemroses baris di substitusi proses: penguras — gerbang gagal (Audit 1651)", rc != 0)
+        periksa("php -R pemroses baris di substitusi proses: penguras — gerbang gagal (Audit 1651)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub757, ignore_errors=True)
         sub758 = klon(tmp, "sub758")
         berkas_aksi758 = os.path.join(
@@ -16303,7 +16303,7 @@ def main():
             f.write(isi_baru758)
         rc, out = jalan(sub758,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dgawk debugger di substitusi proses: perintah dari stdin, penguras — gerbang gagal (Audit 1652)", rc != 0)
+        periksa("dgawk debugger di substitusi proses: perintah dari stdin, penguras — gerbang gagal (Audit 1652)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub758, ignore_errors=True)
         sub759 = klon(tmp, "sub759")
         berkas_aksi759 = os.path.join(
@@ -16324,7 +16324,7 @@ def main():
             f.write(isi_baru759)
         rc, out = jalan(sub759,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dgawk beroperand berkas tetap membaca perintah debug dari stdin: penguras — gerbang gagal (Audit 1652)", rc != 0)
+        periksa("dgawk beroperand berkas tetap membaca perintah debug dari stdin: penguras — gerbang gagal (Audit 1652)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub759, ignore_errors=True)
         sub760 = klon(tmp, "sub760")
         berkas_aksi760 = os.path.join(
@@ -16345,7 +16345,7 @@ def main():
             f.write(isi_baru760)
         rc, out = jalan(sub760,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ruby berversi -I bernilai di substitusi proses: penguras — gerbang gagal (Audit 1653)", rc != 0)
+        periksa("ruby berversi -I bernilai di substitusi proses: penguras — gerbang gagal (Audit 1653)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub760, ignore_errors=True)
         sub761 = klon(tmp, "sub761")
         berkas_aksi761 = os.path.join(
@@ -16366,7 +16366,7 @@ def main():
             f.write(isi_baru761)
         rc, out = jalan(sub761,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("php berversi -d bernilai di substitusi proses: penguras — gerbang gagal (Audit 1653)", rc != 0)
+        periksa("php berversi -d bernilai di substitusi proses: penguras — gerbang gagal (Audit 1653)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub761, ignore_errors=True)
         sub762 = klon(tmp, "sub762")
         berkas_aksi762 = os.path.join(
@@ -16387,7 +16387,7 @@ def main():
             f.write(isi_baru762)
         rc, out = jalan(sub762,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lua berversi -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1653)", rc != 0)
+        periksa("lua berversi -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1653)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub762, ignore_errors=True)
         sub763 = klon(tmp, "sub763")
         berkas_aksi763 = os.path.join(
@@ -16408,7 +16408,7 @@ def main():
             f.write(isi_baru763)
         rc, out = jalan(sub763,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv --debug bernilai di substitusi proses: penguras — gerbang gagal (Audit 1658)", rc != 0)
+        periksa("gpgv --debug bernilai di substitusi proses: penguras — gerbang gagal (Audit 1658)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub763, ignore_errors=True)
         sub764 = klon(tmp, "sub764")
         berkas_aksi764 = os.path.join(
@@ -16429,7 +16429,7 @@ def main():
             f.write(isi_baru764)
         rc, out = jalan(sub764,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv --assert-pubkey-algo bernilai di substitusi proses: penguras — gerbang gagal (Audit 1658)", rc != 0)
+        periksa("gpgv --assert-pubkey-algo bernilai di substitusi proses: penguras — gerbang gagal (Audit 1658)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub764, ignore_errors=True)
         sub765 = klon(tmp, "sub765")
         berkas_aksi765 = os.path.join(
@@ -16450,7 +16450,7 @@ def main():
             f.write(isi_baru765)
         rc, out = jalan(sub765,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv '-' tanda tangan dari stdin di substitusi proses: penguras — gerbang gagal (Audit 1659)", rc != 0)
+        periksa("gpgv '-' tanda tangan dari stdin di substitusi proses: penguras — gerbang gagal (Audit 1659)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub765, ignore_errors=True)
         sub766 = klon(tmp, "sub766")
         berkas_aksi766 = os.path.join(
@@ -16471,7 +16471,7 @@ def main():
             f.write(isi_baru766)
         rc, out = jalan(sub766,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("luajit -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1660)", rc != 0)
+        periksa("luajit -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1660)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub766, ignore_errors=True)
         sub767 = klon(tmp, "sub767")
         berkas_aksi767 = os.path.join(
@@ -16555,7 +16555,7 @@ def main():
             f.write(isi_baru770)
         rc, out = jalan(sub770,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv tiga operand dengan '-' kedua di substitusi proses: penguras — gerbang gagal (Audit 1671)", rc != 0)
+        periksa("gpgv tiga operand dengan '-' kedua di substitusi proses: penguras — gerbang gagal (Audit 1671)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub770, ignore_errors=True)
         sub771 = klon(tmp, "sub771")
         berkas_aksi771 = os.path.join(
@@ -16597,7 +16597,7 @@ def main():
             f.write(isi_baru772)
         rc, out = jalan(sub772,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("luajit -j bernilai terpisah di substitusi proses: penguras — gerbang gagal (Audit 1672)", rc != 0)
+        periksa("luajit -j bernilai terpisah di substitusi proses: penguras — gerbang gagal (Audit 1672)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub772, ignore_errors=True)
         sub773 = klon(tmp, "sub773")
         berkas_aksi773 = os.path.join(
@@ -16681,7 +16681,7 @@ def main():
             f.write(isi_baru776)
         rc, out = jalan(sub776,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("luajit -b masukan '-' membaca stdin: penguras — gerbang gagal (Audit 1673)", rc != 0)
+        periksa("luajit -b masukan '-' membaca stdin: penguras — gerbang gagal (Audit 1673)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub776, ignore_errors=True)
         sub777 = klon(tmp, "sub777")
         berkas_aksi777 = os.path.join(
@@ -16744,7 +16744,7 @@ def main():
             f.write(isi_baru779)
         rc, out = jalan(sub779,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv konkatenasi '-' operand ketiga di substitusi proses: penguras — gerbang gagal (Audit 1688)", rc != 0)
+        periksa("gpgv konkatenasi '-' operand ketiga di substitusi proses: penguras — gerbang gagal (Audit 1688)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub779, ignore_errors=True)
         sub780 = klon(tmp, "sub780")
         berkas_aksi780 = os.path.join(
@@ -16786,7 +16786,7 @@ def main():
             f.write(isi_baru781)
         rc, out = jalan(sub781,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv nama khusus -&0 membaca fd 0 di substitusi proses: penguras — gerbang gagal (Audit 1689)", rc != 0)
+        periksa("gpgv nama khusus -&0 membaca fd 0 di substitusi proses: penguras — gerbang gagal (Audit 1689)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub781, ignore_errors=True)
         sub782 = klon(tmp, "sub782")
         berkas_aksi782 = os.path.join(
@@ -16807,7 +16807,7 @@ def main():
             f.write(isi_baru782)
         rc, out = jalan(sub782,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gpgv --warranty sebagai NILAI -o bukan meta; '-' menguras: gerbang gagal (Audit 1690)", rc != 0)
+        periksa("gpgv --warranty sebagai NILAI -o bukan meta; '-' menguras: gerbang gagal (Audit 1690)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub782, ignore_errors=True)
         sub783 = klon(tmp, "sub783")
         berkas_aksi783 = os.path.join(
@@ -16870,7 +16870,7 @@ def main():
             f.write(isi_baru785)
         rc, out = jalan(sub785,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("python -i -m modul: REPL sesudah modul menguras — gerbang gagal (Audit 1693)", rc != 0)
+        periksa("python -i -m modul: REPL sesudah modul menguras — gerbang gagal (Audit 1693)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub785, ignore_errors=True)
         sub786 = klon(tmp, "sub786")
         berkas_aksi786 = os.path.join(
@@ -16975,7 +16975,7 @@ def main():
             f.write(isi_baru790)
         rc, out = jalan(sub790,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("python -q sah dan membaca program dari stdin: penguras — gerbang gagal (Audit 1706)", rc != 0)
+        periksa("python -q sah dan membaca program dari stdin: penguras — gerbang gagal (Audit 1706)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub790, ignore_errors=True)
         sub791 = klon(tmp, "sub791")
         berkas_aksi791 = os.path.join(
@@ -16996,7 +16996,7 @@ def main():
             f.write(isi_baru791)
         rc, out = jalan(sub791,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("python --check-hash-based-pycs bernilai spasi; tanpa skrip membaca stdin: gerbang gagal (Audit 1707)", rc != 0)
+        periksa("python --check-hash-based-pycs bernilai spasi; tanpa skrip membaca stdin: gerbang gagal (Audit 1707)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub791, ignore_errors=True)
         sub792 = klon(tmp, "sub792")
         berkas_aksi792 = os.path.join(
@@ -17059,7 +17059,7 @@ def main():
             f.write(isi_baru794)
         rc, out = jalan(sub794,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("python -sW menelan skrip.py sebagai nilai -W lalu membaca stdin: gerbang gagal (Audit 1708)", rc != 0)
+        periksa("python -sW menelan skrip.py sebagai nilai -W lalu membaca stdin: gerbang gagal (Audit 1708)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub794, ignore_errors=True)
         sub795 = klon(tmp, "sub795")
         berkas_aksi795 = os.path.join(
@@ -17248,7 +17248,7 @@ def main():
             f.write(isi_baru803)
         rc, out = jalan(sub803,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("node --title menelan nilai lalu node membaca REPL dari stdin: penguras - gerbang gagal (Audit 1721)", rc != 0)
+        periksa("node --title menelan nilai lalu node membaca REPL dari stdin: penguras - gerbang gagal (Audit 1721)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub803, ignore_errors=True)
         sub804 = klon(tmp, "sub804")
         berkas_aksi804 = os.path.join(
@@ -17332,7 +17332,7 @@ def main():
             f.write(isi_baru807)
         rc, out = jalan(sub807,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("php -t menelan docroot lalu membaca kode dari stdin: penguras - gerbang gagal (Audit 1723)", rc != 0)
+        periksa("php -t menelan docroot lalu membaca kode dari stdin: penguras - gerbang gagal (Audit 1723)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub807, ignore_errors=True)
         sub808 = klon(tmp, "sub808")
         berkas_aksi808 = os.path.join(
@@ -17353,7 +17353,7 @@ def main():
             f.write(isi_baru808)
         rc, out = jalan(sub808,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ruby -0 opsi sah; ruby telanjang membaca program dari stdin: penguras - gerbang gagal (Audit 1724)", rc != 0)
+        periksa("ruby -0 opsi sah; ruby telanjang membaca program dari stdin: penguras - gerbang gagal (Audit 1724)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub808, ignore_errors=True)
         sub809 = klon(tmp, "sub809")
         berkas_aksi809 = os.path.join(
@@ -17416,7 +17416,7 @@ def main():
             f.write(isi_baru811)
         rc, out = jalan(sub811,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bun - menjalankan skrip dari stdin: penguras - gerbang gagal (Audit 1732)", rc != 0)
+        periksa("bun - menjalankan skrip dari stdin: penguras - gerbang gagal (Audit 1732)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub811, ignore_errors=True)
         sub812 = klon(tmp, "sub812")
         berkas_aksi812 = os.path.join(
@@ -17437,7 +17437,7 @@ def main():
             f.write(isi_baru812)
         rc, out = jalan(sub812,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bun run - menjalankan skrip dari stdin: penguras - gerbang gagal (Audit 1732)", rc != 0)
+        periksa("bun run - menjalankan skrip dari stdin: penguras - gerbang gagal (Audit 1732)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub812, ignore_errors=True)
         sub813 = klon(tmp, "sub813")
         berkas_aksi813 = os.path.join(
@@ -17458,7 +17458,7 @@ def main():
             f.write(isi_baru813)
         rc, out = jalan(sub813,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sftp -b - membaca batch dari stdin: penguras - gerbang gagal (Audit 1734)", rc != 0)
+        periksa("sftp -b - membaca batch dari stdin: penguras - gerbang gagal (Audit 1734)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub813, ignore_errors=True)
         sub814 = klon(tmp, "sub814")
         berkas_aksi814 = os.path.join(
@@ -17500,7 +17500,7 @@ def main():
             f.write(isi_baru815)
         rc, out = jalan(sub815,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pwsh -File - mengeksekusi stdin sebagai perintah: penguras - gerbang gagal (Audit 1735)", rc != 0)
+        periksa("pwsh -File - mengeksekusi stdin sebagai perintah: penguras - gerbang gagal (Audit 1735)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub815, ignore_errors=True)
         sub816 = klon(tmp, "sub816")
         berkas_aksi816 = os.path.join(
@@ -17542,7 +17542,7 @@ def main():
             f.write(isi_baru817)
         rc, out = jalan(sub817,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("wish telanjang membaca perintah dari stdin: penguras - gerbang gagal (Audit 1736)", rc != 0)
+        periksa("wish telanjang membaca perintah dari stdin: penguras - gerbang gagal (Audit 1736)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub817, ignore_errors=True)
         sub818 = klon(tmp, "sub818")
         berkas_aksi818 = os.path.join(
@@ -17584,7 +17584,7 @@ def main():
             f.write(isi_baru819)
         rc, out = jalan(sub819,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mksh telanjang membaca perintah dari stdin: penguras - gerbang gagal (Audit 1737)", rc != 0)
+        periksa("mksh telanjang membaca perintah dari stdin: penguras - gerbang gagal (Audit 1737)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub819, ignore_errors=True)
         sub820 = klon(tmp, "sub820")
         berkas_aksi820 = os.path.join(
@@ -17626,7 +17626,7 @@ def main():
             f.write(isi_baru821)
         rc, out = jalan(sub821,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("busybox sh dinilai sebagai applet sh yang membaca stdin: penguras - gerbang gagal (Audit 1738)", rc != 0)
+        periksa("busybox sh dinilai sebagai applet sh yang membaca stdin: penguras - gerbang gagal (Audit 1738)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub821, ignore_errors=True)
         sub822 = klon(tmp, "sub822")
         berkas_aksi822 = os.path.join(
@@ -17668,7 +17668,7 @@ def main():
             f.write(isi_baru823)
         rc, out = jalan(sub823,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("busybox timeout: applet pembungkus dikupas tahap yang sama, cat membaca stdin - gerbang gagal (Audit 1739)", rc != 0)
+        periksa("busybox timeout: applet pembungkus dikupas tahap yang sama, cat membaca stdin - gerbang gagal (Audit 1739)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub823, ignore_errors=True)
         sub824 = klon(tmp, "sub824")
         berkas_aksi824 = os.path.join(
@@ -17710,7 +17710,7 @@ def main():
             f.write(isi_baru825)
         rc, out = jalan(sub825,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pwsh -NoExit sesudah -File berkas: host tetap interaktif membaca stdin - gerbang gagal (Audit 1740)", rc != 0)
+        periksa("pwsh -NoExit sesudah -File berkas: host tetap interaktif membaca stdin - gerbang gagal (Audit 1740)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub825, ignore_errors=True)
         sub826 = klon(tmp, "sub826")
         berkas_aksi826 = os.path.join(
@@ -17773,7 +17773,7 @@ def main():
             f.write(isi_baru828)
         rc, out = jalan(sub828,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("env di posisi applet memulihkan wilayah penetapan, cat membaca stdin: gerbang gagal (Audit 1743)", rc != 0)
+        periksa("env di posisi applet memulihkan wilayah penetapan, cat membaca stdin: gerbang gagal (Audit 1743)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub828, ignore_errors=True)
         sub829 = klon(tmp, "sub829")
         berkas_aksi829 = os.path.join(
@@ -17815,7 +17815,7 @@ def main():
             f.write(isi_baru830)
         rc, out = jalan(sub830,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pwsh -Command - mengeksekusi stdin: gerbang gagal (Audit 1744)", rc != 0)
+        periksa("pwsh -Command - mengeksekusi stdin: gerbang gagal (Audit 1744)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub830, ignore_errors=True)
         sub831 = klon(tmp, "sub831")
         berkas_aksi831 = os.path.join(
@@ -17836,7 +17836,7 @@ def main():
             f.write(isi_baru831)
         rc, out = jalan(sub831,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai opsi bernilai asing pwsh bukan naskah; tanpa aksi pwsh interaktif membaca stdin: gerbang gagal (Audit 1745)", rc != 0)
+        periksa("nilai opsi bernilai asing pwsh bukan naskah; tanpa aksi pwsh interaktif membaca stdin: gerbang gagal (Audit 1745)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub831, ignore_errors=True)
         sub832 = klon(tmp, "sub832")
         berkas_aksi832 = os.path.join(
@@ -17878,7 +17878,7 @@ def main():
             f.write(isi_baru833)
         rc, out = jalan(sub833,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bc membaca stdin sesudah berkas operand: gerbang gagal (Audit 1748)", rc != 0)
+        periksa("bc membaca stdin sesudah berkas operand: gerbang gagal (Audit 1748)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub833, ignore_errors=True)
         sub834 = klon(tmp, "sub834")
         berkas_aksi834 = os.path.join(
@@ -17920,7 +17920,7 @@ def main():
             f.write(isi_baru835)
         rc, out = jalan(sub835,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dc telanjang membaca perintah dari stdin: gerbang gagal (Audit 1749)", rc != 0)
+        periksa("dc telanjang membaca perintah dari stdin: gerbang gagal (Audit 1749)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub835, ignore_errors=True)
         sub836 = klon(tmp, "sub836")
         berkas_aksi836 = os.path.join(
@@ -17962,7 +17962,7 @@ def main():
             f.write(isi_baru837)
         rc, out = jalan(sub837,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("perintah ed selalu dari stdin walau beroperand berkas: gerbang gagal (Audit 1750)", rc != 0)
+        periksa("perintah ed selalu dari stdin walau beroperand berkas: gerbang gagal (Audit 1750)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub837, ignore_errors=True)
         sub838 = klon(tmp, "sub838")
         berkas_aksi838 = os.path.join(
@@ -18004,7 +18004,7 @@ def main():
             f.write(isi_baru839)
         rc, out = jalan(sub839,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("berkas skrip dc adalah stdin lewat -f -: gerbang gagal (Audit 1751)", rc != 0)
+        periksa("berkas skrip dc adalah stdin lewat -f -: gerbang gagal (Audit 1751)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub839, ignore_errors=True)
         sub840 = klon(tmp, "sub840")
         berkas_aksi840 = os.path.join(
@@ -18088,7 +18088,7 @@ def main():
             f.write(isi_baru843)
         rc, out = jalan(sub843,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("powershell -Version memilih mesin lalu interaktif membaca stdin: gerbang gagal (Audit 1753)", rc != 0)
+        periksa("powershell -Version memilih mesin lalu interaktif membaca stdin: gerbang gagal (Audit 1753)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub843, ignore_errors=True)
         sub844 = klon(tmp, "sub844")
         berkas_aksi844 = os.path.join(
@@ -18130,7 +18130,7 @@ def main():
             f.write(isi_baru845)
         rc, out = jalan(sub845,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand - pada modus kripto gpg adalah stdin: gerbang gagal (Audit 1756)", rc != 0)
+        periksa("operand - pada modus kripto gpg adalah stdin: gerbang gagal (Audit 1756)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub845, ignore_errors=True)
         sub846 = klon(tmp, "sub846")
         berkas_aksi846 = os.path.join(
@@ -18172,7 +18172,7 @@ def main():
             f.write(isi_baru847)
         rc, out = jalan(sub847,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("hexdump tanpa berkas membaca stdin: gerbang gagal (Audit 1757)", rc != 0)
+        periksa("hexdump tanpa berkas membaca stdin: gerbang gagal (Audit 1757)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub847, ignore_errors=True)
         sub848 = klon(tmp, "sub848")
         berkas_aksi848 = os.path.join(
@@ -18214,7 +18214,7 @@ def main():
             f.write(isi_baru849)
         rc, out = jalan(sub849,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xxd dengan infile - membaca stdin: gerbang gagal (Audit 1758)", rc != 0)
+        periksa("xxd dengan infile - membaca stdin: gerbang gagal (Audit 1758)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub849, ignore_errors=True)
         sub850 = klon(tmp, "sub850")
         berkas_aksi850 = os.path.join(
@@ -18319,7 +18319,7 @@ def main():
             f.write(isi_baru854)
         rc, out = jalan(sub854,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("powershell -Version bernilai sah interaktif membaca stdin: gerbang gagal (Audit 1760)", rc != 0)
+        periksa("powershell -Version bernilai sah interaktif membaca stdin: gerbang gagal (Audit 1760)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub854, ignore_errors=True)
         sub855 = klon(tmp, "sub855")
         berkas_aksi855 = os.path.join(
@@ -18382,7 +18382,7 @@ def main():
             f.write(isi_baru857)
         rc, out = jalan(sub857,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("zip mengarsipkan berkas masukan - dari stdin: gerbang gagal (Audit 1763)", rc != 0)
+        periksa("zip mengarsipkan berkas masukan - dari stdin: gerbang gagal (Audit 1763)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub857, ignore_errors=True)
         sub858 = klon(tmp, "sub858")
         berkas_aksi858 = os.path.join(
@@ -18445,7 +18445,7 @@ def main():
             f.write(isi_baru860)
         rc, out = jalan(sub860,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("less +N tanpa berkas membaca stdin: gerbang gagal (Audit 1764)", rc != 0)
+        periksa("less +N tanpa berkas membaca stdin: gerbang gagal (Audit 1764)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub860, ignore_errors=True)
         sub861 = klon(tmp, "sub861")
         berkas_aksi861 = os.path.join(
@@ -18466,7 +18466,7 @@ def main():
             f.write(isi_baru861)
         rc, out = jalan(sub861,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("cpio copy-out membaca daftar nama dari stdin: gerbang gagal (Audit 1765)", rc != 0)
+        periksa("cpio copy-out membaca daftar nama dari stdin: gerbang gagal (Audit 1765)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub861, ignore_errors=True)
         sub862 = klon(tmp, "sub862")
         berkas_aksi862 = os.path.join(
@@ -18508,7 +18508,7 @@ def main():
             f.write(isi_baru863)
         rc, out = jalan(sub863,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pax mode read membaca arsip dari stdin: gerbang gagal (Audit 1766)", rc != 0)
+        periksa("pax mode read membaca arsip dari stdin: gerbang gagal (Audit 1766)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub863, ignore_errors=True)
         sub864 = klon(tmp, "sub864")
         berkas_aksi864 = os.path.join(
@@ -18550,7 +18550,7 @@ def main():
             f.write(isi_baru865)
         rc, out = jalan(sub865,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pg tanpa berkas membaca stdin: gerbang gagal (Audit 1767)", rc != 0)
+        periksa("pg tanpa berkas membaca stdin: gerbang gagal (Audit 1767)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub865, ignore_errors=True)
         sub866 = klon(tmp, "sub866")
         berkas_aksi866 = os.path.join(
@@ -18571,7 +18571,7 @@ def main():
             f.write(isi_baru866)
         rc, out = jalan(sub866,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bat dengan FILE - membaca stdin: gerbang gagal (Audit 1768)", rc != 0)
+        periksa("bat dengan FILE - membaca stdin: gerbang gagal (Audit 1768)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub866, ignore_errors=True)
         sub867 = klon(tmp, "sub867")
         berkas_aksi867 = os.path.join(
@@ -18613,7 +18613,7 @@ def main():
             f.write(isi_baru868)
         rc, out = jalan(sub868,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lzip tanpa berkas membuka dari stdin: gerbang gagal (Audit 1769)", rc != 0)
+        periksa("lzip tanpa berkas membuka dari stdin: gerbang gagal (Audit 1769)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub868, ignore_errors=True)
         sub869 = klon(tmp, "sub869")
         berkas_aksi869 = os.path.join(
@@ -18634,7 +18634,7 @@ def main():
             f.write(isi_baru869)
         rc, out = jalan(sub869,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lz4 tanpa berkas membuka dari stdin: gerbang gagal (Audit 1770)", rc != 0)
+        periksa("lz4 tanpa berkas membuka dari stdin: gerbang gagal (Audit 1770)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub869, ignore_errors=True)
         sub870 = klon(tmp, "sub870")
         berkas_aksi870 = os.path.join(
@@ -18655,7 +18655,7 @@ def main():
             f.write(isi_baru870)
         rc, out = jalan(sub870,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("rpm2cpio tanpa argumen membaca aliran RPM dari stdin: gerbang gagal (Audit 1771)", rc != 0)
+        periksa("rpm2cpio tanpa argumen membaca aliran RPM dari stdin: gerbang gagal (Audit 1771)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub870, ignore_errors=True)
         sub871 = klon(tmp, "sub871")
         berkas_aksi871 = os.path.join(
@@ -18676,7 +18676,7 @@ def main():
             f.write(isi_baru871)
         rc, out = jalan(sub871,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("7z a -si membaca data dari stdin: gerbang gagal (Audit 1772)", rc != 0)
+        periksa("7z a -si membaca data dari stdin: gerbang gagal (Audit 1772)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub871, ignore_errors=True)
         sub872 = klon(tmp, "sub872")
         berkas_aksi872 = os.path.join(
@@ -18718,7 +18718,7 @@ def main():
             f.write(isi_baru873)
         rc, out = jalan(sub873,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("awalan -ver pada powershell adalah -Version bernilai, interaktif: gerbang gagal (Audit 1774)", rc != 0)
+        periksa("awalan -ver pada powershell adalah -Version bernilai, interaktif: gerbang gagal (Audit 1774)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub873, ignore_errors=True)
         sub874 = klon(tmp, "sub874")
         berkas_aksi874 = os.path.join(
@@ -18823,7 +18823,7 @@ def main():
             f.write(isi_baru878)
         rc, out = jalan(sub878,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("7z u -si membaca data dari stdin untuk update: gerbang gagal (Audit 1783)", rc != 0)
+        periksa("7z u -si membaca data dari stdin untuk update: gerbang gagal (Audit 1783)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub878, ignore_errors=True)
         sub879 = klon(tmp, "sub879")
         berkas_aksi879 = os.path.join(
@@ -18844,7 +18844,7 @@ def main():
             f.write(isi_baru879)
         rc, out = jalan(sub879,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("varian 7za dengan a -si membaca stdin seperti 7z: gerbang gagal (Audit 1784)", rc != 0)
+        periksa("varian 7za dengan a -si membaca stdin seperti 7z: gerbang gagal (Audit 1784)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub879, ignore_errors=True)
         sub880 = klon(tmp, "sub880")
         berkas_aksi880 = os.path.join(
@@ -18928,7 +18928,7 @@ def main():
             f.write(isi_baru883)
         rc, out = jalan(sub883,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai opsi global bun dilompati, '-' adalah skrip stdin: gerbang gagal (Audit 1788)", rc != 0)
+        periksa("nilai opsi global bun dilompati, '-' adalah skrip stdin: gerbang gagal (Audit 1788)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub883, ignore_errors=True)
         sub884 = klon(tmp, "sub884")
         berkas_aksi884 = os.path.join(
@@ -19033,7 +19033,7 @@ def main():
             f.write(isi_baru888)
         rc, out = jalan(sub888,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand '-' dc sesudah berkas tetap aliran stdin: gerbang gagal (Audit 1793)", rc != 0)
+        periksa("operand '-' dc sesudah berkas tetap aliran stdin: gerbang gagal (Audit 1793)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub888, ignore_errors=True)
         sub889 = klon(tmp, "sub889")
         berkas_aksi889 = os.path.join(
@@ -19075,7 +19075,7 @@ def main():
             f.write(isi_baru890)
         rc, out = jalan(sub890,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xargs tanpa -a di depan perintah khusus tetap menguras untuk itemnya: gerbang gagal (Audit 1796)", rc != 0)
+        periksa("xargs tanpa -a di depan perintah khusus tetap menguras untuk itemnya: gerbang gagal (Audit 1796)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub890, ignore_errors=True)
         sub891 = klon(tmp, "sub891")
         berkas_aksi891 = os.path.join(
@@ -19117,7 +19117,7 @@ def main():
             f.write(isi_baru892)
         rc, out = jalan(sub892,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nama arsip 7z sah sesudah -- dan -si tetap aktif: gerbang gagal (Audit 1798)", rc != 0)
+        periksa("nama arsip 7z sah sesudah -- dan -si tetap aktif: gerbang gagal (Audit 1798)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub892, ignore_errors=True)
         sub893 = klon(tmp, "sub893")
         berkas_aksi893 = os.path.join(
@@ -19138,7 +19138,7 @@ def main():
             f.write(isi_baru893)
         rc, out = jalan(sub893,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("column tanpa berkas membaca stdin untuk ditabelkan: gerbang gagal (Audit 1801)", rc != 0)
+        periksa("column tanpa berkas membaca stdin untuk ditabelkan: gerbang gagal (Audit 1801)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub893, ignore_errors=True)
         sub894 = klon(tmp, "sub894")
         berkas_aksi894 = os.path.join(
@@ -19159,7 +19159,7 @@ def main():
             f.write(isi_baru894)
         rc, out = jalan(sub894,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gzcat adalah zcat - tanpa operand membaca aliran dari stdin: gerbang gagal (Audit 1802)", rc != 0)
+        periksa("gzcat adalah zcat - tanpa operand membaca aliran dari stdin: gerbang gagal (Audit 1802)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub894, ignore_errors=True)
         sub895 = klon(tmp, "sub895")
         berkas_aksi895 = os.path.join(
@@ -19180,7 +19180,7 @@ def main():
             f.write(isi_baru895)
         rc, out = jalan(sub895,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("satu-satunya operand uuencode adalah nama keluaran, masukan dari stdin: gerbang gagal (Audit 1803)", rc != 0)
+        periksa("satu-satunya operand uuencode adalah nama keluaran, masukan dari stdin: gerbang gagal (Audit 1803)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub895, ignore_errors=True)
         sub896 = klon(tmp, "sub896")
         berkas_aksi896 = os.path.join(
@@ -19201,7 +19201,7 @@ def main():
             f.write(isi_baru896)
         rc, out = jalan(sub896,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("uudecode tanpa FILE membaca stdin: gerbang gagal (Audit 1804)", rc != 0)
+        periksa("uudecode tanpa FILE membaca stdin: gerbang gagal (Audit 1804)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub896, ignore_errors=True)
         sub897 = klon(tmp, "sub897")
         berkas_aksi897 = os.path.join(
@@ -19222,7 +19222,7 @@ def main():
             f.write(isi_baru897)
         rc, out = jalan(sub897,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("plzip tanpa berkas mengompres dari stdin: gerbang gagal (Audit 1806)", rc != 0)
+        periksa("plzip tanpa berkas mengompres dari stdin: gerbang gagal (Audit 1806)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub897, ignore_errors=True)
         sub898 = klon(tmp, "sub898")
         berkas_aksi898 = os.path.join(
@@ -19243,7 +19243,7 @@ def main():
             f.write(isi_baru898)
         rc, out = jalan(sub898,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lbzcat tanpa FILE adalah filter dekompresi stdin: gerbang gagal (Audit 1807)", rc != 0)
+        periksa("lbzcat tanpa FILE adalah filter dekompresi stdin: gerbang gagal (Audit 1807)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub898, ignore_errors=True)
         sub899 = klon(tmp, "sub899")
         berkas_aksi899 = os.path.join(
@@ -19264,7 +19264,7 @@ def main():
             f.write(isi_baru899)
         rc, out = jalan(sub899,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pixz beropsi saja tetap memakai stdin: gerbang gagal (Audit 1808)", rc != 0)
+        periksa("pixz beropsi saja tetap memakai stdin: gerbang gagal (Audit 1808)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub899, ignore_errors=True)
         sub900 = klon(tmp, "sub900")
         berkas_aksi900 = os.path.join(
@@ -19285,7 +19285,7 @@ def main():
             f.write(isi_baru900)
         rc, out = jalan(sub900,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("compress tanpa berkas mengompres stdin: gerbang gagal (Audit 1809)", rc != 0)
+        periksa("compress tanpa berkas mengompres stdin: gerbang gagal (Audit 1809)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub900, ignore_errors=True)
         sub901 = klon(tmp, "sub901")
         berkas_aksi901 = os.path.join(
@@ -19306,7 +19306,7 @@ def main():
             f.write(isi_baru901)
         rc, out = jalan(sub901,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("brotli tanpa berkas membaca stdin: gerbang gagal (Audit 1810)", rc != 0)
+        periksa("brotli tanpa berkas membaca stdin: gerbang gagal (Audit 1810)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub901, ignore_errors=True)
         sub902 = klon(tmp, "sub902")
         berkas_aksi902 = os.path.join(
@@ -19327,7 +19327,7 @@ def main():
             f.write(isi_baru902)
         rc, out = jalan(sub902,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lzop tanpa berkas mengompres stdin: gerbang gagal (Audit 1811)", rc != 0)
+        periksa("lzop tanpa berkas mengompres stdin: gerbang gagal (Audit 1811)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub902, ignore_errors=True)
         sub903 = klon(tmp, "sub903")
         berkas_aksi903 = os.path.join(
@@ -19348,7 +19348,7 @@ def main():
             f.write(isi_baru903)
         rc, out = jalan(sub903,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lziprecover tanpa berkas mendekompres dari stdin: gerbang gagal (Audit 1812)", rc != 0)
+        periksa("lziprecover tanpa berkas mendekompres dari stdin: gerbang gagal (Audit 1812)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub903, ignore_errors=True)
         sub904 = klon(tmp, "sub904")
         berkas_aksi904 = os.path.join(
@@ -19369,7 +19369,7 @@ def main():
             f.write(isi_baru904)
         rc, out = jalan(sub904,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dos2unix tanpa FILE adalah filter stdin: gerbang gagal (Audit 1813)", rc != 0)
+        periksa("dos2unix tanpa FILE adalah filter stdin: gerbang gagal (Audit 1813)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub904, ignore_errors=True)
         sub905 = klon(tmp, "sub905")
         berkas_aksi905 = os.path.join(
@@ -19390,7 +19390,7 @@ def main():
             f.write(isi_baru905)
         rc, out = jalan(sub905,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sponge selalu menyedot stdin, operandnya berkas keluaran: gerbang gagal (Audit 1814)", rc != 0)
+        periksa("sponge selalu menyedot stdin, operandnya berkas keluaran: gerbang gagal (Audit 1814)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub905, ignore_errors=True)
         sub906 = klon(tmp, "sub906")
         berkas_aksi906 = os.path.join(
@@ -19411,7 +19411,7 @@ def main():
             f.write(isi_baru906)
         rc, out = jalan(sub906,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ts memberi stempel waktu pada aliran stdin: gerbang gagal (Audit 1815)", rc != 0)
+        periksa("ts memberi stempel waktu pada aliran stdin: gerbang gagal (Audit 1815)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub906, ignore_errors=True)
         sub907 = klon(tmp, "sub907")
         berkas_aksi907 = os.path.join(
@@ -19432,7 +19432,7 @@ def main():
             f.write(isi_baru907)
         rc, out = jalan(sub907,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("vipe membaca seluruh stdin ke editor: gerbang gagal (Audit 1816)", rc != 0)
+        periksa("vipe membaca seluruh stdin ke editor: gerbang gagal (Audit 1816)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub907, ignore_errors=True)
         sub908 = klon(tmp, "sub908")
         berkas_aksi908 = os.path.join(
@@ -19453,7 +19453,7 @@ def main():
             f.write(isi_baru908)
         rc, out = jalan(sub908,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pee menyalurkan stdin ke pipa-pipa tujuannya: gerbang gagal (Audit 1817)", rc != 0)
+        periksa("pee menyalurkan stdin ke pipa-pipa tujuannya: gerbang gagal (Audit 1817)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub908, ignore_errors=True)
         sub909 = klon(tmp, "sub909")
         berkas_aksi909 = os.path.join(
@@ -19474,7 +19474,7 @@ def main():
             f.write(isi_baru909)
         rc, out = jalan(sub909,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("recode dengan request tanpa FILE adalah filter stdin: gerbang gagal (Audit 1818)", rc != 0)
+        periksa("recode dengan request tanpa FILE adalah filter stdin: gerbang gagal (Audit 1818)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub909, ignore_errors=True)
         sub910 = klon(tmp, "sub910")
         berkas_aksi910 = os.path.join(
@@ -19495,7 +19495,7 @@ def main():
             f.write(isi_baru910)
         rc, out = jalan(sub910,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --threads plzip bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1819)", rc != 0)
+        periksa("nilai --threads plzip bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1819)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub910, ignore_errors=True)
         sub911 = klon(tmp, "sub911")
         berkas_aksi911 = os.path.join(
@@ -19516,7 +19516,7 @@ def main():
             f.write(isi_baru911)
         rc, out = jalan(sub911,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai -n lbzip2 bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1820, dikoreksi Audit 1866)", rc != 0)
+        periksa("nilai -n lbzip2 bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1820, dikoreksi Audit 1866)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub911, ignore_errors=True)
         sub912 = klon(tmp, "sub912")
         berkas_aksi912 = os.path.join(
@@ -19537,7 +19537,7 @@ def main():
             f.write(isi_baru912)
         rc, out = jalan(sub912,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai -p pixz bukan operand - tanpa INPUT ia memakai stdin: gerbang gagal (Audit 1821)", rc != 0)
+        periksa("nilai -p pixz bukan operand - tanpa INPUT ia memakai stdin: gerbang gagal (Audit 1821)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub912, ignore_errors=True)
         sub913 = klon(tmp, "sub913")
         berkas_aksi913 = os.path.join(
@@ -19558,7 +19558,7 @@ def main():
             f.write(isi_baru913)
         rc, out = jalan(sub913,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai -b compress bukan operand - tanpa berkas stdin dikompres: gerbang gagal (Audit 1822)", rc != 0)
+        periksa("nilai -b compress bukan operand - tanpa berkas stdin dikompres: gerbang gagal (Audit 1822)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub913, ignore_errors=True)
         sub914 = klon(tmp, "sub914")
         berkas_aksi914 = os.path.join(
@@ -19579,7 +19579,7 @@ def main():
             f.write(isi_baru914)
         rc, out = jalan(sub914,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai -q brotli bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1823)", rc != 0)
+        periksa("nilai -q brotli bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1823)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub914, ignore_errors=True)
         sub915 = klon(tmp, "sub915")
         berkas_aksi915 = os.path.join(
@@ -19600,7 +19600,7 @@ def main():
             f.write(isi_baru915)
         rc, out = jalan(sub915,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai -o lzop bukan operand - tanpa berkas ia mengompres stdin: gerbang gagal (Audit 1824)", rc != 0)
+        periksa("nilai -o lzop bukan operand - tanpa berkas ia mengompres stdin: gerbang gagal (Audit 1824)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub915, ignore_errors=True)
         sub916 = klon(tmp, "sub916")
         berkas_aksi916 = os.path.join(
@@ -19621,7 +19621,7 @@ def main():
             f.write(isi_baru916)
         rc, out = jalan(sub916,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai -c dos2unix bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1825)", rc != 0)
+        periksa("nilai -c dos2unix bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1825)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub916, ignore_errors=True)
         sub917 = klon(tmp, "sub917")
         berkas_aksi917 = os.path.join(
@@ -19642,7 +19642,7 @@ def main():
             f.write(isi_baru917)
         rc, out = jalan(sub917,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-x recode menelan nilai charset - request tanpa FILE adalah filter stdin: gerbang gagal (Audit 1826)", rc != 0)
+        periksa("-x recode menelan nilai charset - request tanpa FILE adalah filter stdin: gerbang gagal (Audit 1826)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub917, ignore_errors=True)
         sub918 = klon(tmp, "sub918")
         berkas_aksi918 = os.path.join(
@@ -19663,7 +19663,7 @@ def main():
             f.write(isi_baru918)
         rc, out = jalan(sub918,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("yq dengan ekspresi tanpa berkas membaca stdin: gerbang gagal (Audit 1827)", rc != 0)
+        periksa("yq dengan ekspresi tanpa berkas membaca stdin: gerbang gagal (Audit 1827)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub918, ignore_errors=True)
         sub919 = klon(tmp, "sub919")
         berkas_aksi919 = os.path.join(
@@ -19684,7 +19684,7 @@ def main():
             f.write(isi_baru919)
         rc, out = jalan(sub919,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("fq dengan ekspresi tanpa berkas membaca stdin seperti jq: gerbang gagal (Audit 1828)", rc != 0)
+        periksa("fq dengan ekspresi tanpa berkas membaca stdin seperti jq: gerbang gagal (Audit 1828)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub919, ignore_errors=True)
         sub920 = klon(tmp, "sub920")
         berkas_aksi920 = os.path.join(
@@ -19705,7 +19705,7 @@ def main():
             f.write(isi_baru920)
         rc, out = jalan(sub920,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dasel tanpa -f membaca stdin, operandnya selektor: gerbang gagal (Audit 1829)", rc != 0)
+        periksa("dasel tanpa -f membaca stdin, operandnya selektor: gerbang gagal (Audit 1829)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub920, ignore_errors=True)
         sub921 = klon(tmp, "sub921")
         berkas_aksi921 = os.path.join(
@@ -19726,7 +19726,7 @@ def main():
             f.write(isi_baru921)
         rc, out = jalan(sub921,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mlr tanpa nama berkas membaca stdin, -f a milik kata kerja: gerbang gagal (Audit 1830)", rc != 0)
+        periksa("mlr tanpa nama berkas membaca stdin, -f a milik kata kerja: gerbang gagal (Audit 1830)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub921, ignore_errors=True)
         sub922 = klon(tmp, "sub922")
         berkas_aksi922 = os.path.join(
@@ -19747,7 +19747,7 @@ def main():
             f.write(isi_baru922)
         rc, out = jalan(sub922,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("dua operand sd adalah pola dan pengganti - tanpa berkas ia filter stdin: gerbang gagal (Audit 1831)", rc != 0)
+        periksa("dua operand sd adalah pola dan pengganti - tanpa berkas ia filter stdin: gerbang gagal (Audit 1831)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub922, ignore_errors=True)
         sub923 = klon(tmp, "sub923")
         berkas_aksi923 = os.path.join(
@@ -19768,7 +19768,7 @@ def main():
             f.write(isi_baru923)
         rc, out = jalan(sub923,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("choose membaca stdin, -f-nya pemisah bidang bukan berkas: gerbang gagal (Audit 1832)", rc != 0)
+        periksa("choose membaca stdin, -f-nya pemisah bidang bukan berkas: gerbang gagal (Audit 1832)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub923, ignore_errors=True)
         sub924 = klon(tmp, "sub924")
         berkas_aksi924 = os.path.join(
@@ -19789,7 +19789,7 @@ def main():
             f.write(isi_baru924)
         rc, out = jalan(sub924,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("hck tanpa berkas membaca stdin seperti cut: gerbang gagal (Audit 1833)", rc != 0)
+        periksa("hck tanpa berkas membaca stdin seperti cut: gerbang gagal (Audit 1833)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub924, ignore_errors=True)
         sub925 = klon(tmp, "sub925")
         berkas_aksi925 = os.path.join(
@@ -19810,7 +19810,7 @@ def main():
             f.write(isi_baru925)
         rc, out = jalan(sub925,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("hexyl tanpa FILE membaca stdin, -n opsi bernilai: gerbang gagal (Audit 1834)", rc != 0)
+        periksa("hexyl tanpa FILE membaca stdin, -n opsi bernilai: gerbang gagal (Audit 1834)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub925, ignore_errors=True)
         sub926 = klon(tmp, "sub926")
         berkas_aksi926 = os.path.join(
@@ -19831,7 +19831,7 @@ def main():
             f.write(isi_baru926)
         rc, out = jalan(sub926,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ncat meneruskan stdin ke koneksi seperti nc: gerbang gagal (Audit 1835)", rc != 0)
+        periksa("ncat meneruskan stdin ke koneksi seperti nc: gerbang gagal (Audit 1835)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub926, ignore_errors=True)
         sub927 = klon(tmp, "sub927")
         berkas_aksi927 = os.path.join(
@@ -19852,7 +19852,7 @@ def main():
             f.write(isi_baru927)
         rc, out = jalan(sub927,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("aria2c -i - membaca daftar URI dari stdin: gerbang gagal (Audit 1836)", rc != 0)
+        periksa("aria2c -i - membaca daftar URI dari stdin: gerbang gagal (Audit 1836)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub927, ignore_errors=True)
         sub928 = klon(tmp, "sub928")
         berkas_aksi928 = os.path.join(
@@ -19873,7 +19873,7 @@ def main():
             f.write(isi_baru928)
         rc, out = jalan(sub928,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("envsubst selalu menyalin stdin ke stdout: gerbang gagal (Audit 1837)", rc != 0)
+        periksa("envsubst selalu menyalin stdin ke stdout: gerbang gagal (Audit 1837)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub928, ignore_errors=True)
         sub929 = klon(tmp, "sub929")
         berkas_aksi929 = os.path.join(
@@ -19894,7 +19894,7 @@ def main():
             f.write(isi_baru929)
         rc, out = jalan(sub929,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("write membaca baris dari stdin untuk terminal penerima: gerbang gagal (Audit 1838)", rc != 0)
+        periksa("write membaca baris dari stdin untuk terminal penerima: gerbang gagal (Audit 1838)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub929, ignore_errors=True)
         sub930 = klon(tmp, "sub930")
         berkas_aksi930 = os.path.join(
@@ -19915,7 +19915,7 @@ def main():
             f.write(isi_baru930)
         rc, out = jalan(sub930,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --block-list xz bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1839)", rc != 0)
+        periksa("nilai --block-list xz bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub930, ignore_errors=True)
         sub931 = klon(tmp, "sub931")
         berkas_aksi931 = os.path.join(
@@ -19936,7 +19936,7 @@ def main():
             f.write(isi_baru931)
         rc, out = jalan(sub931,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --block-list lzma bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1839)", rc != 0)
+        periksa("nilai --block-list lzma bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub931, ignore_errors=True)
         sub932 = klon(tmp, "sub932")
         berkas_aksi932 = os.path.join(
@@ -19957,7 +19957,7 @@ def main():
             f.write(isi_baru932)
         rc, out = jalan(sub932,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --block-list unxz bukan operand: gerbang gagal (Audit 1839)", rc != 0)
+        periksa("nilai --block-list unxz bukan operand: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub932, ignore_errors=True)
         sub933 = klon(tmp, "sub933")
         berkas_aksi933 = os.path.join(
@@ -19978,7 +19978,7 @@ def main():
             f.write(isi_baru933)
         rc, out = jalan(sub933,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --block-list xzcat bukan operand: gerbang gagal (Audit 1839)", rc != 0)
+        periksa("nilai --block-list xzcat bukan operand: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub933, ignore_errors=True)
         sub934 = klon(tmp, "sub934")
         berkas_aksi934 = os.path.join(
@@ -19999,7 +19999,7 @@ def main():
             f.write(isi_baru934)
         rc, out = jalan(sub934,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --block-list lzcat bukan operand: gerbang gagal (Audit 1839)", rc != 0)
+        periksa("nilai --block-list lzcat bukan operand: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub934, ignore_errors=True)
         sub935 = klon(tmp, "sub935")
         berkas_aksi935 = os.path.join(
@@ -20020,7 +20020,7 @@ def main():
             f.write(isi_baru935)
         rc, out = jalan(sub935,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --block-list unlzma bukan operand: gerbang gagal (Audit 1839)", rc != 0)
+        periksa("nilai --block-list unlzma bukan operand: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub935, ignore_errors=True)
         sub936 = klon(tmp, "sub936")
         berkas_aksi936 = os.path.join(
@@ -20041,7 +20041,7 @@ def main():
             f.write(isi_baru936)
         rc, out = jalan(sub936,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --memlimit xz bukan operand: gerbang gagal (Audit 1840)", rc != 0)
+        periksa("nilai --memlimit xz bukan operand: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub936, ignore_errors=True)
         sub937 = klon(tmp, "sub937")
         berkas_aksi937 = os.path.join(
@@ -20062,7 +20062,7 @@ def main():
             f.write(isi_baru937)
         rc, out = jalan(sub937,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("keluarga --memlimit xz seragam di semua entri: gerbang gagal (Audit 1840)", rc != 0)
+        periksa("keluarga --memlimit xz seragam di semua entri: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub937, ignore_errors=True)
         sub938 = klon(tmp, "sub938")
         berkas_aksi938 = os.path.join(
@@ -20083,7 +20083,7 @@ def main():
             f.write(isi_baru938)
         rc, out = jalan(sub938,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("unxz memuat --memlimit-compress: gerbang gagal (Audit 1840)", rc != 0)
+        periksa("unxz memuat --memlimit-compress: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub938, ignore_errors=True)
         sub939 = klon(tmp, "sub939")
         berkas_aksi939 = os.path.join(
@@ -20104,7 +20104,7 @@ def main():
             f.write(isi_baru939)
         rc, out = jalan(sub939,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lzma memuat --memlimit: gerbang gagal (Audit 1840)", rc != 0)
+        periksa("lzma memuat --memlimit: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub939, ignore_errors=True)
         sub940 = klon(tmp, "sub940")
         berkas_aksi940 = os.path.join(
@@ -20125,7 +20125,7 @@ def main():
             f.write(isi_baru940)
         rc, out = jalan(sub940,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xzcat memuat --memlimit-decompress: gerbang gagal (Audit 1840)", rc != 0)
+        periksa("xzcat memuat --memlimit-decompress: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub940, ignore_errors=True)
         sub941 = klon(tmp, "sub941")
         berkas_aksi941 = os.path.join(
@@ -20146,7 +20146,7 @@ def main():
             f.write(isi_baru941)
         rc, out = jalan(sub941,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("unlzma memuat --memlimit: gerbang gagal (Audit 1840)", rc != 0)
+        periksa("unlzma memuat --memlimit: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub941, ignore_errors=True)
         sub942 = klon(tmp, "sub942")
         berkas_aksi942 = os.path.join(
@@ -20167,7 +20167,7 @@ def main():
             f.write(isi_baru942)
         rc, out = jalan(sub942,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-C unxz bernilai nama checksum: gerbang gagal (Audit 1841)", rc != 0)
+        periksa("-C unxz bernilai nama checksum: gerbang gagal (Audit 1841)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub942, ignore_errors=True)
         sub943 = klon(tmp, "sub943")
         berkas_aksi943 = os.path.join(
@@ -20188,7 +20188,7 @@ def main():
             f.write(isi_baru943)
         rc, out = jalan(sub943,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--check xzcat bernilai: gerbang gagal (Audit 1841)", rc != 0)
+        periksa("--check xzcat bernilai: gerbang gagal (Audit 1841)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub943, ignore_errors=True)
         sub944 = klon(tmp, "sub944")
         berkas_aksi944 = os.path.join(
@@ -20209,7 +20209,7 @@ def main():
             f.write(isi_baru944)
         rc, out = jalan(sub944,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("unlzma entri penuh menyamai lzma - -T bernilai: gerbang gagal (Audit 1842)", rc != 0)
+        periksa("unlzma entri penuh menyamai lzma - -T bernilai: gerbang gagal (Audit 1842)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub944, ignore_errors=True)
         sub945 = klon(tmp, "sub945")
         berkas_aksi945 = os.path.join(
@@ -20230,7 +20230,7 @@ def main():
             f.write(isi_baru945)
         rc, out = jalan(sub945,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--threads unlzma bernilai: gerbang gagal (Audit 1842)", rc != 0)
+        periksa("--threads unlzma bernilai: gerbang gagal (Audit 1842)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub945, ignore_errors=True)
         sub946 = klon(tmp, "sub946")
         berkas_aksi946 = os.path.join(
@@ -20251,7 +20251,7 @@ def main():
             f.write(isi_baru946)
         rc, out = jalan(sub946,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-C unlzma bernilai: gerbang gagal (Audit 1842)", rc != 0)
+        periksa("-C unlzma bernilai: gerbang gagal (Audit 1842)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub946, ignore_errors=True)
         sub947 = klon(tmp, "sub947")
         berkas_aksi947 = os.path.join(
@@ -20272,7 +20272,7 @@ def main():
             f.write(isi_baru947)
         rc, out = jalan(sub947,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-o derdump berkas keluaran bernilai - tanpa operand ia membaca stdin: gerbang gagal (Audit 1843)", rc != 0)
+        periksa("-o derdump berkas keluaran bernilai - tanpa operand ia membaca stdin: gerbang gagal (Audit 1843)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub947, ignore_errors=True)
         sub948 = klon(tmp, "sub948")
         berkas_aksi948 = os.path.join(
@@ -20293,7 +20293,7 @@ def main():
             f.write(isi_baru948)
         rc, out = jalan(sub948,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("unbrotli berbagi entri brotli - -o bernilai: gerbang gagal (Audit 1844)", rc != 0)
+        periksa("unbrotli berbagi entri brotli - -o bernilai: gerbang gagal (Audit 1844)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub948, ignore_errors=True)
         sub949 = klon(tmp, "sub949")
         berkas_aksi949 = os.path.join(
@@ -20314,7 +20314,7 @@ def main():
             f.write(isi_baru949)
         rc, out = jalan(sub949,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-w unbrotli bernilai: gerbang gagal (Audit 1844)", rc != 0)
+        periksa("-w unbrotli bernilai: gerbang gagal (Audit 1844)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub949, ignore_errors=True)
         sub950 = klon(tmp, "sub950")
         berkas_aksi950 = os.path.join(
@@ -20335,7 +20335,7 @@ def main():
             f.write(isi_baru950)
         rc, out = jalan(sub950,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("brcat berbagi entri brotli: gerbang gagal (Audit 1844)", rc != 0)
+        periksa("brcat berbagi entri brotli: gerbang gagal (Audit 1844)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub950, ignore_errors=True)
         sub951 = klon(tmp, "sub951")
         berkas_aksi951 = os.path.join(
@@ -20356,7 +20356,7 @@ def main():
             f.write(isi_baru951)
         rc, out = jalan(sub951,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lbzcat berbagi entri lbzip2 - -n bernilai: gerbang gagal (Audit 1845, dikoreksi Audit 1866)", rc != 0)
+        periksa("lbzcat berbagi entri lbzip2 - -n bernilai: gerbang gagal (Audit 1845, dikoreksi Audit 1866)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub951, ignore_errors=True)
         sub952 = klon(tmp, "sub952")
         berkas_aksi952 = os.path.join(
@@ -20377,7 +20377,7 @@ def main():
             f.write(isi_baru952)
         rc, out = jalan(sub952,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("lbunzip2 berbagi entri lbzip2 - -n bernilai: gerbang gagal (Audit 1845, dikoreksi Audit 1866)", rc != 0)
+        periksa("lbunzip2 berbagi entri lbzip2 - -n bernilai: gerbang gagal (Audit 1845, dikoreksi Audit 1866)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub952, ignore_errors=True)
         sub953 = klon(tmp, "sub953")
         berkas_aksi953 = os.path.join(
@@ -20419,7 +20419,7 @@ def main():
             f.write(isi_baru954)
         rc, out = jalan(sub954,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-o lziprecover berkas keluaran bernilai - tanpa FILE ia mendekompresi stdin: gerbang gagal (Audit 1846)", rc != 0)
+        periksa("-o lziprecover berkas keluaran bernilai - tanpa FILE ia mendekompresi stdin: gerbang gagal (Audit 1846)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub954, ignore_errors=True)
         sub955 = klon(tmp, "sub955")
         berkas_aksi955 = os.path.join(
@@ -20440,7 +20440,7 @@ def main():
             f.write(isi_baru955)
         rc, out = jalan(sub955,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--output lziprecover bernilai: gerbang gagal (Audit 1846)", rc != 0)
+        periksa("--output lziprecover bernilai: gerbang gagal (Audit 1846)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub955, ignore_errors=True)
         sub956 = klon(tmp, "sub956")
         berkas_aksi956 = os.path.join(
@@ -20461,7 +20461,7 @@ def main():
             f.write(isi_baru956)
         rc, out = jalan(sub956,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--output-dir-flat zstd bernilai direktori: gerbang gagal (Audit 1847)", rc != 0)
+        periksa("--output-dir-flat zstd bernilai direktori: gerbang gagal (Audit 1847)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub956, ignore_errors=True)
         sub957 = klon(tmp, "sub957")
         berkas_aksi957 = os.path.join(
@@ -20482,7 +20482,7 @@ def main():
             f.write(isi_baru957)
         rc, out = jalan(sub957,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--patch-from zstd bernilai berkas rujukan: gerbang gagal (Audit 1847)", rc != 0)
+        periksa("--patch-from zstd bernilai berkas rujukan: gerbang gagal (Audit 1847)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub957, ignore_errors=True)
         sub958 = klon(tmp, "sub958")
         berkas_aksi958 = os.path.join(
@@ -20503,7 +20503,7 @@ def main():
             f.write(isi_baru958)
         rc, out = jalan(sub958,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("unzstd memuat --output-dir-flat: gerbang gagal (Audit 1847)", rc != 0)
+        periksa("unzstd memuat --output-dir-flat: gerbang gagal (Audit 1847)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub958, ignore_errors=True)
         sub959 = klon(tmp, "sub959")
         berkas_aksi959 = os.path.join(
@@ -20524,7 +20524,7 @@ def main():
             f.write(isi_baru959)
         rc, out = jalan(sub959,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("zstdmt memuat --output-dir-mirror: gerbang gagal (Audit 1847)", rc != 0)
+        periksa("zstdmt memuat --output-dir-mirror: gerbang gagal (Audit 1847)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub959, ignore_errors=True)
         sub960 = klon(tmp, "sub960")
         berkas_aksi960 = os.path.join(
@@ -20545,7 +20545,7 @@ def main():
             f.write(isi_baru960)
         rc, out = jalan(sub960,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("zstdcat memuat --output-dir-flat: gerbang gagal (Audit 1847)", rc != 0)
+        periksa("zstdcat memuat --output-dir-flat: gerbang gagal (Audit 1847)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub960, ignore_errors=True)
         sub961 = klon(tmp, "sub961")
         berkas_aksi961 = os.path.join(
@@ -20608,7 +20608,7 @@ def main():
             f.write(isi_baru963)
         rc, out = jalan(sub963,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--from - mlr berarti stdin: gerbang gagal (Audit 1848)", rc != 0)
+        periksa("--from - mlr berarti stdin: gerbang gagal (Audit 1848)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub963, ignore_errors=True)
         sub964 = klon(tmp, "sub964")
         berkas_aksi964 = os.path.join(
@@ -20629,7 +20629,7 @@ def main():
             f.write(isi_baru964)
         rc, out = jalan(sub964,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --ofmt mlr ditelan, bukan berkas: gerbang gagal (Audit 1849)", rc != 0)
+        periksa("nilai --ofmt mlr ditelan, bukan berkas: gerbang gagal (Audit 1849)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub964, ignore_errors=True)
         sub965 = klon(tmp, "sub965")
         berkas_aksi965 = os.path.join(
@@ -20650,7 +20650,7 @@ def main():
             f.write(isi_baru965)
         rc, out = jalan(sub965,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --seed mlr ditelan sebelum kata kerja: gerbang gagal (Audit 1849)", rc != 0)
+        periksa("nilai --seed mlr ditelan sebelum kata kerja: gerbang gagal (Audit 1849)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub965, ignore_errors=True)
         sub966 = klon(tmp, "sub966")
         berkas_aksi966 = os.path.join(
@@ -20671,7 +20671,7 @@ def main():
             f.write(isi_baru966)
         rc, out = jalan(sub966,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --tz mlr ditelan: gerbang gagal (Audit 1849)", rc != 0)
+        periksa("nilai --tz mlr ditelan: gerbang gagal (Audit 1849)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub966, ignore_errors=True)
         sub967 = klon(tmp, "sub967")
         berkas_aksi967 = os.path.join(
@@ -20692,7 +20692,7 @@ def main():
             f.write(isi_baru967)
         rc, out = jalan(sub967,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--load mlr berkas skrip DSL dan operand put ekspresi - tanpa berkas masukan membaca stdin: gerbang gagal (Audit 1849)", rc != 0)
+        periksa("--load mlr berkas skrip DSL dan operand put ekspresi - tanpa berkas masukan membaca stdin: gerbang gagal (Audit 1849)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub967, ignore_errors=True)
         sub968 = klon(tmp, "sub968")
         berkas_aksi968 = os.path.join(
@@ -20713,7 +20713,7 @@ def main():
             f.write(isi_baru968)
         rc, out = jalan(sub968,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand pertama put adalah ekspresi DSL, bukan berkas: gerbang gagal (Audit 1849)", rc != 0)
+        periksa("operand pertama put adalah ekspresi DSL, bukan berkas: gerbang gagal (Audit 1849)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub968, ignore_errors=True)
         sub969 = klon(tmp, "sub969")
         berkas_aksi969 = os.path.join(
@@ -20755,7 +20755,7 @@ def main():
             f.write(isi_baru970)
         rc, out = jalan(sub970,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai harfiah stdin pada -f dasel berarti stdin: gerbang gagal (Audit 1850)", rc != 0)
+        periksa("nilai harfiah stdin pada -f dasel berarti stdin: gerbang gagal (Audit 1850)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub970, ignore_errors=True)
         sub971 = klon(tmp, "sub971")
         berkas_aksi971 = os.path.join(
@@ -20776,7 +20776,7 @@ def main():
             f.write(isi_baru971)
         rc, out = jalan(sub971,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--file=stdin dasel berarti stdin: gerbang gagal (Audit 1850)", rc != 0)
+        periksa("--file=stdin dasel berarti stdin: gerbang gagal (Audit 1850)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub971, ignore_errors=True)
         sub972 = klon(tmp, "sub972")
         berkas_aksi972 = os.path.join(
@@ -20818,7 +20818,7 @@ def main():
             f.write(isi_baru973)
         rc, out = jalan(sub973,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("yq -f = --front-matter, bukan from-file: 'yq -f -' membaca stdin: gerbang menolak (Audit 1851, dibalik Audit 2500)", rc != 0)
+        periksa("yq -f = --front-matter, bukan from-file: 'yq -f -' membaca stdin: gerbang menolak (Audit 1851, dibalik Audit 2500)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub973, ignore_errors=True)
         sub974 = klon(tmp, "sub974")
         berkas_aksi974 = os.path.join(
@@ -20860,7 +20860,7 @@ def main():
             f.write(isi_baru975)
         rc, out = jalan(sub975,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-S xz bernilai sufiks - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1852)", rc != 0)
+        periksa("-S xz bernilai sufiks - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1852)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub975, ignore_errors=True)
         sub976 = klon(tmp, "sub976")
         berkas_aksi976 = os.path.join(
@@ -20881,7 +20881,7 @@ def main():
             f.write(isi_baru976)
         rc, out = jalan(sub976,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--suffix xz bernilai menyamai saudara xz lain: gerbang gagal (Audit 1852)", rc != 0)
+        periksa("--suffix xz bernilai menyamai saudara xz lain: gerbang gagal (Audit 1852)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub976, ignore_errors=True)
         sub977 = klon(tmp, "sub977")
         berkas_aksi977 = os.path.join(
@@ -20902,7 +20902,7 @@ def main():
             f.write(isi_baru977)
         rc, out = jalan(sub977,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--block-size unxz bernilai menyamai keluarga xz: gerbang gagal (Audit 1853)", rc != 0)
+        periksa("--block-size unxz bernilai menyamai keluarga xz: gerbang gagal (Audit 1853)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub977, ignore_errors=True)
         sub978 = klon(tmp, "sub978")
         berkas_aksi978 = os.path.join(
@@ -20944,7 +20944,7 @@ def main():
             f.write(isi_baru979)
         rc, out = jalan(sub979,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-o derdump berkas keluaran - tanpa -i ia membaca stdin: gerbang gagal (Audit 1854)", rc != 0)
+        periksa("-o derdump berkas keluaran - tanpa -i ia membaca stdin: gerbang gagal (Audit 1854)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub979, ignore_errors=True)
         sub980 = klon(tmp, "sub980")
         berkas_aksi980 = os.path.join(
@@ -20986,7 +20986,7 @@ def main():
             f.write(isi_baru981)
         rc, out = jalan(sub981,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--files - mlr berarti stdin: gerbang gagal (Audit 1855)", rc != 0)
+        periksa("--files - mlr berarti stdin: gerbang gagal (Audit 1855)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub981, ignore_errors=True)
         sub982 = klon(tmp, "sub982")
         berkas_aksi982 = os.path.join(
@@ -21007,7 +21007,7 @@ def main():
             f.write(isi_baru982)
         rc, out = jalan(sub982,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nilai --ifs mlr pemisah bernilai, ditelan sebelum kata kerja: gerbang gagal (Audit 1856)", rc != 0)
+        periksa("nilai --ifs mlr pemisah bernilai, ditelan sebelum kata kerja: gerbang gagal (Audit 1856)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub982, ignore_errors=True)
         sub983 = klon(tmp, "sub983")
         berkas_aksi983 = os.path.join(
@@ -21028,7 +21028,7 @@ def main():
             f.write(isi_baru983)
         rc, out = jalan(sub983,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--ofs mlr bernilai pemisah: gerbang gagal (Audit 1856)", rc != 0)
+        periksa("--ofs mlr bernilai pemisah: gerbang gagal (Audit 1856)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub983, ignore_errors=True)
         sub984 = klon(tmp, "sub984")
         berkas_aksi984 = os.path.join(
@@ -21049,7 +21049,7 @@ def main():
             f.write(isi_baru984)
         rc, out = jalan(sub984,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--rs mlr bernilai pemisah: gerbang gagal (Audit 1856)", rc != 0)
+        periksa("--rs mlr bernilai pemisah: gerbang gagal (Audit 1856)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub984, ignore_errors=True)
         sub985 = klon(tmp, "sub985")
         berkas_aksi985 = os.path.join(
@@ -21070,7 +21070,7 @@ def main():
             f.write(isi_baru985)
         rc, out = jalan(sub985,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--ips-regex mlr bernilai pola pemisah: gerbang gagal (Audit 1856)", rc != 0)
+        periksa("--ips-regex mlr bernilai pola pemisah: gerbang gagal (Audit 1856)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub985, ignore_errors=True)
         sub986 = klon(tmp, "sub986")
         berkas_aksi986 = os.path.join(
@@ -21091,7 +21091,7 @@ def main():
             f.write(isi_baru986)
         rc, out = jalan(sub986,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bentuk -f=stdin dasel (pflag) berarti stdin: gerbang gagal (Audit 1857)", rc != 0)
+        periksa("bentuk -f=stdin dasel (pflag) berarti stdin: gerbang gagal (Audit 1857)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub986, ignore_errors=True)
         sub987 = klon(tmp, "sub987")
         berkas_aksi987 = os.path.join(
@@ -21112,7 +21112,7 @@ def main():
             f.write(isi_baru987)
         rc, out = jalan(sub987,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--patch-from berlaku juga di mode dekompresi unzstd: gerbang gagal (Audit 1858)", rc != 0)
+        periksa("--patch-from berlaku juga di mode dekompresi unzstd: gerbang gagal (Audit 1858)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub987, ignore_errors=True)
         sub988 = klon(tmp, "sub988")
         berkas_aksi988 = os.path.join(
@@ -21133,7 +21133,7 @@ def main():
             f.write(isi_baru988)
         rc, out = jalan(sub988,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--patch-from berlaku juga di zstdcat: gerbang gagal (Audit 1858)", rc != 0)
+        periksa("--patch-from berlaku juga di zstdcat: gerbang gagal (Audit 1858)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub988, ignore_errors=True)
         sub989 = klon(tmp, "sub989")
         berkas_aksi989 = os.path.join(
@@ -21154,7 +21154,7 @@ def main():
             f.write(isi_baru989)
         rc, out = jalan(sub989,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-s c++filt bernilai gaya demangling - tanpa operand ia membaca stdin: gerbang gagal (Audit 1859)", rc != 0)
+        periksa("-s c++filt bernilai gaya demangling - tanpa operand ia membaca stdin: gerbang gagal (Audit 1859)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub989, ignore_errors=True)
         sub990 = klon(tmp, "sub990")
         berkas_aksi990 = os.path.join(
@@ -21175,7 +21175,7 @@ def main():
             f.write(isi_baru990)
         rc, out = jalan(sub990,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--format c++filt bernilai: gerbang gagal (Audit 1859)", rc != 0)
+        periksa("--format c++filt bernilai: gerbang gagal (Audit 1859)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub990, ignore_errors=True)
         sub991 = klon(tmp, "sub991")
         berkas_aksi991 = os.path.join(
@@ -21196,7 +21196,7 @@ def main():
             f.write(isi_baru991)
         rc, out = jalan(sub991,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-o utmpdump berkas keluaran - sumber bawaannya stdin: gerbang gagal (Audit 1860)", rc != 0)
+        periksa("-o utmpdump berkas keluaran - sumber bawaannya stdin: gerbang gagal (Audit 1860)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub991, ignore_errors=True)
         sub992 = klon(tmp, "sub992")
         berkas_aksi992 = os.path.join(
@@ -21217,7 +21217,7 @@ def main():
             f.write(isi_baru992)
         rc, out = jalan(sub992,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--timeout pinentry bernilai detik - ia membaca perintah Assuan dari stdin: gerbang gagal (Audit 1861)", rc != 0)
+        periksa("--timeout pinentry bernilai detik - ia membaca perintah Assuan dari stdin: gerbang gagal (Audit 1861)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub992, ignore_errors=True)
         sub993 = klon(tmp, "sub993")
         berkas_aksi993 = os.path.join(
@@ -21238,7 +21238,7 @@ def main():
             f.write(isi_baru993)
         rc, out = jalan(sub993,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--display pinentry-curses bernilai - berbagi opsi pinentry: gerbang gagal (Audit 1862)", rc != 0)
+        periksa("--display pinentry-curses bernilai - berbagi opsi pinentry: gerbang gagal (Audit 1862)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub993, ignore_errors=True)
         sub994 = klon(tmp, "sub994")
         berkas_aksi994 = os.path.join(
@@ -21259,7 +21259,7 @@ def main():
             f.write(isi_baru994)
         rc, out = jalan(sub994,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--homedir gpg-connect-agent bernilai - ia membaca perintah dari stdin: gerbang gagal (Audit 1863)", rc != 0)
+        periksa("--homedir gpg-connect-agent bernilai - ia membaca perintah dari stdin: gerbang gagal (Audit 1863)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub994, ignore_errors=True)
         sub995 = klon(tmp, "sub995")
         berkas_aksi995 = os.path.join(
@@ -21280,7 +21280,7 @@ def main():
             f.write(isi_baru995)
         rc, out = jalan(sub995,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mode --server dirmngr membaca perintah Assuan dari stdin, --homedir bernilai: gerbang gagal (Audit 1864)", rc != 0)
+        periksa("mode --server dirmngr membaca perintah Assuan dari stdin, --homedir bernilai: gerbang gagal (Audit 1864)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub995, ignore_errors=True)
         sub996 = klon(tmp, "sub996")
         berkas_aksi996 = os.path.join(
@@ -21301,7 +21301,7 @@ def main():
             f.write(isi_baru996)
         rc, out = jalan(sub996,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-s memaksa cpan masuk mode shell yang membaca perintah dari stdin: gerbang gagal (Audit 1865)", rc != 0)
+        periksa("-s memaksa cpan masuk mode shell yang membaca perintah dari stdin: gerbang gagal (Audit 1865)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub996, ignore_errors=True)
         sub997 = klon(tmp, "sub997")
         berkas_aksi997 = os.path.join(
@@ -21343,7 +21343,7 @@ def main():
             f.write(isi_baru998)
         rc, out = jalan(sub998,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-n lbzip2 satu-satunya opsi bernilai (jumlah benang): gerbang gagal (Audit 1866)", rc != 0)
+        periksa("-n lbzip2 satu-satunya opsi bernilai (jumlah benang): gerbang gagal (Audit 1866)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub998, ignore_errors=True)
         sub999 = klon(tmp, "sub999")
         berkas_aksi999 = os.path.join(
@@ -21385,7 +21385,7 @@ def main():
             f.write(isi_baru1000)
         rc, out = jalan(sub1000,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-B/--data-size plzip bernilai: gerbang gagal (Audit 1867)", rc != 0)
+        periksa("-B/--data-size plzip bernilai: gerbang gagal (Audit 1867)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1000, ignore_errors=True)
         sub1001 = klon(tmp, "sub1001")
         berkas_aksi1001 = os.path.join(
@@ -21427,7 +21427,7 @@ def main():
             f.write(isi_baru1002)
         rc, out = jalan(sub1002,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-o zstdcat berkas keluaran dari manual bersama zstd: gerbang gagal (Audit 1868)", rc != 0)
+        periksa("-o zstdcat berkas keluaran dari manual bersama zstd: gerbang gagal (Audit 1868)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1002, ignore_errors=True)
         sub1003 = klon(tmp, "sub1003")
         berkas_aksi1003 = os.path.join(
@@ -21448,7 +21448,7 @@ def main():
             f.write(isi_baru1003)
         rc, out = jalan(sub1003,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-X/--index pigz bernilai berkas indeks: gerbang gagal (Audit 1869)", rc != 0)
+        periksa("-X/--index pigz bernilai berkas indeks: gerbang gagal (Audit 1869)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1003, ignore_errors=True)
         sub1004 = klon(tmp, "sub1004")
         berkas_aksi1004 = os.path.join(
@@ -21469,7 +21469,7 @@ def main():
             f.write(isi_baru1004)
         rc, out = jalan(sub1004,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--index unpigz bernilai menyamai pigz: gerbang gagal (Audit 1869)", rc != 0)
+        periksa("--index unpigz bernilai menyamai pigz: gerbang gagal (Audit 1869)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1004, ignore_errors=True)
         sub1005 = klon(tmp, "sub1005")
         berkas_aksi1005 = os.path.join(
@@ -21511,7 +21511,7 @@ def main():
             f.write(isi_baru1006)
         rc, out = jalan(sub1006,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-c/--crypt-method newusers bernilai menyamai chpasswd: gerbang gagal (Audit 1871)", rc != 0)
+        periksa("-c/--crypt-method newusers bernilai menyamai chpasswd: gerbang gagal (Audit 1871)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1006, ignore_errors=True)
         sub1007 = klon(tmp, "sub1007")
         berkas_aksi1007 = os.path.join(
@@ -21532,7 +21532,7 @@ def main():
             f.write(isi_baru1007)
         rc, out = jalan(sub1007,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("doas pembungkus pewaris stdin sekelas sudo: gerbang gagal (Audit 1872)", rc != 0)
+        periksa("doas pembungkus pewaris stdin sekelas sudo: gerbang gagal (Audit 1872)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1007, ignore_errors=True)
         sub1008 = klon(tmp, "sub1008")
         berkas_aksi1008 = os.path.join(
@@ -21553,7 +21553,7 @@ def main():
             f.write(isi_baru1008)
         rc, out = jalan(sub1008,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("watch meneruskan stdin ke anaknya, -n bernilai selang: gerbang gagal (Audit 1873)", rc != 0)
+        periksa("watch meneruskan stdin ke anaknya, -n bernilai selang: gerbang gagal (Audit 1873)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1008, ignore_errors=True)
         sub1009 = klon(tmp, "sub1009")
         berkas_aksi1009 = os.path.join(
@@ -21574,7 +21574,7 @@ def main():
             f.write(isi_baru1009)
         rc, out = jalan(sub1009,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--pipe systemd-run mewarisi stdio pemanggil seperti --scope: gerbang gagal (Audit 1874)", rc != 0)
+        periksa("--pipe systemd-run mewarisi stdio pemanggil seperti --scope: gerbang gagal (Audit 1874)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1009, ignore_errors=True)
         sub1010 = klon(tmp, "sub1010")
         berkas_aksi1010 = os.path.join(
@@ -21595,7 +21595,7 @@ def main():
             f.write(isi_baru1010)
         rc, out = jalan(sub1010,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("perintah sesudah & tunggal adalah segmen sendiri: gerbang gagal (Audit 1875)", rc != 0)
+        periksa("perintah sesudah & tunggal adalah segmen sendiri: gerbang gagal (Audit 1875)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1010, ignore_errors=True)
         sub1012 = klon(tmp, "sub1012")
         berkas_aksi1012 = os.path.join(
@@ -21658,7 +21658,7 @@ def main():
             f.write(isi_baru1014)
         rc, out = jalan(sub1014,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bundel watch -tn: -n di ujung menelan nilai: gerbang gagal (Audit 1877)", rc != 0)
+        periksa("bundel watch -tn: -n di ujung menelan nilai: gerbang gagal (Audit 1877)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1014, ignore_errors=True)
         sub1015 = klon(tmp, "sub1015")
         berkas_aksi1015 = os.path.join(
@@ -21700,7 +21700,7 @@ def main():
             f.write(isi_baru1016)
         rc, out = jalan(sub1016,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-s tail bernilai (interval tidur): gerbang gagal (Audit 1878)", rc != 0)
+        periksa("-s tail bernilai (interval tidur): gerbang gagal (Audit 1878)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1016, ignore_errors=True)
         sub1017 = klon(tmp, "sub1017")
         berkas_aksi1017 = os.path.join(
@@ -21742,7 +21742,7 @@ def main():
             f.write(isi_baru1018)
         rc, out = jalan(sub1018,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--json curl opsi data - @- dari stdin: gerbang gagal (Audit 1880)", rc != 0)
+        periksa("--json curl opsi data - @- dari stdin: gerbang gagal (Audit 1880)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1018, ignore_errors=True)
         sub1019 = klon(tmp, "sub1019")
         berkas_aksi1019 = os.path.join(
@@ -21763,7 +21763,7 @@ def main():
             f.write(isi_baru1019)
         rc, out = jalan(sub1019,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ssh meneruskan stdin ke sesi jauh: gerbang gagal (Audit 1881)", rc != 0)
+        periksa("ssh meneruskan stdin ke sesi jauh: gerbang gagal (Audit 1881)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1019, ignore_errors=True)
         sub1020 = klon(tmp, "sub1020")
         berkas_aksi1020 = os.path.join(
@@ -21847,7 +21847,7 @@ def main():
             f.write(isi_baru1023)
         rc, out = jalan(sub1023,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("rsh meneruskan stdin ke perintah jauh: gerbang gagal (Audit 1894)", rc != 0)
+        periksa("rsh meneruskan stdin ke perintah jauh: gerbang gagal (Audit 1894)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1023, ignore_errors=True)
         sub1024 = klon(tmp, "sub1024")
         berkas_aksi1024 = os.path.join(
@@ -21868,7 +21868,7 @@ def main():
             f.write(isi_baru1024)
         rc, out = jalan(sub1024,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mosquitto_pub -s membaca pesan dari stdin: gerbang gagal (Audit 1895)", rc != 0)
+        periksa("mosquitto_pub -s membaca pesan dari stdin: gerbang gagal (Audit 1895)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1024, ignore_errors=True)
         sub1025 = klon(tmp, "sub1025")
         berkas_aksi1025 = os.path.join(
@@ -21889,7 +21889,7 @@ def main():
             f.write(isi_baru1025)
         rc, out = jalan(sub1025,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("grpcurl -d @ membaca badan dari stdin: gerbang gagal (Audit 1896)", rc != 0)
+        periksa("grpcurl -d @ membaca badan dari stdin: gerbang gagal (Audit 1896)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1025, ignore_errors=True)
         sub1026 = klon(tmp, "sub1026")
         berkas_aksi1026 = os.path.join(
@@ -21910,7 +21910,7 @@ def main():
             f.write(isi_baru1026)
         rc, out = jalan(sub1026,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("kubectl exec -i meneruskan stdin: gerbang gagal (Audit 1897)", rc != 0)
+        periksa("kubectl exec -i meneruskan stdin: gerbang gagal (Audit 1897)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1026, ignore_errors=True)
         sub1027 = klon(tmp, "sub1027")
         berkas_aksi1027 = os.path.join(
@@ -21931,7 +21931,7 @@ def main():
             f.write(isi_baru1027)
         rc, out = jalan(sub1027,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("docker exec -i meneruskan stdin: gerbang gagal (Audit 1898)", rc != 0)
+        periksa("docker exec -i meneruskan stdin: gerbang gagal (Audit 1898)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1027, ignore_errors=True)
         sub1028 = klon(tmp, "sub1028")
         berkas_aksi1028 = os.path.join(
@@ -21952,7 +21952,7 @@ def main():
             f.write(isi_baru1028)
         rc, out = jalan(sub1028,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("podman run -i mengonsumsi stdin: gerbang gagal (Audit 1899)", rc != 0)
+        periksa("podman run -i mengonsumsi stdin: gerbang gagal (Audit 1899)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1028, ignore_errors=True)
         sub1029 = klon(tmp, "sub1029")
         berkas_aksi1029 = os.path.join(
@@ -21973,7 +21973,7 @@ def main():
             f.write(isi_baru1029)
         rc, out = jalan(sub1029,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("terraform console membaca perintah dari stdin: gerbang gagal (Audit 1900)", rc != 0)
+        periksa("terraform console membaca perintah dari stdin: gerbang gagal (Audit 1900)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1029, ignore_errors=True)
         sub1030 = klon(tmp, "sub1030")
         berkas_aksi1030 = os.path.join(
@@ -21994,7 +21994,7 @@ def main():
             f.write(isi_baru1030)
         rc, out = jalan(sub1030,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("websocat klien sederhana meneruskan stdin: gerbang gagal (Audit 1901)", rc != 0)
+        periksa("websocat klien sederhana meneruskan stdin: gerbang gagal (Audit 1901)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1030, ignore_errors=True)
         sub1031 = klon(tmp, "sub1031")
         berkas_aksi1031 = os.path.join(
@@ -22015,7 +22015,7 @@ def main():
             f.write(isi_baru1031)
         rc, out = jalan(sub1031,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("redis-cli polos terpipa membaca perintah dari stdin: gerbang gagal (Audit 1902)", rc != 0)
+        periksa("redis-cli polos terpipa membaca perintah dari stdin: gerbang gagal (Audit 1902)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1031, ignore_errors=True)
         sub1032 = klon(tmp, "sub1032")
         berkas_aksi1032 = os.path.join(
@@ -22036,7 +22036,7 @@ def main():
             f.write(isi_baru1032)
         rc, out = jalan(sub1032,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("psql -f - membaca stdin: gerbang gagal (Audit 1903)", rc != 0)
+        periksa("psql -f - membaca stdin: gerbang gagal (Audit 1903)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1032, ignore_errors=True)
         sub1033 = klon(tmp, "sub1033")
         berkas_aksi1033 = os.path.join(
@@ -22057,7 +22057,7 @@ def main():
             f.write(isi_baru1033)
         rc, out = jalan(sub1033,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mysql polos terpipa membaca stdin: gerbang gagal (Audit 1904)", rc != 0)
+        periksa("mysql polos terpipa membaca stdin: gerbang gagal (Audit 1904)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1033, ignore_errors=True)
         sub1034 = klon(tmp, "sub1034")
         berkas_aksi1034 = os.path.join(
@@ -22078,7 +22078,7 @@ def main():
             f.write(isi_baru1034)
         rc, out = jalan(sub1034,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mariadb polos terpipa membaca stdin: gerbang gagal (Audit 1905)", rc != 0)
+        periksa("mariadb polos terpipa membaca stdin: gerbang gagal (Audit 1905)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1034, ignore_errors=True)
         sub1035 = klon(tmp, "sub1035")
         berkas_aksi1035 = os.path.join(
@@ -22246,7 +22246,7 @@ def main():
             f.write(isi_baru1042)
         rc, out = jalan(sub1042,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("psql memproses -c/-f berurutan: -f - tetap membaca: gerbang gagal (Audit 1913)", rc != 0)
+        periksa("psql memproses -c/-f berurutan: -f - tetap membaca: gerbang gagal (Audit 1913)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1042, ignore_errors=True)
         sub1043 = klon(tmp, "sub1043")
         berkas_aksi1043 = os.path.join(
@@ -22309,7 +22309,7 @@ def main():
             f.write(isi_baru1045)
         rc, out = jalan(sub1045,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--interactive docker meneruskan stdin: gerbang gagal (Audit 1916)", rc != 0)
+        periksa("--interactive docker meneruskan stdin: gerbang gagal (Audit 1916)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1045, ignore_errors=True)
         sub1046 = klon(tmp, "sub1046")
         berkas_aksi1046 = os.path.join(
@@ -22372,7 +22372,7 @@ def main():
             f.write(isi_baru1048)
         rc, out = jalan(sub1048,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--interactive podman meneruskan stdin: gerbang gagal (Audit 1917)", rc != 0)
+        periksa("--interactive podman meneruskan stdin: gerbang gagal (Audit 1917)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1048, ignore_errors=True)
         sub1049 = klon(tmp, "sub1049")
         berkas_aksi1049 = os.path.join(
@@ -22435,7 +22435,7 @@ def main():
             f.write(isi_baru1051)
         rc, out = jalan(sub1051,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bundel -sl mosquitto_pub mode stdin: gerbang gagal (Audit 1922)", rc != 0)
+        periksa("bundel -sl mosquitto_pub mode stdin: gerbang gagal (Audit 1922)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1051, ignore_errors=True)
         sub1052 = klon(tmp, "sub1052")
         berkas_aksi1052 = os.path.join(
@@ -22477,7 +22477,7 @@ def main():
             f.write(isi_baru1053)
         rc, out = jalan(sub1053,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nerdctl run -i meneruskan stdin: gerbang gagal (Audit 1926)", rc != 0)
+        periksa("nerdctl run -i meneruskan stdin: gerbang gagal (Audit 1926)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1053, ignore_errors=True)
         sub1054 = klon(tmp, "sub1054")
         berkas_aksi1054 = os.path.join(
@@ -22498,7 +22498,7 @@ def main():
             f.write(isi_baru1054)
         rc, out = jalan(sub1054,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("oc exec -i meneruskan stdin: gerbang gagal (Audit 1927)", rc != 0)
+        periksa("oc exec -i meneruskan stdin: gerbang gagal (Audit 1927)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1054, ignore_errors=True)
         sub1055 = klon(tmp, "sub1055")
         berkas_aksi1055 = os.path.join(
@@ -22519,7 +22519,7 @@ def main():
             f.write(isi_baru1055)
         rc, out = jalan(sub1055,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("consul kv put '-' membaca nilai dari stdin: gerbang gagal (Audit 1928)", rc != 0)
+        periksa("consul kv put '-' membaca nilai dari stdin: gerbang gagal (Audit 1928)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1055, ignore_errors=True)
         sub1056 = klon(tmp, "sub1056")
         berkas_aksi1056 = os.path.join(
@@ -22540,7 +22540,7 @@ def main():
             f.write(isi_baru1056)
         rc, out = jalan(sub1056,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("vault kv put '-' membaca nilai dari stdin: gerbang gagal (Audit 1929)", rc != 0)
+        periksa("vault kv put '-' membaca nilai dari stdin: gerbang gagal (Audit 1929)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1056, ignore_errors=True)
         sub1057 = klon(tmp, "sub1057")
         berkas_aksi1057 = os.path.join(
@@ -22561,7 +22561,7 @@ def main():
             f.write(isi_baru1057)
         rc, out = jalan(sub1057,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("etcdctl put tanpa nilai membaca stdin: gerbang gagal (Audit 1930)", rc != 0)
+        periksa("etcdctl put tanpa nilai membaca stdin: gerbang gagal (Audit 1930)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1057, ignore_errors=True)
         sub1058 = klon(tmp, "sub1058")
         berkas_aksi1058 = os.path.join(
@@ -22582,7 +22582,7 @@ def main():
             f.write(isi_baru1058)
         rc, out = jalan(sub1058,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gh api --input - membaca badan dari stdin: gerbang gagal (Audit 1931)", rc != 0)
+        periksa("gh api --input - membaca badan dari stdin: gerbang gagal (Audit 1931)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1058, ignore_errors=True)
         sub1059 = klon(tmp, "sub1059")
         berkas_aksi1059 = os.path.join(
@@ -22603,7 +22603,7 @@ def main():
             f.write(isi_baru1059)
         rc, out = jalan(sub1059,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("glab api --input - membaca badan dari stdin: gerbang gagal (Audit 1932)", rc != 0)
+        periksa("glab api --input - membaca badan dari stdin: gerbang gagal (Audit 1932)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1059, ignore_errors=True)
         sub1060 = klon(tmp, "sub1060")
         berkas_aksi1060 = os.path.join(
@@ -22624,7 +22624,7 @@ def main():
             f.write(isi_baru1060)
         rc, out = jalan(sub1060,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("clickhouse-client polos membaca query dari stdin: gerbang gagal (Audit 1933)", rc != 0)
+        periksa("clickhouse-client polos membaca query dari stdin: gerbang gagal (Audit 1933)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1060, ignore_errors=True)
         sub1061 = klon(tmp, "sub1061")
         berkas_aksi1061 = os.path.join(
@@ -22645,7 +22645,7 @@ def main():
             f.write(isi_baru1061)
         rc, out = jalan(sub1061,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("aws s3 cp dari '-' mengunggah stdin: gerbang gagal (Audit 1934)", rc != 0)
+        periksa("aws s3 cp dari '-' mengunggah stdin: gerbang gagal (Audit 1934)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1061, ignore_errors=True)
         sub1062 = klon(tmp, "sub1062")
         berkas_aksi1062 = os.path.join(
@@ -22666,7 +22666,7 @@ def main():
             f.write(isi_baru1062)
         rc, out = jalan(sub1062,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gsutil cp dari '-' mengunggah stdin: gerbang gagal (Audit 1935)", rc != 0)
+        periksa("gsutil cp dari '-' mengunggah stdin: gerbang gagal (Audit 1935)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1062, ignore_errors=True)
         sub1063 = klon(tmp, "sub1063")
         berkas_aksi1063 = os.path.join(
@@ -22687,7 +22687,7 @@ def main():
             f.write(isi_baru1063)
         rc, out = jalan(sub1063,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gcloud storage cp dari '-' mengunggah stdin: gerbang gagal (Audit 1936)", rc != 0)
+        periksa("gcloud storage cp dari '-' mengunggah stdin: gerbang gagal (Audit 1936)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1063, ignore_errors=True)
         sub1064 = klon(tmp, "sub1064")
         berkas_aksi1064 = os.path.join(
@@ -22708,7 +22708,7 @@ def main():
             f.write(isi_baru1064)
         rc, out = jalan(sub1064,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("buildah build --stdin meneruskan stdin: gerbang gagal (Audit 1937)", rc != 0)
+        periksa("buildah build --stdin meneruskan stdin: gerbang gagal (Audit 1937)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1064, ignore_errors=True)
         sub1065 = klon(tmp, "sub1065")
         berkas_aksi1065 = os.path.join(
@@ -22729,7 +22729,7 @@ def main():
             f.write(isi_baru1065)
         rc, out = jalan(sub1065,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("skopeo copy dari /dev/stdin membaca aliran: gerbang gagal (Audit 1938)", rc != 0)
+        periksa("skopeo copy dari /dev/stdin membaca aliran: gerbang gagal (Audit 1938)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1065, ignore_errors=True)
         sub1066 = klon(tmp, "sub1066")
         berkas_aksi1066 = os.path.join(
@@ -22771,7 +22771,7 @@ def main():
             f.write(isi_baru1067)
         rc, out = jalan(sub1067,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("crictl exec -i meneruskan stdin: gerbang gagal (Audit 1940)", rc != 0)
+        periksa("crictl exec -i meneruskan stdin: gerbang gagal (Audit 1940)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1067, ignore_errors=True)
         sub1068 = klon(tmp, "sub1068")
         berkas_aksi1068 = os.path.join(
@@ -22792,7 +22792,7 @@ def main():
             f.write(isi_baru1068)
         rc, out = jalan(sub1068,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("clickhouse --query tetap menambahkan stdin: gerbang gagal (Audit 1941)", rc != 0)
+        periksa("clickhouse --query tetap menambahkan stdin: gerbang gagal (Audit 1941)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1068, ignore_errors=True)
         sub1069 = klon(tmp, "sub1069")
         berkas_aksi1069 = os.path.join(
@@ -22813,7 +22813,7 @@ def main():
             f.write(isi_baru1069)
         rc, out = jalan(sub1069,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("aws opsi global sebelum s3 cp dari '-': gerbang gagal (Audit 1942)", rc != 0)
+        periksa("aws opsi global sebelum s3 cp dari '-': gerbang gagal (Audit 1942)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1069, ignore_errors=True)
         sub1070 = klon(tmp, "sub1070")
         berkas_aksi1070 = os.path.join(
@@ -22834,7 +22834,7 @@ def main():
             f.write(isi_baru1070)
         rc, out = jalan(sub1070,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("'e' di nilai -p mysql bukan -e: gerbang gagal menguras (Audit 1943)", rc != 0)
+        periksa("'e' di nilai -p mysql bukan -e: gerbang gagal menguras (Audit 1943)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1070, ignore_errors=True)
         sub1071 = klon(tmp, "sub1071")
         berkas_aksi1071 = os.path.join(
@@ -22855,7 +22855,7 @@ def main():
             f.write(isi_baru1071)
         rc, out = jalan(sub1071,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("'e' di nilai -p mariadb bukan -e: gerbang gagal menguras (Audit 1944)", rc != 0)
+        periksa("'e' di nilai -p mariadb bukan -e: gerbang gagal menguras (Audit 1944)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1071, ignore_errors=True)
         sub1072 = klon(tmp, "sub1072")
         berkas_aksi1072 = os.path.join(
@@ -22981,7 +22981,7 @@ def main():
             f.write(isi_baru1077)
         rc, out = jalan(sub1077,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("rclone rcat menyalin stdin: gerbang gagal (Audit 1950)", rc != 0)
+        periksa("rclone rcat menyalin stdin: gerbang gagal (Audit 1950)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1077, ignore_errors=True)
         sub1078 = klon(tmp, "sub1078")
         berkas_aksi1078 = os.path.join(
@@ -23002,7 +23002,7 @@ def main():
             f.write(isi_baru1078)
         rc, out = jalan(sub1078,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("restic backup --stdin membaca stdin: gerbang gagal (Audit 1951)", rc != 0)
+        periksa("restic backup --stdin membaca stdin: gerbang gagal (Audit 1951)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1078, ignore_errors=True)
         sub1079 = klon(tmp, "sub1079")
         berkas_aksi1079 = os.path.join(
@@ -23023,7 +23023,7 @@ def main():
             f.write(isi_baru1079)
         rc, out = jalan(sub1079,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("borg create path '-' membaca stdin: gerbang gagal (Audit 1952)", rc != 0)
+        periksa("borg create path '-' membaca stdin: gerbang gagal (Audit 1952)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1079, ignore_errors=True)
         sub1080 = klon(tmp, "sub1080")
         berkas_aksi1080 = os.path.join(
@@ -23044,7 +23044,7 @@ def main():
             f.write(isi_baru1080)
         rc, out = jalan(sub1080,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("ipfs dag put membaca stdin: gerbang gagal (Audit 1953)", rc != 0)
+        periksa("ipfs dag put membaca stdin: gerbang gagal (Audit 1953)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1080, ignore_errors=True)
         sub1081 = klon(tmp, "sub1081")
         berkas_aksi1081 = os.path.join(
@@ -23065,7 +23065,7 @@ def main():
             f.write(isi_baru1081)
         rc, out = jalan(sub1081,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("rsync --exclude-from=- membaca daftar dari stdin: gerbang gagal (Audit 1954)", rc != 0)
+        periksa("rsync --exclude-from=- membaca daftar dari stdin: gerbang gagal (Audit 1954)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1081, ignore_errors=True)
         sub1082 = klon(tmp, "sub1082")
         berkas_aksi1082 = os.path.join(
@@ -23086,7 +23086,7 @@ def main():
             f.write(isi_baru1082)
         rc, out = jalan(sub1082,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("'-e' nilai -h mysql bukan -e: gerbang gagal menguras (Audit 1955)", rc != 0)
+        periksa("'-e' nilai -h mysql bukan -e: gerbang gagal menguras (Audit 1955)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1082, ignore_errors=True)
         sub1083 = klon(tmp, "sub1083")
         berkas_aksi1083 = os.path.join(
@@ -23107,7 +23107,7 @@ def main():
             f.write(isi_baru1083)
         rc, out = jalan(sub1083,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("'-e' nilai -u mariadb bukan -e: gerbang gagal menguras (Audit 1956)", rc != 0)
+        periksa("'-e' nilai -u mariadb bukan -e: gerbang gagal menguras (Audit 1956)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1083, ignore_errors=True)
         sub1084 = klon(tmp, "sub1084")
         berkas_aksi1084 = os.path.join(
@@ -23149,7 +23149,7 @@ def main():
             f.write(isi_baru1085)
         rc, out = jalan(sub1085,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi global rclone tak merusak sub: gerbang gagal (Audit 1958)", rc != 0)
+        periksa("opsi global rclone tak merusak sub: gerbang gagal (Audit 1958)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1085, ignore_errors=True)
         sub1086 = klon(tmp, "sub1086")
         berkas_aksi1086 = os.path.join(
@@ -23170,7 +23170,7 @@ def main():
             f.write(isi_baru1086)
         rc, out = jalan(sub1086,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi global restic tak merusak sub: gerbang gagal (Audit 1959)", rc != 0)
+        periksa("opsi global restic tak merusak sub: gerbang gagal (Audit 1959)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1086, ignore_errors=True)
         sub1087 = klon(tmp, "sub1087")
         berkas_aksi1087 = os.path.join(
@@ -23191,7 +23191,7 @@ def main():
             f.write(isi_baru1087)
         rc, out = jalan(sub1087,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--stdin=true restic membaca stdin: gerbang gagal (Audit 1960)", rc != 0)
+        periksa("--stdin=true restic membaca stdin: gerbang gagal (Audit 1960)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1087, ignore_errors=True)
         sub1088 = klon(tmp, "sub1088")
         berkas_aksi1088 = os.path.join(
@@ -23212,7 +23212,7 @@ def main():
             f.write(isi_baru1088)
         rc, out = jalan(sub1088,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi global ipfs tak merusak sub: gerbang gagal (Audit 1961)", rc != 0)
+        periksa("opsi global ipfs tak merusak sub: gerbang gagal (Audit 1961)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1088, ignore_errors=True)
         sub1089 = klon(tmp, "sub1089")
         berkas_aksi1089 = os.path.join(
@@ -23296,7 +23296,7 @@ def main():
             f.write(isi_baru1092)
         rc, out = jalan(sub1092,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-c bendera polos: -s mode stdin: gerbang gagal (Audit 1965)", rc != 0)
+        periksa("-c bendera polos: -s mode stdin: gerbang gagal (Audit 1965)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1092, ignore_errors=True)
         sub1093 = klon(tmp, "sub1093")
         berkas_aksi1093 = os.path.join(
@@ -23317,7 +23317,7 @@ def main():
             f.write(isi_baru1093)
         rc, out = jalan(sub1093,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bundel -it crictl meneruskan stdin: gerbang gagal (Audit 1966)", rc != 0)
+        periksa("bundel -it crictl meneruskan stdin: gerbang gagal (Audit 1966)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1093, ignore_errors=True)
         sub1094 = klon(tmp, "sub1094")
         berkas_aksi1094 = os.path.join(
@@ -23338,7 +23338,7 @@ def main():
             f.write(isi_baru1094)
         rc, out = jalan(sub1094,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nano - membaca stdin: gerbang gagal (Audit 1968)", rc != 0)
+        periksa("nano - membaca stdin: gerbang gagal (Audit 1968)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1094, ignore_errors=True)
         sub1095 = klon(tmp, "sub1095")
         berkas_aksi1095 = os.path.join(
@@ -23359,7 +23359,7 @@ def main():
             f.write(isi_baru1095)
         rc, out = jalan(sub1095,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("gnuplot polos membaca stdin: gerbang gagal (Audit 1969)", rc != 0)
+        periksa("gnuplot polos membaca stdin: gerbang gagal (Audit 1969)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1095, ignore_errors=True)
         sub1096 = klon(tmp, "sub1096")
         berkas_aksi1096 = os.path.join(
@@ -23380,7 +23380,7 @@ def main():
             f.write(isi_baru1096)
         rc, out = jalan(sub1096,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("kak -f memproses stdin: gerbang gagal (Audit 1970)", rc != 0)
+        periksa("kak -f memproses stdin: gerbang gagal (Audit 1970)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1096, ignore_errors=True)
         sub1097 = klon(tmp, "sub1097")
         berkas_aksi1097 = os.path.join(
@@ -23401,7 +23401,7 @@ def main():
             f.write(isi_baru1097)
         rc, out = jalan(sub1097,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("micro polos membuat buffer dari stdin: gerbang gagal (Audit 1971)", rc != 0)
+        periksa("micro polos membuat buffer dari stdin: gerbang gagal (Audit 1971)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1097, ignore_errors=True)
         sub1098 = klon(tmp, "sub1098")
         berkas_aksi1098 = os.path.join(
@@ -23422,7 +23422,7 @@ def main():
             f.write(isi_baru1098)
         rc, out = jalan(sub1098,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pandoc polos membaca stdin: gerbang gagal (Audit 1972)", rc != 0)
+        periksa("pandoc polos membaca stdin: gerbang gagal (Audit 1972)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1098, ignore_errors=True)
         sub1099 = klon(tmp, "sub1099")
         berkas_aksi1099 = os.path.join(
@@ -23443,7 +23443,7 @@ def main():
             f.write(isi_baru1099)
         rc, out = jalan(sub1099,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("magick '-' masukan stdin: gerbang gagal (Audit 1973)", rc != 0)
+        periksa("magick '-' masukan stdin: gerbang gagal (Audit 1973)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1099, ignore_errors=True)
         sub1100 = klon(tmp, "sub1100")
         berkas_aksi1100 = os.path.join(
@@ -23464,7 +23464,7 @@ def main():
             f.write(isi_baru1100)
         rc, out = jalan(sub1100,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sendmail -t membaca pesan dari stdin: gerbang gagal (Audit 1974)", rc != 0)
+        periksa("sendmail -t membaca pesan dari stdin: gerbang gagal (Audit 1974)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1100, ignore_errors=True)
         sub1101 = klon(tmp, "sub1101")
         berkas_aksi1101 = os.path.join(
@@ -23485,7 +23485,7 @@ def main():
             f.write(isi_baru1101)
         rc, out = jalan(sub1101,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mailx mode kirim membaca isi dari stdin: gerbang gagal (Audit 1975)", rc != 0)
+        periksa("mailx mode kirim membaca isi dari stdin: gerbang gagal (Audit 1975)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1101, ignore_errors=True)
         sub1102 = klon(tmp, "sub1102")
         berkas_aksi1102 = os.path.join(
@@ -23506,7 +23506,7 @@ def main():
             f.write(isi_baru1102)
         rc, out = jalan(sub1102,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("R --slave membaca dari stdin: gerbang gagal (Audit 1976)", rc != 0)
+        periksa("R --slave membaca dari stdin: gerbang gagal (Audit 1976)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1102, ignore_errors=True)
         sub1103 = klon(tmp, "sub1103")
         berkas_aksi1103 = os.path.join(
@@ -23527,7 +23527,7 @@ def main():
             f.write(isi_baru1103)
         rc, out = jalan(sub1103,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--persist bendera polos: gnuplot telanjang membaca stdin (Audit 1977)", rc != 0)
+        periksa("--persist bendera polos: gnuplot telanjang membaca stdin (Audit 1977)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1103, ignore_errors=True)
         sub1104 = klon(tmp, "sub1104")
         berkas_aksi1104 = os.path.join(
@@ -23548,7 +23548,7 @@ def main():
             f.write(isi_baru1104)
         rc, out = jalan(sub1104,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mailx -t membaca pesan dari stdin: gerbang gagal (Audit 1978)", rc != 0)
+        periksa("mailx -t membaca pesan dari stdin: gerbang gagal (Audit 1978)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1104, ignore_errors=True)
         sub1105 = klon(tmp, "sub1105")
         berkas_aksi1105 = os.path.join(
@@ -23569,7 +23569,7 @@ def main():
             f.write(isi_baru1105)
         rc, out = jalan(sub1105,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operand '-' pandoc adalah stdin: gerbang gagal (Audit 1979)", rc != 0)
+        periksa("operand '-' pandoc adalah stdin: gerbang gagal (Audit 1979)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1105, ignore_errors=True)
         sub1106 = klon(tmp, "sub1106")
         berkas_aksi1106 = os.path.join(
@@ -23653,7 +23653,7 @@ def main():
             f.write(isi_baru1109)
         rc, out = jalan(sub1109,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("magick identify '-' masukan stdin: gerbang gagal (Audit 1983)", rc != 0)
+        periksa("magick identify '-' masukan stdin: gerbang gagal (Audit 1983)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1109, ignore_errors=True)
         sub1110 = klon(tmp, "sub1110")
         berkas_aksi1110 = os.path.join(
@@ -23674,7 +23674,7 @@ def main():
             f.write(isi_baru1110)
         rc, out = jalan(sub1110,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("'-bp' nilai -F sendmail bukan mode: gerbang gagal (Audit 1984)", rc != 0)
+        periksa("'-bp' nilai -F sendmail bukan mode: gerbang gagal (Audit 1984)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1110, ignore_errors=True)
         sub1111 = klon(tmp, "sub1111")
         berkas_aksi1111 = os.path.join(
@@ -23695,7 +23695,7 @@ def main():
             f.write(isi_baru1111)
         rc, out = jalan(sub1111,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("kafka producer membaca stdin: gerbang gagal (Audit 1985)", rc != 0)
+        periksa("kafka producer membaca stdin: gerbang gagal (Audit 1985)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1111, ignore_errors=True)
         sub1112 = klon(tmp, "sub1112")
         berkas_aksi1112 = os.path.join(
@@ -23716,7 +23716,7 @@ def main():
             f.write(isi_baru1112)
         rc, out = jalan(sub1112,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("duckdb polos membaca stdin: gerbang gagal (Audit 1986)", rc != 0)
+        periksa("duckdb polos membaca stdin: gerbang gagal (Audit 1986)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1112, ignore_errors=True)
         sub1113 = klon(tmp, "sub1113")
         berkas_aksi1113 = os.path.join(
@@ -23737,7 +23737,7 @@ def main():
             f.write(isi_baru1113)
         rc, out = jalan(sub1113,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pg_restore tanpa berkas membaca stdin: gerbang gagal (Audit 1987)", rc != 0)
+        periksa("pg_restore tanpa berkas membaca stdin: gerbang gagal (Audit 1987)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1113, ignore_errors=True)
         sub1114 = klon(tmp, "sub1114")
         berkas_aksi1114 = os.path.join(
@@ -23758,7 +23758,7 @@ def main():
             f.write(isi_baru1114)
         rc, out = jalan(sub1114,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("nats pub subjek saja membaca body dari stdin: gerbang gagal (Audit 1988)", rc != 0)
+        periksa("nats pub subjek saja membaca body dari stdin: gerbang gagal (Audit 1988)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1114, ignore_errors=True)
         sub1115 = klon(tmp, "sub1115")
         berkas_aksi1115 = os.path.join(
@@ -23779,7 +23779,7 @@ def main():
             f.write(isi_baru1115)
         rc, out = jalan(sub1115,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("cypher-shell polos membaca stdin: gerbang gagal (Audit 1989)", rc != 0)
+        periksa("cypher-shell polos membaca stdin: gerbang gagal (Audit 1989)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1115, ignore_errors=True)
         sub1116 = klon(tmp, "sub1116")
         berkas_aksi1116 = os.path.join(
@@ -23800,7 +23800,7 @@ def main():
             f.write(isi_baru1116)
         rc, out = jalan(sub1116,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("cqlsh polos membaca stdin: gerbang gagal (Audit 1990)", rc != 0)
+        periksa("cqlsh polos membaca stdin: gerbang gagal (Audit 1990)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1116, ignore_errors=True)
         sub1117 = klon(tmp, "sub1117")
         berkas_aksi1117 = os.path.join(
@@ -23821,7 +23821,7 @@ def main():
             f.write(isi_baru1117)
         rc, out = jalan(sub1117,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("clickhouse client multicall membaca stdin: gerbang gagal (Audit 1991)", rc != 0)
+        periksa("clickhouse client multicall membaca stdin: gerbang gagal (Audit 1991)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1117, ignore_errors=True)
         sub1118 = klon(tmp, "sub1118")
         berkas_aksi1118 = os.path.join(
@@ -23842,7 +23842,7 @@ def main():
             f.write(isi_baru1118)
         rc, out = jalan(sub1118,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("snowsql polos membaca stdin: gerbang gagal (Audit 1992)", rc != 0)
+        periksa("snowsql polos membaca stdin: gerbang gagal (Audit 1992)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1118, ignore_errors=True)
         sub1119 = klon(tmp, "sub1119")
         berkas_aksi1119 = os.path.join(
@@ -23905,7 +23905,7 @@ def main():
             f.write(isi_baru1121)
         rc, out = jalan(sub1121,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-cmd berjalan sebelum stdin duckdb: gerbang gagal (Audit 1997)", rc != 0)
+        periksa("-cmd berjalan sebelum stdin duckdb: gerbang gagal (Audit 1997)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1121, ignore_errors=True)
         sub1122 = klon(tmp, "sub1122")
         berkas_aksi1122 = os.path.join(
@@ -23947,7 +23947,7 @@ def main():
             f.write(isi_baru1123)
         rc, out = jalan(sub1123,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("docker build -f - dari stdin: gerbang gagal (Audit 2004)", rc != 0)
+        periksa("docker build -f - dari stdin: gerbang gagal (Audit 2004)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1123, ignore_errors=True)
         sub1124 = klon(tmp, "sub1124")
         berkas_aksi1124 = os.path.join(
@@ -23968,7 +23968,7 @@ def main():
             f.write(isi_baru1124)
         rc, out = jalan(sub1124,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("docker import - dari stdin: gerbang gagal (Audit 2005)", rc != 0)
+        periksa("docker import - dari stdin: gerbang gagal (Audit 2005)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1124, ignore_errors=True)
         sub1125 = klon(tmp, "sub1125")
         berkas_aksi1125 = os.path.join(
@@ -23989,7 +23989,7 @@ def main():
             f.write(isi_baru1125)
         rc, out = jalan(sub1125,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("docker load tanpa -i dari stdin: gerbang gagal (Audit 2006)", rc != 0)
+        periksa("docker load tanpa -i dari stdin: gerbang gagal (Audit 2006)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1125, ignore_errors=True)
         sub1126 = klon(tmp, "sub1126")
         berkas_aksi1126 = os.path.join(
@@ -24010,7 +24010,7 @@ def main():
             f.write(isi_baru1126)
         rc, out = jalan(sub1126,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("podman import - dari stdin: gerbang gagal (Audit 2007)", rc != 0)
+        periksa("podman import - dari stdin: gerbang gagal (Audit 2007)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1126, ignore_errors=True)
         sub1127 = klon(tmp, "sub1127")
         berkas_aksi1127 = os.path.join(
@@ -24031,7 +24031,7 @@ def main():
             f.write(isi_baru1127)
         rc, out = jalan(sub1127,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("podman build -f - dari stdin: gerbang gagal (Audit 2008)", rc != 0)
+        periksa("podman build -f - dari stdin: gerbang gagal (Audit 2008)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1127, ignore_errors=True)
         sub1128 = klon(tmp, "sub1128")
         berkas_aksi1128 = os.path.join(
@@ -24052,7 +24052,7 @@ def main():
             f.write(isi_baru1128)
         rc, out = jalan(sub1128,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("podman load tanpa -i dari stdin: gerbang gagal (Audit 2009)", rc != 0)
+        periksa("podman load tanpa -i dari stdin: gerbang gagal (Audit 2009)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1128, ignore_errors=True)
         sub1129 = klon(tmp, "sub1129")
         berkas_aksi1129 = os.path.join(
@@ -24073,7 +24073,7 @@ def main():
             f.write(isi_baru1129)
         rc, out = jalan(sub1129,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("buildah bud -f - dari stdin: gerbang gagal (Audit 2010)", rc != 0)
+        periksa("buildah bud -f - dari stdin: gerbang gagal (Audit 2010)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1129, ignore_errors=True)
         sub1130 = klon(tmp, "sub1130")
         berkas_aksi1130 = os.path.join(
@@ -24094,7 +24094,7 @@ def main():
             f.write(isi_baru1130)
         rc, out = jalan(sub1130,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("az rest --body @- dari pipa: gerbang gagal (Audit 2011)", rc != 0)
+        periksa("az rest --body @- dari pipa: gerbang gagal (Audit 2011)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1130, ignore_errors=True)
         sub1131 = klon(tmp, "sub1131")
         berkas_aksi1131 = os.path.join(
@@ -24115,7 +24115,7 @@ def main():
             f.write(isi_baru1131)
         rc, out = jalan(sub1131,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("vagrant ssh sesi interaktif: gerbang gagal (Audit 2012)", rc != 0)
+        periksa("vagrant ssh sesi interaktif: gerbang gagal (Audit 2012)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1131, ignore_errors=True)
         sub1132 = klon(tmp, "sub1132")
         berkas_aksi1132 = os.path.join(
@@ -24136,7 +24136,7 @@ def main():
             f.write(isi_baru1132)
         rc, out = jalan(sub1132,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("minikube ssh sesi interaktif: gerbang gagal (Audit 2013)", rc != 0)
+        periksa("minikube ssh sesi interaktif: gerbang gagal (Audit 2013)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1132, ignore_errors=True)
         sub1133 = klon(tmp, "sub1133")
         berkas_aksi1133 = os.path.join(
@@ -24157,7 +24157,7 @@ def main():
             f.write(isi_baru1133)
         rc, out = jalan(sub1133,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("R CMD BATCH -- - adalah R -f -: gerbang gagal (Audit 2015)", rc != 0)
+        periksa("R CMD BATCH -- - adalah R -f -: gerbang gagal (Audit 2015)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1133, ignore_errors=True)
         sub1134 = klon(tmp, "sub1134")
         berkas_aksi1134 = os.path.join(
@@ -24199,7 +24199,7 @@ def main():
             f.write(isi_baru1135)
         rc, out = jalan(sub1135,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-c sebagai nilai -cmd duckdb bukan penekan: gerbang gagal (Audit 2017)", rc != 0)
+        periksa("-c sebagai nilai -cmd duckdb bukan penekan: gerbang gagal (Audit 2017)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1135, ignore_errors=True)
         sub1136 = klon(tmp, "sub1136")
         berkas_aksi1136 = os.path.join(
@@ -24220,7 +24220,7 @@ def main():
             f.write(isi_baru1136)
         rc, out = jalan(sub1136,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sub docker sadar nilai opsi global: gerbang gagal (Audit 2018)", rc != 0)
+        periksa("sub docker sadar nilai opsi global: gerbang gagal (Audit 2018)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1136, ignore_errors=True)
         sub1137 = klon(tmp, "sub1137")
         berkas_aksi1137 = os.path.join(
@@ -24262,7 +24262,7 @@ def main():
             f.write(isi_baru1138)
         rc, out = jalan(sub1138,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("podman machine ssh sesi interaktif: gerbang gagal (Audit 2020)", rc != 0)
+        periksa("podman machine ssh sesi interaktif: gerbang gagal (Audit 2020)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1138, ignore_errors=True)
         sub1140 = klon(tmp, "sub1140")
         berkas_aksi1140 = os.path.join(
@@ -24283,7 +24283,7 @@ def main():
             f.write(isi_baru1140)
         rc, out = jalan(sub1140,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-p minikube bernilai: gerbang gagal (Audit 2022)", rc != 0)
+        periksa("-p minikube bernilai: gerbang gagal (Audit 2022)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1140, ignore_errors=True)
         sub1141 = klon(tmp, "sub1141")
         berkas_aksi1141 = os.path.join(
@@ -24367,7 +24367,7 @@ def main():
             f.write(isi_baru1139)
         rc, out = jalan(sub1139,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bentuk merekat -f- docker build: gerbang gagal (Audit 2021)", rc != 0)
+        periksa("bentuk merekat -f- docker build: gerbang gagal (Audit 2021)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1139, ignore_errors=True)
         sub1144 = klon(tmp, "sub1144")
         berkas_aksi1144 = os.path.join(
@@ -24409,7 +24409,7 @@ def main():
             f.write(isi_baru1145)
         rc, out = jalan(sub1145,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("interaksi stdin ffmpeg bawaan aktif: gerbang gagal (Audit 2033)", rc != 0)
+        periksa("interaksi stdin ffmpeg bawaan aktif: gerbang gagal (Audit 2033)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1145, ignore_errors=True)
         sub1146 = klon(tmp, "sub1146")
         berkas_aksi1146 = os.path.join(
@@ -24451,7 +24451,7 @@ def main():
             f.write(isi_baru1147)
         rc, out = jalan(sub1147,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mpv '-' membaca media dari stdin: gerbang gagal (Audit 2034)", rc != 0)
+        periksa("mpv '-' membaca media dari stdin: gerbang gagal (Audit 2034)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1147, ignore_errors=True)
         sub1148 = klon(tmp, "sub1148")
         berkas_aksi1148 = os.path.join(
@@ -24472,7 +24472,7 @@ def main():
             f.write(isi_baru1148)
         rc, out = jalan(sub1148,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sox '-' masukan adalah stdin: gerbang gagal (Audit 2035)", rc != 0)
+        periksa("sox '-' masukan adalah stdin: gerbang gagal (Audit 2035)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1148, ignore_errors=True)
         sub1149 = klon(tmp, "sub1149")
         berkas_aksi1149 = os.path.join(
@@ -24493,7 +24493,7 @@ def main():
             f.write(isi_baru1149)
         rc, out = jalan(sub1149,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tesseract '-' masukan adalah stdin: gerbang gagal (Audit 2036)", rc != 0)
+        periksa("tesseract '-' masukan adalah stdin: gerbang gagal (Audit 2036)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1149, ignore_errors=True)
         sub1150 = klon(tmp, "sub1150")
         berkas_aksi1150 = os.path.join(
@@ -24514,7 +24514,7 @@ def main():
             f.write(isi_baru1150)
         rc, out = jalan(sub1150,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("guix repl membaca stdin: gerbang gagal (Audit 2037)", rc != 0)
+        periksa("guix repl membaca stdin: gerbang gagal (Audit 2037)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1150, ignore_errors=True)
         sub1151 = klon(tmp, "sub1151")
         berkas_aksi1151 = os.path.join(
@@ -24535,7 +24535,7 @@ def main():
             f.write(isi_baru1151)
         rc, out = jalan(sub1151,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--arg-from-stdin nix meneruskan stdin: gerbang gagal (Audit 2038)", rc != 0)
+        periksa("--arg-from-stdin nix meneruskan stdin: gerbang gagal (Audit 2038)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1151, ignore_errors=True)
         sub1152 = klon(tmp, "sub1152")
         berkas_aksi1152 = os.path.join(
@@ -24556,7 +24556,7 @@ def main():
             f.write(isi_baru1152)
         rc, out = jalan(sub1152,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("rlogin sesi interaktif: gerbang gagal (Audit 2039)", rc != 0)
+        periksa("rlogin sesi interaktif: gerbang gagal (Audit 2039)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1152, ignore_errors=True)
         sub1153 = klon(tmp, "sub1153")
         berkas_aksi1153 = os.path.join(
@@ -24577,7 +24577,7 @@ def main():
             f.write(isi_baru1153)
         rc, out = jalan(sub1153,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("rsh tanpa perintah mode rlogin: gerbang gagal (Audit 2039)", rc != 0)
+        periksa("rsh tanpa perintah mode rlogin: gerbang gagal (Audit 2039)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1153, ignore_errors=True)
         sub1154 = klon(tmp, "sub1154")
         berkas_aksi1154 = os.path.join(
@@ -24598,7 +24598,7 @@ def main():
             f.write(isi_baru1154)
         rc, out = jalan(sub1154,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("fdsrc fd=0 membaca stdin: gerbang gagal (Audit 2040)", rc != 0)
+        periksa("fdsrc fd=0 membaca stdin: gerbang gagal (Audit 2040)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1154, ignore_errors=True)
         sub1155 = klon(tmp, "sub1155")
         berkas_aksi1155 = os.path.join(
@@ -24619,7 +24619,7 @@ def main():
             f.write(isi_baru1155)
         rc, out = jalan(sub1155,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi BATCH sebelum '-- -': gerbang gagal (Audit 2041)", rc != 0)
+        periksa("opsi BATCH sebelum '-- -': gerbang gagal (Audit 2041)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1155, ignore_errors=True)
         sub1156 = klon(tmp, "sub1156")
         berkas_aksi1156 = os.path.join(
@@ -24640,7 +24640,7 @@ def main():
             f.write(isi_baru1156)
         rc, out = jalan(sub1156,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi TLS global docker bernilai: gerbang gagal (Audit 2042)", rc != 0)
+        periksa("opsi TLS global docker bernilai: gerbang gagal (Audit 2042)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1156, ignore_errors=True)
         sub1157 = klon(tmp, "sub1157")
         berkas_aksi1157 = os.path.join(
@@ -24661,7 +24661,7 @@ def main():
             f.write(isi_baru1157)
         rc, out = jalan(sub1157,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi global podman tambahan bernilai: gerbang gagal (Audit 2043)", rc != 0)
+        periksa("opsi global podman tambahan bernilai: gerbang gagal (Audit 2043)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1157, ignore_errors=True)
         sub1158 = klon(tmp, "sub1158")
         berkas_aksi1158 = os.path.join(
@@ -24703,7 +24703,7 @@ def main():
             f.write(isi_baru1159)
         rc, out = jalan(sub1159,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi warisan minikube --user bernilai: gerbang gagal (Audit 2045)", rc != 0)
+        periksa("opsi warisan minikube --user bernilai: gerbang gagal (Audit 2045)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1159, ignore_errors=True)
         sub1160 = klon(tmp, "sub1160")
         berkas_aksi1160 = os.path.join(
@@ -24724,7 +24724,7 @@ def main():
             f.write(isi_baru1160)
         rc, out = jalan(sub1160,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-h nilai --command vagrant bukan bantuan: gerbang gagal (Audit 2046)", rc != 0)
+        periksa("-h nilai --command vagrant bukan bantuan: gerbang gagal (Audit 2046)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1160, ignore_errors=True)
         sub1161 = klon(tmp, "sub1161")
         berkas_aksi1161 = os.path.join(
@@ -24745,7 +24745,7 @@ def main():
             f.write(isi_baru1161)
         rc, out = jalan(sub1161,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-t guix repl bernilai: gerbang gagal (Audit 2047)", rc != 0)
+        periksa("-t guix repl bernilai: gerbang gagal (Audit 2047)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1161, ignore_errors=True)
         sub1162 = klon(tmp, "sub1162")
         berkas_aksi1162 = os.path.join(
@@ -24766,7 +24766,7 @@ def main():
             f.write(isi_baru1162)
         rc, out = jalan(sub1162,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("irb membaca ekspresi dari stdin: gerbang gagal (Audit 2052)", rc != 0)
+        periksa("irb membaca ekspresi dari stdin: gerbang gagal (Audit 2052)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1162, ignore_errors=True)
         sub1163 = klon(tmp, "sub1163")
         berkas_aksi1163 = os.path.join(
@@ -24787,7 +24787,7 @@ def main():
             f.write(isi_baru1163)
         rc, out = jalan(sub1163,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("litecli membaca stdin saat terpipa: gerbang gagal (Audit 2053)", rc != 0)
+        periksa("litecli membaca stdin saat terpipa: gerbang gagal (Audit 2053)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1163, ignore_errors=True)
         sub1164 = klon(tmp, "sub1164")
         berkas_aksi1164 = os.path.join(
@@ -24808,7 +24808,7 @@ def main():
             f.write(isi_baru1164)
         rc, out = jalan(sub1164,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mycli modus batch dari stdin: gerbang gagal (Audit 2054)", rc != 0)
+        periksa("mycli modus batch dari stdin: gerbang gagal (Audit 2054)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1164, ignore_errors=True)
         sub1165 = klon(tmp, "sub1165")
         berkas_aksi1165 = os.path.join(
@@ -24829,7 +24829,7 @@ def main():
             f.write(isi_baru1165)
         rc, out = jalan(sub1165,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("usql membaca masukan dari pipa: gerbang gagal (Audit 2055)", rc != 0)
+        periksa("usql membaca masukan dari pipa: gerbang gagal (Audit 2055)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1165, ignore_errors=True)
         sub1166 = klon(tmp, "sub1166")
         berkas_aksi1166 = os.path.join(
@@ -24850,7 +24850,7 @@ def main():
             f.write(isi_baru1166)
         rc, out = jalan(sub1166,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("helm values '-' dari stdin: gerbang gagal (Audit 2056)", rc != 0)
+        periksa("helm values '-' dari stdin: gerbang gagal (Audit 2056)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1166, ignore_errors=True)
         sub1167 = klon(tmp, "sub1167")
         berkas_aksi1167 = os.path.join(
@@ -24871,7 +24871,7 @@ def main():
             f.write(isi_baru1167)
         rc, out = jalan(sub1167,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("REPL sbcl berjalan di stdin: gerbang gagal (Audit 2057)", rc != 0)
+        periksa("REPL sbcl berjalan di stdin: gerbang gagal (Audit 2057)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1167, ignore_errors=True)
         sub1168 = klon(tmp, "sub1168")
         berkas_aksi1168 = os.path.join(
@@ -24892,7 +24892,7 @@ def main():
             f.write(isi_baru1168)
         rc, out = jalan(sub1168,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("racket polos masuk REPL: gerbang gagal (Audit 2058)", rc != 0)
+        periksa("racket polos masuk REPL: gerbang gagal (Audit 2058)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1168, ignore_errors=True)
         sub1169 = klon(tmp, "sub1169")
         berkas_aksi1169 = os.path.join(
@@ -24913,7 +24913,7 @@ def main():
             f.write(isi_baru1169)
         rc, out = jalan(sub1169,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("alias -c docker bernilai: gerbang gagal (Audit 2059)", rc != 0)
+        periksa("alias -c docker bernilai: gerbang gagal (Audit 2059)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1169, ignore_errors=True)
         sub1170 = klon(tmp, "sub1170")
         berkas_aksi1170 = os.path.join(
@@ -24934,7 +24934,7 @@ def main():
             f.write(isi_baru1170)
         rc, out = jalan(sub1170,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi global podman --conmon bernilai: gerbang gagal (Audit 2060)", rc != 0)
+        periksa("opsi global podman --conmon bernilai: gerbang gagal (Audit 2060)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1170, ignore_errors=True)
         sub1171 = klon(tmp, "sub1171")
         berkas_aksi1171 = os.path.join(
@@ -24976,7 +24976,7 @@ def main():
             f.write(isi_baru1172)
         rc, out = jalan(sub1172,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi global buildah sebelum sub bernilai: gerbang gagal (Audit 2062)", rc != 0)
+        periksa("opsi global buildah sebelum sub bernilai: gerbang gagal (Audit 2062)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1172, ignore_errors=True)
         sub1173 = klon(tmp, "sub1173")
         berkas_aksi1173 = os.path.join(
@@ -24997,7 +24997,7 @@ def main():
             f.write(isi_baru1173)
         rc, out = jalan(sub1173,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi warisan minikube -v bernilai: gerbang gagal (Audit 2063)", rc != 0)
+        periksa("opsi warisan minikube -v bernilai: gerbang gagal (Audit 2063)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1173, ignore_errors=True)
         sub1174 = klon(tmp, "sub1174")
         berkas_aksi1174 = os.path.join(
@@ -25039,7 +25039,7 @@ def main():
             f.write(isi_baru1175)
         rc, out = jalan(sub1175,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("GNU parallel membangun perintah dari stdin: gerbang gagal (Audit 2069)", rc != 0)
+        periksa("GNU parallel membangun perintah dari stdin: gerbang gagal (Audit 2069)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1175, ignore_errors=True)
         sub1176 = klon(tmp, "sub1176")
         berkas_aksi1176 = os.path.join(
@@ -25060,7 +25060,7 @@ def main():
             f.write(isi_baru1176)
         rc, out = jalan(sub1176,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("entr membaca daftar berkas dari stdin: gerbang gagal (Audit 2070)", rc != 0)
+        periksa("entr membaca daftar berkas dari stdin: gerbang gagal (Audit 2070)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1176, ignore_errors=True)
         sub1177 = klon(tmp, "sub1177")
         berkas_aksi1177 = os.path.join(
@@ -25081,7 +25081,7 @@ def main():
             f.write(isi_baru1177)
         rc, out = jalan(sub1177,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pv tanpa operand membaca stdin: gerbang gagal (Audit 2071)", rc != 0)
+        periksa("pv tanpa operand membaca stdin: gerbang gagal (Audit 2071)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1177, ignore_errors=True)
         sub1179 = klon(tmp, "sub1179")
         berkas_aksi1179 = os.path.join(
@@ -25123,7 +25123,7 @@ def main():
             f.write(isi_baru1178)
         rc, out = jalan(sub1178,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xonsh terpipa mode script-from-stdin: gerbang gagal (Audit 2072)", rc != 0)
+        periksa("xonsh terpipa mode script-from-stdin: gerbang gagal (Audit 2072)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1178, ignore_errors=True)
         sub1180 = klon(tmp, "sub1180")
         berkas_aksi1180 = os.path.join(
@@ -25144,7 +25144,7 @@ def main():
             f.write(isi_baru1180)
         rc, out = jalan(sub1180,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi TLS global podman bernilai: gerbang gagal (Audit 2075)", rc != 0)
+        periksa("opsi TLS global podman bernilai: gerbang gagal (Audit 2075)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1180, ignore_errors=True)
         sub1181 = klon(tmp, "sub1181")
         berkas_aksi1181 = os.path.join(
@@ -25165,7 +25165,7 @@ def main():
             f.write(isi_baru1181)
         rc, out = jalan(sub1181,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi global buildah --log-level bernilai: gerbang gagal (Audit 2076)", rc != 0)
+        periksa("opsi global buildah --log-level bernilai: gerbang gagal (Audit 2076)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1181, ignore_errors=True)
         sub1182 = klon(tmp, "sub1182")
         berkas_aksi1182 = os.path.join(
@@ -25228,7 +25228,7 @@ def main():
             f.write(isi_baru1184)
         rc, out = jalan(sub1184,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--log_file minikube bernilai: gerbang gagal (Audit 2079)", rc != 0)
+        periksa("--log_file minikube bernilai: gerbang gagal (Audit 2079)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1184, ignore_errors=True)
         sub1185 = klon(tmp, "sub1185")
         berkas_aksi1185 = os.path.join(
@@ -25270,7 +25270,7 @@ def main():
             f.write(isi_baru1186)
         rc, out = jalan(sub1186,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("bundel -Dc docker diurai: gerbang gagal (Audit 2080)", rc != 0)
+        periksa("bundel -Dc docker diurai: gerbang gagal (Audit 2080)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1186, ignore_errors=True)
         sub1187 = klon(tmp, "sub1187")
         berkas_aksi1187 = os.path.join(
@@ -25291,7 +25291,7 @@ def main():
             f.write(isi_baru1187)
         rc, out = jalan(sub1187,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-F pv bernilai menelan nama berkas: gerbang gagal (Audit 2081)", rc != 0)
+        periksa("-F pv bernilai menelan nama berkas: gerbang gagal (Audit 2081)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1187, ignore_errors=True)
         sub1188 = klon(tmp, "sub1188")
         berkas_aksi1188 = os.path.join(
@@ -25312,7 +25312,7 @@ def main():
             f.write(isi_baru1188)
         rc, out = jalan(sub1188,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--rc xonsh jamak: gerbang gagal (Audit 2082)", rc != 0)
+        periksa("--rc xonsh jamak: gerbang gagal (Audit 2082)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1188, ignore_errors=True)
         sub1189 = klon(tmp, "sub1189")
         berkas_aksi1189 = os.path.join(
@@ -25333,7 +25333,7 @@ def main():
             f.write(isi_baru1189)
         rc, out = jalan(sub1189,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-st xonsh bernilai: gerbang gagal (Audit 2083)", rc != 0)
+        periksa("-st xonsh bernilai: gerbang gagal (Audit 2083)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1189, ignore_errors=True)
         sub1190 = klon(tmp, "sub1190")
         berkas_aksi1190 = os.path.join(
@@ -25375,7 +25375,7 @@ def main():
             f.write(isi_baru1191)
         rc, out = jalan(sub1191,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("exiftool '-' membaca stdin: gerbang gagal (Audit 2086)", rc != 0)
+        periksa("exiftool '-' membaca stdin: gerbang gagal (Audit 2086)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1191, ignore_errors=True)
         sub1192 = klon(tmp, "sub1192")
         berkas_aksi1192 = os.path.join(
@@ -25417,7 +25417,7 @@ def main():
             f.write(isi_baru1193)
         rc, out = jalan(sub1193,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("groff tanpa operand membaca stdin: gerbang gagal (Audit 2089)", rc != 0)
+        periksa("groff tanpa operand membaca stdin: gerbang gagal (Audit 2089)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1193, ignore_errors=True)
         sub1194 = klon(tmp, "sub1194")
         berkas_aksi1194 = os.path.join(
@@ -25459,7 +25459,7 @@ def main():
             f.write(isi_baru1195)
         rc, out = jalan(sub1195,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("units membaca pasangan dari stdin: gerbang gagal (Audit 2088)", rc != 0)
+        periksa("units membaca pasangan dari stdin: gerbang gagal (Audit 2088)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1195, ignore_errors=True)
         sub1196 = klon(tmp, "sub1196")
         berkas_aksi1196 = os.path.join(
@@ -25522,7 +25522,7 @@ def main():
             f.write(isi_baru1198)
         rc, out = jalan(sub1198,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi pv generasi baru -o bernilai: gerbang gagal (Audit 2093)", rc != 0)
+        periksa("opsi pv generasi baru -o bernilai: gerbang gagal (Audit 2093)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1198, ignore_errors=True)
         sub1199 = klon(tmp, "sub1199")
         berkas_aksi1199 = os.path.join(
@@ -25543,7 +25543,7 @@ def main():
             f.write(isi_baru1199)
         rc, out = jalan(sub1199,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--semaphore sesudah perintah argumen biasa: gerbang gagal (Audit 2094)", rc != 0)
+        periksa("--semaphore sesudah perintah argumen biasa: gerbang gagal (Audit 2094)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1199, ignore_errors=True)
         sub1200 = klon(tmp, "sub1200")
         berkas_aksi1200 = os.path.join(
@@ -25564,7 +25564,7 @@ def main():
             f.write(isi_baru1200)
         rc, out = jalan(sub1200,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("-D xonsh terpisah bernilai: gerbang gagal (Audit 2095)", rc != 0)
+        periksa("-D xonsh terpisah bernilai: gerbang gagal (Audit 2095)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1200, ignore_errors=True)
         sub1201 = klon(tmp, "sub1201")
         berkas_aksi1201 = os.path.join(
@@ -25606,7 +25606,7 @@ def main():
             f.write(isi_baru1202)
         rc, out = jalan(sub1202,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv cat membaca stdin: gerbang gagal (Audit 2098)", rc != 0)
+        periksa("qsv cat membaca stdin: gerbang gagal (Audit 2098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1202, ignore_errors=True)
         sub1203 = klon(tmp, "sub1203")
         berkas_aksi1203 = os.path.join(
@@ -25627,7 +25627,7 @@ def main():
             f.write(isi_baru1203)
         rc, out = jalan(sub1203,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvlook menerima data terpipa: gerbang gagal (Audit 2099)", rc != 0)
+        periksa("csvlook menerima data terpipa: gerbang gagal (Audit 2099)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1203, ignore_errors=True)
         sub1204 = klon(tmp, "sub1204")
         berkas_aksi1204 = os.path.join(
@@ -25648,7 +25648,7 @@ def main():
             f.write(isi_baru1204)
         rc, out = jalan(sub1204,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-select membaca standard input: gerbang gagal (Audit 2100)", rc != 0)
+        periksa("tsv-select membaca standard input: gerbang gagal (Audit 2100)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1204, ignore_errors=True)
         sub1205 = klon(tmp, "sub1205")
         berkas_aksi1205 = os.path.join(
@@ -25711,7 +25711,7 @@ def main():
             f.write(isi_baru1207)
         rc, out = jalan(sub1207,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("monitor pv merekat terdeteksi: gerbang gagal (Audit 2103)", rc != 0)
+        periksa("monitor pv merekat terdeteksi: gerbang gagal (Audit 2103)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1207, ignore_errors=True)
         sub1208 = klon(tmp, "sub1208")
         berkas_aksi1208 = os.path.join(
@@ -25816,7 +25816,7 @@ def main():
             f.write(isi_baru1212)
         rc, out = jalan(sub1212,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv cat rows membaca stdin: gerbang gagal (Audit 2108)", rc != 0)
+        periksa("qsv cat rows membaca stdin: gerbang gagal (Audit 2108)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1212, ignore_errors=True)
         sub1213 = klon(tmp, "sub1213")
         berkas_aksi1213 = os.path.join(
@@ -25858,7 +25858,7 @@ def main():
             f.write(isi_baru1214)
         rc, out = jalan(sub1214,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi csvlook --max-rows bernilai: gerbang gagal (Audit 2110)", rc != 0)
+        periksa("opsi csvlook --max-rows bernilai: gerbang gagal (Audit 2110)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1214, ignore_errors=True)
         sub1215 = klon(tmp, "sub1215")
         berkas_aksi1215 = os.path.join(
@@ -25879,7 +25879,7 @@ def main():
             f.write(isi_baru1215)
         rc, out = jalan(sub1215,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--exclude tsv-select bernilai: gerbang gagal (Audit 2111)", rc != 0)
+        periksa("--exclude tsv-select bernilai: gerbang gagal (Audit 2111)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1215, ignore_errors=True)
         sub1216 = klon(tmp, "sub1216")
         berkas_aksi1216 = os.path.join(
@@ -25900,7 +25900,7 @@ def main():
             f.write(isi_baru1216)
         rc, out = jalan(sub1216,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("--rest tsv-select bernilai: gerbang gagal (Audit 2112)", rc != 0)
+        periksa("--rest tsv-select bernilai: gerbang gagal (Audit 2112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1216, ignore_errors=True)
         sub1217 = klon(tmp, "sub1217")
         berkas_aksi1217 = os.path.join(
@@ -25942,7 +25942,7 @@ def main():
             f.write(isi_baru1218)
         rc, out = jalan(sub1218,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvcut menerima data terpipa: gerbang gagal (Audit 2114)", rc != 0)
+        periksa("csvcut menerima data terpipa: gerbang gagal (Audit 2114)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1218, ignore_errors=True)
         sub1219 = klon(tmp, "sub1219")
         berkas_aksi1219 = os.path.join(
@@ -25963,7 +25963,7 @@ def main():
             f.write(isi_baru1219)
         rc, out = jalan(sub1219,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvgrep -c + pencocok menguras: gerbang gagal (Audit 2115)", rc != 0)
+        periksa("csvgrep -c + pencocok menguras: gerbang gagal (Audit 2115)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1219, ignore_errors=True)
         sub1220 = klon(tmp, "sub1220")
         berkas_aksi1220 = os.path.join(
@@ -25984,7 +25984,7 @@ def main():
             f.write(isi_baru1220)
         rc, out = jalan(sub1220,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvstat menerima data terpipa: gerbang gagal (Audit 2116)", rc != 0)
+        periksa("csvstat menerima data terpipa: gerbang gagal (Audit 2116)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1220, ignore_errors=True)
         sub1221 = klon(tmp, "sub1221")
         berkas_aksi1221 = os.path.join(
@@ -26005,7 +26005,7 @@ def main():
             f.write(isi_baru1221)
         rc, out = jalan(sub1221,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv cat rows membaca stdin: gerbang gagal (Audit 2117)", rc != 0)
+        periksa("xsv cat rows membaca stdin: gerbang gagal (Audit 2117)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1221, ignore_errors=True)
         sub1222 = klon(tmp, "sub1222")
         berkas_aksi1222 = os.path.join(
@@ -26026,7 +26026,7 @@ def main():
             f.write(isi_baru1222)
         rc, out = jalan(sub1222,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-filter membaca standard input: gerbang gagal (Audit 2118)", rc != 0)
+        periksa("tsv-filter membaca standard input: gerbang gagal (Audit 2118)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1222, ignore_errors=True)
         sub1223 = klon(tmp, "sub1223")
         berkas_aksi1223 = os.path.join(
@@ -26047,7 +26047,7 @@ def main():
             f.write(isi_baru1223)
         rc, out = jalan(sub1223,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-append tanpa berkas stdin: gerbang gagal (Audit 2119)", rc != 0)
+        periksa("tsv-append tanpa berkas stdin: gerbang gagal (Audit 2119)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1223, ignore_errors=True)
         sub1224 = klon(tmp, "sub1224")
         berkas_aksi1224 = os.path.join(
@@ -26068,7 +26068,7 @@ def main():
             f.write(isi_baru1224)
         rc, out = jalan(sub1224,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("pencocok csvgrep merekat terdeteksi: gerbang gagal (Audit 2120)", rc != 0)
+        periksa("pencocok csvgrep merekat terdeteksi: gerbang gagal (Audit 2120)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1224, ignore_errors=True)
         sub1225 = klon(tmp, "sub1225")
         berkas_aksi1225 = os.path.join(
@@ -26089,7 +26089,7 @@ def main():
             f.write(isi_baru1225)
         rc, out = jalan(sub1225,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv search membaca stdin: gerbang gagal (Audit 2121)", rc != 0)
+        periksa("xsv search membaca stdin: gerbang gagal (Audit 2121)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1225, ignore_errors=True)
         sub1226 = klon(tmp, "sub1226")
         berkas_aksi1226 = os.path.join(
@@ -26110,7 +26110,7 @@ def main():
             f.write(isi_baru1226)
         rc, out = jalan(sub1226,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsort menerima data terpipa: gerbang gagal (Audit 2122)", rc != 0)
+        periksa("csvsort menerima data terpipa: gerbang gagal (Audit 2122)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1226, ignore_errors=True)
         sub1227 = klon(tmp, "sub1227")
         berkas_aksi1227 = os.path.join(
@@ -26131,7 +26131,7 @@ def main():
             f.write(isi_baru1227)
         rc, out = jalan(sub1227,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-summarize membaca standard input: gerbang gagal (Audit 2123)", rc != 0)
+        periksa("tsv-summarize membaca standard input: gerbang gagal (Audit 2123)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1227, ignore_errors=True)
         sub1228 = klon(tmp, "sub1228")
         berkas_aksi1228 = os.path.join(
@@ -26152,7 +26152,7 @@ def main():
             f.write(isi_baru1228)
         rc, out = jalan(sub1228,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv search membaca stdin: gerbang gagal (Audit 2124)", rc != 0)
+        periksa("qsv search membaca stdin: gerbang gagal (Audit 2124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1228, ignore_errors=True)
         sub1229 = klon(tmp, "sub1229")
         berkas_aksi1229 = os.path.join(
@@ -26173,7 +26173,7 @@ def main():
             f.write(isi_baru1229)
         rc, out = jalan(sub1229,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvjoin operand '-' adalah stdin: gerbang gagal (Audit 2125)", rc != 0)
+        periksa("csvjoin operand '-' adalah stdin: gerbang gagal (Audit 2125)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1229, ignore_errors=True)
         sub1230 = klon(tmp, "sub1230")
         berkas_aksi1230 = os.path.join(
@@ -26194,7 +26194,7 @@ def main():
             f.write(isi_baru1230)
         rc, out = jalan(sub1230,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvstack operand '-' adalah stdin: gerbang gagal (Audit 2126)", rc != 0)
+        periksa("csvstack operand '-' adalah stdin: gerbang gagal (Audit 2126)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1230, ignore_errors=True)
         sub1231 = klon(tmp, "sub1231")
         berkas_aksi1231 = os.path.join(
@@ -26215,7 +26215,7 @@ def main():
             f.write(isi_baru1231)
         rc, out = jalan(sub1231,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-join -f tanpa berkas data stdin: gerbang gagal (Audit 2127)", rc != 0)
+        periksa("tsv-join -f tanpa berkas data stdin: gerbang gagal (Audit 2127)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1231, ignore_errors=True)
         sub1232 = klon(tmp, "sub1232")
         berkas_aksi1232 = os.path.join(
@@ -26236,7 +26236,7 @@ def main():
             f.write(isi_baru1232)
         rc, out = jalan(sub1232,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv search --flag bernilai: gerbang gagal (Audit 2131)", rc != 0)
+        periksa("qsv search --flag bernilai: gerbang gagal (Audit 2131)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1232, ignore_errors=True)
         sub1233 = klon(tmp, "sub1233")
         berkas_aksi1233 = os.path.join(
@@ -26257,7 +26257,7 @@ def main():
             f.write(isi_baru1233)
         rc, out = jalan(sub1233,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv search -s kolom resmi: gerbang gagal (Audit 2132)", rc != 0)
+        periksa("xsv search -s kolom resmi: gerbang gagal (Audit 2132)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1233, ignore_errors=True)
         sub1234 = klon(tmp, "sub1234")
         berkas_aksi1234 = os.path.join(
@@ -26299,7 +26299,7 @@ def main():
             f.write(isi_baru1235)
         rc, out = jalan(sub1235,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-join --append-fields bernilai: gerbang gagal (Audit 2134)", rc != 0)
+        periksa("tsv-join --append-fields bernilai: gerbang gagal (Audit 2134)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1235, ignore_errors=True)
         sub1236 = klon(tmp, "sub1236")
         berkas_aksi1236 = os.path.join(
@@ -26320,7 +26320,7 @@ def main():
             f.write(isi_baru1236)
         rc, out = jalan(sub1236,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-join filter dari stdin: gerbang gagal (Audit 2135)", rc != 0)
+        periksa("tsv-join filter dari stdin: gerbang gagal (Audit 2135)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1236, ignore_errors=True)
         sub1237 = klon(tmp, "sub1237")
         berkas_aksi1237 = os.path.join(
@@ -26341,7 +26341,7 @@ def main():
             f.write(isi_baru1237)
         rc, out = jalan(sub1237,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operasi tsv-summarize bernilai: gerbang gagal (Audit 2136)", rc != 0)
+        periksa("operasi tsv-summarize bernilai: gerbang gagal (Audit 2136)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1237, ignore_errors=True)
         sub1238 = klon(tmp, "sub1238")
         berkas_aksi1238 = os.path.join(
@@ -26362,7 +26362,7 @@ def main():
             f.write(isi_baru1238)
         rc, out = jalan(sub1238,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvformat menerima data terpipa: gerbang gagal (Audit 2138)", rc != 0)
+        periksa("csvformat menerima data terpipa: gerbang gagal (Audit 2138)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1238, ignore_errors=True)
         sub1239 = klon(tmp, "sub1239")
         berkas_aksi1239 = os.path.join(
@@ -26383,7 +26383,7 @@ def main():
             f.write(isi_baru1239)
         rc, out = jalan(sub1239,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sql2csv kueri dari stdin: gerbang gagal (Audit 2139)", rc != 0)
+        periksa("sql2csv kueri dari stdin: gerbang gagal (Audit 2139)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1239, ignore_errors=True)
         sub1240 = klon(tmp, "sub1240")
         berkas_aksi1240 = os.path.join(
@@ -26404,7 +26404,7 @@ def main():
             f.write(isi_baru1240)
         rc, out = jalan(sub1240,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-uniq membaca standard input: gerbang gagal (Audit 2140)", rc != 0)
+        periksa("tsv-uniq membaca standard input: gerbang gagal (Audit 2140)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1240, ignore_errors=True)
         sub1241 = klon(tmp, "sub1241")
         berkas_aksi1241 = os.path.join(
@@ -26425,7 +26425,7 @@ def main():
             f.write(isi_baru1241)
         rc, out = jalan(sub1241,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv apply operations stdin: gerbang gagal (Audit 2141)", rc != 0)
+        periksa("qsv apply operations stdin: gerbang gagal (Audit 2141)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1241, ignore_errors=True)
         sub1242 = klon(tmp, "sub1242")
         berkas_aksi1242 = os.path.join(
@@ -26446,7 +26446,7 @@ def main():
             f.write(isi_baru1242)
         rc, out = jalan(sub1242,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv slice membaca stdin: gerbang gagal (Audit 2142)", rc != 0)
+        periksa("qsv slice membaca stdin: gerbang gagal (Audit 2142)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1242, ignore_errors=True)
         sub1243 = klon(tmp, "sub1243")
         berkas_aksi1243 = os.path.join(
@@ -26467,7 +26467,7 @@ def main():
             f.write(isi_baru1243)
         rc, out = jalan(sub1243,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv slice membaca stdin: gerbang gagal (Audit 2143)", rc != 0)
+        periksa("xsv slice membaca stdin: gerbang gagal (Audit 2143)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1243, ignore_errors=True)
         sub1244 = klon(tmp, "sub1244")
         berkas_aksi1244 = os.path.join(
@@ -26488,7 +26488,7 @@ def main():
             f.write(isi_baru1244)
         rc, out = jalan(sub1244,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-join --delimiter bernilai: gerbang gagal (Audit 2144)", rc != 0)
+        periksa("tsv-join --delimiter bernilai: gerbang gagal (Audit 2144)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1244, ignore_errors=True)
         sub1245 = klon(tmp, "sub1245")
         berkas_aksi1245 = os.path.join(
@@ -26509,7 +26509,7 @@ def main():
             f.write(isi_baru1245)
         rc, out = jalan(sub1245,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("operasi tsv-summarize diperluas: gerbang gagal (Audit 2145)", rc != 0)
+        periksa("operasi tsv-summarize diperluas: gerbang gagal (Audit 2145)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1245, ignore_errors=True)
         sub1246 = klon(tmp, "sub1246")
         berkas_aksi1246 = os.path.join(
@@ -26551,7 +26551,7 @@ def main():
             f.write(isi_baru1247)
         rc, out = jalan(sub1247,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("opsi keluaran csvformat bernilai: gerbang gagal (Audit 2147)", rc != 0)
+        periksa("opsi keluaran csvformat bernilai: gerbang gagal (Audit 2147)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1247, ignore_errors=True)
         sub1248 = klon(tmp, "sub1248")
         berkas_aksi1248 = os.path.join(
@@ -26572,7 +26572,7 @@ def main():
             f.write(isi_baru1248)
         rc, out = jalan(sub1248,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv apply dynfmt stdin: gerbang gagal (Audit 2148)", rc != 0)
+        periksa("qsv apply dynfmt stdin: gerbang gagal (Audit 2148)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1248, ignore_errors=True)
         sub1249 = klon(tmp, "sub1249")
         berkas_aksi1249 = os.path.join(
@@ -26593,7 +26593,7 @@ def main():
             f.write(isi_baru1249)
         rc, out = jalan(sub1249,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv stats membaca stdin: gerbang gagal (Audit 2151)", rc != 0)
+        periksa("qsv stats membaca stdin: gerbang gagal (Audit 2151)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1249, ignore_errors=True)
         sub1250 = klon(tmp, "sub1250")
         berkas_aksi1250 = os.path.join(
@@ -26614,7 +26614,7 @@ def main():
             f.write(isi_baru1250)
         rc, out = jalan(sub1250,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv headers membaca stdin: gerbang gagal (Audit 2152)", rc != 0)
+        periksa("qsv headers membaca stdin: gerbang gagal (Audit 2152)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1250, ignore_errors=True)
         sub1251 = klon(tmp, "sub1251")
         berkas_aksi1251 = os.path.join(
@@ -26635,7 +26635,7 @@ def main():
             f.write(isi_baru1251)
         rc, out = jalan(sub1251,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsql data CSV dari stdin: gerbang gagal (Audit 2153)", rc != 0)
+        periksa("csvsql data CSV dari stdin: gerbang gagal (Audit 2153)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1251, ignore_errors=True)
         sub1252 = klon(tmp, "sub1252")
         berkas_aksi1252 = os.path.join(
@@ -26656,7 +26656,7 @@ def main():
             f.write(isi_baru1252)
         rc, out = jalan(sub1252,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv headers membaca stdin: gerbang gagal (Audit 2154)", rc != 0)
+        periksa("xsv headers membaca stdin: gerbang gagal (Audit 2154)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1252, ignore_errors=True)
         sub1253 = klon(tmp, "sub1253")
         berkas_aksi1253 = os.path.join(
@@ -26677,7 +26677,7 @@ def main():
             f.write(isi_baru1253)
         rc, out = jalan(sub1253,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv stats opsi bernilai lengkap: gerbang gagal (Audit 2155)", rc != 0)
+        periksa("qsv stats opsi bernilai lengkap: gerbang gagal (Audit 2155)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1253, ignore_errors=True)
         sub1254 = klon(tmp, "sub1254")
         berkas_aksi1254 = os.path.join(
@@ -26698,7 +26698,7 @@ def main():
             f.write(isi_baru1254)
         rc, out = jalan(sub1254,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-summarize --mad bernilai: gerbang gagal (Audit 2156)", rc != 0)
+        periksa("tsv-summarize --mad bernilai: gerbang gagal (Audit 2156)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1254, ignore_errors=True)
         sub1255 = klon(tmp, "sub1255")
         berkas_aksi1255 = os.path.join(
@@ -26719,7 +26719,7 @@ def main():
             f.write(isi_baru1255)
         rc, out = jalan(sub1255,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsql opsi bernilai lengkap: gerbang gagal (Audit 2157)", rc != 0)
+        periksa("csvsql opsi bernilai lengkap: gerbang gagal (Audit 2157)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1255, ignore_errors=True)
         sub1256 = klon(tmp, "sub1256")
         berkas_aksi1256 = os.path.join(
@@ -26740,7 +26740,7 @@ def main():
             f.write(isi_baru1256)
         rc, out = jalan(sub1256,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv flatten membaca stdin: gerbang gagal (Audit 2159)", rc != 0)
+        periksa("xsv flatten membaca stdin: gerbang gagal (Audit 2159)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1256, ignore_errors=True)
         sub1257 = klon(tmp, "sub1257")
         berkas_aksi1257 = os.path.join(
@@ -26761,7 +26761,7 @@ def main():
             f.write(isi_baru1257)
         rc, out = jalan(sub1257,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv fmt membaca stdin: gerbang gagal (Audit 2160)", rc != 0)
+        periksa("xsv fmt membaca stdin: gerbang gagal (Audit 2160)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1257, ignore_errors=True)
         sub1258 = klon(tmp, "sub1258")
         berkas_aksi1258 = os.path.join(
@@ -26782,7 +26782,7 @@ def main():
             f.write(isi_baru1258)
         rc, out = jalan(sub1258,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv input membaca stdin: gerbang gagal (Audit 2161)", rc != 0)
+        periksa("xsv input membaca stdin: gerbang gagal (Audit 2161)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1258, ignore_errors=True)
         sub1259 = klon(tmp, "sub1259")
         berkas_aksi1259 = os.path.join(
@@ -26803,7 +26803,7 @@ def main():
             f.write(isi_baru1259)
         rc, out = jalan(sub1259,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv table membaca stdin: gerbang gagal (Audit 2162)", rc != 0)
+        periksa("xsv table membaca stdin: gerbang gagal (Audit 2162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1259, ignore_errors=True)
         sub1260 = klon(tmp, "sub1260")
         berkas_aksi1260 = os.path.join(
@@ -26824,7 +26824,7 @@ def main():
             f.write(isi_baru1260)
         rc, out = jalan(sub1260,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv sort membaca stdin: gerbang gagal (Audit 2163)", rc != 0)
+        periksa("xsv sort membaca stdin: gerbang gagal (Audit 2163)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1260, ignore_errors=True)
         sub1261 = klon(tmp, "sub1261")
         berkas_aksi1261 = os.path.join(
@@ -26845,7 +26845,7 @@ def main():
             f.write(isi_baru1261)
         rc, out = jalan(sub1261,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv sample membaca stdin: gerbang gagal (Audit 2164)", rc != 0)
+        periksa("xsv sample membaca stdin: gerbang gagal (Audit 2164)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1261, ignore_errors=True)
         sub1262 = klon(tmp, "sub1262")
         berkas_aksi1262 = os.path.join(
@@ -26866,7 +26866,7 @@ def main():
             f.write(isi_baru1262)
         rc, out = jalan(sub1262,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv flatten bentuk panjang bernilai: gerbang gagal (Audit 2165)", rc != 0)
+        periksa("xsv flatten bentuk panjang bernilai: gerbang gagal (Audit 2165)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1262, ignore_errors=True)
         sub1263 = klon(tmp, "sub1263")
         berkas_aksi1263 = os.path.join(
@@ -26887,7 +26887,7 @@ def main():
             f.write(isi_baru1263)
         rc, out = jalan(sub1263,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv table bentuk panjang bernilai: gerbang gagal (Audit 2166)", rc != 0)
+        periksa("xsv table bentuk panjang bernilai: gerbang gagal (Audit 2166)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1263, ignore_errors=True)
         sub1264 = klon(tmp, "sub1264")
         berkas_aksi1264 = os.path.join(
@@ -26950,7 +26950,7 @@ def main():
             f.write(isi_baru1266)
         rc, out = jalan(sub1266,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv stats cache-threshold bernilai: gerbang gagal (Audit 2169)", rc != 0)
+        periksa("qsv stats cache-threshold bernilai: gerbang gagal (Audit 2169)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1266, ignore_errors=True)
         sub1267 = klon(tmp, "sub1267")
         berkas_aksi1267 = os.path.join(
@@ -26971,7 +26971,7 @@ def main():
             f.write(isi_baru1267)
         rc, out = jalan(sub1267,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv headers delimiter bernilai: gerbang gagal (Audit 2170)", rc != 0)
+        periksa("qsv headers delimiter bernilai: gerbang gagal (Audit 2170)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1267, ignore_errors=True)
         sub1268 = klon(tmp, "sub1268")
         berkas_aksi1268 = os.path.join(
@@ -26992,7 +26992,7 @@ def main():
             f.write(isi_baru1268)
         rc, out = jalan(sub1268,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv select membaca stdin: gerbang gagal (Audit 2171)", rc != 0)
+        periksa("xsv select membaca stdin: gerbang gagal (Audit 2171)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1268, ignore_errors=True)
         sub1269 = klon(tmp, "sub1269")
         berkas_aksi1269 = os.path.join(
@@ -27013,7 +27013,7 @@ def main():
             f.write(isi_baru1269)
         rc, out = jalan(sub1269,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv split membaca stdin: gerbang gagal (Audit 2172)", rc != 0)
+        periksa("xsv split membaca stdin: gerbang gagal (Audit 2172)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1269, ignore_errors=True)
         sub1270 = klon(tmp, "sub1270")
         berkas_aksi1270 = os.path.join(
@@ -27034,7 +27034,7 @@ def main():
             f.write(isi_baru1270)
         rc, out = jalan(sub1270,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv validate membaca stdin: gerbang gagal (Audit 2173)", rc != 0)
+        periksa("qsv validate membaca stdin: gerbang gagal (Audit 2173)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1270, ignore_errors=True)
         sub1271 = klon(tmp, "sub1271")
         berkas_aksi1271 = os.path.join(
@@ -27055,7 +27055,7 @@ def main():
             f.write(isi_baru1271)
         rc, out = jalan(sub1271,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv schema membaca stdin: gerbang gagal (Audit 2174)", rc != 0)
+        periksa("qsv schema membaca stdin: gerbang gagal (Audit 2174)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1271, ignore_errors=True)
         sub1272 = klon(tmp, "sub1272")
         berkas_aksi1272 = os.path.join(
@@ -27118,7 +27118,7 @@ def main():
             f.write(isi_baru1274)
         rc, out = jalan(sub1274,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv sort membaca stdin: gerbang gagal (Audit 2178)", rc != 0)
+        periksa("qsv sort membaca stdin: gerbang gagal (Audit 2178)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1274, ignore_errors=True)
         sub1275 = klon(tmp, "sub1275")
         berkas_aksi1275 = os.path.join(
@@ -27139,7 +27139,7 @@ def main():
             f.write(isi_baru1275)
         rc, out = jalan(sub1275,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv select membaca stdin: gerbang gagal (Audit 2179)", rc != 0)
+        periksa("qsv select membaca stdin: gerbang gagal (Audit 2179)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1275, ignore_errors=True)
         sub1276 = klon(tmp, "sub1276")
         berkas_aksi1276 = os.path.join(
@@ -27160,7 +27160,7 @@ def main():
             f.write(isi_baru1276)
         rc, out = jalan(sub1276,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv sample membaca stdin: gerbang gagal (Audit 2180)", rc != 0)
+        periksa("qsv sample membaca stdin: gerbang gagal (Audit 2180)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1276, ignore_errors=True)
         sub1277 = klon(tmp, "sub1277")
         berkas_aksi1277 = os.path.join(
@@ -27181,7 +27181,7 @@ def main():
             f.write(isi_baru1277)
         rc, out = jalan(sub1277,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv split membaca stdin: gerbang gagal (Audit 2181)", rc != 0)
+        periksa("qsv split membaca stdin: gerbang gagal (Audit 2181)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1277, ignore_errors=True)
         sub1278 = klon(tmp, "sub1278")
         berkas_aksi1278 = os.path.join(
@@ -27202,7 +27202,7 @@ def main():
             f.write(isi_baru1278)
         rc, out = jalan(sub1278,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv join stdin lewat strip: gerbang gagal (Audit 2182)", rc != 0)
+        periksa("qsv join stdin lewat strip: gerbang gagal (Audit 2182)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1278, ignore_errors=True)
         sub1279 = klon(tmp, "sub1279")
         berkas_aksi1279 = os.path.join(
@@ -27223,7 +27223,7 @@ def main():
             f.write(isi_baru1279)
         rc, out = jalan(sub1279,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv dedup membaca stdin: gerbang gagal (Audit 2183)", rc != 0)
+        periksa("qsv dedup membaca stdin: gerbang gagal (Audit 2183)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1279, ignore_errors=True)
         sub1280 = klon(tmp, "sub1280")
         berkas_aksi1280 = os.path.join(
@@ -27328,7 +27328,7 @@ def main():
             f.write(isi_baru1284)
         rc, out = jalan(sub1284,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv partition membaca stdin: gerbang gagal (Audit 2189)", rc != 0)
+        periksa("xsv partition membaca stdin: gerbang gagal (Audit 2189)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1284, ignore_errors=True)
         sub1285 = klon(tmp, "sub1285")
         berkas_aksi1285 = os.path.join(
@@ -27349,7 +27349,7 @@ def main():
             f.write(isi_baru1285)
         rc, out = jalan(sub1285,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv stats membaca stdin: gerbang gagal (Audit 2190)", rc != 0)
+        periksa("xsv stats membaca stdin: gerbang gagal (Audit 2190)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1285, ignore_errors=True)
         sub1286 = klon(tmp, "sub1286")
         berkas_aksi1286 = os.path.join(
@@ -27370,7 +27370,7 @@ def main():
             f.write(isi_baru1286)
         rc, out = jalan(sub1286,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv stats jobs bernilai: gerbang gagal (Audit 2191)", rc != 0)
+        periksa("xsv stats jobs bernilai: gerbang gagal (Audit 2191)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1286, ignore_errors=True)
         sub1287 = klon(tmp, "sub1287")
         berkas_aksi1287 = os.path.join(
@@ -27391,7 +27391,7 @@ def main():
             f.write(isi_baru1287)
         rc, out = jalan(sub1287,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv partition prefix-length bernilai: gerbang gagal (Audit 2192)", rc != 0)
+        periksa("xsv partition prefix-length bernilai: gerbang gagal (Audit 2192)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1287, ignore_errors=True)
         sub1288 = klon(tmp, "sub1288")
         berkas_aksi1288 = os.path.join(
@@ -27433,7 +27433,7 @@ def main():
             f.write(isi_baru1289)
         rc, out = jalan(sub1289,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv apply calcconv membaca stdin: gerbang gagal (Audit 2194)", rc != 0)
+        periksa("qsv apply calcconv membaca stdin: gerbang gagal (Audit 2194)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1289, ignore_errors=True)
         sub1290 = klon(tmp, "sub1290")
         berkas_aksi1290 = os.path.join(
@@ -27475,7 +27475,7 @@ def main():
             f.write(isi_baru1291)
         rc, out = jalan(sub1291,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv apply operations opsi bernilai: gerbang gagal (Audit 2196)", rc != 0)
+        periksa("qsv apply operations opsi bernilai: gerbang gagal (Audit 2196)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1291, ignore_errors=True)
         sub1292 = klon(tmp, "sub1292")
         berkas_aksi1292 = os.path.join(
@@ -27496,7 +27496,7 @@ def main():
             f.write(isi_baru1292)
         rc, out = jalan(sub1292,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv apply dynfmt pendek bernilai: gerbang gagal (Audit 2197)", rc != 0)
+        periksa("qsv apply dynfmt pendek bernilai: gerbang gagal (Audit 2197)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1292, ignore_errors=True)
         sub1293 = klon(tmp, "sub1293")
         berkas_aksi1293 = os.path.join(
@@ -27538,7 +27538,7 @@ def main():
             f.write(isi_baru1294)
         rc, out = jalan(sub1294,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv apply emptyreplace -R bernilai: gerbang gagal (Audit 2199)", rc != 0)
+        periksa("qsv apply emptyreplace -R bernilai: gerbang gagal (Audit 2199)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1294, ignore_errors=True)
         sub1295 = klon(tmp, "sub1295")
         berkas_aksi1295 = os.path.join(
@@ -27580,7 +27580,7 @@ def main():
             f.write(isi_baru1296)
         rc, out = jalan(sub1296,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv transpose membaca stdin: gerbang gagal (Audit 2203)", rc != 0)
+        periksa("qsv transpose membaca stdin: gerbang gagal (Audit 2203)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1296, ignore_errors=True)
         sub1297 = klon(tmp, "sub1297")
         berkas_aksi1297 = os.path.join(
@@ -27601,7 +27601,7 @@ def main():
             f.write(isi_baru1297)
         rc, out = jalan(sub1297,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv reverse membaca stdin: gerbang gagal (Audit 2204)", rc != 0)
+        periksa("qsv reverse membaca stdin: gerbang gagal (Audit 2204)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1297, ignore_errors=True)
         sub1298 = klon(tmp, "sub1298")
         berkas_aksi1298 = os.path.join(
@@ -27622,7 +27622,7 @@ def main():
             f.write(isi_baru1298)
         rc, out = jalan(sub1298,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv rename membaca stdin: gerbang gagal (Audit 2205)", rc != 0)
+        periksa("qsv rename membaca stdin: gerbang gagal (Audit 2205)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1298, ignore_errors=True)
         sub1299 = klon(tmp, "sub1299")
         berkas_aksi1299 = os.path.join(
@@ -27643,7 +27643,7 @@ def main():
             f.write(isi_baru1299)
         rc, out = jalan(sub1299,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv replace membaca stdin: gerbang gagal (Audit 2206)", rc != 0)
+        periksa("qsv replace membaca stdin: gerbang gagal (Audit 2206)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1299, ignore_errors=True)
         sub1300 = klon(tmp, "sub1300")
         berkas_aksi1300 = os.path.join(
@@ -27664,7 +27664,7 @@ def main():
             f.write(isi_baru1300)
         rc, out = jalan(sub1300,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv to membaca stdin: gerbang gagal (Audit 2207)", rc != 0)
+        periksa("qsv to membaca stdin: gerbang gagal (Audit 2207)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1300, ignore_errors=True)
         sub1301 = klon(tmp, "sub1301")
         berkas_aksi1301 = os.path.join(
@@ -27685,7 +27685,7 @@ def main():
             f.write(isi_baru1301)
         rc, out = jalan(sub1301,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv sqlp stdin lewat strip: gerbang gagal (Audit 2208)", rc != 0)
+        periksa("qsv sqlp stdin lewat strip: gerbang gagal (Audit 2208)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1301, ignore_errors=True)
         sub1302 = klon(tmp, "sub1302")
         berkas_aksi1302 = os.path.join(
@@ -27727,7 +27727,7 @@ def main():
             f.write(isi_baru1303)
         rc, out = jalan(sub1303,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv fixlengths length membaca stdin: gerbang gagal (Audit 2212)", rc != 0)
+        periksa("xsv fixlengths length membaca stdin: gerbang gagal (Audit 2212)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1303, ignore_errors=True)
         sub1304 = klon(tmp, "sub1304")
         berkas_aksi1304 = os.path.join(
@@ -27748,7 +27748,7 @@ def main():
             f.write(isi_baru1304)
         rc, out = jalan(sub1304,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv behead membaca stdin: gerbang gagal (Audit 2213)", rc != 0)
+        periksa("qsv behead membaca stdin: gerbang gagal (Audit 2213)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1304, ignore_errors=True)
         sub1305 = klon(tmp, "sub1305")
         berkas_aksi1305 = os.path.join(
@@ -27769,7 +27769,7 @@ def main():
             f.write(isi_baru1305)
         rc, out = jalan(sub1305,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv snappy compress membaca stdin: gerbang gagal (Audit 2214)", rc != 0)
+        periksa("qsv snappy compress membaca stdin: gerbang gagal (Audit 2214)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1305, ignore_errors=True)
         sub1306 = klon(tmp, "sub1306")
         berkas_aksi1306 = os.path.join(
@@ -27790,7 +27790,7 @@ def main():
             f.write(isi_baru1306)
         rc, out = jalan(sub1306,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fetch membaca stdin: gerbang gagal (Audit 2215)", rc != 0)
+        periksa("qsv fetch membaca stdin: gerbang gagal (Audit 2215)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1306, ignore_errors=True)
         sub1307 = klon(tmp, "sub1307")
         berkas_aksi1307 = os.path.join(
@@ -27811,7 +27811,7 @@ def main():
             f.write(isi_baru1307)
         rc, out = jalan(sub1307,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv fixlengths output bernilai: gerbang gagal (Audit 2216)", rc != 0)
+        periksa("xsv fixlengths output bernilai: gerbang gagal (Audit 2216)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1307, ignore_errors=True)
         sub1308 = klon(tmp, "sub1308")
         berkas_aksi1308 = os.path.join(
@@ -27874,7 +27874,7 @@ def main():
             f.write(isi_baru1310)
         rc, out = jalan(sub1310,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv input membaca stdin: gerbang gagal (Audit 2220)", rc != 0)
+        periksa("qsv input membaca stdin: gerbang gagal (Audit 2220)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1310, ignore_errors=True)
         sub1311 = klon(tmp, "sub1311")
         berkas_aksi1311 = os.path.join(
@@ -27895,7 +27895,7 @@ def main():
             f.write(isi_baru1311)
         rc, out = jalan(sub1311,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv luau map membaca stdin: gerbang gagal (Audit 2221)", rc != 0)
+        periksa("qsv luau map membaca stdin: gerbang gagal (Audit 2221)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1311, ignore_errors=True)
         sub1312 = klon(tmp, "sub1312")
         berkas_aksi1312 = os.path.join(
@@ -27916,7 +27916,7 @@ def main():
             f.write(isi_baru1312)
         rc, out = jalan(sub1312,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv py map membaca stdin: gerbang gagal (Audit 2222)", rc != 0)
+        periksa("qsv py map membaca stdin: gerbang gagal (Audit 2222)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1312, ignore_errors=True)
         sub1313 = klon(tmp, "sub1313")
         berkas_aksi1313 = os.path.join(
@@ -27937,7 +27937,7 @@ def main():
             f.write(isi_baru1313)
         rc, out = jalan(sub1313,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv foreach membaca stdin: gerbang gagal (Audit 2223)", rc != 0)
+        periksa("qsv foreach membaca stdin: gerbang gagal (Audit 2223)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1313, ignore_errors=True)
         sub1314 = klon(tmp, "sub1314")
         berkas_aksi1314 = os.path.join(
@@ -27979,7 +27979,7 @@ def main():
             f.write(isi_baru1315)
         rc, out = jalan(sub1315,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv extsort membaca stdin: gerbang gagal (Audit 2227)", rc != 0)
+        periksa("qsv extsort membaca stdin: gerbang gagal (Audit 2227)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1315, ignore_errors=True)
         sub1316 = klon(tmp, "sub1316")
         berkas_aksi1316 = os.path.join(
@@ -28000,7 +28000,7 @@ def main():
             f.write(isi_baru1316)
         rc, out = jalan(sub1316,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv partition membaca stdin: gerbang gagal (Audit 2228)", rc != 0)
+        periksa("qsv partition membaca stdin: gerbang gagal (Audit 2228)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1316, ignore_errors=True)
         sub1317 = klon(tmp, "sub1317")
         berkas_aksi1317 = os.path.join(
@@ -28021,7 +28021,7 @@ def main():
             f.write(isi_baru1317)
         rc, out = jalan(sub1317,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv sortcheck membaca stdin: gerbang gagal (Audit 2229)", rc != 0)
+        periksa("qsv sortcheck membaca stdin: gerbang gagal (Audit 2229)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1317, ignore_errors=True)
         sub1318 = klon(tmp, "sub1318")
         berkas_aksi1318 = os.path.join(
@@ -28042,7 +28042,7 @@ def main():
             f.write(isi_baru1318)
         rc, out = jalan(sub1318,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv frequency membaca stdin: gerbang gagal (Audit 2230)", rc != 0)
+        periksa("qsv frequency membaca stdin: gerbang gagal (Audit 2230)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1318, ignore_errors=True)
         sub1319 = klon(tmp, "sub1319")
         berkas_aksi1319 = os.path.join(
@@ -28063,7 +28063,7 @@ def main():
             f.write(isi_baru1319)
         rc, out = jalan(sub1319,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvpy berkas masuk REPL stdin: gerbang gagal (Audit 2231)", rc != 0)
+        periksa("csvpy berkas masuk REPL stdin: gerbang gagal (Audit 2231)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1319, ignore_errors=True)
         sub1320 = klon(tmp, "sub1320")
         berkas_aksi1320 = os.path.join(
@@ -28105,7 +28105,7 @@ def main():
             f.write(isi_baru1321)
         rc, out = jalan(sub1321,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv extsort -s col tanpa masukan: penguras - gerbang gagal (Audit 2235)", rc != 0)
+        periksa("qsv extsort -s col tanpa masukan: penguras - gerbang gagal (Audit 2235)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1321, ignore_errors=True)
         sub1322 = klon(tmp, "sub1322")
         berkas_aksi1322 = os.path.join(
@@ -28126,7 +28126,7 @@ def main():
             f.write(isi_baru1322)
         rc, out = jalan(sub1322,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv frequency polos: penguras - gerbang gagal (Audit 2236)", rc != 0)
+        periksa("xsv frequency polos: penguras - gerbang gagal (Audit 2236)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1322, ignore_errors=True)
         sub1323 = klon(tmp, "sub1323")
         berkas_aksi1323 = os.path.join(
@@ -28168,7 +28168,7 @@ def main():
             f.write(isi_baru1324)
         rc, out = jalan(sub1324,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv geocode suggest kolom tanpa masukan: penguras - gerbang gagal (Audit 2237)", rc != 0)
+        periksa("qsv geocode suggest kolom tanpa masukan: penguras - gerbang gagal (Audit 2237)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1324, ignore_errors=True)
         sub1325 = klon(tmp, "sub1325")
         berkas_aksi1325 = os.path.join(
@@ -28210,7 +28210,7 @@ def main():
             f.write(isi_baru1326)
         rc, out = jalan(sub1326,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv describegpt polos: penguras - gerbang gagal (Audit 2238)", rc != 0)
+        periksa("qsv describegpt polos: penguras - gerbang gagal (Audit 2238)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1326, ignore_errors=True)
         sub1327 = klon(tmp, "sub1327")
         berkas_aksi1327 = os.path.join(
@@ -28231,7 +28231,7 @@ def main():
             f.write(isi_baru1327)
         rc, out = jalan(sub1327,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvjson polos: penguras - gerbang gagal (Audit 2239)", rc != 0)
+        periksa("csvjson polos: penguras - gerbang gagal (Audit 2239)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1327, ignore_errors=True)
         sub1328 = klon(tmp, "sub1328")
         berkas_aksi1328 = os.path.join(
@@ -28252,7 +28252,7 @@ def main():
             f.write(isi_baru1328)
         rc, out = jalan(sub1328,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv cat rows --group fname tanpa masukan: penguras - gerbang gagal (Audit 2240)", rc != 0)
+        periksa("qsv cat rows --group fname tanpa masukan: penguras - gerbang gagal (Audit 2240)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1328, ignore_errors=True)
         sub1329 = klon(tmp, "sub1329")
         berkas_aksi1329 = os.path.join(
@@ -28294,7 +28294,7 @@ def main():
             f.write(isi_baru1330)
         rc, out = jalan(sub1330,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv searchset tanpa masukan: penguras - gerbang gagal (Audit 2241)", rc != 0)
+        periksa("qsv searchset tanpa masukan: penguras - gerbang gagal (Audit 2241)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1330, ignore_errors=True)
         sub1331 = klon(tmp, "sub1331")
         berkas_aksi1331 = os.path.join(
@@ -28378,7 +28378,7 @@ def main():
             f.write(isi_baru1334)
         rc, out = jalan(sub1334,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvjson '-': penguras - gerbang gagal (Audit 2244)", rc != 0)
+        periksa("csvjson '-': penguras - gerbang gagal (Audit 2244)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1334, ignore_errors=True)
         sub1335 = klon(tmp, "sub1335")
         berkas_aksi1335 = os.path.join(
@@ -28399,7 +28399,7 @@ def main():
             f.write(isi_baru1335)
         rc, out = jalan(sub1335,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvlook '-': penguras - gerbang gagal (Audit 2244)", rc != 0)
+        periksa("csvlook '-': penguras - gerbang gagal (Audit 2244)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1335, ignore_errors=True)
         sub1336 = klon(tmp, "sub1336")
         berkas_aksi1336 = os.path.join(
@@ -28420,7 +28420,7 @@ def main():
             f.write(isi_baru1336)
         rc, out = jalan(sub1336,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvgrep '-': penguras - gerbang gagal (Audit 2244)", rc != 0)
+        periksa("csvgrep '-': penguras - gerbang gagal (Audit 2244)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1336, ignore_errors=True)
         sub1337 = klon(tmp, "sub1337")
         berkas_aksi1337 = os.path.join(
@@ -28441,7 +28441,7 @@ def main():
             f.write(isi_baru1337)
         rc, out = jalan(sub1337,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv blake3 polos: penguras - gerbang gagal (Audit 2245)", rc != 0)
+        periksa("qsv blake3 polos: penguras - gerbang gagal (Audit 2245)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1337, ignore_errors=True)
         sub1338 = klon(tmp, "sub1338")
         berkas_aksi1338 = os.path.join(
@@ -28483,7 +28483,7 @@ def main():
             f.write(isi_baru1339)
         rc, out = jalan(sub1339,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv color polos: penguras - gerbang gagal (Audit 2246)", rc != 0)
+        periksa("qsv color polos: penguras - gerbang gagal (Audit 2246)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1339, ignore_errors=True)
         sub1340 = klon(tmp, "sub1340")
         berkas_aksi1340 = os.path.join(
@@ -28504,7 +28504,7 @@ def main():
             f.write(isi_baru1340)
         rc, out = jalan(sub1340,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv datefmt kolom tanpa masukan: penguras - gerbang gagal (Audit 2247)", rc != 0)
+        periksa("qsv datefmt kolom tanpa masukan: penguras - gerbang gagal (Audit 2247)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1340, ignore_errors=True)
         sub1341 = klon(tmp, "sub1341")
         berkas_aksi1341 = os.path.join(
@@ -28525,7 +28525,7 @@ def main():
             f.write(isi_baru1341)
         rc, out = jalan(sub1341,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv denull polos: penguras - gerbang gagal (Audit 2248)", rc != 0)
+        periksa("qsv denull polos: penguras - gerbang gagal (Audit 2248)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1341, ignore_errors=True)
         sub1342 = klon(tmp, "sub1342")
         berkas_aksi1342 = os.path.join(
@@ -28546,7 +28546,7 @@ def main():
             f.write(isi_baru1342)
         rc, out = jalan(sub1342,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv enum polos: penguras - gerbang gagal (Audit 2249)", rc != 0)
+        periksa("qsv enum polos: penguras - gerbang gagal (Audit 2249)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1342, ignore_errors=True)
         sub1343 = klon(tmp, "sub1343")
         berkas_aksi1343 = os.path.join(
@@ -28567,7 +28567,7 @@ def main():
             f.write(isi_baru1343)
         rc, out = jalan(sub1343,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv explode tanpa masukan: penguras - gerbang gagal (Audit 2250)", rc != 0)
+        periksa("qsv explode tanpa masukan: penguras - gerbang gagal (Audit 2250)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1343, ignore_errors=True)
         sub1344 = klon(tmp, "sub1344")
         berkas_aksi1344 = os.path.join(
@@ -28588,7 +28588,7 @@ def main():
             f.write(isi_baru1344)
         rc, out = jalan(sub1344,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv extdedup polos: penguras - gerbang gagal (Audit 2251)", rc != 0)
+        periksa("qsv extdedup polos: penguras - gerbang gagal (Audit 2251)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1344, ignore_errors=True)
         sub1345 = klon(tmp, "sub1345")
         berkas_aksi1345 = os.path.join(
@@ -28609,7 +28609,7 @@ def main():
             f.write(isi_baru1345)
         rc, out = jalan(sub1345,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fetchpost tanpa masukan: penguras - gerbang gagal (Audit 2252)", rc != 0)
+        periksa("qsv fetchpost tanpa masukan: penguras - gerbang gagal (Audit 2252)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1345, ignore_errors=True)
         sub1346 = klon(tmp, "sub1346")
         berkas_aksi1346 = os.path.join(
@@ -28630,7 +28630,7 @@ def main():
             f.write(isi_baru1346)
         rc, out = jalan(sub1346,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fill tanpa masukan: penguras - gerbang gagal (Audit 2253)", rc != 0)
+        periksa("qsv fill tanpa masukan: penguras - gerbang gagal (Audit 2253)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1346, ignore_errors=True)
         sub1347 = klon(tmp, "sub1347")
         berkas_aksi1347 = os.path.join(
@@ -28651,7 +28651,7 @@ def main():
             f.write(isi_baru1347)
         rc, out = jalan(sub1347,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fixedwidth polos: penguras - gerbang gagal (Audit 2254)", rc != 0)
+        periksa("qsv fixedwidth polos: penguras - gerbang gagal (Audit 2254)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1347, ignore_errors=True)
         sub1348 = klon(tmp, "sub1348")
         berkas_aksi1348 = os.path.join(
@@ -28672,7 +28672,7 @@ def main():
             f.write(isi_baru1348)
         rc, out = jalan(sub1348,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv flatten polos: penguras - gerbang gagal (Audit 2255)", rc != 0)
+        periksa("qsv flatten polos: penguras - gerbang gagal (Audit 2255)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1348, ignore_errors=True)
         sub1349 = klon(tmp, "sub1349")
         berkas_aksi1349 = os.path.join(
@@ -28693,7 +28693,7 @@ def main():
             f.write(isi_baru1349)
         rc, out = jalan(sub1349,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fmt polos: penguras - gerbang gagal (Audit 2256)", rc != 0)
+        periksa("qsv fmt polos: penguras - gerbang gagal (Audit 2256)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1349, ignore_errors=True)
         sub1350 = klon(tmp, "sub1350")
         berkas_aksi1350 = os.path.join(
@@ -28714,7 +28714,7 @@ def main():
             f.write(isi_baru1350)
         rc, out = jalan(sub1350,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv implode tanpa masukan: penguras - gerbang gagal (Audit 2257)", rc != 0)
+        periksa("qsv implode tanpa masukan: penguras - gerbang gagal (Audit 2257)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1350, ignore_errors=True)
         sub1351 = klon(tmp, "sub1351")
         berkas_aksi1351 = os.path.join(
@@ -28735,7 +28735,7 @@ def main():
             f.write(isi_baru1351)
         rc, out = jalan(sub1351,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv json polos: penguras - gerbang gagal (Audit 2258)", rc != 0)
+        periksa("qsv json polos: penguras - gerbang gagal (Audit 2258)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1351, ignore_errors=True)
         sub1352 = klon(tmp, "sub1352")
         berkas_aksi1352 = os.path.join(
@@ -28756,7 +28756,7 @@ def main():
             f.write(isi_baru1352)
         rc, out = jalan(sub1352,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv jsonl polos: penguras - gerbang gagal (Audit 2259)", rc != 0)
+        periksa("qsv jsonl polos: penguras - gerbang gagal (Audit 2259)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1352, ignore_errors=True)
         sub1353 = klon(tmp, "sub1353")
         berkas_aksi1353 = os.path.join(
@@ -28777,7 +28777,7 @@ def main():
             f.write(isi_baru1353)
         rc, out = jalan(sub1353,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv lens polos: penguras - gerbang gagal (Audit 2260)", rc != 0)
+        periksa("qsv lens polos: penguras - gerbang gagal (Audit 2260)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1353, ignore_errors=True)
         sub1354 = klon(tmp, "sub1354")
         berkas_aksi1354 = os.path.join(
@@ -28798,7 +28798,7 @@ def main():
             f.write(isi_baru1354)
         rc, out = jalan(sub1354,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv tojsonl polos: penguras - gerbang gagal (Audit 2261)", rc != 0)
+        periksa("qsv tojsonl polos: penguras - gerbang gagal (Audit 2261)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1354, ignore_errors=True)
         sub1355 = klon(tmp, "sub1355")
         berkas_aksi1355 = os.path.join(
@@ -28819,7 +28819,7 @@ def main():
             f.write(isi_baru1355)
         rc, out = jalan(sub1355,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv moarstats polos: penguras - gerbang gagal (Audit 2262)", rc != 0)
+        periksa("qsv moarstats polos: penguras - gerbang gagal (Audit 2262)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1355, ignore_errors=True)
         sub1356 = klon(tmp, "sub1356")
         berkas_aksi1356 = os.path.join(
@@ -28840,7 +28840,7 @@ def main():
             f.write(isi_baru1356)
         rc, out = jalan(sub1356,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv pragmastat polos: penguras - gerbang gagal (Audit 2263)", rc != 0)
+        periksa("qsv pragmastat polos: penguras - gerbang gagal (Audit 2263)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1356, ignore_errors=True)
         sub1357 = klon(tmp, "sub1357")
         berkas_aksi1357 = os.path.join(
@@ -28861,7 +28861,7 @@ def main():
             f.write(isi_baru1357)
         rc, out = jalan(sub1357,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv profile polos: penguras - gerbang gagal (Audit 2264)", rc != 0)
+        periksa("qsv profile polos: penguras - gerbang gagal (Audit 2264)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1357, ignore_errors=True)
         sub1358 = klon(tmp, "sub1358")
         berkas_aksi1358 = os.path.join(
@@ -28882,7 +28882,7 @@ def main():
             f.write(isi_baru1358)
         rc, out = jalan(sub1358,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv pseudo kolom tanpa masukan: penguras - gerbang gagal (Audit 2265)", rc != 0)
+        periksa("qsv pseudo kolom tanpa masukan: penguras - gerbang gagal (Audit 2265)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1358, ignore_errors=True)
         sub1359 = klon(tmp, "sub1359")
         berkas_aksi1359 = os.path.join(
@@ -28903,7 +28903,7 @@ def main():
             f.write(isi_baru1359)
         rc, out = jalan(sub1359,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv safenames polos: penguras - gerbang gagal (Audit 2266)", rc != 0)
+        periksa("qsv safenames polos: penguras - gerbang gagal (Audit 2266)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1359, ignore_errors=True)
         sub1360 = klon(tmp, "sub1360")
         berkas_aksi1360 = os.path.join(
@@ -28924,7 +28924,7 @@ def main():
             f.write(isi_baru1360)
         rc, out = jalan(sub1360,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv sniff polos: penguras - gerbang gagal (Audit 2267)", rc != 0)
+        periksa("qsv sniff polos: penguras - gerbang gagal (Audit 2267)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1360, ignore_errors=True)
         sub1361 = klon(tmp, "sub1361")
         berkas_aksi1361 = os.path.join(
@@ -28945,7 +28945,7 @@ def main():
             f.write(isi_baru1361)
         rc, out = jalan(sub1361,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv template polos: penguras - gerbang gagal (Audit 2268)", rc != 0)
+        periksa("qsv template polos: penguras - gerbang gagal (Audit 2268)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1361, ignore_errors=True)
         sub1362 = klon(tmp, "sub1362")
         berkas_aksi1362 = os.path.join(
@@ -28966,7 +28966,7 @@ def main():
             f.write(isi_baru1362)
         rc, out = jalan(sub1362,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv viz bar '-': penguras - gerbang gagal (Audit 2269)", rc != 0)
+        periksa("qsv viz bar '-': penguras - gerbang gagal (Audit 2269)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1362, ignore_errors=True)
         sub1363 = klon(tmp, "sub1363")
         berkas_aksi1363 = os.path.join(
@@ -29008,7 +29008,7 @@ def main():
             f.write(isi_baru1364)
         rc, out = jalan(sub1364,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv writestat polos: penguras - gerbang gagal (Audit 2270)", rc != 0)
+        periksa("qsv writestat polos: penguras - gerbang gagal (Audit 2270)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1364, ignore_errors=True)
         sub1365 = klon(tmp, "sub1365")
         berkas_aksi1365 = os.path.join(
@@ -29029,7 +29029,7 @@ def main():
             f.write(isi_baru1365)
         rc, out = jalan(sub1365,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv clipboard --save: penguras - gerbang gagal (Audit 2271)", rc != 0)
+        periksa("qsv clipboard --save: penguras - gerbang gagal (Audit 2271)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1365, ignore_errors=True)
         sub1366 = klon(tmp, "sub1366")
         berkas_aksi1366 = os.path.join(
@@ -29071,7 +29071,7 @@ def main():
             f.write(isi_baru1367)
         rc, out = jalan(sub1367,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv edit '-' tanpa --in-place: penguras - gerbang gagal (Audit 2272)", rc != 0)
+        periksa("qsv edit '-' tanpa --in-place: penguras - gerbang gagal (Audit 2272)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1367, ignore_errors=True)
         sub1368 = klon(tmp, "sub1368")
         berkas_aksi1368 = os.path.join(
@@ -29092,7 +29092,7 @@ def main():
             f.write(isi_baru1368)
         rc, out = jalan(sub1368,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv excel '-': penguras di master - gerbang gagal (Audit 2273)", rc != 0)
+        periksa("qsv excel '-': penguras di master - gerbang gagal (Audit 2273)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1368, ignore_errors=True)
         sub1369 = klon(tmp, "sub1369")
         berkas_aksi1369 = os.path.join(
@@ -29134,7 +29134,7 @@ def main():
             f.write(isi_baru1370)
         rc, out = jalan(sub1370,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv exclude input1 '-': penguras - gerbang gagal (Audit 2274)", rc != 0)
+        periksa("qsv exclude input1 '-': penguras - gerbang gagal (Audit 2274)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1370, ignore_errors=True)
         sub1371 = klon(tmp, "sub1371")
         berkas_aksi1371 = os.path.join(
@@ -29155,7 +29155,7 @@ def main():
             f.write(isi_baru1371)
         rc, out = jalan(sub1371,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv geoconvert '-': penguras - gerbang gagal (Audit 2275)", rc != 0)
+        periksa("qsv geoconvert '-': penguras - gerbang gagal (Audit 2275)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1371, ignore_errors=True)
         sub1372 = klon(tmp, "sub1372")
         berkas_aksi1372 = os.path.join(
@@ -29176,7 +29176,7 @@ def main():
             f.write(isi_baru1372)
         rc, out = jalan(sub1372,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv scoresql input '-': penguras - gerbang gagal (Audit 2276)", rc != 0)
+        periksa("qsv scoresql input '-': penguras - gerbang gagal (Audit 2276)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1372, ignore_errors=True)
         sub1373 = klon(tmp, "sub1373")
         berkas_aksi1373 = os.path.join(
@@ -29197,7 +29197,7 @@ def main():
             f.write(isi_baru1373)
         rc, out = jalan(sub1373,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv reverse polos: penguras - gerbang gagal (Audit 2277)", rc != 0)
+        periksa("xsv reverse polos: penguras - gerbang gagal (Audit 2277)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1373, ignore_errors=True)
         sub1374 = klon(tmp, "sub1374")
         berkas_aksi1374 = os.path.join(
@@ -29218,7 +29218,7 @@ def main():
             f.write(isi_baru1374)
         rc, out = jalan(sub1374,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv join input1 '-': penguras - gerbang gagal (Audit 2278)", rc != 0)
+        periksa("xsv join input1 '-': penguras - gerbang gagal (Audit 2278)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1374, ignore_errors=True)
         sub1375 = klon(tmp, "sub1375")
         berkas_aksi1375 = os.path.join(
@@ -29239,7 +29239,7 @@ def main():
             f.write(isi_baru1375)
         rc, out = jalan(sub1375,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv viz bar --color bernilai lalu '-': penguras - gerbang gagal (Audit 2279)", rc != 0)
+        periksa("qsv viz bar --color bernilai lalu '-': penguras - gerbang gagal (Audit 2279)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1375, ignore_errors=True)
         sub1376 = klon(tmp, "sub1376")
         berkas_aksi1376 = os.path.join(
@@ -29281,7 +29281,7 @@ def main():
             f.write(isi_baru1377)
         rc, out = jalan(sub1377,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv template -J bernilai: penguras - gerbang gagal (Audit 2281)", rc != 0)
+        periksa("qsv template -J bernilai: penguras - gerbang gagal (Audit 2281)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1377, ignore_errors=True)
         sub1378 = klon(tmp, "sub1378")
         berkas_aksi1378 = os.path.join(
@@ -29302,7 +29302,7 @@ def main():
             f.write(isi_baru1378)
         rc, out = jalan(sub1378,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fetchpost -t payload-tpl: penguras - gerbang gagal (Audit 2282)", rc != 0)
+        periksa("qsv fetchpost -t payload-tpl: penguras - gerbang gagal (Audit 2282)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1378, ignore_errors=True)
         sub1379 = klon(tmp, "sub1379")
         berkas_aksi1379 = os.path.join(
@@ -29323,7 +29323,7 @@ def main():
             f.write(isi_baru1379)
         rc, out = jalan(sub1379,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fetchpost -j globals-json: penguras - gerbang gagal (Audit 2283)", rc != 0)
+        periksa("qsv fetchpost -j globals-json: penguras - gerbang gagal (Audit 2283)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1379, ignore_errors=True)
         sub1380 = klon(tmp, "sub1380")
         berkas_aksi1380 = os.path.join(
@@ -29386,7 +29386,7 @@ def main():
             f.write(isi_baru1382)
         rc, out = jalan(sub1382,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv prompt --output: penguras - gerbang gagal (Audit 2286)", rc != 0)
+        periksa("qsv prompt --output: penguras - gerbang gagal (Audit 2286)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1382, ignore_errors=True)
         sub1383 = klon(tmp, "sub1383")
         berkas_aksi1383 = os.path.join(
@@ -29428,7 +29428,7 @@ def main():
             f.write(isi_baru1384)
         rc, out = jalan(sub1384,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv count -d bernilai: penguras - gerbang gagal (Audit 2287)", rc != 0)
+        periksa("qsv count -d bernilai: penguras - gerbang gagal (Audit 2287)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1384, ignore_errors=True)
         sub1385 = klon(tmp, "sub1385")
         berkas_aksi1385 = os.path.join(
@@ -29449,7 +29449,7 @@ def main():
             f.write(isi_baru1385)
         rc, out = jalan(sub1385,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv search -j bernilai: penguras - gerbang gagal (Audit 2288)", rc != 0)
+        periksa("qsv search -j bernilai: penguras - gerbang gagal (Audit 2288)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1385, ignore_errors=True)
         sub1386 = klon(tmp, "sub1386")
         berkas_aksi1386 = os.path.join(
@@ -29470,7 +29470,7 @@ def main():
             f.write(isi_baru1386)
         rc, out = jalan(sub1386,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv slice -o bernilai: penguras - gerbang gagal (Audit 2289)", rc != 0)
+        periksa("qsv slice -o bernilai: penguras - gerbang gagal (Audit 2289)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1386, ignore_errors=True)
         sub1387 = klon(tmp, "sub1387")
         berkas_aksi1387 = os.path.join(
@@ -29491,7 +29491,7 @@ def main():
             f.write(isi_baru1387)
         rc, out = jalan(sub1387,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fetch --jaq bernilai: penguras - gerbang gagal (Audit 2290)", rc != 0)
+        periksa("qsv fetch --jaq bernilai: penguras - gerbang gagal (Audit 2290)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1387, ignore_errors=True)
         sub1388 = klon(tmp, "sub1388")
         berkas_aksi1388 = os.path.join(
@@ -29533,7 +29533,7 @@ def main():
             f.write(isi_baru1389)
         rc, out = jalan(sub1389,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv partition --limit bernilai: penguras - gerbang gagal (Audit 2292)", rc != 0)
+        periksa("qsv partition --limit bernilai: penguras - gerbang gagal (Audit 2292)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1389, ignore_errors=True)
         sub1390 = klon(tmp, "sub1390")
         berkas_aksi1390 = os.path.join(
@@ -29554,7 +29554,7 @@ def main():
             f.write(isi_baru1390)
         rc, out = jalan(sub1390,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv frequency --weight bernilai: penguras - gerbang gagal (Audit 2293)", rc != 0)
+        periksa("qsv frequency --weight bernilai: penguras - gerbang gagal (Audit 2293)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1390, ignore_errors=True)
         sub1391 = klon(tmp, "sub1391")
         berkas_aksi1391 = os.path.join(
@@ -29575,7 +29575,7 @@ def main():
             f.write(isi_baru1391)
         rc, out = jalan(sub1391,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv validate --size-limit bernilai: penguras - gerbang gagal (Audit 2294)", rc != 0)
+        periksa("qsv validate --size-limit bernilai: penguras - gerbang gagal (Audit 2294)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1391, ignore_errors=True)
         sub1392 = klon(tmp, "sub1392")
         berkas_aksi1392 = os.path.join(
@@ -29596,7 +29596,7 @@ def main():
             f.write(isi_baru1392)
         rc, out = jalan(sub1392,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv schema -o bernilai: penguras - gerbang gagal (Audit 2295)", rc != 0)
+        periksa("qsv schema -o bernilai: penguras - gerbang gagal (Audit 2295)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1392, ignore_errors=True)
         sub1393 = klon(tmp, "sub1393")
         berkas_aksi1393 = os.path.join(
@@ -29617,7 +29617,7 @@ def main():
             f.write(isi_baru1393)
         rc, out = jalan(sub1393,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv cat rows -d bernilai: penguras - gerbang gagal (Audit 2296)", rc != 0)
+        periksa("qsv cat rows -d bernilai: penguras - gerbang gagal (Audit 2296)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1393, ignore_errors=True)
         sub1394 = klon(tmp, "sub1394")
         berkas_aksi1394 = os.path.join(
@@ -29659,7 +29659,7 @@ def main():
             f.write(isi_baru1395)
         rc, out = jalan(sub1395,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv prompt -of bundel fd-output+output: penguras - gerbang gagal (Audit 2298)", rc != 0)
+        periksa("qsv prompt -of bundel fd-output+output: penguras - gerbang gagal (Audit 2298)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1395, ignore_errors=True)
         sub1396 = klon(tmp, "sub1396")
         berkas_aksi1396 = os.path.join(
@@ -29701,7 +29701,7 @@ def main():
             f.write(isi_baru1397)
         rc, out = jalan(sub1397,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fetchpost -t tertelan -c: dua operand penguras - gerbang gagal (Audit 2300)", rc != 0)
+        periksa("qsv fetchpost -t tertelan -c: dua operand penguras - gerbang gagal (Audit 2300)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1397, ignore_errors=True)
         sub1398 = klon(tmp, "sub1398")
         berkas_aksi1398 = os.path.join(
@@ -29806,7 +29806,7 @@ def main():
             f.write(isi_baru1402)
         rc, out = jalan(sub1402,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv stats --weight bernilai: penguras - gerbang gagal (Audit 2305)", rc != 0)
+        periksa("qsv stats --weight bernilai: penguras - gerbang gagal (Audit 2305)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1402, ignore_errors=True)
         sub1403 = klon(tmp, "sub1403")
         berkas_aksi1403 = os.path.join(
@@ -29827,7 +29827,7 @@ def main():
             f.write(isi_baru1403)
         rc, out = jalan(sub1403,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv select --seed bernilai: penguras - gerbang gagal (Audit 2306)", rc != 0)
+        periksa("qsv select --seed bernilai: penguras - gerbang gagal (Audit 2306)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1403, ignore_errors=True)
         sub1404 = klon(tmp, "sub1404")
         berkas_aksi1404 = os.path.join(
@@ -29848,7 +29848,7 @@ def main():
             f.write(isi_baru1404)
         rc, out = jalan(sub1404,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv sample --max-size bernilai: penguras - gerbang gagal (Audit 2307)", rc != 0)
+        periksa("qsv sample --max-size bernilai: penguras - gerbang gagal (Audit 2307)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1404, ignore_errors=True)
         sub1405 = klon(tmp, "sub1405")
         berkas_aksi1405 = os.path.join(
@@ -29869,7 +29869,7 @@ def main():
             f.write(isi_baru1405)
         rc, out = jalan(sub1405,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv split --filter bernilai: penguras - gerbang gagal (Audit 2308)", rc != 0)
+        periksa("qsv split --filter bernilai: penguras - gerbang gagal (Audit 2308)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1405, ignore_errors=True)
         sub1406 = klon(tmp, "sub1406")
         berkas_aksi1406 = os.path.join(
@@ -29890,7 +29890,7 @@ def main():
             f.write(isi_baru1406)
         rc, out = jalan(sub1406,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv join --keys-output bernilai: penguras - gerbang gagal (Audit 2309)", rc != 0)
+        periksa("qsv join --keys-output bernilai: penguras - gerbang gagal (Audit 2309)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1406, ignore_errors=True)
         sub1407 = klon(tmp, "sub1407")
         berkas_aksi1407 = os.path.join(
@@ -29911,7 +29911,7 @@ def main():
             f.write(isi_baru1407)
         rc, out = jalan(sub1407,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv transpose --long bernilai: penguras - gerbang gagal (Audit 2310)", rc != 0)
+        periksa("qsv transpose --long bernilai: penguras - gerbang gagal (Audit 2310)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1407, ignore_errors=True)
         sub1408 = klon(tmp, "sub1408")
         berkas_aksi1408 = os.path.join(
@@ -29932,7 +29932,7 @@ def main():
             f.write(isi_baru1408)
         rc, out = jalan(sub1408,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv replace -j bernilai: penguras - gerbang gagal (Audit 2311)", rc != 0)
+        periksa("qsv replace -j bernilai: penguras - gerbang gagal (Audit 2311)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1408, ignore_errors=True)
         sub1409 = klon(tmp, "sub1409")
         berkas_aksi1409 = os.path.join(
@@ -29953,7 +29953,7 @@ def main():
             f.write(isi_baru1409)
         rc, out = jalan(sub1409,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv to xlsx --table bernilai lalu '-': penguras - gerbang gagal (Audit 2312)", rc != 0)
+        periksa("qsv to xlsx --table bernilai lalu '-': penguras - gerbang gagal (Audit 2312)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1409, ignore_errors=True)
         sub1410 = klon(tmp, "sub1410")
         berkas_aksi1410 = os.path.join(
@@ -29974,7 +29974,7 @@ def main():
             f.write(isi_baru1410)
         rc, out = jalan(sub1410,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv to ods '-': penguras - gerbang gagal (Audit 2313)", rc != 0)
+        periksa("qsv to ods '-': penguras - gerbang gagal (Audit 2313)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1410, ignore_errors=True)
         sub1411 = klon(tmp, "sub1411")
         berkas_aksi1411 = os.path.join(
@@ -30037,7 +30037,7 @@ def main():
             f.write(isi_baru1413)
         rc, out = jalan(sub1413,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv geocode -f formatstr bernilai lalu '-': penguras - gerbang gagal (Audit 2316)", rc != 0)
+        periksa("qsv geocode -f formatstr bernilai lalu '-': penguras - gerbang gagal (Audit 2316)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1413, ignore_errors=True)
         sub1414 = klon(tmp, "sub1414")
         berkas_aksi1414 = os.path.join(
@@ -30058,7 +30058,7 @@ def main():
             f.write(isi_baru1414)
         rc, out = jalan(sub1414,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv apply summarize tanpa masukan: penguras - gerbang gagal (Audit 2317)", rc != 0)
+        periksa("qsv apply summarize tanpa masukan: penguras - gerbang gagal (Audit 2317)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1414, ignore_errors=True)
         sub1415 = klon(tmp, "sub1415")
         berkas_aksi1415 = os.path.join(
@@ -30079,7 +30079,7 @@ def main():
             f.write(isi_baru1415)
         rc, out = jalan(sub1415,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv apply operations --prompt bernilai lalu '-': penguras - gerbang gagal (Audit 2318)", rc != 0)
+        periksa("qsv apply operations --prompt bernilai lalu '-': penguras - gerbang gagal (Audit 2318)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1415, ignore_errors=True)
         sub1416 = klon(tmp, "sub1416")
         berkas_aksi1416 = os.path.join(
@@ -30121,7 +30121,7 @@ def main():
             f.write(isi_baru1417)
         rc, out = jalan(sub1417,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv apply summarize -c merekat tanpa masukan: penguras - gerbang gagal (Audit 2320)", rc != 0)
+        periksa("qsv apply summarize -c merekat tanpa masukan: penguras - gerbang gagal (Audit 2320)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1417, ignore_errors=True)
         sub1418 = klon(tmp, "sub1418")
         berkas_aksi1418 = os.path.join(
@@ -30142,7 +30142,7 @@ def main():
             f.write(isi_baru1418)
         rc, out = jalan(sub1418,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv apply dynfmt syarat merekat tanpa masukan: penguras - gerbang gagal (Audit 2321)", rc != 0)
+        periksa("qsv apply dynfmt syarat merekat tanpa masukan: penguras - gerbang gagal (Audit 2321)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1418, ignore_errors=True)
         sub1419 = klon(tmp, "sub1419")
         berkas_aksi1419 = os.path.join(
@@ -30163,7 +30163,7 @@ def main():
             f.write(isi_baru1419)
         rc, out = jalan(sub1419,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fixlengths --length sah tanpa masukan: penguras - gerbang gagal (Audit 2322)", rc != 0)
+        periksa("qsv fixlengths --length sah tanpa masukan: penguras - gerbang gagal (Audit 2322)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1419, ignore_errors=True)
         sub1420 = klon(tmp, "sub1420")
         berkas_aksi1420 = os.path.join(
@@ -30184,7 +30184,7 @@ def main():
             f.write(isi_baru1420)
         rc, out = jalan(sub1420,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv table polos: penguras - gerbang gagal (Audit 2323)", rc != 0)
+        periksa("qsv table polos: penguras - gerbang gagal (Audit 2323)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1420, ignore_errors=True)
         sub1421 = klon(tmp, "sub1421")
         berkas_aksi1421 = os.path.join(
@@ -30205,7 +30205,7 @@ def main():
             f.write(isi_baru1421)
         rc, out = jalan(sub1421,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fixlengths -i insert bernilai tanpa masukan: penguras - gerbang gagal (Audit 2324)", rc != 0)
+        periksa("qsv fixlengths -i insert bernilai tanpa masukan: penguras - gerbang gagal (Audit 2324)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1421, ignore_errors=True)
         sub1422 = klon(tmp, "sub1422")
         berkas_aksi1422 = os.path.join(
@@ -30226,7 +30226,7 @@ def main():
             f.write(isi_baru1422)
         rc, out = jalan(sub1422,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv table -p pad bernilai tanpa masukan: penguras - gerbang gagal (Audit 2325)", rc != 0)
+        periksa("qsv table -p pad bernilai tanpa masukan: penguras - gerbang gagal (Audit 2325)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1422, ignore_errors=True)
         sub1423 = klon(tmp, "sub1423")
         berkas_aksi1423 = os.path.join(
@@ -30268,7 +30268,7 @@ def main():
             f.write(isi_baru1424)
         rc, out = jalan(sub1424,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv count -d delimiter lalu '-': penguras - gerbang gagal (Audit 2327)", rc != 0)
+        periksa("xsv count -d delimiter lalu '-': penguras - gerbang gagal (Audit 2327)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1424, ignore_errors=True)
         sub1425 = klon(tmp, "sub1425")
         berkas_aksi1425 = os.path.join(
@@ -30289,7 +30289,7 @@ def main():
             f.write(isi_baru1425)
         rc, out = jalan(sub1425,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv search -d delimiter lalu '-': penguras - gerbang gagal (Audit 2328)", rc != 0)
+        periksa("xsv search -d delimiter lalu '-': penguras - gerbang gagal (Audit 2328)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1425, ignore_errors=True)
         sub1426 = klon(tmp, "sub1426")
         berkas_aksi1426 = os.path.join(
@@ -30310,7 +30310,7 @@ def main():
             f.write(isi_baru1426)
         rc, out = jalan(sub1426,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv slice -i index lalu '-': penguras - gerbang gagal (Audit 2329)", rc != 0)
+        periksa("xsv slice -i index lalu '-': penguras - gerbang gagal (Audit 2329)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1426, ignore_errors=True)
         sub1427 = klon(tmp, "sub1427")
         berkas_aksi1427 = os.path.join(
@@ -30331,7 +30331,7 @@ def main():
             f.write(isi_baru1427)
         rc, out = jalan(sub1427,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv fmt --out-delimiter lalu '-': penguras - gerbang gagal (Audit 2330)", rc != 0)
+        periksa("xsv fmt --out-delimiter lalu '-': penguras - gerbang gagal (Audit 2330)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1427, ignore_errors=True)
         sub1428 = klon(tmp, "sub1428")
         berkas_aksi1428 = os.path.join(
@@ -30352,7 +30352,7 @@ def main():
             f.write(isi_baru1428)
         rc, out = jalan(sub1428,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv sample --seed lalu '-': penguras - gerbang gagal (Audit 2331)", rc != 0)
+        periksa("xsv sample --seed lalu '-': penguras - gerbang gagal (Audit 2331)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1428, ignore_errors=True)
         sub1429 = klon(tmp, "sub1429")
         berkas_aksi1429 = os.path.join(
@@ -30373,7 +30373,7 @@ def main():
             f.write(isi_baru1429)
         rc, out = jalan(sub1429,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv headers -d delimiter tanpa masukan: penguras - gerbang gagal (Audit 2332)", rc != 0)
+        periksa("xsv headers -d delimiter tanpa masukan: penguras - gerbang gagal (Audit 2332)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1429, ignore_errors=True)
         sub1430 = klon(tmp, "sub1430")
         berkas_aksi1430 = os.path.join(
@@ -30394,7 +30394,7 @@ def main():
             f.write(isi_baru1430)
         rc, out = jalan(sub1430,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("xsv cat rows -d delimiter lalu '-': penguras - gerbang gagal (Audit 2333)", rc != 0)
+        periksa("xsv cat rows -d delimiter lalu '-': penguras - gerbang gagal (Audit 2333)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1430, ignore_errors=True)
         sub1431 = klon(tmp, "sub1431")
         berkas_aksi1431 = os.path.join(
@@ -30415,7 +30415,7 @@ def main():
             f.write(isi_baru1431)
         rc, out = jalan(sub1431,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsql --before-insert bernilai lalu '-': penguras - gerbang gagal (Audit 2334)", rc != 0)
+        periksa("csvsql --before-insert bernilai lalu '-': penguras - gerbang gagal (Audit 2334)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1431, ignore_errors=True)
         sub1432 = klon(tmp, "sub1432")
         berkas_aksi1432 = os.path.join(
@@ -30436,7 +30436,7 @@ def main():
             f.write(isi_baru1432)
         rc, out = jalan(sub1432,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsql --engine-option nargs=2 lalu '-': penguras - gerbang gagal (Audit 2335)", rc != 0)
+        periksa("csvsql --engine-option nargs=2 lalu '-': penguras - gerbang gagal (Audit 2335)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1432, ignore_errors=True)
         sub1433 = klon(tmp, "sub1433")
         berkas_aksi1433 = os.path.join(
@@ -30457,7 +30457,7 @@ def main():
             f.write(isi_baru1433)
         rc, out = jalan(sub1433,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsql --null-value nargs+ menelan nilai: penguras - gerbang gagal (Audit 2336)", rc != 0)
+        periksa("csvsql --null-value nargs+ menelan nilai: penguras - gerbang gagal (Audit 2336)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1433, ignore_errors=True)
         sub1434 = klon(tmp, "sub1434")
         berkas_aksi1434 = os.path.join(
@@ -30478,7 +30478,7 @@ def main():
             f.write(isi_baru1434)
         rc, out = jalan(sub1434,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvjoin --null-value menelan kedua berkas: penguras - gerbang gagal (Audit 2337)", rc != 0)
+        periksa("csvjoin --null-value menelan kedua berkas: penguras - gerbang gagal (Audit 2337)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1434, ignore_errors=True)
         sub1435 = klon(tmp, "sub1435")
         berkas_aksi1435 = os.path.join(
@@ -30541,7 +30541,7 @@ def main():
             f.write(isi_baru1437)
         rc, out = jalan(sub1437,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvlook --null-value menelan nama berkas: penguras - gerbang gagal (Audit 2340)", rc != 0)
+        periksa("csvlook --null-value menelan nama berkas: penguras - gerbang gagal (Audit 2340)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1437, ignore_errors=True)
         sub1438 = klon(tmp, "sub1438")
         berkas_aksi1438 = os.path.join(
@@ -30604,7 +30604,7 @@ def main():
             f.write(isi_baru1440)
         rc, out = jalan(sub1440,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-uniq -f fields bernilai tanpa berkas: penguras - gerbang gagal (Audit 2343)", rc != 0)
+        periksa("tsv-uniq -f fields bernilai tanpa berkas: penguras - gerbang gagal (Audit 2343)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1440, ignore_errors=True)
         sub1441 = klon(tmp, "sub1441")
         berkas_aksi1441 = os.path.join(
@@ -30625,7 +30625,7 @@ def main():
             f.write(isi_baru1441)
         rc, out = jalan(sub1441,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvjoin polos membaca stdin (gabung dengan dirinya) - gerbang gagal (Audit 2344)", rc != 0)
+        periksa("csvjoin polos membaca stdin (gabung dengan dirinya) - gerbang gagal (Audit 2344)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1441, ignore_errors=True)
         sub1442 = klon(tmp, "sub1442")
         berkas_aksi1442 = os.path.join(
@@ -30646,7 +30646,7 @@ def main():
             f.write(isi_baru1442)
         rc, out = jalan(sub1442,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv stats bundel -Eo: -o ujung bundel menelan --output - penguras, gerbang gagal (Audit 2345)", rc != 0)
+        periksa("qsv stats bundel -Eo: -o ujung bundel menelan --output - penguras, gerbang gagal (Audit 2345)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1442, ignore_errors=True)
         sub1443 = klon(tmp, "sub1443")
         berkas_aksi1443 = os.path.join(
@@ -30751,7 +30751,7 @@ def main():
             f.write(isi_baru1447)
         rc, out = jalan(sub1447,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("sql2csv --execution-option nargs=2 tanpa berkas: penguras - gerbang gagal (Audit 2350)", rc != 0)
+        periksa("sql2csv --execution-option nargs=2 tanpa berkas: penguras - gerbang gagal (Audit 2350)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1447, ignore_errors=True)
         sub1448 = klon(tmp, "sub1448")
         berkas_aksi1448 = os.path.join(
@@ -30814,7 +30814,7 @@ def main():
             f.write(isi_baru1450)
         rc, out = jalan(sub1450,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("in2csv -f csv '-': stdin dengan format - penguras, gerbang gagal (Audit 2353)", rc != 0)
+        periksa("in2csv -f csv '-': stdin dengan format - penguras, gerbang gagal (Audit 2353)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1450, ignore_errors=True)
         sub1451 = klon(tmp, "sub1451")
         berkas_aksi1451 = os.path.join(
@@ -30835,7 +30835,7 @@ def main():
             f.write(isi_baru1451)
         rc, out = jalan(sub1451,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("in2csv --sheet bernilai tanpa berkas: penguras - gerbang gagal (Audit 2354)", rc != 0)
+        periksa("in2csv --sheet bernilai tanpa berkas: penguras - gerbang gagal (Audit 2354)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1451, ignore_errors=True)
         sub1452 = klon(tmp, "sub1452")
         berkas_aksi1452 = os.path.join(
@@ -30856,7 +30856,7 @@ def main():
             f.write(isi_baru1452)
         rc, out = jalan(sub1452,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsql berkas + '-': input_paths nargs='*' membaca stdin - gerbang gagal (Audit 2355)", rc != 0)
+        periksa("csvsql berkas + '-': input_paths nargs='*' membaca stdin - gerbang gagal (Audit 2355)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1452, ignore_errors=True)
         sub1453 = klon(tmp, "sub1453")
         berkas_aksi1453 = os.path.join(
@@ -30877,7 +30877,7 @@ def main():
             f.write(isi_baru1453)
         rc, out = jalan(sub1453,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-append -s source-header tanpa berkas: penguras - gerbang gagal (Audit 2356)", rc != 0)
+        periksa("tsv-append -s source-header tanpa berkas: penguras - gerbang gagal (Audit 2356)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1453, ignore_errors=True)
         sub1454 = klon(tmp, "sub1454")
         berkas_aksi1454 = os.path.join(
@@ -30898,7 +30898,7 @@ def main():
             f.write(isi_baru1454)
         rc, out = jalan(sub1454,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-filter --label mode label tanpa berkas: penguras - gerbang gagal (Audit 2357)", rc != 0)
+        periksa("tsv-filter --label mode label tanpa berkas: penguras - gerbang gagal (Audit 2357)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1454, ignore_errors=True)
         sub1455 = klon(tmp, "sub1455")
         berkas_aksi1455 = os.path.join(
@@ -31045,7 +31045,7 @@ def main():
             f.write(isi_baru1461)
         rc, out = jalan(sub1461,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvgrep --file pola resmi tanpa berkas data: penguras - gerbang gagal (Audit 2364)", rc != 0)
+        periksa("csvgrep --file pola resmi tanpa berkas data: penguras - gerbang gagal (Audit 2364)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1461, ignore_errors=True)
         sub1462 = klon(tmp, "sub1462")
         berkas_aksi1462 = os.path.join(
@@ -31066,7 +31066,7 @@ def main():
             f.write(isi_baru1462)
         rc, out = jalan(sub1462,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvstat -i indent tanpa berkas: penguras - gerbang gagal (Audit 2365)", rc != 0)
+        periksa("csvstat -i indent tanpa berkas: penguras - gerbang gagal (Audit 2365)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1462, ignore_errors=True)
         sub1463 = klon(tmp, "sub1463")
         berkas_aksi1463 = os.path.join(
@@ -31087,7 +31087,7 @@ def main():
             f.write(isi_baru1463)
         rc, out = jalan(sub1463,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvjson --type/--geometry tanpa berkas: penguras - gerbang gagal (Audit 2366)", rc != 0)
+        periksa("csvjson --type/--geometry tanpa berkas: penguras - gerbang gagal (Audit 2366)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1463, ignore_errors=True)
         sub1464 = klon(tmp, "sub1464")
         berkas_aksi1464 = os.path.join(
@@ -31108,7 +31108,7 @@ def main():
             f.write(isi_baru1464)
         rc, out = jalan(sub1464,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("mlr rantai then tanpa berkas: penguras - gerbang gagal (Audit 2367)", rc != 0)
+        periksa("mlr rantai then tanpa berkas: penguras - gerbang gagal (Audit 2367)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1464, ignore_errors=True)
         sub1465 = klon(tmp, "sub1465")
         berkas_aksi1465 = os.path.join(
@@ -31255,7 +31255,7 @@ def main():
             f.write(isi_baru1471)
         rc, out = jalan(sub1471,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-summarize operator huruf besar (caseInsensitive): penguras - gerbang gagal (Audit 2374)", rc != 0)
+        periksa("tsv-summarize operator huruf besar (caseInsensitive): penguras - gerbang gagal (Audit 2374)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1471, ignore_errors=True)
         sub1472 = klon(tmp, "sub1472")
         berkas_aksi1472 = os.path.join(
@@ -31297,7 +31297,7 @@ def main():
             f.write(isi_baru1473)
         rc, out = jalan(sub1473,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("in2csv -q bernilai dalam bundel: -n tak hadir, penguras - gerbang gagal (Audit 2376)", rc != 0)
+        periksa("in2csv -q bernilai dalam bundel: -n tak hadir, penguras - gerbang gagal (Audit 2376)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1473, ignore_errors=True)
         sub1474 = klon(tmp, "sub1474")
         berkas_aksi1474 = os.path.join(
@@ -31318,7 +31318,7 @@ def main():
             f.write(isi_baru1474)
         rc, out = jalan(sub1474,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("in2csv -f di bundel dengan format Excel: penguras - gerbang gagal (Audit 2377)", rc != 0)
+        periksa("in2csv -f di bundel dengan format Excel: penguras - gerbang gagal (Audit 2377)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1474, ignore_errors=True)
         sub1475 = klon(tmp, "sub1475")
         berkas_aksi1475 = os.path.join(
@@ -31402,7 +31402,7 @@ def main():
             f.write(isi_baru1478)
         rc, out = jalan(sub1478,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv fetch nilai --http-header mirip opsi: bukan duplikat - gerbang gagal (Audit 2381)", rc != 0)
+        periksa("qsv fetch nilai --http-header mirip opsi: bukan duplikat - gerbang gagal (Audit 2381)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1478, ignore_errors=True)
         sub1479 = klon(tmp, "sub1479")
         berkas_aksi1479 = os.path.join(
@@ -31465,7 +31465,7 @@ def main():
             f.write(isi_baru1481)
         rc, out = jalan(sub1481,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-summarize -r nilai negatif sah: penguras - gerbang gagal (Audit 2384)", rc != 0)
+        periksa("tsv-summarize -r nilai negatif sah: penguras - gerbang gagal (Audit 2384)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1481, ignore_errors=True)
         sub1482 = klon(tmp, "sub1482")
         berkas_aksi1482 = os.path.join(
@@ -31549,7 +31549,7 @@ def main():
             f.write(isi_baru1485)
         rc, out = jalan(sub1485,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvlook bundel bool+bernilai: nilai tertelan, penguras - gerbang gagal (Audit 2388)", rc != 0)
+        periksa("csvlook bundel bool+bernilai: nilai tertelan, penguras - gerbang gagal (Audit 2388)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1485, ignore_errors=True)
         sub1486 = klon(tmp, "sub1486")
         berkas_aksi1486 = os.path.join(
@@ -31570,7 +31570,7 @@ def main():
             f.write(isi_baru1486)
         rc, out = jalan(sub1486,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvgrep -f di bundel: pencocok hadir, penguras - gerbang gagal (Audit 2389)", rc != 0)
+        periksa("csvgrep -f di bundel: pencocok hadir, penguras - gerbang gagal (Audit 2389)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1486, ignore_errors=True)
         sub1487 = klon(tmp, "sub1487")
         berkas_aksi1487 = os.path.join(
@@ -31612,7 +31612,7 @@ def main():
             f.write(isi_baru1488)
         rc, out = jalan(sub1488,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-select --FIELDS huruf besar: syarat terpenuhi, penguras - gerbang gagal (Audit 2391)", rc != 0)
+        periksa("tsv-select --FIELDS huruf besar: syarat terpenuhi, penguras - gerbang gagal (Audit 2391)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1488, ignore_errors=True)
         sub1489 = klon(tmp, "sub1489")
         berkas_aksi1489 = os.path.join(
@@ -31675,7 +31675,7 @@ def main():
             f.write(isi_baru1491)
         rc, out = jalan(sub1491,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvlook singkatan awalan --null-v: nilai tertelan, penguras - gerbang gagal (Audit 2394)", rc != 0)
+        periksa("csvlook singkatan awalan --null-v: nilai tertelan, penguras - gerbang gagal (Audit 2394)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1491, ignore_errors=True)
         sub1492 = klon(tmp, "sub1492")
         berkas_aksi1492 = os.path.join(
@@ -31717,7 +31717,7 @@ def main():
             f.write(isi_baru1493)
         rc, out = jalan(sub1493,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvpy operand sesudah -- harfiah: berkas dimuat, penguras - gerbang gagal (Audit 2396)", rc != 0)
+        periksa("csvpy operand sesudah -- harfiah: berkas dimuat, penguras - gerbang gagal (Audit 2396)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1493, ignore_errors=True)
         sub1494 = klon(tmp, "sub1494")
         berkas_aksi1494 = os.path.join(
@@ -31738,7 +31738,7 @@ def main():
             f.write(isi_baru1494)
         rc, out = jalan(sub1494,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-summarize -G merekat huruf besar sah: penguras - gerbang gagal (Audit 2397)", rc != 0)
+        periksa("tsv-summarize -G merekat huruf besar sah: penguras - gerbang gagal (Audit 2397)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1494, ignore_errors=True)
         sub1495 = klon(tmp, "sub1495")
         berkas_aksi1495 = os.path.join(
@@ -31801,7 +31801,7 @@ def main():
             f.write(isi_baru1497)
         rc, out = jalan(sub1497,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvclean --label menelan nama berkas: tanpa operand, penguras - gerbang gagal (Audit 2400)", rc != 0)
+        periksa("csvclean --label menelan nama berkas: tanpa operand, penguras - gerbang gagal (Audit 2400)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1497, ignore_errors=True)
         sub1498 = klon(tmp, "sub1498")
         berkas_aksi1498 = os.path.join(
@@ -31822,7 +31822,7 @@ def main():
             f.write(isi_baru1498)
         rc, out = jalan(sub1498,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-append -V jadi nilai -s: bukan version, penguras - gerbang gagal (Audit 2401)", rc != 0)
+        periksa("tsv-append -V jadi nilai -s: bukan version, penguras - gerbang gagal (Audit 2401)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1498, ignore_errors=True)
         sub1499 = klon(tmp, "sub1499")
         berkas_aksi1499 = os.path.join(
@@ -31843,7 +31843,7 @@ def main():
             f.write(isi_baru1499)
         rc, out = jalan(sub1499,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-summarize -r eksponen bertanda sah: penguras - gerbang gagal (Audit 2402)", rc != 0)
+        periksa("tsv-summarize -r eksponen bertanda sah: penguras - gerbang gagal (Audit 2402)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1499, ignore_errors=True)
         sub1500 = klon(tmp, "sub1500")
         berkas_aksi1500 = os.path.join(
@@ -31906,7 +31906,7 @@ def main():
             f.write(isi_baru1502)
         rc, out = jalan(sub1502,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvclean singkatan pengaktif unik: penguras - gerbang gagal (Audit 2405)", rc != 0)
+        periksa("csvclean singkatan pengaktif unik: penguras - gerbang gagal (Audit 2405)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1502, ignore_errors=True)
         sub1503 = klon(tmp, "sub1503")
         berkas_aksi1503 = os.path.join(
@@ -31927,7 +31927,7 @@ def main():
             f.write(isi_baru1503)
         rc, out = jalan(sub1503,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvgrep singkatan -c/-r unik: penguras - gerbang gagal (Audit 2405)", rc != 0)
+        periksa("csvgrep singkatan -c/-r unik: penguras - gerbang gagal (Audit 2405)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1503, ignore_errors=True)
         sub1504 = klon(tmp, "sub1504")
         berkas_aksi1504 = os.path.join(
@@ -31969,7 +31969,7 @@ def main():
             f.write(isi_baru1505)
         rc, out = jalan(sub1505,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsql singkatan engine-option di saringan: penguras - gerbang gagal (Audit 2407)", rc != 0)
+        periksa("csvsql singkatan engine-option di saringan: penguras - gerbang gagal (Audit 2407)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1505, ignore_errors=True)
         sub1506 = klon(tmp, "sub1506")
         berkas_aksi1506 = os.path.join(
@@ -32074,7 +32074,7 @@ def main():
             f.write(isi_baru1510)
         rc, out = jalan(sub1510,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-append opsi huruf besar + -V nilai: penguras - gerbang gagal (Audit 2412)", rc != 0)
+        periksa("tsv-append opsi huruf besar + -V nilai: penguras - gerbang gagal (Audit 2412)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1510, ignore_errors=True)
         sub1511 = klon(tmp, "sub1511")
         berkas_aksi1511 = os.path.join(
@@ -32137,7 +32137,7 @@ def main():
             f.write(isi_baru1513)
         rc, out = jalan(sub1513,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-summarize -r sufiks imajiner sah: penguras - gerbang gagal (Audit 2415)", rc != 0)
+        periksa("tsv-summarize -r sufiks imajiner sah: penguras - gerbang gagal (Audit 2415)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1513, ignore_errors=True)
         sub1514 = klon(tmp, "sub1514")
         berkas_aksi1514 = os.path.join(
@@ -32221,7 +32221,7 @@ def main():
             f.write(isi_baru1517)
         rc, out = jalan(sub1517,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvlook --null singkatan pendek sah: penguras - gerbang gagal (Audit 2418)", rc != 0)
+        periksa("csvlook --null singkatan pendek sah: penguras - gerbang gagal (Audit 2418)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1517, ignore_errors=True)
         sub1518 = klon(tmp, "sub1518")
         berkas_aksi1518 = os.path.join(
@@ -32326,7 +32326,7 @@ def main():
             f.write(isi_baru1522)
         rc, out = jalan(sub1522,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvpy --l unik ke --locale: konsol menguras - gerbang gagal (Audit 2422)", rc != 0)
+        periksa("csvpy --l unik ke --locale: konsol menguras - gerbang gagal (Audit 2422)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1522, ignore_errors=True)
         sub1523 = klon(tmp, "sub1523")
         berkas_aksi1523 = os.path.join(
@@ -32389,7 +32389,7 @@ def main():
             f.write(isi_baru1525)
         rc, out = jalan(sub1525,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-select --version=false berjalan normal: penguras - gerbang gagal (Audit 2423)", rc != 0)
+        periksa("tsv-select --version=false berjalan normal: penguras - gerbang gagal (Audit 2423)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1525, ignore_errors=True)
         sub1526 = klon(tmp, "sub1526")
         berkas_aksi1526 = os.path.join(
@@ -32515,7 +32515,7 @@ def main():
             f.write(isi_baru1531)
         rc, out = jalan(sub1531,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvpy berkas bernama --zero sesudah --: konsol menguras - gerbang gagal (Audit 2427)", rc != 0)
+        periksa("csvpy berkas bernama --zero sesudah --: konsol menguras - gerbang gagal (Audit 2427)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1531, ignore_errors=True)
         sub1532 = klon(tmp, "sub1532")
         berkas_aksi1532 = os.path.join(
@@ -32536,7 +32536,7 @@ def main():
             f.write(isi_baru1532)
         rc, out = jalan(sub1532,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-select =False tak peka huruf Phobos: berjalan, penguras - gerbang gagal (Audit 2428)", rc != 0)
+        periksa("tsv-select =False tak peka huruf Phobos: berjalan, penguras - gerbang gagal (Audit 2428)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1532, ignore_errors=True)
         sub1533 = klon(tmp, "sub1533")
         berkas_aksi1533 = os.path.join(
@@ -32599,7 +32599,7 @@ def main():
             f.write(isi_baru1535)
         rc, out = jalan(sub1535,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("in2csv pemisah -- lalu -: membaca stdin - gerbang gagal (Audit 2430)", rc != 0)
+        periksa("in2csv pemisah -- lalu -: membaca stdin - gerbang gagal (Audit 2430)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1535, ignore_errors=True)
         sub1536 = klon(tmp, "sub1536")
         berkas_aksi1536 = os.path.join(
@@ -32620,7 +32620,7 @@ def main():
             f.write(isi_baru1536)
         rc, out = jalan(sub1536,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsql pemisah -- tak ditelan penjaga: membaca stdin - gerbang gagal (Audit 2430)", rc != 0)
+        periksa("csvsql pemisah -- tak ditelan penjaga: membaca stdin - gerbang gagal (Audit 2430)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1536, ignore_errors=True)
         sub1537 = klon(tmp, "sub1537")
         berkas_aksi1537 = os.path.join(
@@ -32914,7 +32914,7 @@ def main():
             f.write(isi_baru1550)
         rc, out = jalan(sub1550,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsql turunan insert tersirat dari query: membaca stdin - gerbang gagal (Audit 2439)", rc != 0)
+        periksa("csvsql turunan insert tersirat dari query: membaca stdin - gerbang gagal (Audit 2439)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1550, ignore_errors=True)
         sub1551 = klon(tmp, "sub1551")
         berkas_aksi1551 = os.path.join(
@@ -32935,7 +32935,7 @@ def main():
             f.write(isi_baru1551)
         rc, out = jalan(sub1551,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvlook nilai kosong merekat: membaca stdin - gerbang gagal (Audit 2440)", rc != 0)
+        periksa("csvlook nilai kosong merekat: membaca stdin - gerbang gagal (Audit 2440)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1551, ignore_errors=True)
         sub1552 = klon(tmp, "sub1552")
         berkas_aksi1552 = os.path.join(
@@ -32956,7 +32956,7 @@ def main():
             f.write(isi_baru1552)
         rc, out = jalan(sub1552,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("yq ekspresi angka sesudah --: membaca stdin - gerbang gagal (Audit 2441)", rc != 0)
+        periksa("yq ekspresi angka sesudah --: membaca stdin - gerbang gagal (Audit 2441)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1552, ignore_errors=True)
         sub1553 = klon(tmp, "sub1553")
         berkas_aksi1553 = os.path.join(
@@ -33019,7 +33019,7 @@ def main():
             f.write(isi_baru1555)
         rc, out = jalan(sub1555,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csvsql singkatan --que memicu insert tersirat: membaca stdin - gerbang gagal (Audit 2443)", rc != 0)
+        periksa("csvsql singkatan --que memicu insert tersirat: membaca stdin - gerbang gagal (Audit 2443)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1555, ignore_errors=True)
         sub1556 = klon(tmp, "sub1556")
         berkas_aksi1556 = os.path.join(
@@ -33061,7 +33061,7 @@ def main():
             f.write(isi_baru1557)
         rc, out = jalan(sub1557,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("in2csv bundel bool sah -lv: membaca stdin - gerbang gagal (Audit 2445)", rc != 0)
+        periksa("in2csv bundel bool sah -lv: membaca stdin - gerbang gagal (Audit 2445)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1557, ignore_errors=True)
         sub1558 = klon(tmp, "sub1558")
         berkas_aksi1558 = os.path.join(
@@ -33250,7 +33250,7 @@ def main():
             f.write(isi_baru1566)
         rc, out = jalan(sub1566,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv -h nilai opsi khas docopt: template terbaca - gerbang menolak (Audit 2453)", rc != 0)
+        periksa("qsv -h nilai opsi khas docopt: template terbaca - gerbang menolak (Audit 2453)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1566, ignore_errors=True)
         sub1567 = klon(tmp, "sub1567")
         berkas_aksi1567 = os.path.join(
@@ -33271,7 +33271,7 @@ def main():
             f.write(isi_baru1567)
         rc, out = jalan(sub1567,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("jq --arg dua token: --help adalah nilai - gerbang menolak (Audit 2454)", rc != 0)
+        periksa("jq --arg dua token: --help adalah nilai - gerbang menolak (Audit 2454)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1567, ignore_errors=True)
         sub1568 = klon(tmp, "sub1568")
         berkas_aksi1568 = os.path.join(
@@ -33292,7 +33292,7 @@ def main():
             f.write(isi_baru1568)
         rc, out = jalan(sub1568,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("grep --label: --help adalah label - gerbang menolak (Audit 2454)", rc != 0)
+        periksa("grep --label: --help adalah label - gerbang menolak (Audit 2454)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1568, ignore_errors=True)
         sub1569 = klon(tmp, "sub1569")
         berkas_aksi1569 = os.path.join(
@@ -33397,7 +33397,7 @@ def main():
             f.write(isi_baru1573)
         rc, out = jalan(sub1573,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("grep --regex singkatan getopt: pola informasional - gerbang menolak (Audit 2459)", rc != 0)
+        periksa("grep --regex singkatan getopt: pola informasional - gerbang menolak (Audit 2459)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1573, ignore_errors=True)
         sub1574 = klon(tmp, "sub1574")
         berkas_aksi1574 = os.path.join(
@@ -33418,7 +33418,7 @@ def main():
             f.write(isi_baru1574)
         rc, out = jalan(sub1574,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("grep --exclude: --help adalah nilai saring - gerbang menolak (Audit 2460)", rc != 0)
+        periksa("grep --exclude: --help adalah nilai saring - gerbang menolak (Audit 2460)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1574, ignore_errors=True)
         sub1575 = klon(tmp, "sub1575")
         berkas_aksi1575 = os.path.join(
@@ -33460,7 +33460,7 @@ def main():
             f.write(isi_baru1576)
         rc, out = jalan(sub1576,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("qsv count -d: -h nilai delimiter - gerbang menolak (Audit 2462)", rc != 0)
+        periksa("qsv count -d: -h nilai delimiter - gerbang menolak (Audit 2462)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1576, ignore_errors=True)
         sub1577 = klon(tmp, "sub1577")
         berkas_aksi1577 = os.path.join(
@@ -33523,7 +33523,7 @@ def main():
             f.write(isi_baru1579)
         rc, out = jalan(sub1579,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("jq tanpa filter: filter implisit titik tetap menguras - gerbang menolak (Audit 2465)", rc != 0)
+        periksa("jq tanpa filter: filter implisit titik tetap menguras - gerbang menolak (Audit 2465)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1579, ignore_errors=True)
         sub1580 = klon(tmp, "sub1580")
         berkas_aksi1580 = os.path.join(
@@ -33544,7 +33544,7 @@ def main():
             f.write(isi_baru1580)
         rc, out = jalan(sub1580,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("fq --arg dua token: --help adalah nilai - gerbang menolak (Audit 2466)", rc != 0)
+        periksa("fq --arg dua token: --help adalah nilai - gerbang menolak (Audit 2466)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1580, ignore_errors=True)
         sub1581 = klon(tmp, "sub1581")
         berkas_aksi1581 = os.path.join(
@@ -33607,7 +33607,7 @@ def main():
             f.write(isi_baru1583)
         rc, out = jalan(sub1583,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("fq tanpa filter: filter implisit titik tetap menguras - gerbang menolak (Audit 2469)", rc != 0)
+        periksa("fq tanpa filter: filter implisit titik tetap menguras - gerbang menolak (Audit 2469)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1583, ignore_errors=True)
         sub1584 = klon(tmp, "sub1584")
         berkas_aksi1584 = os.path.join(
@@ -33691,7 +33691,7 @@ def main():
             f.write(isi_baru1587)
         rc, out = jalan(sub1587,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("fq --raw-file asli dua token: menguras - gerbang menolak (Audit 2473)", rc != 0)
+        periksa("fq --raw-file asli dua token: menguras - gerbang menolak (Audit 2473)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1587, ignore_errors=True)
         sub1588 = klon(tmp, "sub1588")
         berkas_aksi1588 = os.path.join(
@@ -33733,7 +33733,7 @@ def main():
             f.write(isi_baru1589)
         rc, out = jalan(sub1589,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("yq -f front-matter bernilai: menguras - gerbang menolak (Audit 2475)", rc != 0)
+        periksa("yq -f front-matter bernilai: menguras - gerbang menolak (Audit 2475)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1589, ignore_errors=True)
         sub1590 = klon(tmp, "sub1590")
         berkas_aksi1590 = os.path.join(
@@ -33775,7 +33775,7 @@ def main():
             f.write(isi_baru1591)
         rc, out = jalan(sub1591,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-sample tanpa berkas: bawaan stdin - gerbang menolak (Audit 2477)", rc != 0)
+        periksa("tsv-sample tanpa berkas: bawaan stdin - gerbang menolak (Audit 2477)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1591, ignore_errors=True)
         sub1592 = klon(tmp, "sub1592")
         berkas_aksi1592 = os.path.join(
@@ -33817,7 +33817,7 @@ def main():
             f.write(isi_baru1593)
         rc, out = jalan(sub1593,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("fq -V = --value-output bool, tetap membaca stdin - gerbang gagal (Audit 2479)", rc != 0)
+        periksa("fq -V = --value-output bool, tetap membaca stdin - gerbang gagal (Audit 2479)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1593, ignore_errors=True)
         sub1594 = klon(tmp, "sub1594")
         berkas_aksi1594 = os.path.join(
@@ -33838,7 +33838,7 @@ def main():
             f.write(isi_baru1594)
         rc, out = jalan(sub1594,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("yq --csv-separator bernilai: tanpa operand berkas membaca stdin - gerbang gagal (Audit 2480)", rc != 0)
+        periksa("yq --csv-separator bernilai: tanpa operand berkas membaca stdin - gerbang gagal (Audit 2480)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1594, ignore_errors=True)
         sub1595 = klon(tmp, "sub1595")
         berkas_aksi1595 = os.path.join(
@@ -33922,7 +33922,7 @@ def main():
             f.write(isi_baru1598)
         rc, out = jalan(sub1598,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-pretty telanjang membaca stdin (bawaan ['-']) - gerbang gagal (Audit 2484)", rc != 0)
+        periksa("tsv-pretty telanjang membaca stdin (bawaan ['-']) - gerbang gagal (Audit 2484)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1598, ignore_errors=True)
         sub1599 = klon(tmp, "sub1599")
         berkas_aksi1599 = os.path.join(
@@ -33943,7 +33943,7 @@ def main():
             f.write(isi_baru1599)
         rc, out = jalan(sub1599,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-split masukan bawaan stdin - gerbang gagal (Audit 2485)", rc != 0)
+        periksa("tsv-split masukan bawaan stdin - gerbang gagal (Audit 2485)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1599, ignore_errors=True)
         sub1600 = klon(tmp, "sub1600")
         berkas_aksi1600 = os.path.join(
@@ -33964,7 +33964,7 @@ def main():
             f.write(isi_baru1600)
         rc, out = jalan(sub1600,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csv2tsv telanjang membaca stdin - gerbang gagal (Audit 2486)", rc != 0)
+        periksa("csv2tsv telanjang membaca stdin - gerbang gagal (Audit 2486)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1600, ignore_errors=True)
         sub1601 = klon(tmp, "sub1601")
         berkas_aksi1601 = os.path.join(
@@ -33985,7 +33985,7 @@ def main():
             f.write(isi_baru1601)
         rc, out = jalan(sub1601,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("keep-header tanpa berkas menyalurkan stdin ke perintah anak - gerbang gagal (Audit 2487)", rc != 0)
+        periksa("keep-header tanpa berkas menyalurkan stdin ke perintah anak - gerbang gagal (Audit 2487)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1601, ignore_errors=True)
         sub1602 = klon(tmp, "sub1602")
         berkas_aksi1602 = os.path.join(
@@ -34006,7 +34006,7 @@ def main():
             f.write(isi_baru1602)
         rc, out = jalan(sub1602,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("number-lines telanjang membaca stdin - gerbang gagal (Audit 2488)", rc != 0)
+        periksa("number-lines telanjang membaca stdin - gerbang gagal (Audit 2488)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1602, ignore_errors=True)
         sub1603 = klon(tmp, "sub1603")
         berkas_aksi1603 = os.path.join(
@@ -34069,7 +34069,7 @@ def main():
             f.write(isi_baru1605)
         rc, out = jalan(sub1605,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-pretty -E bernilai menelan -5 sebagai nilai: membaca stdin - gerbang gagal (Audit 2491)", rc != 0)
+        periksa("tsv-pretty -E bernilai menelan -5 sebagai nilai: membaca stdin - gerbang gagal (Audit 2491)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1605, ignore_errors=True)
         sub1606 = klon(tmp, "sub1606")
         berkas_aksi1606 = os.path.join(
@@ -34195,7 +34195,7 @@ def main():
             f.write(isi_baru1611)
         rc, out = jalan(sub1611,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("tsv-pretty -D varian besar -d caseInsensitive: membaca stdin - gerbang gagal (Audit 2497)", rc != 0)
+        periksa("tsv-pretty -D varian besar -d caseInsensitive: membaca stdin - gerbang gagal (Audit 2497)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1611, ignore_errors=True)
         sub1612 = klon(tmp, "sub1612")
         berkas_aksi1612 = os.path.join(
@@ -34258,7 +34258,7 @@ def main():
             f.write(isi_baru1614)
         rc, out = jalan(sub1614,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("csv2tsv -q/--quote bernilai menelan x: membaca stdin - gerbang gagal (Audit 2499)", rc != 0)
+        periksa("csv2tsv -q/--quote bernilai menelan x: membaca stdin - gerbang gagal (Audit 2499)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1614, ignore_errors=True)
         sub1615 = klon(tmp, "sub1615")
         berkas_aksi1615 = os.path.join(
@@ -34279,7 +34279,7 @@ def main():
             f.write(isi_baru1615)
         rc, out = jalan(sub1615,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("yq --lua-prefix menelan --help sebagai nilai: membaca stdin - gerbang gagal (Audit 2500)", rc != 0)
+        periksa("yq --lua-prefix menelan --help sebagai nilai: membaca stdin - gerbang gagal (Audit 2500)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1615, ignore_errors=True)
         sub1616 = klon(tmp, "sub1616")
         berkas_aksi1616 = os.path.join(
@@ -34321,7 +34321,7 @@ def main():
             f.write(isi_baru1617)
         rc, out = jalan(sub1617,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("script -c segmen kedua menguras: 'cat' sesudah 'echo ok' di string -c: gerbang menolak (Audit 2516)", rc != 0)
+        periksa("script -c segmen kedua menguras: 'cat' sesudah 'echo ok' di string -c: gerbang menolak (Audit 2516)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1617, ignore_errors=True)
         sub1618 = klon(tmp, "sub1618")
         berkas_aksi1618 = os.path.join(
@@ -34342,7 +34342,7 @@ def main():
             f.write(isi_baru1618)
         rc, out = jalan(sub1618,
                         [sys.executable, GERBANG, "--semua"])
-        periksa("systemd-run anak sh -c segmen kedua menguras: gerbang menolak (Audit 2516)", rc != 0)
+        periksa("systemd-run anak sh -c segmen kedua menguras: gerbang menolak (Audit 2516)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1618, ignore_errors=True)
         sub1619 = klon(tmp, "sub1619")
         berkas_aksi1619 = os.path.join(

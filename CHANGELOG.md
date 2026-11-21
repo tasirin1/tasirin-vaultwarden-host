@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Asersi skenario generate suite tak lagi lolos oleh crash/hang gerbang (Audit 172)
+
+- 1018 asersi skenario generate di `tools/uji-verifikasi.py` sebelumnya hanya menuntut `rc != 0`: gerbang yang crash (traceback, rc 1) atau menggantung (timeout suite rc 124) ikut terhitung "menolak" sehingga skenario lolos palsu. Kini bentuknya `rc != 0 and rc != 124 and "Traceback" not in out` — penolakan harus vonis sungguhan. Di `tools/uji-cek-cepat.py` 5 asersi sejenis diperkuat dengan `rc != 124` (skrip bash tak punya traceback; hang satu-satunya jalur lolos-palsu). Templat generator skenario diperbarui mengikuti bentuk baru. Terbukti dengan baterai sabotase: gerbang sehat + suntikan menguras tetap lolos bentuk baru; gerbang yang dibuat crash lolos bentuk lama (palsu) dan gagal bentuk baru; rc 124 juga gagal bentuk baru.
+
+## [Belum rilis] — _himpun_definisi_mentah satu lintasan gabung (Audit 172)
+
+- Pemindaian acuan resource di `_himpun_definisi_mentah` sebelumnya menjalankan ±19 pola regex terpisah atas isi tiap berkas (9 jenis × pola XML + pola R, ditambah 2 pola generik), dan sisi definisi 2 pola tag terpisah. Kini: satu pola gabung keluarga `@` (nama spesifik non-`style` diturunkan sebagai awalan sebelum titik pertama — persis tangkapan pola spesifik lama yang berhenti di titik; `style` identik dengan generik), satu pola generik `R.`, dan satu pola tag definisi gabung (grup array dipetakan ke `array`). Keluarga `@` dan `R.` sengaja tetap dua lintasan terpisah agar tumpang-tindih antar-keluarga sama seperti sebelumnya. Hasil dibuktikan identik persis (definisi + acuan dibandingkan set-per-set dengan implementasi lama di pohon yang sama) dan fungsi ini terukur ±9× lebih cepat (median 0,316 → 0,036 dtk).
+
 ## [Belum rilis] — Parse YAML workflow di-cache dalam satu lari gerbang (Audit 172)
 
 - `_muat_yaml_github` dan `cek_workflow_yaml` kini berbagi cache parse `_CACHE_YAML` per jalur absolut: berkas yang sama (mis. `build-apk.yml`, `build-binary.yml`, `labeler.yml`) tidak lagi di-`safe_load` ulang berkali-kali dalam satu lari — terukur 15 → 12 panggilan `safe_load` per lari `--semua`, dan yang hilang justru parse ulang dua berkas workflow terbesar. Hanya parse sukses berbentuk peta yang di-cache; jalur gagal (berkas hilang/tak ter-parse/bukan peta) mempertahankan pesan dan perilaku persis seperti sebelumnya, dan semua pemanggil hanya membaca hasil parse (tak ada mutasi) sehingga berbagi objek aman.

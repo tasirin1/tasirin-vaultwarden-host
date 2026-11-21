@@ -1111,7 +1111,7 @@ def main():
         git(pautan, "commit", "-qm", "pautan")
         rc, out = jalan(pautan, ["bash", SKRIP])
         periksa("symlink vektor di res/: pola .9 di target "
-                "tertangkap (Audit 2128)", rc != 0)
+                "tertangkap (Audit 2128)", rc != 0 and rc != 124)
         shutil.rmtree(pautan, ignore_errors=True)
         stripganda = klon(tmp, "stripganda")
         with open(stripganda + "/-", "w") as fh:
@@ -1161,7 +1161,7 @@ def main():
         git(belahnl, "commit", "-qm", "tanam")
         rc, out = jalan(belahnl, ["bash", SKRIP])
         periksa("token terbelah escape newline tertangkap "
-                "(Audit 2177)", rc != 0)
+                "(Audit 2177)", rc != 0 and rc != 124)
         shutil.rmtree(belahnl, ignore_errors=True)
 
         kepalasaja = klon(tmp, "kepalasaja")
@@ -1172,7 +1172,7 @@ def main():
         git(kepalasaja, "rm", "-q", "kepala.txt")
         rc, out = jalan(kepalasaja, ["bash", SKRIP])
         periksa("token hanya di HEAD tertangkap "
-                "(Audit 2225)", rc != 0)
+                "(Audit 2225)", rc != 0 and rc != 124)
         shutil.rmtree(kepalasaja, ignore_errors=True)
 
 
@@ -1186,7 +1186,7 @@ def main():
                      b"PRIVATE KEY----- yyyy\x00")
         rc, out = jalan(hdrignore, ["bash", SKRIP])
         periksa("header kunci di berkas biner terabaikan "
-                "tertangkap (Audit 2226)", rc != 0)
+                "tertangkap (Audit 2226)", rc != 0 and rc != 124)
         shutil.rmtree(hdrignore, ignore_errors=True)
 
         tautan = klon(tmp, "tautan")
@@ -1218,7 +1218,7 @@ def main():
                      b"PRIVATE KEY----- yyyy\x00")
         rc, out = jalan(pycakar, ["bash", SKRIP])
         periksa("header kunci di *.pyc akar terabaikan "
-                "tertangkap (Audit 2234)", rc != 0)
+                "tertangkap (Audit 2234)", rc != 0 and rc != 124)
         shutil.rmtree(pycakar, ignore_errors=True)
 
 
