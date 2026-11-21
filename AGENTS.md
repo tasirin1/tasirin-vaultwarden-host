@@ -33,6 +33,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── tools/verifikasi-patch.py            # Verifikator patch murni-Python (boleh jalan lokal, tanpa toolchain)
 ├── tools/uji-verifikasi.py              # Uji-diri gerbang: skenario cabang langka verifikasi-patch pada salinan buang (langkah tetap CI)
 ├── tools/uji-cek-cepat.py               # Uji-diri cek-cepat: skenario pola rahasia (termasuk token terbelah) & vektor pada salinan buang (langkah tetap CI)
+├── tools/uji-cek-cepat-1.py             # Paruh awal skenario uji-cek-cepat.py (Audit 2559: titik masuk yang benar-benar dijalankan job verifikasi-cek)
 ├── tools/uji-cek-cepat-2.py             # Paruh akhir skenario uji-cek-cepat.py (Audit 2557: job CI paralel; definisi skenario tetap di berkas utama)
 ├── tools/bekas-hapusan.txt              # Daftar nama metode yang dihapus (jangan dipakai lagi, lihat aturan #15)
 ├── tools/pasang-hook.sh                 # Pasang pre-push hook (verifikasi-patch + cek cepat)

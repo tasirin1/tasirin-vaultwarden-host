@@ -1,5 +1,24 @@
 # Changelog
 
+## [Belum rilis] — Kabel belahan suite cek-cepat dipasang benar (Audit 2559)
+
+- Temuan 2559 (Audit 175, Sedang): belahan suite Audit 2557 tidak
+  membelah beban CI apa pun — `main()` berkas utama tetap
+  menjalankan kedua paruh dan langkah job `verifikasi-cek`
+  tetap menunjuk berkas utama utuh, jadi jalur kritis Assemble
+  APK tetap satu suite serial (terukur 15m53s pada run
+  44886230869) dan paruh akhir berjalan dua kali (di job utama
+  dan job `verifikasi-cek-2`; hal yang sama di `cek-wajib.yml`).
+  Klaim entri 2557 di bawah tidak sesuai keadaan berkabelnya.
+- Perbaikan: berkas titik-masuk baru `tools/uji-cek-cepat-1.py`
+  menjalankan paruh awal saja; langkah `verifikasi-cek`
+  build-apk dan langkah pertama cek-wajib kini menunjuk berkas
+  itu, sehingga kedua paruh sungguh berjalan sebagai dua job
+  paralel (build-apk) atau dua langkah tanpa duplikasi
+  (cek-wajib). Daftar path build-apk, penggolong auto-merge,
+  dan pohon berkas AGENTS.md mengenal berkas baru.
+  Terverifikasi lokal: paruh awal hijau lewat titik masuk baru.
+
 ## [Belum rilis] — Push langsung berkas workflow non-build kini melewati gerbang (Audit 2558)
 
 - Temuan 2558 (Audit 174): push langsung ke `main` yang hanya

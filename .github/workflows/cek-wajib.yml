@@ -73,8 +73,11 @@ jobs:
       - name: Uji-diri gerbang (cabang langka verifikasi-patch)
         run: python3 tools/uji-verifikasi.py
       - name: Uji-diri cek-cepat (cabang deteksi cek-cepat)
-        run: python3 tools/uji-cek-cepat.py
-      # Audit 2557: paruh akhir skenario tinggal di berkas kedua;
-      # check wajib PR tetap menjalankan seluruh 106 skenario.
+        run: python3 tools/uji-cek-cepat-1.py
+      # Audit 2557: skenario terbagi dua berkas titik-masuk;
+      # check wajib PR tetap menjalankan seluruh 106 skenario
+      # (paruh awal oleh langkah di atas, paruh akhir oleh langkah
+      # berikut). Audit 2559: langkah di atas sebelumnya menjalankan
+      # berkas utama utuh sehingga paruh akhir berjalan dua kali.
       - name: Uji-diri cek-cepat bagian 2 (paruh akhir skenario)
         run: python3 tools/uji-cek-cepat-2.py

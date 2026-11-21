@@ -14,6 +14,7 @@ on:
       - 'gradlew.bat'
       - 'tools/verifikasi-patch.py'
       - 'tools/uji-verifikasi.py'
+      - 'tools/uji-cek-cepat-1.py'
       - 'tools/uji-cek-cepat.py'
       - 'tools/uji-cek-cepat-2.py'
       - 'tools/uji_bersama.py'
@@ -33,6 +34,7 @@ on:
       - 'gradlew.bat'
       - 'tools/verifikasi-patch.py'
       - 'tools/uji-verifikasi.py'
+      - 'tools/uji-cek-cepat-1.py'
       - 'tools/uji-cek-cepat.py'
       - 'tools/uji-cek-cepat-2.py'
       - 'tools/uji_bersama.py'
@@ -127,9 +129,13 @@ jobs:
           fetch-depth: 1
 
           persist-credentials: false
+      # Audit 2559: langkah ini kini menjalankan PARUH AWAL saja
+      # (uji-cek-cepat-1.py). Sebelumnya ia menjalankan berkas
+      # utama utuh (kedua paruh), jadi belahan 2557 tidak membelah
+      # beban apa pun dan paruh akhir berjalan dua kali.
       - name: Uji-diri cek-cepat (cabang deteksi cek-cepat)
         if: github.event_name != 'pull_request'
-        run: python3 tools/uji-cek-cepat.py
+        run: python3 tools/uji-cek-cepat-1.py
 
   verifikasi-cek-2:
     name: Cek patch yang berubah (cek-cepat 2)
