@@ -3728,10 +3728,37 @@ def _menguras_khusus(perintah, toks, awal):
             pendahulu = set(
                 _PENDAHULU_XSV_PER_SUB.get(
                     mentah[0], frozenset()))
+        # Audit 2575: pendahulu khas tsv-summarize -
+        # opsi bernilai dan operator (callback dua-
+        # parameter) memakan token berikutnya
+        # sebagai nilai, jadi --help/--version di
+        # posisi itu bukan panggilan informasional.
+        # Nama dilipat (zona caseInsensitive
+        # sumber); perbandingan pendahulunya ikut
+        # dilipat khusus perintah ini.
+        lipat_pendahulu = perintah == "tsv-summarize"
+        if lipat_pendahulu:
+            pendahulu = pendahulu | {
+                "--group-by", "-d", "--delimiter",
+                "--sum", "--mean", "--median", "--min",
+                "--max", "--mode", "--first", "--last",
+                "--stdev", "--var", "--range",
+                "--quantile", "--retain", "--values",
+                "--unique-values", "--unique-count",
+                "--mode-count", "--missing-count",
+                "--not-missing-count", "--count-header",
+                "--mad", "-g", "-v",
+                "--values-delimiter", "-p",
+                "--float-precision", "-r",
+                "--replace-missing"}
         for k_i, t_i in enumerate(mentah):
             if t_i in tanda:
-                if k_i > 0 and mentah[k_i - 1] in pendahulu:
-                    continue
+                if k_i > 0:
+                    sebelum = mentah[k_i - 1]
+                    if lipat_pendahulu:
+                        sebelum = sebelum.lower()
+                    if sebelum in pendahulu:
+                        continue
                 return True
         return False
 
@@ -10588,7 +10615,10 @@ def _menguras_khusus(perintah, toks, awal):
         # yang peka huruf penuh meloloskan
         # -HTrue/-Wfalse/-Xtrue. H tetap huruf
         # persis (pulau caseSensitive sumber).
-        for t_awal in mentah:
+        i_awal = 0
+        while i_awal < len(mentah):
+            t_awal = mentah[i_awal]
+            i_awal += 1
             if t_awal == "--":
                 break
             if t_awal in ("-V", "-h"):
@@ -10633,6 +10663,29 @@ def _menguras_khusus(perintah, toks, awal):
                              and t_awal[2:].lower() in (
                                  "true", "false"))):
                 return False
+            # Audit 2575: token sesudah opsi bernilai
+            # bentuk terpisah adalah NILAI opsi itu -
+            # tak pernah informasional, walau bentuknya
+            # persis token bantuan; lewati agar tak
+            # dinilai. Himpunan sama dengan yang
+            # dilompati pengumpul operand (2374),
+            # tanpa --count yang tak bernilai.
+            if ("=" not in t_awal
+                    and t_awal.lower() in (
+                        "--group-by", "-d", "--delimiter",
+                        "--sum", "--mean", "--median",
+                        "--min", "--max", "--mode",
+                        "--first", "--last", "--stdev",
+                        "--var", "--range", "--quantile",
+                        "--retain", "--values",
+                        "--unique-values", "--unique-count",
+                        "--mode-count", "--missing-count",
+                        "--not-missing-count",
+                        "--count-header", "--mad", "-g",
+                        "-v", "--values-delimiter", "-p",
+                        "--float-precision", "-r",
+                        "--replace-missing")):
+                i_awal += 1
         # Audit 2374: getopt sumber tak peka
         # huruf - operand dihitung lokal dengan
         # nama opsi dilipat huruf kecil.

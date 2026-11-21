@@ -1,5 +1,26 @@
 # Changelog
 
+## [Belum rilis] — Cek informasional summarize kini sadar posisi-nilai (Audit 2575)
+
+- Temuan 2575 (Audit 176, Sedang): putaran awal cabang
+  tsv-summarize memindai semua token dan menganggap
+  token bantuan di posisi mana pun sebagai panggilan
+  informasional — termasuk token yang sebenarnya
+  NILAI opsi sebelumnya (sesudah 2560/2574 nilai itu
+  dimakan tanpa syarat dan alat berjalan menguras).
+  Perbaikan 2566 memperlebar pola buta-posisi ini.
+  Lapisan kedua: penjaga generik `_ada_informatif`
+  juga tak mengenal pendahulu khas summarize, jadi
+  `-r --help` lolos dari sana.
+- Perbaikan: putaran awal cabang kini berjalan
+  terindeks dan melompati nilai opsi bernilai/operator
+  bentuk terpisah; `_ada_informatif` mendapat himpunan
+  pendahulu khas tsv-summarize (nama dilipat, pola
+  pendahulu per-perintah Audit 1147/1180). Skenario
+  gensuite 1669–1672 mengunci kedua lapisan;
+  terprobe induk 10/10 termasuk kontrol posisi opsi
+  yang tetap lolos.
+
 ## [Belum rilis] — Sisa model gantung summarize ditutup: -g dan operator memakan nilai tanpa syarat, -p hanya literal uint (Audit 2574)
 
 - Temuan 2574 (Audit 176, Sedang): handler `-g` dan

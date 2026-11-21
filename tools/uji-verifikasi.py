@@ -35398,6 +35398,90 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -p1x nilai nempel bukan uint (alat mati): gerbang lolos (Audit 2574)", rc == 0)
         shutil.rmtree(sub1668, ignore_errors=True)
+        sub1669 = klon(tmp, "sub1669")
+        berkas_aksi1669 = os.path.join(
+            sub1669, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1669, encoding="utf-8") as f:
+            isi_aksi1669 = f.read()
+        baris_aksi1669 = [b for b in isi_aksi1669.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1669 = isi_aksi1669.replace(
+                baris_aksi1669,
+                baris_aksi1669.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize -r --help-verbose --sum 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1669 != isi_aksi1669, \
+            "suntikan aksi1669 tidak menembak"
+        with open(berkas_aksi1669, "w", encoding="utf-8") as f:
+            f.write(isi_baru1669)
+        rc, out = jalan(sub1669,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-summarize -r --help-verbose adalah nilai -r (alat jalan): gerbang menolak (Audit 2575)", rc != 0 and rc != 124 and "Traceback" not in out)
+        shutil.rmtree(sub1669, ignore_errors=True)
+        sub1670 = klon(tmp, "sub1670")
+        berkas_aksi1670 = os.path.join(
+            sub1670, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1670, encoding="utf-8") as f:
+            isi_aksi1670 = f.read()
+        baris_aksi1670 = [b for b in isi_aksi1670.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1670 = isi_aksi1670.replace(
+                baris_aksi1670,
+                baris_aksi1670.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize -r -h --sum 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1670 != isi_aksi1670, \
+            "suntikan aksi1670 tidak menembak"
+        with open(berkas_aksi1670, "w", encoding="utf-8") as f:
+            f.write(isi_baru1670)
+        rc, out = jalan(sub1670,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-summarize -r -h adalah nilai -r (alat jalan): gerbang menolak (Audit 2575)", rc != 0 and rc != 124 and "Traceback" not in out)
+        shutil.rmtree(sub1670, ignore_errors=True)
+        sub1671 = klon(tmp, "sub1671")
+        berkas_aksi1671 = os.path.join(
+            sub1671, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1671, encoding="utf-8") as f:
+            isi_aksi1671 = f.read()
+        baris_aksi1671 = [b for b in isi_aksi1671.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1671 = isi_aksi1671.replace(
+                baris_aksi1671,
+                baris_aksi1671.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize -g --help-verbose --sum 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1671 != isi_aksi1671, \
+            "suntikan aksi1671 tidak menembak"
+        with open(berkas_aksi1671, "w", encoding="utf-8") as f:
+            f.write(isi_baru1671)
+        rc, out = jalan(sub1671,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-summarize -g --help-verbose adalah nilai -g (alat jalan): gerbang menolak (Audit 2575)", rc != 0 and rc != 124 and "Traceback" not in out)
+        shutil.rmtree(sub1671, ignore_errors=True)
+        sub1672 = klon(tmp, "sub1672")
+        berkas_aksi1672 = os.path.join(
+            sub1672, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1672, encoding="utf-8") as f:
+            isi_aksi1672 = f.read()
+        baris_aksi1672 = [b for b in isi_aksi1672.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1672 = isi_aksi1672.replace(
+                baris_aksi1672,
+                baris_aksi1672.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize -r --help --sum 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1672 != isi_aksi1672, \
+            "suntikan aksi1672 tidak menembak"
+        with open(berkas_aksi1672, "w", encoding="utf-8") as f:
+            f.write(isi_baru1672)
+        rc, out = jalan(sub1672,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-summarize -r --help adalah nilai -r di penjaga generik (alat jalan): gerbang menolak (Audit 2575)", rc != 0 and rc != 124 and "Traceback" not in out)
+        shutil.rmtree(sub1672, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
