@@ -1,5 +1,24 @@
 # Changelog
 
+## [Belum rilis] — Kematian alat karena opsi asing/ambigu kini dimodelkan gerbang (Audit 2579)
+
+- Temuan 2579 (Audit 176, Rendah): pindaian keluarga
+  skrip dan jalur generik GNU tak punya kosakata opsi —
+  alat yang mati seketika oleh opsi asing/ambigu
+  (`grep --bogus`, `grep --f`, `grep -Q`, `jq --bogus`,
+  `rg --hel`) tetap ditolak gerbang seolah menguras
+  (fail-closed).
+- Perbaikan: vonis "mati" dari penilai kosakata
+  `_VOKAB_SK` (Audit 2578) diberlakukan di pindaian
+  keluarga skrip (panjang + klaster pendek; pengecualian
+  terbukti: `-NUM` warisan grep sah) dan di penyusuran
+  coreutils. Kosakata yq/fq digroundkan ke biner asli
+  v4.44.5/0.15.1 yang diunduh untuk audit ini; awk
+  hanya mendapat model singkatan (kosakata
+  kematiannya tak bisa digroundkan penuh dari mawk).
+  Skenario gensuite 1679–1690; terprobe induk 19/19
+  termasuk kontrol alat-sah yang tetap ditolak.
+
 ## [Belum rilis] — Singkatan tak ambigu --help/--version GNU kini informasional di gerbang (Audit 2578)
 
 - Temuan 2578 (Audit 176, Rendah): getopt_long GNU

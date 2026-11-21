@@ -14089,6 +14089,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     _VOKAB_SK[keluarga], b_isk)
                 if st_isk == "info":
                     return False
+                # Audit 2579: nama asing/ambigu -
+                # parser keluarga ini mati sebelum
+                # membaca (getopt_long/clap/pflag/
+                # parser khas; dibuktikan ke biner
+                # asli tiap alat).
+                if st_isk == "mati":
+                    return False
                 if st_isk == "pembawa":
                     if nm_isk in _VOKAB_SK[
                             keluarga]["pola"]:
@@ -14097,6 +14104,27 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     continue
                 if st_isk == "pembawa2":
                     lewati_info = 2
+                    continue
+            # Audit 2579: klaster pendek keluarga
+            # berkosakata - huruf asing membunuh
+            # alat sebelum membaca. Pengecualian
+            # grep: -NUM warisan = konteks (biner
+            # membuktikan -1 sah).
+            if (keluarga in _VOKAB_SK
+                    and b_isk.startswith("-")
+                    and not b_isk.startswith("--")
+                    and len(b_isk) > 1
+                    and not (keluarga == "grep"
+                             and b_isk[1:].isdigit())):
+                st_isk2, ch_isk = _status_klaster(
+                    _VOKAB_SK[keluarga], b_isk)
+                if st_isk2 == "mati":
+                    return False
+                if st_isk2 == "pembawa":
+                    if ch_isk in _VOKAB_SK[
+                            keluarga]["pola_pendek"]:
+                        pola_opsi = True
+                    lewati_info = 1
                     continue
             if (keluarga == "awk"
                     and b_isk.startswith("--")
@@ -14189,6 +14217,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     vokab_gu, b_gu)
                 if st_gu == "info":
                     return False
+                # Audit 2579: nama asing/ambigu
+                # membunuh alat coreutils sebelum
+                # membaca (getopt_long).
+                if st_gu == "mati":
+                    return False
                 if st_gu == "pembawa":
                     lewati_gu = 1
                 continue
@@ -14197,6 +14230,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 continue
             st_gu, _ch_gu = _status_klaster(
                 vokab_gu, b_gu)
+            # Audit 2579: huruf pendek asing juga
+            # membunuh alat sebelum membaca.
+            if st_gu == "mati":
+                return False
             if st_gu == "pembawa":
                 lewati_gu = 1
     # Audit 1102: panggilan informasional mencetak dan keluar
