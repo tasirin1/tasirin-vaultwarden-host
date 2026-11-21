@@ -83,6 +83,7 @@ public class MainActivity extends Activity {
     private String cacheP = "";
     private String cacheA = "";
     private String cacheWv = "";
+    private String cacheDb = "";
 
     private boolean ikutiLog = true;
 
@@ -611,6 +612,8 @@ public class MainActivity extends Activity {
                 cacheA = ca == null ? "" : ca;
                 String wvCache = Updater.webVaultFromVersion(this);
                 cacheWv = wvCache == null ? "" : wvCache;
+                String dbCache = TgBackup.amanString(sp, ServerService.KEY_DATABASE_URL, "");
+                cacheDb = dbCache == null ? "" : dbCache;
             }
             String d = cacheD;
             String p = cacheP;
@@ -620,15 +623,19 @@ public class MainActivity extends Activity {
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
             String wv = cacheWv;
             String rwv = ServerService.runningWvFrom == null ? "" : ServerService.runningWvFrom;
+            String db = cacheDb;
+            String rdb = ServerService.runningDatabaseUrl == null ? "" : ServerService.runningDatabaseUrl;
 
             String dRapi = d.trim();
             String pRapi = p.trim();
             String rdRapi = rd.trim();
             String rpRapi = rp.trim();
             String raRapi = ra.trim();
+            String rdbRapi = rdb.trim();
             changed = !dRapi.equals(rdRapi)
                     || !pRapi.equals(rpRapi)
                     || !ServerService.sidikTokenAdmin(a).equals(raRapi)
+                    || !ServerService.sidikDatabaseUrl(db).equals(rdbRapi)
                     || !wv.equals(rwv);
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);

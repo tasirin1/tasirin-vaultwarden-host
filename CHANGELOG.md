@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Ganti URL database saat server jalan memicu petunjuk restart (Audit 172)
+
+- Server kini menyimpan sidik (SHA-256, bukan URL mentah berisi kata sandi) URL database yang sedang dipakai (`runningDatabaseUrl`, sejajar potret folder/port/token admin), dan deteksi "pengaturan berubah, perlu restart" di Settings dan layar utama ikut membandingkannya. Sebelumnya perubahan URL database saat server berjalan tak terdeteksi sama sekali: perubahan diam-diam tak berlaku sampai restart tanpa isyarat apa pun, berisiko membuat pengguna mengira vault sudah menulis ke database eksternal padahal masih ke berkas lokal (atau sebaliknya). Label "URL Database Eksternal" kini ikut ditandai kotor seperti label lain.
+
 ## [Belum rilis] — Kolom URL database terjangkau navigasi D-pad (Audit 172)
 
 - Rantai fokus runtime Settings (`perbaikiRantaiFokus`) kini memakai kolom URL Database sebagai isi terbawah kartu Server — sebelumnya Port, sehingga penekanan Bawah dari Port melompat langsung ke Admin Token dan kolom URL Database tidak pernah bisa dicapai remote/D-pad di STB (atribut XML-nya benar tetapi ditimpa rantai runtime). Cadangan XML `nextFocusUp` Admin Token ikut diarahkan ke URL Database.

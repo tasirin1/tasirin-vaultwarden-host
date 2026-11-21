@@ -293,6 +293,7 @@ public class SettingsActivity extends Activity {
     private TextView labelDataDir;
     private TextView labelPort;
     private TextView labelAdmin;
+    private TextView labelDatabaseUrl;
     private ProgressBar unduhBar;
     private android.content.res.ColorStateList warnaLabelBawaan;
 
@@ -341,6 +342,7 @@ public class SettingsActivity extends Activity {
     private String cacheUbahD = "";
     private String cacheUbahP = "";
     private String cacheUbahA = "";
+    private String cacheUbahDb = "";
 
     private String lastStatusAdmin = "";
     private String lastStatusBot = "";
@@ -528,6 +530,7 @@ public class SettingsActivity extends Activity {
         labelDataDir = findViewById(R.id.labelDataDir);
         labelPort = findViewById(R.id.labelPort);
         labelAdmin = findViewById(R.id.labelAdmin);
+        labelDatabaseUrl = findViewById(R.id.labelDatabaseUrl);
         unduhBar = findViewById(R.id.unduhBar);
         warnaLabelBawaan = labelDataDir.getTextColors();
         teksBerjalan = getString(R.string.running);
@@ -1413,30 +1416,38 @@ public class SettingsActivity extends Activity {
                 cacheUbahP = ServerService.effectivePort(sp);
                 String a = TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, "");
                 cacheUbahA = a == null ? "" : a;
+                String db = TgBackup.amanString(sp, ServerService.KEY_DATABASE_URL, "");
+                cacheUbahDb = db == null ? "" : db;
             }
             String d = cacheUbahD;
             String p = cacheUbahP;
             String a = cacheUbahA;
+            String db = cacheUbahDb;
             String rd = ServerService.runningDataDir == null ? "" : ServerService.runningDataDir;
             String rp = ServerService.runningPort == null ? "" : ServerService.runningPort;
             String ra = ServerService.runningAdminToken == null ? "" : ServerService.runningAdminToken;
+            String rdb = ServerService.runningDatabaseUrl == null ? "" : ServerService.runningDatabaseUrl;
 
             String dRapi = d.trim();
             String pRapi = p.trim();
             String rdRapi = rd.trim();
             String rpRapi = rp.trim();
             String raRapi = ra == null ? "" : ra.trim();
+            String rdbRapi = rdb == null ? "" : rdb.trim();
             boolean bedaData = !dRapi.equals(rdRapi);
             boolean bedaPort = !pRapi.equals(rpRapi);
             boolean bedaAdmin = !ServerService.sidikTokenAdmin(a).equals(raRapi);
-            changed = bedaData || bedaPort || bedaAdmin;
+            boolean bedaDb = !ServerService.sidikDatabaseUrl(db).equals(rdbRapi);
+            changed = bedaData || bedaPort || bedaAdmin || bedaDb;
             tandaiLabel(labelDataDir, R.string.folder_data, bedaData);
             tandaiLabel(labelPort, R.string.port, bedaPort);
             tandaiLabel(labelAdmin, R.string.admin_token, bedaAdmin);
+            tandaiLabel(labelDatabaseUrl, R.string.database_url, bedaDb);
         } else {
             tandaiLabel(labelDataDir, R.string.folder_data, false);
             tandaiLabel(labelPort, R.string.port, false);
             tandaiLabel(labelAdmin, R.string.admin_token, false);
+            tandaiLabel(labelDatabaseUrl, R.string.database_url, false);
         }
         restartHint.setVisibility(changed ? View.VISIBLE : View.GONE);
     }

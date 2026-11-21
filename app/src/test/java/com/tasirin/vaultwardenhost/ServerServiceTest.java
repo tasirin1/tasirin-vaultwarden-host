@@ -387,6 +387,19 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void sidikDatabaseUrlStabilDanBedakanIsi() {
+        assertEquals("", ServerService.sidikDatabaseUrl(null));
+        assertEquals("", ServerService.sidikDatabaseUrl(""));
+        assertEquals("", ServerService.sidikDatabaseUrl("   "));
+        String a = ServerService.sidikDatabaseUrl("postgres://user:pass@host:5432/db");
+        assertFalse(a.isEmpty());
+        assertEquals(a, ServerService.sidikDatabaseUrl("postgres://user:pass@host:5432/db"));
+        assertEquals(a, ServerService.sidikDatabaseUrl("  postgres://user:pass@host:5432/db  "));
+        assertFalse(a.equals(ServerService.sidikDatabaseUrl("postgres://user:lain@host:5432/db")));
+        assertFalse(a.equals(ServerService.sidikDatabaseUrl("mysql://user:pass@host:3306/db")));
+    }
+
+    @Test
     public void dataDirBawaanSegarTakKosongDanStabil() {
 
         String a = ServerService.dataDirBawaanSegar();

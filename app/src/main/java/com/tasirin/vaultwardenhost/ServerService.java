@@ -237,6 +237,19 @@ public class ServerService extends Service {
         return hasil;
     }
 
+    static String sidikDatabaseUrl(String url) {
+        String bersih = url == null ? "" : url.trim();
+        if (bersih.isEmpty()) {
+            return "";
+        }
+        try {
+            byte[] h = Util.mdSha256().digest(bersih.getBytes(StandardCharsets.UTF_8));
+            return Updater.toHex(h);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     static void bersihkanCacheSidikToken() {
         synchronized (KUNCI_SIDIK) {
             sidikTokenKunci = 0;
@@ -327,6 +340,8 @@ public class ServerService extends Service {
 
     public static volatile String runningWvFrom = "";
 
+    public static volatile String runningDatabaseUrl = "";
+
     public static volatile String runningLanHost = "";
 
     private static volatile String ipBerubahDiperingatkan = "";
@@ -360,6 +375,7 @@ public class ServerService extends Service {
         runningPort = "";
         runningAdminToken = "";
         runningWvFrom = "";
+        runningDatabaseUrl = "";
         runningLanHost = "";
         ipBerubahDiperingatkan = "";
         ipMatiDiperingatkan = false;
@@ -1909,6 +1925,7 @@ public class ServerService extends Service {
         String hostSegar;
         String domain;
         String adminToken;
+        String databaseUrl;
     }
 
     private boolean siapkanFolderData(SharedPreferences sp, SesiStart sesi) {
@@ -2148,6 +2165,7 @@ public class ServerService extends Service {
             pb.environment().put("DATABASE_URL", dbBersih);
             appendLog("[app] Database eksternal aktif (DATABASE_URL).");
         }
+        sesi.databaseUrl = dbBersih;
 
         sesi.adminToken = TgBackup.amanString(sp, KEY_ADMIN_TOKEN, "");
 
@@ -2204,6 +2222,7 @@ public class ServerService extends Service {
         runningDataDir = sesi.dataDir;
         runningPort = sesi.port;
         runningAdminToken = sidikTokenAdmin(sesi.adminToken);
+        runningDatabaseUrl = sidikDatabaseUrl(sesi.databaseUrl);
         String wvFrom = Updater.webVaultFromVersion(this);
         runningWvFrom = wvFrom == null ? "" : wvFrom;
         runningLanHost = sesi.hostSegar;
