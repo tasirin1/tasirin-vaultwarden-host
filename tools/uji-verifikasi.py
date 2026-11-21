@@ -34820,7 +34820,7 @@ def main():
             f.write(isi_baru1641)
         rc, out = jalan(sub1641,
                         [sys.executable, GERBANG, "--hanya-workflow"])
-        periksa("tsv-summarize -d memakan --bogus sebagai nilai (alat jalan): gerbang menolak (Audit 2560)", rc != 0 and rc != 124 and "Traceback" not in out)
+        periksa("tsv-summarize -d nilai mirip-opsi membunuh alat (receiver char): gerbang lolos (Audit 2573, koreksi 2560)", rc == 0)
         shutil.rmtree(sub1641, ignore_errors=True)
         sub1642 = klon(tmp, "sub1642")
         berkas_aksi1642 = os.path.join(
@@ -34841,7 +34841,7 @@ def main():
             f.write(isi_baru1642)
         rc, out = jalan(sub1642,
                         [sys.executable, GERBANG, "--hanya-workflow"])
-        periksa("tsv-summarize --delimiter memakan --bogus sebagai nilai (alat jalan): gerbang menolak (Audit 2560)", rc != 0 and rc != 124 and "Traceback" not in out)
+        periksa("tsv-summarize --delimiter nilai mirip-opsi membunuh alat (receiver char): gerbang lolos (Audit 2573, koreksi 2560)", rc == 0)
         shutil.rmtree(sub1642, ignore_errors=True)
         sub1643 = klon(tmp, "sub1643")
         berkas_aksi1643 = os.path.join(
@@ -35230,6 +35230,90 @@ def main():
         periksa("hapus berkas bernama TAB masih dirujuk (lokal): gerbang gagal (Audit 2568)",
                 rc != 0 and "Kelas\tTab" in out)
         shutil.rmtree(sub1660, ignore_errors=True)
+        sub1661 = klon(tmp, "sub1661")
+        berkas_aksi1661 = os.path.join(
+            sub1661, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1661, encoding="utf-8") as f:
+            isi_aksi1661 = f.read()
+        baris_aksi1661 = [b for b in isi_aksi1661.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1661 = isi_aksi1661.replace(
+                baris_aksi1661,
+                baris_aksi1661.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize -v --bogus --sum 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1661 != isi_aksi1661, \
+            "suntikan aksi1661 tidak menembak"
+        with open(berkas_aksi1661, "w", encoding="utf-8") as f:
+            f.write(isi_baru1661)
+        rc, out = jalan(sub1661,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-summarize -v nilai mirip-opsi membunuh alat (receiver char): gerbang lolos (Audit 2573)", rc == 0)
+        shutil.rmtree(sub1661, ignore_errors=True)
+        sub1662 = klon(tmp, "sub1662")
+        berkas_aksi1662 = os.path.join(
+            sub1662, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1662, encoding="utf-8") as f:
+            isi_aksi1662 = f.read()
+        baris_aksi1662 = [b for b in isi_aksi1662.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1662 = isi_aksi1662.replace(
+                baris_aksi1662,
+                baris_aksi1662.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize -d , --sum 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1662 != isi_aksi1662, \
+            "suntikan aksi1662 tidak menembak"
+        with open(berkas_aksi1662, "w", encoding="utf-8") as f:
+            f.write(isi_baru1662)
+        rc, out = jalan(sub1662,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-summarize -d nilai satu char sah termakan (alat jalan): gerbang menolak (Audit 2573)", rc != 0 and rc != 124 and "Traceback" not in out)
+        shutil.rmtree(sub1662, ignore_errors=True)
+        sub1663 = klon(tmp, "sub1663")
+        berkas_aksi1663 = os.path.join(
+            sub1663, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1663, encoding="utf-8") as f:
+            isi_aksi1663 = f.read()
+        baris_aksi1663 = [b for b in isi_aksi1663.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1663 = isi_aksi1663.replace(
+                baris_aksi1663,
+                baris_aksi1663.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize -dxy --sum 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1663 != isi_aksi1663, \
+            "suntikan aksi1663 tidak menembak"
+        with open(berkas_aksi1663, "w", encoding="utf-8") as f:
+            f.write(isi_baru1663)
+        rc, out = jalan(sub1663,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-summarize -dxy nilai nempel bukan satu char (alat mati): gerbang lolos (Audit 2573)", rc == 0)
+        shutil.rmtree(sub1663, ignore_errors=True)
+        sub1664 = klon(tmp, "sub1664")
+        berkas_aksi1664 = os.path.join(
+            sub1664, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1664, encoding="utf-8") as f:
+            isi_aksi1664 = f.read()
+        baris_aksi1664 = [b for b in isi_aksi1664.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1664 = isi_aksi1664.replace(
+                baris_aksi1664,
+                baris_aksi1664.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize --delimiter=xy --sum 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1664 != isi_aksi1664, \
+            "suntikan aksi1664 tidak menembak"
+        with open(berkas_aksi1664, "w", encoding="utf-8") as f:
+            f.write(isi_baru1664)
+        rc, out = jalan(sub1664,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-summarize --delimiter=xy nilai nempel bukan satu char (alat mati): gerbang lolos (Audit 2573)", rc == 0)
+        shutil.rmtree(sub1664, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,23 @@
 # Changelog
 
+## [Belum rilis] — Vonis opsi pembatas summarize dibetulkan: penerima char mati oleh nilai mirip-opsi (Audit 2573)
+
+- Temuan 2573 (Audit 176, Sedang): perbaikan 2560
+  menyamakan `-d`/`--delimiter` dan
+  `-v`/`--values-delimiter` dengan opsi string, padahal
+  sumber resmi tsv-utils membuktikan penerimanya
+  bertipe `char` — nilai yang bukan tepat satu karakter
+  satu-byte melempar ConvException di getopt dan alat
+  mati sebelum membaca; gerbang malah menolak perintah
+  itu (fail-closed regresi). Hanya `-r` yang string.
+- Perbaikan: model kematian penerima char diberlakukan
+  untuk ketiga bentuk nilai (token terpisah, nempel
+  `-dxy`, dan `--delimiter=xy`) lewat helper
+  `_char_getopt_sah`; nilai satu char yang sah tetap
+  termakan dan alat dinilai berjalan. Skenario gensuite
+  1641/1642 dibalik (koreksi klaim 2560) dan 1661–1664
+  mengunci arah baru + kontrolnya. Terprobe induk 10/10.
+
 ## [Belum rilis] — Anotasi @Test uji jamDiLuarMasaSertifikat dipulihkan (Audit 2576)
 
 - Temuan 2576 (Audit 176, Sedang): sisipan metode uji

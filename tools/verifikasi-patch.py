@@ -3654,6 +3654,15 @@ def _nama_sah_tsv(dasar, sah):
     return True
 
 
+def _char_getopt_sah(nilai):
+    # Penerima char Phobos (to!char dari string):
+    # sah hanya tepat satu karakter satu-byte -
+    # dok opsi tsv-summarize sendiri berbunyi
+    # "Single byte UTF-8 characters only"; di luar
+    # itu ConvException dan alat mati di getopt.
+    return len(nilai) == 1 and ord(nilai) < 128
+
+
 def _menguras_khusus(perintah, toks, awal):
     """Audit 1059-1072: penilai perintah yang pengurasannya
     bergantung pada subcommand / bentuk opsi khas — tak bisa
@@ -10703,6 +10712,18 @@ def _menguras_khusus(perintah, toks, awal):
                     and len(t_tsm) > 2
                     and t_tsm[2:].lower() != "false"):
                 return False
+            # Audit 2573: nilai nempel token pendek
+            # penerima char (-d/-v) - ekor token
+            # adalah nilainya; ekor yang bukan
+            # tepat satu char satu-byte membunuh
+            # alat di getopt (ConvException).
+            if (len(t_tsm) > 2
+                    and t_tsm.startswith("-")
+                    and not t_tsm.startswith("--")
+                    and "=" not in t_tsm
+                    and t_tsm[1] in "dv"
+                    and not _char_getopt_sah(t_tsm[2:])):
+                return False
             nama_tsm = t_tsm.lower().split("=", 1)[0]
             mentah_tsm = t_tsm.split("=", 1)[0]
             if mentah_tsm.startswith("--"):
@@ -10746,30 +10767,44 @@ def _menguras_khusus(perintah, toks, awal):
                             "--replace-missing",
                             "-g", "-d", "-v", "-p",
                             "-r"):
-                if "=" not in t_tsm:
-                    # Audit 2560: opsi string (-d/-v/-r
-                    # dan bentuk panjangnya) memakan
-                    # token berikutnya TANPA syarat -
-                    # handleOption Phobos tak memeriksa
-                    # awalan '-'; nilai mirip-opsi tetap
-                    # nilai dan alat berjalan. Model
-                    # gantung hanya tersisa untuk -g/-p,
-                    # yang pembuktiannya menyentuh
-                    # keabsahan isi nilai (di luar
-                    # doktrin gerbang).
-                    if (nama_tsm not in ("-d",
-                                         "--delimiter",
-                                         "-v",
-                                         "--values-delimiter",
-                                         "-r",
-                                         "--replace-missing")
-                            and i_tsm + 1 < len(mentah)
-                            and mentah[i_tsm + 1].startswith("-")
-                            and mentah[i_tsm + 1] != "-"):
-                        gantung_tsm = True
-                    i_tsm += 2
+                if "=" in t_tsm:
+                    # Audit 2573: nilai nempel penerima
+                    # char (-d/-v) sah hanya tepat satu
+                    # char satu-byte - di luar itu
+                    # to!char melempar ConvException
+                    # dan alat mati sebelum membaca.
+                    if (nama_tsm in ("-d",
+                                     "--delimiter",
+                                     "-v",
+                                     "--values-delimiter")
+                            and not _char_getopt_sah(
+                                t_tsm.split("=", 1)[1])):
+                        return False
+                    i_tsm += 1
                     continue
-                i_tsm += 1
+                # Audit 2560 + koreksi 2573: penerima
+                # string (-r) memakan token berikutnya
+                # TANPA syarat (handleOption Phobos);
+                # penerima char (-d/-v) hanya memakan
+                # nilai tepat satu char satu-byte -
+                # nilai lain membunuh alat di getopt
+                # (gantung). Model gantung -g/-p
+                # belum berubah di langkah ini.
+                if nama_tsm in ("-d",
+                                "--delimiter",
+                                "-v",
+                                "--values-delimiter"):
+                    if (i_tsm + 1 >= len(mentah)
+                            or not _char_getopt_sah(
+                                mentah[i_tsm + 1])):
+                        gantung_tsm = True
+                elif (nama_tsm not in ("-r",
+                                       "--replace-missing")
+                        and i_tsm + 1 < len(mentah)
+                        and mentah[i_tsm + 1].startswith("-")
+                        and mentah[i_tsm + 1] != "-"):
+                    gantung_tsm = True
+                i_tsm += 2
                 continue
             i_tsm += 1
         if gantung_tsm or not ada_op_tsm:
