@@ -1897,6 +1897,7 @@ public class ServerService extends Service {
     }
 
     private void startServer() {
+        gagalJamTls = false;
 
         final int idEpisoda = startIdTerakhir;
 

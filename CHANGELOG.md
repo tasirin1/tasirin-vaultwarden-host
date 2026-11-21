@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda gagal jam TLS direset di pintu startServer (Audit 174)
+
+- Temuan 2549 (Rendah): `gagalJamTls` hanya direset di pintu `siapkanTls`, padahal urutan `startServer` menaruh langkah folder/binary/port sebelum TLS — episode penundaan jam yang percobaan ulangnya gagal di langkah lebih awal (mis. port terpakai) membawa penanda basi, sehingga kegagalan itu diperlakukan sebagai penundaan jam lagi: teks status menyesatkan dan pesan Telegram langkah gagal terkirim ulang sampai ±30x. Penanda kini direset di pintu `startServer()` sendiri sehingga selalu menggambarkan percobaan yang sedang berjalan. Closes #2323.
+
 ## [Belum rilis] — Health check tak lagi membunuh server saat jam mundur keluar masa sertifikat (Audit 174)
 
 - Temuan 2548 (Sedang): sertifikat daun hanya dimundurkan 1 hari dari penerbitan, jadi loncatan jam dinding mundur >24 jam saat server berjalan membuat pemeriksaan kesehatan HTTPS loopback gagal validasi masa berlaku — server sehat terbaca tidak merespon, dibunuh sebagai gantung, lalu restart menabrak penolakan jam `siapkanTls`. `checkHealthOnce` kini melewati tick secara netral (tanpa menaikkan penghitung gagal) bila kode alive -1 dan jam terbukti berada sebelum masa berlaku sertifikat lewat penanda yang sama dengan jalur start (`TlsCert.daysLeft(...) == -2` pada CA atau sertifikat daun, penilai murni `jamDiLuarMasaSertifikat`). Uji JVM untuk cabang berkas tak ada. Closes #2322.
