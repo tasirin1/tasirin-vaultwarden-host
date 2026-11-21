@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — Baris log tak lagi hilang diam-diam bila penulisan berkas log gagal (Audit 2564)
+
+- Temuan 2564 (Audit 175, Rendah): `flushLogFileLocked`
+  mengosongkan buffer log di blok `finally` — bila penulisan
+  ke `vaultwarden.log` gagal (disk penuh, I/O error), seluruh
+  baris yang menunggu hilang tanpa penanda, persis pada momen
+  kegagalan yang paling membutuhkan log.
+- Perbaikan: buffer hanya dikosongkan sesudah penulisan
+  berhasil; kegagalan mempertahankannya untuk flush
+  berikutnya, dengan katup pengaman yang membuang bagian
+  tertua bila buffer melampaui batas ukuran berkas agar
+  memori tak tumbuh tanpa batas selama disk terus gagal.
+
 ## [Belum rilis] — Penjaga wakelock bot Telegram tak lagi bisa meng-acquire yatim sesudah tugas selesai (Audit 2563)
 
 - Temuan 2563 (Audit 175, Rendah): di `runWithWakeLock`

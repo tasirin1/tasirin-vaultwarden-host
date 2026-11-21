@@ -3041,9 +3041,18 @@ public class ServerService extends Service {
                 new FileOutputStream(f, true), StandardCharsets.UTF_8)) {
             w.write(logFileBuf.toString());
         } catch (Exception ignored) {
-        } finally {
-            logFileBuf.setLength(0);
+            // Audit 2564: penulisan gagal (disk penuh dsb.) -
+            // buffer DIPERTAHANKAN agar barisnya dicoba lagi pada
+            // flush berikutnya, bukan hilang diam-diam seperti
+            // sebelumnya. Katup pengaman: bila kegagalan berlarut
+            // sampai buffer melampaui batas berkas, buang bagian
+            // tertua agar memori tak tumbuh tanpa batas.
+            if (logFileBuf.length() > MAX_LOG_FILE) {
+                logFileBuf.delete(0, logFileBuf.length() - (int) MAX_LOG_FILE);
+            }
+            return;
         }
+        logFileBuf.setLength(0);
     }
 
     static boolean bolehLogTickNetralJam(int n) {
