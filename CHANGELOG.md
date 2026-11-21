@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Penjaga wakelock bot Telegram tak lagi bisa meng-acquire yatim sesudah tugas selesai (Audit 2563)
+
+- Temuan 2563 (Audit 175, Rendah): di `runWithWakeLock`
+  TgBot, penjaga berkala memeriksa tugas belum selesai lalu
+  memanggil `acquire` — cek dan acquire tak atomik, jadi bila
+  tugas selesai tepat di antaranya, wakelock ter-acquire ulang
+  tanpa pemilik dan tertahan sampai timeout (boros daya).
+- Perbaikan: sesudah `acquire`, penjaga memeriksa ulang
+  bendera selesai; bila tugas sudah selesai, wakelock
+  dilepas saat itu juga dan penjaga berhenti.
+
 ## [Belum rilis] — Log tick netral health saat jam di luar masa sertifikat kini dibatasi (Audit 2562)
 
 - Temuan 2562 (Audit 175, Rendah): cabang netral Audit 2548

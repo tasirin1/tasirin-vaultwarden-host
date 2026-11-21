@@ -2430,6 +2430,20 @@ public final class TgBot {
                 } catch (Exception ignored) {
                     return;
                 }
+                // Audit 2563: tugas bisa selesai di antara cek
+                // kunciMasihDijaga di atas dan acquire ini - tanpa
+                // cek ulang, acquire yatim menahan wakelock sampai
+                // timeout-nya karena tick berikutnya berhenti
+                // tanpa release.
+                if (selesai.get()) {
+                    try {
+                        if (milik.isHeld()) {
+                            milik.release();
+                        }
+                    } catch (Exception ignored) {
+                    }
+                    return;
+                }
                 Util.postTunda(jaga[0], WAKELOCK_TUGAS_BERAT_MS / 2L);
             };
             Util.postTunda(jaga[0], WAKELOCK_TUGAS_BERAT_MS / 2L);
