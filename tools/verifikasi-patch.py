@@ -14840,30 +14840,42 @@ def cek_duplikat_definisi(gagal):
         if ganda:
             gagal.append("Definisi ganda di folder %s: %s" % (folder, ", ".join(ganda[:5])))
 
+def _path_hilang_name_status(out):
+    """Audit 2546: path yang hilang dari keluaran
+    git diff --name-status - baris D (pathnya
+    sendiri) dan baris R (path LAMA sebuah
+    rename ikut hilang dari pohon; salinan C
+    tidak menghilangkan sumbernya)."""
+    hilang = []
+    for x in (out or "").splitlines():
+        if x.startswith("D"):
+            hilang.append(x.split(None, 1)[1])
+        elif x.startswith("R"):
+            kolom = x.split("\t")
+            if len(kolom) >= 3:
+                hilang.append(kolom[1])
+    return hilang
+
+
 def berkas_dihapus(rentang):
     r = rentang_normal(rentang)
     if r is not None:
         out = jalan("git", "diff", "--name-status", r[0] + r[1] + r[2])
         if out is None:
             return None
-        return [x.split(None, 1)[1] for x in out.splitlines()
-                if x.startswith("D")]
+        return _path_hilang_name_status(out)
     hapus = set()
     for args in (("git", "diff", "--name-status"),
                  ("git", "diff", "--name-status", "--cached")):
         out = jalan(*args)
-        for x in (out or "").splitlines():
-            if x.startswith("D"):
-                hapus.add(x.split(None, 1)[1])
+        hapus.update(_path_hilang_name_status(out))
     # Penghapusan yang sudah ter-commit lokal tetapi belum ter-push tak
     # terlihat diff working-tree/staged (Audit 763): ikut sertakan rentang
     # commit lokal terhadap upstream (atau origin/main sebagai cadangan).
     for acuan in ("@{upstream}", "origin/main"):
         out = jalan("git", "diff", "--name-status", acuan + "..HEAD")
         if out is not None:
-            for x in out.splitlines():
-                if x.startswith("D"):
-                    hapus.add(x.split(None, 1)[1])
+            hapus.update(_path_hilang_name_status(out))
             break
     return sorted(hapus)
 

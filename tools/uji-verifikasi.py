@@ -34575,6 +34575,43 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -Xtrue huruf zona lipat + ekor bool: gerbang menolak (Audit 2544)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1629, ignore_errors=True)
+        sub1630 = klon(tmp, "sub1630")
+        lama1630 = os.path.join(
+            sub1630, "app", "src", "main", "java",
+            "com", "tasirin", "vaultwardenhost", "DialogAman.java")
+        baru1630 = os.path.join(
+            sub1630, "app", "src", "main", "java",
+            "com", "tasirin", "vaultwardenhost", "DialogAmanBaru.java")
+        git(sub1630, "mv", lama1630, baru1630)
+        with open(baru1630, encoding="utf-8") as f:
+            isi1630 = f.read()
+        with open(baru1630, "w", encoding="utf-8") as f:
+            f.write(isi1630.replace("DialogAman", "DialogAmanBaru"))
+        git(sub1630, "add", "-A")
+        git(sub1630, "commit", "-q", "-m", "rename DialogAman")
+        rc, out = jalan(sub1630,
+                        [sys.executable, GERBANG,
+                         "--rentang", "HEAD~1..HEAD"])
+        periksa("rename berkas masih dirujuk (rentang): gerbang gagal (Audit 2546)",
+                rc != 0 and "DialogAman" in out)
+        shutil.rmtree(sub1630, ignore_errors=True)
+        sub1631 = klon(tmp, "sub1631")
+        lama1631 = os.path.join(
+            sub1631, "app", "src", "main", "java",
+            "com", "tasirin", "vaultwardenhost", "DialogAman.java")
+        baru1631 = os.path.join(
+            sub1631, "app", "src", "main", "java",
+            "com", "tasirin", "vaultwardenhost", "DialogAmanBaru.java")
+        git(sub1631, "mv", lama1631, baru1631)
+        with open(baru1631, encoding="utf-8") as f:
+            isi1631 = f.read()
+        with open(baru1631, "w", encoding="utf-8") as f:
+            f.write(isi1631.replace("DialogAman", "DialogAmanBaru"))
+        git(sub1631, "add", "-A")
+        rc, out = jalan(sub1631, [sys.executable, GERBANG, "--semua"])
+        periksa("rename berkas masih dirujuk (lokal): gerbang gagal (Audit 2546)",
+                rc != 0 and "DialogAman" in out)
+        shutil.rmtree(sub1631, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
