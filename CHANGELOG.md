@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Dialog Tentang tak lagi bisa tampil dobel (Audit 173)
+
+- `AboutDialog.tampil` kini menolak tampil bila dialog Tentang sebelumnya masih terbuka. Tombol Tentang tetap aktif dan pembuatan dialognya memuat isi dari disk di latar, jadi ketukan ganda pada perangkat lambat sebelumnya menumpuk dua dialog identik. Penjaga berupa `WeakReference<Dialog>` statis yang dicek `isShowing()`-nya — dialog yang sudah ditutup atau activity yang berganti tidak menghalangi tampil berikutnya.
+
 ## [Belum rilis] — Celah batas uji logika murni maraton-172 ditutup (Audit 173)
 
 - Tiga celah cakupan uji dari Audit 2536 ditutup. `ServerServiceTest`: batas sisa URL database kini terkunci — sisa 1–2 aksara ditolak, tepat 3 diterima, dan cabang `trim()` validator teruji. `TgBackupTest`: cabang null-tunggal `folderCekRuangBackup` (`(data, null)` dan `(null, cache)`) kini teruji. `StoragePermTest`: jalur `/storage/Android/data/...` tanpa segmen volume kini terkunci sebagai bukan folder pribadi aplikasi. Hanya berkas uji yang berubah; perilaku produksi tidak berubah.

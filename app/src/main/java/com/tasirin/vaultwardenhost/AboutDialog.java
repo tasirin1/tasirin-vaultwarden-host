@@ -16,8 +16,11 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 final class AboutDialog {
+
+    private static WeakReference<Dialog> tampilTerakhir;
 
     private AboutDialog() {
     }
@@ -37,6 +40,11 @@ final class AboutDialog {
     @SuppressLint("InflateParams")
     static void tampil(Activity a) {
         if (a == null || a.isFinishing() || a.isDestroyed()) {
+            return;
+        }
+        Dialog sebelumnya = tampilTerakhir == null
+                ? null : tampilTerakhir.get();
+        if (sebelumnya != null && sebelumnya.isShowing()) {
             return;
         }
         SharedPreferences sp = a.getSharedPreferences(ServerService.PREFS,
@@ -158,6 +166,7 @@ final class AboutDialog {
                 }
             });
         }
+        tampilTerakhir = new WeakReference<>(dialog);
         DialogAman.tampil(a, dialog);
         lihat.findViewById(R.id.btn_about_ok).setOnClickListener(v -> dialog.dismiss());
         final String dataDirFinal = dataDir;
