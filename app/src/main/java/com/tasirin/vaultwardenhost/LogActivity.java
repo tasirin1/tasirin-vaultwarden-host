@@ -545,7 +545,10 @@ public class LogActivity extends Activity {
                 .setNegativeButton(getString(R.string.close), null)
                 .create();
         dialog.setOnDismissListener(dlg -> dialogCrashTampil = false);
-        DialogAman.tampil(this, dialog);
+        AlertDialog tampil = DialogAman.tampil(this, dialog);
+        if (tampil == null || !tampil.isShowing()) {
+            dialogCrashTampil = false;
+        }
     }
 
     private static final java.util.regex.Pattern POLA_TOKEN_URL =

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penjaga dialog crash LogActivity pulih bila dialog tak tertampil (Audit 174)
+
+- Temuan 2551 (Rendah): penanda `dialogCrashTampil` (penjaga Audit 2538) hanya dibersihkan oleh `OnDismissListener`, tetapi hasil `DialogAman.tampil` diabaikan — bila dialog akhirnya tidak tertampil (show tertelan di dalam DialogAman atau aktivitas keburu hancur), tak ada dismiss yang akan datang dan tombol log crash mati seumur instance. Hasil tampil kini diperiksa: dialog yang tidak `isShowing()` langsung membersihkan penanda, meniru dasar penjaga `isShowing()` milik AboutDialog (Audit 2537). Closes #2325.
+
 ## [Belum rilis] — Penanda backup tertunda dibersihkan saat backup berhasil (Audit 174)
 
 - Temuan 2550 (Rendah): `KEY_BACKUP_TERTUNDA` hanya dihapus saat aplikasi dibuka (MainActivity), sehingga backup susulan yang akhirnya berhasil lewat jalur alarm meninggalkan penanda basi — buka aplikasi berikutnya menjalankan satu backup + unggahan duplikat. Cabang sukses pengiriman backup (semua chat berhasil) kini ikut menghapus penanda itu pada editor yang sama dengan penanda backup terakhir. Closes #2324.
