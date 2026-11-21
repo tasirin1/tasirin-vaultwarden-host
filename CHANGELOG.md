@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Checkout job verifikasi-cek kini dangkal (fetch-depth 1) (Audit 172)
+
+- Job `verifikasi-cek` di `build-apk.yml` sebelumnya mengambil seluruh riwayat repo (`fetch-depth: 0`) padahal satu-satunya langkahnya, suite uji-cek-cepat, tak membaca riwayat git checkout sama sekali — riwayat hanya dipakai di dalam klon buang yang dibangun suite itu sendiri dari pohon kerja. Kini `fetch-depth: 1`. Job `verifikasi` utama TIDAK diubah: langkah `--rentang`-nya sungguh membutuhkan riwayat.
+
 ## [Belum rilis] — Berkas meta .github dikecualikan dari pemicu CodeQL/Gitleaks (Audit 172)
 
 - Perubahan murni pada `stale.yml`, `labeler.yml`, `label-audit.yml`, atau `dependabot.yml` sebelumnya tetap memicu lari CodeQL dan Gitleaks penuh, padahal tak ada kode yang dianalisis CodeQL di berkas-berkas itu dan isinya bukan permukaan pindai secret yang berarti. Keempatnya kini masuk `paths-ignore` kedua workflow (push + pull_request). Pengecualian lama `build-binary.yml` di Gitleaks TIDAK disentuh — workflow itu memuat skrip inline panjang yang memang harus tetap dipindai (Audit 1118).
