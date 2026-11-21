@@ -1,5 +1,23 @@
 # Changelog
 
+## [Belum rilis] — Konstanta _CSVKIT_BOOL yang ikut terhapus di 2580 dipulihkan (koreksi Maraton 176)
+
+- Koreksi atas perbaikan 2580: penghapusan fungsi mati
+  `_numerik_penuh` ikut menghapus konstanta
+  `_CSVKIT_BOOL` yang kebetulan berdiam tepat di bawah
+  fungsi itu di `tools/verifikasi-patch.py`, padahal
+  masih dipakai tiga tempat di cabang csvkit. Akibatnya
+  gerbang crash (NameError) setiap menilai perintah
+  csvkit — tertangkap CI pada push Maraton 176 (40
+  skenario suite menyimpang; gerbang per-commit tidak
+  melihatnya karena rujukan konstanta di dalam fungsi
+  hanya meledak saat cabang csvkit benar-benar dinilai).
+- Perbaikan: definisi konstanta dipulihkan persis
+  seperti semula (7 baris, dari diff commit 2580
+  sendiri). `_numerik_penuh` tetap terhapus — memang
+  mati. Terprobe harness setia suite: vonis csvkit
+  kembali normal (in2csv/csvlook/csvpy/csvsql).
+
 ## [Belum rilis] — Penghitung tick netral jam dinolkan di awal episode start (Audit 2585)
 
 - Temuan 2585 (Audit 176, Rendah; jalur A-6 = E-4):

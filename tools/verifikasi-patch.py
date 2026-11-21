@@ -2896,6 +2896,15 @@ def _operand_sesudah_opsi(toks, awal, bernilai):
 
 
 
+_CSVKIT_BOOL = {"--verbose", "--no-header-row",
+                "--help", "--version",
+                "--add-bom", "--blanks",
+                "--linenumbers",
+                "--no-leading-zeroes",
+                "--skipinitialspace", "--tabs",
+                "--zero"}
+
+
 def _angka_negatif(tok):
     # argparse: token mirip angka negatif
     # adalah operand/nilai, bukan opsi.
