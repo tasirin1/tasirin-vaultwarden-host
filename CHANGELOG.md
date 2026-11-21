@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — tsv-summarize -Hfalse tak lagi lolos gerbang (Audit 173)
+
+- Fail-open gerbang: penjaga bundel Audit 2385 menilai token pendek berekor yang huruf pertamanya bukan opsi bernilai sebagai galat getopt, tetapi untuk opsi bool tsv-summarize (`H`/`w`/`x` menurut sumbernya) ekor yang persis literal `true`/`false` adalah NILAI opsi bagi optMatch Phobos dan `to!bool` menerimanya — alat asli jalan dan menguras stdin, misalnya `tsv-summarize -Hfalse --sum 1`. Penjaga kini mengecualikan tepat bentuk itu; ekor sampah (`-HZZZ`, `-Hp`) tetap dinilai mati dan operand berkas tetap membuat vonis tak-menguras, semuanya terbukti lewat probe fungsi dua arah. Skenario generate 1621 mengunci vonis tolak dan terverifikasi diskriminatif.
+
 ## [Belum rilis] — csv2tsv --HELP-VERBOSE=false tak lagi lolos gerbang (Audit 173)
 
 - Fail-open gerbang: `csv2tsv --HELP-VERBOSE=false` menguras stdin di alat asli tetapi gerbang meloloskannya. Di `csv2tsv.d`, `help-verbose` terdeklarasi SEBELUM penanda `caseSensitive` pertama, jadi ia berada di zona tak-peka-huruf bawaan Phobos dan bentuk huruf besarnya sah; tabel `_SAH_TSV` memodelkan csv2tsv serba huruf-persis. Tabel kini membawa elemen keenam "pulau lipat" — nama yang tetap dilipat walau alat tak melipat — berisi `help-verbose` untuk csv2tsv (nama lain csv2tsv memang sesudah penanda, jadi model huruf-persisnya tetap tepat). Skenario generate 1620 mengunci vonis tolak; terverifikasi diskriminatif (gerbang lama GAGAL, gerbang baru LOLOS pada skenario yang sama).

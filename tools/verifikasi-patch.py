@@ -10476,6 +10476,13 @@ def _menguras_khusus(perintah, toks, awal):
         # opsi bernilai tak sah (bundling
         # Phobos mati - bool berhuruf ekor =
         # galat). Audit 2386: -h persis = help.
+        # Audit 2530: ekor token pendek pada
+        # opsi bool H/w/x yang persis literal
+        # "true"/"false" BUKAN bundel - optMatch
+        # Phobos menjadikannya NILAI opsi dan
+        # to!bool menerimanya, jadi alat jalan
+        # dan menguras; penjaga 2385 tak boleh
+        # menelan bentuk itu.
         for t_awal in mentah:
             if t_awal == "--":
                 break
@@ -10503,7 +10510,10 @@ def _menguras_khusus(perintah, toks, awal):
                     and not t_awal.startswith("--")
                     and len(t_awal) > 2
                     and t_awal[1].isalpha()
-                    and t_awal[1].lower() not in "gdprv"):
+                    and t_awal[1].lower() not in "gdprv"
+                    and not (t_awal[1] in "Hwx"
+                             and t_awal[2:] in ("true",
+                                                "false"))):
                 return False
         # Audit 2374: getopt sumber tak peka
         # huruf - operand dihitung lokal dengan

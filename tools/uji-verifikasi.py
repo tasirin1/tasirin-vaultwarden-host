@@ -34386,6 +34386,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csv2tsv --HELP-VERBOSE=false menguras (zona tak-peka Phobos): gerbang menolak (Audit 2529)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1620, ignore_errors=True)
+        sub1621 = klon(tmp, "sub1621")
+        berkas_aksi1621 = os.path.join(
+            sub1621, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1621, encoding="utf-8") as f:
+            isi_aksi1621 = f.read()
+        baris_aksi1621 = [b for b in isi_aksi1621.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1621 = isi_aksi1621.replace(
+                baris_aksi1621,
+                baris_aksi1621.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-summarize -Hfalse --sum 1; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1621 != isi_aksi1621, \
+            "suntikan aksi1621 tidak menembak"
+        with open(berkas_aksi1621, "w", encoding="utf-8") as f:
+            f.write(isi_baru1621)
+        rc, out = jalan(sub1621,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-summarize -Hfalse ekor literal bool = nilai opsi: gerbang menolak (Audit 2530)", rc != 0 and rc != 124 and "Traceback" not in out)
+        shutil.rmtree(sub1621, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
