@@ -2830,6 +2830,41 @@ public class TgBackupTest {
     }
 
     @Test
+    public void snapshotSampingKonsistenMenyalinSemuaBerkasSamping() throws Exception {
+        File data = java.nio.file.Files.createTempDirectory("vwsamp1").toFile();
+        File snap = java.nio.file.Files.createTempDirectory("vwsamp2").toFile();
+        try {
+            File tls = new File(data, "tls");
+            assertTrue(tls.mkdirs());
+            java.nio.file.Files.write(new File(tls, "ca.pem").toPath(),
+                    "ca".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.file.Files.write(new File(tls, "cert.pem").toPath(),
+                    "cert".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.file.Files.write(new File(data, "rsa_key.pem").toPath(),
+                    "rsa".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            File lamp = new File(new File(data, "attachments"), "uuid-9");
+            assertTrue(lamp.mkdirs());
+            java.nio.file.Files.write(new File(lamp, "berkas.bin").toPath(),
+                    "lampiran".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            assertNull(TgBackup.snapshotSampingKonsisten(null, data, snap));
+            assertTrue(new File(new File(snap, "tls"), "ca.pem").isFile());
+            assertTrue(new File(new File(snap, "tls"), "cert.pem").isFile());
+            assertTrue(new File(snap, "rsa_key.pem").isFile());
+            assertTrue(new File(new File(new File(snap, "attachments"), "uuid-9"),
+                    "berkas.bin").isFile());
+            File snap3 = java.nio.file.Files.createTempDirectory("vwsamp3").toFile();
+            try {
+                assertNull(TgBackup.salinSampingSekali(tls, data, snap3));
+            } finally {
+                TgBackup.hapusPohon(snap3);
+            }
+        } finally {
+            TgBackup.hapusPohon(data);
+            TgBackup.hapusPohon(snap);
+        }
+    }
+
+    @Test
     public void snapshotDbKonsistenMenolakTanpaDatabase() throws Exception {
         File kosong = java.nio.file.Files.createTempDirectory("vwsnapkosong").toFile();
         File tujuan = java.nio.file.Files.createTempDirectory("vwsnapt2").toFile();

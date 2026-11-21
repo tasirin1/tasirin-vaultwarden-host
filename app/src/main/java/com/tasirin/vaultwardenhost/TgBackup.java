@@ -1496,8 +1496,8 @@ public final class TgBackup {
         return galat;
     }
 
-    private static String salinSampingSekali(File tlsSrc, File dataFolder,
-                                             File tujuan) {
+    static String salinSampingSekali(File tlsSrc, File dataFolder,
+                                     File tujuan) {
         try {
             String[] namaTls = {"ca.pem", "cert.pem", "ca-key.pem",
                     "key.pem"};
