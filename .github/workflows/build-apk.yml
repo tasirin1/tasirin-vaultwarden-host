@@ -72,7 +72,12 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          fetch-depth: 0
+          # Audit 2535: pada pull_request semua langkah job ini
+          # dilewati (Audit 2522), jadi riwayat penuh hanya terbuang
+          # (±428 MB .git) - dangkal saja. Push/dispatch tetap 0:
+          # langkah --rentang sungguh butuh riwayat. Pasangan
+          # terbalik perbaikan 2524 untuk job verifikasi-cek.
+          fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 0 }}
 
           persist-credentials: false
       # Audit 2522: dua langkah ini dilewati pada pull_request —

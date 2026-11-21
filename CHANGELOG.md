@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Checkout job verifikasi build-apk dangkal khusus pull_request (Audit 173)
+
+- `fetch-depth` checkout job `verifikasi` di `build-apk.yml` kini bersyarat: `1` pada pull_request, `0` pada push/dispatch. Sejak Audit 2522 semua langkah job ini dilewati di PR, jadi unduhan riwayat penuh (±428 MB `.git`) di PR murni terbuang; pada push riwayat tetap diambil penuh karena langkah `--rentang` sungguh membutuhkannya. Ini pasangan terbalik perbaikan 2524 (job `verifikasi-cek` didangkalkan tanpa syarat karena tak pernah butuh riwayat).
+
 ## [Belum rilis] — Cabang mati pull_request dibuang dari langkah verifikasi build-apk (Audit 173)
 
 - Badan langkah "Verifikasi patch" di `build-apk.yml` masih memuat cabang `if pull_request` yang menghitung rentang dari SHA PR — tak terjangkau sejak Audit 2522 memasang gerbang langkah `if: github.event_name != 'pull_request'`. Cabang itu dibuang; langkah kini menghitung rentang langsung dari `github.event.before...github.sha`, persis perilaku cabang `else` lama untuk push dan workflow_dispatch. Salinan identik di `build-binary.yml` TIDAK disentuh: langkahnya di sana tidak bergerbang, jadi cabangnya masih hidup.
