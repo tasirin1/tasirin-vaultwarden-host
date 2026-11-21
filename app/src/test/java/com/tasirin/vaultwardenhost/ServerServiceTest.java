@@ -910,6 +910,40 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void flushGagalTulisMempertahankanBuffer() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwlogfail").toFile();
+        java.io.File penghalang = new java.io.File(dir, "penghalang");
+        java.nio.file.Files.write(penghalang.toPath(),
+                "x".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        java.io.File buruk = new java.io.File(penghalang, "vaultwarden.log");
+        java.io.File baru = new java.io.File(dir, "baru.log");
+        java.lang.reflect.Field fLog = ServerService.class.getDeclaredField("logFile");
+        fLog.setAccessible(true);
+        java.lang.reflect.Field fBuf = ServerService.class.getDeclaredField("logFileBuf");
+        fBuf.setAccessible(true);
+        Object asliLog = fLog.get(null);
+        StringBuilder buf = (StringBuilder) fBuf.get(null);
+        try {
+            fLog.set(null, buruk);
+            buf.append("baris-yang-tak-boleh-hilang\n");
+            ServerService.pindahLogFile(baru);
+            assertEquals(baru, fLog.get(null));
+            assertTrue(buf.toString().contains("baris-yang-tak-boleh-hilang"));
+
+            buf.setLength(0);
+            buf.append("x".repeat(2_100_000));
+            fLog.set(null, buruk);
+            ServerService.pindahLogFile(baru);
+            assertEquals(2 * 1024 * 1024, buf.length());
+        } finally {
+            fLog.set(null, asliLog);
+            buf.setLength(0);
+            penghalang.delete();
+            dir.delete();
+        }
+    }
+
+    @Test
     public void teksNotifikasiIkutStatusDanTakMeluber() {
         // Audit 975: templat diteruskan pemanggil dari resource —
         // uji memakai templat values-in, hasil harus sama persis

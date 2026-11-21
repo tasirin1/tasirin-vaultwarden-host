@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — Cabang gagal-tulis flush log kini terkunci uji JVM (Audit 2583)
+
+- Temuan 2583 (Audit 176, Rendah): perbaikan 2564
+  (buffer log dipertahankan saat penulisan gagal)
+  hanya diuji jalur suksesnya — regresi yang
+  mengembalikan pengosongan buffer di blok finally
+  akan lulus semua uji.
+- Perbaikan: uji baru `flushGagalTulisMempertahankanBuffer`
+  memaksa kegagalan tulis (induk berkas log berupa
+  berkas biasa) dan mengasersi buffer bertahan utuh,
+  plus katup pengaman memangkas buffer raksasa tepat
+  ke batas 2 MB. Tanpa perubahan kode produksi.
+
 ## [Belum rilis] — Jaring push cek-wajib kini lengkap: codeql.yml dan gitleaks.yml ikut tercakup (Audit 2582)
 
 - Temuan 2582 (Audit 176, Rendah): daftar paths pemicu
