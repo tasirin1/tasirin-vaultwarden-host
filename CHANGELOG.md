@@ -1,5 +1,25 @@
 # Changelog
 
+## [Belum rilis] — Singkatan tak ambigu --help/--version GNU kini informasional di gerbang (Audit 2578)
+
+- Temuan 2578 (Audit 176, Rendah): getopt_long GNU
+  menerima singkatan awalan tak ambigu, tetapi penjaga
+  generik dan himpunan info keluarga skrip hanya
+  mengenal token persis — `grep --hel`, `sort --vers`,
+  `sed --hel` ditolak gerbang padahal alatnya berhenti
+  sebelum membaca (fail-closed).
+- Perbaikan: tabel kosakata `_VOKAB_SK` disarikan dari
+  `--help` biner asli (grep 3.11, sed 4.9, coreutils
+  9.4, jq 1.7, rg 14.1.0, yq v4.44.5, fq 0.15.1) +
+  penilai `_status_panjang`/`_status_klaster`;
+  singkatan yang teresolusi unik ke help/version
+  dinilai informasional di pindaian keluarga skrip
+  (grep/sed; awk lewat cabang khasnya — mawk terbukti
+  menerima `--hel`) dan di penyusuran sadar-nilai
+  coreutils (sort/head/tail/uniq/cut/wc). Parser
+  jq/rg/yq/fq tidak menyingkat — bentuk itu opsi
+  asing (Audit 2579). Skenario gensuite 1673–1678.
+
 ## [Belum rilis] — Snapshot backup kini utuh: TLS, kunci RSA, dan lampiran ikut disalin stabil, bukan dibaca live (Audit 2577)
 
 - Temuan 2577 (Audit 176, Rendah): hanya database yang

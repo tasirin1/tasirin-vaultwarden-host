@@ -13491,6 +13491,430 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # sebelum penjaga 1102 - informasionalnya
     # diperiksa di sini, per perintah (grep
     # -h bendera asli, dikecualikan).
+
+    # Audit 2578/2579: kosakata opsi dari biner asli
+    # (GNU grep 3.11, sed 4.9, coreutils 9.4, jq 1.7,
+    # rg 14.1.0, yq v4.44.5, fq 0.15.1 - disarikan
+    # dari keluaran --help masing-masing).
+    # panjang: nama panjang sah. pembawa: wajib
+    # bernilai (token terpisah dimakan). opsional:
+    # bernilai opsional (hanya bentuk "="; token
+    # terpisah tak dimakan). singkat: parser
+    # menyingkat awalan tak ambigu (getopt_long
+    # GNU). pendek/pembawa_pendek: huruf pendek.
+    # pola: pembawa yang nilainya pola/berkas pola.
+    # pembawa2: pembawa dua token (nama + nilai).
+    # eq_mati: opsi bool berbentuk "=" adalah
+    # galat parser (getopt_long/clap).
+    _VOKAB_SK = {
+        "grep": {
+            "panjang": frozenset({
+                "after-context", "basic-regexp",
+                "before-context", "binary",
+                "binary-files", "byte-offset", "color",
+                "colour", "context", "count",
+                "dereference-recursive", "devices",
+                "directories", "exclude", "exclude-dir",
+                "exclude-from", "extended-regexp",
+                "file", "files-with-matches",
+                "files-without-match", "fixed-strings",
+                "group-separator", "help", "ignore-case",
+                "include", "initial-tab", "invert-match",
+                "label", "line-buffered", "line-number",
+                "line-regexp", "max-count", "no-filename",
+                "no-group-separator", "no-ignore-case",
+                "no-messages", "null", "null-data",
+                "only-matching", "perl-regexp", "quiet",
+                "recursive", "regexp", "silent", "text",
+                "version", "with-filename",
+                "word-regexp"}),
+            "pembawa": frozenset({
+                "after-context", "before-context",
+                "binary-files", "context", "devices",
+                "directories", "exclude", "exclude-dir",
+                "exclude-from", "file",
+                "group-separator", "include", "label",
+                "max-count", "regexp"}),
+            "opsional": frozenset({"color", "colour"}),
+            "singkat": True,
+            "pendek": frozenset(
+                "ABCDEFGHILPRTUVZabcdefhilmnoqrsvwxz"),
+            "pembawa_pendek": frozenset("ABCDefm"),
+            "pola": frozenset({"regexp", "file"}),
+            "pola_pendek": frozenset("ef"),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "sed": {
+            "panjang": frozenset({
+                "debug", "expression", "file",
+                "follow-symlinks", "help", "in-place",
+                "line-length", "null-data", "posix",
+                "quiet", "regexp-extended", "sandbox",
+                "separate", "silent", "unbuffered",
+                "version"}),
+            "pembawa": frozenset({
+                "expression", "file", "line-length"}),
+            "opsional": frozenset({"in-place"}),
+            "singkat": True,
+            "pendek": frozenset("Eefilnrsuz"),
+            "pembawa_pendek": frozenset("efl"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "jq": {
+            "panjang": frozenset({
+                "arg", "argjson", "args", "ascii-output",
+                "build-configuration", "color-output",
+                "compact-output", "exit-status",
+                "from-file", "help", "indent",
+                "join-output", "jsonargs",
+                "monochrome-output", "null-input",
+                "raw-input", "raw-output", "raw-output0",
+                "rawfile", "seq", "slurp", "slurpfile",
+                "sort-keys", "stream", "stream-errors",
+                "tab", "unbuffered", "version"}),
+            "pembawa": frozenset({
+                "arg", "argjson", "from-file", "indent",
+                "rawfile", "slurpfile"}),
+            "opsional": frozenset(),
+            "singkat": False,
+            "pendek": frozenset("CLMRSVacefhjnrs"),
+            "pembawa_pendek": frozenset("fL"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": False,
+        },
+        "rg": {
+            "panjang": frozenset({
+                "after-context", "auto-hybrid-regex",
+                "before-context", "binary",
+                "block-buffered", "byte-offset",
+                "case-sensitive", "color", "colors",
+                "column", "context", "context-separator",
+                "count", "count-matches", "crlf",
+                "debug", "dfa-size-limit", "encoding",
+                "engine", "field-context-separator",
+                "field-match-separator", "file", "files",
+                "files-with-matches",
+                "files-without-match", "fixed-strings",
+                "follow", "generate", "glob",
+                "glob-case-insensitive", "heading",
+                "help", "hidden", "hostname-bin",
+                "hyperlink-format", "iglob", "ignore",
+                "ignore-case", "ignore-dot",
+                "ignore-exclude", "ignore-file",
+                "ignore-file-case-insensitive",
+                "ignore-files", "ignore-global",
+                "ignore-messages", "ignore-parent",
+                "ignore-vcs", "include-zero",
+                "invert-match", "json", "line-buffered",
+                "line-number", "line-regexp",
+                "max-columns", "max-columns-preview",
+                "max-count", "max-depth", "max-filesize",
+                "maxdepth", "messages", "mmap",
+                "multiline", "multiline-dotall",
+                "no-auto-hybrid-regex", "no-binary",
+                "no-block-buffered", "no-byte-offset",
+                "no-column", "no-config",
+                "no-context-separator", "no-crlf",
+                "no-encoding", "no-filename",
+                "no-fixed-strings", "no-follow",
+                "no-glob-case-insensitive", "no-heading",
+                "no-hidden", "no-ignore", "no-ignore-dot",
+                "no-ignore-exclude",
+                "no-ignore-file-case-insensitive",
+                "no-ignore-files", "no-ignore-global",
+                "no-ignore-messages", "no-ignore-parent",
+                "no-ignore-vcs", "no-include-zero",
+                "no-invert-match", "no-json",
+                "no-line-buffered", "no-line-number",
+                "no-max-columns-preview", "no-messages",
+                "no-mmap", "no-multiline",
+                "no-multiline-dotall",
+                "no-one-file-system", "no-pcre2",
+                "no-pcre2-unicode", "no-pre",
+                "no-require-git", "no-search-zip",
+                "no-sort-files", "no-stats", "no-text",
+                "no-trim", "no-unicode", "null",
+                "null-data", "one-file-system",
+                "only-matching", "passthrough",
+                "passthru", "path-separator", "pcre2",
+                "pcre2-unicode", "pcre2-version", "pre",
+                "pre-glob", "pretty", "print0", "quiet",
+                "regex-size-limit", "regexp", "replace",
+                "require-git", "search-zip", "smart-case",
+                "sort", "sort-files", "sortr", "stats",
+                "stop-on-nonmatch", "text", "threads",
+                "trace", "trim", "type", "type-add",
+                "type-clear", "type-list", "type-not",
+                "unicode", "unrestricted", "version",
+                "vimgrep", "with-filename",
+                "word-regexp"}),
+            "pembawa": frozenset({
+                "after-context", "before-context",
+                "color", "colors", "context",
+                "context-separator", "dfa-size-limit",
+                "encoding", "engine",
+                "field-context-separator",
+                "field-match-separator", "file",
+                "generate", "glob", "hostname-bin",
+                "hyperlink-format", "iglob",
+                "ignore-file", "max-columns",
+                "max-count", "max-depth", "max-filesize",
+                "maxdepth", "path-separator", "pre",
+                "pre-glob", "regex-size-limit", "regexp",
+                "replace", "sort", "threads", "type",
+                "type-add", "type-not"}),
+            "opsional": frozenset(),
+            "singkat": False,
+            "pendek": frozenset(
+                "0ABCEFHILMNPRSTUVabcdefghijlmnopqrst"
+                "uvwxz"),
+            "pembawa_pendek": frozenset("ABCEefgjmMrtT"),
+            "pola": frozenset({"regexp", "file"}),
+            "pola_pendek": frozenset("ef"),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "yq": {
+            "panjang": frozenset({
+                "colors", "csv-auto-parse",
+                "csv-separator", "exit-status",
+                "expression", "from-file", "front-matter",
+                "header-preprocess", "help", "indent",
+                "inplace", "input-format", "lua-globals",
+                "lua-prefix", "lua-suffix",
+                "lua-unquoted", "no-colors", "no-doc",
+                "nul-output", "null-input",
+                "output-format", "prettyPrint",
+                "properties-array-brackets",
+                "properties-separator", "split-exp",
+                "split-exp-file", "string-interpolation",
+                "tsv-auto-parse", "unwrapScalar",
+                "verbose", "version",
+                "xml-attribute-prefix",
+                "xml-content-name", "xml-directive-name",
+                "xml-keep-namespace",
+                "xml-proc-inst-prefix", "xml-raw-token",
+                "xml-skip-directives",
+                "xml-skip-proc-inst", "xml-strict-mode"}),
+            "pembawa": frozenset({
+                "csv-separator", "from-file",
+                "front-matter", "indent", "input-format",
+                "lua-globals", "lua-prefix", "lua-suffix",
+                "output-format", "properties-separator",
+                "split-exp", "split-exp-file",
+                "xml-attribute-prefix",
+                "xml-content-name", "xml-directive-name",
+                "xml-proc-inst-prefix"}),
+            "opsional": frozenset(),
+            "singkat": False,
+            "pendek": frozenset("0CIMNPVefhinoprsv"),
+            "pembawa_pendek": frozenset("Iops"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": False,
+        },
+        "fq": {
+            "panjang": frozenset({
+                "arg", "argdecode", "argjson",
+                "color-output", "compact-output",
+                "decode", "from-file", "help",
+                "include-path", "join-output",
+                "monochrome-output", "null-input",
+                "option", "raw-file", "raw-input",
+                "raw-output", "raw-output0", "repl",
+                "slurp", "unicode-output",
+                "value-output", "version"}),
+            "pembawa": frozenset({
+                "arg", "argdecode", "argjson", "decode",
+                "from-file", "include-path", "option",
+                "raw-file"}),
+            "opsional": frozenset(),
+            "singkat": False,
+            "pendek": frozenset("CLMRUVcdfhijnorsv"),
+            "pembawa_pendek": frozenset("dL"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset({"raw-file"}),
+            "eq_mati": False,
+        },
+        "sort": {
+            "panjang": frozenset({
+                "batch-size", "buffer-size", "check",
+                "compress-program", "debug",
+                "dictionary-order", "field-separator",
+                "files0-from", "general-numeric-sort",
+                "help", "human-numeric-sort",
+                "ignore-case", "ignore-leading-blanks",
+                "ignore-nonprinting", "key", "merge",
+                "month-sort", "numeric-sort", "output",
+                "parallel", "random-sort",
+                "random-source", "reverse", "sort",
+                "stable", "temporary-directory",
+                "unique", "version", "version-sort",
+                "zero-terminated"}),
+            "pembawa": frozenset({
+                "batch-size", "buffer-size",
+                "compress-program", "field-separator",
+                "files0-from", "key", "output",
+                "parallel", "random-source", "sort",
+                "temporary-directory"}),
+            "opsional": frozenset({"check"}),
+            "singkat": True,
+            "pendek": frozenset(
+                "CMRSTVbcdfghikmnorstuz"),
+            "pembawa_pendek": frozenset("STkot"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "head": {
+            "panjang": frozenset({
+                "bytes", "help", "lines", "quiet",
+                "silent", "verbose", "version",
+                "zero-terminated"}),
+            "pembawa": frozenset({"bytes", "lines"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("cnqvz"),
+            "pembawa_pendek": frozenset("cn"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "tail": {
+            "panjang": frozenset({
+                "bytes", "follow", "help", "lines",
+                "max-unchanged-stats", "pid", "quiet",
+                "retry", "silent", "sleep-interval",
+                "verbose", "version",
+                "zero-terminated"}),
+            "pembawa": frozenset({
+                "bytes", "lines", "max-unchanged-stats",
+                "pid", "sleep-interval"}),
+            "opsional": frozenset({"follow"}),
+            "singkat": True,
+            "pendek": frozenset("Fcfnqsvz"),
+            "pembawa_pendek": frozenset("cns"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "uniq": {
+            "panjang": frozenset({
+                "all-repeated", "check-chars", "count",
+                "group", "help", "ignore-case",
+                "repeated", "skip-chars", "skip-fields",
+                "unique", "version",
+                "zero-terminated"}),
+            "pembawa": frozenset({
+                "check-chars", "skip-chars",
+                "skip-fields"}),
+            "opsional": frozenset({"group"}),
+            "singkat": True,
+            "pendek": frozenset("Dcdfisuwz"),
+            "pembawa_pendek": frozenset("fsw"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "cut": {
+            "panjang": frozenset({
+                "bytes", "characters", "complement",
+                "delimiter", "fields", "help",
+                "only-delimited", "output-delimiter",
+                "version", "zero-terminated"}),
+            "pembawa": frozenset({
+                "bytes", "characters", "delimiter",
+                "fields", "output-delimiter"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("bcdfnsz"),
+            "pembawa_pendek": frozenset("bcdf"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "wc": {
+            "panjang": frozenset({
+                "bytes", "chars", "files0-from", "help",
+                "lines", "max-line-length", "total",
+                "version", "words"}),
+            "pembawa": frozenset({"files0-from"}),
+            "opsional": frozenset({"total"}),
+            "singkat": True,
+            "pendek": frozenset("Lclmw"),
+            "pembawa_pendek": frozenset(),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+    }
+
+    def _status_panjang(vokab, token):
+        # token diawali "--"; hasil (status, nama
+        # teresolusi): status "info" (berhenti
+        # informasional), "pembawa" (nilai token
+        # terpisah), "pembawa=" (nilai nempel),
+        # "pembawa2" (dua token nilai), "opsi"
+        # (sah polos), "mati" (asing/ambigu/bool
+        # berbentuk "=" - alat mati sebelum
+        # membaca).
+        badan = token[2:]
+        nama, eq, _ = badan.partition("=")
+        if nama in vokab["panjang"]:
+            resolusi = nama
+        elif vokab["singkat"] and nama:
+            calon = [x for x in vokab["panjang"]
+                     if x.startswith(nama)]
+            if len(calon) != 1:
+                return ("mati", "")
+            resolusi = calon[0]
+        else:
+            return ("mati", "")
+        if resolusi in ("help", "version"):
+            return ("mati", resolusi) if eq else (
+                "info", resolusi)
+        if resolusi in vokab["opsional"]:
+            return ("opsi", resolusi)
+        if resolusi in vokab["pembawa"]:
+            if eq:
+                return ("pembawa=", resolusi)
+            if resolusi in vokab["pembawa2"]:
+                return ("pembawa2", resolusi)
+            return ("pembawa", resolusi)
+        if eq and vokab["eq_mati"]:
+            return ("mati", resolusi)
+        return ("opsi", resolusi)
+
+    def _status_klaster(vokab, token):
+        # token "-xyz" (satu strip); hasil
+        # (status, huruf pembawa): "opsi",
+        # "pembawa" (huruf terakhir - nilai token
+        # terpisah), "pembawa-nempel" (sisa token
+        # adalah nilai), "mati" (huruf asing).
+        huruf = token[1:]
+        for i_h, ch in enumerate(huruf):
+            if ch in vokab["pembawa_pendek"]:
+                if i_h == len(huruf) - 1:
+                    return ("pembawa", ch)
+                return ("pembawa-nempel", ch)
+            if ch not in vokab["pendek"]:
+                return ("mati", "")
+        return ("opsi", "")
+
     info_skrip = {
         "jq": {"-h", "--help", "-V", "--version"},
         "yq": {"-h", "--help", "-V", "--version"},
@@ -13652,6 +14076,37 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # penugasan nama=nilai, jadi token
             # informasional telanjang sesudahnya
             # selalu galat (berhenti), bukan nilai.
+            # Audit 2578: singkatan tak ambigu
+            # --help/--version getopt_long GNU
+            # (grep/sed/awk) juga informasional -
+            # parser jq/rg/yq/fq tak menyingkat
+            # (bentuk itu mati sebagai opsi asing,
+            # dinilai Audit 2579). Pembawa hasil
+            # singkatan ikut menelan nilainya.
+            if (b_isk.startswith("--")
+                    and keluarga in _VOKAB_SK):
+                st_isk, nm_isk = _status_panjang(
+                    _VOKAB_SK[keluarga], b_isk)
+                if st_isk == "info":
+                    return False
+                if st_isk == "pembawa":
+                    if nm_isk in _VOKAB_SK[
+                            keluarga]["pola"]:
+                        pola_opsi = True
+                    lewati_info = 1
+                    continue
+                if st_isk == "pembawa2":
+                    lewati_info = 2
+                    continue
+            if (keluarga == "awk"
+                    and b_isk.startswith("--")
+                    and "=" not in b_isk):
+                nama_awk = b_isk[2:]
+                if (nama_awk
+                        and ("help".startswith(nama_awk)
+                             or "version".startswith(
+                                 nama_awk))):
+                    return False
             if b_isk in tanda_info:
                 return False
             if (not b_isk.startswith("-")
@@ -13710,6 +14165,40 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         and sisa_f0[k_f0 + 1].strip("\"'") == "-")
             if b_f0.startswith("--files0-from="):
                 return b_f0.split("=", 1)[1] == "-"
+    # Audit 2578: singkatan tak ambigu --help/
+    # --version GNU coreutils juga informasional -
+    # penyusuran sadar nilai (pembawa menelan token
+    # berikutnya) agar nilai opsi tak dinilai
+    # panggilan bantuan.
+    if perintah in ("sort", "head", "tail", "uniq",
+                    "cut", "wc"):
+        vokab_gu = _VOKAB_SK[perintah]
+        lewati_gu = 0
+        for t_gu in toks[awal + 1:]:
+            b_gu = t_gu.strip("\"'")
+            if lewati_gu > 0:
+                lewati_gu -= 1
+                continue
+            if b_gu == "--":
+                break
+            if (not b_gu.startswith("-")
+                    or b_gu == "-"):
+                continue
+            if b_gu.startswith("--"):
+                st_gu, _nm_gu = _status_panjang(
+                    vokab_gu, b_gu)
+                if st_gu == "info":
+                    return False
+                if st_gu == "pembawa":
+                    lewati_gu = 1
+                continue
+            if (perintah in ("head", "tail")
+                    and b_gu[1:].isdigit()):
+                continue
+            st_gu, _ch_gu = _status_klaster(
+                vokab_gu, b_gu)
+            if st_gu == "pembawa":
+                lewati_gu = 1
     # Audit 1102: panggilan informasional mencetak dan keluar
     # tanpa membaca stdin (--help/--version umum; iconv -l/--list).
     if perintah in _PEMBACA_STDIN and any(
