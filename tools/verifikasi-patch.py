@@ -3663,6 +3663,15 @@ def _char_getopt_sah(nilai):
     return len(nilai) == 1 and ord(nilai) < 128
 
 
+def _uint_getopt_sah(nilai):
+    # Penerima bilangan bulat tak bertanda Phobos
+    # (to!size_t dst.): literal digit ASCII dengan
+    # tanda '+' tunggal opsional di depan; di luar
+    # itu ConvException dan alat mati di getopt.
+    inti = nilai[1:] if nilai.startswith("+") else nilai
+    return inti != "" and inti.isascii() and inti.isdigit()
+
+
 def _menguras_khusus(perintah, toks, awal):
     """Audit 1059-1072: penilai perintah yang pengurasannya
     bergantung pada subcommand / bentuk opsi khas — tak bisa
@@ -10675,7 +10684,12 @@ def _menguras_khusus(perintah, toks, awal):
         # (config.caseInsensitive sumber).
         # Audit 2375: token berawalan dash
         # sesudah opsi bernilai = opsi itu
-        # menggantung (galat getopt).
+        # menggantung (galat getopt) - model itu
+        # dipersempit Audit 2573/2574: yang benar-
+        # benar menggantung hanya penerima char/
+        # numerik dengan nilai tak sah; penerima
+        # string dan callback dua-parameter
+        # memakan token berikutnya tanpa syarat.
         ada_op_tsm = False
         gantung_tsm = False
         # Audit 2554: kosakata nama panjang resmi
@@ -10724,6 +10738,16 @@ def _menguras_khusus(perintah, toks, awal):
                     and t_tsm[1] in "dv"
                     and not _char_getopt_sah(t_tsm[2:])):
                 return False
+            # Audit 2574: nilai nempel token pendek
+            # penerima numerik (-p) - ekor yang bukan
+            # literal uint membunuh alat di getopt.
+            if (len(t_tsm) > 2
+                    and t_tsm.startswith("-")
+                    and not t_tsm.startswith("--")
+                    and "=" not in t_tsm
+                    and t_tsm[1] == "p"
+                    and not _uint_getopt_sah(t_tsm[2:])):
+                return False
             nama_tsm = t_tsm.lower().split("=", 1)[0]
             mentah_tsm = t_tsm.split("=", 1)[0]
             if mentah_tsm.startswith("--"):
@@ -10752,10 +10776,13 @@ def _menguras_khusus(perintah, toks, awal):
                 ada_op_tsm = True
                 if ("=" not in t_tsm
                         and nama_tsm != "--count"):
-                    if (i_tsm + 1 < len(mentah)
-                            and mentah[i_tsm + 1].startswith("-")
-                            and mentah[i_tsm + 1] != "-"):
-                        gantung_tsm = True
+                    # Audit 2574: operator adalah
+                    # callback dua-parameter - token
+                    # berikutnya dimakan sebagai nilai
+                    # TANPA syarat (handleOption
+                    # Phobos), sama seperti -g/-r;
+                    # model gantung lama untuk operator
+                    # terbukti fail-open.
                     i_tsm += 2
                     continue
                 i_tsm += 1
@@ -10780,6 +10807,14 @@ def _menguras_khusus(perintah, toks, awal):
                             and not _char_getopt_sah(
                                 t_tsm.split("=", 1)[1])):
                         return False
+                    # Audit 2574: nilai nempel penerima
+                    # numerik (-p) - bukan literal uint
+                    # membunuh alat di getopt.
+                    if (nama_tsm in ("-p",
+                                     "--float-precision")
+                            and not _uint_getopt_sah(
+                                t_tsm.split("=", 1)[1])):
+                        return False
                     i_tsm += 1
                     continue
                 # Audit 2560 + koreksi 2573: penerima
@@ -10798,12 +10833,21 @@ def _menguras_khusus(perintah, toks, awal):
                             or not _char_getopt_sah(
                                 mentah[i_tsm + 1])):
                         gantung_tsm = True
-                elif (nama_tsm not in ("-r",
-                                       "--replace-missing")
-                        and i_tsm + 1 < len(mentah)
-                        and mentah[i_tsm + 1].startswith("-")
-                        and mentah[i_tsm + 1] != "-"):
-                    gantung_tsm = True
+                elif nama_tsm in ("-p",
+                                  "--float-precision"):
+                    # Audit 2574: penerima numerik
+                    # hanya memakan literal uint -
+                    # nilai lain (termasuk yang
+                    # berawalan '-') membunuh alat.
+                    if (i_tsm + 1 >= len(mentah)
+                            or not _uint_getopt_sah(
+                                mentah[i_tsm + 1])):
+                        gantung_tsm = True
+                # Audit 2574: -g (dan -r) adalah
+                # penerima string/callback dua-
+                # parameter - token berikutnya
+                # dimakan TANPA syarat; tak ada
+                # model gantung untuk keduanya.
                 i_tsm += 2
                 continue
             i_tsm += 1

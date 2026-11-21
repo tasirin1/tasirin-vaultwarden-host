@@ -1,5 +1,26 @@
 # Changelog
 
+## [Belum rilis] — Sisa model gantung summarize ditutup: -g dan operator memakan nilai tanpa syarat, -p hanya literal uint (Audit 2574)
+
+- Temuan 2574 (Audit 176, Sedang): handler `-g` dan
+  semua operator tsv-summarize adalah callback
+  dua-parameter — menurut `handleOption` Phobos token
+  berikutnya dimakan sebagai nilai TANPA syarat
+  (validasi field ditunda sesudah header dibaca),
+  tetapi gerbang masih menilainya menggantung dan
+  meloloskan perintah yang alatnya berjalan
+  (fail-open). Sebaliknya penerima numerik `-p`
+  hanya sah oleh literal bilangan bulat tak bertanda;
+  nilai lain (`abc`, `1x`) membunuh alat tetapi
+  gerbang menilainya termakan.
+- Perbaikan: `-g`/operator kini memakan nilai tanpa
+  syarat; `-p`/`--float-precision` memakai helper
+  `_uint_getopt_sah` untuk ketiga bentuk nilai
+  (terpisah, nempel, `=`). Model gantung kini hanya
+  tersisa tepat di tempatnya: penerima char/numerik
+  dengan nilai tak sah. Skenario gensuite 1665–1668
+  mengunci; terprobe induk 10/10.
+
 ## [Belum rilis] — Vonis opsi pembatas summarize dibetulkan: penerima char mati oleh nilai mirip-opsi (Audit 2573)
 
 - Temuan 2573 (Audit 176, Sedang): perbaikan 2560
