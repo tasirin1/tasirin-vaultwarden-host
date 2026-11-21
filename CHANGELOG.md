@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pengecualian bool tsv-summarize dilipat huruf (Audit 174)
+
+- Temuan 2544 (Sedang): pengecualian ekor bool penjaga bundel di cabang `tsv-summarize` (perbaikan 2530) hanya mengenal huruf persis `Hwx` dan ekor huruf kecil, padahal `w`/`x` hidup di zona `caseInsensitive` sumber (huruf opsi ikut dilipat: `W` = `w`, `X` = `x`) dan `parse!bool` melipat ekornya — `-HTrue`, `-Wfalse`, `-Xtrue` lolos gerbang padahal alat asli jalan dan menguras. Pengecualian kini melipat ekor dan menerima huruf `W`/`X`; `H` tetap huruf persis (pulau `caseSensitive` di sumbernya). Skenario gensuite 1627–1629 mengunci ketiga bentuk itu. Closes #2318.
+
 ## [Belum rilis] — Gerbang: ekor bool kapital di cabang tsv kini ditolak (Audit 174)
 
 - Temuan 2543 (Sedang): cek ekor opsi bool di `_nama_sah_tsv` (perbaikan 2532) hanya menerima literal `true`/`false` huruf kecil persis, padahal `parse!bool` Phobos melipat huruf tiap aksara (sumber `std/conv.d`; unittest resmi memakai `falSE`/`faLse`) — `tsv-uniq -HTrue` dan `csv2tsv -HTrue` lolos gerbang padahal alat asli jalan dan menguras sink proses-substitusi. Perbandingan ekor kini dilipat huruf kecil. Skenario gensuite 1625–1626 mengunci kedua bentuk itu sebagai tertolak. Closes #2317.

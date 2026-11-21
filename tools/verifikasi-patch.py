@@ -10511,6 +10511,13 @@ def _menguras_khusus(perintah, toks, awal):
         # to!bool menerimanya, jadi alat jalan
         # dan menguras; penjaga 2385 tak boleh
         # menelan bentuk itu.
+        # Audit 2544: huruf w/x hidup di zona
+        # caseInsensitive sumber (hurufnya ikut
+        # dilipat: W = w, X = x) dan parse!bool
+        # melipat ekornya - pengecualian 2530
+        # yang peka huruf penuh meloloskan
+        # -HTrue/-Wfalse/-Xtrue. H tetap huruf
+        # persis (pulau caseSensitive sumber).
         for t_awal in mentah:
             if t_awal == "--":
                 break
@@ -10539,9 +10546,10 @@ def _menguras_khusus(perintah, toks, awal):
                     and len(t_awal) > 2
                     and t_awal[1].isalpha()
                     and t_awal[1].lower() not in "gdprv"
-                    and not (t_awal[1] in "Hwx"
-                             and t_awal[2:] in ("true",
-                                                "false"))):
+                    and not ((t_awal[1] == "H"
+                              or t_awal[1] in "wxWX")
+                             and t_awal[2:].lower() in (
+                                 "true", "false"))):
                 return False
         # Audit 2374: getopt sumber tak peka
         # huruf - operand dihitung lokal dengan
