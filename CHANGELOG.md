@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — Anotasi @Test uji jamDiLuarMasaSertifikat dipulihkan (Audit 2576)
+
+- Temuan 2576 (Audit 176, Sedang): sisipan metode uji
+  baru pada perbaikan 2562 menempel tepat di bawah
+  anotasi `@Test` milik metode lama
+  `jamDiLuarMasaSertifikat_berkasTakAdaAman`, sehingga
+  anotasi itu berpindah ke metode baru dan metode lama
+  tidak pernah dijalankan JUnit lagi — satu-satunya uji
+  JVM helper Audit 2548 mati senyap sementara CI tetap
+  hijau.
+- Perbaikan: anotasi `@Test` ditambahkan kembali di
+  atas metode lama; kedua metode kini berjalan.
+
 ## [Belum rilis] — Rantai getMe bot Telegram hidup lagi: nama bot bisa dipelajari, perintah bersufiks @bot dikenali (Audit 2572)
 
 - Temuan 2572 (Audit 176, Sedang): `isiNamaBotBilaKosong`
