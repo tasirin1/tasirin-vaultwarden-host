@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pengecualian folder pribadi StoragePerm dijangkarkan ke root penyimpanan (Audit 172)
+
+- `butuhIzinEksternal` sebelumnya membebaskan jalur apa pun yang *mengandung* segmen `/Android/data/com.tasirin.vaultwardenhost/` di posisi mana pun. Kini segmen itu wajib muncul tepat sesudah root penyimpanan (`/sdcard/`, `/storage/<volume>/`, `/mnt/<volume>/`). Folder karangan seperti `/sdcard/cadangan/Android/data/com.tasirin.vaultwardenhost/...` — folder bersama biasa yang tetap butuh izin tulis — tidak lagi dianggap folder pribadi aplikasi, jadi dialog izin, cek kesiapan start, dan peringatan boot tidak lagi dilewati untuk jalur semacam itu.
+
 ## [Belum rilis] — Verifikasi isi DB backup tanpa quick_check ganda dan tanpa salinan ekstra (Audit 172)
 
 - `verifikasiIsiDbZip` kini membaca penuh entri-entri DB di dalam zip secara streaming (CRC zip terverifikasi saat entri dibaca sampai habis) tanpa mengekstrak salinan DB kedua ke cache dan tanpa `PRAGMA quick_check` ulang. Pemeriksaan integritas yang lama menguji byte yang identik dengan snapshot yang baru saja lolos `quick_check` di `snapshotDbKonsisten` — pekerjaan ganda murni: di STB lambat dengan DB besar, setiap backup membayar dua pemindaian penuh DB plus satu penulisan salinan penuh ekstra (aus flash). Jaminan yang tersisa persis yang membedakan tahap ini dari `verifikasiZip`: seluruh entri DB terbaca utuh dan CRC-nya cocok.

@@ -42,13 +42,32 @@ public final class StoragePerm {
         if (d.isEmpty()) {
             return true;
         }
-        if (d.contains("/Android/data/com.tasirin.vaultwardenhost/")
-                || d.endsWith("/Android/data/com.tasirin.vaultwardenhost")) {
+        if (folderPribadiAplikasi(d)) {
             return false;
         }
         return d.equals("/sdcard") || d.startsWith("/sdcard/")
                 || d.equals("/storage") || d.startsWith("/storage/")
                 || d.equals("/mnt") || d.startsWith("/mnt/");
+    }
+
+    static boolean folderPribadiAplikasi(String d) {
+        String segmen = "Android/data/com.tasirin.vaultwardenhost";
+        int potong = -1;
+        if (d.startsWith("/sdcard/")) {
+            potong = "/sdcard/".length();
+        } else if (d.startsWith("/storage/") || d.startsWith("/mnt/")) {
+            int awal = d.startsWith("/storage/")
+                    ? "/storage/".length() : "/mnt/".length();
+            int garis = d.indexOf('/', awal);
+            if (garis > awal) {
+                potong = garis + 1;
+            }
+        }
+        if (potong < 0) {
+            return false;
+        }
+        String sisa = d.substring(potong);
+        return sisa.equals(segmen) || sisa.startsWith(segmen + "/");
     }
 
     static boolean cukupAkses(int sdk, boolean kelolaSemuaFile, boolean tulisDiberikan) {

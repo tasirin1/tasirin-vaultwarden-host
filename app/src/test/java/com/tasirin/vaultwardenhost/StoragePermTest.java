@@ -39,8 +39,28 @@ public class StoragePermTest {
                 "/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
         assertFalse(StoragePerm.butuhIzinEksternal(
                 "/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost"));
+        assertFalse(StoragePerm.butuhIzinEksternal(
+                "/sdcard/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
         assertTrue(StoragePerm.butuhIzinEksternal(
                 "/storage/emulated/0/Android/data/com.aplikasi.lain/files"));
+        assertTrue(StoragePerm.butuhIzinEksternal(
+                "/sdcard/cadangan/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
+        assertTrue(StoragePerm.butuhIzinEksternal(
+                "/storage/emulated/0/cadangan/Android/data/com.tasirin.vaultwardenhost"));
+    }
+
+    @Test
+    public void folderPribadiAplikasiHanyaSesudahRoot() {
+        assertTrue(StoragePerm.folderPribadiAplikasi(
+                "/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
+        assertTrue(StoragePerm.folderPribadiAplikasi(
+                "/mnt/sdcard/Android/data/com.tasirin.vaultwardenhost"));
+        assertFalse(StoragePerm.folderPribadiAplikasi(
+                "/sdcard/cadangan/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
+        assertFalse(StoragePerm.folderPribadiAplikasi(
+                "/data/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
+        assertFalse(StoragePerm.folderPribadiAplikasi(
+                "/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost.evil/files"));
     }
 
     @Test
