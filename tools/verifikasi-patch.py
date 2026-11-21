@@ -3632,7 +3632,12 @@ def _nama_sah_tsv(dasar, sah):
         # sebelum membaca.
         if kanon in nilai_pdk:
             return True
-        return dasar[2:] in ("true", "false")
+        # Audit 2543: parse!bool Phobos melipat
+        # huruf tiap aksara (sumber std/conv.d;
+        # unittest resmi "falSE"/"faLse") - ekor
+        # kapital campuran pun nilai sah, alat
+        # jalan dan menguras.
+        return dasar[2:].lower() in ("true", "false")
     return True
 
 

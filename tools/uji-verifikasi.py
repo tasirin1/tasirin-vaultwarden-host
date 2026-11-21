@@ -34470,6 +34470,48 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-uniq -Hp ekor sampah opsi bool (alat mati): gerbang lolos (Audit 2532)", rc == 0)
         shutil.rmtree(sub1624, ignore_errors=True)
+        sub1625 = klon(tmp, "sub1625")
+        berkas_aksi1625 = os.path.join(
+            sub1625, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1625, encoding="utf-8") as f:
+            isi_aksi1625 = f.read()
+        baris_aksi1625 = [b for b in isi_aksi1625.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1625 = isi_aksi1625.replace(
+                baris_aksi1625,
+                baris_aksi1625.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-uniq -HTrue; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1625 != isi_aksi1625, \
+            "suntikan aksi1625 tidak menembak"
+        with open(berkas_aksi1625, "w", encoding="utf-8") as f:
+            f.write(isi_baru1625)
+        rc, out = jalan(sub1625,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-uniq -HTrue ekor bool dilipat huruf = nilai opsi: gerbang menolak (Audit 2543)", rc != 0 and rc != 124 and "Traceback" not in out)
+        shutil.rmtree(sub1625, ignore_errors=True)
+        sub1626 = klon(tmp, "sub1626")
+        berkas_aksi1626 = os.path.join(
+            sub1626, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1626, encoding="utf-8") as f:
+            isi_aksi1626 = f.read()
+        baris_aksi1626 = [b for b in isi_aksi1626.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1626 = isi_aksi1626.replace(
+                baris_aksi1626,
+                baris_aksi1626.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(csv2tsv -HTrue; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1626 != isi_aksi1626, \
+            "suntikan aksi1626 tidak menembak"
+        with open(berkas_aksi1626, "w", encoding="utf-8") as f:
+            f.write(isi_baru1626)
+        rc, out = jalan(sub1626,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("csv2tsv -HTrue ekor bool dilipat huruf = nilai opsi: gerbang menolak (Audit 2543)", rc != 0 and rc != 124 and "Traceback" not in out)
+        shutil.rmtree(sub1626, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

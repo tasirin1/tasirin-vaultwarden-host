@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ekor bool kapital di cabang tsv kini ditolak (Audit 174)
+
+- Temuan 2543 (Sedang): cek ekor opsi bool di `_nama_sah_tsv` (perbaikan 2532) hanya menerima literal `true`/`false` huruf kecil persis, padahal `parse!bool` Phobos melipat huruf tiap aksara (sumber `std/conv.d`; unittest resmi memakai `falSE`/`faLse`) — `tsv-uniq -HTrue` dan `csv2tsv -HTrue` lolos gerbang padahal alat asli jalan dan menguras sink proses-substitusi. Perbandingan ekor kini dilipat huruf kecil. Skenario gensuite 1625–1626 mengunci kedua bentuk itu sebagai tertolak. Closes #2317.
+
 ## [Belum rilis] — Tombol Start/Stop MainActivity diselaraskan ulang tiap tick (Audit 174)
 
 - Temuan 2542 (Sedang): sesudah rotasi di tengah unduhan web-vault dari dialog beranda, tombol Start/Stop instance baru macet nonaktif permanen — instance baru menonaktifkannya saat lahir (uiBusy masih true), sedangkan penyelesaian unduhan memanggil `setBusy(false)` pada instance lama yang berhenti di penjaga `uiHidup()`, dan loop refresh instance baru hanya menyelaraskan teks status, bukan keadaan tombol. `refreshFromService` kini menyelaraskan `setEnabled` tombol dari penanda statis `uiBusy` pada tiap tick (pelacak `tombolAktifSelaras`/`tombolAktifDiterapkan`, pola yang sama dengan penyelarasan teks tombol dan dengan obat Audit 591 di SettingsActivity). Closes #2316.
