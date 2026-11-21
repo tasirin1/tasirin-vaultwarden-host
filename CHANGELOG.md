@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Dialog konfirmasi Settings selamat dari rotasi (Audit 172)
+
+- Dialog konfirmasi generik Settings kini berkunci dan tersimpan di instance state (kunci + judul + pesan + Uri pemilih): sesudah rotasi/rekreasi, dialog yang sama ditampilkan lagi di `onResume` dengan aksi yang dibangun ulang terhadap activity baru — mengikuti pola dialog impor/restore Telegram yang sudah ada. Enam situs bermigrasi: reset binary, reset sertifikat, matikan PIN, restore DB dari pemilih berkas, impor config dari pemilih berkas, dan ekspor config. Sebelumnya keenamnya lenyap diam-diam saat rotasi — aksi tak batal tak jalan, dan untuk restore/impor Uri pilihan ikut hilang sehingga pengguna mengulang dari pemilih berkas.
+
 ## [Belum rilis] — Pengecualian folder pribadi StoragePerm dijangkarkan ke root penyimpanan (Audit 172)
 
 - `butuhIzinEksternal` sebelumnya membebaskan jalur apa pun yang *mengandung* segmen `/Android/data/com.tasirin.vaultwardenhost/` di posisi mana pun. Kini segmen itu wajib muncul tepat sesudah root penyimpanan (`/sdcard/`, `/storage/<volume>/`, `/mnt/<volume>/`). Folder karangan seperti `/sdcard/cadangan/Android/data/com.tasirin.vaultwardenhost/...` — folder bersama biasa yang tetap butuh izin tulis — tidak lagi dianggap folder pribadi aplikasi, jadi dialog izin, cek kesiapan start, dan peringatan boot tidak lagi dilewati untuk jalur semacam itu.

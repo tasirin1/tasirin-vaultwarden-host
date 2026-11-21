@@ -93,6 +93,21 @@ public class SettingsActivity extends Activity {
     private static final String STATE_RESTORE_TG_PATH = "restore_tg_path";
     private static final String STATE_RESTORE_TG_NAMA = "restore_tg_nama";
     private static final String STATE_RESTORE_PILIH_PATH = "restore_pilih_path";
+    private static final String STATE_KONFIRMASI_KUNCI = "konfirmasi_kunci";
+    private static final String STATE_KONFIRMASI_JUDUL = "konfirmasi_judul";
+    private static final String STATE_KONFIRMASI_PESAN = "konfirmasi_pesan";
+    private static final String STATE_KONFIRMASI_URI = "konfirmasi_uri";
+    private static final String KUNCI_KONFIRM_RESET_BINARY = "reset_binary";
+    private static final String KUNCI_KONFIRM_RESET_SERTIFIKAT = "reset_sertifikat";
+    private static final String KUNCI_KONFIRM_PIN_OFF = "pin_off";
+    private static final String KUNCI_KONFIRM_RESTORE_DB = "restore_db";
+    private static final String KUNCI_KONFIRM_IMPOR_CONFIG = "impor_config";
+    private static final String KUNCI_KONFIRM_EKSPOR = "ekspor";
+    private String konfirmasiKunci = null;
+    private String konfirmasiJudul = null;
+    private String konfirmasiPesan = null;
+    private Uri konfirmasiUri = null;
+    private boolean konfirmasiTampil = false;
     private Button restoreTgBtn;
     private TextView statusView;
     private TextView versionView;
@@ -447,6 +462,11 @@ public class SettingsActivity extends Activity {
                 // pengecualian di penyapu, bukan di sini.
                 salinanRestorePilihAktif = new File(pathRestorePilih);
             }
+            konfirmasiKunci = savedInstanceState.getString(STATE_KONFIRMASI_KUNCI);
+            konfirmasiJudul = savedInstanceState.getString(STATE_KONFIRMASI_JUDUL);
+            konfirmasiPesan = savedInstanceState.getString(STATE_KONFIRMASI_PESAN);
+            String uriKonfirmasi = savedInstanceState.getString(STATE_KONFIRMASI_URI);
+            konfirmasiUri = uriKonfirmasi == null ? null : Uri.parse(uriKonfirmasi);
         }
         TgBackup.healkanStringPrefs(this);
         TgBackup.migrateAutoPref(this);
@@ -572,9 +592,10 @@ public class SettingsActivity extends Activity {
     private void pasangAksi() {
         startStopBawah.setOnClickListener(v -> aksiStartStop());
         updateBtn.setOnClickListener(v -> runBusy(this::checkForUpdate));
-        revertBtn.setOnClickListener(v -> confirm(getString(R.string.reset_binary),
+        revertBtn.setOnClickListener(v -> confirm(KUNCI_KONFIRM_RESET_BINARY,
+                getString(R.string.reset_binary),
                 getString(R.string.reset_biner_pesan),
-                () -> runBusy(this::revertToBundled)));
+                () -> runBusy(this::revertToBundled), null));
         installCertBtn.setOnClickListener(v -> installCertificate());
         shareCaBtn = findViewById(R.id.shareCa);
         if (shareCaBtn != null) {
@@ -582,9 +603,10 @@ public class SettingsActivity extends Activity {
         }
         resetCertBtn = findViewById(R.id.resetCert);
         if (resetCertBtn != null) {
-            resetCertBtn.setOnClickListener(v -> confirm(getString(R.string.reset_sert_judul),
+            resetCertBtn.setOnClickListener(v -> confirm(KUNCI_KONFIRM_RESET_SERTIFIKAT,
+                    getString(R.string.reset_sert_judul),
                     getString(R.string.reset_sert_pesan),
-                    () -> runBusy(this::resetSertifikat)));
+                    () -> runBusy(this::resetSertifikat), null));
         }
         updateWvBtn.setOnClickListener(v -> runWebVaultUpdate(true));
         backupDbBtn.setOnClickListener(v -> {
@@ -819,18 +841,9 @@ public class SettingsActivity extends Activity {
                 pinCentangProgram = true;
                 b.setChecked(true);
                 pinCentangProgram = false;
-                confirm(getString(R.string.pin_off_judul), getString(R.string.pin_off_pesan),
-                        () -> {
-
-                            synchronized (kunciAktifPin) {
-                                epAktifPin++;
-                                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                                        .edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();
-                            }
-                            pinCentangProgram = true;
-                            b.setChecked(false);
-                            pinCentangProgram = false;
-                        });
+                confirm(KUNCI_KONFIRM_PIN_OFF,
+                        getString(R.string.pin_off_judul), getString(R.string.pin_off_pesan),
+                        this::matikanPinTerkonfirmasi, null);
                 return;
             }
             String fieldPin = pinInput.getText() == null ? ""
@@ -1022,6 +1035,17 @@ public class SettingsActivity extends Activity {
                 restoreTgTertundaNama = null;
             }
         }
+        if (konfirmasiKunci != null && !konfirmasiTampil) {
+            Runnable aksi = aksiKonfirmasi(konfirmasiKunci);
+            if (aksi != null) {
+                confirm(konfirmasiKunci, konfirmasiJudul, konfirmasiPesan, aksi, null);
+            } else {
+                konfirmasiKunci = null;
+                konfirmasiJudul = null;
+                konfirmasiPesan = null;
+                konfirmasiUri = null;
+            }
+        }
     }
 
     @Override
@@ -1049,6 +1073,14 @@ public class SettingsActivity extends Activity {
         if (salinanAktif != null) {
             outState.putString(STATE_RESTORE_PILIH_PATH,
                     salinanAktif.getAbsolutePath());
+        }
+        if (konfirmasiKunci != null) {
+            outState.putString(STATE_KONFIRMASI_KUNCI, konfirmasiKunci);
+            outState.putString(STATE_KONFIRMASI_JUDUL, konfirmasiJudul);
+            outState.putString(STATE_KONFIRMASI_PESAN, konfirmasiPesan);
+            if (konfirmasiUri != null) {
+                outState.putString(STATE_KONFIRMASI_URI, konfirmasiUri.toString());
+            }
         }
     }
 
@@ -2050,9 +2082,11 @@ public class SettingsActivity extends Activity {
                 dir = ServerService.dataDirBawaanSegar();
             }
             final String dataDir = dir;
-            confirm(getString(R.string.restore_db_judul),
+            konfirmasiUri = uri;
+            confirm(KUNCI_KONFIRM_RESTORE_DB,
+                    getString(R.string.restore_db_judul),
                     getString(R.string.restore_db_pesan),
-                    () -> runBusy(() -> restoreDatabase(uri, dataDir)));
+                    () -> runBusy(() -> restoreDatabase(uri, dataDir)), null);
         }
         if (requestCode == REQ_PIN) {
             pinBukaJalan = false;
@@ -2070,9 +2104,11 @@ public class SettingsActivity extends Activity {
             if (uri == null) {
                 return;
             }
-            confirm(getString(R.string.impor_setelan_judul),
+            konfirmasiUri = uri;
+            confirm(KUNCI_KONFIRM_IMPOR_CONFIG,
+                    getString(R.string.impor_setelan_judul),
                     getString(R.string.impor_setelan_pesan),
-                    () -> runBusy(() -> importConfig(uri)));
+                    () -> runBusy(() -> importConfig(uri)), null);
         }
     }
 
@@ -2694,7 +2730,8 @@ public class SettingsActivity extends Activity {
         SharedPreferences sp = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE);
         String pass = TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, "");
         boolean terkunci = pass != null && !pass.trim().isEmpty();
-        confirm(getString(R.string.ekspor_setelan_judul),
+        confirm(KUNCI_KONFIRM_EKSPOR,
+                getString(R.string.ekspor_setelan_judul),
                 terkunci ? getString(R.string.ekspor_setelan_pesan_enkrip)
                         : getString(R.string.ekspor_setelan_pesan_plain),
                 () -> {
@@ -2702,7 +2739,7 @@ public class SettingsActivity extends Activity {
                     String dir = dataDirInput.getText() == null ? ""
                             : dataDirInput.getText().toString();
                     runBusy(() -> exportConfig(dir));
-                });
+                }, null);
     }
 
     static final int BATAS_FILE_EXPORT = 3;
@@ -4116,7 +4153,30 @@ public class SettingsActivity extends Activity {
 
     private void confirm(String title, String message, final Runnable action,
                          final Runnable batal) {
+        confirmInti(title, message, action, batal, null);
+    }
+
+    private void confirm(String kunci, String title, String message,
+                         final Runnable action, final Runnable batal) {
+        konfirmasiKunci = kunci;
+        konfirmasiJudul = title;
+        konfirmasiPesan = message;
+        konfirmasiTampil = true;
+        confirmInti(title, message, action, batal, () -> {
+            konfirmasiTampil = false;
+            konfirmasiKunci = null;
+            konfirmasiJudul = null;
+            konfirmasiPesan = null;
+            konfirmasiUri = null;
+        });
+    }
+
+    private void confirmInti(String title, String message, final Runnable action,
+                             final Runnable batal, final Runnable selesai) {
         if (isFinishing() || isDestroyed()) {
+            if (selesai != null) {
+                selesai.run();
+            }
             if (batal != null) {
                 batal.run();
             }
@@ -4128,10 +4188,16 @@ public class SettingsActivity extends Activity {
                 .setMessage(message)
                 .setPositiveButton(R.string.ya, (d, w) -> {
                     dipilih[0] = true;
+                    if (selesai != null) {
+                        selesai.run();
+                    }
                     action.run();
                 })
                 .setNegativeButton(R.string.batal, (d, w) -> {
                     dipilih[0] = true;
+                    if (selesai != null) {
+                        selesai.run();
+                    }
                     if (batal != null) {
                         batal.run();
                     }
@@ -4141,14 +4207,79 @@ public class SettingsActivity extends Activity {
             if (isChangingConfigurations()) {
                 return;
             }
-            if (!dipilih[0] && batal != null) {
-                batal.run();
+            if (!dipilih[0]) {
+                if (selesai != null) {
+                    selesai.run();
+                }
+                if (batal != null) {
+                    batal.run();
+                }
             }
         });
         DialogAman.tampil(this, dialog);
-        if (!dialog.isShowing() && batal != null) {
-            batal.run();
+        if (!dialog.isShowing()) {
+            if (selesai != null) {
+                selesai.run();
+            }
+            if (batal != null) {
+                batal.run();
+            }
         }
+    }
+
+    private Runnable aksiKonfirmasi(String kunci) {
+        if (kunci == null) {
+            return null;
+        }
+        switch (kunci) {
+            case KUNCI_KONFIRM_RESET_BINARY:
+                return () -> runBusy(this::revertToBundled);
+            case KUNCI_KONFIRM_RESET_SERTIFIKAT:
+                return () -> runBusy(this::resetSertifikat);
+            case KUNCI_KONFIRM_PIN_OFF:
+                return this::matikanPinTerkonfirmasi;
+            case KUNCI_KONFIRM_RESTORE_DB: {
+                if (konfirmasiUri == null) {
+                    return null;
+                }
+                final Uri uri = konfirmasiUri;
+                return () -> {
+                    String dir = dataDirInput.getText() == null ? ""
+                            : dataDirInput.getText().toString().trim();
+                    if (TextUtils.isEmpty(dir)) {
+                        dir = ServerService.dataDirBawaanSegar();
+                    }
+                    final String dataDir = dir;
+                    runBusy(() -> restoreDatabase(uri, dataDir));
+                };
+            }
+            case KUNCI_KONFIRM_IMPOR_CONFIG: {
+                if (konfirmasiUri == null) {
+                    return null;
+                }
+                final Uri uri = konfirmasiUri;
+                return () -> runBusy(() -> importConfig(uri));
+            }
+            case KUNCI_KONFIRM_EKSPOR:
+                return () -> {
+                    String dir = dataDirInput.getText() == null ? ""
+                            : dataDirInput.getText().toString();
+                    runBusy(() -> exportConfig(dir));
+                };
+            default:
+                return null;
+        }
+    }
+
+    private void matikanPinTerkonfirmasi() {
+        synchronized (kunciAktifPin) {
+            epAktifPin++;
+            getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
+                    .edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();
+        }
+        pinCentangProgram = true;
+        pinEnabledCheck.setChecked(false);
+        pinCentangProgram = false;
     }
 
     private void pasangSeksi(int idHeader, final int idBadan, final int idChevron, final String kunci) {
