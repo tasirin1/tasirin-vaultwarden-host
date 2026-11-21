@@ -509,6 +509,7 @@ public class ServerService extends Service {
     private static volatile long lastStartElapsed = 0;
 
     private static final java.util.concurrent.atomic.AtomicInteger healthFails = new java.util.concurrent.atomic.AtomicInteger(0);
+    private static final java.util.concurrent.atomic.AtomicInteger tickNetralJamBerturut = new java.util.concurrent.atomic.AtomicInteger(0);
 
     private static final java.util.concurrent.atomic.AtomicInteger configSajaBeruntun =
             new java.util.concurrent.atomic.AtomicInteger(0);
@@ -3045,6 +3046,10 @@ public class ServerService extends Service {
         }
     }
 
+    static boolean bolehLogTickNetralJam(int n) {
+        return n == 1 || (n > 0 && n % 30 == 0);
+    }
+
     static boolean jamDiLuarMasaSertifikat(java.io.File ca) {
         if (ca == null || !ca.isFile()) {
             return false;
@@ -3073,6 +3078,7 @@ public class ServerService extends Service {
             return;
         }
         if (h.sehat) {
+            tickNetralJamBerturut.set(0);
 
             if (aliveRusakTapiConfigSehat(h.aliveCode, h.configCode)) {
 
@@ -3125,10 +3131,18 @@ public class ServerService extends Service {
         }
         if (h.aliveCode == -1
                 && jamDiLuarMasaSertifikat(caUntukHealthCheck(this))) {
-            appendLog("[health] Pemeriksaan dilewati: jam STB berada sebelum masa"
-                    + " berlaku sertifikat (" + h.rincian + ") - server dibiarkan jalan.");
+            // Audit 2562: baris yang sama dulu ditulis pada SETIAP
+            // tick selama jam rusak - dibatasi ke tick pertama dan
+            // tiap 30 tick agar log tak banjir dan baris lain tak
+            // tenggelam; pemeriksaan sertifikatnya tetap tiap tick.
+            int nNetral = tickNetralJamBerturut.incrementAndGet();
+            if (bolehLogTickNetralJam(nNetral)) {
+                appendLog("[health] Pemeriksaan dilewati: jam STB berada sebelum masa"
+                        + " berlaku sertifikat (" + h.rincian + ") - server dibiarkan jalan.");
+            }
             return;
         }
+        tickNetralJamBerturut.set(0);
         // Audit 1698: configSajaBeruntun tak dinolkan di sini -
         // lihat perbaruiPenghitungHealth.
         int[] ph2 = perbaruiPenghitungHealth(2,

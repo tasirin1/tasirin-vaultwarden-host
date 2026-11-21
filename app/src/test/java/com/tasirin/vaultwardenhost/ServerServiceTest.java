@@ -1333,6 +1333,16 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void bolehLogTickNetralJam_hanyaPertamaDanTiapTigaPuluh() {
+        assertTrue(ServerService.bolehLogTickNetralJam(1));
+        assertFalse(ServerService.bolehLogTickNetralJam(2));
+        assertFalse(ServerService.bolehLogTickNetralJam(29));
+        assertTrue(ServerService.bolehLogTickNetralJam(30));
+        assertFalse(ServerService.bolehLogTickNetralJam(31));
+        assertTrue(ServerService.bolehLogTickNetralJam(60));
+        assertFalse(ServerService.bolehLogTickNetralJam(0));
+    }
+
     public void jamDiLuarMasaSertifikat_berkasTakAdaAman() {
         assertFalse(ServerService.jamDiLuarMasaSertifikat(null));
         assertFalse(ServerService.jamDiLuarMasaSertifikat(

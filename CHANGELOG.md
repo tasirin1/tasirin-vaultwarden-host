@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — Log tick netral health saat jam di luar masa sertifikat kini dibatasi (Audit 2562)
+
+- Temuan 2562 (Audit 175, Rendah): cabang netral Audit 2548
+  menulis baris log yang sama pada SETIAP tick health selama
+  jam STB berada sebelum masa berlaku sertifikat, dan tiap
+  tick membaca + mengurai dua berkas sertifikat — pada jam
+  rusak berhari-hari log banjir dan baris lain tenggelam.
+- Perbaikan: penghitung tick netral berturut; baris log hanya
+  ditulis pada tick pertama dan tiap 30 tick (keputusan murni
+  `bolehLogTickNetralJam`, terkunci uji JVM), penghitung
+  dinolkan begitu server merespons lagi atau jalur gagal
+  berjalan. Pemeriksaan sertifikatnya sendiri tetap tiap
+  tick — perilaku perlindungan 2548 tak berubah.
+
 ## [Belum rilis] — Samaran URL database di log tak lagi bocor untuk skema campuran dan host bertitik (Audit 2561)
 
 - Temuan 2561 (Audit 175, Rendah): dua celah residu
