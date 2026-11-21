@@ -770,7 +770,6 @@ public class MainActivity extends Activity {
                 deltaTertahanBeranda = "";
                 ekorPutarBalik = false;
             } else if (ekorPutarBalik && n > lastLogLen && lastLogLen > 0
-                    && lastLogLen <= n
                     && ServerService.logBuffer.charAt(lastLogLen - 1) != '\n') {
                 // Audit 1476: putar balik — tick lalu berhenti di
                 // tengah baris; ekor yang sudah tampil ditarik dan

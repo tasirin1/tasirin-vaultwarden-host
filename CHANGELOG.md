@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Syarat redundan di cabang putar-balik log beranda dibuang (Audit 2565)
+
+- Temuan 2565 (Audit 175, Rendah, kode sampah): syarat
+  `lastLogLen <= n` di rantai cabang putar-balik log beranda
+  selalu benar di titik itu (cabang hanya tercapai saat
+  `n > lastLogLen`) — dibuang agar syarat yang sungguh
+  menahan cabang Audit 1476 terbaca jelas. Tanpa perubahan
+  perilaku.
+
 ## [Belum rilis] — Baris log tak lagi hilang diam-diam bila penulisan berkas log gagal (Audit 2564)
 
 - Temuan 2564 (Audit 175, Rendah): `flushLogFileLocked`
