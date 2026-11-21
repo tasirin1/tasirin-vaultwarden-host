@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Lima asersi penolakan uji-cek-cepat diperkuat jangkar keluaran (Audit 174)
+
+- Temuan 2555 (Rendah): lima skenario penolakan di `tools/uji-cek-cepat.py` (symlink vektor 2128, token terbelah 2177, token hanya-di-HEAD 2225, header kunci biner 2226 dan .pyc 2234) hanya memeriksa `rc != 0 and rc != 124`, sehingga crash skrip cek-cepat sendiri akan ikut lolos hijau — kelas kelemahan yang sudah diberantas di suite utama oleh 2506/2527. Kelimanya kini menuntut jangkar keluaran: pesan `path vektor tanpa nol depan` untuk 2128 dan `pola rahasia` + nama berkas tertuduh untuk empat lainnya (format pesan dibuktikan dari keluaran cek-cepat asli). Closes #2329.
+
 ## [Belum rilis] — Gerbang: nama opsi panjang hantu di summarize & join kini dikenali (Audit 174)
 
 - Temuan 2554 (Rendah, fail-closed): cabang `tsv-summarize` dan `tsv-join` tidak memvalidasi nama opsi panjang, sehingga nama hantu seperti `--bogus` (dan `--HEADER` kapital — pulau `caseSensitive` di sumbernya) divonis berpotensi menguras padahal getopt asli mati sebelum membaca. Kedua cabang kini memvalidasi nama panjang terhadap kosakata resmi sumber masing-masing (`tsv-summarize.d`/`tsv-join.d`), dengan `--header`/`--version` hanya dikenal dalam bentuk persisnya; cabang select/filter yang sudah bersih menjadi pembandingnya. Skenario gensuite 1637–1640 mengunci bentuk hantu sebagai lolos dan `tsv-join -f x` sebagai tetap tertolak. Closes #2328.
