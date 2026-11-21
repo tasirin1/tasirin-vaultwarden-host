@@ -4159,7 +4159,7 @@ public class SettingsActivity extends Activity {
         aturFokusBawah(R.id.headerRawat, R.id.bodyRawat, R.id.autoStart, R.id.headerTelegram);
         aturFokusBawah(R.id.headerTelegram, R.id.bodyTelegram, R.id.tgToken, R.id.headerLog);
         aturFokusBawah(R.id.headerLog, R.id.bodyLog, R.id.logOpen, R.id.aboutBtn);
-        aturFokusBatas(R.id.port, R.id.bodyServer, R.id.headerServer,
+        aturFokusBatas(R.id.databaseUrl, R.id.bodyServer, R.id.headerServer,
                 R.id.adminToken, R.id.bodyKeamanan, R.id.headerKeamanan);
         aturFokusBatas(R.id.pinEnabled, R.id.bodyKeamanan, R.id.headerKeamanan,
                 R.id.autoStart, R.id.bodyRawat, R.id.headerRawat);

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kolom URL database terjangkau navigasi D-pad (Audit 172)
+
+- Rantai fokus runtime Settings (`perbaikiRantaiFokus`) kini memakai kolom URL Database sebagai isi terbawah kartu Server — sebelumnya Port, sehingga penekanan Bawah dari Port melompat langsung ke Admin Token dan kolom URL Database tidak pernah bisa dicapai remote/D-pad di STB (atribut XML-nya benar tetapi ditimpa rantai runtime). Cadangan XML `nextFocusUp` Admin Token ikut diarahkan ke URL Database.
+
 ## [Belum rilis] — Pra-cek ruang backup menghitung seluruh isi backup (Audit 172)
 
 - Cek ruang sebelum backup kini menghitung ukuran folder `attachments/` dan `sends/` plus `rsa_key.pem`, bukan hanya berkas database: zip backup memang memuat semuanya, jadi cek lama bisa lolos padahal ruang tak cukup dan backup gagal di tengah (berisiko memenuhi volume folder data saat server berjalan). Volume cache kini selalu ikut dicek (snapshot DB dan ekstrak verifikasi tinggal di sana pada semua jalur, bukan hanya jalur terenkripsi), dan kebutuhan ruang dihitung per volume sesuai isinya: cache = 2× DB (+ seluruh isi zip bila terenkripsi), folder data = seluruh isi zip pada jalur polos.
