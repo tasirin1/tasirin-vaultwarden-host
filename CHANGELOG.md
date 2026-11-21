@@ -1,5 +1,23 @@
 # Changelog
 
+## [Belum rilis] — Rantai getMe bot Telegram hidup lagi: nama bot bisa dipelajari, perintah bersufiks @bot dikenali (Audit 2572)
+
+- Temuan 2572 (Audit 176, Sedang): `isiNamaBotBilaKosong`
+  memasang stempel percobaan SEBELUM menjadwalkan pekerja
+  latar, lalu pekerja `isiNamaBotSekarang` mengecek ulang
+  `bolehCobaGetMe` dengan stempel yang sama — selisih
+  waktunya ≈ 0, selalu di bawah jeda 1 jam, jadi pekerja
+  selalu pulang sebelum memanggil `getMe`. Nama bot tak
+  pernah dipelajari (`tg_bot_user` tak pernah terisi)
+  dan perintah bersufiks `@NamaBot` selalu gugur
+  diam-diam di penjaga perintah.
+- Perbaikan: cek ulang di pekerja dihapus — penjaga jeda
+  cukup ditegakkan sekali di titik penjadwalan (yang
+  memasang stempel secara sinkron sebelum pekerja
+  diluncurkan, jadi tak ada jendela balapan); pekerja
+  tetap memperbarui stempel agar jeda sesudah percobaan
+  gagal tetap berlaku.
+
 ## [Belum rilis] — Daftar abaikan CodeQL kini mencakup semua workflow (Audit 2571)
 
 - Temuan 2571 (Audit 175, Rendah): `paths-ignore` CodeQL

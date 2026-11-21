@@ -993,12 +993,8 @@ public final class TgBot {
             return;
         }
         String tokRapi = token.trim();
-        long kini = SystemClock.elapsedRealtime();
-        if (!bolehCobaGetMe(tokRapi, getMeCobaToken, getMeCobaAt, kini)) {
-            return;
-        }
         getMeCobaToken = tokRapi;
-        getMeCobaAt = kini;
+        getMeCobaAt = SystemClock.elapsedRealtime();
         try {
             String nama = parseUsernameBot(httpPostForm(ctx, TG_API + token + "/getMe", ""));
             if (!nama.isEmpty()) {

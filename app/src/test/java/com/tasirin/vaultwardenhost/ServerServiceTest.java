@@ -1343,6 +1343,7 @@ public class ServerServiceTest {
         assertFalse(ServerService.bolehLogTickNetralJam(0));
     }
 
+    @Test
     public void jamDiLuarMasaSertifikat_berkasTakAdaAman() {
         assertFalse(ServerService.jamDiLuarMasaSertifikat(null));
         assertFalse(ServerService.jamDiLuarMasaSertifikat(
