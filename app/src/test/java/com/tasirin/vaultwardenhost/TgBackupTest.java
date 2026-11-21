@@ -1724,6 +1724,9 @@ public class TgBackupTest {
     @Test
     public void kunciIntLongTerdaftar() {
         assertTrue(TgBackup.KUNCI_INT.contains("pin_gagal"));
+        // Audit 2570: kunci penghitung batas tunda jam (Audit
+        // 2552) ikut dikunci terdaftar di KUNCI_INT.
+        assertTrue(TgBackup.KUNCI_INT.contains(TgBackup.KEY_TUNDA_JAM_HITUNG));
         assertFalse(TgBackup.KUNCI_INT.contains(TgBot.KEY_TG_MENU_HASH));
         assertTrue(TgBackup.KUNCI_STRING.contains(TgBot.KEY_TG_MENU_FP));
         assertTrue(TgBackup.KUNCI_LONG.contains("pin_kunci_sampai"));
@@ -1917,6 +1920,10 @@ public class TgBackupTest {
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains("bin_sha_fp"));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains("versi_fp"));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains("versi_file"));
+        // Audit 2570: bendera backup tertunda dan penghitung
+        // tunda jam (Audit 2550/2552) ikut dikunci tak diekspor.
+        assertFalse(TgBackup.kunciDiekspor(TgBackup.KEY_BACKUP_TERTUNDA));
+        assertFalse(TgBackup.kunciDiekspor(TgBackup.KEY_TUNDA_JAM_HITUNG));
         assertFalse(TgBackup.kunciDiekspor("alarm_throttle_elapsed"));
         assertFalse(TgBackup.kunciDiekspor("alarm_throttle_waktu_elapsed"));
         assertFalse(TgBackup.kunciDiekspor("boot_throttle_elapsed"));

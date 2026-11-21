@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — Uji enumerasi registri kini mengunci kunci tunda jam dan bendera backup tertunda (Audit 2570)
+
+- Temuan 2570 (Audit 175, Rendah): sisi produksi benar
+  (`tg_tunda_jam_hitung` terdaftar di `KUNCI_INT` dan
+  daftar tak-diekspor; `tg_backup_tertunda` juga tak
+  diekspor), tetapi uji enumerasi registri TgBackup tak
+  menyebut keduanya — regresi registri masa depan tak
+  akan tertangkap uji.
+- Perbaikan: `kunciIntLongTerdaftar` kini mengasersi
+  keanggotaan `KUNCI_INT` kunci penghitung 2552, dan
+  `secretTakIkutBackup` mengasersi kedua kunci tak
+  diekspor. Tanpa perubahan kode produksi.
+
 ## [Belum rilis] — Fragmen kalimat ganda di komentar cek-wajib dibersihkan (Audit 2569)
 
 - Temuan 2569 (Audit 175, Rendah, kosmetik): komentar
