@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Alasan seksi pra-cek ruang backup diluruskan (Audit 173)
+
+- Koreksi dokumentasi murni: seksi Audit 172 tentang pra-cek ruang backup menyebut "ekstrak verifikasi" sebagai penghuni cache, padahal perbaikan 2511 di maraton yang sama sudah menghapus ekstrak itu (verifikasi kini streaming). Teks seksi itu kini menyebut penghuni cache yang sebenarnya — snapshot DB, zip staging terenkripsi, dan salinan dekripsi roundtrip — plus catatan bahwa angka modelnya diluruskan oleh perbaikan 2528. Kesimpulan seksi (volume cache selalu ikut dicek) tidak berubah dan tetap benar.
+
 ## [Belum rilis] — Impor config tertahan saat tugas data berjalan (Audit 173)
 
 - `terapkanImporJson` kini menolak menerapkan config selagi tugas data berjalan, memakai penahan yang sama dengan `saveAndStart` (`startDitahanSaatTugasData` atas `tugasBerjalan` + `TgBackup.tugasDataJalan()`), lengkap dengan toast `masih_bekerja` dan catatan log. Sebelumnya impor yang berkasnya sudah dipilih sebelum backup/restore mulai tetap menerapkan prefs — termasuk token, data dir, dan jadwal backup — ke tengah tugas yang sedang membaca state yang sama. Tombol impor juga kini ikut dinonaktifkan oleh `setBusy` selama tugas UI berjalan, sebagai lapis kedua.
@@ -154,7 +158,7 @@
 
 ## [Belum rilis] — Pra-cek ruang backup menghitung seluruh isi backup (Audit 172)
 
-- Cek ruang sebelum backup kini menghitung ukuran folder `attachments/` dan `sends/` plus `rsa_key.pem`, bukan hanya berkas database: zip backup memang memuat semuanya, jadi cek lama bisa lolos padahal ruang tak cukup dan backup gagal di tengah (berisiko memenuhi volume folder data saat server berjalan). Volume cache kini selalu ikut dicek (snapshot DB dan ekstrak verifikasi tinggal di sana pada semua jalur, bukan hanya jalur terenkripsi), dan kebutuhan ruang dihitung per volume sesuai isinya: cache = 2× DB (+ seluruh isi zip bila terenkripsi), folder data = seluruh isi zip pada jalur polos.
+- Cek ruang sebelum backup kini menghitung ukuran folder `attachments/` dan `sends/` plus `rsa_key.pem`, bukan hanya berkas database: zip backup memang memuat semuanya, jadi cek lama bisa lolos padahal ruang tak cukup dan backup gagal di tengah (berisiko memenuhi volume folder data saat server berjalan). Volume cache kini selalu ikut dicek (snapshot DB tinggal di sana pada semua jalur; pada jalur terenkripsi juga zip staging dan salinan dekripsi roundtrip), dan kebutuhan ruang dihitung per volume sesuai isinya: cache = 2× DB (+ seluruh isi zip bila terenkripsi), folder data = seluruh isi zip pada jalur polos. (Koreksi Audit 173: alasan "ekstrak verifikasi" pada teks awal seksi ini gugur oleh perbaikan 2511 yang menjadikan verifikasi streaming tanpa ekstrak — cache tetap terpakai lewat snapshot dan staging terenkripsi; angka model cache/folder-data jalur terenkripsi kemudian diluruskan oleh perbaikan 2528.)
 
 ## [Belum rilis] — Pengaturan URL database eksternal (PostgreSQL/MySQL)
 
