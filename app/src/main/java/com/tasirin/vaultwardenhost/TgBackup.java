@@ -333,8 +333,12 @@ public final class TgBackup {
     }
 
     public static boolean jadwalTundaBoot(Context ctx) {
-        long kini = SystemClock.elapsedRealtime();
-        return pasangAlarmTundaBoot(ctx, kini + sisaTungguBootMs(kini));
+        try {
+            long kini = SystemClock.elapsedRealtime();
+            return pasangAlarmTundaBoot(ctx, kini + sisaTungguBootMs(kini));
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     static boolean jedaTundaBackupSah(long jedaMs) {
@@ -345,8 +349,12 @@ public final class TgBackup {
         if (!jedaTundaBackupSah(jedaMs)) {
             return false;
         }
-        return pasangAlarmTundaBoot(ctx,
-                SystemClock.elapsedRealtime() + jedaMs);
+        try {
+            return pasangAlarmTundaBoot(ctx,
+                    SystemClock.elapsedRealtime() + jedaMs);
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     private static boolean pasangAlarmTundaBoot(Context ctx, long trigger) {
