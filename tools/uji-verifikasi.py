@@ -3482,7 +3482,7 @@ def main():
         with open(berkas_aksi151, "w", encoding="utf-8") as f:
             f.write(isi_baru151)
         rc, out = jalan(sub151,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("comm -1 bendera: gerbang gagal (Audit 1074)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub151, ignore_errors=True)
 
@@ -3504,7 +3504,7 @@ def main():
         with open(berkas_aksi152, "w", encoding="utf-8") as f:
             f.write(isi_baru152)
         rc, out = jalan(sub152,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl dgst operand '-': gerbang gagal (Audit 1075)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub152, ignore_errors=True)
 
@@ -3526,7 +3526,7 @@ def main():
         with open(berkas_aksi153, "w", encoding="utf-8") as f:
             f.write(isi_baru153)
         rc, out = jalan(sub153,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl alias digest '-': gerbang gagal (Audit 1075)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub153, ignore_errors=True)
 
@@ -3548,7 +3548,7 @@ def main():
         with open(berkas_aksi154, "w", encoding="utf-8") as f:
             f.write(isi_baru154)
         rc, out = jalan(sub154,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl enc -in '-': gerbang gagal (Audit 1075)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub154, ignore_errors=True)
 
@@ -3570,7 +3570,7 @@ def main():
         with open(berkas_aksi155, "w", encoding="utf-8") as f:
             f.write(isi_baru155)
         rc, out = jalan(sub155,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl -rand bernilai: gerbang gagal (Audit 1076)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub155, ignore_errors=True)
 
@@ -3592,7 +3592,7 @@ def main():
         with open(berkas_aksi156, "w", encoding="utf-8") as f:
             f.write(isi_baru156)
         rc, out = jalan(sub156,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar bundel gaya lama: gerbang gagal (Audit 1077)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub156, ignore_errors=True)
 
@@ -3614,7 +3614,7 @@ def main():
         with open(berkas_aksi157, "w", encoding="utf-8") as f:
             f.write(isi_baru157)
         rc, out = jalan(sub157,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar nilai -f merekat: gerbang gagal (Audit 1077)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub157, ignore_errors=True)
 
@@ -3636,7 +3636,7 @@ def main():
         with open(berkas_aksi158, "w", encoding="utf-8") as f:
             f.write(isi_baru158)
         rc, out = jalan(sub158,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar mode buat '-f -' keluaran: gerbang lolos (Audit 1078)", rc == 0)
         shutil.rmtree(sub158, ignore_errors=True)
 
@@ -3658,7 +3658,7 @@ def main():
         with open(berkas_aksi159, "w", encoding="utf-8") as f:
             f.write(isi_baru159)
         rc, out = jalan(sub159,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git hash-object --stdin-paths: gerbang gagal (Audit 1079)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub159, ignore_errors=True)
 
@@ -3680,7 +3680,7 @@ def main():
         with open(berkas_aksi160, "w", encoding="utf-8") as f:
             f.write(isi_baru160)
         rc, out = jalan(sub160,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git credential fill: gerbang gagal (Audit 1079)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub160, ignore_errors=True)
 
@@ -3702,7 +3702,7 @@ def main():
         with open(berkas_aksi161, "w", encoding="utf-8") as f:
             f.write(isi_baru161)
         rc, out = jalan(sub161,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git mktree: gerbang gagal (Audit 1079)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub161, ignore_errors=True)
 
@@ -3724,7 +3724,7 @@ def main():
         with open(berkas_aksi162, "w", encoding="utf-8") as f:
             f.write(isi_baru162)
         rc, out = jalan(sub162,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git commit -F '-': gerbang gagal (Audit 1079)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub162, ignore_errors=True)
 
@@ -3746,7 +3746,7 @@ def main():
         with open(berkas_aksi163, "w", encoding="utf-8") as f:
             f.write(isi_baru163)
         rc, out = jalan(sub163,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand +N pr: gerbang gagal (Audit 1080)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub163, ignore_errors=True)
 
@@ -3768,7 +3768,7 @@ def main():
         with open(berkas_aksi164, "w", encoding="utf-8") as f:
             f.write(isi_baru164)
         rc, out = jalan(sub164,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand +N tail: gerbang gagal (Audit 1080)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub164, ignore_errors=True)
 
@@ -3790,7 +3790,7 @@ def main():
         with open(berkas_aksi165, "w", encoding="utf-8") as f:
             f.write(isi_baru165)
         rc, out = jalan(sub165,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand +N sort: gerbang gagal (Audit 1080)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub165, ignore_errors=True)
 
@@ -3812,7 +3812,7 @@ def main():
         with open(berkas_aksi166, "w", encoding="utf-8") as f:
             f.write(isi_baru166)
         rc, out = jalan(sub166,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python -i sesudah -c: gerbang gagal (Audit 1081)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub166, ignore_errors=True)
 
@@ -3834,7 +3834,7 @@ def main():
         with open(berkas_aksi167, "w", encoding="utf-8") as f:
             f.write(isi_baru167)
         rc, out = jalan(sub167,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel shell -ec: gerbang gagal (Audit 1082)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub167, ignore_errors=True)
 
@@ -3856,7 +3856,7 @@ def main():
         with open(berkas_aksi168, "w", encoding="utf-8") as f:
             f.write(isi_baru168)
         rc, out = jalan(sub168,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel python -ic: gerbang gagal (Audit 1082)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub168, ignore_errors=True)
 
@@ -3878,7 +3878,7 @@ def main():
         with open(berkas_aksi169, "w", encoding="utf-8") as f:
             f.write(isi_baru169)
         rc, out = jalan(sub169,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel sudo -ns: gerbang gagal (Audit 1082)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub169, ignore_errors=True)
 
@@ -3900,7 +3900,7 @@ def main():
         with open(berkas_aksi170, "w", encoding="utf-8") as f:
             f.write(isi_baru170)
         rc, out = jalan(sub170,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("shell -s operand $0: gerbang gagal (Audit 1083)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub170, ignore_errors=True)
 
@@ -3922,7 +3922,7 @@ def main():
         with open(berkas_aksi171, "w", encoding="utf-8") as f:
             f.write(isi_baru171)
         rc, out = jalan(sub171,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("chroot tabel opsi: gerbang gagal (Audit 1084)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub171, ignore_errors=True)
 
@@ -3944,7 +3944,7 @@ def main():
         with open(berkas_aksi172, "w", encoding="utf-8") as f:
             f.write(isi_baru172)
         rc, out = jalan(sub172,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("curl -d@- merekat: gerbang gagal (Audit 1085)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub172, ignore_errors=True)
 
@@ -3966,7 +3966,7 @@ def main():
         with open(berkas_aksi173, "w", encoding="utf-8") as f:
             f.write(isi_baru173)
         rc, out = jalan(sub173,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("curl -F a=@-: gerbang gagal (Audit 1085)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub173, ignore_errors=True)
 
@@ -3988,7 +3988,7 @@ def main():
         with open(berkas_aksi174, "w", encoding="utf-8") as f:
             f.write(isi_baru174)
         rc, out = jalan(sub174,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("curl --form a=@-: gerbang gagal (Audit 1085)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub174, ignore_errors=True)
 
@@ -4010,7 +4010,7 @@ def main():
         with open(berkas_aksi175, "w", encoding="utf-8") as f:
             f.write(isi_baru175)
         rc, out = jalan(sub175,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("curl urlencode name@-: gerbang gagal (Audit 1085)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub175, ignore_errors=True)
 
@@ -4032,7 +4032,7 @@ def main():
         with open(berkas_aksi176, "w", encoding="utf-8") as f:
             f.write(isi_baru176)
         rc, out = jalan(sub176,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("curl --data-raw '-' harfiah: gerbang lolos (Audit 1086)", rc == 0)
         shutil.rmtree(sub176, ignore_errors=True)
 
@@ -4054,7 +4054,7 @@ def main():
         with open(berkas_aksi177, "w", encoding="utf-8") as f:
             f.write(isi_baru177)
         rc, out = jalan(sub177,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tr -d dua himpunan galat: gerbang lolos (Audit 1087)", rc == 0)
         shutil.rmtree(sub177, ignore_errors=True)
 
@@ -4076,7 +4076,7 @@ def main():
         with open(berkas_aksi178, "w", encoding="utf-8") as f:
             f.write(isi_baru178)
         rc, out = jalan(sub178,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("khusus buta redirect ekor tar: gerbang lolos (Audit 1088)", rc == 0)
         shutil.rmtree(sub178, ignore_errors=True)
 
@@ -4098,7 +4098,7 @@ def main():
         with open(berkas_aksi179, "w", encoding="utf-8") as f:
             f.write(isi_baru179)
         rc, out = jalan(sub179,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("khusus buta redirect ekor git: gerbang lolos (Audit 1088)", rc == 0)
         shutil.rmtree(sub179, ignore_errors=True)
 
@@ -4120,7 +4120,7 @@ def main():
         with open(berkas_aksi180, "w", encoding="utf-8") as f:
             f.write(isi_baru180)
         rc, out = jalan(sub180,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("khusus buta redirect ekor socat: gerbang lolos (Audit 1088)", rc == 0)
         shutil.rmtree(sub180, ignore_errors=True)
 
@@ -4142,7 +4142,7 @@ def main():
         with open(berkas_aksi181, "w", encoding="utf-8") as f:
             f.write(isi_baru181)
         rc, out = jalan(sub181,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("more beroperand tetap menguras: gerbang gagal (Audit 1089)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub181, ignore_errors=True)
 
@@ -4164,7 +4164,7 @@ def main():
         with open(berkas_aksi182, "w", encoding="utf-8") as f:
             f.write(isi_baru182)
         rc, out = jalan(sub182,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python -m operand berkas: gerbang lolos (Audit 1090)", rc == 0)
         shutil.rmtree(sub182, ignore_errors=True)
 
@@ -4186,7 +4186,7 @@ def main():
         with open(berkas_aksi183, "w", encoding="utf-8") as f:
             f.write(isi_baru183)
         rc, out = jalan(sub183,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python -m asyncio REPL: gerbang gagal (Audit 1091)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub183, ignore_errors=True)
 
@@ -4208,7 +4208,7 @@ def main():
         with open(berkas_aksi184, "w", encoding="utf-8") as f:
             f.write(isi_baru184)
         rc, out = jalan(sub184,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nc -z pindai: gerbang lolos (Audit 1092)", rc == 0)
         shutil.rmtree(sub184, ignore_errors=True)
 
@@ -4230,7 +4230,7 @@ def main():
         with open(berkas_aksi185, "w", encoding="utf-8") as f:
             f.write(isi_baru185)
         rc, out = jalan(sub185,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("patch -i sumber berkas: gerbang lolos (Audit 1093)", rc == 0)
         shutil.rmtree(sub185, ignore_errors=True)
 
@@ -4252,7 +4252,7 @@ def main():
         with open(berkas_aksi186, "w", encoding="utf-8") as f:
             f.write(isi_baru186)
         rc, out = jalan(sub186,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zip -@ tanpa arsip: gerbang lolos (Audit 1094)", rc == 0)
         shutil.rmtree(sub186, ignore_errors=True)
 
@@ -4274,7 +4274,7 @@ def main():
         with open(berkas_aksi187, "w", encoding="utf-8") as f:
             f.write(isi_baru187)
         rc, out = jalan(sub187,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rg --files: gerbang lolos (Audit 1095)", rc == 0)
         shutil.rmtree(sub187, ignore_errors=True)
 
@@ -4296,7 +4296,7 @@ def main():
         with open(berkas_aksi188, "w", encoding="utf-8") as f:
             f.write(isi_baru188)
         rc, out = jalan(sub188,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi menggantung openssl: gerbang lolos (Audit 1096)", rc == 0)
         shutil.rmtree(sub188, ignore_errors=True)
 
@@ -4318,7 +4318,7 @@ def main():
         with open(berkas_aksi189, "w", encoding="utf-8") as f:
             f.write(isi_baru189)
         rc, out = jalan(sub189,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi menggantung sqlite3: gerbang lolos (Audit 1096)", rc == 0)
         shutil.rmtree(sub189, ignore_errors=True)
 
@@ -4340,7 +4340,7 @@ def main():
         with open(berkas_aksi190, "w", encoding="utf-8") as f:
             f.write(isi_baru190)
         rc, out = jalan(sub190,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi menggantung head: gerbang lolos (Audit 1096)", rc == 0)
         shutil.rmtree(sub190, ignore_errors=True)
 
@@ -4362,7 +4362,7 @@ def main():
         with open(berkas_aksi191, "w", encoding="utf-8") as f:
             f.write(isi_baru191)
         rc, out = jalan(sub191,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sudo -si ditolak: gerbang lolos (Audit 1097)", rc == 0)
         shutil.rmtree(sub191, ignore_errors=True)
 
@@ -4384,7 +4384,7 @@ def main():
         with open(berkas_aksi192, "w", encoding="utf-8") as f:
             f.write(isi_baru192)
         rc, out = jalan(sub192,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bunzip2: gerbang gagal (Audit 1098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub192, ignore_errors=True)
 
@@ -4406,7 +4406,7 @@ def main():
         with open(berkas_aksi193, "w", encoding="utf-8") as f:
             f.write(isi_baru193)
         rc, out = jalan(sub193,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bzcat: gerbang gagal (Audit 1098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub193, ignore_errors=True)
 
@@ -4428,7 +4428,7 @@ def main():
         with open(berkas_aksi194, "w", encoding="utf-8") as f:
             f.write(isi_baru194)
         rc, out = jalan(sub194,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xzcat: gerbang gagal (Audit 1098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub194, ignore_errors=True)
 
@@ -4450,7 +4450,7 @@ def main():
         with open(berkas_aksi195, "w", encoding="utf-8") as f:
             f.write(isi_baru195)
         rc, out = jalan(sub195,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unxz: gerbang gagal (Audit 1098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub195, ignore_errors=True)
 
@@ -4472,7 +4472,7 @@ def main():
         with open(berkas_aksi196, "w", encoding="utf-8") as f:
             f.write(isi_baru196)
         rc, out = jalan(sub196,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unlzma: gerbang gagal (Audit 1098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub196, ignore_errors=True)
 
@@ -4494,7 +4494,7 @@ def main():
         with open(berkas_aksi197, "w", encoding="utf-8") as f:
             f.write(isi_baru197)
         rc, out = jalan(sub197,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand /dev/stdin: gerbang gagal (Audit 1099)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub197, ignore_errors=True)
 
@@ -4516,7 +4516,7 @@ def main():
         with open(berkas_aksi198, "w", encoding="utf-8") as f:
             f.write(isi_baru198)
         rc, out = jalan(sub198,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand /dev/fd/0: gerbang gagal (Audit 1099)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub198, ignore_errors=True)
 
@@ -4538,7 +4538,7 @@ def main():
         with open(berkas_aksi199, "w", encoding="utf-8") as f:
             f.write(isi_baru199)
         rc, out = jalan(sub199,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep berkas /dev/stdin: gerbang gagal (Audit 1099)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub199, ignore_errors=True)
 
@@ -4560,7 +4560,7 @@ def main():
         with open(berkas_aksi200, "w", encoding="utf-8") as f:
             f.write(isi_baru200)
         rc, out = jalan(sub200,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sort --random-source bernilai: gerbang gagal (Audit 1100)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub200, ignore_errors=True)
 
@@ -4582,7 +4582,7 @@ def main():
         with open(berkas_aksi201, "w", encoding="utf-8") as f:
             f.write(isi_baru201)
         rc, out = jalan(sub201,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("wc --total bernilai: gerbang gagal (Audit 1100)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub201, ignore_errors=True)
 
@@ -4604,7 +4604,7 @@ def main():
         with open(berkas_aksi202, "w", encoding="utf-8") as f:
             f.write(isi_baru202)
         rc, out = jalan(sub202,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fmt -p bernilai: gerbang gagal (Audit 1100)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub202, ignore_errors=True)
 
@@ -4626,7 +4626,7 @@ def main():
         with open(berkas_aksi203, "w", encoding="utf-8") as f:
             f.write(isi_baru203)
         rc, out = jalan(sub203,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("basenc polos galat: gerbang lolos (Audit 1101)", rc == 0)
         shutil.rmtree(sub203, ignore_errors=True)
 
@@ -4648,7 +4648,7 @@ def main():
         with open(berkas_aksi204, "w", encoding="utf-8") as f:
             f.write(isi_baru204)
         rc, out = jalan(sub204,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("basenc bermode: gerbang gagal (Audit 1101)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub204, ignore_errors=True)
 
@@ -4670,7 +4670,7 @@ def main():
         with open(berkas_aksi205, "w", encoding="utf-8") as f:
             f.write(isi_baru205)
         rc, out = jalan(sub205,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cat --version informasional: gerbang lolos (Audit 1102)", rc == 0)
         shutil.rmtree(sub205, ignore_errors=True)
 
@@ -4692,7 +4692,7 @@ def main():
         with open(berkas_aksi206, "w", encoding="utf-8") as f:
             f.write(isi_baru206)
         rc, out = jalan(sub206,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sort --help informasional: gerbang lolos (Audit 1102)", rc == 0)
         shutil.rmtree(sub206, ignore_errors=True)
 
@@ -4714,7 +4714,7 @@ def main():
         with open(berkas_aksi207, "w", encoding="utf-8") as f:
             f.write(isi_baru207)
         rc, out = jalan(sub207,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("iconv -l informasional: gerbang lolos (Audit 1102)", rc == 0)
         shutil.rmtree(sub207, ignore_errors=True)
 
@@ -4736,7 +4736,7 @@ def main():
         with open(berkas_aksi208, "w", encoding="utf-8") as f:
             f.write(isi_baru208)
         rc, out = jalan(sub208,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub208, ignore_errors=True)
 
@@ -4758,7 +4758,7 @@ def main():
         with open(berkas_aksi209, "w", encoding="utf-8") as f:
             f.write(isi_baru209)
         rc, out = jalan(sub209,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sed -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub209, ignore_errors=True)
 
@@ -4780,7 +4780,7 @@ def main():
         with open(berkas_aksi210, "w", encoding="utf-8") as f:
             f.write(isi_baru210)
         rc, out = jalan(sub210,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("awk -f '-' beroperand: gerbang gagal (Audit 1103)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub210, ignore_errors=True)
 
@@ -4802,7 +4802,7 @@ def main():
         with open(berkas_aksi211, "w", encoding="utf-8") as f:
             f.write(isi_baru211)
         rc, out = jalan(sub211,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("jq -f '-' ditolak: gerbang lolos (Audit 1103)", rc == 0)
         shutil.rmtree(sub211, ignore_errors=True)
 
@@ -4824,7 +4824,7 @@ def main():
         with open(berkas_aksi212, "w", encoding="utf-8") as f:
             f.write(isi_baru212)
         rc, out = jalan(sub212,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl base64: gerbang gagal (Audit 1104)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub212, ignore_errors=True)
 
@@ -4846,7 +4846,7 @@ def main():
         with open(berkas_aksi213, "w", encoding="utf-8") as f:
             f.write(isi_baru213)
         rc, out = jalan(sub213,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl smime: gerbang gagal (Audit 1104)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub213, ignore_errors=True)
 
@@ -4868,7 +4868,7 @@ def main():
         with open(berkas_aksi214, "w", encoding="utf-8") as f:
             f.write(isi_baru214)
         rc, out = jalan(sub214,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl passwd -stdin: gerbang gagal (Audit 1104)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub214, ignore_errors=True)
 
@@ -4890,7 +4890,7 @@ def main():
         with open(berkas_aksi215, "w", encoding="utf-8") as f:
             f.write(isi_baru215)
         rc, out = jalan(sub215,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl pkeyutl: gerbang gagal (Audit 1104)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub215, ignore_errors=True)
 
@@ -4912,7 +4912,7 @@ def main():
         with open(berkas_aksi216, "w", encoding="utf-8") as f:
             f.write(isi_baru216)
         rc, out = jalan(sub216,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl x509 tanpa -in: gerbang gagal (Audit 1105)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub216, ignore_errors=True)
 
@@ -4934,7 +4934,7 @@ def main():
         with open(berkas_aksi217, "w", encoding="utf-8") as f:
             f.write(isi_baru217)
         rc, out = jalan(sub217,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --import: gerbang gagal (Audit 1106)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub217, ignore_errors=True)
 
@@ -4956,7 +4956,7 @@ def main():
         with open(berkas_aksi218, "w", encoding="utf-8") as f:
             f.write(isi_baru218)
         rc, out = jalan(sub218,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --dearmor: gerbang gagal (Audit 1106)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub218, ignore_errors=True)
 
@@ -4978,7 +4978,7 @@ def main():
         with open(berkas_aksi219, "w", encoding="utf-8") as f:
             f.write(isi_baru219)
         rc, out = jalan(sub219,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --print-md: gerbang gagal (Audit 1106)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub219, ignore_errors=True)
 
@@ -5000,7 +5000,7 @@ def main():
         with open(berkas_aksi220, "w", encoding="utf-8") as f:
             f.write(isi_baru220)
         rc, out = jalan(sub220,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("strace pembungkus: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub220, ignore_errors=True)
 
@@ -5022,7 +5022,7 @@ def main():
         with open(berkas_aksi221, "w", encoding="utf-8") as f:
             f.write(isi_baru221)
         rc, out = jalan(sub221,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("strace beropsi: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub221, ignore_errors=True)
 
@@ -5044,7 +5044,7 @@ def main():
         with open(berkas_aksi222, "w", encoding="utf-8") as f:
             f.write(isi_baru222)
         rc, out = jalan(sub222,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dbus-run-session: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub222, ignore_errors=True)
 
@@ -5066,7 +5066,7 @@ def main():
         with open(berkas_aksi223, "w", encoding="utf-8") as f:
             f.write(isi_baru223)
         rc, out = jalan(sub223,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("runuser: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub223, ignore_errors=True)
 
@@ -5088,7 +5088,7 @@ def main():
         with open(berkas_aksi224, "w", encoding="utf-8") as f:
             f.write(isi_baru224)
         rc, out = jalan(sub224,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("su -c string: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub224, ignore_errors=True)
 
@@ -5110,7 +5110,7 @@ def main():
         with open(berkas_aksi225, "w", encoding="utf-8") as f:
             f.write(isi_baru225)
         rc, out = jalan(sub225,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sg -c string: gerbang gagal (Audit 1107)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub225, ignore_errors=True)
 
@@ -5132,7 +5132,7 @@ def main():
         with open(berkas_aksi226, "w", encoding="utf-8") as f:
             f.write(isi_baru226)
         rc, out = jalan(sub226,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("vi beroperand: gerbang gagal (Audit 1108)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub226, ignore_errors=True)
 
@@ -5154,7 +5154,7 @@ def main():
         with open(berkas_aksi227, "w", encoding="utf-8") as f:
             f.write(isi_baru227)
         rc, out = jalan(sub227,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("view beroperand: gerbang gagal (Audit 1108)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub227, ignore_errors=True)
 
@@ -5176,7 +5176,7 @@ def main():
         with open(berkas_aksi228, "w", encoding="utf-8") as f:
             f.write(isi_baru228)
         rc, out = jalan(sub228,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ex polos: gerbang gagal (Audit 1108)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub228, ignore_errors=True)
 
@@ -5198,7 +5198,7 @@ def main():
         with open(berkas_aksi229, "w", encoding="utf-8") as f:
             f.write(isi_baru229)
         rc, out = jalan(sub229,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("less -p pola bernilai: gerbang gagal (Audit 1109)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub229, ignore_errors=True)
 
@@ -5220,7 +5220,7 @@ def main():
         with open(berkas_aksi230, "w", encoding="utf-8") as f:
             f.write(isi_baru230)
         rc, out = jalan(sub230,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("comm --output-delimiter '-': gerbang lolos (Audit 1110)", rc == 0)
         shutil.rmtree(sub230, ignore_errors=True)
 
@@ -5242,7 +5242,7 @@ def main():
         with open(berkas_aksi231, "w", encoding="utf-8") as f:
             f.write(isi_baru231)
         rc, out = jalan(sub231,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("du --files0-from=-: gerbang gagal (Audit 1111)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub231, ignore_errors=True)
 
@@ -5264,7 +5264,7 @@ def main():
         with open(berkas_aksi232, "w", encoding="utf-8") as f:
             f.write(isi_baru232)
         rc, out = jalan(sub232,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("find -files0-from: gerbang gagal (Audit 1111)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub232, ignore_errors=True)
 
@@ -5286,7 +5286,7 @@ def main():
         with open(berkas_aksi233, "w", encoding="utf-8") as f:
             f.write(isi_baru233)
         rc, out = jalan(sub233,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("wall polos: gerbang gagal (Audit 1112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub233, ignore_errors=True)
 
@@ -5308,7 +5308,7 @@ def main():
         with open(berkas_aksi234, "w", encoding="utf-8") as f:
             f.write(isi_baru234)
         rc, out = jalan(sub234,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("c++filt polos: gerbang gagal (Audit 1112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub234, ignore_errors=True)
 
@@ -5330,7 +5330,7 @@ def main():
         with open(berkas_aksi235, "w", encoding="utf-8") as f:
             f.write(isi_baru235)
         rc, out = jalan(sub235,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("addr2line -e: gerbang gagal (Audit 1112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub235, ignore_errors=True)
 
@@ -5352,7 +5352,7 @@ def main():
         with open(berkas_aksi236, "w", encoding="utf-8") as f:
             f.write(isi_baru236)
         rc, out = jalan(sub236,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dig -f '-': gerbang gagal (Audit 1112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub236, ignore_errors=True)
 
@@ -5374,7 +5374,7 @@ def main():
         with open(berkas_aksi237, "w", encoding="utf-8") as f:
             f.write(isi_baru237)
         rc, out = jalan(sub237,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nslookup polos: gerbang gagal (Audit 1112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub237, ignore_errors=True)
 
@@ -5396,7 +5396,7 @@ def main():
         with open(berkas_aksi238, "w", encoding="utf-8") as f:
             f.write(isi_baru238)
         rc, out = jalan(sub238,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("original-awk: gerbang gagal (Audit 1113)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub238, ignore_errors=True)
 
@@ -5418,7 +5418,7 @@ def main():
         with open(berkas_aksi239, "w", encoding="utf-8") as f:
             f.write(isi_baru239)
         rc, out = jalan(sub239,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perl telanjang: gerbang gagal (Audit 1119)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub239, ignore_errors=True)
         sub240 = klon(tmp, "sub240")
@@ -5439,7 +5439,7 @@ def main():
         with open(berkas_aksi240, "w", encoding="utf-8") as f:
             f.write(isi_baru240)
         rc, out = jalan(sub240,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perl -w: gerbang gagal (Audit 1119)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub240, ignore_errors=True)
         sub241 = klon(tmp, "sub241")
@@ -5460,7 +5460,7 @@ def main():
         with open(berkas_aksi241, "w", encoding="utf-8") as f:
             f.write(isi_baru241)
         rc, out = jalan(sub241,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perl berkas skrip: gerbang lolos (Audit 1119)", rc == 0)
         shutil.rmtree(sub241, ignore_errors=True)
         sub242 = klon(tmp, "sub242")
@@ -5481,7 +5481,7 @@ def main():
         with open(berkas_aksi242, "w", encoding="utf-8") as f:
             f.write(isi_baru242)
         rc, out = jalan(sub242,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perl -e: gerbang lolos (Audit 1119)", rc == 0)
         shutil.rmtree(sub242, ignore_errors=True)
         sub243 = klon(tmp, "sub243")
@@ -5502,7 +5502,7 @@ def main():
         with open(berkas_aksi243, "w", encoding="utf-8") as f:
             f.write(isi_baru243)
         rc, out = jalan(sub243,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar t tanpa -f: gerbang gagal (Audit 1120)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub243, ignore_errors=True)
         sub244 = klon(tmp, "sub244")
@@ -5523,7 +5523,7 @@ def main():
         with open(berkas_aksi244, "w", encoding="utf-8") as f:
             f.write(isi_baru244)
         rc, out = jalan(sub244,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar x tanpa -f: gerbang gagal (Audit 1120)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub244, ignore_errors=True)
         sub245 = klon(tmp, "sub245")
@@ -5544,7 +5544,7 @@ def main():
         with open(berkas_aksi245, "w", encoding="utf-8") as f:
             f.write(isi_baru245)
         rc, out = jalan(sub245,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar tf berarsip: gerbang lolos (Audit 1120)", rc == 0)
         shutil.rmtree(sub245, ignore_errors=True)
         sub246 = klon(tmp, "sub246")
@@ -5565,7 +5565,7 @@ def main():
         with open(berkas_aksi246, "w", encoding="utf-8") as f:
             f.write(isi_baru246)
         rc, out = jalan(sub246,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar c tanpa operand: gerbang lolos (Audit 1120)", rc == 0)
         shutil.rmtree(sub246, ignore_errors=True)
         sub247 = klon(tmp, "sub247")
@@ -5586,7 +5586,7 @@ def main():
         with open(berkas_aksi247, "w", encoding="utf-8") as f:
             f.write(isi_baru247)
         rc, out = jalan(sub247,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unshare tanpa perintah: gerbang gagal (Audit 1121)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub247, ignore_errors=True)
         sub248 = klon(tmp, "sub248")
@@ -5607,7 +5607,7 @@ def main():
         with open(berkas_aksi248, "w", encoding="utf-8") as f:
             f.write(isi_baru248)
         rc, out = jalan(sub248,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("chroot tanpa perintah: gerbang gagal (Audit 1121)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub248, ignore_errors=True)
         sub249 = klon(tmp, "sub249")
@@ -5628,7 +5628,7 @@ def main():
         with open(berkas_aksi249, "w", encoding="utf-8") as f:
             f.write(isi_baru249)
         rc, out = jalan(sub249,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unshare berperintah: gerbang lolos (Audit 1121)", rc == 0)
         shutil.rmtree(sub249, ignore_errors=True)
         sub250 = klon(tmp, "sub250")
@@ -5649,7 +5649,7 @@ def main():
         with open(berkas_aksi250, "w", encoding="utf-8") as f:
             f.write(isi_baru250)
         rc, out = jalan(sub250,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("expect telanjang: gerbang gagal (Audit 1122)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub250, ignore_errors=True)
         sub251 = klon(tmp, "sub251")
@@ -5670,7 +5670,7 @@ def main():
         with open(berkas_aksi251, "w", encoding="utf-8") as f:
             f.write(isi_baru251)
         rc, out = jalan(sub251,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("expect -f -: gerbang gagal (Audit 1122)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub251, ignore_errors=True)
         sub252 = klon(tmp, "sub252")
@@ -5691,7 +5691,7 @@ def main():
         with open(berkas_aksi252, "w", encoding="utf-8") as f:
             f.write(isi_baru252)
         rc, out = jalan(sub252,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("expect -f berkas: gerbang lolos (Audit 1122)", rc == 0)
         shutil.rmtree(sub252, ignore_errors=True)
         sub253 = klon(tmp, "sub253")
@@ -5712,7 +5712,7 @@ def main():
         with open(berkas_aksi253, "w", encoding="utf-8") as f:
             f.write(isi_baru253)
         rc, out = jalan(sub253,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --verify: gerbang gagal (Audit 1123)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub253, ignore_errors=True)
         sub254 = klon(tmp, "sub254")
@@ -5733,7 +5733,7 @@ def main():
         with open(berkas_aksi254, "w", encoding="utf-8") as f:
             f.write(isi_baru254)
         rc, out = jalan(sub254,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --verify beroperand: gerbang lolos (Audit 1123)", rc == 0)
         shutil.rmtree(sub254, ignore_errors=True)
         sub255 = klon(tmp, "sub255")
@@ -5754,7 +5754,7 @@ def main():
         with open(berkas_aksi255, "w", encoding="utf-8") as f:
             f.write(isi_baru255)
         rc, out = jalan(sub255,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git stripspace: gerbang gagal (Audit 1124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub255, ignore_errors=True)
         sub256 = klon(tmp, "sub256")
@@ -5775,7 +5775,7 @@ def main():
         with open(berkas_aksi256, "w", encoding="utf-8") as f:
             f.write(isi_baru256)
         rc, out = jalan(sub256,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git patch-id: gerbang gagal (Audit 1124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub256, ignore_errors=True)
         sub257 = klon(tmp, "sub257")
@@ -5796,7 +5796,7 @@ def main():
         with open(berkas_aksi257, "w", encoding="utf-8") as f:
             f.write(isi_baru257)
         rc, out = jalan(sub257,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git mktag: gerbang gagal (Audit 1124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub257, ignore_errors=True)
         sub258 = klon(tmp, "sub258")
@@ -5817,7 +5817,7 @@ def main():
         with open(berkas_aksi258, "w", encoding="utf-8") as f:
             f.write(isi_baru258)
         rc, out = jalan(sub258,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git update-index --index-info: gerbang gagal (Audit 1124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub258, ignore_errors=True)
         sub259 = klon(tmp, "sub259")
@@ -5838,7 +5838,7 @@ def main():
         with open(berkas_aksi259, "w", encoding="utf-8") as f:
             f.write(isi_baru259)
         rc, out = jalan(sub259,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git index-pack --stdin: gerbang gagal (Audit 1124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub259, ignore_errors=True)
         sub260 = klon(tmp, "sub260")
@@ -5859,7 +5859,7 @@ def main():
         with open(berkas_aksi260, "w", encoding="utf-8") as f:
             f.write(isi_baru260)
         rc, out = jalan(sub260,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git index-pack beroperand: gerbang lolos (Audit 1124)", rc == 0)
         shutil.rmtree(sub260, ignore_errors=True)
         sub261 = klon(tmp, "sub261")
@@ -5880,7 +5880,7 @@ def main():
         with open(berkas_aksi261, "w", encoding="utf-8") as f:
             f.write(isi_baru261)
         rc, out = jalan(sub261,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("numfmt --from: gerbang gagal (Audit 1125)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub261, ignore_errors=True)
         sub262 = klon(tmp, "sub262")
@@ -5901,7 +5901,7 @@ def main():
         with open(berkas_aksi262, "w", encoding="utf-8") as f:
             f.write(isi_baru262)
         rc, out = jalan(sub262,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("numfmt --to: gerbang gagal (Audit 1125)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub262, ignore_errors=True)
         sub263 = klon(tmp, "sub263")
@@ -5922,7 +5922,7 @@ def main():
         with open(berkas_aksi263, "w", encoding="utf-8") as f:
             f.write(isi_baru263)
         rc, out = jalan(sub263,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("numfmt --from-unit: gerbang gagal (Audit 1125)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub263, ignore_errors=True)
         sub264 = klon(tmp, "sub264")
@@ -5943,7 +5943,7 @@ def main():
         with open(berkas_aksi264, "w", encoding="utf-8") as f:
             f.write(isi_baru264)
         rc, out = jalan(sub264,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("numfmt beroperand: gerbang lolos (Audit 1125)", rc == 0)
         shutil.rmtree(sub264, ignore_errors=True)
         sub265 = klon(tmp, "sub265")
@@ -5964,7 +5964,7 @@ def main():
         with open(berkas_aksi265, "w", encoding="utf-8") as f:
             f.write(isi_baru265)
         rc, out = jalan(sub265,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("jq --indent: gerbang gagal (Audit 1126)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub265, ignore_errors=True)
         sub266 = klon(tmp, "sub266")
@@ -5985,7 +5985,7 @@ def main():
         with open(berkas_aksi266, "w", encoding="utf-8") as f:
             f.write(isi_baru266)
         rc, out = jalan(sub266,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("jq beroperand: gerbang lolos (Audit 1126)", rc == 0)
         shutil.rmtree(sub266, ignore_errors=True)
         sub267 = klon(tmp, "sub267")
@@ -6006,7 +6006,7 @@ def main():
         with open(berkas_aksi267, "w", encoding="utf-8") as f:
             f.write(isi_baru267)
         rc, out = jalan(sub267,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep --exclude-from: gerbang gagal (Audit 1127)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub267, ignore_errors=True)
         sub268 = klon(tmp, "sub268")
@@ -6027,7 +6027,7 @@ def main():
         with open(berkas_aksi268, "w", encoding="utf-8") as f:
             f.write(isi_baru268)
         rc, out = jalan(sub268,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep --label: gerbang gagal (Audit 1127)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub268, ignore_errors=True)
         sub269 = klon(tmp, "sub269")
@@ -6048,7 +6048,7 @@ def main():
         with open(berkas_aksi269, "w", encoding="utf-8") as f:
             f.write(isi_baru269)
         rc, out = jalan(sub269,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep beroperand berkas: gerbang lolos (Audit 1127)", rc == 0)
         shutil.rmtree(sub269, ignore_errors=True)
         sub270 = klon(tmp, "sub270")
@@ -6069,7 +6069,7 @@ def main():
         with open(berkas_aksi270, "w", encoding="utf-8") as f:
             f.write(isi_baru270)
         rc, out = jalan(sub270,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl crl: gerbang gagal (Audit 1128)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub270, ignore_errors=True)
         sub271 = klon(tmp, "sub271")
@@ -6090,7 +6090,7 @@ def main():
         with open(berkas_aksi271, "w", encoding="utf-8") as f:
             f.write(isi_baru271)
         rc, out = jalan(sub271,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl pkcs7: gerbang gagal (Audit 1128)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub271, ignore_errors=True)
         sub272 = klon(tmp, "sub272")
@@ -6111,7 +6111,7 @@ def main():
         with open(berkas_aksi272, "w", encoding="utf-8") as f:
             f.write(isi_baru272)
         rc, out = jalan(sub272,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl verify: gerbang gagal (Audit 1128)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub272, ignore_errors=True)
         sub273 = klon(tmp, "sub273")
@@ -6132,7 +6132,7 @@ def main():
         with open(berkas_aksi273, "w", encoding="utf-8") as f:
             f.write(isi_baru273)
         rc, out = jalan(sub273,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl verify beroperand: gerbang lolos (Audit 1128)", rc == 0)
         shutil.rmtree(sub273, ignore_errors=True)
         sub274 = klon(tmp, "sub274")
@@ -6153,7 +6153,7 @@ def main():
         with open(berkas_aksi274, "w", encoding="utf-8") as f:
             f.write(isi_baru274)
         rc, out = jalan(sub274,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl crl -in: gerbang lolos (Audit 1128)", rc == 0)
         shutil.rmtree(sub274, ignore_errors=True)
         sub275 = klon(tmp, "sub275")
@@ -6174,7 +6174,7 @@ def main():
         with open(berkas_aksi275, "w", encoding="utf-8") as f:
             f.write(isi_baru275)
         rc, out = jalan(sub275,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dgst -mac: gerbang gagal (Audit 1129)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub275, ignore_errors=True)
         sub276 = klon(tmp, "sub276")
@@ -6195,7 +6195,7 @@ def main():
         with open(berkas_aksi276, "w", encoding="utf-8") as f:
             f.write(isi_baru276)
         rc, out = jalan(sub276,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dgst beroperand: gerbang lolos (Audit 1129)", rc == 0)
         shutil.rmtree(sub276, ignore_errors=True)
         sub277 = klon(tmp, "sub277")
@@ -6216,7 +6216,7 @@ def main():
         with open(berkas_aksi277, "w", encoding="utf-8") as f:
             f.write(isi_baru277)
         rc, out = jalan(sub277,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zip -@ -: gerbang gagal (Audit 1130)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub277, ignore_errors=True)
         sub278 = klon(tmp, "sub278")
@@ -6237,7 +6237,7 @@ def main():
         with open(berkas_aksi278, "w", encoding="utf-8") as f:
             f.write(isi_baru278)
         rc, out = jalan(sub278,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zip - -@: gerbang gagal (Audit 1130)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub278, ignore_errors=True)
         sub279 = klon(tmp, "sub279")
@@ -6258,7 +6258,7 @@ def main():
         with open(berkas_aksi279, "w", encoding="utf-8") as f:
             f.write(isi_baru279)
         rc, out = jalan(sub279,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zip -@ tanpa arsip: gerbang lolos (Audit 1130)", rc == 0)
         shutil.rmtree(sub279, ignore_errors=True)
         sub280 = klon(tmp, "sub280")
@@ -6279,7 +6279,7 @@ def main():
         with open(berkas_aksi280, "w", encoding="utf-8") as f:
             f.write(isi_baru280)
         rc, out = jalan(sub280,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("patch -i-: gerbang gagal (Audit 1131)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub280, ignore_errors=True)
         sub281 = klon(tmp, "sub281")
@@ -6300,7 +6300,7 @@ def main():
         with open(berkas_aksi281, "w", encoding="utf-8") as f:
             f.write(isi_baru281)
         rc, out = jalan(sub281,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("patch -i berkas: gerbang lolos (Audit 1131)", rc == 0)
         shutil.rmtree(sub281, ignore_errors=True)
         sub282 = klon(tmp, "sub282")
@@ -6321,7 +6321,7 @@ def main():
         with open(berkas_aksi282, "w", encoding="utf-8") as f:
             f.write(isi_baru282)
         rc, out = jalan(sub282,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("addr2line --target: gerbang gagal (Audit 1132)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub282, ignore_errors=True)
         sub283 = klon(tmp, "sub283")
@@ -6342,7 +6342,7 @@ def main():
         with open(berkas_aksi283, "w", encoding="utf-8") as f:
             f.write(isi_baru283)
         rc, out = jalan(sub283,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("addr2line beralamat: gerbang lolos (Audit 1132)", rc == 0)
         shutil.rmtree(sub283, ignore_errors=True)
         sub284 = klon(tmp, "sub284")
@@ -6363,7 +6363,7 @@ def main():
         with open(berkas_aksi284, "w", encoding="utf-8") as f:
             f.write(isi_baru284)
         rc, out = jalan(sub284,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff label berkutip <: gerbang gagal (Audit 1133)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub284, ignore_errors=True)
         sub285 = klon(tmp, "sub285")
@@ -6384,7 +6384,7 @@ def main():
         with open(berkas_aksi285, "w", encoding="utf-8") as f:
             f.write(isi_baru285)
         rc, out = jalan(sub285,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff dua berkas: gerbang lolos (Audit 1133)", rc == 0)
         shutil.rmtree(sub285, ignore_errors=True)
         sub286 = klon(tmp, "sub286")
@@ -6405,7 +6405,7 @@ def main():
         with open(berkas_aksi286, "w", encoding="utf-8") as f:
             f.write(isi_baru286)
         rc, out = jalan(sub286,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xargs -a -: gerbang gagal (Audit 1134)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub286, ignore_errors=True)
         sub287 = klon(tmp, "sub287")
@@ -6426,7 +6426,7 @@ def main():
         with open(berkas_aksi287, "w", encoding="utf-8") as f:
             f.write(isi_baru287)
         rc, out = jalan(sub287,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xargs -a berkas: gerbang lolos (Audit 1134)", rc == 0)
         shutil.rmtree(sub287, ignore_errors=True)
         sub288 = klon(tmp, "sub288")
@@ -6447,7 +6447,7 @@ def main():
         with open(berkas_aksi288, "w", encoding="utf-8") as f:
             f.write(isi_baru288)
         rc, out = jalan(sub288,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dgst opsi menggantung: gerbang lolos (Audit 1135)", rc == 0)
         shutil.rmtree(sub288, ignore_errors=True)
         sub289 = klon(tmp, "sub289")
@@ -6468,7 +6468,7 @@ def main():
         with open(berkas_aksi289, "w", encoding="utf-8") as f:
             f.write(isi_baru289)
         rc, out = jalan(sub289,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("comm opsi menggantung: gerbang lolos (Audit 1135)", rc == 0)
         shutil.rmtree(sub289, ignore_errors=True)
         sub290 = klon(tmp, "sub290")
@@ -6489,7 +6489,7 @@ def main():
         with open(berkas_aksi290, "w", encoding="utf-8") as f:
             f.write(isi_baru290)
         rc, out = jalan(sub290,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg opsi menggantung: gerbang lolos (Audit 1135)", rc == 0)
         shutil.rmtree(sub290, ignore_errors=True)
         sub291 = klon(tmp, "sub291")
@@ -6510,7 +6510,7 @@ def main():
         with open(berkas_aksi291, "w", encoding="utf-8") as f:
             f.write(isi_baru291)
         rc, out = jalan(sub291,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dgst - kontrol: gerbang gagal (Audit 1135)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub291, ignore_errors=True)
         sub292 = klon(tmp, "sub292")
@@ -6531,7 +6531,7 @@ def main():
         with open(berkas_aksi292, "w", encoding="utf-8") as f:
             f.write(isi_baru292)
         rc, out = jalan(sub292,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("vim --help: gerbang lolos (Audit 1136)", rc == 0)
         shutil.rmtree(sub292, ignore_errors=True)
         sub293 = klon(tmp, "sub293")
@@ -6552,7 +6552,7 @@ def main():
         with open(berkas_aksi293, "w", encoding="utf-8") as f:
             f.write(isi_baru293)
         rc, out = jalan(sub293,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sqlite3 --version: gerbang lolos (Audit 1136)", rc == 0)
         shutil.rmtree(sub293, ignore_errors=True)
         sub294 = klon(tmp, "sub294")
@@ -6573,7 +6573,7 @@ def main():
         with open(berkas_aksi294, "w", encoding="utf-8") as f:
             f.write(isi_baru294)
         rc, out = jalan(sub294,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("patch --help: gerbang lolos (Audit 1136)", rc == 0)
         shutil.rmtree(sub294, ignore_errors=True)
         sub295 = klon(tmp, "sub295")
@@ -6594,7 +6594,7 @@ def main():
         with open(berkas_aksi295, "w", encoding="utf-8") as f:
             f.write(isi_baru295)
         rc, out = jalan(sub295,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl x509 -help: gerbang lolos (Audit 1136)", rc == 0)
         shutil.rmtree(sub295, ignore_errors=True)
         sub296 = klon(tmp, "sub296")
@@ -6615,7 +6615,7 @@ def main():
         with open(berkas_aksi296, "w", encoding="utf-8") as f:
             f.write(isi_baru296)
         rc, out = jalan(sub296,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("vim telanjang kontrol: gerbang gagal (Audit 1136)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub296, ignore_errors=True)
         sub297 = klon(tmp, "sub297")
@@ -6636,7 +6636,7 @@ def main():
         with open(berkas_aksi297, "w", encoding="utf-8") as f:
             f.write(isi_baru297)
         rc, out = jalan(sub297,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("basenc beroperand: gerbang lolos (Audit 1137)", rc == 0)
         shutil.rmtree(sub297, ignore_errors=True)
         sub298 = klon(tmp, "sub298")
@@ -6657,7 +6657,7 @@ def main():
         with open(berkas_aksi298, "w", encoding="utf-8") as f:
             f.write(isi_baru298)
         rc, out = jalan(sub298,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("basenc polos bermode: gerbang gagal (Audit 1137)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub298, ignore_errors=True)
         sub299 = klon(tmp, "sub299")
@@ -6678,7 +6678,7 @@ def main():
         with open(berkas_aksi299, "w", encoding="utf-8") as f:
             f.write(isi_baru299)
         rc, out = jalan(sub299,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("basenc operand -: gerbang gagal (Audit 1137)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub299, ignore_errors=True)
         sub300 = klon(tmp, "sub300")
@@ -6699,7 +6699,7 @@ def main():
         with open(berkas_aksi300, "w", encoding="utf-8") as f:
             f.write(isi_baru300)
         rc, out = jalan(sub300,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sed -i tanpa berkas: gerbang lolos (Audit 1138)", rc == 0)
         shutil.rmtree(sub300, ignore_errors=True)
         sub301 = klon(tmp, "sub301")
@@ -6720,7 +6720,7 @@ def main():
         with open(berkas_aksi301, "w", encoding="utf-8") as f:
             f.write(isi_baru301)
         rc, out = jalan(sub301,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sed -i berberkas: gerbang lolos (Audit 1138)", rc == 0)
         shutil.rmtree(sub301, ignore_errors=True)
         sub302 = klon(tmp, "sub302")
@@ -6741,7 +6741,7 @@ def main():
         with open(berkas_aksi302, "w", encoding="utf-8") as f:
             f.write(isi_baru302)
         rc, out = jalan(sub302,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sed polos kontrol: gerbang gagal (Audit 1138)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub302, ignore_errors=True)
         sub303 = klon(tmp, "sub303")
@@ -6762,7 +6762,7 @@ def main():
         with open(berkas_aksi303, "w", encoding="utf-8") as f:
             f.write(isi_baru303)
         rc, out = jalan(sub303,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sort --files0-from berkas: gerbang lolos (Audit 1139)", rc == 0)
         shutil.rmtree(sub303, ignore_errors=True)
         sub304 = klon(tmp, "sub304")
@@ -6783,7 +6783,7 @@ def main():
         with open(berkas_aksi304, "w", encoding="utf-8") as f:
             f.write(isi_baru304)
         rc, out = jalan(sub304,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("wc --files0-from berkas: gerbang lolos (Audit 1139)", rc == 0)
         shutil.rmtree(sub304, ignore_errors=True)
         sub305 = klon(tmp, "sub305")
@@ -6804,7 +6804,7 @@ def main():
         with open(berkas_aksi305, "w", encoding="utf-8") as f:
             f.write(isi_baru305)
         rc, out = jalan(sub305,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sort --files0-from=-: gerbang gagal (Audit 1139)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub305, ignore_errors=True)
         sub306 = klon(tmp, "sub306")
@@ -6825,7 +6825,7 @@ def main():
         with open(berkas_aksi306, "w", encoding="utf-8") as f:
             f.write(isi_baru306)
         rc, out = jalan(sub306,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("su -mc sort: gerbang lolos (Audit 1140)", rc == 0)
         shutil.rmtree(sub306, ignore_errors=True)
         sub307 = klon(tmp, "sub307")
@@ -6846,7 +6846,7 @@ def main():
         with open(berkas_aksi307, "w", encoding="utf-8") as f:
             f.write(isi_baru307)
         rc, out = jalan(sub307,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("su -mc cat: gerbang gagal (Audit 1140)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub307, ignore_errors=True)
         sub308 = klon(tmp, "sub308")
@@ -6867,7 +6867,7 @@ def main():
         with open(berkas_aksi308, "w", encoding="utf-8") as f:
             f.write(isi_baru308)
         rc, out = jalan(sub308,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("su -c sort kontrol: gerbang lolos (Audit 1140)", rc == 0)
         shutil.rmtree(sub308, ignore_errors=True)
         sub309 = klon(tmp, "sub309")
@@ -6888,7 +6888,7 @@ def main():
         with open(berkas_aksi309, "w", encoding="utf-8") as f:
             f.write(isi_baru309)
         rc, out = jalan(sub309,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("uniq --group beroperand: gerbang lolos (Audit 1141)", rc == 0)
         shutil.rmtree(sub309, ignore_errors=True)
         sub310 = klon(tmp, "sub310")
@@ -6909,7 +6909,7 @@ def main():
         with open(berkas_aksi310, "w", encoding="utf-8") as f:
             f.write(isi_baru310)
         rc, out = jalan(sub310,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("uniq --group polos: gerbang gagal (Audit 1141)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub310, ignore_errors=True)
         sub311 = klon(tmp, "sub311")
@@ -6930,7 +6930,7 @@ def main():
         with open(berkas_aksi311, "w", encoding="utf-8") as f:
             f.write(isi_baru311)
         rc, out = jalan(sub311,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("expect -c 'puts x' -f -: gerbang gagal (Audit 1145)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub311, ignore_errors=True)
         sub312 = klon(tmp, "sub312")
@@ -6951,7 +6951,7 @@ def main():
         with open(berkas_aksi312, "w", encoding="utf-8") as f:
             f.write(isi_baru312)
         rc, out = jalan(sub312,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("expect -c 'puts x': gerbang lolos (Audit 1145)", rc == 0)
         shutil.rmtree(sub312, ignore_errors=True)
         sub313 = klon(tmp, "sub313")
@@ -6972,7 +6972,7 @@ def main():
         with open(berkas_aksi313, "w", encoding="utf-8") as f:
             f.write(isi_baru313)
         rc, out = jalan(sub313,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("expect -D 0 -f -: gerbang gagal (Audit 1146)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub313, ignore_errors=True)
         sub314 = klon(tmp, "sub314")
@@ -6993,7 +6993,7 @@ def main():
         with open(berkas_aksi314, "w", encoding="utf-8") as f:
             f.write(isi_baru314)
         rc, out = jalan(sub314,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("expect -D 0 -f skrip.exp: gerbang lolos (Audit 1146)", rc == 0)
         shutil.rmtree(sub314, ignore_errors=True)
         sub315 = klon(tmp, "sub315")
@@ -7014,7 +7014,7 @@ def main():
         with open(berkas_aksi315, "w", encoding="utf-8") as f:
             f.write(isi_baru315)
         rc, out = jalan(sub315,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff - --label --help berkas: gerbang gagal (Audit 1147)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub315, ignore_errors=True)
         sub316 = klon(tmp, "sub316")
@@ -7035,7 +7035,7 @@ def main():
         with open(berkas_aksi316, "w", encoding="utf-8") as f:
             f.write(isi_baru316)
         rc, out = jalan(sub316,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csplit - -f --help 2: gerbang gagal (Audit 1147)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub316, ignore_errors=True)
         sub317 = klon(tmp, "sub317")
@@ -7056,7 +7056,7 @@ def main():
         with open(berkas_aksi317, "w", encoding="utf-8") as f:
             f.write(isi_baru317)
         rc, out = jalan(sub317,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff - --help: gerbang lolos (Audit 1147)", rc == 0)
         shutil.rmtree(sub317, ignore_errors=True)
         sub318 = klon(tmp, "sub318")
@@ -7077,7 +7077,7 @@ def main():
         with open(berkas_aksi318, "w", encoding="utf-8") as f:
             f.write(isi_baru318)
         rc, out = jalan(sub318,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl dgst -sha256 -hmac kunci: gerbang gagal (Audit 1148)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub318, ignore_errors=True)
         sub319 = klon(tmp, "sub319")
@@ -7098,7 +7098,7 @@ def main():
         with open(berkas_aksi319, "w", encoding="utf-8") as f:
             f.write(isi_baru319)
         rc, out = jalan(sub319,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl dgst -sha256 -sigopt rsa_padding_mode:pss: gerbang gagal (Audit 1148)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub319, ignore_errors=True)
         sub320 = klon(tmp, "sub320")
@@ -7119,7 +7119,7 @@ def main():
         with open(berkas_aksi320, "w", encoding="utf-8") as f:
             f.write(isi_baru320)
         rc, out = jalan(sub320,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl dgst -sha256 berkas: gerbang lolos (Audit 1148)", rc == 0)
         shutil.rmtree(sub320, ignore_errors=True)
         sub321 = klon(tmp, "sub321")
@@ -7140,7 +7140,7 @@ def main():
         with open(berkas_aksi321, "w", encoding="utf-8") as f:
             f.write(isi_baru321)
         rc, out = jalan(sub321,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl verify -verify_hostname contoh.com: gerbang gagal (Audit 1149)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub321, ignore_errors=True)
         sub322 = klon(tmp, "sub322")
@@ -7161,7 +7161,7 @@ def main():
         with open(berkas_aksi322, "w", encoding="utf-8") as f:
             f.write(isi_baru322)
         rc, out = jalan(sub322,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl verify -CAfile ca.pem -verify_email a@b.c: gerbang gagal (Audit 1149)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub322, ignore_errors=True)
         sub323 = klon(tmp, "sub323")
@@ -7182,7 +7182,7 @@ def main():
         with open(berkas_aksi323, "w", encoding="utf-8") as f:
             f.write(isi_baru323)
         rc, out = jalan(sub323,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl verify -verify_hostname contoh.com sert.pem: gerbang lolos (Audit 1149)", rc == 0)
         shutil.rmtree(sub323, ignore_errors=True)
         sub324 = klon(tmp, "sub324")
@@ -7203,7 +7203,7 @@ def main():
         with open(berkas_aksi324, "w", encoding="utf-8") as f:
             f.write(isi_baru324)
         rc, out = jalan(sub324,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --verify - data.txt: gerbang gagal (Audit 1150)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub324, ignore_errors=True)
         sub325 = klon(tmp, "sub325")
@@ -7224,7 +7224,7 @@ def main():
         with open(berkas_aksi325, "w", encoding="utf-8") as f:
             f.write(isi_baru325)
         rc, out = jalan(sub325,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --verify sig.asc data.txt: gerbang lolos (Audit 1150)", rc == 0)
         shutil.rmtree(sub325, ignore_errors=True)
         sub326 = klon(tmp, "sub326")
@@ -7245,7 +7245,7 @@ def main():
         with open(berkas_aksi326, "w", encoding="utf-8") as f:
             f.write(isi_baru326)
         rc, out = jalan(sub326,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar -t -T daftar.txt: gerbang gagal (Audit 1151)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub326, ignore_errors=True)
         sub327 = klon(tmp, "sub327")
@@ -7266,7 +7266,7 @@ def main():
         with open(berkas_aksi327, "w", encoding="utf-8") as f:
             f.write(isi_baru327)
         rc, out = jalan(sub327,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar -x -T daftar.txt: gerbang gagal (Audit 1151)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub327, ignore_errors=True)
         sub328 = klon(tmp, "sub328")
@@ -7287,7 +7287,7 @@ def main():
         with open(berkas_aksi328, "w", encoding="utf-8") as f:
             f.write(isi_baru328)
         rc, out = jalan(sub328,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar -t -f arsip.tar -T daftar.txt: gerbang lolos (Audit 1151)", rc == 0)
         shutil.rmtree(sub328, ignore_errors=True)
         sub329 = klon(tmp, "sub329")
@@ -7308,7 +7308,7 @@ def main():
         with open(berkas_aksi329, "w", encoding="utf-8") as f:
             f.write(isi_baru329)
         rc, out = jalan(sub329,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar -t -f: gerbang lolos (Audit 1152)", rc == 0)
         shutil.rmtree(sub329, ignore_errors=True)
         sub330 = klon(tmp, "sub330")
@@ -7329,7 +7329,7 @@ def main():
         with open(berkas_aksi330, "w", encoding="utf-8") as f:
             f.write(isi_baru330)
         rc, out = jalan(sub330,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar -tf: gerbang lolos (Audit 1152)", rc == 0)
         shutil.rmtree(sub330, ignore_errors=True)
         sub331 = klon(tmp, "sub331")
@@ -7350,7 +7350,7 @@ def main():
         with open(berkas_aksi331, "w", encoding="utf-8") as f:
             f.write(isi_baru331)
         rc, out = jalan(sub331,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unshare --propagation private: gerbang gagal (Audit 1153)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub331, ignore_errors=True)
         sub332 = klon(tmp, "sub332")
@@ -7371,7 +7371,7 @@ def main():
         with open(berkas_aksi332, "w", encoding="utf-8") as f:
             f.write(isi_baru332)
         rc, out = jalan(sub332,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unshare --propagation private sort berkas: gerbang lolos (Audit 1153)", rc == 0)
         shutil.rmtree(sub332, ignore_errors=True)
         sub333 = klon(tmp, "sub333")
@@ -7392,7 +7392,7 @@ def main():
         with open(berkas_aksi333, "w", encoding="utf-8") as f:
             f.write(isi_baru333)
         rc, out = jalan(sub333,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff - berkas ''<pengganti.txt: gerbang lolos (Audit 1154)", rc == 0)
         shutil.rmtree(sub333, ignore_errors=True)
         sub334 = klon(tmp, "sub334")
@@ -7413,7 +7413,7 @@ def main():
         with open(berkas_aksi334, "w", encoding="utf-8") as f:
             f.write(isi_baru334)
         rc, out = jalan(sub334,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("setpriv --reuid=1000 --regid=1000 --clear-groups cat: gerbang gagal (Audit 1155)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub334, ignore_errors=True)
         sub335 = klon(tmp, "sub335")
@@ -7434,7 +7434,7 @@ def main():
         with open(berkas_aksi335, "w", encoding="utf-8") as f:
             f.write(isi_baru335)
         rc, out = jalan(sub335,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("setpriv --reuid=1000 sort berkas: gerbang lolos (Audit 1155)", rc == 0)
         shutil.rmtree(sub335, ignore_errors=True)
         sub336 = klon(tmp, "sub336")
@@ -7455,7 +7455,7 @@ def main():
         with open(berkas_aksi336, "w", encoding="utf-8") as f:
             f.write(isi_baru336)
         rc, out = jalan(sub336,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("prlimit --nproc=100 cat: gerbang gagal (Audit 1156)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub336, ignore_errors=True)
         sub337 = klon(tmp, "sub337")
@@ -7476,7 +7476,7 @@ def main():
         with open(berkas_aksi337, "w", encoding="utf-8") as f:
             f.write(isi_baru337)
         rc, out = jalan(sub337,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("prlimit --pid 123: gerbang lolos (Audit 1156)", rc == 0)
         shutil.rmtree(sub337, ignore_errors=True)
         sub338 = klon(tmp, "sub338")
@@ -7497,7 +7497,7 @@ def main():
         with open(berkas_aksi338, "w", encoding="utf-8") as f:
             f.write(isi_baru338)
         rc, out = jalan(sub338,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("netcat contoh.com 80: gerbang gagal (Audit 1157)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub338, ignore_errors=True)
         sub339 = klon(tmp, "sub339")
@@ -7518,7 +7518,7 @@ def main():
         with open(berkas_aksi339, "w", encoding="utf-8") as f:
             f.write(isi_baru339)
         rc, out = jalan(sub339,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nc.openbsd contoh.com 80: gerbang gagal (Audit 1157)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub339, ignore_errors=True)
         sub340 = klon(tmp, "sub340")
@@ -7539,7 +7539,7 @@ def main():
         with open(berkas_aksi340, "w", encoding="utf-8") as f:
             f.write(isi_baru340)
         rc, out = jalan(sub340,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rbash: gerbang gagal (Audit 1158)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub340, ignore_errors=True)
         sub341 = klon(tmp, "sub341")
@@ -7560,7 +7560,7 @@ def main():
         with open(berkas_aksi341, "w", encoding="utf-8") as f:
             f.write(isi_baru341)
         rc, out = jalan(sub341,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rzsh: gerbang gagal (Audit 1158)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub341, ignore_errors=True)
         sub342 = klon(tmp, "sub342")
@@ -7581,7 +7581,7 @@ def main():
         with open(berkas_aksi342, "w", encoding="utf-8") as f:
             f.write(isi_baru342)
         rc, out = jalan(sub342,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python3.12: gerbang gagal (Audit 1159)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub342, ignore_errors=True)
         sub343 = klon(tmp, "sub343")
@@ -7602,7 +7602,7 @@ def main():
         with open(berkas_aksi343, "w", encoding="utf-8") as f:
             f.write(isi_baru343)
         rc, out = jalan(sub343,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tclsh8.6: gerbang gagal (Audit 1159)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub343, ignore_errors=True)
         sub344 = klon(tmp, "sub344")
@@ -7623,7 +7623,7 @@ def main():
         with open(berkas_aksi344, "w", encoding="utf-8") as f:
             f.write(isi_baru344)
         rc, out = jalan(sub344,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tclsh8.6 skrip.tcl: gerbang lolos (Audit 1159)", rc == 0)
         shutil.rmtree(sub344, ignore_errors=True)
         sub345 = klon(tmp, "sub345")
@@ -7644,7 +7644,7 @@ def main():
         with open(berkas_aksi345, "w", encoding="utf-8") as f:
             f.write(isi_baru345)
         rc, out = jalan(sub345,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl dsa: gerbang gagal (Audit 1160)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub345, ignore_errors=True)
         sub346 = klon(tmp, "sub346")
@@ -7665,7 +7665,7 @@ def main():
         with open(berkas_aksi346, "w", encoding="utf-8") as f:
             f.write(isi_baru346)
         rc, out = jalan(sub346,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl pkcs12: gerbang gagal (Audit 1160)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub346, ignore_errors=True)
         sub347 = klon(tmp, "sub347")
@@ -7686,7 +7686,7 @@ def main():
         with open(berkas_aksi347, "w", encoding="utf-8") as f:
             f.write(isi_baru347)
         rc, out = jalan(sub347,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl crl2pkcs7: gerbang gagal (Audit 1160)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub347, ignore_errors=True)
         sub348 = klon(tmp, "sub348")
@@ -7707,7 +7707,7 @@ def main():
         with open(berkas_aksi348, "w", encoding="utf-8") as f:
             f.write(isi_baru348)
         rc, out = jalan(sub348,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl dsa -in kunci.pem: gerbang lolos (Audit 1160)", rc == 0)
         shutil.rmtree(sub348, ignore_errors=True)
         sub349 = klon(tmp, "sub349")
@@ -7728,7 +7728,7 @@ def main():
         with open(berkas_aksi349, "w", encoding="utf-8") as f:
             f.write(isi_baru349)
         rc, out = jalan(sub349,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl rsautl -sign -inkey k.pem: gerbang gagal (Audit 1161)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub349, ignore_errors=True)
         sub350 = klon(tmp, "sub350")
@@ -7749,7 +7749,7 @@ def main():
         with open(berkas_aksi350, "w", encoding="utf-8") as f:
             f.write(isi_baru350)
         rc, out = jalan(sub350,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl rsautl -sign -inkey k.pem -in data.bin: gerbang lolos (Audit 1161)", rc == 0)
         shutil.rmtree(sub350, ignore_errors=True)
         sub351 = klon(tmp, "sub351")
@@ -7770,7 +7770,7 @@ def main():
         with open(berkas_aksi351, "w", encoding="utf-8") as f:
             f.write(isi_baru351)
         rc, out = jalan(sub351,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git commit-tree abc123: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub351, ignore_errors=True)
         sub352 = klon(tmp, "sub352")
@@ -7791,7 +7791,7 @@ def main():
         with open(berkas_aksi352, "w", encoding="utf-8") as f:
             f.write(isi_baru352)
         rc, out = jalan(sub352,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git interpret-trailers: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub352, ignore_errors=True)
         sub353 = klon(tmp, "sub353")
@@ -7812,7 +7812,7 @@ def main():
         with open(berkas_aksi353, "w", encoding="utf-8") as f:
             f.write(isi_baru353)
         rc, out = jalan(sub353,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git mailinfo msg patch: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub353, ignore_errors=True)
         sub354 = klon(tmp, "sub354")
@@ -7833,7 +7833,7 @@ def main():
         with open(berkas_aksi354, "w", encoding="utf-8") as f:
             f.write(isi_baru354)
         rc, out = jalan(sub354,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git mailsplit -o/tmp/x: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub354, ignore_errors=True)
         sub355 = klon(tmp, "sub355")
@@ -7854,7 +7854,7 @@ def main():
         with open(berkas_aksi355, "w", encoding="utf-8") as f:
             f.write(isi_baru355)
         rc, out = jalan(sub355,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git mailsplit: gerbang lolos (Audit 1162)", rc == 0)
         shutil.rmtree(sub355, ignore_errors=True)
         sub356 = klon(tmp, "sub356")
@@ -7875,7 +7875,7 @@ def main():
         with open(berkas_aksi356, "w", encoding="utf-8") as f:
             f.write(isi_baru356)
         rc, out = jalan(sub356,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git pack-objects dasar: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub356, ignore_errors=True)
         sub357 = klon(tmp, "sub357")
@@ -7896,7 +7896,7 @@ def main():
         with open(berkas_aksi357, "w", encoding="utf-8") as f:
             f.write(isi_baru357)
         rc, out = jalan(sub357,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git column --mode=column: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub357, ignore_errors=True)
         sub358 = klon(tmp, "sub358")
@@ -7917,7 +7917,7 @@ def main():
         with open(berkas_aksi358, "w", encoding="utf-8") as f:
             f.write(isi_baru358)
         rc, out = jalan(sub358,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git imap-send: gerbang gagal (Audit 1162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub358, ignore_errors=True)
         sub359 = klon(tmp, "sub359")
@@ -7938,7 +7938,7 @@ def main():
         with open(berkas_aksi359, "w", encoding="utf-8") as f:
             f.write(isi_baru359)
         rc, out = jalan(sub359,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git rev-list --stdin: gerbang gagal (Audit 1163)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub359, ignore_errors=True)
         sub360 = klon(tmp, "sub360")
@@ -7959,7 +7959,7 @@ def main():
         with open(berkas_aksi360, "w", encoding="utf-8") as f:
             f.write(isi_baru360)
         rc, out = jalan(sub360,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git check-mailmap --stdin: gerbang gagal (Audit 1163)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub360, ignore_errors=True)
         sub361 = klon(tmp, "sub361")
@@ -7980,7 +7980,7 @@ def main():
         with open(berkas_aksi361, "w", encoding="utf-8") as f:
             f.write(isi_baru361)
         rc, out = jalan(sub361,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git credential-store get: gerbang gagal (Audit 1163)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub361, ignore_errors=True)
         sub362 = klon(tmp, "sub362")
@@ -8001,7 +8001,7 @@ def main():
         with open(berkas_aksi362, "w", encoding="utf-8") as f:
             f.write(isi_baru362)
         rc, out = jalan(sub362,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git rev-list HEAD: gerbang lolos (Audit 1163)", rc == 0)
         shutil.rmtree(sub362, ignore_errors=True)
         sub363 = klon(tmp, "sub363")
@@ -8022,7 +8022,7 @@ def main():
         with open(berkas_aksi363, "w", encoding="utf-8") as f:
             f.write(isi_baru363)
         rc, out = jalan(sub363,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sort --key 2: gerbang gagal (Audit 1164)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub363, ignore_errors=True)
         sub364 = klon(tmp, "sub364")
@@ -8043,7 +8043,7 @@ def main():
         with open(berkas_aksi364, "w", encoding="utf-8") as f:
             f.write(isi_baru364)
         rc, out = jalan(sub364,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("uniq --skip-chars 2: gerbang gagal (Audit 1165)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub364, ignore_errors=True)
         sub365 = klon(tmp, "sub365")
@@ -8064,7 +8064,7 @@ def main():
         with open(berkas_aksi365, "w", encoding="utf-8") as f:
             f.write(isi_baru365)
         rc, out = jalan(sub365,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tail --sleep-interval 1: gerbang gagal (Audit 1166)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub365, ignore_errors=True)
         sub366 = klon(tmp, "sub366")
@@ -8085,7 +8085,7 @@ def main():
         with open(berkas_aksi366, "w", encoding="utf-8") as f:
             f.write(isi_baru366)
         rc, out = jalan(sub366,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pr -d berkas: gerbang lolos (Audit 1167)", rc == 0)
         shutil.rmtree(sub366, ignore_errors=True)
         sub367 = klon(tmp, "sub367")
@@ -8106,7 +8106,7 @@ def main():
         with open(berkas_aksi367, "w", encoding="utf-8") as f:
             f.write(isi_baru367)
         rc, out = jalan(sub367,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pr -D %Y: gerbang gagal (Audit 1167)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub367, ignore_errors=True)
         sub368 = klon(tmp, "sub368")
@@ -8127,7 +8127,7 @@ def main():
         with open(berkas_aksi368, "w", encoding="utf-8") as f:
             f.write(isi_baru368)
         rc, out = jalan(sub368,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("strings -T elf64-x86-64: gerbang gagal (Audit 1168)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub368, ignore_errors=True)
         sub369 = klon(tmp, "sub369")
@@ -8148,7 +8148,7 @@ def main():
         with open(berkas_aksi369, "w", encoding="utf-8") as f:
             f.write(isi_baru369)
         rc, out = jalan(sub369,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("split --filter cat -l 1 -: gerbang gagal (Audit 1169)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub369, ignore_errors=True)
         sub370 = klon(tmp, "sub370")
@@ -8169,7 +8169,7 @@ def main():
         with open(berkas_aksi370, "w", encoding="utf-8") as f:
             f.write(isi_baru370)
         rc, out = jalan(sub370,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("logger --msgid abc: gerbang gagal (Audit 1170)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub370, ignore_errors=True)
         sub371 = klon(tmp, "sub371")
@@ -8190,7 +8190,7 @@ def main():
         with open(berkas_aksi371, "w", encoding="utf-8") as f:
             f.write(isi_baru371)
         rc, out = jalan(sub371,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cksum -a blake2b -l 32: gerbang gagal (Audit 1171)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub371, ignore_errors=True)
         sub372 = klon(tmp, "sub372")
@@ -8211,7 +8211,7 @@ def main():
         with open(berkas_aksi372, "w", encoding="utf-8") as f:
             f.write(isi_baru372)
         rc, out = jalan(sub372,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xz -F lzma -c: gerbang gagal (Audit 1172)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub372, ignore_errors=True)
         sub373 = klon(tmp, "sub373")
@@ -8232,7 +8232,7 @@ def main():
         with open(berkas_aksi373, "w", encoding="utf-8") as f:
             f.write(isi_baru373)
         rc, out = jalan(sub373,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unxz -F lzma: gerbang gagal (Audit 1172)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub373, ignore_errors=True)
         sub374 = klon(tmp, "sub374")
@@ -8253,7 +8253,7 @@ def main():
         with open(berkas_aksi374, "w", encoding="utf-8") as f:
             f.write(isi_baru374)
         rc, out = jalan(sub374,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("od --endian little: gerbang gagal (Audit 1173)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub374, ignore_errors=True)
         sub375 = klon(tmp, "sub375")
@@ -8274,7 +8274,7 @@ def main():
         with open(berkas_aksi375, "w", encoding="utf-8") as f:
             f.write(isi_baru375)
         rc, out = jalan(sub375,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ptx -o daftar: gerbang gagal (Audit 1174)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub375, ignore_errors=True)
         sub376 = klon(tmp, "sub376")
@@ -8295,7 +8295,7 @@ def main():
         with open(berkas_aksi376, "w", encoding="utf-8") as f:
             f.write(isi_baru376)
         rc, out = jalan(sub376,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sqlite3 -newline X berkas.db: gerbang gagal (Audit 1175)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub376, ignore_errors=True)
         sub377 = klon(tmp, "sub377")
@@ -8316,7 +8316,7 @@ def main():
         with open(berkas_aksi377, "w", encoding="utf-8") as f:
             f.write(isi_baru377)
         rc, out = jalan(sub377,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sqlite3 berkas.db 'select 1': gerbang lolos (Audit 1175)", rc == 0)
         shutil.rmtree(sub377, ignore_errors=True)
         sub378 = klon(tmp, "sub378")
@@ -8337,7 +8337,7 @@ def main():
         with open(berkas_aksi378, "w", encoding="utf-8") as f:
             f.write(isi_baru378)
         rc, out = jalan(sub378,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep --group-separator SEP pola: gerbang gagal (Audit 1176)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub378, ignore_errors=True)
         sub379 = klon(tmp, "sub379")
@@ -8358,7 +8358,7 @@ def main():
         with open(berkas_aksi379, "w", encoding="utf-8") as f:
             f.write(isi_baru379)
         rc, out = jalan(sub379,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar -t --help: gerbang lolos (Audit 1180)", rc == 0)
         shutil.rmtree(sub379, ignore_errors=True)
         sub380 = klon(tmp, "sub380")
@@ -8379,7 +8379,7 @@ def main():
         with open(berkas_aksi380, "w", encoding="utf-8") as f:
             f.write(isi_baru380)
         rc, out = jalan(sub380,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("more -f --help: gerbang lolos (Audit 1180)", rc == 0)
         shutil.rmtree(sub380, ignore_errors=True)
         sub381 = klon(tmp, "sub381")
@@ -8400,7 +8400,7 @@ def main():
         with open(berkas_aksi381, "w", encoding="utf-8") as f:
             f.write(isi_baru381)
         rc, out = jalan(sub381,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sqlite3 -init --help contoh.db: gerbang gagal (Audit 1181)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub381, ignore_errors=True)
         sub382 = klon(tmp, "sub382")
@@ -8421,7 +8421,7 @@ def main():
         with open(berkas_aksi382, "w", encoding="utf-8") as f:
             f.write(isi_baru382)
         rc, out = jalan(sub382,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("expect -c 'puts x' -: gerbang gagal (Audit 1182)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub382, ignore_errors=True)
         sub383 = klon(tmp, "sub383")
@@ -8442,7 +8442,7 @@ def main():
         with open(berkas_aksi383, "w", encoding="utf-8") as f:
             f.write(isi_baru383)
         rc, out = jalan(sub383,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tclsh8.6 -encoding utf-8: gerbang gagal (Audit 1183)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub383, ignore_errors=True)
         sub384 = klon(tmp, "sub384")
@@ -8463,7 +8463,7 @@ def main():
         with open(berkas_aksi384, "w", encoding="utf-8") as f:
             f.write(isi_baru384)
         rc, out = jalan(sub384,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git column --indent xx: gerbang gagal (Audit 1184)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub384, ignore_errors=True)
         sub385 = klon(tmp, "sub385")
@@ -8484,7 +8484,7 @@ def main():
         with open(berkas_aksi385, "w", encoding="utf-8") as f:
             f.write(isi_baru385)
         rc, out = jalan(sub385,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git check-mailmap: gerbang lolos (Audit 1185)", rc == 0)
         shutil.rmtree(sub385, ignore_errors=True)
         sub386 = klon(tmp, "sub386")
@@ -8505,7 +8505,7 @@ def main():
         with open(berkas_aksi386, "w", encoding="utf-8") as f:
             f.write(isi_baru386)
         rc, out = jalan(sub386,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git credential-store: gerbang lolos (Audit 1186)", rc == 0)
         shutil.rmtree(sub386, ignore_errors=True)
         sub387 = klon(tmp, "sub387")
@@ -8526,7 +8526,7 @@ def main():
         with open(berkas_aksi387, "w", encoding="utf-8") as f:
             f.write(isi_baru387)
         rc, out = jalan(sub387,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar -t -f - -T: gerbang lolos (Audit 1187)", rc == 0)
         shutil.rmtree(sub387, ignore_errors=True)
         sub388 = klon(tmp, "sub388")
@@ -8547,7 +8547,7 @@ def main():
         with open(berkas_aksi388, "w", encoding="utf-8") as f:
             f.write(isi_baru388)
         rc, out = jalan(sub388,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tar -t --files-from=: gerbang lolos (Audit 1188)", rc == 0)
         shutil.rmtree(sub388, ignore_errors=True)
         sub389 = klon(tmp, "sub389")
@@ -8568,7 +8568,7 @@ def main():
         with open(berkas_aksi389, "w", encoding="utf-8") as f:
             f.write(isi_baru389)
         rc, out = jalan(sub389,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("prlimit --pid 1 cat: gerbang lolos (Audit 1189)", rc == 0)
         shutil.rmtree(sub389, ignore_errors=True)
         sub390 = klon(tmp, "sub390")
@@ -8589,7 +8589,7 @@ def main():
         with open(berkas_aksi390, "w", encoding="utf-8") as f:
             f.write(isi_baru390)
         rc, out = jalan(sub390,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("funzip: gerbang gagal (Audit 1191)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub390, ignore_errors=True)
         sub391 = klon(tmp, "sub391")
@@ -8610,7 +8610,7 @@ def main():
         with open(berkas_aksi391, "w", encoding="utf-8") as f:
             f.write(isi_baru391)
         rc, out = jalan(sub391,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("json_pp: gerbang gagal (Audit 1192)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub391, ignore_errors=True)
         sub392 = klon(tmp, "sub392")
@@ -8631,7 +8631,7 @@ def main():
         with open(berkas_aksi392, "w", encoding="utf-8") as f:
             f.write(isi_baru392)
         rc, out = jalan(sub392,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdftotext - -: gerbang gagal (Audit 1193)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub392, ignore_errors=True)
         sub393 = klon(tmp, "sub393")
@@ -8652,7 +8652,7 @@ def main():
         with open(berkas_aksi393, "w", encoding="utf-8") as f:
             f.write(isi_baru393)
         rc, out = jalan(sub393,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("newgrp: gerbang gagal (Audit 1194)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub393, ignore_errors=True)
         sub394 = klon(tmp, "sub394")
@@ -8673,7 +8673,7 @@ def main():
         with open(berkas_aksi394, "w", encoding="utf-8") as f:
             f.write(isi_baru394)
         rc, out = jalan(sub394,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nft -f -: gerbang gagal (Audit 1195)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub394, ignore_errors=True)
         sub395 = klon(tmp, "sub395")
@@ -8694,7 +8694,7 @@ def main():
         with open(berkas_aksi395, "w", encoding="utf-8") as f:
             f.write(isi_baru395)
         rc, out = jalan(sub395,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("iptables-restore: gerbang gagal (Audit 1196)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub395, ignore_errors=True)
         sub396 = klon(tmp, "sub396")
@@ -8715,7 +8715,7 @@ def main():
         with open(berkas_aksi396, "w", encoding="utf-8") as f:
             f.write(isi_baru396)
         rc, out = jalan(sub396,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ip6tables-restore --table filter: gerbang gagal (Audit 1196)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub396, ignore_errors=True)
         sub397 = klon(tmp, "sub397")
@@ -8736,7 +8736,7 @@ def main():
         with open(berkas_aksi397, "w", encoding="utf-8") as f:
             f.write(isi_baru397)
         rc, out = jalan(sub397,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ip -batch -: gerbang gagal (Audit 1197)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub397, ignore_errors=True)
         sub398 = klon(tmp, "sub398")
@@ -8757,7 +8757,7 @@ def main():
         with open(berkas_aksi398, "w", encoding="utf-8") as f:
             f.write(isi_baru398)
         rc, out = jalan(sub398,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tc -batch daftar.txt: gerbang lolos (Audit 1197)", rc == 0)
         shutil.rmtree(sub398, ignore_errors=True)
         sub399 = klon(tmp, "sub399")
@@ -8778,7 +8778,7 @@ def main():
         with open(berkas_aksi399, "w", encoding="utf-8") as f:
             f.write(isi_baru399)
         rc, out = jalan(sub399,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dpkg --set-selections: gerbang gagal (Audit 1198)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub399, ignore_errors=True)
         sub400 = klon(tmp, "sub400")
@@ -8799,7 +8799,7 @@ def main():
         with open(berkas_aksi400, "w", encoding="utf-8") as f:
             f.write(isi_baru400)
         rc, out = jalan(sub400,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lzcat: gerbang gagal (Audit 1199)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub400, ignore_errors=True)
         sub401 = klon(tmp, "sub401")
@@ -8820,7 +8820,7 @@ def main():
         with open(berkas_aksi401, "w", encoding="utf-8") as f:
             f.write(isi_baru401)
         rc, out = jalan(sub401,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("file -: gerbang gagal (Audit 1200)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub401, ignore_errors=True)
         sub402 = klon(tmp, "sub402")
@@ -8841,7 +8841,7 @@ def main():
         with open(berkas_aksi402, "w", encoding="utf-8") as f:
             f.write(isi_baru402)
         rc, out = jalan(sub402,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("file -f -: gerbang gagal (Audit 1200)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub402, ignore_errors=True)
         sub403 = klon(tmp, "sub403")
@@ -8862,7 +8862,7 @@ def main():
         with open(berkas_aksi403, "w", encoding="utf-8") as f:
             f.write(isi_baru403)
         rc, out = jalan(sub403,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("date -f -: gerbang gagal (Audit 1201)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub403, ignore_errors=True)
         sub404 = klon(tmp, "sub404")
@@ -8883,7 +8883,7 @@ def main():
         with open(berkas_aksi404, "w", encoding="utf-8") as f:
             f.write(isi_baru404)
         rc, out = jalan(sub404,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sysctl -p -: gerbang gagal (Audit 1202)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub404, ignore_errors=True)
         sub405 = klon(tmp, "sub405")
@@ -8904,7 +8904,7 @@ def main():
         with open(berkas_aksi405, "w", encoding="utf-8") as f:
             f.write(isi_baru405)
         rc, out = jalan(sub405,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ssh-agent cat: gerbang gagal (Audit 1203)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub405, ignore_errors=True)
         sub406 = klon(tmp, "sub406")
@@ -8925,7 +8925,7 @@ def main():
         with open(berkas_aksi406, "w", encoding="utf-8") as f:
             f.write(isi_baru406)
         rc, out = jalan(sub406,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bun repl: gerbang gagal (Audit 1204)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub406, ignore_errors=True)
         sub407 = klon(tmp, "sub407")
@@ -8946,7 +8946,7 @@ def main():
         with open(berkas_aksi407, "w", encoding="utf-8") as f:
             f.write(isi_baru407)
         rc, out = jalan(sub407,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bun: gerbang lolos (Audit 1204)", rc == 0)
         shutil.rmtree(sub407, ignore_errors=True)
         sub408 = klon(tmp, "sub408")
@@ -8967,7 +8967,7 @@ def main():
         with open(berkas_aksi408, "w", encoding="utf-8") as f:
             f.write(isi_baru408)
         rc, out = jalan(sub408,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git am: gerbang gagal (Audit 1205)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub408, ignore_errors=True)
         sub409 = klon(tmp, "sub409")
@@ -8988,7 +8988,7 @@ def main():
         with open(berkas_aksi409, "w", encoding="utf-8") as f:
             f.write(isi_baru409)
         rc, out = jalan(sub409,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git shortlog: gerbang gagal (Audit 1205)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub409, ignore_errors=True)
         sub410 = klon(tmp, "sub410")
@@ -9009,7 +9009,7 @@ def main():
         with open(berkas_aksi410, "w", encoding="utf-8") as f:
             f.write(isi_baru410)
         rc, out = jalan(sub410,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git update-ref --stdin: gerbang gagal (Audit 1206)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub410, ignore_errors=True)
         sub411 = klon(tmp, "sub411")
@@ -9030,7 +9030,7 @@ def main():
         with open(berkas_aksi411, "w", encoding="utf-8") as f:
             f.write(isi_baru411)
         rc, out = jalan(sub411,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git name-rev --stdin: gerbang gagal (Audit 1206)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub411, ignore_errors=True)
         sub412 = klon(tmp, "sub412")
@@ -9051,7 +9051,7 @@ def main():
         with open(berkas_aksi412, "w", encoding="utf-8") as f:
             f.write(isi_baru412)
         rc, out = jalan(sub412,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git notes add -F - HEAD: gerbang gagal (Audit 1207)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub412, ignore_errors=True)
         sub413 = klon(tmp, "sub413")
@@ -9072,7 +9072,7 @@ def main():
         with open(berkas_aksi413, "w", encoding="utf-8") as f:
             f.write(isi_baru413)
         rc, out = jalan(sub413,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git add --pathspec-from-file=-: gerbang gagal (Audit 1207)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub413, ignore_errors=True)
         sub414 = klon(tmp, "sub414")
@@ -9093,7 +9093,7 @@ def main():
         with open(berkas_aksi414, "w", encoding="utf-8") as f:
             f.write(isi_baru414)
         rc, out = jalan(sub414,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pr --columns 2: gerbang gagal (Audit 1208)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub414, ignore_errors=True)
         sub415 = klon(tmp, "sub415")
@@ -9114,7 +9114,7 @@ def main():
         with open(berkas_aksi415, "w", encoding="utf-8") as f:
             f.write(isi_baru415)
         rc, out = jalan(sub415,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pr -n berkas.txt: gerbang lolos (Audit 1208)", rc == 0)
         shutil.rmtree(sub415, ignore_errors=True)
         sub416 = klon(tmp, "sub416")
@@ -9135,7 +9135,7 @@ def main():
         with open(berkas_aksi416, "w", encoding="utf-8") as f:
             f.write(isi_baru416)
         rc, out = jalan(sub416,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nl --section-delimiter xx: gerbang gagal (Audit 1209)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub416, ignore_errors=True)
         sub417 = klon(tmp, "sub417")
@@ -9156,7 +9156,7 @@ def main():
         with open(berkas_aksi417, "w", encoding="utf-8") as f:
             f.write(isi_baru417)
         rc, out = jalan(sub417,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ptx -g 3: gerbang gagal (Audit 1210)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub417, ignore_errors=True)
         sub418 = klon(tmp, "sub418")
@@ -9177,7 +9177,7 @@ def main():
         with open(berkas_aksi418, "w", encoding="utf-8") as f:
             f.write(isi_baru418)
         rc, out = jalan(sub418,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ptx -G berkas.txt: gerbang lolos (Audit 1210)", rc == 0)
         shutil.rmtree(sub418, ignore_errors=True)
         sub419 = klon(tmp, "sub419")
@@ -9198,7 +9198,7 @@ def main():
         with open(berkas_aksi419, "w", encoding="utf-8") as f:
             f.write(isi_baru419)
         rc, out = jalan(sub419,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("wall -t 5: gerbang gagal (Audit 1211)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub419, ignore_errors=True)
         sub420 = klon(tmp, "sub420")
@@ -9219,7 +9219,7 @@ def main():
         with open(berkas_aksi420, "w", encoding="utf-8") as f:
             f.write(isi_baru420)
         rc, out = jalan(sub420,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("logger --id pesan: gerbang lolos (Audit 1212)", rc == 0)
         shutil.rmtree(sub420, ignore_errors=True)
         sub421 = klon(tmp, "sub421")
@@ -9240,7 +9240,7 @@ def main():
         with open(berkas_aksi421, "w", encoding="utf-8") as f:
             f.write(isi_baru421)
         rc, out = jalan(sub421,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lzma -F lzma -c: gerbang gagal (Audit 1213)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub421, ignore_errors=True)
         sub422 = klon(tmp, "sub422")
@@ -9261,7 +9261,7 @@ def main():
         with open(berkas_aksi422, "w", encoding="utf-8") as f:
             f.write(isi_baru422)
         rc, out = jalan(sub422,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zcat --suffix .zz: gerbang gagal (Audit 1213)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub422, ignore_errors=True)
         sub423 = klon(tmp, "sub423")
@@ -9282,7 +9282,7 @@ def main():
         with open(berkas_aksi423, "w", encoding="utf-8") as f:
             f.write(isi_baru423)
         rc, out = jalan(sub423,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl dgst -list: gerbang lolos (Audit 1214)", rc == 0)
         shutil.rmtree(sub423, ignore_errors=True)
         sub424 = klon(tmp, "sub424")
@@ -9303,7 +9303,7 @@ def main():
         with open(berkas_aksi424, "w", encoding="utf-8") as f:
             f.write(isi_baru424)
         rc, out = jalan(sub424,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl enc -ciphers: gerbang lolos (Audit 1214)", rc == 0)
         shutil.rmtree(sub424, ignore_errors=True)
         sub425 = klon(tmp, "sub425")
@@ -9324,7 +9324,7 @@ def main():
         with open(berkas_aksi425, "w", encoding="utf-8") as f:
             f.write(isi_baru425)
         rc, out = jalan(sub425,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl x509 -in -: gerbang lolos (Audit 1215)", rc == 0)
         shutil.rmtree(sub425, ignore_errors=True)
         sub426 = klon(tmp, "sub426")
@@ -9345,7 +9345,7 @@ def main():
         with open(berkas_aksi426, "w", encoding="utf-8") as f:
             f.write(isi_baru426)
         rc, out = jalan(sub426,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl x509: gerbang gagal (Audit 1215)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub426, ignore_errors=True)
         sub427 = klon(tmp, "sub427")
@@ -9366,7 +9366,7 @@ def main():
         with open(berkas_aksi427, "w", encoding="utf-8") as f:
             f.write(isi_baru427)
         rc, out = jalan(sub427,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl pkcs7 -in -: gerbang gagal (Audit 1215)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub427, ignore_errors=True)
         sub428 = klon(tmp, "sub428")
@@ -9386,7 +9386,7 @@ def main():
             "suntikan aksi428 tidak menembak"
         with open(berkas_aksi428, "w", encoding="utf-8") as f:
             f.write(isi_baru428)
-        rc, out = jalan(sub428, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub428, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("less -f --help: "
                 "gerbang lolos (Audit 1216)", rc == 0)
         shutil.rmtree(sub428, ignore_errors=True)
@@ -9407,7 +9407,7 @@ def main():
             "suntikan aksi429 tidak menembak"
         with open(berkas_aksi429, "w", encoding="utf-8") as f:
             f.write(isi_baru429)
-        rc, out = jalan(sub429, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub429, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("patch -t --help: "
                 "gerbang lolos (Audit 1217)", rc == 0)
         shutil.rmtree(sub429, ignore_errors=True)
@@ -9428,7 +9428,7 @@ def main():
             "suntikan aksi430 tidak menembak"
         with open(berkas_aksi430, "w", encoding="utf-8") as f:
             f.write(isi_baru430)
-        rc, out = jalan(sub430, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub430, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git check-mailmap -: "
                 "gerbang lolos (Audit 1218)", rc == 0)
         shutil.rmtree(sub430, ignore_errors=True)
@@ -9449,7 +9449,7 @@ def main():
             "suntikan aksi431 tidak menembak"
         with open(berkas_aksi431, "w", encoding="utf-8") as f:
             f.write(isi_baru431)
-        rc, out = jalan(sub431, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub431, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git check-mailmap --stdin -: "
                 "gerbang lolos (Audit 1219)", rc == 0)
         shutil.rmtree(sub431, ignore_errors=True)
@@ -9470,7 +9470,7 @@ def main():
             "suntikan aksi432 tidak menembak"
         with open(berkas_aksi432, "w", encoding="utf-8") as f:
             f.write(isi_baru432)
-        rc, out = jalan(sub432, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub432, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git credential-store --file get: "
                 "gerbang lolos (Audit 1220)", rc == 0)
         shutil.rmtree(sub432, ignore_errors=True)
@@ -9491,7 +9491,7 @@ def main():
             "suntikan aksi433 tidak menembak"
         with open(berkas_aksi433, "w", encoding="utf-8") as f:
             f.write(isi_baru433)
-        rc, out = jalan(sub433, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub433, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git credential-store get: "
                 "gerbang gagal (Audit 1220)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub433, ignore_errors=True)
@@ -9512,7 +9512,7 @@ def main():
             "suntikan aksi434 tidak menembak"
         with open(berkas_aksi434, "w", encoding="utf-8") as f:
             f.write(isi_baru434)
-        rc, out = jalan(sub434, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub434, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git am --exclude foo: "
                 "gerbang gagal (Audit 1221)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub434, ignore_errors=True)
@@ -9533,7 +9533,7 @@ def main():
             "suntikan aksi435 tidak menembak"
         with open(berkas_aksi435, "w", encoding="utf-8") as f:
             f.write(isi_baru435)
-        rc, out = jalan(sub435, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub435, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git shortlog -w HEAD: "
                 "gerbang lolos (Audit 1222)", rc == 0)
         shutil.rmtree(sub435, ignore_errors=True)
@@ -9554,7 +9554,7 @@ def main():
             "suntikan aksi436 tidak menembak"
         with open(berkas_aksi436, "w", encoding="utf-8") as f:
             f.write(isi_baru436)
-        rc, out = jalan(sub436, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub436, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git shortlog --group author: "
                 "gerbang gagal (Audit 1223)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub436, ignore_errors=True)
@@ -9575,7 +9575,7 @@ def main():
             "suntikan aksi437 tidak menembak"
         with open(berkas_aksi437, "w", encoding="utf-8") as f:
             f.write(isi_baru437)
-        rc, out = jalan(sub437, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub437, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git check-ignore --stdin berkas.txt: "
                 "gerbang lolos (Audit 1224)", rc == 0)
         shutil.rmtree(sub437, ignore_errors=True)
@@ -9596,7 +9596,7 @@ def main():
             "suntikan aksi438 tidak menembak"
         with open(berkas_aksi438, "w", encoding="utf-8") as f:
             f.write(isi_baru438)
-        rc, out = jalan(sub438, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub438, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git notes add -F- HEAD: "
                 "gerbang gagal (Audit 1225)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub438, ignore_errors=True)
@@ -9617,7 +9617,7 @@ def main():
             "suntikan aksi439 tidak menembak"
         with open(berkas_aksi439, "w", encoding="utf-8") as f:
             f.write(isi_baru439)
-        rc, out = jalan(sub439, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub439, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git add --pathspec-from-file -: "
                 "gerbang gagal (Audit 1226)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub439, ignore_errors=True)
@@ -9638,7 +9638,7 @@ def main():
             "suntikan aksi440 tidak menembak"
         with open(berkas_aksi440, "w", encoding="utf-8") as f:
             f.write(isi_baru440)
-        rc, out = jalan(sub440, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub440, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git rev-list --pathspec-from-file=-: "
                 "gerbang lolos (Audit 1227)", rc == 0)
         shutil.rmtree(sub440, ignore_errors=True)
@@ -9659,7 +9659,7 @@ def main():
             "suntikan aksi441 tidak menembak"
         with open(berkas_aksi441, "w", encoding="utf-8") as f:
             f.write(isi_baru441)
-        rc, out = jalan(sub441, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub441, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("prlimit tail --pid 999999: "
                 "gerbang gagal (Audit 1228)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub441, ignore_errors=True)
@@ -9680,7 +9680,7 @@ def main():
             "suntikan aksi442 tidak menembak"
         with open(berkas_aksi442, "w", encoding="utf-8") as f:
             f.write(isi_baru442)
-        rc, out = jalan(sub442, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub442, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("prlimit --pid 999999: "
                 "gerbang lolos (Audit 1228)", rc == 0)
         shutil.rmtree(sub442, ignore_errors=True)
@@ -9701,7 +9701,7 @@ def main():
             "suntikan aksi443 tidak menembak"
         with open(berkas_aksi443, "w", encoding="utf-8") as f:
             f.write(isi_baru443)
-        rc, out = jalan(sub443, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub443, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("file - -f daftar.txt: "
                 "gerbang gagal (Audit 1229)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub443, ignore_errors=True)
@@ -9722,7 +9722,7 @@ def main():
             "suntikan aksi444 tidak menembak"
         with open(berkas_aksi444, "w", encoding="utf-8") as f:
             f.write(isi_baru444)
-        rc, out = jalan(sub444, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub444, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("date -f-: "
                 "gerbang gagal (Audit 1230)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub444, ignore_errors=True)
@@ -9743,7 +9743,7 @@ def main():
             "suntikan aksi445 tidak menembak"
         with open(berkas_aksi445, "w", encoding="utf-8") as f:
             f.write(isi_baru445)
-        rc, out = jalan(sub445, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub445, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sysctl -p berkas.conf -p -: "
                 "gerbang gagal (Audit 1231)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub445, ignore_errors=True)
@@ -9764,7 +9764,7 @@ def main():
             "suntikan aksi446 tidak menembak"
         with open(berkas_aksi446, "w", encoding="utf-8") as f:
             f.write(isi_baru446)
-        rc, out = jalan(sub446, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub446, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdftotext -cfg - berkas.pdf: "
                 "gerbang lolos (Audit 1232)", rc == 0)
         shutil.rmtree(sub446, ignore_errors=True)
@@ -9785,7 +9785,7 @@ def main():
             "suntikan aksi447 tidak menembak"
         with open(berkas_aksi447, "w", encoding="utf-8") as f:
             f.write(isi_baru447)
-        rc, out = jalan(sub447, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub447, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nft -f-: "
                 "gerbang gagal (Audit 1233)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub447, ignore_errors=True)
@@ -9806,7 +9806,7 @@ def main():
             "suntikan aksi448 tidak menembak"
         with open(berkas_aksi448, "w", encoding="utf-8") as f:
             f.write(isi_baru448)
-        rc, out = jalan(sub448, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub448, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pr -s berkas.txt: "
                 "gerbang lolos (Audit 1234)", rc == 0)
         shutil.rmtree(sub448, ignore_errors=True)
@@ -9827,7 +9827,7 @@ def main():
             "suntikan aksi449 tidak menembak"
         with open(berkas_aksi449, "w", encoding="utf-8") as f:
             f.write(isi_baru449)
-        rc, out = jalan(sub449, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub449, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pr --separator berkas.txt: "
                 "gerbang lolos (Audit 1234)", rc == 0)
         shutil.rmtree(sub449, ignore_errors=True)
@@ -9848,7 +9848,7 @@ def main():
             "suntikan aksi450 tidak menembak"
         with open(berkas_aksi450, "w", encoding="utf-8") as f:
             f.write(isi_baru450)
-        rc, out = jalan(sub450, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub450, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ptx -F xx: "
                 "gerbang gagal (Audit 1235)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub450, ignore_errors=True)
@@ -9869,7 +9869,7 @@ def main():
             "suntikan aksi451 tidak menembak"
         with open(berkas_aksi451, "w", encoding="utf-8") as f:
             f.write(isi_baru451)
-        rc, out = jalan(sub451, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub451, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("wall -g users: "
                 "gerbang gagal (Audit 1236)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub451, ignore_errors=True)
@@ -9890,7 +9890,7 @@ def main():
             "suntikan aksi452 tidak menembak"
         with open(berkas_aksi452, "w", encoding="utf-8") as f:
             f.write(isi_baru452)
-        rc, out = jalan(sub452, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub452, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xzcat --suffix .zz: "
                 "gerbang gagal (Audit 1237)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub452, ignore_errors=True)
@@ -9911,7 +9911,7 @@ def main():
             "suntikan aksi453 tidak menembak"
         with open(berkas_aksi453, "w", encoding="utf-8") as f:
             f.write(isi_baru453)
-        rc, out = jalan(sub453, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub453, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lzcat --suffix .zz: "
                 "gerbang gagal (Audit 1238)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub453, ignore_errors=True)
@@ -9932,7 +9932,7 @@ def main():
             "suntikan aksi454 tidak menembak"
         with open(berkas_aksi454, "w", encoding="utf-8") as f:
             f.write(isi_baru454)
-        rc, out = jalan(sub454, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub454, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl x509 -in /dev/stdin: "
                 "gerbang gagal (Audit 1239)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub454, ignore_errors=True)
@@ -9953,7 +9953,7 @@ def main():
             "suntikan aksi455 tidak menembak"
         with open(berkas_aksi455, "w", encoding="utf-8") as f:
             f.write(isi_baru455)
-        rc, out = jalan(sub455, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub455, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl pkcs7 -in /dev/stdin: "
                 "gerbang gagal (Audit 1239)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub455, ignore_errors=True)
@@ -9974,7 +9974,7 @@ def main():
             "suntikan aksi456 tidak menembak"
         with open(berkas_aksi456, "w", encoding="utf-8") as f:
             f.write(isi_baru456)
-        rc, out = jalan(sub456, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub456, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl dgst --list: "
                 "gerbang lolos (Audit 1240)", rc == 0)
         shutil.rmtree(sub456, ignore_errors=True)
@@ -9995,7 +9995,7 @@ def main():
             "suntikan aksi457 tidak menembak"
         with open(berkas_aksi457, "w", encoding="utf-8") as f:
             f.write(isi_baru457)
-        rc, out = jalan(sub457, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub457, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("od -S 3: "
                 "gerbang gagal (Audit 1241)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub457, ignore_errors=True)
@@ -10016,7 +10016,7 @@ def main():
             "suntikan aksi458 tidak menembak"
         with open(berkas_aksi458, "w", encoding="utf-8") as f:
             f.write(isi_baru458)
-        rc, out = jalan(sub458, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub458, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("od -w berkas.txt: "
                 "gerbang lolos (Audit 1241)", rc == 0)
         shutil.rmtree(sub458, ignore_errors=True)
@@ -10037,7 +10037,7 @@ def main():
             "suntikan aksi459 tidak menembak"
         with open(berkas_aksi459, "w", encoding="utf-8") as f:
             f.write(isi_baru459)
-        rc, out = jalan(sub459, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub459, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("od +16: "
                 "gerbang gagal (Audit 1241)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub459, ignore_errors=True)
@@ -10058,7 +10058,7 @@ def main():
             "suntikan aksi460 tidak menembak"
         with open(berkas_aksi460, "w", encoding="utf-8") as f:
             f.write(isi_baru460)
-        rc, out = jalan(sub460, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub460, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("strings -s X: "
                 "gerbang gagal (Audit 1242)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub460, ignore_errors=True)
@@ -10079,7 +10079,7 @@ def main():
             "suntikan aksi461 tidak menembak"
         with open(berkas_aksi461, "w", encoding="utf-8") as f:
             f.write(isi_baru461)
-        rc, out = jalan(sub461, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub461, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("strings -U d: "
                 "gerbang gagal (Audit 1242)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub461, ignore_errors=True)
@@ -10100,7 +10100,7 @@ def main():
             "suntikan aksi462 tidak menembak"
         with open(berkas_aksi462, "w", encoding="utf-8") as f:
             f.write(isi_baru462)
-        rc, out = jalan(sub462, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub462, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("json_pp -f json: "
                 "gerbang gagal (Audit 1243)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub462, ignore_errors=True)
@@ -10121,7 +10121,7 @@ def main():
             "suntikan aksi463 tidak menembak"
         with open(berkas_aksi463, "w", encoding="utf-8") as f:
             f.write(isi_baru463)
-        rc, out = jalan(sub463, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub463, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zgrep pola: "
                 "gerbang gagal (Audit 1244)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub463, ignore_errors=True)
@@ -10142,7 +10142,7 @@ def main():
             "suntikan aksi464 tidak menembak"
         with open(berkas_aksi464, "w", encoding="utf-8") as f:
             f.write(isi_baru464)
-        rc, out = jalan(sub464, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub464, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xzgrep pola: "
                 "gerbang gagal (Audit 1244)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub464, ignore_errors=True)
@@ -10163,7 +10163,7 @@ def main():
             "suntikan aksi465 tidak menembak"
         with open(berkas_aksi465, "w", encoding="utf-8") as f:
             f.write(isi_baru465)
-        rc, out = jalan(sub465, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub465, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("shasum: "
                 "gerbang gagal (Audit 1245)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub465, ignore_errors=True)
@@ -10184,7 +10184,7 @@ def main():
             "suntikan aksi466 tidak menembak"
         with open(berkas_aksi466, "w", encoding="utf-8") as f:
             f.write(isi_baru466)
-        rc, out = jalan(sub466, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub466, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("md5sum.textutils: "
                 "gerbang gagal (Audit 1245)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub466, ignore_errors=True)
@@ -10205,7 +10205,7 @@ def main():
             "suntikan aksi467 tidak menembak"
         with open(berkas_aksi467, "w", encoding="utf-8") as f:
             f.write(isi_baru467)
-        rc, out = jalan(sub467, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub467, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("uconv -f UTF-8 -t UTF-8: "
                 "gerbang gagal (Audit 1246)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub467, ignore_errors=True)
@@ -10226,7 +10226,7 @@ def main():
             "suntikan aksi468 tidak menembak"
         with open(berkas_aksi468, "w", encoding="utf-8") as f:
             f.write(isi_baru468)
-        rc, out = jalan(sub468, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub468, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("piconv -f utf8 -t utf8: "
                 "gerbang gagal (Audit 1247)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub468, ignore_errors=True)
@@ -10247,7 +10247,7 @@ def main():
             "suntikan aksi469 tidak menembak"
         with open(berkas_aksi469, "w", encoding="utf-8") as f:
             f.write(isi_baru469)
-        rc, out = jalan(sub469, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub469, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pod2text: "
                 "gerbang gagal (Audit 1248)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub469, ignore_errors=True)
@@ -10268,7 +10268,7 @@ def main():
             "suntikan aksi470 tidak menembak"
         with open(berkas_aksi470, "w", encoding="utf-8") as f:
             f.write(isi_baru470)
-        rc, out = jalan(sub470, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub470, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sdiff berkas.txt -: "
                 "gerbang gagal (Audit 1249)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub470, ignore_errors=True)
@@ -10289,7 +10289,7 @@ def main():
             "suntikan aksi471 tidak menembak"
         with open(berkas_aksi471, "w", encoding="utf-8") as f:
             f.write(isi_baru471)
-        rc, out = jalan(sub471, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub471, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("socat1 - -: "
                 "gerbang gagal (Audit 1250)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub471, ignore_errors=True)
@@ -10310,7 +10310,7 @@ def main():
             "suntikan aksi472 tidak menembak"
         with open(berkas_aksi472, "w", encoding="utf-8") as f:
             f.write(isi_baru472)
-        rc, out = jalan(sub472, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub472, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nodejs: "
                 "gerbang gagal (Audit 1251)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub472, ignore_errors=True)
@@ -10331,7 +10331,7 @@ def main():
             "suntikan aksi473 tidak menembak"
         with open(berkas_aksi473, "w", encoding="utf-8") as f:
             f.write(isi_baru473)
-        rc, out = jalan(sub473, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub473, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gmake -f -: "
                 "gerbang gagal (Audit 1252)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub473, ignore_errors=True)
@@ -10352,7 +10352,7 @@ def main():
             "suntikan aksi474 tidak menembak"
         with open(berkas_aksi474, "w", encoding="utf-8") as f:
             f.write(isi_baru474)
-        rc, out = jalan(sub474, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub474, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("setarch x86_64 cat: "
                 "gerbang gagal (Audit 1253)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub474, ignore_errors=True)
@@ -10373,7 +10373,7 @@ def main():
             "suntikan aksi475 tidak menembak"
         with open(berkas_aksi475, "w", encoding="utf-8") as f:
             f.write(isi_baru475)
-        rc, out = jalan(sub475, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub475, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("linux64 cat: "
                 "gerbang gagal (Audit 1253)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub475, ignore_errors=True)
@@ -10394,7 +10394,7 @@ def main():
             "suntikan aksi476 tidak menembak"
         with open(berkas_aksi476, "w", encoding="utf-8") as f:
             f.write(isi_baru476)
-        rc, out = jalan(sub476, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub476, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("uclampset -m 0 cat: "
                 "gerbang gagal (Audit 1254)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub476, ignore_errors=True)
@@ -10415,7 +10415,7 @@ def main():
             "suntikan aksi477 tidak menembak"
         with open(berkas_aksi477, "w", encoding="utf-8") as f:
             f.write(isi_baru477)
-        rc, out = jalan(sub477, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub477, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("choom -n 0 -- cat: "
                 "gerbang gagal (Audit 1255)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub477, ignore_errors=True)
@@ -10436,7 +10436,7 @@ def main():
             "suntikan aksi478 tidak menembak"
         with open(berkas_aksi478, "w", encoding="utf-8") as f:
             f.write(isi_baru478)
-        rc, out = jalan(sub478, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub478, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xvfb-run -a cat: "
                 "gerbang gagal (Audit 1256)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub478, ignore_errors=True)
@@ -10457,7 +10457,7 @@ def main():
             "suntikan aksi479 tidak menembak"
         with open(berkas_aksi479, "w", encoding="utf-8") as f:
             f.write(isi_baru479)
-        rc, out = jalan(sub479, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub479, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("iptables-nft-restore: "
                 "gerbang gagal (Audit 1257)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub479, ignore_errors=True)
@@ -10478,7 +10478,7 @@ def main():
             "suntikan aksi480 tidak menembak"
         with open(berkas_aksi480, "w", encoding="utf-8") as f:
             f.write(isi_baru480)
-        rc, out = jalan(sub480, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub480, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ebtables-restore: "
                 "gerbang gagal (Audit 1257)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub480, ignore_errors=True)
@@ -10499,7 +10499,7 @@ def main():
             "suntikan aksi481 tidak menembak"
         with open(berkas_aksi481, "w", encoding="utf-8") as f:
             f.write(isi_baru481)
-        rc, out = jalan(sub481, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub481, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdfinfo -: "
                 "gerbang gagal (Audit 1258)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub481, ignore_errors=True)
@@ -10520,7 +10520,7 @@ def main():
             "suntikan aksi482 tidak menembak"
         with open(berkas_aksi482, "w", encoding="utf-8") as f:
             f.write(isi_baru482)
-        rc, out = jalan(sub482, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub482, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdftops - -: "
                 "gerbang gagal (Audit 1258)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub482, ignore_errors=True)
@@ -10541,7 +10541,7 @@ def main():
             "suntikan aksi483 tidak menembak"
         with open(berkas_aksi483, "w", encoding="utf-8") as f:
             f.write(isi_baru483)
-        rc, out = jalan(sub483, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub483, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gm identify -: "
                 "gerbang gagal (Audit 1259)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub483, ignore_errors=True)
@@ -10562,7 +10562,7 @@ def main():
             "suntikan aksi484 tidak menembak"
         with open(berkas_aksi484, "w", encoding="utf-8") as f:
             f.write(isi_baru484)
-        rc, out = jalan(sub484, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub484, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("chardetect: "
                 "gerbang gagal (Audit 1260)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub484, ignore_errors=True)
@@ -10583,7 +10583,7 @@ def main():
             "suntikan aksi485 tidak menembak"
         with open(berkas_aksi485, "w", encoding="utf-8") as f:
             f.write(isi_baru485)
-        rc, out = jalan(sub485, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub485, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git cat-file --batch-check=%(objectname): "
                 "gerbang gagal (Audit 1261)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub485, ignore_errors=True)
@@ -10604,7 +10604,7 @@ def main():
             "suntikan aksi486 tidak menembak"
         with open(berkas_aksi486, "w", encoding="utf-8") as f:
             f.write(isi_baru486)
-        rc, out = jalan(sub486, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub486, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git apply --build-fake-ancestor idx: "
                 "gerbang gagal (Audit 1262)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub486, ignore_errors=True)
@@ -10625,7 +10625,7 @@ def main():
             "suntikan aksi487 tidak menembak"
         with open(berkas_aksi487, "w", encoding="utf-8") as f:
             f.write(isi_baru487)
-        rc, out = jalan(sub487, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub487, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("iconv --usage: "
                 "gerbang lolos (Audit 1263)", rc == 0)
         shutil.rmtree(sub487, ignore_errors=True)
@@ -10646,7 +10646,7 @@ def main():
             "suntikan aksi488 tidak menembak"
         with open(berkas_aksi488, "w", encoding="utf-8") as f:
             f.write(isi_baru488)
-        rc, out = jalan(sub488, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub488, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("wc --total berkas.txt: "
                 "gerbang lolos (Audit 1264)", rc == 0)
         shutil.rmtree(sub488, ignore_errors=True)
@@ -10667,7 +10667,7 @@ def main():
             "suntikan aksi489 tidak menembak"
         with open(berkas_aksi489, "w", encoding="utf-8") as f:
             f.write(isi_baru489)
-        rc, out = jalan(sub489, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub489, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("numfmt --grouping 123: "
                 "gerbang lolos (Audit 1265)", rc == 0)
         shutil.rmtree(sub489, ignore_errors=True)
@@ -10688,7 +10688,7 @@ def main():
             "suntikan aksi490 tidak menembak"
         with open(berkas_aksi490, "w", encoding="utf-8") as f:
             f.write(isi_baru490)
-        rc, out = jalan(sub490, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub490, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git cat-file --batch-all-objects --batch: "
                 "gerbang lolos (Audit 1266)", rc == 0)
         shutil.rmtree(sub490, ignore_errors=True)
@@ -10709,7 +10709,7 @@ def main():
             "suntikan aksi491 tidak menembak"
         with open(berkas_aksi491, "w", encoding="utf-8") as f:
             f.write(isi_baru491)
-        rc, out = jalan(sub491, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub491, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git commit --pathspec-from-file=-: "
                 "gerbang gagal (Audit 1268)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub491, ignore_errors=True)
@@ -10730,7 +10730,7 @@ def main():
             "suntikan aksi492 tidak menembak"
         with open(berkas_aksi492, "w", encoding="utf-8") as f:
             f.write(isi_baru492)
-        rc, out = jalan(sub492, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub492, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git add --chmod --pathspec-from-file=-: "
                 "gerbang lolos (Audit 1269)", rc == 0)
         shutil.rmtree(sub492, ignore_errors=True)
@@ -10751,7 +10751,7 @@ def main():
             "suntikan aksi493 tidak menembak"
         with open(berkas_aksi493, "w", encoding="utf-8") as f:
             f.write(isi_baru493)
-        rc, out = jalan(sub493, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub493, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git check-mailmap --stdin 'A <a@b.c>': "
                 "gerbang gagal (Audit 1270)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub493, ignore_errors=True)
@@ -10772,7 +10772,7 @@ def main():
             "suntikan aksi494 tidak menembak"
         with open(berkas_aksi494, "w", encoding="utf-8") as f:
             f.write(isi_baru494)
-        rc, out = jalan(sub494, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub494, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git credential-cache --timeout 300 get: "
                 "gerbang gagal (Audit 1271)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub494, ignore_errors=True)
@@ -10793,7 +10793,7 @@ def main():
             "suntikan aksi495 tidak menembak"
         with open(berkas_aksi495, "w", encoding="utf-8") as f:
             f.write(isi_baru495)
-        rc, out = jalan(sub495, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub495, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git shortlog --since yesterday: "
                 "gerbang gagal (Audit 1272)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub495, ignore_errors=True)
@@ -10814,7 +10814,7 @@ def main():
             "suntikan aksi496 tidak menembak"
         with open(berkas_aksi496, "w", encoding="utf-8") as f:
             f.write(isi_baru496)
-        rc, out = jalan(sub496, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub496, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git am --whitespace fix: "
                 "gerbang gagal (Audit 1273)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub496, ignore_errors=True)
@@ -10835,7 +10835,7 @@ def main():
             "suntikan aksi497 tidak menembak"
         with open(berkas_aksi497, "w", encoding="utf-8") as f:
             f.write(isi_baru497)
-        rc, out = jalan(sub497, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub497, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git notes add -fF- HEAD: "
                 "gerbang gagal (Audit 1274)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub497, ignore_errors=True)
@@ -10856,7 +10856,7 @@ def main():
             "suntikan aksi498 tidak menembak"
         with open(berkas_aksi498, "w", encoding="utf-8") as f:
             f.write(isi_baru498)
-        rc, out = jalan(sub498, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub498, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("patch -f --help: "
                 "gerbang lolos (Audit 1275)", rc == 0)
         shutil.rmtree(sub498, ignore_errors=True)
@@ -10877,7 +10877,7 @@ def main():
             "suntikan aksi499 tidak menembak"
         with open(berkas_aksi499, "w", encoding="utf-8") as f:
             f.write(isi_baru499)
-        rc, out = jalan(sub499, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub499, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("iconv -o --usage: "
                 "gerbang gagal (Audit 1276)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub499, ignore_errors=True)
@@ -10898,7 +10898,7 @@ def main():
             "suntikan aksi500 tidak menembak"
         with open(berkas_aksi500, "w", encoding="utf-8") as f:
             f.write(isi_baru500)
-        rc, out = jalan(sub500, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub500, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("prlimit -p=999999 cat: "
                 "gerbang lolos (Audit 1277)", rc == 0)
         shutil.rmtree(sub500, ignore_errors=True)
@@ -10919,7 +10919,7 @@ def main():
             "suntikan aksi501 tidak menembak"
         with open(berkas_aksi501, "w", encoding="utf-8") as f:
             f.write(isi_baru501)
-        rc, out = jalan(sub501, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub501, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl x509 -in /dev/stdin -in /dev/null: "
                 "gerbang lolos (Audit 1278)", rc == 0)
         shutil.rmtree(sub501, ignore_errors=True)
@@ -10940,7 +10940,7 @@ def main():
             "suntikan aksi502 tidak menembak"
         with open(berkas_aksi502, "w", encoding="utf-8") as f:
             f.write(isi_baru502)
-        rc, out = jalan(sub502, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub502, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("file -f /dev/stdin: "
                 "gerbang gagal (Audit 1279)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub502, ignore_errors=True)
@@ -10961,7 +10961,7 @@ def main():
             "suntikan aksi503 tidak menembak"
         with open(berkas_aksi503, "w", encoding="utf-8") as f:
             f.write(isi_baru503)
-        rc, out = jalan(sub503, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub503, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("date -Rf-: "
                 "gerbang gagal (Audit 1280)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub503, ignore_errors=True)
@@ -10982,7 +10982,7 @@ def main():
             "suntikan aksi504 tidak menembak"
         with open(berkas_aksi504, "w", encoding="utf-8") as f:
             f.write(isi_baru504)
-        rc, out = jalan(sub504, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub504, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sysctl -f -: "
                 "gerbang gagal (Audit 1281)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub504, ignore_errors=True)
@@ -11003,7 +11003,7 @@ def main():
             "suntikan aksi505 tidak menembak"
         with open(berkas_aksi505, "w", encoding="utf-8") as f:
             f.write(isi_baru505)
-        rc, out = jalan(sub505, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub505, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sdiff -W - target.txt: "
                 "gerbang gagal (Audit 1282)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub505, ignore_errors=True)
@@ -11024,7 +11024,7 @@ def main():
             "suntikan aksi506 tidak menembak"
         with open(berkas_aksi506, "w", encoding="utf-8") as f:
             f.write(isi_baru506)
-        rc, out = jalan(sub506, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub506, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdfinfo -enc UTF-8 -: "
                 "gerbang gagal (Audit 1283)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub506, ignore_errors=True)
@@ -11045,7 +11045,7 @@ def main():
             "suntikan aksi507 tidak menembak"
         with open(berkas_aksi507, "w", encoding="utf-8") as f:
             f.write(isi_baru507)
-        rc, out = jalan(sub507, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub507, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gm identify -format - /tmp/p81.png: "
                 "gerbang lolos (Audit 1284)", rc == 0)
         shutil.rmtree(sub507, ignore_errors=True)
@@ -11066,7 +11066,7 @@ def main():
             "suntikan aksi508 tidak menembak"
         with open(berkas_aksi508, "w", encoding="utf-8") as f:
             f.write(isi_baru508)
-        rc, out = jalan(sub508, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub508, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gm convert - -: "
                 "gerbang gagal (Audit 1285)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub508, ignore_errors=True)
@@ -11087,7 +11087,7 @@ def main():
             "suntikan aksi509 tidak menembak"
         with open(berkas_aksi509, "w", encoding="utf-8") as f:
             f.write(isi_baru509)
-        rc, out = jalan(sub509, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub509, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pr --separator - berkas.txt: "
                 "gerbang gagal (Audit 1286)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub509, ignore_errors=True)
@@ -11108,7 +11108,7 @@ def main():
             "suntikan aksi510 tidak menembak"
         with open(berkas_aksi510, "w", encoding="utf-8") as f:
             f.write(isi_baru510)
-        rc, out = jalan(sub510, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub510, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("json_pp -t json: "
                 "gerbang gagal (Audit 1287)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub510, ignore_errors=True)
@@ -11129,7 +11129,7 @@ def main():
             "suntikan aksi511 tidak menembak"
         with open(berkas_aksi511, "w", encoding="utf-8") as f:
             f.write(isi_baru511)
-        rc, out = jalan(sub511, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub511, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("uconv -b 4096 -f UTF-8 -t UTF-8: "
                 "gerbang gagal (Audit 1288)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub511, ignore_errors=True)
@@ -11150,7 +11150,7 @@ def main():
             "suntikan aksi512 tidak menembak"
         with open(berkas_aksi512, "w", encoding="utf-8") as f:
             f.write(isi_baru512)
-        rc, out = jalan(sub512, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub512, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("piconv -S scheme -f utf8 -t utf8: "
                 "gerbang gagal (Audit 1289)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub512, ignore_errors=True)
@@ -11171,7 +11171,7 @@ def main():
             "suntikan aksi513 tidak menembak"
         with open(berkas_aksi513, "w", encoding="utf-8") as f:
             f.write(isi_baru513)
-        rc, out = jalan(sub513, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub513, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pod2text -e utf8: "
                 "gerbang gagal (Audit 1290)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub513, ignore_errors=True)
@@ -11192,7 +11192,7 @@ def main():
             "suntikan aksi514 tidak menembak"
         with open(berkas_aksi514, "w", encoding="utf-8") as f:
             f.write(isi_baru514)
-        rc, out = jalan(sub514, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub514, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("shasum -a 256: "
                 "gerbang gagal (Audit 1291)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub514, ignore_errors=True)
@@ -11213,7 +11213,7 @@ def main():
             "suntikan aksi515 tidak menembak"
         with open(berkas_aksi515, "w", encoding="utf-8") as f:
             f.write(isi_baru515)
-        rc, out = jalan(sub515, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub515, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xzcat --block-size 1MiB: "
                 "gerbang gagal (Audit 1292)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub515, ignore_errors=True)
@@ -11234,7 +11234,7 @@ def main():
             "suntikan aksi516 tidak menembak"
         with open(berkas_aksi516, "w", encoding="utf-8") as f:
             f.write(isi_baru516)
-        rc, out = jalan(sub516, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub516, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("iptables-nft-restore -W 1000: "
                 "gerbang gagal (Audit 1293)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub516, ignore_errors=True)
@@ -11255,7 +11255,7 @@ def main():
             "suntikan aksi517 tidak menembak"
         with open(berkas_aksi517, "w", encoding="utf-8") as f:
             f.write(isi_baru517)
-        rc, out = jalan(sub517, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub517, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("numfmt --round up: "
                 "gerbang gagal (Audit 1294)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub517, ignore_errors=True)
@@ -11276,7 +11276,7 @@ def main():
             "suntikan aksi518 tidak menembak"
         with open(berkas_aksi518, "w", encoding="utf-8") as f:
             f.write(isi_baru518)
-        rc, out = jalan(sub518, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub518, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("uclampset -M 0 cat: "
                 "gerbang gagal (Audit 1295)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub518, ignore_errors=True)
@@ -11297,7 +11297,7 @@ def main():
             "suntikan aksi519 tidak menembak"
         with open(berkas_aksi519, "w", encoding="utf-8") as f:
             f.write(isi_baru519)
-        rc, out = jalan(sub519, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub519, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("choom -p 999999 cat: "
                 "gerbang lolos (Audit 1296)", rc == 0)
         shutil.rmtree(sub519, ignore_errors=True)
@@ -11318,7 +11318,7 @@ def main():
             "suntikan aksi520 tidak menembak"
         with open(berkas_aksi520, "w", encoding="utf-8") as f:
             f.write(isi_baru520)
-        rc, out = jalan(sub520, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub520, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xvfb-run -p MIT-MAGIC-COOKIE-1 cat: "
                 "gerbang gagal (Audit 1297)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub520, ignore_errors=True)
@@ -11339,7 +11339,7 @@ def main():
             "suntikan aksi521 tidak menembak"
         with open(berkas_aksi521, "w", encoding="utf-8") as f:
             f.write(isi_baru521)
-        rc, out = jalan(sub521, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub521, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("linux64 --list cat: "
                 "gerbang lolos (Audit 1298)", rc == 0)
         shutil.rmtree(sub521, ignore_errors=True)
@@ -11360,7 +11360,7 @@ def main():
             "suntikan aksi522 tidak menembak"
         with open(berkas_aksi522, "w", encoding="utf-8") as f:
             f.write(isi_baru522)
-        rc, out = jalan(sub522, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub522, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nodejs -r fs: "
                 "gerbang gagal (Audit 1299)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub522, ignore_errors=True)
@@ -11381,7 +11381,7 @@ def main():
             "suntikan aksi523 tidak menembak"
         with open(berkas_aksi523, "w", encoding="utf-8") as f:
             f.write(isi_baru523)
-        rc, out = jalan(sub523, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub523, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gmake -f /dev/stdin: "
                 "gerbang gagal (Audit 1300)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub523, ignore_errors=True)
@@ -11402,7 +11402,7 @@ def main():
             "suntikan aksi524 tidak menembak"
         with open(berkas_aksi524, "w", encoding="utf-8") as f:
             f.write(isi_baru524)
-        rc, out = jalan(sub524, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub524, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perl5.38.2: "
                 "gerbang gagal (Audit 1301)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub524, ignore_errors=True)
@@ -11423,7 +11423,7 @@ def main():
             "suntikan aksi525 tidak menembak"
         with open(berkas_aksi525, "w", encoding="utf-8") as f:
             f.write(isi_baru525)
-        rc, out = jalan(sub525, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub525, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cpp: "
                 "gerbang gagal (Audit 1302)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub525, ignore_errors=True)
@@ -11444,7 +11444,7 @@ def main():
             "suntikan aksi526 tidak menembak"
         with open(berkas_aksi526, "w", encoding="utf-8") as f:
             f.write(isi_baru526)
-        rc, out = jalan(sub526, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub526, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gcc -x c -E -: "
                 "gerbang gagal (Audit 1303)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub526, ignore_errors=True)
@@ -11465,7 +11465,7 @@ def main():
             "suntikan aksi527 tidak menembak"
         with open(berkas_aksi527, "w", encoding="utf-8") as f:
             f.write(isi_baru527)
-        rc, out = jalan(sub527, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub527, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("as -o out -: "
                 "gerbang gagal (Audit 1304)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub527, ignore_errors=True)
@@ -11486,7 +11486,7 @@ def main():
             "suntikan aksi528 tidak menembak"
         with open(berkas_aksi528, "w", encoding="utf-8") as f:
             f.write(isi_baru528)
-        rc, out = jalan(sub528, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub528, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zcmp - -: "
                 "gerbang gagal (Audit 1305)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub528, ignore_errors=True)
@@ -11507,7 +11507,7 @@ def main():
             "suntikan aksi529 tidak menembak"
         with open(berkas_aksi529, "w", encoding="utf-8") as f:
             f.write(isi_baru529)
-        rc, out = jalan(sub529, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub529, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zegrep UTUH: "
                 "gerbang gagal (Audit 1306)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub529, ignore_errors=True)
@@ -11528,7 +11528,7 @@ def main():
             "suntikan aksi530 tidak menembak"
         with open(berkas_aksi530, "w", encoding="utf-8") as f:
             f.write(isi_baru530)
-        rc, out = jalan(sub530, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub530, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bzegrep UTUH: "
                 "gerbang gagal (Audit 1307)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub530, ignore_errors=True)
@@ -11549,7 +11549,7 @@ def main():
             "suntikan aksi531 tidak menembak"
         with open(berkas_aksi531, "w", encoding="utf-8") as f:
             f.write(isi_baru531)
-        rc, out = jalan(sub531, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub531, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xzcmp - -: "
                 "gerbang gagal (Audit 1308)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub531, ignore_errors=True)
@@ -11570,7 +11570,7 @@ def main():
             "suntikan aksi532 tidak menembak"
         with open(berkas_aksi532, "w", encoding="utf-8") as f:
             f.write(isi_baru532)
-        rc, out = jalan(sub532, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub532, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lzcmp - -: "
                 "gerbang gagal (Audit 1309)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub532, ignore_errors=True)
@@ -11591,7 +11591,7 @@ def main():
             "suntikan aksi533 tidak menembak"
         with open(berkas_aksi533, "w", encoding="utf-8") as f:
             f.write(isi_baru533)
-        rc, out = jalan(sub533, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub533, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("uncompress: "
                 "gerbang gagal (Audit 1310)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub533, ignore_errors=True)
@@ -11612,7 +11612,7 @@ def main():
             "suntikan aksi534 tidak menembak"
         with open(berkas_aksi534, "w", encoding="utf-8") as f:
             f.write(isi_baru534)
-        rc, out = jalan(sub534, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub534, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cmp berkas -: "
                 "gerbang gagal (Audit 1311)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub534, ignore_errors=True)
@@ -11633,7 +11633,7 @@ def main():
             "suntikan aksi535 tidak menembak"
         with open(berkas_aksi535, "w", encoding="utf-8") as f:
             f.write(isi_baru535)
-        rc, out = jalan(sub535, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub535, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ptar -t -f -: "
                 "gerbang gagal (Audit 1312)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub535, ignore_errors=True)
@@ -11654,7 +11654,7 @@ def main():
             "suntikan aksi536 tidak menembak"
         with open(berkas_aksi536, "w", encoding="utf-8") as f:
             f.write(isi_baru536)
-        rc, out = jalan(sub536, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub536, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("streamzip: "
                 "gerbang gagal (Audit 1313)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub536, ignore_errors=True)
@@ -11675,7 +11675,7 @@ def main():
             "suntikan aksi537 tidak menembak"
         with open(berkas_aksi537, "w", encoding="utf-8") as f:
             f.write(isi_baru537)
-        rc, out = jalan(sub537, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub537, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zless: "
                 "gerbang gagal (Audit 1314)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub537, ignore_errors=True)
@@ -11696,7 +11696,7 @@ def main():
             "suntikan aksi538 tidak menembak"
         with open(berkas_aksi538, "w", encoding="utf-8") as f:
             f.write(isi_baru538)
-        rc, out = jalan(sub538, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub538, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sensible-pager: "
                 "gerbang gagal (Audit 1315)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub538, ignore_errors=True)
@@ -11717,7 +11717,7 @@ def main():
             "suntikan aksi539 tidak menembak"
         with open(berkas_aksi539, "w", encoding="utf-8") as f:
             f.write(isi_baru539)
-        rc, out = jalan(sub539, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub539, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("vim.tiny -n: "
                 "gerbang gagal (Audit 1316)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub539, ignore_errors=True)
@@ -11738,7 +11738,7 @@ def main():
             "suntikan aksi540 tidak menembak"
         with open(berkas_aksi540, "w", encoding="utf-8") as f:
             f.write(isi_baru540)
-        rc, out = jalan(sub540, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub540, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("script -qec cat /dev/null: "
                 "gerbang gagal (Audit 1317)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub540, ignore_errors=True)
@@ -11759,7 +11759,7 @@ def main():
             "suntikan aksi541 tidak menembak"
         with open(berkas_aksi541, "w", encoding="utf-8") as f:
             f.write(isi_baru541)
-        rc, out = jalan(sub541, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub541, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("i386 cat: "
                 "gerbang gagal (Audit 1318)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub541, ignore_errors=True)
@@ -11780,7 +11780,7 @@ def main():
             "suntikan aksi542 tidak menembak"
         with open(berkas_aksi542, "w", encoding="utf-8") as f:
             f.write(isi_baru542)
-        rc, out = jalan(sub542, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub542, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("systemd-run --scope --quiet cat: "
                 "gerbang gagal (Audit 1319)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub542, ignore_errors=True)
@@ -11801,7 +11801,7 @@ def main():
             "suntikan aksi543 tidak menembak"
         with open(berkas_aksi543, "w", encoding="utf-8") as f:
             f.write(isi_baru543)
-        rc, out = jalan(sub543, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub543, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tmux load-buffer -: "
                 "gerbang gagal (Audit 1320)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub543, ignore_errors=True)
@@ -11822,7 +11822,7 @@ def main():
             "suntikan aksi544 tidak menembak"
         with open(berkas_aksi544, "w", encoding="utf-8") as f:
             f.write(isi_baru544)
-        rc, out = jalan(sub544, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub544, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("systemd-sysusers --root=/tmp -: "
                 "gerbang gagal (Audit 1321)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub544, ignore_errors=True)
@@ -11843,7 +11843,7 @@ def main():
             "suntikan aksi545 tidak menembak"
         with open(berkas_aksi545, "w", encoding="utf-8") as f:
             f.write(isi_baru545)
-        rc, out = jalan(sub545, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub545, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("systemd-tmpfiles --root=/tmp --create -: "
                 "gerbang gagal (Audit 1322)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub545, ignore_errors=True)
@@ -11864,7 +11864,7 @@ def main():
             "suntikan aksi546 tidak menembak"
         with open(berkas_aksi546, "w", encoding="utf-8") as f:
             f.write(isi_baru546)
-        rc, out = jalan(sub546, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub546, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("systemd-creds encrypt --name=uji - out: "
                 "gerbang gagal (Audit 1323)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub546, ignore_errors=True)
@@ -11885,7 +11885,7 @@ def main():
             "suntikan aksi547 tidak menembak"
         with open(berkas_aksi547, "w", encoding="utf-8") as f:
             f.write(isi_baru547)
-        rc, out = jalan(sub547, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub547, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("debconf-set-selections --checkonly: "
                 "gerbang gagal (Audit 1324)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub547, ignore_errors=True)
@@ -11906,7 +11906,7 @@ def main():
             "suntikan aksi548 tidak menembak"
         with open(berkas_aksi548, "w", encoding="utf-8") as f:
             f.write(isi_baru548)
-        rc, out = jalan(sub548, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub548, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("debconf-communicate paketuji: "
                 "gerbang gagal (Audit 1325)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub548, ignore_errors=True)
@@ -11927,7 +11927,7 @@ def main():
             "suntikan aksi549 tidak menembak"
         with open(berkas_aksi549, "w", encoding="utf-8") as f:
             f.write(isi_baru549)
-        rc, out = jalan(sub549, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub549, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dpkg-deb --contents -: "
                 "gerbang gagal (Audit 1326)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub549, ignore_errors=True)
@@ -11948,7 +11948,7 @@ def main():
             "suntikan aksi550 tidak menembak"
         with open(berkas_aksi550, "w", encoding="utf-8") as f:
             f.write(isi_baru550)
-        rc, out = jalan(sub550, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub550, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dpkg-parsechangelog -l -: "
                 "gerbang gagal (Audit 1327)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub550, ignore_errors=True)
@@ -11969,7 +11969,7 @@ def main():
             "suntikan aksi551 tidak menembak"
         with open(berkas_aksi551, "w", encoding="utf-8") as f:
             f.write(isi_baru551)
-        rc, out = jalan(sub551, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub551, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cvtsudoers -f json: "
                 "gerbang gagal (Audit 1328)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub551, ignore_errors=True)
@@ -11990,7 +11990,7 @@ def main():
             "suntikan aksi552 tidak menembak"
         with open(berkas_aksi552, "w", encoding="utf-8") as f:
             f.write(isi_baru552)
-        rc, out = jalan(sub552, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub552, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tic -o out -: "
                 "gerbang gagal (Audit 1329)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub552, ignore_errors=True)
@@ -12011,7 +12011,7 @@ def main():
             "suntikan aksi553 tidak menembak"
         with open(berkas_aksi553, "w", encoding="utf-8") as f:
             f.write(isi_baru553)
-        rc, out = jalan(sub553, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub553, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lesskey -o out -: "
                 "gerbang gagal (Audit 1330)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub553, ignore_errors=True)
@@ -12032,7 +12032,7 @@ def main():
             "suntikan aksi554 tidak menembak"
         with open(berkas_aksi554, "w", encoding="utf-8") as f:
             f.write(isi_baru554)
-        rc, out = jalan(sub554, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub554, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xkbcomp -xkb - out: "
                 "gerbang gagal (Audit 1331)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub554, ignore_errors=True)
@@ -12053,7 +12053,7 @@ def main():
             "suntikan aksi555 tidak menembak"
         with open(berkas_aksi555, "w", encoding="utf-8") as f:
             f.write(isi_baru555)
-        rc, out = jalan(sub555, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub555, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("wayland-scanner client-header /dev/stdin out: "
                 "gerbang gagal (Audit 1332)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub555, ignore_errors=True)
@@ -12074,7 +12074,7 @@ def main():
             "suntikan aksi556 tidak menembak"
         with open(berkas_aksi556, "w", encoding="utf-8") as f:
             f.write(isi_baru556)
-        rc, out = jalan(sub556, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub556, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("localedef --prefix=/tmp -i - -f UTF-8 uji_XX: "
                 "gerbang gagal (Audit 1333)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub556, ignore_errors=True)
@@ -12095,7 +12095,7 @@ def main():
             "suntikan aksi557 tidak menembak"
         with open(berkas_aksi557, "w", encoding="utf-8") as f:
             f.write(isi_baru557)
-        rc, out = jalan(sub557, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub557, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("glib-genmarshal -: "
                 "gerbang gagal (Audit 1334)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub557, ignore_errors=True)
@@ -12116,7 +12116,7 @@ def main():
             "suntikan aksi558 tidak menembak"
         with open(berkas_aksi558, "w", encoding="utf-8") as f:
             f.write(isi_baru558)
-        rc, out = jalan(sub558, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub558, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("genrb -d outdir -: "
                 "gerbang gagal (Audit 1335)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub558, ignore_errors=True)
@@ -12137,7 +12137,7 @@ def main():
             "suntikan aksi559 tidak menembak"
         with open(berkas_aksi559, "w", encoding="utf-8") as f:
             f.write(isi_baru559)
-        rc, out = jalan(sub559, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub559, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pod2man: "
                 "gerbang gagal (Audit 1336)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub559, ignore_errors=True)
@@ -12158,7 +12158,7 @@ def main():
             "suntikan aksi560 tidak menembak"
         with open(berkas_aksi560, "w", encoding="utf-8") as f:
             f.write(isi_baru560)
-        rc, out = jalan(sub560, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub560, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("splain: "
                 "gerbang gagal (Audit 1337)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub560, ignore_errors=True)
@@ -12179,7 +12179,7 @@ def main():
             "suntikan aksi561 tidak menembak"
         with open(berkas_aksi561, "w", encoding="utf-8") as f:
             f.write(isi_baru561)
-        rc, out = jalan(sub561, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub561, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("instmodsh: "
                 "gerbang gagal (Audit 1338)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub561, ignore_errors=True)
@@ -12200,7 +12200,7 @@ def main():
             "suntikan aksi562 tidak menembak"
         with open(berkas_aksi562, "w", encoding="utf-8") as f:
             f.write(isi_baru562)
-        rc, out = jalan(sub562, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub562, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pygettext3 -o out -: "
                 "gerbang gagal (Audit 1339)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub562, ignore_errors=True)
@@ -12221,7 +12221,7 @@ def main():
             "suntikan aksi563 tidak menembak"
         with open(berkas_aksi563, "w", encoding="utf-8") as f:
             f.write(isi_baru563)
-        rc, out = jalan(sub563, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub563, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nsupdate: "
                 "gerbang gagal (Audit 1340)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub563, ignore_errors=True)
@@ -12242,7 +12242,7 @@ def main():
             "suntikan aksi564 tidak menembak"
         with open(berkas_aksi564, "w", encoding="utf-8") as f:
             f.write(isi_baru564)
-        rc, out = jalan(sub564, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub564, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ssh-keygen -L -f -: "
                 "gerbang gagal (Audit 1341)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub564, ignore_errors=True)
@@ -12263,7 +12263,7 @@ def main():
             "suntikan aksi565 tidak menembak"
         with open(berkas_aksi565, "w", encoding="utf-8") as f:
             f.write(isi_baru565)
-        rc, out = jalan(sub565, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub565, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tree --fromfile: "
                 "gerbang gagal (Audit 1342)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub565, ignore_errors=True)
@@ -12284,7 +12284,7 @@ def main():
             "suntikan aksi566 tidak menembak"
         with open(berkas_aksi566, "w", encoding="utf-8") as f:
             f.write(isi_baru566)
-        rc, out = jalan(sub566, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub566, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gio save tujuan: "
                 "gerbang gagal (Audit 1343)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub566, ignore_errors=True)
@@ -12305,7 +12305,7 @@ def main():
             "suntikan aksi567 tidak menembak"
         with open(berkas_aksi567, "w", encoding="utf-8") as f:
             f.write(isi_baru567)
-        rc, out = jalan(sub567, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub567, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("debugfs /tmp/citra.img: "
                 "gerbang gagal (Audit 1344)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub567, ignore_errors=True)
@@ -12326,7 +12326,7 @@ def main():
             "suntikan aksi568 tidak menembak"
         with open(berkas_aksi568, "w", encoding="utf-8") as f:
             f.write(isi_baru568)
-        rc, out = jalan(sub568, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub568, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xauth -f berkas: "
                 "gerbang gagal (Audit 1345)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub568, ignore_errors=True)
@@ -12347,7 +12347,7 @@ def main():
             "suntikan aksi569 tidak menembak"
         with open(berkas_aksi569, "w", encoding="utf-8") as f:
             f.write(isi_baru569)
-        rc, out = jalan(sub569, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub569, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("systemd-run --remain-after-exit --scope cat: "
                 "gerbang lolos (Audit 1347)", rc == 0)
         shutil.rmtree(sub569, ignore_errors=True)
@@ -12368,7 +12368,7 @@ def main():
             "suntikan aksi570 tidak menembak"
         with open(berkas_aksi570, "w", encoding="utf-8") as f:
             f.write(isi_baru570)
-        rc, out = jalan(sub570, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub570, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gm convert -append - gabung.png: "
                 "gerbang gagal (Audit 1348)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub570, ignore_errors=True)
@@ -12389,7 +12389,7 @@ def main():
             "suntikan aksi571 tidak menembak"
         with open(berkas_aksi571, "w", encoding="utf-8") as f:
             f.write(isi_baru571)
-        rc, out = jalan(sub571, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub571, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pr berkas.txt -: "
                 "gerbang gagal (Audit 1349)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub571, ignore_errors=True)
@@ -12410,7 +12410,7 @@ def main():
             "suntikan aksi572 tidak menembak"
         with open(berkas_aksi572, "w", encoding="utf-8") as f:
             f.write(isi_baru572)
-        rc, out = jalan(sub572, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub572, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("make --file=/dev/stdin: "
                 "gerbang gagal (Audit 1350)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub572, ignore_errors=True)
@@ -12431,7 +12431,7 @@ def main():
             "suntikan aksi573 tidak menembak"
         with open(berkas_aksi573, "w", encoding="utf-8") as f:
             f.write(isi_baru573)
-        rc, out = jalan(sub573, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub573, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("aarch64-linux-gnu-gcc -x c -E -: "
                 "gerbang gagal (Audit 1351)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub573, ignore_errors=True)
@@ -12452,7 +12452,7 @@ def main():
             "suntikan aksi574 tidak menembak"
         with open(berkas_aksi574, "w", encoding="utf-8") as f:
             f.write(isi_baru574)
-        rc, out = jalan(sub574, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub574, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("as -o out.o: "
                 "gerbang gagal (Audit 1352)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub574, ignore_errors=True)
@@ -12473,7 +12473,7 @@ def main():
             "suntikan aksi575 tidak menembak"
         with open(berkas_aksi575, "w", encoding="utf-8") as f:
             f.write(isi_baru575)
-        rc, out = jalan(sub575, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub575, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ptar -t -f - -f arsip.tar: "
                 "gerbang lolos (Audit 1353)", rc == 0)
         shutil.rmtree(sub575, ignore_errors=True)
@@ -12494,7 +12494,7 @@ def main():
             "suntikan aksi576 tidak menembak"
         with open(berkas_aksi576, "w", encoding="utf-8") as f:
             f.write(isi_baru576)
-        rc, out = jalan(sub576, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub576, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tmux -S /tmp/sok load-buffer -: "
                 "gerbang gagal (Audit 1354)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub576, ignore_errors=True)
@@ -12515,7 +12515,7 @@ def main():
             "suntikan aksi577 tidak menembak"
         with open(berkas_aksi577, "w", encoding="utf-8") as f:
             f.write(isi_baru577)
-        rc, out = jalan(sub577, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub577, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("localedef --prefix=/tmp -i- -f UTF-8 uji_XX: "
                 "gerbang gagal (Audit 1355)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub577, ignore_errors=True)
@@ -12536,7 +12536,7 @@ def main():
             "suntikan aksi578 tidak menembak"
         with open(berkas_aksi578, "w", encoding="utf-8") as f:
             f.write(isi_baru578)
-        rc, out = jalan(sub578, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub578, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tree -P --fromfile: "
                 "gerbang lolos (Audit 1356)", rc == 0)
         shutil.rmtree(sub578, ignore_errors=True)
@@ -12557,7 +12557,7 @@ def main():
             "suntikan aksi579 tidak menembak"
         with open(berkas_aksi579, "w", encoding="utf-8") as f:
             f.write(isi_baru579)
-        rc, out = jalan(sub579, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub579, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("debugfs -Rstats citra.img: "
                 "gerbang lolos (Audit 1357)", rc == 0)
         shutil.rmtree(sub579, ignore_errors=True)
@@ -12578,7 +12578,7 @@ def main():
             "suntikan aksi580 tidak menembak"
         with open(berkas_aksi580, "w", encoding="utf-8") as f:
             f.write(isi_baru580)
-        rc, out = jalan(sub580, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub580, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ffmpeg -i - -f null -: "
                 "gerbang gagal (Audit 1358)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub580, ignore_errors=True)
@@ -12599,7 +12599,7 @@ def main():
             "suntikan aksi581 tidak menembak"
         with open(berkas_aksi581, "w", encoding="utf-8") as f:
             f.write(isi_baru581)
-        rc, out = jalan(sub581, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub581, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("chpasswd: "
                 "gerbang gagal (Audit 1359)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub581, ignore_errors=True)
@@ -12620,7 +12620,7 @@ def main():
             "suntikan aksi582 tidak menembak"
         with open(berkas_aksi582, "w", encoding="utf-8") as f:
             f.write(isi_baru582)
-        rc, out = jalan(sub582, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub582, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("systemd-run --scope --on-clock-change cat: "
                 "gerbang lolos (Audit 1364)", rc == 0)
         shutil.rmtree(sub582, ignore_errors=True)
@@ -12642,7 +12642,7 @@ def main():
             "suntikan aksi583 tidak menembak"
         with open(berkas_aksi583, "w", encoding="utf-8") as f:
             f.write(isi_baru583)
-        rc, out = jalan(sub583, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub583, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("make --file=/dev/fd/0: "
                 "gerbang gagal (Audit 1365)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub583, ignore_errors=True)
@@ -12664,7 +12664,7 @@ def main():
             "suntikan aksi584 tidak menembak"
         with open(berkas_aksi584, "w", encoding="utf-8") as f:
             f.write(isi_baru584)
-        rc, out = jalan(sub584, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub584, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tmux -V load-buffer -: "
                 "gerbang lolos (Audit 1366)", rc == 0)
         shutil.rmtree(sub584, ignore_errors=True)
@@ -12686,7 +12686,7 @@ def main():
             "suntikan aksi585 tidak menembak"
         with open(berkas_aksi585, "w", encoding="utf-8") as f:
             f.write(isi_baru585)
-        rc, out = jalan(sub585, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub585, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tree -- --fromfile: "
                 "gerbang lolos (Audit 1367)", rc == 0)
         shutil.rmtree(sub585, ignore_errors=True)
@@ -12708,7 +12708,7 @@ def main():
             "suntikan aksi586 tidak menembak"
         with open(berkas_aksi586, "w", encoding="utf-8") as f:
             f.write(isi_baru586)
-        rc, out = jalan(sub586, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub586, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tree -aP --fromfile: "
                 "gerbang lolos (Audit 1368)", rc == 0)
         shutil.rmtree(sub586, ignore_errors=True)
@@ -12730,7 +12730,7 @@ def main():
             "suntikan aksi587 tidak menembak"
         with open(berkas_aksi587, "w", encoding="utf-8") as f:
             f.write(isi_baru587)
-        rc, out = jalan(sub587, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub587, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("debugfs -wf perintah.txt citra.img: "
                 "gerbang lolos (Audit 1369)", rc == 0)
         shutil.rmtree(sub587, ignore_errors=True)
@@ -12752,7 +12752,7 @@ def main():
             "suntikan aksi588 tidak menembak"
         with open(berkas_aksi588, "w", encoding="utf-8") as f:
             f.write(isi_baru588)
-        rc, out = jalan(sub588, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub588, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ffprobe berkas.mp4 pipe:: "
                 "gerbang lolos (Audit 1370)", rc == 0)
         shutil.rmtree(sub588, ignore_errors=True)
@@ -12774,7 +12774,7 @@ def main():
             "suntikan aksi589 tidak menembak"
         with open(berkas_aksi589, "w", encoding="utf-8") as f:
             f.write(isi_baru589)
-        rc, out = jalan(sub589, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub589, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("chpasswd berkasuji: "
                 "gerbang gagal (Audit 1371)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub589, ignore_errors=True)
@@ -12796,7 +12796,7 @@ def main():
             "suntikan aksi590 tidak menembak"
         with open(berkas_aksi590, "w", encoding="utf-8") as f:
             f.write(isi_baru590)
-        rc, out = jalan(sub590, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub590, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python3 -m sqlite3: "
                 "gerbang gagal (Audit 1372)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub590, ignore_errors=True)
@@ -12818,7 +12818,7 @@ def main():
             "suntikan aksi591 tidak menembak"
         with open(berkas_aksi591, "w", encoding="utf-8") as f:
             f.write(isi_baru591)
-        rc, out = jalan(sub591, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub591, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python3 -m tokenize: "
                 "gerbang gagal (Audit 1373)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub591, ignore_errors=True)
@@ -12840,7 +12840,7 @@ def main():
             "suntikan aksi592 tidak menembak"
         with open(berkas_aksi592, "w", encoding="utf-8") as f:
             f.write(isi_baru592)
-        rc, out = jalan(sub592, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub592, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python3 -m code: "
                 "gerbang gagal (Audit 1374)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub592, ignore_errors=True)
@@ -12862,7 +12862,7 @@ def main():
             "suntikan aksi593 tidak menembak"
         with open(berkas_aksi593, "w", encoding="utf-8") as f:
             f.write(isi_baru593)
-        rc, out = jalan(sub593, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub593, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perl -d skrip.pl: "
                 "gerbang gagal (Audit 1375)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub593, ignore_errors=True)
@@ -12884,7 +12884,7 @@ def main():
             "suntikan aksi594 tidak menembak"
         with open(berkas_aksi594, "w", encoding="utf-8") as f:
             f.write(isi_baru594)
-        rc, out = jalan(sub594, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub594, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cpan: "
                 "gerbang gagal (Audit 1376)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub594, ignore_errors=True)
@@ -12906,7 +12906,7 @@ def main():
             "suntikan aksi595 tidak menembak"
         with open(berkas_aksi595, "w", encoding="utf-8") as f:
             f.write(isi_baru595)
-        rc, out = jalan(sub595, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub595, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gh auth login --with-token: "
                 "gerbang gagal (Audit 1377)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub595, ignore_errors=True)
@@ -12928,7 +12928,7 @@ def main():
             "suntikan aksi596 tidak menembak"
         with open(berkas_aksi596, "w", encoding="utf-8") as f:
             f.write(isi_baru596)
-        rc, out = jalan(sub596, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub596, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("utmpdump: "
                 "gerbang gagal (Audit 1378)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub596, ignore_errors=True)
@@ -12950,7 +12950,7 @@ def main():
             "suntikan aksi597 tidak menembak"
         with open(berkas_aksi597, "w", encoding="utf-8") as f:
             f.write(isi_baru597)
-        rc, out = jalan(sub597, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub597, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tree -Pa --fromfile: "
                 "gerbang lolos (Audit 1384)", rc == 0)
         shutil.rmtree(sub597, ignore_errors=True)
@@ -12971,7 +12971,7 @@ def main():
             "suntikan aksi598 tidak menembak"
         with open(berkas_aksi598, "w", encoding="utf-8") as f:
             f.write(isi_baru598)
-        rc, out = jalan(sub598, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub598, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tree -aPx --fromfile: "
                 "gerbang lolos (Audit 1384)", rc == 0)
         shutil.rmtree(sub598, ignore_errors=True)
@@ -12992,7 +12992,7 @@ def main():
             "suntikan aksi599 tidak menembak"
         with open(berkas_aksi599, "w", encoding="utf-8") as f:
             f.write(isi_baru599)
-        rc, out = jalan(sub599, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub599, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tree --gitfile --fromfile: "
                 "gerbang lolos (Audit 1385)", rc == 0)
         shutil.rmtree(sub599, ignore_errors=True)
@@ -13013,7 +13013,7 @@ def main():
             "suntikan aksi600 tidak menembak"
         with open(berkas_aksi600, "w", encoding="utf-8") as f:
             f.write(isi_baru600)
-        rc, out = jalan(sub600, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub600, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tmux -LV load-buffer -: "
                 "gerbang gagal (Audit 1386)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub600, ignore_errors=True)
@@ -13034,7 +13034,7 @@ def main():
             "suntikan aksi601 tidak menembak"
         with open(berkas_aksi601, "w", encoding="utf-8") as f:
             f.write(isi_baru601)
-        rc, out = jalan(sub601, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub601, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tmux -2V load-buffer -: "
                 "gerbang lolos (Audit 1387)", rc == 0)
         shutil.rmtree(sub601, ignore_errors=True)
@@ -13055,7 +13055,7 @@ def main():
             "suntikan aksi602 tidak menembak"
         with open(berkas_aksi602, "w", encoding="utf-8") as f:
             f.write(isi_baru602)
-        rc, out = jalan(sub602, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub602, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("make -f/dev/fd/0: "
                 "gerbang gagal (Audit 1388)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub602, ignore_errors=True)
@@ -13076,7 +13076,7 @@ def main():
             "suntikan aksi603 tidak menembak"
         with open(berkas_aksi603, "w", encoding="utf-8") as f:
             f.write(isi_baru603)
-        rc, out = jalan(sub603, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub603, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("make -nf /dev/fd/0: "
                 "gerbang gagal (Audit 1389)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub603, ignore_errors=True)
@@ -13097,7 +13097,7 @@ def main():
             "suntikan aksi604 tidak menembak"
         with open(berkas_aksi604, "w", encoding="utf-8") as f:
             f.write(isi_baru604)
-        rc, out = jalan(sub604, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub604, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python3 -m sqlite3 -c select :memory:: "
                 "gerbang lolos (Audit 1390)", rc == 0)
         shutil.rmtree(sub604, ignore_errors=True)
@@ -13118,7 +13118,7 @@ def main():
             "suntikan aksi605 tidak menembak"
         with open(berkas_aksi605, "w", encoding="utf-8") as f:
             f.write(isi_baru605)
-        rc, out = jalan(sub605, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub605, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python3 -m sqlite3 --version: "
                 "gerbang lolos (Audit 1390)", rc == 0)
         shutil.rmtree(sub605, ignore_errors=True)
@@ -13139,7 +13139,7 @@ def main():
             "suntikan aksi606 tidak menembak"
         with open(berkas_aksi606, "w", encoding="utf-8") as f:
             f.write(isi_baru606)
-        rc, out = jalan(sub606, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub606, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python3 -m gzip -: "
                 "gerbang gagal (Audit 1391)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub606, ignore_errors=True)
@@ -13160,7 +13160,7 @@ def main():
             "suntikan aksi607 tidak menembak"
         with open(berkas_aksi607, "w", encoding="utf-8") as f:
             f.write(isi_baru607)
-        rc, out = jalan(sub607, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub607, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python3 -m json.tool -: "
                 "gerbang gagal (Audit 1391)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub607, ignore_errors=True)
@@ -13181,7 +13181,7 @@ def main():
             "suntikan aksi608 tidak menembak"
         with open(berkas_aksi608, "w", encoding="utf-8") as f:
             f.write(isi_baru608)
-        rc, out = jalan(sub608, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub608, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perl -Id skrip.pl: "
                 "gerbang lolos (Audit 1392)", rc == 0)
         shutil.rmtree(sub608, ignore_errors=True)
@@ -13202,7 +13202,7 @@ def main():
             "suntikan aksi609 tidak menembak"
         with open(berkas_aksi609, "w", encoding="utf-8") as f:
             f.write(isi_baru609)
-        rc, out = jalan(sub609, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub609, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perl -mdiagnostics skrip.pl: "
                 "gerbang lolos (Audit 1392)", rc == 0)
         shutil.rmtree(sub609, ignore_errors=True)
@@ -13223,7 +13223,7 @@ def main():
             "suntikan aksi610 tidak menembak"
         with open(berkas_aksi610, "w", encoding="utf-8") as f:
             f.write(isi_baru610)
-        rc, out = jalan(sub610, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub610, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ffprobe -i berkas.mp4 -i pipe:: "
                 "gerbang lolos (Audit 1393)", rc == 0)
         shutil.rmtree(sub610, ignore_errors=True)
@@ -13244,7 +13244,7 @@ def main():
             "suntikan aksi611 tidak menembak"
         with open(berkas_aksi611, "w", encoding="utf-8") as f:
             f.write(isi_baru611)
-        rc, out = jalan(sub611, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub611, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("debugfs -z -f citra.img: "
                 "gerbang gagal (Audit 1394)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub611, ignore_errors=True)
@@ -13265,7 +13265,7 @@ def main():
             "suntikan aksi612 tidak menembak"
         with open(berkas_aksi612, "w", encoding="utf-8") as f:
             f.write(isi_baru612)
-        rc, out = jalan(sub612, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub612, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("debugfs -zf citra.img: "
                 "gerbang gagal (Audit 1394)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub612, ignore_errors=True)
@@ -13286,7 +13286,7 @@ def main():
             "suntikan aksi613 tidak menembak"
         with open(berkas_aksi613, "w", encoding="utf-8") as f:
             f.write(isi_baru613)
-        rc, out = jalan(sub613, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub613, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gh --hostname contoh.invalid auth login --with-token: "
                 "gerbang gagal (Audit 1395)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub613, ignore_errors=True)
@@ -13307,7 +13307,7 @@ def main():
             "suntikan aksi614 tidak menembak"
         with open(berkas_aksi614, "w", encoding="utf-8") as f:
             f.write(isi_baru614)
-        rc, out = jalan(sub614, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub614, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("/bin/cat: "
                 "gerbang gagal (Audit 1396)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub614, ignore_errors=True)
@@ -13328,7 +13328,7 @@ def main():
             "suntikan aksi615 tidak menembak"
         with open(berkas_aksi615, "w", encoding="utf-8") as f:
             f.write(isi_baru615)
-        rc, out = jalan(sub615, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub615, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("/usr/bin/openssl sha256: "
                 "gerbang gagal (Audit 1396)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub615, ignore_errors=True)
@@ -13349,7 +13349,7 @@ def main():
             "suntikan aksi616 tidak menembak"
         with open(berkas_aksi616, "w", encoding="utf-8") as f:
             f.write(isi_baru616)
-        rc, out = jalan(sub616, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub616, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("setsid /bin/cat: "
                 "gerbang gagal (Audit 1396)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub616, ignore_errors=True)
@@ -13370,7 +13370,7 @@ def main():
             "suntikan aksi617 tidak menembak"
         with open(berkas_aksi617, "w", encoding="utf-8") as f:
             f.write(isi_baru617)
-        rc, out = jalan(sub617, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub617, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("chgpasswd: "
                 "gerbang gagal (Audit 1397)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub617, ignore_errors=True)
@@ -13391,7 +13391,7 @@ def main():
             "suntikan aksi618 tidak menembak"
         with open(berkas_aksi618, "w", encoding="utf-8") as f:
             f.write(isi_baru618)
-        rc, out = jalan(sub618, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub618, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("chgpasswd berkasuji: "
                 "gerbang gagal (Audit 1397)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub618, ignore_errors=True)
@@ -13412,7 +13412,7 @@ def main():
             "suntikan aksi619 tidak menembak"
         with open(berkas_aksi619, "w", encoding="utf-8") as f:
             f.write(isi_baru619)
-        rc, out = jalan(sub619, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub619, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pl2pm: "
                 "gerbang gagal (Audit 1398)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub619, ignore_errors=True)
@@ -13433,7 +13433,7 @@ def main():
             "suntikan aksi620 tidak menembak"
         with open(berkas_aksi620, "w", encoding="utf-8") as f:
             f.write(isi_baru620)
-        rc, out = jalan(sub620, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub620, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git credential approve: "
                 "gerbang gagal (Audit 1399)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub620, ignore_errors=True)
@@ -13454,7 +13454,7 @@ def main():
             "suntikan aksi621 tidak menembak"
         with open(berkas_aksi621, "w", encoding="utf-8") as f:
             f.write(isi_baru621)
-        rc, out = jalan(sub621, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub621, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git format-patch --stdin: "
                 "gerbang gagal (Audit 1400)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub621, ignore_errors=True)
@@ -13475,7 +13475,7 @@ def main():
             "suntikan aksi622 tidak menembak"
         with open(berkas_aksi622, "w", encoding="utf-8") as f:
             f.write(isi_baru622)
-        rc, out = jalan(sub622, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub622, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git add -p: "
                 "gerbang gagal (Audit 1401)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub622, ignore_errors=True)
@@ -13496,7 +13496,7 @@ def main():
             "suntikan aksi623 tidak menembak"
         with open(berkas_aksi623, "w", encoding="utf-8") as f:
             f.write(isi_baru623)
-        rc, out = jalan(sub623, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub623, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git clean -i: "
                 "gerbang gagal (Audit 1401)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub623, ignore_errors=True)
@@ -13517,7 +13517,7 @@ def main():
             "suntikan aksi624 tidak menembak"
         with open(berkas_aksi624, "w", encoding="utf-8") as f:
             f.write(isi_baru624)
-        rc, out = jalan(sub624, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub624, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl sess_id: "
                 "gerbang gagal (Audit 1402)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub624, ignore_errors=True)
@@ -13538,7 +13538,7 @@ def main():
             "suntikan aksi625 tidak menembak"
         with open(berkas_aksi625, "w", encoding="utf-8") as f:
             f.write(isi_baru625)
-        rc, out = jalan(sub625, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub625, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl asn1parse berkas.der: "
                 "gerbang lolos (Audit 1402)", rc == 0)
         shutil.rmtree(sub625, ignore_errors=True)
@@ -13559,7 +13559,7 @@ def main():
             "suntikan aksi626 tidak menembak"
         with open(berkas_aksi626, "w", encoding="utf-8") as f:
             f.write(isi_baru626)
-        rc, out = jalan(sub626, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub626, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl req -new -key kunci.pem: "
                 "gerbang gagal (Audit 1403)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub626, ignore_errors=True)
@@ -13580,7 +13580,7 @@ def main():
             "suntikan aksi627 tidak menembak"
         with open(berkas_aksi627, "w", encoding="utf-8") as f:
             f.write(isi_baru627)
-        rc, out = jalan(sub627, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub627, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdftoppm - hasil: "
                 "gerbang gagal (Audit 1404)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub627, ignore_errors=True)
@@ -13601,7 +13601,7 @@ def main():
             "suntikan aksi628 tidak menembak"
         with open(berkas_aksi628, "w", encoding="utf-8") as f:
             f.write(isi_baru628)
-        rc, out = jalan(sub628, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub628, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdftocairo -png - hasil.png: "
                 "gerbang gagal (Audit 1404)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub628, ignore_errors=True)
@@ -13622,7 +13622,7 @@ def main():
             "suntikan aksi629 tidak menembak"
         with open(berkas_aksi629, "w", encoding="utf-8") as f:
             f.write(isi_baru629)
-        rc, out = jalan(sub629, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub629, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("npm init: "
                 "gerbang gagal (Audit 1405)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub629, ignore_errors=True)
@@ -13643,7 +13643,7 @@ def main():
             "suntikan aksi630 tidak menembak"
         with open(berkas_aksi630, "w", encoding="utf-8") as f:
             f.write(isi_baru630)
-        rc, out = jalan(sub630, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub630, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("strings -: "
                 "gerbang lolos (Audit 1406)", rc == 0)
         shutil.rmtree(sub630, ignore_errors=True)
@@ -13664,7 +13664,7 @@ def main():
             "suntikan aksi631 tidak menembak"
         with open(berkas_aksi631, "w", encoding="utf-8") as f:
             f.write(isi_baru631)
-        rc, out = jalan(sub631, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub631, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cpan -v: "
                 "gerbang lolos (Audit 1407)", rc == 0)
         shutil.rmtree(sub631, ignore_errors=True)
@@ -13685,7 +13685,7 @@ def main():
             "suntikan aksi632 tidak menembak"
         with open(berkas_aksi632, "w", encoding="utf-8") as f:
             f.write(isi_baru632)
-        rc, out = jalan(sub632, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub632, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("utmpdump -h: "
                 "gerbang lolos (Audit 1407)", rc == 0)
         shutil.rmtree(sub632, ignore_errors=True)
@@ -13707,7 +13707,7 @@ def main():
             "suntikan aksi633 tidak menembak"
         with open(berkas_aksi633, "w", encoding="utf-8") as f:
             f.write(isi_baru633)
-        rc, out = jalan(sub633, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub633, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("X=/a/b cat: "
                 "gerbang gagal (Audit 1408)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub633, ignore_errors=True)
@@ -13728,7 +13728,7 @@ def main():
             "suntikan aksi634 tidak menembak"
         with open(berkas_aksi634, "w", encoding="utf-8") as f:
             f.write(isi_baru634)
-        rc, out = jalan(sub634, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub634, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("FOO=/bin/cat: "
                 "gerbang lolos (Audit 1408)", rc == 0)
         shutil.rmtree(sub634, ignore_errors=True)
@@ -13749,7 +13749,7 @@ def main():
             "suntikan aksi635 tidak menembak"
         with open(berkas_aksi635, "w", encoding="utf-8") as f:
             f.write(isi_baru635)
-        rc, out = jalan(sub635, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub635, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl asn1parse: "
                 "gerbang gagal (Audit 1409)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub635, ignore_errors=True)
@@ -13770,7 +13770,7 @@ def main():
             "suntikan aksi636 tidak menembak"
         with open(berkas_aksi636, "w", encoding="utf-8") as f:
             f.write(isi_baru636)
-        rc, out = jalan(sub636, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub636, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perl -0777pe skrip.pl: "
                 "gerbang gagal (Audit 1411)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub636, ignore_errors=True)
@@ -13791,7 +13791,7 @@ def main():
             "suntikan aksi637 tidak menembak"
         with open(berkas_aksi637, "w", encoding="utf-8") as f:
             f.write(isi_baru637)
-        rc, out = jalan(sub637, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub637, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perl -ned skrip.pl: "
                 "gerbang lolos (Audit 1412)", rc == 0)
         shutil.rmtree(sub637, ignore_errors=True)
@@ -13812,7 +13812,7 @@ def main():
             "suntikan aksi638 tidak menembak"
         with open(berkas_aksi638, "w", encoding="utf-8") as f:
             f.write(isi_baru638)
-        rc, out = jalan(sub638, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub638, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("debugfs -z: "
                 "gerbang lolos (Audit 1413)", rc == 0)
         shutil.rmtree(sub638, ignore_errors=True)
@@ -13833,7 +13833,7 @@ def main():
             "suntikan aksi639 tidak menembak"
         with open(berkas_aksi639, "w", encoding="utf-8") as f:
             f.write(isi_baru639)
-        rc, out = jalan(sub639, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub639, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("debugfs -f -: "
                 "gerbang gagal (Audit 1414)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub639, ignore_errors=True)
@@ -13854,7 +13854,7 @@ def main():
             "suntikan aksi640 tidak menembak"
         with open(berkas_aksi640, "w", encoding="utf-8") as f:
             f.write(isi_baru640)
-        rc, out = jalan(sub640, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub640, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git stash push -m -p: "
                 "gerbang lolos (Audit 1415)", rc == 0)
         shutil.rmtree(sub640, ignore_errors=True)
@@ -13875,7 +13875,7 @@ def main():
             "suntikan aksi641 tidak menembak"
         with open(berkas_aksi641, "w", encoding="utf-8") as f:
             f.write(isi_baru641)
-        rc, out = jalan(sub641, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub641, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git add -- -patch: "
                 "gerbang lolos (Audit 1415)", rc == 0)
         shutil.rmtree(sub641, ignore_errors=True)
@@ -13896,7 +13896,7 @@ def main():
             "suntikan aksi642 tidak menembak"
         with open(berkas_aksi642, "w", encoding="utf-8") as f:
             f.write(isi_baru642)
-        rc, out = jalan(sub642, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub642, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git format-patch --output-directory --stdin HEAD: "
                 "gerbang lolos (Audit 1416)", rc == 0)
         shutil.rmtree(sub642, ignore_errors=True)
@@ -13917,7 +13917,7 @@ def main():
             "suntikan aksi643 tidak menembak"
         with open(berkas_aksi643, "w", encoding="utf-8") as f:
             f.write(isi_baru643)
-        rc, out = jalan(sub643, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub643, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl asn1parse -length 100: "
                 "gerbang gagal (Audit 1417)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub643, ignore_errors=True)
@@ -13938,7 +13938,7 @@ def main():
             "suntikan aksi644 tidak menembak"
         with open(berkas_aksi644, "w", encoding="utf-8") as f:
             f.write(isi_baru644)
-        rc, out = jalan(sub644, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub644, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl sess_id -context abc: "
                 "gerbang gagal (Audit 1418)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub644, ignore_errors=True)
@@ -13959,7 +13959,7 @@ def main():
             "suntikan aksi645 tidak menembak"
         with open(berkas_aksi645, "w", encoding="utf-8") as f:
             f.write(isi_baru645)
-        rc, out = jalan(sub645, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub645, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl req -text -noout: "
                 "gerbang gagal (Audit 1419)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub645, ignore_errors=True)
@@ -13980,7 +13980,7 @@ def main():
             "suntikan aksi646 tidak menembak"
         with open(berkas_aksi646, "w", encoding="utf-8") as f:
             f.write(isi_baru646)
-        rc, out = jalan(sub646, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub646, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdftoppm -scale-to 800 - hasil: "
                 "gerbang gagal (Audit 1420)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub646, ignore_errors=True)
@@ -14001,7 +14001,7 @@ def main():
             "suntikan aksi647 tidak menembak"
         with open(berkas_aksi647, "w", encoding="utf-8") as f:
             f.write(isi_baru647)
-        rc, out = jalan(sub647, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub647, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("npm --loglevel warn init: "
                 "gerbang gagal (Audit 1421)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub647, ignore_errors=True)
@@ -14022,7 +14022,7 @@ def main():
             "suntikan aksi648 tidak menembak"
         with open(berkas_aksi648, "w", encoding="utf-8") as f:
             f.write(isi_baru648)
-        rc, out = jalan(sub648, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub648, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python3 -m gzip berkas.gz -: "
                 "gerbang gagal (Audit 1422)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub648, ignore_errors=True)
@@ -14043,7 +14043,7 @@ def main():
             "suntikan aksi649 tidak menembak"
         with open(berkas_aksi649, "w", encoding="utf-8") as f:
             f.write(isi_baru649)
-        rc, out = jalan(sub649, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub649, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pl2pm -v: "
                 "gerbang lolos (Audit 1423)", rc == 0)
         shutil.rmtree(sub649, ignore_errors=True)
@@ -14064,7 +14064,7 @@ def main():
             "suntikan aksi650 tidak menembak"
         with open(berkas_aksi650, "w", encoding="utf-8") as f:
             f.write(isi_baru650)
-        rc, out = jalan(sub650, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub650, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gh --hostname --with-token auth login: "
                 "gerbang lolos (Audit 1424)", rc == 0)
         shutil.rmtree(sub650, ignore_errors=True)
@@ -14085,7 +14085,7 @@ def main():
             "suntikan aksi651 tidak menembak"
         with open(berkas_aksi651, "w", encoding="utf-8") as f:
             f.write(isi_baru651)
-        rc, out = jalan(sub651, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub651, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pinentry: "
                 "gerbang gagal (Audit 1425)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub651, ignore_errors=True)
@@ -14106,7 +14106,7 @@ def main():
             "suntikan aksi652 tidak menembak"
         with open(berkas_aksi652, "w", encoding="utf-8") as f:
             f.write(isi_baru652)
-        rc, out = jalan(sub652, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub652, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dirmngr: "
                 "gerbang gagal (Audit 1426)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub652, ignore_errors=True)
@@ -14127,7 +14127,7 @@ def main():
             "suntikan aksi653 tidak menembak"
         with open(berkas_aksi653, "w", encoding="utf-8") as f:
             f.write(isi_baru653)
-        rc, out = jalan(sub653, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub653, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg-connect-agent: "
                 "gerbang gagal (Audit 1427)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub653, ignore_errors=True)
@@ -14148,7 +14148,7 @@ def main():
             "suntikan aksi654 tidak menembak"
         with open(berkas_aksi654, "w", encoding="utf-8") as f:
             f.write(isi_baru654)
-        rc, out = jalan(sub654, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub654, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgsm --decrypt: "
                 "gerbang gagal (Audit 1428)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub654, ignore_errors=True)
@@ -14169,7 +14169,7 @@ def main():
             "suntikan aksi655 tidak menembak"
         with open(berkas_aksi655, "w", encoding="utf-8") as f:
             f.write(isi_baru655)
-        rc, out = jalan(sub655, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub655, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("derdump: "
                 "gerbang gagal (Audit 1429)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub655, ignore_errors=True)
@@ -14190,7 +14190,7 @@ def main():
             "suntikan aksi656 tidak menembak"
         with open(berkas_aksi656, "w", encoding="utf-8") as f:
             f.write(isi_baru656)
-        rc, out = jalan(sub656, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub656, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("certutil -A -n nama -t ,, -d db: "
                 "gerbang gagal (Audit 1430)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub656, ignore_errors=True)
@@ -14211,7 +14211,7 @@ def main():
             "suntikan aksi657 tidak menembak"
         with open(berkas_aksi657, "w", encoding="utf-8") as f:
             f.write(isi_baru657)
-        rc, out = jalan(sub657, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub657, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cmsutil -D: "
                 "gerbang gagal (Audit 1431)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub657, ignore_errors=True)
@@ -14232,7 +14232,7 @@ def main():
             "suntikan aksi658 tidak menembak"
         with open(berkas_aksi658, "w", encoding="utf-8") as f:
             f.write(isi_baru658)
-        rc, out = jalan(sub658, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub658, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl ts -query: "
                 "gerbang gagal (Audit 1432)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub658, ignore_errors=True)
@@ -14253,7 +14253,7 @@ def main():
             "suntikan aksi659 tidak menembak"
         with open(berkas_aksi659, "w", encoding="utf-8") as f:
             f.write(isi_baru659)
-        rc, out = jalan(sub659, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub659, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl ca -in -: "
                 "gerbang gagal (Audit 1433)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub659, ignore_errors=True)
@@ -14274,7 +14274,7 @@ def main():
             "suntikan aksi660 tidak menembak"
         with open(berkas_aksi660, "w", encoding="utf-8") as f:
             f.write(isi_baru660)
-        rc, out = jalan(sub660, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub660, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git fmt-merge-msg: "
                 "gerbang gagal (Audit 1434)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub660, ignore_errors=True)
@@ -14295,7 +14295,7 @@ def main():
             "suntikan aksi661 tidak menembak"
         with open(berkas_aksi661, "w", encoding="utf-8") as f:
             f.write(isi_baru661)
-        rc, out = jalan(sub661, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub661, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("apt-key add -: "
                 "gerbang gagal (Audit 1435)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub661, ignore_errors=True)
@@ -14317,7 +14317,7 @@ def main():
             "suntikan aksi662 tidak menembak"
         with open(berkas_aksi662, "w", encoding="utf-8") as f:
             f.write(isi_baru662)
-        rc, out = jalan(sub662, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub662, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git fmt-merge-msg -m judul: "
                 "gerbang gagal (Audit 1441)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub662, ignore_errors=True)
@@ -14338,7 +14338,7 @@ def main():
             "suntikan aksi663 tidak menembak"
         with open(berkas_aksi663, "w", encoding="utf-8") as f:
             f.write(isi_baru663)
-        rc, out = jalan(sub663, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub663, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git fmt-merge-msg -F -: "
                 "gerbang gagal (Audit 1442)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub663, ignore_errors=True)
@@ -14359,7 +14359,7 @@ def main():
             "suntikan aksi664 tidak menembak"
         with open(berkas_aksi664, "w", encoding="utf-8") as f:
             f.write(isi_baru664)
-        rc, out = jalan(sub664, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub664, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl asn1parse -item: "
                 "gerbang gagal (Audit 1443)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub664, ignore_errors=True)
@@ -14380,7 +14380,7 @@ def main():
             "suntikan aksi665 tidak menembak"
         with open(berkas_aksi665, "w", encoding="utf-8") as f:
             f.write(isi_baru665)
-        rc, out = jalan(sub665, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub665, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl ts -query -data -: "
                 "gerbang gagal (Audit 1444)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub665, ignore_errors=True)
@@ -14401,7 +14401,7 @@ def main():
             "suntikan aksi666 tidak menembak"
         with open(berkas_aksi666, "w", encoding="utf-8") as f:
             f.write(isi_baru666)
-        rc, out = jalan(sub666, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub666, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("npm --init-module init: "
                 "gerbang gagal (Audit 1445)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub666, ignore_errors=True)
@@ -14422,7 +14422,7 @@ def main():
             "suntikan aksi667 tidak menembak"
         with open(berkas_aksi667, "w", encoding="utf-8") as f:
             f.write(isi_baru667)
-        rc, out = jalan(sub667, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub667, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgsm --decrypt --cipher-algo: "
                 "gerbang gagal (Audit 1446)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub667, ignore_errors=True)
@@ -14443,7 +14443,7 @@ def main():
             "suntikan aksi668 tidak menembak"
         with open(berkas_aksi668, "w", encoding="utf-8") as f:
             f.write(isi_baru668)
-        rc, out = jalan(sub668, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub668, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cmsutil -D -p -i: "
                 "gerbang gagal (Audit 1447)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub668, ignore_errors=True)
@@ -14464,7 +14464,7 @@ def main():
             "suntikan aksi669 tidak menembak"
         with open(berkas_aksi669, "w", encoding="utf-8") as f:
             f.write(isi_baru669)
-        rc, out = jalan(sub669, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub669, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdftoppm -aa yes - hasil: "
                 "gerbang gagal (Audit 1448)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub669, ignore_errors=True)
@@ -14485,7 +14485,7 @@ def main():
             "suntikan aksi670 tidak menembak"
         with open(berkas_aksi670, "w", encoding="utf-8") as f:
             f.write(isi_baru670)
-        rc, out = jalan(sub670, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub670, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git format-patch --start-number --stdin: "
                 "gerbang lolos (Audit 1449)", rc == 0)
         shutil.rmtree(sub670, ignore_errors=True)
@@ -14540,7 +14540,7 @@ def main():
             "suntikan aksi673 tidak menembak"
         with open(berkas_aksi673, "w", encoding="utf-8") as f:
             f.write(isi_baru673)
-        rc, out = jalan(sub673, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub673, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl pkeyparam telanjang menguras stdin: "
                 "gerbang gagal (Audit 1495)",
                 rc != 0)
@@ -14562,7 +14562,7 @@ def main():
             "suntikan aksi674 tidak menembak"
         with open(berkas_aksi674, "w", encoding="utf-8") as f:
             f.write(isi_baru674)
-        rc, out = jalan(sub674, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub674, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl mac tanpa -in menguras stdin: "
                 "gerbang gagal (Audit 1496)",
                 rc != 0)
@@ -14584,7 +14584,7 @@ def main():
             "suntikan aksi675 tidak menembak"
         with open(berkas_aksi675, "w", encoding="utf-8") as f:
             f.write(isi_baru675)
-        rc, out = jalan(sub675, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub675, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl ts -data terakhir - menguras stdin: "
                 "gerbang gagal (Audit 1497)",
                 rc != 0)
@@ -14606,7 +14606,7 @@ def main():
             "suntikan aksi676 tidak menembak"
         with open(berkas_aksi676, "w", encoding="utf-8") as f:
             f.write(isi_baru676)
-        rc, out = jalan(sub676, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub676, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdftocairo -antialias bernilai: operand - adalah stdin: "
                 "gerbang gagal (Audit 1498)",
                 rc != 0)
@@ -14628,7 +14628,7 @@ def main():
             "suntikan aksi677 tidak menembak"
         with open(berkas_aksi677, "w", encoding="utf-8") as f:
             f.write(isi_baru677)
-        rc, out = jalan(sub677, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub677, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl sess_id -item adalah galat usage, bukan stdin: "
                 "gerbang lolos (Audit 1499)",
                 rc == 0)
@@ -14650,7 +14650,7 @@ def main():
             "suntikan aksi678 tidak menembak"
         with open(berkas_aksi678, "w", encoding="utf-8") as f:
             f.write(isi_baru678)
-        rc, out = jalan(sub678, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub678, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cmsutil -i - adalah nama berkas harfiah, bukan stdin: "
                 "gerbang lolos (Audit 1500)",
                 rc == 0)
@@ -14672,7 +14672,7 @@ def main():
             "suntikan aksi679 tidak menembak"
         with open(berkas_aksi679, "w", encoding="utf-8") as f:
             f.write(isi_baru679)
-        rc, out = jalan(sub679, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub679, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl enc -in terakhir berkas, bukan stdin: "
                 "gerbang lolos (Audit 1501)",
                 rc == 0)
@@ -14694,7 +14694,7 @@ def main():
             "suntikan aksi680 tidak menembak"
         with open(berkas_aksi680, "w", encoding="utf-8") as f:
             f.write(isi_baru680)
-        rc, out = jalan(sub680, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub680, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git commit -m -F -: -F adalah nilai -m, bukan berkas stdin: "
                 "gerbang lolos (Audit 1502)",
                 rc == 0)
@@ -14716,7 +14716,7 @@ def main():
             "suntikan aksi681 tidak menembak"
         with open(berkas_aksi681, "w", encoding="utf-8") as f:
             f.write(isi_baru681)
-        rc, out = jalan(sub681, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub681, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git format-patch --signature menelan --stdin sebagai nilai: "
                 "gerbang lolos (Audit 1503)",
                 rc == 0)
@@ -14738,7 +14738,7 @@ def main():
             "suntikan aksi682 tidak menembak"
         with open(berkas_aksi682, "w", encoding="utf-8") as f:
             f.write(isi_baru682)
-        rc, out = jalan(sub682, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub682, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgsm --options --decrypt: --decrypt adalah nilai opsi: "
                 "gerbang lolos (Audit 1504)",
                 rc == 0)
@@ -14779,7 +14779,7 @@ def main():
             "suntikan aksi684 tidak menembak"
         with open(berkas_aksi684, "w", encoding="utf-8") as f:
             f.write(isi_baru684)
-        rc, out = jalan(sub684, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub684, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl spkac telanjang menguras stdin: "
                 "gerbang gagal (Audit 1520)",
                 rc != 0)
@@ -14801,7 +14801,7 @@ def main():
             "suntikan aksi685 tidak menembak"
         with open(berkas_aksi685, "w", encoding="utf-8") as f:
             f.write(isi_baru685)
-        rc, out = jalan(sub685, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub685, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl verify -vfyopt bernilai: tanpa operand membaca stdin: "
                 "gerbang gagal (Audit 1521)",
                 rc != 0)
@@ -14823,7 +14823,7 @@ def main():
             "suntikan aksi686 tidak menembak"
         with open(berkas_aksi686, "w", encoding="utf-8") as f:
             f.write(isi_baru686)
-        rc, out = jalan(sub686, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub686, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git commit -aF -: -F di bundel membaca pesan dari stdin: "
                 "gerbang gagal (Audit 1522)",
                 rc != 0)
@@ -14845,7 +14845,7 @@ def main():
             "suntikan aksi687 tidak menembak"
         with open(berkas_aksi687, "w", encoding="utf-8") as f:
             f.write(isi_baru687)
-        rc, out = jalan(sub687, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub687, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl storeutl operand /dev/stdin membaca stdin: "
                 "gerbang gagal (Audit 1523)",
                 rc != 0)
@@ -14867,7 +14867,7 @@ def main():
             "suntikan aksi688 tidak menembak"
         with open(berkas_aksi688, "w", encoding="utf-8") as f:
             f.write(isi_baru688)
-        rc, out = jalan(sub688, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub688, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git commit --cleanup -F -: -F adalah nilai --cleanup: "
                 "gerbang lolos (Audit 1524)",
                 rc == 0)
@@ -14889,7 +14889,7 @@ def main():
             "suntikan aksi689 tidak menembak"
         with open(berkas_aksi689, "w", encoding="utf-8") as f:
             f.write(isi_baru689)
-        rc, out = jalan(sub689, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub689, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgsm --log-file --decrypt: --decrypt adalah nilai opsi: "
                 "gerbang lolos (Audit 1525)",
                 rc == 0)
@@ -14911,7 +14911,7 @@ def main():
             "suntikan aksi690 tidak menembak"
         with open(berkas_aksi690, "w", encoding="utf-8") as f:
             f.write(isi_baru690)
-        rc, out = jalan(sub690, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub690, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git commit -s -F -: -s bendera tanpa nilai di commit: "
                 "gerbang gagal (Audit 1535)",
                 rc != 0)
@@ -14933,7 +14933,7 @@ def main():
             "suntikan aksi691 tidak menembak"
         with open(berkas_aksi691, "w", encoding="utf-8") as f:
             f.write(isi_baru691)
-        rc, out = jalan(sub691, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub691, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgsm --pinentry-mode bernilai: --decrypt tak tertelan sebagai nilai maupun tertekan operand: gerbang gagal (Audit 1545)",
                 rc != 0)
         shutil.rmtree(sub691, ignore_errors=True)
@@ -14955,7 +14955,7 @@ def main():
             "suntikan aksi692 tidak menembak"
         with open(berkas_aksi692, "w", encoding="utf-8") as f:
             f.write(isi_baru692)
-        rc, out = jalan(sub692, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub692, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("storeutl URI file:// ke /dev/stdin dinilai membaca stdin: gerbang gagal (Audit 1546)",
                 rc != 0)
         shutil.rmtree(sub692, ignore_errors=True)
@@ -14976,7 +14976,7 @@ def main():
             "suntikan aksi693 tidak menembak"
         with open(berkas_aksi693, "w", encoding="utf-8") as f:
             f.write(isi_baru693)
-        rc, out = jalan(sub693, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub693, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perintah openssl nama-cipher (aes-256-cbc) dinilai membaca stdin: gerbang gagal (Audit 1548)",
                 rc != 0)
         shutil.rmtree(sub693, ignore_errors=True)
@@ -14997,7 +14997,7 @@ def main():
             "suntikan aksi694 tidak menembak"
         with open(berkas_aksi694, "w", encoding="utf-8") as f:
             f.write(isi_baru694)
-        rc, out = jalan(sub694, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub694, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg opsi --s2k-mode bernilai: gerbang gagal (Audit 1549)",
                 rc != 0)
         shutil.rmtree(sub694, ignore_errors=True)
@@ -15018,7 +15018,7 @@ def main():
             "suntikan aksi695 tidak menembak"
         with open(berkas_aksi695, "w", encoding="utf-8") as f:
             f.write(isi_baru695)
-        rc, out = jalan(sub695, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub695, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgsm opsi --debug bernilai: gerbang gagal (Audit 1550)",
                 rc != 0)
         shutil.rmtree(sub695, ignore_errors=True)
@@ -15039,7 +15039,7 @@ def main():
             "suntikan aksi696 tidak menembak"
         with open(berkas_aksi696, "w", encoding="utf-8") as f:
             f.write(isi_baru696)
-        rc, out = jalan(sub696, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub696, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("storeutl URI file: satu garis miring dinilai membaca stdin: gerbang gagal (Audit 1551)",
                 rc != 0)
         shutil.rmtree(sub696, ignore_errors=True)
@@ -15060,7 +15060,7 @@ def main():
             "suntikan aksi697 tidak menembak"
         with open(berkas_aksi697, "w", encoding="utf-8") as f:
             f.write(isi_baru697)
-        rc, out = jalan(sub697, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub697, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl nama cipher kapital (AES-256-CBC) dinilai membaca stdin: gerbang gagal (Audit 1561)",
                 rc != 0)
         shutil.rmtree(sub697, ignore_errors=True)
@@ -15081,7 +15081,7 @@ def main():
             "suntikan aksi698 tidak menembak"
         with open(berkas_aksi698, "w", encoding="utf-8") as f:
             f.write(isi_baru698)
-        rc, out = jalan(sub698, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub698, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl nama digest kapital (SHA256) dinilai membaca stdin: gerbang gagal (Audit 1561)",
                 rc != 0)
         shutil.rmtree(sub698, ignore_errors=True)
@@ -15102,7 +15102,7 @@ def main():
             "suntikan aksi699 tidak menembak"
         with open(berkas_aksi699, "w", encoding="utf-8") as f:
             f.write(isi_baru699)
-        rc, out = jalan(sub699, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub699, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg opsi --options bernilai: gerbang gagal (Audit 1562)",
                 rc != 0)
         shutil.rmtree(sub699, ignore_errors=True)
@@ -15123,7 +15123,7 @@ def main():
             "suntikan aksi700 tidak menembak"
         with open(berkas_aksi700, "w", encoding="utf-8") as f:
             f.write(isi_baru700)
-        rc, out = jalan(sub700, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub700, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg opsi --encrypt-to bernilai: gerbang gagal (Audit 1562)",
                 rc != 0)
         shutil.rmtree(sub700, ignore_errors=True)
@@ -15144,7 +15144,7 @@ def main():
             "suntikan aksi701 tidak menembak"
         with open(berkas_aksi701, "w", encoding="utf-8") as f:
             f.write(isi_baru701)
-        rc, out = jalan(sub701, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub701, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg opsi pendek -z bernilai terpisah: gerbang gagal (Audit 1562)",
                 rc != 0)
         shutil.rmtree(sub701, ignore_errors=True)
@@ -15165,7 +15165,7 @@ def main():
             "suntikan aksi702 tidak menembak"
         with open(berkas_aksi702, "w", encoding="utf-8") as f:
             f.write(isi_baru702)
-        rc, out = jalan(sub702, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub702, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgsm opsi --debug-wait bernilai: gerbang gagal (Audit 1563)",
                 rc != 0)
         shutil.rmtree(sub702, ignore_errors=True)
@@ -15186,7 +15186,7 @@ def main():
             "suntikan aksi703 tidak menembak"
         with open(berkas_aksi703, "w", encoding="utf-8") as f:
             f.write(isi_baru703)
-        rc, out = jalan(sub703, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub703, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("storeutl URI miring ganda dinilai membaca stdin: gerbang gagal (Audit 1564)",
                 rc != 0)
         shutil.rmtree(sub703, ignore_errors=True)
@@ -15207,7 +15207,7 @@ def main():
             "suntikan aksi704 tidak menembak"
         with open(berkas_aksi704, "w", encoding="utf-8") as f:
             f.write(isi_baru704)
-        rc, out = jalan(sub704, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub704, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("storeutl URI host asing BUKAN stdin: gerbang tetap lolos (Audit 1564)",
                 rc == 0)
         shutil.rmtree(sub704, ignore_errors=True)
@@ -15239,7 +15239,7 @@ def main():
             "tambahan aksi706 tidak menembak"
         with open(berkas_aksi706, "w", encoding="utf-8") as f:
             f.write(isi_baru706)
-        rc, out = jalan(sub706, [sys.executable, GERBANG, "--semua"])
+        rc, out = jalan(sub706, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("header terbelah dua literal di baris baru: gerbang tetap lolos (Audit 1571)",
                 rc == 0)
         shutil.rmtree(sub706, ignore_errors=True)
@@ -15335,7 +15335,7 @@ def main():
         with open(berkas_aksi712, "w", encoding="utf-8") as f:
             f.write(isi_baru712)
         rc, out = jalan(sub712,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl sha3-256 di substitusi proses: gerbang gagal (Audit 1580)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub712, ignore_errors=True)
         sub713 = klon(tmp, "sub713")
@@ -15356,7 +15356,7 @@ def main():
         with open(berkas_aksi713, "w", encoding="utf-8") as f:
             f.write(isi_baru713)
         rc, out = jalan(sub713,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl dgst -signature di substitusi proses: gerbang gagal (Audit 1581)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub713, ignore_errors=True)
         sub714 = klon(tmp, "sub714")
@@ -15377,7 +15377,7 @@ def main():
         with open(berkas_aksi714, "w", encoding="utf-8") as f:
             f.write(isi_baru714)
         rc, out = jalan(sub714,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl enc -out -in: gerbang gagal (Audit 1582)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub714, ignore_errors=True)
         sub715 = klon(tmp, "sub715")
@@ -15398,7 +15398,7 @@ def main():
         with open(berkas_aksi715, "w", encoding="utf-8") as f:
             f.write(isi_baru715)
         rc, out = jalan(sub715,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl aes-256-cbc -ciphers: gerbang lolos (Audit 1583)", rc == 0)
         shutil.rmtree(sub715, ignore_errors=True)
 
@@ -15420,7 +15420,7 @@ def main():
         with open(berkas_aksi716, "w", encoding="utf-8") as f:
             f.write(isi_baru716)
         rc, out = jalan(sub716,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl sha256 -list: gerbang lolos (Audit 1583)", rc == 0)
         shutil.rmtree(sub716, ignore_errors=True)
         sub717 = klon(tmp, "sub717")
@@ -15441,7 +15441,7 @@ def main():
         with open(berkas_aksi717, "w", encoding="utf-8") as f:
             f.write(isi_baru717)
         rc, out = jalan(sub717,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --cert-notation di substitusi proses: gerbang gagal (Audit 1587)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub717, ignore_errors=True)
         sub718 = klon(tmp, "sub718")
@@ -15462,7 +15462,7 @@ def main():
         with open(berkas_aksi718, "w", encoding="utf-8") as f:
             f.write(isi_baru718)
         rc, out = jalan(sub718,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg -N di substitusi proses: gerbang gagal (Audit 1588)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub718, ignore_errors=True)
         sub719 = klon(tmp, "sub719")
@@ -15483,7 +15483,7 @@ def main():
         with open(berkas_aksi719, "w", encoding="utf-8") as f:
             f.write(isi_baru719)
         rc, out = jalan(sub719,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --remote-user di substitusi proses: gerbang gagal (Audit 1589)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub719, ignore_errors=True)
         sub720 = klon(tmp, "sub720")
@@ -15504,7 +15504,7 @@ def main():
         with open(berkas_aksi720, "w", encoding="utf-8") as f:
             f.write(isi_baru720)
         rc, out = jalan(sub720,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --ungroup di substitusi proses: gerbang gagal (Audit 1590)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub720, ignore_errors=True)
         sub721 = klon(tmp, "sub721")
@@ -15525,7 +15525,7 @@ def main():
         with open(berkas_aksi721, "w", encoding="utf-8") as f:
             f.write(isi_baru721)
         rc, out = jalan(sub721,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg --options --clearsign (modus tertelan nilai): gerbang lolos (Audit 1591)", rc == 0)
         shutil.rmtree(sub721, ignore_errors=True)
         sub722 = klon(tmp, "sub722")
@@ -15546,7 +15546,7 @@ def main():
         with open(berkas_aksi722, "w", encoding="utf-8") as f:
             f.write(isi_baru722)
         rc, out = jalan(sub722,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("varian GNU awk gawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub722, ignore_errors=True)
         sub723 = klon(tmp, "sub723")
@@ -15567,7 +15567,7 @@ def main():
         with open(berkas_aksi723, "w", encoding="utf-8") as f:
             f.write(isi_baru723)
         rc, out = jalan(sub723,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gawk beroperand berkas data: gerbang lolos (Audit 1638)", rc == 0)
         shutil.rmtree(sub723, ignore_errors=True)
         sub724 = klon(tmp, "sub724")
@@ -15588,7 +15588,7 @@ def main():
         with open(berkas_aksi724, "w", encoding="utf-8") as f:
             f.write(isi_baru724)
         rc, out = jalan(sub724,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("varian GNU awk pgawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub724, ignore_errors=True)
         sub725 = klon(tmp, "sub725")
@@ -15609,7 +15609,7 @@ def main():
         with open(berkas_aksi725, "w", encoding="utf-8") as f:
             f.write(isi_baru725)
         rc, out = jalan(sub725,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("varian GNU awk igawk di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub725, ignore_errors=True)
         sub726 = klon(tmp, "sub726")
@@ -15630,7 +15630,7 @@ def main():
         with open(berkas_aksi726, "w", encoding="utf-8") as f:
             f.write(isi_baru726)
         rc, out = jalan(sub726,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg2 dinilai sama dengan gpg di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub726, ignore_errors=True)
         sub727 = klon(tmp, "sub727")
@@ -15651,7 +15651,7 @@ def main():
         with open(berkas_aksi727, "w", encoding="utf-8") as f:
             f.write(isi_baru727)
         rc, out = jalan(sub727,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("kompresor zstd tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub727, ignore_errors=True)
         sub728 = klon(tmp, "sub728")
@@ -15672,7 +15672,7 @@ def main():
         with open(berkas_aksi728, "w", encoding="utf-8") as f:
             f.write(isi_baru728)
         rc, out = jalan(sub728,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zstd beroperand berkas: gerbang lolos (Audit 1638)", rc == 0)
         shutil.rmtree(sub728, ignore_errors=True)
         sub729 = klon(tmp, "sub729")
@@ -15693,7 +15693,7 @@ def main():
         with open(berkas_aksi729, "w", encoding="utf-8") as f:
             f.write(isi_baru729)
         rc, out = jalan(sub729,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("kompresor pigz tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub729, ignore_errors=True)
         sub730 = klon(tmp, "sub730")
@@ -15714,7 +15714,7 @@ def main():
         with open(berkas_aksi730, "w", encoding="utf-8") as f:
             f.write(isi_baru730)
         rc, out = jalan(sub730,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("interpreter ruby tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub730, ignore_errors=True)
         sub731 = klon(tmp, "sub731")
@@ -15735,7 +15735,7 @@ def main():
         with open(berkas_aksi731, "w", encoding="utf-8") as f:
             f.write(isi_baru731)
         rc, out = jalan(sub731,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ruby beroperand berkas skrip: gerbang lolos (Audit 1638)", rc == 0)
         shutil.rmtree(sub731, ignore_errors=True)
         sub732 = klon(tmp, "sub732")
@@ -15756,7 +15756,7 @@ def main():
         with open(berkas_aksi732, "w", encoding="utf-8") as f:
             f.write(isi_baru732)
         rc, out = jalan(sub732,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("interpreter php tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub732, ignore_errors=True)
         sub733 = klon(tmp, "sub733")
@@ -15777,7 +15777,7 @@ def main():
         with open(berkas_aksi733, "w", encoding="utf-8") as f:
             f.write(isi_baru733)
         rc, out = jalan(sub733,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("interpreter lua tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub733, ignore_errors=True)
         sub734 = klon(tmp, "sub734")
@@ -15798,7 +15798,7 @@ def main():
         with open(berkas_aksi734, "w", encoding="utf-8") as f:
             f.write(isi_baru734)
         rc, out = jalan(sub734,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("shell ash tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub734, ignore_errors=True)
         sub735 = klon(tmp, "sub735")
@@ -15819,7 +15819,7 @@ def main():
         with open(berkas_aksi735, "w", encoding="utf-8") as f:
             f.write(isi_baru735)
         rc, out = jalan(sub735,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("shell ksh tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub735, ignore_errors=True)
         sub736 = klon(tmp, "sub736")
@@ -15840,7 +15840,7 @@ def main():
         with open(berkas_aksi736, "w", encoding="utf-8") as f:
             f.write(isi_baru736)
         rc, out = jalan(sub736,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("shell fish tanpa skrip di substitusi proses: penguras — gerbang gagal (Audit 1638)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub736, ignore_errors=True)
         sub737 = klon(tmp, "sub737")
@@ -15861,7 +15861,7 @@ def main():
         with open(berkas_aksi737, "w", encoding="utf-8") as f:
             f.write(isi_baru737)
         rc, out = jalan(sub737,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv tanpa operand data di substitusi proses: penguras — gerbang gagal (Audit 1639)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub737, ignore_errors=True)
         sub738 = klon(tmp, "sub738")
@@ -15882,7 +15882,7 @@ def main():
         with open(berkas_aksi738, "w", encoding="utf-8") as f:
             f.write(isi_baru738)
         rc, out = jalan(sub738,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv beroperand berkas data: gerbang lolos (Audit 1639)", rc == 0)
         shutil.rmtree(sub738, ignore_errors=True)
         sub739 = klon(tmp, "sub739")
@@ -15903,7 +15903,7 @@ def main():
         with open(berkas_aksi739, "w", encoding="utf-8") as f:
             f.write(isi_baru739)
         rc, out = jalan(sub739,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gawk -i bernilai GNU di substitusi proses: penguras — gerbang gagal (Audit 1640)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub739, ignore_errors=True)
         sub740 = klon(tmp, "sub740")
@@ -15924,7 +15924,7 @@ def main():
         with open(berkas_aksi740, "w", encoding="utf-8") as f:
             f.write(isi_baru740)
         rc, out = jalan(sub740,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gawk -l bernilai GNU di substitusi proses: penguras — gerbang gagal (Audit 1640)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub740, ignore_errors=True)
         sub741 = klon(tmp, "sub741")
@@ -15945,7 +15945,7 @@ def main():
         with open(berkas_aksi741, "w", encoding="utf-8") as f:
             f.write(isi_baru741)
         rc, out = jalan(sub741,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ruby -I bernilai di substitusi proses: penguras — gerbang gagal (Audit 1641)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub741, ignore_errors=True)
         sub742 = klon(tmp, "sub742")
@@ -15966,7 +15966,7 @@ def main():
         with open(berkas_aksi742, "w", encoding="utf-8") as f:
             f.write(isi_baru742)
         rc, out = jalan(sub742,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("php -d bernilai di substitusi proses: penguras — gerbang gagal (Audit 1641)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub742, ignore_errors=True)
         sub743 = klon(tmp, "sub743")
@@ -15987,7 +15987,7 @@ def main():
         with open(berkas_aksi743, "w", encoding="utf-8") as f:
             f.write(isi_baru743)
         rc, out = jalan(sub743,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lua -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1641)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub743, ignore_errors=True)
         sub744 = klon(tmp, "sub744")
@@ -16008,7 +16008,7 @@ def main():
         with open(berkas_aksi744, "w", encoding="utf-8") as f:
             f.write(isi_baru744)
         rc, out = jalan(sub744,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ruby -I bernilai + berkas skrip: gerbang lolos (Audit 1641)", rc == 0)
         shutil.rmtree(sub744, ignore_errors=True)
         sub745 = klon(tmp, "sub745")
@@ -16029,7 +16029,7 @@ def main():
         with open(berkas_aksi745, "w", encoding="utf-8") as f:
             f.write(isi_baru745)
         rc, out = jalan(sub745,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zstd -M bernilai di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub745, ignore_errors=True)
         sub746 = klon(tmp, "sub746")
@@ -16050,7 +16050,7 @@ def main():
         with open(berkas_aksi746, "w", encoding="utf-8") as f:
             f.write(isi_baru746)
         rc, out = jalan(sub746,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zstd --format bernilai di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub746, ignore_errors=True)
         sub747 = klon(tmp, "sub747")
@@ -16071,7 +16071,7 @@ def main():
         with open(berkas_aksi747, "w", encoding="utf-8") as f:
             f.write(isi_baru747)
         rc, out = jalan(sub747,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("varian zstdmt tanpa operand di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub747, ignore_errors=True)
         sub748 = klon(tmp, "sub748")
@@ -16092,7 +16092,7 @@ def main():
         with open(berkas_aksi748, "w", encoding="utf-8") as f:
             f.write(isi_baru748)
         rc, out = jalan(sub748,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zstdgrep tanpa operand berkas di substitusi proses: penguras — gerbang gagal (Audit 1642)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub748, ignore_errors=True)
         sub749 = klon(tmp, "sub749")
@@ -16113,7 +16113,7 @@ def main():
         with open(berkas_aksi749, "w", encoding="utf-8") as f:
             f.write(isi_baru749)
         rc, out = jalan(sub749,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zstdgrep beroperand berkas: gerbang lolos (Audit 1642)", rc == 0)
         shutil.rmtree(sub749, ignore_errors=True)
         sub750 = klon(tmp, "sub750")
@@ -16134,7 +16134,7 @@ def main():
         with open(berkas_aksi750, "w", encoding="utf-8") as f:
             f.write(isi_baru750)
         rc, out = jalan(sub750,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv --weak-digest bernilai di substitusi proses: penguras — gerbang gagal (Audit 1648)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub750, ignore_errors=True)
         sub751 = klon(tmp, "sub751")
@@ -16155,7 +16155,7 @@ def main():
         with open(berkas_aksi751, "w", encoding="utf-8") as f:
             f.write(isi_baru751)
         rc, out = jalan(sub751,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv --output bernilai di substitusi proses: penguras — gerbang gagal (Audit 1648)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub751, ignore_errors=True)
         sub752 = klon(tmp, "sub752")
@@ -16176,7 +16176,7 @@ def main():
         with open(berkas_aksi752, "w", encoding="utf-8") as f:
             f.write(isi_baru752)
         rc, out = jalan(sub752,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv sigfile + operand '-' di substitusi proses: data dari stdin, penguras — gerbang gagal (Audit 1649)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub752, ignore_errors=True)
         sub753 = klon(tmp, "sub753")
@@ -16197,7 +16197,7 @@ def main():
         with open(berkas_aksi753, "w", encoding="utf-8") as f:
             f.write(isi_baru753)
         rc, out = jalan(sub753,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv dua operand berkas: gerbang lolos (Audit 1649)", rc == 0)
         shutil.rmtree(sub753, ignore_errors=True)
         sub754 = klon(tmp, "sub754")
@@ -16218,7 +16218,7 @@ def main():
         with open(berkas_aksi754, "w", encoding="utf-8") as f:
             f.write(isi_baru754)
         rc, out = jalan(sub754,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ruby -C bernilai di substitusi proses: penguras — gerbang gagal (Audit 1650)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub754, ignore_errors=True)
         sub755 = klon(tmp, "sub755")
@@ -16239,7 +16239,7 @@ def main():
         with open(berkas_aksi755, "w", encoding="utf-8") as f:
             f.write(isi_baru755)
         rc, out = jalan(sub755,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ruby -E bernilai di substitusi proses: penguras — gerbang gagal (Audit 1650)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub755, ignore_errors=True)
         sub756 = klon(tmp, "sub756")
@@ -16260,7 +16260,7 @@ def main():
         with open(berkas_aksi756, "w", encoding="utf-8") as f:
             f.write(isi_baru756)
         rc, out = jalan(sub756,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("php -z bernilai di substitusi proses: penguras — gerbang gagal (Audit 1651)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub756, ignore_errors=True)
         sub757 = klon(tmp, "sub757")
@@ -16281,7 +16281,7 @@ def main():
         with open(berkas_aksi757, "w", encoding="utf-8") as f:
             f.write(isi_baru757)
         rc, out = jalan(sub757,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("php -R pemroses baris di substitusi proses: penguras — gerbang gagal (Audit 1651)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub757, ignore_errors=True)
         sub758 = klon(tmp, "sub758")
@@ -16302,7 +16302,7 @@ def main():
         with open(berkas_aksi758, "w", encoding="utf-8") as f:
             f.write(isi_baru758)
         rc, out = jalan(sub758,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dgawk debugger di substitusi proses: perintah dari stdin, penguras — gerbang gagal (Audit 1652)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub758, ignore_errors=True)
         sub759 = klon(tmp, "sub759")
@@ -16323,7 +16323,7 @@ def main():
         with open(berkas_aksi759, "w", encoding="utf-8") as f:
             f.write(isi_baru759)
         rc, out = jalan(sub759,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dgawk beroperand berkas tetap membaca perintah debug dari stdin: penguras — gerbang gagal (Audit 1652)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub759, ignore_errors=True)
         sub760 = klon(tmp, "sub760")
@@ -16344,7 +16344,7 @@ def main():
         with open(berkas_aksi760, "w", encoding="utf-8") as f:
             f.write(isi_baru760)
         rc, out = jalan(sub760,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ruby berversi -I bernilai di substitusi proses: penguras — gerbang gagal (Audit 1653)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub760, ignore_errors=True)
         sub761 = klon(tmp, "sub761")
@@ -16365,7 +16365,7 @@ def main():
         with open(berkas_aksi761, "w", encoding="utf-8") as f:
             f.write(isi_baru761)
         rc, out = jalan(sub761,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("php berversi -d bernilai di substitusi proses: penguras — gerbang gagal (Audit 1653)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub761, ignore_errors=True)
         sub762 = klon(tmp, "sub762")
@@ -16386,7 +16386,7 @@ def main():
         with open(berkas_aksi762, "w", encoding="utf-8") as f:
             f.write(isi_baru762)
         rc, out = jalan(sub762,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lua berversi -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1653)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub762, ignore_errors=True)
         sub763 = klon(tmp, "sub763")
@@ -16407,7 +16407,7 @@ def main():
         with open(berkas_aksi763, "w", encoding="utf-8") as f:
             f.write(isi_baru763)
         rc, out = jalan(sub763,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv --debug bernilai di substitusi proses: penguras — gerbang gagal (Audit 1658)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub763, ignore_errors=True)
         sub764 = klon(tmp, "sub764")
@@ -16428,7 +16428,7 @@ def main():
         with open(berkas_aksi764, "w", encoding="utf-8") as f:
             f.write(isi_baru764)
         rc, out = jalan(sub764,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv --assert-pubkey-algo bernilai di substitusi proses: penguras — gerbang gagal (Audit 1658)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub764, ignore_errors=True)
         sub765 = klon(tmp, "sub765")
@@ -16449,7 +16449,7 @@ def main():
         with open(berkas_aksi765, "w", encoding="utf-8") as f:
             f.write(isi_baru765)
         rc, out = jalan(sub765,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv '-' tanda tangan dari stdin di substitusi proses: penguras — gerbang gagal (Audit 1659)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub765, ignore_errors=True)
         sub766 = klon(tmp, "sub766")
@@ -16470,7 +16470,7 @@ def main():
         with open(berkas_aksi766, "w", encoding="utf-8") as f:
             f.write(isi_baru766)
         rc, out = jalan(sub766,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("luajit -l bernilai di substitusi proses: penguras — gerbang gagal (Audit 1660)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub766, ignore_errors=True)
         sub767 = klon(tmp, "sub767")
@@ -16491,7 +16491,7 @@ def main():
         with open(berkas_aksi767, "w", encoding="utf-8") as f:
             f.write(isi_baru767)
         rc, out = jalan(sub767,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("luajit beroperand skrip: gerbang lolos (Audit 1660)", rc == 0)
         shutil.rmtree(sub767, ignore_errors=True)
         sub768 = klon(tmp, "sub768")
@@ -16512,7 +16512,7 @@ def main():
         with open(berkas_aksi768, "w", encoding="utf-8") as f:
             f.write(isi_baru768)
         rc, out = jalan(sub768,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ruby -W token terpisah adalah berkas skrip: gerbang lolos (Audit 1661)", rc == 0)
         shutil.rmtree(sub768, ignore_errors=True)
         sub769 = klon(tmp, "sub769")
@@ -16533,7 +16533,7 @@ def main():
         with open(berkas_aksi769, "w", encoding="utf-8") as f:
             f.write(isi_baru769)
         rc, out = jalan(sub769,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lua -W bendera, token terpisah berkas skrip: gerbang lolos (Audit 1661)", rc == 0)
         shutil.rmtree(sub769, ignore_errors=True)
         sub770 = klon(tmp, "sub770")
@@ -16554,7 +16554,7 @@ def main():
         with open(berkas_aksi770, "w", encoding="utf-8") as f:
             f.write(isi_baru770)
         rc, out = jalan(sub770,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv tiga operand dengan '-' kedua di substitusi proses: penguras — gerbang gagal (Audit 1671)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub770, ignore_errors=True)
         sub771 = klon(tmp, "sub771")
@@ -16575,7 +16575,7 @@ def main():
         with open(berkas_aksi771, "w", encoding="utf-8") as f:
             f.write(isi_baru771)
         rc, out = jalan(sub771,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv tiga operand berkas: gerbang lolos (Audit 1671)", rc == 0)
         shutil.rmtree(sub771, ignore_errors=True)
         sub772 = klon(tmp, "sub772")
@@ -16596,7 +16596,7 @@ def main():
         with open(berkas_aksi772, "w", encoding="utf-8") as f:
             f.write(isi_baru772)
         rc, out = jalan(sub772,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("luajit -j bernilai terpisah di substitusi proses: penguras — gerbang gagal (Audit 1672)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub772, ignore_errors=True)
         sub773 = klon(tmp, "sub773")
@@ -16617,7 +16617,7 @@ def main():
         with open(berkas_aksi773, "w", encoding="utf-8") as f:
             f.write(isi_baru773)
         rc, out = jalan(sub773,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lua tak punya -j, token berikutnya berkas skrip: gerbang lolos (Audit 1672)", rc == 0)
         shutil.rmtree(sub773, ignore_errors=True)
         sub774 = klon(tmp, "sub774")
@@ -16638,7 +16638,7 @@ def main():
         with open(berkas_aksi774, "w", encoding="utf-8") as f:
             f.write(isi_baru774)
         rc, out = jalan(sub774,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("luajit -b telanjang usage lalu keluar: gerbang lolos (Audit 1673)", rc == 0)
         shutil.rmtree(sub774, ignore_errors=True)
         sub775 = klon(tmp, "sub775")
@@ -16659,7 +16659,7 @@ def main():
         with open(berkas_aksi775, "w", encoding="utf-8") as f:
             f.write(isi_baru775)
         rc, out = jalan(sub775,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("luajit -b -l melist berkas, bukan stdin: gerbang lolos (Audit 1673)", rc == 0)
         shutil.rmtree(sub775, ignore_errors=True)
         sub776 = klon(tmp, "sub776")
@@ -16680,7 +16680,7 @@ def main():
         with open(berkas_aksi776, "w", encoding="utf-8") as f:
             f.write(isi_baru776)
         rc, out = jalan(sub776,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("luajit -b masukan '-' membaca stdin: penguras — gerbang gagal (Audit 1673)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub776, ignore_errors=True)
         sub777 = klon(tmp, "sub777")
@@ -16701,7 +16701,7 @@ def main():
         with open(berkas_aksi777, "w", encoding="utf-8") as f:
             f.write(isi_baru777)
         rc, out = jalan(sub777,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python -Wignore nilai menempel, bukan bundel: gerbang lolos (Audit 1674)", rc == 0)
         shutil.rmtree(sub777, ignore_errors=True)
         sub778 = klon(tmp, "sub778")
@@ -16722,7 +16722,7 @@ def main():
         with open(berkas_aksi778, "w", encoding="utf-8") as f:
             f.write(isi_baru778)
         rc, out = jalan(sub778,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv --warranty meta cetak lalu keluar: gerbang lolos (Audit 1675)", rc == 0)
         shutil.rmtree(sub778, ignore_errors=True)
         sub779 = klon(tmp, "sub779")
@@ -16743,7 +16743,7 @@ def main():
         with open(berkas_aksi779, "w", encoding="utf-8") as f:
             f.write(isi_baru779)
         rc, out = jalan(sub779,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv konkatenasi '-' operand ketiga di substitusi proses: penguras — gerbang gagal (Audit 1688)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub779, ignore_errors=True)
         sub780 = klon(tmp, "sub780")
@@ -16764,7 +16764,7 @@ def main():
         with open(berkas_aksi780, "w", encoding="utf-8") as f:
             f.write(isi_baru780)
         rc, out = jalan(sub780,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv tiga operand berkas tanpa '-': gerbang lolos (Audit 1688)", rc == 0)
         shutil.rmtree(sub780, ignore_errors=True)
         sub781 = klon(tmp, "sub781")
@@ -16785,7 +16785,7 @@ def main():
         with open(berkas_aksi781, "w", encoding="utf-8") as f:
             f.write(isi_baru781)
         rc, out = jalan(sub781,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv nama khusus -&0 membaca fd 0 di substitusi proses: penguras — gerbang gagal (Audit 1689)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub781, ignore_errors=True)
         sub782 = klon(tmp, "sub782")
@@ -16806,7 +16806,7 @@ def main():
         with open(berkas_aksi782, "w", encoding="utf-8") as f:
             f.write(isi_baru782)
         rc, out = jalan(sub782,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv --warranty sebagai NILAI -o bukan meta; '-' menguras: gerbang gagal (Audit 1690)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub782, ignore_errors=True)
         sub783 = klon(tmp, "sub783")
@@ -16827,7 +16827,7 @@ def main():
         with open(berkas_aksi783, "w", encoding="utf-8") as f:
             f.write(isi_baru783)
         rc, out = jalan(sub783,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv --dump-option-table meta cetak lalu keluar: gerbang lolos (Audit 1691)", rc == 0)
         shutil.rmtree(sub783, ignore_errors=True)
         sub784 = klon(tmp, "sub784")
@@ -16848,7 +16848,7 @@ def main():
         with open(berkas_aksi784, "w", encoding="utf-8") as f:
             f.write(isi_baru784)
         rc, out = jalan(sub784,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python -Wignore di tengah bundel adalah nilai, bukan bendera: gerbang lolos (Audit 1692)", rc == 0)
         shutil.rmtree(sub784, ignore_errors=True)
         sub785 = klon(tmp, "sub785")
@@ -16869,7 +16869,7 @@ def main():
         with open(berkas_aksi785, "w", encoding="utf-8") as f:
             f.write(isi_baru785)
         rc, out = jalan(sub785,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python -i -m modul: REPL sesudah modul menguras — gerbang gagal (Audit 1693)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub785, ignore_errors=True)
         sub786 = klon(tmp, "sub786")
@@ -16890,7 +16890,7 @@ def main():
         with open(berkas_aksi786, "w", encoding="utf-8") as f:
             f.write(isi_baru786)
         rc, out = jalan(sub786,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python opsi satu huruf tak dikenal galat lalu keluar: gerbang lolos (Audit 1694)", rc == 0)
         shutil.rmtree(sub786, ignore_errors=True)
         sub787 = klon(tmp, "sub787")
@@ -16911,7 +16911,7 @@ def main():
         with open(berkas_aksi787, "w", encoding="utf-8") as f:
             f.write(isi_baru787)
         rc, out = jalan(sub787,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python opsi panjang tak dikenal galat lalu keluar: gerbang lolos (Audit 1694)", rc == 0)
         shutil.rmtree(sub787, ignore_errors=True)
         sub788 = klon(tmp, "sub788")
@@ -16932,7 +16932,7 @@ def main():
         with open(berkas_aksi788, "w", encoding="utf-8") as f:
             f.write(isi_baru788)
         rc, out = jalan(sub788,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lua opsi tak dikenal usage lalu keluar: gerbang lolos (Audit 1697)", rc == 0)
         shutil.rmtree(sub788, ignore_errors=True)
         sub789 = klon(tmp, "sub789")
@@ -16953,7 +16953,7 @@ def main():
         with open(berkas_aksi789, "w", encoding="utf-8") as f:
             f.write(isi_baru789)
         rc, out = jalan(sub789,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python --version cetak lalu keluar: gerbang lolos (Audit 1705)", rc == 0)
         shutil.rmtree(sub789, ignore_errors=True)
         sub790 = klon(tmp, "sub790")
@@ -16974,7 +16974,7 @@ def main():
         with open(berkas_aksi790, "w", encoding="utf-8") as f:
             f.write(isi_baru790)
         rc, out = jalan(sub790,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python -q sah dan membaca program dari stdin: penguras — gerbang gagal (Audit 1706)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub790, ignore_errors=True)
         sub791 = klon(tmp, "sub791")
@@ -16995,7 +16995,7 @@ def main():
         with open(berkas_aksi791, "w", encoding="utf-8") as f:
             f.write(isi_baru791)
         rc, out = jalan(sub791,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python --check-hash-based-pycs bernilai spasi; tanpa skrip membaca stdin: gerbang gagal (Audit 1707)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub791, ignore_errors=True)
         sub792 = klon(tmp, "sub792")
@@ -17016,7 +17016,7 @@ def main():
         with open(berkas_aksi792, "w", encoding="utf-8") as f:
             f.write(isi_baru792)
         rc, out = jalan(sub792,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python --check-hash-based-pycs bentuk = ditolak build ini: gerbang lolos (Audit 1707)", rc == 0)
         shutil.rmtree(sub792, ignore_errors=True)
         sub793 = klon(tmp, "sub793")
@@ -17037,7 +17037,7 @@ def main():
         with open(berkas_aksi793, "w", encoding="utf-8") as f:
             f.write(isi_baru793)
         rc, out = jalan(sub793,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python -W menggantung galat lalu keluar: gerbang lolos (Audit 1708)", rc == 0)
         shutil.rmtree(sub793, ignore_errors=True)
         sub794 = klon(tmp, "sub794")
@@ -17058,7 +17058,7 @@ def main():
         with open(berkas_aksi794, "w", encoding="utf-8") as f:
             f.write(isi_baru794)
         rc, out = jalan(sub794,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python -sW menelan skrip.py sebagai nilai -W lalu membaca stdin: gerbang gagal (Audit 1708)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub794, ignore_errors=True)
         sub795 = klon(tmp, "sub795")
@@ -17079,7 +17079,7 @@ def main():
         with open(berkas_aksi795, "w", encoding="utf-8") as f:
             f.write(isi_baru795)
         rc, out = jalan(sub795,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv '--' sesudah operand adalah nama berkas harfiah, galat tanpa membaca: gerbang lolos (Audit 1709)", rc == 0)
         shutil.rmtree(sub795, ignore_errors=True)
         sub796 = klon(tmp, "sub796")
@@ -17100,7 +17100,7 @@ def main():
         with open(berkas_aksi796, "w", encoding="utf-8") as f:
             f.write(isi_baru796)
         rc, out = jalan(sub796,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgv opsi panjang tak dikenal invalid option lalu keluar: gerbang lolos (Audit 1710)", rc == 0)
         shutil.rmtree(sub796, ignore_errors=True)
         sub797 = klon(tmp, "sub797")
@@ -17121,7 +17121,7 @@ def main():
         with open(berkas_aksi797, "w", encoding="utf-8") as f:
             f.write(isi_baru797)
         rc, out = jalan(sub797,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("node opsi tak dikenal bad option lalu keluar: gerbang lolos (Audit 1711)", rc == 0)
         shutil.rmtree(sub797, ignore_errors=True)
         sub798 = klon(tmp, "sub798")
@@ -17142,7 +17142,7 @@ def main():
         with open(berkas_aksi798, "w", encoding="utf-8") as f:
             f.write(isi_baru798)
         rc, out = jalan(sub798,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("node --version cetak lalu keluar: gerbang lolos (Audit 1712)", rc == 0)
         shutil.rmtree(sub798, ignore_errors=True)
         sub799 = klon(tmp, "sub799")
@@ -17163,7 +17163,7 @@ def main():
         with open(berkas_aksi799, "w", encoding="utf-8") as f:
             f.write(isi_baru799)
         rc, out = jalan(sub799,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lua -e menggantung needs argument lalu keluar: gerbang lolos (Audit 1713)", rc == 0)
         shutil.rmtree(sub799, ignore_errors=True)
         sub800 = klon(tmp, "sub800")
@@ -17184,7 +17184,7 @@ def main():
         with open(berkas_aksi800, "w", encoding="utf-8") as f:
             f.write(isi_baru800)
         rc, out = jalan(sub800,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ruby opsi tak dikenal galat lalu keluar: gerbang lolos (Audit 1714)", rc == 0)
         shutil.rmtree(sub800, ignore_errors=True)
         sub801 = klon(tmp, "sub801")
@@ -17205,7 +17205,7 @@ def main():
         with open(berkas_aksi801, "w", encoding="utf-8") as f:
             f.write(isi_baru801)
         rc, out = jalan(sub801,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python -hi di bundel: bantuan lalu keluar - gerbang lolos (Audit 1719)", rc == 0)
         shutil.rmtree(sub801, ignore_errors=True)
         sub802 = klon(tmp, "sub802")
@@ -17226,7 +17226,7 @@ def main():
         with open(berkas_aksi802, "w", encoding="utf-8") as f:
             f.write(isi_baru802)
         rc, out = jalan(sub802,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("python --check-hash-based-pycs gantung: galat lalu keluar - gerbang lolos (Audit 1720)", rc == 0)
         shutil.rmtree(sub802, ignore_errors=True)
         sub803 = klon(tmp, "sub803")
@@ -17247,7 +17247,7 @@ def main():
         with open(berkas_aksi803, "w", encoding="utf-8") as f:
             f.write(isi_baru803)
         rc, out = jalan(sub803,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("node --title menelan nilai lalu node membaca REPL dari stdin: penguras - gerbang gagal (Audit 1721)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub803, ignore_errors=True)
         sub804 = klon(tmp, "sub804")
@@ -17268,7 +17268,7 @@ def main():
         with open(berkas_aksi804, "w", encoding="utf-8") as f:
             f.write(isi_baru804)
         rc, out = jalan(sub804,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("node --title gantung: galat lalu keluar - gerbang lolos (Audit 1721)", rc == 0)
         shutil.rmtree(sub804, ignore_errors=True)
         sub805 = klon(tmp, "sub805")
@@ -17289,7 +17289,7 @@ def main():
         with open(berkas_aksi805, "w", encoding="utf-8") as f:
             f.write(isi_baru805)
         rc, out = jalan(sub805,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("node -r gantung: galat lalu keluar - gerbang lolos (Audit 1722)", rc == 0)
         shutil.rmtree(sub805, ignore_errors=True)
         sub806 = klon(tmp, "sub806")
@@ -17310,7 +17310,7 @@ def main():
         with open(berkas_aksi806, "w", encoding="utf-8") as f:
             f.write(isi_baru806)
         rc, out = jalan(sub806,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("php -t gantung: galat lalu keluar - gerbang lolos (Audit 1723)", rc == 0)
         shutil.rmtree(sub806, ignore_errors=True)
         sub807 = klon(tmp, "sub807")
@@ -17331,7 +17331,7 @@ def main():
         with open(berkas_aksi807, "w", encoding="utf-8") as f:
             f.write(isi_baru807)
         rc, out = jalan(sub807,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("php -t menelan docroot lalu membaca kode dari stdin: penguras - gerbang gagal (Audit 1723)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub807, ignore_errors=True)
         sub808 = klon(tmp, "sub808")
@@ -17352,7 +17352,7 @@ def main():
         with open(berkas_aksi808, "w", encoding="utf-8") as f:
             f.write(isi_baru808)
         rc, out = jalan(sub808,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ruby -0 opsi sah; ruby telanjang membaca program dari stdin: penguras - gerbang gagal (Audit 1724)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub808, ignore_errors=True)
         sub809 = klon(tmp, "sub809")
@@ -17373,7 +17373,7 @@ def main():
         with open(berkas_aksi809, "w", encoding="utf-8") as f:
             f.write(isi_baru809)
         rc, out = jalan(sub809,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lua -e tanpa skrip: aksi jalan lalu keluar - gerbang lolos (Audit 1725)", rc == 0)
         shutil.rmtree(sub809, ignore_errors=True)
         sub810 = klon(tmp, "sub810")
@@ -17394,7 +17394,7 @@ def main():
         with open(berkas_aksi810, "w", encoding="utf-8") as f:
             f.write(isi_baru810)
         rc, out = jalan(sub810,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lua -v telanjang: cetak versi lalu keluar - gerbang lolos (Audit 1726)", rc == 0)
         shutil.rmtree(sub810, ignore_errors=True)
         sub811 = klon(tmp, "sub811")
@@ -17415,7 +17415,7 @@ def main():
         with open(berkas_aksi811, "w", encoding="utf-8") as f:
             f.write(isi_baru811)
         rc, out = jalan(sub811,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bun - menjalankan skrip dari stdin: penguras - gerbang gagal (Audit 1732)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub811, ignore_errors=True)
         sub812 = klon(tmp, "sub812")
@@ -17436,7 +17436,7 @@ def main():
         with open(berkas_aksi812, "w", encoding="utf-8") as f:
             f.write(isi_baru812)
         rc, out = jalan(sub812,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bun run - menjalankan skrip dari stdin: penguras - gerbang gagal (Audit 1732)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub812, ignore_errors=True)
         sub813 = klon(tmp, "sub813")
@@ -17457,7 +17457,7 @@ def main():
         with open(berkas_aksi813, "w", encoding="utf-8") as f:
             f.write(isi_baru813)
         rc, out = jalan(sub813,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sftp -b - membaca batch dari stdin: penguras - gerbang gagal (Audit 1734)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub813, ignore_errors=True)
         sub814 = klon(tmp, "sub814")
@@ -17478,7 +17478,7 @@ def main():
         with open(berkas_aksi814, "w", encoding="utf-8") as f:
             f.write(isi_baru814)
         rc, out = jalan(sub814,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sftp -b berkas membaca batch dari berkas: gerbang lolos (Audit 1734)", rc == 0)
         shutil.rmtree(sub814, ignore_errors=True)
         sub815 = klon(tmp, "sub815")
@@ -17499,7 +17499,7 @@ def main():
         with open(berkas_aksi815, "w", encoding="utf-8") as f:
             f.write(isi_baru815)
         rc, out = jalan(sub815,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pwsh -File - mengeksekusi stdin sebagai perintah: penguras - gerbang gagal (Audit 1735)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub815, ignore_errors=True)
         sub816 = klon(tmp, "sub816")
@@ -17520,7 +17520,7 @@ def main():
         with open(berkas_aksi816, "w", encoding="utf-8") as f:
             f.write(isi_baru816)
         rc, out = jalan(sub816,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pwsh -Command string mengeksekusi string lalu keluar: gerbang lolos (Audit 1735)", rc == 0)
         shutil.rmtree(sub816, ignore_errors=True)
         sub817 = klon(tmp, "sub817")
@@ -17541,7 +17541,7 @@ def main():
         with open(berkas_aksi817, "w", encoding="utf-8") as f:
             f.write(isi_baru817)
         rc, out = jalan(sub817,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("wish telanjang membaca perintah dari stdin: penguras - gerbang gagal (Audit 1736)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub817, ignore_errors=True)
         sub818 = klon(tmp, "sub818")
@@ -17562,7 +17562,7 @@ def main():
         with open(berkas_aksi818, "w", encoding="utf-8") as f:
             f.write(isi_baru818)
         rc, out = jalan(sub818,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("wish dengan berkas skrip tidak membaca stdin: gerbang lolos (Audit 1736)", rc == 0)
         shutil.rmtree(sub818, ignore_errors=True)
         sub819 = klon(tmp, "sub819")
@@ -17583,7 +17583,7 @@ def main():
         with open(berkas_aksi819, "w", encoding="utf-8") as f:
             f.write(isi_baru819)
         rc, out = jalan(sub819,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mksh telanjang membaca perintah dari stdin: penguras - gerbang gagal (Audit 1737)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub819, ignore_errors=True)
         sub820 = klon(tmp, "sub820")
@@ -17604,7 +17604,7 @@ def main():
         with open(berkas_aksi820, "w", encoding="utf-8") as f:
             f.write(isi_baru820)
         rc, out = jalan(sub820,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tcsh dengan berkas skrip tidak membaca stdin: gerbang lolos (Audit 1737)", rc == 0)
         shutil.rmtree(sub820, ignore_errors=True)
         sub821 = klon(tmp, "sub821")
@@ -17625,7 +17625,7 @@ def main():
         with open(berkas_aksi821, "w", encoding="utf-8") as f:
             f.write(isi_baru821)
         rc, out = jalan(sub821,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("busybox sh dinilai sebagai applet sh yang membaca stdin: penguras - gerbang gagal (Audit 1738)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub821, ignore_errors=True)
         sub822 = klon(tmp, "sub822")
@@ -17646,7 +17646,7 @@ def main():
         with open(berkas_aksi822, "w", encoding="utf-8") as f:
             f.write(isi_baru822)
         rc, out = jalan(sub822,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("busybox ls dinilai sebagai applet ls yang tidak membaca stdin: gerbang lolos (Audit 1738)", rc == 0)
         shutil.rmtree(sub822, ignore_errors=True)
         sub823 = klon(tmp, "sub823")
@@ -17667,7 +17667,7 @@ def main():
         with open(berkas_aksi823, "w", encoding="utf-8") as f:
             f.write(isi_baru823)
         rc, out = jalan(sub823,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("busybox timeout: applet pembungkus dikupas tahap yang sama, cat membaca stdin - gerbang gagal (Audit 1739)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub823, ignore_errors=True)
         sub824 = klon(tmp, "sub824")
@@ -17688,7 +17688,7 @@ def main():
         with open(berkas_aksi824, "w", encoding="utf-8") as f:
             f.write(isi_baru824)
         rc, out = jalan(sub824,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("busybox ls dinilai sebagai applet ls yang tidak membaca stdin: gerbang lolos (Audit 1739)", rc == 0)
         shutil.rmtree(sub824, ignore_errors=True)
         sub825 = klon(tmp, "sub825")
@@ -17709,7 +17709,7 @@ def main():
         with open(berkas_aksi825, "w", encoding="utf-8") as f:
             f.write(isi_baru825)
         rc, out = jalan(sub825,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pwsh -NoExit sesudah -File berkas: host tetap interaktif membaca stdin - gerbang gagal (Audit 1740)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub825, ignore_errors=True)
         sub826 = klon(tmp, "sub826")
@@ -17730,7 +17730,7 @@ def main():
         with open(berkas_aksi826, "w", encoding="utf-8") as f:
             f.write(isi_baru826)
         rc, out = jalan(sub826,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pwsh -File berkas tanpa -NoExit: jalankan skrip lalu keluar - gerbang lolos (Audit 1740)", rc == 0)
         shutil.rmtree(sub826, ignore_errors=True)
         sub827 = klon(tmp, "sub827")
@@ -17751,7 +17751,7 @@ def main():
         with open(berkas_aksi827, "w", encoding="utf-8") as f:
             f.write(isi_baru827)
         rc, out = jalan(sub827,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("penetapan di posisi applet busybox adalah nama applet tak dikenal: gerbang lolos (Audit 1743)", rc == 0)
         shutil.rmtree(sub827, ignore_errors=True)
         sub828 = klon(tmp, "sub828")
@@ -17772,7 +17772,7 @@ def main():
         with open(berkas_aksi828, "w", encoding="utf-8") as f:
             f.write(isi_baru828)
         rc, out = jalan(sub828,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("env di posisi applet memulihkan wilayah penetapan, cat membaca stdin: gerbang gagal (Audit 1743)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub828, ignore_errors=True)
         sub829 = klon(tmp, "sub829")
@@ -17793,7 +17793,7 @@ def main():
         with open(berkas_aksi829, "w", encoding="utf-8") as f:
             f.write(isi_baru829)
         rc, out = jalan(sub829,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("aksi kedua pwsh membuat host menolak gabungan -File/-Command: gerbang lolos (Audit 1744)", rc == 0)
         shutil.rmtree(sub829, ignore_errors=True)
         sub830 = klon(tmp, "sub830")
@@ -17814,7 +17814,7 @@ def main():
         with open(berkas_aksi830, "w", encoding="utf-8") as f:
             f.write(isi_baru830)
         rc, out = jalan(sub830,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pwsh -Command - mengeksekusi stdin: gerbang gagal (Audit 1744)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub830, ignore_errors=True)
         sub831 = klon(tmp, "sub831")
@@ -17835,7 +17835,7 @@ def main():
         with open(berkas_aksi831, "w", encoding="utf-8") as f:
             f.write(isi_baru831)
         rc, out = jalan(sub831,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai opsi bernilai asing pwsh bukan naskah; tanpa aksi pwsh interaktif membaca stdin: gerbang gagal (Audit 1745)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub831, ignore_errors=True)
         sub832 = klon(tmp, "sub832")
@@ -17856,7 +17856,7 @@ def main():
         with open(berkas_aksi832, "w", encoding="utf-8") as f:
             f.write(isi_baru832)
         rc, out = jalan(sub832,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pwsh -EncodedCommand mengeksekusi string lalu keluar: gerbang lolos (Audit 1745)", rc == 0)
         shutil.rmtree(sub832, ignore_errors=True)
         sub833 = klon(tmp, "sub833")
@@ -17877,7 +17877,7 @@ def main():
         with open(berkas_aksi833, "w", encoding="utf-8") as f:
             f.write(isi_baru833)
         rc, out = jalan(sub833,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bc membaca stdin sesudah berkas operand: gerbang gagal (Audit 1748)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub833, ignore_errors=True)
         sub834 = klon(tmp, "sub834")
@@ -17898,7 +17898,7 @@ def main():
         with open(berkas_aksi834, "w", encoding="utf-8") as f:
             f.write(isi_baru834)
         rc, out = jalan(sub834,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bc --version cetak versi lalu keluar: gerbang lolos (Audit 1748)", rc == 0)
         shutil.rmtree(sub834, ignore_errors=True)
         sub835 = klon(tmp, "sub835")
@@ -17919,7 +17919,7 @@ def main():
         with open(berkas_aksi835, "w", encoding="utf-8") as f:
             f.write(isi_baru835)
         rc, out = jalan(sub835,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dc telanjang membaca perintah dari stdin: gerbang gagal (Audit 1749)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub835, ignore_errors=True)
         sub836 = klon(tmp, "sub836")
@@ -17940,7 +17940,7 @@ def main():
         with open(berkas_aksi836, "w", encoding="utf-8") as f:
             f.write(isi_baru836)
         rc, out = jalan(sub836,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dc dengan berkas operand membaca berkas itu: gerbang lolos (Audit 1749)", rc == 0)
         shutil.rmtree(sub836, ignore_errors=True)
         sub837 = klon(tmp, "sub837")
@@ -17961,7 +17961,7 @@ def main():
         with open(berkas_aksi837, "w", encoding="utf-8") as f:
             f.write(isi_baru837)
         rc, out = jalan(sub837,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perintah ed selalu dari stdin walau beroperand berkas: gerbang gagal (Audit 1750)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub837, ignore_errors=True)
         sub838 = klon(tmp, "sub838")
@@ -17982,7 +17982,7 @@ def main():
         with open(berkas_aksi838, "w", encoding="utf-8") as f:
             f.write(isi_baru838)
         rc, out = jalan(sub838,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ed --version cetak versi lalu keluar: gerbang lolos (Audit 1750)", rc == 0)
         shutil.rmtree(sub838, ignore_errors=True)
         sub839 = klon(tmp, "sub839")
@@ -18003,7 +18003,7 @@ def main():
         with open(berkas_aksi839, "w", encoding="utf-8") as f:
             f.write(isi_baru839)
         rc, out = jalan(sub839,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("berkas skrip dc adalah stdin lewat -f -: gerbang gagal (Audit 1751)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub839, ignore_errors=True)
         sub840 = klon(tmp, "sub840")
@@ -18024,7 +18024,7 @@ def main():
         with open(berkas_aksi840, "w", encoding="utf-8") as f:
             f.write(isi_baru840)
         rc, out = jalan(sub840,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dc -f berkas membaca skrip dari berkas itu: gerbang lolos (Audit 1751)", rc == 0)
         shutil.rmtree(sub840, ignore_errors=True)
         sub841 = klon(tmp, "sub841")
@@ -18045,7 +18045,7 @@ def main():
         with open(berkas_aksi841, "w", encoding="utf-8") as f:
             f.write(isi_baru841)
         rc, out = jalan(sub841,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pwsh -Version cetak versi lalu keluar: gerbang lolos (Audit 1752)", rc == 0)
         shutil.rmtree(sub841, ignore_errors=True)
         sub842 = klon(tmp, "sub842")
@@ -18066,7 +18066,7 @@ def main():
         with open(berkas_aksi842, "w", encoding="utf-8") as f:
             f.write(isi_baru842)
         rc, out = jalan(sub842,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("argumen sesudah -Version pwsh diabaikan host: gerbang lolos (Audit 1752)", rc == 0)
         shutil.rmtree(sub842, ignore_errors=True)
         sub843 = klon(tmp, "sub843")
@@ -18087,7 +18087,7 @@ def main():
         with open(berkas_aksi843, "w", encoding="utf-8") as f:
             f.write(isi_baru843)
         rc, out = jalan(sub843,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("powershell -Version memilih mesin lalu interaktif membaca stdin: gerbang gagal (Audit 1753)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub843, ignore_errors=True)
         sub844 = klon(tmp, "sub844")
@@ -18108,7 +18108,7 @@ def main():
         with open(berkas_aksi844, "w", encoding="utf-8") as f:
             f.write(isi_baru844)
         rc, out = jalan(sub844,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("powershell -Version lalu -File berkas menjalankan berkas itu: gerbang lolos (Audit 1753)", rc == 0)
         shutil.rmtree(sub844, ignore_errors=True)
         sub845 = klon(tmp, "sub845")
@@ -18129,7 +18129,7 @@ def main():
         with open(berkas_aksi845, "w", encoding="utf-8") as f:
             f.write(isi_baru845)
         rc, out = jalan(sub845,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand - pada modus kripto gpg adalah stdin: gerbang gagal (Audit 1756)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub845, ignore_errors=True)
         sub846 = klon(tmp, "sub846")
@@ -18150,7 +18150,7 @@ def main():
         with open(berkas_aksi846, "w", encoding="utf-8") as f:
             f.write(isi_baru846)
         rc, out = jalan(sub846,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg dekripsi berkas operand membaca berkas itu: gerbang lolos (Audit 1756)", rc == 0)
         shutil.rmtree(sub846, ignore_errors=True)
         sub847 = klon(tmp, "sub847")
@@ -18171,7 +18171,7 @@ def main():
         with open(berkas_aksi847, "w", encoding="utf-8") as f:
             f.write(isi_baru847)
         rc, out = jalan(sub847,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("hexdump tanpa berkas membaca stdin: gerbang gagal (Audit 1757)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub847, ignore_errors=True)
         sub848 = klon(tmp, "sub848")
@@ -18192,7 +18192,7 @@ def main():
         with open(berkas_aksi848, "w", encoding="utf-8") as f:
             f.write(isi_baru848)
         rc, out = jalan(sub848,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("hexdump berkas operand menampilkan berkas itu: gerbang lolos (Audit 1757)", rc == 0)
         shutil.rmtree(sub848, ignore_errors=True)
         sub849 = klon(tmp, "sub849")
@@ -18213,7 +18213,7 @@ def main():
         with open(berkas_aksi849, "w", encoding="utf-8") as f:
             f.write(isi_baru849)
         rc, out = jalan(sub849,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xxd dengan infile - membaca stdin: gerbang gagal (Audit 1758)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub849, ignore_errors=True)
         sub850 = klon(tmp, "sub850")
@@ -18234,7 +18234,7 @@ def main():
         with open(berkas_aksi850, "w", encoding="utf-8") as f:
             f.write(isi_baru850)
         rc, out = jalan(sub850,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xxd berkas operand membaca berkas itu: gerbang lolos (Audit 1758)", rc == 0)
         shutil.rmtree(sub850, ignore_errors=True)
         sub851 = klon(tmp, "sub851")
@@ -18255,7 +18255,7 @@ def main():
         with open(berkas_aksi851, "w", encoding="utf-8") as f:
             f.write(isi_baru851)
         rc, out = jalan(sub851,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-Version pwsh mengabaikan parameter lain walau disebut belakangan: gerbang lolos (Audit 1759)", rc == 0)
         shutil.rmtree(sub851, ignore_errors=True)
         sub852 = klon(tmp, "sub852")
@@ -18276,7 +18276,7 @@ def main():
         with open(berkas_aksi852, "w", encoding="utf-8") as f:
             f.write(isi_baru852)
         rc, out = jalan(sub852,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-Version pwsh sesudah -File - tetap informasional: gerbang lolos (Audit 1759)", rc == 0)
         shutil.rmtree(sub852, ignore_errors=True)
         sub853 = klon(tmp, "sub853")
@@ -18297,7 +18297,7 @@ def main():
         with open(berkas_aksi853, "w", encoding="utf-8") as f:
             f.write(isi_baru853)
         rc, out = jalan(sub853,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -Version powershell bersaklar bukan versi sah, host galat: gerbang lolos (Audit 1760)", rc == 0)
         shutil.rmtree(sub853, ignore_errors=True)
         sub854 = klon(tmp, "sub854")
@@ -18318,7 +18318,7 @@ def main():
         with open(berkas_aksi854, "w", encoding="utf-8") as f:
             f.write(isi_baru854)
         rc, out = jalan(sub854,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("powershell -Version bernilai sah interaktif membaca stdin: gerbang gagal (Audit 1760)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub854, ignore_errors=True)
         sub855 = klon(tmp, "sub855")
@@ -18339,7 +18339,7 @@ def main():
         with open(berkas_aksi855, "w", encoding="utf-8") as f:
             f.write(isi_baru855)
         rc, out = jalan(sub855,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perpanjangan nama -Version bukan parameter pwsh: gerbang lolos (Audit 1761)", rc == 0)
         shutil.rmtree(sub855, ignore_errors=True)
         sub856 = klon(tmp, "sub856")
@@ -18360,7 +18360,7 @@ def main():
         with open(berkas_aksi856, "w", encoding="utf-8") as f:
             f.write(isi_baru856)
         rc, out = jalan(sub856,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("awalan unik -ver terikat sebagai -Version informasional: gerbang lolos (Audit 1762)", rc == 0)
         shutil.rmtree(sub856, ignore_errors=True)
         sub857 = klon(tmp, "sub857")
@@ -18381,7 +18381,7 @@ def main():
         with open(berkas_aksi857, "w", encoding="utf-8") as f:
             f.write(isi_baru857)
         rc, out = jalan(sub857,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zip mengarsipkan berkas masukan - dari stdin: gerbang gagal (Audit 1763)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub857, ignore_errors=True)
         sub858 = klon(tmp, "sub858")
@@ -18402,7 +18402,7 @@ def main():
         with open(berkas_aksi858, "w", encoding="utf-8") as f:
             f.write(isi_baru858)
         rc, out = jalan(sub858,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zip berkas masukan biasa membaca berkas itu: gerbang lolos (Audit 1763)", rc == 0)
         shutil.rmtree(sub858, ignore_errors=True)
         sub859 = klon(tmp, "sub859")
@@ -18423,7 +18423,7 @@ def main():
         with open(berkas_aksi859, "w", encoding="utf-8") as f:
             f.write(isi_baru859)
         rc, out = jalan(sub859,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("less +N beroperand berkas membuka berkasnya: gerbang lolos (Audit 1764)", rc == 0)
         shutil.rmtree(sub859, ignore_errors=True)
         sub860 = klon(tmp, "sub860")
@@ -18444,7 +18444,7 @@ def main():
         with open(berkas_aksi860, "w", encoding="utf-8") as f:
             f.write(isi_baru860)
         rc, out = jalan(sub860,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("less +N tanpa berkas membaca stdin: gerbang gagal (Audit 1764)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub860, ignore_errors=True)
         sub861 = klon(tmp, "sub861")
@@ -18465,7 +18465,7 @@ def main():
         with open(berkas_aksi861, "w", encoding="utf-8") as f:
             f.write(isi_baru861)
         rc, out = jalan(sub861,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cpio copy-out membaca daftar nama dari stdin: gerbang gagal (Audit 1765)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub861, ignore_errors=True)
         sub862 = klon(tmp, "sub862")
@@ -18486,7 +18486,7 @@ def main():
         with open(berkas_aksi862, "w", encoding="utf-8") as f:
             f.write(isi_baru862)
         rc, out = jalan(sub862,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cpio copy-in ber-F berkas membaca arsip itu: gerbang lolos (Audit 1765)", rc == 0)
         shutil.rmtree(sub862, ignore_errors=True)
         sub863 = klon(tmp, "sub863")
@@ -18507,7 +18507,7 @@ def main():
         with open(berkas_aksi863, "w", encoding="utf-8") as f:
             f.write(isi_baru863)
         rc, out = jalan(sub863,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pax mode read membaca arsip dari stdin: gerbang gagal (Audit 1766)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub863, ignore_errors=True)
         sub864 = klon(tmp, "sub864")
@@ -18528,7 +18528,7 @@ def main():
         with open(berkas_aksi864, "w", encoding="utf-8") as f:
             f.write(isi_baru864)
         rc, out = jalan(sub864,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pax read ber-f berkas membaca arsip itu: gerbang lolos (Audit 1766)", rc == 0)
         shutil.rmtree(sub864, ignore_errors=True)
         sub865 = klon(tmp, "sub865")
@@ -18549,7 +18549,7 @@ def main():
         with open(berkas_aksi865, "w", encoding="utf-8") as f:
             f.write(isi_baru865)
         rc, out = jalan(sub865,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pg tanpa berkas membaca stdin: gerbang gagal (Audit 1767)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub865, ignore_errors=True)
         sub866 = klon(tmp, "sub866")
@@ -18570,7 +18570,7 @@ def main():
         with open(berkas_aksi866, "w", encoding="utf-8") as f:
             f.write(isi_baru866)
         rc, out = jalan(sub866,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bat dengan FILE - membaca stdin: gerbang gagal (Audit 1768)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub866, ignore_errors=True)
         sub867 = klon(tmp, "sub867")
@@ -18591,7 +18591,7 @@ def main():
         with open(berkas_aksi867, "w", encoding="utf-8") as f:
             f.write(isi_baru867)
         rc, out = jalan(sub867,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bat ber-FILE berkas menampilkan berkas itu: gerbang lolos (Audit 1768)", rc == 0)
         shutil.rmtree(sub867, ignore_errors=True)
         sub868 = klon(tmp, "sub868")
@@ -18612,7 +18612,7 @@ def main():
         with open(berkas_aksi868, "w", encoding="utf-8") as f:
             f.write(isi_baru868)
         rc, out = jalan(sub868,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lzip tanpa berkas membuka dari stdin: gerbang gagal (Audit 1769)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub868, ignore_errors=True)
         sub869 = klon(tmp, "sub869")
@@ -18633,7 +18633,7 @@ def main():
         with open(berkas_aksi869, "w", encoding="utf-8") as f:
             f.write(isi_baru869)
         rc, out = jalan(sub869,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lz4 tanpa berkas membuka dari stdin: gerbang gagal (Audit 1770)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub869, ignore_errors=True)
         sub870 = klon(tmp, "sub870")
@@ -18654,7 +18654,7 @@ def main():
         with open(berkas_aksi870, "w", encoding="utf-8") as f:
             f.write(isi_baru870)
         rc, out = jalan(sub870,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rpm2cpio tanpa argumen membaca aliran RPM dari stdin: gerbang gagal (Audit 1771)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub870, ignore_errors=True)
         sub871 = klon(tmp, "sub871")
@@ -18675,7 +18675,7 @@ def main():
         with open(berkas_aksi871, "w", encoding="utf-8") as f:
             f.write(isi_baru871)
         rc, out = jalan(sub871,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("7z a -si membaca data dari stdin: gerbang gagal (Audit 1772)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub871, ignore_errors=True)
         sub872 = klon(tmp, "sub872")
@@ -18696,7 +18696,7 @@ def main():
         with open(berkas_aksi872, "w", encoding="utf-8") as f:
             f.write(isi_baru872)
         rc, out = jalan(sub872,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("awalan unik -ve terikat sebagai -Version pwsh informasional: gerbang lolos (Audit 1773)", rc == 0)
         shutil.rmtree(sub872, ignore_errors=True)
         sub873 = klon(tmp, "sub873")
@@ -18717,7 +18717,7 @@ def main():
         with open(berkas_aksi873, "w", encoding="utf-8") as f:
             f.write(isi_baru873)
         rc, out = jalan(sub873,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("awalan -ver pada powershell adalah -Version bernilai, interaktif: gerbang gagal (Audit 1774)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub873, ignore_errors=True)
         sub874 = klon(tmp, "sub874")
@@ -18738,7 +18738,7 @@ def main():
         with open(berkas_aksi874, "w", encoding="utf-8") as f:
             f.write(isi_baru874)
         rc, out = jalan(sub874,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -f hexdump adalah berkas format harfiah, bukan stdin: gerbang lolos (Audit 1775)", rc == 0)
         shutil.rmtree(sub874, ignore_errors=True)
         sub875 = klon(tmp, "sub875")
@@ -18759,7 +18759,7 @@ def main():
         with open(berkas_aksi875, "w", encoding="utf-8") as f:
             f.write(isi_baru875)
         rc, out = jalan(sub875,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -F cpio berupa - adalah berkas harfiah, bukan stdin: gerbang lolos (Audit 1780)", rc == 0)
         shutil.rmtree(sub875, ignore_errors=True)
         sub876 = klon(tmp, "sub876")
@@ -18780,7 +18780,7 @@ def main():
         with open(berkas_aksi876, "w", encoding="utf-8") as f:
             f.write(isi_baru876)
         rc, out = jalan(sub876,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("7z a -si tanpa nama arsip gugur sebelum membaca stdin: gerbang lolos (Audit 1781)", rc == 0)
         shutil.rmtree(sub876, ignore_errors=True)
         sub877 = klon(tmp, "sub877")
@@ -18801,7 +18801,7 @@ def main():
         with open(berkas_aksi877, "w", encoding="utf-8") as f:
             f.write(isi_baru877)
         rc, out = jalan(sub877,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-si sesudah -- pada 7z adalah nama berkas, bukan saklar: gerbang lolos (Audit 1782)", rc == 0)
         shutil.rmtree(sub877, ignore_errors=True)
         sub878 = klon(tmp, "sub878")
@@ -18822,7 +18822,7 @@ def main():
         with open(berkas_aksi878, "w", encoding="utf-8") as f:
             f.write(isi_baru878)
         rc, out = jalan(sub878,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("7z u -si membaca data dari stdin untuk update: gerbang gagal (Audit 1783)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub878, ignore_errors=True)
         sub879 = klon(tmp, "sub879")
@@ -18843,7 +18843,7 @@ def main():
         with open(berkas_aksi879, "w", encoding="utf-8") as f:
             f.write(isi_baru879)
         rc, out = jalan(sub879,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("varian 7za dengan a -si membaca stdin seperti 7z: gerbang gagal (Audit 1784)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub879, ignore_errors=True)
         sub880 = klon(tmp, "sub880")
@@ -18864,7 +18864,7 @@ def main():
         with open(berkas_aksi880, "w", encoding="utf-8") as f:
             f.write(isi_baru880)
         rc, out = jalan(sub880,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-v bukan alias pada powershell.exe, host keluar tanpa sesi: gerbang lolos (Audit 1785)", rc == 0)
         shutil.rmtree(sub880, ignore_errors=True)
         sub881 = klon(tmp, "sub881")
@@ -18885,7 +18885,7 @@ def main():
         with open(berkas_aksi881, "w", encoding="utf-8") as f:
             f.write(isi_baru881)
         rc, out = jalan(sub881,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -F cpio menempel adalah berkas arsip, bukan stdin: gerbang lolos (Audit 1786)", rc == 0)
         shutil.rmtree(sub881, ignore_errors=True)
         sub882 = klon(tmp, "sub882")
@@ -18906,7 +18906,7 @@ def main():
         with open(berkas_aksi882, "w", encoding="utf-8") as f:
             f.write(isi_baru882)
         rc, out = jalan(sub882,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("@listfile bukan nama arsip 7z - tanpa arsip perintah gugur: gerbang lolos (Audit 1787)", rc == 0)
         shutil.rmtree(sub882, ignore_errors=True)
         sub883 = klon(tmp, "sub883")
@@ -18927,7 +18927,7 @@ def main():
         with open(berkas_aksi883, "w", encoding="utf-8") as f:
             f.write(isi_baru883)
         rc, out = jalan(sub883,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai opsi global bun dilompati, '-' adalah skrip stdin: gerbang gagal (Audit 1788)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub883, ignore_errors=True)
         sub884 = klon(tmp, "sub884")
@@ -18948,7 +18948,7 @@ def main():
         with open(berkas_aksi884, "w", encoding="utf-8") as f:
             f.write(isi_baru884)
         rc, out = jalan(sub884,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sesudah -e, '-' adalah argumen posisi skrip eval: gerbang lolos (Audit 1789)", rc == 0)
         shutil.rmtree(sub884, ignore_errors=True)
         sub885 = klon(tmp, "sub885")
@@ -18969,7 +18969,7 @@ def main():
         with open(berkas_aksi885, "w", encoding="utf-8") as f:
             f.write(isi_baru885)
         rc, out = jalan(sub885,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand '-' pada sftp adalah host tak sah, sftp keluar: gerbang lolos (Audit 1790)", rc == 0)
         shutil.rmtree(sub885, ignore_errors=True)
         sub886 = klon(tmp, "sub886")
@@ -18990,7 +18990,7 @@ def main():
         with open(berkas_aksi886, "w", encoding="utf-8") as f:
             f.write(isi_baru886)
         rc, out = jalan(sub886,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -o berupa '-' fatal di konfigurasi ssh: gerbang lolos (Audit 1791)", rc == 0)
         shutil.rmtree(sub886, ignore_errors=True)
         sub887 = klon(tmp, "sub887")
@@ -19011,7 +19011,7 @@ def main():
         with open(berkas_aksi887, "w", encoding="utf-8") as f:
             f.write(isi_baru887)
         rc, out = jalan(sub887,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-b kedua pada sftp ditolak OpenSSH saat parsing: gerbang lolos (Audit 1792)", rc == 0)
         shutil.rmtree(sub887, ignore_errors=True)
         sub888 = klon(tmp, "sub888")
@@ -19032,7 +19032,7 @@ def main():
         with open(berkas_aksi888, "w", encoding="utf-8") as f:
             f.write(isi_baru888)
         rc, out = jalan(sub888,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand '-' dc sesudah berkas tetap aliran stdin: gerbang gagal (Audit 1793)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub888, ignore_errors=True)
         sub889 = klon(tmp, "sub889")
@@ -19053,7 +19053,7 @@ def main():
         with open(berkas_aksi889, "w", encoding="utf-8") as f:
             f.write(isi_baru889)
         rc, out = jalan(sub889,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai menempel -e pada dc adalah ekspresi aksi: gerbang lolos (Audit 1794)", rc == 0)
         shutil.rmtree(sub889, ignore_errors=True)
         sub890 = klon(tmp, "sub890")
@@ -19074,7 +19074,7 @@ def main():
         with open(berkas_aksi890, "w", encoding="utf-8") as f:
             f.write(isi_baru890)
         rc, out = jalan(sub890,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xargs tanpa -a di depan perintah khusus tetap menguras untuk itemnya: gerbang gagal (Audit 1796)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub890, ignore_errors=True)
         sub891 = klon(tmp, "sub891")
@@ -19095,7 +19095,7 @@ def main():
         with open(berkas_aksi891, "w", encoding="utf-8") as f:
             f.write(isi_baru891)
         rc, out = jalan(sub891,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cluster cpio dengan -F di tengah token adalah arsip berkas: gerbang lolos (Audit 1797)", rc == 0)
         shutil.rmtree(sub891, ignore_errors=True)
         sub892 = klon(tmp, "sub892")
@@ -19116,7 +19116,7 @@ def main():
         with open(berkas_aksi892, "w", encoding="utf-8") as f:
             f.write(isi_baru892)
         rc, out = jalan(sub892,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nama arsip 7z sah sesudah -- dan -si tetap aktif: gerbang gagal (Audit 1798)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub892, ignore_errors=True)
         sub893 = klon(tmp, "sub893")
@@ -19137,7 +19137,7 @@ def main():
         with open(berkas_aksi893, "w", encoding="utf-8") as f:
             f.write(isi_baru893)
         rc, out = jalan(sub893,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("column tanpa berkas membaca stdin untuk ditabelkan: gerbang gagal (Audit 1801)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub893, ignore_errors=True)
         sub894 = klon(tmp, "sub894")
@@ -19158,7 +19158,7 @@ def main():
         with open(berkas_aksi894, "w", encoding="utf-8") as f:
             f.write(isi_baru894)
         rc, out = jalan(sub894,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gzcat adalah zcat - tanpa operand membaca aliran dari stdin: gerbang gagal (Audit 1802)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub894, ignore_errors=True)
         sub895 = klon(tmp, "sub895")
@@ -19179,7 +19179,7 @@ def main():
         with open(berkas_aksi895, "w", encoding="utf-8") as f:
             f.write(isi_baru895)
         rc, out = jalan(sub895,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("satu-satunya operand uuencode adalah nama keluaran, masukan dari stdin: gerbang gagal (Audit 1803)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub895, ignore_errors=True)
         sub896 = klon(tmp, "sub896")
@@ -19200,7 +19200,7 @@ def main():
         with open(berkas_aksi896, "w", encoding="utf-8") as f:
             f.write(isi_baru896)
         rc, out = jalan(sub896,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("uudecode tanpa FILE membaca stdin: gerbang gagal (Audit 1804)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub896, ignore_errors=True)
         sub897 = klon(tmp, "sub897")
@@ -19221,7 +19221,7 @@ def main():
         with open(berkas_aksi897, "w", encoding="utf-8") as f:
             f.write(isi_baru897)
         rc, out = jalan(sub897,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("plzip tanpa berkas mengompres dari stdin: gerbang gagal (Audit 1806)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub897, ignore_errors=True)
         sub898 = klon(tmp, "sub898")
@@ -19242,7 +19242,7 @@ def main():
         with open(berkas_aksi898, "w", encoding="utf-8") as f:
             f.write(isi_baru898)
         rc, out = jalan(sub898,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lbzcat tanpa FILE adalah filter dekompresi stdin: gerbang gagal (Audit 1807)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub898, ignore_errors=True)
         sub899 = klon(tmp, "sub899")
@@ -19263,7 +19263,7 @@ def main():
         with open(berkas_aksi899, "w", encoding="utf-8") as f:
             f.write(isi_baru899)
         rc, out = jalan(sub899,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pixz beropsi saja tetap memakai stdin: gerbang gagal (Audit 1808)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub899, ignore_errors=True)
         sub900 = klon(tmp, "sub900")
@@ -19284,7 +19284,7 @@ def main():
         with open(berkas_aksi900, "w", encoding="utf-8") as f:
             f.write(isi_baru900)
         rc, out = jalan(sub900,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("compress tanpa berkas mengompres stdin: gerbang gagal (Audit 1809)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub900, ignore_errors=True)
         sub901 = klon(tmp, "sub901")
@@ -19305,7 +19305,7 @@ def main():
         with open(berkas_aksi901, "w", encoding="utf-8") as f:
             f.write(isi_baru901)
         rc, out = jalan(sub901,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("brotli tanpa berkas membaca stdin: gerbang gagal (Audit 1810)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub901, ignore_errors=True)
         sub902 = klon(tmp, "sub902")
@@ -19326,7 +19326,7 @@ def main():
         with open(berkas_aksi902, "w", encoding="utf-8") as f:
             f.write(isi_baru902)
         rc, out = jalan(sub902,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lzop tanpa berkas mengompres stdin: gerbang gagal (Audit 1811)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub902, ignore_errors=True)
         sub903 = klon(tmp, "sub903")
@@ -19347,7 +19347,7 @@ def main():
         with open(berkas_aksi903, "w", encoding="utf-8") as f:
             f.write(isi_baru903)
         rc, out = jalan(sub903,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lziprecover tanpa berkas mendekompres dari stdin: gerbang gagal (Audit 1812)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub903, ignore_errors=True)
         sub904 = klon(tmp, "sub904")
@@ -19368,7 +19368,7 @@ def main():
         with open(berkas_aksi904, "w", encoding="utf-8") as f:
             f.write(isi_baru904)
         rc, out = jalan(sub904,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dos2unix tanpa FILE adalah filter stdin: gerbang gagal (Audit 1813)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub904, ignore_errors=True)
         sub905 = klon(tmp, "sub905")
@@ -19389,7 +19389,7 @@ def main():
         with open(berkas_aksi905, "w", encoding="utf-8") as f:
             f.write(isi_baru905)
         rc, out = jalan(sub905,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sponge selalu menyedot stdin, operandnya berkas keluaran: gerbang gagal (Audit 1814)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub905, ignore_errors=True)
         sub906 = klon(tmp, "sub906")
@@ -19410,7 +19410,7 @@ def main():
         with open(berkas_aksi906, "w", encoding="utf-8") as f:
             f.write(isi_baru906)
         rc, out = jalan(sub906,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ts memberi stempel waktu pada aliran stdin: gerbang gagal (Audit 1815)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub906, ignore_errors=True)
         sub907 = klon(tmp, "sub907")
@@ -19431,7 +19431,7 @@ def main():
         with open(berkas_aksi907, "w", encoding="utf-8") as f:
             f.write(isi_baru907)
         rc, out = jalan(sub907,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("vipe membaca seluruh stdin ke editor: gerbang gagal (Audit 1816)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub907, ignore_errors=True)
         sub908 = klon(tmp, "sub908")
@@ -19452,7 +19452,7 @@ def main():
         with open(berkas_aksi908, "w", encoding="utf-8") as f:
             f.write(isi_baru908)
         rc, out = jalan(sub908,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pee menyalurkan stdin ke pipa-pipa tujuannya: gerbang gagal (Audit 1817)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub908, ignore_errors=True)
         sub909 = klon(tmp, "sub909")
@@ -19473,7 +19473,7 @@ def main():
         with open(berkas_aksi909, "w", encoding="utf-8") as f:
             f.write(isi_baru909)
         rc, out = jalan(sub909,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("recode dengan request tanpa FILE adalah filter stdin: gerbang gagal (Audit 1818)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub909, ignore_errors=True)
         sub910 = klon(tmp, "sub910")
@@ -19494,7 +19494,7 @@ def main():
         with open(berkas_aksi910, "w", encoding="utf-8") as f:
             f.write(isi_baru910)
         rc, out = jalan(sub910,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --threads plzip bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1819)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub910, ignore_errors=True)
         sub911 = klon(tmp, "sub911")
@@ -19515,7 +19515,7 @@ def main():
         with open(berkas_aksi911, "w", encoding="utf-8") as f:
             f.write(isi_baru911)
         rc, out = jalan(sub911,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -n lbzip2 bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1820, dikoreksi Audit 1866)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub911, ignore_errors=True)
         sub912 = klon(tmp, "sub912")
@@ -19536,7 +19536,7 @@ def main():
         with open(berkas_aksi912, "w", encoding="utf-8") as f:
             f.write(isi_baru912)
         rc, out = jalan(sub912,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -p pixz bukan operand - tanpa INPUT ia memakai stdin: gerbang gagal (Audit 1821)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub912, ignore_errors=True)
         sub913 = klon(tmp, "sub913")
@@ -19557,7 +19557,7 @@ def main():
         with open(berkas_aksi913, "w", encoding="utf-8") as f:
             f.write(isi_baru913)
         rc, out = jalan(sub913,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -b compress bukan operand - tanpa berkas stdin dikompres: gerbang gagal (Audit 1822)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub913, ignore_errors=True)
         sub914 = klon(tmp, "sub914")
@@ -19578,7 +19578,7 @@ def main():
         with open(berkas_aksi914, "w", encoding="utf-8") as f:
             f.write(isi_baru914)
         rc, out = jalan(sub914,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -q brotli bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1823)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub914, ignore_errors=True)
         sub915 = klon(tmp, "sub915")
@@ -19599,7 +19599,7 @@ def main():
         with open(berkas_aksi915, "w", encoding="utf-8") as f:
             f.write(isi_baru915)
         rc, out = jalan(sub915,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -o lzop bukan operand - tanpa berkas ia mengompres stdin: gerbang gagal (Audit 1824)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub915, ignore_errors=True)
         sub916 = klon(tmp, "sub916")
@@ -19620,7 +19620,7 @@ def main():
         with open(berkas_aksi916, "w", encoding="utf-8") as f:
             f.write(isi_baru916)
         rc, out = jalan(sub916,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -c dos2unix bukan operand - tanpa FILE ia filter stdin: gerbang gagal (Audit 1825)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub916, ignore_errors=True)
         sub917 = klon(tmp, "sub917")
@@ -19641,7 +19641,7 @@ def main():
         with open(berkas_aksi917, "w", encoding="utf-8") as f:
             f.write(isi_baru917)
         rc, out = jalan(sub917,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-x recode menelan nilai charset - request tanpa FILE adalah filter stdin: gerbang gagal (Audit 1826)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub917, ignore_errors=True)
         sub918 = klon(tmp, "sub918")
@@ -19662,7 +19662,7 @@ def main():
         with open(berkas_aksi918, "w", encoding="utf-8") as f:
             f.write(isi_baru918)
         rc, out = jalan(sub918,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq dengan ekspresi tanpa berkas membaca stdin: gerbang gagal (Audit 1827)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub918, ignore_errors=True)
         sub919 = klon(tmp, "sub919")
@@ -19683,7 +19683,7 @@ def main():
         with open(berkas_aksi919, "w", encoding="utf-8") as f:
             f.write(isi_baru919)
         rc, out = jalan(sub919,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fq dengan ekspresi tanpa berkas membaca stdin seperti jq: gerbang gagal (Audit 1828)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub919, ignore_errors=True)
         sub920 = klon(tmp, "sub920")
@@ -19704,7 +19704,7 @@ def main():
         with open(berkas_aksi920, "w", encoding="utf-8") as f:
             f.write(isi_baru920)
         rc, out = jalan(sub920,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dasel tanpa -f membaca stdin, operandnya selektor: gerbang gagal (Audit 1829)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub920, ignore_errors=True)
         sub921 = klon(tmp, "sub921")
@@ -19725,7 +19725,7 @@ def main():
         with open(berkas_aksi921, "w", encoding="utf-8") as f:
             f.write(isi_baru921)
         rc, out = jalan(sub921,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mlr tanpa nama berkas membaca stdin, -f a milik kata kerja: gerbang gagal (Audit 1830)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub921, ignore_errors=True)
         sub922 = klon(tmp, "sub922")
@@ -19746,7 +19746,7 @@ def main():
         with open(berkas_aksi922, "w", encoding="utf-8") as f:
             f.write(isi_baru922)
         rc, out = jalan(sub922,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dua operand sd adalah pola dan pengganti - tanpa berkas ia filter stdin: gerbang gagal (Audit 1831)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub922, ignore_errors=True)
         sub923 = klon(tmp, "sub923")
@@ -19767,7 +19767,7 @@ def main():
         with open(berkas_aksi923, "w", encoding="utf-8") as f:
             f.write(isi_baru923)
         rc, out = jalan(sub923,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("choose membaca stdin, -f-nya pemisah bidang bukan berkas: gerbang gagal (Audit 1832)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub923, ignore_errors=True)
         sub924 = klon(tmp, "sub924")
@@ -19788,7 +19788,7 @@ def main():
         with open(berkas_aksi924, "w", encoding="utf-8") as f:
             f.write(isi_baru924)
         rc, out = jalan(sub924,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("hck tanpa berkas membaca stdin seperti cut: gerbang gagal (Audit 1833)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub924, ignore_errors=True)
         sub925 = klon(tmp, "sub925")
@@ -19809,7 +19809,7 @@ def main():
         with open(berkas_aksi925, "w", encoding="utf-8") as f:
             f.write(isi_baru925)
         rc, out = jalan(sub925,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("hexyl tanpa FILE membaca stdin, -n opsi bernilai: gerbang gagal (Audit 1834)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub925, ignore_errors=True)
         sub926 = klon(tmp, "sub926")
@@ -19830,7 +19830,7 @@ def main():
         with open(berkas_aksi926, "w", encoding="utf-8") as f:
             f.write(isi_baru926)
         rc, out = jalan(sub926,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ncat meneruskan stdin ke koneksi seperti nc: gerbang gagal (Audit 1835)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub926, ignore_errors=True)
         sub927 = klon(tmp, "sub927")
@@ -19851,7 +19851,7 @@ def main():
         with open(berkas_aksi927, "w", encoding="utf-8") as f:
             f.write(isi_baru927)
         rc, out = jalan(sub927,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("aria2c -i - membaca daftar URI dari stdin: gerbang gagal (Audit 1836)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub927, ignore_errors=True)
         sub928 = klon(tmp, "sub928")
@@ -19872,7 +19872,7 @@ def main():
         with open(berkas_aksi928, "w", encoding="utf-8") as f:
             f.write(isi_baru928)
         rc, out = jalan(sub928,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("envsubst selalu menyalin stdin ke stdout: gerbang gagal (Audit 1837)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub928, ignore_errors=True)
         sub929 = klon(tmp, "sub929")
@@ -19893,7 +19893,7 @@ def main():
         with open(berkas_aksi929, "w", encoding="utf-8") as f:
             f.write(isi_baru929)
         rc, out = jalan(sub929,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("write membaca baris dari stdin untuk terminal penerima: gerbang gagal (Audit 1838)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub929, ignore_errors=True)
         sub930 = klon(tmp, "sub930")
@@ -19914,7 +19914,7 @@ def main():
         with open(berkas_aksi930, "w", encoding="utf-8") as f:
             f.write(isi_baru930)
         rc, out = jalan(sub930,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --block-list xz bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub930, ignore_errors=True)
         sub931 = klon(tmp, "sub931")
@@ -19935,7 +19935,7 @@ def main():
         with open(berkas_aksi931, "w", encoding="utf-8") as f:
             f.write(isi_baru931)
         rc, out = jalan(sub931,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --block-list lzma bukan operand - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub931, ignore_errors=True)
         sub932 = klon(tmp, "sub932")
@@ -19956,7 +19956,7 @@ def main():
         with open(berkas_aksi932, "w", encoding="utf-8") as f:
             f.write(isi_baru932)
         rc, out = jalan(sub932,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --block-list unxz bukan operand: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub932, ignore_errors=True)
         sub933 = klon(tmp, "sub933")
@@ -19977,7 +19977,7 @@ def main():
         with open(berkas_aksi933, "w", encoding="utf-8") as f:
             f.write(isi_baru933)
         rc, out = jalan(sub933,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --block-list xzcat bukan operand: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub933, ignore_errors=True)
         sub934 = klon(tmp, "sub934")
@@ -19998,7 +19998,7 @@ def main():
         with open(berkas_aksi934, "w", encoding="utf-8") as f:
             f.write(isi_baru934)
         rc, out = jalan(sub934,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --block-list lzcat bukan operand: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub934, ignore_errors=True)
         sub935 = klon(tmp, "sub935")
@@ -20019,7 +20019,7 @@ def main():
         with open(berkas_aksi935, "w", encoding="utf-8") as f:
             f.write(isi_baru935)
         rc, out = jalan(sub935,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --block-list unlzma bukan operand: gerbang gagal (Audit 1839)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub935, ignore_errors=True)
         sub936 = klon(tmp, "sub936")
@@ -20040,7 +20040,7 @@ def main():
         with open(berkas_aksi936, "w", encoding="utf-8") as f:
             f.write(isi_baru936)
         rc, out = jalan(sub936,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --memlimit xz bukan operand: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub936, ignore_errors=True)
         sub937 = klon(tmp, "sub937")
@@ -20061,7 +20061,7 @@ def main():
         with open(berkas_aksi937, "w", encoding="utf-8") as f:
             f.write(isi_baru937)
         rc, out = jalan(sub937,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("keluarga --memlimit xz seragam di semua entri: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub937, ignore_errors=True)
         sub938 = klon(tmp, "sub938")
@@ -20082,7 +20082,7 @@ def main():
         with open(berkas_aksi938, "w", encoding="utf-8") as f:
             f.write(isi_baru938)
         rc, out = jalan(sub938,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unxz memuat --memlimit-compress: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub938, ignore_errors=True)
         sub939 = klon(tmp, "sub939")
@@ -20103,7 +20103,7 @@ def main():
         with open(berkas_aksi939, "w", encoding="utf-8") as f:
             f.write(isi_baru939)
         rc, out = jalan(sub939,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lzma memuat --memlimit: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub939, ignore_errors=True)
         sub940 = klon(tmp, "sub940")
@@ -20124,7 +20124,7 @@ def main():
         with open(berkas_aksi940, "w", encoding="utf-8") as f:
             f.write(isi_baru940)
         rc, out = jalan(sub940,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xzcat memuat --memlimit-decompress: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub940, ignore_errors=True)
         sub941 = klon(tmp, "sub941")
@@ -20145,7 +20145,7 @@ def main():
         with open(berkas_aksi941, "w", encoding="utf-8") as f:
             f.write(isi_baru941)
         rc, out = jalan(sub941,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unlzma memuat --memlimit: gerbang gagal (Audit 1840)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub941, ignore_errors=True)
         sub942 = klon(tmp, "sub942")
@@ -20166,7 +20166,7 @@ def main():
         with open(berkas_aksi942, "w", encoding="utf-8") as f:
             f.write(isi_baru942)
         rc, out = jalan(sub942,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-C unxz bernilai nama checksum: gerbang gagal (Audit 1841)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub942, ignore_errors=True)
         sub943 = klon(tmp, "sub943")
@@ -20187,7 +20187,7 @@ def main():
         with open(berkas_aksi943, "w", encoding="utf-8") as f:
             f.write(isi_baru943)
         rc, out = jalan(sub943,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--check xzcat bernilai: gerbang gagal (Audit 1841)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub943, ignore_errors=True)
         sub944 = klon(tmp, "sub944")
@@ -20208,7 +20208,7 @@ def main():
         with open(berkas_aksi944, "w", encoding="utf-8") as f:
             f.write(isi_baru944)
         rc, out = jalan(sub944,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unlzma entri penuh menyamai lzma - -T bernilai: gerbang gagal (Audit 1842)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub944, ignore_errors=True)
         sub945 = klon(tmp, "sub945")
@@ -20229,7 +20229,7 @@ def main():
         with open(berkas_aksi945, "w", encoding="utf-8") as f:
             f.write(isi_baru945)
         rc, out = jalan(sub945,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--threads unlzma bernilai: gerbang gagal (Audit 1842)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub945, ignore_errors=True)
         sub946 = klon(tmp, "sub946")
@@ -20250,7 +20250,7 @@ def main():
         with open(berkas_aksi946, "w", encoding="utf-8") as f:
             f.write(isi_baru946)
         rc, out = jalan(sub946,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-C unlzma bernilai: gerbang gagal (Audit 1842)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub946, ignore_errors=True)
         sub947 = klon(tmp, "sub947")
@@ -20271,7 +20271,7 @@ def main():
         with open(berkas_aksi947, "w", encoding="utf-8") as f:
             f.write(isi_baru947)
         rc, out = jalan(sub947,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-o derdump berkas keluaran bernilai - tanpa operand ia membaca stdin: gerbang gagal (Audit 1843)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub947, ignore_errors=True)
         sub948 = klon(tmp, "sub948")
@@ -20292,7 +20292,7 @@ def main():
         with open(berkas_aksi948, "w", encoding="utf-8") as f:
             f.write(isi_baru948)
         rc, out = jalan(sub948,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unbrotli berbagi entri brotli - -o bernilai: gerbang gagal (Audit 1844)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub948, ignore_errors=True)
         sub949 = klon(tmp, "sub949")
@@ -20313,7 +20313,7 @@ def main():
         with open(berkas_aksi949, "w", encoding="utf-8") as f:
             f.write(isi_baru949)
         rc, out = jalan(sub949,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-w unbrotli bernilai: gerbang gagal (Audit 1844)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub949, ignore_errors=True)
         sub950 = klon(tmp, "sub950")
@@ -20334,7 +20334,7 @@ def main():
         with open(berkas_aksi950, "w", encoding="utf-8") as f:
             f.write(isi_baru950)
         rc, out = jalan(sub950,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("brcat berbagi entri brotli: gerbang gagal (Audit 1844)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub950, ignore_errors=True)
         sub951 = klon(tmp, "sub951")
@@ -20355,7 +20355,7 @@ def main():
         with open(berkas_aksi951, "w", encoding="utf-8") as f:
             f.write(isi_baru951)
         rc, out = jalan(sub951,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lbzcat berbagi entri lbzip2 - -n bernilai: gerbang gagal (Audit 1845, dikoreksi Audit 1866)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub951, ignore_errors=True)
         sub952 = klon(tmp, "sub952")
@@ -20376,7 +20376,7 @@ def main():
         with open(berkas_aksi952, "w", encoding="utf-8") as f:
             f.write(isi_baru952)
         rc, out = jalan(sub952,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("lbunzip2 berbagi entri lbzip2 - -n bernilai: gerbang gagal (Audit 1845, dikoreksi Audit 1866)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub952, ignore_errors=True)
         sub953 = klon(tmp, "sub953")
@@ -20397,7 +20397,7 @@ def main():
         with open(berkas_aksi953, "w", encoding="utf-8") as f:
             f.write(isi_baru953)
         rc, out = jalan(sub953,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--block-size bukan opsi lbunzip2 - 900 operand berkas: gerbang lolos (Audit 1845, dikoreksi Audit 1866)", rc == 0)
         shutil.rmtree(sub953, ignore_errors=True)
         sub954 = klon(tmp, "sub954")
@@ -20418,7 +20418,7 @@ def main():
         with open(berkas_aksi954, "w", encoding="utf-8") as f:
             f.write(isi_baru954)
         rc, out = jalan(sub954,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-o lziprecover berkas keluaran bernilai - tanpa FILE ia mendekompresi stdin: gerbang gagal (Audit 1846)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub954, ignore_errors=True)
         sub955 = klon(tmp, "sub955")
@@ -20439,7 +20439,7 @@ def main():
         with open(berkas_aksi955, "w", encoding="utf-8") as f:
             f.write(isi_baru955)
         rc, out = jalan(sub955,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--output lziprecover bernilai: gerbang gagal (Audit 1846)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub955, ignore_errors=True)
         sub956 = klon(tmp, "sub956")
@@ -20460,7 +20460,7 @@ def main():
         with open(berkas_aksi956, "w", encoding="utf-8") as f:
             f.write(isi_baru956)
         rc, out = jalan(sub956,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--output-dir-flat zstd bernilai direktori: gerbang gagal (Audit 1847)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub956, ignore_errors=True)
         sub957 = klon(tmp, "sub957")
@@ -20481,7 +20481,7 @@ def main():
         with open(berkas_aksi957, "w", encoding="utf-8") as f:
             f.write(isi_baru957)
         rc, out = jalan(sub957,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--patch-from zstd bernilai berkas rujukan: gerbang gagal (Audit 1847)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub957, ignore_errors=True)
         sub958 = klon(tmp, "sub958")
@@ -20502,7 +20502,7 @@ def main():
         with open(berkas_aksi958, "w", encoding="utf-8") as f:
             f.write(isi_baru958)
         rc, out = jalan(sub958,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("unzstd memuat --output-dir-flat: gerbang gagal (Audit 1847)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub958, ignore_errors=True)
         sub959 = klon(tmp, "sub959")
@@ -20523,7 +20523,7 @@ def main():
         with open(berkas_aksi959, "w", encoding="utf-8") as f:
             f.write(isi_baru959)
         rc, out = jalan(sub959,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zstdmt memuat --output-dir-mirror: gerbang gagal (Audit 1847)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub959, ignore_errors=True)
         sub960 = klon(tmp, "sub960")
@@ -20544,7 +20544,7 @@ def main():
         with open(berkas_aksi960, "w", encoding="utf-8") as f:
             f.write(isi_baru960)
         rc, out = jalan(sub960,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("zstdcat memuat --output-dir-flat: gerbang gagal (Audit 1847)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub960, ignore_errors=True)
         sub961 = klon(tmp, "sub961")
@@ -20565,7 +20565,7 @@ def main():
         with open(berkas_aksi961, "w", encoding="utf-8") as f:
             f.write(isi_baru961)
         rc, out = jalan(sub961,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--from mlr menamai berkas masukan - stdin tak dibaca: gerbang lolos (Audit 1848)", rc == 0)
         shutil.rmtree(sub961, ignore_errors=True)
         sub962 = klon(tmp, "sub962")
@@ -20586,7 +20586,7 @@ def main():
         with open(berkas_aksi962, "w", encoding="utf-8") as f:
             f.write(isi_baru962)
         rc, out = jalan(sub962,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--from ganda mlr tetap berkas: gerbang lolos (Audit 1848)", rc == 0)
         shutil.rmtree(sub962, ignore_errors=True)
         sub963 = klon(tmp, "sub963")
@@ -20607,7 +20607,7 @@ def main():
         with open(berkas_aksi963, "w", encoding="utf-8") as f:
             f.write(isi_baru963)
         rc, out = jalan(sub963,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--from - mlr berarti stdin: gerbang gagal (Audit 1848)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub963, ignore_errors=True)
         sub964 = klon(tmp, "sub964")
@@ -20628,7 +20628,7 @@ def main():
         with open(berkas_aksi964, "w", encoding="utf-8") as f:
             f.write(isi_baru964)
         rc, out = jalan(sub964,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --ofmt mlr ditelan, bukan berkas: gerbang gagal (Audit 1849)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub964, ignore_errors=True)
         sub965 = klon(tmp, "sub965")
@@ -20649,7 +20649,7 @@ def main():
         with open(berkas_aksi965, "w", encoding="utf-8") as f:
             f.write(isi_baru965)
         rc, out = jalan(sub965,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --seed mlr ditelan sebelum kata kerja: gerbang gagal (Audit 1849)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub965, ignore_errors=True)
         sub966 = klon(tmp, "sub966")
@@ -20670,7 +20670,7 @@ def main():
         with open(berkas_aksi966, "w", encoding="utf-8") as f:
             f.write(isi_baru966)
         rc, out = jalan(sub966,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --tz mlr ditelan: gerbang gagal (Audit 1849)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub966, ignore_errors=True)
         sub967 = klon(tmp, "sub967")
@@ -20691,7 +20691,7 @@ def main():
         with open(berkas_aksi967, "w", encoding="utf-8") as f:
             f.write(isi_baru967)
         rc, out = jalan(sub967,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--load mlr berkas skrip DSL dan operand put ekspresi - tanpa berkas masukan membaca stdin: gerbang gagal (Audit 1849)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub967, ignore_errors=True)
         sub968 = klon(tmp, "sub968")
@@ -20712,7 +20712,7 @@ def main():
         with open(berkas_aksi968, "w", encoding="utf-8") as f:
             f.write(isi_baru968)
         rc, out = jalan(sub968,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand pertama put adalah ekspresi DSL, bukan berkas: gerbang gagal (Audit 1849)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub968, ignore_errors=True)
         sub969 = klon(tmp, "sub969")
@@ -20733,7 +20733,7 @@ def main():
         with open(berkas_aksi969, "w", encoding="utf-8") as f:
             f.write(isi_baru969)
         rc, out = jalan(sub969,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--mfrom mlr menamai berkas masukan: gerbang lolos (Audit 1849)", rc == 0)
         shutil.rmtree(sub969, ignore_errors=True)
         sub970 = klon(tmp, "sub970")
@@ -20754,7 +20754,7 @@ def main():
         with open(berkas_aksi970, "w", encoding="utf-8") as f:
             f.write(isi_baru970)
         rc, out = jalan(sub970,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai harfiah stdin pada -f dasel berarti stdin: gerbang gagal (Audit 1850)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub970, ignore_errors=True)
         sub971 = klon(tmp, "sub971")
@@ -20775,7 +20775,7 @@ def main():
         with open(berkas_aksi971, "w", encoding="utf-8") as f:
             f.write(isi_baru971)
         rc, out = jalan(sub971,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--file=stdin dasel berarti stdin: gerbang gagal (Audit 1850)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub971, ignore_errors=True)
         sub972 = klon(tmp, "sub972")
@@ -20796,7 +20796,7 @@ def main():
         with open(berkas_aksi972, "w", encoding="utf-8") as f:
             f.write(isi_baru972)
         rc, out = jalan(sub972,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dasel tak memperlakukan - sebagai stdin - -f apa pun berkas: gerbang lolos (Audit 1850)", rc == 0)
         shutil.rmtree(sub972, ignore_errors=True)
         sub973 = klon(tmp, "sub973")
@@ -20817,7 +20817,7 @@ def main():
         with open(berkas_aksi973, "w", encoding="utf-8") as f:
             f.write(isi_baru973)
         rc, out = jalan(sub973,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq -f = --front-matter, bukan from-file: 'yq -f -' membaca stdin: gerbang menolak (Audit 1851, dibalik Audit 2500)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub973, ignore_errors=True)
         sub974 = klon(tmp, "sub974")
@@ -20838,7 +20838,7 @@ def main():
         with open(berkas_aksi974, "w", encoding="utf-8") as f:
             f.write(isi_baru974)
         rc, out = jalan(sub974,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--from-file ada di yq: ekspresi dari berkas, operand berkas: gerbang lolos (Audit 1851, teks dikoreksi Audit 2500)", rc == 0)
         shutil.rmtree(sub974, ignore_errors=True)
         sub975 = klon(tmp, "sub975")
@@ -20859,7 +20859,7 @@ def main():
         with open(berkas_aksi975, "w", encoding="utf-8") as f:
             f.write(isi_baru975)
         rc, out = jalan(sub975,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-S xz bernilai sufiks - tanpa berkas ia membaca stdin: gerbang gagal (Audit 1852)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub975, ignore_errors=True)
         sub976 = klon(tmp, "sub976")
@@ -20880,7 +20880,7 @@ def main():
         with open(berkas_aksi976, "w", encoding="utf-8") as f:
             f.write(isi_baru976)
         rc, out = jalan(sub976,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--suffix xz bernilai menyamai saudara xz lain: gerbang gagal (Audit 1852)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub976, ignore_errors=True)
         sub977 = klon(tmp, "sub977")
@@ -20901,7 +20901,7 @@ def main():
         with open(berkas_aksi977, "w", encoding="utf-8") as f:
             f.write(isi_baru977)
         rc, out = jalan(sub977,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--block-size unxz bernilai menyamai keluarga xz: gerbang gagal (Audit 1853)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub977, ignore_errors=True)
         sub978 = klon(tmp, "sub978")
@@ -20922,7 +20922,7 @@ def main():
         with open(berkas_aksi978, "w", encoding="utf-8") as f:
             f.write(isi_baru978)
         rc, out = jalan(sub978,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("derdump -i - galat membuka - - tak membaca stdin: gerbang lolos (Audit 1854)", rc == 0)
         shutil.rmtree(sub978, ignore_errors=True)
         sub979 = klon(tmp, "sub979")
@@ -20943,7 +20943,7 @@ def main():
         with open(berkas_aksi979, "w", encoding="utf-8") as f:
             f.write(isi_baru979)
         rc, out = jalan(sub979,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-o derdump berkas keluaran - tanpa -i ia membaca stdin: gerbang gagal (Audit 1854)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub979, ignore_errors=True)
         sub980 = klon(tmp, "sub980")
@@ -20964,7 +20964,7 @@ def main():
         with open(berkas_aksi980, "w", encoding="utf-8") as f:
             f.write(isi_baru980)
         rc, out = jalan(sub980,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--files mlr menamai berkas daftar masukan - stdin tak dibaca: gerbang lolos (Audit 1855)", rc == 0)
         shutil.rmtree(sub980, ignore_errors=True)
         sub981 = klon(tmp, "sub981")
@@ -20985,7 +20985,7 @@ def main():
         with open(berkas_aksi981, "w", encoding="utf-8") as f:
             f.write(isi_baru981)
         rc, out = jalan(sub981,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--files - mlr berarti stdin: gerbang gagal (Audit 1855)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub981, ignore_errors=True)
         sub982 = klon(tmp, "sub982")
@@ -21006,7 +21006,7 @@ def main():
         with open(berkas_aksi982, "w", encoding="utf-8") as f:
             f.write(isi_baru982)
         rc, out = jalan(sub982,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai --ifs mlr pemisah bernilai, ditelan sebelum kata kerja: gerbang gagal (Audit 1856)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub982, ignore_errors=True)
         sub983 = klon(tmp, "sub983")
@@ -21027,7 +21027,7 @@ def main():
         with open(berkas_aksi983, "w", encoding="utf-8") as f:
             f.write(isi_baru983)
         rc, out = jalan(sub983,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--ofs mlr bernilai pemisah: gerbang gagal (Audit 1856)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub983, ignore_errors=True)
         sub984 = klon(tmp, "sub984")
@@ -21048,7 +21048,7 @@ def main():
         with open(berkas_aksi984, "w", encoding="utf-8") as f:
             f.write(isi_baru984)
         rc, out = jalan(sub984,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--rs mlr bernilai pemisah: gerbang gagal (Audit 1856)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub984, ignore_errors=True)
         sub985 = klon(tmp, "sub985")
@@ -21069,7 +21069,7 @@ def main():
         with open(berkas_aksi985, "w", encoding="utf-8") as f:
             f.write(isi_baru985)
         rc, out = jalan(sub985,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--ips-regex mlr bernilai pola pemisah: gerbang gagal (Audit 1856)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub985, ignore_errors=True)
         sub986 = klon(tmp, "sub986")
@@ -21090,7 +21090,7 @@ def main():
         with open(berkas_aksi986, "w", encoding="utf-8") as f:
             f.write(isi_baru986)
         rc, out = jalan(sub986,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bentuk -f=stdin dasel (pflag) berarti stdin: gerbang gagal (Audit 1857)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub986, ignore_errors=True)
         sub987 = klon(tmp, "sub987")
@@ -21111,7 +21111,7 @@ def main():
         with open(berkas_aksi987, "w", encoding="utf-8") as f:
             f.write(isi_baru987)
         rc, out = jalan(sub987,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--patch-from berlaku juga di mode dekompresi unzstd: gerbang gagal (Audit 1858)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub987, ignore_errors=True)
         sub988 = klon(tmp, "sub988")
@@ -21132,7 +21132,7 @@ def main():
         with open(berkas_aksi988, "w", encoding="utf-8") as f:
             f.write(isi_baru988)
         rc, out = jalan(sub988,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--patch-from berlaku juga di zstdcat: gerbang gagal (Audit 1858)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub988, ignore_errors=True)
         sub989 = klon(tmp, "sub989")
@@ -21153,7 +21153,7 @@ def main():
         with open(berkas_aksi989, "w", encoding="utf-8") as f:
             f.write(isi_baru989)
         rc, out = jalan(sub989,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-s c++filt bernilai gaya demangling - tanpa operand ia membaca stdin: gerbang gagal (Audit 1859)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub989, ignore_errors=True)
         sub990 = klon(tmp, "sub990")
@@ -21174,7 +21174,7 @@ def main():
         with open(berkas_aksi990, "w", encoding="utf-8") as f:
             f.write(isi_baru990)
         rc, out = jalan(sub990,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--format c++filt bernilai: gerbang gagal (Audit 1859)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub990, ignore_errors=True)
         sub991 = klon(tmp, "sub991")
@@ -21195,7 +21195,7 @@ def main():
         with open(berkas_aksi991, "w", encoding="utf-8") as f:
             f.write(isi_baru991)
         rc, out = jalan(sub991,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-o utmpdump berkas keluaran - sumber bawaannya stdin: gerbang gagal (Audit 1860)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub991, ignore_errors=True)
         sub992 = klon(tmp, "sub992")
@@ -21216,7 +21216,7 @@ def main():
         with open(berkas_aksi992, "w", encoding="utf-8") as f:
             f.write(isi_baru992)
         rc, out = jalan(sub992,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--timeout pinentry bernilai detik - ia membaca perintah Assuan dari stdin: gerbang gagal (Audit 1861)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub992, ignore_errors=True)
         sub993 = klon(tmp, "sub993")
@@ -21237,7 +21237,7 @@ def main():
         with open(berkas_aksi993, "w", encoding="utf-8") as f:
             f.write(isi_baru993)
         rc, out = jalan(sub993,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--display pinentry-curses bernilai - berbagi opsi pinentry: gerbang gagal (Audit 1862)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub993, ignore_errors=True)
         sub994 = klon(tmp, "sub994")
@@ -21258,7 +21258,7 @@ def main():
         with open(berkas_aksi994, "w", encoding="utf-8") as f:
             f.write(isi_baru994)
         rc, out = jalan(sub994,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--homedir gpg-connect-agent bernilai - ia membaca perintah dari stdin: gerbang gagal (Audit 1863)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub994, ignore_errors=True)
         sub995 = klon(tmp, "sub995")
@@ -21279,7 +21279,7 @@ def main():
         with open(berkas_aksi995, "w", encoding="utf-8") as f:
             f.write(isi_baru995)
         rc, out = jalan(sub995,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mode --server dirmngr membaca perintah Assuan dari stdin, --homedir bernilai: gerbang gagal (Audit 1864)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub995, ignore_errors=True)
         sub996 = klon(tmp, "sub996")
@@ -21300,7 +21300,7 @@ def main():
         with open(berkas_aksi996, "w", encoding="utf-8") as f:
             f.write(isi_baru996)
         rc, out = jalan(sub996,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-s memaksa cpan masuk mode shell yang membaca perintah dari stdin: gerbang gagal (Audit 1865)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub996, ignore_errors=True)
         sub997 = klon(tmp, "sub997")
@@ -21321,7 +21321,7 @@ def main():
         with open(berkas_aksi997, "w", encoding="utf-8") as f:
             f.write(isi_baru997)
         rc, out = jalan(sub997,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cpan -j tanpa -s mode pasang - tak membaca stdin: gerbang lolos (Audit 1865)", rc == 0)
         shutil.rmtree(sub997, ignore_errors=True)
         sub998 = klon(tmp, "sub998")
@@ -21342,7 +21342,7 @@ def main():
         with open(berkas_aksi998, "w", encoding="utf-8") as f:
             f.write(isi_baru998)
         rc, out = jalan(sub998,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-n lbzip2 satu-satunya opsi bernilai (jumlah benang): gerbang gagal (Audit 1866)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub998, ignore_errors=True)
         sub999 = klon(tmp, "sub999")
@@ -21363,7 +21363,7 @@ def main():
         with open(berkas_aksi999, "w", encoding="utf-8") as f:
             f.write(isi_baru999)
         rc, out = jalan(sub999,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-b bukan opsi lbzip2 - 2 adalah operand berkas: gerbang lolos (Audit 1866)", rc == 0)
         shutil.rmtree(sub999, ignore_errors=True)
         sub1000 = klon(tmp, "sub1000")
@@ -21384,7 +21384,7 @@ def main():
         with open(berkas_aksi1000, "w", encoding="utf-8") as f:
             f.write(isi_baru1000)
         rc, out = jalan(sub1000,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-B/--data-size plzip bernilai: gerbang gagal (Audit 1867)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1000, ignore_errors=True)
         sub1001 = klon(tmp, "sub1001")
@@ -21405,7 +21405,7 @@ def main():
         with open(berkas_aksi1001, "w", encoding="utf-8") as f:
             f.write(isi_baru1001)
         rc, out = jalan(sub1001,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("plzip tak punya --format - nilainya operand: gerbang lolos (Audit 1867)", rc == 0)
         shutil.rmtree(sub1001, ignore_errors=True)
         sub1002 = klon(tmp, "sub1002")
@@ -21426,7 +21426,7 @@ def main():
         with open(berkas_aksi1002, "w", encoding="utf-8") as f:
             f.write(isi_baru1002)
         rc, out = jalan(sub1002,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-o zstdcat berkas keluaran dari manual bersama zstd: gerbang gagal (Audit 1868)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1002, ignore_errors=True)
         sub1003 = klon(tmp, "sub1003")
@@ -21447,7 +21447,7 @@ def main():
         with open(berkas_aksi1003, "w", encoding="utf-8") as f:
             f.write(isi_baru1003)
         rc, out = jalan(sub1003,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-X/--index pigz bernilai berkas indeks: gerbang gagal (Audit 1869)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1003, ignore_errors=True)
         sub1004 = klon(tmp, "sub1004")
@@ -21468,7 +21468,7 @@ def main():
         with open(berkas_aksi1004, "w", encoding="utf-8") as f:
             f.write(isi_baru1004)
         rc, out = jalan(sub1004,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--index unpigz bernilai menyamai pigz: gerbang gagal (Audit 1869)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1004, ignore_errors=True)
         sub1005 = klon(tmp, "sub1005")
@@ -21489,7 +21489,7 @@ def main():
         with open(berkas_aksi1005, "w", encoding="utf-8") as f:
             f.write(isi_baru1005)
         rc, out = jalan(sub1005,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bzip2 tak punya -S - berkas.bz2 operand sungguhan: gerbang lolos (Audit 1870)", rc == 0)
         shutil.rmtree(sub1005, ignore_errors=True)
         sub1006 = klon(tmp, "sub1006")
@@ -21510,7 +21510,7 @@ def main():
         with open(berkas_aksi1006, "w", encoding="utf-8") as f:
             f.write(isi_baru1006)
         rc, out = jalan(sub1006,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-c/--crypt-method newusers bernilai menyamai chpasswd: gerbang gagal (Audit 1871)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1006, ignore_errors=True)
         sub1007 = klon(tmp, "sub1007")
@@ -21531,7 +21531,7 @@ def main():
         with open(berkas_aksi1007, "w", encoding="utf-8") as f:
             f.write(isi_baru1007)
         rc, out = jalan(sub1007,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("doas pembungkus pewaris stdin sekelas sudo: gerbang gagal (Audit 1872)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1007, ignore_errors=True)
         sub1008 = klon(tmp, "sub1008")
@@ -21552,7 +21552,7 @@ def main():
         with open(berkas_aksi1008, "w", encoding="utf-8") as f:
             f.write(isi_baru1008)
         rc, out = jalan(sub1008,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("watch meneruskan stdin ke anaknya, -n bernilai selang: gerbang gagal (Audit 1873)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1008, ignore_errors=True)
         sub1009 = klon(tmp, "sub1009")
@@ -21573,7 +21573,7 @@ def main():
         with open(berkas_aksi1009, "w", encoding="utf-8") as f:
             f.write(isi_baru1009)
         rc, out = jalan(sub1009,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--pipe systemd-run mewarisi stdio pemanggil seperti --scope: gerbang gagal (Audit 1874)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1009, ignore_errors=True)
         sub1010 = klon(tmp, "sub1010")
@@ -21594,7 +21594,7 @@ def main():
         with open(berkas_aksi1010, "w", encoding="utf-8") as f:
             f.write(isi_baru1010)
         rc, out = jalan(sub1010,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perintah sesudah & tunggal adalah segmen sendiri: gerbang gagal (Audit 1875)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1010, ignore_errors=True)
         sub1012 = klon(tmp, "sub1012")
@@ -21615,7 +21615,7 @@ def main():
         with open(berkas_aksi1012, "w", encoding="utf-8") as f:
             f.write(isi_baru1012)
         rc, out = jalan(sub1012,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--pipe berargumen ditolak systemd-run: gerbang lolos (Audit 1876)", rc == 0)
         shutil.rmtree(sub1012, ignore_errors=True)
         sub1013 = klon(tmp, "sub1013")
@@ -21636,7 +21636,7 @@ def main():
         with open(berkas_aksi1013, "w", encoding="utf-8") as f:
             f.write(isi_baru1013)
         rc, out = jalan(sub1013,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--pipe + --scope konflik: gerbang lolos (Audit 1876)", rc == 0)
         shutil.rmtree(sub1013, ignore_errors=True)
         sub1014 = klon(tmp, "sub1014")
@@ -21657,7 +21657,7 @@ def main():
         with open(berkas_aksi1014, "w", encoding="utf-8") as f:
             f.write(isi_baru1014)
         rc, out = jalan(sub1014,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel watch -tn: -n di ujung menelan nilai: gerbang gagal (Audit 1877)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1014, ignore_errors=True)
         sub1015 = klon(tmp, "sub1015")
@@ -21678,7 +21678,7 @@ def main():
         with open(berkas_aksi1015, "w", encoding="utf-8") as f:
             f.write(isi_baru1015)
         rc, out = jalan(sub1015,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel watch -nt: nilai bundel tak sah, anak tak jalan: gerbang lolos (Audit 1877)", rc == 0)
         shutil.rmtree(sub1015, ignore_errors=True)
         sub1016 = klon(tmp, "sub1016")
@@ -21699,7 +21699,7 @@ def main():
         with open(berkas_aksi1016, "w", encoding="utf-8") as f:
             f.write(isi_baru1016)
         rc, out = jalan(sub1016,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-s tail bernilai (interval tidur): gerbang gagal (Audit 1878)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1016, ignore_errors=True)
         sub1017 = klon(tmp, "sub1017")
@@ -21720,7 +21720,7 @@ def main():
         with open(berkas_aksi1017, "w", encoding="utf-8") as f:
             f.write(isi_baru1017)
         rc, out = jalan(sub1017,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-I cpio berkas arsip sekelas -F: gerbang lolos (Audit 1879)", rc == 0)
         shutil.rmtree(sub1017, ignore_errors=True)
         sub1018 = klon(tmp, "sub1018")
@@ -21741,7 +21741,7 @@ def main():
         with open(berkas_aksi1018, "w", encoding="utf-8") as f:
             f.write(isi_baru1018)
         rc, out = jalan(sub1018,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--json curl opsi data - @- dari stdin: gerbang gagal (Audit 1880)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1018, ignore_errors=True)
         sub1019 = klon(tmp, "sub1019")
@@ -21762,7 +21762,7 @@ def main():
         with open(berkas_aksi1019, "w", encoding="utf-8") as f:
             f.write(isi_baru1019)
         rc, out = jalan(sub1019,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ssh meneruskan stdin ke sesi jauh: gerbang gagal (Audit 1881)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1019, ignore_errors=True)
         sub1020 = klon(tmp, "sub1020")
@@ -21783,7 +21783,7 @@ def main():
         with open(berkas_aksi1020, "w", encoding="utf-8") as f:
             f.write(isi_baru1020)
         rc, out = jalan(sub1020,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ssh -n mengalihkan stdin dari /dev/null: gerbang lolos (Audit 1881)", rc == 0)
         shutil.rmtree(sub1020, ignore_errors=True)
         sub1021 = klon(tmp, "sub1021")
@@ -21804,7 +21804,7 @@ def main():
         with open(berkas_aksi1021, "w", encoding="utf-8") as f:
             f.write(isi_baru1021)
         rc, out = jalan(sub1021,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi pemutus ssh sesudah tujuan berlaku: gerbang lolos (Audit 1887)", rc == 0)
         shutil.rmtree(sub1021, ignore_errors=True)
         sub1022 = klon(tmp, "sub1022")
@@ -21825,7 +21825,7 @@ def main():
         with open(berkas_aksi1022, "w", encoding="utf-8") as f:
             f.write(isi_baru1022)
         rc, out = jalan(sub1022,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-' tunggal bukan tujuan ssh: gerbang lolos (Audit 1888)", rc == 0)
         shutil.rmtree(sub1022, ignore_errors=True)
         sub1023 = klon(tmp, "sub1023")
@@ -21846,7 +21846,7 @@ def main():
         with open(berkas_aksi1023, "w", encoding="utf-8") as f:
             f.write(isi_baru1023)
         rc, out = jalan(sub1023,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rsh meneruskan stdin ke perintah jauh: gerbang gagal (Audit 1894)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1023, ignore_errors=True)
         sub1024 = klon(tmp, "sub1024")
@@ -21867,7 +21867,7 @@ def main():
         with open(berkas_aksi1024, "w", encoding="utf-8") as f:
             f.write(isi_baru1024)
         rc, out = jalan(sub1024,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mosquitto_pub -s membaca pesan dari stdin: gerbang gagal (Audit 1895)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1024, ignore_errors=True)
         sub1025 = klon(tmp, "sub1025")
@@ -21888,7 +21888,7 @@ def main():
         with open(berkas_aksi1025, "w", encoding="utf-8") as f:
             f.write(isi_baru1025)
         rc, out = jalan(sub1025,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grpcurl -d @ membaca badan dari stdin: gerbang gagal (Audit 1896)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1025, ignore_errors=True)
         sub1026 = klon(tmp, "sub1026")
@@ -21909,7 +21909,7 @@ def main():
         with open(berkas_aksi1026, "w", encoding="utf-8") as f:
             f.write(isi_baru1026)
         rc, out = jalan(sub1026,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("kubectl exec -i meneruskan stdin: gerbang gagal (Audit 1897)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1026, ignore_errors=True)
         sub1027 = klon(tmp, "sub1027")
@@ -21930,7 +21930,7 @@ def main():
         with open(berkas_aksi1027, "w", encoding="utf-8") as f:
             f.write(isi_baru1027)
         rc, out = jalan(sub1027,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("docker exec -i meneruskan stdin: gerbang gagal (Audit 1898)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1027, ignore_errors=True)
         sub1028 = klon(tmp, "sub1028")
@@ -21951,7 +21951,7 @@ def main():
         with open(berkas_aksi1028, "w", encoding="utf-8") as f:
             f.write(isi_baru1028)
         rc, out = jalan(sub1028,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("podman run -i mengonsumsi stdin: gerbang gagal (Audit 1899)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1028, ignore_errors=True)
         sub1029 = klon(tmp, "sub1029")
@@ -21972,7 +21972,7 @@ def main():
         with open(berkas_aksi1029, "w", encoding="utf-8") as f:
             f.write(isi_baru1029)
         rc, out = jalan(sub1029,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("terraform console membaca perintah dari stdin: gerbang gagal (Audit 1900)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1029, ignore_errors=True)
         sub1030 = klon(tmp, "sub1030")
@@ -21993,7 +21993,7 @@ def main():
         with open(berkas_aksi1030, "w", encoding="utf-8") as f:
             f.write(isi_baru1030)
         rc, out = jalan(sub1030,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("websocat klien sederhana meneruskan stdin: gerbang gagal (Audit 1901)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1030, ignore_errors=True)
         sub1031 = klon(tmp, "sub1031")
@@ -22014,7 +22014,7 @@ def main():
         with open(berkas_aksi1031, "w", encoding="utf-8") as f:
             f.write(isi_baru1031)
         rc, out = jalan(sub1031,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("redis-cli polos terpipa membaca perintah dari stdin: gerbang gagal (Audit 1902)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1031, ignore_errors=True)
         sub1032 = klon(tmp, "sub1032")
@@ -22035,7 +22035,7 @@ def main():
         with open(berkas_aksi1032, "w", encoding="utf-8") as f:
             f.write(isi_baru1032)
         rc, out = jalan(sub1032,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("psql -f - membaca stdin: gerbang gagal (Audit 1903)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1032, ignore_errors=True)
         sub1033 = klon(tmp, "sub1033")
@@ -22056,7 +22056,7 @@ def main():
         with open(berkas_aksi1033, "w", encoding="utf-8") as f:
             f.write(isi_baru1033)
         rc, out = jalan(sub1033,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mysql polos terpipa membaca stdin: gerbang gagal (Audit 1904)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1033, ignore_errors=True)
         sub1034 = klon(tmp, "sub1034")
@@ -22077,7 +22077,7 @@ def main():
         with open(berkas_aksi1034, "w", encoding="utf-8") as f:
             f.write(isi_baru1034)
         rc, out = jalan(sub1034,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mariadb polos terpipa membaca stdin: gerbang gagal (Audit 1905)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1034, ignore_errors=True)
         sub1035 = klon(tmp, "sub1035")
@@ -22098,7 +22098,7 @@ def main():
         with open(berkas_aksi1035, "w", encoding="utf-8") as f:
             f.write(isi_baru1035)
         rc, out = jalan(sub1035,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("socat -u: sumber berkas, stdin tak dikonsumsi: gerbang lolos (Audit 1906)", rc == 0)
         shutil.rmtree(sub1035, ignore_errors=True)
         sub1036 = klon(tmp, "sub1036")
@@ -22119,7 +22119,7 @@ def main():
         with open(berkas_aksi1036, "w", encoding="utf-8") as f:
             f.write(isi_baru1036)
         rc, out = jalan(sub1036,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai '-' opsi sftp gugur parsing: gerbang lolos (Audit 1907)", rc == 0)
         shutil.rmtree(sub1036, ignore_errors=True)
         sub1037 = klon(tmp, "sub1037")
@@ -22140,7 +22140,7 @@ def main():
         with open(berkas_aksi1037, "w", encoding="utf-8") as f:
             f.write(isi_baru1037)
         rc, out = jalan(sub1037,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sftp host:berkas lokal mode unduh otomatis: gerbang lolos (Audit 1908)", rc == 0)
         shutil.rmtree(sub1037, ignore_errors=True)
         sub1038 = klon(tmp, "sub1038")
@@ -22161,7 +22161,7 @@ def main():
         with open(berkas_aksi1038, "w", encoding="utf-8") as f:
             f.write(isi_baru1038)
         rc, out = jalan(sub1038,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-I nc bernilai - tanpa host ia galat: gerbang lolos (Audit 1909)", rc == 0)
         shutil.rmtree(sub1038, ignore_errors=True)
         sub1039 = klon(tmp, "sub1039")
@@ -22182,7 +22182,7 @@ def main():
         with open(berkas_aksi1039, "w", encoding="utf-8") as f:
             f.write(isi_baru1039)
         rc, out = jalan(sub1039,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ncat --recv-only tak meneruskan stdin: gerbang lolos (Audit 1910)", rc == 0)
         shutil.rmtree(sub1039, ignore_errors=True)
         sub1040 = klon(tmp, "sub1040")
@@ -22203,7 +22203,7 @@ def main():
         with open(berkas_aksi1040, "w", encoding="utf-8") as f:
             f.write(isi_baru1040)
         rc, out = jalan(sub1040,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi ssh menggantung sesudah tujuan galat: gerbang lolos (Audit 1911)", rc == 0)
         shutil.rmtree(sub1040, ignore_errors=True)
         sub1041 = klon(tmp, "sub1041")
@@ -22224,7 +22224,7 @@ def main():
         with open(berkas_aksi1041, "w", encoding="utf-8") as f:
             f.write(isi_baru1041)
         rc, out = jalan(sub1041,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-n' sesudah -- bukan tujuan ssh: gerbang lolos (Audit 1912)", rc == 0)
         shutil.rmtree(sub1041, ignore_errors=True)
         sub1042 = klon(tmp, "sub1042")
@@ -22245,7 +22245,7 @@ def main():
         with open(berkas_aksi1042, "w", encoding="utf-8") as f:
             f.write(isi_baru1042)
         rc, out = jalan(sub1042,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("psql memproses -c/-f berurutan: -f - tetap membaca: gerbang gagal (Audit 1913)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1042, ignore_errors=True)
         sub1043 = klon(tmp, "sub1043")
@@ -22266,7 +22266,7 @@ def main():
         with open(berkas_aksi1043, "w", encoding="utf-8") as f:
             f.write(isi_baru1043)
         rc, out = jalan(sub1043,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--execute= mysql menjalankan lalu keluar: gerbang lolos (Audit 1914)", rc == 0)
         shutil.rmtree(sub1043, ignore_errors=True)
         sub1044 = klon(tmp, "sub1044")
@@ -22287,7 +22287,7 @@ def main():
         with open(berkas_aksi1044, "w", encoding="utf-8") as f:
             f.write(isi_baru1044)
         rc, out = jalan(sub1044,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--execute= mariadb menjalankan lalu keluar: gerbang lolos (Audit 1915)", rc == 0)
         shutil.rmtree(sub1044, ignore_errors=True)
         sub1045 = klon(tmp, "sub1045")
@@ -22308,7 +22308,7 @@ def main():
         with open(berkas_aksi1045, "w", encoding="utf-8") as f:
             f.write(isi_baru1045)
         rc, out = jalan(sub1045,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--interactive docker meneruskan stdin: gerbang gagal (Audit 1916)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1045, ignore_errors=True)
         sub1046 = klon(tmp, "sub1046")
@@ -22329,7 +22329,7 @@ def main():
         with open(berkas_aksi1046, "w", encoding="utf-8") as f:
             f.write(isi_baru1046)
         rc, out = jalan(sub1046,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-i' wilayah perintah docker bukan bendera: gerbang lolos (Audit 1918)", rc == 0)
         shutil.rmtree(sub1046, ignore_errors=True)
         sub1047 = klon(tmp, "sub1047")
@@ -22350,7 +22350,7 @@ def main():
         with open(berkas_aksi1047, "w", encoding="utf-8") as f:
             f.write(isi_baru1047)
         rc, out = jalan(sub1047,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel -w docker bernilai bukan -i: gerbang lolos (Audit 1921)", rc == 0)
         shutil.rmtree(sub1047, ignore_errors=True)
         sub1048 = klon(tmp, "sub1048")
@@ -22371,7 +22371,7 @@ def main():
         with open(berkas_aksi1048, "w", encoding="utf-8") as f:
             f.write(isi_baru1048)
         rc, out = jalan(sub1048,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--interactive podman meneruskan stdin: gerbang gagal (Audit 1917)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1048, ignore_errors=True)
         sub1049 = klon(tmp, "sub1049")
@@ -22392,7 +22392,7 @@ def main():
         with open(berkas_aksi1049, "w", encoding="utf-8") as f:
             f.write(isi_baru1049)
         rc, out = jalan(sub1049,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-i' sesudah -- kubectl milik perintah: gerbang lolos (Audit 1919)", rc == 0)
         shutil.rmtree(sub1049, ignore_errors=True)
         sub1050 = klon(tmp, "sub1050")
@@ -22413,7 +22413,7 @@ def main():
         with open(berkas_aksi1050, "w", encoding="utf-8") as f:
             f.write(isi_baru1050)
         rc, out = jalan(sub1050,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel -c kubectl bernilai bukan -i: gerbang lolos (Audit 1920)", rc == 0)
         shutil.rmtree(sub1050, ignore_errors=True)
         sub1051 = klon(tmp, "sub1051")
@@ -22434,7 +22434,7 @@ def main():
         with open(berkas_aksi1051, "w", encoding="utf-8") as f:
             f.write(isi_baru1051)
         rc, out = jalan(sub1051,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel -sl mosquitto_pub mode stdin: gerbang gagal (Audit 1922)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1051, ignore_errors=True)
         sub1052 = klon(tmp, "sub1052")
@@ -22455,7 +22455,7 @@ def main():
         with open(berkas_aksi1052, "w", encoding="utf-8") as f:
             f.write(isi_baru1052)
         rc, out = jalan(sub1052,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-x' nilai -a redis-cli bukan saklar: gerbang lolos (Audit 1923)", rc == 0)
         shutil.rmtree(sub1052, ignore_errors=True)
         sub1053 = klon(tmp, "sub1053")
@@ -22476,7 +22476,7 @@ def main():
         with open(berkas_aksi1053, "w", encoding="utf-8") as f:
             f.write(isi_baru1053)
         rc, out = jalan(sub1053,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nerdctl run -i meneruskan stdin: gerbang gagal (Audit 1926)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1053, ignore_errors=True)
         sub1054 = klon(tmp, "sub1054")
@@ -22497,7 +22497,7 @@ def main():
         with open(berkas_aksi1054, "w", encoding="utf-8") as f:
             f.write(isi_baru1054)
         rc, out = jalan(sub1054,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("oc exec -i meneruskan stdin: gerbang gagal (Audit 1927)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1054, ignore_errors=True)
         sub1055 = klon(tmp, "sub1055")
@@ -22518,7 +22518,7 @@ def main():
         with open(berkas_aksi1055, "w", encoding="utf-8") as f:
             f.write(isi_baru1055)
         rc, out = jalan(sub1055,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("consul kv put '-' membaca nilai dari stdin: gerbang gagal (Audit 1928)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1055, ignore_errors=True)
         sub1056 = klon(tmp, "sub1056")
@@ -22539,7 +22539,7 @@ def main():
         with open(berkas_aksi1056, "w", encoding="utf-8") as f:
             f.write(isi_baru1056)
         rc, out = jalan(sub1056,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("vault kv put '-' membaca nilai dari stdin: gerbang gagal (Audit 1929)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1056, ignore_errors=True)
         sub1057 = klon(tmp, "sub1057")
@@ -22560,7 +22560,7 @@ def main():
         with open(berkas_aksi1057, "w", encoding="utf-8") as f:
             f.write(isi_baru1057)
         rc, out = jalan(sub1057,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("etcdctl put tanpa nilai membaca stdin: gerbang gagal (Audit 1930)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1057, ignore_errors=True)
         sub1058 = klon(tmp, "sub1058")
@@ -22581,7 +22581,7 @@ def main():
         with open(berkas_aksi1058, "w", encoding="utf-8") as f:
             f.write(isi_baru1058)
         rc, out = jalan(sub1058,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gh api --input - membaca badan dari stdin: gerbang gagal (Audit 1931)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1058, ignore_errors=True)
         sub1059 = klon(tmp, "sub1059")
@@ -22602,7 +22602,7 @@ def main():
         with open(berkas_aksi1059, "w", encoding="utf-8") as f:
             f.write(isi_baru1059)
         rc, out = jalan(sub1059,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("glab api --input - membaca badan dari stdin: gerbang gagal (Audit 1932)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1059, ignore_errors=True)
         sub1060 = klon(tmp, "sub1060")
@@ -22623,7 +22623,7 @@ def main():
         with open(berkas_aksi1060, "w", encoding="utf-8") as f:
             f.write(isi_baru1060)
         rc, out = jalan(sub1060,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("clickhouse-client polos membaca query dari stdin: gerbang gagal (Audit 1933)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1060, ignore_errors=True)
         sub1061 = klon(tmp, "sub1061")
@@ -22644,7 +22644,7 @@ def main():
         with open(berkas_aksi1061, "w", encoding="utf-8") as f:
             f.write(isi_baru1061)
         rc, out = jalan(sub1061,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("aws s3 cp dari '-' mengunggah stdin: gerbang gagal (Audit 1934)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1061, ignore_errors=True)
         sub1062 = klon(tmp, "sub1062")
@@ -22665,7 +22665,7 @@ def main():
         with open(berkas_aksi1062, "w", encoding="utf-8") as f:
             f.write(isi_baru1062)
         rc, out = jalan(sub1062,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gsutil cp dari '-' mengunggah stdin: gerbang gagal (Audit 1935)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1062, ignore_errors=True)
         sub1063 = klon(tmp, "sub1063")
@@ -22686,7 +22686,7 @@ def main():
         with open(berkas_aksi1063, "w", encoding="utf-8") as f:
             f.write(isi_baru1063)
         rc, out = jalan(sub1063,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gcloud storage cp dari '-' mengunggah stdin: gerbang gagal (Audit 1936)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1063, ignore_errors=True)
         sub1064 = klon(tmp, "sub1064")
@@ -22707,7 +22707,7 @@ def main():
         with open(berkas_aksi1064, "w", encoding="utf-8") as f:
             f.write(isi_baru1064)
         rc, out = jalan(sub1064,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("buildah build --stdin meneruskan stdin: gerbang gagal (Audit 1937)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1064, ignore_errors=True)
         sub1065 = klon(tmp, "sub1065")
@@ -22728,7 +22728,7 @@ def main():
         with open(berkas_aksi1065, "w", encoding="utf-8") as f:
             f.write(isi_baru1065)
         rc, out = jalan(sub1065,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("skopeo copy dari /dev/stdin membaca aliran: gerbang gagal (Audit 1938)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1065, ignore_errors=True)
         sub1066 = klon(tmp, "sub1066")
@@ -22749,7 +22749,7 @@ def main():
         with open(berkas_aksi1066, "w", encoding="utf-8") as f:
             f.write(isi_baru1066)
         rc, out = jalan(sub1066,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-version sqlite3 informasional strip-tunggal: gerbang lolos (Audit 1939)", rc == 0)
         shutil.rmtree(sub1066, ignore_errors=True)
         sub1067 = klon(tmp, "sub1067")
@@ -22770,7 +22770,7 @@ def main():
         with open(berkas_aksi1067, "w", encoding="utf-8") as f:
             f.write(isi_baru1067)
         rc, out = jalan(sub1067,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("crictl exec -i meneruskan stdin: gerbang gagal (Audit 1940)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1067, ignore_errors=True)
         sub1068 = klon(tmp, "sub1068")
@@ -22791,7 +22791,7 @@ def main():
         with open(berkas_aksi1068, "w", encoding="utf-8") as f:
             f.write(isi_baru1068)
         rc, out = jalan(sub1068,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("clickhouse --query tetap menambahkan stdin: gerbang gagal (Audit 1941)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1068, ignore_errors=True)
         sub1069 = klon(tmp, "sub1069")
@@ -22812,7 +22812,7 @@ def main():
         with open(berkas_aksi1069, "w", encoding="utf-8") as f:
             f.write(isi_baru1069)
         rc, out = jalan(sub1069,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("aws opsi global sebelum s3 cp dari '-': gerbang gagal (Audit 1942)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1069, ignore_errors=True)
         sub1070 = klon(tmp, "sub1070")
@@ -22833,7 +22833,7 @@ def main():
         with open(berkas_aksi1070, "w", encoding="utf-8") as f:
             f.write(isi_baru1070)
         rc, out = jalan(sub1070,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'e' di nilai -p mysql bukan -e: gerbang gagal menguras (Audit 1943)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1070, ignore_errors=True)
         sub1071 = klon(tmp, "sub1071")
@@ -22854,7 +22854,7 @@ def main():
         with open(berkas_aksi1071, "w", encoding="utf-8") as f:
             f.write(isi_baru1071)
         rc, out = jalan(sub1071,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'e' di nilai -p mariadb bukan -e: gerbang gagal menguras (Audit 1944)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1071, ignore_errors=True)
         sub1072 = klon(tmp, "sub1072")
@@ -22875,7 +22875,7 @@ def main():
         with open(berkas_aksi1072, "w", encoding="utf-8") as f:
             f.write(isi_baru1072)
         rc, out = jalan(sub1072,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-' posisi kunci consul bukan stdin: gerbang lolos (Audit 1945)", rc == 0)
         shutil.rmtree(sub1072, ignore_errors=True)
         sub1073 = klon(tmp, "sub1073")
@@ -22896,7 +22896,7 @@ def main():
         with open(berkas_aksi1073, "w", encoding="utf-8") as f:
             f.write(isi_baru1073)
         rc, out = jalan(sub1073,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-s' nilai -t mosquitto bukan mode stdin: gerbang lolos (Audit 1946)", rc == 0)
         shutil.rmtree(sub1073, ignore_errors=True)
         sub1074 = klon(tmp, "sub1074")
@@ -22917,7 +22917,7 @@ def main():
         with open(berkas_aksi1074, "w", encoding="utf-8") as f:
             f.write(isi_baru1074)
         rc, out = jalan(sub1074,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai vault berakhiran '=-' di tengah bukan stdin: gerbang lolos (Audit 1947)", rc == 0)
         shutil.rmtree(sub1074, ignore_errors=True)
         sub1075 = klon(tmp, "sub1075")
@@ -22938,7 +22938,7 @@ def main():
         with open(berkas_aksi1075, "w", encoding="utf-8") as f:
             f.write(isi_baru1075)
         rc, out = jalan(sub1075,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi tak dikenal crictl galat parsing: gerbang lolos (Audit 1948)", rc == 0)
         shutil.rmtree(sub1075, ignore_errors=True)
         sub1076 = klon(tmp, "sub1076")
@@ -22959,7 +22959,7 @@ def main():
         with open(berkas_aksi1076, "w", encoding="utf-8") as f:
             f.write(isi_baru1076)
         rc, out = jalan(sub1076,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--input gh di luar konteks sub-perintah bukan saklar: gerbang lolos (Audit 1949)", rc == 0)
         shutil.rmtree(sub1076, ignore_errors=True)
         sub1077 = klon(tmp, "sub1077")
@@ -22980,7 +22980,7 @@ def main():
         with open(berkas_aksi1077, "w", encoding="utf-8") as f:
             f.write(isi_baru1077)
         rc, out = jalan(sub1077,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rclone rcat menyalin stdin: gerbang gagal (Audit 1950)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1077, ignore_errors=True)
         sub1078 = klon(tmp, "sub1078")
@@ -23001,7 +23001,7 @@ def main():
         with open(berkas_aksi1078, "w", encoding="utf-8") as f:
             f.write(isi_baru1078)
         rc, out = jalan(sub1078,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("restic backup --stdin membaca stdin: gerbang gagal (Audit 1951)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1078, ignore_errors=True)
         sub1079 = klon(tmp, "sub1079")
@@ -23022,7 +23022,7 @@ def main():
         with open(berkas_aksi1079, "w", encoding="utf-8") as f:
             f.write(isi_baru1079)
         rc, out = jalan(sub1079,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("borg create path '-' membaca stdin: gerbang gagal (Audit 1952)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1079, ignore_errors=True)
         sub1080 = klon(tmp, "sub1080")
@@ -23043,7 +23043,7 @@ def main():
         with open(berkas_aksi1080, "w", encoding="utf-8") as f:
             f.write(isi_baru1080)
         rc, out = jalan(sub1080,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ipfs dag put membaca stdin: gerbang gagal (Audit 1953)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1080, ignore_errors=True)
         sub1081 = klon(tmp, "sub1081")
@@ -23064,7 +23064,7 @@ def main():
         with open(berkas_aksi1081, "w", encoding="utf-8") as f:
             f.write(isi_baru1081)
         rc, out = jalan(sub1081,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rsync --exclude-from=- membaca daftar dari stdin: gerbang gagal (Audit 1954)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1081, ignore_errors=True)
         sub1082 = klon(tmp, "sub1082")
@@ -23085,7 +23085,7 @@ def main():
         with open(berkas_aksi1082, "w", encoding="utf-8") as f:
             f.write(isi_baru1082)
         rc, out = jalan(sub1082,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-e' nilai -h mysql bukan -e: gerbang gagal menguras (Audit 1955)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1082, ignore_errors=True)
         sub1083 = klon(tmp, "sub1083")
@@ -23106,7 +23106,7 @@ def main():
         with open(berkas_aksi1083, "w", encoding="utf-8") as f:
             f.write(isi_baru1083)
         rc, out = jalan(sub1083,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-e' nilai -u mariadb bukan -e: gerbang gagal menguras (Audit 1956)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1083, ignore_errors=True)
         sub1084 = klon(tmp, "sub1084")
@@ -23127,7 +23127,7 @@ def main():
         with open(berkas_aksi1084, "w", encoding="utf-8") as f:
             f.write(isi_baru1084)
         rc, out = jalan(sub1084,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rclone rcat tanpa tujuan galat: gerbang lolos (Audit 1957)", rc == 0)
         shutil.rmtree(sub1084, ignore_errors=True)
         sub1085 = klon(tmp, "sub1085")
@@ -23148,7 +23148,7 @@ def main():
         with open(berkas_aksi1085, "w", encoding="utf-8") as f:
             f.write(isi_baru1085)
         rc, out = jalan(sub1085,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi global rclone tak merusak sub: gerbang gagal (Audit 1958)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1085, ignore_errors=True)
         sub1086 = klon(tmp, "sub1086")
@@ -23169,7 +23169,7 @@ def main():
         with open(berkas_aksi1086, "w", encoding="utf-8") as f:
             f.write(isi_baru1086)
         rc, out = jalan(sub1086,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi global restic tak merusak sub: gerbang gagal (Audit 1959)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1086, ignore_errors=True)
         sub1087 = klon(tmp, "sub1087")
@@ -23190,7 +23190,7 @@ def main():
         with open(berkas_aksi1087, "w", encoding="utf-8") as f:
             f.write(isi_baru1087)
         rc, out = jalan(sub1087,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--stdin=true restic membaca stdin: gerbang gagal (Audit 1960)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1087, ignore_errors=True)
         sub1088 = klon(tmp, "sub1088")
@@ -23211,7 +23211,7 @@ def main():
         with open(berkas_aksi1088, "w", encoding="utf-8") as f:
             f.write(isi_baru1088)
         rc, out = jalan(sub1088,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi global ipfs tak merusak sub: gerbang gagal (Audit 1961)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1088, ignore_errors=True)
         sub1089 = klon(tmp, "sub1089")
@@ -23232,7 +23232,7 @@ def main():
         with open(berkas_aksi1089, "w", encoding="utf-8") as f:
             f.write(isi_baru1089)
         rc, out = jalan(sub1089,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dag put berkas membaca berkas: gerbang lolos (Audit 1962)", rc == 0)
         shutil.rmtree(sub1089, ignore_errors=True)
         sub1090 = klon(tmp, "sub1090")
@@ -23253,7 +23253,7 @@ def main():
         with open(berkas_aksi1090, "w", encoding="utf-8") as f:
             f.write(isi_baru1090)
         rc, out = jalan(sub1090,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("block put berkas membaca berkas: gerbang lolos (Audit 1963)", rc == 0)
         shutil.rmtree(sub1090, ignore_errors=True)
         sub1091 = klon(tmp, "sub1091")
@@ -23274,7 +23274,7 @@ def main():
         with open(berkas_aksi1091, "w", encoding="utf-8") as f:
             f.write(isi_baru1091)
         rc, out = jalan(sub1091,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-s' nilai -m mosquitto bukan stdin: gerbang lolos (Audit 1964)", rc == 0)
         shutil.rmtree(sub1091, ignore_errors=True)
         sub1092 = klon(tmp, "sub1092")
@@ -23295,7 +23295,7 @@ def main():
         with open(berkas_aksi1092, "w", encoding="utf-8") as f:
             f.write(isi_baru1092)
         rc, out = jalan(sub1092,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-c bendera polos: -s mode stdin: gerbang gagal (Audit 1965)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1092, ignore_errors=True)
         sub1093 = klon(tmp, "sub1093")
@@ -23316,7 +23316,7 @@ def main():
         with open(berkas_aksi1093, "w", encoding="utf-8") as f:
             f.write(isi_baru1093)
         rc, out = jalan(sub1093,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel -it crictl meneruskan stdin: gerbang gagal (Audit 1966)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1093, ignore_errors=True)
         sub1094 = klon(tmp, "sub1094")
@@ -23337,7 +23337,7 @@ def main():
         with open(berkas_aksi1094, "w", encoding="utf-8") as f:
             f.write(isi_baru1094)
         rc, out = jalan(sub1094,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nano - membaca stdin: gerbang gagal (Audit 1968)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1094, ignore_errors=True)
         sub1095 = klon(tmp, "sub1095")
@@ -23358,7 +23358,7 @@ def main():
         with open(berkas_aksi1095, "w", encoding="utf-8") as f:
             f.write(isi_baru1095)
         rc, out = jalan(sub1095,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gnuplot polos membaca stdin: gerbang gagal (Audit 1969)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1095, ignore_errors=True)
         sub1096 = klon(tmp, "sub1096")
@@ -23379,7 +23379,7 @@ def main():
         with open(berkas_aksi1096, "w", encoding="utf-8") as f:
             f.write(isi_baru1096)
         rc, out = jalan(sub1096,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("kak -f memproses stdin: gerbang gagal (Audit 1970)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1096, ignore_errors=True)
         sub1097 = klon(tmp, "sub1097")
@@ -23400,7 +23400,7 @@ def main():
         with open(berkas_aksi1097, "w", encoding="utf-8") as f:
             f.write(isi_baru1097)
         rc, out = jalan(sub1097,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("micro polos membuat buffer dari stdin: gerbang gagal (Audit 1971)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1097, ignore_errors=True)
         sub1098 = klon(tmp, "sub1098")
@@ -23421,7 +23421,7 @@ def main():
         with open(berkas_aksi1098, "w", encoding="utf-8") as f:
             f.write(isi_baru1098)
         rc, out = jalan(sub1098,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pandoc polos membaca stdin: gerbang gagal (Audit 1972)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1098, ignore_errors=True)
         sub1099 = klon(tmp, "sub1099")
@@ -23442,7 +23442,7 @@ def main():
         with open(berkas_aksi1099, "w", encoding="utf-8") as f:
             f.write(isi_baru1099)
         rc, out = jalan(sub1099,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("magick '-' masukan stdin: gerbang gagal (Audit 1973)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1099, ignore_errors=True)
         sub1100 = klon(tmp, "sub1100")
@@ -23463,7 +23463,7 @@ def main():
         with open(berkas_aksi1100, "w", encoding="utf-8") as f:
             f.write(isi_baru1100)
         rc, out = jalan(sub1100,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sendmail -t membaca pesan dari stdin: gerbang gagal (Audit 1974)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1100, ignore_errors=True)
         sub1101 = klon(tmp, "sub1101")
@@ -23484,7 +23484,7 @@ def main():
         with open(berkas_aksi1101, "w", encoding="utf-8") as f:
             f.write(isi_baru1101)
         rc, out = jalan(sub1101,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mailx mode kirim membaca isi dari stdin: gerbang gagal (Audit 1975)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1101, ignore_errors=True)
         sub1102 = klon(tmp, "sub1102")
@@ -23505,7 +23505,7 @@ def main():
         with open(berkas_aksi1102, "w", encoding="utf-8") as f:
             f.write(isi_baru1102)
         rc, out = jalan(sub1102,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("R --slave membaca dari stdin: gerbang gagal (Audit 1976)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1102, ignore_errors=True)
         sub1103 = klon(tmp, "sub1103")
@@ -23526,7 +23526,7 @@ def main():
         with open(berkas_aksi1103, "w", encoding="utf-8") as f:
             f.write(isi_baru1103)
         rc, out = jalan(sub1103,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--persist bendera polos: gnuplot telanjang membaca stdin (Audit 1977)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1103, ignore_errors=True)
         sub1104 = klon(tmp, "sub1104")
@@ -23547,7 +23547,7 @@ def main():
         with open(berkas_aksi1104, "w", encoding="utf-8") as f:
             f.write(isi_baru1104)
         rc, out = jalan(sub1104,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mailx -t membaca pesan dari stdin: gerbang gagal (Audit 1978)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1104, ignore_errors=True)
         sub1105 = klon(tmp, "sub1105")
@@ -23568,7 +23568,7 @@ def main():
         with open(berkas_aksi1105, "w", encoding="utf-8") as f:
             f.write(isi_baru1105)
         rc, out = jalan(sub1105,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand '-' pandoc adalah stdin: gerbang gagal (Audit 1979)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1105, ignore_errors=True)
         sub1106 = klon(tmp, "sub1106")
@@ -23589,7 +23589,7 @@ def main():
         with open(berkas_aksi1106, "w", encoding="utf-8") as f:
             f.write(isi_baru1106)
         rc, out = jalan(sub1106,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("R CMD BATCH membaca berkas: gerbang lolos (Audit 1980)", rc == 0)
         shutil.rmtree(sub1106, ignore_errors=True)
         sub1107 = klon(tmp, "sub1107")
@@ -23610,7 +23610,7 @@ def main():
         with open(berkas_aksi1107, "w", encoding="utf-8") as f:
             f.write(isi_baru1107)
         rc, out = jalan(sub1107,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-h menggantung mysql galat: gerbang lolos (Audit 1981)", rc == 0)
         shutil.rmtree(sub1107, ignore_errors=True)
         sub1108 = klon(tmp, "sub1108")
@@ -23631,7 +23631,7 @@ def main():
         with open(berkas_aksi1108, "w", encoding="utf-8") as f:
             f.write(isi_baru1108)
         rc, out = jalan(sub1108,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--host menggantung mariadb galat: gerbang lolos (Audit 1982)", rc == 0)
         shutil.rmtree(sub1108, ignore_errors=True)
         sub1109 = klon(tmp, "sub1109")
@@ -23652,7 +23652,7 @@ def main():
         with open(berkas_aksi1109, "w", encoding="utf-8") as f:
             f.write(isi_baru1109)
         rc, out = jalan(sub1109,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("magick identify '-' masukan stdin: gerbang gagal (Audit 1983)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1109, ignore_errors=True)
         sub1110 = klon(tmp, "sub1110")
@@ -23673,7 +23673,7 @@ def main():
         with open(berkas_aksi1110, "w", encoding="utf-8") as f:
             f.write(isi_baru1110)
         rc, out = jalan(sub1110,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-bp' nilai -F sendmail bukan mode: gerbang gagal (Audit 1984)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1110, ignore_errors=True)
         sub1111 = klon(tmp, "sub1111")
@@ -23694,7 +23694,7 @@ def main():
         with open(berkas_aksi1111, "w", encoding="utf-8") as f:
             f.write(isi_baru1111)
         rc, out = jalan(sub1111,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("kafka producer membaca stdin: gerbang gagal (Audit 1985)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1111, ignore_errors=True)
         sub1112 = klon(tmp, "sub1112")
@@ -23715,7 +23715,7 @@ def main():
         with open(berkas_aksi1112, "w", encoding="utf-8") as f:
             f.write(isi_baru1112)
         rc, out = jalan(sub1112,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("duckdb polos membaca stdin: gerbang gagal (Audit 1986)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1112, ignore_errors=True)
         sub1113 = klon(tmp, "sub1113")
@@ -23736,7 +23736,7 @@ def main():
         with open(berkas_aksi1113, "w", encoding="utf-8") as f:
             f.write(isi_baru1113)
         rc, out = jalan(sub1113,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pg_restore tanpa berkas membaca stdin: gerbang gagal (Audit 1987)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1113, ignore_errors=True)
         sub1114 = klon(tmp, "sub1114")
@@ -23757,7 +23757,7 @@ def main():
         with open(berkas_aksi1114, "w", encoding="utf-8") as f:
             f.write(isi_baru1114)
         rc, out = jalan(sub1114,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nats pub subjek saja membaca body dari stdin: gerbang gagal (Audit 1988)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1114, ignore_errors=True)
         sub1115 = klon(tmp, "sub1115")
@@ -23778,7 +23778,7 @@ def main():
         with open(berkas_aksi1115, "w", encoding="utf-8") as f:
             f.write(isi_baru1115)
         rc, out = jalan(sub1115,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cypher-shell polos membaca stdin: gerbang gagal (Audit 1989)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1115, ignore_errors=True)
         sub1116 = klon(tmp, "sub1116")
@@ -23799,7 +23799,7 @@ def main():
         with open(berkas_aksi1116, "w", encoding="utf-8") as f:
             f.write(isi_baru1116)
         rc, out = jalan(sub1116,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cqlsh polos membaca stdin: gerbang gagal (Audit 1990)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1116, ignore_errors=True)
         sub1117 = klon(tmp, "sub1117")
@@ -23820,7 +23820,7 @@ def main():
         with open(berkas_aksi1117, "w", encoding="utf-8") as f:
             f.write(isi_baru1117)
         rc, out = jalan(sub1117,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("clickhouse client multicall membaca stdin: gerbang gagal (Audit 1991)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1117, ignore_errors=True)
         sub1118 = klon(tmp, "sub1118")
@@ -23841,7 +23841,7 @@ def main():
         with open(berkas_aksi1118, "w", encoding="utf-8") as f:
             f.write(isi_baru1118)
         rc, out = jalan(sub1118,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("snowsql polos membaca stdin: gerbang gagal (Audit 1992)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1118, ignore_errors=True)
         sub1119 = klon(tmp, "sub1119")
@@ -23862,7 +23862,7 @@ def main():
         with open(berkas_aksi1119, "w", encoding="utf-8") as f:
             f.write(isi_baru1119)
         rc, out = jalan(sub1119,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mode khusus redis-cli tak membaca stdin: gerbang lolos (Audit 1993)", rc == 0)
         shutil.rmtree(sub1119, ignore_errors=True)
         sub1120 = klon(tmp, "sub1120")
@@ -23883,7 +23883,7 @@ def main():
         with open(berkas_aksi1120, "w", encoding="utf-8") as f:
             f.write(isi_baru1120)
         rc, out = jalan(sub1120,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-s duckdb penjalan perintah: gerbang lolos (Audit 1994)", rc == 0)
         shutil.rmtree(sub1120, ignore_errors=True)
         sub1121 = klon(tmp, "sub1121")
@@ -23904,7 +23904,7 @@ def main():
         with open(berkas_aksi1121, "w", encoding="utf-8") as f:
             f.write(isi_baru1121)
         rc, out = jalan(sub1121,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-cmd berjalan sebelum stdin duckdb: gerbang gagal (Audit 1997)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1121, ignore_errors=True)
         sub1122 = klon(tmp, "sub1122")
@@ -23925,7 +23925,7 @@ def main():
         with open(berkas_aksi1122, "w", encoding="utf-8") as f:
             f.write(isi_baru1122)
         rc, out = jalan(sub1122,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("R CMD BATCH - berakhir galat, bukan stdin: gerbang lolos (Audit 2014)", rc == 0)
         shutil.rmtree(sub1122, ignore_errors=True)
         sub1123 = klon(tmp, "sub1123")
@@ -23946,7 +23946,7 @@ def main():
         with open(berkas_aksi1123, "w", encoding="utf-8") as f:
             f.write(isi_baru1123)
         rc, out = jalan(sub1123,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("docker build -f - dari stdin: gerbang gagal (Audit 2004)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1123, ignore_errors=True)
         sub1124 = klon(tmp, "sub1124")
@@ -23967,7 +23967,7 @@ def main():
         with open(berkas_aksi1124, "w", encoding="utf-8") as f:
             f.write(isi_baru1124)
         rc, out = jalan(sub1124,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("docker import - dari stdin: gerbang gagal (Audit 2005)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1124, ignore_errors=True)
         sub1125 = klon(tmp, "sub1125")
@@ -23988,7 +23988,7 @@ def main():
         with open(berkas_aksi1125, "w", encoding="utf-8") as f:
             f.write(isi_baru1125)
         rc, out = jalan(sub1125,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("docker load tanpa -i dari stdin: gerbang gagal (Audit 2006)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1125, ignore_errors=True)
         sub1126 = klon(tmp, "sub1126")
@@ -24009,7 +24009,7 @@ def main():
         with open(berkas_aksi1126, "w", encoding="utf-8") as f:
             f.write(isi_baru1126)
         rc, out = jalan(sub1126,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("podman import - dari stdin: gerbang gagal (Audit 2007)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1126, ignore_errors=True)
         sub1127 = klon(tmp, "sub1127")
@@ -24030,7 +24030,7 @@ def main():
         with open(berkas_aksi1127, "w", encoding="utf-8") as f:
             f.write(isi_baru1127)
         rc, out = jalan(sub1127,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("podman build -f - dari stdin: gerbang gagal (Audit 2008)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1127, ignore_errors=True)
         sub1128 = klon(tmp, "sub1128")
@@ -24051,7 +24051,7 @@ def main():
         with open(berkas_aksi1128, "w", encoding="utf-8") as f:
             f.write(isi_baru1128)
         rc, out = jalan(sub1128,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("podman load tanpa -i dari stdin: gerbang gagal (Audit 2009)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1128, ignore_errors=True)
         sub1129 = klon(tmp, "sub1129")
@@ -24072,7 +24072,7 @@ def main():
         with open(berkas_aksi1129, "w", encoding="utf-8") as f:
             f.write(isi_baru1129)
         rc, out = jalan(sub1129,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("buildah bud -f - dari stdin: gerbang gagal (Audit 2010)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1129, ignore_errors=True)
         sub1130 = klon(tmp, "sub1130")
@@ -24093,7 +24093,7 @@ def main():
         with open(berkas_aksi1130, "w", encoding="utf-8") as f:
             f.write(isi_baru1130)
         rc, out = jalan(sub1130,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("az rest --body @- dari pipa: gerbang gagal (Audit 2011)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1130, ignore_errors=True)
         sub1131 = klon(tmp, "sub1131")
@@ -24114,7 +24114,7 @@ def main():
         with open(berkas_aksi1131, "w", encoding="utf-8") as f:
             f.write(isi_baru1131)
         rc, out = jalan(sub1131,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("vagrant ssh sesi interaktif: gerbang gagal (Audit 2012)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1131, ignore_errors=True)
         sub1132 = klon(tmp, "sub1132")
@@ -24135,7 +24135,7 @@ def main():
         with open(berkas_aksi1132, "w", encoding="utf-8") as f:
             f.write(isi_baru1132)
         rc, out = jalan(sub1132,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("minikube ssh sesi interaktif: gerbang gagal (Audit 2013)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1132, ignore_errors=True)
         sub1133 = klon(tmp, "sub1133")
@@ -24156,7 +24156,7 @@ def main():
         with open(berkas_aksi1133, "w", encoding="utf-8") as f:
             f.write(isi_baru1133)
         rc, out = jalan(sub1133,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("R CMD BATCH -- - adalah R -f -: gerbang gagal (Audit 2015)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1133, ignore_errors=True)
         sub1134 = klon(tmp, "sub1134")
@@ -24177,7 +24177,7 @@ def main():
         with open(berkas_aksi1134, "w", encoding="utf-8") as f:
             f.write(isi_baru1134)
         rc, out = jalan(sub1134,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-no-stdin duckdb menekan stdin: gerbang lolos (Audit 2016)", rc == 0)
         shutil.rmtree(sub1134, ignore_errors=True)
         sub1135 = klon(tmp, "sub1135")
@@ -24198,7 +24198,7 @@ def main():
         with open(berkas_aksi1135, "w", encoding="utf-8") as f:
             f.write(isi_baru1135)
         rc, out = jalan(sub1135,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-c sebagai nilai -cmd duckdb bukan penekan: gerbang gagal (Audit 2017)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1135, ignore_errors=True)
         sub1136 = klon(tmp, "sub1136")
@@ -24219,7 +24219,7 @@ def main():
         with open(berkas_aksi1136, "w", encoding="utf-8") as f:
             f.write(isi_baru1136)
         rc, out = jalan(sub1136,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sub docker sadar nilai opsi global: gerbang gagal (Audit 2018)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1136, ignore_errors=True)
         sub1137 = klon(tmp, "sub1137")
@@ -24240,7 +24240,7 @@ def main():
         with open(berkas_aksi1137, "w", encoding="utf-8") as f:
             f.write(isi_baru1137)
         rc, out = jalan(sub1137,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("load sebagai nilai --format bukan sub: gerbang lolos (Audit 2018)", rc == 0)
         shutil.rmtree(sub1137, ignore_errors=True)
         sub1138 = klon(tmp, "sub1138")
@@ -24261,7 +24261,7 @@ def main():
         with open(berkas_aksi1138, "w", encoding="utf-8") as f:
             f.write(isi_baru1138)
         rc, out = jalan(sub1138,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("podman machine ssh sesi interaktif: gerbang gagal (Audit 2020)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1138, ignore_errors=True)
         sub1140 = klon(tmp, "sub1140")
@@ -24282,7 +24282,7 @@ def main():
         with open(berkas_aksi1140, "w", encoding="utf-8") as f:
             f.write(isi_baru1140)
         rc, out = jalan(sub1140,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-p minikube bernilai: gerbang gagal (Audit 2022)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1140, ignore_errors=True)
         sub1141 = klon(tmp, "sub1141")
@@ -24303,7 +24303,7 @@ def main():
         with open(berkas_aksi1141, "w", encoding="utf-8") as f:
             f.write(isi_baru1141)
         rc, out = jalan(sub1141,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-h minikube bantuan: gerbang lolos (Audit 2023)", rc == 0)
         shutil.rmtree(sub1141, ignore_errors=True)
         sub1142 = klon(tmp, "sub1142")
@@ -24324,7 +24324,7 @@ def main():
         with open(berkas_aksi1142, "w", encoding="utf-8") as f:
             f.write(isi_baru1142)
         rc, out = jalan(sub1142,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-h vagrant bantuan: gerbang lolos (Audit 2024)", rc == 0)
         shutil.rmtree(sub1142, ignore_errors=True)
         sub1143 = klon(tmp, "sub1143")
@@ -24345,7 +24345,7 @@ def main():
         with open(berkas_aksi1143, "w", encoding="utf-8") as f:
             f.write(isi_baru1143)
         rc, out = jalan(sub1143,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-n diteruskan ke ssh oleh vagrant: gerbang lolos (Audit 2025)", rc == 0)
         shutil.rmtree(sub1143, ignore_errors=True)
         sub1139 = klon(tmp, "sub1139")
@@ -24366,7 +24366,7 @@ def main():
         with open(berkas_aksi1139, "w", encoding="utf-8") as f:
             f.write(isi_baru1139)
         rc, out = jalan(sub1139,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bentuk merekat -f- docker build: gerbang gagal (Audit 2021)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1139, ignore_errors=True)
         sub1144 = klon(tmp, "sub1144")
@@ -24387,7 +24387,7 @@ def main():
         with open(berkas_aksi1144, "w", encoding="utf-8") as f:
             f.write(isi_baru1144)
         rc, out = jalan(sub1144,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--stdin sebagai nilai --label buildah: gerbang lolos (Audit 2027)", rc == 0)
         shutil.rmtree(sub1144, ignore_errors=True)
         sub1145 = klon(tmp, "sub1145")
@@ -24408,7 +24408,7 @@ def main():
         with open(berkas_aksi1145, "w", encoding="utf-8") as f:
             f.write(isi_baru1145)
         rc, out = jalan(sub1145,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("interaksi stdin ffmpeg bawaan aktif: gerbang gagal (Audit 2033)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1145, ignore_errors=True)
         sub1146 = klon(tmp, "sub1146")
@@ -24429,7 +24429,7 @@ def main():
         with open(berkas_aksi1146, "w", encoding="utf-8") as f:
             f.write(isi_baru1146)
         rc, out = jalan(sub1146,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-nostdin ffmpeg menekan interaksi: gerbang lolos (Audit 2033)", rc == 0)
         shutil.rmtree(sub1146, ignore_errors=True)
         sub1147 = klon(tmp, "sub1147")
@@ -24450,7 +24450,7 @@ def main():
         with open(berkas_aksi1147, "w", encoding="utf-8") as f:
             f.write(isi_baru1147)
         rc, out = jalan(sub1147,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mpv '-' membaca media dari stdin: gerbang gagal (Audit 2034)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1147, ignore_errors=True)
         sub1148 = klon(tmp, "sub1148")
@@ -24471,7 +24471,7 @@ def main():
         with open(berkas_aksi1148, "w", encoding="utf-8") as f:
             f.write(isi_baru1148)
         rc, out = jalan(sub1148,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sox '-' masukan adalah stdin: gerbang gagal (Audit 2035)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1148, ignore_errors=True)
         sub1149 = klon(tmp, "sub1149")
@@ -24492,7 +24492,7 @@ def main():
         with open(berkas_aksi1149, "w", encoding="utf-8") as f:
             f.write(isi_baru1149)
         rc, out = jalan(sub1149,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tesseract '-' masukan adalah stdin: gerbang gagal (Audit 2036)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1149, ignore_errors=True)
         sub1150 = klon(tmp, "sub1150")
@@ -24513,7 +24513,7 @@ def main():
         with open(berkas_aksi1150, "w", encoding="utf-8") as f:
             f.write(isi_baru1150)
         rc, out = jalan(sub1150,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("guix repl membaca stdin: gerbang gagal (Audit 2037)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1150, ignore_errors=True)
         sub1151 = klon(tmp, "sub1151")
@@ -24534,7 +24534,7 @@ def main():
         with open(berkas_aksi1151, "w", encoding="utf-8") as f:
             f.write(isi_baru1151)
         rc, out = jalan(sub1151,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--arg-from-stdin nix meneruskan stdin: gerbang gagal (Audit 2038)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1151, ignore_errors=True)
         sub1152 = klon(tmp, "sub1152")
@@ -24555,7 +24555,7 @@ def main():
         with open(berkas_aksi1152, "w", encoding="utf-8") as f:
             f.write(isi_baru1152)
         rc, out = jalan(sub1152,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rlogin sesi interaktif: gerbang gagal (Audit 2039)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1152, ignore_errors=True)
         sub1153 = klon(tmp, "sub1153")
@@ -24576,7 +24576,7 @@ def main():
         with open(berkas_aksi1153, "w", encoding="utf-8") as f:
             f.write(isi_baru1153)
         rc, out = jalan(sub1153,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rsh tanpa perintah mode rlogin: gerbang gagal (Audit 2039)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1153, ignore_errors=True)
         sub1154 = klon(tmp, "sub1154")
@@ -24597,7 +24597,7 @@ def main():
         with open(berkas_aksi1154, "w", encoding="utf-8") as f:
             f.write(isi_baru1154)
         rc, out = jalan(sub1154,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fdsrc fd=0 membaca stdin: gerbang gagal (Audit 2040)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1154, ignore_errors=True)
         sub1155 = klon(tmp, "sub1155")
@@ -24618,7 +24618,7 @@ def main():
         with open(berkas_aksi1155, "w", encoding="utf-8") as f:
             f.write(isi_baru1155)
         rc, out = jalan(sub1155,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi BATCH sebelum '-- -': gerbang gagal (Audit 2041)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1155, ignore_errors=True)
         sub1156 = klon(tmp, "sub1156")
@@ -24639,7 +24639,7 @@ def main():
         with open(berkas_aksi1156, "w", encoding="utf-8") as f:
             f.write(isi_baru1156)
         rc, out = jalan(sub1156,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi TLS global docker bernilai: gerbang gagal (Audit 2042)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1156, ignore_errors=True)
         sub1157 = klon(tmp, "sub1157")
@@ -24660,7 +24660,7 @@ def main():
         with open(berkas_aksi1157, "w", encoding="utf-8") as f:
             f.write(isi_baru1157)
         rc, out = jalan(sub1157,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi global podman tambahan bernilai: gerbang gagal (Audit 2043)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1157, ignore_errors=True)
         sub1158 = klon(tmp, "sub1158")
@@ -24681,7 +24681,7 @@ def main():
         with open(berkas_aksi1158, "w", encoding="utf-8") as f:
             f.write(isi_baru1158)
         rc, out = jalan(sub1158,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-v buildah menelan --stdin: gerbang lolos (Audit 2044)", rc == 0)
         shutil.rmtree(sub1158, ignore_errors=True)
         sub1159 = klon(tmp, "sub1159")
@@ -24702,7 +24702,7 @@ def main():
         with open(berkas_aksi1159, "w", encoding="utf-8") as f:
             f.write(isi_baru1159)
         rc, out = jalan(sub1159,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi warisan minikube --user bernilai: gerbang gagal (Audit 2045)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1159, ignore_errors=True)
         sub1160 = klon(tmp, "sub1160")
@@ -24723,7 +24723,7 @@ def main():
         with open(berkas_aksi1160, "w", encoding="utf-8") as f:
             f.write(isi_baru1160)
         rc, out = jalan(sub1160,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-h nilai --command vagrant bukan bantuan: gerbang gagal (Audit 2046)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1160, ignore_errors=True)
         sub1161 = klon(tmp, "sub1161")
@@ -24744,7 +24744,7 @@ def main():
         with open(berkas_aksi1161, "w", encoding="utf-8") as f:
             f.write(isi_baru1161)
         rc, out = jalan(sub1161,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-t guix repl bernilai: gerbang gagal (Audit 2047)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1161, ignore_errors=True)
         sub1162 = klon(tmp, "sub1162")
@@ -24765,7 +24765,7 @@ def main():
         with open(berkas_aksi1162, "w", encoding="utf-8") as f:
             f.write(isi_baru1162)
         rc, out = jalan(sub1162,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("irb membaca ekspresi dari stdin: gerbang gagal (Audit 2052)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1162, ignore_errors=True)
         sub1163 = klon(tmp, "sub1163")
@@ -24786,7 +24786,7 @@ def main():
         with open(berkas_aksi1163, "w", encoding="utf-8") as f:
             f.write(isi_baru1163)
         rc, out = jalan(sub1163,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("litecli membaca stdin saat terpipa: gerbang gagal (Audit 2053)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1163, ignore_errors=True)
         sub1164 = klon(tmp, "sub1164")
@@ -24807,7 +24807,7 @@ def main():
         with open(berkas_aksi1164, "w", encoding="utf-8") as f:
             f.write(isi_baru1164)
         rc, out = jalan(sub1164,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mycli modus batch dari stdin: gerbang gagal (Audit 2054)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1164, ignore_errors=True)
         sub1165 = klon(tmp, "sub1165")
@@ -24828,7 +24828,7 @@ def main():
         with open(berkas_aksi1165, "w", encoding="utf-8") as f:
             f.write(isi_baru1165)
         rc, out = jalan(sub1165,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("usql membaca masukan dari pipa: gerbang gagal (Audit 2055)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1165, ignore_errors=True)
         sub1166 = klon(tmp, "sub1166")
@@ -24849,7 +24849,7 @@ def main():
         with open(berkas_aksi1166, "w", encoding="utf-8") as f:
             f.write(isi_baru1166)
         rc, out = jalan(sub1166,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("helm values '-' dari stdin: gerbang gagal (Audit 2056)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1166, ignore_errors=True)
         sub1167 = klon(tmp, "sub1167")
@@ -24870,7 +24870,7 @@ def main():
         with open(berkas_aksi1167, "w", encoding="utf-8") as f:
             f.write(isi_baru1167)
         rc, out = jalan(sub1167,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("REPL sbcl berjalan di stdin: gerbang gagal (Audit 2057)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1167, ignore_errors=True)
         sub1168 = klon(tmp, "sub1168")
@@ -24891,7 +24891,7 @@ def main():
         with open(berkas_aksi1168, "w", encoding="utf-8") as f:
             f.write(isi_baru1168)
         rc, out = jalan(sub1168,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("racket polos masuk REPL: gerbang gagal (Audit 2058)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1168, ignore_errors=True)
         sub1169 = klon(tmp, "sub1169")
@@ -24912,7 +24912,7 @@ def main():
         with open(berkas_aksi1169, "w", encoding="utf-8") as f:
             f.write(isi_baru1169)
         rc, out = jalan(sub1169,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("alias -c docker bernilai: gerbang gagal (Audit 2059)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1169, ignore_errors=True)
         sub1170 = klon(tmp, "sub1170")
@@ -24933,7 +24933,7 @@ def main():
         with open(berkas_aksi1170, "w", encoding="utf-8") as f:
             f.write(isi_baru1170)
         rc, out = jalan(sub1170,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi global podman --conmon bernilai: gerbang gagal (Audit 2060)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1170, ignore_errors=True)
         sub1171 = klon(tmp, "sub1171")
@@ -24954,7 +24954,7 @@ def main():
         with open(berkas_aksi1171, "w", encoding="utf-8") as f:
             f.write(isi_baru1171)
         rc, out = jalan(sub1171,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--add-host buildah menelan --stdin: gerbang lolos (Audit 2061)", rc == 0)
         shutil.rmtree(sub1171, ignore_errors=True)
         sub1172 = klon(tmp, "sub1172")
@@ -24975,7 +24975,7 @@ def main():
         with open(berkas_aksi1172, "w", encoding="utf-8") as f:
             f.write(isi_baru1172)
         rc, out = jalan(sub1172,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi global buildah sebelum sub bernilai: gerbang gagal (Audit 2062)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1172, ignore_errors=True)
         sub1173 = klon(tmp, "sub1173")
@@ -24996,7 +24996,7 @@ def main():
         with open(berkas_aksi1173, "w", encoding="utf-8") as f:
             f.write(isi_baru1173)
         rc, out = jalan(sub1173,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi warisan minikube -v bernilai: gerbang gagal (Audit 2063)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1173, ignore_errors=True)
         sub1174 = klon(tmp, "sub1174")
@@ -25017,7 +25017,7 @@ def main():
         with open(berkas_aksi1174, "w", encoding="utf-8") as f:
             f.write(isi_baru1174)
         rc, out = jalan(sub1174,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--quit sbcl menekan REPL: gerbang lolos (Audit 2064)", rc == 0)
         shutil.rmtree(sub1174, ignore_errors=True)
         sub1175 = klon(tmp, "sub1175")
@@ -25038,7 +25038,7 @@ def main():
         with open(berkas_aksi1175, "w", encoding="utf-8") as f:
             f.write(isi_baru1175)
         rc, out = jalan(sub1175,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("GNU parallel membangun perintah dari stdin: gerbang gagal (Audit 2069)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1175, ignore_errors=True)
         sub1176 = klon(tmp, "sub1176")
@@ -25059,7 +25059,7 @@ def main():
         with open(berkas_aksi1176, "w", encoding="utf-8") as f:
             f.write(isi_baru1176)
         rc, out = jalan(sub1176,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("entr membaca daftar berkas dari stdin: gerbang gagal (Audit 2070)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1176, ignore_errors=True)
         sub1177 = klon(tmp, "sub1177")
@@ -25080,7 +25080,7 @@ def main():
         with open(berkas_aksi1177, "w", encoding="utf-8") as f:
             f.write(isi_baru1177)
         rc, out = jalan(sub1177,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pv tanpa operand membaca stdin: gerbang gagal (Audit 2071)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1177, ignore_errors=True)
         sub1179 = klon(tmp, "sub1179")
@@ -25101,7 +25101,7 @@ def main():
         with open(berkas_aksi1179, "w", encoding="utf-8") as f:
             f.write(isi_baru1179)
         rc, out = jalan(sub1179,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-' bagi rev nama berkas harfiah: gerbang lolos (Audit 2073)", rc == 0)
         shutil.rmtree(sub1179, ignore_errors=True)
         sub1178 = klon(tmp, "sub1178")
@@ -25122,7 +25122,7 @@ def main():
         with open(berkas_aksi1178, "w", encoding="utf-8") as f:
             f.write(isi_baru1178)
         rc, out = jalan(sub1178,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xonsh terpipa mode script-from-stdin: gerbang gagal (Audit 2072)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1178, ignore_errors=True)
         sub1180 = klon(tmp, "sub1180")
@@ -25143,7 +25143,7 @@ def main():
         with open(berkas_aksi1180, "w", encoding="utf-8") as f:
             f.write(isi_baru1180)
         rc, out = jalan(sub1180,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi TLS global podman bernilai: gerbang gagal (Audit 2075)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1180, ignore_errors=True)
         sub1181 = klon(tmp, "sub1181")
@@ -25164,7 +25164,7 @@ def main():
         with open(berkas_aksi1181, "w", encoding="utf-8") as f:
             f.write(isi_baru1181)
         rc, out = jalan(sub1181,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi global buildah --log-level bernilai: gerbang gagal (Audit 2076)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1181, ignore_errors=True)
         sub1182 = klon(tmp, "sub1182")
@@ -25185,7 +25185,7 @@ def main():
         with open(berkas_aksi1182, "w", encoding="utf-8") as f:
             f.write(isi_baru1182)
         rc, out = jalan(sub1182,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--cache-from buildah menelan --stdin: gerbang lolos (Audit 2077)", rc == 0)
         shutil.rmtree(sub1182, ignore_errors=True)
         sub1183 = klon(tmp, "sub1183")
@@ -25206,7 +25206,7 @@ def main():
         with open(berkas_aksi1183, "w", encoding="utf-8") as f:
             f.write(isi_baru1183)
         rc, out = jalan(sub1183,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--stdin nilai --root bukan saklar: gerbang lolos (Audit 2078)", rc == 0)
         shutil.rmtree(sub1183, ignore_errors=True)
         sub1184 = klon(tmp, "sub1184")
@@ -25227,7 +25227,7 @@ def main():
         with open(berkas_aksi1184, "w", encoding="utf-8") as f:
             f.write(isi_baru1184)
         rc, out = jalan(sub1184,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--log_file minikube bernilai: gerbang gagal (Audit 2079)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1184, ignore_errors=True)
         sub1185 = klon(tmp, "sub1185")
@@ -25248,7 +25248,7 @@ def main():
         with open(berkas_aksi1185, "w", encoding="utf-8") as f:
             f.write(isi_baru1185)
         rc, out = jalan(sub1185,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-v pendek docker informasional: gerbang lolos (Audit 2084)", rc == 0)
         shutil.rmtree(sub1185, ignore_errors=True)
         sub1186 = klon(tmp, "sub1186")
@@ -25269,7 +25269,7 @@ def main():
         with open(berkas_aksi1186, "w", encoding="utf-8") as f:
             f.write(isi_baru1186)
         rc, out = jalan(sub1186,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel -Dc docker diurai: gerbang gagal (Audit 2080)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1186, ignore_errors=True)
         sub1187 = klon(tmp, "sub1187")
@@ -25290,7 +25290,7 @@ def main():
         with open(berkas_aksi1187, "w", encoding="utf-8") as f:
             f.write(isi_baru1187)
         rc, out = jalan(sub1187,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-F pv bernilai menelan nama berkas: gerbang gagal (Audit 2081)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1187, ignore_errors=True)
         sub1188 = klon(tmp, "sub1188")
@@ -25311,7 +25311,7 @@ def main():
         with open(berkas_aksi1188, "w", encoding="utf-8") as f:
             f.write(isi_baru1188)
         rc, out = jalan(sub1188,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--rc xonsh jamak: gerbang gagal (Audit 2082)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1188, ignore_errors=True)
         sub1189 = klon(tmp, "sub1189")
@@ -25332,7 +25332,7 @@ def main():
         with open(berkas_aksi1189, "w", encoding="utf-8") as f:
             f.write(isi_baru1189)
         rc, out = jalan(sub1189,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-st xonsh bernilai: gerbang gagal (Audit 2083)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1189, ignore_errors=True)
         sub1190 = klon(tmp, "sub1190")
@@ -25353,7 +25353,7 @@ def main():
         with open(berkas_aksi1190, "w", encoding="utf-8") as f:
             f.write(isi_baru1190)
         rc, out = jalan(sub1190,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--semaphore parallel dari argv: gerbang lolos (Audit 2085)", rc == 0)
         shutil.rmtree(sub1190, ignore_errors=True)
         sub1191 = klon(tmp, "sub1191")
@@ -25374,7 +25374,7 @@ def main():
         with open(berkas_aksi1191, "w", encoding="utf-8") as f:
             f.write(isi_baru1191)
         rc, out = jalan(sub1191,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("exiftool '-' membaca stdin: gerbang gagal (Audit 2086)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1191, ignore_errors=True)
         sub1192 = klon(tmp, "sub1192")
@@ -25395,7 +25395,7 @@ def main():
         with open(berkas_aksi1192, "w", encoding="utf-8") as f:
             f.write(isi_baru1192)
         rc, out = jalan(sub1192,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-' factor galat angka: gerbang lolos (Audit 2091)", rc == 0)
         shutil.rmtree(sub1192, ignore_errors=True)
         sub1193 = klon(tmp, "sub1193")
@@ -25416,7 +25416,7 @@ def main():
         with open(berkas_aksi1193, "w", encoding="utf-8") as f:
             f.write(isi_baru1193)
         rc, out = jalan(sub1193,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("groff tanpa operand membaca stdin: gerbang gagal (Audit 2089)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1193, ignore_errors=True)
         sub1194 = klon(tmp, "sub1194")
@@ -25437,7 +25437,7 @@ def main():
         with open(berkas_aksi1194, "w", encoding="utf-8") as f:
             f.write(isi_baru1194)
         rc, out = jalan(sub1194,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv telanjang tanpa format galat: gerbang lolos (Audit 2087, koreksi 2431)", rc == 0)
         shutil.rmtree(sub1194, ignore_errors=True)
         sub1195 = klon(tmp, "sub1195")
@@ -25458,7 +25458,7 @@ def main():
         with open(berkas_aksi1195, "w", encoding="utf-8") as f:
             f.write(isi_baru1195)
         rc, out = jalan(sub1195,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("units membaca pasangan dari stdin: gerbang gagal (Audit 2088)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1195, ignore_errors=True)
         sub1196 = klon(tmp, "sub1196")
@@ -25479,7 +25479,7 @@ def main():
         with open(berkas_aksi1196, "w", encoding="utf-8") as f:
             f.write(isi_baru1196)
         rc, out = jalan(sub1196,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("'-' mawk teks program: gerbang lolos (Audit 2090)", rc == 0)
         shutil.rmtree(sub1196, ignore_errors=True)
         sub1197 = klon(tmp, "sub1197")
@@ -25500,7 +25500,7 @@ def main():
         with open(berkas_aksi1197, "w", encoding="utf-8") as f:
             f.write(isi_baru1197)
         rc, out = jalan(sub1197,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel -vD docker informasional: gerbang lolos (Audit 2092)", rc == 0)
         shutil.rmtree(sub1197, ignore_errors=True)
         sub1198 = klon(tmp, "sub1198")
@@ -25521,7 +25521,7 @@ def main():
         with open(berkas_aksi1198, "w", encoding="utf-8") as f:
             f.write(isi_baru1198)
         rc, out = jalan(sub1198,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi pv generasi baru -o bernilai: gerbang gagal (Audit 2093)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1198, ignore_errors=True)
         sub1199 = klon(tmp, "sub1199")
@@ -25542,7 +25542,7 @@ def main():
         with open(berkas_aksi1199, "w", encoding="utf-8") as f:
             f.write(isi_baru1199)
         rc, out = jalan(sub1199,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--semaphore sesudah perintah argumen biasa: gerbang gagal (Audit 2094)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1199, ignore_errors=True)
         sub1200 = klon(tmp, "sub1200")
@@ -25563,7 +25563,7 @@ def main():
         with open(berkas_aksi1200, "w", encoding="utf-8") as f:
             f.write(isi_baru1200)
         rc, out = jalan(sub1200,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-D xonsh terpisah bernilai: gerbang gagal (Audit 2095)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1200, ignore_errors=True)
         sub1201 = klon(tmp, "sub1201")
@@ -25584,7 +25584,7 @@ def main():
         with open(berkas_aksi1201, "w", encoding="utf-8") as f:
             f.write(isi_baru1201)
         rc, out = jalan(sub1201,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("format '-' in2csv ditolak: gerbang lolos (Audit 2096)", rc == 0)
         shutil.rmtree(sub1201, ignore_errors=True)
         sub1202 = klon(tmp, "sub1202")
@@ -25605,7 +25605,7 @@ def main():
         with open(berkas_aksi1202, "w", encoding="utf-8") as f:
             f.write(isi_baru1202)
         rc, out = jalan(sub1202,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv cat membaca stdin: gerbang gagal (Audit 2098)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1202, ignore_errors=True)
         sub1203 = klon(tmp, "sub1203")
@@ -25626,7 +25626,7 @@ def main():
         with open(berkas_aksi1203, "w", encoding="utf-8") as f:
             f.write(isi_baru1203)
         rc, out = jalan(sub1203,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook menerima data terpipa: gerbang gagal (Audit 2099)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1203, ignore_errors=True)
         sub1204 = klon(tmp, "sub1204")
@@ -25647,7 +25647,7 @@ def main():
         with open(berkas_aksi1204, "w", encoding="utf-8") as f:
             f.write(isi_baru1204)
         rc, out = jalan(sub1204,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-select membaca standard input: gerbang gagal (Audit 2100)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1204, ignore_errors=True)
         sub1205 = klon(tmp, "sub1205")
@@ -25668,7 +25668,7 @@ def main():
         with open(berkas_aksi1205, "w", encoding="utf-8") as f:
             f.write(isi_baru1205)
         rc, out = jalan(sub1205,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel -vD podman informasional: gerbang lolos (Audit 2101)", rc == 0)
         shutil.rmtree(sub1205, ignore_errors=True)
         sub1206 = klon(tmp, "sub1206")
@@ -25689,7 +25689,7 @@ def main():
         with open(berkas_aksi1206, "w", encoding="utf-8") as f:
             f.write(isi_baru1206)
         rc, out = jalan(sub1206,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("-d pv menggantung modus pantau: gerbang lolos (Audit 2102)", rc == 0)
         shutil.rmtree(sub1206, ignore_errors=True)
         sub1207 = klon(tmp, "sub1207")
@@ -25710,7 +25710,7 @@ def main():
         with open(berkas_aksi1207, "w", encoding="utf-8") as f:
             f.write(isi_baru1207)
         rc, out = jalan(sub1207,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("monitor pv merekat terdeteksi: gerbang gagal (Audit 2103)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1207, ignore_errors=True)
         sub1208 = klon(tmp, "sub1208")
@@ -25731,7 +25731,7 @@ def main():
         with open(berkas_aksi1208, "w", encoding="utf-8") as f:
             f.write(isi_baru1208)
         rc, out = jalan(sub1208,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai_pl parallel lengkap: gerbang lolos (Audit 2104)", rc == 0)
         shutil.rmtree(sub1208, ignore_errors=True)
         sub1209 = klon(tmp, "sub1209")
@@ -25752,7 +25752,7 @@ def main():
         with open(berkas_aksi1209, "w", encoding="utf-8") as f:
             f.write(isi_baru1209)
         rc, out = jalan(sub1209,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--semaphorename menyiratkan semaphore: gerbang lolos (Audit 2105)", rc == 0)
         shutil.rmtree(sub1209, ignore_errors=True)
         sub1210 = klon(tmp, "sub1210")
@@ -25773,7 +25773,7 @@ def main():
         with open(berkas_aksi1210, "w", encoding="utf-8") as f:
             f.write(isi_baru1210)
         rc, out = jalan(sub1210,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("jebakan nilai argparse in2csv: gerbang lolos (Audit 2106)", rc == 0)
         shutil.rmtree(sub1210, ignore_errors=True)
         sub1211 = klon(tmp, "sub1211")
@@ -25794,7 +25794,7 @@ def main():
         with open(berkas_aksi1211, "w", encoding="utf-8") as f:
             f.write(isi_baru1211)
         rc, out = jalan(sub1211,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv cat tanpa sub-subperintah galat: gerbang lolos (Audit 2107)", rc == 0)
         shutil.rmtree(sub1211, ignore_errors=True)
         sub1212 = klon(tmp, "sub1212")
@@ -25815,7 +25815,7 @@ def main():
         with open(berkas_aksi1212, "w", encoding="utf-8") as f:
             f.write(isi_baru1212)
         rc, out = jalan(sub1212,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv cat rows membaca stdin: gerbang gagal (Audit 2108)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1212, ignore_errors=True)
         sub1213 = klon(tmp, "sub1213")
@@ -25836,7 +25836,7 @@ def main():
         with open(berkas_aksi1213, "w", encoding="utf-8") as f:
             f.write(isi_baru1213)
         rc, out = jalan(sub1213,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("ejaan --maxrows karangan ditolak: gerbang lolos (Audit 2109)", rc == 0)
         shutil.rmtree(sub1213, ignore_errors=True)
         sub1214 = klon(tmp, "sub1214")
@@ -25857,7 +25857,7 @@ def main():
         with open(berkas_aksi1214, "w", encoding="utf-8") as f:
             f.write(isi_baru1214)
         rc, out = jalan(sub1214,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi csvlook --max-rows bernilai: gerbang gagal (Audit 2110)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1214, ignore_errors=True)
         sub1215 = klon(tmp, "sub1215")
@@ -25878,7 +25878,7 @@ def main():
         with open(berkas_aksi1215, "w", encoding="utf-8") as f:
             f.write(isi_baru1215)
         rc, out = jalan(sub1215,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--exclude tsv-select bernilai: gerbang gagal (Audit 2111)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1215, ignore_errors=True)
         sub1216 = klon(tmp, "sub1216")
@@ -25899,7 +25899,7 @@ def main():
         with open(berkas_aksi1216, "w", encoding="utf-8") as f:
             f.write(isi_baru1216)
         rc, out = jalan(sub1216,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--rest tsv-select bernilai: gerbang gagal (Audit 2112)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1216, ignore_errors=True)
         sub1217 = klon(tmp, "sub1217")
@@ -25920,7 +25920,7 @@ def main():
         with open(berkas_aksi1217, "w", encoding="utf-8") as f:
             f.write(isi_baru1217)
         rc, out = jalan(sub1217,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-select tanpa -f/-e galat: gerbang lolos (Audit 2113)", rc == 0)
         shutil.rmtree(sub1217, ignore_errors=True)
         sub1218 = klon(tmp, "sub1218")
@@ -25941,7 +25941,7 @@ def main():
         with open(berkas_aksi1218, "w", encoding="utf-8") as f:
             f.write(isi_baru1218)
         rc, out = jalan(sub1218,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvcut menerima data terpipa: gerbang gagal (Audit 2114)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1218, ignore_errors=True)
         sub1219 = klon(tmp, "sub1219")
@@ -25962,7 +25962,7 @@ def main():
         with open(berkas_aksi1219, "w", encoding="utf-8") as f:
             f.write(isi_baru1219)
         rc, out = jalan(sub1219,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvgrep -c + pencocok menguras: gerbang gagal (Audit 2115)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1219, ignore_errors=True)
         sub1220 = klon(tmp, "sub1220")
@@ -25983,7 +25983,7 @@ def main():
         with open(berkas_aksi1220, "w", encoding="utf-8") as f:
             f.write(isi_baru1220)
         rc, out = jalan(sub1220,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvstat menerima data terpipa: gerbang gagal (Audit 2116)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1220, ignore_errors=True)
         sub1221 = klon(tmp, "sub1221")
@@ -26004,7 +26004,7 @@ def main():
         with open(berkas_aksi1221, "w", encoding="utf-8") as f:
             f.write(isi_baru1221)
         rc, out = jalan(sub1221,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv cat rows membaca stdin: gerbang gagal (Audit 2117)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1221, ignore_errors=True)
         sub1222 = klon(tmp, "sub1222")
@@ -26025,7 +26025,7 @@ def main():
         with open(berkas_aksi1222, "w", encoding="utf-8") as f:
             f.write(isi_baru1222)
         rc, out = jalan(sub1222,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-filter membaca standard input: gerbang gagal (Audit 2118)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1222, ignore_errors=True)
         sub1223 = klon(tmp, "sub1223")
@@ -26046,7 +26046,7 @@ def main():
         with open(berkas_aksi1223, "w", encoding="utf-8") as f:
             f.write(isi_baru1223)
         rc, out = jalan(sub1223,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-append tanpa berkas stdin: gerbang gagal (Audit 2119)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1223, ignore_errors=True)
         sub1224 = klon(tmp, "sub1224")
@@ -26067,7 +26067,7 @@ def main():
         with open(berkas_aksi1224, "w", encoding="utf-8") as f:
             f.write(isi_baru1224)
         rc, out = jalan(sub1224,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pencocok csvgrep merekat terdeteksi: gerbang gagal (Audit 2120)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1224, ignore_errors=True)
         sub1225 = klon(tmp, "sub1225")
@@ -26088,7 +26088,7 @@ def main():
         with open(berkas_aksi1225, "w", encoding="utf-8") as f:
             f.write(isi_baru1225)
         rc, out = jalan(sub1225,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv search membaca stdin: gerbang gagal (Audit 2121)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1225, ignore_errors=True)
         sub1226 = klon(tmp, "sub1226")
@@ -26109,7 +26109,7 @@ def main():
         with open(berkas_aksi1226, "w", encoding="utf-8") as f:
             f.write(isi_baru1226)
         rc, out = jalan(sub1226,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsort menerima data terpipa: gerbang gagal (Audit 2122)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1226, ignore_errors=True)
         sub1227 = klon(tmp, "sub1227")
@@ -26130,7 +26130,7 @@ def main():
         with open(berkas_aksi1227, "w", encoding="utf-8") as f:
             f.write(isi_baru1227)
         rc, out = jalan(sub1227,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize membaca standard input: gerbang gagal (Audit 2123)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1227, ignore_errors=True)
         sub1228 = klon(tmp, "sub1228")
@@ -26151,7 +26151,7 @@ def main():
         with open(berkas_aksi1228, "w", encoding="utf-8") as f:
             f.write(isi_baru1228)
         rc, out = jalan(sub1228,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv search membaca stdin: gerbang gagal (Audit 2124)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1228, ignore_errors=True)
         sub1229 = klon(tmp, "sub1229")
@@ -26172,7 +26172,7 @@ def main():
         with open(berkas_aksi1229, "w", encoding="utf-8") as f:
             f.write(isi_baru1229)
         rc, out = jalan(sub1229,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvjoin operand '-' adalah stdin: gerbang gagal (Audit 2125)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1229, ignore_errors=True)
         sub1230 = klon(tmp, "sub1230")
@@ -26193,7 +26193,7 @@ def main():
         with open(berkas_aksi1230, "w", encoding="utf-8") as f:
             f.write(isi_baru1230)
         rc, out = jalan(sub1230,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvstack operand '-' adalah stdin: gerbang gagal (Audit 2126)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1230, ignore_errors=True)
         sub1231 = klon(tmp, "sub1231")
@@ -26214,7 +26214,7 @@ def main():
         with open(berkas_aksi1231, "w", encoding="utf-8") as f:
             f.write(isi_baru1231)
         rc, out = jalan(sub1231,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-join -f tanpa berkas data stdin: gerbang gagal (Audit 2127)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1231, ignore_errors=True)
         sub1232 = klon(tmp, "sub1232")
@@ -26235,7 +26235,7 @@ def main():
         with open(berkas_aksi1232, "w", encoding="utf-8") as f:
             f.write(isi_baru1232)
         rc, out = jalan(sub1232,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv search --flag bernilai: gerbang gagal (Audit 2131)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1232, ignore_errors=True)
         sub1233 = klon(tmp, "sub1233")
@@ -26256,7 +26256,7 @@ def main():
         with open(berkas_aksi1233, "w", encoding="utf-8") as f:
             f.write(isi_baru1233)
         rc, out = jalan(sub1233,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv search -s kolom resmi: gerbang gagal (Audit 2132)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1233, ignore_errors=True)
         sub1234 = klon(tmp, "sub1234")
@@ -26277,7 +26277,7 @@ def main():
         with open(berkas_aksi1234, "w", encoding="utf-8") as f:
             f.write(isi_baru1234)
         rc, out = jalan(sub1234,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--inner csvjoin ditolak: gerbang lolos (Audit 2133)", rc == 0)
         shutil.rmtree(sub1234, ignore_errors=True)
         sub1235 = klon(tmp, "sub1235")
@@ -26298,7 +26298,7 @@ def main():
         with open(berkas_aksi1235, "w", encoding="utf-8") as f:
             f.write(isi_baru1235)
         rc, out = jalan(sub1235,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-join --append-fields bernilai: gerbang gagal (Audit 2134)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1235, ignore_errors=True)
         sub1236 = klon(tmp, "sub1236")
@@ -26319,7 +26319,7 @@ def main():
         with open(berkas_aksi1236, "w", encoding="utf-8") as f:
             f.write(isi_baru1236)
         rc, out = jalan(sub1236,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-join filter dari stdin: gerbang gagal (Audit 2135)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1236, ignore_errors=True)
         sub1237 = klon(tmp, "sub1237")
@@ -26340,7 +26340,7 @@ def main():
         with open(berkas_aksi1237, "w", encoding="utf-8") as f:
             f.write(isi_baru1237)
         rc, out = jalan(sub1237,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operasi tsv-summarize bernilai: gerbang gagal (Audit 2136)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1237, ignore_errors=True)
         sub1238 = klon(tmp, "sub1238")
@@ -26361,7 +26361,7 @@ def main():
         with open(berkas_aksi1238, "w", encoding="utf-8") as f:
             f.write(isi_baru1238)
         rc, out = jalan(sub1238,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvformat menerima data terpipa: gerbang gagal (Audit 2138)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1238, ignore_errors=True)
         sub1239 = klon(tmp, "sub1239")
@@ -26382,7 +26382,7 @@ def main():
         with open(berkas_aksi1239, "w", encoding="utf-8") as f:
             f.write(isi_baru1239)
         rc, out = jalan(sub1239,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sql2csv kueri dari stdin: gerbang gagal (Audit 2139)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1239, ignore_errors=True)
         sub1240 = klon(tmp, "sub1240")
@@ -26403,7 +26403,7 @@ def main():
         with open(berkas_aksi1240, "w", encoding="utf-8") as f:
             f.write(isi_baru1240)
         rc, out = jalan(sub1240,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-uniq membaca standard input: gerbang gagal (Audit 2140)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1240, ignore_errors=True)
         sub1241 = klon(tmp, "sub1241")
@@ -26424,7 +26424,7 @@ def main():
         with open(berkas_aksi1241, "w", encoding="utf-8") as f:
             f.write(isi_baru1241)
         rc, out = jalan(sub1241,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply operations stdin: gerbang gagal (Audit 2141)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1241, ignore_errors=True)
         sub1242 = klon(tmp, "sub1242")
@@ -26445,7 +26445,7 @@ def main():
         with open(berkas_aksi1242, "w", encoding="utf-8") as f:
             f.write(isi_baru1242)
         rc, out = jalan(sub1242,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv slice membaca stdin: gerbang gagal (Audit 2142)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1242, ignore_errors=True)
         sub1243 = klon(tmp, "sub1243")
@@ -26466,7 +26466,7 @@ def main():
         with open(berkas_aksi1243, "w", encoding="utf-8") as f:
             f.write(isi_baru1243)
         rc, out = jalan(sub1243,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv slice membaca stdin: gerbang gagal (Audit 2143)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1243, ignore_errors=True)
         sub1244 = klon(tmp, "sub1244")
@@ -26487,7 +26487,7 @@ def main():
         with open(berkas_aksi1244, "w", encoding="utf-8") as f:
             f.write(isi_baru1244)
         rc, out = jalan(sub1244,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-join --delimiter bernilai: gerbang gagal (Audit 2144)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1244, ignore_errors=True)
         sub1245 = klon(tmp, "sub1245")
@@ -26508,7 +26508,7 @@ def main():
         with open(berkas_aksi1245, "w", encoding="utf-8") as f:
             f.write(isi_baru1245)
         rc, out = jalan(sub1245,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operasi tsv-summarize diperluas: gerbang gagal (Audit 2145)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1245, ignore_errors=True)
         sub1246 = klon(tmp, "sub1246")
@@ -26529,7 +26529,7 @@ def main():
         with open(berkas_aksi1246, "w", encoding="utf-8") as f:
             f.write(isi_baru1246)
         rc, out = jalan(sub1246,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--variance hantu ditolak: gerbang lolos (Audit 2146)", rc == 0)
         shutil.rmtree(sub1246, ignore_errors=True)
         sub1247 = klon(tmp, "sub1247")
@@ -26550,7 +26550,7 @@ def main():
         with open(berkas_aksi1247, "w", encoding="utf-8") as f:
             f.write(isi_baru1247)
         rc, out = jalan(sub1247,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi keluaran csvformat bernilai: gerbang gagal (Audit 2147)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1247, ignore_errors=True)
         sub1248 = klon(tmp, "sub1248")
@@ -26571,7 +26571,7 @@ def main():
         with open(berkas_aksi1248, "w", encoding="utf-8") as f:
             f.write(isi_baru1248)
         rc, out = jalan(sub1248,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply dynfmt stdin: gerbang gagal (Audit 2148)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1248, ignore_errors=True)
         sub1249 = klon(tmp, "sub1249")
@@ -26592,7 +26592,7 @@ def main():
         with open(berkas_aksi1249, "w", encoding="utf-8") as f:
             f.write(isi_baru1249)
         rc, out = jalan(sub1249,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv stats membaca stdin: gerbang gagal (Audit 2151)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1249, ignore_errors=True)
         sub1250 = klon(tmp, "sub1250")
@@ -26613,7 +26613,7 @@ def main():
         with open(berkas_aksi1250, "w", encoding="utf-8") as f:
             f.write(isi_baru1250)
         rc, out = jalan(sub1250,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv headers membaca stdin: gerbang gagal (Audit 2152)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1250, ignore_errors=True)
         sub1251 = klon(tmp, "sub1251")
@@ -26634,7 +26634,7 @@ def main():
         with open(berkas_aksi1251, "w", encoding="utf-8") as f:
             f.write(isi_baru1251)
         rc, out = jalan(sub1251,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql data CSV dari stdin: gerbang gagal (Audit 2153)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1251, ignore_errors=True)
         sub1252 = klon(tmp, "sub1252")
@@ -26655,7 +26655,7 @@ def main():
         with open(berkas_aksi1252, "w", encoding="utf-8") as f:
             f.write(isi_baru1252)
         rc, out = jalan(sub1252,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv headers membaca stdin: gerbang gagal (Audit 2154)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1252, ignore_errors=True)
         sub1253 = klon(tmp, "sub1253")
@@ -26676,7 +26676,7 @@ def main():
         with open(berkas_aksi1253, "w", encoding="utf-8") as f:
             f.write(isi_baru1253)
         rc, out = jalan(sub1253,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv stats opsi bernilai lengkap: gerbang gagal (Audit 2155)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1253, ignore_errors=True)
         sub1254 = klon(tmp, "sub1254")
@@ -26697,7 +26697,7 @@ def main():
         with open(berkas_aksi1254, "w", encoding="utf-8") as f:
             f.write(isi_baru1254)
         rc, out = jalan(sub1254,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize --mad bernilai: gerbang gagal (Audit 2156)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1254, ignore_errors=True)
         sub1255 = klon(tmp, "sub1255")
@@ -26718,7 +26718,7 @@ def main():
         with open(berkas_aksi1255, "w", encoding="utf-8") as f:
             f.write(isi_baru1255)
         rc, out = jalan(sub1255,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql opsi bernilai lengkap: gerbang gagal (Audit 2157)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1255, ignore_errors=True)
         sub1256 = klon(tmp, "sub1256")
@@ -26739,7 +26739,7 @@ def main():
         with open(berkas_aksi1256, "w", encoding="utf-8") as f:
             f.write(isi_baru1256)
         rc, out = jalan(sub1256,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv flatten membaca stdin: gerbang gagal (Audit 2159)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1256, ignore_errors=True)
         sub1257 = klon(tmp, "sub1257")
@@ -26760,7 +26760,7 @@ def main():
         with open(berkas_aksi1257, "w", encoding="utf-8") as f:
             f.write(isi_baru1257)
         rc, out = jalan(sub1257,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv fmt membaca stdin: gerbang gagal (Audit 2160)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1257, ignore_errors=True)
         sub1258 = klon(tmp, "sub1258")
@@ -26781,7 +26781,7 @@ def main():
         with open(berkas_aksi1258, "w", encoding="utf-8") as f:
             f.write(isi_baru1258)
         rc, out = jalan(sub1258,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv input membaca stdin: gerbang gagal (Audit 2161)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1258, ignore_errors=True)
         sub1259 = klon(tmp, "sub1259")
@@ -26802,7 +26802,7 @@ def main():
         with open(berkas_aksi1259, "w", encoding="utf-8") as f:
             f.write(isi_baru1259)
         rc, out = jalan(sub1259,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv table membaca stdin: gerbang gagal (Audit 2162)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1259, ignore_errors=True)
         sub1260 = klon(tmp, "sub1260")
@@ -26823,7 +26823,7 @@ def main():
         with open(berkas_aksi1260, "w", encoding="utf-8") as f:
             f.write(isi_baru1260)
         rc, out = jalan(sub1260,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv sort membaca stdin: gerbang gagal (Audit 2163)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1260, ignore_errors=True)
         sub1261 = klon(tmp, "sub1261")
@@ -26844,7 +26844,7 @@ def main():
         with open(berkas_aksi1261, "w", encoding="utf-8") as f:
             f.write(isi_baru1261)
         rc, out = jalan(sub1261,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv sample membaca stdin: gerbang gagal (Audit 2164)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1261, ignore_errors=True)
         sub1262 = klon(tmp, "sub1262")
@@ -26865,7 +26865,7 @@ def main():
         with open(berkas_aksi1262, "w", encoding="utf-8") as f:
             f.write(isi_baru1262)
         rc, out = jalan(sub1262,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv flatten bentuk panjang bernilai: gerbang gagal (Audit 2165)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1262, ignore_errors=True)
         sub1263 = klon(tmp, "sub1263")
@@ -26886,7 +26886,7 @@ def main():
         with open(berkas_aksi1263, "w", encoding="utf-8") as f:
             f.write(isi_baru1263)
         rc, out = jalan(sub1263,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv table bentuk panjang bernilai: gerbang gagal (Audit 2166)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1263, ignore_errors=True)
         sub1264 = klon(tmp, "sub1264")
@@ -26907,7 +26907,7 @@ def main():
         with open(berkas_aksi1264, "w", encoding="utf-8") as f:
             f.write(isi_baru1264)
         rc, out = jalan(sub1264,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv sample '-' galat parse: gerbang lolos (Audit 2167)", rc == 0)
         shutil.rmtree(sub1264, ignore_errors=True)
         sub1265 = klon(tmp, "sub1265")
@@ -26928,7 +26928,7 @@ def main():
         with open(berkas_aksi1265, "w", encoding="utf-8") as f:
             f.write(isi_baru1265)
         rc, out = jalan(sub1265,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv sort -r tak dikenal: gerbang lolos (Audit 2168)", rc == 0)
         shutil.rmtree(sub1265, ignore_errors=True)
         sub1266 = klon(tmp, "sub1266")
@@ -26949,7 +26949,7 @@ def main():
         with open(berkas_aksi1266, "w", encoding="utf-8") as f:
             f.write(isi_baru1266)
         rc, out = jalan(sub1266,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv stats cache-threshold bernilai: gerbang gagal (Audit 2169)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1266, ignore_errors=True)
         sub1267 = klon(tmp, "sub1267")
@@ -26970,7 +26970,7 @@ def main():
         with open(berkas_aksi1267, "w", encoding="utf-8") as f:
             f.write(isi_baru1267)
         rc, out = jalan(sub1267,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv headers delimiter bernilai: gerbang gagal (Audit 2170)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1267, ignore_errors=True)
         sub1268 = klon(tmp, "sub1268")
@@ -26991,7 +26991,7 @@ def main():
         with open(berkas_aksi1268, "w", encoding="utf-8") as f:
             f.write(isi_baru1268)
         rc, out = jalan(sub1268,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv select membaca stdin: gerbang gagal (Audit 2171)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1268, ignore_errors=True)
         sub1269 = klon(tmp, "sub1269")
@@ -27012,7 +27012,7 @@ def main():
         with open(berkas_aksi1269, "w", encoding="utf-8") as f:
             f.write(isi_baru1269)
         rc, out = jalan(sub1269,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv split membaca stdin: gerbang gagal (Audit 2172)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1269, ignore_errors=True)
         sub1270 = klon(tmp, "sub1270")
@@ -27033,7 +27033,7 @@ def main():
         with open(berkas_aksi1270, "w", encoding="utf-8") as f:
             f.write(isi_baru1270)
         rc, out = jalan(sub1270,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv validate membaca stdin: gerbang gagal (Audit 2173)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1270, ignore_errors=True)
         sub1271 = klon(tmp, "sub1271")
@@ -27054,7 +27054,7 @@ def main():
         with open(berkas_aksi1271, "w", encoding="utf-8") as f:
             f.write(isi_baru1271)
         rc, out = jalan(sub1271,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv schema membaca stdin: gerbang gagal (Audit 2174)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1271, ignore_errors=True)
         sub1272 = klon(tmp, "sub1272")
@@ -27075,7 +27075,7 @@ def main():
         with open(berkas_aksi1272, "w", encoding="utf-8") as f:
             f.write(isi_baru1272)
         rc, out = jalan(sub1272,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv sample ukuran bukan angka: gerbang lolos (Audit 2175)", rc == 0)
         shutil.rmtree(sub1272, ignore_errors=True)
         sub1273 = klon(tmp, "sub1273")
@@ -27096,7 +27096,7 @@ def main():
         with open(berkas_aksi1273, "w", encoding="utf-8") as f:
             f.write(isi_baru1273)
         rc, out = jalan(sub1273,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv split template tanpa kurung: gerbang lolos (Audit 2176)", rc == 0)
         shutil.rmtree(sub1273, ignore_errors=True)
         sub1274 = klon(tmp, "sub1274")
@@ -27117,7 +27117,7 @@ def main():
         with open(berkas_aksi1274, "w", encoding="utf-8") as f:
             f.write(isi_baru1274)
         rc, out = jalan(sub1274,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv sort membaca stdin: gerbang gagal (Audit 2178)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1274, ignore_errors=True)
         sub1275 = klon(tmp, "sub1275")
@@ -27138,7 +27138,7 @@ def main():
         with open(berkas_aksi1275, "w", encoding="utf-8") as f:
             f.write(isi_baru1275)
         rc, out = jalan(sub1275,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv select membaca stdin: gerbang gagal (Audit 2179)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1275, ignore_errors=True)
         sub1276 = klon(tmp, "sub1276")
@@ -27159,7 +27159,7 @@ def main():
         with open(berkas_aksi1276, "w", encoding="utf-8") as f:
             f.write(isi_baru1276)
         rc, out = jalan(sub1276,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv sample membaca stdin: gerbang gagal (Audit 2180)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1276, ignore_errors=True)
         sub1277 = klon(tmp, "sub1277")
@@ -27180,7 +27180,7 @@ def main():
         with open(berkas_aksi1277, "w", encoding="utf-8") as f:
             f.write(isi_baru1277)
         rc, out = jalan(sub1277,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv split membaca stdin: gerbang gagal (Audit 2181)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1277, ignore_errors=True)
         sub1278 = klon(tmp, "sub1278")
@@ -27201,7 +27201,7 @@ def main():
         with open(berkas_aksi1278, "w", encoding="utf-8") as f:
             f.write(isi_baru1278)
         rc, out = jalan(sub1278,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv join stdin lewat strip: gerbang gagal (Audit 2182)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1278, ignore_errors=True)
         sub1279 = klon(tmp, "sub1279")
@@ -27222,7 +27222,7 @@ def main():
         with open(berkas_aksi1279, "w", encoding="utf-8") as f:
             f.write(isi_baru1279)
         rc, out = jalan(sub1279,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv dedup membaca stdin: gerbang gagal (Audit 2183)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1279, ignore_errors=True)
         sub1280 = klon(tmp, "sub1280")
@@ -27243,7 +27243,7 @@ def main():
         with open(berkas_aksi1280, "w", encoding="utf-8") as f:
             f.write(isi_baru1280)
         rc, out = jalan(sub1280,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv sample ukuran bukan angka: gerbang lolos (Audit 2184)", rc == 0)
         shutil.rmtree(sub1280, ignore_errors=True)
         sub1281 = klon(tmp, "sub1281")
@@ -27264,7 +27264,7 @@ def main():
         with open(berkas_aksi1281, "w", encoding="utf-8") as f:
             f.write(isi_baru1281)
         rc, out = jalan(sub1281,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv split template tanpa kurung: gerbang lolos (Audit 2185)", rc == 0)
         shutil.rmtree(sub1281, ignore_errors=True)
         sub1282 = klon(tmp, "sub1282")
@@ -27285,7 +27285,7 @@ def main():
         with open(berkas_aksi1282, "w", encoding="utf-8") as f:
             f.write(isi_baru1282)
         rc, out = jalan(sub1282,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand strip ganda masukan tunggal: gerbang lolos (Audit 2186)", rc == 0)
         shutil.rmtree(sub1282, ignore_errors=True)
         sub1283 = klon(tmp, "sub1283")
@@ -27306,7 +27306,7 @@ def main():
         with open(berkas_aksi1283, "w", encoding="utf-8") as f:
             f.write(isi_baru1283)
         rc, out = jalan(sub1283,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv sample ukuran meluap u64: gerbang lolos (Audit 2187)", rc == 0)
         shutil.rmtree(sub1283, ignore_errors=True)
         sub1284 = klon(tmp, "sub1284")
@@ -27327,7 +27327,7 @@ def main():
         with open(berkas_aksi1284, "w", encoding="utf-8") as f:
             f.write(isi_baru1284)
         rc, out = jalan(sub1284,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv partition membaca stdin: gerbang gagal (Audit 2189)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1284, ignore_errors=True)
         sub1285 = klon(tmp, "sub1285")
@@ -27348,7 +27348,7 @@ def main():
         with open(berkas_aksi1285, "w", encoding="utf-8") as f:
             f.write(isi_baru1285)
         rc, out = jalan(sub1285,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv stats membaca stdin: gerbang gagal (Audit 2190)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1285, ignore_errors=True)
         sub1286 = klon(tmp, "sub1286")
@@ -27369,7 +27369,7 @@ def main():
         with open(berkas_aksi1286, "w", encoding="utf-8") as f:
             f.write(isi_baru1286)
         rc, out = jalan(sub1286,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv stats jobs bernilai: gerbang gagal (Audit 2191)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1286, ignore_errors=True)
         sub1287 = klon(tmp, "sub1287")
@@ -27390,7 +27390,7 @@ def main():
         with open(berkas_aksi1287, "w", encoding="utf-8") as f:
             f.write(isi_baru1287)
         rc, out = jalan(sub1287,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv partition prefix-length bernilai: gerbang gagal (Audit 2192)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1287, ignore_errors=True)
         sub1288 = klon(tmp, "sub1288")
@@ -27411,7 +27411,7 @@ def main():
         with open(berkas_aksi1288, "w", encoding="utf-8") as f:
             f.write(isi_baru1288)
         rc, out = jalan(sub1288,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv partition template tanpa kurung: gerbang lolos (Audit 2193)", rc == 0)
         shutil.rmtree(sub1288, ignore_errors=True)
         sub1289 = klon(tmp, "sub1289")
@@ -27432,7 +27432,7 @@ def main():
         with open(berkas_aksi1289, "w", encoding="utf-8") as f:
             f.write(isi_baru1289)
         rc, out = jalan(sub1289,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply calcconv membaca stdin: gerbang gagal (Audit 2194)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1289, ignore_errors=True)
         sub1290 = klon(tmp, "sub1290")
@@ -27453,7 +27453,7 @@ def main():
         with open(berkas_aksi1290, "w", encoding="utf-8") as f:
             f.write(isi_baru1290)
         rc, out = jalan(sub1290,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply datefmt hantu: gerbang lolos (Audit 2195)", rc == 0)
         shutil.rmtree(sub1290, ignore_errors=True)
         sub1291 = klon(tmp, "sub1291")
@@ -27474,7 +27474,7 @@ def main():
         with open(berkas_aksi1291, "w", encoding="utf-8") as f:
             f.write(isi_baru1291)
         rc, out = jalan(sub1291,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply operations opsi bernilai: gerbang gagal (Audit 2196)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1291, ignore_errors=True)
         sub1292 = klon(tmp, "sub1292")
@@ -27495,7 +27495,7 @@ def main():
         with open(berkas_aksi1292, "w", encoding="utf-8") as f:
             f.write(isi_baru1292)
         rc, out = jalan(sub1292,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply dynfmt pendek bernilai: gerbang gagal (Audit 2197)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1292, ignore_errors=True)
         sub1293 = klon(tmp, "sub1293")
@@ -27516,7 +27516,7 @@ def main():
         with open(berkas_aksi1293, "w", encoding="utf-8") as f:
             f.write(isi_baru1293)
         rc, out = jalan(sub1293,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply dynfmt operand berlebih: gerbang lolos (Audit 2198)", rc == 0)
         shutil.rmtree(sub1293, ignore_errors=True)
         sub1294 = klon(tmp, "sub1294")
@@ -27537,7 +27537,7 @@ def main():
         with open(berkas_aksi1294, "w", encoding="utf-8") as f:
             f.write(isi_baru1294)
         rc, out = jalan(sub1294,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply emptyreplace -R bernilai: gerbang gagal (Audit 2199)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1294, ignore_errors=True)
         sub1295 = klon(tmp, "sub1295")
@@ -27558,7 +27558,7 @@ def main():
         with open(berkas_aksi1295, "w", encoding="utf-8") as f:
             f.write(isi_baru1295)
         rc, out = jalan(sub1295,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv sample underscore ditolak f64: gerbang lolos (Audit 2200)", rc == 0)
         shutil.rmtree(sub1295, ignore_errors=True)
         sub1296 = klon(tmp, "sub1296")
@@ -27579,7 +27579,7 @@ def main():
         with open(berkas_aksi1296, "w", encoding="utf-8") as f:
             f.write(isi_baru1296)
         rc, out = jalan(sub1296,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv transpose membaca stdin: gerbang gagal (Audit 2203)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1296, ignore_errors=True)
         sub1297 = klon(tmp, "sub1297")
@@ -27600,7 +27600,7 @@ def main():
         with open(berkas_aksi1297, "w", encoding="utf-8") as f:
             f.write(isi_baru1297)
         rc, out = jalan(sub1297,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv reverse membaca stdin: gerbang gagal (Audit 2204)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1297, ignore_errors=True)
         sub1298 = klon(tmp, "sub1298")
@@ -27621,7 +27621,7 @@ def main():
         with open(berkas_aksi1298, "w", encoding="utf-8") as f:
             f.write(isi_baru1298)
         rc, out = jalan(sub1298,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv rename membaca stdin: gerbang gagal (Audit 2205)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1298, ignore_errors=True)
         sub1299 = klon(tmp, "sub1299")
@@ -27642,7 +27642,7 @@ def main():
         with open(berkas_aksi1299, "w", encoding="utf-8") as f:
             f.write(isi_baru1299)
         rc, out = jalan(sub1299,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv replace membaca stdin: gerbang gagal (Audit 2206)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1299, ignore_errors=True)
         sub1300 = klon(tmp, "sub1300")
@@ -27663,7 +27663,7 @@ def main():
         with open(berkas_aksi1300, "w", encoding="utf-8") as f:
             f.write(isi_baru1300)
         rc, out = jalan(sub1300,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv to membaca stdin: gerbang gagal (Audit 2207)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1300, ignore_errors=True)
         sub1301 = klon(tmp, "sub1301")
@@ -27684,7 +27684,7 @@ def main():
         with open(berkas_aksi1301, "w", encoding="utf-8") as f:
             f.write(isi_baru1301)
         rc, out = jalan(sub1301,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv sqlp stdin lewat strip: gerbang gagal (Audit 2208)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1301, ignore_errors=True)
         sub1302 = klon(tmp, "sub1302")
@@ -27705,7 +27705,7 @@ def main():
         with open(berkas_aksi1302, "w", encoding="utf-8") as f:
             f.write(isi_baru1302)
         rc, out = jalan(sub1302,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv sqlp nilai opsi strip: gerbang lolos (Audit 2211)", rc == 0)
         shutil.rmtree(sub1302, ignore_errors=True)
         sub1303 = klon(tmp, "sub1303")
@@ -27726,7 +27726,7 @@ def main():
         with open(berkas_aksi1303, "w", encoding="utf-8") as f:
             f.write(isi_baru1303)
         rc, out = jalan(sub1303,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv fixlengths length membaca stdin: gerbang gagal (Audit 2212)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1303, ignore_errors=True)
         sub1304 = klon(tmp, "sub1304")
@@ -27747,7 +27747,7 @@ def main():
         with open(berkas_aksi1304, "w", encoding="utf-8") as f:
             f.write(isi_baru1304)
         rc, out = jalan(sub1304,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv behead membaca stdin: gerbang gagal (Audit 2213)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1304, ignore_errors=True)
         sub1305 = klon(tmp, "sub1305")
@@ -27768,7 +27768,7 @@ def main():
         with open(berkas_aksi1305, "w", encoding="utf-8") as f:
             f.write(isi_baru1305)
         rc, out = jalan(sub1305,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv snappy compress membaca stdin: gerbang gagal (Audit 2214)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1305, ignore_errors=True)
         sub1306 = klon(tmp, "sub1306")
@@ -27789,7 +27789,7 @@ def main():
         with open(berkas_aksi1306, "w", encoding="utf-8") as f:
             f.write(isi_baru1306)
         rc, out = jalan(sub1306,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fetch membaca stdin: gerbang gagal (Audit 2215)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1306, ignore_errors=True)
         sub1307 = klon(tmp, "sub1307")
@@ -27810,7 +27810,7 @@ def main():
         with open(berkas_aksi1307, "w", encoding="utf-8") as f:
             f.write(isi_baru1307)
         rc, out = jalan(sub1307,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv fixlengths output bernilai: gerbang gagal (Audit 2216)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1307, ignore_errors=True)
         sub1308 = klon(tmp, "sub1308")
@@ -27831,7 +27831,7 @@ def main():
         with open(berkas_aksi1308, "w", encoding="utf-8") as f:
             f.write(isi_baru1308)
         rc, out = jalan(sub1308,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv snappy strip bukan stdin: gerbang lolos (Audit 2217)", rc == 0)
         shutil.rmtree(sub1308, ignore_errors=True)
         sub1309 = klon(tmp, "sub1309")
@@ -27852,7 +27852,7 @@ def main():
         with open(berkas_aksi1309, "w", encoding="utf-8") as f:
             f.write(isi_baru1309)
         rc, out = jalan(sub1309,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv fixlengths panjang nol ditolak: gerbang lolos (Audit 2218)", rc == 0)
         shutil.rmtree(sub1309, ignore_errors=True)
         sub1310 = klon(tmp, "sub1310")
@@ -27873,7 +27873,7 @@ def main():
         with open(berkas_aksi1310, "w", encoding="utf-8") as f:
             f.write(isi_baru1310)
         rc, out = jalan(sub1310,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv input membaca stdin: gerbang gagal (Audit 2220)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1310, ignore_errors=True)
         sub1311 = klon(tmp, "sub1311")
@@ -27894,7 +27894,7 @@ def main():
         with open(berkas_aksi1311, "w", encoding="utf-8") as f:
             f.write(isi_baru1311)
         rc, out = jalan(sub1311,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv luau map membaca stdin: gerbang gagal (Audit 2221)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1311, ignore_errors=True)
         sub1312 = klon(tmp, "sub1312")
@@ -27915,7 +27915,7 @@ def main():
         with open(berkas_aksi1312, "w", encoding="utf-8") as f:
             f.write(isi_baru1312)
         rc, out = jalan(sub1312,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv py map membaca stdin: gerbang gagal (Audit 2222)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1312, ignore_errors=True)
         sub1313 = klon(tmp, "sub1313")
@@ -27936,7 +27936,7 @@ def main():
         with open(berkas_aksi1313, "w", encoding="utf-8") as f:
             f.write(isi_baru1313)
         rc, out = jalan(sub1313,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv foreach membaca stdin: gerbang gagal (Audit 2223)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1313, ignore_errors=True)
         sub1314 = klon(tmp, "sub1314")
@@ -27957,7 +27957,7 @@ def main():
         with open(berkas_aksi1314, "w", encoding="utf-8") as f:
             f.write(isi_baru1314)
         rc, out = jalan(sub1314,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv fixlengths panjang 00 ditolak: gerbang lolos (Audit 2224)", rc == 0)
         shutil.rmtree(sub1314, ignore_errors=True)
         sub1315 = klon(tmp, "sub1315")
@@ -27978,7 +27978,7 @@ def main():
         with open(berkas_aksi1315, "w", encoding="utf-8") as f:
             f.write(isi_baru1315)
         rc, out = jalan(sub1315,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv extsort membaca stdin: gerbang gagal (Audit 2227)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1315, ignore_errors=True)
         sub1316 = klon(tmp, "sub1316")
@@ -27999,7 +27999,7 @@ def main():
         with open(berkas_aksi1316, "w", encoding="utf-8") as f:
             f.write(isi_baru1316)
         rc, out = jalan(sub1316,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv partition membaca stdin: gerbang gagal (Audit 2228)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1316, ignore_errors=True)
         sub1317 = klon(tmp, "sub1317")
@@ -28020,7 +28020,7 @@ def main():
         with open(berkas_aksi1317, "w", encoding="utf-8") as f:
             f.write(isi_baru1317)
         rc, out = jalan(sub1317,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv sortcheck membaca stdin: gerbang gagal (Audit 2229)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1317, ignore_errors=True)
         sub1318 = klon(tmp, "sub1318")
@@ -28041,7 +28041,7 @@ def main():
         with open(berkas_aksi1318, "w", encoding="utf-8") as f:
             f.write(isi_baru1318)
         rc, out = jalan(sub1318,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv frequency membaca stdin: gerbang gagal (Audit 2230)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1318, ignore_errors=True)
         sub1319 = klon(tmp, "sub1319")
@@ -28062,7 +28062,7 @@ def main():
         with open(berkas_aksi1319, "w", encoding="utf-8") as f:
             f.write(isi_baru1319)
         rc, out = jalan(sub1319,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvpy berkas masuk REPL stdin: gerbang gagal (Audit 2231)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1319, ignore_errors=True)
         sub1320 = klon(tmp, "sub1320")
@@ -28083,7 +28083,7 @@ def main():
         with open(berkas_aksi1320, "w", encoding="utf-8") as f:
             f.write(isi_baru1320)
         rc, out = jalan(sub1320,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv extsort -s gantung: galat - gerbang lolos (Audit 2235)", rc == 0)
         shutil.rmtree(sub1320, ignore_errors=True)
         sub1321 = klon(tmp, "sub1321")
@@ -28104,7 +28104,7 @@ def main():
         with open(berkas_aksi1321, "w", encoding="utf-8") as f:
             f.write(isi_baru1321)
         rc, out = jalan(sub1321,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv extsort -s col tanpa masukan: penguras - gerbang gagal (Audit 2235)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1321, ignore_errors=True)
         sub1322 = klon(tmp, "sub1322")
@@ -28125,7 +28125,7 @@ def main():
         with open(berkas_aksi1322, "w", encoding="utf-8") as f:
             f.write(isi_baru1322)
         rc, out = jalan(sub1322,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv frequency polos: penguras - gerbang gagal (Audit 2236)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1322, ignore_errors=True)
         sub1323 = klon(tmp, "sub1323")
@@ -28146,7 +28146,7 @@ def main():
         with open(berkas_aksi1323, "w", encoding="utf-8") as f:
             f.write(isi_baru1323)
         rc, out = jalan(sub1323,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv frequency berkas: bukan penguras - gerbang lolos (Audit 2236)", rc == 0)
         shutil.rmtree(sub1323, ignore_errors=True)
         sub1324 = klon(tmp, "sub1324")
@@ -28167,7 +28167,7 @@ def main():
         with open(berkas_aksi1324, "w", encoding="utf-8") as f:
             f.write(isi_baru1324)
         rc, out = jalan(sub1324,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv geocode suggest kolom tanpa masukan: penguras - gerbang gagal (Audit 2237)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1324, ignore_errors=True)
         sub1325 = klon(tmp, "sub1325")
@@ -28188,7 +28188,7 @@ def main():
         with open(berkas_aksi1325, "w", encoding="utf-8") as f:
             f.write(isi_baru1325)
         rc, out = jalan(sub1325,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv geocode suggestnow lokasi harfiah: bukan penguras - gerbang lolos (Audit 2237)", rc == 0)
         shutil.rmtree(sub1325, ignore_errors=True)
         sub1326 = klon(tmp, "sub1326")
@@ -28209,7 +28209,7 @@ def main():
         with open(berkas_aksi1326, "w", encoding="utf-8") as f:
             f.write(isi_baru1326)
         rc, out = jalan(sub1326,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv describegpt polos: penguras - gerbang gagal (Audit 2238)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1326, ignore_errors=True)
         sub1327 = klon(tmp, "sub1327")
@@ -28230,7 +28230,7 @@ def main():
         with open(berkas_aksi1327, "w", encoding="utf-8") as f:
             f.write(isi_baru1327)
         rc, out = jalan(sub1327,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvjson polos: penguras - gerbang gagal (Audit 2239)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1327, ignore_errors=True)
         sub1328 = klon(tmp, "sub1328")
@@ -28251,7 +28251,7 @@ def main():
         with open(berkas_aksi1328, "w", encoding="utf-8") as f:
             f.write(isi_baru1328)
         rc, out = jalan(sub1328,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv cat rows --group fname tanpa masukan: penguras - gerbang gagal (Audit 2240)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1328, ignore_errors=True)
         sub1329 = klon(tmp, "sub1329")
@@ -28272,7 +28272,7 @@ def main():
         with open(berkas_aksi1329, "w", encoding="utf-8") as f:
             f.write(isi_baru1329)
         rc, out = jalan(sub1329,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv cat rows --group-by hantu: galat docopt - gerbang lolos (Audit 2240)", rc == 0)
         shutil.rmtree(sub1329, ignore_errors=True)
         sub1330 = klon(tmp, "sub1330")
@@ -28293,7 +28293,7 @@ def main():
         with open(berkas_aksi1330, "w", encoding="utf-8") as f:
             f.write(isi_baru1330)
         rc, out = jalan(sub1330,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv searchset tanpa masukan: penguras - gerbang gagal (Audit 2241)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1330, ignore_errors=True)
         sub1331 = klon(tmp, "sub1331")
@@ -28314,7 +28314,7 @@ def main():
         with open(berkas_aksi1331, "w", encoding="utf-8") as f:
             f.write(isi_baru1331)
         rc, out = jalan(sub1331,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvclean polos: berhenti tanpa pengaktif - gerbang lolos (Audit 2242, dibalik Audit 2390)", rc == 0)
         shutil.rmtree(sub1331, ignore_errors=True)
         sub1332 = klon(tmp, "sub1332")
@@ -28335,7 +28335,7 @@ def main():
         with open(berkas_aksi1332, "w", encoding="utf-8") as f:
             f.write(isi_baru1332)
         rc, out = jalan(sub1332,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv describegpt --fewshot-examples boolean: bukan penguras - gerbang lolos (Audit 2243)", rc == 0)
         shutil.rmtree(sub1332, ignore_errors=True)
         sub1333 = klon(tmp, "sub1333")
@@ -28356,7 +28356,7 @@ def main():
         with open(berkas_aksi1333, "w", encoding="utf-8") as f:
             f.write(isi_baru1333)
         rc, out = jalan(sub1333,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv describegpt --limit hantu: galat docopt - gerbang lolos (Audit 2243)", rc == 0)
         shutil.rmtree(sub1333, ignore_errors=True)
         sub1334 = klon(tmp, "sub1334")
@@ -28377,7 +28377,7 @@ def main():
         with open(berkas_aksi1334, "w", encoding="utf-8") as f:
             f.write(isi_baru1334)
         rc, out = jalan(sub1334,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvjson '-': penguras - gerbang gagal (Audit 2244)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1334, ignore_errors=True)
         sub1335 = klon(tmp, "sub1335")
@@ -28398,7 +28398,7 @@ def main():
         with open(berkas_aksi1335, "w", encoding="utf-8") as f:
             f.write(isi_baru1335)
         rc, out = jalan(sub1335,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook '-': penguras - gerbang gagal (Audit 2244)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1335, ignore_errors=True)
         sub1336 = klon(tmp, "sub1336")
@@ -28419,7 +28419,7 @@ def main():
         with open(berkas_aksi1336, "w", encoding="utf-8") as f:
             f.write(isi_baru1336)
         rc, out = jalan(sub1336,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvgrep '-': penguras - gerbang gagal (Audit 2244)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1336, ignore_errors=True)
         sub1337 = klon(tmp, "sub1337")
@@ -28440,7 +28440,7 @@ def main():
         with open(berkas_aksi1337, "w", encoding="utf-8") as f:
             f.write(isi_baru1337)
         rc, out = jalan(sub1337,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv blake3 polos: penguras - gerbang gagal (Audit 2245)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1337, ignore_errors=True)
         sub1338 = klon(tmp, "sub1338")
@@ -28461,7 +28461,7 @@ def main():
         with open(berkas_aksi1338, "w", encoding="utf-8") as f:
             f.write(isi_baru1338)
         rc, out = jalan(sub1338,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv blake3 berkas: bukan penguras - gerbang lolos (Audit 2245)", rc == 0)
         shutil.rmtree(sub1338, ignore_errors=True)
         sub1339 = klon(tmp, "sub1339")
@@ -28482,7 +28482,7 @@ def main():
         with open(berkas_aksi1339, "w", encoding="utf-8") as f:
             f.write(isi_baru1339)
         rc, out = jalan(sub1339,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv color polos: penguras - gerbang gagal (Audit 2246)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1339, ignore_errors=True)
         sub1340 = klon(tmp, "sub1340")
@@ -28503,7 +28503,7 @@ def main():
         with open(berkas_aksi1340, "w", encoding="utf-8") as f:
             f.write(isi_baru1340)
         rc, out = jalan(sub1340,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv datefmt kolom tanpa masukan: penguras - gerbang gagal (Audit 2247)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1340, ignore_errors=True)
         sub1341 = klon(tmp, "sub1341")
@@ -28524,7 +28524,7 @@ def main():
         with open(berkas_aksi1341, "w", encoding="utf-8") as f:
             f.write(isi_baru1341)
         rc, out = jalan(sub1341,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv denull polos: penguras - gerbang gagal (Audit 2248)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1341, ignore_errors=True)
         sub1342 = klon(tmp, "sub1342")
@@ -28545,7 +28545,7 @@ def main():
         with open(berkas_aksi1342, "w", encoding="utf-8") as f:
             f.write(isi_baru1342)
         rc, out = jalan(sub1342,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv enum polos: penguras - gerbang gagal (Audit 2249)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1342, ignore_errors=True)
         sub1343 = klon(tmp, "sub1343")
@@ -28566,7 +28566,7 @@ def main():
         with open(berkas_aksi1343, "w", encoding="utf-8") as f:
             f.write(isi_baru1343)
         rc, out = jalan(sub1343,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv explode tanpa masukan: penguras - gerbang gagal (Audit 2250)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1343, ignore_errors=True)
         sub1344 = klon(tmp, "sub1344")
@@ -28587,7 +28587,7 @@ def main():
         with open(berkas_aksi1344, "w", encoding="utf-8") as f:
             f.write(isi_baru1344)
         rc, out = jalan(sub1344,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv extdedup polos: penguras - gerbang gagal (Audit 2251)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1344, ignore_errors=True)
         sub1345 = klon(tmp, "sub1345")
@@ -28608,7 +28608,7 @@ def main():
         with open(berkas_aksi1345, "w", encoding="utf-8") as f:
             f.write(isi_baru1345)
         rc, out = jalan(sub1345,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fetchpost tanpa masukan: penguras - gerbang gagal (Audit 2252)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1345, ignore_errors=True)
         sub1346 = klon(tmp, "sub1346")
@@ -28629,7 +28629,7 @@ def main():
         with open(berkas_aksi1346, "w", encoding="utf-8") as f:
             f.write(isi_baru1346)
         rc, out = jalan(sub1346,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fill tanpa masukan: penguras - gerbang gagal (Audit 2253)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1346, ignore_errors=True)
         sub1347 = klon(tmp, "sub1347")
@@ -28650,7 +28650,7 @@ def main():
         with open(berkas_aksi1347, "w", encoding="utf-8") as f:
             f.write(isi_baru1347)
         rc, out = jalan(sub1347,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fixedwidth polos: penguras - gerbang gagal (Audit 2254)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1347, ignore_errors=True)
         sub1348 = klon(tmp, "sub1348")
@@ -28671,7 +28671,7 @@ def main():
         with open(berkas_aksi1348, "w", encoding="utf-8") as f:
             f.write(isi_baru1348)
         rc, out = jalan(sub1348,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv flatten polos: penguras - gerbang gagal (Audit 2255)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1348, ignore_errors=True)
         sub1349 = klon(tmp, "sub1349")
@@ -28692,7 +28692,7 @@ def main():
         with open(berkas_aksi1349, "w", encoding="utf-8") as f:
             f.write(isi_baru1349)
         rc, out = jalan(sub1349,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fmt polos: penguras - gerbang gagal (Audit 2256)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1349, ignore_errors=True)
         sub1350 = klon(tmp, "sub1350")
@@ -28713,7 +28713,7 @@ def main():
         with open(berkas_aksi1350, "w", encoding="utf-8") as f:
             f.write(isi_baru1350)
         rc, out = jalan(sub1350,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv implode tanpa masukan: penguras - gerbang gagal (Audit 2257)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1350, ignore_errors=True)
         sub1351 = klon(tmp, "sub1351")
@@ -28734,7 +28734,7 @@ def main():
         with open(berkas_aksi1351, "w", encoding="utf-8") as f:
             f.write(isi_baru1351)
         rc, out = jalan(sub1351,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv json polos: penguras - gerbang gagal (Audit 2258)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1351, ignore_errors=True)
         sub1352 = klon(tmp, "sub1352")
@@ -28755,7 +28755,7 @@ def main():
         with open(berkas_aksi1352, "w", encoding="utf-8") as f:
             f.write(isi_baru1352)
         rc, out = jalan(sub1352,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv jsonl polos: penguras - gerbang gagal (Audit 2259)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1352, ignore_errors=True)
         sub1353 = klon(tmp, "sub1353")
@@ -28776,7 +28776,7 @@ def main():
         with open(berkas_aksi1353, "w", encoding="utf-8") as f:
             f.write(isi_baru1353)
         rc, out = jalan(sub1353,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv lens polos: penguras - gerbang gagal (Audit 2260)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1353, ignore_errors=True)
         sub1354 = klon(tmp, "sub1354")
@@ -28797,7 +28797,7 @@ def main():
         with open(berkas_aksi1354, "w", encoding="utf-8") as f:
             f.write(isi_baru1354)
         rc, out = jalan(sub1354,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv tojsonl polos: penguras - gerbang gagal (Audit 2261)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1354, ignore_errors=True)
         sub1355 = klon(tmp, "sub1355")
@@ -28818,7 +28818,7 @@ def main():
         with open(berkas_aksi1355, "w", encoding="utf-8") as f:
             f.write(isi_baru1355)
         rc, out = jalan(sub1355,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv moarstats polos: penguras - gerbang gagal (Audit 2262)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1355, ignore_errors=True)
         sub1356 = klon(tmp, "sub1356")
@@ -28839,7 +28839,7 @@ def main():
         with open(berkas_aksi1356, "w", encoding="utf-8") as f:
             f.write(isi_baru1356)
         rc, out = jalan(sub1356,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv pragmastat polos: penguras - gerbang gagal (Audit 2263)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1356, ignore_errors=True)
         sub1357 = klon(tmp, "sub1357")
@@ -28860,7 +28860,7 @@ def main():
         with open(berkas_aksi1357, "w", encoding="utf-8") as f:
             f.write(isi_baru1357)
         rc, out = jalan(sub1357,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv profile polos: penguras - gerbang gagal (Audit 2264)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1357, ignore_errors=True)
         sub1358 = klon(tmp, "sub1358")
@@ -28881,7 +28881,7 @@ def main():
         with open(berkas_aksi1358, "w", encoding="utf-8") as f:
             f.write(isi_baru1358)
         rc, out = jalan(sub1358,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv pseudo kolom tanpa masukan: penguras - gerbang gagal (Audit 2265)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1358, ignore_errors=True)
         sub1359 = klon(tmp, "sub1359")
@@ -28902,7 +28902,7 @@ def main():
         with open(berkas_aksi1359, "w", encoding="utf-8") as f:
             f.write(isi_baru1359)
         rc, out = jalan(sub1359,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv safenames polos: penguras - gerbang gagal (Audit 2266)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1359, ignore_errors=True)
         sub1360 = klon(tmp, "sub1360")
@@ -28923,7 +28923,7 @@ def main():
         with open(berkas_aksi1360, "w", encoding="utf-8") as f:
             f.write(isi_baru1360)
         rc, out = jalan(sub1360,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv sniff polos: penguras - gerbang gagal (Audit 2267)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1360, ignore_errors=True)
         sub1361 = klon(tmp, "sub1361")
@@ -28944,7 +28944,7 @@ def main():
         with open(berkas_aksi1361, "w", encoding="utf-8") as f:
             f.write(isi_baru1361)
         rc, out = jalan(sub1361,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv template polos: penguras - gerbang gagal (Audit 2268)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1361, ignore_errors=True)
         sub1362 = klon(tmp, "sub1362")
@@ -28965,7 +28965,7 @@ def main():
         with open(berkas_aksi1362, "w", encoding="utf-8") as f:
             f.write(isi_baru1362)
         rc, out = jalan(sub1362,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv viz bar '-': penguras - gerbang gagal (Audit 2269)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1362, ignore_errors=True)
         sub1363 = klon(tmp, "sub1363")
@@ -28986,7 +28986,7 @@ def main():
         with open(berkas_aksi1363, "w", encoding="utf-8") as f:
             f.write(isi_baru1363)
         rc, out = jalan(sub1363,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv viz smart '-': smart tak membaca stdin - gerbang lolos (Audit 2269)", rc == 0)
         shutil.rmtree(sub1363, ignore_errors=True)
         sub1364 = klon(tmp, "sub1364")
@@ -29007,7 +29007,7 @@ def main():
         with open(berkas_aksi1364, "w", encoding="utf-8") as f:
             f.write(isi_baru1364)
         rc, out = jalan(sub1364,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv writestat polos: penguras - gerbang gagal (Audit 2270)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1364, ignore_errors=True)
         sub1365 = klon(tmp, "sub1365")
@@ -29028,7 +29028,7 @@ def main():
         with open(berkas_aksi1365, "w", encoding="utf-8") as f:
             f.write(isi_baru1365)
         rc, out = jalan(sub1365,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv clipboard --save: penguras - gerbang gagal (Audit 2271)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1365, ignore_errors=True)
         sub1366 = klon(tmp, "sub1366")
@@ -29049,7 +29049,7 @@ def main():
         with open(berkas_aksi1366, "w", encoding="utf-8") as f:
             f.write(isi_baru1366)
         rc, out = jalan(sub1366,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv clipboard polos: bukan penguras - gerbang lolos (Audit 2271)", rc == 0)
         shutil.rmtree(sub1366, ignore_errors=True)
         sub1367 = klon(tmp, "sub1367")
@@ -29070,7 +29070,7 @@ def main():
         with open(berkas_aksi1367, "w", encoding="utf-8") as f:
             f.write(isi_baru1367)
         rc, out = jalan(sub1367,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv edit '-' tanpa --in-place: penguras - gerbang gagal (Audit 2272)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1367, ignore_errors=True)
         sub1368 = klon(tmp, "sub1368")
@@ -29091,7 +29091,7 @@ def main():
         with open(berkas_aksi1368, "w", encoding="utf-8") as f:
             f.write(isi_baru1368)
         rc, out = jalan(sub1368,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv excel '-': penguras di master - gerbang gagal (Audit 2273)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1368, ignore_errors=True)
         sub1369 = klon(tmp, "sub1369")
@@ -29112,7 +29112,7 @@ def main():
         with open(berkas_aksi1369, "w", encoding="utf-8") as f:
             f.write(isi_baru1369)
         rc, out = jalan(sub1369,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv excel polos: argumen wajib - gerbang lolos (Audit 2273)", rc == 0)
         shutil.rmtree(sub1369, ignore_errors=True)
         sub1370 = klon(tmp, "sub1370")
@@ -29133,7 +29133,7 @@ def main():
         with open(berkas_aksi1370, "w", encoding="utf-8") as f:
             f.write(isi_baru1370)
         rc, out = jalan(sub1370,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv exclude input1 '-': penguras - gerbang gagal (Audit 2274)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1370, ignore_errors=True)
         sub1371 = klon(tmp, "sub1371")
@@ -29154,7 +29154,7 @@ def main():
         with open(berkas_aksi1371, "w", encoding="utf-8") as f:
             f.write(isi_baru1371)
         rc, out = jalan(sub1371,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv geoconvert '-': penguras - gerbang gagal (Audit 2275)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1371, ignore_errors=True)
         sub1372 = klon(tmp, "sub1372")
@@ -29175,7 +29175,7 @@ def main():
         with open(berkas_aksi1372, "w", encoding="utf-8") as f:
             f.write(isi_baru1372)
         rc, out = jalan(sub1372,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv scoresql input '-': penguras - gerbang gagal (Audit 2276)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1372, ignore_errors=True)
         sub1373 = klon(tmp, "sub1373")
@@ -29196,7 +29196,7 @@ def main():
         with open(berkas_aksi1373, "w", encoding="utf-8") as f:
             f.write(isi_baru1373)
         rc, out = jalan(sub1373,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv reverse polos: penguras - gerbang gagal (Audit 2277)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1373, ignore_errors=True)
         sub1374 = klon(tmp, "sub1374")
@@ -29217,7 +29217,7 @@ def main():
         with open(berkas_aksi1374, "w", encoding="utf-8") as f:
             f.write(isi_baru1374)
         rc, out = jalan(sub1374,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv join input1 '-': penguras - gerbang gagal (Audit 2278)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1374, ignore_errors=True)
         sub1375 = klon(tmp, "sub1375")
@@ -29238,7 +29238,7 @@ def main():
         with open(berkas_aksi1375, "w", encoding="utf-8") as f:
             f.write(isi_baru1375)
         rc, out = jalan(sub1375,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv viz bar --color bernilai lalu '-': penguras - gerbang gagal (Audit 2279)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1375, ignore_errors=True)
         sub1376 = klon(tmp, "sub1376")
@@ -29259,7 +29259,7 @@ def main():
         with open(berkas_aksi1376, "w", encoding="utf-8") as f:
             f.write(isi_baru1376)
         rc, out = jalan(sub1376,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv viz bar --jobs hantu: galat docopt - gerbang lolos (Audit 2280)", rc == 0)
         shutil.rmtree(sub1376, ignore_errors=True)
         sub1377 = klon(tmp, "sub1377")
@@ -29280,7 +29280,7 @@ def main():
         with open(berkas_aksi1377, "w", encoding="utf-8") as f:
             f.write(isi_baru1377)
         rc, out = jalan(sub1377,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv template -J bernilai: penguras - gerbang gagal (Audit 2281)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1377, ignore_errors=True)
         sub1378 = klon(tmp, "sub1378")
@@ -29301,7 +29301,7 @@ def main():
         with open(berkas_aksi1378, "w", encoding="utf-8") as f:
             f.write(isi_baru1378)
         rc, out = jalan(sub1378,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fetchpost -t payload-tpl: penguras - gerbang gagal (Audit 2282)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1378, ignore_errors=True)
         sub1379 = klon(tmp, "sub1379")
@@ -29322,7 +29322,7 @@ def main():
         with open(berkas_aksi1379, "w", encoding="utf-8") as f:
             f.write(isi_baru1379)
         rc, out = jalan(sub1379,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fetchpost -j globals-json: penguras - gerbang gagal (Audit 2283)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1379, ignore_errors=True)
         sub1380 = klon(tmp, "sub1380")
@@ -29343,7 +29343,7 @@ def main():
         with open(berkas_aksi1380, "w", encoding="utf-8") as f:
             f.write(isi_baru1380)
         rc, out = jalan(sub1380,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv writestat --enum-threshold hantu: galat - gerbang lolos (Audit 2284)", rc == 0)
         shutil.rmtree(sub1380, ignore_errors=True)
         sub1381 = klon(tmp, "sub1381")
@@ -29364,7 +29364,7 @@ def main():
         with open(berkas_aksi1381, "w", encoding="utf-8") as f:
             f.write(isi_baru1381)
         rc, out = jalan(sub1381,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv clipboard -ss bundel save: duplikat docopt - gerbang lolos (Audit 2379)", rc == 0)
         shutil.rmtree(sub1381, ignore_errors=True)
         sub1382 = klon(tmp, "sub1382")
@@ -29385,7 +29385,7 @@ def main():
         with open(berkas_aksi1382, "w", encoding="utf-8") as f:
             f.write(isi_baru1382)
         rc, out = jalan(sub1382,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv prompt --output: penguras - gerbang gagal (Audit 2286)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1382, ignore_errors=True)
         sub1383 = klon(tmp, "sub1383")
@@ -29406,7 +29406,7 @@ def main():
         with open(berkas_aksi1383, "w", encoding="utf-8") as f:
             f.write(isi_baru1383)
         rc, out = jalan(sub1383,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv prompt polos dialog GUI: bukan penguras - gerbang lolos (Audit 2286)", rc == 0)
         shutil.rmtree(sub1383, ignore_errors=True)
         sub1384 = klon(tmp, "sub1384")
@@ -29427,7 +29427,7 @@ def main():
         with open(berkas_aksi1384, "w", encoding="utf-8") as f:
             f.write(isi_baru1384)
         rc, out = jalan(sub1384,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv count -d bernilai: penguras - gerbang gagal (Audit 2287)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1384, ignore_errors=True)
         sub1385 = klon(tmp, "sub1385")
@@ -29448,7 +29448,7 @@ def main():
         with open(berkas_aksi1385, "w", encoding="utf-8") as f:
             f.write(isi_baru1385)
         rc, out = jalan(sub1385,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv search -j bernilai: penguras - gerbang gagal (Audit 2288)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1385, ignore_errors=True)
         sub1386 = klon(tmp, "sub1386")
@@ -29469,7 +29469,7 @@ def main():
         with open(berkas_aksi1386, "w", encoding="utf-8") as f:
             f.write(isi_baru1386)
         rc, out = jalan(sub1386,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv slice -o bernilai: penguras - gerbang gagal (Audit 2289)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1386, ignore_errors=True)
         sub1387 = klon(tmp, "sub1387")
@@ -29490,7 +29490,7 @@ def main():
         with open(berkas_aksi1387, "w", encoding="utf-8") as f:
             f.write(isi_baru1387)
         rc, out = jalan(sub1387,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fetch --jaq bernilai: penguras - gerbang gagal (Audit 2290)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1387, ignore_errors=True)
         sub1388 = klon(tmp, "sub1388")
@@ -29511,7 +29511,7 @@ def main():
         with open(berkas_aksi1388, "w", encoding="utf-8") as f:
             f.write(isi_baru1388)
         rc, out = jalan(sub1388,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv luau --luau-path hantu: galat - gerbang lolos (Audit 2291)", rc == 0)
         shutil.rmtree(sub1388, ignore_errors=True)
         sub1389 = klon(tmp, "sub1389")
@@ -29532,7 +29532,7 @@ def main():
         with open(berkas_aksi1389, "w", encoding="utf-8") as f:
             f.write(isi_baru1389)
         rc, out = jalan(sub1389,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv partition --limit bernilai: penguras - gerbang gagal (Audit 2292)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1389, ignore_errors=True)
         sub1390 = klon(tmp, "sub1390")
@@ -29553,7 +29553,7 @@ def main():
         with open(berkas_aksi1390, "w", encoding="utf-8") as f:
             f.write(isi_baru1390)
         rc, out = jalan(sub1390,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv frequency --weight bernilai: penguras - gerbang gagal (Audit 2293)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1390, ignore_errors=True)
         sub1391 = klon(tmp, "sub1391")
@@ -29574,7 +29574,7 @@ def main():
         with open(berkas_aksi1391, "w", encoding="utf-8") as f:
             f.write(isi_baru1391)
         rc, out = jalan(sub1391,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv validate --size-limit bernilai: penguras - gerbang gagal (Audit 2294)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1391, ignore_errors=True)
         sub1392 = klon(tmp, "sub1392")
@@ -29595,7 +29595,7 @@ def main():
         with open(berkas_aksi1392, "w", encoding="utf-8") as f:
             f.write(isi_baru1392)
         rc, out = jalan(sub1392,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv schema -o bernilai: penguras - gerbang gagal (Audit 2295)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1392, ignore_errors=True)
         sub1393 = klon(tmp, "sub1393")
@@ -29616,7 +29616,7 @@ def main():
         with open(berkas_aksi1393, "w", encoding="utf-8") as f:
             f.write(isi_baru1393)
         rc, out = jalan(sub1393,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv cat rows -d bernilai: penguras - gerbang gagal (Audit 2296)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1393, ignore_errors=True)
         sub1394 = klon(tmp, "sub1394")
@@ -29637,7 +29637,7 @@ def main():
         with open(berkas_aksi1394, "w", encoding="utf-8") as f:
             f.write(isi_baru1394)
         rc, out = jalan(sub1394,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv viz --enum-threshold hantu: galat - gerbang lolos (Audit 2297)", rc == 0)
         shutil.rmtree(sub1394, ignore_errors=True)
         sub1395 = klon(tmp, "sub1395")
@@ -29658,7 +29658,7 @@ def main():
         with open(berkas_aksi1395, "w", encoding="utf-8") as f:
             f.write(isi_baru1395)
         rc, out = jalan(sub1395,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv prompt -of bundel fd-output+output: penguras - gerbang gagal (Audit 2298)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1395, ignore_errors=True)
         sub1396 = klon(tmp, "sub1396")
@@ -29679,7 +29679,7 @@ def main():
         with open(berkas_aksi1396, "w", encoding="utf-8") as f:
             f.write(isi_baru1396)
         rc, out = jalan(sub1396,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv prompt -m menelan --output sebagai nilai: bukan penguras - gerbang lolos (Audit 2299)", rc == 0)
         shutil.rmtree(sub1396, ignore_errors=True)
         sub1397 = klon(tmp, "sub1397")
@@ -29700,7 +29700,7 @@ def main():
         with open(berkas_aksi1397, "w", encoding="utf-8") as f:
             f.write(isi_baru1397)
         rc, out = jalan(sub1397,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fetchpost -t tertelan -c: dua operand penguras - gerbang gagal (Audit 2300)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1397, ignore_errors=True)
         sub1398 = klon(tmp, "sub1398")
@@ -29721,7 +29721,7 @@ def main():
         with open(berkas_aksi1398, "w", encoding="utf-8") as f:
             f.write(isi_baru1398)
         rc, out = jalan(sub1398,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv clipboard -xs bundel tak sah: galat - gerbang lolos (Audit 2301)", rc == 0)
         shutil.rmtree(sub1398, ignore_errors=True)
         sub1399 = klon(tmp, "sub1399")
@@ -29742,7 +29742,7 @@ def main():
         with open(berkas_aksi1399, "w", encoding="utf-8") as f:
             f.write(isi_baru1399)
         rc, out = jalan(sub1399,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv clipboard -- -s sesudah pemisah: galat - gerbang lolos (Audit 2302)", rc == 0)
         shutil.rmtree(sub1399, ignore_errors=True)
         sub1400 = klon(tmp, "sub1400")
@@ -29763,7 +29763,7 @@ def main():
         with open(berkas_aksi1400, "w", encoding="utf-8") as f:
             f.write(isi_baru1400)
         rc, out = jalan(sub1400,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv template -d hantu: galat - gerbang lolos (Audit 2303)", rc == 0)
         shutil.rmtree(sub1400, ignore_errors=True)
         sub1401 = klon(tmp, "sub1401")
@@ -29784,7 +29784,7 @@ def main():
         with open(berkas_aksi1401, "w", encoding="utf-8") as f:
             f.write(isi_baru1401)
         rc, out = jalan(sub1401,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fetch --jql hantu: galat - gerbang lolos (Audit 2304)", rc == 0)
         shutil.rmtree(sub1401, ignore_errors=True)
         sub1402 = klon(tmp, "sub1402")
@@ -29805,7 +29805,7 @@ def main():
         with open(berkas_aksi1402, "w", encoding="utf-8") as f:
             f.write(isi_baru1402)
         rc, out = jalan(sub1402,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv stats --weight bernilai: penguras - gerbang gagal (Audit 2305)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1402, ignore_errors=True)
         sub1403 = klon(tmp, "sub1403")
@@ -29826,7 +29826,7 @@ def main():
         with open(berkas_aksi1403, "w", encoding="utf-8") as f:
             f.write(isi_baru1403)
         rc, out = jalan(sub1403,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv select --seed bernilai: penguras - gerbang gagal (Audit 2306)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1403, ignore_errors=True)
         sub1404 = klon(tmp, "sub1404")
@@ -29847,7 +29847,7 @@ def main():
         with open(berkas_aksi1404, "w", encoding="utf-8") as f:
             f.write(isi_baru1404)
         rc, out = jalan(sub1404,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv sample --max-size bernilai: penguras - gerbang gagal (Audit 2307)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1404, ignore_errors=True)
         sub1405 = klon(tmp, "sub1405")
@@ -29868,7 +29868,7 @@ def main():
         with open(berkas_aksi1405, "w", encoding="utf-8") as f:
             f.write(isi_baru1405)
         rc, out = jalan(sub1405,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv split --filter bernilai: penguras - gerbang gagal (Audit 2308)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1405, ignore_errors=True)
         sub1406 = klon(tmp, "sub1406")
@@ -29889,7 +29889,7 @@ def main():
         with open(berkas_aksi1406, "w", encoding="utf-8") as f:
             f.write(isi_baru1406)
         rc, out = jalan(sub1406,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv join --keys-output bernilai: penguras - gerbang gagal (Audit 2309)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1406, ignore_errors=True)
         sub1407 = klon(tmp, "sub1407")
@@ -29910,7 +29910,7 @@ def main():
         with open(berkas_aksi1407, "w", encoding="utf-8") as f:
             f.write(isi_baru1407)
         rc, out = jalan(sub1407,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv transpose --long bernilai: penguras - gerbang gagal (Audit 2310)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1407, ignore_errors=True)
         sub1408 = klon(tmp, "sub1408")
@@ -29931,7 +29931,7 @@ def main():
         with open(berkas_aksi1408, "w", encoding="utf-8") as f:
             f.write(isi_baru1408)
         rc, out = jalan(sub1408,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv replace -j bernilai: penguras - gerbang gagal (Audit 2311)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1408, ignore_errors=True)
         sub1409 = klon(tmp, "sub1409")
@@ -29952,7 +29952,7 @@ def main():
         with open(berkas_aksi1409, "w", encoding="utf-8") as f:
             f.write(isi_baru1409)
         rc, out = jalan(sub1409,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv to xlsx --table bernilai lalu '-': penguras - gerbang gagal (Audit 2312)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1409, ignore_errors=True)
         sub1410 = klon(tmp, "sub1410")
@@ -29973,7 +29973,7 @@ def main():
         with open(berkas_aksi1410, "w", encoding="utf-8") as f:
             f.write(isi_baru1410)
         rc, out = jalan(sub1410,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv to ods '-': penguras - gerbang gagal (Audit 2313)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1410, ignore_errors=True)
         sub1411 = klon(tmp, "sub1411")
@@ -29994,7 +29994,7 @@ def main():
         with open(berkas_aksi1411, "w", encoding="utf-8") as f:
             f.write(isi_baru1411)
         rc, out = jalan(sub1411,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv to sqlite tanpa masukan: galat - gerbang lolos (Audit 2314)", rc == 0)
         shutil.rmtree(sub1411, ignore_errors=True)
         sub1412 = klon(tmp, "sub1412")
@@ -30015,7 +30015,7 @@ def main():
         with open(berkas_aksi1412, "w", encoding="utf-8") as f:
             f.write(isi_baru1412)
         rc, out = jalan(sub1412,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv prompt -f + --output bersamaan: galat usage - gerbang lolos (Audit 2315)", rc == 0)
         shutil.rmtree(sub1412, ignore_errors=True)
         sub1413 = klon(tmp, "sub1413")
@@ -30036,7 +30036,7 @@ def main():
         with open(berkas_aksi1413, "w", encoding="utf-8") as f:
             f.write(isi_baru1413)
         rc, out = jalan(sub1413,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv geocode -f formatstr bernilai lalu '-': penguras - gerbang gagal (Audit 2316)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1413, ignore_errors=True)
         sub1414 = klon(tmp, "sub1414")
@@ -30057,7 +30057,7 @@ def main():
         with open(berkas_aksi1414, "w", encoding="utf-8") as f:
             f.write(isi_baru1414)
         rc, out = jalan(sub1414,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply summarize tanpa masukan: penguras - gerbang gagal (Audit 2317)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1414, ignore_errors=True)
         sub1415 = klon(tmp, "sub1415")
@@ -30078,7 +30078,7 @@ def main():
         with open(berkas_aksi1415, "w", encoding="utf-8") as f:
             f.write(isi_baru1415)
         rc, out = jalan(sub1415,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply operations --prompt bernilai lalu '-': penguras - gerbang gagal (Audit 2318)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1415, ignore_errors=True)
         sub1416 = klon(tmp, "sub1416")
@@ -30099,7 +30099,7 @@ def main():
         with open(berkas_aksi1416, "w", encoding="utf-8") as f:
             f.write(isi_baru1416)
         rc, out = jalan(sub1416,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv prompt -f duplikat: docopt menolak - gerbang lolos (Audit 2319)", rc == 0)
         shutil.rmtree(sub1416, ignore_errors=True)
         sub1417 = klon(tmp, "sub1417")
@@ -30120,7 +30120,7 @@ def main():
         with open(berkas_aksi1417, "w", encoding="utf-8") as f:
             f.write(isi_baru1417)
         rc, out = jalan(sub1417,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply summarize -c merekat tanpa masukan: penguras - gerbang gagal (Audit 2320)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1417, ignore_errors=True)
         sub1418 = klon(tmp, "sub1418")
@@ -30141,7 +30141,7 @@ def main():
         with open(berkas_aksi1418, "w", encoding="utf-8") as f:
             f.write(isi_baru1418)
         rc, out = jalan(sub1418,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply dynfmt syarat merekat tanpa masukan: penguras - gerbang gagal (Audit 2321)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1418, ignore_errors=True)
         sub1419 = klon(tmp, "sub1419")
@@ -30162,7 +30162,7 @@ def main():
         with open(berkas_aksi1419, "w", encoding="utf-8") as f:
             f.write(isi_baru1419)
         rc, out = jalan(sub1419,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fixlengths --length sah tanpa masukan: penguras - gerbang gagal (Audit 2322)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1419, ignore_errors=True)
         sub1420 = klon(tmp, "sub1420")
@@ -30183,7 +30183,7 @@ def main():
         with open(berkas_aksi1420, "w", encoding="utf-8") as f:
             f.write(isi_baru1420)
         rc, out = jalan(sub1420,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv table polos: penguras - gerbang gagal (Audit 2323)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1420, ignore_errors=True)
         sub1421 = klon(tmp, "sub1421")
@@ -30204,7 +30204,7 @@ def main():
         with open(berkas_aksi1421, "w", encoding="utf-8") as f:
             f.write(isi_baru1421)
         rc, out = jalan(sub1421,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fixlengths -i insert bernilai tanpa masukan: penguras - gerbang gagal (Audit 2324)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1421, ignore_errors=True)
         sub1422 = klon(tmp, "sub1422")
@@ -30225,7 +30225,7 @@ def main():
         with open(berkas_aksi1422, "w", encoding="utf-8") as f:
             f.write(isi_baru1422)
         rc, out = jalan(sub1422,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv table -p pad bernilai tanpa masukan: penguras - gerbang gagal (Audit 2325)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1422, ignore_errors=True)
         sub1423 = klon(tmp, "sub1423")
@@ -30246,7 +30246,7 @@ def main():
         with open(berkas_aksi1423, "w", encoding="utf-8") as f:
             f.write(isi_baru1423)
         rc, out = jalan(sub1423,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply dynfmt -f duplikat: docopt menolak - gerbang lolos (Audit 2326)", rc == 0)
         shutil.rmtree(sub1423, ignore_errors=True)
         sub1424 = klon(tmp, "sub1424")
@@ -30267,7 +30267,7 @@ def main():
         with open(berkas_aksi1424, "w", encoding="utf-8") as f:
             f.write(isi_baru1424)
         rc, out = jalan(sub1424,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv count -d delimiter lalu '-': penguras - gerbang gagal (Audit 2327)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1424, ignore_errors=True)
         sub1425 = klon(tmp, "sub1425")
@@ -30288,7 +30288,7 @@ def main():
         with open(berkas_aksi1425, "w", encoding="utf-8") as f:
             f.write(isi_baru1425)
         rc, out = jalan(sub1425,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv search -d delimiter lalu '-': penguras - gerbang gagal (Audit 2328)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1425, ignore_errors=True)
         sub1426 = klon(tmp, "sub1426")
@@ -30309,7 +30309,7 @@ def main():
         with open(berkas_aksi1426, "w", encoding="utf-8") as f:
             f.write(isi_baru1426)
         rc, out = jalan(sub1426,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv slice -i index lalu '-': penguras - gerbang gagal (Audit 2329)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1426, ignore_errors=True)
         sub1427 = klon(tmp, "sub1427")
@@ -30330,7 +30330,7 @@ def main():
         with open(berkas_aksi1427, "w", encoding="utf-8") as f:
             f.write(isi_baru1427)
         rc, out = jalan(sub1427,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv fmt --out-delimiter lalu '-': penguras - gerbang gagal (Audit 2330)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1427, ignore_errors=True)
         sub1428 = klon(tmp, "sub1428")
@@ -30351,7 +30351,7 @@ def main():
         with open(berkas_aksi1428, "w", encoding="utf-8") as f:
             f.write(isi_baru1428)
         rc, out = jalan(sub1428,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv sample --seed lalu '-': penguras - gerbang gagal (Audit 2331)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1428, ignore_errors=True)
         sub1429 = klon(tmp, "sub1429")
@@ -30372,7 +30372,7 @@ def main():
         with open(berkas_aksi1429, "w", encoding="utf-8") as f:
             f.write(isi_baru1429)
         rc, out = jalan(sub1429,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv headers -d delimiter tanpa masukan: penguras - gerbang gagal (Audit 2332)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1429, ignore_errors=True)
         sub1430 = klon(tmp, "sub1430")
@@ -30393,7 +30393,7 @@ def main():
         with open(berkas_aksi1430, "w", encoding="utf-8") as f:
             f.write(isi_baru1430)
         rc, out = jalan(sub1430,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv cat rows -d delimiter lalu '-': penguras - gerbang gagal (Audit 2333)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1430, ignore_errors=True)
         sub1431 = klon(tmp, "sub1431")
@@ -30414,7 +30414,7 @@ def main():
         with open(berkas_aksi1431, "w", encoding="utf-8") as f:
             f.write(isi_baru1431)
         rc, out = jalan(sub1431,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql --before-insert bernilai lalu '-': penguras - gerbang gagal (Audit 2334)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1431, ignore_errors=True)
         sub1432 = klon(tmp, "sub1432")
@@ -30435,7 +30435,7 @@ def main():
         with open(berkas_aksi1432, "w", encoding="utf-8") as f:
             f.write(isi_baru1432)
         rc, out = jalan(sub1432,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql --engine-option nargs=2 lalu '-': penguras - gerbang gagal (Audit 2335)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1432, ignore_errors=True)
         sub1433 = klon(tmp, "sub1433")
@@ -30456,7 +30456,7 @@ def main():
         with open(berkas_aksi1433, "w", encoding="utf-8") as f:
             f.write(isi_baru1433)
         rc, out = jalan(sub1433,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql --null-value nargs+ menelan nilai: penguras - gerbang gagal (Audit 2336)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1433, ignore_errors=True)
         sub1434 = klon(tmp, "sub1434")
@@ -30477,7 +30477,7 @@ def main():
         with open(berkas_aksi1434, "w", encoding="utf-8") as f:
             f.write(isi_baru1434)
         rc, out = jalan(sub1434,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvjoin --null-value menelan kedua berkas: penguras - gerbang gagal (Audit 2337)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1434, ignore_errors=True)
         sub1435 = klon(tmp, "sub1435")
@@ -30498,7 +30498,7 @@ def main():
         with open(berkas_aksi1435, "w", encoding="utf-8") as f:
             f.write(isi_baru1435)
         rc, out = jalan(sub1435,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvstack tak mengenal --null-value: argparse berhenti - gerbang lolos (Audit 2338)", rc == 0)
         shutil.rmtree(sub1435, ignore_errors=True)
         sub1436 = klon(tmp, "sub1436")
@@ -30519,7 +30519,7 @@ def main():
         with open(berkas_aksi1436, "w", encoding="utf-8") as f:
             f.write(isi_baru1436)
         rc, out = jalan(sub1436,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvformat tak mengenal --null-value: argparse berhenti - gerbang lolos (Audit 2339)", rc == 0)
         shutil.rmtree(sub1436, ignore_errors=True)
         sub1437 = klon(tmp, "sub1437")
@@ -30540,7 +30540,7 @@ def main():
         with open(berkas_aksi1437, "w", encoding="utf-8") as f:
             f.write(isi_baru1437)
         rc, out = jalan(sub1437,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook --null-value menelan nama berkas: penguras - gerbang gagal (Audit 2340)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1437, ignore_errors=True)
         sub1438 = klon(tmp, "sub1438")
@@ -30561,7 +30561,7 @@ def main():
         with open(berkas_aksi1438, "w", encoding="utf-8") as f:
             f.write(isi_baru1438)
         rc, out = jalan(sub1438,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvpy --null-value menelan nama berkas lalu menolak stdin - gerbang lolos (Audit 2341)", rc == 0)
         shutil.rmtree(sub1438, ignore_errors=True)
         sub1439 = klon(tmp, "sub1439")
@@ -30582,7 +30582,7 @@ def main():
         with open(berkas_aksi1439, "w", encoding="utf-8") as f:
             f.write(isi_baru1439)
         rc, out = jalan(sub1439,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvclean tak mengenal --null-value: argparse berhenti - gerbang lolos (Audit 2342)", rc == 0)
         shutil.rmtree(sub1439, ignore_errors=True)
         sub1440 = klon(tmp, "sub1440")
@@ -30603,7 +30603,7 @@ def main():
         with open(berkas_aksi1440, "w", encoding="utf-8") as f:
             f.write(isi_baru1440)
         rc, out = jalan(sub1440,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-uniq -f fields bernilai tanpa berkas: penguras - gerbang gagal (Audit 2343)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1440, ignore_errors=True)
         sub1441 = klon(tmp, "sub1441")
@@ -30624,7 +30624,7 @@ def main():
         with open(berkas_aksi1441, "w", encoding="utf-8") as f:
             f.write(isi_baru1441)
         rc, out = jalan(sub1441,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvjoin polos membaca stdin (gabung dengan dirinya) - gerbang gagal (Audit 2344)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1441, ignore_errors=True)
         sub1442 = klon(tmp, "sub1442")
@@ -30645,7 +30645,7 @@ def main():
         with open(berkas_aksi1442, "w", encoding="utf-8") as f:
             f.write(isi_baru1442)
         rc, out = jalan(sub1442,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv stats bundel -Eo: -o ujung bundel menelan --output - penguras, gerbang gagal (Audit 2345)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1442, ignore_errors=True)
         sub1443 = klon(tmp, "sub1443")
@@ -30666,7 +30666,7 @@ def main():
         with open(berkas_aksi1443, "w", encoding="utf-8") as f:
             f.write(isi_baru1443)
         rc, out = jalan(sub1443,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook sesudah '--': --null-value operand kedua - argparse berhenti, gerbang lolos (Audit 2346)", rc == 0)
         shutil.rmtree(sub1443, ignore_errors=True)
         sub1444 = klon(tmp, "sub1444")
@@ -30687,7 +30687,7 @@ def main():
         with open(berkas_aksi1444, "w", encoding="utf-8") as f:
             f.write(isi_baru1444)
         rc, out = jalan(sub1444,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql --engine-option bentuk '=' tak memenuhi nargs=2 - gerbang lolos (Audit 2347)", rc == 0)
         shutil.rmtree(sub1444, ignore_errors=True)
         sub1445 = klon(tmp, "sub1445")
@@ -30708,7 +30708,7 @@ def main():
         with open(berkas_aksi1445, "w", encoding="utf-8") as f:
             f.write(isi_baru1445)
         rc, out = jalan(sub1445,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvstack bundel -Ly memuat token terlarang - gerbang lolos (Audit 2348)", rc == 0)
         shutil.rmtree(sub1445, ignore_errors=True)
         sub1446 = klon(tmp, "sub1446")
@@ -30729,7 +30729,7 @@ def main():
         with open(berkas_aksi1446, "w", encoding="utf-8") as f:
             f.write(isi_baru1446)
         rc, out = jalan(sub1446,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv slice -l duplikat: docopt menolak - gerbang lolos (Audit 2349)", rc == 0)
         shutil.rmtree(sub1446, ignore_errors=True)
         sub1447 = klon(tmp, "sub1447")
@@ -30750,7 +30750,7 @@ def main():
         with open(berkas_aksi1447, "w", encoding="utf-8") as f:
             f.write(isi_baru1447)
         rc, out = jalan(sub1447,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sql2csv --execution-option nargs=2 tanpa berkas: penguras - gerbang gagal (Audit 2350)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1447, ignore_errors=True)
         sub1448 = klon(tmp, "sub1448")
@@ -30771,7 +30771,7 @@ def main():
         with open(berkas_aksi1448, "w", encoding="utf-8") as f:
             f.write(isi_baru1448)
         rc, out = jalan(sub1448,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sql2csv tak mengenal -d: argparse berhenti - gerbang lolos (Audit 2351)", rc == 0)
         shutil.rmtree(sub1448, ignore_errors=True)
         sub1449 = klon(tmp, "sub1449")
@@ -30792,7 +30792,7 @@ def main():
         with open(berkas_aksi1449, "w", encoding="utf-8") as f:
             f.write(isi_baru1449)
         rc, out = jalan(sub1449,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sql2csv dua positional: argparse menolak '-' - gerbang lolos (Audit 2352)", rc == 0)
         shutil.rmtree(sub1449, ignore_errors=True)
         sub1450 = klon(tmp, "sub1450")
@@ -30813,7 +30813,7 @@ def main():
         with open(berkas_aksi1450, "w", encoding="utf-8") as f:
             f.write(isi_baru1450)
         rc, out = jalan(sub1450,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv -f csv '-': stdin dengan format - penguras, gerbang gagal (Audit 2353)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1450, ignore_errors=True)
         sub1451 = klon(tmp, "sub1451")
@@ -30834,7 +30834,7 @@ def main():
         with open(berkas_aksi1451, "w", encoding="utf-8") as f:
             f.write(isi_baru1451)
         rc, out = jalan(sub1451,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv --sheet bernilai tanpa berkas: penguras - gerbang gagal (Audit 2354)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1451, ignore_errors=True)
         sub1452 = klon(tmp, "sub1452")
@@ -30855,7 +30855,7 @@ def main():
         with open(berkas_aksi1452, "w", encoding="utf-8") as f:
             f.write(isi_baru1452)
         rc, out = jalan(sub1452,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql berkas + '-': input_paths nargs='*' membaca stdin - gerbang gagal (Audit 2355)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1452, ignore_errors=True)
         sub1453 = klon(tmp, "sub1453")
@@ -30876,7 +30876,7 @@ def main():
         with open(berkas_aksi1453, "w", encoding="utf-8") as f:
             f.write(isi_baru1453)
         rc, out = jalan(sub1453,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-append -s source-header tanpa berkas: penguras - gerbang gagal (Audit 2356)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1453, ignore_errors=True)
         sub1454 = klon(tmp, "sub1454")
@@ -30897,7 +30897,7 @@ def main():
         with open(berkas_aksi1454, "w", encoding="utf-8") as f:
             f.write(isi_baru1454)
         rc, out = jalan(sub1454,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-filter --label mode label tanpa berkas: penguras - gerbang gagal (Audit 2357)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1454, ignore_errors=True)
         sub1455 = klon(tmp, "sub1455")
@@ -30918,7 +30918,7 @@ def main():
         with open(berkas_aksi1455, "w", encoding="utf-8") as f:
             f.write(isi_baru1455)
         rc, out = jalan(sub1455,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-filter --in hantu: getopt menolak - gerbang lolos (Audit 2358)", rc == 0)
         shutil.rmtree(sub1455, ignore_errors=True)
         sub1456 = klon(tmp, "sub1456")
@@ -30939,7 +30939,7 @@ def main():
         with open(berkas_aksi1456, "w", encoding="utf-8") as f:
             f.write(isi_baru1456)
         rc, out = jalan(sub1456,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv count -n + --no-headers: alias bool duplikat ditolak docopt - gerbang lolos (Audit 2359)", rc == 0)
         shutil.rmtree(sub1456, ignore_errors=True)
         sub1457 = klon(tmp, "sub1457")
@@ -30960,7 +30960,7 @@ def main():
         with open(berkas_aksi1457, "w", encoding="utf-8") as f:
             f.write(isi_baru1457)
         rc, out = jalan(sub1457,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sql2csv tak mengenal -b: argparse berhenti - gerbang lolos (Audit 2360)", rc == 0)
         shutil.rmtree(sub1457, ignore_errors=True)
         sub1458 = klon(tmp, "sub1458")
@@ -30981,7 +30981,7 @@ def main():
         with open(berkas_aksi1458, "w", encoding="utf-8") as f:
             f.write(isi_baru1458)
         rc, out = jalan(sub1458,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sql2csv --engine-option menelan token mirip-opsi: argparse berhenti - gerbang lolos (Audit 2361)", rc == 0)
         shutil.rmtree(sub1458, ignore_errors=True)
         sub1459 = klon(tmp, "sub1459")
@@ -31002,7 +31002,7 @@ def main():
         with open(berkas_aksi1459, "w", encoding="utf-8") as f:
             f.write(isi_baru1459)
         rc, out = jalan(sub1459,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv -f di luar choices: argparse menolak - gerbang lolos (Audit 2362)", rc == 0)
         shutil.rmtree(sub1459, ignore_errors=True)
         sub1460 = klon(tmp, "sub1460")
@@ -31023,7 +31023,7 @@ def main():
         with open(berkas_aksi1460, "w", encoding="utf-8") as f:
             f.write(isi_baru1460)
         rc, out = jalan(sub1460,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv -n dengan format non-Excel: galat sebelum membaca - gerbang lolos (Audit 2363)", rc == 0)
         shutil.rmtree(sub1460, ignore_errors=True)
         sub1461 = klon(tmp, "sub1461")
@@ -31044,7 +31044,7 @@ def main():
         with open(berkas_aksi1461, "w", encoding="utf-8") as f:
             f.write(isi_baru1461)
         rc, out = jalan(sub1461,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvgrep --file pola resmi tanpa berkas data: penguras - gerbang gagal (Audit 2364)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1461, ignore_errors=True)
         sub1462 = klon(tmp, "sub1462")
@@ -31065,7 +31065,7 @@ def main():
         with open(berkas_aksi1462, "w", encoding="utf-8") as f:
             f.write(isi_baru1462)
         rc, out = jalan(sub1462,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvstat -i indent tanpa berkas: penguras - gerbang gagal (Audit 2365)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1462, ignore_errors=True)
         sub1463 = klon(tmp, "sub1463")
@@ -31086,7 +31086,7 @@ def main():
         with open(berkas_aksi1463, "w", encoding="utf-8") as f:
             f.write(isi_baru1463)
         rc, out = jalan(sub1463,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvjson --type/--geometry tanpa berkas: penguras - gerbang gagal (Audit 2366)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1463, ignore_errors=True)
         sub1464 = klon(tmp, "sub1464")
@@ -31107,7 +31107,7 @@ def main():
         with open(berkas_aksi1464, "w", encoding="utf-8") as f:
             f.write(isi_baru1464)
         rc, out = jalan(sub1464,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mlr rantai then tanpa berkas: penguras - gerbang gagal (Audit 2367)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1464, ignore_errors=True)
         sub1465 = klon(tmp, "sub1465")
@@ -31128,7 +31128,7 @@ def main():
         with open(berkas_aksi1465, "w", encoding="utf-8") as f:
             f.write(isi_baru1465)
         rc, out = jalan(sub1465,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mlr -n sesudah opsi global: tak membaca apa pun - gerbang lolos (Audit 2368)", rc == 0)
         shutil.rmtree(sub1465, ignore_errors=True)
         sub1466 = klon(tmp, "sub1466")
@@ -31149,7 +31149,7 @@ def main():
         with open(berkas_aksi1466, "w", encoding="utf-8") as f:
             f.write(isi_baru1466)
         rc, out = jalan(sub1466,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv search -s duplikat: docopt menolak - gerbang lolos (Audit 2369)", rc == 0)
         shutil.rmtree(sub1466, ignore_errors=True)
         sub1467 = klon(tmp, "sub1467")
@@ -31170,7 +31170,7 @@ def main():
         with open(berkas_aksi1467, "w", encoding="utf-8") as f:
             f.write(isi_baru1467)
         rc, out = jalan(sub1467,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize tanpa operator: ditolak sebelum membaca - gerbang lolos (Audit 2370)", rc == 0)
         shutil.rmtree(sub1467, ignore_errors=True)
         sub1468 = klon(tmp, "sub1468")
@@ -31191,7 +31191,7 @@ def main():
         with open(berkas_aksi1468, "w", encoding="utf-8") as f:
             f.write(isi_baru1468)
         rc, out = jalan(sub1468,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv apply -p + --progressbar: alias bool duplikat - gerbang lolos (Audit 2371)", rc == 0)
         shutil.rmtree(sub1468, ignore_errors=True)
         sub1469 = klon(tmp, "sub1469")
@@ -31212,7 +31212,7 @@ def main():
         with open(berkas_aksi1469, "w", encoding="utf-8") as f:
             f.write(isi_baru1469)
         rc, out = jalan(sub1469,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv -n dalam bundel dengan format non-Excel: berhenti - gerbang lolos (Audit 2372)", rc == 0)
         shutil.rmtree(sub1469, ignore_errors=True)
         sub1470 = klon(tmp, "sub1470")
@@ -31233,7 +31233,7 @@ def main():
         with open(berkas_aksi1470, "w", encoding="utf-8") as f:
             f.write(isi_baru1470)
         rc, out = jalan(sub1470,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv --names= berargumen: argparse menolak - gerbang lolos (Audit 2373)", rc == 0)
         shutil.rmtree(sub1470, ignore_errors=True)
         sub1471 = klon(tmp, "sub1471")
@@ -31254,7 +31254,7 @@ def main():
         with open(berkas_aksi1471, "w", encoding="utf-8") as f:
             f.write(isi_baru1471)
         rc, out = jalan(sub1471,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize operator huruf besar (caseInsensitive): penguras - gerbang gagal (Audit 2374)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1471, ignore_errors=True)
         sub1472 = klon(tmp, "sub1472")
@@ -31275,7 +31275,7 @@ def main():
         with open(berkas_aksi1472, "w", encoding="utf-8") as f:
             f.write(isi_baru1472)
         rc, out = jalan(sub1472,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize --sum menggantung oleh --count: galat - gerbang lolos (Audit 2375)", rc == 0)
         shutil.rmtree(sub1472, ignore_errors=True)
         sub1473 = klon(tmp, "sub1473")
@@ -31296,7 +31296,7 @@ def main():
         with open(berkas_aksi1473, "w", encoding="utf-8") as f:
             f.write(isi_baru1473)
         rc, out = jalan(sub1473,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv -q bernilai dalam bundel: -n tak hadir, penguras - gerbang gagal (Audit 2376)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1473, ignore_errors=True)
         sub1474 = klon(tmp, "sub1474")
@@ -31317,7 +31317,7 @@ def main():
         with open(berkas_aksi1474, "w", encoding="utf-8") as f:
             f.write(isi_baru1474)
         rc, out = jalan(sub1474,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv -f di bundel dengan format Excel: penguras - gerbang gagal (Audit 2377)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1474, ignore_errors=True)
         sub1475 = klon(tmp, "sub1475")
@@ -31338,7 +31338,7 @@ def main():
         with open(berkas_aksi1475, "w", encoding="utf-8") as f:
             f.write(isi_baru1475)
         rc, out = jalan(sub1475,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv dedup -s duplikat: docopt menolak - gerbang lolos (Audit 2378)", rc == 0)
         shutil.rmtree(sub1475, ignore_errors=True)
         sub1476 = klon(tmp, "sub1476")
@@ -31359,7 +31359,7 @@ def main():
         with open(berkas_aksi1476, "w", encoding="utf-8") as f:
             f.write(isi_baru1476)
         rc, out = jalan(sub1476,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv clipboard --save duplikat: docopt menolak - gerbang lolos (Audit 2379)", rc == 0)
         shutil.rmtree(sub1476, ignore_errors=True)
         sub1477 = klon(tmp, "sub1477")
@@ -31380,7 +31380,7 @@ def main():
         with open(berkas_aksi1477, "w", encoding="utf-8") as f:
             f.write(isi_baru1477)
         rc, out = jalan(sub1477,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv to -d = --delimiter: duplikat - gerbang lolos (Audit 2380)", rc == 0)
         shutil.rmtree(sub1477, ignore_errors=True)
         sub1478 = klon(tmp, "sub1478")
@@ -31401,7 +31401,7 @@ def main():
         with open(berkas_aksi1478, "w", encoding="utf-8") as f:
             f.write(isi_baru1478)
         rc, out = jalan(sub1478,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fetch nilai --http-header mirip opsi: bukan duplikat - gerbang gagal (Audit 2381)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1478, ignore_errors=True)
         sub1479 = klon(tmp, "sub1479")
@@ -31422,7 +31422,7 @@ def main():
         with open(berkas_aksi1479, "w", encoding="utf-8") as f:
             f.write(isi_baru1479)
         rc, out = jalan(sub1479,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv fixedwidth -o + --output duplikat - gerbang lolos (Audit 2382)", rc == 0)
         shutil.rmtree(sub1479, ignore_errors=True)
         sub1480 = klon(tmp, "sub1480")
@@ -31443,7 +31443,7 @@ def main():
         with open(berkas_aksi1480, "w", encoding="utf-8") as f:
             f.write(isi_baru1480)
         rc, out = jalan(sub1480,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -V versi: berhenti - gerbang lolos (Audit 2383)", rc == 0)
         shutil.rmtree(sub1480, ignore_errors=True)
         sub1481 = klon(tmp, "sub1481")
@@ -31464,7 +31464,7 @@ def main():
         with open(berkas_aksi1481, "w", encoding="utf-8") as f:
             f.write(isi_baru1481)
         rc, out = jalan(sub1481,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -r nilai negatif sah: penguras - gerbang gagal (Audit 2384)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1481, ignore_errors=True)
         sub1482 = klon(tmp, "sub1482")
@@ -31485,7 +31485,7 @@ def main():
         with open(berkas_aksi1482, "w", encoding="utf-8") as f:
             f.write(isi_baru1482)
         rc, out = jalan(sub1482,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -Hg bundel bool berekor: galat - gerbang lolos (Audit 2385)", rc == 0)
         shutil.rmtree(sub1482, ignore_errors=True)
         sub1483 = klon(tmp, "sub1483")
@@ -31506,7 +31506,7 @@ def main():
         with open(berkas_aksi1483, "w", encoding="utf-8") as f:
             f.write(isi_baru1483)
         rc, out = jalan(sub1483,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -h help: berhenti - gerbang lolos (Audit 2386)", rc == 0)
         shutil.rmtree(sub1483, ignore_errors=True)
         sub1484 = klon(tmp, "sub1484")
@@ -31527,7 +31527,7 @@ def main():
         with open(berkas_aksi1484, "w", encoding="utf-8") as f:
             f.write(isi_baru1484)
         rc, out = jalan(sub1484,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv huruf tak dikenal di bundel: argparse menolak - gerbang lolos (Audit 2387)", rc == 0)
         shutil.rmtree(sub1484, ignore_errors=True)
         sub1485 = klon(tmp, "sub1485")
@@ -31548,7 +31548,7 @@ def main():
         with open(berkas_aksi1485, "w", encoding="utf-8") as f:
             f.write(isi_baru1485)
         rc, out = jalan(sub1485,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook bundel bool+bernilai: nilai tertelan, penguras - gerbang gagal (Audit 2388)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1485, ignore_errors=True)
         sub1486 = klon(tmp, "sub1486")
@@ -31569,7 +31569,7 @@ def main():
         with open(berkas_aksi1486, "w", encoding="utf-8") as f:
             f.write(isi_baru1486)
         rc, out = jalan(sub1486,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvgrep -f di bundel: pencocok hadir, penguras - gerbang gagal (Audit 2389)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1486, ignore_errors=True)
         sub1487 = klon(tmp, "sub1487")
@@ -31590,7 +31590,7 @@ def main():
         with open(berkas_aksi1487, "w", encoding="utf-8") as f:
             f.write(isi_baru1487)
         rc, out = jalan(sub1487,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvclean tanpa pengaktif: berhenti - gerbang lolos (Audit 2390)", rc == 0)
         shutil.rmtree(sub1487, ignore_errors=True)
         sub1488 = klon(tmp, "sub1488")
@@ -31611,7 +31611,7 @@ def main():
         with open(berkas_aksi1488, "w", encoding="utf-8") as f:
             f.write(isi_baru1488)
         rc, out = jalan(sub1488,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-select --FIELDS huruf besar: syarat terpenuhi, penguras - gerbang gagal (Audit 2391)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1488, ignore_errors=True)
         sub1489 = klon(tmp, "sub1489")
@@ -31632,7 +31632,7 @@ def main():
         with open(berkas_aksi1489, "w", encoding="utf-8") as f:
             f.write(isi_baru1489)
         rc, out = jalan(sub1489,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook nilai bundel mirip-opsi: argparse menolak - gerbang lolos (Audit 2392)", rc == 0)
         shutil.rmtree(sub1489, ignore_errors=True)
         sub1490 = klon(tmp, "sub1490")
@@ -31653,7 +31653,7 @@ def main():
         with open(berkas_aksi1490, "w", encoding="utf-8") as f:
             f.write(isi_baru1490)
         rc, out = jalan(sub1490,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql nilai ke-2 engine-option mirip-opsi: galat - gerbang lolos (Audit 2393)", rc == 0)
         shutil.rmtree(sub1490, ignore_errors=True)
         sub1491 = klon(tmp, "sub1491")
@@ -31674,7 +31674,7 @@ def main():
         with open(berkas_aksi1491, "w", encoding="utf-8") as f:
             f.write(isi_baru1491)
         rc, out = jalan(sub1491,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook singkatan awalan --null-v: nilai tertelan, penguras - gerbang gagal (Audit 2394)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1491, ignore_errors=True)
         sub1492 = klon(tmp, "sub1492")
@@ -31695,7 +31695,7 @@ def main():
         with open(berkas_aksi1492, "w", encoding="utf-8") as f:
             f.write(isi_baru1492)
         rc, out = jalan(sub1492,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook bundel beraksara strip: galat - gerbang lolos (Audit 2395)", rc == 0)
         shutil.rmtree(sub1492, ignore_errors=True)
         sub1493 = klon(tmp, "sub1493")
@@ -31716,7 +31716,7 @@ def main():
         with open(berkas_aksi1493, "w", encoding="utf-8") as f:
             f.write(isi_baru1493)
         rc, out = jalan(sub1493,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvpy operand sesudah -- harfiah: berkas dimuat, penguras - gerbang gagal (Audit 2396)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1493, ignore_errors=True)
         sub1494 = klon(tmp, "sub1494")
@@ -31737,7 +31737,7 @@ def main():
         with open(berkas_aksi1494, "w", encoding="utf-8") as f:
             f.write(isi_baru1494)
         rc, out = jalan(sub1494,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -G merekat huruf besar sah: penguras - gerbang gagal (Audit 2397)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1494, ignore_errors=True)
         sub1495 = klon(tmp, "sub1495")
@@ -31758,7 +31758,7 @@ def main():
         with open(berkas_aksi1495, "w", encoding="utf-8") as f:
             f.write(isi_baru1495)
         rc, out = jalan(sub1495,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -r -1x bukan numerik penuh: gantung - gerbang lolos (Audit 2398)", rc == 0)
         shutil.rmtree(sub1495, ignore_errors=True)
         sub1496 = klon(tmp, "sub1496")
@@ -31779,7 +31779,7 @@ def main():
         with open(berkas_aksi1496, "w", encoding="utf-8") as f:
             f.write(isi_baru1496)
         rc, out = jalan(sub1496,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvclean pengaktif ber-= untuk store_true: ditolak - gerbang lolos (Audit 2399)", rc == 0)
         shutil.rmtree(sub1496, ignore_errors=True)
         sub1497 = klon(tmp, "sub1497")
@@ -31800,7 +31800,7 @@ def main():
         with open(berkas_aksi1497, "w", encoding="utf-8") as f:
             f.write(isi_baru1497)
         rc, out = jalan(sub1497,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvclean --label menelan nama berkas: tanpa operand, penguras - gerbang gagal (Audit 2400)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1497, ignore_errors=True)
         sub1498 = klon(tmp, "sub1498")
@@ -31821,7 +31821,7 @@ def main():
         with open(berkas_aksi1498, "w", encoding="utf-8") as f:
             f.write(isi_baru1498)
         rc, out = jalan(sub1498,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-append -V jadi nilai -s: bukan version, penguras - gerbang gagal (Audit 2401)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1498, ignore_errors=True)
         sub1499 = klon(tmp, "sub1499")
@@ -31842,7 +31842,7 @@ def main():
         with open(berkas_aksi1499, "w", encoding="utf-8") as f:
             f.write(isi_baru1499)
         rc, out = jalan(sub1499,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -r eksponen bertanda sah: penguras - gerbang gagal (Audit 2402)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1499, ignore_errors=True)
         sub1500 = klon(tmp, "sub1500")
@@ -31863,7 +31863,7 @@ def main():
         with open(berkas_aksi1500, "w", encoding="utf-8") as f:
             f.write(isi_baru1500)
         rc, out = jalan(sub1500,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook --n ambigu vs opsi bool: galat - gerbang lolos (Audit 2403)", rc == 0)
         shutil.rmtree(sub1500, ignore_errors=True)
         sub1501 = klon(tmp, "sub1501")
@@ -31884,7 +31884,7 @@ def main():
         with open(berkas_aksi1501, "w", encoding="utf-8") as f:
             f.write(isi_baru1501)
         rc, out = jalan(sub1501,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvclean pengaktif hantu: tak dikenal - gerbang lolos (Audit 2404)", rc == 0)
         shutil.rmtree(sub1501, ignore_errors=True)
         sub1502 = klon(tmp, "sub1502")
@@ -31905,7 +31905,7 @@ def main():
         with open(berkas_aksi1502, "w", encoding="utf-8") as f:
             f.write(isi_baru1502)
         rc, out = jalan(sub1502,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvclean singkatan pengaktif unik: penguras - gerbang gagal (Audit 2405)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1502, ignore_errors=True)
         sub1503 = klon(tmp, "sub1503")
@@ -31926,7 +31926,7 @@ def main():
         with open(berkas_aksi1503, "w", encoding="utf-8") as f:
             f.write(isi_baru1503)
         rc, out = jalan(sub1503,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvgrep singkatan -c/-r unik: penguras - gerbang gagal (Audit 2405)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1503, ignore_errors=True)
         sub1504 = klon(tmp, "sub1504")
@@ -31947,7 +31947,7 @@ def main():
         with open(berkas_aksi1504, "w", encoding="utf-8") as f:
             f.write(isi_baru1504)
         rc, out = jalan(sub1504,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-select --HELP informasional: berhenti - gerbang lolos (Audit 2406)", rc == 0)
         shutil.rmtree(sub1504, ignore_errors=True)
         sub1505 = klon(tmp, "sub1505")
@@ -31968,7 +31968,7 @@ def main():
         with open(berkas_aksi1505, "w", encoding="utf-8") as f:
             f.write(isi_baru1505)
         rc, out = jalan(sub1505,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql singkatan engine-option di saringan: penguras - gerbang gagal (Audit 2407)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1505, ignore_errors=True)
         sub1506 = klon(tmp, "sub1506")
@@ -31989,7 +31989,7 @@ def main():
         with open(berkas_aksi1506, "w", encoding="utf-8") as f:
             f.write(isi_baru1506)
         rc, out = jalan(sub1506,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook singkatan bernilai menggantung: galat - gerbang lolos (Audit 2408)", rc == 0)
         shutil.rmtree(sub1506, ignore_errors=True)
         sub1507 = klon(tmp, "sub1507")
@@ -32010,7 +32010,7 @@ def main():
         with open(berkas_aksi1507, "w", encoding="utf-8") as f:
             f.write(isi_baru1507)
         rc, out = jalan(sub1507,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvclean singkatan nama terlarang: tak dikenal - gerbang lolos (Audit 2409)", rc == 0)
         shutil.rmtree(sub1507, ignore_errors=True)
         sub1508 = klon(tmp, "sub1508")
@@ -32031,7 +32031,7 @@ def main():
         with open(berkas_aksi1508, "w", encoding="utf-8") as f:
             f.write(isi_baru1508)
         rc, out = jalan(sub1508,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql awalan ambigu: galat - gerbang lolos (Audit 2410)", rc == 0)
         shutil.rmtree(sub1508, ignore_errors=True)
         sub1509 = klon(tmp, "sub1509")
@@ -32052,7 +32052,7 @@ def main():
         with open(berkas_aksi1509, "w", encoding="utf-8") as f:
             f.write(isi_baru1509)
         rc, out = jalan(sub1509,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook angka negatif operand berkas: tak menguras - gerbang lolos (Audit 2411)", rc == 0)
         shutil.rmtree(sub1509, ignore_errors=True)
         sub1510 = klon(tmp, "sub1510")
@@ -32073,7 +32073,7 @@ def main():
         with open(berkas_aksi1510, "w", encoding="utf-8") as f:
             f.write(isi_baru1510)
         rc, out = jalan(sub1510,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-append opsi huruf besar + -V nilai: penguras - gerbang gagal (Audit 2412)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1510, ignore_errors=True)
         sub1511 = klon(tmp, "sub1511")
@@ -32094,7 +32094,7 @@ def main():
         with open(berkas_aksi1511, "w", encoding="utf-8") as f:
             f.write(isi_baru1511)
         rc, out = jalan(sub1511,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-filter inorder: -V batas opsi, berhenti - gerbang lolos (Audit 2413)", rc == 0)
         shutil.rmtree(sub1511, ignore_errors=True)
         sub1512 = klon(tmp, "sub1512")
@@ -32115,7 +32115,7 @@ def main():
         with open(berkas_aksi1512, "w", encoding="utf-8") as f:
             f.write(isi_baru1512)
         rc, out = jalan(sub1512,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-select --help-verbose informasional: berhenti - gerbang lolos (Audit 2414)", rc == 0)
         shutil.rmtree(sub1512, ignore_errors=True)
         sub1513 = klon(tmp, "sub1513")
@@ -32136,7 +32136,7 @@ def main():
         with open(berkas_aksi1513, "w", encoding="utf-8") as f:
             f.write(isi_baru1513)
         rc, out = jalan(sub1513,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -r sufiks imajiner sah: penguras - gerbang gagal (Audit 2415)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1513, ignore_errors=True)
         sub1514 = klon(tmp, "sub1514")
@@ -32157,7 +32157,7 @@ def main():
         with open(berkas_aksi1514, "w", encoding="utf-8") as f:
             f.write(isi_baru1514)
         rc, out = jalan(sub1514,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-summarize -r -.5 bukan nilai (gerbang digit): gantung - gerbang lolos (Audit 2415)", rc == 0)
         shutil.rmtree(sub1514, ignore_errors=True)
         sub1515 = klon(tmp, "sub1515")
@@ -32178,7 +32178,7 @@ def main():
         with open(berkas_aksi1515, "w", encoding="utf-8") as f:
             f.write(isi_baru1515)
         rc, out = jalan(sub1515,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook --no ambigu bool: galat - gerbang lolos (Audit 2416)", rc == 0)
         shutil.rmtree(sub1515, ignore_errors=True)
         sub1516 = klon(tmp, "sub1516")
@@ -32199,7 +32199,7 @@ def main():
         with open(berkas_aksi1516, "w", encoding="utf-8") as f:
             f.write(isi_baru1516)
         rc, out = jalan(sub1516,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvclean --h ambigu help/header: galat - gerbang lolos (Audit 2417)", rc == 0)
         shutil.rmtree(sub1516, ignore_errors=True)
         sub1517 = klon(tmp, "sub1517")
@@ -32220,7 +32220,7 @@ def main():
         with open(berkas_aksi1517, "w", encoding="utf-8") as f:
             f.write(isi_baru1517)
         rc, out = jalan(sub1517,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook --null singkatan pendek sah: penguras - gerbang gagal (Audit 2418)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1517, ignore_errors=True)
         sub1518 = klon(tmp, "sub1518")
@@ -32241,7 +32241,7 @@ def main():
         with open(berkas_aksi1518, "w", encoding="utf-8") as f:
             f.write(isi_baru1518)
         rc, out = jalan(sub1518,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql --execution-option tak ada: galat - gerbang lolos (Audit 2418)", rc == 0)
         shutil.rmtree(sub1518, ignore_errors=True)
         sub1519 = klon(tmp, "sub1519")
@@ -32262,7 +32262,7 @@ def main():
         with open(berkas_aksi1519, "w", encoding="utf-8") as f:
             f.write(isi_baru1519)
         rc, out = jalan(sub1519,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook --sk ambigu skip-lines/skipinitialspace: galat - gerbang lolos (Audit 2419)", rc == 0)
         shutil.rmtree(sub1519, ignore_errors=True)
         sub1520 = klon(tmp, "sub1520")
@@ -32283,7 +32283,7 @@ def main():
         with open(berkas_aksi1520, "w", encoding="utf-8") as f:
             f.write(isi_baru1520)
         rc, out = jalan(sub1520,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv count flag angka tak dikenal docopt: galat - gerbang lolos (Audit 2420)", rc == 0)
         shutil.rmtree(sub1520, ignore_errors=True)
         sub1521 = klon(tmp, "sub1521")
@@ -32304,7 +32304,7 @@ def main():
         with open(berkas_aksi1521, "w", encoding="utf-8") as f:
             f.write(isi_baru1521)
         rc, out = jalan(sub1521,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("jq filter angka + berkas: membaca berkas - gerbang lolos (Audit 2421)", rc == 0)
         shutil.rmtree(sub1521, ignore_errors=True)
         sub1522 = klon(tmp, "sub1522")
@@ -32325,7 +32325,7 @@ def main():
         with open(berkas_aksi1522, "w", encoding="utf-8") as f:
             f.write(isi_baru1522)
         rc, out = jalan(sub1522,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvpy --l unik ke --locale: konsol menguras - gerbang gagal (Audit 2422)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1522, ignore_errors=True)
         sub1523 = klon(tmp, "sub1523")
@@ -32346,7 +32346,7 @@ def main():
         with open(berkas_aksi1523, "w", encoding="utf-8") as f:
             f.write(isi_baru1523)
         rc, out = jalan(sub1523,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvpy --linenumbers tercabut: tak dikenal - gerbang lolos (Audit 2422)", rc == 0)
         shutil.rmtree(sub1523, ignore_errors=True)
         sub1524 = klon(tmp, "sub1524")
@@ -32367,7 +32367,7 @@ def main():
         with open(berkas_aksi1524, "w", encoding="utf-8") as f:
             f.write(isi_baru1524)
         rc, out = jalan(sub1524,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-select --help=x galat getopt: berhenti - gerbang lolos (Audit 2423)", rc == 0)
         shutil.rmtree(sub1524, ignore_errors=True)
         sub1525 = klon(tmp, "sub1525")
@@ -32388,7 +32388,7 @@ def main():
         with open(berkas_aksi1525, "w", encoding="utf-8") as f:
             f.write(isi_baru1525)
         rc, out = jalan(sub1525,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-select --version=false berjalan normal: penguras - gerbang gagal (Audit 2423)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1525, ignore_errors=True)
         sub1526 = klon(tmp, "sub1526")
@@ -32409,7 +32409,7 @@ def main():
         with open(berkas_aksi1526, "w", encoding="utf-8") as f:
             f.write(isi_baru1526)
         rc, out = jalan(sub1526,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv stats flag angka tak dikenal docopt: galat - gerbang lolos (Audit 2424)", rc == 0)
         shutil.rmtree(sub1526, ignore_errors=True)
         sub1527 = klon(tmp, "sub1527")
@@ -32430,7 +32430,7 @@ def main():
         with open(berkas_aksi1527, "w", encoding="utf-8") as f:
             f.write(isi_baru1527)
         rc, out = jalan(sub1527,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv stats flag angka tak dikenal docopt: galat - gerbang lolos (Audit 2424)", rc == 0)
         shutil.rmtree(sub1527, ignore_errors=True)
         sub1528 = klon(tmp, "sub1528")
@@ -32451,7 +32451,7 @@ def main():
         with open(berkas_aksi1528, "w", encoding="utf-8") as f:
             f.write(isi_baru1528)
         rc, out = jalan(sub1528,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv --no ambigu bool: galat - gerbang lolos (Audit 2425)", rc == 0)
         shutil.rmtree(sub1528, ignore_errors=True)
         sub1529 = klon(tmp, "sub1529")
@@ -32472,7 +32472,7 @@ def main():
         with open(berkas_aksi1529, "w", encoding="utf-8") as f:
             f.write(isi_baru1529)
         rc, out = jalan(sub1529,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv --h cetak bantuan: berhenti - gerbang lolos (Audit 2425)", rc == 0)
         shutil.rmtree(sub1529, ignore_errors=True)
         sub1530 = klon(tmp, "sub1530")
@@ -32493,7 +32493,7 @@ def main():
         with open(berkas_aksi1530, "w", encoding="utf-8") as f:
             f.write(isi_baru1530)
         rc, out = jalan(sub1530,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook bool ber-= ditolak argparse: galat - gerbang lolos (Audit 2426)", rc == 0)
         shutil.rmtree(sub1530, ignore_errors=True)
         sub1531 = klon(tmp, "sub1531")
@@ -32514,7 +32514,7 @@ def main():
         with open(berkas_aksi1531, "w", encoding="utf-8") as f:
             f.write(isi_baru1531)
         rc, out = jalan(sub1531,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvpy berkas bernama --zero sesudah --: konsol menguras - gerbang gagal (Audit 2427)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1531, ignore_errors=True)
         sub1532 = klon(tmp, "sub1532")
@@ -32535,7 +32535,7 @@ def main():
         with open(berkas_aksi1532, "w", encoding="utf-8") as f:
             f.write(isi_baru1532)
         rc, out = jalan(sub1532,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-select =False tak peka huruf Phobos: berjalan, penguras - gerbang gagal (Audit 2428)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1532, ignore_errors=True)
         sub1533 = klon(tmp, "sub1533")
@@ -32556,7 +32556,7 @@ def main():
         with open(berkas_aksi1533, "w", encoding="utf-8") as f:
             f.write(isi_baru1533)
         rc, out = jalan(sub1533,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv extsort flag angka docopt: galat - gerbang lolos (Audit 2429)", rc == 0)
         shutil.rmtree(sub1533, ignore_errors=True)
         sub1534 = klon(tmp, "sub1534")
@@ -32577,7 +32577,7 @@ def main():
         with open(berkas_aksi1534, "w", encoding="utf-8") as f:
             f.write(isi_baru1534)
         rc, out = jalan(sub1534,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv search beroperand flag angka docopt: galat - gerbang lolos (Audit 2429)", rc == 0)
         shutil.rmtree(sub1534, ignore_errors=True)
         sub1535 = klon(tmp, "sub1535")
@@ -32598,7 +32598,7 @@ def main():
         with open(berkas_aksi1535, "w", encoding="utf-8") as f:
             f.write(isi_baru1535)
         rc, out = jalan(sub1535,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv pemisah -- lalu -: membaca stdin - gerbang gagal (Audit 2430)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1535, ignore_errors=True)
         sub1536 = klon(tmp, "sub1536")
@@ -32619,7 +32619,7 @@ def main():
         with open(berkas_aksi1536, "w", encoding="utf-8") as f:
             f.write(isi_baru1536)
         rc, out = jalan(sub1536,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql pemisah -- tak ditelan penjaga: membaca stdin - gerbang gagal (Audit 2430)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1536, ignore_errors=True)
         sub1537 = klon(tmp, "sub1537")
@@ -32640,7 +32640,7 @@ def main():
         with open(berkas_aksi1537, "w", encoding="utf-8") as f:
             f.write(isi_baru1537)
         rc, out = jalan(sub1537,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv format tak dikenal tanpa operand: galat - gerbang lolos (Audit 2431)", rc == 0)
         shutil.rmtree(sub1537, ignore_errors=True)
         sub1538 = klon(tmp, "sub1538")
@@ -32661,7 +32661,7 @@ def main():
         with open(berkas_aksi1538, "w", encoding="utf-8") as f:
             f.write(isi_baru1538)
         rc, out = jalan(sub1538,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv telanjang tanpa format: galat argparse - gerbang lolos (Audit 2431)", rc == 0)
         shutil.rmtree(sub1538, ignore_errors=True)
         sub1539 = klon(tmp, "sub1539")
@@ -32682,7 +32682,7 @@ def main():
         with open(berkas_aksi1539, "w", encoding="utf-8") as f:
             f.write(isi_baru1539)
         rc, out = jalan(sub1539,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook bool pendek ber-=: galat argparse - gerbang lolos (Audit 2432)", rc == 0)
         shutil.rmtree(sub1539, ignore_errors=True)
         sub1540 = klon(tmp, "sub1540")
@@ -32703,7 +32703,7 @@ def main():
         with open(berkas_aksi1540, "w", encoding="utf-8") as f:
             f.write(isi_baru1540)
         rc, out = jalan(sub1540,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvstat bool khas ber-=: galat argparse - gerbang lolos (Audit 2433)", rc == 0)
         shutil.rmtree(sub1540, ignore_errors=True)
         sub1541 = klon(tmp, "sub1541")
@@ -32724,7 +32724,7 @@ def main():
         with open(berkas_aksi1541, "w", encoding="utf-8") as f:
             f.write(isi_baru1541)
         rc, out = jalan(sub1541,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvjson bool khas ber-=: galat argparse - gerbang lolos (Audit 2433)", rc == 0)
         shutil.rmtree(sub1541, ignore_errors=True)
         sub1542 = klon(tmp, "sub1542")
@@ -32745,7 +32745,7 @@ def main():
         with open(berkas_aksi1542, "w", encoding="utf-8") as f:
             f.write(isi_baru1542)
         rc, out = jalan(sub1542,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv describegpt flag angka docopt: galat - gerbang lolos (Audit 2434)", rc == 0)
         shutil.rmtree(sub1542, ignore_errors=True)
         sub1543 = klon(tmp, "sub1543")
@@ -32766,7 +32766,7 @@ def main():
         with open(berkas_aksi1543, "w", encoding="utf-8") as f:
             f.write(isi_baru1543)
         rc, out = jalan(sub1543,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv geocode beroperand flag angka docopt: galat - gerbang lolos (Audit 2434)", rc == 0)
         shutil.rmtree(sub1543, ignore_errors=True)
         sub1544 = klon(tmp, "sub1544")
@@ -32787,7 +32787,7 @@ def main():
         with open(berkas_aksi1544, "w", encoding="utf-8") as f:
             f.write(isi_baru1544)
         rc, out = jalan(sub1544,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq flag angka: galat urai - gerbang lolos (Audit 2435)", rc == 0)
         shutil.rmtree(sub1544, ignore_errors=True)
         sub1545 = klon(tmp, "sub1545")
@@ -32808,7 +32808,7 @@ def main():
         with open(berkas_aksi1545, "w", encoding="utf-8") as f:
             f.write(isi_baru1545)
         rc, out = jalan(sub1545,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fq ekspresi angka pada berkas: stdin tak dibaca - gerbang lolos (Audit 2435)", rc == 0)
         shutil.rmtree(sub1545, ignore_errors=True)
         sub1546 = klon(tmp, "sub1546")
@@ -32829,7 +32829,7 @@ def main():
         with open(berkas_aksi1546, "w", encoding="utf-8") as f:
             f.write(isi_baru1546)
         rc, out = jalan(sub1546,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook huruf pendek asing: galat argparse - gerbang lolos (Audit 2436)", rc == 0)
         shutil.rmtree(sub1546, ignore_errors=True)
         sub1547 = klon(tmp, "sub1547")
@@ -32850,7 +32850,7 @@ def main():
         with open(berkas_aksi1547, "w", encoding="utf-8") as f:
             f.write(isi_baru1547)
         rc, out = jalan(sub1547,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook bundel pendek ber-=: galat argparse - gerbang lolos (Audit 2437)", rc == 0)
         shutil.rmtree(sub1547, ignore_errors=True)
         sub1548 = klon(tmp, "sub1548")
@@ -32871,7 +32871,7 @@ def main():
         with open(berkas_aksi1548, "w", encoding="utf-8") as f:
             f.write(isi_baru1548)
         rc, out = jalan(sub1548,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv singkatan --na pada format non-Excel: galat - gerbang lolos (Audit 2438)", rc == 0)
         shutil.rmtree(sub1548, ignore_errors=True)
         sub1549 = klon(tmp, "sub1549")
@@ -32892,7 +32892,7 @@ def main():
         with open(berkas_aksi1549, "w", encoding="utf-8") as f:
             f.write(isi_baru1549)
         rc, out = jalan(sub1549,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql --insert tanpa --db/--query: galat - gerbang lolos (Audit 2439)", rc == 0)
         shutil.rmtree(sub1549, ignore_errors=True)
         sub1550 = klon(tmp, "sub1550")
@@ -32913,7 +32913,7 @@ def main():
         with open(berkas_aksi1550, "w", encoding="utf-8") as f:
             f.write(isi_baru1550)
         rc, out = jalan(sub1550,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql turunan insert tersirat dari query: membaca stdin - gerbang gagal (Audit 2439)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1550, ignore_errors=True)
         sub1551 = klon(tmp, "sub1551")
@@ -32934,7 +32934,7 @@ def main():
         with open(berkas_aksi1551, "w", encoding="utf-8") as f:
             f.write(isi_baru1551)
         rc, out = jalan(sub1551,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook nilai kosong merekat: membaca stdin - gerbang gagal (Audit 2440)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1551, ignore_errors=True)
         sub1552 = klon(tmp, "sub1552")
@@ -32955,7 +32955,7 @@ def main():
         with open(berkas_aksi1552, "w", encoding="utf-8") as f:
             f.write(isi_baru1552)
         rc, out = jalan(sub1552,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq ekspresi angka sesudah --: membaca stdin - gerbang gagal (Audit 2441)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1552, ignore_errors=True)
         sub1553 = klon(tmp, "sub1553")
@@ -32976,7 +32976,7 @@ def main():
         with open(berkas_aksi1553, "w", encoding="utf-8") as f:
             f.write(isi_baru1553)
         rc, out = jalan(sub1553,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvcut -I bukan benderanya: galat argparse - gerbang lolos (Audit 2442)", rc == 0)
         shutil.rmtree(sub1553, ignore_errors=True)
         sub1554 = klon(tmp, "sub1554")
@@ -32997,7 +32997,7 @@ def main():
         with open(berkas_aksi1554, "w", encoding="utf-8") as f:
             f.write(isi_baru1554)
         rc, out = jalan(sub1554,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql singkatan --ins tanpa db/query: galat - gerbang lolos (Audit 2443)", rc == 0)
         shutil.rmtree(sub1554, ignore_errors=True)
         sub1555 = klon(tmp, "sub1555")
@@ -33018,7 +33018,7 @@ def main():
         with open(berkas_aksi1555, "w", encoding="utf-8") as f:
             f.write(isi_baru1555)
         rc, out = jalan(sub1555,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql singkatan --que memicu insert tersirat: membaca stdin - gerbang gagal (Audit 2443)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1555, ignore_errors=True)
         sub1556 = klon(tmp, "sub1556")
@@ -33039,7 +33039,7 @@ def main():
         with open(berkas_aksi1556, "w", encoding="utf-8") as f:
             f.write(isi_baru1556)
         rc, out = jalan(sub1556,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook bundel memuat -h: bantuan tercetak - gerbang lolos (Audit 2444)", rc == 0)
         shutil.rmtree(sub1556, ignore_errors=True)
         sub1557 = klon(tmp, "sub1557")
@@ -33060,7 +33060,7 @@ def main():
         with open(berkas_aksi1557, "w", encoding="utf-8") as f:
             f.write(isi_baru1557)
         rc, out = jalan(sub1557,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("in2csv bundel bool sah -lv: membaca stdin - gerbang gagal (Audit 2445)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1557, ignore_errors=True)
         sub1558 = klon(tmp, "sub1558")
@@ -33081,7 +33081,7 @@ def main():
         with open(berkas_aksi1558, "w", encoding="utf-8") as f:
             f.write(isi_baru1558)
         rc, out = jalan(sub1558,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook nilai kosong merekat bukan -d: galat - gerbang lolos (Audit 2446)", rc == 0)
         shutil.rmtree(sub1558, ignore_errors=True)
         sub1559 = klon(tmp, "sub1559")
@@ -33102,7 +33102,7 @@ def main():
         with open(berkas_aksi1559, "w", encoding="utf-8") as f:
             f.write(isi_baru1559)
         rc, out = jalan(sub1559,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq angka sesudah -- bersama berkas: nama berkas - gerbang lolos (Audit 2447)", rc == 0)
         shutil.rmtree(sub1559, ignore_errors=True)
         sub1560 = klon(tmp, "sub1560")
@@ -33123,7 +33123,7 @@ def main():
         with open(berkas_aksi1560, "w", encoding="utf-8") as f:
             f.write(isi_baru1560)
         rc, out = jalan(sub1560,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvsql singkatan dialek ber-= dengan db: galat pendamping - gerbang lolos (Audit 2448)", rc == 0)
         shutil.rmtree(sub1560, ignore_errors=True)
         sub1561 = klon(tmp, "sub1561")
@@ -33144,7 +33144,7 @@ def main():
         with open(berkas_aksi1561, "w", encoding="utf-8") as f:
             f.write(isi_baru1561)
         rc, out = jalan(sub1561,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xsv informasional pendek -h: usage tercetak - gerbang lolos (Audit 2449)", rc == 0)
         shutil.rmtree(sub1561, ignore_errors=True)
         sub1562 = klon(tmp, "sub1562")
@@ -33165,7 +33165,7 @@ def main():
         with open(berkas_aksi1562, "w", encoding="utf-8") as f:
             f.write(isi_baru1562)
         rc, out = jalan(sub1562,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv informasional pendek -V: galat docopt - gerbang lolos (Audit 2450)", rc == 0)
         shutil.rmtree(sub1562, ignore_errors=True)
         sub1563 = klon(tmp, "sub1563")
@@ -33186,7 +33186,7 @@ def main():
         with open(berkas_aksi1563, "w", encoding="utf-8") as f:
             f.write(isi_baru1563)
         rc, out = jalan(sub1563,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("head -h tak sah: berhenti galat - gerbang lolos (Audit 2451)", rc == 0)
         shutil.rmtree(sub1563, ignore_errors=True)
         sub1564 = klon(tmp, "sub1564")
@@ -33207,7 +33207,7 @@ def main():
         with open(berkas_aksi1564, "w", encoding="utf-8") as f:
             f.write(isi_baru1564)
         rc, out = jalan(sub1564,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("jq informasional di keluarga skrip: bantuan tercetak - gerbang lolos (Audit 2452)", rc == 0)
         shutil.rmtree(sub1564, ignore_errors=True)
         sub1565 = klon(tmp, "sub1565")
@@ -33228,7 +33228,7 @@ def main():
         with open(berkas_aksi1565, "w", encoding="utf-8") as f:
             f.write(isi_baru1565)
         rc, out = jalan(sub1565,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep informasional panjang: bantuan tercetak - gerbang lolos (Audit 2452)", rc == 0)
         shutil.rmtree(sub1565, ignore_errors=True)
         sub1566 = klon(tmp, "sub1566")
@@ -33249,7 +33249,7 @@ def main():
         with open(berkas_aksi1566, "w", encoding="utf-8") as f:
             f.write(isi_baru1566)
         rc, out = jalan(sub1566,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv -h nilai opsi khas docopt: template terbaca - gerbang menolak (Audit 2453)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1566, ignore_errors=True)
         sub1567 = klon(tmp, "sub1567")
@@ -33270,7 +33270,7 @@ def main():
         with open(berkas_aksi1567, "w", encoding="utf-8") as f:
             f.write(isi_baru1567)
         rc, out = jalan(sub1567,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("jq --arg dua token: --help adalah nilai - gerbang menolak (Audit 2454)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1567, ignore_errors=True)
         sub1568 = klon(tmp, "sub1568")
@@ -33291,7 +33291,7 @@ def main():
         with open(berkas_aksi1568, "w", encoding="utf-8") as f:
             f.write(isi_baru1568)
         rc, out = jalan(sub1568,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep --label: --help adalah label - gerbang menolak (Audit 2454)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1568, ignore_errors=True)
         sub1569 = klon(tmp, "sub1569")
@@ -33312,7 +33312,7 @@ def main():
         with open(berkas_aksi1569, "w", encoding="utf-8") as f:
             f.write(isi_baru1569)
         rc, out = jalan(sub1569,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv sort -N bool: -h bantuan terpintas - gerbang lolos (Audit 2455)", rc == 0)
         shutil.rmtree(sub1569, ignore_errors=True)
         sub1570 = klon(tmp, "sub1570")
@@ -33333,7 +33333,7 @@ def main():
         with open(berkas_aksi1570, "w", encoding="utf-8") as f:
             f.write(isi_baru1570)
         rc, out = jalan(sub1570,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv opsi asing subperintah: galat docopt - gerbang lolos (Audit 2456)", rc == 0)
         shutil.rmtree(sub1570, ignore_errors=True)
         sub1571 = klon(tmp, "sub1571")
@@ -33354,7 +33354,7 @@ def main():
         with open(berkas_aksi1571, "w", encoding="utf-8") as f:
             f.write(isi_baru1571)
         rc, out = jalan(sub1571,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("awk -v nilai informasional: galat penugasan - gerbang lolos (Audit 2457)", rc == 0)
         shutil.rmtree(sub1571, ignore_errors=True)
         sub1572 = klon(tmp, "sub1572")
@@ -33375,7 +33375,7 @@ def main():
         with open(berkas_aksi1572, "w", encoding="utf-8") as f:
             f.write(isi_baru1572)
         rc, out = jalan(sub1572,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rg glob menelan pola: kelaparan pola - gerbang lolos (Audit 2458)", rc == 0)
         shutil.rmtree(sub1572, ignore_errors=True)
         sub1573 = klon(tmp, "sub1573")
@@ -33396,7 +33396,7 @@ def main():
         with open(berkas_aksi1573, "w", encoding="utf-8") as f:
             f.write(isi_baru1573)
         rc, out = jalan(sub1573,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep --regex singkatan getopt: pola informasional - gerbang menolak (Audit 2459)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1573, ignore_errors=True)
         sub1574 = klon(tmp, "sub1574")
@@ -33417,7 +33417,7 @@ def main():
         with open(berkas_aksi1574, "w", encoding="utf-8") as f:
             f.write(isi_baru1574)
         rc, out = jalan(sub1574,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep --exclude: --help adalah nilai saring - gerbang menolak (Audit 2460)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1574, ignore_errors=True)
         sub1575 = klon(tmp, "sub1575")
@@ -33438,7 +33438,7 @@ def main():
         with open(berkas_aksi1575, "w", encoding="utf-8") as f:
             f.write(isi_baru1575)
         rc, out = jalan(sub1575,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep -e menggantung: argumen hilang - gerbang lolos (Audit 2461)", rc == 0)
         shutil.rmtree(sub1575, ignore_errors=True)
         sub1576 = klon(tmp, "sub1576")
@@ -33459,7 +33459,7 @@ def main():
         with open(berkas_aksi1576, "w", encoding="utf-8") as f:
             f.write(isi_baru1576)
         rc, out = jalan(sub1576,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv count -d: -h nilai delimiter - gerbang menolak (Audit 2462)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1576, ignore_errors=True)
         sub1577 = klon(tmp, "sub1577")
@@ -33480,7 +33480,7 @@ def main():
         with open(berkas_aksi1577, "w", encoding="utf-8") as f:
             f.write(isi_baru1577)
         rc, out = jalan(sub1577,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv frequency --pct-nulls bool: bantuan terpintas - gerbang lolos (Audit 2463)", rc == 0)
         shutil.rmtree(sub1577, ignore_errors=True)
         sub1578 = klon(tmp, "sub1578")
@@ -33501,7 +33501,7 @@ def main():
         with open(berkas_aksi1578, "w", encoding="utf-8") as f:
             f.write(isi_baru1578)
         rc, out = jalan(sub1578,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv describegpt --limit asing: galat docopt - gerbang lolos (Audit 2464)", rc == 0)
         shutil.rmtree(sub1578, ignore_errors=True)
         sub1579 = klon(tmp, "sub1579")
@@ -33522,7 +33522,7 @@ def main():
         with open(berkas_aksi1579, "w", encoding="utf-8") as f:
             f.write(isi_baru1579)
         rc, out = jalan(sub1579,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("jq tanpa filter: filter implisit titik tetap menguras - gerbang menolak (Audit 2465)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1579, ignore_errors=True)
         sub1580 = klon(tmp, "sub1580")
@@ -33543,7 +33543,7 @@ def main():
         with open(berkas_aksi1580, "w", encoding="utf-8") as f:
             f.write(isi_baru1580)
         rc, out = jalan(sub1580,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fq --arg dua token: --help adalah nilai - gerbang menolak (Audit 2466)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1580, ignore_errors=True)
         sub1581 = klon(tmp, "sub1581")
@@ -33564,7 +33564,7 @@ def main():
         with open(berkas_aksi1581, "w", encoding="utf-8") as f:
             f.write(isi_baru1581)
         rc, out = jalan(sub1581,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv select -f asing: galat docopt - gerbang lolos (Audit 2467)", rc == 0)
         shutil.rmtree(sub1581, ignore_errors=True)
         sub1582 = klon(tmp, "sub1582")
@@ -33585,7 +33585,7 @@ def main():
         with open(berkas_aksi1582, "w", encoding="utf-8") as f:
             f.write(isi_baru1582)
         rc, out = jalan(sub1582,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fq --slurpfile tak dikenal fq: alat berhenti - gerbang lolos (Audit 2468)", rc == 0)
         shutil.rmtree(sub1582, ignore_errors=True)
         sub1583 = klon(tmp, "sub1583")
@@ -33606,7 +33606,7 @@ def main():
         with open(berkas_aksi1583, "w", encoding="utf-8") as f:
             f.write(isi_baru1583)
         rc, out = jalan(sub1583,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fq tanpa filter: filter implisit titik tetap menguras - gerbang menolak (Audit 2469)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1583, ignore_errors=True)
         sub1584 = klon(tmp, "sub1584")
@@ -33627,7 +33627,7 @@ def main():
         with open(berkas_aksi1584, "w", encoding="utf-8") as f:
             f.write(isi_baru1584)
         rc, out = jalan(sub1584,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv datefmt -f asing: galat docopt - gerbang lolos (Audit 2470)", rc == 0)
         shutil.rmtree(sub1584, ignore_errors=True)
         sub1585 = klon(tmp, "sub1585")
@@ -33648,7 +33648,7 @@ def main():
         with open(berkas_aksi1585, "w", encoding="utf-8") as f:
             f.write(isi_baru1585)
         rc, out = jalan(sub1585,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("qsv pseudo -f asing: galat docopt - gerbang lolos (Audit 2471)", rc == 0)
         shutil.rmtree(sub1585, ignore_errors=True)
         sub1586 = klon(tmp, "sub1586")
@@ -33669,7 +33669,7 @@ def main():
         with open(berkas_aksi1586, "w", encoding="utf-8") as f:
             f.write(isi_baru1586)
         rc, out = jalan(sub1586,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fq --slurpfile hantu jq: alat galat - gerbang lolos (Audit 2472)", rc == 0)
         shutil.rmtree(sub1586, ignore_errors=True)
         sub1587 = klon(tmp, "sub1587")
@@ -33690,7 +33690,7 @@ def main():
         with open(berkas_aksi1587, "w", encoding="utf-8") as f:
             f.write(isi_baru1587)
         rc, out = jalan(sub1587,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fq --raw-file asli dua token: menguras - gerbang menolak (Audit 2473)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1587, ignore_errors=True)
         sub1588 = klon(tmp, "sub1588")
@@ -33711,7 +33711,7 @@ def main():
         with open(berkas_aksi1588, "w", encoding="utf-8") as f:
             f.write(isi_baru1588)
         rc, out = jalan(sub1588,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq --arg tak dikenal yq: alat berhenti - gerbang lolos (Audit 2474)", rc == 0)
         shutil.rmtree(sub1588, ignore_errors=True)
         sub1589 = klon(tmp, "sub1589")
@@ -33732,7 +33732,7 @@ def main():
         with open(berkas_aksi1589, "w", encoding="utf-8") as f:
             f.write(isi_baru1589)
         rc, out = jalan(sub1589,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq -f front-matter bernilai: menguras - gerbang menolak (Audit 2475)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1589, ignore_errors=True)
         sub1590 = klon(tmp, "sub1590")
@@ -33753,7 +33753,7 @@ def main():
         with open(berkas_aksi1590, "w", encoding="utf-8") as f:
             f.write(isi_baru1590)
         rc, out = jalan(sub1590,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("jq -e bool exit-status: bantuan terpintas - gerbang lolos (Audit 2476)", rc == 0)
         shutil.rmtree(sub1590, ignore_errors=True)
         sub1591 = klon(tmp, "sub1591")
@@ -33774,7 +33774,7 @@ def main():
         with open(berkas_aksi1591, "w", encoding="utf-8") as f:
             f.write(isi_baru1591)
         rc, out = jalan(sub1591,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-sample tanpa berkas: bawaan stdin - gerbang menolak (Audit 2477)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1591, ignore_errors=True)
         sub1592 = klon(tmp, "sub1592")
@@ -33795,7 +33795,7 @@ def main():
         with open(berkas_aksi1592, "w", encoding="utf-8") as f:
             f.write(isi_baru1592)
         rc, out = jalan(sub1592,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fq --indent: opsi jq tak dikenal fq (biner 'no such argument') - gerbang lolos (Audit 2478)", rc == 0)
         shutil.rmtree(sub1592, ignore_errors=True)
         sub1593 = klon(tmp, "sub1593")
@@ -33816,7 +33816,7 @@ def main():
         with open(berkas_aksi1593, "w", encoding="utf-8") as f:
             f.write(isi_baru1593)
         rc, out = jalan(sub1593,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fq -V = --value-output bool, tetap membaca stdin - gerbang gagal (Audit 2479)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1593, ignore_errors=True)
         sub1594 = klon(tmp, "sub1594")
@@ -33837,7 +33837,7 @@ def main():
         with open(berkas_aksi1594, "w", encoding="utf-8") as f:
             f.write(isi_baru1594)
         rc, out = jalan(sub1594,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq --csv-separator bernilai: tanpa operand berkas membaca stdin - gerbang gagal (Audit 2480)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1594, ignore_errors=True)
         sub1595 = klon(tmp, "sub1595")
@@ -33858,7 +33858,7 @@ def main():
         with open(berkas_aksi1595, "w", encoding="utf-8") as f:
             f.write(isi_baru1595)
         rc, out = jalan(sub1595,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq -p menggantung: biner 'flag needs an argument' - gerbang lolos (Audit 2481)", rc == 0)
         shutil.rmtree(sub1595, ignore_errors=True)
         sub1596 = klon(tmp, "sub1596")
@@ -33879,7 +33879,7 @@ def main():
         with open(berkas_aksi1596, "w", encoding="utf-8") as f:
             f.write(isi_baru1596)
         rc, out = jalan(sub1596,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("mawk tak punya -e sama sekali: galat opsi - gerbang lolos (Audit 2482)", rc == 0)
         shutil.rmtree(sub1596, ignore_errors=True)
         sub1597 = klon(tmp, "sub1597")
@@ -33900,7 +33900,7 @@ def main():
         with open(berkas_aksi1597, "w", encoding="utf-8") as f:
             f.write(isi_baru1597)
         rc, out = jalan(sub1597,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-sample --seed-value pulau caseSensitive: varian huruf galat getopt - gerbang lolos (Audit 2483)", rc == 0)
         shutil.rmtree(sub1597, ignore_errors=True)
         sub1598 = klon(tmp, "sub1598")
@@ -33921,7 +33921,7 @@ def main():
         with open(berkas_aksi1598, "w", encoding="utf-8") as f:
             f.write(isi_baru1598)
         rc, out = jalan(sub1598,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-pretty telanjang membaca stdin (bawaan ['-']) - gerbang gagal (Audit 2484)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1598, ignore_errors=True)
         sub1599 = klon(tmp, "sub1599")
@@ -33942,7 +33942,7 @@ def main():
         with open(berkas_aksi1599, "w", encoding="utf-8") as f:
             f.write(isi_baru1599)
         rc, out = jalan(sub1599,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-split masukan bawaan stdin - gerbang gagal (Audit 2485)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1599, ignore_errors=True)
         sub1600 = klon(tmp, "sub1600")
@@ -33963,7 +33963,7 @@ def main():
         with open(berkas_aksi1600, "w", encoding="utf-8") as f:
             f.write(isi_baru1600)
         rc, out = jalan(sub1600,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csv2tsv telanjang membaca stdin - gerbang gagal (Audit 2486)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1600, ignore_errors=True)
         sub1601 = klon(tmp, "sub1601")
@@ -33984,7 +33984,7 @@ def main():
         with open(berkas_aksi1601, "w", encoding="utf-8") as f:
             f.write(isi_baru1601)
         rc, out = jalan(sub1601,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("keep-header tanpa berkas menyalurkan stdin ke perintah anak - gerbang gagal (Audit 2487)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1601, ignore_errors=True)
         sub1602 = klon(tmp, "sub1602")
@@ -34005,7 +34005,7 @@ def main():
         with open(berkas_aksi1602, "w", encoding="utf-8") as f:
             f.write(isi_baru1602)
         rc, out = jalan(sub1602,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("number-lines telanjang membaca stdin - gerbang gagal (Audit 2488)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1602, ignore_errors=True)
         sub1603 = klon(tmp, "sub1603")
@@ -34026,7 +34026,7 @@ def main():
         with open(berkas_aksi1603, "w", encoding="utf-8") as f:
             f.write(isi_baru1603)
         rc, out = jalan(sub1603,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel getopt Phobos tidak aktif (opt-in config.bundling): -Hp galat getopt - gerbang lolos (Audit 2490)", rc == 0)
         shutil.rmtree(sub1603, ignore_errors=True)
         sub1604 = klon(tmp, "sub1604")
@@ -34047,7 +34047,7 @@ def main():
         with open(berkas_aksi1604, "w", encoding="utf-8") as f:
             f.write(isi_baru1604)
         rc, out = jalan(sub1604,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel getopt tidak aktif di tsv-utils (opt-in config.bundling): -Hf galat - gerbang lolos (Audit 2490)", rc == 0)
         shutil.rmtree(sub1604, ignore_errors=True)
         sub1605 = klon(tmp, "sub1605")
@@ -34068,7 +34068,7 @@ def main():
         with open(berkas_aksi1605, "w", encoding="utf-8") as f:
             f.write(isi_baru1605)
         rc, out = jalan(sub1605,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-pretty -E bernilai menelan -5 sebagai nilai: membaca stdin - gerbang gagal (Audit 2491)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1605, ignore_errors=True)
         sub1606 = klon(tmp, "sub1606")
@@ -34089,7 +34089,7 @@ def main():
         with open(berkas_aksi1606, "w", encoding="utf-8") as f:
             f.write(isi_baru1606)
         rc, out = jalan(sub1606,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("keep-header perintah anak '--': spawn gagal sebelum membaca - gerbang lolos (Audit 2492)", rc == 0)
         shutil.rmtree(sub1606, ignore_errors=True)
         sub1607 = klon(tmp, "sub1607")
@@ -34110,7 +34110,7 @@ def main():
         with open(berkas_aksi1607, "w", encoding="utf-8") as f:
             f.write(isi_baru1607)
         rc, out = jalan(sub1607,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("fq --arg bentuk = ditolak parser fq ('needs two argument') - gerbang lolos (Audit 2493)", rc == 0)
         shutil.rmtree(sub1607, ignore_errors=True)
         sub1608 = klon(tmp, "sub1608")
@@ -34131,7 +34131,7 @@ def main():
         with open(berkas_aksi1608, "w", encoding="utf-8") as f:
             f.write(isi_baru1608)
         rc, out = jalan(sub1608,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("jq menolak semua --opsi=nilai ('Unknown option') - gerbang lolos (Audit 2494)", rc == 0)
         shutil.rmtree(sub1608, ignore_errors=True)
         sub1609 = klon(tmp, "sub1609")
@@ -34152,7 +34152,7 @@ def main():
         with open(berkas_aksi1609, "w", encoding="utf-8") as f:
             f.write(isi_baru1609)
         rc, out = jalan(sub1609,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq --arg nama hantu ('unknown flag') - gerbang lolos (Audit 2495)", rc == 0)
         shutil.rmtree(sub1609, ignore_errors=True)
         sub1610 = klon(tmp, "sub1610")
@@ -34173,7 +34173,7 @@ def main():
         with open(berkas_aksi1610, "w", encoding="utf-8") as f:
             f.write(isi_baru1610)
         rc, out = jalan(sub1610,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-split -f hantu (sumber hanya k|key-fields): galat getopt - gerbang lolos (Audit 2496)", rc == 0)
         shutil.rmtree(sub1610, ignore_errors=True)
         sub1611 = klon(tmp, "sub1611")
@@ -34194,7 +34194,7 @@ def main():
         with open(berkas_aksi1611, "w", encoding="utf-8") as f:
             f.write(isi_baru1611)
         rc, out = jalan(sub1611,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-pretty -D varian besar -d caseInsensitive: membaca stdin - gerbang gagal (Audit 2497)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1611, ignore_errors=True)
         sub1612 = klon(tmp, "sub1612")
@@ -34215,7 +34215,7 @@ def main():
         with open(berkas_aksi1612, "w", encoding="utf-8") as f:
             f.write(isi_baru1612)
         rc, out = jalan(sub1612,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-sample -Z tak dikenal: GetOptException - gerbang lolos (Audit 2498)", rc == 0)
         shutil.rmtree(sub1612, ignore_errors=True)
         sub1613 = klon(tmp, "sub1613")
@@ -34236,7 +34236,7 @@ def main():
         with open(berkas_aksi1613, "w", encoding="utf-8") as f:
             f.write(isi_baru1613)
         rc, out = jalan(sub1613,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csv2tsv --CSV-DELIM varian huruf (serba caseSensitive): galat - gerbang lolos (Audit 2498)", rc == 0)
         shutil.rmtree(sub1613, ignore_errors=True)
         sub1614 = klon(tmp, "sub1614")
@@ -34257,7 +34257,7 @@ def main():
         with open(berkas_aksi1614, "w", encoding="utf-8") as f:
             f.write(isi_baru1614)
         rc, out = jalan(sub1614,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csv2tsv -q/--quote bernilai menelan x: membaca stdin - gerbang gagal (Audit 2499)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1614, ignore_errors=True)
         sub1615 = klon(tmp, "sub1615")
@@ -34278,7 +34278,7 @@ def main():
         with open(berkas_aksi1615, "w", encoding="utf-8") as f:
             f.write(isi_baru1615)
         rc, out = jalan(sub1615,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("yq --lua-prefix menelan --help sebagai nilai: membaca stdin - gerbang gagal (Audit 2500)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1615, ignore_errors=True)
         sub1616 = klon(tmp, "sub1616")
@@ -34299,7 +34299,7 @@ def main():
         with open(berkas_aksi1616, "w", encoding="utf-8") as f:
             f.write(isi_baru1616)
         rc, out = jalan(sub1616,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("keep-header redirect sesudah -- bukan perintah anak: spawn gagal - gerbang lolos (Audit 2501)", rc == 0)
         shutil.rmtree(sub1616, ignore_errors=True)
         sub1617 = klon(tmp, "sub1617")
@@ -34314,13 +34314,13 @@ def main():
                 baris_aksi1617,
                 baris_aksi1617.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(script -q -c 'echo ok; cat' >> \"$GITHUB_OUTPUT\")"), 1)
+                    "> >(script -q -c 'echo ok; cat'; cat >> \"$GITHUB_OUTPUT\")"), 1)
         assert isi_baru1617 != isi_aksi1617, \
             "suntikan aksi1617 tidak menembak"
         with open(berkas_aksi1617, "w", encoding="utf-8") as f:
             f.write(isi_baru1617)
         rc, out = jalan(sub1617,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("script -c segmen kedua menguras: 'cat' sesudah 'echo ok' di string -c: gerbang menolak (Audit 2516)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1617, ignore_errors=True)
         sub1618 = klon(tmp, "sub1618")
@@ -34335,13 +34335,13 @@ def main():
                 baris_aksi1618,
                 baris_aksi1618.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(systemd-run --pipe sh -c 'echo ok; cat' >> \"$GITHUB_OUTPUT\")"), 1)
+                    "> >(systemd-run --pipe sh -c 'echo ok; cat'; cat >> \"$GITHUB_OUTPUT\")"), 1)
         assert isi_baru1618 != isi_aksi1618, \
             "suntikan aksi1618 tidak menembak"
         with open(berkas_aksi1618, "w", encoding="utf-8") as f:
             f.write(isi_baru1618)
         rc, out = jalan(sub1618,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("systemd-run anak sh -c segmen kedua menguras: gerbang menolak (Audit 2516)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1618, ignore_errors=True)
         sub1619 = klon(tmp, "sub1619")
@@ -34356,13 +34356,13 @@ def main():
                 baris_aksi1619,
                 baris_aksi1619.replace(
                     '>> "$GITHUB_OUTPUT"',
-                    "> >(script -q -c 'echo ok; echo selesai' >> \"$GITHUB_OUTPUT\")"), 1)
+                    "> >(script -q -c 'echo ok; echo selesai'; cat >> \"$GITHUB_OUTPUT\")"), 1)
         assert isi_baru1619 != isi_aksi1619, \
             "suntikan aksi1619 tidak menembak"
         with open(berkas_aksi1619, "w", encoding="utf-8") as f:
             f.write(isi_baru1619)
         rc, out = jalan(sub1619,
-                        [sys.executable, GERBANG, "--semua"])
+                        [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("script -c dua segmen tak menguras: gerbang lolos (Audit 2516)", rc == 0)
         shutil.rmtree(sub1619, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")

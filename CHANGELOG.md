@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Mode --hanya-workflow gerbang untuk skenario generate suite (Audit 172)
+
+- Suite `tools/uji-verifikasi.py` sebelumnya membayar satu lari gerbang `--semua` penuh (±1,17 dtk) untuk tiap dari 1463 skenario generate yang sebenarnya hanya menyuntik `.github/actions/resolve-vw/action.yml` — penyumbang struktural langkah uji-diri CI yang panjang. Gerbang kini punya mode `--hanya-workflow` yang hanya menjalankan `cek_workflow_yaml` + `cek_yaml_github_lain` (±0,31 dtk, ±3,8× lebih cepat) dan 1459 skenario aksi dialihkan ke mode itu; templat generator diperbarui mengikutinya. Empat skenario header-kunci (705/707/708/709) SENGAJA tetap `--semua`: vonisnya datang dari cek literal rahasia berbasis diff, bukan cek YAML. Kesetaraan vonis dibuktikan dengan menjalankan 43 blok sampel (tiap ke-37 + tepi) di kedua mode: semua vonis sama; kesetaraan penuh dibuktikan lari suite scratch utuh.
+
+## [Belum rilis] — Bentuk skenario 1617–1619 diperbaiki agar sungguh mengunci Audit 2516
+
+- Skenario 1617/1618 semula menaruh perintah penguras (`script -c '…; cat'`, `systemd-run … sh -c '…; cat'`) sebagai segmen PENULIS di dalam substitusi proses (`> >(perintah >> "$GITHUB_OUTPUT")`) — posisi yang vonis kontraknya tak bergantung pada pengurasan, sehingga skenario gagal (gerbang meloloskan) dan tak menguji perbaikan Audit 2516 sama sekali. Bentuknya kini sejajar skenario substitusi lama: perintah penguras menjadi segmen tersendiri sebelum segmen penulis (`> >(perintah; cat >> "$GITHUB_OUTPUT")`). Terbukti diskriminatif: gerbang baru menolak (rc 1), gerbang pra-2516 meloloskan (rc 0); kontrol 1619 tetap lolos di keduanya.
+
 ## [Belum rilis] — Asersi skenario generate suite tak lagi lolos oleh crash/hang gerbang (Audit 172)
 
 - 1018 asersi skenario generate di `tools/uji-verifikasi.py` sebelumnya hanya menuntut `rc != 0`: gerbang yang crash (traceback, rc 1) atau menggantung (timeout suite rc 124) ikut terhitung "menolak" sehingga skenario lolos palsu. Kini bentuknya `rc != 0 and rc != 124 and "Traceback" not in out` — penolakan harus vonis sungguhan. Di `tools/uji-cek-cepat.py` 5 asersi sejenis diperkuat dengan `rc != 124` (skrip bash tak punya traceback; hang satu-satunya jalur lolos-palsu). Templat generator skenario diperbarui mengikuti bentuk baru. Terbukti dengan baterai sabotase: gerbang sehat + suntikan menguras tetap lolos bentuk baru; gerbang yang dibuat crash lolos bentuk lama (palsu) dan gagal bentuk baru; rc 124 juga gagal bentuk baru.

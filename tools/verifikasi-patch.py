@@ -16180,7 +16180,26 @@ def utama():
     parser.add_argument("jalur", nargs="*", help="berkas spesifik (opsional)")
     parser.add_argument("--semua", action="store_true", help="cek seluruh repo")
     parser.add_argument("--rentang", default="", help="rentang diff A...B (dipakai CI)")
+    parser.add_argument("--hanya-workflow", action="store_true",
+                        help="hanya cek YAML .github (skenario generate suite)")
     args = parser.parse_args()
+
+    if args.hanya_workflow:
+        gagal = []
+        peringatan = []
+        cek_workflow_yaml(gagal, peringatan)
+        cek_yaml_github_lain(gagal, peringatan)
+        for w in peringatan:
+            print("PERINGATAN: " + w)
+            anotasi("warning", w)
+        if gagal:
+            for g in gagal:
+                print("GAGAL: " + g)
+                anotasi("error", g)
+            print("Hasil: GAGAL (%d) — perbaiki sebelum push." % len(gagal))
+            return 1
+        print("Hasil: LOLOS (hanya YAML .github).")
+        return 0
 
     gagal = []
     peringatan = []
