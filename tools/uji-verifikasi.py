@@ -34027,7 +34027,7 @@ def main():
             f.write(isi_baru1603)
         rc, out = jalan(sub1603,
                         [sys.executable, GERBANG, "--hanya-workflow"])
-        periksa("bundel getopt Phobos tidak aktif (opt-in config.bundling): -Hp galat getopt - gerbang lolos (Audit 2490)", rc == 0)
+        periksa("tsv-sample -Hp: ekor sampah pada opsi bool H = ConvException, alat mati sebelum membaca - gerbang lolos (Audit 2490, mekanisme diperjelas Audit 2532)", rc == 0)
         shutil.rmtree(sub1603, ignore_errors=True)
         sub1604 = klon(tmp, "sub1604")
         berkas_aksi1604 = os.path.join(
@@ -34048,7 +34048,7 @@ def main():
             f.write(isi_baru1604)
         rc, out = jalan(sub1604,
                         [sys.executable, GERBANG, "--hanya-workflow"])
-        periksa("bundel getopt tidak aktif di tsv-utils (opt-in config.bundling): -Hf galat - gerbang lolos (Audit 2490)", rc == 0)
+        periksa("tsv-uniq -Hf: ekor sampah pada opsi bool H = ConvException, alat mati sebelum membaca - gerbang lolos (Audit 2490, mekanisme diperjelas Audit 2532)", rc == 0)
         shutil.rmtree(sub1604, ignore_errors=True)
         sub1605 = klon(tmp, "sub1605")
         berkas_aksi1605 = os.path.join(
@@ -34449,6 +34449,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csv2tsv --help-fields nama hantu (alat mati): gerbang lolos (Audit 2531)", rc == 0)
         shutil.rmtree(sub1623, ignore_errors=True)
+        sub1624 = klon(tmp, "sub1624")
+        berkas_aksi1624 = os.path.join(
+            sub1624, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1624, encoding="utf-8") as f:
+            isi_aksi1624 = f.read()
+        baris_aksi1624 = [b for b in isi_aksi1624.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1624 = isi_aksi1624.replace(
+                baris_aksi1624,
+                baris_aksi1624.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-uniq -Hp; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1624 != isi_aksi1624, \
+            "suntikan aksi1624 tidak menembak"
+        with open(berkas_aksi1624, "w", encoding="utf-8") as f:
+            f.write(isi_baru1624)
+        rc, out = jalan(sub1624,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-uniq -Hp ekor sampah opsi bool (alat mati): gerbang lolos (Audit 2532)", rc == 0)
+        shutil.rmtree(sub1624, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

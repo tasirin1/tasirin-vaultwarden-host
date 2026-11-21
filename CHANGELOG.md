@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Ekor sampah token pendek opsi bool tak lagi dinilai bendera sah (Audit 173)
+
+- Fail-closed gerbang: cabang pendek `_nama_sah_tsv` hanya memeriksa huruf pertama token, sehingga token seperti `tsv-uniq -Hp`/`-HZZZ`/`-Hf` dinilai opsi sah — padahal ekor token pendek adalah nilai menempel opsi pertamanya, dan bagi opsi bool optMatch Phobos hanya menerima literal `true`/`false` (ekor lain = ConvException, alat mati sebelum membaca). Tabel `_SAH_TSV` kini membawa elemen ketujuh: huruf pendek opsi bernilai per alat, diturunkan dari sumber tsv-utils (partisinya pas menutup himpunan pendek tiap entri). Token berekor kini sah hanya bila opsi pertamanya bernilai (ekor = nilainya) atau ekornya persis literal bool. 25 vonis token terverifikasi dua arah; keterangan skenario sub1603/sub1604 ditulis ulang sesuai mekanisme sebenarnya; skenario generate 1624 mengunci vonis lolos dan terverifikasi diskriminatif.
+
 ## [Belum rilis] — Nama help hantu dibuang dari tabel _SAH_TSV (Audit 173)
 
 - Fail-closed gerbang: tabel `_SAH_TSV` memuat nama bantuan yang tidak dideklarasikan alatnya — `help-options` di keenam entri (hanya `tsv-filter` yang mendeklarasikannya, dan alat itu tak berentri), `help-fields` di tsv-pretty/csv2tsv/number-lines, dan `help-verbose` di number-lines. Bentuk `=false` nama-nama hantu itu dinilai opsi sah sehingga konstruksi yang sebenarnya membuat alat asli mati (GetOptException sebelum membaca) malah ditolak gerbang. Kesepuluh kemunculan hantu dibuang; himpunan akhir diturunkan ulang secara mekanis dari sumber tsv-utils dan 17 vonis nama terverifikasi persis. Skenario generate 1622–1623 mengunci vonis lolos dan terverifikasi diskriminatif.

@@ -3493,6 +3493,10 @@ _SAH_TSV = {
     # melipat (help-verbose csv2tsv terdeklarasi
     # SEBELUM penanda caseSensitive pertama di
     # csv2tsv.d - zona tak-peka bawaan Phobos).
+    # Audit 2532: elemen terakhir = huruf
+    # pendek opsi BERNILAI per alat (sumber
+    # yang sama); sisanya opsi bool. Partisinya
+    # pas menutup himpunan pendek tiap entri.
     "tsv-sample": (
         frozenset({"delimiter", "key-fields",
                    "num", "prob", "seed-value",
@@ -3511,7 +3515,8 @@ _SAH_TSV = {
         frozenset({"header", "seed-value",
                    "version"}),
         frozenset({"H", "v", "V"}), True,
-        frozenset()),
+        frozenset(),
+        frozenset({"d", "k", "n", "p", "v", "w"})),
     "tsv-uniq": (
         frozenset({"fields", "at-least", "max",
                    "equiv-header", "equiv-start",
@@ -3525,7 +3530,8 @@ _SAH_TSV = {
                    "i", "r", "e", "z", "h"}),
         frozenset({"header", "version"}),
         frozenset({"H", "V"}), True,
-        frozenset()),
+        frozenset(),
+        frozenset({"a", "d", "f", "m"})),
     "tsv-pretty": (
         frozenset({"delimiter", "lookahead",
                    "repeat-header", "precision",
@@ -3543,7 +3549,9 @@ _SAH_TSV = {
         frozenset({"header", "replace-empty",
                    "empty-replacement", "version"}),
         frozenset({"H", "e", "E", "V"}), True,
-        frozenset()),
+        frozenset(),
+        frozenset({"d", "l", "r", "p", "E", "s",
+                   "m", "b"})),
     "tsv-split": (
         frozenset({"delimiter", "digit-width",
                    "dir", "key-fields",
@@ -3559,7 +3567,8 @@ _SAH_TSV = {
         frozenset({"header", "header-in-only",
                    "seed-value", "version"}),
         frozenset({"H", "I", "v", "V"}), True,
-        frozenset()),
+        frozenset(),
+        frozenset({"d", "k", "l", "n", "v", "w"})),
     "csv2tsv": (
         frozenset({"quote", "csv-delim",
                    "tsv-delim", "tab-replacement",
@@ -3569,7 +3578,8 @@ _SAH_TSV = {
         frozenset({"q", "c", "t", "r", "n", "H",
                    "V", "h"}),
         frozenset(), frozenset(), False,
-        frozenset({"help-verbose"})),
+        frozenset({"help-verbose"}),
+        frozenset({"q", "c", "t", "r", "n"})),
     "number-lines": (
         frozenset({"delimiter", "start-number",
                    "header-string", "header",
@@ -3578,7 +3588,8 @@ _SAH_TSV = {
         frozenset({"d", "n", "s", "H", "V", "h"}),
         frozenset({"header", "version"}),
         frozenset({"H", "V"}), True,
-        frozenset()),
+        frozenset(),
+        frozenset({"d", "n", "s"})),
 }
 
 
@@ -3586,7 +3597,7 @@ def _nama_sah_tsv(dasar, sah):
     """Audit 2498: True bila dasar adalah nama
     opsi yang dikenal getopt alat klon tsv
     (atau bukan token opsi sama sekali)."""
-    pjg, pdk, pu_pjg, pu_pdk, lipat, pu_lipat = sah
+    pjg, pdk, pu_pjg, pu_pdk, lipat, pu_lipat, nilai_pdk = sah
     if (not dasar.startswith("-")
             or dasar in ("-", "--")):
         return True
@@ -3601,10 +3612,28 @@ def _nama_sah_tsv(dasar, sah):
         return nama in pjg or nama.lower() in pu_lipat
     huruf = dasar[1]
     if huruf in pu_pdk:
-        return huruf in pdk
-    if huruf in pdk:
-        return True
-    return lipat and huruf.lower() in pdk
+        kanon = huruf
+        dikenal = huruf in pdk
+    elif huruf in pdk:
+        kanon = huruf
+        dikenal = True
+    else:
+        kanon = huruf.lower()
+        dikenal = lipat and kanon in pdk
+    if not dikenal:
+        return False
+    if len(dasar) > 2:
+        # Audit 2532: ekor token pendek adalah
+        # nilai menempel opsi pertamanya. Opsi
+        # bernilai: ekor apa pun sah. Opsi bool:
+        # optMatch Phobos hanya menerima literal
+        # "true"/"false" sebagai nilai - ekor
+        # lain = ConvException, alat mati
+        # sebelum membaca.
+        if kanon in nilai_pdk:
+            return True
+        return dasar[2:] in ("true", "false")
+    return True
 
 
 def _menguras_khusus(perintah, toks, awal):
