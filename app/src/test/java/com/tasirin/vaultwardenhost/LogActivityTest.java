@@ -39,6 +39,27 @@ public class LogActivityTest {
     }
 
     @Test
+    public void samarkanLog_urlDatabaseTersamar() {
+        String r = LogActivity.samarkanLog(
+                "galat db postgres://vwuser:rahasia123@dbhost:5432/vault mati");
+        assertFalse(r.contains("rahasia123"));
+        assertFalse(r.contains("vwuser"));
+        assertTrue(r.contains("postgres://***@dbhost:5432/vault"));
+        String m = LogActivity.samarkanLog(
+                "galat db mysql://u:p@dbhost:3306/vault mati");
+        assertFalse(m.contains("u:p@"));
+        assertTrue(m.contains("mysql://***@dbhost:3306/vault"));
+        String polos = LogActivity.samarkanLog(
+                "db lokal postgres://dbhost:5432/vault tanpa kredensial");
+        assertTrue(polos.contains("postgres://dbhost:5432/vault"));
+        assertTrue(LogActivity.butuhSamaran(
+                "galat postgres://u:p@dbhost:5432/vault"));
+        assertTrue(LogActivity.adaUrlDatabase("x mysql://h:1/d"));
+        assertFalse(LogActivity.adaUrlDatabase("teks biasa"));
+        assertFalse(LogActivity.adaUrlDatabase(null));
+    }
+
+    @Test
     public void samarkanLog_emailDanIpPublikTersamar() {
         String r = LogActivity.samarkanLog(
                 "login gagal untuk budi.santoso@gmail.com dari 36.68.221.10");

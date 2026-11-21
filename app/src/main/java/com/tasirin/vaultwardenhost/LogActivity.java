@@ -587,6 +587,9 @@ public class LogActivity extends Activity {
     // nama berkas backup/ekspor, dan path cache internal adalah
     // metadata tata-letak perangkat yang tak boleh ikut terbagikan
     // (Audit 601).
+    private static final java.util.regex.Pattern POLA_URL_DATABASE =
+            java.util.regex.Pattern.compile("(?i)((?:postgres|postgresql|mysql)://)[^\\s/@]+@");
+
     private static final java.util.regex.Pattern POLA_PATH_ABSOLUT =
             java.util.regex.Pattern.compile(
                     "(?:/storage|/sdcard|/data|/mnt)/[^\\s\"',;\\]]*");
@@ -610,6 +613,7 @@ public class LogActivity extends Activity {
         return t.contains("192.168.") || t.contains("10.")
                 || t.contains("172.") || t.contains("127.0.0.1:")
                 || adaEmail(t) || adaIpPublik(t) || adaPathAbsolut(t)
+                || adaUrlDatabase(t)
                 || adaBentukTokenMentah(t);
     }
 
@@ -812,7 +816,15 @@ public class LogActivity extends Activity {
         if (adaPathAbsolut(r)) {
             r = POLA_PATH_ABSOLUT.matcher(r).replaceAll("[path]");
         }
+        if (adaUrlDatabase(r)) {
+            r = POLA_URL_DATABASE.matcher(r).replaceAll("$1***@");
+        }
         return r;
+    }
+
+    static boolean adaUrlDatabase(String t) {
+        return t != null && (t.contains("postgres://") || t.contains("postgresql://")
+                || t.contains("mysql://"));
     }
 
     static boolean adaPathAbsolut(String t) {

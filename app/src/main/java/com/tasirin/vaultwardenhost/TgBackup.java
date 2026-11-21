@@ -1557,6 +1557,8 @@ public final class TgBackup {
             java.util.regex.Pattern.compile("[0-9]{5,}:[A-Za-z0-9_-]{10,}");
     private static final java.util.regex.Pattern POLA_URL_GALAT =
             java.util.regex.Pattern.compile("https?://\\S+");
+    private static final java.util.regex.Pattern POLA_URL_DB_GALAT =
+            java.util.regex.Pattern.compile("(?i)(?:postgres|postgresql|mysql)://\\S+");
     private static final java.util.regex.Pattern POLA_SPASI_GALAT =
             java.util.regex.Pattern.compile("\\s+");
 
@@ -1566,6 +1568,7 @@ public final class TgBackup {
         }
         String d = POLA_TOKEN_GALAT.matcher(detail).replaceAll("<token>");
 
+        d = POLA_URL_DB_GALAT.matcher(d).replaceAll("<url>");
         d = POLA_URL_GALAT.matcher(d).replaceAll("<url>");
         d = POLA_SPASI_GALAT.matcher(d).replaceAll(" ").trim();
         return d.length() > 200 ? d.substring(0, 200) + "..." : d;

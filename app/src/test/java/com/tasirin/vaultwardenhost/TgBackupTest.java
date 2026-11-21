@@ -1670,6 +1670,16 @@ public class TgBackupTest {
     }
 
     @Test
+    public void redaksiDetailGalat_urlDatabaseTersamar() {
+        assertEquals("db <url> mati",
+                TgBackup.redaksiDetailGalat(
+                        "db postgres://u:p@dbhost:5432/vault mati"));
+        assertEquals("db <url> mati",
+                TgBackup.redaksiDetailGalat(
+                        "db mysql://u:p@dbhost:3306/vault mati"));
+    }
+
+    @Test
     public void redaksiDetailGalatBuangTokenDanRapikanBaris() {
 
         assertEquals("<token>",

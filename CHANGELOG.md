@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Redaksi log kini menyamarkan URL database (Audit 174)
+
+- Temuan 2547 (Sedang): tak ada pola redaksi untuk URL database di mana pun — keluaran proses vaultwarden mengalir ke log dan ekor log terkirim ke Telegram, sementara token bot/admin sudah lama tersamarkan. `LogActivity.samarkanLog` kini menyamarkan userinfo `postgres://`/`postgresql://`/`mysql://` menjadi `***` (pola `POLA_URL_DATABASE` + pemindai `adaUrlDatabase` yang juga menghidupkan `butuhSamaran`), dan `TgBackup.redaksiDetailGalat` mengganti URL database utuh menjadi `<url>`. URL tanpa kredensial tidak disentuh. Uji JVM baru di LogActivityTest dan TgBackupTest. Closes #2321.
+
 ## [Belum rilis] — Gerbang: berkas berganti nama kini terlihat cek hapusan (Audit 174)
 
 - Temuan 2546 (Sedang): `berkas_dihapus` hanya membaca baris `D` dari `git diff --name-status`, sehingga berkas yang di-rename (`R098`) tak pernah masuk daftar hilang dan cek rujukan-yatim bisa dilewati penuh lewat rename (probe: hapus murni tertangkap, rename lolos rc=0). Pembaca baru `_path_hilang_name_status` ikut mengambil path lama baris `R` di ketiga titik kumpul (mode rentang, working-tree/staged, dan rentang upstream lokal); salinan `C` tidak dihitung karena sumbernya tidak hilang. Skenario gensuite 1630 (rentang) dan 1631 (lokal) mengunci rename `DialogAman` yang rujukannya tertinggal. Closes #2320.
