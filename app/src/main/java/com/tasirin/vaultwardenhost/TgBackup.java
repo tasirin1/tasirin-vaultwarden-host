@@ -614,6 +614,15 @@ public final class TgBackup {
                     throw new IOException("Backup dibatalkan: " + galatSnap
                             + " - coba lagi sebentar.");
                 }
+                String galatSnap2 = snapshotSampingKonsisten(ctx,
+                        new File(dataDir), snapDir);
+                if (galatSnap2 != null) {
+                    if (percobaan < 2) {
+                        continue;
+                    }
+                    throw new IOException("Backup dibatalkan: " + galatSnap2
+                            + " - coba lagi sebentar.");
+                }
                 zip = createBackupZip(ctx, dataDir, snapDir, true, configJson(sp),
                         terenkripsi,
 
@@ -1412,6 +1421,115 @@ public final class TgBackup {
         }
     }
 
+    static boolean salinBerkasStabil(File asal, File tujuanFile) {
+        if (asal == null || tujuanFile == null || !asal.isFile()) {
+            return false;
+        }
+        long m0 = asal.lastModified();
+        long u0 = asal.length();
+        try {
+            File induk = tujuanFile.getParentFile();
+            if (induk != null && !induk.isDirectory() && !induk.mkdirs()) {
+                return false;
+            }
+            copyFile(asal, tujuanFile);
+        } catch (Exception e) {
+            return false;
+        }
+        return asal.isFile() && asal.lastModified() == m0
+                && asal.length() == u0 && tujuanFile.length() == u0;
+    }
+
+    static boolean salinFolderStabil(File asal, File tujuan) {
+        if (asal == null || !asal.isDirectory()) {
+            return true;
+        }
+        try {
+            String basis = asal.getCanonicalPath();
+            java.util.List<File> berkas = new java.util.ArrayList<>();
+            kumpulkanBerkasZip(asal, berkas);
+            for (File f : berkas) {
+                String kanon = f.getCanonicalPath();
+                if (!kanon.startsWith(basis + File.separator)) {
+                    continue;
+                }
+                String rel = kanon.substring(basis.length() + 1);
+                if (!salinBerkasStabil(f, new File(tujuan, rel))) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    static String snapshotSampingKonsisten(Context ctx, File dataFolder,
+                                           File tujuan) {
+        File tlsSrc = tlsAktifUntukBackup(ctx, dataFolder);
+        String galat = "salinan samping tidak stabil";
+        for (int coba = 1; coba <= 3; coba++) {
+            galat = salinSampingSekali(tlsSrc, dataFolder, tujuan);
+            if (galat == null) {
+                return null;
+            }
+            hapusPohon(new File(tujuan, "tls"));
+            hapusPohon(new File(tujuan, "attachments"));
+            hapusPohon(new File(tujuan, "sends"));
+            try {
+                new File(tujuan, "rsa_key.pem").delete();
+            } catch (Exception ignored) {
+            }
+            try {
+                new File(tujuan, "rsa_key.der").delete();
+            } catch (Exception ignored) {
+            }
+            if (coba < 3) {
+                try {
+                    Thread.sleep(400);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return galat;
+                }
+            }
+        }
+        return galat;
+    }
+
+    private static String salinSampingSekali(File tlsSrc, File dataFolder,
+                                             File tujuan) {
+        try {
+            String[] namaTls = {"ca.pem", "cert.pem", "ca-key.pem",
+                    "key.pem"};
+            for (String nama : namaTls) {
+                File asal = new File(tlsSrc, nama);
+                if (asal.isFile() && !salinBerkasStabil(asal,
+                        new File(new File(tujuan, "tls"), nama))) {
+                    return "berkas TLS berubah saat disalin";
+                }
+            }
+            String[] namaRsa = {"rsa_key.pem", "rsa_key.der"};
+            for (String nama : namaRsa) {
+                File asal = new File(dataFolder, nama);
+                if (asal.isFile() && !salinBerkasStabil(asal,
+                        new File(tujuan, nama))) {
+                    return "kunci RSA berubah saat disalin";
+                }
+            }
+            if (!salinFolderStabil(new File(dataFolder, "attachments"),
+                    new File(tujuan, "attachments"))) {
+                return "lampiran berubah saat disalin";
+            }
+            if (!salinFolderStabil(new File(dataFolder, "sends"),
+                    new File(tujuan, "sends"))) {
+                return "kiriman berubah saat disalin";
+            }
+            return null;
+        } catch (Exception e) {
+            return "gagal menyalin berkas samping";
+        }
+    }
+
     static String snapshotDbKonsisten(File dataFolder, File tujuan) {
         File db = new File(dataFolder, "db.sqlite3");
         if (!db.isFile()) {
@@ -1973,7 +2091,11 @@ public final class TgBackup {
                             zos.write(configJson.getBytes(StandardCharsets.UTF_8));
                             zos.closeEntry();
                         }
-                        File tlsSrc = tlsAktifUntukBackup(ctx, dataFolder);
+                        File tlsSrc = sumberDb != null
+                                ? new File(sumberDb, "tls")
+                                : tlsAktifUntukBackup(ctx, dataFolder);
+                        File asalSamping = sumberDb != null
+                                ? sumberDb : dataFolder;
                         addFileEntry(zos, buf, new File(tlsSrc, "ca.pem"), "tls/ca.pem");
                         addFileEntry(zos, buf, new File(tlsSrc, "cert.pem"), "tls/cert.pem");
                         // Audit 1461: lampiran vault, kiriman, dan
@@ -1981,13 +2103,13 @@ public final class TgBackup {
                         // ketiganya restore "berhasil" tetapi
                         // lampiran hilang permanen dan seluruh
                         // sesi login gugur.
-                        tambahFolderZip(zos, buf, new File(dataFolder, "attachments"),
+                        tambahFolderZip(zos, buf, new File(asalSamping, "attachments"),
                                 "attachments");
-                        tambahFolderZip(zos, buf, new File(dataFolder, "sends"),
+                        tambahFolderZip(zos, buf, new File(asalSamping, "sends"),
                                 "sends");
-                        addFileEntry(zos, buf, new File(dataFolder, "rsa_key.pem"),
+                        addFileEntry(zos, buf, new File(asalSamping, "rsa_key.pem"),
                                 "rsa_key.pem");
-                        addFileEntry(zos, buf, new File(dataFolder, "rsa_key.der"),
+                        addFileEntry(zos, buf, new File(asalSamping, "rsa_key.der"),
                                 "rsa_key.der");
                         if (denganKunci) {
                             addFileEntry(zos, buf, new File(tlsSrc, "ca-key.pem"),

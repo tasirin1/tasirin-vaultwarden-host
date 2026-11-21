@@ -1,5 +1,26 @@
 # Changelog
 
+## [Belum rilis] — Snapshot backup kini utuh: TLS, kunci RSA, dan lampiran ikut disalin stabil, bukan dibaca live (Audit 2577)
+
+- Temuan 2577 (Audit 176, Rendah): hanya database yang
+  masuk folder snapshot konsisten; berkas TLS,
+  `rsa_key`, lampiran, dan kiriman dibaca live
+  berkas-demi-berkas dari folder data aktif saat zip
+  dibuat — pasangan sertifikat bisa tertukar di tengah
+  zip (IP berubah → restart) dan entri bisa robek
+  tanpa ketahuan.
+- Perbaikan: `snapshotSampingKonsisten` menyalin
+  keempat berkas TLS, kedua kunci RSA, dan folder
+  attachments/sends ke folder snapshot yang sama
+  dengan disiplin yang sama (salin lalu verifikasi
+  sumber tak berubah lewat `salinBerkasStabil`/
+  `salinFolderStabil`, 3x percobaan); `createBackupZip`
+  membaca semuanya dari snapshot bila snapshot ada.
+  Kegagalan salin membatalkan percobaan backup dengan
+  pesan jelas (putaran percobaan yang ada mencoba
+  lagi), bukan zip robek diam-diam. Uji JVM baru
+  mengunci kedua helper penyalin.
+
 ## [Belum rilis] — Cek informasional summarize kini sadar posisi-nilai (Audit 2575)
 
 - Temuan 2575 (Audit 176, Sedang): putaran awal cabang

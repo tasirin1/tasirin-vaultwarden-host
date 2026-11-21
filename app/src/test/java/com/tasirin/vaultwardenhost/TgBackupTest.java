@@ -2787,6 +2787,49 @@ public class TgBackupTest {
     }
 
     @Test
+    public void salinBerkasStabilMenyalinDanMenolakYangHilang() throws Exception {
+        File asal = java.nio.file.Files.createTempDirectory("vwsalin1").toFile();
+        File tujuan = java.nio.file.Files.createTempDirectory("vwsalin2").toFile();
+        try {
+            File sumber = new File(asal, "cert.pem");
+            java.nio.file.Files.write(sumber.toPath(),
+                    "isi-sertifikat".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            File hasil = new File(new File(tujuan, "tls"), "cert.pem");
+            assertTrue(TgBackup.salinBerkasStabil(sumber, hasil));
+            assertTrue(hasil.isFile());
+            assertEquals(sumber.length(), hasil.length());
+            assertFalse(TgBackup.salinBerkasStabil(new File(asal, "tidak-ada.pem"), hasil));
+            assertFalse(TgBackup.salinBerkasStabil(null, hasil));
+            assertFalse(TgBackup.salinBerkasStabil(sumber, null));
+        } finally {
+            TgBackup.hapusPohon(asal);
+            TgBackup.hapusPohon(tujuan);
+        }
+    }
+
+    @Test
+    public void salinFolderStabilMenyalinRekursif() throws Exception {
+        File asal = java.nio.file.Files.createTempDirectory("vwfolder1").toFile();
+        File tujuan = java.nio.file.Files.createTempDirectory("vwfolder2").toFile();
+        try {
+            File sub = new File(asal, "uuid-1");
+            assertTrue(sub.mkdirs());
+            java.nio.file.Files.write(new File(asal, "akar.bin").toPath(),
+                    "akar".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.file.Files.write(new File(sub, "dalam.bin").toPath(),
+                    "dalam".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            assertTrue(TgBackup.salinFolderStabil(asal, tujuan));
+            assertTrue(new File(tujuan, "akar.bin").isFile());
+            assertTrue(new File(new File(tujuan, "uuid-1"), "dalam.bin").isFile());
+            assertTrue(TgBackup.salinFolderStabil(new File(asal, "tidak-ada"), tujuan));
+            assertTrue(TgBackup.salinFolderStabil(null, tujuan));
+        } finally {
+            TgBackup.hapusPohon(asal);
+            TgBackup.hapusPohon(tujuan);
+        }
+    }
+
+    @Test
     public void snapshotDbKonsistenMenolakTanpaDatabase() throws Exception {
         File kosong = java.nio.file.Files.createTempDirectory("vwsnapkosong").toFile();
         File tujuan = java.nio.file.Files.createTempDirectory("vwsnapt2").toFile();
