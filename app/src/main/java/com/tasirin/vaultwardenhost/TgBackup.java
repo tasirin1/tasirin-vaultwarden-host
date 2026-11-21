@@ -2101,7 +2101,8 @@ public final class TgBackup {
     static final java.util.Set<String> SECRET_PREF_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList("admin_token", "tg_token", "tg_chat",
                     "tg_pass", PinGate.KEY_PIN_HASH, PinGate.KEY_GAGAL, PinGate.KEY_KUNCI_SAMPAI,
-                    PinGate.KEY_KUNCI_ELAPSED, KEY_ALARM_SECRET, LogActivity.KEY_CLIP_HASH));
+                    PinGate.KEY_KUNCI_ELAPSED, KEY_ALARM_SECRET, LogActivity.KEY_CLIP_HASH,
+                    ServerService.KEY_DATABASE_URL));
 
     static final java.util.Set<String> TAK_DIEKSPOR_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, ServerService.KEY_TLS_DIR, KEY_TG_LAST,

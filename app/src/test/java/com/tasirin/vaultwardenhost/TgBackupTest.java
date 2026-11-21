@@ -1715,9 +1715,11 @@ public class TgBackupTest {
     }
 
     @Test
-    public void databaseUrlIkutEksporTapiTakBolehImpor() {
+    public void databaseUrlRahasiaTakDieksporDanTakBolehImpor() {
         assertTrue(TgBackup.KUNCI_STRING.contains(ServerService.KEY_DATABASE_URL));
         assertFalse(TgBackup.BOLEH_IMPOR.contains(ServerService.KEY_DATABASE_URL));
+        assertTrue(TgBackup.SECRET_PREF_KEYS.contains(ServerService.KEY_DATABASE_URL));
+        assertFalse(TgBackup.kunciDiekspor(ServerService.KEY_DATABASE_URL));
         assertTrue(TgBackup.KUNCI_STRING.contains(ServerService.KEY_ADMIN_TOKEN));
         assertFalse(TgBackup.BOLEH_IMPOR.contains(ServerService.KEY_ADMIN_TOKEN));
     }
@@ -1878,6 +1880,7 @@ public class TgBackupTest {
         assertFalse(TgBackup.kunciDiekspor("tg_pending_aksi_-100123"));
         assertFalse(TgBackup.kunciDiekspor("wv_notified_1.2.3"));
         assertFalse(TgBackup.kunciDiekspor("tg_token"));
+        assertFalse(TgBackup.kunciDiekspor(ServerService.KEY_DATABASE_URL));
         assertFalse(TgBackup.kunciDiekspor("tg_last_file"));
         assertFalse(TgBackup.kunciDiekspor("tg_last_name"));
         // Audit 1727: id bot pemilik penanda ikut tak diekspor,
