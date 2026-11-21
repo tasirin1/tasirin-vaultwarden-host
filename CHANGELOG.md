@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Probe auto-merge cocokkan nama check persis per kolom (Audit 174)
+
+- Temuan 2545 (Sedang): probe penunggu check wajib di `auto-merge.yml` memakai `grep` substring `Cek patch yang berubah`, yang sejak ganti nama Audit 2526 ikut cocok dengan nama bayangan `Cek patch yang berubah (build-apk)` dan `(cek-cepat)` di PR biasa — probe bisa lulus tanpa check wajib dari `cek-wajib.yml` pernah muncul, persis mode gagal yang probe ini dibangun untuk menangkapnya. Pencocokan kini per kolom pertama keluaran `gh pr checks` (persis sama, dipisah tab) memakai `awk`. Closes #2319.
+
 ## [Belum rilis] — Gerbang: pengecualian bool tsv-summarize dilipat huruf (Audit 174)
 
 - Temuan 2544 (Sedang): pengecualian ekor bool penjaga bundel di cabang `tsv-summarize` (perbaikan 2530) hanya mengenal huruf persis `Hwx` dan ekor huruf kecil, padahal `w`/`x` hidup di zona `caseInsensitive` sumber (huruf opsi ikut dilipat: `W` = `w`, `X` = `x`) dan `parse!bool` melipat ekornya — `-HTrue`, `-Wfalse`, `-Xtrue` lolos gerbang padahal alat asli jalan dan menguras. Pengecualian kini melipat ekor dan menerima huruf `W`/`X`; `H` tetap huruf persis (pulau `caseSensitive` di sumbernya). Skenario gensuite 1627–1629 mengunci ketiga bentuk itu. Closes #2318.

@@ -139,7 +139,7 @@ jobs:
         run: |
           for i in 1 2 3 4 5 6 7 8; do
             CHECKS=$(gh pr checks ${{ github.event.pull_request.number }} -R ${{ github.repository }} 2>/dev/null || true)
-            if printf '%s' "$CHECKS" | grep -q 'Cek patch yang berubah'; then
+            if printf '%s' "$CHECKS" | awk -F'\t' '$1 == "Cek patch yang berubah" { f = 1 } END { exit !f }'; then
               echo "Cek wajib 'Cek patch yang berubah' terdaftar di PR ini."
               exit 0
             fi
