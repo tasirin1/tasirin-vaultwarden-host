@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Pra-cek ruang backup menghitung seluruh isi backup (Audit 172)
+
+- Cek ruang sebelum backup kini menghitung ukuran folder `attachments/` dan `sends/` plus `rsa_key.pem`, bukan hanya berkas database: zip backup memang memuat semuanya, jadi cek lama bisa lolos padahal ruang tak cukup dan backup gagal di tengah (berisiko memenuhi volume folder data saat server berjalan). Volume cache kini selalu ikut dicek (snapshot DB dan ekstrak verifikasi tinggal di sana pada semua jalur, bukan hanya jalur terenkripsi), dan kebutuhan ruang dihitung per volume sesuai isinya: cache = 2× DB (+ seluruh isi zip bila terenkripsi), folder data = seluruh isi zip pada jalur polos.
+
 ## [Belum rilis] — Pengaturan URL database eksternal (PostgreSQL/MySQL)
 
 - Kolom baru "URL Database Eksternal" di kartu Server: bila diisi (`postgres://`, `postgresql://`, atau `mysql://`), server Vaultwarden memakai database itu lewat `DATABASE_URL`; kosong = database berkas lokal seperti sebelumnya. URL tidak pernah ditulis ke log aplikasi. URL ikut tersimpan di ekspor konfigurasi, tetapi impor konfigurasi tidak menimpanya (perlakuan sama seperti admin token). Catatan: data lama TIDAK berpindah otomatis — database eksternal mulai dari kosong, dan lampiran tetap tersimpan di folder data lokal.

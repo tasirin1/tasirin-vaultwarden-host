@@ -2647,34 +2647,36 @@ public class TgBackupTest {
     }
 
     @Test
-    public void folderCekRuangBackupIkutCacheSaatTerenkripsi() {
+    public void folderCekRuangBackupSelaluIkutCache() {
 
         assertEquals(java.util.Arrays.asList("/cache", "/data"),
-                TgBackup.folderCekRuangBackup("/data", true, "/cache"));
+                TgBackup.folderCekRuangBackup("/data", "/cache"));
 
         assertEquals(java.util.Arrays.asList("/data"),
-                TgBackup.folderCekRuangBackup("/data", false, "/cache"));
+                TgBackup.folderCekRuangBackup("/data", "/data"));
 
         assertEquals(java.util.Arrays.asList("/data"),
-                TgBackup.folderCekRuangBackup("/data", true, "/data"));
-        assertTrue(TgBackup.folderCekRuangBackup(null, true, null).isEmpty());
-        assertTrue(TgBackup.folderCekRuangBackup("  ", false, " ").isEmpty());
+                TgBackup.folderCekRuangBackup("/data", ""));
+        assertTrue(TgBackup.folderCekRuangBackup(null, null).isEmpty());
+        assertTrue(TgBackup.folderCekRuangBackup("  ", " ").isEmpty());
     }
 
     @Test
-    public void ruangBackupDibutuhkanIkutUkuranDb() {
+    public void ruangBackupDibutuhkanIkutUkuranDbDanLampiran() {
         long mb = 1024L * 1024L;
 
-        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(0, false, false));
-        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(2 * mb, false, false));
+        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(0, 0, false, false));
+        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(2 * mb, 0, false, false));
 
-        assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, false, false));
-        assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, false, true));
+        assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, false, false));
+        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, false, true));
+        assertEquals(405 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, false, false));
 
-        assertEquals(205 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, true, true));
-        assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, true, false));
+        assertEquals(205 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, true, false));
+        assertEquals(305 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, true, true));
+        assertEquals(605 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, true, true));
 
-        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(-5, true, true));
+        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(-5, -5, true, true));
     }
 
     @Test

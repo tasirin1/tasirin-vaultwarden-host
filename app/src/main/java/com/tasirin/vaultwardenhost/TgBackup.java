@@ -542,10 +542,14 @@ public final class TgBackup {
         long isiDb = panjangBerkas(db)
                 + panjangBerkas(new File(dataDir, "db.sqlite3-wal"))
                 + panjangBerkas(new File(dataDir, "db.sqlite3-shm"));
-        for (String folder : folderCekRuangBackup(dataDir, terenkripsi, cachePath)) {
+        long isiLampiran = folderBytesWalk(new File(dataDir, "attachments"))
+                + folderBytesWalk(new File(dataDir, "sends"))
+                + panjangBerkas(new File(dataDir, "rsa_key.pem"));
+        for (String folder : folderCekRuangBackup(dataDir, cachePath)) {
             boolean folderCache = folder != null && cachePath != null
                     && folder.trim().equals(cachePath.trim());
-            long butuh = ruangBackupDibutuhkan(isiDb, folderCache, terenkripsi);
+            long butuh = ruangBackupDibutuhkan(isiDb, isiLampiran,
+                    folderCache, terenkripsi);
             long free = freeBytes(ctx, folder);
             if (free >= 0 && free < butuh) {
                 throw new IOException("Storage kurang untuk backup (butuh "
@@ -5231,10 +5235,9 @@ public final class TgBackup {
     }
 
     static java.util.List<String> folderCekRuangBackup(String dataDir,
-                                                      boolean terenkripsi,
                                                       String cacheDir) {
         java.util.ArrayList<String> hasil = new java.util.ArrayList<>(2);
-        if (terenkripsi && cacheDir != null && !cacheDir.trim().isEmpty()) {
+        if (cacheDir != null && !cacheDir.trim().isEmpty()) {
             hasil.add(cacheDir);
         }
         if (dataDir != null && !dataDir.trim().isEmpty()
@@ -5248,10 +5251,17 @@ public final class TgBackup {
         return f != null && f.isFile() ? f.length() : 0;
     }
 
-    static long ruangBackupDibutuhkan(long isiDb, boolean folderCache,
+    static long ruangBackupDibutuhkan(long isiDb, long isiLampiran,
+                                      boolean folderCache,
                                       boolean terenkripsi) {
-        long isi = Math.max(0L, isiDb);
-        long butuh = (folderCache && terenkripsi) ? 2L * isi : isi;
+        long db = Math.max(0L, isiDb);
+        long lampiran = Math.max(0L, isiLampiran);
+        long butuh;
+        if (folderCache) {
+            butuh = 2L * db + (terenkripsi ? db + lampiran : 0L);
+        } else {
+            butuh = terenkripsi ? 0L : db + lampiran;
+        }
         butuh += 5L * 1024 * 1024;
         return Math.max(butuh, 10L * 1024 * 1024);
     }
