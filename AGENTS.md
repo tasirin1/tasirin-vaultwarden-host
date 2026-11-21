@@ -263,10 +263,13 @@ sebelum PR bisa digabungkan (termasuk auto-merge Dependabot). Isinya:
    fail-keras tanpa PyYAML, sumber lokal daftar hapus pada mode lokal dan
    `--semua <jalur>`, kedua `strings.xml` kosong — hanya di `cek-wajib.yml`
    dan job verifikasi `build-apk.yml`, bukan di `build-binary.yml`).
-   `python3 tools/uji-cek-cepat.py` berjalan di tempat yang sama,
-   disusul `python3 tools/uji-cek-cepat-2.py` (paruh akhir skenarionya,
-   Audit 2557); di `build-apk.yml` kedua paruh itu berjalan sebagai dua
-   job paralel (`verifikasi-cek` dan `verifikasi-cek-2`).
+   `python3 tools/uji-cek-cepat-1.py` berjalan di tempat yang sama
+   (paruh awal skenario `tools/uji-cek-cepat.py`), disusul
+   `python3 tools/uji-cek-cepat-2.py` (paruh akhirnya, Audit 2557/2559);
+   berkas utama `uji-cek-cepat.py` sendiri tak lagi dijalankan CI —
+   ia hanya memuat definisi skenario bersama. Di `build-apk.yml`
+   kedua paruh itu berjalan sebagai dua job paralel
+   (`verifikasi-cek` dan `verifikasi-cek-2`).
 
 Tiap temuan ditulis sebagai **annotations GitHub** (`::error`/`::warning`
 dengan file+baris) sehingga bug/kode sampah/celah keamanan terlihat di tab

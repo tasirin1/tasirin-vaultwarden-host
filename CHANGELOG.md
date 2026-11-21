@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Kalimat usang AGENTS.md soal berkas gabungan uji-cek-cepat dibetulkan (Audit 2584)
+
+- Temuan 2584 (Audit 176, Rendah): teks metode
+  AGENTS.md masih mengklaim `tools/uji-cek-cepat.py`
+  berjalan di CI disusul paruh akhirnya — sesudah
+  Audit 2559 yang berjalan adalah titik masuk
+  `-1.py` lalu `-2.py`; berkas utama hanya memuat
+  definisi skenario.
+- Perbaikan: kalimat ditulis ulang sesuai kabel CI
+  yang sebenarnya. Tanpa perubahan perilaku.
+
 ## [Belum rilis] — Cabang gagal-tulis flush log kini terkunci uji JVM (Audit 2583)
 
 - Temuan 2583 (Audit 176, Rendah): perbaikan 2564
