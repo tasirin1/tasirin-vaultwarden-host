@@ -1,5 +1,32 @@
 # Changelog
 
+## [Belum rilis] — Push campuran tak lagi menjalankan gerbang dua kali (Audit 2581)
+
+- Temuan 2581 (Audit 176, Rendah): pemicu push
+  cek-wajib (Audit 2558) tak mengecualikan push yang
+  juga memicu build-apk — pada push campuran (kode +
+  workflow, pola push maraton) gerbang yang sama persis
+  berjalan dua kali: 3 job paralel build-apk plus
+  serial ±31 menit di cek-wajib, tanpa sinyal tambahan.
+- Perbaikan: job ringan baru `saring-push` (khusus
+  event push) memeriksa daftar berkas push; job
+  verifikasi hanya berjalan penuh bila SEMUA berkas
+  ada di daftar 2558 (di luar itu build-apk yang
+  menanggung gerbangnya). Keraguan apa pun (diff
+  gagal/daftar kosong) memutuskan lanjut — fail-safe.
+  Jalur PR tak berubah (nama check wajib tetap sama).
+
+## [Belum rilis] — Kode mati _numerik_penuh dihapus (Audit 2580)
+
+- Temuan 2580 (Audit 176, Rendah): helper
+  `_numerik_penuh` (port Phobos `isNumeric` dari
+  Audit 2415) tak lagi dipanggil dari mana pun —
+  pemanggil terakhirnya dihapus perbaikan 2560.
+- Perbaikan: fungsi dihapus dari
+  `tools/verifikasi-patch.py` dan namanya dicatat di
+  `tools/bekas-hapusan.txt`. Tak ada perubahan
+  perilaku (grep memastikan nol rujukan tersisa).
+
 ## [Belum rilis] — Kematian alat karena opsi asing/ambigu kini dimodelkan gerbang (Audit 2579)
 
 - Temuan 2579 (Audit 176, Rendah): pindaian keluarga
