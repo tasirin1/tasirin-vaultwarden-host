@@ -61,6 +61,12 @@ public final class StoragePerm {
             int garis = d.indexOf('/', awal);
             if (garis > awal) {
                 potong = garis + 1;
+                if (d.startsWith("emulated/", awal)) {
+                    int garis2 = d.indexOf('/', potong);
+                    if (garis2 > potong) {
+                        potong = garis2 + 1;
+                    }
+                }
             }
         }
         if (potong < 0) {

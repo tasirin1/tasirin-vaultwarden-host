@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Folder pribadi di volume emulated/0 dikenali lagi (susulan Maraton-173)
+
+- Perbaikan susulan yang ditemukan CI sesudah Maraton-173 ter-push (build `d72d184b`: 723 uji, 2 gagal di `StoragePermTest`). Penjangkaran `folderPribadiAplikasi` dari perbaikan 2512 memotong jalur sesudah segmen volume pertama, padahal volume emulated Android bernama dua segmen (`emulated/0`) — folder pribadi aplikasi sendiri di `/storage/emulated/0/Android/data/...` jadi dikenali sebagai folder asing dan aplikasi meminta izin penyimpanan yang tidak perlu. Cacat ini tertutup selama HEAD tidak bisa di-build (2525) sehingga uji JVM-nya tidak pernah jalan; test-nya sendiri sudah benar sejak semula. Pemotongan kini melompati segmen kedua khusus volume `emulated/`; volume satu segmen (kartu SD, `/mnt/`) tidak berubah.
+
 ## [Belum rilis] — Alasan seksi pra-cek ruang backup diluruskan (Audit 173)
 
 - Koreksi dokumentasi murni: seksi Audit 172 tentang pra-cek ruang backup menyebut "ekstrak verifikasi" sebagai penghuni cache, padahal perbaikan 2511 di maraton yang sama sudah menghapus ekstrak itu (verifikasi kini streaming). Teks seksi itu kini menyebut penghuni cache yang sebenarnya — snapshot DB, zip staging terenkripsi, dan salinan dekripsi roundtrip — plus catatan bahwa angka modelnya diluruskan oleh perbaikan 2528. Kesimpulan seksi (volume cache selalu ikut dicek) tidak berubah dan tetap benar.
