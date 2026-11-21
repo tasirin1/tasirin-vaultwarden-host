@@ -274,6 +274,21 @@ TMPBUNGKUS="$(mktemp -d 2>/dev/null)" || { echo "${ANO_ERR}GAGAL: direktori seme
 trap 'rm -f "$KANDIDAT_HDR_BERKAS"; rm -rf "$TMPBUNGKUS"' EXIT
 PETA_TMP1886=()
 PETA_ASAL1886=()
+# Audit 2510: keadaan "pohon kerja berbeda dari indeks"
+# dulu dibayar per berkas (satu git diff --quiet untuk
+# tiap berkas terlacak yang ada); kini satu panggilan
+# git diff --name-only untuk seluruh pohon, dimuat ke
+# peta asosiatif. Bila git diff-nya sendiri gagal, semua
+# berkas dianggap berbeda (arah aman lama: wujudkan).
+declare -A PETA_BERBEDA_INDEKS=()
+INDEKS_TAK_TERBACA=""
+if git -c core.quotepath=false diff --name-only -z > "$TMPBUNGKUS/berbeda-indeks" 2>/dev/null; then
+  while IFS= read -r -d '' nama_berbeda2510; do
+    PETA_BERBEDA_INDEKS["$nama_berbeda2510"]=1
+  done < "$TMPBUNGKUS/berbeda-indeks"
+else
+  INDEKS_TAK_TERBACA=1
+fi
 for entri in "${ENTRI_BUNGKUS[@]}"; do
   f=${entri#?:}
   if [ -f "$f" ]; then
@@ -288,7 +303,7 @@ for entri in "${ENTRI_BUNGKUS[@]}"; do
   # Audit 1891: isi ter-stage yang berbeda dari pohon
   # kerja (diganti jinak sesudah stage, atau berkasnya
   # hilang) ikut diwujudkan dari indeks.
-  if [ "${entri%%:*}" = "t" ] && { [ ! -f "$f" ] || ! git diff --quiet -- "$f" 2>/dev/null; }; then
+  if [ "${entri%%:*}" = "t" ] && { [ ! -f "$f" ] || [ -n "$INDEKS_TAK_TERBACA" ] || [ -n "${PETA_BERBEDA_INDEKS[$f]:-}" ]; }; then
     wujud1886="$TMPBUNGKUS/${#PETA_TMP1886[@]}"
     if git show ":$f" > "$wujud1886" 2>/dev/null; then
       DAFTAR_BUNGKUS+=("$wujud1886")

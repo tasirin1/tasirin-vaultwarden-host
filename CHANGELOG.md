@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — cek-cepat: satu git diff untuk uji beda indeks (Audit 172)
+
+- Fase bungkus `scripts/cek-cepat.sh` sebelumnya menjalankan `git diff --quiet` satu kali per berkas terlacak (±169 proses git per lari) hanya untuk tahu berkas mana yang isi pohon kerjanya berbeda dari indeks. Kini satu `git diff --name-only -z` untuk seluruh pohon dimuat ke peta asosiatif `PETA_BERBEDA_INDEKS` dan loop cukup menguji keanggotaan; bila panggilan git itu sendiri gagal, semua berkas dianggap berbeda — arah aman yang sama dengan perilaku lama saat git galat. Kesetaraan dibuktikan pada 4 kasus divergensi stage (ter-stage berpola/kerja bersih, serba bersih, ter-stage bersih/kerja berpola, ter-stage berpola/berkas hilang): vonis lama dan baru identik di semua kasus. Waktu lari lokal terukur ±4,3 → ±4,0 dtk; penghematan prosesnya struktural (169 spawn → 1).
+
 ## [Belum rilis] — Mode --hanya-workflow gerbang untuk skenario generate suite (Audit 172)
 
 - Suite `tools/uji-verifikasi.py` sebelumnya membayar satu lari gerbang `--semua` penuh (±1,17 dtk) untuk tiap dari 1463 skenario generate yang sebenarnya hanya menyuntik `.github/actions/resolve-vw/action.yml` — penyumbang struktural langkah uji-diri CI yang panjang. Gerbang kini punya mode `--hanya-workflow` yang hanya menjalankan `cek_workflow_yaml` + `cek_yaml_github_lain` (±0,31 dtk, ±3,8× lebih cepat) dan 1459 skenario aksi dialihkan ke mode itu; templat generator diperbarui mengikutinya. Empat skenario header-kunci (705/707/708/709) SENGAJA tetap `--semua`: vonisnya datang dari cek literal rahasia berbasis diff, bukan cek YAML. Kesetaraan vonis dibuktikan dengan menjalankan 43 blok sampel (tiap ke-37 + tepi) di kedua mode: semua vonis sama; kesetaraan penuh dibuktikan lari suite scratch utuh.
