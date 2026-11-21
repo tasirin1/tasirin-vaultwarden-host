@@ -34302,6 +34302,69 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("keep-header redirect sesudah -- bukan perintah anak: spawn gagal - gerbang lolos (Audit 2501)", rc == 0)
         shutil.rmtree(sub1616, ignore_errors=True)
+        sub1617 = klon(tmp, "sub1617")
+        berkas_aksi1617 = os.path.join(
+            sub1617, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1617, encoding="utf-8") as f:
+            isi_aksi1617 = f.read()
+        baris_aksi1617 = [b for b in isi_aksi1617.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1617 = isi_aksi1617.replace(
+                baris_aksi1617,
+                baris_aksi1617.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(script -q -c 'echo ok; cat' >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1617 != isi_aksi1617, \
+            "suntikan aksi1617 tidak menembak"
+        with open(berkas_aksi1617, "w", encoding="utf-8") as f:
+            f.write(isi_baru1617)
+        rc, out = jalan(sub1617,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("script -c segmen kedua menguras: 'cat' sesudah 'echo ok' di string -c: gerbang menolak (Audit 2516)", rc != 0)
+        shutil.rmtree(sub1617, ignore_errors=True)
+        sub1618 = klon(tmp, "sub1618")
+        berkas_aksi1618 = os.path.join(
+            sub1618, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1618, encoding="utf-8") as f:
+            isi_aksi1618 = f.read()
+        baris_aksi1618 = [b for b in isi_aksi1618.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1618 = isi_aksi1618.replace(
+                baris_aksi1618,
+                baris_aksi1618.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(systemd-run --pipe sh -c 'echo ok; cat' >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1618 != isi_aksi1618, \
+            "suntikan aksi1618 tidak menembak"
+        with open(berkas_aksi1618, "w", encoding="utf-8") as f:
+            f.write(isi_baru1618)
+        rc, out = jalan(sub1618,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("systemd-run anak sh -c segmen kedua menguras: gerbang menolak (Audit 2516)", rc != 0)
+        shutil.rmtree(sub1618, ignore_errors=True)
+        sub1619 = klon(tmp, "sub1619")
+        berkas_aksi1619 = os.path.join(
+            sub1619, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1619, encoding="utf-8") as f:
+            isi_aksi1619 = f.read()
+        baris_aksi1619 = [b for b in isi_aksi1619.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1619 = isi_aksi1619.replace(
+                baris_aksi1619,
+                baris_aksi1619.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(script -q -c 'echo ok; echo selesai' >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1619 != isi_aksi1619, \
+            "suntikan aksi1619 tidak menembak"
+        with open(berkas_aksi1619, "w", encoding="utf-8") as f:
+            f.write(isi_baru1619)
+        rc, out = jalan(sub1619,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa("script -c dua segmen tak menguras: gerbang lolos (Audit 2516)", rc == 0)
+        shutil.rmtree(sub1619, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

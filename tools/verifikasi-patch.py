@@ -11753,15 +11753,15 @@ def _menguras_khusus(perintah, toks, awal):
             if t_sc in ("-c", "--command") or re.fullmatch(
                     r"-[a-zA-Z]*c", t_sc):
                 if k_sc + 1 < len(mentah):
-                    segmen_sc = pecah_segmen_shell(
-                        mentah[k_sc + 1])
-                    if segmen_sc:
-                        return _menguras_stdin(segmen_sc[0])
+                    for segmen_sc in pecah_segmen_shell(
+                            mentah[k_sc + 1]):
+                        if _menguras_stdin(segmen_sc):
+                            return True
                 return False
             if t_sc.startswith("-c") and len(t_sc) > 2:
-                segmen_sc = pecah_segmen_shell(t_sc[2:])
-                if segmen_sc:
-                    return _menguras_stdin(segmen_sc[0])
+                for segmen_sc in pecah_segmen_shell(t_sc[2:]):
+                    if _menguras_stdin(segmen_sc):
+                        return True
                 return False
         return True
     # Audit 1320: tmux load-buffer dari stdin.
@@ -12112,7 +12112,10 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         segmen_sr = pecah_segmen_shell(
             " ".join(mentah[anak_sr:]))
-        return bool(segmen_sr) and _menguras_stdin(segmen_sr[0])
+        for segmen_sr_satu in segmen_sr:
+            if _menguras_stdin(segmen_sr_satu):
+                return True
+        return False
     # Audit 1358: keluarga ffmpeg — masukan '-'/'pipe:'
     # membaca media dari stdin sampai EOF.
     if perintah in ("ffmpeg", "ffprobe", "ffplay"):

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — script -c dan systemd-run: semua segmen perintah dinilai (Audit 172)
+
+- Cabang `script` dan `systemd-run` di penganalisis penguras stdin gerbang sebelumnya hanya menilai segmen PERTAMA string perintah anak: `script -c 'echo x; cat'` dan `systemd-run --pipe sh -c 'echo x; cat'` divonis tidak menguras padahal `cat` di segmen kedua sungguh menguras stdin (fail-open). Kini semua segmen di-OR-kan, sejajar doktrin `_substitusi_masukan_menguras` dan jalur generik `sh -c` yang sudah benar. Skenario suite baru 1617–1619 mengunci kedua bentuk menguras dan satu kontrol tak-menguras dua segmen.
+
 ## [Belum rilis] — Uji cabang karakter validator URL database (Audit 172)
 
 - Uji baru `databaseUrlValidTolakKarakterKontrolDanKutip` mencakup cabang penolakan karakter di `databaseUrlValid` — kutip ganda/tunggal, baris-baru, tab, dan DEL di tengah URL — penjaga sebenarnya terhadap injeksi baris-baru ke nilai env `DATABASE_URL`. Uji lama hanya mencakup kasus spasi; penghapusan loop karakter oleh refactor bisa lolos tanpa CI berbunyi.
