@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Cabang mati pull_request dibuang dari langkah verifikasi build-apk (Audit 173)
+
+- Badan langkah "Verifikasi patch" di `build-apk.yml` masih memuat cabang `if pull_request` yang menghitung rentang dari SHA PR — tak terjangkau sejak Audit 2522 memasang gerbang langkah `if: github.event_name != 'pull_request'`. Cabang itu dibuang; langkah kini menghitung rentang langsung dari `github.event.before...github.sha`, persis perilaku cabang `else` lama untuk push dan workflow_dispatch. Salinan identik di `build-binary.yml` TIDAK disentuh: langkahnya di sana tidak bergerbang, jadi cabangnya masih hidup.
+
 ## [Belum rilis] — label-audit.yml kembali dipindai Gitleaks (Audit 173)
 
 - Pengecualian Audit 2523 terlalu lebar: `label-audit.yml` ikut masuk `paths-ignore` Gitleaks (push + pull_request) padahal workflow itu memuat skrip `run:` inline — persis permukaan yang menurut doktrin Audit 1118 (kasus build-binary.yml) tidak boleh dikecualikan dari pemindaian secret. Baris pengecualiannya dicabut dari kedua daftar; tiga berkas meta lain dari 2523 (`stale.yml`, `labeler.yml`, `dependabot.yml`) tetap terkecualikan karena memang tanpa skrip inline. Isi label-audit.yml saat ini bersih (token lewat env `secrets`), jadi perubahan ini menutup risiko ke depan, bukan kebocoran yang sudah terjadi.

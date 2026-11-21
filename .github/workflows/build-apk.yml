@@ -85,11 +85,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
 
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            RENTANG="${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
-          else
-            RENTANG="${{ github.event.before }}...${{ github.sha }}"
-          fi
+          RENTANG="${{ github.event.before }}...${{ github.sha }}"
           python3 tools/verifikasi-patch.py --rentang "$RENTANG"
       - name: Cek cepat (vektor 0.x, README, secret)
         if: github.event_name != 'pull_request'
