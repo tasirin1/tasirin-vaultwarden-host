@@ -14987,6 +14987,52 @@ def cek_duplikat_definisi(gagal):
         if ganda:
             gagal.append("Definisi ganda di folder %s: %s" % (folder, ", ".join(ganda[:5])))
 
+def _buka_kutip_git(path):
+    """Audit 2568: buka quoting gaya-C git. Nama
+    berkas beraksara kontrol/kutip/backslash
+    selalu ter-quote ("Tab\\tNama.java") walau
+    core.quotepath=false - quotepath hanya
+    mengatur byte non-ASCII. Escape di dalamnya:
+    \\t \\n \\" \\\\ dan oktal \\NNN per byte
+    UTF-8. Path tanpa kutip lewat apa adanya."""
+    if (len(path) < 2 or not path.startswith('"')
+            or not path.endswith('"')):
+        return path
+    dalam = path[1:-1]
+    hasil = bytearray()
+    i = 0
+    while i < len(dalam):
+        c = dalam[i]
+        if c == "\\" and i + 1 < len(dalam):
+            n = dalam[i + 1]
+            if n == "t":
+                hasil.append(9)
+                i += 2
+            elif n == "n":
+                hasil.append(10)
+                i += 2
+            elif n == '"':
+                hasil.append(34)
+                i += 2
+            elif n == "\\":
+                hasil.append(92)
+                i += 2
+            elif n.isdigit():
+                j = i + 1
+                while (j < len(dalam) and j < i + 4
+                       and dalam[j].isdigit()):
+                    j += 1
+                hasil.append(int(dalam[i + 1:j], 8) & 0xFF)
+                i = j
+            else:
+                hasil.extend(c.encode("utf-8"))
+                i += 1
+        else:
+            hasil.extend(c.encode("utf-8"))
+            i += 1
+    return hasil.decode("utf-8", "surrogateescape")
+
+
 def _path_hilang_name_status(out):
     """Audit 2546: path yang hilang dari keluaran
     git diff --name-status - baris D (pathnya
@@ -14996,11 +15042,11 @@ def _path_hilang_name_status(out):
     hilang = []
     for x in (out or "").splitlines():
         if x.startswith("D"):
-            hilang.append(x.split(None, 1)[1])
+            hilang.append(_buka_kutip_git(x.split(None, 1)[1]))
         elif x.startswith("R"):
             kolom = x.split("\t")
             if len(kolom) >= 3:
-                hilang.append(kolom[1])
+                hilang.append(_buka_kutip_git(kolom[1]))
     return hilang
 
 

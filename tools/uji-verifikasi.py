@@ -35179,6 +35179,57 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-join -Vfalse ekor version false (alat jalan): gerbang menolak (Audit 2567)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1658, ignore_errors=True)
+        sub1659 = klon(tmp, "sub1659")
+        tab1659 = os.path.join(
+            sub1659, "app", "src", "main", "java",
+            "com", "tasirin", "vaultwardenhost", "Kelas\tTab.java")
+        rujuk1659 = os.path.join(
+            sub1659, "app", "src", "main", "java",
+            "com", "tasirin", "vaultwardenhost", "UjiTab.java")
+        with open(tab1659, "w", encoding="utf-8") as f:
+            f.write("package com.tasirin.vaultwardenhost;\n\nclass KelasTab {\n" "    static int satu() {\n        return 1;\n    }\n" "    static int dua() {\n        return 2;\n    }\n}\n")
+        with open(rujuk1659, "w", encoding="utf-8") as f:
+            f.write("package com.tasirin.vaultwardenhost;\n\n"
+                    "class UjiTab {\n"
+                    "    static final String NAMA = \"Kelas\tTab\";\n}\n")
+        git(sub1659, "add", "-A")
+        git(sub1659, "commit", "-q", "-m", "dasar berkas tab")
+        baru1659 = os.path.join(
+            sub1659, "app", "src", "main", "java",
+            "com", "tasirin", "vaultwardenhost", "KelasTabBaru.java")
+        git(sub1659, "mv", tab1659, baru1659)
+        with open(baru1659, encoding="utf-8") as f:
+            isi1659 = f.read()
+        with open(baru1659, "w", encoding="utf-8") as f:
+            f.write(isi1659.replace("KelasTab", "KelasTabBaru"))
+        git(sub1659, "add", "-A")
+        git(sub1659, "commit", "-q", "-m", "rename berkas tab")
+        rc, out = jalan(sub1659,
+                        [sys.executable, GERBANG,
+                         "--rentang", "HEAD~1..HEAD"])
+        periksa("rename berkas bernama TAB masih dirujuk (rentang): gerbang gagal (Audit 2568)",
+                rc != 0 and "Kelas\tTab" in out)
+        shutil.rmtree(sub1659, ignore_errors=True)
+        sub1660 = klon(tmp, "sub1660")
+        tab1660 = os.path.join(
+            sub1660, "app", "src", "main", "java",
+            "com", "tasirin", "vaultwardenhost", "Kelas\tTab.java")
+        rujuk1660 = os.path.join(
+            sub1660, "app", "src", "main", "java",
+            "com", "tasirin", "vaultwardenhost", "UjiTab.java")
+        with open(tab1660, "w", encoding="utf-8") as f:
+            f.write("package com.tasirin.vaultwardenhost;\n\nclass KelasTab {\n" "    static int satu() {\n        return 1;\n    }\n" "    static int dua() {\n        return 2;\n    }\n}\n")
+        with open(rujuk1660, "w", encoding="utf-8") as f:
+            f.write("package com.tasirin.vaultwardenhost;\n\n"
+                    "class UjiTab {\n"
+                    "    static final String NAMA = \"Kelas\tTab\";\n}\n")
+        git(sub1660, "add", "-A")
+        git(sub1660, "commit", "-q", "-m", "dasar berkas tab")
+        git(sub1660, "rm", "-q", tab1660)
+        rc, out = jalan(sub1660, [sys.executable, GERBANG, "--semua"])
+        periksa("hapus berkas bernama TAB masih dirujuk (lokal): gerbang gagal (Audit 2568)",
+                rc != 0 and "Kelas\tTab" in out)
+        shutil.rmtree(sub1660, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

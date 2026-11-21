@@ -1,5 +1,22 @@
 # Changelog
 
+## [Belum rilis] — Cek berkas dihapus kini membuka quoting gaya-C git (Audit 2568)
+
+- Temuan 2568 (Audit 175, Rendah, fail-open laten):
+  `_path_hilang_name_status` (Audit 2546) mengambil path
+  hasil `git diff --name-status` apa adanya — nama berkas
+  beraksara kontrol/kutip/backslash selalu ter-quote
+  gaya-C oleh git walau `core.quotepath=false`, jadi path
+  hasil parse tak pernah sama dengan path nyata dan
+  rename/hapus berkas semacam itu lolos dari cek referensi
+  yatim.
+- Perbaikan: helper pembuka kutip `_buka_kutip_git`
+  menguraikan escape `\\t`, `\\n`, `\\"`, `\\\\`, dan oktal
+  `\\NNN` per byte UTF-8 sebelum path dibandingkan.
+  Skenario gensuite 1659 (rename bernama TAB, mode rentang)
+  dan 1660 (hapus bernama TAB, mode lokal) mengunci;
+  decoder teruji satuan terhadap bentuk kutip nyata git.
+
 ## [Belum rilis] — Ekor nempel -V/-h kini dimodelkan di cabang tsv-join, tsv-select, tsv-filter, tsv-append (Audit 2567)
 
 - Temuan 2567 (Audit 175, Rendah, gerbang fail-closed):
