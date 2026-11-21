@@ -1,5 +1,24 @@
 # Changelog
 
+## [Belum rilis] — Nilai opsi string tsv-summarize yang mirip opsi kini dinilai termakan (Audit 2560)
+
+- Temuan 2560 (Audit 175, Sedang, gerbang fail-open): model
+  "gantung" cabang `tsv-summarize` menilai opsi bernilai yang
+  token berikutnya diawali `-` sebagai kehilangan nilai (alat
+  mati, aman). Sumber resmi Phobos `handleOption` memakan token
+  berikutnya TANPA syarat — untuk opsi string
+  (`-d`/`--delimiter`, `-v`/`--values-delimiter`,
+  `-r`/`--replace-missing`) nilai mirip-opsi tetap menjadi
+  nilai dan alatnya berjalan menguras, tetapi gerbang
+  meloloskannya.
+- Perbaikan: model gantung kini hanya berlaku untuk
+  `-g`/`--group-by` dan `-p`/`--float-precision`, yang
+  pembuktiannya menyentuh keabsahan isi nilai (di luar
+  doktrin gerbang); opsi string memakan token berikutnya apa
+  pun awalannya. Skenario gensuite 1641–1644 mengunci kedua
+  arah. Terprobe induk sesudah perbaikan: ketiga bentuk
+  fail-open kini ditolak, kontrol tanpa operator tetap lolos.
+
 ## [Belum rilis] — Kabel belahan suite cek-cepat dipasang benar (Audit 2559)
 
 - Temuan 2559 (Audit 175, Sedang): belahan suite Audit 2557 tidak

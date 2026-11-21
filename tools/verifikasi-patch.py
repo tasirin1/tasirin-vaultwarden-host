@@ -10696,15 +10696,25 @@ def _menguras_khusus(perintah, toks, awal):
                             "-g", "-d", "-v", "-p",
                             "-r"):
                 if "=" not in t_tsm:
-                    if (i_tsm + 1 < len(mentah)
+                    # Audit 2560: opsi string (-d/-v/-r
+                    # dan bentuk panjangnya) memakan
+                    # token berikutnya TANPA syarat -
+                    # handleOption Phobos tak memeriksa
+                    # awalan '-'; nilai mirip-opsi tetap
+                    # nilai dan alat berjalan. Model
+                    # gantung hanya tersisa untuk -g/-p,
+                    # yang pembuktiannya menyentuh
+                    # keabsahan isi nilai (di luar
+                    # doktrin gerbang).
+                    if (nama_tsm not in ("-d",
+                                         "--delimiter",
+                                         "-v",
+                                         "--values-delimiter",
+                                         "-r",
+                                         "--replace-missing")
+                            and i_tsm + 1 < len(mentah)
                             and mentah[i_tsm + 1].startswith("-")
-                            and mentah[i_tsm + 1] != "-"
-                            and not (
-                                nama_tsm in ("-r",
-                                             "--replace-missing")
-                                and mentah[i_tsm + 1][1].isdigit()
-                                and _numerik_penuh(
-                                    mentah[i_tsm + 1]))):
+                            and mentah[i_tsm + 1] != "-"):
                         gantung_tsm = True
                     i_tsm += 2
                     continue
