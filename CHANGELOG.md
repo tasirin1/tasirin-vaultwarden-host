@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Jaring push cek-wajib kini lengkap: codeql.yml dan gitleaks.yml ikut tercakup (Audit 2582)
+
+- Temuan 2582 (Audit 176, Rendah): daftar paths pemicu
+  push cek-wajib (Audit 2558) memuat 6 dari 8 berkas
+  workflow — push langsung yang hanya menyentuh
+  `codeql.yml` atau `gitleaks.yml` tak memicu build-apk
+  maupun cek-wajib, lolos tanpa satu pun gerbang.
+- Perbaikan: kedua berkas ditambahkan ke daftar paths
+  pemicu push dan ke daftar saring Audit 2581, plus
+  catatan di komentar pemicu.
+
 ## [Belum rilis] — Push campuran tak lagi menjalankan gerbang dua kali (Audit 2581)
 
 - Temuan 2581 (Audit 176, Rendah): pemicu push
