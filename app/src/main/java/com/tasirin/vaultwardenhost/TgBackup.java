@@ -205,6 +205,8 @@ public final class TgBackup {
 
     public static final long TUNGGU_BOOT_MS = 5L * 60 * 1000;
 
+    static final long TUNDA_ULANG_BACKUP_JAM_MS = 10L * 60 * 1000;
+
     static final int REQ_TUNDA_BOOT = 101;
 
     static final int REQ_HARIAN = 0;
@@ -331,6 +333,23 @@ public final class TgBackup {
     }
 
     public static boolean jadwalTundaBoot(Context ctx) {
+        long kini = SystemClock.elapsedRealtime();
+        return pasangAlarmTundaBoot(ctx, kini + sisaTungguBootMs(kini));
+    }
+
+    static boolean jedaTundaBackupSah(long jedaMs) {
+        return jedaMs > 0;
+    }
+
+    public static boolean jadwalTundaBackupMs(Context ctx, long jedaMs) {
+        if (!jedaTundaBackupSah(jedaMs)) {
+            return false;
+        }
+        return pasangAlarmTundaBoot(ctx,
+                SystemClock.elapsedRealtime() + jedaMs);
+    }
+
+    private static boolean pasangAlarmTundaBoot(Context ctx, long trigger) {
         try {
             AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
             if (am == null) {
@@ -344,8 +363,6 @@ public final class TgBackup {
                     | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                             ? PendingIntent.FLAG_IMMUTABLE : 0);
             PendingIntent pi = PendingIntent.getBroadcast(ctx, REQ_TUNDA_BOOT, intent, flags);
-            long kini = SystemClock.elapsedRealtime();
-            long trigger = kini + sisaTungguBootMs(kini);
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     try {

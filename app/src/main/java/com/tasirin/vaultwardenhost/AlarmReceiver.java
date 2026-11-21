@@ -154,7 +154,10 @@ public class AlarmReceiver extends BroadcastReceiver {
                     TgBackup.sendMessage(context, "Backup otomatis dilewati: tanggal & jam STB"
                             + " salah (terbaca "
                             + Updater.tanggalStbTerbaca() + "). Aktifkan Tanggal & waktu"
-                            + " otomatis di Pengaturan STB, lalu backup manual.");
+                            + " otomatis di Pengaturan STB - backup dicoba lagi otomatis.");
+                    TgBackup.tandaiBackupTertunda(context);
+                    TgBackup.jadwalTundaBackupMs(context,
+                            TgBackup.TUNDA_ULANG_BACKUP_JAM_MS);
                 } else {
                     ServerService.catatLog("[tg] Backup susulan boot dilewati:"
                             + " belum ganti hari.");

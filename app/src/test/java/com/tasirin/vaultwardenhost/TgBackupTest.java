@@ -18,6 +18,16 @@ import java.util.zip.ZipOutputStream;
 public class TgBackupTest {
 
     @Test
+    public void jadwalTundaBackupMs_jedaTakSahDitolak() {
+        assertFalse(TgBackup.jadwalTundaBackupMs(null, 0));
+        assertFalse(TgBackup.jadwalTundaBackupMs(null, -5));
+        assertFalse(TgBackup.jedaTundaBackupSah(0));
+        assertTrue(TgBackup.jedaTundaBackupSah(1));
+        assertTrue(TgBackup.jedaTundaBackupSah(
+                TgBackup.TUNDA_ULANG_BACKUP_JAM_MS));
+    }
+
+    @Test
     public void konstantaKeepPreRestoreDijepitLiteral() {
         assertEquals(2, TgBackup.KEEP_PRE_RESTORE);
     }
