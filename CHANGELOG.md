@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — StoragePermTest mengunci vektor volume SD dan segmen kosong (Audit 174)
+
+- Temuan 2556 (Rendah): dua vektor perilaku `folderPribadiAplikasi` yang benar tidak terkunci uji JVM — volume SD satu-segmen (`/storage/1234-5678/...` → true) dan segmen volume kosong sintetik (`/storage//...` → false) — padahal cabang ini sudah dua kali rusak (2512 dan perbaikan cfada72e). Kedua asersi ditambahkan ke `folderPribadiAplikasiHanyaSesudahRoot`; nilai harapannya dibuktikan lebih dulu lewat porting Python 1:1 atas fungsi saat ini (8/8 vektor cocok, termasuk enam yang lama). Closes #2330.
+
 ## [Belum rilis] — Lima asersi penolakan uji-cek-cepat diperkuat jangkar keluaran (Audit 174)
 
 - Temuan 2555 (Rendah): lima skenario penolakan di `tools/uji-cek-cepat.py` (symlink vektor 2128, token terbelah 2177, token hanya-di-HEAD 2225, header kunci biner 2226 dan .pyc 2234) hanya memeriksa `rc != 0 and rc != 124`, sehingga crash skrip cek-cepat sendiri akan ikut lolos hijau — kelas kelemahan yang sudah diberantas di suite utama oleh 2506/2527. Kelimanya kini menuntut jangkar keluaran: pesan `path vektor tanpa nol depan` untuk 2128 dan `pola rahasia` + nama berkas tertuduh untuk empat lainnya (format pesan dibuktikan dari keluaran cek-cepat asli). Closes #2329.

@@ -63,6 +63,10 @@ public class StoragePermTest {
                 "/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost.evil/files"));
         assertFalse(StoragePerm.folderPribadiAplikasi(
                 "/storage/Android/data/com.tasirin.vaultwardenhost/files"));
+        assertTrue(StoragePerm.folderPribadiAplikasi(
+                "/storage/1234-5678/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
+        assertFalse(StoragePerm.folderPribadiAplikasi(
+                "/storage//Android/data/com.tasirin.vaultwardenhost/files"));
     }
 
     @Test
