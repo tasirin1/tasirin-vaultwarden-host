@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — Ekor nempel -V/-h kini dimodelkan di cabang tsv-join, tsv-select, tsv-filter, tsv-append (Audit 2567)
+
+- Temuan 2567 (Audit 175, Rendah, gerbang fail-closed):
+  perbaikan 2553 hanya memodelkan ekor bool nempel
+  (`-Vtrue` berhenti, `-htrue` berhenti) untuk alat
+  `_SAH_TSV` dan `tsv-summarize`; empat cabang khusus ini
+  masih mencocokkan opsi informatif sebagai token persis
+  saja sehingga bentuk ekornya ditolak padahal alatnya
+  berhenti sebelum membaca.
+- Perbaikan: keempat cabang kini menerapkan model yang
+  sama — `-h` berekor selalu berhenti; `-V` berekor
+  berhenti kecuali ekor bool `false`. Cabang saudara
+  (uniq/sample/pretty/split) terprobe sudah benar dan tak
+  disentuh. Skenario gensuite 1649–1658 mengunci kedua
+  arah; terprobe induk 12/12.
+
 ## [Belum rilis] — Opsi bantuan panjang tsv-summarize kini dikenali gerbang sebagai informasional (Audit 2566)
 
 - Temuan 2566 (Audit 175, Rendah, gerbang fail-closed):

@@ -9798,6 +9798,19 @@ def _menguras_khusus(perintah, toks, awal):
                          or t_lp.split("=", 1)[1].lower()
                          != "false")):
                 return False
+            # Audit 2567: ekor nempel -V/-h sejajar
+            # model 2553 - -h berekor selalu berhenti
+            # (hanya cocok sebagai token persis di
+            # sapuan akhir getopt); -V berekor berhenti
+            # kecuali ekor bool "false" (version mati,
+            # alat tetap jalan).
+            if (not t_lp.startswith("--")
+                    and len(t_lp) > 2
+                    and (t_lp.startswith("-h")
+                         or (t_lp.startswith("-V")
+                             and t_lp[2:].lower()
+                             != "false"))):
+                return False
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
                                         "--version",
@@ -10351,6 +10364,19 @@ def _menguras_khusus(perintah, toks, awal):
                          or t_lp.split("=", 1)[1].lower()
                          != "false")):
                 return False
+            # Audit 2567: ekor nempel -V/-h sejajar
+            # model 2553 - -h berekor selalu berhenti
+            # (hanya cocok sebagai token persis di
+            # sapuan akhir getopt); -V berekor berhenti
+            # kecuali ekor bool "false" (version mati,
+            # alat tetap jalan).
+            if (not t_lp.startswith("--")
+                    and len(t_lp) > 2
+                    and (t_lp.startswith("-h")
+                         or (t_lp.startswith("-V")
+                             and t_lp[2:].lower()
+                             != "false"))):
+                return False
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
                                         "--version",
@@ -10443,6 +10469,19 @@ def _menguras_khusus(perintah, toks, awal):
                          or dasar_lp.lower() == "--help"
                          or t_lp.split("=", 1)[1].lower()
                          != "false")):
+                return False
+            # Audit 2567: ekor nempel -V/-h sejajar
+            # model 2553 - -h berekor selalu berhenti
+            # (hanya cocok sebagai token persis di
+            # sapuan akhir getopt); -V berekor berhenti
+            # kecuali ekor bool "false" (version mati,
+            # alat tetap jalan).
+            if (not t_lp.startswith("--")
+                    and len(t_lp) > 2
+                    and (t_lp.startswith("-h")
+                         or (t_lp.startswith("-V")
+                             and t_lp[2:].lower()
+                             != "false"))):
                 return False
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
@@ -10823,6 +10862,19 @@ def _menguras_khusus(perintah, toks, awal):
                          or dasar_lp.lower() == "--help"
                          or t_lp.split("=", 1)[1].lower()
                          != "false")):
+                return False
+            # Audit 2567: ekor nempel -V/-h sejajar
+            # model 2553 - -h berekor selalu berhenti
+            # (hanya cocok sebagai token persis di
+            # sapuan akhir getopt); -V berekor berhenti
+            # kecuali ekor bool "false" (version mati,
+            # alat tetap jalan).
+            if (not t_lp.startswith("--")
+                    and len(t_lp) > 2
+                    and (t_lp.startswith("-h")
+                         or (t_lp.startswith("-V")
+                             and t_lp[2:].lower()
+                             != "false"))):
                 return False
             if (t_lp in ("-V", "-h")
                     or t_lp.lower() in ("--help",
