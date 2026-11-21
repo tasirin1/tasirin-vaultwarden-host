@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — Daftar abaikan CodeQL kini mencakup semua workflow (Audit 2571)
+
+- Temuan 2571 (Audit 175, Rendah): `paths-ignore` CodeQL
+  (Audit 2523) mengecualikan workflow pinggiran tetapi
+  tidak build-apk/cek-wajib/auto-merge/codeql/gitleaks —
+  push yang hanya menyentuh workflow inti itu (kelas push
+  yang kini dicakup pemicu Audit 2558) tetap memicu
+  analisis CodeQL penuh atas berkas yang tak bisa
+  dianalisisnya.
+- Perbaikan: kelima workflow itu ditambahkan ke daftar
+  abaikan push dan pull_request. Arah borosnya fail-safe;
+  tak ada cakupan analisis kode yang berkurang.
+
 ## [Belum rilis] — Uji enumerasi registri kini mengunci kunci tunda jam dan bendera backup tertunda (Audit 2570)
 
 - Temuan 2570 (Audit 175, Rendah): sisi produksi benar
