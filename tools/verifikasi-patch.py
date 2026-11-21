@@ -10618,6 +10618,25 @@ def _menguras_khusus(perintah, toks, awal):
         # menggantung (galat getopt).
         ada_op_tsm = False
         gantung_tsm = False
+        # Audit 2554: kosakata nama panjang resmi
+        # tsv-summarize.d - nama di luar ini mati
+        # sebagai GetOptException sebelum membaca.
+        # --header/--version pulau caseSensitive:
+        # hanya bentuk persisnya yang dikenal.
+        panjang_tsm = frozenset({
+            "--group-by", "--delimiter",
+            "--values-delimiter", "--float-precision",
+            "--replace-missing", "--sum", "--mean",
+            "--median", "--min", "--max", "--mode",
+            "--first", "--last", "--stdev", "--var",
+            "--range", "--quantile", "--retain",
+            "--values", "--unique-values",
+            "--unique-count", "--mode-count",
+            "--missing-count", "--not-missing-count",
+            "--count-header", "--mad", "--count",
+            "--write-header", "--exclude-missing",
+            "--help", "--help-verbose",
+            "--help-fields", "--help-options"})
         i_tsm = 0
         while i_tsm < len(mentah):
             t_tsm = mentah[i_tsm]
@@ -10634,6 +10653,16 @@ def _menguras_khusus(perintah, toks, awal):
                     and t_tsm[2:].lower() != "false"):
                 return False
             nama_tsm = t_tsm.lower().split("=", 1)[0]
+            mentah_tsm = t_tsm.split("=", 1)[0]
+            if mentah_tsm.startswith("--"):
+                if mentah_tsm in ("--header",
+                                   "--version"):
+                    pass
+                elif nama_tsm in ("--header",
+                                  "--version"):
+                    return False
+                elif nama_tsm not in panjang_tsm:
+                    return False
             if nama_tsm in ("--sum", "--mean",
                             "--median", "--min",
                             "--max", "--mode",
@@ -10734,12 +10763,33 @@ def _menguras_khusus(perintah, toks, awal):
         # NILAI opsi bernilai (handleOption
         # Phobos memakannya tanpa syarat).
         bernilai_lp = ['--append-fields', '--data-fields', '--delimiter', '--filter-file', '--key-fields', '--prefix', '--write-all', '-V', '-a', '-d', '-f', '-k', '-p', '-w']
+        # Audit 2554: kosakata nama panjang resmi
+        # tsv-join.d - nama di luar ini mati
+        # sebagai GetOptException sebelum membaca.
+        # --header/--version pulau caseSensitive.
+        panjang_tj = frozenset({
+            "--help", "--help-verbose",
+            "--help-fields", "--help-options",
+            "--filter-file", "--key-fields",
+            "--data-fields", "--append-fields",
+            "--prefix", "--write-all", "--exclude",
+            "--delimiter", "--allow-duplicate-keys",
+            "--line-buffered"})
         i_lp = 0
         while i_lp < len(mentah):
             t_lp = mentah[i_lp]
             if t_lp == "--":
                 break
             dasar_lp = t_lp.split("=", 1)[0]
+            if dasar_lp.startswith("--"):
+                if dasar_lp in ("--header",
+                                "--version"):
+                    pass
+                elif dasar_lp.lower() in ("--header",
+                                          "--version"):
+                    return False
+                elif dasar_lp.lower() not in panjang_tj:
+                    return False
             if ("=" in t_lp
                     and (dasar_lp in ("-V", "-h")
                          or dasar_lp.lower() in (

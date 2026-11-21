@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nama opsi panjang hantu di summarize & join kini dikenali (Audit 174)
+
+- Temuan 2554 (Rendah, fail-closed): cabang `tsv-summarize` dan `tsv-join` tidak memvalidasi nama opsi panjang, sehingga nama hantu seperti `--bogus` (dan `--HEADER` kapital — pulau `caseSensitive` di sumbernya) divonis berpotensi menguras padahal getopt asli mati sebelum membaca. Kedua cabang kini memvalidasi nama panjang terhadap kosakata resmi sumber masing-masing (`tsv-summarize.d`/`tsv-join.d`), dengan `--header`/`--version` hanya dikenal dalam bentuk persisnya; cabang select/filter yang sudah bersih menjadi pembandingnya. Skenario gensuite 1637–1640 mengunci bentuk hantu sebagai lolos dan `tsv-join -f x` sebagai tetap tertolak. Closes #2328.
+
 ## [Belum rilis] — Gerbang: ekor nempel opsi informasional tak lagi ditolak keliru (Audit 174)
 
 - Temuan 2553 (Rendah, fail-closed): `-htrue`/`-hfalse` di cabang `_SAH_TSV` dan `-Vtrue` di cabang tsv/number-lines/summarize divonis menguras, padahal alat asli berhenti sebelum membaca — `-h` bantuan implisit hanya cocok sebagai token persis di sapuan akhir getopt, dan `-V` version tercetak lalu berhenti. `_nama_sah_tsv` kini menolak-sah token berekor berhuruf `h`, dan untuk `V` hanya ekor bool `false` (dilipat) yang berarti alat tetap jalan — sejajar perlakuan bentuk `=` penjaga 2423; cabang summarize mendapat aturan yang sama di loop sadar-nilainya. Skenario gensuite 1632–1636 mengunci bentuk berhenti sebagai lolos dan `-Vfalse` sebagai tetap tertolak. Closes #2327.
