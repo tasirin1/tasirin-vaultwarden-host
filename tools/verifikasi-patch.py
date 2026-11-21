@@ -10536,6 +10536,18 @@ def _menguras_khusus(perintah, toks, awal):
                 break
             if t_awal in ("-V", "-h"):
                 return False
+            # Audit 2566: opsi bantuan panjang juga
+            # informasional dalam bentuk polosnya -
+            # terdaftar di zona caseInsensitive sumber
+            # sehingga hurufnya ikut dilipat; alat
+            # berhenti sebelum membaca (atau mati
+            # GetOptException untuk --help-options
+            # yang tak terdaftar di summarize).
+            if t_awal.lower() in ("--help",
+                                  "--help-verbose",
+                                  "--help-fields",
+                                  "--help-options"):
+                return False
             # Audit 2423: bentuk "=" opsi
             # informasional - bawaan getopt
             # hanya cocok persis (galat), opsi

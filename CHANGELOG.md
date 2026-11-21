@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — Opsi bantuan panjang tsv-summarize kini dikenali gerbang sebagai informasional (Audit 2566)
+
+- Temuan 2566 (Audit 175, Rendah, gerbang fail-closed):
+  bentuk polos `--help-verbose`/`--help-fields`/
+  `--help-options` pada `tsv-summarize` ditolak gerbang
+  padahal alatnya berhenti sebelum membaca (dua pertama
+  terdaftar nyata di getopt-nya; yang ketiga tak terdaftar
+  sehingga alat mati) — cabang summarize hanya mengenali
+  bentuk "=" opsi-opsi itu.
+- Perbaikan: putaran awal cabang kini juga mengembalikan
+  aman untuk keempat nama bantuan panjang polos, dilipat
+  huruf sesuai zona caseInsensitive sumber (termasuk
+  `--HELP` terlipat yang sebelumnya ikut tertolak).
+  Skenario gensuite 1645–1648 mengunci; terprobe induk 6/6.
+
 ## [Belum rilis] — Syarat redundan di cabang putar-balik log beranda dibuang (Audit 2565)
 
 - Temuan 2565 (Audit 175, Rendah, kode sampah): syarat
