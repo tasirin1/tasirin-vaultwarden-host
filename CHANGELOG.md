@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Dialog crash LogActivity tak lagi bisa tampil dobel (Audit 173)
+
+- `LogActivity` kini punya bendera penjaga `dialogCrashTampil`, meniru pola dialog impor/restore di SettingsActivity. Sebelumnya tiap ketukan tombol Crash menjalankan tugas latar baru yang berakhir membuka dialog baru, jadi ketukan beruntun menumpuk dialog crash. Bendera dipasang sebelum tugas latar mulai, dilepas pada semua jalan keluar (activity selesai, log kosong, antrean penuh) dan saat dialog ditutup.
+
 ## [Belum rilis] — Dialog Tentang tak lagi bisa tampil dobel (Audit 173)
 
 - `AboutDialog.tampil` kini menolak tampil bila dialog Tentang sebelumnya masih terbuka. Tombol Tentang tetap aktif dan pembuatan dialognya memuat isi dari disk di latar, jadi ketukan ganda pada perangkat lambat sebelumnya menumpuk dua dialog identik. Penjaga berupa `WeakReference<Dialog>` statis yang dicek `isShowing()`-nya — dialog yang sudah ditutup atau activity yang berganti tidak menghalangi tampil berikutnya.

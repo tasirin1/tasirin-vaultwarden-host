@@ -37,6 +37,7 @@ public class LogActivity extends Activity {
     private TextView logCount;
     private String logSearch = "";
     private boolean logAutoScroll = false;
+    private boolean dialogCrashTampil = false;
     private long cariDibangunTerakhirMs = 0;
     private String cariTerakhirDibangun = null;
 
@@ -496,16 +497,21 @@ public class LogActivity extends Activity {
     }
 
     private void showCrashDialog() {
-
+        if (dialogCrashTampil) {
+            return;
+        }
+        dialogCrashTampil = true;
         boolean masuk = Util.jalankanBg(() -> {
 
             String mentahCrash = ServerService.crashLogText(LogActivity.this);
             final String crash = butuhSamaran(mentahCrash) ? samarkanLog(mentahCrash) : mentahCrash;
             ui.post(() -> {
                 if (isFinishing() || isDestroyed()) {
+                    dialogCrashTampil = false;
                     return;
                 }
                 if (crash == null || crash.trim().isEmpty()) {
+                    dialogCrashTampil = false;
                     toast(getString(R.string.log_crash_belum_ada));
                     return;
                 }
@@ -513,6 +519,7 @@ public class LogActivity extends Activity {
             });
         });
         if (!masuk) {
+            dialogCrashTampil = false;
             toast(getString(R.string.antrean_penuh));
         }
     }
@@ -528,7 +535,7 @@ public class LogActivity extends Activity {
         tv.setPadding(pad, pad, pad, pad);
         ScrollView sv = new ScrollView(this);
         sv.addView(tv);
-        DialogAman.tampil(this, new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.log_crash_judul)
                 .setView(sv)
                 .setPositiveButton(R.string.copy, (dlg, w) -> {
@@ -536,7 +543,9 @@ public class LogActivity extends Activity {
                     toast(getString(R.string.log_crash_disalin));
                 })
                 .setNegativeButton(getString(R.string.close), null)
-                .create());
+                .create();
+        dialog.setOnDismissListener(dlg -> dialogCrashTampil = false);
+        DialogAman.tampil(this, dialog);
     }
 
     private static final java.util.regex.Pattern POLA_TOKEN_URL =
