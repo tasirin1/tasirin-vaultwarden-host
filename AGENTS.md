@@ -237,8 +237,14 @@ ulang antar run binary.
 **Gerbang bersama: job `verifikasi` (~1 mnt, tanpa SDK)** — ada di dalam
 **kedua** workflow build sebagai job pertama, sehingga build apa pun yang
 terpicu selalu melewatinya lebih dulu; selain itu workflow terpisah
-`cek-wajib.yml` menjalankan job bernama sama untuk **semua** `pull_request`
-tanpa saringan path (termasuk PR dokumen). Di `build-apk.yml`
+`cek-wajib.yml` menjalankan job bernama `Cek patch yang berubah` untuk
+**semua** `pull_request` tanpa saringan path (termasuk PR dokumen) dan
+menjadi pelapor utama check wajib itu di PR — job verifikasi
+`build-binary.yml` memakai nama yang sama dan menjalankan cek asli pada
+path-nya, sedangkan job verifikasi `build-apk.yml` bernama
+`Cek patch yang berubah (build-apk)` sejak Audit 2526 karena
+langkah-langkahnya dilewati di PR (Audit 2522) sehingga tidak boleh
+melaporkan nama check wajib. Di `build-apk.yml`
 ia berjalan untuk `push`/`pull_request` yang menyentuh daftar-putih path
 pembentuk APK (Audit 817) dan `workflow_dispatch`; di `build-binary.yml`
 untuk `push`/`pull_request` yang menyentuh `build-binary.yml`/`shim/**`,

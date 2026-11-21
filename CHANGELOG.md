@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Job verifikasi build-apk tak lagi melaporkan check wajib di PR (Audit 173)
+
+- Job `verifikasi` di `build-apk.yml` berganti nama tampilan menjadi `Cek patch yang berubah (build-apk)`. Sesudah perbaikan 2522 (Audit 172) semua langkah job ini dilewati pada pull request, sehingga dengan nama lama — persis sama dengan check wajib proteksi branch — job ini melaporkan check wajib sebagai sukses tanpa menjalankan satu pun cek, dan dokumentasi GitHub memperingatkan nama job ganda pada required check menghasilkan status ambigu. Check wajib `Cek patch yang berubah` di PR kini dilaporkan hanya oleh `cek-wajib.yml` (semua PR, cek asli) dan job verifikasi `build-binary.yml` pada path-nya (cek asli). Komentar kepala `cek-wajib.yml` dan `AGENTS.md` diselaraskan. Pola akhiran meniru job `verifikasi-cek` yang sudah bernama `Cek patch yang berubah (cek-cepat)`.
+
 ## [Belum rilis] — Kompilasi putus oleh panggilan verifikasiIsiDbZip 2 argumen diperbaiki (Audit 173)
 
 - Perbaikan 2511 (Audit 172) mengubah `TgBackup.verifikasiIsiDbZip` menjadi 1 argumen (streaming) tetapi hanya memperbarui pemanggil di dalam TgBackup dan uji unit; pemanggil kedua di `SettingsActivity.backupDatabaseIsi` (backup DB lokal manual) tertinggal dalam bentuk 2 argumen sehingga kode tidak bisa dikompilasi sama sekali. Pemanggil itu kini memakai bentuk 1 argumen dan mesin berkas sementara `tmpIsi`-nya dibuang. Aman secara semantik: alur ini sudah menjalankan `snapshotDbKonsisten` (quick_check atas snapshot) sebelum zip dibuat dari snapshot yang sama, dan bentuk streaming membuktikan byte tersimpan identik lewat CRC — persis pertimbangan yang sama dengan pemanggil utama di 2511.

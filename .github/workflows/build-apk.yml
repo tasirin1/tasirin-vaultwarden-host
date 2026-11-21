@@ -52,7 +52,16 @@ concurrency:
 
 jobs:
   verifikasi:
-    name: Cek patch yang berubah
+    # Audit 2526: nama job ini SENGAJA dibedakan dari check wajib
+    # "Cek patch yang berubah". Sesudah 2522 semua langkah job ini
+    # dilewati pada pull_request, jadi bila namanya tetap sama persis,
+    # job ini melaporkan check wajib sebagai sukses tanpa menjalankan
+    # satu pun cek — dan dokumentasi GitHub memperingatkan nama job
+    # ganda pada required check menghasilkan status ambigu. Check
+    # wajib di PR kini dilaporkan hanya oleh cek-wajib.yml (dan job
+    # verifikasi build-binary.yml pada path-nya; keduanya menjalankan
+    # cek asli). Pola akhiran meniru job verifikasi-cek di bawah.
+    name: Cek patch yang berubah (build-apk)
     runs-on: ubuntu-24.04
     # Audit 1380: suite uji-diri kini berjalan +-19-25 menit;
     # batas lama 15 menit membunuh job di tengah suite.

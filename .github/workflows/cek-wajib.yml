@@ -5,8 +5,11 @@ name: Cek wajib PR
 # PR yang hanya menyentuh berkas itu tak pernah menghasilkan check wajib
 # dan merge normalnya buntu selamanya (Audit 638). Workflow ringan ini
 # berjalan untuk SEMUA PR tanpa saringan path dan melaporkan check
-# bernama sama persis dengan langkah yang sama seperti job verifikasi
-# build-apk, agar PR dokumen tetap bisa di-merge lewat jalur normal.
+# wajib itu dengan langkah-langkah cek yang asli, agar PR dokumen
+# tetap bisa di-merge lewat jalur normal. Job verifikasi build-apk
+# bernama berbeda ("Cek patch yang berubah (build-apk)") sejak
+# Audit 2526 — langkah-langkahnya dilewati di PR (Audit 2522),
+# jadi ia tidak boleh melaporkan nama check wajib ini.
 
 on:
   pull_request:
