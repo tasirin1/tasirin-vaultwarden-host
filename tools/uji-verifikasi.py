@@ -31276,7 +31276,7 @@ def main():
             f.write(isi_baru1472)
         rc, out = jalan(sub1472,
                         [sys.executable, GERBANG, "--hanya-workflow"])
-        periksa("tsv-summarize --sum menggantung oleh --count: galat - gerbang lolos (Audit 2375)", rc == 0)
+        periksa("tsv-summarize --sum memakan --count sebagai nilai operator: alat jalan - gerbang gagal (Audit 2375, koreksi model gantung oleh Audit 2574)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1472, ignore_errors=True)
         sub1473 = klon(tmp, "sub1473")
         berkas_aksi1473 = os.path.join(

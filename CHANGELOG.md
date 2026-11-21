@@ -196,6 +196,16 @@
   tersisa tepat di tempatnya: penerima char/numerik
   dengan nilai tak sah. Skenario gensuite 1665–1668
   mengunci; terprobe induk 10/10.
+- Koreksi susulan (tertangkap CI pada push Maraton
+  176): skenario lama Audit 2375
+  (`tsv-summarize --sum --count` dinilai lolos dengan
+  model gantung) dibalik ke vonis gagal — buktinya
+  sama dengan perbaikan ini: `--sum` memakan
+  `--count` sebagai nilainya dan alat berjalan
+  (parse field-nya baru meledak sesudah header
+  dibaca, tsv-summarize.d:379). Skenario 2375 adalah
+  sisa model gantung terakhir yang belum terbalik
+  sejak koreksi 2398/2415 di Maraton 175.
 
 ## [Belum rilis] — Vonis opsi pembatas summarize dibetulkan: penerima char mati oleh nilai mirip-opsi (Audit 2573)
 
