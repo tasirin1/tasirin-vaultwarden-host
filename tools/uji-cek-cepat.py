@@ -49,1195 +49,1212 @@ def tanam(repo, rel, isi, mode="wb"):
     git(repo, "commit", "-q", "-m", "tanam pelanggaran uji")
 
 
-def main():
-    with tempfile.TemporaryDirectory(prefix="uji-cek-cepat-") as tmp:
-        bersih = klon(tmp, "bersih")
-        rc, out = jalan(bersih, ["bash", SKRIP])
-        periksa("kontrol: pohon bersih lolos", rc == 0,
-                "" if rc == 0 else out[-400:])
-        shutil.rmtree(bersih, ignore_errors=True)
-
-
-
-
-        # Audit 1459: token_palsu dipakai banyak blok skenario —
-        # definisikan sekali di sini, bukan di dalam blok rahasia
-        # (menghapus blok itu dulu merusak empat blok lain).
-        token_palsu = "123456789" + ":" + "AA" + "Ab3_" * 10
-
-        rahasia = klon(tmp, "rahasia")
-        tanam(rahasia, "catatan-token.txt",
-              "token uji: " + token_palsu + "\n", "w")
-        rc, out = jalan(rahasia, ["bash", SKRIP])
-        periksa("pola token rahasia tertangkap",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(rahasia, ignore_errors=True)
-
-        terbelah = klon(tmp, "terbelah")
-        paruh = len(token_palsu) // 2
-        tanam(terbelah, "catatan-token-terbelah.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(terbelah, ["bash", SKRIP])
-        periksa("token terbelah dua baris tertangkap (cabang bungkus)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(terbelah, ignore_errors=True)
-
-        tokenjeda = klon(tmp, "tokenjeda")
-        tanam(tokenjeda, "catatan-token-jeda.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "# jeda\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenjeda, ["bash", SKRIP])
-        periksa("token terbelah tersela baris komentar tertangkap "
-                "(Audit 1506)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(tokenjeda, ignore_errors=True)
-
-        readme = klon(tmp, "readme")
-        berkas_rm = os.path.join(readme, "README.id.md")
-        with open(berkas_rm, encoding="utf-8") as f:
-            isi_rm = f.read()
-        with open(berkas_rm, "w", encoding="utf-8") as f:
-            f.write(isi_rm.replace("\n## ", "\n### ", 1))
-        rc, out = jalan(readme, ["bash", SKRIP])
-        periksa("struktur judul README beda: cek-cepat gagal (Audit 868)",
-                rc != 0 and "struktur judul" in out)
-        shutil.rmtree(readme, ignore_errors=True)
-
-        vektor = klon(tmp, "vektor")
-        tanam(vektor, "app/src/main/res/drawable/ic_uji_vektor.xml",
-              "<vector xmlns:android="
-              "\"http://schemas.android.com/apk/res/android\""
-              " android:width=\"24dp\" android:height=\"24dp\""
-              " android:viewportWidth=\"24\" android:viewportHeight=\"24\">"
-              "<path android:fillColor=\"#000000\""
-              " android:pathData=\"M.9,5 h5 v5 z\" /></vector>\n", "w")
-        rc, out = jalan(vektor, ["bash", SKRIP])
-        periksa("path vektor tanpa nol depan tertangkap",
-                rc != 0 and "tanpa nol depan" in out)
-        shutil.rmtree(vektor, ignore_errors=True)
-
-        terabaikan = klon(tmp, "terabaikan")
-        tanam(terabaikan, ".gitignore", "rahasia-terabaikan.txt\n", "w")
-        with open(os.path.join(terabaikan, "rahasia-terabaikan.txt"),
-                  "w") as f:
-            f.write("token uji: " + token_palsu + "\n")
-        rc, out = jalan(terabaikan, ["bash", SKRIP])
-        periksa("token di berkas ter-.gitignore tertangkap (Audit 1436)",
-                rc != 0 and "pola rahasia" in out
-                and "rahasia-terabaikan.txt" in out)
-        shutil.rmtree(terabaikan, ignore_errors=True)
-
-        kunciterbelah = klon(tmp, "kunciterbelah")
-        tanam(kunciterbelah, "kunci-terbelah.txt",
-              "-----BEGIN OPENSSH\nPRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciterbelah, ["bash", SKRIP])
-        periksa("header private key terbelah tertangkap "
-                "(cabang bungkus) (Audit 1437)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-terbelah.txt" in out)
-        shutil.rmtree(kunciterbelah, ignore_errors=True)
-
-        kuncitersela = klon(tmp, "kuncitersela")
-        tanam(kuncitersela, "kunci-tersela.txt",
-              "-----BEGIN OPENSSH\nsisipan komentar lain\n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kuncitersela, ["bash", SKRIP])
-        periksa("header terbelah tersela baris lain tertangkap "
-                "(Audit 1456)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-tersela.txt" in out)
-        shutil.rmtree(kuncitersela, ignore_errors=True)
-
-        kuncikomentar = klon(tmp, "kuncikomentar")
-        tanam(kuncikomentar, "kunci-komentar.txt",
-              "-----BEGIN OPENSSH\n# catatan penting\n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kuncikomentar, ["bash", SKRIP])
-        periksa("header tersela baris komentar tertangkap "
-                "(Audit 1505)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-komentar.txt" in out)
-        shutil.rmtree(kuncikomentar, ignore_errors=True)
-
-        kuncitengah = klon(tmp, "kuncitengah")
-        tanam(kuncitengah, "kunci-tengah.txt",
-              "-----BEGIN RSA PRIVATE\nxyz123\n"
-              "KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kuncitengah, ["bash", SKRIP])
-        periksa("header terbelah di tengah frasa tertangkap "
-                "(Audit 1505)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-tengah.txt" in out)
-        shutil.rmtree(kuncitengah, ignore_errors=True)
-
-        kuncipanjang = klon(tmp, "kuncipanjang")
-        tanam(kuncipanjang, "kunci-panjang.txt",
-              "-----BEGIN " + "a" * 250 + " PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kuncipanjang, ["bash", SKRIP])
-        periksa("header label huruf kecil panjang tertangkap "
-                "(Audit 1505)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-panjang.txt" in out)
-        shutil.rmtree(kuncipanjang, ignore_errors=True)
-
-        kuncitab = klon(tmp, "kuncitab")
-        tanam(kuncitab, "kunci-tab.txt",
-              "-----BEGIN OPENSSH\tPRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kuncitab, ["bash", SKRIP])
-        periksa("header private key ber-TAB tertangkap (Audit 1455)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-tab.txt" in out)
-        shutil.rmtree(kuncitab, ignore_errors=True)
-
-        namabarisbaru = klon(tmp, "namabarisbaru")
-        paruh2 = len(token_palsu) // 2
-        tanam(namabarisbaru, "token\nterbelah.txt",
-              "token uji: " + token_palsu[:paruh2] + "\n"
-              + token_palsu[paruh2:] + "\n", "w")
-        rc, out = jalan(namabarisbaru, ["bash", SKRIP])
-        periksa("token terbelah di berkas bernama newline tertangkap "
-                "(Audit 1454)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(namabarisbaru, ignore_errors=True)
-
-        readmehilang = klon(tmp, "readmehilang")
-        os.remove(os.path.join(readmehilang, "README.id.md"))
-        tanam(readmehilang, "catatan-token.txt",
-              "token uji: " + token_palsu + "\n", "w")
-        rc, out = jalan(readmehilang, ["bash", SKRIP])
-        periksa("README hilang: skrip tetap memindai rahasia "
-                "(Audit 1438)",
-                rc == 1 and "berkas wajib hilang" in out
-                and "pola rahasia" in out)
-        shutil.rmtree(readmehilang, ignore_errors=True)
-
-        takterlacak = klon(tmp, "takterlacak")
-        with open(os.path.join(takterlacak, "catatan-baru.txt"),
-                  "w") as f:
-            f.write("token uji: " + token_palsu + "\n")
-        rc, out = jalan(takterlacak, ["bash", SKRIP])
-        periksa("token di berkas tak terlacak tertangkap (Audit 1439)",
-                rc != 0 and "pola rahasia" in out
-                and "catatan-baru.txt" in out)
-        shutil.rmtree(takterlacak, ignore_errors=True)
-
-        tokenparuhpagar = klon(tmp, "tokenparuhpagar")
-        tanam(tokenparuhpagar, "token-paruh-pagar.txt",
-              "warna #fff token: " + token_palsu[:paruh] + "\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenparuhpagar, ["bash", SKRIP])
-        periksa("token terbelah dengan paruh sesudah '#' sebaris "
-                "tertangkap (Audit 1526)",
-                rc != 0 and "pola rahasia" in out
-                and "token-paruh-pagar.txt" in out)
-        shutil.rmtree(tokenparuhpagar, ignore_errors=True)
-
-        kuncimulaipagar = klon(tmp, "kuncimulaipagar")
-        tanam(kuncimulaipagar, "kunci-mulai-pagar.txt",
-              "# x -----BEGIN OPENSSH\n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kuncimulaipagar, ["bash", SKRIP])
-        periksa("header diawali baris '#' tertangkap (Audit 1526)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-mulai-pagar.txt" in out)
-        shutil.rmtree(kuncimulaipagar, ignore_errors=True)
-
-        tokenparuhkomentar = klon(tmp, "tokenparuhkomentar")
-        tanam(tokenparuhkomentar, "token-paruh-komentar.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "# " + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenparuhkomentar, ["bash", SKRIP])
-        periksa("paruh token di dalam baris komentar tertangkap "
-                "(Audit 1527)",
-                rc != 0 and "pola rahasia" in out
-                and "token-paruh-komentar.txt" in out)
-        shutil.rmtree(tokenparuhkomentar, ignore_errors=True)
-
-        tokenparuhjarak = klon(tmp, "tokenparuhjarak")
-        tanam(tokenparuhjarak, "token-paruh-jarak.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "   # " + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenparuhjarak, ["bash", SKRIP])
-        periksa("paruh token di baris komentar berindentasi "
-                "tertangkap (Audit 1527)",
-                rc != 0 and "pola rahasia" in out
-                and "token-paruh-jarak.txt" in out)
-        shutil.rmtree(tokenparuhjarak, ignore_errors=True)
-
-        tokentergabung = klon(tmp, "tokentergabung")
-        tanam(tokentergabung, "token-tergabung-pagar.txt",
-              "token uji: " + token_palsu[:paruh] + "#"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokentergabung, ["bash", SKRIP])
-        periksa("token tergabung '#' sebaris tertangkap "
-                "(Audit 1527)",
-                rc != 0 and "pola rahasia" in out
-                and "token-tergabung-pagar.txt" in out)
-        shutil.rmtree(tokentergabung, ignore_errors=True)
-
-        tokenselabintang = klon(tmp, "tokenselabintang")
-        tanam(tokenselabintang, "token-sela-bintang.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "***\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselabintang, ["bash", SKRIP])
-        periksa("token tersela baris tanda bintang tertangkap "
-                "(Audit 1528)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-bintang.txt" in out)
-        shutil.rmtree(tokenselabintang, ignore_errors=True)
-
-        kunciselaat = klon(tmp, "kunciselaat")
-        tanam(kunciselaat, "kunci-sela-at.txt",
-              "-----BEGIN RSA\n# cc @tim jeda\n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciselaat, ["bash", SKRIP])
-        periksa("header tersela komentar beraksara '@' tertangkap "
-                "(Audit 1733)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-sela-at.txt" in out)
-        shutil.rmtree(kunciselaat, ignore_errors=True)
-
-        tokenselaat = klon(tmp, "tokenselaat")
-        tanam(tokenselaat, "token-sela-at.txt",
-              token_palsu[:paruh] + "\n"
-              "# cc @tim\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselaat, ["bash", SKRIP])
-        periksa("token tersela komentar beraksara '@' tertangkap "
-                "(Audit 1733)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-at.txt" in out)
-        shutil.rmtree(tokenselaat, ignore_errors=True)
-
-        contohsela = klon(tmp, "contohsela")
-        tanam(contohsela, "contoh-header.md",
-              "Contoh header teredaksi -----BEGIN RSA @ PRIVATE "
-              "KEY----- diikuti keterangan penjelasan panjang\n", "w")
-        rc, out = jalan(contohsela, ["bash", SKRIP])
-        periksa("contoh header berperedaksi simbol + ekor panjang "
-                "tertangkap - residu diterima (Audit 1742)",
-                rc != 0 and "pola rahasia" in out
-                and "contoh-header.md" in out)
-        shutil.rmtree(contohsela, ignore_errors=True)
-
-        kunciselatitik = klon(tmp, "kunciselatitik")
-        tanam(kunciselatitik, "kunci-sela-titik.txt",
-              "-----BEGIN OPENSSH\n...\n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciselatitik, ["bash", SKRIP])
-        periksa("header tersela baris titik-titik tertangkap "
-                "(Audit 1528)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-sela-titik.txt" in out)
-        shutil.rmtree(kunciselatitik, ignore_errors=True)
-
-        kunciselamiring = klon(tmp, "kunciselamiring")
-        tanam(kunciselamiring, "kunci-sela-miring.txt",
-              "-----BEGIN OPENSSH\n// jeda\n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciselamiring, ["bash", SKRIP])
-        periksa("header tersela komentar '//' tertangkap "
-                "(Audit 1528)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-sela-miring.txt" in out)
-        shutil.rmtree(kunciselamiring, ignore_errors=True)
-
-        tokenselamiring = klon(tmp, "tokenselamiring")
-        tanam(tokenselamiring, "token-sela-miring.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "// jeda\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselamiring, ["bash", SKRIP])
-        periksa("token tersela komentar '//' tertangkap "
-                "(Audit 1528)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-miring.txt" in out)
-        shutil.rmtree(tokenselamiring, ignore_errors=True)
-
-        kunciselaakhir = klon(tmp, "kunciselaakhir")
-        tanam(kunciselaakhir, "kunci-sela-akhir.txt",
-              "-----BEGIN RSA PRIVATE KEY\nxyz\n"
-              "-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciselaakhir, ["bash", SKRIP])
-        periksa("header tersela antara KEY dan '-----' tertangkap "
-                "(Audit 1529)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-sela-akhir.txt" in out)
-        shutil.rmtree(kunciselaakhir, ignore_errors=True)
-
-        tokenselaseru = klon(tmp, "tokenselaseru")
-        tanam(tokenselaseru, "token-sela-seru.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "# hati-hati!\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselaseru, ["bash", SKRIP])
-        periksa("token tersela '# hati-hati!' tertangkap "
-                "(Audit 1543)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-seru.txt" in out)
-        shutil.rmtree(tokenselaseru, ignore_errors=True)
-
-        tokenselakolon = klon(tmp, "tokenselakolon")
-        tanam(tokenselakolon, "token-sela-kolon.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "# catatan: penting\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselakolon, ["bash", SKRIP])
-        periksa("token tersela '# catatan: penting' tertangkap "
-                "(Audit 1543)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-kolon.txt" in out)
-        shutil.rmtree(tokenselakolon, ignore_errors=True)
-
-        tokenselablok = klon(tmp, "tokenselablok")
-        tanam(tokenselablok, "token-sela-blok.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "/* jeda */\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselablok, ["bash", SKRIP])
-        periksa("token tersela komentar blok tertangkap "
-                "(Audit 1543)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-blok.txt" in out)
-        shutil.rmtree(tokenselablok, ignore_errors=True)
-
-        tokenselakoma = klon(tmp, "tokenselakoma")
-        tanam(tokenselakoma, "token-sela-koma.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "; jeda\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselakoma, ["bash", SKRIP])
-        periksa("token tersela '; jeda' tertangkap "
-                "(Audit 1543)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-koma.txt" in out)
-        shutil.rmtree(tokenselakoma, ignore_errors=True)
-
-        tokenparuhseru = klon(tmp, "tokenparuhseru")
-        tanam(tokenparuhseru, "token-paruh-seru.txt",
-              "token uji: " + token_palsu[:paruh] + " # hati-hati!\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenparuhseru, ["bash", SKRIP])
-        periksa("token paruh-1 diakhiri komentar sebaris tertangkap "
-                "(Audit 1543)",
-                rc != 0 and "pola rahasia" in out
-                and "token-paruh-seru.txt" in out)
-        shutil.rmtree(tokenparuhseru, ignore_errors=True)
-
-        tokensebarisbintang = klon(tmp, "tokensebarisbintang")
-        tanam(tokensebarisbintang, "token-sebaris-bintang.txt",
-              "token uji: " + token_palsu[:paruh] + " *** "
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokensebarisbintang, ["bash", SKRIP])
-        periksa("token dua paruh sebaris dipisah ' *** ' tertangkap "
-                "(Audit 1543)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sebaris-bintang.txt" in out)
-        shutil.rmtree(tokensebarisbintang, ignore_errors=True)
-
-        kunciselastrip = klon(tmp, "kunciselastrip")
-        tanam(kunciselastrip, "kunci-sela-strip.txt",
-              "-----BEGIN OPENSSH\n-----\n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciselastrip, ["bash", SKRIP])
-        periksa("header tersela baris '-----' persis tertangkap "
-                "(Audit 1544)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-sela-strip.txt" in out)
-        shutil.rmtree(kunciselastrip, ignore_errors=True)
-
-        kunciselastrip2 = klon(tmp, "kunciselastrip2")
-        tanam(kunciselastrip2, "kunci-sela-strip2.txt",
-              "-----BEGIN OPENSSH\n ----- \n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciselastrip2, ["bash", SKRIP])
-        periksa("header tersela baris ' ----- ' berspasi tertangkap "
-                "(Audit 1544)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-sela-strip2.txt" in out)
-        shutil.rmtree(kunciselastrip2, ignore_errors=True)
-
-        kunciselagarisbawah = klon(tmp, "kunciselagarisbawah")
-        tanam(kunciselagarisbawah, "kunci-sela-garisbawah.txt",
-              "-----BEGIN OPENSSH\njeda_sesaat\n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciselagarisbawah, ["bash", SKRIP])
-        periksa("header tersela kata bergaris bawah tertangkap "
-                "(Audit 1544)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-sela-garisbawah.txt" in out)
-        shutil.rmtree(kunciselagarisbawah, ignore_errors=True)
-
-        kunciseladuastrip = klon(tmp, "kunciseladuastrip")
-        tanam(kunciseladuastrip, "kunci-sela-duastrip.txt",
-              "-----BEGIN OPENSSH\n-- jeda\n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciseladuastrip, ["bash", SKRIP])
-        periksa("header tersela baris '-- jeda' tertangkap "
-                "(Audit 1544)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-sela-duastrip.txt" in out)
-        shutil.rmtree(kunciseladuastrip, ignore_errors=True)
-
-        kuncisebaristik = klon(tmp, "kuncisebaristik")
-        tanam(kuncisebaristik, "kunci-sebaris-titik.txt",
-              "-----BEGIN OPENSSH ... PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kuncisebaristik, ["bash", SKRIP])
-        periksa("header tersela ' ... ' sebaris tertangkap "
-                "(Audit 1543)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-sebaris-titik.txt" in out)
-        shutil.rmtree(kuncisebaristik, ignore_errors=True)
-
-        kuncibullet = klon(tmp, "kuncibullet")
-        tanam(kuncibullet, "kunci-bullet.txt",
-              "* -----BEGIN OPENSSH PRIVATE " "KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kuncibullet, ["bash", SKRIP])
-        periksa("header utuh di baris bullet '*' tertangkap "
-                "(Audit 1547)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-bullet.txt" in out)
-        shutil.rmtree(kuncibullet, ignore_errors=True)
-
-        kunciblok = klon(tmp, "kunciblok")
-        tanam(kunciblok, "kunci-blok.txt",
-              "/*\n * -----BEGIN OPENSSH PRIVATE " "KEY-----\n */\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciblok, ["bash", SKRIP])
-        periksa("header utuh di baris lanjutan komentar blok "
-                "tertangkap (Audit 1547)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-blok.txt" in out)
-        shutil.rmtree(kunciblok, ignore_errors=True)
-
-        kuncibloksebaris = klon(tmp, "kuncibloksebaris")
-        tanam(kuncibloksebaris, "kunci-blok-sebaris.txt",
-              "/* -----BEGIN OPENSSH PRIVATE " "KEY----- */\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kuncibloksebaris, ["bash", SKRIP])
-        periksa("header utuh sebaris sesudah '/*' tertangkap "
-                "(Audit 1547)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-blok-sebaris.txt" in out)
-        shutil.rmtree(kuncibloksebaris, ignore_errors=True)
-
-        tokenbelahduaa = klon(tmp, "tokenbelahduaa")
-        tanam(tokenbelahduaa, "token-belah-dua-a.txt",
-              "token uji: " + token_palsu[:10] + " \n"
-              + token_palsu[10:] + "\n", "w")
-        rc, out = jalan(tokenbelahduaa, ["bash", SKRIP])
-        periksa("token terbelah persis sesudah ':' tertangkap "
-                "(Audit 1552)",
-                rc != 0 and "pola rahasia" in out
-                and "token-belah-dua-a.txt" in out)
-        shutil.rmtree(tokenbelahduaa, ignore_errors=True)
-
-        tokenbelahduab = klon(tmp, "tokenbelahduab")
-        tanam(tokenbelahduab, "token-belah-dua-b.txt",
-              "token uji: " + token_palsu[:7] + "\n"
-              + token_palsu[7:9] + ": " + token_palsu[10:] + "\n",
-              "w")
-        rc, out = jalan(tokenbelahduab, ["bash", SKRIP])
-        periksa("token terbelah dengan ':' di awal baris kedua "
-                "tertangkap (Audit 1552)",
-                rc != 0 and "pola rahasia" in out
-                and "token-belah-dua-b.txt" in out)
-        shutil.rmtree(tokenbelahduab, ignore_errors=True)
-
-        tokenselaapos = klon(tmp, "tokenselaapos")
-        tanam(tokenselaapos, "token-sela-apostrof.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "# don't dulu\n" + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselaapos, ["bash", SKRIP])
-        periksa("token tersela baris apostrof tertangkap "
-                "(Audit 1553)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-apostrof.txt" in out)
-        shutil.rmtree(tokenselaapos, ignore_errors=True)
-
-        tokenselahtml = klon(tmp, "tokenselahtml")
-        tanam(tokenselahtml, "token-sela-html.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "<!-- jeda -->\n" + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselahtml, ["bash", SKRIP])
-        periksa("token tersela komentar HTML tertangkap "
-                "(Audit 1553)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-html.txt" in out)
-        shutil.rmtree(tokenselahtml, ignore_errors=True)
-
-        tokenselapipa = klon(tmp, "tokenselapipa")
-        tanam(tokenselapipa, "token-sela-pipa.txt",
-              "token uji: " + token_palsu[:paruh] + " | "
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselapipa, ["bash", SKRIP])
-        periksa("token dua paruh sebaris dipisah ' | ' tertangkap "
-                "(Audit 1553)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-pipa.txt" in out)
-        shutil.rmtree(tokenselapipa, ignore_errors=True)
-
-        doccontoh = klon(tmp, "doccontoh")
-        tanam(doccontoh, "dok-contoh.txt",
-              "contoh header (sudah diredaksi):\n"
-              "-----BEGIN CONTOH-PRIVATE-KEY-----\n"
-              "hash rilis: da39a3ee5e6b4b0d3255bfef95601890"
-              "afd80709\n", "w")
-        rc, out = jalan(doccontoh, ["bash", SKRIP])
-        periksa("dokumen contoh header teredaksi + hash rilis "
-                "lolos bersih (Audit 1554)",
-                rc == 0)
-        shutil.rmtree(doccontoh, ignore_errors=True)
-
-        kuncimiringsela = klon(tmp, "kuncimiringsela")
-        tanam(kuncimiringsela, "kunci-baris-miring.txt",
-              "// -----BEGIN OPENSSH PRIVATE " "KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kuncimiringsela, ["bash", SKRIP])
-        periksa("header utuh di baris komentar '//' tertangkap "
-                "(Audit 1567)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-baris-miring.txt" in out)
-        shutil.rmtree(kuncimiringsela, ignore_errors=True)
-
-        # Audit 1627: blok tokenselamiring ganda (dulu di sini,
-        # berlabel Audit 1567) dihapus — isinya byte-identik
-        # dengan blok Audit 1528 di atas.
-
-        subsepjinak = klon(tmp, "subsepjinak")
-        tanam(subsepjinak, "catatan-subsep.txt",
-              b"123456789\x1c" + b"A" * 35 + b"\n")
-        rc, out = jalan(subsepjinak, ["bash", SKRIP])
-        periksa("byte SUBSEP bawaan tanpa titik dua tidak "
-                "menempa token (Audit 1566)",
-                rc == 0)
-        shutil.rmtree(subsepjinak, ignore_errors=True)
-
-        tokenselasubsep = klon(tmp, "tokenselasubsep")
-        tanam(tokenselasubsep, "token-sela-subsep.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "# jeda\x1c sebentar\n" + token_palsu[paruh:] + "\n",
-              "w")
-        rc, out = jalan(tokenselasubsep, ["bash", SKRIP])
-        periksa("token tersela baris berisi byte SUBSEP "
-                "tertangkap (Audit 1566)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-subsep.txt" in out)
-        shutil.rmtree(tokenselasubsep, ignore_errors=True)
-
-        tokenbelahduac = klon(tmp, "tokenbelahduac")
-        tanam(tokenbelahduac, "token-belah-dua-c.txt",
-              "token uji: " + token_palsu[:9] + "\n"
-              + token_palsu[9] + " " + token_palsu[10:] + "\n",
-              "w")
-        rc, out = jalan(tokenbelahduac, ["bash", SKRIP])
-        periksa("token terbelah dengan ':' persis di awal baris "
-                "kedua tertangkap (Audit 1565)",
-                rc != 0 and "pola rahasia" in out
-                and "token-belah-dua-c.txt" in out)
-        shutil.rmtree(tokenbelahduac, ignore_errors=True)
-
-        tokenbelahduad = klon(tmp, "tokenbelahduad")
-        tanam(tokenbelahduad, "token-belah-dua-d.txt",
-              "token uji: " + token_palsu[:10] + "\t"
-              + token_palsu[10:] + "\n", "w")
-        rc, out = jalan(tokenbelahduad, ["bash", SKRIP])
-        periksa("token dengan TAB sesudah ':' tertangkap "
-                "(Audit 1565)",
-                rc != 0 and "pola rahasia" in out
-                and "token-belah-dua-d.txt" in out)
-        shutil.rmtree(tokenbelahduad, ignore_errors=True)
-
-        tokenselajam = klon(tmp, "tokenselajam")
-        tanam(tokenselajam, "token-sela-jam.txt",
-              "token uji: " + token_palsu[:paruh] + "\n"
-              "# selesai 12: 30\n" + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(tokenselajam, ["bash", SKRIP])
-        periksa("token tersela baris jam '12: 30' tertangkap "
-                "(Audit 1560)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-jam.txt" in out)
-        shutil.rmtree(tokenselajam, ignore_errors=True)
-
-        kunciselajam = klon(tmp, "kunciselajam")
-        tanam(kunciselajam, "kunci-sela-versi.txt",
-              "-----BEGIN OPENSSH\n# versi 2: final\n"
-              "PRIVATE KEY-----\n"
-              "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
-        rc, out = jalan(kunciselajam, ["bash", SKRIP])
-        periksa("header tersela baris versi '2: final' tertangkap "
-                "(Audit 1560)",
-                rc != 0 and "pola rahasia" in out
-                and "kunci-sela-versi.txt" in out)
-        shutil.rmtree(kunciselajam, ignore_errors=True)
-
-        tokencrlf = klon(tmp, "tokencrlf")
-        tanam(tokencrlf, "token-crlf.txt",
-              ("token uji: " + token_palsu[:9] + "\r\n"
-               + token_palsu[9] + " " + token_palsu[10:]
-               + "\r\n").encode(), "wb")
-        rc, out = jalan(tokencrlf, ["bash", SKRIP])
-        periksa("token terbelah dua baris di berkas CRLF "
-                "tertangkap (Audit 1584)",
-                rc != 0 and "pola rahasia" in out
-                and "token-crlf.txt" in out)
-        shutil.rmtree(tokencrlf, ignore_errors=True)
-
-        tokentigabaris = klon(tmp, "tokentigabaris")
-        tanam(tokentigabaris, "token-tiga-baris.txt",
-              "token uji: " + token_palsu[:7] + "\n"
-              + token_palsu[7:9] + "\n"
-              + token_palsu[9] + " " + token_palsu[10:] + "\n",
-              "w")
-        rc, out = jalan(tokentigabaris, ["bash", SKRIP])
-        periksa("token terbelah tiga baris lewat baris digit "
-                "murni tertangkap (Audit 1585)",
-                rc != 0 and "pola rahasia" in out
-                and "token-tiga-baris.txt" in out)
-        shutil.rmtree(tokentigabaris, ignore_errors=True)
-
-        tokenakumulasi = klon(tmp, "tokenakumulasi")
-        tanam(tokenakumulasi, "token-akumulasi.txt",
-              "token uji: " + token_palsu[:6] + "\n"
-              + token_palsu[6:9] + "\n"
-              + token_palsu[9] + " " + token_palsu[10:] + "\n",
-              "w")
-        rc, out = jalan(tokenakumulasi, ["bash", SKRIP])
-        periksa("deret digit token diakumulasi lintas baris "
-                "digit murni (Audit 1585)",
-                rc != 0 and "pola rahasia" in out
-                and "token-akumulasi.txt" in out)
-        shutil.rmtree(tokenakumulasi, ignore_errors=True)
-
-        tokenselakosong = klon(tmp, "tokenselakosong")
-        tanam(tokenselakosong, "token-sela-kosong.txt",
-              "token uji: " + token_palsu[:9] + "\n\n"
-              + token_palsu[9] + " " + token_palsu[10:] + "\n",
-              "w")
-        rc, out = jalan(tokenselakosong, ["bash", SKRIP])
-        periksa("token terbelah dengan sela baris kosong "
-                "sebelum ':' tertangkap (Audit 1586)",
-                rc != 0 and "pola rahasia" in out
-                and "token-sela-kosong.txt" in out)
-        shutil.rmtree(tokenselakosong, ignore_errors=True)
-
-        tokennbsp = klon(tmp, "tokennbsp")
-        tanam(tokennbsp, "token-unicode.txt",
-              (token_palsu[:9] + "\u00a0" + token_palsu[9:]
-               + "\n").encode("utf-8"), "wb")
-        rc, out = jalan(tokennbsp, ["bash", SKRIP])
-        periksa("token tersela spasi unicode NBSP tertangkap "
-                "(Audit 1776)",
-                rc != 0 and "pola rahasia" in out
-                and "token-unicode.txt" in out)
-        shutil.rmtree(tokennbsp, ignore_errors=True)
-        tokenescape = klon(tmp, "tokenescape")
-        tanam(tokenescape, "token-escape.txt",
-              token_palsu[:9] + "\\t" + token_palsu[9:] + "\n", "w")
-        rc, out = jalan(tokenescape, ["bash", SKRIP])
-        periksa("token tersela escape harfiah backslash-t "
-                "tertangkap (Audit 1777)",
-                rc != 0 and "pola rahasia" in out
-                and "token-escape.txt" in out)
-        shutil.rmtree(tokenescape, ignore_errors=True)
-        tokenbom = klon(tmp, "tokenbom")
-        tanam(tokenbom, "token-bom.txt",
-              (token_palsu[:paruh] + "\n").encode("utf-8")
-              + b"\xef\xbb\xbf"
-              + (token_palsu[paruh:] + "\n").encode("utf-8"), "wb")
-        rc, out = jalan(tokenbom, ["bash", SKRIP])
-        periksa("token terbelah dengan BOM di awal baris "
-                "lanjutan tertangkap (Audit 1778)",
-                rc != 0 and "pola rahasia" in out
-                and "token-bom.txt" in out)
-        shutil.rmtree(tokenbom, ignore_errors=True)
-        tokennul = klon(tmp, "tokennul")
-        tanam(tokennul, "token-nul.txt",
-              (token_palsu[:9] + chr(0) + token_palsu[9:]
-               + chr(10)).encode("utf-8"), "wb")
-        rc, out = jalan(tokennul, ["bash", SKRIP])
-        periksa("token tersisipi byte NUL di rentangnya "
-                "tertangkap (Audit 1795)",
-                rc != 0 and "pola rahasia" in out
-                and "token-nul.txt" in out)
-        shutil.rmtree(tokennul, ignore_errors=True)
-        sela_taklihat = klon(tmp, "selataklihat")
-        tanam(sela_taklihat, "token-sela-taklihat.txt",
-              "token: " + token_palsu[:12] + "\u200b"
-              + token_palsu[12:] + "\n", "w")
-        rc, out = jalan(sela_taklihat, ["bash", SKRIP])
-        periksa("token tersela aksara tak terlihat U+200B "
-                "tertangkap (Audit 1882)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(sela_taklihat, ignore_errors=True)
-        sela_spasi = klon(tmp, "selaspasi")
-        tanam(sela_spasi, "token-sela-spasi.txt",
-              "token: " + token_palsu[:15] + "\u2009"
-              + token_palsu[15:] + "\n", "w")
-        rc, out = jalan(sela_spasi, ["bash", SKRIP])
-        periksa("token tersela spasi tipis U+2009 tertangkap "
-                "(Audit 1883)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(sela_spasi, ignore_errors=True)
-        sela_vt = klon(tmp, "selavt")
-        tanam(sela_vt, "token-sela-vt.txt",
-              ("token: " + token_palsu[:14]).encode() + b"\x0b"
-              + token_palsu[14:].encode() + b"\n", "wb")
-        rc, out = jalan(sela_vt, ["bash", SKRIP])
-        periksa("token tersela tab vertikal tertangkap "
-                "(Audit 1884)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(sela_vt, ignore_errors=True)
-        token_escape = klon(tmp, "tokenescape")
-        tanam(token_escape, "token-escape.sh",
-              "TOKEN=$'" + token_palsu.replace(":", "\\x3a")
-              + "'\n", "w")
-        rc, out = jalan(token_escape, ["bash", SKRIP])
-        periksa("token ter-encode escape heksa tertangkap "
-                "(Audit 1885)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(token_escape, ignore_errors=True)
-
-        token_oktal = klon(tmp, "tokenoktal")
-        tanam(token_oktal, "token-oktal.sh",
-              "TOKEN=$'" + token_palsu.replace(":", "\\072")
-              + "'\n", "w")
-        rc, out = jalan(token_oktal, ["bash", SKRIP])
-        periksa("token ter-encode escape oktal tertangkap "
-                "(Audit 1885)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(token_oktal, ignore_errors=True)
-        indeks_saja = klon(tmp, "indekssaja")
-        berkas_indeks = os.path.join(
-            indeks_saja, "token-indeks-saja.txt")
-        with open(berkas_indeks, "w") as f_indeks:
-            f_indeks.write(
-                "token: " + token_palsu[:paruh] + "\n"
-                + token_palsu[paruh:] + "\n")
-        git(indeks_saja, "add", "token-indeks-saja.txt")
-        os.remove(berkas_indeks)
-        rc, out = jalan(indeks_saja, ["bash", SKRIP])
-        periksa("token terbelah hanya di indeks tertangkap "
-                "(Audit 1886)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(indeks_saja, ignore_errors=True)
-        oktal_dua = klon(tmp, "oktaldua")
-        tanam(oktal_dua, "token-oktal-dua.sh",
-              "TOKEN=$'" + token_palsu.replace(":", "\\72")
-              + "'\n", "w")
-        rc, out = jalan(oktal_dua, ["bash", SKRIP])
-        periksa("token ter-encode oktal dua digit tertangkap "
-                "(Audit 1889)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(oktal_dua, ignore_errors=True)
-        escape_unicode = klon(tmp, "escapeunicode")
-        tanam(escape_unicode, "token-unicode.sh",
-              "TOKEN=$'" + token_palsu.replace(":", "\\u003a")
-              + "'\n", "w")
-        rc, out = jalan(escape_unicode, ["bash", SKRIP])
-        periksa("token ter-encode escape unicode tertangkap "
-                "(Audit 1890)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(escape_unicode, ignore_errors=True)
-        staged_ganti = klon(tmp, "stagedganti")
-        berkas_ganti = os.path.join(
-            staged_ganti, "token-staged-ganti.txt")
-        with open(berkas_ganti, "w") as f_ganti:
-            f_ganti.write(
-                "token: " + token_palsu[:paruh] + "\n"
-                + token_palsu[paruh:] + "\n")
-        git(staged_ganti, "add", "token-staged-ganti.txt")
-        with open(berkas_ganti, "w") as f_ganti:
-            f_ganti.write("isi jinak biasa saja\n")
-        rc, out = jalan(staged_ganti, ["bash", SKRIP])
-        periksa("token terbelah staged lalu diganti jinak "
-                "tertangkap (Audit 1891)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(staged_ganti, ignore_errors=True)
-        nama_amp = klon(tmp, "namaamp")
-        berkas_amp = os.path.join(nama_amp, "a&b.txt")
-        with open(berkas_amp, "w") as f_amp:
-            f_amp.write(
-                "token: " + token_palsu[:paruh] + "\n"
-                + token_palsu[paruh:] + "\n")
-        git(nama_amp, "add", "a&b.txt")
-        os.remove(berkas_amp)
-        rc, out = jalan(nama_amp, ["bash", SKRIP])
-        periksa("token terbelah indeks bernama '&' tertangkap "
-                "dengan nama benar (Audit 1892)",
-                rc != 0 and "pola rahasia" in out
-                and "a&b.txt" in out)
-        shutil.rmtree(nama_amp, ignore_errors=True)
-        nama_pipa = klon(tmp, "namapipa")
-        tanam(nama_pipa, "token-lain.txt",
-              "token: " + token_palsu + "\n", "w")
-        berkas_pipa = os.path.join(
-            nama_pipa, "jinak|pipa.txt")
-        with open(berkas_pipa, "w") as f_pipa:
-            f_pipa.write("isi jinak\n")
-        git(nama_pipa, "add", "jinak|pipa.txt")
-        os.remove(berkas_pipa)
-        rc, out = jalan(nama_pipa, ["bash", SKRIP])
-        periksa("nama '|' tak membungkam temuan berkas lain "
-                "(Audit 1893)",
-                rc != 0 and "pola rahasia" in out
-                and "token-lain.txt" in out)
-        shutil.rmtree(nama_pipa, ignore_errors=True)
-        escape_umodal = klon(tmp, "escapeumodal")
-        tanam(escape_umodal, "token-umodal.sh",
-              "TOKEN=$'" + token_palsu.replace(":", "\\U0000003a")
-              + "'\n", "w")
-        rc, out = jalan(escape_umodal, ["bash", SKRIP])
-        periksa("token ter-encode escape \\U tertangkap "
-                "(Audit 1924)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(escape_umodal, ignore_errors=True)
-        komit_ganti = klon(tmp, "komitganti")
-        tanam(komit_ganti, "token-komit-ganti.txt",
-              "token: " + token_palsu[:paruh] + "\n"
-              + token_palsu[paruh:] + "\n", "w")
-        with open(os.path.join(
-                komit_ganti, "token-komit-ganti.txt"),
-                "w") as f_kg:
-            f_kg.write("isi jinak sesudah commit\n")
-        rc, out = jalan(komit_ganti, ["bash", SKRIP])
-        periksa("token terbelah ter-commit lalu ditimpa "
-                "jinak tertangkap (Audit 1925)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(komit_ganti, ignore_errors=True)
-        jendela_besar = klon(tmp, "jendelabesar")
-        tanam(jendela_besar, "besar-jendela.txt",
-              ("pengisi jinak baris biasa\n" * 900)
-              + "token: " + token_palsu[:paruh] + "\n"
-              + token_palsu[paruh:] + "\n", "w")
-        rc, out = jalan(jendela_besar, ["bash", SKRIP])
-        periksa("token terbelah di berkas besar tertangkap "
-                "jendela geser (Audit 1967)",
-                rc != 0 and "pola rahasia" in out)
-        shutil.rmtree(jendela_besar, ignore_errors=True)
-        subdir_lari = klon(tmp, "subdirlari")
-        rc, out = jalan(subdir_lari + "/tools",
-                        ["bash", "../scripts/cek-cepat.sh"])
-        periksa("lari dari subdirektori setara akar "
-                "(Audit 2001)", rc == 0)
-        shutil.rmtree(subdir_lari, ignore_errors=True)
-        biner_hdr = klon(tmp, "binerhdr")
-        with open(biner_hdr + "/biner-hdr.bin", "wb") as fh:
-            fh.write(bytes([0, 1]) + b"-----BEGIN "
-                     + b"PRIVATE" + b" KEY-----"
-                     + bytes([10, 0, 255]))
-        git(biner_hdr, "add", "-A")
-        rc, out = jalan(biner_hdr, ["bash", SKRIP])
-        periksa("header kunci tunggal di biner terlacak "
-                "tertangkap (Audit 2002)",
-                rc != 0 and "biner-hdr.bin" in out)
-        shutil.rmtree(biner_hdr, ignore_errors=True)
-        nodpi = klon(tmp, "nodpi")
-        os.makedirs(nodpi + "/app/src/main/res/drawable-nodpi",
-                    exist_ok=True)
-        tanam(nodpi,
-              "app/src/main/res/drawable-nodpi/uji.xml",
-              '<vector android:pathData="M.9,2"/>', "w")
-        rc, out = jalan(nodpi, ["bash", SKRIP])
-        periksa("vektor .9 di drawable-nodpi tertangkap "
-                "(Audit 2003)", rc != 0 and "vektor" in out)
-        shutil.rmtree(nodpi, ignore_errors=True)
-        sarang = klon(tmp, "sarang")
-        dalam = os.path.join(sarang, "sarang", "dalam")
-        shutil.copytree(sarang, dalam)
-        os.makedirs(sarang + "/app/src/main/res/drawable-nodpi",
-                    exist_ok=True)
-        tanam(sarang,
-              "app/src/main/res/drawable-nodpi/uji.xml",
-              '<vector android:pathData="M.9,2"/>', "w")
-        git(sarang, "add", "-A")
-        rc, out = jalan(dalam, ["bash",
-                                "../../scripts/cek-cepat.sh"])
-        periksa("lari dari repo bersarang menilai repo "
-                "pemilik skrip (Audit 2028)",
-                rc != 0 and "vektor" in out)
-        shutil.rmtree(sarang, ignore_errors=True)
-        darigit = klon(tmp, "darigit")
-        rc, out = jalan(darigit + "/.git",
-                        ["bash", os.path.join(darigit, SKRIP)])
-        periksa("lari dari dalam .git memicu pesan git tak "
-                "bisa dipercaya (Audit 2029)",
-                rc != 0 and "tak bisa dipercaya" in out)
-        shutil.rmtree(darigit, ignore_errors=True)
-        nuljauh = klon(tmp, "nuljauh")
-        hdr126 = (b"-----BEGIN " + b"PRIVATE"
-                  + b" KEY-----" + bytes([10]))
-        with open(nuljauh + "/biner-jauh.bin", "wb") as fh:
-            fh.write(hdr126 + b"A" * 9050 + bytes([0]))
-        git(nuljauh, "add", "-A")
-        rc, out = jalan(nuljauh, ["bash", SKRIP])
-        periksa("header biner dengan NUL pertama jauh "
-                "tertangkap (Audit 2030)",
-                rc != 0 and "biner-jauh.bin" in out)
-        shutil.rmtree(nuljauh, ignore_errors=True)
-        idxvs = klon(tmp, "idxvs")
-        with open(idxvs + "/biner-idx.bin", "wb") as fh:
-            fh.write(bytes([0, 1]) + hdr126 + bytes([0]))
-        git(idxvs, "add", "-A")
-        with open(idxvs + "/biner-idx.bin", "w") as fh:
-            fh.write("teks jinak biasa saja.\n")
-        rc, out = jalan(idxvs, ["bash", SKRIP])
-        periksa("kandidat indeks diuji dari isi indeks "
-                "(Audit 2031)",
-                rc != 0 and "biner-idx.bin" in out)
-        shutil.rmtree(idxvs, ignore_errors=True)
-        odlumpuh = klon(tmp, "odlumpuh")
-        stubbin = os.path.join(odlumpuh, "stubbin")
-        os.makedirs(stubbin, exist_ok=True)
-        tanam(odlumpuh, "stubbin/od", "#!/bin/sh\nexit 0\n", "w")
-        os.chmod(stubbin + "/od", 0o755)
-        with open(odlumpuh + "/biner-od.bin", "wb") as fh:
-            fh.write(bytes([0, 1]) + hdr126 + bytes([0]))
-        git(odlumpuh, "add", "-A")
-        rc, out = jalan(odlumpuh, ["bash", SKRIP],
-                        env={"PATH": stubbin + ":/usr/bin:/bin"})
-        periksa("od lumpuh membuat kandidat dianggap biner "
-                "(Audit 2032)",
-                rc != 0 and "biner-od.bin" in out)
-        shutil.rmtree(odlumpuh, ignore_errors=True)
-        pautan = klon(tmp, "pautan")
-        os.symlink("scripts/cek-cepat.sh", pautan + "/cek-link")
-        rc, out = jalan(pautan,
-                        ["bash", pautan + "/cek-link"])
-        periksa("akar repo ditembus lewat symlink skrip "
-                "(Audit 2048)", rc == 0)
-        shutil.rmtree(pautan, ignore_errors=True)
-        longgar = klon(tmp, "longgar")
-        hdr127 = (b"-----BEGIN " + b"PRIVATE"
-                  + b" KEY-----" + bytes([10]))
-        with open(longgar + "/longgar.bin", "wb") as fh:
-            fh.write(b"XX" + hdr127 + bytes([0, 1]))
-        rc, out = jalan(longgar, ["bash", SKRIP])
-        periksa("header tak di awal baris pada biner tak "
-                "terlacak tertangkap (Audit 2049)",
-                rc != 0 and "longgar.bin" in out)
-        shutil.rmtree(longgar, ignore_errors=True)
-        nl = klon(tmp, "nl")
-        with open(nl + "/nama\nbaru.bin", "wb") as fh:
-            fh.write(bytes([0, 1]) + hdr127 + bytes([0]))
-        git(nl, "add", "-A")
-        rc, out = jalan(nl, ["bash", SKRIP])
-        periksa("nama berkas ber-newline utuh sebagai "
-                "kandidat (Audit 2050)",
-                rc != 0 and "baru.bin" in out)
-        shutil.rmtree(nl, ignore_errors=True)
-        besar = klon(tmp, "besar")
-        with open(besar + "/besar.bin", "wb") as fh:
-            fh.write(b"Z" * 64 + hdr127
-                     + b"A" * (17000000 - 64 - len(hdr127))
-                     + bytes([0]))
-        git(besar, "add", "-A")
-        rc, out = jalan(besar, ["bash", SKRIP])
-        periksa("NUL pertama jauh di berkas besar "
-                "tertangkap (Audit 2051)",
-                rc != 0 and "besar.bin" in out)
-        shutil.rmtree(besar, ignore_errors=True)
-        import signal as _signal128
-        import subprocess as _sp128
-        import time as _time128
-        tmpd_rusak = klon(tmp, "tmpd-rusak")
-        rc, out = jalan(tmpd_rusak, ["bash", SKRIP],
-                        env={"TMPDIR": "/proc/tak-ada-128"})
-        periksa("TMPDIR rusak: vonis rancangan menyebut "
-                "TMPDIR (Audit 2066)",
-                rc != 0 and "GAGAL:" in out
-                and "TMPDIR" in out)
-        shutil.rmtree(tmpd_rusak, ignore_errors=True)
-
-        klon_sig = klon(tmp, "sinyal")
-        tmpd_sinyal = tempfile.mkdtemp()
-        p_sig = _sp128.Popen(
-            ["bash", SKRIP], cwd=klon_sig,
-            env={**os.environ, "TMPDIR": tmpd_sinyal},
-            stdout=_sp128.DEVNULL, stderr=_sp128.DEVNULL)
-        _time128.sleep(1.2)
-        p_sig.send_signal(_signal128.SIGTERM)
-        p_sig.wait()
-        periksa("sinyal di tengah lari: artefak sementara "
-                "dibersihkan trap (Audit 2065)",
-                os.listdir(tmpd_sinyal) == [])
-        shutil.rmtree(tmpd_sinyal, ignore_errors=True)
-        shutil.rmtree(klon_sig, ignore_errors=True)
-        stripnama = klon(tmp, "stripnama")
-        with open(stripnama + "/-", "w") as fh:
-            fh.write("token uji: " + token_palsu[:paruh] + "\n"
-                     + token_palsu[paruh:] + "\n")
-        rc, out = jalan(stripnama, ["bash", SKRIP])
-        periksa("berkas bernama '-' tak terlacak: token "
-                "terbelah tertangkap (Audit 2097)",
-                rc != 0 and "./-" in out)
-        shutil.rmtree(stripnama, ignore_errors=True)
-        stripjinak = klon(tmp, "stripjinak")
-        with open(stripjinak + "/-", "w") as fh:
-            fh.write("halo dunia\n")
-        rc, out = jalan(stripjinak, ["bash", SKRIP])
-        periksa("berkas bernama '-' jinak lolos "
-                "(Audit 2097)", rc == 0)
-        shutil.rmtree(stripjinak, ignore_errors=True)
-
-        pautan = klon(tmp, "pautan")
-        sasaran_pautan = os.path.join(tmp, "sasaran-pautan.xml")
-        with open(sasaran_pautan, "w") as fh:
-            fh.write("<vector><path android:pathData="
-                     "\"M.9,9 L10,10\"/></vector>\n")
-        os.symlink(sasaran_pautan, pautan + "/app/src/main/res/"
-                   "drawable-nodpi/uji_link.xml")
-        git(pautan, "add", "-A")
-        git(pautan, "commit", "-qm", "pautan")
-        rc, out = jalan(pautan, ["bash", SKRIP])
-        periksa("symlink vektor di res/: pola .9 di target "
-                "tertangkap (Audit 2128)",
-                rc != 0 and rc != 124
-                and "path vektor tanpa nol depan" in out)
-        shutil.rmtree(pautan, ignore_errors=True)
-        stripganda = klon(tmp, "stripganda")
-        with open(stripganda + "/-", "w") as fh:
-            fh.write("token uji: " + token_palsu + "\n")
-        rc, out = jalan(stripganda, ["bash", SKRIP])
-        periksa("berkas '-' token utuh dilaporkan tepat "
-                "satu kali (Audit 2129)",
-                rc != 0 and out.count("./-") == 1)
-        shutil.rmtree(stripganda, ignore_errors=True)
-        namabaris = klon(tmp, "namabaris")
-        with open(namabaris + "/pecah\nbaris.txt", "w") as fh:
-            fh.write("token uji: " + token_palsu + "\n")
-        rc, out = jalan(namabaris, ["bash", SKRIP])
-        periksa("nama berkas ber-newline tampil utuh "
-                "ter-escape (Audit 2130)",
-                rc != 0 and "pecah\\nbaris.txt" in out)
-        shutil.rmtree(namabaris, ignore_errors=True)
-
-        namakutip = klon(tmp, "namakutip")
-        with open(namakutip + "/pecah\nbaris.txt", "w") as fh:
-            fh.write("token uji: " + token_palsu + "\n")
-        git(namakutip, "add", "-A")
-        git(namakutip, "commit", "-qm", "tanam")
-        rc, out = jalan(namakutip, ["bash", SKRIP])
-        periksa("nama ber-newline terlacak tampil satu "
-                "ejaan utuh (Audit 2137)",
-                rc != 0 and out.count("pecah\\nbaris.txt") == 1
-                and '"pecah' not in out)
-        shutil.rmtree(namakutip, ignore_errors=True)
-
-        namamin = klon(tmp, "namamin")
-        with open(namamin + "/-", "w") as fh:
-            fh.write("token uji: " + token_palsu + "\n")
-        git(namamin, "add", "-A")
-        git(namamin, "commit", "-qm", "tanam")
-        rc, out = jalan(namamin, ["bash", SKRIP])
-        periksa("berkas terlacak '-' tampil satu kali "
-                "sebagai ./- (Audit 2158)",
-                rc != 0 and out.count("./-") == 1)
-        shutil.rmtree(namamin, ignore_errors=True)
-
-        belahnl = klon(tmp, "belahnl")
-        with open(belahnl + "/belah.txt", "w") as fh:
-            fh.write("isi: " + token_palsu[:20] + "\\x0a"
-                     + token_palsu[20:] + "\n")
-        git(belahnl, "add", "-A")
-        git(belahnl, "commit", "-qm", "tanam")
-        rc, out = jalan(belahnl, ["bash", SKRIP])
-        periksa("token terbelah escape newline tertangkap "
-                "(Audit 2177)",
-                rc != 0 and rc != 124
-                and "pola rahasia" in out and "belah.txt" in out)
-        shutil.rmtree(belahnl, ignore_errors=True)
-
-        kepalasaja = klon(tmp, "kepalasaja")
-        with open(kepalasaja + "/kepala.txt", "w") as fh:
-            fh.write("token uji: " + token_palsu + "\n")
-        git(kepalasaja, "add", "-A")
-        git(kepalasaja, "commit", "-qm", "tanam")
-        git(kepalasaja, "rm", "-q", "kepala.txt")
-        rc, out = jalan(kepalasaja, ["bash", SKRIP])
-        periksa("token hanya di HEAD tertangkap "
-                "(Audit 2225)",
-                rc != 0 and rc != 124
-                and "pola rahasia" in out and "kepala.txt" in out)
-        shutil.rmtree(kepalasaja, ignore_errors=True)
-
-
-        hdrignore = klon(tmp, "hdrignore")
-        with open(hdrignore + "/.gitignore", "a") as fh:
-            fh.write("abaikan.bin\n")
-        git(hdrignore, "add", "-A")
-        git(hdrignore, "commit", "-qm", "abaikan")
-        with open(hdrignore + "/abaikan.bin", "wb") as fh:
-            fh.write(b"\x00\x01xxxx -----BEGIN RSA "
-                     b"PRIVATE KEY----- yyyy\x00")
-        rc, out = jalan(hdrignore, ["bash", SKRIP])
-        periksa("header kunci di berkas biner terabaikan "
-                "tertangkap (Audit 2226)",
-                rc != 0 and rc != 124
-                and "pola rahasia" in out and "abaikan.bin" in out)
-        shutil.rmtree(hdrignore, ignore_errors=True)
-
-        tautan = klon(tmp, "tautan")
-        os.symlink("../../java",
-                   tautan + "/app/src/main/res/drawable/tautan-java")
-        rc, out = jalan(tautan, ["bash", SKRIP])
-        periksa("symlink res ke kode Java tak dituduh vektor "
-                "(Audit 2232)", rc == 0)
-        shutil.rmtree(tautan, ignore_errors=True)
-
-
-        kepalah = klon(tmp, "kepalah")
-        with open(kepalah + "/HEAD:probe.txt", "w") as fh:
-            fh.write("token uji: " + token_palsu + "\n")
-        git(kepalah, "add", "-A")
-        git(kepalah, "commit", "-qm", "tanam")
-        rc, out = jalan(kepalah, ["bash", SKRIP])
-        periksa("nama berkas HEAD: utuh satu ejaan "
-                "(Audit 2233)", rc != 0
-                and out.count("HEAD:probe.txt") == 1)
-        shutil.rmtree(kepalah, ignore_errors=True)
-
-
-        pycakar = klon(tmp, "pycakar")
-        with open(pycakar + "/.gitignore", "a") as fh:
-            fh.write("kunci.pyc\n")
-        with open(pycakar + "/kunci.pyc", "wb") as fh:
-            fh.write(b"\x00\x01xxxx -----BEGIN RSA "
-                     b"PRIVATE KEY----- yyyy\x00")
-        rc, out = jalan(pycakar, ["bash", SKRIP])
-        periksa("header kunci di *.pyc akar terabaikan "
-                "tertangkap (Audit 2234)",
-                rc != 0 and rc != 124
-                and "pola rahasia" in out and "kunci.pyc" in out)
-        shutil.rmtree(pycakar, ignore_errors=True)
 
-
+# Audit 1459 + 2557: token_palsu & paruh dipakai banyak blok
+# skenario di kedua paruh suite - definisi satu-satunya di
+# level modul agar pembelahan main() tak menduplikasinya.
+token_palsu = "123456789" + ":" + "AA" + "Ab3_" * 10
+paruh = len(token_palsu) // 2
+
+
+def _bagian_awal(tmp):
+    bersih = klon(tmp, "bersih")
+    rc, out = jalan(bersih, ["bash", SKRIP])
+    periksa("kontrol: pohon bersih lolos", rc == 0,
+            "" if rc == 0 else out[-400:])
+    shutil.rmtree(bersih, ignore_errors=True)
+
+
+
+
+
+    rahasia = klon(tmp, "rahasia")
+    tanam(rahasia, "catatan-token.txt",
+          "token uji: " + token_palsu + "\n", "w")
+    rc, out = jalan(rahasia, ["bash", SKRIP])
+    periksa("pola token rahasia tertangkap",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(rahasia, ignore_errors=True)
+
+    terbelah = klon(tmp, "terbelah")
+    tanam(terbelah, "catatan-token-terbelah.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(terbelah, ["bash", SKRIP])
+    periksa("token terbelah dua baris tertangkap (cabang bungkus)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(terbelah, ignore_errors=True)
+
+    tokenjeda = klon(tmp, "tokenjeda")
+    tanam(tokenjeda, "catatan-token-jeda.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "# jeda\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenjeda, ["bash", SKRIP])
+    periksa("token terbelah tersela baris komentar tertangkap "
+            "(Audit 1506)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(tokenjeda, ignore_errors=True)
+
+    readme = klon(tmp, "readme")
+    berkas_rm = os.path.join(readme, "README.id.md")
+    with open(berkas_rm, encoding="utf-8") as f:
+        isi_rm = f.read()
+    with open(berkas_rm, "w", encoding="utf-8") as f:
+        f.write(isi_rm.replace("\n## ", "\n### ", 1))
+    rc, out = jalan(readme, ["bash", SKRIP])
+    periksa("struktur judul README beda: cek-cepat gagal (Audit 868)",
+            rc != 0 and "struktur judul" in out)
+    shutil.rmtree(readme, ignore_errors=True)
+
+    vektor = klon(tmp, "vektor")
+    tanam(vektor, "app/src/main/res/drawable/ic_uji_vektor.xml",
+          "<vector xmlns:android="
+          "\"http://schemas.android.com/apk/res/android\""
+          " android:width=\"24dp\" android:height=\"24dp\""
+          " android:viewportWidth=\"24\" android:viewportHeight=\"24\">"
+          "<path android:fillColor=\"#000000\""
+          " android:pathData=\"M.9,5 h5 v5 z\" /></vector>\n", "w")
+    rc, out = jalan(vektor, ["bash", SKRIP])
+    periksa("path vektor tanpa nol depan tertangkap",
+            rc != 0 and "tanpa nol depan" in out)
+    shutil.rmtree(vektor, ignore_errors=True)
+
+    terabaikan = klon(tmp, "terabaikan")
+    tanam(terabaikan, ".gitignore", "rahasia-terabaikan.txt\n", "w")
+    with open(os.path.join(terabaikan, "rahasia-terabaikan.txt"),
+              "w") as f:
+        f.write("token uji: " + token_palsu + "\n")
+    rc, out = jalan(terabaikan, ["bash", SKRIP])
+    periksa("token di berkas ter-.gitignore tertangkap (Audit 1436)",
+            rc != 0 and "pola rahasia" in out
+            and "rahasia-terabaikan.txt" in out)
+    shutil.rmtree(terabaikan, ignore_errors=True)
+
+    kunciterbelah = klon(tmp, "kunciterbelah")
+    tanam(kunciterbelah, "kunci-terbelah.txt",
+          "-----BEGIN OPENSSH\nPRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciterbelah, ["bash", SKRIP])
+    periksa("header private key terbelah tertangkap "
+            "(cabang bungkus) (Audit 1437)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-terbelah.txt" in out)
+    shutil.rmtree(kunciterbelah, ignore_errors=True)
+
+    kuncitersela = klon(tmp, "kuncitersela")
+    tanam(kuncitersela, "kunci-tersela.txt",
+          "-----BEGIN OPENSSH\nsisipan komentar lain\n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncitersela, ["bash", SKRIP])
+    periksa("header terbelah tersela baris lain tertangkap "
+            "(Audit 1456)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-tersela.txt" in out)
+    shutil.rmtree(kuncitersela, ignore_errors=True)
+
+    kuncikomentar = klon(tmp, "kuncikomentar")
+    tanam(kuncikomentar, "kunci-komentar.txt",
+          "-----BEGIN OPENSSH\n# catatan penting\n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncikomentar, ["bash", SKRIP])
+    periksa("header tersela baris komentar tertangkap "
+            "(Audit 1505)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-komentar.txt" in out)
+    shutil.rmtree(kuncikomentar, ignore_errors=True)
+
+    kuncitengah = klon(tmp, "kuncitengah")
+    tanam(kuncitengah, "kunci-tengah.txt",
+          "-----BEGIN RSA PRIVATE\nxyz123\n"
+          "KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncitengah, ["bash", SKRIP])
+    periksa("header terbelah di tengah frasa tertangkap "
+            "(Audit 1505)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-tengah.txt" in out)
+    shutil.rmtree(kuncitengah, ignore_errors=True)
+
+    kuncipanjang = klon(tmp, "kuncipanjang")
+    tanam(kuncipanjang, "kunci-panjang.txt",
+          "-----BEGIN " + "a" * 250 + " PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncipanjang, ["bash", SKRIP])
+    periksa("header label huruf kecil panjang tertangkap "
+            "(Audit 1505)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-panjang.txt" in out)
+    shutil.rmtree(kuncipanjang, ignore_errors=True)
+
+    kuncitab = klon(tmp, "kuncitab")
+    tanam(kuncitab, "kunci-tab.txt",
+          "-----BEGIN OPENSSH\tPRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncitab, ["bash", SKRIP])
+    periksa("header private key ber-TAB tertangkap (Audit 1455)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-tab.txt" in out)
+    shutil.rmtree(kuncitab, ignore_errors=True)
+
+    namabarisbaru = klon(tmp, "namabarisbaru")
+    paruh2 = len(token_palsu) // 2
+    tanam(namabarisbaru, "token\nterbelah.txt",
+          "token uji: " + token_palsu[:paruh2] + "\n"
+          + token_palsu[paruh2:] + "\n", "w")
+    rc, out = jalan(namabarisbaru, ["bash", SKRIP])
+    periksa("token terbelah di berkas bernama newline tertangkap "
+            "(Audit 1454)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(namabarisbaru, ignore_errors=True)
+
+    readmehilang = klon(tmp, "readmehilang")
+    os.remove(os.path.join(readmehilang, "README.id.md"))
+    tanam(readmehilang, "catatan-token.txt",
+          "token uji: " + token_palsu + "\n", "w")
+    rc, out = jalan(readmehilang, ["bash", SKRIP])
+    periksa("README hilang: skrip tetap memindai rahasia "
+            "(Audit 1438)",
+            rc == 1 and "berkas wajib hilang" in out
+            and "pola rahasia" in out)
+    shutil.rmtree(readmehilang, ignore_errors=True)
+
+    takterlacak = klon(tmp, "takterlacak")
+    with open(os.path.join(takterlacak, "catatan-baru.txt"),
+              "w") as f:
+        f.write("token uji: " + token_palsu + "\n")
+    rc, out = jalan(takterlacak, ["bash", SKRIP])
+    periksa("token di berkas tak terlacak tertangkap (Audit 1439)",
+            rc != 0 and "pola rahasia" in out
+            and "catatan-baru.txt" in out)
+    shutil.rmtree(takterlacak, ignore_errors=True)
+
+    tokenparuhpagar = klon(tmp, "tokenparuhpagar")
+    tanam(tokenparuhpagar, "token-paruh-pagar.txt",
+          "warna #fff token: " + token_palsu[:paruh] + "\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenparuhpagar, ["bash", SKRIP])
+    periksa("token terbelah dengan paruh sesudah '#' sebaris "
+            "tertangkap (Audit 1526)",
+            rc != 0 and "pola rahasia" in out
+            and "token-paruh-pagar.txt" in out)
+    shutil.rmtree(tokenparuhpagar, ignore_errors=True)
+
+    kuncimulaipagar = klon(tmp, "kuncimulaipagar")
+    tanam(kuncimulaipagar, "kunci-mulai-pagar.txt",
+          "# x -----BEGIN OPENSSH\n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncimulaipagar, ["bash", SKRIP])
+    periksa("header diawali baris '#' tertangkap (Audit 1526)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-mulai-pagar.txt" in out)
+    shutil.rmtree(kuncimulaipagar, ignore_errors=True)
+
+    tokenparuhkomentar = klon(tmp, "tokenparuhkomentar")
+    tanam(tokenparuhkomentar, "token-paruh-komentar.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "# " + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenparuhkomentar, ["bash", SKRIP])
+    periksa("paruh token di dalam baris komentar tertangkap "
+            "(Audit 1527)",
+            rc != 0 and "pola rahasia" in out
+            and "token-paruh-komentar.txt" in out)
+    shutil.rmtree(tokenparuhkomentar, ignore_errors=True)
+
+    tokenparuhjarak = klon(tmp, "tokenparuhjarak")
+    tanam(tokenparuhjarak, "token-paruh-jarak.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "   # " + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenparuhjarak, ["bash", SKRIP])
+    periksa("paruh token di baris komentar berindentasi "
+            "tertangkap (Audit 1527)",
+            rc != 0 and "pola rahasia" in out
+            and "token-paruh-jarak.txt" in out)
+    shutil.rmtree(tokenparuhjarak, ignore_errors=True)
+
+    tokentergabung = klon(tmp, "tokentergabung")
+    tanam(tokentergabung, "token-tergabung-pagar.txt",
+          "token uji: " + token_palsu[:paruh] + "#"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokentergabung, ["bash", SKRIP])
+    periksa("token tergabung '#' sebaris tertangkap "
+            "(Audit 1527)",
+            rc != 0 and "pola rahasia" in out
+            and "token-tergabung-pagar.txt" in out)
+    shutil.rmtree(tokentergabung, ignore_errors=True)
+
+    tokenselabintang = klon(tmp, "tokenselabintang")
+    tanam(tokenselabintang, "token-sela-bintang.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "***\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselabintang, ["bash", SKRIP])
+    periksa("token tersela baris tanda bintang tertangkap "
+            "(Audit 1528)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-bintang.txt" in out)
+    shutil.rmtree(tokenselabintang, ignore_errors=True)
+
+    kunciselaat = klon(tmp, "kunciselaat")
+    tanam(kunciselaat, "kunci-sela-at.txt",
+          "-----BEGIN RSA\n# cc @tim jeda\n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciselaat, ["bash", SKRIP])
+    periksa("header tersela komentar beraksara '@' tertangkap "
+            "(Audit 1733)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-sela-at.txt" in out)
+    shutil.rmtree(kunciselaat, ignore_errors=True)
+
+    tokenselaat = klon(tmp, "tokenselaat")
+    tanam(tokenselaat, "token-sela-at.txt",
+          token_palsu[:paruh] + "\n"
+          "# cc @tim\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselaat, ["bash", SKRIP])
+    periksa("token tersela komentar beraksara '@' tertangkap "
+            "(Audit 1733)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-at.txt" in out)
+    shutil.rmtree(tokenselaat, ignore_errors=True)
+
+    contohsela = klon(tmp, "contohsela")
+    tanam(contohsela, "contoh-header.md",
+          "Contoh header teredaksi -----BEGIN RSA @ PRIVATE "
+          "KEY----- diikuti keterangan penjelasan panjang\n", "w")
+    rc, out = jalan(contohsela, ["bash", SKRIP])
+    periksa("contoh header berperedaksi simbol + ekor panjang "
+            "tertangkap - residu diterima (Audit 1742)",
+            rc != 0 and "pola rahasia" in out
+            and "contoh-header.md" in out)
+    shutil.rmtree(contohsela, ignore_errors=True)
+
+    kunciselatitik = klon(tmp, "kunciselatitik")
+    tanam(kunciselatitik, "kunci-sela-titik.txt",
+          "-----BEGIN OPENSSH\n...\n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciselatitik, ["bash", SKRIP])
+    periksa("header tersela baris titik-titik tertangkap "
+            "(Audit 1528)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-sela-titik.txt" in out)
+    shutil.rmtree(kunciselatitik, ignore_errors=True)
+
+    kunciselamiring = klon(tmp, "kunciselamiring")
+    tanam(kunciselamiring, "kunci-sela-miring.txt",
+          "-----BEGIN OPENSSH\n// jeda\n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciselamiring, ["bash", SKRIP])
+    periksa("header tersela komentar '//' tertangkap "
+            "(Audit 1528)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-sela-miring.txt" in out)
+    shutil.rmtree(kunciselamiring, ignore_errors=True)
+
+    tokenselamiring = klon(tmp, "tokenselamiring")
+    tanam(tokenselamiring, "token-sela-miring.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "// jeda\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselamiring, ["bash", SKRIP])
+    periksa("token tersela komentar '//' tertangkap "
+            "(Audit 1528)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-miring.txt" in out)
+    shutil.rmtree(tokenselamiring, ignore_errors=True)
+
+    kunciselaakhir = klon(tmp, "kunciselaakhir")
+    tanam(kunciselaakhir, "kunci-sela-akhir.txt",
+          "-----BEGIN RSA PRIVATE KEY\nxyz\n"
+          "-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciselaakhir, ["bash", SKRIP])
+    periksa("header tersela antara KEY dan '-----' tertangkap "
+            "(Audit 1529)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-sela-akhir.txt" in out)
+    shutil.rmtree(kunciselaakhir, ignore_errors=True)
+
+    tokenselaseru = klon(tmp, "tokenselaseru")
+    tanam(tokenselaseru, "token-sela-seru.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "# hati-hati!\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselaseru, ["bash", SKRIP])
+    periksa("token tersela '# hati-hati!' tertangkap "
+            "(Audit 1543)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-seru.txt" in out)
+    shutil.rmtree(tokenselaseru, ignore_errors=True)
+
+    tokenselakolon = klon(tmp, "tokenselakolon")
+    tanam(tokenselakolon, "token-sela-kolon.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "# catatan: penting\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselakolon, ["bash", SKRIP])
+    periksa("token tersela '# catatan: penting' tertangkap "
+            "(Audit 1543)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-kolon.txt" in out)
+    shutil.rmtree(tokenselakolon, ignore_errors=True)
+
+    tokenselablok = klon(tmp, "tokenselablok")
+    tanam(tokenselablok, "token-sela-blok.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "/* jeda */\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselablok, ["bash", SKRIP])
+    periksa("token tersela komentar blok tertangkap "
+            "(Audit 1543)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-blok.txt" in out)
+    shutil.rmtree(tokenselablok, ignore_errors=True)
+
+    tokenselakoma = klon(tmp, "tokenselakoma")
+    tanam(tokenselakoma, "token-sela-koma.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "; jeda\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselakoma, ["bash", SKRIP])
+    periksa("token tersela '; jeda' tertangkap "
+            "(Audit 1543)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-koma.txt" in out)
+    shutil.rmtree(tokenselakoma, ignore_errors=True)
+
+    tokenparuhseru = klon(tmp, "tokenparuhseru")
+    tanam(tokenparuhseru, "token-paruh-seru.txt",
+          "token uji: " + token_palsu[:paruh] + " # hati-hati!\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenparuhseru, ["bash", SKRIP])
+    periksa("token paruh-1 diakhiri komentar sebaris tertangkap "
+            "(Audit 1543)",
+            rc != 0 and "pola rahasia" in out
+            and "token-paruh-seru.txt" in out)
+    shutil.rmtree(tokenparuhseru, ignore_errors=True)
+
+    tokensebarisbintang = klon(tmp, "tokensebarisbintang")
+    tanam(tokensebarisbintang, "token-sebaris-bintang.txt",
+          "token uji: " + token_palsu[:paruh] + " *** "
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokensebarisbintang, ["bash", SKRIP])
+    periksa("token dua paruh sebaris dipisah ' *** ' tertangkap "
+            "(Audit 1543)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sebaris-bintang.txt" in out)
+    shutil.rmtree(tokensebarisbintang, ignore_errors=True)
+
+    kunciselastrip = klon(tmp, "kunciselastrip")
+    tanam(kunciselastrip, "kunci-sela-strip.txt",
+          "-----BEGIN OPENSSH\n-----\n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciselastrip, ["bash", SKRIP])
+    periksa("header tersela baris '-----' persis tertangkap "
+            "(Audit 1544)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-sela-strip.txt" in out)
+    shutil.rmtree(kunciselastrip, ignore_errors=True)
+
+    kunciselastrip2 = klon(tmp, "kunciselastrip2")
+    tanam(kunciselastrip2, "kunci-sela-strip2.txt",
+          "-----BEGIN OPENSSH\n ----- \n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciselastrip2, ["bash", SKRIP])
+    periksa("header tersela baris ' ----- ' berspasi tertangkap "
+            "(Audit 1544)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-sela-strip2.txt" in out)
+    shutil.rmtree(kunciselastrip2, ignore_errors=True)
+
+    kunciselagarisbawah = klon(tmp, "kunciselagarisbawah")
+    tanam(kunciselagarisbawah, "kunci-sela-garisbawah.txt",
+          "-----BEGIN OPENSSH\njeda_sesaat\n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciselagarisbawah, ["bash", SKRIP])
+    periksa("header tersela kata bergaris bawah tertangkap "
+            "(Audit 1544)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-sela-garisbawah.txt" in out)
+    shutil.rmtree(kunciselagarisbawah, ignore_errors=True)
+
+    kunciseladuastrip = klon(tmp, "kunciseladuastrip")
+    tanam(kunciseladuastrip, "kunci-sela-duastrip.txt",
+          "-----BEGIN OPENSSH\n-- jeda\n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciseladuastrip, ["bash", SKRIP])
+    periksa("header tersela baris '-- jeda' tertangkap "
+            "(Audit 1544)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-sela-duastrip.txt" in out)
+    shutil.rmtree(kunciseladuastrip, ignore_errors=True)
+
+    kuncisebaristik = klon(tmp, "kuncisebaristik")
+    tanam(kuncisebaristik, "kunci-sebaris-titik.txt",
+          "-----BEGIN OPENSSH ... PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncisebaristik, ["bash", SKRIP])
+    periksa("header tersela ' ... ' sebaris tertangkap "
+            "(Audit 1543)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-sebaris-titik.txt" in out)
+    shutil.rmtree(kuncisebaristik, ignore_errors=True)
+
+    kuncibullet = klon(tmp, "kuncibullet")
+    tanam(kuncibullet, "kunci-bullet.txt",
+          "* -----BEGIN OPENSSH PRIVATE " "KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncibullet, ["bash", SKRIP])
+    periksa("header utuh di baris bullet '*' tertangkap "
+            "(Audit 1547)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-bullet.txt" in out)
+    shutil.rmtree(kuncibullet, ignore_errors=True)
+
+    kunciblok = klon(tmp, "kunciblok")
+    tanam(kunciblok, "kunci-blok.txt",
+          "/*\n * -----BEGIN OPENSSH PRIVATE " "KEY-----\n */\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciblok, ["bash", SKRIP])
+    periksa("header utuh di baris lanjutan komentar blok "
+            "tertangkap (Audit 1547)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-blok.txt" in out)
+    shutil.rmtree(kunciblok, ignore_errors=True)
+
+    kuncibloksebaris = klon(tmp, "kuncibloksebaris")
+    tanam(kuncibloksebaris, "kunci-blok-sebaris.txt",
+          "/* -----BEGIN OPENSSH PRIVATE " "KEY----- */\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncibloksebaris, ["bash", SKRIP])
+    periksa("header utuh sebaris sesudah '/*' tertangkap "
+            "(Audit 1547)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-blok-sebaris.txt" in out)
+    shutil.rmtree(kuncibloksebaris, ignore_errors=True)
+
+    tokenbelahduaa = klon(tmp, "tokenbelahduaa")
+    tanam(tokenbelahduaa, "token-belah-dua-a.txt",
+          "token uji: " + token_palsu[:10] + " \n"
+          + token_palsu[10:] + "\n", "w")
+    rc, out = jalan(tokenbelahduaa, ["bash", SKRIP])
+    periksa("token terbelah persis sesudah ':' tertangkap "
+            "(Audit 1552)",
+            rc != 0 and "pola rahasia" in out
+            and "token-belah-dua-a.txt" in out)
+    shutil.rmtree(tokenbelahduaa, ignore_errors=True)
+
+    tokenbelahduab = klon(tmp, "tokenbelahduab")
+    tanam(tokenbelahduab, "token-belah-dua-b.txt",
+          "token uji: " + token_palsu[:7] + "\n"
+          + token_palsu[7:9] + ": " + token_palsu[10:] + "\n",
+          "w")
+    rc, out = jalan(tokenbelahduab, ["bash", SKRIP])
+    periksa("token terbelah dengan ':' di awal baris kedua "
+            "tertangkap (Audit 1552)",
+            rc != 0 and "pola rahasia" in out
+            and "token-belah-dua-b.txt" in out)
+    shutil.rmtree(tokenbelahduab, ignore_errors=True)
+
+    tokenselaapos = klon(tmp, "tokenselaapos")
+    tanam(tokenselaapos, "token-sela-apostrof.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "# don't dulu\n" + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselaapos, ["bash", SKRIP])
+    periksa("token tersela baris apostrof tertangkap "
+            "(Audit 1553)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-apostrof.txt" in out)
+    shutil.rmtree(tokenselaapos, ignore_errors=True)
+
+    tokenselahtml = klon(tmp, "tokenselahtml")
+    tanam(tokenselahtml, "token-sela-html.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "<!-- jeda -->\n" + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselahtml, ["bash", SKRIP])
+    periksa("token tersela komentar HTML tertangkap "
+            "(Audit 1553)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-html.txt" in out)
+    shutil.rmtree(tokenselahtml, ignore_errors=True)
+
+    tokenselapipa = klon(tmp, "tokenselapipa")
+    tanam(tokenselapipa, "token-sela-pipa.txt",
+          "token uji: " + token_palsu[:paruh] + " | "
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselapipa, ["bash", SKRIP])
+    periksa("token dua paruh sebaris dipisah ' | ' tertangkap "
+            "(Audit 1553)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-pipa.txt" in out)
+    shutil.rmtree(tokenselapipa, ignore_errors=True)
+
+    doccontoh = klon(tmp, "doccontoh")
+    tanam(doccontoh, "dok-contoh.txt",
+          "contoh header (sudah diredaksi):\n"
+          "-----BEGIN CONTOH-PRIVATE-KEY-----\n"
+          "hash rilis: da39a3ee5e6b4b0d3255bfef95601890"
+          "afd80709\n", "w")
+    rc, out = jalan(doccontoh, ["bash", SKRIP])
+    periksa("dokumen contoh header teredaksi + hash rilis "
+            "lolos bersih (Audit 1554)",
+            rc == 0)
+    shutil.rmtree(doccontoh, ignore_errors=True)
+
+    kuncimiringsela = klon(tmp, "kuncimiringsela")
+    tanam(kuncimiringsela, "kunci-baris-miring.txt",
+          "// -----BEGIN OPENSSH PRIVATE " "KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncimiringsela, ["bash", SKRIP])
+    periksa("header utuh di baris komentar '//' tertangkap "
+            "(Audit 1567)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-baris-miring.txt" in out)
+    shutil.rmtree(kuncimiringsela, ignore_errors=True)
+
+    # Audit 1627: blok tokenselamiring ganda (dulu di sini,
+    # berlabel Audit 1567) dihapus — isinya byte-identik
+    # dengan blok Audit 1528 di atas.
+
+    subsepjinak = klon(tmp, "subsepjinak")
+    tanam(subsepjinak, "catatan-subsep.txt",
+          b"123456789\x1c" + b"A" * 35 + b"\n")
+    rc, out = jalan(subsepjinak, ["bash", SKRIP])
+    periksa("byte SUBSEP bawaan tanpa titik dua tidak "
+            "menempa token (Audit 1566)",
+            rc == 0)
+    shutil.rmtree(subsepjinak, ignore_errors=True)
+
+    tokenselasubsep = klon(tmp, "tokenselasubsep")
+    tanam(tokenselasubsep, "token-sela-subsep.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "# jeda\x1c sebentar\n" + token_palsu[paruh:] + "\n",
+          "w")
+    rc, out = jalan(tokenselasubsep, ["bash", SKRIP])
+    periksa("token tersela baris berisi byte SUBSEP "
+            "tertangkap (Audit 1566)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-subsep.txt" in out)
+    shutil.rmtree(tokenselasubsep, ignore_errors=True)
+
+
+
+def _bagian_akhir(tmp):
+    tokenbelahduac = klon(tmp, "tokenbelahduac")
+    tanam(tokenbelahduac, "token-belah-dua-c.txt",
+          "token uji: " + token_palsu[:9] + "\n"
+          + token_palsu[9] + " " + token_palsu[10:] + "\n",
+          "w")
+    rc, out = jalan(tokenbelahduac, ["bash", SKRIP])
+    periksa("token terbelah dengan ':' persis di awal baris "
+            "kedua tertangkap (Audit 1565)",
+            rc != 0 and "pola rahasia" in out
+            and "token-belah-dua-c.txt" in out)
+    shutil.rmtree(tokenbelahduac, ignore_errors=True)
+
+    tokenbelahduad = klon(tmp, "tokenbelahduad")
+    tanam(tokenbelahduad, "token-belah-dua-d.txt",
+          "token uji: " + token_palsu[:10] + "\t"
+          + token_palsu[10:] + "\n", "w")
+    rc, out = jalan(tokenbelahduad, ["bash", SKRIP])
+    periksa("token dengan TAB sesudah ':' tertangkap "
+            "(Audit 1565)",
+            rc != 0 and "pola rahasia" in out
+            and "token-belah-dua-d.txt" in out)
+    shutil.rmtree(tokenbelahduad, ignore_errors=True)
+
+    tokenselajam = klon(tmp, "tokenselajam")
+    tanam(tokenselajam, "token-sela-jam.txt",
+          "token uji: " + token_palsu[:paruh] + "\n"
+          "# selesai 12: 30\n" + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(tokenselajam, ["bash", SKRIP])
+    periksa("token tersela baris jam '12: 30' tertangkap "
+            "(Audit 1560)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-jam.txt" in out)
+    shutil.rmtree(tokenselajam, ignore_errors=True)
+
+    kunciselajam = klon(tmp, "kunciselajam")
+    tanam(kunciselajam, "kunci-sela-versi.txt",
+          "-----BEGIN OPENSSH\n# versi 2: final\n"
+          "PRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kunciselajam, ["bash", SKRIP])
+    periksa("header tersela baris versi '2: final' tertangkap "
+            "(Audit 1560)",
+            rc != 0 and "pola rahasia" in out
+            and "kunci-sela-versi.txt" in out)
+    shutil.rmtree(kunciselajam, ignore_errors=True)
+
+    tokencrlf = klon(tmp, "tokencrlf")
+    tanam(tokencrlf, "token-crlf.txt",
+          ("token uji: " + token_palsu[:9] + "\r\n"
+           + token_palsu[9] + " " + token_palsu[10:]
+           + "\r\n").encode(), "wb")
+    rc, out = jalan(tokencrlf, ["bash", SKRIP])
+    periksa("token terbelah dua baris di berkas CRLF "
+            "tertangkap (Audit 1584)",
+            rc != 0 and "pola rahasia" in out
+            and "token-crlf.txt" in out)
+    shutil.rmtree(tokencrlf, ignore_errors=True)
+
+    tokentigabaris = klon(tmp, "tokentigabaris")
+    tanam(tokentigabaris, "token-tiga-baris.txt",
+          "token uji: " + token_palsu[:7] + "\n"
+          + token_palsu[7:9] + "\n"
+          + token_palsu[9] + " " + token_palsu[10:] + "\n",
+          "w")
+    rc, out = jalan(tokentigabaris, ["bash", SKRIP])
+    periksa("token terbelah tiga baris lewat baris digit "
+            "murni tertangkap (Audit 1585)",
+            rc != 0 and "pola rahasia" in out
+            and "token-tiga-baris.txt" in out)
+    shutil.rmtree(tokentigabaris, ignore_errors=True)
+
+    tokenakumulasi = klon(tmp, "tokenakumulasi")
+    tanam(tokenakumulasi, "token-akumulasi.txt",
+          "token uji: " + token_palsu[:6] + "\n"
+          + token_palsu[6:9] + "\n"
+          + token_palsu[9] + " " + token_palsu[10:] + "\n",
+          "w")
+    rc, out = jalan(tokenakumulasi, ["bash", SKRIP])
+    periksa("deret digit token diakumulasi lintas baris "
+            "digit murni (Audit 1585)",
+            rc != 0 and "pola rahasia" in out
+            and "token-akumulasi.txt" in out)
+    shutil.rmtree(tokenakumulasi, ignore_errors=True)
+
+    tokenselakosong = klon(tmp, "tokenselakosong")
+    tanam(tokenselakosong, "token-sela-kosong.txt",
+          "token uji: " + token_palsu[:9] + "\n\n"
+          + token_palsu[9] + " " + token_palsu[10:] + "\n",
+          "w")
+    rc, out = jalan(tokenselakosong, ["bash", SKRIP])
+    periksa("token terbelah dengan sela baris kosong "
+            "sebelum ':' tertangkap (Audit 1586)",
+            rc != 0 and "pola rahasia" in out
+            and "token-sela-kosong.txt" in out)
+    shutil.rmtree(tokenselakosong, ignore_errors=True)
+
+    tokennbsp = klon(tmp, "tokennbsp")
+    tanam(tokennbsp, "token-unicode.txt",
+          (token_palsu[:9] + "\u00a0" + token_palsu[9:]
+           + "\n").encode("utf-8"), "wb")
+    rc, out = jalan(tokennbsp, ["bash", SKRIP])
+    periksa("token tersela spasi unicode NBSP tertangkap "
+            "(Audit 1776)",
+            rc != 0 and "pola rahasia" in out
+            and "token-unicode.txt" in out)
+    shutil.rmtree(tokennbsp, ignore_errors=True)
+    tokenescape = klon(tmp, "tokenescape")
+    tanam(tokenescape, "token-escape.txt",
+          token_palsu[:9] + "\\t" + token_palsu[9:] + "\n", "w")
+    rc, out = jalan(tokenescape, ["bash", SKRIP])
+    periksa("token tersela escape harfiah backslash-t "
+            "tertangkap (Audit 1777)",
+            rc != 0 and "pola rahasia" in out
+            and "token-escape.txt" in out)
+    shutil.rmtree(tokenescape, ignore_errors=True)
+    tokenbom = klon(tmp, "tokenbom")
+    tanam(tokenbom, "token-bom.txt",
+          (token_palsu[:paruh] + "\n").encode("utf-8")
+          + b"\xef\xbb\xbf"
+          + (token_palsu[paruh:] + "\n").encode("utf-8"), "wb")
+    rc, out = jalan(tokenbom, ["bash", SKRIP])
+    periksa("token terbelah dengan BOM di awal baris "
+            "lanjutan tertangkap (Audit 1778)",
+            rc != 0 and "pola rahasia" in out
+            and "token-bom.txt" in out)
+    shutil.rmtree(tokenbom, ignore_errors=True)
+    tokennul = klon(tmp, "tokennul")
+    tanam(tokennul, "token-nul.txt",
+          (token_palsu[:9] + chr(0) + token_palsu[9:]
+           + chr(10)).encode("utf-8"), "wb")
+    rc, out = jalan(tokennul, ["bash", SKRIP])
+    periksa("token tersisipi byte NUL di rentangnya "
+            "tertangkap (Audit 1795)",
+            rc != 0 and "pola rahasia" in out
+            and "token-nul.txt" in out)
+    shutil.rmtree(tokennul, ignore_errors=True)
+    sela_taklihat = klon(tmp, "selataklihat")
+    tanam(sela_taklihat, "token-sela-taklihat.txt",
+          "token: " + token_palsu[:12] + "\u200b"
+          + token_palsu[12:] + "\n", "w")
+    rc, out = jalan(sela_taklihat, ["bash", SKRIP])
+    periksa("token tersela aksara tak terlihat U+200B "
+            "tertangkap (Audit 1882)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(sela_taklihat, ignore_errors=True)
+    sela_spasi = klon(tmp, "selaspasi")
+    tanam(sela_spasi, "token-sela-spasi.txt",
+          "token: " + token_palsu[:15] + "\u2009"
+          + token_palsu[15:] + "\n", "w")
+    rc, out = jalan(sela_spasi, ["bash", SKRIP])
+    periksa("token tersela spasi tipis U+2009 tertangkap "
+            "(Audit 1883)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(sela_spasi, ignore_errors=True)
+    sela_vt = klon(tmp, "selavt")
+    tanam(sela_vt, "token-sela-vt.txt",
+          ("token: " + token_palsu[:14]).encode() + b"\x0b"
+          + token_palsu[14:].encode() + b"\n", "wb")
+    rc, out = jalan(sela_vt, ["bash", SKRIP])
+    periksa("token tersela tab vertikal tertangkap "
+            "(Audit 1884)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(sela_vt, ignore_errors=True)
+    token_escape = klon(tmp, "tokenescape")
+    tanam(token_escape, "token-escape.sh",
+          "TOKEN=$'" + token_palsu.replace(":", "\\x3a")
+          + "'\n", "w")
+    rc, out = jalan(token_escape, ["bash", SKRIP])
+    periksa("token ter-encode escape heksa tertangkap "
+            "(Audit 1885)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(token_escape, ignore_errors=True)
+
+    token_oktal = klon(tmp, "tokenoktal")
+    tanam(token_oktal, "token-oktal.sh",
+          "TOKEN=$'" + token_palsu.replace(":", "\\072")
+          + "'\n", "w")
+    rc, out = jalan(token_oktal, ["bash", SKRIP])
+    periksa("token ter-encode escape oktal tertangkap "
+            "(Audit 1885)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(token_oktal, ignore_errors=True)
+    indeks_saja = klon(tmp, "indekssaja")
+    berkas_indeks = os.path.join(
+        indeks_saja, "token-indeks-saja.txt")
+    with open(berkas_indeks, "w") as f_indeks:
+        f_indeks.write(
+            "token: " + token_palsu[:paruh] + "\n"
+            + token_palsu[paruh:] + "\n")
+    git(indeks_saja, "add", "token-indeks-saja.txt")
+    os.remove(berkas_indeks)
+    rc, out = jalan(indeks_saja, ["bash", SKRIP])
+    periksa("token terbelah hanya di indeks tertangkap "
+            "(Audit 1886)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(indeks_saja, ignore_errors=True)
+    oktal_dua = klon(tmp, "oktaldua")
+    tanam(oktal_dua, "token-oktal-dua.sh",
+          "TOKEN=$'" + token_palsu.replace(":", "\\72")
+          + "'\n", "w")
+    rc, out = jalan(oktal_dua, ["bash", SKRIP])
+    periksa("token ter-encode oktal dua digit tertangkap "
+            "(Audit 1889)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(oktal_dua, ignore_errors=True)
+    escape_unicode = klon(tmp, "escapeunicode")
+    tanam(escape_unicode, "token-unicode.sh",
+          "TOKEN=$'" + token_palsu.replace(":", "\\u003a")
+          + "'\n", "w")
+    rc, out = jalan(escape_unicode, ["bash", SKRIP])
+    periksa("token ter-encode escape unicode tertangkap "
+            "(Audit 1890)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(escape_unicode, ignore_errors=True)
+    staged_ganti = klon(tmp, "stagedganti")
+    berkas_ganti = os.path.join(
+        staged_ganti, "token-staged-ganti.txt")
+    with open(berkas_ganti, "w") as f_ganti:
+        f_ganti.write(
+            "token: " + token_palsu[:paruh] + "\n"
+            + token_palsu[paruh:] + "\n")
+    git(staged_ganti, "add", "token-staged-ganti.txt")
+    with open(berkas_ganti, "w") as f_ganti:
+        f_ganti.write("isi jinak biasa saja\n")
+    rc, out = jalan(staged_ganti, ["bash", SKRIP])
+    periksa("token terbelah staged lalu diganti jinak "
+            "tertangkap (Audit 1891)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(staged_ganti, ignore_errors=True)
+    nama_amp = klon(tmp, "namaamp")
+    berkas_amp = os.path.join(nama_amp, "a&b.txt")
+    with open(berkas_amp, "w") as f_amp:
+        f_amp.write(
+            "token: " + token_palsu[:paruh] + "\n"
+            + token_palsu[paruh:] + "\n")
+    git(nama_amp, "add", "a&b.txt")
+    os.remove(berkas_amp)
+    rc, out = jalan(nama_amp, ["bash", SKRIP])
+    periksa("token terbelah indeks bernama '&' tertangkap "
+            "dengan nama benar (Audit 1892)",
+            rc != 0 and "pola rahasia" in out
+            and "a&b.txt" in out)
+    shutil.rmtree(nama_amp, ignore_errors=True)
+    nama_pipa = klon(tmp, "namapipa")
+    tanam(nama_pipa, "token-lain.txt",
+          "token: " + token_palsu + "\n", "w")
+    berkas_pipa = os.path.join(
+        nama_pipa, "jinak|pipa.txt")
+    with open(berkas_pipa, "w") as f_pipa:
+        f_pipa.write("isi jinak\n")
+    git(nama_pipa, "add", "jinak|pipa.txt")
+    os.remove(berkas_pipa)
+    rc, out = jalan(nama_pipa, ["bash", SKRIP])
+    periksa("nama '|' tak membungkam temuan berkas lain "
+            "(Audit 1893)",
+            rc != 0 and "pola rahasia" in out
+            and "token-lain.txt" in out)
+    shutil.rmtree(nama_pipa, ignore_errors=True)
+    escape_umodal = klon(tmp, "escapeumodal")
+    tanam(escape_umodal, "token-umodal.sh",
+          "TOKEN=$'" + token_palsu.replace(":", "\\U0000003a")
+          + "'\n", "w")
+    rc, out = jalan(escape_umodal, ["bash", SKRIP])
+    periksa("token ter-encode escape \\U tertangkap "
+            "(Audit 1924)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(escape_umodal, ignore_errors=True)
+    komit_ganti = klon(tmp, "komitganti")
+    tanam(komit_ganti, "token-komit-ganti.txt",
+          "token: " + token_palsu[:paruh] + "\n"
+          + token_palsu[paruh:] + "\n", "w")
+    with open(os.path.join(
+            komit_ganti, "token-komit-ganti.txt"),
+            "w") as f_kg:
+        f_kg.write("isi jinak sesudah commit\n")
+    rc, out = jalan(komit_ganti, ["bash", SKRIP])
+    periksa("token terbelah ter-commit lalu ditimpa "
+            "jinak tertangkap (Audit 1925)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(komit_ganti, ignore_errors=True)
+    jendela_besar = klon(tmp, "jendelabesar")
+    tanam(jendela_besar, "besar-jendela.txt",
+          ("pengisi jinak baris biasa\n" * 900)
+          + "token: " + token_palsu[:paruh] + "\n"
+          + token_palsu[paruh:] + "\n", "w")
+    rc, out = jalan(jendela_besar, ["bash", SKRIP])
+    periksa("token terbelah di berkas besar tertangkap "
+            "jendela geser (Audit 1967)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(jendela_besar, ignore_errors=True)
+    subdir_lari = klon(tmp, "subdirlari")
+    rc, out = jalan(subdir_lari + "/tools",
+                    ["bash", "../scripts/cek-cepat.sh"])
+    periksa("lari dari subdirektori setara akar "
+            "(Audit 2001)", rc == 0)
+    shutil.rmtree(subdir_lari, ignore_errors=True)
+    biner_hdr = klon(tmp, "binerhdr")
+    with open(biner_hdr + "/biner-hdr.bin", "wb") as fh:
+        fh.write(bytes([0, 1]) + b"-----BEGIN "
+                 + b"PRIVATE" + b" KEY-----"
+                 + bytes([10, 0, 255]))
+    git(biner_hdr, "add", "-A")
+    rc, out = jalan(biner_hdr, ["bash", SKRIP])
+    periksa("header kunci tunggal di biner terlacak "
+            "tertangkap (Audit 2002)",
+            rc != 0 and "biner-hdr.bin" in out)
+    shutil.rmtree(biner_hdr, ignore_errors=True)
+    nodpi = klon(tmp, "nodpi")
+    os.makedirs(nodpi + "/app/src/main/res/drawable-nodpi",
+                exist_ok=True)
+    tanam(nodpi,
+          "app/src/main/res/drawable-nodpi/uji.xml",
+          '<vector android:pathData="M.9,2"/>', "w")
+    rc, out = jalan(nodpi, ["bash", SKRIP])
+    periksa("vektor .9 di drawable-nodpi tertangkap "
+            "(Audit 2003)", rc != 0 and "vektor" in out)
+    shutil.rmtree(nodpi, ignore_errors=True)
+    sarang = klon(tmp, "sarang")
+    dalam = os.path.join(sarang, "sarang", "dalam")
+    shutil.copytree(sarang, dalam)
+    os.makedirs(sarang + "/app/src/main/res/drawable-nodpi",
+                exist_ok=True)
+    tanam(sarang,
+          "app/src/main/res/drawable-nodpi/uji.xml",
+          '<vector android:pathData="M.9,2"/>', "w")
+    git(sarang, "add", "-A")
+    rc, out = jalan(dalam, ["bash",
+                            "../../scripts/cek-cepat.sh"])
+    periksa("lari dari repo bersarang menilai repo "
+            "pemilik skrip (Audit 2028)",
+            rc != 0 and "vektor" in out)
+    shutil.rmtree(sarang, ignore_errors=True)
+    darigit = klon(tmp, "darigit")
+    rc, out = jalan(darigit + "/.git",
+                    ["bash", os.path.join(darigit, SKRIP)])
+    periksa("lari dari dalam .git memicu pesan git tak "
+            "bisa dipercaya (Audit 2029)",
+            rc != 0 and "tak bisa dipercaya" in out)
+    shutil.rmtree(darigit, ignore_errors=True)
+    nuljauh = klon(tmp, "nuljauh")
+    hdr126 = (b"-----BEGIN " + b"PRIVATE"
+              + b" KEY-----" + bytes([10]))
+    with open(nuljauh + "/biner-jauh.bin", "wb") as fh:
+        fh.write(hdr126 + b"A" * 9050 + bytes([0]))
+    git(nuljauh, "add", "-A")
+    rc, out = jalan(nuljauh, ["bash", SKRIP])
+    periksa("header biner dengan NUL pertama jauh "
+            "tertangkap (Audit 2030)",
+            rc != 0 and "biner-jauh.bin" in out)
+    shutil.rmtree(nuljauh, ignore_errors=True)
+    idxvs = klon(tmp, "idxvs")
+    with open(idxvs + "/biner-idx.bin", "wb") as fh:
+        fh.write(bytes([0, 1]) + hdr126 + bytes([0]))
+    git(idxvs, "add", "-A")
+    with open(idxvs + "/biner-idx.bin", "w") as fh:
+        fh.write("teks jinak biasa saja.\n")
+    rc, out = jalan(idxvs, ["bash", SKRIP])
+    periksa("kandidat indeks diuji dari isi indeks "
+            "(Audit 2031)",
+            rc != 0 and "biner-idx.bin" in out)
+    shutil.rmtree(idxvs, ignore_errors=True)
+    odlumpuh = klon(tmp, "odlumpuh")
+    stubbin = os.path.join(odlumpuh, "stubbin")
+    os.makedirs(stubbin, exist_ok=True)
+    tanam(odlumpuh, "stubbin/od", "#!/bin/sh\nexit 0\n", "w")
+    os.chmod(stubbin + "/od", 0o755)
+    with open(odlumpuh + "/biner-od.bin", "wb") as fh:
+        fh.write(bytes([0, 1]) + hdr126 + bytes([0]))
+    git(odlumpuh, "add", "-A")
+    rc, out = jalan(odlumpuh, ["bash", SKRIP],
+                    env={"PATH": stubbin + ":/usr/bin:/bin"})
+    periksa("od lumpuh membuat kandidat dianggap biner "
+            "(Audit 2032)",
+            rc != 0 and "biner-od.bin" in out)
+    shutil.rmtree(odlumpuh, ignore_errors=True)
+    pautan = klon(tmp, "pautan")
+    os.symlink("scripts/cek-cepat.sh", pautan + "/cek-link")
+    rc, out = jalan(pautan,
+                    ["bash", pautan + "/cek-link"])
+    periksa("akar repo ditembus lewat symlink skrip "
+            "(Audit 2048)", rc == 0)
+    shutil.rmtree(pautan, ignore_errors=True)
+    longgar = klon(tmp, "longgar")
+    hdr127 = (b"-----BEGIN " + b"PRIVATE"
+              + b" KEY-----" + bytes([10]))
+    with open(longgar + "/longgar.bin", "wb") as fh:
+        fh.write(b"XX" + hdr127 + bytes([0, 1]))
+    rc, out = jalan(longgar, ["bash", SKRIP])
+    periksa("header tak di awal baris pada biner tak "
+            "terlacak tertangkap (Audit 2049)",
+            rc != 0 and "longgar.bin" in out)
+    shutil.rmtree(longgar, ignore_errors=True)
+    nl = klon(tmp, "nl")
+    with open(nl + "/nama\nbaru.bin", "wb") as fh:
+        fh.write(bytes([0, 1]) + hdr127 + bytes([0]))
+    git(nl, "add", "-A")
+    rc, out = jalan(nl, ["bash", SKRIP])
+    periksa("nama berkas ber-newline utuh sebagai "
+            "kandidat (Audit 2050)",
+            rc != 0 and "baru.bin" in out)
+    shutil.rmtree(nl, ignore_errors=True)
+    besar = klon(tmp, "besar")
+    with open(besar + "/besar.bin", "wb") as fh:
+        fh.write(b"Z" * 64 + hdr127
+                 + b"A" * (17000000 - 64 - len(hdr127))
+                 + bytes([0]))
+    git(besar, "add", "-A")
+    rc, out = jalan(besar, ["bash", SKRIP])
+    periksa("NUL pertama jauh di berkas besar "
+            "tertangkap (Audit 2051)",
+            rc != 0 and "besar.bin" in out)
+    shutil.rmtree(besar, ignore_errors=True)
+    import signal as _signal128
+    import subprocess as _sp128
+    import time as _time128
+    tmpd_rusak = klon(tmp, "tmpd-rusak")
+    rc, out = jalan(tmpd_rusak, ["bash", SKRIP],
+                    env={"TMPDIR": "/proc/tak-ada-128"})
+    periksa("TMPDIR rusak: vonis rancangan menyebut "
+            "TMPDIR (Audit 2066)",
+            rc != 0 and "GAGAL:" in out
+            and "TMPDIR" in out)
+    shutil.rmtree(tmpd_rusak, ignore_errors=True)
+
+    klon_sig = klon(tmp, "sinyal")
+    tmpd_sinyal = tempfile.mkdtemp()
+    p_sig = _sp128.Popen(
+        ["bash", SKRIP], cwd=klon_sig,
+        env={**os.environ, "TMPDIR": tmpd_sinyal},
+        stdout=_sp128.DEVNULL, stderr=_sp128.DEVNULL)
+    _time128.sleep(1.2)
+    p_sig.send_signal(_signal128.SIGTERM)
+    p_sig.wait()
+    periksa("sinyal di tengah lari: artefak sementara "
+            "dibersihkan trap (Audit 2065)",
+            os.listdir(tmpd_sinyal) == [])
+    shutil.rmtree(tmpd_sinyal, ignore_errors=True)
+    shutil.rmtree(klon_sig, ignore_errors=True)
+    stripnama = klon(tmp, "stripnama")
+    with open(stripnama + "/-", "w") as fh:
+        fh.write("token uji: " + token_palsu[:paruh] + "\n"
+                 + token_palsu[paruh:] + "\n")
+    rc, out = jalan(stripnama, ["bash", SKRIP])
+    periksa("berkas bernama '-' tak terlacak: token "
+            "terbelah tertangkap (Audit 2097)",
+            rc != 0 and "./-" in out)
+    shutil.rmtree(stripnama, ignore_errors=True)
+    stripjinak = klon(tmp, "stripjinak")
+    with open(stripjinak + "/-", "w") as fh:
+        fh.write("halo dunia\n")
+    rc, out = jalan(stripjinak, ["bash", SKRIP])
+    periksa("berkas bernama '-' jinak lolos "
+            "(Audit 2097)", rc == 0)
+    shutil.rmtree(stripjinak, ignore_errors=True)
+
+    pautan = klon(tmp, "pautan")
+    sasaran_pautan = os.path.join(tmp, "sasaran-pautan.xml")
+    with open(sasaran_pautan, "w") as fh:
+        fh.write("<vector><path android:pathData="
+                 "\"M.9,9 L10,10\"/></vector>\n")
+    os.symlink(sasaran_pautan, pautan + "/app/src/main/res/"
+               "drawable-nodpi/uji_link.xml")
+    git(pautan, "add", "-A")
+    git(pautan, "commit", "-qm", "pautan")
+    rc, out = jalan(pautan, ["bash", SKRIP])
+    periksa("symlink vektor di res/: pola .9 di target "
+            "tertangkap (Audit 2128)",
+            rc != 0 and rc != 124
+            and "path vektor tanpa nol depan" in out)
+    shutil.rmtree(pautan, ignore_errors=True)
+    stripganda = klon(tmp, "stripganda")
+    with open(stripganda + "/-", "w") as fh:
+        fh.write("token uji: " + token_palsu + "\n")
+    rc, out = jalan(stripganda, ["bash", SKRIP])
+    periksa("berkas '-' token utuh dilaporkan tepat "
+            "satu kali (Audit 2129)",
+            rc != 0 and out.count("./-") == 1)
+    shutil.rmtree(stripganda, ignore_errors=True)
+    namabaris = klon(tmp, "namabaris")
+    with open(namabaris + "/pecah\nbaris.txt", "w") as fh:
+        fh.write("token uji: " + token_palsu + "\n")
+    rc, out = jalan(namabaris, ["bash", SKRIP])
+    periksa("nama berkas ber-newline tampil utuh "
+            "ter-escape (Audit 2130)",
+            rc != 0 and "pecah\\nbaris.txt" in out)
+    shutil.rmtree(namabaris, ignore_errors=True)
+
+    namakutip = klon(tmp, "namakutip")
+    with open(namakutip + "/pecah\nbaris.txt", "w") as fh:
+        fh.write("token uji: " + token_palsu + "\n")
+    git(namakutip, "add", "-A")
+    git(namakutip, "commit", "-qm", "tanam")
+    rc, out = jalan(namakutip, ["bash", SKRIP])
+    periksa("nama ber-newline terlacak tampil satu "
+            "ejaan utuh (Audit 2137)",
+            rc != 0 and out.count("pecah\\nbaris.txt") == 1
+            and '"pecah' not in out)
+    shutil.rmtree(namakutip, ignore_errors=True)
+
+    namamin = klon(tmp, "namamin")
+    with open(namamin + "/-", "w") as fh:
+        fh.write("token uji: " + token_palsu + "\n")
+    git(namamin, "add", "-A")
+    git(namamin, "commit", "-qm", "tanam")
+    rc, out = jalan(namamin, ["bash", SKRIP])
+    periksa("berkas terlacak '-' tampil satu kali "
+            "sebagai ./- (Audit 2158)",
+            rc != 0 and out.count("./-") == 1)
+    shutil.rmtree(namamin, ignore_errors=True)
+
+    belahnl = klon(tmp, "belahnl")
+    with open(belahnl + "/belah.txt", "w") as fh:
+        fh.write("isi: " + token_palsu[:20] + "\\x0a"
+                 + token_palsu[20:] + "\n")
+    git(belahnl, "add", "-A")
+    git(belahnl, "commit", "-qm", "tanam")
+    rc, out = jalan(belahnl, ["bash", SKRIP])
+    periksa("token terbelah escape newline tertangkap "
+            "(Audit 2177)",
+            rc != 0 and rc != 124
+            and "pola rahasia" in out and "belah.txt" in out)
+    shutil.rmtree(belahnl, ignore_errors=True)
+
+    kepalasaja = klon(tmp, "kepalasaja")
+    with open(kepalasaja + "/kepala.txt", "w") as fh:
+        fh.write("token uji: " + token_palsu + "\n")
+    git(kepalasaja, "add", "-A")
+    git(kepalasaja, "commit", "-qm", "tanam")
+    git(kepalasaja, "rm", "-q", "kepala.txt")
+    rc, out = jalan(kepalasaja, ["bash", SKRIP])
+    periksa("token hanya di HEAD tertangkap "
+            "(Audit 2225)",
+            rc != 0 and rc != 124
+            and "pola rahasia" in out and "kepala.txt" in out)
+    shutil.rmtree(kepalasaja, ignore_errors=True)
+
+
+    hdrignore = klon(tmp, "hdrignore")
+    with open(hdrignore + "/.gitignore", "a") as fh:
+        fh.write("abaikan.bin\n")
+    git(hdrignore, "add", "-A")
+    git(hdrignore, "commit", "-qm", "abaikan")
+    with open(hdrignore + "/abaikan.bin", "wb") as fh:
+        fh.write(b"\x00\x01xxxx -----BEGIN RSA "
+                 b"PRIVATE KEY----- yyyy\x00")
+    rc, out = jalan(hdrignore, ["bash", SKRIP])
+    periksa("header kunci di berkas biner terabaikan "
+            "tertangkap (Audit 2226)",
+            rc != 0 and rc != 124
+            and "pola rahasia" in out and "abaikan.bin" in out)
+    shutil.rmtree(hdrignore, ignore_errors=True)
+
+    tautan = klon(tmp, "tautan")
+    os.symlink("../../java",
+               tautan + "/app/src/main/res/drawable/tautan-java")
+    rc, out = jalan(tautan, ["bash", SKRIP])
+    periksa("symlink res ke kode Java tak dituduh vektor "
+            "(Audit 2232)", rc == 0)
+    shutil.rmtree(tautan, ignore_errors=True)
+
+
+    kepalah = klon(tmp, "kepalah")
+    with open(kepalah + "/HEAD:probe.txt", "w") as fh:
+        fh.write("token uji: " + token_palsu + "\n")
+    git(kepalah, "add", "-A")
+    git(kepalah, "commit", "-qm", "tanam")
+    rc, out = jalan(kepalah, ["bash", SKRIP])
+    periksa("nama berkas HEAD: utuh satu ejaan "
+            "(Audit 2233)", rc != 0
+            and out.count("HEAD:probe.txt") == 1)
+    shutil.rmtree(kepalah, ignore_errors=True)
+
+
+    pycakar = klon(tmp, "pycakar")
+    with open(pycakar + "/.gitignore", "a") as fh:
+        fh.write("kunci.pyc\n")
+    with open(pycakar + "/kunci.pyc", "wb") as fh:
+        fh.write(b"\x00\x01xxxx -----BEGIN RSA "
+                 b"PRIVATE KEY----- yyyy\x00")
+    rc, out = jalan(pycakar, ["bash", SKRIP])
+    periksa("header kunci di *.pyc akar terabaikan "
+            "tertangkap (Audit 2234)",
+            rc != 0 and rc != 124
+            and "pola rahasia" in out and "kunci.pyc" in out)
+    shutil.rmtree(pycakar, ignore_errors=True)
+
+
+
+
+def lapor():
     if GAGAL:
         print("GAGAL: %d skenario menyimpang: %s"
               % (len(GAGAL), ", ".join(GAGAL)))
         return 1
     print("LOLOS: semua skenario uji-diri cek-cepat sesuai harapan.")
     return 0
+
+
+
+
+def main():
+    with tempfile.TemporaryDirectory(prefix="uji-cek-cepat-") as tmp:
+        _bagian_awal(tmp)
+        _bagian_akhir(tmp)
+    return lapor()
 
 
 if __name__ == "__main__":

@@ -1,5 +1,25 @@
 # Changelog
 
+## [Belum rilis] — Suite cek-cepat dibelah dua job paralel (Audit 2557)
+
+- Temuan 2557 (Audit 174): langkah uji-diri cek-cepat di CI terukur
+  19 menit 20 detik — 43,0% dari timeout job 45 menit — dan karena
+  Assemble APK menunggu job itu, satu suite serial 106 skenario
+  menjadi penentu jalur kritis seluruh build; riwayat durasinya
+  terus tumbuh (4:30 → >15 menit → 19:20).
+- Perbaikan: skenario di `tools/uji-cek-cepat.py` dibelah dua
+  fungsi (`_bagian_awal`/`_bagian_akhir`) di berkas yang sama —
+  definisi skenario tetap satu pintu — dan berkas baru
+  `tools/uji-cek-cepat-2.py` menjalankan paruh akhirnya saja.
+  Konstanta bersama `token_palsu`/`paruh` naik ke level modul.
+  `build-apk.yml` mendapat job paralel `verifikasi-cek-2` dan
+  Assemble APK kini menunggu kedua paruh; `cek-wajib.yml` (check
+  wajib PR) tetap menjalankan seluruh 106 skenario secara serial;
+  daftar path build-apk & penggolong auto-merge mengenal berkas
+  baru. Terverifikasi lokal: paruh awal 52 skenario hijau, paruh
+  akhir 54 skenario hijau — total tetap 106, label & urutan
+  skenario identik dengan sebelum dibelah.
+
 ## [Belum rilis] — StoragePermTest mengunci vektor volume SD dan segmen kosong (Audit 174)
 
 - Temuan 2556 (Rendah): dua vektor perilaku `folderPribadiAplikasi` yang benar tidak terkunci uji JVM — volume SD satu-segmen (`/storage/1234-5678/...` → true) dan segmen volume kosong sintetik (`/storage//...` → false) — padahal cabang ini sudah dua kali rusak (2512 dan perbaikan cfada72e). Kedua asersi ditambahkan ke `folderPribadiAplikasiHanyaSesudahRoot`; nilai harapannya dibuktikan lebih dulu lewat porting Python 1:1 atas fungsi saat ini (8/8 vektor cocok, termasuk enam yang lama). Closes #2330.

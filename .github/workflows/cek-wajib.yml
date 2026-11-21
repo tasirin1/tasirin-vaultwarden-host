@@ -50,3 +50,7 @@ jobs:
         run: python3 tools/uji-verifikasi.py
       - name: Uji-diri cek-cepat (cabang deteksi cek-cepat)
         run: python3 tools/uji-cek-cepat.py
+      # Audit 2557: paruh akhir skenario tinggal di berkas kedua;
+      # check wajib PR tetap menjalankan seluruh 106 skenario.
+      - name: Uji-diri cek-cepat bagian 2 (paruh akhir skenario)
+        run: python3 tools/uji-cek-cepat-2.py

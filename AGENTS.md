@@ -33,6 +33,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── tools/verifikasi-patch.py            # Verifikator patch murni-Python (boleh jalan lokal, tanpa toolchain)
 ├── tools/uji-verifikasi.py              # Uji-diri gerbang: skenario cabang langka verifikasi-patch pada salinan buang (langkah tetap CI)
 ├── tools/uji-cek-cepat.py               # Uji-diri cek-cepat: skenario pola rahasia (termasuk token terbelah) & vektor pada salinan buang (langkah tetap CI)
+├── tools/uji-cek-cepat-2.py             # Paruh akhir skenario uji-cek-cepat.py (Audit 2557: job CI paralel; definisi skenario tetap di berkas utama)
 ├── tools/bekas-hapusan.txt              # Daftar nama metode yang dihapus (jangan dipakai lagi, lihat aturan #15)
 ├── tools/pasang-hook.sh                 # Pasang pre-push hook (verifikasi-patch + cek cepat)
 ├── scripts/cek-cepat.sh                 # Cek cepat pra-push (vektor 0.x, README, pola rahasia)
@@ -261,7 +262,10 @@ sebelum PR bisa digabungkan (termasuk auto-merge Dependabot). Isinya:
    fail-keras tanpa PyYAML, sumber lokal daftar hapus pada mode lokal dan
    `--semua <jalur>`, kedua `strings.xml` kosong — hanya di `cek-wajib.yml`
    dan job verifikasi `build-apk.yml`, bukan di `build-binary.yml`).
-   `python3 tools/uji-cek-cepat.py` berjalan di tempat yang sama.
+   `python3 tools/uji-cek-cepat.py` berjalan di tempat yang sama,
+   disusul `python3 tools/uji-cek-cepat-2.py` (paruh akhir skenarionya,
+   Audit 2557); di `build-apk.yml` kedua paruh itu berjalan sebagai dua
+   job paralel (`verifikasi-cek` dan `verifikasi-cek-2`).
 
 Tiap temuan ditulis sebagai **annotations GitHub** (`::error`/`::warning`
 dengan file+baris) sehingga bug/kode sampah/celah keamanan terlihat di tab

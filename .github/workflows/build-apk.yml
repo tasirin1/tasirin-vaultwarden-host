@@ -15,6 +15,7 @@ on:
       - 'tools/verifikasi-patch.py'
       - 'tools/uji-verifikasi.py'
       - 'tools/uji-cek-cepat.py'
+      - 'tools/uji-cek-cepat-2.py'
       - 'tools/uji_bersama.py'
       - 'tools/bekas-hapusan.txt'
       - 'scripts/cek-cepat.sh'
@@ -33,6 +34,7 @@ on:
       - 'tools/verifikasi-patch.py'
       - 'tools/uji-verifikasi.py'
       - 'tools/uji-cek-cepat.py'
+      - 'tools/uji-cek-cepat-2.py'
       - 'tools/uji_bersama.py'
       - 'tools/bekas-hapusan.txt'
       - 'scripts/cek-cepat.sh'
@@ -129,6 +131,23 @@ jobs:
         if: github.event_name != 'pull_request'
         run: python3 tools/uji-cek-cepat.py
 
+  verifikasi-cek-2:
+    name: Cek patch yang berubah (cek-cepat 2)
+    runs-on: ubuntu-24.04
+    # Audit 2557: paruh akhir skenario suite cek-cepat berjalan
+    # sebagai job paralel sendiri (berkas tools/uji-cek-cepat-2.py
+    # memuat paruh itu dari berkas suite utama) agar jalur kritis
+    # Assemble APK tak lagi ditentukan satu suite serial 19m20s.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+
+          persist-credentials: false
+      - name: Uji-diri cek-cepat bagian 2 (paruh akhir skenario)
+        if: github.event_name != 'pull_request'
+        run: python3 tools/uji-cek-cepat-2.py
   resolve:
     name: Resolve latest Vaultwarden
     runs-on: ubuntu-24.04
@@ -144,7 +163,7 @@ jobs:
 
   build-apk:
     name: Assemble APK
-    needs: [resolve, verifikasi, verifikasi-cek]
+    needs: [resolve, verifikasi, verifikasi-cek, verifikasi-cek-2]
     runs-on: ubuntu-24.04
     timeout-minutes: 90
 
