@@ -3484,10 +3484,15 @@ _SAH_TSV = {
     # dari sumber getopt masing-masing:
     # (panjang kanon, pendek kanon, pulau
     # panjang caseSensitive, pulau pendek,
-    # lipat huruf). Nama di luar himpunan =
-    # GetOptException - alat berhenti sebelum
-    # membaca. 'h'/'help' + varian help-* =
-    # bantuan implisit std.getopt.
+    # lipat huruf, pulau lipat). Nama di luar
+    # himpunan = GetOptException - alat
+    # berhenti sebelum membaca. 'h'/'help' +
+    # varian help-* = bantuan implisit
+    # std.getopt. Audit 2529: pulau lipat =
+    # nama yang tetap dilipat walau alat tak
+    # melipat (help-verbose csv2tsv terdeklarasi
+    # SEBELUM penanda caseSensitive pertama di
+    # csv2tsv.d - zona tak-peka bawaan Phobos).
     "tsv-sample": (
         frozenset({"delimiter", "key-fields",
                    "num", "prob", "seed-value",
@@ -3506,7 +3511,8 @@ _SAH_TSV = {
                    "H", "V", "i", "r", "s", "h"}),
         frozenset({"header", "seed-value",
                    "version"}),
-        frozenset({"H", "v", "V"}), True),
+        frozenset({"H", "v", "V"}), True,
+        frozenset()),
     "tsv-uniq": (
         frozenset({"fields", "at-least", "max",
                    "equiv-header", "equiv-start",
@@ -3520,7 +3526,8 @@ _SAH_TSV = {
         frozenset({"f", "a", "m", "d", "H", "V",
                    "i", "r", "e", "z", "h"}),
         frozenset({"header", "version"}),
-        frozenset({"H", "V"}), True),
+        frozenset({"H", "V"}), True,
+        frozenset()),
     "tsv-pretty": (
         frozenset({"delimiter", "lookahead",
                    "repeat-header", "precision",
@@ -3538,7 +3545,8 @@ _SAH_TSV = {
                    "e", "a", "V", "h"}),
         frozenset({"header", "replace-empty",
                    "empty-replacement", "version"}),
-        frozenset({"H", "e", "E", "V"}), True),
+        frozenset({"H", "e", "E", "V"}), True,
+        frozenset()),
     "tsv-split": (
         frozenset({"delimiter", "digit-width",
                    "dir", "key-fields",
@@ -3554,7 +3562,8 @@ _SAH_TSV = {
                    "H", "I", "a", "s", "V", "h"}),
         frozenset({"header", "header-in-only",
                    "seed-value", "version"}),
-        frozenset({"H", "I", "v", "V"}), True),
+        frozenset({"H", "I", "v", "V"}), True,
+        frozenset()),
     "csv2tsv": (
         frozenset({"quote", "csv-delim",
                    "tsv-delim", "tab-replacement",
@@ -3564,7 +3573,8 @@ _SAH_TSV = {
                    "help-options"}),
         frozenset({"q", "c", "t", "r", "n", "H",
                    "V", "h"}),
-        frozenset(), frozenset(), False),
+        frozenset(), frozenset(), False,
+        frozenset({"help-verbose"})),
     "number-lines": (
         frozenset({"delimiter", "start-number",
                    "header-string", "header",
@@ -3573,7 +3583,8 @@ _SAH_TSV = {
                    "help-fields", "help-options"}),
         frozenset({"d", "n", "s", "H", "V", "h"}),
         frozenset({"header", "version"}),
-        frozenset({"H", "V"}), True),
+        frozenset({"H", "V"}), True,
+        frozenset()),
 }
 
 
@@ -3581,7 +3592,7 @@ def _nama_sah_tsv(dasar, sah):
     """Audit 2498: True bila dasar adalah nama
     opsi yang dikenal getopt alat klon tsv
     (atau bukan token opsi sama sekali)."""
-    pjg, pdk, pu_pjg, pu_pdk, lipat = sah
+    pjg, pdk, pu_pjg, pu_pdk, lipat, pu_lipat = sah
     if (not dasar.startswith("-")
             or dasar in ("-", "--")):
         return True
@@ -3593,7 +3604,7 @@ def _nama_sah_tsv(dasar, sah):
             return False
         if lipat:
             return nama.lower() in pjg
-        return nama in pjg
+        return nama in pjg or nama.lower() in pu_lipat
     huruf = dasar[1]
     if huruf in pu_pdk:
         return huruf in pdk

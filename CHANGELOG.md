@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — csv2tsv --HELP-VERBOSE=false tak lagi lolos gerbang (Audit 173)
+
+- Fail-open gerbang: `csv2tsv --HELP-VERBOSE=false` menguras stdin di alat asli tetapi gerbang meloloskannya. Di `csv2tsv.d`, `help-verbose` terdeklarasi SEBELUM penanda `caseSensitive` pertama, jadi ia berada di zona tak-peka-huruf bawaan Phobos dan bentuk huruf besarnya sah; tabel `_SAH_TSV` memodelkan csv2tsv serba huruf-persis. Tabel kini membawa elemen keenam "pulau lipat" — nama yang tetap dilipat walau alat tak melipat — berisi `help-verbose` untuk csv2tsv (nama lain csv2tsv memang sesudah penanda, jadi model huruf-persisnya tetap tepat). Skenario generate 1620 mengunci vonis tolak; terverifikasi diskriminatif (gerbang lama GAGAL, gerbang baru LOLOS pada skenario yang sama).
+
 ## [Belum rilis] — Model ruang backup jalur terenkripsi dihitung dari tulisan nyata (Audit 173)
 
 - `TgBackup.ruangBackupDibutuhkan` (perbaikan 2502, Audit 172) masih kurang hitung jalur terenkripsi di dua volume. Folder data dituntut 0 padahal berkas `.enc` seukuran muatan penuh (DB + lampiran) ditulis ke sana — kini dituntut `db + lampiran`, sama dengan jalur polos yang menulis zip-nya ke folder yang sama. Folder cache kini dituntut `2·db + 2·lampiran` untuk terenkripsi (puncak fase roundtrip: zip polos dan salinan dekripsinya hidup bersamaan) dan `db` saja untuk polos (hanya snapshot yang tinggal di cache; tuntutan lama 2·db terlalu ketat dan bisa menolak backup yang sebenarnya muat). Empat asersi uji yang mengunci angka lama dibalik di commit yang sama, termasuk kasus yang disorot audit: (DB 100 MB, lampiran 300 MB, cache, terenkripsi) kini 805 MB, bukan 605 MB.
