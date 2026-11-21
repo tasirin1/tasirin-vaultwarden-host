@@ -14606,8 +14606,8 @@ def _himpun_definisi_mentah():
     def rapikan(jenis, nama):
         return nama.replace(".", "_") if jenis == "style" else nama
 
-    pola_def = re.compile(r'<(style|string|color|dimen|plurals)(?=[\s/>])[^>]*?\bname="([^"]+)"')
-    pola_array = re.compile(r'<(string-array|integer-array|array)(?=[\s/>])[^>]*?\bname="([^"]+)"')
+    pola_def = re.compile(r'<(string-array|integer-array|array|style|string|color|dimen|plurals)(?=[\s/>])[^>]*?\bname="([^"]+)"')
+    JENIS_ARRAY = ("string-array", "integer-array", "array")
 
     def tambah(kunci, nama):
         definisi.setdefault(kunci, set()).add(rapikan(kunci, nama))
@@ -14616,9 +14616,7 @@ def _himpun_definisi_mentah():
     for path in jalan_repo(os.path.join("app", "src", "main", "res"), ext=(".xml",)):
         isi = kupas_komentar_xml(baca(path))
         for jenis, nama in pola_def.findall(isi):
-            tambah(jenis, nama)
-        for jenis, nama in pola_array.findall(isi):
-            tambah("array", nama)
+            tambah("array" if jenis in JENIS_ARRAY else jenis, nama)
         for nama in re.findall(r'@\+id/([A-Za-z0-9_]+)', isi):
             tambah("id", nama)
 
@@ -14634,18 +14632,9 @@ def _himpun_definisi_mentah():
             for nama in berkas:
                 tambah(tipe, os.path.splitext(nama)[0])
 
-    pola_pakai = [
-        ("style", r"@style/([A-Za-z0-9_.]+)", r"(?<!android\.)R\.style\.([A-Za-z0-9_]+)"),
-        ("string", r"@string/([A-Za-z0-9_]+)", r"(?<!android\.)R\.string\.([A-Za-z0-9_]+)"),
-        ("color", r"@color/([A-Za-z0-9_]+)", r"(?<!android\.)R\.color\.([A-Za-z0-9_]+)"),
-        ("dimen", r"@dimen/([A-Za-z0-9_]+)", r"(?<!android\.)R\.dimen\.([A-Za-z0-9_]+)"),
-        ("array", r"@array/([A-Za-z0-9_]+)", r"(?<!android\.)R\.array\.([A-Za-z0-9_]+)"),
-        ("drawable", r"@drawable/([A-Za-z0-9_]+)", r"(?<!android\.)R\.drawable\.([A-Za-z0-9_]+)"),
-        ("layout", None, r"(?<!android\.)R\.layout\.([A-Za-z0-9_]+)"),
-        ("id", r"@id/([A-Za-z0-9_]+)", r"(?<!android\.)R\.id\.([A-Za-z0-9_]+)"),
-        ("plurals", r"@plurals/([A-Za-z0-9_]+)", r"(?<!android\.)R\.plurals\.([A-Za-z0-9_]+)"),
-    ]
-    pola_generik_xml = re.compile(r"@([a-z]+)/([A-Za-z0-9_.]+)")
+    JENIS_XML_SPESIFIK = ("style", "string", "color", "dimen", "array",
+                          "drawable", "id", "plurals")
+    pola_xml_gabung = re.compile(r"@([a-z]+)/([A-Za-z0-9_.]+)")
     pola_generik_r = re.compile(r"(?<!android\.)R\.([a-z]+)\.([A-Za-z0-9_]+)")
     pola_android = re.compile(r"@android:[a-z]+/[A-Za-z0-9_.]+")
     pemindai = [p for p in jalan_repo("app", ext=(".java", ".xml",))]
@@ -14657,13 +14646,12 @@ def _himpun_definisi_mentah():
         if path.endswith(".xml"):
             isi = kupas_komentar_xml(isi)
         isi = pola_android.sub("", isi)
-        for jenis, pola_xml, pola_r in pola_pakai:
-            for pola in (pola_xml, pola_r):
-                if pola:
-                    for nama in re.findall(pola, isi):
-                        acuan.setdefault(jenis, set()).add(rapikan(jenis, nama))
-        for tipe, nama in pola_generik_xml.findall(isi):
+        for tipe, nama in pola_xml_gabung.findall(isi):
             acuan.setdefault(tipe, set()).add(rapikan(tipe, nama))
+            if tipe != "style" and tipe in JENIS_XML_SPESIFIK:
+                nama_pendek = nama.split(".", 1)[0]
+                if nama_pendek:
+                    acuan[tipe].add(nama_pendek)
         for tipe, nama in pola_generik_r.findall(isi):
             acuan.setdefault(tipe, set()).add(rapikan(tipe, nama))
     return definisi, acuan
