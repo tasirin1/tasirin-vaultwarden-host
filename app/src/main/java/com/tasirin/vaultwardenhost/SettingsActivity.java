@@ -4699,7 +4699,20 @@ public class SettingsActivity extends Activity {
         pinTunda = null;
         if (tundaPin != null) {
             ui.removeCallbacks(tundaPin);
-            tundaPin.run();
+            if (!isChangingConfigurations()) {
+                boolean pinAktif = pinEnabledCheck != null
+                        && pinEnabledCheck.isChecked();
+                if (perluKonfirmasiGantiPin(pinAktif, adaHashPinTersimpan())) {
+                    try {
+                        android.widget.Toast.makeText(getApplicationContext(),
+                                R.string.pin_ganti_batal_tutup,
+                                android.widget.Toast.LENGTH_LONG).show();
+                    } catch (Exception ignored) {
+                    }
+                } else {
+                    tundaPin.run();
+                }
+            }
         }
         sapuExportPlainBasi();
 

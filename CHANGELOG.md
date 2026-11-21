@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Perubahan PIN tertunda tak lagi hilang senyap saat Settings ditutup (Audit 172)
+
+- `onDestroy` sebelumnya menjalankan runnable PIN tertunda secara sinkron sesudah `pinDialogBoleh` dimatikan — cabang yang butuh dialog konfirmasi ganti PIN pasti gugur dan kandidat dibuang tanpa kabar. Kini: pada perubahan konfigurasi (rotasi) runnable tidak dijalankan sama sekali — teks kolom PIN dipulihkan framework di instance baru dan watcher-nya mempersenjatai ulang debounce di sana, tempat dialog benar-benar bisa tampil. Pada penutupan sungguhan, runnable hanya dijalankan bila bisa selesai tanpa dialog; bila butuh konfirmasi, perubahan dianggap tidak terkonfirmasi dan pengguna diberi tahu lewat toast ("Perubahan PIN butuh konfirmasi — tidak disimpan"), bukan hilang diam-diam.
+
 ## [Belum rilis] — Dialog konfirmasi Settings selamat dari rotasi (Audit 172)
 
 - Dialog konfirmasi generik Settings kini berkunci dan tersimpan di instance state (kunci + judul + pesan + Uri pemilih): sesudah rotasi/rekreasi, dialog yang sama ditampilkan lagi di `onResume` dengan aksi yang dibangun ulang terhadap activity baru — mengikuti pola dialog impor/restore Telegram yang sudah ada. Enam situs bermigrasi: reset binary, reset sertifikat, matikan PIN, restore DB dari pemilih berkas, impor config dari pemilih berkas, dan ekspor config. Sebelumnya keenamnya lenyap diam-diam saat rotasi — aksi tak batal tak jalan, dan untuk restore/impor Uri pilihan ikut hilang sehingga pengguna mengulang dari pemilih berkas.

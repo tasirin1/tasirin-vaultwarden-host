@@ -135,6 +135,7 @@
     <string name="pin_off_pesan">Siapa pun yang memegang HP/STB ini bisa membuka aplikasi. Lanjutkan?</string>
     <string name="pin_ganti_judul">Ganti PIN?</string>
     <string name="pin_ganti_pesan">PIN baru menggantikan PIN aktif. Bila salah ketik, aplikasi tak bisa dibuka lagi. Lanjutkan?</string>
+    <string name="pin_ganti_batal_tutup">Perubahan PIN butuh konfirmasi — tidak disimpan.</string>
     <string name="pin_diperbarui">PIN diperbarui.</string>
     <string name="pin_ganti_terlewat">Aktivasi PIN masih diproses - PIN tidak berubah, coba lagi sebentar.</string>
     <string name="card_title_security">Keamanan</string>
