@@ -125,3 +125,4 @@ DEFAULT_DATA_DIR
 folderCekRuangBackupIkutCacheSaatTerenkripsi
 ruangBackupDibutuhkanIkutUkuranDb
 databaseUrlIkutEksporTapiTakBolehImpor
+_numerik_penuh
