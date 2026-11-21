@@ -387,6 +387,15 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void databaseUrlValidBatasSisaDanTrim() {
+        assertFalse(ServerService.databaseUrlValid("postgres://a"));
+        assertFalse(ServerService.databaseUrlValid("postgres://ab"));
+        assertFalse(ServerService.databaseUrlValid("mysql://ab"));
+        assertTrue(ServerService.databaseUrlValid("postgres://abc"));
+        assertTrue(ServerService.databaseUrlValid("  postgres://abc  "));
+    }
+
+    @Test
     public void databaseUrlValidTolakKarakterKontrolDanKutip() {
         assertFalse(ServerService.databaseUrlValid("postgres://user:pa\"ss@host:5432/db"));
         assertFalse(ServerService.databaseUrlValid("postgres://user:pa'ss@host:5432/db"));

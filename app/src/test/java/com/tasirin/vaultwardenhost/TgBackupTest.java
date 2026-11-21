@@ -2671,6 +2671,10 @@ public class TgBackupTest {
 
         assertEquals(java.util.Arrays.asList("/data"),
                 TgBackup.folderCekRuangBackup("/data", ""));
+        assertEquals(java.util.Arrays.asList("/data"),
+                TgBackup.folderCekRuangBackup("/data", null));
+        assertEquals(java.util.Arrays.asList("/cache"),
+                TgBackup.folderCekRuangBackup(null, "/cache"));
         assertTrue(TgBackup.folderCekRuangBackup(null, null).isEmpty());
         assertTrue(TgBackup.folderCekRuangBackup("  ", " ").isEmpty());
     }

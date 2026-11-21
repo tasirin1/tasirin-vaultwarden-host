@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Celah batas uji logika murni maraton-172 ditutup (Audit 173)
+
+- Tiga celah cakupan uji dari Audit 2536 ditutup. `ServerServiceTest`: batas sisa URL database kini terkunci — sisa 1–2 aksara ditolak, tepat 3 diterima, dan cabang `trim()` validator teruji. `TgBackupTest`: cabang null-tunggal `folderCekRuangBackup` (`(data, null)` dan `(null, cache)`) kini teruji. `StoragePermTest`: jalur `/storage/Android/data/...` tanpa segmen volume kini terkunci sebagai bukan folder pribadi aplikasi. Hanya berkas uji yang berubah; perilaku produksi tidak berubah.
+
 ## [Belum rilis] — Checkout job verifikasi build-apk dangkal khusus pull_request (Audit 173)
 
 - `fetch-depth` checkout job `verifikasi` di `build-apk.yml` kini bersyarat: `1` pada pull_request, `0` pada push/dispatch. Sejak Audit 2522 semua langkah job ini dilewati di PR, jadi unduhan riwayat penuh (±428 MB `.git`) di PR murni terbuang; pada push riwayat tetap diambil penuh karena langkah `--rentang` sungguh membutuhkannya. Ini pasangan terbalik perbaikan 2524 (job `verifikasi-cek` didangkalkan tanpa syarat karena tak pernah butuh riwayat).
