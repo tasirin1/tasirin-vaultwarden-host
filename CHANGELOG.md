@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Penanda backup tertunda dibersihkan saat backup berhasil (Audit 174)
+
+- Temuan 2550 (Rendah): `KEY_BACKUP_TERTUNDA` hanya dihapus saat aplikasi dibuka (MainActivity), sehingga backup susulan yang akhirnya berhasil lewat jalur alarm meninggalkan penanda basi — buka aplikasi berikutnya menjalankan satu backup + unggahan duplikat. Cabang sukses pengiriman backup (semua chat berhasil) kini ikut menghapus penanda itu pada editor yang sama dengan penanda backup terakhir. Closes #2324.
+
 ## [Belum rilis] — Penanda gagal jam TLS direset di pintu startServer (Audit 174)
 
 - Temuan 2549 (Rendah): `gagalJamTls` hanya direset di pintu `siapkanTls`, padahal urutan `startServer` menaruh langkah folder/binary/port sebelum TLS — episode penundaan jam yang percobaan ulangnya gagal di langkah lebih awal (mis. port terpakai) membawa penanda basi, sehingga kegagalan itu diperlakukan sebagai penundaan jam lagi: teks status menyesatkan dan pesan Telegram langkah gagal terkirim ulang sampai ±30x. Penanda kini direset di pintu `startServer()` sendiri sehingga selalu menggambarkan percobaan yang sedang berjalan. Closes #2323.

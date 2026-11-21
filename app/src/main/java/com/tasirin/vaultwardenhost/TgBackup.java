@@ -751,6 +751,7 @@ public final class TgBackup {
         // kegagalan sebagian agar backup berikutnya mengulang.
         SharedPreferences.Editor edLast = sp.edit();
         if (gagalChat.isEmpty()) {
+            edLast.remove(KEY_BACKUP_TERTUNDA);
             // Audit 1680: chat terakhir bisa terkonfirmasi RAGU
             // (Audit 1663/1681 mengembalikan "" = dianggap
             // terkirim) sehingga fileId batch ini kosong/tak
