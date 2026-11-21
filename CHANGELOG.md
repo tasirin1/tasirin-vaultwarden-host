@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — Push langsung berkas workflow non-build kini melewati gerbang (Audit 2558)
+
+- Temuan 2558 (Audit 174): push langsung ke `main` yang hanya
+  menyentuh berkas workflow non-build (`auto-merge.yml`,
+  `label-audit.yml`, `labeler.yml`, `stale.yml`, `cek-wajib.yml`)
+  atau `tools/pasang-hook.sh` tidak memicu workflow apa pun —
+  berkas-berkas itu tidak ada di daftar path `build-apk.yml` —
+  jadi perubahan pada berkas yang mengatur merge & label bisa
+  masuk tanpa satu pun gerbang berjalan. Jalur PR selalu aman
+  karena `cek-wajib.yml` berjalan untuk semua PR.
+- Perbaikan: `cek-wajib.yml` mendapat pemicu `push` ke main
+  dengan daftar path persis berkas-berkas itu; langkah verifikasi
+  memilih rentang menurut jenis event (`before...sha` untuk push,
+  rentang PR seperti semula); pembatalan run beruntun kini hanya
+  untuk PR agar run push tidak tercancel di tengah gerbang.
+
 ## [Belum rilis] — Suite cek-cepat dibelah dua job paralel (Audit 2557)
 
 - Temuan 2557 (Audit 174): langkah uji-diri cek-cepat di CI terukur

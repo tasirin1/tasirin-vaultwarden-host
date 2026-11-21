@@ -6,22 +6,42 @@ name: Cek wajib PR
 # dan merge normalnya buntu selamanya (Audit 638). Workflow ringan ini
 # berjalan untuk SEMUA PR tanpa saringan path dan melaporkan check
 # wajib itu dengan langkah-langkah cek yang asli, agar PR dokumen
-# tetap bisa di-merge lewat jalur normal. Job verifikasi build-apk
+# tetap bisa di-merge lewat jalur normal. # tetap bisa di-merge lewat jalur normal. Audit 2558: workflow ini
+# juga berjalan pada push ke main yang HANYA menyentuh berkas
+# workflow non-build (auto-merge/label-audit/labeler/stale/
+# cek-wajib sendiri) atau tools/pasang-hook.sh - berkas-berkas itu
+# tidak ada di daftar path build-apk.yml, jadi push langsung yang
+# hanya menyentuh mereka dulu lolos tanpa satu pun gerbang berjalan
+# (PR-nya selalu tercakup di sini). Job verifikasi build-apk
 # bernama berbeda ("Cek patch yang berubah (build-apk)") sejak
 # Audit 2526 — langkah-langkahnya dilewati di PR (Audit 2522),
 # jadi ia tidak boleh melaporkan nama check wajib ini.
 
 on:
   pull_request:
+  # Audit 2558: push langsung ke main yang hanya menyentuh berkas
+  # di daftar ini tidak memicu build-apk.yml sama sekali; gerbang
+  # yang sama seperti PR kini berjalan untuk push semacam itu.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/auto-merge.yml'
+      - '.github/workflows/cek-wajib.yml'
+      - '.github/workflows/label-audit.yml'
+      - '.github/workflows/labeler.yml'
+      - '.github/workflows/stale.yml'
+      - 'tools/pasang-hook.sh'
 
 permissions:
   contents: read
 
 # Audit 1487: dorongan beruntun ke PR yang sama membatalkan run
-# lama — workflow ini khusus PR, jadi pembatalan selalu aman.
+# lama. Audit 2558: workflow ini kini juga berjalan pada push -
+# pembatalan hanya untuk PR; run push yang tercancel akan
+# meninggalkan push itu tanpa gerbang.
 concurrency:
   group: vw-cek-wajib-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verifikasi:
@@ -42,7 +62,11 @@ jobs:
           persist-credentials: false
       - name: Verifikasi patch (tanpa SDK Android)
         run: |
-          RENTANG="${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            RENTANG="${{ github.event.before }}...${{ github.sha }}"
+          else
+            RENTANG="${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+          fi
           python3 tools/verifikasi-patch.py --rentang "$RENTANG"
       - name: Cek cepat (vektor 0.x, README, secret)
         run: bash scripts/cek-cepat.sh
