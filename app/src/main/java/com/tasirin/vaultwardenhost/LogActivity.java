@@ -810,6 +810,12 @@ public class LogActivity extends Activity {
         if (adaIpPrivat(r)) {
             r = POLA_IP_PRIVAT.matcher(r).replaceAll("[ip-privat]");
         }
+        // Audit 2561: URL database disamarkan SEBELUM pola email -
+        // pola email lebih dulu memakan sandi@host bertitik sehingga
+        // nama pengguna URL dan fragmen sandi beraksara khusus lolos.
+        if (adaUrlDatabase(r)) {
+            r = POLA_URL_DATABASE.matcher(r).replaceAll("$1***@");
+        }
         if (adaEmail(r)) {
             r = POLA_EMAIL.matcher(r).replaceAll("[email]");
         }
@@ -819,15 +825,18 @@ public class LogActivity extends Activity {
         if (adaPathAbsolut(r)) {
             r = POLA_PATH_ABSOLUT.matcher(r).replaceAll("[path]");
         }
-        if (adaUrlDatabase(r)) {
-            r = POLA_URL_DATABASE.matcher(r).replaceAll("$1***@");
-        }
         return r;
     }
 
     static boolean adaUrlDatabase(String t) {
-        return t != null && (t.contains("postgres://") || t.contains("postgresql://")
-                || t.contains("mysql://"));
+        if (t == null) {
+            return false;
+        }
+        // Audit 2561: samakan dengan POLA_URL_DATABASE yang (?i) -
+        // skema campuran (Postgres://...) dulu tak terdeteksi.
+        String r = t.toLowerCase(java.util.Locale.ROOT);
+        return r.contains("postgres://") || r.contains("postgresql://")
+                || r.contains("mysql://");
     }
 
     static boolean adaPathAbsolut(String t) {

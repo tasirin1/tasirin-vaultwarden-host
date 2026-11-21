@@ -56,6 +56,26 @@ public class LogActivityTest {
                 "galat postgres://u:p@dbhost:5432/vault"));
         assertTrue(LogActivity.adaUrlDatabase("x mysql://h:1/d"));
         assertFalse(LogActivity.adaUrlDatabase("teks biasa"));
+        // Audit 2561: skema campuran terdeteksi dan tersamar.
+        assertTrue(LogActivity.adaUrlDatabase("x Postgres://h:1/d"));
+        assertTrue(LogActivity.butuhSamaran(
+                "galat Postgres://u:p@dbhost:5432/vault"));
+        String campur = LogActivity.samarkanLog(
+                "galat db Postgres://vwuser:rahasia123@dbhost:5432/vault mati");
+        assertFalse(campur.contains("rahasia123"));
+        assertFalse(campur.contains("vwuser"));
+        assertTrue(campur.contains("Postgres://***@dbhost:5432/vault"));
+        // Audit 2561: host bertitik - pola email tak lagi mendahului.
+        String titik = LogActivity.samarkanLog(
+                "galat db postgres://vwuser:rahasia123@db.example.com:5432/vault mati");
+        assertFalse(titik.contains("rahasia123"));
+        assertFalse(titik.contains("vwuser"));
+        assertTrue(titik.contains("postgres://***@db.example.com:5432/vault"));
+        String khusus = LogActivity.samarkanLog(
+                "galat db postgres://vwuser:pa#ss@db.example.com:5432/vault mati");
+        assertFalse(khusus.contains("vwuser"));
+        assertFalse(khusus.contains("pa#"));
+        assertTrue(khusus.contains("postgres://***@db.example.com:5432/vault"));
         assertFalse(LogActivity.adaUrlDatabase(null));
     }
 

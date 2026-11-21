@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — Samaran URL database di log tak lagi bocor untuk skema campuran dan host bertitik (Audit 2561)
+
+- Temuan 2561 (Audit 175, Rendah): dua celah residu
+  perbaikan 2547 — detektor `adaUrlDatabase` hanya mengenali
+  skema huruf kecil persis (URL `Postgres://...` lolos utuh),
+  dan di `samarkanLog` pola email berjalan sebelum pola URL
+  database sehingga untuk host bertitik nama pengguna URL
+  tetap terlihat dan fragmen sandi beraksara khusus tersisa.
+- Perbaikan: detektor kini tak peka huruf (sejajar pola
+  `(?i)`-nya) dan blok samaran URL database berjalan sebelum
+  pola email. Uji `LogActivityTest` diperluas ke skema
+  campuran, host bertitik, dan sandi beraksara khusus —
+  harapan terverifikasi lewat porting regex 1:1.
+
 ## [Belum rilis] — Nilai opsi string tsv-summarize yang mirip opsi kini dinilai termakan (Audit 2560)
 
 - Temuan 2560 (Audit 175, Sedang, gerbang fail-open): model
