@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — Penghitung tick netral jam dinolkan di awal episode start (Audit 2585)
+
+- Temuan 2585 (Audit 176, Rendah; jalur A-6 = E-4):
+  penghitung `tickNetralJamBerturut` (Audit 2562)
+  hanya dinolkan pada tick sehat dan jalur mode-2 —
+  episode yang berakhir di tengah hitungan mewariskan
+  hitungannya ke episode berikutnya, sehingga log
+  tick-pertama bisa tertunda sampai kelipatan 30.
+  Resetnya juga tak terasersi uji (metode layanan
+  Android, tak terjangkau JVM tanpa Robolectric).
+- Perbaikan: penghitung dinolkan di awal
+  `startServer()`, sejajar reset `gagalJamTls`
+  (Audit 2549). Dampak murni kosmetik log; perilaku
+  perlindungan 2548/2562 tak berubah.
+
 ## [Belum rilis] — Kalimat usang AGENTS.md soal berkas gabungan uji-cek-cepat dibetulkan (Audit 2584)
 
 - Temuan 2584 (Audit 176, Rendah): teks metode

@@ -1899,6 +1899,7 @@ public class ServerService extends Service {
 
     private void startServer() {
         gagalJamTls = false;
+        tickNetralJamBerturut.set(0);
 
         final int idEpisoda = startIdTerakhir;
 
