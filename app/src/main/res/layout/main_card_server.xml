@@ -185,17 +185,37 @@
                 android:labelFor="@id/databaseUrl"
                 android:text="@string/database_url" />
 
-            <EditText
-                android:id="@+id/databaseUrl"
-                android:nextFocusDown="@id/adminToken"
-                android:nextFocusUp="@id/port"
-                style="@style/TasirinInput"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/database_url_hint"
-                android:inputType="text"
-                android:saveEnabled="false"
-                tools:ignore="LabelFor" />
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/databaseUrl"
+                    android:nextFocusDown="@id/showDatabaseUrl"
+                    android:nextFocusUp="@id/port"
+                    style="@style/TasirinInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/database_url_hint"
+                    android:inputType="textPassword"
+                    android:maxLength="2048"
+                    android:saveEnabled="false"
+                    tools:ignore="LabelFor" />
+
+                <Button
+                    android:id="@+id/showDatabaseUrl"
+                    android:drawableStart="@drawable/ic_eye"
+                    android:drawablePadding="8dp"
+                    android:nextFocusDown="@id/adminToken"
+                    android:nextFocusUp="@id/databaseUrl"
+                    style="@style/TasirinBtnSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/show" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/databaseUrlError"

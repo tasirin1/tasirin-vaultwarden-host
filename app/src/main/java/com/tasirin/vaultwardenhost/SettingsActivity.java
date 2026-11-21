@@ -276,6 +276,7 @@ public class SettingsActivity extends Activity {
     private Button showAdminBtn;
     private Button showTgBtn;
     private Button showPassBtn;
+    private Button showDatabaseUrlBtn;
     private Button randomAdminBtn;
     private Button copyLoopbackBtn;
     private TextView adminStatus;
@@ -522,6 +523,7 @@ public class SettingsActivity extends Activity {
         showAdminBtn = findViewById(R.id.showAdmin);
         showTgBtn = findViewById(R.id.showTg);
         showPassBtn = findViewById(R.id.showPass);
+        showDatabaseUrlBtn = findViewById(R.id.showDatabaseUrl);
         aboutBtn = findViewById(R.id.aboutBtn);
         startStopBawah = findViewById(R.id.startStopBawah);
         httpsBadge = findViewById(R.id.httpsBadge);
@@ -623,6 +625,7 @@ public class SettingsActivity extends Activity {
         exportCfgBtn.setOnClickListener(v -> mintaExport());
         importCfgBtn.setOnClickListener(v -> pickImportFile());
         showAdminBtn.setOnClickListener(v -> togglePassword(adminTokenInput, showAdminBtn));
+        showDatabaseUrlBtn.setOnClickListener(v -> togglePassword(databaseUrlInput, showDatabaseUrlBtn));
         showTgBtn.setOnClickListener(v -> togglePassword(tgTokenInput, showTgBtn));
         showPassBtn.setOnClickListener(v -> togglePassword(backupPassInput, showPassBtn));
         if (copyAdminBtn != null) {
@@ -4170,7 +4173,7 @@ public class SettingsActivity extends Activity {
         aturFokusBawah(R.id.headerRawat, R.id.bodyRawat, R.id.autoStart, R.id.headerTelegram);
         aturFokusBawah(R.id.headerTelegram, R.id.bodyTelegram, R.id.tgToken, R.id.headerLog);
         aturFokusBawah(R.id.headerLog, R.id.bodyLog, R.id.logOpen, R.id.aboutBtn);
-        aturFokusBatas(R.id.databaseUrl, R.id.bodyServer, R.id.headerServer,
+        aturFokusBatas(R.id.showDatabaseUrl, R.id.bodyServer, R.id.headerServer,
                 R.id.adminToken, R.id.bodyKeamanan, R.id.headerKeamanan);
         aturFokusBatas(R.id.pinEnabled, R.id.bodyKeamanan, R.id.headerKeamanan,
                 R.id.autoStart, R.id.bodyRawat, R.id.headerRawat);

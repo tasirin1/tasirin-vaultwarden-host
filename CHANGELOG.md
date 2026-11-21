@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kolom URL database tersembunyi seperti kolom rahasia lain (Audit 172)
+
+- Kolom "URL Database Eksternal" kini `textPassword` dengan tombol tampil/sembunyi (pola yang sama persis dengan Token Admin, Token Bot, dan Kata Sandi Backup) plus batas 2048 karakter — sebelumnya URL yang memuat kata sandi database (`postgres://user:SANDI@host/db`) terpampang polos di layar Settings (di STB: layar TV) dan tempelan sebesar apa pun lolos. Rantai fokus menyesuaikan: tombol tampil menjadi penghubung Port → URL Database → tombol tampil → Admin Token.
+
 ## [Belum rilis] — Ganti URL database saat server jalan memicu petunjuk restart (Audit 172)
 
 - Server kini menyimpan sidik (SHA-256, bukan URL mentah berisi kata sandi) URL database yang sedang dipakai (`runningDatabaseUrl`, sejajar potret folder/port/token admin), dan deteksi "pengaturan berubah, perlu restart" di Settings dan layar utama ikut membandingkannya. Sebelumnya perubahan URL database saat server berjalan tak terdeteksi sama sekali: perubahan diam-diam tak berlaku sampai restart tanpa isyarat apa pun, berisiko membuat pengguna mengira vault sudah menulis ke database eksternal padahal masih ke berkas lokal (atau sebaliknya). Label "URL Database Eksternal" kini ikut ditandai kotor seperti label lain.
