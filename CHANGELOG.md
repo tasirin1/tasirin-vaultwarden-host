@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ekor nempel opsi informasional tak lagi ditolak keliru (Audit 174)
+
+- Temuan 2553 (Rendah, fail-closed): `-htrue`/`-hfalse` di cabang `_SAH_TSV` dan `-Vtrue` di cabang tsv/number-lines/summarize divonis menguras, padahal alat asli berhenti sebelum membaca — `-h` bantuan implisit hanya cocok sebagai token persis di sapuan akhir getopt, dan `-V` version tercetak lalu berhenti. `_nama_sah_tsv` kini menolak-sah token berekor berhuruf `h`, dan untuk `V` hanya ekor bool `false` (dilipat) yang berarti alat tetap jalan — sejajar perlakuan bentuk `=` penjaga 2423; cabang summarize mendapat aturan yang sama di loop sadar-nilainya. Skenario gensuite 1632–1636 mengunci bentuk berhenti sebagai lolos dan `-Vfalse` sebagai tetap tertolak. Closes #2327.
+
 ## [Belum rilis] — Alarm ulang backup karena jam salah kini berbatas 36x (Audit 174)
 
 - Temuan 2552 (Rendah): cabang jam-salah AlarmReceiver memasang alarm ulang backup tiap 10 menit tanpa batas — jam STB yang rusak berhari-hari berarti ±144 kali bangun per hari, asimetris terhadap sisi Start di batch yang sama (berbatas 30x). Penghitung persisten baru `KEY_TUNDA_JAM_HITUNG` membatasi penjadwalan ulang pada 36x (±6 jam; penilai murni `bolehJadwalUlangJamBackup`); sesudahnya alarm berhenti tetapi penanda backup tertunda tetap tertinggal untuk dikonsumsi saat aplikasi dibuka, dan penghitung direset setiap backup berhasil. Closes #2326.

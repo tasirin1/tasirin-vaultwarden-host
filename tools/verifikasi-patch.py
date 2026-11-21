@@ -3622,6 +3622,19 @@ def _nama_sah_tsv(dasar, sah):
         dikenal = lipat and kanon in pdk
     if not dikenal:
         return False
+    # Audit 2553: -h bantuan implisit hanya
+    # cocok sebagai token persis (sapuan akhir
+    # getopt) - bentuk berekornya tak dikenal
+    # parse utama, alat berhenti. -V version
+    # adalah opsi bool sungguhan: ekor "false"
+    # (dilipat) berarti alat tetap jalan,
+    # ekor lain membuatnya berhenti sebelum
+    # membaca (true = version tercetak,
+    # sampah = ConvException).
+    if len(dasar) > 2 and kanon == "h":
+        return False
+    if len(dasar) > 2 and kanon == "V":
+        return dasar[2:].lower() == "false"
     if len(dasar) > 2:
         # Audit 2532: ekor token pendek adalah
         # nilai menempel opsi pertamanya. Opsi
@@ -10610,6 +10623,16 @@ def _menguras_khusus(perintah, toks, awal):
             t_tsm = mentah[i_tsm]
             if t_tsm == "--":
                 break
+            # Audit 2553: -V berekor nempel -
+            # version berhenti sebelum membaca
+            # kecuali ekor bool "false" (alat
+            # tetap jalan), sejajar perlakuan
+            # bentuk "=" di penjaga 2423.
+            if (t_tsm.startswith("-V")
+                    and not t_tsm.startswith("--")
+                    and len(t_tsm) > 2
+                    and t_tsm[2:].lower() != "false"):
+                return False
             nama_tsm = t_tsm.lower().split("=", 1)[0]
             if nama_tsm in ("--sum", "--mean",
                             "--median", "--min",
