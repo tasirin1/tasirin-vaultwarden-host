@@ -1999,22 +1999,12 @@ public class SettingsActivity extends Activity {
                 }
             }
 
-            File tmpIsi = TgBackup.berkasPlainSementara(
-                    getCacheDir(), "isi-db", ".sqlite3");
-            TgBackup.sapuTmpPlainBasi(getCacheDir(), tmpIsi.getName());
-            try {
-                String galatIsi = TgBackup.verifikasiIsiDbZip(backup, tmpIsi);
-                if (galatIsi != null) {
-                    backup.delete();
-                    toast(getString(R.string.backup_rusak_dibuang, galatIsi));
-                    appendUiLog("[app] Backup dibuang: isi DB korup (" + galatIsi + ").");
-                    return;
-                }
-            } finally {
-                try {
-                    tmpIsi.delete();
-                } catch (Exception ignored) {
-                }
+            String galatIsi = TgBackup.verifikasiIsiDbZip(backup);
+            if (galatIsi != null) {
+                backup.delete();
+                toast(getString(R.string.backup_rusak_dibuang, galatIsi));
+                appendUiLog("[app] Backup dibuang: isi DB korup (" + galatIsi + ").");
+                return;
             }
             TgBackup.cleanupOldBackups(backupDir);
             toast(getString(R.string.backup_tersimpan, backup.getAbsolutePath()));

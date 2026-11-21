@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Kompilasi putus oleh panggilan verifikasiIsiDbZip 2 argumen diperbaiki (Audit 173)
+
+- Perbaikan 2511 (Audit 172) mengubah `TgBackup.verifikasiIsiDbZip` menjadi 1 argumen (streaming) tetapi hanya memperbarui pemanggil di dalam TgBackup dan uji unit; pemanggil kedua di `SettingsActivity.backupDatabaseIsi` (backup DB lokal manual) tertinggal dalam bentuk 2 argumen sehingga kode tidak bisa dikompilasi sama sekali. Pemanggil itu kini memakai bentuk 1 argumen dan mesin berkas sementara `tmpIsi`-nya dibuang. Aman secara semantik: alur ini sudah menjalankan `snapshotDbKonsisten` (quick_check atas snapshot) sebelum zip dibuat dari snapshot yang sama, dan bentuk streaming membuktikan byte tersimpan identik lewat CRC — persis pertimbangan yang sama dengan pemanggil utama di 2511.
+
 ## [Belum rilis] — Checkout job verifikasi-cek kini dangkal (fetch-depth 1) (Audit 172)
 
 - Job `verifikasi-cek` di `build-apk.yml` sebelumnya mengambil seluruh riwayat repo (`fetch-depth: 0`) padahal satu-satunya langkahnya, suite uji-cek-cepat, tak membaca riwayat git checkout sama sekali — riwayat hanya dipakai di dalam klon buang yang dibangun suite itu sendiri dari pohon kerja. Kini `fetch-depth: 1`. Job `verifikasi` utama TIDAK diubah: langkah `--rentang`-nya sungguh membutuhkan riwayat.
