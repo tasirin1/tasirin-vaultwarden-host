@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Baris log baru tampil ≤1 tick di mode pencarian (Audit 172)
+
+- Jendela throttle bangun-ulang pencarian Log dipersempit 4500 → 1500 ms (satu periode tick refresh). Cabang throttle hanya tercapai bila isi log benar-benar berubah (kunci segar ver+len+kata berubah lebih dulu), jadi jendela lama 3× tick hanya membekukan baris baru yang cocok sampai ±6 detik tanpa manfaat laju tambahan — pembatasan laju tetap utuh lewat jendela satu tick plus penjaga CAS satu-bangun-pada-satu-waktu.
+
 ## [Belum rilis] — Perubahan PIN tertunda tak lagi hilang senyap saat Settings ditutup (Audit 172)
 
 - `onDestroy` sebelumnya menjalankan runnable PIN tertunda secara sinkron sesudah `pinDialogBoleh` dimatikan — cabang yang butuh dialog konfirmasi ganti PIN pasti gugur dan kandidat dibuang tanpa kabar. Kini: pada perubahan konfigurasi (rotasi) runnable tidak dijalankan sama sekali — teks kolom PIN dipulihkan framework di instance baru dan watcher-nya mempersenjatai ulang debounce di sana, tempat dialog benar-benar bisa tampil. Pada penutupan sungguhan, runnable hanya dijalankan bila bisa selesai tanpa dialog; bila butuh konfirmasi, perubahan dianggap tidak terkonfirmasi dan pengguna diberi tahu lewat toast ("Perubahan PIN butuh konfirmasi — tidak disimpan"), bukan hilang diam-diam.

@@ -209,7 +209,7 @@ public class LogActivity extends Activity {
             cariTerakhirDibangun = null;
         } else if (logSearch.equals(cariTerakhirDibangun)
                 && android.os.SystemClock.elapsedRealtime() - cariDibangunTerakhirMs
-                        < 4500) {
+                        < 1500) {
             return;
         }
 
