@@ -55,6 +55,8 @@ public final class TgBackup {
     public static final String KEY_TG_LAST_BOT_ID = "tg_last_bot_id";
 
     public static final String KEY_BACKUP_TERTUNDA = "tg_backup_tertunda";
+    public static final String KEY_TUNDA_JAM_HITUNG = "tg_tunda_jam_hitung";
+    static final int BATAS_TUNDA_JAM_BACKUP = 36;
     private static final String KEY_TG_LOW_STORAGE = "tg_low_storage_notified";
     // Audit 1017: stempel peringatan storage terakhir — peringatan
     // kondisi menetap boleh diulang sesudah 24 jam, bukan satu-tembak.
@@ -343,6 +345,10 @@ public final class TgBackup {
 
     static boolean jedaTundaBackupSah(long jedaMs) {
         return jedaMs > 0;
+    }
+
+    static boolean bolehJadwalUlangJamBackup(int hitung) {
+        return hitung >= 0 && hitung < BATAS_TUNDA_JAM_BACKUP;
     }
 
     public static boolean jadwalTundaBackupMs(Context ctx, long jedaMs) {
@@ -752,6 +758,7 @@ public final class TgBackup {
         SharedPreferences.Editor edLast = sp.edit();
         if (gagalChat.isEmpty()) {
             edLast.remove(KEY_BACKUP_TERTUNDA);
+            edLast.remove(KEY_TUNDA_JAM_HITUNG);
             // Audit 1680: chat terakhir bisa terkonfirmasi RAGU
             // (Audit 1663/1681 mengembalikan "" = dianggap
             // terkirim) sehingga fileId batch ini kosong/tak
@@ -2127,7 +2134,8 @@ public final class TgBackup {
                     Updater.KEY_SHIM_SHA,
                     ServerService.KEY_BIN_PATCH, KEY_RESTORE_TANDA,
                     AutoUpdate.KEY_TAWARAN_UPDATE,
-                    KEY_BACKUP_TERTUNDA, ServerService.KEY_START_TERTUNDA,
+                    KEY_BACKUP_TERTUNDA, KEY_TUNDA_JAM_HITUNG,
+                    ServerService.KEY_START_TERTUNDA,
                     LogActivity.KEY_CLIP_KEDALUWARSA,
                     KEY_TG_LAST_FILE, KEY_TG_LAST_BOT_ID,
                     TgBot.KEY_TG_BOT_ID, TgBot.KEY_TG_BOT_USER,
@@ -4464,7 +4472,8 @@ public final class TgBackup {
                     TgBot.KEY_TG_HAPUS_OK, TgBot.KEY_TG_HAPUS_WARN));
 
     static final java.util.Set<String> KUNCI_INT = new java.util.HashSet<>(
-            java.util.Arrays.asList(PinGate.KEY_GAGAL));
+            java.util.Arrays.asList(PinGate.KEY_GAGAL,
+                    KEY_TUNDA_JAM_HITUNG));
 
     static final java.util.Set<String> KUNCI_LONG = new java.util.HashSet<>(
             java.util.Arrays.asList(PinGate.KEY_KUNCI_SAMPAI, PinGate.KEY_KUNCI_ELAPSED,

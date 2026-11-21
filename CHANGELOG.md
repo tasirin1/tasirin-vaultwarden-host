@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Alarm ulang backup karena jam salah kini berbatas 36x (Audit 174)
+
+- Temuan 2552 (Rendah): cabang jam-salah AlarmReceiver memasang alarm ulang backup tiap 10 menit tanpa batas — jam STB yang rusak berhari-hari berarti ±144 kali bangun per hari, asimetris terhadap sisi Start di batch yang sama (berbatas 30x). Penghitung persisten baru `KEY_TUNDA_JAM_HITUNG` membatasi penjadwalan ulang pada 36x (±6 jam; penilai murni `bolehJadwalUlangJamBackup`); sesudahnya alarm berhenti tetapi penanda backup tertunda tetap tertinggal untuk dikonsumsi saat aplikasi dibuka, dan penghitung direset setiap backup berhasil. Closes #2326.
+
 ## [Belum rilis] — Penjaga dialog crash LogActivity pulih bila dialog tak tertampil (Audit 174)
 
 - Temuan 2551 (Rendah): penanda `dialogCrashTampil` (penjaga Audit 2538) hanya dibersihkan oleh `OnDismissListener`, tetapi hasil `DialogAman.tampil` diabaikan — bila dialog akhirnya tidak tertampil (show tertelan di dalam DialogAman atau aktivitas keburu hancur), tak ada dismiss yang akan datang dan tombol log crash mati seumur instance. Hasil tampil kini diperiksa: dialog yang tidak `isShowing()` langsung membersihkan penanda, meniru dasar penjaga `isShowing()` milik AboutDialog (Audit 2537). Closes #2325.

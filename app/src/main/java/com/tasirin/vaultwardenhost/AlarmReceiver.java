@@ -156,8 +156,19 @@ public class AlarmReceiver extends BroadcastReceiver {
                             + Updater.tanggalStbTerbaca() + "). Aktifkan Tanggal & waktu"
                             + " otomatis di Pengaturan STB - backup dicoba lagi otomatis.");
                     TgBackup.tandaiBackupTertunda(context);
-                    TgBackup.jadwalTundaBackupMs(context,
-                            TgBackup.TUNDA_ULANG_BACKUP_JAM_MS);
+                    int hitungTunda = TgBackup.amanInt(sp,
+                            TgBackup.KEY_TUNDA_JAM_HITUNG, 0);
+                    if (TgBackup.bolehJadwalUlangJamBackup(hitungTunda)) {
+                        sp.edit().putInt(TgBackup.KEY_TUNDA_JAM_HITUNG,
+                                hitungTunda + 1).apply();
+                        TgBackup.jadwalTundaBackupMs(context,
+                                TgBackup.TUNDA_ULANG_BACKUP_JAM_MS);
+                    } else {
+                        ServerService.catatLog("[tg] Alarm ulang backup karena jam"
+                                + " salah dihentikan sesudah "
+                                + TgBackup.BATAS_TUNDA_JAM_BACKUP
+                                + "x - backup menunggu jam benar atau aplikasi dibuka.");
+                    }
                 } else {
                     ServerService.catatLog("[tg] Backup susulan boot dilewati:"
                             + " belum ganti hari.");

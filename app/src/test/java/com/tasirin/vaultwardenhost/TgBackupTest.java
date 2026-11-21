@@ -1670,6 +1670,15 @@ public class TgBackupTest {
     }
 
     @Test
+    public void bolehJadwalUlangJamBackup_berbatasTigaPuluhEnam() {
+        assertTrue(TgBackup.bolehJadwalUlangJamBackup(0));
+        assertTrue(TgBackup.bolehJadwalUlangJamBackup(35));
+        assertFalse(TgBackup.bolehJadwalUlangJamBackup(36));
+        assertFalse(TgBackup.bolehJadwalUlangJamBackup(100));
+        assertFalse(TgBackup.bolehJadwalUlangJamBackup(-1));
+    }
+
+    @Test
     public void redaksiDetailGalat_urlDatabaseTersamar() {
         assertEquals("db <url> mati",
                 TgBackup.redaksiDetailGalat(
