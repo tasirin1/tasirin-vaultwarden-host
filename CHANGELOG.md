@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Folder bawaan Android/data dibuatkan lewat jalur resmi sistem (susulan Maraton-173)
+
+- Sesudah laporan owner bahwa folder bawaan tidak bisa dibuat otomatis di Android baru: sejak Android 11 aplikasi dilarang membuat sendiri folder khususnya di `Android/data` — folder itu hanya boleh diambil dari sistem lewat `getExternalFilesDir()`, sedangkan aplikasi menyusun alamatnya sebagai teks dan membuatnya dengan `mkdirs()` biasa sehingga ditolak ("Gagal membuat folder"). Jalur start server kini memanggil `getExternalFilesDir(null)` lebih dulu bila folder data berada di folder pribadi aplikasi (sistem yang membuatkan `Android/data/<paket>/files`), baru subfolder datanya dibuat seperti biasa. Perilaku di Android lama dan folder data di luar folder pribadi tidak berubah.
+
 ## [Belum rilis] — Folder pribadi di volume emulated/0 dikenali lagi (susulan Maraton-173)
 
 - Perbaikan susulan yang ditemukan CI sesudah Maraton-173 ter-push (build `d72d184b`: 723 uji, 2 gagal di `StoragePermTest`). Penjangkaran `folderPribadiAplikasi` dari perbaikan 2512 memotong jalur sesudah segmen volume pertama, padahal volume emulated Android bernama dua segmen (`emulated/0`) — folder pribadi aplikasi sendiri di `/storage/emulated/0/Android/data/...` jadi dikenali sebagai folder asing dan aplikasi meminta izin penyimpanan yang tidak perlu. Cacat ini tertutup selama HEAD tidak bisa di-build (2525) sehingga uji JVM-nya tidak pernah jalan; test-nya sendiri sudah benar sejak semula. Pemotongan kini melompati segmen kedua khusus volume `emulated/`; volume satu segmen (kartu SD, `/mnt/`) tidak berubah.

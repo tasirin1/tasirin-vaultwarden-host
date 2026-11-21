@@ -1951,6 +1951,13 @@ public class ServerService extends Service {
         }
 
         sesi.dataFolder = new File(sesi.dataDir);
+        if (!sesi.dataFolder.exists()
+                && StoragePerm.folderPribadiAplikasi(sesi.dataDir)) {
+            try {
+                getExternalFilesDir(null);
+            } catch (Exception ignored) {
+            }
+        }
         if (!sesi.dataFolder.exists() && !sesi.dataFolder.mkdirs()) {
             setStatus("Gagal membuat folder: " + sesi.dataDir);
             appendLog("[app] Gagal membuat folder data: " + sesi.dataDir);
