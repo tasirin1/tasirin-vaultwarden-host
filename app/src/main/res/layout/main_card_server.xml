@@ -178,7 +178,6 @@
                 android:visibility="gone" />
 
             <TextView
-                android:id="@+id/labelDatabaseUrl"
                 style="@style/TasirinLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
