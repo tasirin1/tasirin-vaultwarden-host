@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Langkah verifikasi + cek-cepat build-apk dilewati di PR (Audit 172)
+
+- Job `verifikasi` di `build-apk.yml` sebelumnya menjalankan ulang verifikasi `--rentang` dan `cek-cepat.sh` pada setiap pull request, padahal `cek-wajib.yml` sudah menjalankan langkah yang persis sama untuk SEMUA PR sebagai check wajib bernama sama ("Cek patch yang berubah") — kerja ganda per PR. Kedua langkah kini ber-`if: github.event_name != 'pull_request'`, meniru pola langkah uji-diri yang sudah ada; job-nya sendiri tetap berjalan agar `needs` build-apk terpenuhi, dan pada push semua langkah tetap berjalan penuh.
+
 ## [Belum rilis] — cek-cepat: satu git diff untuk uji beda indeks (Audit 172)
 
 - Fase bungkus `scripts/cek-cepat.sh` sebelumnya menjalankan `git diff --quiet` satu kali per berkas terlacak (±169 proses git per lari) hanya untuk tahu berkas mana yang isi pohon kerjanya berbeda dari indeks. Kini satu `git diff --name-only -z` untuk seluruh pohon dimuat ke peta asosiatif `PETA_BERBEDA_INDEKS` dan loop cukup menguji keanggotaan; bila panggilan git itu sendiri gagal, semua berkas dianggap berbeda — arah aman yang sama dengan perilaku lama saat git galat. Kesetaraan dibuktikan pada 4 kasus divergensi stage (ter-stage berpola/kerja bersih, serba bersih, ter-stage bersih/kerja berpola, ter-stage berpola/berkas hilang): vonis lama dan baru identik di semua kasus. Waktu lari lokal terukur ±4,3 → ±4,0 dtk; penghematan prosesnya struktural (169 spawn → 1).

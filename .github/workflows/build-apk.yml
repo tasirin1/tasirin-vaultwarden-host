@@ -66,7 +66,14 @@ jobs:
           fetch-depth: 0
 
           persist-credentials: false
+      # Audit 2522: dua langkah ini dilewati pada pull_request —
+      # cek-wajib.yml menjalankannya untuk SEMUA PR sebagai check
+      # wajib bernama sama; menjalankannya lagi di sini hanya
+      # menggandakan menit per PR. Job tetap jalan (langkah
+      # uji-diri di bawah memang sudah khusus non-PR) agar needs
+      # build-apk terpenuhi. Push tetap menjalankan semuanya.
       - name: Verifikasi patch (tanpa SDK Android)
+        if: github.event_name != 'pull_request'
         run: |
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -76,6 +83,7 @@ jobs:
           fi
           python3 tools/verifikasi-patch.py --rentang "$RENTANG"
       - name: Cek cepat (vektor 0.x, README, secret)
+        if: github.event_name != 'pull_request'
         run: bash scripts/cek-cepat.sh
       # Audit 1486: suite uji-diri dilewati pada pull_request —
       # cek-wajib.yml sudah menjalankannya untuk SEMUA PR tanpa
