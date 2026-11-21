@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Nama help hantu dibuang dari tabel _SAH_TSV (Audit 173)
+
+- Fail-closed gerbang: tabel `_SAH_TSV` memuat nama bantuan yang tidak dideklarasikan alatnya — `help-options` di keenam entri (hanya `tsv-filter` yang mendeklarasikannya, dan alat itu tak berentri), `help-fields` di tsv-pretty/csv2tsv/number-lines, dan `help-verbose` di number-lines. Bentuk `=false` nama-nama hantu itu dinilai opsi sah sehingga konstruksi yang sebenarnya membuat alat asli mati (GetOptException sebelum membaca) malah ditolak gerbang. Kesepuluh kemunculan hantu dibuang; himpunan akhir diturunkan ulang secara mekanis dari sumber tsv-utils dan 17 vonis nama terverifikasi persis. Skenario generate 1622–1623 mengunci vonis lolos dan terverifikasi diskriminatif.
+
 ## [Belum rilis] — tsv-summarize -Hfalse tak lagi lolos gerbang (Audit 173)
 
 - Fail-open gerbang: penjaga bundel Audit 2385 menilai token pendek berekor yang huruf pertamanya bukan opsi bernilai sebagai galat getopt, tetapi untuk opsi bool tsv-summarize (`H`/`w`/`x` menurut sumbernya) ekor yang persis literal `true`/`false` adalah NILAI opsi bagi optMatch Phobos dan `to!bool` menerimanya — alat asli jalan dan menguras stdin, misalnya `tsv-summarize -Hfalse --sum 1`. Penjaga kini mengecualikan tepat bentuk itu; ekor sampah (`-HZZZ`, `-Hp`) tetap dinilai mati dan operand berkas tetap membuat vonis tak-menguras, semuanya terbukti lewat probe fungsi dua arah. Skenario generate 1621 mengunci vonis tolak dan terverifikasi diskriminatif.
