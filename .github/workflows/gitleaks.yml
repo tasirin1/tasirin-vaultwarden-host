@@ -7,14 +7,12 @@ on:
       - '.gitignore'
       - '.github/workflows/stale.yml'
       - '.github/workflows/labeler.yml'
-      - '.github/workflows/label-audit.yml'
       - '.github/dependabot.yml'
   pull_request:
     paths-ignore:
       - '.gitignore'
       - '.github/workflows/stale.yml'
       - '.github/workflows/labeler.yml'
-      - '.github/workflows/label-audit.yml'
       - '.github/dependabot.yml'
   # Audit 1118: build-binary.yml TIDAK lagi dikecualikan —
   # paths-ignore menonaktifkan pindaian bila SEMUA berkas berubah

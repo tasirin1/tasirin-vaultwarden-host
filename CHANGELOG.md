@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — label-audit.yml kembali dipindai Gitleaks (Audit 173)
+
+- Pengecualian Audit 2523 terlalu lebar: `label-audit.yml` ikut masuk `paths-ignore` Gitleaks (push + pull_request) padahal workflow itu memuat skrip `run:` inline — persis permukaan yang menurut doktrin Audit 1118 (kasus build-binary.yml) tidak boleh dikecualikan dari pemindaian secret. Baris pengecualiannya dicabut dari kedua daftar; tiga berkas meta lain dari 2523 (`stale.yml`, `labeler.yml`, `dependabot.yml`) tetap terkecualikan karena memang tanpa skrip inline. Isi label-audit.yml saat ini bersih (token lewat env `secrets`), jadi perubahan ini menutup risiko ke depan, bukan kebocoran yang sudah terjadi.
+
 ## [Belum rilis] — Ekor sampah token pendek opsi bool tak lagi dinilai bendera sah (Audit 173)
 
 - Fail-closed gerbang: cabang pendek `_nama_sah_tsv` hanya memeriksa huruf pertama token, sehingga token seperti `tsv-uniq -Hp`/`-HZZZ`/`-Hf` dinilai opsi sah — padahal ekor token pendek adalah nilai menempel opsi pertamanya, dan bagi opsi bool optMatch Phobos hanya menerima literal `true`/`false` (ekor lain = ConvException, alat mati sebelum membaca). Tabel `_SAH_TSV` kini membawa elemen ketujuh: huruf pendek opsi bernilai per alat, diturunkan dari sumber tsv-utils (partisinya pas menutup himpunan pendek tiap entri). Token berekor kini sah hanya bila opsi pertamanya bernilai (ekor = nilainya) atau ekornya persis literal bool. 25 vonis token terverifikasi dua arah; keterangan skenario sub1603/sub1604 ditulis ulang sesuai mekanisme sebenarnya; skenario generate 1624 mengunci vonis lolos dan terverifikasi diskriminatif.
