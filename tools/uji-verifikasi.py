@@ -31759,7 +31759,7 @@ def main():
             f.write(isi_baru1495)
         rc, out = jalan(sub1495,
                         [sys.executable, GERBANG, "--hanya-workflow"])
-        periksa("tsv-summarize -r -1x bukan numerik penuh: gantung - gerbang lolos (Audit 2398)", rc == 0)
+        periksa("tsv-summarize -r -1x termakan sebagai nilai (alat jalan): gerbang menolak (Audit 2560, koreksi model 2398)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1495, ignore_errors=True)
         sub1496 = klon(tmp, "sub1496")
         berkas_aksi1496 = os.path.join(
@@ -32158,7 +32158,7 @@ def main():
             f.write(isi_baru1514)
         rc, out = jalan(sub1514,
                         [sys.executable, GERBANG, "--hanya-workflow"])
-        periksa("tsv-summarize -r -.5 bukan nilai (gerbang digit): gantung - gerbang lolos (Audit 2415)", rc == 0)
+        periksa("tsv-summarize -r -.5 termakan sebagai nilai (alat jalan): gerbang menolak (Audit 2560, koreksi model 2415)", rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub1514, ignore_errors=True)
         sub1515 = klon(tmp, "sub1515")
         berkas_aksi1515 = os.path.join(

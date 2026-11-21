@@ -161,6 +161,14 @@
   pun awalannya. Skenario gensuite 1641–1644 mengunci kedua
   arah. Terprobe induk sesudah perbaikan: ketiga bentuk
   fail-open kini ditolak, kontrol tanpa operator tetap lolos.
+- Koreksi lanjutan (verifikasi suite penuh maraton yang
+  sama): dua skenario lama yang mengunci model gantung
+  `-r` (Audit 2398 untuk `-r -1x`, Audit 2415 untuk
+  `-r -.5`) dibalik — sumber Phobos `handleOption`
+  membuktikan token berikutnya dimakan tanpa syarat apa pun
+  bentuknya, jadi kedua bentuk itu kini dinilai alat
+  berjalan dan gerbang menolak; model lama keliru membaca
+  perilaku getopt.
 
 ## [Belum rilis] — Kabel belahan suite cek-cepat dipasang benar (Audit 2559)
 
