@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Verifikasi isi DB backup tanpa quick_check ganda dan tanpa salinan ekstra (Audit 172)
+
+- `verifikasiIsiDbZip` kini membaca penuh entri-entri DB di dalam zip secara streaming (CRC zip terverifikasi saat entri dibaca sampai habis) tanpa mengekstrak salinan DB kedua ke cache dan tanpa `PRAGMA quick_check` ulang. Pemeriksaan integritas yang lama menguji byte yang identik dengan snapshot yang baru saja lolos `quick_check` di `snapshotDbKonsisten` — pekerjaan ganda murni: di STB lambat dengan DB besar, setiap backup membayar dua pemindaian penuh DB plus satu penulisan salinan penuh ekstra (aus flash). Jaminan yang tersisa persis yang membedakan tahap ini dari `verifikasiZip`: seluruh entri DB terbaca utuh dan CRC-nya cocok.
+
 ## [Belum rilis] — Uji folder data bawaan mengunci jalur Android/data (Audit 172)
 
 - Uji `dataDirBawaanSegarTakKosongDanStabil` kini juga menegaskan folder bawaan memuat segmen `Android/data/com.tasirin.vaultwardenhost/files/vaultwarden`. Sebelumnya uji hanya memeriksa tak-kosong + berakhiran "vaultwarden" + stabil, sehingga nilai lama `/sdcard/vaultwarden` pun lolos — perubahan folder pribadi tak punya kunci regresi dan typo pada konstanta subdirektori bisa mengembalikan instalasi baru ke folder publik tanpa CI berbunyi.

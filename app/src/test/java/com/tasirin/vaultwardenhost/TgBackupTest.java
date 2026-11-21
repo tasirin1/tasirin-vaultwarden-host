@@ -2079,24 +2079,30 @@ public class TgBackupTest {
 
     @Test
     public void verifikasiIsiDbZip_tolakTanpaDbDanSampah() throws Exception {
-        File tmp = File.createTempFile("vwisi", ".sqlite3");
-        assertNotNull(TgBackup.verifikasiIsiDbZip(null, tmp));
-        assertNotNull(TgBackup.verifikasiIsiDbZip(new File("/tidak/ada.zip"), tmp));
+        assertNotNull(TgBackup.verifikasiIsiDbZip(null));
+        assertNotNull(TgBackup.verifikasiIsiDbZip(new File("/tidak/ada.zip")));
         File tanpaDb = File.createTempFile("vwisitanpadb", ".zip");
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(tanpaDb))) {
             zos.putNextEntry(new ZipEntry("catatan.txt"));
             zos.write("halo".getBytes("UTF-8"));
             zos.closeEntry();
         }
-        assertNotNull(TgBackup.verifikasiIsiDbZip(tanpaDb, tmp));
+        assertNotNull(TgBackup.verifikasiIsiDbZip(tanpaDb));
         tanpaDb.delete();
         File sampah = File.createTempFile("vwisisampah", ".zip");
         try (FileOutputStream o = new FileOutputStream(sampah)) {
             o.write("bukan zip sama sekali".getBytes("UTF-8"));
         }
-        assertNotNull(TgBackup.verifikasiIsiDbZip(sampah, tmp));
+        assertNotNull(TgBackup.verifikasiIsiDbZip(sampah));
         sampah.delete();
-        tmp.delete();
+        File berisiDb = File.createTempFile("vwisiberisi", ".zip");
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(berisiDb))) {
+            zos.putNextEntry(new ZipEntry("db.sqlite3"));
+            zos.write("SQLite format 3\0".getBytes("UTF-8"));
+            zos.closeEntry();
+        }
+        assertNull(TgBackup.verifikasiIsiDbZip(berisiDb));
+        berisiDb.delete();
     }
 
     @Test

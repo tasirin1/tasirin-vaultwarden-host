@@ -597,22 +597,13 @@ public final class TgBackup {
                     throw new IOException("Backup gagal verifikasi: " + galat);
                 }
 
-                File tmpIsi = berkasPlainSementara(ctx.getCacheDir(), "isi-db", ".sqlite3");
-                sapuTmpPlainBasi(ctx.getCacheDir(), tmpIsi.getName());
-                try {
-                    String galatIsi = verifikasiIsiDbZip(zip, tmpIsi);
-                    if (galatIsi != null) {
-                        if (percobaan < 2) {
-                            continue;
-                        }
-                        zip.delete();
-                        throw new IOException("Backup gagal verifikasi isi DB: " + galatIsi);
+                String galatIsi = verifikasiIsiDbZip(zip);
+                if (galatIsi != null) {
+                    if (percobaan < 2) {
+                        continue;
                     }
-                } finally {
-                    try {
-                        tmpIsi.delete();
-                    } catch (Exception ignored) {
-                    }
+                    zip.delete();
+                    throw new IOException("Backup gagal verifikasi isi DB: " + galatIsi);
                 }
                 break;
             }
@@ -1662,60 +1653,40 @@ public final class TgBackup {
         }
     }
 
-    static String verifikasiIsiDbZip(File zip, File tmpDb) {
-        if (zip == null || tmpDb == null) {
+    static String verifikasiIsiDbZip(File zip) {
+        if (zip == null || !zip.isFile()) {
             return "file backup hilang";
         }
-
-        File dir = new File(tmpDb.getAbsoluteFile().getParentFile(),
-                tmpDb.getName() + ".isi");
-        hapusPohon(dir);
-        try {
-            try (ZipFile zf = new ZipFile(zip)) {
-                if (zf.size() > Util.BATAS_JUMLAH_ENTRI) {
-                    return "terlalu banyak entri zip (" + zf.size() + ")";
+        try (ZipFile zf = new ZipFile(zip)) {
+            if (zf.size() > Util.BATAS_JUMLAH_ENTRI) {
+                return "terlalu banyak entri zip (" + zf.size() + ")";
+            }
+            if (zf.getEntry("db.sqlite3") == null) {
+                return "tidak berisi db.sqlite3";
+            }
+            long total = 0;
+            byte[] buf = new byte[64 * 1024];
+            for (String nama : BERKAS_DB) {
+                java.util.zip.ZipEntry entri = zf.getEntry(nama);
+                if (entri == null) {
+                    continue;
                 }
-                if (zf.getEntry("db.sqlite3") == null) {
-                    return "tidak berisi db.sqlite3";
-                }
-                if (!dir.isDirectory() && !dir.mkdirs()) {
-                    return "gagal menyiapkan folder verifikasi";
-                }
-                long total = 0;
-                for (String nama : BERKAS_DB) {
-                    java.util.zip.ZipEntry entri = zf.getEntry(nama);
-                    if (entri == null) {
-                        continue;
-                    }
-                    try (java.io.InputStream in = zf.getInputStream(entri);
-                         java.io.FileOutputStream fos =
-                                 new java.io.FileOutputStream(new File(dir, nama))) {
-                        byte[] buf = new byte[64 * 1024];
-                        int n;
-                        while ((n = in.read(buf)) != -1) {
-                            total += n;
-                            if (total > Util.BATAS_UNZIP_RESTORE) {
-                                return "isi DB melebihi batas aman ("
-                                        + Util.BATAS_UNZIP_RESTORE + " byte)";
-                            }
-                            fos.write(buf, 0, n);
+                try (java.io.InputStream in = zf.getInputStream(entri)) {
+                    int n;
+                    while ((n = in.read(buf)) != -1) {
+                        total += n;
+                        if (total > Util.BATAS_UNZIP_RESTORE) {
+                            return "isi DB melebihi batas aman ("
+                                    + Util.BATAS_UNZIP_RESTORE + " byte)";
                         }
                     }
                 }
-            } catch (Exception e) {
-                String msgSebab = e.getMessage();
-                String sebab = msgSebab != null ? msgSebab : e.toString();
-                return "zip tak terbaca (" + sebab + ")";
-            }
-
-            String rusak = cekIntegritasDbSalinan(new File(dir, "db.sqlite3"));
-            if (rusak != null) {
-                return "isi DB korup (" + rusak + ")";
             }
             return null;
-        } finally {
-
-            hapusPohon(dir);
+        } catch (Exception e) {
+            String msgSebab = e.getMessage();
+            String sebab = msgSebab != null ? msgSebab : e.toString();
+            return "zip tak terbaca (" + sebab + ")";
         }
     }
 
