@@ -1443,7 +1443,7 @@ def main():
         rc, out = jalan(kurungtikus, [sys.executable, GERBANG, "--semua"])
         periksa("kurung buka kata sebelumnya tak menyerap kurung "
                 "yatim sesudah backtick: gerbang gagal (Audit 936)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(kurungtikus, ignore_errors=True)
 
         subbungkus = klon(tmp, "subbungkus")
@@ -1904,7 +1904,7 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect ber-fd di depan perintah tidak lagi "
                 "menyembunyikan pembaca: gerbang gagal (Audit 967)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subredfd, ignore_errors=True)
 
         subrednilai = klon(tmp, "subrednilai")
@@ -1929,7 +1929,7 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("redirect yang menyela nilai opsi tidak lagi "
                 "menelan perintah: gerbang gagal (Audit 968)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subrednilai, ignore_errors=True)
 
         subenvtawar = klon(tmp, "subenvtawar")
@@ -1954,7 +1954,7 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("env sesudah pembungkus memulihkan penetapan: "
                 "penulis menguras stdin, gerbang gagal (Audit 969)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subenvtawar, ignore_errors=True)
 
         subbungkusbaru = klon(tmp, "subbungkusbaru")
@@ -1979,7 +1979,7 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("pembungkus setsid kini dikenal resolver: penulis "
                 "menguras stdin, gerbang gagal (Audit 970)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subbungkusbaru, ignore_errors=True)
 
         subxargssendiri = klon(tmp, "subxargssendiri")
@@ -2004,7 +2004,7 @@ def main():
                         [sys.executable, GERBANG, "--semua"])
         periksa("xargs tanpa -a menguras stdin sendiri walau "
                 "anaknya bukan pembaca: gerbang gagal (Audit 971)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subxargssendiri, ignore_errors=True)
 
         subcommandprog = klon(tmp, "subcommandprog")
@@ -2175,7 +2175,7 @@ def main():
         periksa("redirect fd bukan-0 sesudah anak xargs tak "
                 "mengganti stdin xargs, jadi xargs sungguh menguras "
                 "dan penulis kebagian EOF: gerbang gagal (Audit 995)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(subxargsfd, ignore_errors=True)
 
         subxargslekat = klon(tmp, "subxargslekat")
@@ -2226,7 +2226,7 @@ def main():
         periksa("redirect fd bukan-0 di posisi operand tak "
                 "mengganti stdin, jadi cat sungguh menguras dan "
                 "penulis kebagian EOF: gerbang gagal (Audit 997)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(suboperandfd, ignore_errors=True)
 
         subtasksetgabung = klon(tmp, "subtasksetgabung")
@@ -14543,7 +14543,7 @@ def main():
         rc, out = jalan(sub673, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl pkeyparam telanjang menguras stdin: "
                 "gerbang gagal (Audit 1495)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub673, ignore_errors=True)
         sub674 = klon(tmp, "sub674")
         berkas_aksi674 = os.path.join(
@@ -14565,7 +14565,7 @@ def main():
         rc, out = jalan(sub674, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl mac tanpa -in menguras stdin: "
                 "gerbang gagal (Audit 1496)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub674, ignore_errors=True)
         sub675 = klon(tmp, "sub675")
         berkas_aksi675 = os.path.join(
@@ -14587,7 +14587,7 @@ def main():
         rc, out = jalan(sub675, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl ts -data terakhir - menguras stdin: "
                 "gerbang gagal (Audit 1497)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub675, ignore_errors=True)
         sub676 = klon(tmp, "sub676")
         berkas_aksi676 = os.path.join(
@@ -14609,7 +14609,7 @@ def main():
         rc, out = jalan(sub676, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("pdftocairo -antialias bernilai: operand - adalah stdin: "
                 "gerbang gagal (Audit 1498)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub676, ignore_errors=True)
         sub677 = klon(tmp, "sub677")
         berkas_aksi677 = os.path.join(
@@ -14782,7 +14782,7 @@ def main():
         rc, out = jalan(sub684, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl spkac telanjang menguras stdin: "
                 "gerbang gagal (Audit 1520)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub684, ignore_errors=True)
         sub685 = klon(tmp, "sub685")
         berkas_aksi685 = os.path.join(
@@ -14804,7 +14804,7 @@ def main():
         rc, out = jalan(sub685, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl verify -vfyopt bernilai: tanpa operand membaca stdin: "
                 "gerbang gagal (Audit 1521)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub685, ignore_errors=True)
         sub686 = klon(tmp, "sub686")
         berkas_aksi686 = os.path.join(
@@ -14826,7 +14826,7 @@ def main():
         rc, out = jalan(sub686, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git commit -aF -: -F di bundel membaca pesan dari stdin: "
                 "gerbang gagal (Audit 1522)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub686, ignore_errors=True)
         sub687 = klon(tmp, "sub687")
         berkas_aksi687 = os.path.join(
@@ -14848,7 +14848,7 @@ def main():
         rc, out = jalan(sub687, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl storeutl operand /dev/stdin membaca stdin: "
                 "gerbang gagal (Audit 1523)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub687, ignore_errors=True)
         sub688 = klon(tmp, "sub688")
         berkas_aksi688 = os.path.join(
@@ -14914,7 +14914,7 @@ def main():
         rc, out = jalan(sub690, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("git commit -s -F -: -s bendera tanpa nilai di commit: "
                 "gerbang gagal (Audit 1535)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub690, ignore_errors=True)
         sub691 = klon(tmp, "sub691")
         berkas_aksi691 = os.path.join(
@@ -14935,7 +14935,7 @@ def main():
             f.write(isi_baru691)
         rc, out = jalan(sub691, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgsm --pinentry-mode bernilai: --decrypt tak tertelan sebagai nilai maupun tertekan operand: gerbang gagal (Audit 1545)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub691, ignore_errors=True)
 
         sub692 = klon(tmp, "sub692")
@@ -14957,7 +14957,7 @@ def main():
             f.write(isi_baru692)
         rc, out = jalan(sub692, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("storeutl URI file:// ke /dev/stdin dinilai membaca stdin: gerbang gagal (Audit 1546)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub692, ignore_errors=True)
         sub693 = klon(tmp, "sub693")
         berkas_aksi693 = os.path.join(
@@ -14978,7 +14978,7 @@ def main():
             f.write(isi_baru693)
         rc, out = jalan(sub693, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("perintah openssl nama-cipher (aes-256-cbc) dinilai membaca stdin: gerbang gagal (Audit 1548)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub693, ignore_errors=True)
         sub694 = klon(tmp, "sub694")
         berkas_aksi694 = os.path.join(
@@ -14999,7 +14999,7 @@ def main():
             f.write(isi_baru694)
         rc, out = jalan(sub694, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg opsi --s2k-mode bernilai: gerbang gagal (Audit 1549)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub694, ignore_errors=True)
         sub695 = klon(tmp, "sub695")
         berkas_aksi695 = os.path.join(
@@ -15020,7 +15020,7 @@ def main():
             f.write(isi_baru695)
         rc, out = jalan(sub695, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgsm opsi --debug bernilai: gerbang gagal (Audit 1550)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub695, ignore_errors=True)
         sub696 = klon(tmp, "sub696")
         berkas_aksi696 = os.path.join(
@@ -15041,7 +15041,7 @@ def main():
             f.write(isi_baru696)
         rc, out = jalan(sub696, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("storeutl URI file: satu garis miring dinilai membaca stdin: gerbang gagal (Audit 1551)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub696, ignore_errors=True)
         sub697 = klon(tmp, "sub697")
         berkas_aksi697 = os.path.join(
@@ -15062,7 +15062,7 @@ def main():
             f.write(isi_baru697)
         rc, out = jalan(sub697, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl nama cipher kapital (AES-256-CBC) dinilai membaca stdin: gerbang gagal (Audit 1561)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub697, ignore_errors=True)
         sub698 = klon(tmp, "sub698")
         berkas_aksi698 = os.path.join(
@@ -15083,7 +15083,7 @@ def main():
             f.write(isi_baru698)
         rc, out = jalan(sub698, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("openssl nama digest kapital (SHA256) dinilai membaca stdin: gerbang gagal (Audit 1561)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub698, ignore_errors=True)
         sub699 = klon(tmp, "sub699")
         berkas_aksi699 = os.path.join(
@@ -15104,7 +15104,7 @@ def main():
             f.write(isi_baru699)
         rc, out = jalan(sub699, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg opsi --options bernilai: gerbang gagal (Audit 1562)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub699, ignore_errors=True)
         sub700 = klon(tmp, "sub700")
         berkas_aksi700 = os.path.join(
@@ -15125,7 +15125,7 @@ def main():
             f.write(isi_baru700)
         rc, out = jalan(sub700, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg opsi --encrypt-to bernilai: gerbang gagal (Audit 1562)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub700, ignore_errors=True)
         sub701 = klon(tmp, "sub701")
         berkas_aksi701 = os.path.join(
@@ -15146,7 +15146,7 @@ def main():
             f.write(isi_baru701)
         rc, out = jalan(sub701, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpg opsi pendek -z bernilai terpisah: gerbang gagal (Audit 1562)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub701, ignore_errors=True)
         sub702 = klon(tmp, "sub702")
         berkas_aksi702 = os.path.join(
@@ -15167,7 +15167,7 @@ def main():
             f.write(isi_baru702)
         rc, out = jalan(sub702, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("gpgsm opsi --debug-wait bernilai: gerbang gagal (Audit 1563)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub702, ignore_errors=True)
         sub703 = klon(tmp, "sub703")
         berkas_aksi703 = os.path.join(
@@ -15188,7 +15188,7 @@ def main():
             f.write(isi_baru703)
         rc, out = jalan(sub703, [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("storeutl URI miring ganda dinilai membaca stdin: gerbang gagal (Audit 1564)",
-                rc != 0)
+                rc != 0 and rc != 124 and "Traceback" not in out)
         shutil.rmtree(sub703, ignore_errors=True)
         sub704 = klon(tmp, "sub704")
         berkas_aksi704 = os.path.join(

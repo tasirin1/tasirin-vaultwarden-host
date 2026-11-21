@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — 30 asersi skenario generate yang tertinggal kini diperkuat (Audit 173)
+
+- Transformasi penguat asersi pada perbaikan 2506 (Audit 172) menangkap 1018 blok sebaris tetapi melewatkan 30 blok generate yang panggilan `periksa(...)`-nya multi-baris — asersi mereka tetap `rc != 0` polos, sehingga crash (rc 1 + traceback) atau hang (rc 124) gerbang pada skenario-skenario itu tetap terhitung "menolak" dan suite melapor LOLOS palsu. Ke-30-nya kini berbentuk sama dengan 1018 lainnya: `rc != 0 and rc != 124 and "Traceback" not in out`. Terverifikasi: hitungan bentuk kuat 1018 → 1048, bentuk polos di baris sendiri 30 → 0, dan blok sampel hasil transformasi (sub673) dieksekusi sungguhan dan LOLOS terhadap gerbang sehat.
+
 ## [Belum rilis] — Job verifikasi build-apk tak lagi melaporkan check wajib di PR (Audit 173)
 
 - Job `verifikasi` di `build-apk.yml` berganti nama tampilan menjadi `Cek patch yang berubah (build-apk)`. Sesudah perbaikan 2522 (Audit 172) semua langkah job ini dilewati pada pull request, sehingga dengan nama lama — persis sama dengan check wajib proteksi branch — job ini melaporkan check wajib sebagai sukses tanpa menjalankan satu pun cek, dan dokumentasi GitHub memperingatkan nama job ganda pada required check menghasilkan status ambigu. Check wajib `Cek patch yang berubah` di PR kini dilaporkan hanya oleh `cek-wajib.yml` (semua PR, cek asli) dan job verifikasi `build-binary.yml` pada path-nya (cek asli). Komentar kepala `cek-wajib.yml` dan `AGENTS.md` diselaraskan. Pola akhiran meniru job `verifikasi-cek` yang sudah bernama `Cek patch yang berubah (cek-cepat)`.
