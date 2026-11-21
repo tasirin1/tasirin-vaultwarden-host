@@ -2683,12 +2683,12 @@ public class TgBackupTest {
         assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(2 * mb, 0, false, false));
 
         assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, false, false));
-        assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, false, true));
+        assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, false, true));
         assertEquals(405 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, false, false));
 
-        assertEquals(205 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, true, false));
-        assertEquals(305 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, true, true));
-        assertEquals(605 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, true, true));
+        assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, true, false));
+        assertEquals(205 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, true, true));
+        assertEquals(805 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, true, true));
 
         assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(-5, -5, true, true));
     }
