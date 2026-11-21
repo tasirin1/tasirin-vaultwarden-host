@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Uji folder data bawaan mengunci jalur Android/data (Audit 172)
+
+- Uji `dataDirBawaanSegarTakKosongDanStabil` kini juga menegaskan folder bawaan memuat segmen `Android/data/com.tasirin.vaultwardenhost/files/vaultwarden`. Sebelumnya uji hanya memeriksa tak-kosong + berakhiran "vaultwarden" + stabil, sehingga nilai lama `/sdcard/vaultwarden` pun lolos — perubahan folder pribadi tak punya kunci regresi dan typo pada konstanta subdirektori bisa mengembalikan instalasi baru ke folder publik tanpa CI berbunyi.
+
 ## [Belum rilis] — Kolom URL database tersembunyi seperti kolom rahasia lain (Audit 172)
 
 - Kolom "URL Database Eksternal" kini `textPassword` dengan tombol tampil/sembunyi (pola yang sama persis dengan Token Admin, Token Bot, dan Kata Sandi Backup) plus batas 2048 karakter — sebelumnya URL yang memuat kata sandi database (`postgres://user:SANDI@host/db`) terpampang polos di layar Settings (di STB: layar TV) dan tempelan sebesar apa pun lolos. Rantai fokus menyesuaikan: tombol tampil menjadi penghubung Port → URL Database → tombol tampil → Admin Token.

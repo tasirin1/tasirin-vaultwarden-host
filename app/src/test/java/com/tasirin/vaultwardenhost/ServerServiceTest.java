@@ -406,6 +406,7 @@ public class ServerServiceTest {
         assertNotNull(a);
         assertFalse(a.trim().isEmpty());
         assertTrue(a.endsWith("vaultwarden"));
+        assertTrue(a.contains("Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
         assertEquals(a, ServerService.dataDirBawaanSegar());
     }
 
