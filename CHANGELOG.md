@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Uji cabang karakter validator URL database (Audit 172)
+
+- Uji baru `databaseUrlValidTolakKarakterKontrolDanKutip` mencakup cabang penolakan karakter di `databaseUrlValid` — kutip ganda/tunggal, baris-baru, tab, dan DEL di tengah URL — penjaga sebenarnya terhadap injeksi baris-baru ke nilai env `DATABASE_URL`. Uji lama hanya mencakup kasus spasi; penghapusan loop karakter oleh refactor bisa lolos tanpa CI berbunyi.
+
 ## [Belum rilis] — Uji keanggotaan himpunan untuk database_url (Audit 172)
 
 - Uji baru `databaseUrlIkutEksporTapiTakBolehImpor` mengunci perlakuan ekspor-ya/impor-tidak untuk `database_url` (dan sejajarnya, token admin): kunci itu anggota `KUNCI_STRING` (ikut ekspor config) tetapi BUKAN anggota `BOLEH_IMPOR` (restore config dari Telegram tak boleh menimpa URL database aktif perangkat). Sebelumnya perlakuan ini hanya hidup di kode tanpa satu pun uji — edit daftar himpunan di masa depan bisa membaliknya tanpa CI berbunyi.

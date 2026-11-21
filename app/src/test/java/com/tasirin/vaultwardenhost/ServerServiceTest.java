@@ -387,6 +387,17 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void databaseUrlValidTolakKarakterKontrolDanKutip() {
+        assertFalse(ServerService.databaseUrlValid("postgres://user:pa\"ss@host:5432/db"));
+        assertFalse(ServerService.databaseUrlValid("postgres://user:pa'ss@host:5432/db"));
+        assertFalse(ServerService.databaseUrlValid("postgres://user:pa\nss@host:5432/db"));
+        assertFalse(ServerService.databaseUrlValid("postgres://user:pa\tss@host:5432/db"));
+        assertFalse(ServerService.databaseUrlValid("postgres://user:pa\u0001ss@host:5432/db"));
+        assertFalse(ServerService.databaseUrlValid("postgres://user:pa\u007Fss@host:5432/db"));
+        assertTrue(ServerService.databaseUrlValid("postgres://user:p_ss-w0rd@host:5432/db"));
+    }
+
+    @Test
     public void sidikDatabaseUrlStabilDanBedakanIsi() {
         assertEquals("", ServerService.sidikDatabaseUrl(null));
         assertEquals("", ServerService.sidikDatabaseUrl(""));
