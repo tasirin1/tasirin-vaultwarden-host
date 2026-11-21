@@ -123,12 +123,18 @@ def cek_workflow_yaml(gagal, peringatan):
     for nama in sorted(os.listdir(folder)):
         if not nama.endswith((".yml", ".yaml")):
             continue
-        try:
-            with open(os.path.join(folder, nama), encoding="utf-8") as f:
-                data = yaml.safe_load(f)
-        except Exception as e:
-            gagal.append("YAML workflow %s tak bisa di-parse: %s" % (nama, e))
-            continue
+        path_wf = os.path.join(folder, nama)
+        if path_wf in _CACHE_YAML:
+            data = _CACHE_YAML[path_wf]
+        else:
+            try:
+                with open(path_wf, encoding="utf-8") as f:
+                    data = yaml.safe_load(f)
+            except Exception as e:
+                gagal.append("YAML workflow %s tak bisa di-parse: %s" % (nama, e))
+                continue
+            if isinstance(data, dict):
+                _CACHE_YAML[path_wf] = data
         if not isinstance(data, dict):
             gagal.append("YAML workflow %s kosong/bukan peta di level atas "
                          "— workflow tak akan jalan" % nama)
@@ -287,6 +293,8 @@ EKOSISTEM_DEPENDABOT = {
     "pub", "swift", "terraform", "yarn",
 }
 
+_CACHE_YAML = {}
+
 def _muat_yaml_github(rel, gagal):
     """Baca+parse satu berkas YAML .github; kembalikan datanya atau None."""
     path = os.path.join(AKAR, rel)
@@ -294,6 +302,8 @@ def _muat_yaml_github(rel, gagal):
         gagal.append("Berkas %s hilang — automasi yang mengandalkannya "
                      "berhenti diam-diam" % rel)
         return None
+    if path in _CACHE_YAML:
+        return _CACHE_YAML[path]
     yaml = _impor_yaml(gagal)
     if yaml is None:
         return None
@@ -306,6 +316,7 @@ def _muat_yaml_github(rel, gagal):
     if not isinstance(data, dict):
         gagal.append("YAML %s kosong/bukan peta di level atas" % rel)
         return None
+    _CACHE_YAML[path] = data
     return data
 
 def _potong_komentar_shell(baris):

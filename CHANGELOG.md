@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Parse YAML workflow di-cache dalam satu lari gerbang (Audit 172)
+
+- `_muat_yaml_github` dan `cek_workflow_yaml` kini berbagi cache parse `_CACHE_YAML` per jalur absolut: berkas yang sama (mis. `build-apk.yml`, `build-binary.yml`, `labeler.yml`) tidak lagi di-`safe_load` ulang berkali-kali dalam satu lari — terukur 15 → 12 panggilan `safe_load` per lari `--semua`, dan yang hilang justru parse ulang dua berkas workflow terbesar. Hanya parse sukses berbentuk peta yang di-cache; jalur gagal (berkas hilang/tak ter-parse/bukan peta) mempertahankan pesan dan perilaku persis seperti sebelumnya, dan semua pemanggil hanya membaca hasil parse (tak ada mutasi) sehingga berbagi objek aman.
+
 ## [Belum rilis] — berkas_dihapus mode rentang kini fail-closed (Audit 172)
 
 - `berkas_dihapus` mode rentang sebelumnya menelan kegagalan `git diff --name-status` sebagai "tidak ada hapusan" (`return []`), sehingga cek berkas-Java-dihapus dan cek metode hilang berjalan atas himpunan kosong — fail-open bila panggilan itu gagal di CI sementara diff utama berhasil. Kini mode rentang mengembalikan `None` saat git gagal dan `utama()` mencatatnya sebagai GAGAL ("Daftar berkas dihapus tak terbaca") pada kedua jalur pemanggil (rentang eksplisit dan union rentang+lokal). Terbukti dengan injeksi kegagalan: memaksa `--name-status` gagal membuat gerbang keluar 1 dengan pesan itu.
