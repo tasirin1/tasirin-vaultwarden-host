@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Uji keanggotaan himpunan untuk database_url (Audit 172)
+
+- Uji baru `databaseUrlIkutEksporTapiTakBolehImpor` mengunci perlakuan ekspor-ya/impor-tidak untuk `database_url` (dan sejajarnya, token admin): kunci itu anggota `KUNCI_STRING` (ikut ekspor config) tetapi BUKAN anggota `BOLEH_IMPOR` (restore config dari Telegram tak boleh menimpa URL database aktif perangkat). Sebelumnya perlakuan ini hanya hidup di kode tanpa satu pun uji — edit daftar himpunan di masa depan bisa membaliknya tanpa CI berbunyi.
+
 ## [Belum rilis] — Baris log baru tampil ≤1 tick di mode pencarian (Audit 172)
 
 - Jendela throttle bangun-ulang pencarian Log dipersempit 4500 → 1500 ms (satu periode tick refresh). Cabang throttle hanya tercapai bila isi log benar-benar berubah (kunci segar ver+len+kata berubah lebih dulu), jadi jendela lama 3× tick hanya membekukan baris baru yang cocok sampai ±6 detik tanpa manfaat laju tambahan — pembatasan laju tetap utuh lewat jendela satu tick plus penjaga CAS satu-bangun-pada-satu-waktu.

@@ -1705,6 +1705,14 @@ public class TgBackupTest {
     }
 
     @Test
+    public void databaseUrlIkutEksporTapiTakBolehImpor() {
+        assertTrue(TgBackup.KUNCI_STRING.contains(ServerService.KEY_DATABASE_URL));
+        assertFalse(TgBackup.BOLEH_IMPOR.contains(ServerService.KEY_DATABASE_URL));
+        assertTrue(TgBackup.KUNCI_STRING.contains(ServerService.KEY_ADMIN_TOKEN));
+        assertFalse(TgBackup.BOLEH_IMPOR.contains(ServerService.KEY_ADMIN_TOKEN));
+    }
+
+    @Test
     public void gabungGagalChat_pemisahDanNull() {
         // Audit 1190: gabungGagalChat sebelumnya tanpa uji
         // langsung — fungsi murni penentu teks ringkasan.
