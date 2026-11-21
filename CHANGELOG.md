@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Health check tak lagi membunuh server saat jam mundur keluar masa sertifikat (Audit 174)
+
+- Temuan 2548 (Sedang): sertifikat daun hanya dimundurkan 1 hari dari penerbitan, jadi loncatan jam dinding mundur >24 jam saat server berjalan membuat pemeriksaan kesehatan HTTPS loopback gagal validasi masa berlaku — server sehat terbaca tidak merespon, dibunuh sebagai gantung, lalu restart menabrak penolakan jam `siapkanTls`. `checkHealthOnce` kini melewati tick secara netral (tanpa menaikkan penghitung gagal) bila kode alive -1 dan jam terbukti berada sebelum masa berlaku sertifikat lewat penanda yang sama dengan jalur start (`TlsCert.daysLeft(...) == -2` pada CA atau sertifikat daun, penilai murni `jamDiLuarMasaSertifikat`). Uji JVM untuk cabang berkas tak ada. Closes #2322.
+
 ## [Belum rilis] — Redaksi log kini menyamarkan URL database (Audit 174)
 
 - Temuan 2547 (Sedang): tak ada pola redaksi untuk URL database di mana pun — keluaran proses vaultwarden mengalir ke log dan ekor log terkirim ke Telegram, sementara token bot/admin sudah lama tersamarkan. `LogActivity.samarkanLog` kini menyamarkan userinfo `postgres://`/`postgresql://`/`mysql://` menjadi `***` (pola `POLA_URL_DATABASE` + pemindai `adaUrlDatabase` yang juga menghidupkan `butuhSamaran`), dan `TgBackup.redaksiDetailGalat` mengganti URL database utuh menjadi `<url>`. URL tanpa kredensial tidak disentuh. Uji JVM baru di LogActivityTest dan TgBackupTest. Closes #2321.

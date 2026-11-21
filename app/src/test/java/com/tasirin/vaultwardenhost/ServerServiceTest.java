@@ -1333,6 +1333,13 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void jamDiLuarMasaSertifikat_berkasTakAdaAman() {
+        assertFalse(ServerService.jamDiLuarMasaSertifikat(null));
+        assertFalse(ServerService.jamDiLuarMasaSertifikat(
+                new java.io.File("/tidak/ada/ca.pem")));
+    }
+
+    @Test
     public void bolehTundaJam_berbatasTigaPuluh() {
         assertTrue(ServerService.bolehTundaJam(0));
         assertTrue(ServerService.bolehTundaJam(

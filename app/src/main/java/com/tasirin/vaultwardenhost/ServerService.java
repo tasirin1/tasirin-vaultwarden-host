@@ -3044,6 +3044,17 @@ public class ServerService extends Service {
         }
     }
 
+    static boolean jamDiLuarMasaSertifikat(java.io.File ca) {
+        if (ca == null || !ca.isFile()) {
+            return false;
+        }
+        if (TlsCert.daysLeft(ca) == -2) {
+            return true;
+        }
+        java.io.File daun = new java.io.File(ca.getParentFile(), "cert.pem");
+        return daun.isFile() && TlsCert.daysLeft(daun) == -2;
+    }
+
     static boolean pingMilikEpisodeSama(Process diukur, Process sekarang,
             int epDiukur, int epSekarang) {
         return diukur != null && diukur == sekarang
@@ -3109,6 +3120,12 @@ public class ServerService extends Service {
             healthFails.set(ph0[0]);
             healthTcpLolos.set(ph0[1]);
             configSajaBeruntun.set(ph0[2]);
+            return;
+        }
+        if (h.aliveCode == -1
+                && jamDiLuarMasaSertifikat(caUntukHealthCheck(this))) {
+            appendLog("[health] Pemeriksaan dilewati: jam STB berada sebelum masa"
+                    + " berlaku sertifikat (" + h.rincian + ") - server dibiarkan jalan.");
             return;
         }
         // Audit 1698: configSajaBeruntun tak dinolkan di sini -
