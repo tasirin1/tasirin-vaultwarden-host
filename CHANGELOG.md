@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Berkas meta .github dikecualikan dari pemicu CodeQL/Gitleaks (Audit 172)
+
+- Perubahan murni pada `stale.yml`, `labeler.yml`, `label-audit.yml`, atau `dependabot.yml` sebelumnya tetap memicu lari CodeQL dan Gitleaks penuh, padahal tak ada kode yang dianalisis CodeQL di berkas-berkas itu dan isinya bukan permukaan pindai secret yang berarti. Keempatnya kini masuk `paths-ignore` kedua workflow (push + pull_request). Pengecualian lama `build-binary.yml` di Gitleaks TIDAK disentuh — workflow itu memuat skrip inline panjang yang memang harus tetap dipindai (Audit 1118).
+
 ## [Belum rilis] — Langkah verifikasi + cek-cepat build-apk dilewati di PR (Audit 172)
 
 - Job `verifikasi` di `build-apk.yml` sebelumnya menjalankan ulang verifikasi `--rentang` dan `cek-cepat.sh` pada setiap pull request, padahal `cek-wajib.yml` sudah menjalankan langkah yang persis sama untuk SEMUA PR sebagai check wajib bernama sama ("Cek patch yang berubah") — kerja ganda per PR. Kedua langkah kini ber-`if: github.event_name != 'pull_request'`, meniru pola langkah uji-diri yang sudah ada; job-nya sendiri tetap berjalan agar `needs` build-apk terpenuhi, dan pada push semua langkah tetap berjalan penuh.

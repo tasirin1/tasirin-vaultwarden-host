@@ -7,11 +7,19 @@ on:
       - '**.md'
       - '.gitignore'
       - '.github/workflows/build-binary.yml'
+      - '.github/workflows/stale.yml'
+      - '.github/workflows/labeler.yml'
+      - '.github/workflows/label-audit.yml'
+      - '.github/dependabot.yml'
   pull_request:
     paths-ignore:
       - '**.md'
       - '.gitignore'
       - '.github/workflows/build-binary.yml'
+      - '.github/workflows/stale.yml'
+      - '.github/workflows/labeler.yml'
+      - '.github/workflows/label-audit.yml'
+      - '.github/dependabot.yml'
   schedule:
     - cron: "0 5 * * 1"
   workflow_dispatch:
