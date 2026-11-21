@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Start tertolak jam STB miring kini menunggu dan mencoba lagi sendiri (susulan Maraton-173)
+
+- Sesudah laporan owner: habis STB restart, selagi jamnya belum sinkron, Start otomatis tertolak karena sertifikat TLS dibaca belum berlaku ("jam STB miring") lalu episode start ditutup permanen, sehingga server tidak pernah jalan sendiri walau jam kemudian beres — owner harus menekan Start manual. Penolakan jam di `siapkanTls` kini ditandai (`gagalJamTls`) dan diperlakukan sebagai penundaan, bukan kegagalan permanen: episode tetap hidup dan Start dicoba lagi otomatis tiap 1 menit sampai 30 kali (±30 menit) lewat kendaraan `startTunda` yang sama dengan penundaan kunci data; pesan Telegram kegagalan hanya dikirim pada percobaan pertama agar tidak banjir; penghitung direset saat Start/Stop eksplisit dan saat proses berhasil lahir. Keputusan batasnya murni (`bolehTundaJam`) dan teruji JVM. Pagar jamnya sendiri tidak berubah: server tetap tidak jalan memakai jam yang belum valid.
+
 ## [Belum rilis] — Folder bawaan Android/data dibuatkan lewat jalur resmi sistem (susulan Maraton-173)
 
 - Sesudah laporan owner bahwa folder bawaan tidak bisa dibuat otomatis di Android baru: sejak Android 11 aplikasi dilarang membuat sendiri folder khususnya di `Android/data` — folder itu hanya boleh diambil dari sistem lewat `getExternalFilesDir()`, sedangkan aplikasi menyusun alamatnya sebagai teks dan membuatnya dengan `mkdirs()` biasa sehingga ditolak ("Gagal membuat folder"). Jalur start server kini memanggil `getExternalFilesDir(null)` lebih dulu bila folder data berada di folder pribadi aplikasi (sistem yang membuatkan `Android/data/<paket>/files`), baru subfolder datanya dibuat seperti biasa. Perilaku di Android lama dan folder data di luar folder pribadi tidak berubah.

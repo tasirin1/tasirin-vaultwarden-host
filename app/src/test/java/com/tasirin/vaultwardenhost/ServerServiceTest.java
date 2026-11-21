@@ -1333,6 +1333,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void bolehTundaJam_berbatasTigaPuluh() {
+        assertTrue(ServerService.bolehTundaJam(0));
+        assertTrue(ServerService.bolehTundaJam(
+                ServerService.BATAS_START_TERTUNDA_JAM - 1));
+        assertFalse(ServerService.bolehTundaJam(
+                ServerService.BATAS_START_TERTUNDA_JAM));
+        assertFalse(ServerService.bolehTundaJam(
+                ServerService.BATAS_START_TERTUNDA_JAM + 5));
+        assertFalse(ServerService.bolehTundaJam(-1));
+    }
+
+    @Test
     public void putusanStartTunda_matriksKeputusan() {
         // Health mati atau autoRestart mati: berhenti diam apa pun sisanya.
         assertEquals(0, ServerService.putusanStartTunda(false, true, false, false));

@@ -469,6 +469,19 @@ public class ServerService extends Service {
 
     static final int BATAS_START_TERTUNDA_DATA = 60;
 
+    private static final java.util.concurrent.atomic.AtomicInteger startTertundaJam =
+            new java.util.concurrent.atomic.AtomicInteger(0);
+
+    static final int BATAS_START_TERTUNDA_JAM = 30;
+
+    static final long TUNDA_START_JAM_MS = 60_000;
+
+    private volatile boolean gagalJamTls = false;
+
+    static boolean bolehTundaJam(int percobaan) {
+        return percobaan >= 0 && percobaan < BATAS_START_TERTUNDA_JAM;
+    }
+
     static final long BATAS_TUNGGU_KUNCI_DATA_MS = 5L * 60 * 1000;
 
     public static void kunciData() {
@@ -1120,6 +1133,7 @@ public class ServerService extends Service {
             batalUtama(startTunda);
             batalStart = true;
             startTertundaData.set(0);
+            startTertundaJam.set(0);
 
             nomorStop.incrementAndGet();
 
@@ -1302,6 +1316,7 @@ public class ServerService extends Service {
             autoRestart = true;
             batalStart = false;
             startTertundaData.set(0);
+            startTertundaJam.set(0);
             healthActive = true;
             startForegroundCompat();
             mulaiSetelahProsesMati.set(false);
@@ -1322,6 +1337,7 @@ public class ServerService extends Service {
         autoRestart = true;
         batalStart = false;
         startTertundaData.set(0);
+        startTertundaJam.set(0);
         healthActive = true;
         simpanNiatJalan(true);
 
@@ -1754,9 +1770,27 @@ public class ServerService extends Service {
                 }
                 startTertundaData.set(0);
                 startServer();
+                if (gagalJamTls) {
+                    int nJam = startTertundaJam.getAndIncrement();
+                    if (bolehTundaJam(nJam)) {
+                        tunda = true;
+                        batalUtama(startTunda);
+                        posUtama(startTunda, TUNDA_START_JAM_MS);
+                        if (nJam == 0) {
+                            appendLog("[app] Start menunggu jam STB benar"
+                                    + " - dicoba lagi otomatis tiap menit.");
+                        }
+                        setStatus("Jam STB belum benar - Start dicoba lagi otomatis.");
+                    } else {
+                        startTertundaJam.set(0);
+                    }
+                }
             } finally {
 
                 lepasKunciData();
+                if (idEpisodaProses >= 0) {
+                    startTertundaJam.set(0);
+                }
 
                 if (startGagalPermanen(running,
                         process != null && alive(process), tunda,
@@ -2098,6 +2132,7 @@ public class ServerService extends Service {
     }
 
     private boolean siapkanTls(SharedPreferences sp, SesiStart sesi) {
+        gagalJamTls = false;
         if (!tungguKunciDataStart()) {
             return false;
         }
@@ -2119,30 +2154,36 @@ public class ServerService extends Service {
         sp.edit().putString(KEY_TLS_DIR, sesi.tlsDir.getAbsolutePath()).apply();
         long certDays = TlsCert.daysLeft(new File(sesi.tlsDir, "cert.pem"));
         if (TlsCert.daysLeft(new File(sesi.tlsDir, "ca.pem")) == -2) {
+            gagalJamTls = true;
 
             appendLog("[app] FATAL: jam STB miring (CA belum valid)"
                     + " - CA dipertahankan, server TIDAK start. Aktifkan"
                     + " Tanggal & waktu otomatis, lalu Start lagi.");
             setStatus("Jam STB salah (CA belum valid) - server tidak start.\n"
                     + "Aktifkan Tanggal & waktu otomatis, lalu Start lagi.");
-            TgBackup.sendMessage(this, "Gagal start: tanggal & jam STB salah"
-                    + " (CA TLS belum valid). CA tidak diganti; aktifkan"
-                    + " Tanggal & waktu otomatis lalu coba lagi.");
+            if (startTertundaJam.get() == 0) {
+                TgBackup.sendMessage(this, "Gagal start: tanggal & jam STB salah"
+                        + " (CA TLS belum valid). CA tidak diganti; aktifkan"
+                        + " Tanggal & waktu otomatis lalu coba lagi.");
+            }
             return false;
         }
         if (certDays >= 0 && certDays < 30) {
             appendLog("[app] PERINGATAN: sertifikat TLS tinggal " + certDays
                     + " hari. Sertifikat dibuat ulang otomatis saat IP berubah.");
         } else if (certDays == -2) {
+            gagalJamTls = true;
 
             appendLog("[app] FATAL: jam STB miring (sertifikat belum valid)"
                     + " - server TIDAK start. Aktifkan Tanggal & waktu otomatis,"
                     + " lalu Start lagi.");
             setStatus("Jam STB salah (sertifikat belum valid) - server tidak start.\n"
                     + "Aktifkan Tanggal & waktu otomatis, lalu Start lagi.");
-            TgBackup.sendMessage(this, "Gagal start: tanggal & jam STB salah"
-                    + " (sertifikat TLS belum valid). Aktifkan Tanggal & waktu"
-                    + " otomatis lalu coba lagi.");
+            if (startTertundaJam.get() == 0) {
+                TgBackup.sendMessage(this, "Gagal start: tanggal & jam STB salah"
+                        + " (sertifikat TLS belum valid). Aktifkan Tanggal & waktu"
+                        + " otomatis lalu coba lagi.");
+            }
             return false;
         }
         return true;
