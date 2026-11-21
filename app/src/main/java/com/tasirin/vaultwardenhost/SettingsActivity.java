@@ -3093,6 +3093,16 @@ public class SettingsActivity extends Activity {
     }
 
     private void terapkanImporJson(File src) {
+        if (startDitahanSaatTugasData(tugasBerjalan.get(),
+                TgBackup.tugasDataJalan())) {
+            try {
+                src.delete();
+            } catch (Exception ignored) {
+            }
+            toast(getString(R.string.masih_bekerja));
+            appendUiLog("[app] Import dibatalkan: tugas backup/restore masih berjalan.");
+            return;
+        }
         try {
             String json;
             try (InputStream in = new java.io.FileInputStream(src)) {
@@ -4405,6 +4415,7 @@ public class SettingsActivity extends Activity {
             restoreDbBtn.setEnabled(!busy);
             backupTgBtn.setEnabled(!busy);
             restoreTgBtn.setEnabled(!busy);
+            importCfgBtn.setEnabled(!busy);
             if (busy) {
                 statusView.setText(getString(R.string.busy_work));
                 statusView.setBackgroundResource(R.drawable.bg_status_busy);

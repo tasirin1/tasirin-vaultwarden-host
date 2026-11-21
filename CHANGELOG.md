@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Impor config tertahan saat tugas data berjalan (Audit 173)
+
+- `terapkanImporJson` kini menolak menerapkan config selagi tugas data berjalan, memakai penahan yang sama dengan `saveAndStart` (`startDitahanSaatTugasData` atas `tugasBerjalan` + `TgBackup.tugasDataJalan()`), lengkap dengan toast `masih_bekerja` dan catatan log. Sebelumnya impor yang berkasnya sudah dipilih sebelum backup/restore mulai tetap menerapkan prefs — termasuk token, data dir, dan jadwal backup — ke tengah tugas yang sedang membaca state yang sama. Tombol impor juga kini ikut dinonaktifkan oleh `setBusy` selama tugas UI berjalan, sebagai lapis kedua.
+
 ## [Belum rilis] — Dialog crash LogActivity tak lagi bisa tampil dobel (Audit 173)
 
 - `LogActivity` kini punya bendera penjaga `dialogCrashTampil`, meniru pola dialog impor/restore di SettingsActivity. Sebelumnya tiap ketukan tombol Crash menjalankan tugas latar baru yang berakhir membuka dialog baru, jadi ketukan beruntun menumpuk dialog crash. Bendera dipasang sebelum tugas latar mulai, dilepas pada semua jalan keluar (activity selesai, log kosong, antrean penuh) dan saat dialog ditutup.
