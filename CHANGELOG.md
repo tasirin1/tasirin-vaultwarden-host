@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Cek ruang cache backup tak terenkripsi kini menghitung snapshot penuh (Audit 2611)
+
+- `ruangBackupDibutuhkan` untuk folder cache tanpa
+  enkripsi kini `db + lampiran` (isi snapshot yang
+  selalu ditulis ke cache: DB + attachments/sends/RSA),
+  bukan hanya `db` — cek ruang tidak lagi lolos lalu
+  penyalinan snapshot gagal di tengah karena storage
+  habis dengan pesan yang tak menunjuk sebabnya.
+
 ## [Belum rilis] — Prompt PIN dari tombol Segarkan kini pesan baru, laporan asal utuh (Audit 2610)
 
 - Cabang `segar:` kini memanggil `mulaiAksiPin` dengan

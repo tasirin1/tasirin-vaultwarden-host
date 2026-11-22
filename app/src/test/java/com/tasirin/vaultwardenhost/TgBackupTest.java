@@ -2797,12 +2797,17 @@ public class TgBackupTest {
 
         assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(0, 0, false, false));
         assertEquals(10 * mb, TgBackup.ruangBackupDibutuhkan(2 * mb, 0, false, false));
+        // Audit 2611: cache tak terenkripsi menampung snapshot penuh
+        // (db + lampiran), bukan db saja.
+        assertEquals(17 * mb, TgBackup.ruangBackupDibutuhkan(8 * mb, 4 * mb, true, false));
+        assertEquals(29 * mb, TgBackup.ruangBackupDibutuhkan(8 * mb, 4 * mb, true, true));
+        assertEquals(17 * mb, TgBackup.ruangBackupDibutuhkan(8 * mb, 4 * mb, false, false));
 
         assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, false, false));
         assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, false, true));
         assertEquals(405 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, false, false));
 
-        assertEquals(105 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, true, false));
+        assertEquals(405 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, true, false));
         assertEquals(205 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 0, true, true));
         assertEquals(805 * mb, TgBackup.ruangBackupDibutuhkan(100 * mb, 300 * mb, true, true));
 

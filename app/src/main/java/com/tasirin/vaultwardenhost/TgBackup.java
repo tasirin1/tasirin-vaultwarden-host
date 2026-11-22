@@ -5417,7 +5417,7 @@ public final class TgBackup {
         long lampiran = Math.max(0L, isiLampiran);
         long butuh;
         if (folderCache) {
-            butuh = terenkripsi ? 2L * db + 2L * lampiran : db;
+            butuh = terenkripsi ? 2L * db + 2L * lampiran : db + lampiran;
         } else {
             butuh = db + lampiran;
         }
