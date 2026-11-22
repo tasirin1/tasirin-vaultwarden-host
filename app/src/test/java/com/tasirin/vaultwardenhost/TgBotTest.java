@@ -792,6 +792,16 @@ public class TgBotTest {
     }
 
     @Test
+    public void perintahKomitDini_termasukLoginLogout() {
+        assertTrue(TgBot.perintahKomitDini("/login 123456"));
+        assertTrue(TgBot.perintahKomitDini("/logout"));
+        assertTrue(TgBot.perintahKomitDini("/stop 123456"));
+        assertFalse(TgBot.perintahKomitDini("/help"));
+        assertFalse(TgBot.perintahKomitDini("halo biasa"));
+        assertFalse(TgBot.perintahKomitDini(null));
+    }
+
+    @Test
     public void pinTebakan_loginIkutTerdeteksi() {
         assertEquals("123456", TgBot.pinTebakan("/login 123456"));
         assertEquals("123456", TgBot.pinTebakan("/login@BotSaya 123456"));

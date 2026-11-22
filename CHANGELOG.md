@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — /login dan /logout kini ikut commit offset dini (Audit 2606)
+
+- Daftar perintah yang offset poll-nya di-commit lebih
+  dulu (anti-putar-ulang sesudah proses mati) kini
+  memuat perintah sesi `login`/`logout` lewat
+  `perintahKomitDini`, sejajar perintah ber-PIN:
+  /login yang berhasil tidak lagi diproses ulang pada
+  poll berikutnya bila proses mati sebelum flush offset.
+
 ## [Belum rilis] — Watcher proses kini men-join pembaca milik prosesnya sendiri (Audit 2605)
 
 - `watchProcess` menerima thread pembaca yang lahir

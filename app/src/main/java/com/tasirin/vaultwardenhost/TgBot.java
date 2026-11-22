@@ -589,7 +589,7 @@ public final class TgBot {
                                         hapusPending(ctx, idRuang);
                                     }
 
-                                    if (perintahPerluPin(text)) {
+                                    if (perintahKomitDini(text)) {
                                         try {
                                             sp.edit().putLong(KEY_TG_OFFSET, newOffset).commit();
                                         } catch (Exception ignored) {
@@ -1402,6 +1402,11 @@ public final class TgBot {
 
     static boolean pesanPinWajibHapus(String text) {
         return perintahPerluPin(text);
+    }
+
+    static boolean perintahKomitDini(String text) {
+        String cmd = namaPerintah(text);
+        return perintahPerluPin(text) || "login".equals(cmd) || "logout".equals(cmd);
     }
 
     static boolean wajibHapusPesanPin(boolean pinBasi, boolean pinGrup,
