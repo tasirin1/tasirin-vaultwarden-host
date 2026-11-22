@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: cut tanpa opsi daftar tak lagi dinilai menguras (Audit 2642)
+
+- Penjaga opsi coreutils kini juga melacak
+  kehadiran opsi daftar cut (-b/-c/-f,
+  --bytes/--characters/--fields, termasuk
+  bentuk merekat dan =). Tanpa satu pun,
+  cut divonis mati sesuai binernya. Satu
+  skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: awk telanjang tak lagi dinilai menguras (Audit 2641)
 
 - Vonis akhir keluarga skrip kini

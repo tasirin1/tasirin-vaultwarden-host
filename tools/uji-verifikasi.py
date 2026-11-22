@@ -36721,6 +36721,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("awk telanjang: mawk keluar usage tanpa membaca stdin: gerbang lolos (Audit 2641)", rc == 0)
         shutil.rmtree(sub1731, ignore_errors=True)
+        sub1732 = klon(tmp, "sub1732")
+        berkas_aksi1732 = os.path.join(
+            sub1732, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1732, encoding="utf-8") as f:
+            isi_aksi1732 = f.read()
+        baris_aksi1732 = [b for b in isi_aksi1732.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1732 = isi_aksi1732.replace(
+                baris_aksi1732,
+                baris_aksi1732.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cut -s; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1732 != isi_aksi1732, \
+            "suntikan aksi1732 tidak menembak"
+        with open(berkas_aksi1732, "w", encoding="utf-8") as f:
+            f.write(isi_baru1732)
+        rc, out = jalan(sub1732,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("cut -s tanpa opsi daftar: alat mati must specify a list, tak menguras: gerbang lolos (Audit 2642)", rc == 0)
+        shutil.rmtree(sub1732, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

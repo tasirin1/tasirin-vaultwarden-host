@@ -14630,6 +14630,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             lewati_ht = 1
                         break
                 continue
+    # Audit 2642: cut mewajibkan satu opsi daftar
+    # (-b/-c/-f atau --bytes/--characters/
+    # --fields); penjaga 2579 di bawah melacak
+    # kehadirannya untuk perintah cut.
+    daftar_cut = False
     if perintah in ("sort", "head", "tail", "uniq",
                     "cut", "wc"):
         vokab_gu = _VOKAB_SK[perintah]
@@ -14656,6 +14661,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     return False
                 if st_gu == "pembawa":
                     lewati_gu = 1
+                if (st_gu in ("pembawa", "pembawa=",
+                              "pembawa2")
+                        and perintah == "cut" and _nm_gu in (
+                            "bytes", "characters", "fields")):
+                    daftar_cut = True
                 continue
             if (perintah in ("head", "tail")
                     and b_gu[1:].isdigit()):
@@ -14666,8 +14676,19 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # membunuh alat sebelum membaca.
             if st_gu == "mati":
                 return False
-            if st_gu == "pembawa":
-                lewati_gu = 1
+            if st_gu in ("pembawa", "pembawa-nempel"):
+                if st_gu == "pembawa":
+                    lewati_gu = 1
+                if (perintah == "cut"
+                        and _ch_gu in ("b", "c", "f")):
+                    daftar_cut = True
+    # Audit 2642: tanpa opsi daftar, cut mati
+    # "you must specify a list of bytes,
+    # characters, or fields" (rc=1) sebelum
+    # membaca stdin (cut, cut -s,
+    # cut --complement).
+    if perintah == "cut" and not daftar_cut:
+        return False
     # Audit 1102: panggilan informasional mencetak dan keluar
     # tanpa membaca stdin (--help/--version umum; iconv -l/--list).
     # Audit 2591: penyusuran sadar nilai (pola Audit 1690) -
