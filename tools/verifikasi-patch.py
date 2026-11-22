@@ -10048,6 +10048,39 @@ def _menguras_khusus(perintah, toks, awal):
                     semesta_ccl | bernilai_ccl)):
             return False
         return not ops_ccl or ops_ccl == ["-"]
+    # Audit 2646: argparse menolak opsi panjang
+    # tak dikenal (rc=2, berhenti sebelum
+    # membaca) - delapan cabang csvkit di
+    # bawah hanya menyaring lewat _saring_
+    # csvkit sehingga --bogus lolos sebagai
+    # penguras, sementara csvgrep/in2csv/
+    # csvclean/csvpy sudah memvonis mati.
+    # Semesta per alat = ekstrak --help
+    # csvkit 2.2.0; argparse menerima
+    # singkatan awalan unik (allow_abbrev).
+    _SEMESTA_CSVKIT_46 = {
+        "csvlook": frozenset({"--add-bom", "--blanks", "--date-format", "--datetime-format", "--delimiter", "--encoding", "--escapechar", "--help", "--linenumbers", "--locale", "--max-column-width", "--max-columns", "--max-precision", "--max-rows", "--maxfieldsize", "--no-doublequote", "--no-header-row", "--no-inference", "--no-leading-zeroes", "--no-number-ellipsis", "--null-value", "--quotechar", "--quoting", "--skip-lines", "--skipinitialspace", "--snifflimit", "--tabs", "--verbose", "--version", "--zero"}),
+        "csvstat": frozenset({"--add-bom", "--blanks", "--columns", "--count", "--csv", "--date-format", "--datetime-format", "--decimal-format", "--delimiter", "--encoding", "--escapechar", "--freq", "--freq-count", "--help", "--indent", "--json", "--len", "--linenumbers", "--locale", "--max", "--max-precision", "--maxfieldsize", "--mean", "--median", "--min", "--names", "--no-doublequote", "--no-grouping-separator", "--no-header-row", "--no-inference", "--no-leading-zeroes", "--non-nulls", "--null-value", "--nulls", "--quotechar", "--quoting", "--skip-lines", "--skipinitialspace", "--snifflimit", "--stdev", "--sum", "--tabs", "--type", "--unique", "--verbose", "--version", "--zero"}),
+        "csvcut": frozenset({"--add-bom", "--columns", "--delete-empty-rows", "--delimiter", "--encoding", "--escapechar", "--help", "--linenumbers", "--maxfieldsize", "--names", "--no-doublequote", "--no-header-row", "--not-columns", "--quotechar", "--quoting", "--skip-lines", "--skipinitialspace", "--tabs", "--verbose", "--version", "--zero"}),
+        "csvjoin": frozenset({"--add-bom", "--blanks", "--columns", "--date-format", "--datetime-format", "--delimiter", "--encoding", "--escapechar", "--help", "--left", "--linenumbers", "--locale", "--maxfieldsize", "--no-doublequote", "--no-header-row", "--no-inference", "--no-leading-zeroes", "--null-value", "--outer", "--quotechar", "--quoting", "--right", "--skip-lines", "--skipinitialspace", "--snifflimit", "--tabs", "--verbose", "--version", "--zero"}),
+        "csvsql": frozenset({"--add-bom", "--after-insert", "--before-insert", "--blanks", "--chunk-size", "--col-len-multiplier", "--create-if-not-exists", "--date-format", "--datetime-format", "--db", "--db-schema", "--delimiter", "--dialect", "--encoding", "--engine-option", "--escapechar", "--help", "--insert", "--linenumbers", "--locale", "--maxfieldsize", "--min-col-len", "--no-constraints", "--no-create", "--no-doublequote", "--no-header-row", "--no-inference", "--no-leading-zeroes", "--null-value", "--overwrite", "--prefix", "--query", "--quotechar", "--quoting", "--skip-lines", "--skipinitialspace", "--snifflimit", "--sql-delimiter", "--tables", "--tabs", "--unique-constraint", "--verbose", "--version", "--zero"}),
+        "csvformat": frozenset({"--add-bom", "--delimiter", "--encoding", "--escapechar", "--help", "--linenumbers", "--locale", "--maxfieldsize", "--no-doublequote", "--no-header-row", "--out-asv", "--out-delimiter", "--out-escapechar", "--out-lineterminator", "--out-no-doublequote", "--out-quotechar", "--out-quoting", "--out-tabs", "--quotechar", "--quoting", "--skip-header", "--skip-lines", "--skipinitialspace", "--tabs", "--verbose", "--version", "--zero"}),
+        "csvsort": frozenset({"--add-bom", "--blanks", "--columns", "--date-format", "--datetime-format", "--delimiter", "--encoding", "--escapechar", "--help", "--ignore-case", "--linenumbers", "--locale", "--maxfieldsize", "--names", "--no-doublequote", "--no-header-row", "--no-inference", "--no-leading-zeroes", "--null-value", "--quotechar", "--quoting", "--reverse", "--skip-lines", "--skipinitialspace", "--snifflimit", "--tabs", "--verbose", "--version", "--zero"}),
+        "csvstack": frozenset({"--add-bom", "--delimiter", "--encoding", "--escapechar", "--filenames", "--group-name", "--groups", "--help", "--linenumbers", "--maxfieldsize", "--no-doublequote", "--no-header-row", "--quotechar", "--quoting", "--skip-lines", "--skipinitialspace", "--tabs", "--verbose", "--version", "--zero"}),
+    }
+    if perintah in _SEMESTA_CSVKIT_46:
+        for t_46 in mentah:
+            if t_46 == "--":
+                break
+            if t_46.startswith("--"):
+                nm_46 = t_46.split("=", 1)[0]
+                if nm_46 in _SEMESTA_CSVKIT_46[perintah]:
+                    continue
+                calon_46 = [x_46 for x_46
+                            in _SEMESTA_CSVKIT_46[perintah]
+                            if x_46.startswith(nm_46)]
+                if len(calon_46) != 1:
+                    return False
     if perintah == "csvlook":
         # Audit 2099: tanpa nama berkas ia menerima
         # input terpipa via STDIN (csvlook(1)

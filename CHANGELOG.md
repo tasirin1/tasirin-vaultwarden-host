@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --bogus di delapan alat csvkit kini divonis mati (Audit 2646)
+
+- Cek terpusat baru sebelum rantai cabang
+  csvkit memindai opsi panjang terhadap
+  semesta --help csvkit 2.2.0 per alat
+  (singkatan awalan unik tetap sah ala
+  argparse): csvlook, csvstat, csvcut,
+  csvjoin, csvsql, csvformat, csvsort, dan
+  csvstack kini menolak opsi asing seperti
+  empat alat csvkit lainnya. Satu skenario
+  uji-diri baru.
+
 ## [Belum rilis] — Gerbang: pembaca generik kini punya kosakata opsi (Audit 2645)
 
 - Enam belas pembaca stdin generik (cat,
