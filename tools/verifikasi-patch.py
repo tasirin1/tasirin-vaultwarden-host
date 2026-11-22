@@ -14286,7 +14286,248 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "pembawa2": frozenset(),
             "eq_mati": True,
         },
+        # Audit 2645: kosakata pembaca generik -
+        # ekstrak --help biner lokal (coreutils
+        # 9.4, gzip, binutils strings, glibc
+        # iconv) + verifikasi pembawa tanpa
+        # nilai ke biner, metode yang sama
+        # dengan _VOCAB_GREP_25/2579. Sebelumnya
+        # perintah-perintah ini tak punya
+        # penjaga opsi sama sekali (--bogus/-x/
+        # --hel dinilai menguras).
+        "cat": {
+            "panjang": frozenset({
+                "help", "number", "number-nonblank", "show-all", "show-ends", "show-nonprinting", "show-tabs", "squeeze-blank", "version"}),
+            "pembawa": frozenset(),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("AETbenstuv"),
+            "pembawa_pendek": frozenset(),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "tee": {
+            "panjang": frozenset({
+                "append", "help", "ignore-interrupts", "output-error", "version"}),
+            "pembawa": frozenset(),
+            "opsional": frozenset({
+                "output-error"}),
+            "singkat": True,
+            "pendek": frozenset("aip"),
+            "pembawa_pendek": frozenset(),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "dd": {
+            "panjang": frozenset({
+                "help", "version"}),
+            "pembawa": frozenset(),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset(),
+            "pembawa_pendek": frozenset(),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "sha256sum": {
+            "panjang": frozenset({
+                "binary", "check", "help", "ignore-missing", "quiet", "status", "strict", "tag", "text", "version", "warn", "zero"}),
+            "pembawa": frozenset(),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("bctwz"),
+            "pembawa_pendek": frozenset(),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "gzip": {
+            "panjang": frozenset({
+                "best", "decompress", "fast", "force", "help", "keep", "license", "list", "name", "no-name", "quiet", "recursive", "rsyncable", "stdout", "suffix", "synchronous", "test", "verbose", "version"}),
+            "pembawa": frozenset({
+                "suffix"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("123456789LNSVcdfhklnqrstv"),
+            "pembawa_pendek": frozenset("S"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "base64": {
+            "panjang": frozenset({
+                "decode", "help", "ignore-garbage", "version", "wrap"}),
+            "pembawa": frozenset({
+                "wrap"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("diw"),
+            "pembawa_pendek": frozenset("w"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "od": {
+            "panjang": frozenset({
+                "address-radix", "endian", "format", "help", "output-duplicates", "read-bytes", "skip-bytes", "traditional", "version", "width"}),
+            "pembawa": frozenset({
+                "address-radix", "endian", "format", "read-bytes", "skip-bytes"}),
+            "opsional": frozenset({
+                "traditional", "width"}),
+            "singkat": True,
+            "pendek": frozenset("ANSabcdfijlostvwx"),
+            "pembawa_pendek": frozenset("ANSjt"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "tac": {
+            "panjang": frozenset({
+                "before", "help", "regex", "separator", "version"}),
+            "pembawa": frozenset({
+                "separator"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("brs"),
+            "pembawa_pendek": frozenset("s"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "fold": {
+            "panjang": frozenset({
+                "bytes", "help", "spaces", "version", "width"}),
+            "pembawa": frozenset({
+                "width"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("bsw"),
+            "pembawa_pendek": frozenset("w"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "paste": {
+            "panjang": frozenset({
+                "delimiters", "help", "serial", "version", "zero-terminated"}),
+            "pembawa": frozenset({
+                "delimiters"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("dsz"),
+            "pembawa_pendek": frozenset("d"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "fmt": {
+            "panjang": frozenset({
+                "crown-margin", "goal", "help", "prefix", "split-only", "tagged-paragraph", "uniform-spacing", "version", "width"}),
+            "pembawa": frozenset({
+                "goal", "prefix", "width"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("cgpstuw"),
+            "pembawa_pendek": frozenset("gpw"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "shuf": {
+            "panjang": frozenset({
+                "echo", "head-count", "help", "input-range", "output", "random-source", "repeat", "version", "zero-terminated"}),
+            "pembawa": frozenset({
+                "head-count", "input-range", "output", "random-source"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("einorz"),
+            "pembawa_pendek": frozenset("ino"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "strings": {
+            "panjang": frozenset({
+                "all", "bytes", "data", "encoding", "help", "include-all-whitespace", "output-separator", "print-file-name", "radix", "target", "unicode", "version"}),
+            "pembawa": frozenset({
+                "bytes", "encoding", "output-separator", "radix", "target", "unicode"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("TUVadefhnostvw"),
+            "pembawa_pendek": frozenset("TUenst"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "iconv": {
+            "panjang": frozenset({
+                "from-code", "help", "list", "output", "silent", "to-code", "usage", "verbose", "version"}),
+            "pembawa": frozenset({
+                "from-code", "output", "to-code"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("Vcflost"),
+            "pembawa_pendek": frozenset("fot"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "cksum": {
+            "panjang": frozenset({
+                "algorithm", "base64", "check", "debug", "help", "ignore-missing", "length", "quiet", "raw", "status", "strict", "tag", "untagged", "version", "warn", "zero"}),
+            "pembawa": frozenset({
+                "algorithm", "length"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("aclrswz"),
+            "pembawa_pendek": frozenset("al"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
+        "split": {
+            "panjang": frozenset({
+                "additional-suffix", "bytes", "elide-empty-files", "filter", "help", "line-bytes", "lines", "number", "separator", "suffix-length", "unbuffered", "verbose", "version"}),
+            "pembawa": frozenset({
+                "additional-suffix", "bytes", "filter", "line-bytes", "lines", "number", "separator", "suffix-length"}),
+            "opsional": frozenset(),
+            "singkat": True,
+            "pendek": frozenset("Cabelntux"),
+            "pembawa_pendek": frozenset("Cablnt"),
+            "pola": frozenset(),
+            "pola_pendek": frozenset(),
+            "pembawa2": frozenset(),
+            "eq_mati": True,
+        },
     }
+    # Audit 2645: alias berbagi kosakata biner
+    # yang sama (keluarga sum, keluarga gzip,
+    # base32).
+    for _alias_45 in ("md5sum", "sha1sum",
+                      "sha224sum", "sha384sum",
+                      "sha512sum", "b2sum"):
+        _VOKAB_SK[_alias_45] = _VOKAB_SK["sha256sum"]
+    for _alias_45 in ("gunzip", "zcat", "gzcat"):
+        _VOKAB_SK[_alias_45] = _VOKAB_SK["gzip"]
+    _VOKAB_SK["base32"] = _VOKAB_SK["base64"]
 
     def _status_panjang(vokab, token):
         # token diawali "--"; hasil (status, nama
@@ -14688,7 +14929,17 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # kehadirannya untuk perintah cut.
     daftar_cut = False
     if perintah in ("sort", "head", "tail", "uniq",
-                    "cut", "wc"):
+                    "cut", "wc",
+                    # Audit 2645: pembaca generik kini
+                    # ikut dijaga kosakatanya.
+                    "cat", "tee", "dd", "sha256sum",
+                    "md5sum", "sha1sum", "sha224sum",
+                    "sha384sum", "sha512sum", "b2sum",
+                    "gzip", "gunzip", "zcat", "gzcat",
+                    "base64", "base32", "od", "tac",
+                    "fold", "paste", "fmt", "shuf",
+                    "strings", "iconv", "cksum",
+                    "split"):
         vokab_gu = _VOKAB_SK[perintah]
         lewati_gu = 0
         for t_gu in toks[awal + 1:]:

@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pembaca generik kini punya kosakata opsi (Audit 2645)
+
+- Enam belas pembaca stdin generik (cat,
+  tee, dd, keluarga sum, gzip, base64, od,
+  tac, fold, paste, fmt, shuf, strings,
+  iconv, cksum, split, plus aliasnya) kini
+  ikut penjaga kosakata 2579: opsi asing,
+  huruf asing, dan singkatan ambigu divonis
+  mati sesuai binernya, bukan menguras.
+  Dua skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: sqlite3 opsi tak dikenal kini divonis mati (Audit 2644)
 
 - Cabang sqlite3 kini memindai opsi
