@@ -2048,8 +2048,18 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                     # --max-count); singkatan ambigu
                     # membunuh alat. rg (clap) tidak
                     # menyimpulkan awalan.
-                    calon_25 = [x for x in _VOCAB_GREP_25
-                                if x.startswith(nama_19)]
+                    # Audit 2638: kecocokan EKSak
+                    # selalu menang di getopt_long -
+                    # nama yang sendiri ada di
+                    # kosakata bukan singkatan ambigu
+                    # (--null vs --null-data, --binary
+                    # vs --binary-files, keduanya opsi
+                    # eksak grep yang sah).
+                    if nama_19 in _VOCAB_GREP_25:
+                        calon_25 = [nama_19]
+                    else:
+                        calon_25 = [x for x in _VOCAB_GREP_25
+                                    if x.startswith(nama_19)]
                     if len(calon_25) > 1:
                         return False
                     if len(calon_25) == 1:
@@ -2175,8 +2185,13 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 # (grep --max-c 1 pola: "1" adalah
                 # nilai --max-count, "pola" polanya,
                 # tak ada berkas - alat menguras).
-                calon_m = [x for x in _VOCAB_GREP_25
-                           if x.startswith(dasar[2:])]
+                # Audit 2638: kecocokan eksak menang
+                # juga di sini (lihat blok 2625).
+                if dasar[2:] in _VOCAB_GREP_25:
+                    calon_m = [dasar[2:]]
+                else:
+                    calon_m = [x for x in _VOCAB_GREP_25
+                               if x.startswith(dasar[2:])]
                 if len(calon_m) == 1:
                     dasar = "--" + calon_m[0]
             if (perintah == "jq"

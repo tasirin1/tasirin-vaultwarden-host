@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi eksak grep --null/--binary tak lagi dibunuh resolusi singkatan (Audit 2638)
+
+- Resolusi singkatan getopt_long di gerbang
+  kini mendahulukan kecocokan eksak: --null
+  dan --binary adalah opsi grep yang sah
+  (sekaligus awalan --null-data/--binary-
+  files) dan sebelumnya divonis ambigu
+  sehingga perintah yang menguras stdin
+  dinilai mati. Dua skenario uji-diri baru
+  menguncinya.
+
 ## [Belum rilis] — Backup polos tak lagi memuat kunci privat RSA (Audit 2637)
 
 - Kunci RSA sesi (rsa_key.pem/.der) kini
