@@ -1167,8 +1167,14 @@ public final class TgBot {
             if (idRuang < 0) {
                 JSONObject penekan = cb.optJSONObject("from");
                 long idPenekan = penekan != null ? penekan.optLong("id", 0) : 0;
+                // Audit 2624: username penekan diteruskan -
+                // entri konfigurasi @username sah di
+                // Util.cocokChat dan pemeriksaan ruang
+                // utama meneruskan username ruang.
+                String namaPenekan = penekan != null
+                        ? penekan.optString("username", "") : "";
                 boolean pemilik = idPenekan > 0
-                        && Util.cocokChatBanyak(chatKonfig, idPenekan, "");
+                        && Util.cocokChatBanyak(chatKonfig, idPenekan, namaPenekan);
                 if (!penekanDiizinkan(true, pemilik)) {
                     jawabCallback(ctx, cb.optString("id", ""));
                     return;

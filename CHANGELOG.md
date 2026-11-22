@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Tombol grup bot mengenali pemilik berk konfigurasi @username (Audit 2624)
+
+- Pemeriksaan penekan tombol di grup kini
+  meneruskan username penekan ke pencocokan chat
+  resmi. Sebelumnya username diteruskan kosong,
+  sehingga pemilik yang mengonfigurasi chatnya
+  lewat @username (bentuk yang didukung aplikasi)
+  kehilangan semua tombol di grup — penekanannya
+  diabaikan diam-diam; perintah teks tidak
+  terpengaruh.
+
 ## [Belum rilis] — Pendahulu sqlite3 gerbang menelan dua nilai -lookaside/-pagecache (Audit 2623)
 
 - _ada_informatif kini menandai kedua posisi
