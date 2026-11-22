@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Pesan gagal swap web-vault kini jujur bila pengembalian versi lama ikut gagal (Audit 2599)
+
+- Hasil `renameTo` pengembalian `web-vault.bak` kini
+  diperiksa: bila ikut gagal, pesan galat menyatakan
+  folder aktif hilang dan versi lama tertinggal sebagai
+  `web-vault.bak` (pemulihan berjalan saat aplikasi
+  mulai lagi) — bukan lagi mengklaim "versi lama
+  dipertahankan". Pengembalian yang berhasil kini juga
+  di-fsync-kan.
+
 ## [Belum rilis] — Kunci memo TlsCert kini memuat sidik isi ujung berkas (Audit 2598)
 
 - `kunciStat` kini menambahkan CRC32 atas 512 byte

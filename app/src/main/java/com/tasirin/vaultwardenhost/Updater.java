@@ -2689,11 +2689,17 @@ public final class Updater {
                 if (!newDir.renameTo(targetDir)) {
                     lepasStagingAktif(newDir);
                     deleteRecursive(newDir);
-                    if (adaLama) {
-                        bakDir.renameTo(targetDir);
+                    boolean pulih = !adaLama || bakDir.renameTo(targetDir);
+                    if (pulih) {
+                        TlsCert.fsyncDirektori(dataFolder);
+                        throw new IOException("Gagal memasang web vault baru"
+                                + " - versi lama dipertahankan.");
                     }
-                    throw new IOException("Gagal memasang web vault baru"
-                            + " - versi lama dipertahankan.");
+                    throw new IOException("Gagal memasang web vault baru DAN"
+                            + " gagal mengembalikan versi lama (tertinggal"
+                            + " sebagai web-vault.bak) - folder web vault"
+                            + " aktif hilang; mulai ulang aplikasi agar"
+                            + " pemulihan berjalan.");
                 }
                 deleteRecursive(bakDir);
                 terpasang = true;
