@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Ekspor log API 29+ tak lagi lapor sukses saat penutupan berkas gagal (Audit 2632)
+
+- Jalur ekspor log MediaStore (API 29+)
+  kini memasang status sukses hanya sesudah
+  stream luar tertutup tanpa galat. Sebelumnya
+  status sukses dipasang lebih dulu, sehingga
+  kegagalan penutupan yang menghapus berkas
+  tetap dilaporkan sebagai ekspor berhasil —
+  kelas cacat yang sama dengan perbaikan
+  Audit 2614 di jalur API lama.
+
 ## [Belum rilis] — Cadangan salin rotasi log tak lagi memotong berkas live (Audit 2631)
 
 - Jalur cadangan rotasi log kini menyalin ke

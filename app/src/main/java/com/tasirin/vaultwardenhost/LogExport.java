@@ -61,6 +61,16 @@ public final class LogExport {
                 Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
                 pendingUri = uri;
                 if (uri != null) {
+                    // Audit 2632: ok hanya boleh dipasang
+                    // sesudah stream LUAR MediaStore
+                    // tertutup tanpa galat - sebelumnya
+                    // ok=true di dalam blok, sehingga
+                    // penutupan stream luar yang gagal
+                    // (masuk catch, URI terhapus) tetap
+                    // dilaporkan sukses. Kelas cacat
+                    // yang sama dengan Audit 2614 di
+                    // jalur API < 29.
+                    boolean tertulis = false;
                     try (OutputStream mentah = resolver.openOutputStream(uri)) {
                         if (mentah != null) {
                             try (java.io.OutputStreamWriter w =
@@ -69,13 +79,15 @@ public final class LogExport {
                                 w.write(badan);
                                 w.write('\n');
                             }
-                            ok = true;
+                            tertulis = true;
                         } else {
                             resolver.delete(uri, null, null);
                         }
                     } catch (Exception e) {
+                        tertulis = false;
                         resolver.delete(uri, null, null);
                     }
+                    ok = tertulis;
                     if (ok) {
                         try {
                             ContentValues done = new ContentValues();
