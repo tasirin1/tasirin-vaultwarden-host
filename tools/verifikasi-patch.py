@@ -4020,6 +4020,58 @@ def _menguras_khusus(perintah, toks, awal):
         # strip-ganda.
         if "-version" in mentah or "-help" in mentah:
             return False
+        # Audit 2644: opsi tak dikenal membunuh
+        # shell sebelum membaca ("Error: unknown
+        # option", rc=1) - cabang ini sebelumnya
+        # tak punya aturan kematian opsi asing
+        # (sqlite3 --bogus/-bogus dinilai
+        # menguras). Kosakata = gabungan --help
+        # sqlite3 3.45.1 + opsi yang sudah
+        # dikenal cabang ini + opsi shell 3.x
+        # umum; biner mencocokkan EKSak
+        # (singkatan -sep/-vers mati) dan bentuk
+        # "=" juga mati (-cmd=x rc=1). Nilai
+        # pembawa yang dikenal dilompati agar
+        # tak dinilai sebagai opsi.
+        _VOKAB_SQLITE3_44 = frozenset({
+            "A", "append", "ascii", "bail", "batch",
+            "box", "cmd", "column", "csv",
+            "deserialize", "echo", "eqp", "escape",
+            "excel", "full", "header", "help",
+            "htm", "html", "ifexists", "init",
+            "interactive", "json", "line", "list",
+            "lookaside", "ltrace", "markdown",
+            "maxsize", "maxwidth", "memtrace",
+            "mmap", "newline", "nofollow",
+            "noheader", "nonce", "nullvalue",
+            "pagecache", "pcachetrace", "quote",
+            "readonly", "safe", "separator",
+            "stats", "table", "tabs", "unsafe",
+            "uri", "version", "vfs", "zip"})
+        _pembawa1_44 = {"cmd", "init", "separator",
+                        "nullvalue", "maxwidth", "vfs",
+                        "newline", "nonce", "A"}
+        _lewati_44 = 0
+        _ops_44 = 0
+        for t_44 in mentah:
+            if _lewati_44 > 0:
+                _lewati_44 -= 1
+                continue
+            if _ops_44 >= 2:
+                break
+            if t_44 == "--":
+                continue
+            if t_44.startswith("-") and t_44 != "-":
+                nm_44 = t_44.lstrip("-")
+                if "=" in nm_44 or \
+                        nm_44 not in _VOKAB_SQLITE3_44:
+                    return False
+                if nm_44 in ("lookaside", "pagecache"):
+                    _lewati_44 = 2
+                elif nm_44 in _pembawa1_44:
+                    _lewati_44 = 1
+                continue
+            _ops_44 += 1
         # Audit 1059: operand pertama = berkas db (bukan sumber
         # perintah); operand kedua = string SQL yang menekan.
         ops = _operand_sesudah_opsi(

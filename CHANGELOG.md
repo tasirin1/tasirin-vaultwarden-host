@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sqlite3 opsi tak dikenal kini divonis mati (Audit 2644)
+
+- Cabang sqlite3 kini memindai opsi
+  terhadap kosakata shell (gabungan --help
+  3.45.1 dan opsi yang sudah dikenal)
+  sebelum menghitung operand: opsi asing,
+  singkatan, dan bentuk "=" membunuh alat
+  di biner dan kini juga di gerbang. Nilai
+  opsi yang dikenal dilompati dengan
+  benar. Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: aturan operand tr kini dimodelkan (Audit 2643)
 
 - tr tanpa set, atau satu set tanpa -d/-s,
