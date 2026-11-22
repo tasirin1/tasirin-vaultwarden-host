@@ -15094,6 +15094,19 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # tetap mati. od -10 memang mati
                 # di biner (bukan penerima warisan).
                 continue
+            if (perintah == "od"
+                    and re.fullmatch(r"-w\d{1,18}",
+                                     b_gu)):
+                # Audit 2659: -w od bernilai
+                # OPSIONAL-nempel (-w10 sah dan
+                # menguras; bentuk pisah tidak
+                # menelan nilai - "10" jadi
+                # operand berkas). 'w' hanya
+                # huruf polos di kosakata, jadi
+                # klaster -w<angka> terbunuh
+                # sebagai asing. Luapan >18
+                # digit tetap mati persis biner.
+                continue
             st_gu, _ch_gu = _status_klaster(
                 vokab_gu, b_gu)
             # Audit 2579: huruf pendek asing juga

@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: od -w<angka> diakui sebagai lebar sah (Audit 2659)
+
+- od dengan lebar menempel seperti
+  -w10 tidak lagi divonis mati: opsi
+  -w memang bernilai nempel dan alatnya
+  membaca stdin. Angka luapan tetap
+  ditolak seperti binernya. Satu
+  skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: opsi dua-nilai sqlite3 kini dilompati utuh (Audit 2658)
 
 - sqlite3 -lookaside dan -pagecache

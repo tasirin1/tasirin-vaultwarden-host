@@ -37015,6 +37015,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sqlite3 -lookaside 100 8 :memory:: dua nilai tertelan, SQL dari stdin jalan, alat menguras: gerbang gagal (Audit 2658)", rc != 0)
         shutil.rmtree(sub1745, ignore_errors=True)
+        sub1746 = klon(tmp, "sub1746")
+        berkas_aksi1746 = os.path.join(
+            sub1746, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1746, encoding="utf-8") as f:
+            isi_aksi1746 = f.read()
+        baris_aksi1746 = [b for b in isi_aksi1746.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1746 = isi_aksi1746.replace(
+                baris_aksi1746,
+                baris_aksi1746.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(od -w10; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1746 != isi_aksi1746, \
+            "suntikan aksi1746 tidak menembak"
+        with open(berkas_aksi1746, "w", encoding="utf-8") as f:
+            f.write(isi_baru1746)
+        rc, out = jalan(sub1746,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("od -w10: lebar nempel sah, alat menguras: gerbang gagal (Audit 2659)", rc != 0)
+        shutil.rmtree(sub1746, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
