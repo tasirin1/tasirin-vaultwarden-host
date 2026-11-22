@@ -4081,7 +4081,13 @@ def _menguras_khusus(perintah, toks, awal):
             "uri", "version", "vfs", "zip"})
         _pembawa1_44 = {"cmd", "init", "separator",
                         "nullvalue", "maxwidth", "vfs",
-                        "newline", "nonce", "A"}
+                        "newline", "nonce", "A",
+                        # Audit 2657: -maxsize/-mmap
+                        # bernilai angka tetapi dulu
+                        # bukan pembawa - nilainya
+                        # terhitung operand di kedua
+                        # penghitung cabang ini.
+                        "maxsize", "mmap"}
         _lewati_44 = 0
         _ops_44 = 0
         for t_44 in mentah:
@@ -4126,6 +4132,9 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal,
             {"-cmd", "-init", "-separator", "-nullvalue",
              "-maxwidth", "-vfs", "-pagecache", "-lookaside",
+             # Audit 2657: -maxsize/-mmap bernilai
+             # juga - nilainya bukan operand.
+             "-maxsize", "-mmap",
              # Audit 1175: -newline/-nonce bernilai — vonis
              # sqlite3 menghitung jumlah operand, jadi nilai
              # yang tertelan langsung membalikkan vonis.

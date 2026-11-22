@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sqlite3 -maxsize/-mmap diakui sebagai opsi bernilai (Audit 2657)
+
+- sqlite3 yang diberi batas seperti
+  -maxsize 100 atau -mmap 100 tidak lagi
+  divonis berhenti: nilai angkanya dulu
+  terhitung sebagai operand SQL sehingga
+  perintah terbaca tak membaca stdin,
+  padahal SQL terpipa tetap dijalankan.
+  Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: operand angka warisan -N untuk fmt/fold/strings/split (Audit 2656)
 
 - Bentuk lama seperti fmt -10, fold -10,
