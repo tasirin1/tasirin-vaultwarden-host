@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Rotasi log: pemulihan berkas lama tak lagi bergantung rename terakhir (Audit 2667)
+
+- Pada jalur kegagalan beruntun rotasi
+  log, rename pemulihan berkas lama
+  dulu hasilnya tidak diperiksa: bila
+  gagal juga, isi lama terdampar di
+  berkas sementara dan berkas log
+  hilang. Kini pemulihan dicoba lewat
+  salinan, dan berkas sementara hanya
+  dihapus sesudah berkas log utuh lagi.
+
 ## [Belum rilis] — Gerbang: nilai bertipe pembaca generik kini divalidasi (Audit 2666)
 
 - Nilai tak sah untuk opsi penerima

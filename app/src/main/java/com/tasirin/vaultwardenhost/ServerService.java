@@ -3128,7 +3128,40 @@ public class ServerService extends Service {
                 if (tmp2.renameTo(f)) {
                     tmp3.delete();
                 } else {
-                    tmp3.renameTo(f);
+                    // Audit 2667: hasil rename
+                    // pemulihan dulu dibuang -
+                    // kegagalannya membuat isi
+                    // lama terdampar di tmp3 dan
+                    // f hilang dari namanya.
+                    // Kini pulihkan lewat
+                    // salinan bila rename pun
+                    // gagal; tmp3 hanya dihapus
+                    // sesudah f utuh lagi, dan
+                    // dibiarkan sebagai cadangan
+                    // terakhir bila salinan
+                    // juga gagal.
+                    if (!tmp3.renameTo(f)) {
+                        boolean pulih = false;
+                        try (java.io.InputStream in =
+                                new java.io.FileInputStream(tmp3);
+                                java.io.OutputStream out =
+                                new FileOutputStream(f,
+                                        false)) {
+                            byte[] b =
+                                new byte[64 * 1024];
+                            int n;
+                            while ((n = in.read(b))
+                                    != -1) {
+                                out.write(b, 0, n);
+                            }
+                            pulih = true;
+                        } catch (Exception e) {
+                            pulih = false;
+                        }
+                        if (pulih) {
+                            tmp3.delete();
+                        }
+                    }
                     tmp2.delete();
                     return false;
                 }
