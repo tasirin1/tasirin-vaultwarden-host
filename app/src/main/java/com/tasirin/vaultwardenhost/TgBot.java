@@ -1749,6 +1749,40 @@ public final class TgBot {
         return terakhirMs <= 0 || kiniMs - terakhirMs >= 3600_000L;
     }
 
+    // Audit 2633: cap peringatan per chat asing
+    // tak boleh menumpuk selamanya - cap lebih
+    // tua dari 30 hari kedaluwarsa dan jumlah
+    // kunci dibatasi keras; sisanya dibuang
+    // mulai dari yang tertua.
+    static final long MASA_CAP_PERINGATAN_ASING_MS = 30L * 24 * 3600_000L;
+    static final int BATAS_KUNCI_PERINGATAN_ASING = 64;
+
+    static boolean capPeringatanKedaluwarsa(long terakhirMs, long kiniMs) {
+        return terakhirMs <= 0
+                || kiniMs - terakhirMs > MASA_CAP_PERINGATAN_ASING_MS;
+    }
+
+    static java.util.List<String> kunciPeringatanDiLuarBatas(
+            java.util.Map<String, Long> cap, int batas) {
+        java.util.List<String> buang = new java.util.ArrayList<>();
+        if (cap == null || cap.size() <= batas) {
+            return buang;
+        }
+        java.util.List<java.util.Map.Entry<String, Long>> urut =
+                new java.util.ArrayList<>(cap.entrySet());
+        urut.sort(new java.util.Comparator<java.util.Map.Entry<String, Long>>() {
+            @Override
+            public int compare(java.util.Map.Entry<String, Long> a,
+                    java.util.Map.Entry<String, Long> b) {
+                return Long.compare(a.getValue(), b.getValue());
+            }
+        });
+        for (int i = 0; i < urut.size() - batas; i++) {
+            buang.add(urut.get(i).getKey());
+        }
+        return buang;
+    }
+
     static void peringatkanPinChatAsing(Context ctx, long idRuang) {
         if (ctx == null || idRuang == 0) {
             return;
@@ -1762,7 +1796,31 @@ public final class TgBot {
             if (!bolehPeringatkanPinAsing(terakhir, kini)) {
                 return;
             }
-            sp.edit().putLong(kunci, kini).apply();
+            // Audit 2633: satu edit untuk cap baru
+            // + sapuan kedaluwarsa + batas jumlah.
+            SharedPreferences.Editor ed = sp.edit().putLong(kunci, kini);
+            java.util.Map<String, Long> cap =
+                    new java.util.HashMap<>();
+            for (java.util.Map.Entry<String, ?> e
+                    : sp.getAll().entrySet()) {
+                if (!e.getKey().startsWith(KEY_TG_WARN_ASING_PREFIX)
+                        || e.getKey().equals(kunci)) {
+                    continue;
+                }
+                long nilai = e.getValue() instanceof Long
+                        ? (Long) e.getValue() : 0;
+                if (capPeringatanKedaluwarsa(nilai, kini)) {
+                    ed.remove(e.getKey());
+                } else {
+                    cap.put(e.getKey(), nilai);
+                }
+            }
+            cap.put(kunci, kini);
+            for (String buang : kunciPeringatanDiLuarBatas(
+                    cap, BATAS_KUNCI_PERINGATAN_ASING)) {
+                ed.remove(buang);
+            }
+            ed.apply();
         } catch (Exception e) {
             return;
         }

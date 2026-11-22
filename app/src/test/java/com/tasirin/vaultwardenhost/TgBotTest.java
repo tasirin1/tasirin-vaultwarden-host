@@ -751,6 +751,32 @@ public class TgBotTest {
     }
 
     @Test
+    public void capPeringatanKedaluwarsa_tigaPuluhHari() {
+        long kini = 100L * 24 * 3600_000L;
+        assertTrue(TgBot.capPeringatanKedaluwarsa(0, kini));
+        assertTrue(TgBot.capPeringatanKedaluwarsa(-1, kini));
+        assertTrue(TgBot.capPeringatanKedaluwarsa(
+                kini - TgBot.MASA_CAP_PERINGATAN_ASING_MS - 1, kini));
+        assertFalse(TgBot.capPeringatanKedaluwarsa(
+                kini - TgBot.MASA_CAP_PERINGATAN_ASING_MS, kini));
+        assertFalse(TgBot.capPeringatanKedaluwarsa(kini, kini));
+    }
+
+    @Test
+    public void kunciPeringatanDiLuarBatas_buangTertua() {
+        java.util.Map<String, Long> cap = new java.util.HashMap<>();
+        cap.put("a", 300L);
+        cap.put("b", 100L);
+        cap.put("c", 200L);
+        assertTrue(TgBot.kunciPeringatanDiLuarBatas(cap, 3).isEmpty());
+        assertTrue(TgBot.kunciPeringatanDiLuarBatas(null, 3).isEmpty());
+        java.util.List<String> buang =
+                TgBot.kunciPeringatanDiLuarBatas(cap, 2);
+        assertEquals(1, buang.size());
+        assertEquals("b", buang.get(0));
+    }
+
+    @Test
     public void bolehPeringatkanPinAsing_sekaliPerJamPerChat() {
         assertTrue(TgBot.bolehPeringatkanPinAsing(0, 1_000_000L));
         assertTrue(TgBot.bolehPeringatkanPinAsing(-5, 1_000_000L));

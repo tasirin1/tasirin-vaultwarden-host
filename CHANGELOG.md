@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Cap peringatan PIN chat asing dibersihkan berkala (Audit 2633)
+
+- Kunci cap peringatan per chat asing kini
+  disapu setiap ada peringatan baru: cap
+  berusia lebih dari 30 hari dibuang dan
+  jumlah kunci dibatasi 64 (tertua dibuang
+  dulu). Sebelumnya setiap chat asing berbeda
+  meninggalkan satu entri permanen tanpa
+  batas di preferensi aplikasi.
+
 ## [Belum rilis] — Ekspor log API 29+ tak lagi lapor sukses saat penutupan berkas gagal (Audit 2632)
 
 - Jalur ekspor log MediaStore (API 29+)
