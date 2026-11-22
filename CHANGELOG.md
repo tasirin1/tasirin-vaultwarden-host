@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Dokumen: AGENTS.md kini menyebut 24 kelas tes (Audit 2651)
+
+- Dua daftar kelas tes di AGENTS.md masih
+  menyebut 23 dan tidak memuat
+  MemoVersiCocok; aktualnya 24 kelas
+  produksi berpasangan 24 berkas tes.
+  Keduanya kini lengkap dan angkanya
+  benar.
+
 ## [Belum rilis] — Dokumen: AGENTS.md dibetulkan soal nama check build-binary (Audit 2650)
 
 - Kalimat yang menyatakan job verifikasi
