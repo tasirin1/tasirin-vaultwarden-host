@@ -942,6 +942,28 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void rotasiLewatTmp_langsung() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwrot3").toFile();
+        java.io.File f = new java.io.File(dir, "vaultwarden.log");
+        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(f)) {
+            fos.write("ISI-LAMA".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        java.lang.reflect.Field fBuf = ServerService.class.getDeclaredField("logFileBuf");
+        fBuf.setAccessible(true);
+        StringBuilder buf = (StringBuilder) fBuf.get(null);
+        try {
+            buf.append("ISI-BARU\n");
+            org.junit.Assert.assertTrue(ServerService.rotasiLewatTmp(f));
+            String isi = new String(java.nio.file.Files.readAllBytes(f.toPath()),
+                    java.nio.charset.StandardCharsets.UTF_8);
+            assertEquals("ISI-BARU\n", isi);
+            assertEquals(0, buf.length());
+        } finally {
+            buf.setLength(0);
+        }
+    }
+
+    @Test
     public void rotasiTmpIkutGagalBerkasLamaUtuh() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwrot2").toFile();
         java.io.File f = new java.io.File(dir, "vaultwarden.log");

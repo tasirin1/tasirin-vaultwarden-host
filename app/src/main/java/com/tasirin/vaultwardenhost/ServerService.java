@@ -3054,7 +3054,7 @@ public class ServerService extends Service {
         logFileBuf.setLength(0);
     }
 
-    private static boolean rotasiLewatTmp(File f) {
+    static boolean rotasiLewatTmp(File f) {
         File tmp = new File(f.getParentFile(), f.getName() + ".tmp");
         try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
                 new FileOutputStream(tmp, false), StandardCharsets.UTF_8)) {
