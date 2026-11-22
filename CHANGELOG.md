@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Gerbang patch: -cmd sqlite3 diakui sebagai pendahulu bernilai (Audit 2592)
+
+- Himpunan pendahulu informasional untuk sqlite3 di
+  `verifikasi-patch.py` diperluas dari hanya `-init`
+  menjadi seluruh opsi bernilai dari `--help` resmi
+  sqlite3 (`-cmd`, `-separator`, `-nullvalue`,
+  `-newline`, `-nonce`, `-vfs`, `-mmap`, `-maxsize`,
+  `-lookaside`, `-pagecache`): `sqlite3 -cmd --help db`
+  tidak lagi lolos — sqlite3 asli menelan `--help`
+  sebagai perintah lalu tetap mengeksekusi stdin.
+  Skenario gerbang 1696 + kontrol 1698.
+
 ## [Belum rilis] — Gerbang patch: --help sebagai nilai opsi coreutils bukan lagi panggilan bantuan (Audit 2591)
 
 - Penjaga informasional umum di `verifikasi-patch.py`

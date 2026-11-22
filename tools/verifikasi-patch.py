@@ -3633,7 +3633,13 @@ def _menguras_khusus(perintah, toks, awal):
             # (paksa) — bukan opsi bernilai.
             pendahulu.discard("-f")
         if perintah == "sqlite3":
-            pendahulu.add("-init")
+            # Audit 1181: -init. Audit 2592: opsi bernilai
+            # lain dari --help resmi sqlite3 (-cmd terbukti
+            # menelan --help lalu stdin tetap dieksekusi).
+            pendahulu.update(("-init", "-cmd", "-separator",
+                              "-nullvalue", "-newline", "-nonce",
+                              "-vfs", "-mmap", "-maxsize",
+                              "-lookaside", "-pagecache"))
         # Audit 2453: pendahulu khas docopt -
         # nilai opsi bernilai qsv/xsv dimakan
         # verbatim, termasuk -h/-V.
