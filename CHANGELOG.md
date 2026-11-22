@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tata bahasa operand dd kini divalidasi (Audit 2665)
+
+- Operand dd yang tak sah (kunci asing
+  seperti foo=bar, angka rusak seperti
+  bs=abc, enum asing seperti
+  conv=salah) tidak lagi divonis
+  menguras: dd berhenti sebelum membaca
+  stdin. Kunci dan nilai bertipe kini
+  diperiksa sesuai tata bahasa dd.
+  Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: tujuh opsi hantu sqlite3 dibuang dari kosakata (Audit 2664)
 
 - Opsi -escape, -excel, -full, -htm,

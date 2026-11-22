@@ -37141,6 +37141,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sqlite3 -excel: opsi tak dikenal biner 3.45.1, alat mati: gerbang lolos (Audit 2664)", rc == 0)
         shutil.rmtree(sub1751, ignore_errors=True)
+        sub1752 = klon(tmp, "sub1752")
+        berkas_aksi1752 = os.path.join(
+            sub1752, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1752, encoding="utf-8") as f:
+            isi_aksi1752 = f.read()
+        baris_aksi1752 = [b for b in isi_aksi1752.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1752 = isi_aksi1752.replace(
+                baris_aksi1752,
+                baris_aksi1752.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dd foo=bar; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1752 != isi_aksi1752, \
+            "suntikan aksi1752 tidak menembak"
+        with open(berkas_aksi1752, "w", encoding="utf-8") as f:
+            f.write(isi_baru1752)
+        rc, out = jalan(sub1752,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("dd foo=bar: kunci operand asing membunuh dd sebelum membaca, alat mati: gerbang lolos (Audit 2665)", rc == 0)
+        shutil.rmtree(sub1752, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

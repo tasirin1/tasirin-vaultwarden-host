@@ -13183,6 +13183,44 @@ def _menguras_khusus(perintah, toks, awal):
     return False
 
 
+def _dd_operand_sah(tok):
+    """Audit 2665: tata bahasa operand dd kunci=nilai -
+    kunci asing, nilai angka tak sah, dan anggota enum
+    asing membunuh dd sebelum membaca ("unrecognized
+    operand"/"invalid number"/"invalid conversion",
+    terbukti coreutils 9.4). if/of berkas bebas;
+    iflag/oflag berbagi satu tabel bendera di biner
+    (iflag=append diterima)."""
+    bersih = tok.strip("\"'")
+    kunci, _, nilai = bersih.partition("=")
+    if kunci in ("if", "of"):
+        return True
+    if kunci in ("bs", "ibs", "obs", "cbs", "count",
+                 "skip", "seek"):
+        return re.fullmatch(
+            r"\d+([KMGTPEZY]B?)?(x\d+([KMGTPEZY]B?)?)*",
+            nilai) is not None
+    if kunci == "conv":
+        sah = {"ascii", "ebcdic", "ibm", "block",
+               "unblock", "lcase", "ucase", "sparse",
+               "swab", "sync", "excl", "nocreat",
+               "notrunc", "noerror", "fdatasync",
+               "fsync"}
+        return nilai != "" and all(
+            x in sah for x in nilai.split(","))
+    if kunci in ("iflag", "oflag"):
+        sah = {"append", "count_bytes", "direct",
+               "directory", "dsync", "fullblock",
+               "noatime", "nocache", "noctty",
+               "nofollow", "nonblock", "seek_bytes",
+               "skip_bytes", "sync"}
+        return nilai != "" and all(
+            x in sah for x in nilai.split(","))
+    if kunci == "status":
+        return nilai in ("none", "noxfer", "progress")
+    return False
+
+
 def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     """True bila perintah pembaca ini sungguh menguras stdin bersama
     (Audit 934): sumber masukannya stdin itu sendiri. Pembaca yang
@@ -15573,6 +15611,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         continue
                     return False
                 if "=" in awalan:
+                    # Audit 2665: tata bahasa operand.
+                    if not _dd_operand_sah(awalan):
+                        return False
                     continue
             return False
         if t == "-":
@@ -15633,6 +15674,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     continue
                 return False
             if "=" in t:
+                # Audit 2665: tata bahasa operand.
+                if not _dd_operand_sah(t):
+                    return False
                 continue
         # Audit 1371: chpasswd TAK punya operand berkas —
         # token asing diabaikan dan stdin tetap dibaca
