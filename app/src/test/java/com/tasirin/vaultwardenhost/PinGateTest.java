@@ -9,6 +9,12 @@ import org.junit.Test;
 public class PinGateTest {
 
     @Test
+    public void catatHasilKonteksNullAman() {
+        PinGate.catatHasil(null, true, 0L);
+        PinGate.catatHasil(null, false, 0L);
+    }
+
+    @Test
     public void pinMatiTidakMembukaLayar() {
         assertEquals(PinGate.KUNCI_MATI,
                 PinGate.putusKunci(false, false, "pbkdf2"));
