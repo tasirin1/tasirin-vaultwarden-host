@@ -760,6 +760,12 @@ public class TgBotTest {
     }
 
     @Test
+    public void kunciSesiLogin_perChat() {
+        assertEquals("tg_login_123456", TgBot.kunciSesiLogin(123456));
+        assertEquals("tg_login_0", TgBot.kunciSesiLogin(0));
+    }
+
+    @Test
     public void simpanLoginBilaHashTetap_ctxNullAman() {
         TgBot.simpanLoginBilaHashTetap(null, 123, "hash");
         TgBot.simpanLoginBilaHashTetap(null, 123, "");

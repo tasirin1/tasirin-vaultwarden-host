@@ -2296,7 +2296,8 @@ public final class TgBackup {
                 && !TAK_DIEKSPOR_KEYS.contains(kunci)
                 && !kunci.startsWith("wv_notified_")
                 && !kunci.startsWith(TgBot.KEY_TG_PENDING_PREFIX)
-                && !kunci.startsWith(TgBot.KEY_TG_WARN_ASING_PREFIX);
+                && !kunci.startsWith(TgBot.KEY_TG_WARN_ASING_PREFIX)
+                && !kunci.startsWith(TgBot.KEY_TG_LOGIN_PREFIX);
     }
 
     public static String configJson(SharedPreferences sp) throws Exception {

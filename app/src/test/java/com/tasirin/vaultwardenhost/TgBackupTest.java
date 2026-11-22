@@ -1900,6 +1900,7 @@ public class TgBackupTest {
     public void secretTakIkutBackup() {
         assertFalse(TgBackup.kunciDiekspor("tg_pending_aksi_123456"));
         assertFalse(TgBackup.kunciDiekspor("tg_warn_pin_asing_123456"));
+        assertFalse(TgBackup.kunciDiekspor("tg_login_123456"));
         assertFalse(TgBackup.kunciDiekspor("tg_pending_aksi_-100123"));
         assertFalse(TgBackup.kunciDiekspor("wv_notified_1.2.3"));
         assertFalse(TgBackup.kunciDiekspor("tg_token"));

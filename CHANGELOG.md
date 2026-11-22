@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Sesi login bot kini per chat, bukan satu slot global (Audit 2595)
+
+- Sesi login disimpan per chat (`tg_login_<id chat>`)
+  sehingga login dari satu chat pribadi tidak lagi
+  menimpa sesi chat pribadi lain diam-diam, dan /logout
+  mencabut sesi chat itu sendiri — balasan "belum login"
+  kini selalu jujur. Sesi lama satu-slot tetap dihormati
+  sebagai cadangan baca sampai pemiliknya login ulang.
+  `simpanLogin` kini menolak id ruang 0 (selaras
+  `loginBerlaku`), dan kunci sesi per chat tidak ikut
+  diekspor ke config.
+
 ## [Belum rilis] — Stempel sesi login kini dibaca di dalam kunci percobaan PIN (Audit 2594)
 
 - `simpanLogin` dari jalur verifikasi (`authDangerous`

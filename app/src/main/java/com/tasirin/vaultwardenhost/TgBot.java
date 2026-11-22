@@ -1493,12 +1493,17 @@ public final class TgBot {
 
     static final String KEY_TG_LOGIN_CHAT = "tg_login_chat";
     static final String KEY_TG_LOGIN_HASH = "tg_login_hash";
+    static final String KEY_TG_LOGIN_PREFIX = "tg_login_";
 
     static boolean loginBerlaku(long chatTersimpan, long idRuang, String hashTersimpan,
             String hashKini, boolean pinOn) {
         return pinOn && idRuang > 0 && chatTersimpan == idRuang
                 && hashTersimpan != null && !hashTersimpan.isEmpty()
                 && hashTersimpan.equals(hashKini);
+    }
+
+    static String kunciSesiLogin(long idRuang) {
+        return KEY_TG_LOGIN_PREFIX + idRuang;
     }
 
     static boolean sudahLogin(Context ctx, long idRuang) {
@@ -1508,23 +1513,27 @@ public final class TgBot {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
+            String hashKini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+            boolean pinOn = TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false);
+            String perChat = TgBackup.amanString(sp, kunciSesiLogin(idRuang), "");
+            if (perChat != null && !perChat.isEmpty()) {
+                return loginBerlaku(idRuang, idRuang, perChat, hashKini, pinOn);
+            }
             return loginBerlaku(TgBackup.amanLong(sp, KEY_TG_LOGIN_CHAT, 0), idRuang,
                     TgBackup.amanString(sp, KEY_TG_LOGIN_HASH, ""),
-                    TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, ""),
-                    TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false));
+                    hashKini, pinOn);
         } catch (Exception e) {
             return false;
         }
     }
 
     static void simpanLogin(Context ctx, long idRuang, String hash) {
-        if (ctx == null || idRuang < 0 || hash == null || hash.isEmpty()) {
+        if (ctx == null || idRuang <= 0 || hash == null || hash.isEmpty()) {
             return;
         }
         try {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putLong(KEY_TG_LOGIN_CHAT, idRuang)
-                    .putString(KEY_TG_LOGIN_HASH, hash).apply();
+                    .edit().putString(kunciSesiLogin(idRuang), hash).apply();
         } catch (Exception ignored) {
         }
     }
@@ -1555,9 +1564,12 @@ public final class TgBot {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                     Context.MODE_PRIVATE);
+            android.content.SharedPreferences.Editor ed = sp.edit()
+                    .remove(kunciSesiLogin(idRuang));
             if (TgBackup.amanLong(sp, KEY_TG_LOGIN_CHAT, 0) == idRuang) {
-                sp.edit().remove(KEY_TG_LOGIN_CHAT).remove(KEY_TG_LOGIN_HASH).apply();
+                ed.remove(KEY_TG_LOGIN_CHAT).remove(KEY_TG_LOGIN_HASH);
             }
+            ed.apply();
         } catch (Exception ignored) {
         }
     }
