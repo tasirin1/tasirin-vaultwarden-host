@@ -37099,6 +37099,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tr --bogus a b: opsi asing membunuh tr sebelum membaca, alat mati: gerbang lolos (Audit 2662)", rc == 0)
         shutil.rmtree(sub1749, ignore_errors=True)
+        sub1750 = klon(tmp, "sub1750")
+        berkas_aksi1750 = os.path.join(
+            sub1750, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1750, encoding="utf-8") as f:
+            isi_aksi1750 = f.read()
+        baris_aksi1750 = [b for b in isi_aksi1750.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1750 = isi_aksi1750.replace(
+                baris_aksi1750,
+                baris_aksi1750.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 --cmd \"-lookaside\" --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1750 != isi_aksi1750, \
+            "suntikan aksi1750 tidak menembak"
+        with open(berkas_aksi1750, "w", encoding="utf-8") as f:
+            f.write(isi_baru1750)
+        rc, out = jalan(sub1750,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("sqlite3 --cmd bentuk panjang: nilai berawalan strip mati di prepare, alat mati: gerbang lolos (Audit 2663)", rc == 0)
+        shutil.rmtree(sub1750, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

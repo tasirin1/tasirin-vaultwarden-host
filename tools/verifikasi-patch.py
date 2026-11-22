@@ -4154,25 +4154,34 @@ def _menguras_khusus(perintah, toks, awal):
         # juga membingungkan pindaian pendahulu
         # informasional.
         for k_53, t_53 in enumerate(mentah):
-            if t_53 == "-cmd" and k_53 + 1 < len(mentah):
+            if t_53 in ("-cmd", "--cmd") \
+                    and k_53 + 1 < len(mentah):
                 v_53 = mentah[k_53 + 1]
                 if v_53.startswith("-") \
                         and not v_53.startswith("--"):
                     return False
         # Audit 1059: operand pertama = berkas db (bukan sumber
         # perintah); operand kedua = string SQL yang menekan.
+        # Audit 2663: biner menerima bentuk panjang --semua
+        # opsi ini juga (terbukti --cmd/--separator/--nullvalue/
+        # --maxsize/--lookaside mengeksekusi SQL terpipa) -
+        # himpunan lompati digandakan stripnya, dan aturan
+        # nilai -cmd 2653 di atas kini mencocokkan --cmd juga.
+        _bernilai_sq = {
+            "-cmd", "-init", "-separator", "-nullvalue",
+            "-maxwidth", "-vfs", "-pagecache", "-lookaside",
+            # Audit 2657: -maxsize/-mmap bernilai
+            # juga - nilainya bukan operand.
+            "-maxsize", "-mmap",
+            # Audit 1175: -newline/-nonce bernilai — vonis
+            # sqlite3 menghitung jumlah operand, jadi nilai
+            # yang tertelan langsung membalikkan vonis.
+            "-newline", "-nonce"}
         ops = _operand_sesudah_opsi(
             toks, awal,
-            {"-cmd", "-init", "-separator", "-nullvalue",
-             "-maxwidth", "-vfs", "-pagecache", "-lookaside",
-             # Audit 2657: -maxsize/-mmap bernilai
-             # juga - nilainya bukan operand.
-             "-maxsize", "-mmap",
-             # Audit 1175: -newline/-nonce bernilai — vonis
-             # sqlite3 menghitung jumlah operand, jadi nilai
-             # yang tertelan langsung membalikkan vonis.
-             "-newline", "-nonce"},
-            {"-lookaside", "-pagecache"})
+            _bernilai_sq | {"-" + x for x in _bernilai_sq},
+            {"-lookaside", "-pagecache",
+             "--lookaside", "--pagecache"})
         # Audit 1096: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False

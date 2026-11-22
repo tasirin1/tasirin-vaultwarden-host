@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bentuk panjang --cmd sqlite3 masuk aturan nilai -cmd (Audit 2663)
+
+- sqlite3 --cmd dengan nilai berawalan
+  strip tidak lagi divonis menguras:
+  bentuk panjangnya lolos dari aturan
+  kematian nilai -cmd yang dulu hanya
+  mencocokkan token pendek. Sekalian:
+  penghitung operand kini mengenal
+  bentuk panjang semua opsi bernilai
+  sqlite3. Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: opsi asing tr kini divonis mati (Audit 2662)
 
 - tr dengan opsi tak dikenal
