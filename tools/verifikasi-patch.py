@@ -2121,6 +2121,13 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     # Audit 1138: sed -i (edit di tempat) tanpa operand berkas
     # adalah galat ("no input files"), bukan pembaca stdin.
     sed_i = False
+    # Audit 2641: penanda awk sempat bertemu
+    # token opsi apa pun - mawk dengan opsi
+    # saja (tanpa program) tetap membaca stdin
+    # sebagai rekaman berprogram kosong, jadi
+    # hanya awk yang benar-benar telanjang
+    # yang mati usage.
+    ada_opsi_awk = False
     i = awal + 1
     n = len(toks)
     while i < n:
@@ -2154,6 +2161,8 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             i += 1
             continue
         if bersih.startswith("-") and bersih != "-":
+            if perintah == "awk":
+                ada_opsi_awk = True
             if perintah in ("jq", "yq", "fq") and bersih in ("-n", "--null-input"):
                 # jq -n tak membaca stdin sama sekali.
                 return False
@@ -2362,6 +2371,15 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     # sed --posix).
     if perintah == "sed" and not skrip_terisi \
             and not skrip_dari_opsi:
+        return False
+    # Audit 2641: awk yang benar-benar telanjang
+    # (tanpa program, tanpa opsi) mati usage di
+    # mawk tanpa membaca stdin. Bentuk ber-opsi
+    # tanpa program TIDAK divonis mati: mawk
+    # menguras stdin pada awk -F:/awk -v x=1
+    # (terbukti biner di verifikasi Audit-179).
+    if perintah == "awk" and not skrip_terisi \
+            and not skrip_dari_opsi and not ada_opsi_awk:
         return False
     # Audit 2639: keluarga grep mewajibkan operand
     # pola (atau pola dari opsi -e/-f) - lingkar

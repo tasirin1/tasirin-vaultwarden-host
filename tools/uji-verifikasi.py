@@ -36700,6 +36700,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sed -n tanpa skrip: alat mati usage rc=1, tak menguras: gerbang lolos (Audit 2640)", rc == 0)
         shutil.rmtree(sub1730, ignore_errors=True)
+        sub1731 = klon(tmp, "sub1731")
+        berkas_aksi1731 = os.path.join(
+            sub1731, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1731, encoding="utf-8") as f:
+            isi_aksi1731 = f.read()
+        baris_aksi1731 = [b for b in isi_aksi1731.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1731 = isi_aksi1731.replace(
+                baris_aksi1731,
+                baris_aksi1731.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(awk; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1731 != isi_aksi1731, \
+            "suntikan aksi1731 tidak menembak"
+        with open(berkas_aksi1731, "w", encoding="utf-8") as f:
+            f.write(isi_baru1731)
+        rc, out = jalan(sub1731,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("awk telanjang: mawk keluar usage tanpa membaca stdin: gerbang lolos (Audit 2641)", rc == 0)
+        shutil.rmtree(sub1731, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

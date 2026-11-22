@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: awk telanjang tak lagi dinilai menguras (Audit 2641)
+
+- Vonis akhir keluarga skrip kini
+  mengembalikan mati untuk awk yang benar-
+  benar telanjang (tanpa program dan tanpa
+  opsi). Bentuk ber-opsi tanpa program
+  (awk -F:, awk -v x=1) sengaja tetap
+  dinilai menguras karena mawk terbukti
+  membacanya. Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: sed tanpa skrip tak lagi dinilai menguras (Audit 2640)
 
 - Vonis akhir keluarga skrip kini
