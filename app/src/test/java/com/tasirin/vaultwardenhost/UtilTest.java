@@ -579,6 +579,19 @@ public class UtilTest {
     }
 
     @Test
+    public void ringkasUrlTanpaQueryMembuangTandaTangan() {
+        assertEquals("null", Util.ringkasUrlTanpaQuery(null));
+        assertEquals("https://host/a/b.zip",
+                Util.ringkasUrlTanpaQuery("https://host/a/b.zip?sig=rahasia&exp=1"));
+        assertEquals("https://host/a/b.zip",
+                Util.ringkasUrlTanpaQuery("https://host/a/b.zip#frag"));
+        assertEquals("https://host/a/b.zip",
+                Util.ringkasUrlTanpaQuery("https://host/a/b.zip"));
+        assertEquals("/relatif/path",
+                Util.ringkasUrlTanpaQuery("/relatif/path?x=1"));
+    }
+
+    @Test
     public void watchdogHancurkanProsesMacet() throws Exception {
         ProsesPalsu p = new ProsesPalsu();
         java.util.concurrent.atomic.AtomicBoolean selesai =

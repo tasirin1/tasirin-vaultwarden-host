@@ -432,12 +432,14 @@ public final class Updater {
                     c.disconnect();
                     if (lok == null || lok.isEmpty()
                             || !Util.bolehIkutiRedirectGithub(kini, lok)) {
-                        throw new IOException("Redirect tidak aman/ditolak: " + lok);
+                        throw new IOException("Redirect tidak aman/ditolak: "
+                                + Util.ringkasUrlTanpaQuery(lok));
                     }
                     String berikut = Util.sambungRedirect(kini, lok);
 
                     if (berikut == null || berikut.equals(kini)) {
-                        throw new IOException("Redirect tidak aman/ditolak (downgrade?): " + lok);
+                        throw new IOException("Redirect tidak aman/ditolak (downgrade?): "
+                                + Util.ringkasUrlTanpaQuery(lok));
                     }
 
                     kini = berikut;

@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Pesan galat redirect tak lagi memuat query URL bertanda tangan (Audit 2618)
+
+- Kedua `IOException` penolakan redirect di `Updater`
+  kini menyematkan URL yang sudah dibuang query dan
+  fragmennya (`Util.ringkasUrlTanpaQuery`) — URL aset
+  GitHub membawa tanda tangan unduhan berbatas waktu
+  yang sebelumnya bisa mengalir utuh ke toast, log,
+  dan ekspor log yang dibagikan.
+
 ## [Belum rilis] — Callback sukses AutoUpdate tak lagi bisa membalikkan hasil jadi gagal (Audit 2617)
 
 - Pada kedua jalur auto-update (binary dan web-vault),

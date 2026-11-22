@@ -368,6 +368,22 @@ public final class Util {
 
     static final long JEDA_ESKALASI_WATCHDOG_MS = 2000L;
 
+    static String ringkasUrlTanpaQuery(String url) {
+        if (url == null) {
+            return "null";
+        }
+        int potong = url.length();
+        int q = url.indexOf('?');
+        if (q >= 0) {
+            potong = Math.min(potong, q);
+        }
+        int f = url.indexOf('#');
+        if (f >= 0) {
+            potong = Math.min(potong, f);
+        }
+        return url.substring(0, potong);
+    }
+
     public static Thread pasangWatchdogProses(final Process proc,
             final java.util.concurrent.atomic.AtomicBoolean selesai,
             final long timeoutMs, final String nama) {
