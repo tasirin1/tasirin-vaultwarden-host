@@ -35,6 +35,7 @@ public final class TgBot {
     static final int MENU_REV = 5;
 
     static final String KEY_TG_PENDING_PREFIX = "tg_pending_aksi_";
+    static final String KEY_TG_WARN_ASING_PREFIX = "tg_warn_pin_asing_";
 
     static final long PENDING_AKSI_MS = 5 * 60_000L;
 
@@ -526,6 +527,18 @@ public final class TgBot {
 
                             String namaUser = c.optString("username", "");
                             long idRuang = c.optLong("id", -1);
+                            if (!Util.cocokChatBanyak(chatKonfig, idRuang, namaUser)) {
+                                String teksAsing = msg.optString("text", "").trim();
+                                if (pinTebakan(teksAsing) != null
+                                        && pinPerangkatAktif(ctx)) {
+                                    boolean terhapusAsing = hapusPesanPerintah(ctx,
+                                            idRuang, msg.optInt("message_id", 0));
+                                    if (!terhapusAsing) {
+                                        peringatkanPinChatAsing(ctx, idRuang);
+                                    }
+                                }
+                                continue;
+                            }
                             if (Util.cocokChatBanyak(chatKonfig, idRuang, namaUser)) {
 
                                 long dateMs = msg.optLong("date", 0) * 1000L;
@@ -1663,6 +1676,33 @@ public final class TgBot {
         balas(ctx, idRuang, "Peringatan: bot tak bisa menghapus pesan ber-PIN"
                 + " dari riwayat chat (tanpa hak hapus; di grup jadikan bot admin)."
                 + " Hapus manual pesan berisi PIN agar tak dipakai ulang pengintip.");
+    }
+
+    static boolean bolehPeringatkanPinAsing(long terakhirMs, long kiniMs) {
+        return terakhirMs <= 0 || kiniMs - terakhirMs >= 3600_000L;
+    }
+
+    static void peringatkanPinChatAsing(Context ctx, long idRuang) {
+        if (ctx == null || idRuang == 0) {
+            return;
+        }
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            String kunci = KEY_TG_WARN_ASING_PREFIX + idRuang;
+            long terakhir = TgBackup.amanLong(sp, kunci, 0);
+            long kini = System.currentTimeMillis();
+            if (!bolehPeringatkanPinAsing(terakhir, kini)) {
+                return;
+            }
+            sp.edit().putLong(kunci, kini).apply();
+        } catch (Exception e) {
+            return;
+        }
+        balas(ctx, idRuang, "Peringatan: pesan berisi PIN terdeteksi di chat ini,"
+                + " padahal chat ini bukan chat resmi bot dan bot tak bisa"
+                + " menghapusnya dari sini. Hapus manual pesan itu sekarang"
+                + " dan pertimbangkan ganti PIN di aplikasi.");
     }
 
     static boolean sudahUjiHapus(Context ctx) {

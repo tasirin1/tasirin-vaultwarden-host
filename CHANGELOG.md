@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Pesan ber-PIN di chat bukan konfigurasi kini dihapus/diperingatkan (Audit 2588)
+
+- Lingkar poll bot kini memeriksa pesan dari chat yang
+  bukan konfigurasi: bila teksnya berbentuk perintah
+  ber-PIN dan PIN perangkat aktif, bot mencoba menghapus
+  pesan itu dan — bila tak bisa — memperingatkan di chat
+  tersebut (dibatasi sekali per jam per chat) agar pemilik
+  menghapus manual dan mempertimbangkan ganti PIN.
+  Sebelumnya pesan seperti itu dibuang diam-diam dan PIN
+  menetap selamanya di riwayat chat asing. Stempel
+  peringatan `tg_warn_pin_asing_*` tidak ikut diekspor.
+
 ## [Belum rilis] — Potret TLS yang gagal dibaca kini membatalkan restore, bukan menghapus berkas live (Audit 2590)
 
 - `potretTls` kini mengembalikan null bila berkas TLS

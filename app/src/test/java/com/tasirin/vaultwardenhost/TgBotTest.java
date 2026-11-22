@@ -741,6 +741,15 @@ public class TgBotTest {
     }
 
     @Test
+    public void bolehPeringatkanPinAsing_sekaliPerJamPerChat() {
+        assertTrue(TgBot.bolehPeringatkanPinAsing(0, 1_000_000L));
+        assertTrue(TgBot.bolehPeringatkanPinAsing(-5, 1_000_000L));
+        assertFalse(TgBot.bolehPeringatkanPinAsing(1_000_000L, 1_000_000L + 3599_000L));
+        assertTrue(TgBot.bolehPeringatkanPinAsing(1_000_000L, 1_000_000L + 3600_000L));
+        assertFalse(TgBot.bolehPeringatkanPinAsing(2_000_000L, 1_000_000L));
+    }
+
+    @Test
     public void loginBerlaku_hanyaChatDanHashYangSama() {
         assertTrue(TgBot.loginBerlaku(123L, 123L, "hashA", "hashA", true));
         assertFalse(TgBot.loginBerlaku(123L, 456L, "hashA", "hashA", true));
