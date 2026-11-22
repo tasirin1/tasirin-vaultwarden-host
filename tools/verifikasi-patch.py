@@ -1992,6 +1992,31 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                     "exclude-dir", "label", "binary-files",
                     "group-separator")}
             lewati_pendek_19 = set("efmABCdD")
+        # Audit 2625: kosakata panjang grep penuh
+        # (ekstrak --help grep 3.11, sama seperti
+        # _VOKAB_SK) untuk resolusi singkatan
+        # getopt_long di penyusuran bawah.
+        _VOCAB_GREP_25 = frozenset({
+            "after-context", "basic-regexp",
+            "before-context", "binary",
+            "binary-files", "byte-offset", "color",
+            "colour", "context", "count",
+            "dereference-recursive", "devices",
+            "directories", "exclude", "exclude-dir",
+            "exclude-from", "extended-regexp",
+            "file", "files-with-matches",
+            "files-without-match", "fixed-strings",
+            "group-separator", "help", "ignore-case",
+            "include", "initial-tab", "invert-match",
+            "label", "line-buffered", "line-number",
+            "line-regexp", "max-count", "no-filename",
+            "no-group-separator", "no-ignore-case",
+            "no-messages", "null", "null-data",
+            "only-matching", "perl-regexp", "quiet",
+            "recursive", "regexp", "silent", "text",
+            "version", "with-filename",
+            "word-regexp"})
+
         def _angka19(nama19, nilai19):
             if nama19 == "max-filesize":
                 return re.fullmatch(
@@ -2013,6 +2038,22 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             if t_19.startswith("--"):
                 nama_19, eq_19, isi_19 = (
                     t_19[2:].partition("="))
+                if (nama_asli != "rg" and nama_19
+                        and nama_19 not in num_panjang_19
+                        and ("--" + nama_19)
+                        not in lewati_panjang_19):
+                    # Audit 2625: getopt_long GNU
+                    # menerima singkatan unik opsi
+                    # panjang (grep --max-c adalah
+                    # --max-count); singkatan ambigu
+                    # membunuh alat. rg (clap) tidak
+                    # menyimpulkan awalan.
+                    calon_25 = [x for x in _VOCAB_GREP_25
+                                if x.startswith(nama_19)]
+                    if len(calon_25) > 1:
+                        return False
+                    if len(calon_25) == 1:
+                        nama_19 = calon_25[0]
                 if nama_19 in num_panjang_19:
                     if eq_19:
                         if not _angka19(nama_19, isi_19):
@@ -2123,6 +2164,21 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 i += 1
                 continue
             dasar = bersih.split("=", 1)[0]
+            if (perintah == "grep" and nama_asli != "rg"
+                    and dasar.startswith("--")
+                    and dasar not in nilai):
+                # Audit 2625: singkatan unik getopt_long
+                # diselesaikan ke nama penuh sebelum
+                # pemeriksaan pembawa - tanpa ini nilai
+                # singkatan terbaca sebagai pola dan
+                # operand sesudahnya sebagai berkas
+                # (grep --max-c 1 pola: "1" adalah
+                # nilai --max-count, "pola" polanya,
+                # tak ada berkas - alat menguras).
+                calon_m = [x for x in _VOCAB_GREP_25
+                           if x.startswith(dasar[2:])]
+                if len(calon_m) == 1:
+                    dasar = "--" + calon_m[0]
             if (perintah == "jq"
                     and bersih.startswith("--")
                     and "=" in bersih):

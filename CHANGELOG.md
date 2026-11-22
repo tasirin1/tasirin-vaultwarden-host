@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang menyelesaikan singkatan getopt_long grep (Audit 2625)
+
+- Penilai keluarga grep kini menyelesaikan
+  singkatan unik opsi panjang GNU getopt_long
+  (mis. --max-c = --max-count) memakai kosakata
+  penuh hasil ekstrak biner, di model kematian
+  penerima maupun di penyusuran utama; singkatan
+  ambigu membunuh alat. Sebelumnya --max-c salah
+  vonis dua arah. Dua skenario uji baru
+  (1716–1717).
+
 ## [Belum rilis] — Tombol grup bot mengenali pemilik berk konfigurasi @username (Audit 2624)
 
 - Pemeriksaan penekan tombol di grup kini

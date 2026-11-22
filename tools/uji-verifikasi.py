@@ -36385,6 +36385,48 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sqlite3 -pagecache 10 --help: --help nilai kedua -pagecache, stdin tereksekusi: gerbang gagal (Audit 2623)", rc != 0)
         shutil.rmtree(sub1715, ignore_errors=True)
+        sub1716 = klon(tmp, "sub1716")
+        berkas_aksi1716 = os.path.join(
+            sub1716, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1716, encoding="utf-8") as f:
+            isi_aksi1716 = f.read()
+        baris_aksi1716 = [b for b in isi_aksi1716.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1716 = isi_aksi1716.replace(
+                baris_aksi1716,
+                baris_aksi1716.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(grep --max-c --help pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1716 != isi_aksi1716, \
+            "suntikan aksi1716 tidak menembak"
+        with open(berkas_aksi1716, "w", encoding="utf-8") as f:
+            f.write(isi_baru1716)
+        rc, out = jalan(sub1716,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("grep --max-c --help: singkatan --max-count, nilai bukan angka, alat mati: gerbang lolos (Audit 2625)", rc == 0)
+        shutil.rmtree(sub1716, ignore_errors=True)
+        sub1717 = klon(tmp, "sub1717")
+        berkas_aksi1717 = os.path.join(
+            sub1717, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1717, encoding="utf-8") as f:
+            isi_aksi1717 = f.read()
+        baris_aksi1717 = [b for b in isi_aksi1717.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1717 = isi_aksi1717.replace(
+                baris_aksi1717,
+                baris_aksi1717.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(grep --max-c 1 pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1717 != isi_aksi1717, \
+            "suntikan aksi1717 tidak menembak"
+        with open(berkas_aksi1717, "w", encoding="utf-8") as f:
+            f.write(isi_baru1717)
+        rc, out = jalan(sub1717,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("grep --max-c 1 pola: singkatan unik terselesaikan, alat menguras: gerbang gagal (Audit 2625)", rc != 0)
+        shutil.rmtree(sub1717, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
