@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang memodelkan kematian penerima bertipe di tsv-sample/tsv-split/csv2tsv (Audit 2620)
+
+- Cabang tsv-sample (-n ulong, -p double),
+  tsv-split (-l size_t, -n/-w uint), dan csv2tsv
+  (-c/-t/-q char) kini memvalidasi nilai opsi
+  bertipenya — nilai yang tak terkonversi membunuh
+  alat di getopt (ConvException, terbukti dari
+  sumber tsv-utils) sehingga perintah dinilai tidak
+  menguras, konsisten antar bentuk dengan/tanpa
+  operand. Enam skenario uji baru (1705–1710).
+
 ## [Belum rilis] — Gerbang memodelkan kematian penerima numerik grep/rg (Audit 2619)
 
 - Penilai keluarga skrip kini memeriksa nilai opsi

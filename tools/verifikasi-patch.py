@@ -3716,6 +3716,22 @@ def _uint_getopt_sah(nilai):
     return inti != "" and inti.isascii() and inti.isdigit()
 
 
+def _double_getopt_sah(nilai):
+    # Penerima double Phobos (to!double): literal
+    # desimal bertanda dengan pecahan/eksponen
+    # opsional, atau inf/infinity/nan (huruf
+    # dilipat); di luar itu ConvException dan
+    # alat mati di getopt.
+    t = nilai.strip().lower()
+    if t in ("inf", "+inf", "-inf", "infinity",
+             "+infinity", "-infinity", "nan",
+             "+nan", "-nan"):
+        return True
+    return re.fullmatch(
+        r"[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?",
+        nilai.strip()) is not None
+
+
 def _menguras_khusus(perintah, toks, awal):
     """Audit 1059-1072: penilai perintah yang pengurasannya
     bergantung pada subcommand / bentuk opsi khas — tak bisa
@@ -11264,6 +11280,45 @@ def _menguras_khusus(perintah, toks, awal):
         # -v/--seed-value, -w/--weight-field,
         # -k/--key-fields, --random-value-header.
         bernilai_lp = ['--delimiter', '--key-fields', '--num', '--prob', '--random-value-header', '--seed-value', '--weight-field', '-V', '-d', '-k', '-n', '-p', '-v', '-w']
+        # Audit 2620: penerima bertipe -n/--num
+        # ulong (tsv-sample.d:216) dan -p/--prob
+        # double (:217) - nilai tak terkonversi
+        # membunuh alat di getopt (ConvException),
+        # sama seperti model 2573/2574 di
+        # tsv-summarize. Penyusuran sadar nilai:
+        # pembawa lain menelan nilainya lebih dulu.
+        i_mt = 0
+        while i_mt < len(mentah):
+            t_mt = mentah[i_mt]
+            if t_mt == "--":
+                break
+            nama_mt, eq_mt, isi_mt = t_mt.partition("=")
+            kunci_mt = nama_mt.lower()
+            if kunci_mt in ("-n", "--num", "-p", "--prob"):
+                pred_mt = (_double_getopt_sah
+                           if kunci_mt in ("-p", "--prob")
+                           else _uint_getopt_sah)
+                if eq_mt:
+                    if not pred_mt(isi_mt):
+                        return False
+                elif i_mt + 1 < len(mentah):
+                    if not pred_mt(mentah[i_mt + 1]):
+                        return False
+                    i_mt += 1
+                i_mt += 1
+                continue
+            if kunci_mt in bernilai_lp and not eq_mt:
+                i_mt += 2
+                continue
+            if (len(t_mt) > 2 and t_mt.startswith("-")
+                    and not t_mt.startswith("--")
+                    and t_mt[1].lower() in ("n", "p")):
+                pred_mt = (_double_getopt_sah
+                           if t_mt[1].lower() == "p"
+                           else _uint_getopt_sah)
+                if not pred_mt(t_mt[2:]):
+                    return False
+            i_mt += 1
         # Audit 2483: --seed-value pulau
         # caseSensitive di sumber (tsv-sample.d
         # :305-307) - varian huruf lain galat
@@ -11456,6 +11511,41 @@ def _menguras_khusus(perintah, toks, awal):
         # -w/--digit-width, --dir, --prefix,
         # --suffix, --max-open-files.
         bernilai_lp = ['--delimiter', '--digit-width', '--dir', '--key-fields', '--lines-per-file', '--max-open-files', '--num-files', '--prefix', '--seed-value', '--suffix', '-V', '-d', '-k', '-l', '-n', '-v', '-w']
+        # Audit 2620: penerima bertipe -l
+        # size_t (tsv-split.d:233), -n uint
+        # (:234), -w uint (:239) - nilai tak
+        # terkonversi membunuh alat di getopt.
+        # Penyusuran sadar nilai seperti
+        # tsv-sample di atas.
+        i_mt = 0
+        while i_mt < len(mentah):
+            t_mt = mentah[i_mt]
+            if t_mt == "--":
+                break
+            nama_mt, eq_mt, isi_mt = t_mt.partition("=")
+            kunci_mt = nama_mt.lower()
+            if kunci_mt in ("-l", "--lines-per-file",
+                            "-n", "--num-files",
+                            "-w", "--digit-width"):
+                if eq_mt:
+                    if not _uint_getopt_sah(isi_mt):
+                        return False
+                elif i_mt + 1 < len(mentah):
+                    if not _uint_getopt_sah(
+                            mentah[i_mt + 1]):
+                        return False
+                    i_mt += 1
+                i_mt += 1
+                continue
+            if kunci_mt in bernilai_lp and not eq_mt:
+                i_mt += 2
+                continue
+            if (len(t_mt) > 2 and t_mt.startswith("-")
+                    and not t_mt.startswith("--")
+                    and t_mt[1].lower() in ("l", "n", "w")):
+                if not _uint_getopt_sah(t_mt[2:]):
+                    return False
+            i_mt += 1
         # Audit 2485: --seed-value pulau
         # caseSensitive di sumber - varian
         # huruf lain galat getopt.
@@ -11552,6 +11642,38 @@ def _menguras_khusus(perintah, toks, awal):
                        "--tab-replacement", "-n",
                        "--newline-replacement", "-q",
                        "--quote"}
+        # Audit 2620: penerima char -c/-t/-q
+        # (csv2tsv.d:80-82) - nilai yang bukan
+        # tepat satu char satu-byte membunuh
+        # alat di getopt. Cabang ini caseSensitive:
+        # pencocokan persis tanpa lipat huruf.
+        i_mt = 0
+        while i_mt < len(mentah):
+            t_mt = mentah[i_mt]
+            if t_mt == "--":
+                break
+            nama_mt, eq_mt, isi_mt = t_mt.partition("=")
+            if nama_mt in ("-c", "--csv-delim", "-t",
+                           "--tsv-delim", "-q", "--quote"):
+                if eq_mt:
+                    if not _char_getopt_sah(isi_mt):
+                        return False
+                elif i_mt + 1 < len(mentah):
+                    if not _char_getopt_sah(
+                            mentah[i_mt + 1]):
+                        return False
+                    i_mt += 1
+                i_mt += 1
+                continue
+            if nama_mt in bernilai_cs and not eq_mt:
+                i_mt += 2
+                continue
+            if (len(t_mt) > 2 and t_mt.startswith("-")
+                    and not t_mt.startswith("--")
+                    and t_mt[1] in ("c", "t", "q")):
+                if not _char_getopt_sah(t_mt[2:]):
+                    return False
+            i_mt += 1
         i_lp = 0
         while i_lp < len(mentah):
             t_lp = mentah[i_lp]
