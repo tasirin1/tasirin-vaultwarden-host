@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: aturan operand tr kini dimodelkan (Audit 2643)
+
+- tr tanpa set, atau satu set tanpa -d/-s,
+  kini divonis mati sesuai binernya
+  (missing operand / two strings must be
+  given) alih-alih menguras. Bentuk sah
+  (tr -d a, tr -s a, tr a b) tetap
+  menguras. Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: cut tanpa opsi daftar tak lagi dinilai menguras (Audit 2642)
 
 - Penjaga opsi coreutils kini juga melacak

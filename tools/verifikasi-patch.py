@@ -14689,6 +14689,58 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # cut --complement).
     if perintah == "cut" and not daftar_cut:
         return False
+    # Audit 2643: aturan operand tr - tanpa set
+    # sama sekali alat mati "missing operand";
+    # satu set tanpa -d/-s mati "two strings
+    # must be given when translating" (rc=1,
+    # stdin tak dibaca). Set dihitung dari
+    # operand sesudah opsi (klaster cCdst dan
+    # nama panjangnya); redirect dilompati.
+    if perintah == "tr":
+        set_tr = 0
+        d_tr = False
+        s_tr = False
+        lewati_tr = False
+        opsi_tr = True
+        for t_tr in toks[awal + 1:]:
+            b_tr = t_tr.strip("\"'")
+            if lewati_tr:
+                lewati_tr = False
+                continue
+            if b_tr in (">", ">>", "1>", "2>", "1>>",
+                        "2>>", "<"):
+                lewati_tr = True
+                continue
+            if re.fullmatch(r"\d*>>?", b_tr):
+                lewati_tr = True
+                continue
+            if re.match(r"\d*>>?\S", b_tr) \
+                    or b_tr.startswith("<"):
+                continue
+            if opsi_tr and b_tr == "--":
+                opsi_tr = False
+                continue
+            if opsi_tr and b_tr.startswith("--"):
+                nm_tr = b_tr.split("=", 1)[0]
+                if nm_tr == "--delete":
+                    d_tr = True
+                elif nm_tr == "--squeeze-repeats":
+                    s_tr = True
+                continue
+            if opsi_tr and b_tr.startswith("-") \
+                    and b_tr != "-":
+                for ch_tr in b_tr[1:]:
+                    if ch_tr == "d":
+                        d_tr = True
+                    elif ch_tr == "s":
+                        s_tr = True
+                    elif ch_tr not in "cCt":
+                        break
+                continue
+            set_tr += 1
+        if set_tr == 0 or (set_tr == 1
+                           and not d_tr and not s_tr):
+            return False
     # Audit 1102: panggilan informasional mencetak dan keluar
     # tanpa membaca stdin (--help/--version umum; iconv -l/--list).
     # Audit 2591: penyusuran sadar nilai (pola Audit 1690) -

@@ -36742,6 +36742,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("cut -s tanpa opsi daftar: alat mati must specify a list, tak menguras: gerbang lolos (Audit 2642)", rc == 0)
         shutil.rmtree(sub1732, ignore_errors=True)
+        sub1733 = klon(tmp, "sub1733")
+        berkas_aksi1733 = os.path.join(
+            sub1733, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1733, encoding="utf-8") as f:
+            isi_aksi1733 = f.read()
+        baris_aksi1733 = [b for b in isi_aksi1733.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1733 = isi_aksi1733.replace(
+                baris_aksi1733,
+                baris_aksi1733.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tr a; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1733 != isi_aksi1733, \
+            "suntikan aksi1733 tidak menembak"
+        with open(berkas_aksi1733, "w", encoding="utf-8") as f:
+            f.write(isi_baru1733)
+        rc, out = jalan(sub1733,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tr a satu set tanpa -d/-s: alat mati two strings must be given, tak menguras: gerbang lolos (Audit 2643)", rc == 0)
+        shutil.rmtree(sub1733, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
