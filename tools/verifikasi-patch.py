@@ -11609,6 +11609,11 @@ def _menguras_khusus(perintah, toks, awal):
         # terkonversi membunuh alat di getopt.
         # Penyusuran sadar nilai seperti
         # tsv-sample di atas.
+        # Audit 2628: -v/--seed-value uint
+        # (:242, ikatan :317) dan
+        # --max-open-files uint (:244, ikatan
+        # :321, tanpa huruf pendek) ikut
+        # divalidasi - 2620 melewatkan keduanya.
         i_mt = 0
         while i_mt < len(mentah):
             t_mt = mentah[i_mt]
@@ -11618,7 +11623,9 @@ def _menguras_khusus(perintah, toks, awal):
             kunci_mt = nama_mt.lower()
             if kunci_mt in ("-l", "--lines-per-file",
                             "-n", "--num-files",
-                            "-w", "--digit-width"):
+                            "-w", "--digit-width",
+                            "-v", "--seed-value",
+                            "--max-open-files"):
                 if eq_mt:
                     if not _uint_getopt_sah(isi_mt):
                         return False
@@ -11634,7 +11641,7 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             if (len(t_mt) > 2 and t_mt.startswith("-")
                     and not t_mt.startswith("--")
-                    and t_mt[1].lower() in ("l", "n", "w")):
+                    and t_mt[1].lower() in ("l", "n", "w", "v")):
                 if not _uint_getopt_sah(t_mt[2:]):
                     return False
             i_mt += 1

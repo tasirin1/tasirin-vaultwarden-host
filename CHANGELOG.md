@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Gerbang memvalidasi seed-value dan max-open-files tsv-split (Audit 2628)
+
+- Pre-walk penerima bertipe tsv-split kini
+  ikut memvalidasi -v/--seed-value dan
+  --max-open-files (keduanya uint di sumber
+  tsv-utils) yang terlewat pada model Audit
+  2620. Dua skenario uji baru (1722–1723).
+
 ## [Belum rilis] — Gerbang memvalidasi seed-value tsv-sample (Audit 2627)
 
 - Pre-walk penerima bertipe tsv-sample kini
