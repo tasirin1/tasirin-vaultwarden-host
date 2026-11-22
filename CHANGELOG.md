@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Buffer log dibatasi juga saat rotasi gagal total (Audit 2630)
+
+- Bila berkas log penuh dan rotasi gagal total
+  (ganti nama gagal dan jalur tmp ikut gagal,
+  mis. disk penuh), buffer log kini dipangkas
+  ke batas berkas seperti pada jalur gagal
+  tulis. Sebelumnya katup batas itu tak
+  terjangkau dari jalur gagal rotasi sehingga
+  buffer bisa tumbuh tanpa batas di memori.
+
 ## [Belum rilis] — Model kematian penerima untuk tsv-pretty di gerbang (Audit 2629)
 
 - Cabang tsv-pretty yang sebelumnya tanpa

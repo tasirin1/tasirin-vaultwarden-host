@@ -942,6 +942,42 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void rotasiGagalTotalBufferTetapDibatasi() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwrot4").toFile();
+        java.io.File f = new java.io.File(dir, "vaultwarden.log");
+        java.io.File bak = new java.io.File(dir, "vaultwarden.log.1");
+        org.junit.Assert.assertTrue(bak.mkdir());
+        java.nio.file.Files.write(new java.io.File(bak, "penghalang").toPath(),
+                "x".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        org.junit.Assert.assertTrue(
+                new java.io.File(dir, "vaultwarden.log.tmp").mkdir());
+        byte[] isiLama = new byte[2_100_000];
+        java.util.Arrays.fill(isiLama, (byte) 'L');
+        java.nio.file.Files.write(f.toPath(), isiLama);
+        java.lang.reflect.Field fLog = ServerService.class.getDeclaredField("logFile");
+        fLog.setAccessible(true);
+        java.lang.reflect.Field fBuf = ServerService.class.getDeclaredField("logFileBuf");
+        fBuf.setAccessible(true);
+        Object asliLog = fLog.get(null);
+        StringBuilder buf = (StringBuilder) fBuf.get(null);
+        try {
+            fLog.set(null, f);
+            char[] bantal = new char[2_100_000];
+            java.util.Arrays.fill(bantal, 'B');
+            buf.append(bantal);
+            buf.append("ekor-penanda\n");
+            ServerService.pindahLogFile(f);
+            org.junit.Assert.assertEquals(2L * 1024 * 1024, buf.length());
+            org.junit.Assert.assertTrue(
+                    buf.substring(buf.length() - 20).contains("ekor-penanda"));
+            org.junit.Assert.assertEquals(2_100_000, f.length());
+        } finally {
+            fLog.set(null, asliLog);
+            buf.setLength(0);
+        }
+    }
+
+    @Test
     public void tungguPembacaOutput_penjagaAman() throws Exception {
         ServerService.tungguPembacaOutput(null);
         ServerService.tungguPembacaOutput(Thread.currentThread());

@@ -3040,6 +3040,17 @@ public class ServerService extends Service {
                 old.delete();
             }
             if (!f.renameTo(old) && !rotasiLewatTmp(f)) {
+                // Audit 2630: rotasi gagal total -
+                // katup pengaman 2564 hidup di
+                // cabang catch penulisan yang tak
+                // terjangkau dari jalur ini, jadi
+                // terapkan batas yang sama di sini
+                // agar buffer tak tumbuh tanpa
+                // batas selama rotasi terus gagal.
+                if (logFileBuf.length() > MAX_LOG_FILE) {
+                    logFileBuf.delete(0,
+                            logFileBuf.length() - (int) MAX_LOG_FILE);
+                }
                 return;
             }
         }
