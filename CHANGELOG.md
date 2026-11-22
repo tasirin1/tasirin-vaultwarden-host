@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Start yang dibatalkan kini membersihkan penanda jalan (Audit 2602)
+
+- Cabang batal pada persiapan start (Stop ditekan
+  sebelum proses lahir) kini memanggil
+  `resetPenandaJalan()` seperti semua jalur berhenti
+  lain: port/folder/host/sidik yang sempat ditulis saat
+  persiapan tidak lagi basi mengarah ke episode yang
+  tidak pernah lahir.
+
 ## [Belum rilis] — Tiga sisa pesan galat mentah kini lewat redaksiDetailGalat (Audit 2597)
 
 - Pesan galat pasang TLS restore, terapkan pengaturan

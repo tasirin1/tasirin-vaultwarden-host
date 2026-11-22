@@ -2308,6 +2308,7 @@ public class ServerService extends Service {
             }
         }
         if (batal) {
+            resetPenandaJalan();
             appendLog("[app] Start dibatalkan (Stop ditekan saat persiapan)"
                     + " - tekan Start lagi bila ingin jalan.");
 
