@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — CodeQL paths-ignore kini memuat .github/actions/** dan CODEOWNERS (Audit 2621)
+
+- Blok `paths-ignore` CodeQL pada push dan pull_request
+  kini juga mengabaikan `.github/actions/**` (aksi
+  komposit resolve-vw) dan `.github/CODEOWNERS` —
+  perubahan yang hanya menyentuh keduanya tidak lagi
+  memicu analisis CodeQL 3 bahasa penuh (sisa Audit
+  2571).
+
 ## [Belum rilis] — Pesan galat redirect tak lagi memuat query URL bertanda tangan (Audit 2618)
 
 - Kedua `IOException` penolakan redirect di `Updater`

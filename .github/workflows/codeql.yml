@@ -16,6 +16,8 @@ on:
       - '.github/workflows/labeler.yml'
       - '.github/workflows/label-audit.yml'
       - '.github/dependabot.yml'
+      - '.github/actions/**'
+      - '.github/CODEOWNERS'
   pull_request:
     paths-ignore:
       - '**.md'
@@ -30,6 +32,8 @@ on:
       - '.github/workflows/labeler.yml'
       - '.github/workflows/label-audit.yml'
       - '.github/dependabot.yml'
+      - '.github/actions/**'
+      - '.github/CODEOWNERS'
   schedule:
     - cron: "0 5 * * 1"
   workflow_dispatch:
