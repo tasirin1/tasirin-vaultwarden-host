@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Penjaga informasional gerbang belajar bentuk klaster opsi (Audit 2622)
+
+- Penyusuran sadar nilai Audit 2591 di penjaga
+  informasional kini mengenali bentuk klaster:
+  huruf opsi bernilai di ujung klaster menelan
+  token berikutnya (sort -ro --help, tac -rs
+  --help kini dinilai menguras), sedangkan huruf
+  bernilai di tengah klaster memakai ekor klaster
+  sebagai nilai nempelnya (sort -or --help tetap
+  informasional). Tiga skenario uji baru
+  (1711–1713).
+
 ## [Belum rilis] — Koreksi verifikasi backup: CRC entri diperiksa manual (Audit 2589)
 
 - Perbaikan 2589 membaca semua entri zip sampai

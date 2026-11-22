@@ -14428,6 +14428,19 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 return False
             if b_umum in bernilai_umum:
                 lewati_umum = 1
+            elif (len(b_umum) > 2 and b_umum.startswith("-")
+                    and not b_umum.startswith("--")):
+                # Audit 2622: bentuk klaster - huruf
+                # bernilai pertama menentukan: di ujung
+                # klaster ia menelan token berikutnya
+                # (sort -ro --help: --help nilai -o);
+                # di tengah, ekor klaster adalah nilai
+                # nempelnya (sort -or: --help bebas).
+                for idx_kl, ch_kl in enumerate(b_umum[1:]):
+                    if "-" + ch_kl in bernilai_umum:
+                        if idx_kl == len(b_umum) - 2:
+                            lewati_umum = 1
+                        break
     # Audit 1407: bendera info huruf tunggal milik perintah
     # tertentu juga informasional (cpan -v/-V/-h, utmpdump
     # -h) — penjaga 1102 hanya mengenal bentuk panjang.
