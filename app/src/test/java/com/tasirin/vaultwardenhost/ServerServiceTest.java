@@ -1012,12 +1012,17 @@ public class ServerServiceTest {
             buf.append("baris-yang-tak-boleh-hilang\n");
             ServerService.pindahLogFile(baru);
             assertEquals(baru, fLog.get(null));
-            assertTrue(buf.toString().contains("baris-yang-tak-boleh-hilang"));
+            // Audit 2604: buffer sisa flush gagal TIDAK lagi terbawa
+            // ke berkas folder baru - dibuang + diganti baris penanda.
+            assertFalse(buf.toString().contains("baris-yang-tak-boleh-hilang"));
+            assertTrue(buf.toString().contains("dibuang saat pindah folder"));
 
+            // Audit 2564 tetap berlaku untuk berkas yang SAMA:
+            // buffer dipertahankan dan katup pengaman memangkasnya.
             buf.setLength(0);
             buf.append("x".repeat(2_100_000));
             fLog.set(null, buruk);
-            ServerService.pindahLogFile(baru);
+            ServerService.pindahLogFile(buruk);
             assertEquals(2 * 1024 * 1024, buf.length());
         } finally {
             fLog.set(null, asliLog);

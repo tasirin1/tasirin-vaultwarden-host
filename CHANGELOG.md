@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Buffer log sisa flush gagal tidak lagi terbawa ke folder data baru (Audit 2604)
+
+- `pindahLogFile` kini membuang buffer yang tertahan
+  akibat flush gagal ke berkas lama saat folder log
+  berganti (diganti satu baris penanda di berkas baru),
+  agar baris episode/folder lama tidak tercampur ke
+  `vaultwarden.log` folder baru. Retensi Audit 2564
+  tetap berlaku selama berkas tujuannya sama.
+
 ## [Belum rilis] — Rotasi log darurat menulis lewat berkas sementara dulu (Audit 2603)
 
 - Bila rotasi `vaultwarden.log` gagal mengganti nama ke

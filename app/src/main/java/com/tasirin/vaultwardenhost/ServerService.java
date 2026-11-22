@@ -3012,7 +3012,15 @@ public class ServerService extends Service {
 
     static void pindahLogFile(File baru) {
         synchronized (LOG_FILE_LOCK) {
+            File lama = logFile;
             flushLogFileLocked();
+            if (lama != null && baru != null && !lama.equals(baru)
+                    && logFileBuf.length() > 0) {
+                logFileBuf.setLength(0);
+                logFileBuf.append("[app] Baris log folder data sebelumnya"
+                        + " dibuang saat pindah folder (flush terakhir"
+                        + " ke berkas lama gagal).\n");
+            }
             logFile = baru;
         }
     }
