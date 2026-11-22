@@ -4097,21 +4097,27 @@ def _menguras_khusus(perintah, toks, awal):
         # "=" juga mati (-cmd=x rc=1). Nilai
         # pembawa yang dikenal dilompati agar
         # tak dinilai sebagai opsi.
+        # Audit 2664: escape/excel/full/htm/
+        # ifexists/ltrace/uri dibuang - biner
+        # 3.45.1 menolak ketujuhnya ("unknown
+        # option"); mereka dulu masuk dari
+        # daftar opsi umum tanpa bukti biner
+        # per opsi.
         _VOKAB_SQLITE3_44 = frozenset({
             "A", "append", "ascii", "bail", "batch",
             "box", "cmd", "column", "csv",
-            "deserialize", "echo", "eqp", "escape",
-            "excel", "full", "header", "help",
-            "htm", "html", "ifexists", "init",
+            "deserialize", "echo", "eqp",
+            "header", "help",
+            "html", "init",
             "interactive", "json", "line", "list",
-            "lookaside", "ltrace", "markdown",
+            "lookaside", "markdown",
             "maxsize", "maxwidth", "memtrace",
             "mmap", "newline", "nofollow",
             "noheader", "nonce", "nullvalue",
             "pagecache", "pcachetrace", "quote",
             "readonly", "safe", "separator",
             "stats", "table", "tabs", "unsafe",
-            "uri", "version", "vfs", "zip"})
+            "version", "vfs", "zip"})
         _pembawa1_44 = {"cmd", "init", "separator",
                         "nullvalue", "maxwidth", "vfs",
                         "newline", "nonce", "A",

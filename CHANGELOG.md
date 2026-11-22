@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tujuh opsi hantu sqlite3 dibuang dari kosakata (Audit 2664)
+
+- Opsi -escape, -excel, -full, -htm,
+  -ifexists, -ltrace, dan -uri tidak
+  lagi dianggap sah: biner sqlite3
+  menolaknya sebagai opsi tak dikenal
+  sehingga perintahnya mati, tetapi
+  gerbang dulu memvonis menguras. Satu
+  skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: bentuk panjang --cmd sqlite3 masuk aturan nilai -cmd (Audit 2663)
 
 - sqlite3 --cmd dengan nilai berawalan
