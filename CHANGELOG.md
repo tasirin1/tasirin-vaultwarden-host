@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Hash PIN tidak lagi bocor ke config.json backup lewat kunci sesi login (Audit 2586)
+
+- Kunci sesi login bot `tg_login_hash` (salinan persis
+  `pin_hash`) kini terdaftar di `SECRET_PREF_KEYS` dan
+  `tg_login_chat` di `TAK_DIEKSPOR_KEYS` pada `TgBackup`,
+  sehingga keduanya tidak lagi ditulis ke `config.json`
+  di dalam zip backup maupun ekspor konfigurasi. Uji
+  registri `secretTakIkutBackup` diperluas mengunci
+  kedua kunci ini.
+
 ## [Belum rilis] — Desain tombol bot Telegram meniru Red-Eye: aksi cepat, emoji, Segarkan (permintaan owner)
 
 - Menu utama kini memuat aksi cepat di atas kategori:

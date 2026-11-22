@@ -2235,7 +2235,7 @@ public final class TgBackup {
             java.util.Arrays.asList("admin_token", "tg_token", "tg_chat",
                     "tg_pass", PinGate.KEY_PIN_HASH, PinGate.KEY_GAGAL, PinGate.KEY_KUNCI_SAMPAI,
                     PinGate.KEY_KUNCI_ELAPSED, KEY_ALARM_SECRET, LogActivity.KEY_CLIP_HASH,
-                    ServerService.KEY_DATABASE_URL));
+                    ServerService.KEY_DATABASE_URL, TgBot.KEY_TG_LOGIN_HASH));
 
     static final java.util.Set<String> TAK_DIEKSPOR_KEYS = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, ServerService.KEY_TLS_DIR, KEY_TG_LAST,
@@ -2247,7 +2247,7 @@ public final class TgBackup {
                     Updater.KEY_WV_SHA,
                     ServerService.KEY_BIN_DL_GAGAL_AT,
                     ServerService.KEY_WV_DL_GAGAL_AT,
-                    TgBot.KEY_TG_MENU_FP, SettingsActivity.KEY_GAGAL_IMPOR_PETA,
+                    TgBot.KEY_TG_MENU_FP, TgBot.KEY_TG_LOGIN_CHAT, SettingsActivity.KEY_GAGAL_IMPOR_PETA,
                     Updater.KEY_BIN_FALLBACK_FOR, Updater.KEY_BIN_FALLBACK_AT,
                     Updater.KEY_CEK_GANGGUAN_AT,
                     ServerService.KEY_BIN_MANUAL_FP,

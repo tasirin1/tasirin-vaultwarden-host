@@ -1912,6 +1912,12 @@ public class TgBackupTest {
         assertFalse(TgBackup.kunciDiekspor("tg_bot_id"));
         assertFalse(TgBackup.kunciDiekspor("tg_bot_user"));
         assertFalse(TgBackup.kunciDiekspor("tg_menu_hash"));
+        // Audit 2586: kunci sesi login bot (salinan hash PIN +
+        // id chat login) tak boleh ikut config.json backup.
+        assertTrue(TgBackup.SECRET_PREF_KEYS.contains(TgBot.KEY_TG_LOGIN_HASH));
+        assertFalse(TgBackup.kunciDiekspor(TgBot.KEY_TG_LOGIN_HASH));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(TgBot.KEY_TG_LOGIN_CHAT));
+        assertFalse(TgBackup.kunciDiekspor(TgBot.KEY_TG_LOGIN_CHAT));
         // Audit 1637: tiga kunci sidik Audit 1592/1604/1636 ikut
         // dikunci di sini (sebelumnya tanpa asersi sama sekali).
         assertFalse(TgBackup.kunciDiekspor("bin_sha_fp"));
