@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: operand angka warisan -N untuk fmt/fold/strings/split (Audit 2656)
+
+- Bentuk lama seperti fmt -10, fold -10,
+  strings -10, dan split -10 tidak lagi
+  divonis mati: keempat alat menerima
+  angka menempel itu sebagai lebar/
+  panjang dan membaca stdin. Nilai 0
+  (selain fmt) dan angka luapan tetap
+  ditolak seperti binernya. Satu
+  skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: pola '-' pada grep kini dikenali sebagai pola (Audit 2655)
 
 - grep yang polanya hanya "-" (mis.

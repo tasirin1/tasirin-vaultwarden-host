@@ -36952,6 +36952,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep -: strip adalah pola grep, alat menguras stdin: gerbang gagal (Audit 2655)", rc != 0)
         shutil.rmtree(sub1742, ignore_errors=True)
+        sub1743 = klon(tmp, "sub1743")
+        berkas_aksi1743 = os.path.join(
+            sub1743, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1743, encoding="utf-8") as f:
+            isi_aksi1743 = f.read()
+        baris_aksi1743 = [b for b in isi_aksi1743.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1743 = isi_aksi1743.replace(
+                baris_aksi1743,
+                baris_aksi1743.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(fmt -10; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1743 != isi_aksi1743, \
+            "suntikan aksi1743 tidak menembak"
+        with open(berkas_aksi1743, "w", encoding="utf-8") as f:
+            f.write(isi_baru1743)
+        rc, out = jalan(sub1743,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("fmt -10: penerima angka warisan sah, alat menguras: gerbang gagal (Audit 2656)", rc != 0)
+        shutil.rmtree(sub1743, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

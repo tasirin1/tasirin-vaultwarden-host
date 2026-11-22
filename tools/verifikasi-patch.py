@@ -15062,6 +15062,23 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             if (perintah in ("head", "tail")
                     and b_gu[1:].isdigit()):
                 continue
+            if (perintah in ("fmt", "fold", "strings",
+                             "split")
+                    and b_gu[1:].isdigit()
+                    and len(b_gu[1:]) <= 18
+                    and (perintah == "fmt"
+                         or int(b_gu[1:]) > 0)):
+                # Audit 2656: penerima angka warisan
+                # -N (= -w fmt/fold, -n strings,
+                # -l split) sah dan menguras di
+                # biner; penjaga 2645 membunuhnya
+                # sebagai klaster asing. fold/
+                # strings/split menolak 0 dan
+                # keempatnya menolak luapan -
+                # bentuk itu jatuh ke klaster dan
+                # tetap mati. od -10 memang mati
+                # di biner (bukan penerima warisan).
+                continue
             st_gu, _ch_gu = _status_klaster(
                 vokab_gu, b_gu)
             # Audit 2579: huruf pendek asing juga
