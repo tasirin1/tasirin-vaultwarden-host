@@ -36343,6 +36343,48 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sort -or --help: nilai -o nempel di klaster, --help informasional: gerbang lolos (Audit 2622)", rc == 0)
         shutil.rmtree(sub1713, ignore_errors=True)
+        sub1714 = klon(tmp, "sub1714")
+        berkas_aksi1714 = os.path.join(
+            sub1714, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1714, encoding="utf-8") as f:
+            isi_aksi1714 = f.read()
+        baris_aksi1714 = [b for b in isi_aksi1714.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1714 = isi_aksi1714.replace(
+                baris_aksi1714,
+                baris_aksi1714.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 -lookaside 100 --help db.sqlite; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1714 != isi_aksi1714, \
+            "suntikan aksi1714 tidak menembak"
+        with open(berkas_aksi1714, "w", encoding="utf-8") as f:
+            f.write(isi_baru1714)
+        rc, out = jalan(sub1714,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("sqlite3 -lookaside 100 --help: --help nilai kedua -lookaside, stdin tereksekusi: gerbang gagal (Audit 2623)", rc != 0)
+        shutil.rmtree(sub1714, ignore_errors=True)
+        sub1715 = klon(tmp, "sub1715")
+        berkas_aksi1715 = os.path.join(
+            sub1715, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1715, encoding="utf-8") as f:
+            isi_aksi1715 = f.read()
+        baris_aksi1715 = [b for b in isi_aksi1715.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1715 = isi_aksi1715.replace(
+                baris_aksi1715,
+                baris_aksi1715.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 -pagecache 10 --help db.sqlite; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1715 != isi_aksi1715, \
+            "suntikan aksi1715 tidak menembak"
+        with open(berkas_aksi1715, "w", encoding="utf-8") as f:
+            f.write(isi_baru1715)
+        rc, out = jalan(sub1715,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("sqlite3 -pagecache 10 --help: --help nilai kedua -pagecache, stdin tereksekusi: gerbang gagal (Audit 2623)", rc != 0)
+        shutil.rmtree(sub1715, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

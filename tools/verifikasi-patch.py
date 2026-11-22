@@ -3817,8 +3817,25 @@ def _menguras_khusus(perintah, toks, awal):
                 "--values-delimiter", "-p",
                 "--float-precision", "-r",
                 "--replace-missing"}
+        # Audit 2623: sqlite3 -lookaside/-pagecache
+        # mengambil DUA nilai (N SZ) - tanda di
+        # posisi nilai kedua pun tertelan, bukan
+        # informasional (probe biner: stdin tetap
+        # dieksekusi). Tandai kedua posisi nilainya.
+        tertelan2 = set()
+        if perintah == "sqlite3":
+            lewati2 = 0
+            for k_i2, t_i2 in enumerate(mentah):
+                if lewati2 > 0:
+                    tertelan2.add(k_i2)
+                    lewati2 -= 1
+                    continue
+                if t_i2 in ("-lookaside", "-pagecache"):
+                    lewati2 = 2
         for k_i, t_i in enumerate(mentah):
             if t_i in tanda:
+                if k_i in tertelan2:
+                    continue
                 if k_i > 0:
                     sebelum = mentah[k_i - 1]
                     if lipat_pendahulu:

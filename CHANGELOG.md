@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Pendahulu sqlite3 gerbang menelan dua nilai -lookaside/-pagecache (Audit 2623)
+
+- _ada_informatif kini menandai kedua posisi
+  nilai opsi dua-nilai sqlite3 (-lookaside dan
+  -pagecache mengambil N dan SZ): --help di
+  posisi nilai kedua tak lagi dinilai panggilan
+  informasional — biner membuktikan stdin tetap
+  dieksekusi pada bentuk itu. Dua skenario uji
+  baru (1714–1715).
+
 ## [Belum rilis] — Penjaga informasional gerbang belajar bentuk klaster opsi (Audit 2622)
 
 - Penyusuran sadar nilai Audit 2591 di penjaga
