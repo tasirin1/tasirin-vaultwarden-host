@@ -2500,7 +2500,7 @@ public class ServerService extends Service {
                         }
                         TgBackup.sendMessage(this, "Server crash (exit " + code + ")"
                                 + (saran.isEmpty() ? "" : "\n" + saran)
-                                + "\n" + shorten(tail, 500) + "\nRestart otomatis...");
+                                + "\n" + ekorLogTelegram(tail, 500) + "\nRestart otomatis...");
                         setStatus("Server crash (exit " + code + ")"
                                 + (saran.isEmpty() ? "" : "\n" + saran)
                                 + " - restart otomatis\n" + shorten(tail, 250));
@@ -2596,7 +2596,7 @@ public class ServerService extends Service {
             appendLog("[app] Berhenti mencoba restart setelah 5 kegagalan.");
             writeCrashLog("restart 5x gagal");
             TgBackup.sendPenting(this, "Server berhenti: gagal restart 5x.\n"
-                    + shorten(tail, 600));
+                    + ekorLogTelegram(tail, 600));
             return true;
         }
         int coba = restartAttempt.getAndIncrement();
@@ -2825,7 +2825,7 @@ public class ServerService extends Service {
             writeCrashLog("restart loop (" + n + "x/5mnt)");
             TgBackup.sendPenting(this, "Server restart berulang (" + n
                     + "x dalam 5 menit) - auto-restart dimatikan.\n"
-                    + shorten(tail, 600));
+                    + ekorLogTelegram(tail, 600));
 
             akhiriEpisodeGagal(idEpisodaProsesAktif());
             return true;
@@ -3297,7 +3297,7 @@ public class ServerService extends Service {
                         + " - restart otomatis.");
             writeCrashLog("health ambang");
             TgBackup.sendMessage(this, "Server tidak sehat (gagal /alive beruntun) - restart otomatis.\n"
-                    + shorten(tailLog(15), 500));
+                    + ekorLogTelegram(tailLog(15), 500));
             if (p != null) {
                 releaseWakeLock();
 
@@ -5050,6 +5050,12 @@ public class ServerService extends Service {
             mulai++;
         }
         return s.substring(mulai);
+    }
+
+    static String ekorLogTelegram(String ekor, int maks) {
+        String aman = LogActivity.butuhSamaran(ekor)
+                ? LogActivity.samarkanLog(ekor) : ekor;
+        return shorten(aman, maks);
     }
 
     private static final class PenungguProses {

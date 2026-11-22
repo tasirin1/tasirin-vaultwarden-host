@@ -1434,6 +1434,17 @@ public class ServerServiceTest {
     // Nilai harapan diporting 1:1 dari badan shorten (satuan UTF-16,
     // pasangan surrogate tidak boleh terbelah).
     @Test
+    public void ekorLogTelegram_menyamarkanSebelumMemotong() {
+        String kotor = "login gagal untuk budi@mail.com dari 192.168.1.9";
+        String aman = ServerService.ekorLogTelegram(kotor, 500);
+        org.junit.Assert.assertFalse(aman.contains("budi@mail.com"));
+        org.junit.Assert.assertFalse(aman.contains("192.168.1.9"));
+        assertEquals("baris biasa tanpa rahasia",
+                ServerService.ekorLogTelegram("baris biasa tanpa rahasia", 500));
+        assertEquals("", ServerService.ekorLogTelegram(null, 500));
+    }
+
+    @Test
     public void shorten_memotongEkorDenganAman() {
         assertEquals("", ServerService.shorten(null, 5));
         assertEquals("", ServerService.shorten("", 3));

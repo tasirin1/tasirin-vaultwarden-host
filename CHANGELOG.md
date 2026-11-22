@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Ekor log yang dikirim ke Telegram kini disamarkan dulu (Audit 2587)
+
+- Empat pemberitahuan otomatis (crash, gagal restart 5x,
+  restart berulang, health gagal) kini melewatkan ekor log
+  lewat `ekorLogTelegram` yang menyamarkan pola sensitif
+  (email, IP, path, URL database, token) sebelum memotong —
+  sejajar jalur crash-log yang sudah menyamarkan lebih dulu.
+
 ## [Belum rilis] — Hash PIN tidak lagi bocor ke config.json backup lewat kunci sesi login (Audit 2586)
 
 - Kunci sesi login bot `tg_login_hash` (salinan persis
