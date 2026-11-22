@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Tiga sisa pesan galat mentah kini lewat redaksiDetailGalat (Audit 2597)
+
+- Pesan galat pasang TLS restore, terapkan pengaturan
+  restore, dan log sinkron TLS internal kini disaring
+  `redaksiDetailGalat` (URL database/token tersamarkan)
+  seperti jalur galat lain sejak perbaikan 2547/2561 —
+  sebelumnya ketiganya memakai pesan pengecualian mentah.
+
 ## [Belum rilis] — Alarm tunda tanpa penanda boot tidak lagi jatuh ke backup umum (Audit 2596)
 
 - `AlarmReceiver` kini menolak aksi `ACTION_TUNDA`

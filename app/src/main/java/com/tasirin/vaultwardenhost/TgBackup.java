@@ -2048,7 +2048,8 @@ public final class TgBackup {
                 hapusPohon(staging);
             } catch (Exception ignored) {
             }
-            ServerService.catatLog("[tls] Sinkron TLS internal gagal: " + e);
+            ServerService.catatLog("[tls] Sinkron TLS internal gagal: "
+                    + redaksiDetailGalat(String.valueOf(e)));
             return false;
         }
     }
@@ -4155,7 +4156,7 @@ public final class TgBackup {
             } catch (Exception eTls) {
                 kembalikanTls(new File(dataFolder, "tls"), tlsAsal);
                 peringatanTls = " Database SUDAH dipulihkan, tetapi sertifikat"
-                        + " dari backup gagal dipasang (" + eTls.getMessage()
+                        + " dari backup gagal dipasang (" + redaksiDetailGalat(eTls.getMessage())
                         + ") - TLS perangkat ini dikembalikan seperti sebelum"
                         + " restore.";
             }
@@ -4217,7 +4218,7 @@ public final class TgBackup {
                 } catch (Exception eSet) {
 
                     peringatan = " Peringatan: pengaturan dari backup gagal diterapkan ("
-                            + eSet.getMessage() + ").";
+                            + redaksiDetailGalat(eSet.getMessage()) + ").";
                 }
             }
         } else if (pindai.config != null) {
