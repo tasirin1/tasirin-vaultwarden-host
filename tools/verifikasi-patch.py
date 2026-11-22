@@ -2184,6 +2184,34 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             continue
         if bersih.startswith("-") and bersih != "-":
             if perintah == "awk":
+                if nama_asli in ("awk", "mawk", "nawk",
+                                 "original-awk"):
+                    # Audit 2661: semesta opsi mawk
+                    # kecil (F/f/v/W, semua pembawa;
+                    # tanpa opsi panjang) - token
+                    # strip lain membunuh alat
+                    # ("not an option", rc=2) atau
+                    # informasional (--help/--version
+                    # dan -W version/help mencetak
+                    # lalu keluar); penanda 2641
+                    # dulu menyapu semuanya sehingga
+                    # bentuk mati itu divonis
+                    # menguras (fail-closed).
+                    if bersih.startswith("--"):
+                        return False
+                    if bersih.startswith("-W"):
+                        nilai_w = bersih[2:] or (
+                            toks[i + 1].strip("\"'")
+                            if i + 1 < n else "")
+                        if nilai_w in ("version",
+                                       "help"):
+                            return False
+                    elif not (
+                            bersih.split("=", 1)[0]
+                            in nilai
+                            or re.match(r"^-[Ffv]",
+                                        bersih)):
+                        return False
                 ada_opsi_awk = True
             if perintah in ("jq", "yq", "fq") and bersih in ("-n", "--null-input"):
                 # jq -n tak membaca stdin sama sekali.

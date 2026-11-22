@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi asing/informatif awk kini divonis mati (Audit 2661)
+
+- awk dengan opsi yang tak dikenal
+  mawk (seperti -x atau --bogus) dan
+  bentuk informasional (-W version,
+  --help) tidak lagi divonis menguras:
+  alatnya berhenti sebelum membaca
+  stdin. Semesta opsi keluarga mawk
+  memang kecil dan kini divalidasi.
+  Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: singkatan opsi panjang tr kini diselesaikan (Audit 2660)
 
 - tr --del a dan singkatan unik lain
