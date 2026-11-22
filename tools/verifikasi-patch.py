@@ -1939,6 +1939,28 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
         ops_awk9 = _operand_sesudah_opsi(toks, awal, nilai)
         if ops_awk9 and ops_awk9[0] == "-":
             return False
+    if nama_asli == "rg":
+        # Audit 2654: pembawa nilai khas rg -
+        # penelusuran utama dulu hanya memakai
+        # himpunan grep, jadi nilai pembawa rg
+        # terbaca sebagai pola dan pola asli
+        # sebagai berkas (vonis mati palsu,
+        # fail-open). Himpunan rg selama ini
+        # hanya hidup di penelusuran kematian
+        # 2619. Bentuk = dan pola dari -e/
+        # --regexp tidak berubah.
+        nilai = nilai | {
+            "--glob", "--iglob", "--pre", "--pre-glob",
+            "--encoding", "--type", "--type-add",
+            "--engine", "--colors",
+            "--context-separator",
+            "--field-match-separator",
+            "--field-context-separator",
+            "--path-separator", "--replace",
+            "--sort", "--sortr", "--max-columns",
+            "--max-depth", "--threads",
+            "--max-filesize",
+            "-g", "-r", "-M", "-j"}
     if nama_asli in ("gawk", "pgawk", "igawk"):
         # Audit 1640: opsi bernilai khas GNU awk — tidak
         # ditambahkan ke himpunan awk bersama karena awk

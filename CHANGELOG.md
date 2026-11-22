@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pembawa nilai khas rg kini tertelan di penelusuran utama (Audit 2654)
+
+- Perintah rg dengan opsi bernilai khas
+  (seperti --glob, -g, --pre, --type,
+  --max-filesize, -j) tidak lagi divonis
+  mati palsu: nilai opsinya dulu terbaca
+  sebagai pola dan pola aslinya sebagai
+  berkas, padahal alatnya menguras stdin.
+  Dua skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: nilai -cmd sqlite3 berawalan strip kini divonis mati (Audit 2653)
 
 - Nilai -cmd sqlite3 yang diawali "-"
