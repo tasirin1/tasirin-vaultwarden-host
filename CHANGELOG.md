@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Sidik memo sertifikat kini atas seluruh isi berkas (Audit 2634)
+
+- Sidik kunci memo masa sertifikat kini
+  dihitung dari seluruh isi berkas, bukan
+  hanya 512 byte pertama dan terakhir.
+  Penggantian yang hanya menyentuh byte
+  tengah dengan ukuran sama sebelumnya bisa
+  menyajikan vonis masa sertifikat yang basi
+  selama memo berlaku.
+
 ## [Belum rilis] — Cap peringatan PIN chat asing dibersihkan berkala (Audit 2633)
 
 - Kunci cap peringatan per chat asing kini

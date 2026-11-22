@@ -126,3 +126,5 @@ folderCekRuangBackupIkutCacheSaatTerenkripsi
 ruangBackupDibutuhkanIkutUkuranDb
 databaseUrlIkutEksporTapiTakBolehImpor
 _numerik_penuh
+sidikUjung
+sidikUjung_bedaIsiBedaSidik

@@ -15,7 +15,7 @@ import java.nio.file.Files;
 public class TlsCertTest {
 
     @org.junit.Test
-    public void sidikUjung_bedaIsiBedaSidik() throws Exception {
+    public void sidikIsi_bedaIsiBedaSidik() throws Exception {
         java.io.File a = java.io.File.createTempFile("tlsa", ".pem");
         java.io.File b = java.io.File.createTempFile("tlsb", ".pem");
         byte[] isiA = new byte[2048];
@@ -27,14 +27,32 @@ public class TlsCertTest {
         isiB[isiB.length - 1] = (byte) (isiB[isiB.length - 1] + 1);
         java.nio.file.Files.write(a.toPath(), isiA);
         java.nio.file.Files.write(b.toPath(), isiB);
-        org.junit.Assert.assertEquals(TlsCert.sidikUjung(a), TlsCert.sidikUjung(a));
-        org.junit.Assert.assertNotEquals(TlsCert.sidikUjung(a), TlsCert.sidikUjung(b));
+        org.junit.Assert.assertEquals(TlsCert.sidikIsi(a), TlsCert.sidikIsi(a));
+        org.junit.Assert.assertNotEquals(TlsCert.sidikIsi(a), TlsCert.sidikIsi(b));
         java.io.File kecil = java.io.File.createTempFile("tlsk", ".pem");
         java.nio.file.Files.write(kecil.toPath(), "abc".getBytes("UTF-8"));
-        TlsCert.sidikUjung(kecil);
+        TlsCert.sidikIsi(kecil);
         a.delete();
         b.delete();
         kecil.delete();
+    }
+
+    @org.junit.Test
+    public void sidikIsi_bedaTengahBedaSidik() throws Exception {
+        java.io.File a = java.io.File.createTempFile("tlsa2", ".pem");
+        java.io.File b = java.io.File.createTempFile("tlsb2", ".pem");
+        byte[] isiA = new byte[4096];
+        byte[] isiB = new byte[4096];
+        for (int i = 0; i < isiA.length; i++) {
+            isiA[i] = (byte) (i % 251);
+            isiB[i] = (byte) (i % 251);
+        }
+        isiB[2048] = (byte) (isiB[2048] + 1);
+        java.nio.file.Files.write(a.toPath(), isiA);
+        java.nio.file.Files.write(b.toPath(), isiB);
+        org.junit.Assert.assertNotEquals(TlsCert.sidikIsi(a), TlsCert.sidikIsi(b));
+        a.delete();
+        b.delete();
     }
 
     // Sertifikat uji self-signed (DER, CN=uji, berlaku 2026-2036) untuk

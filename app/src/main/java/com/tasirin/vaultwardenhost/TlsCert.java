@@ -139,27 +139,25 @@ public final class TlsCert {
             }
 
             return f.getAbsolutePath() + '|' + f.length() + '|' + f.lastModified()
-                    + '|' + sidikUjung(f);
+                    + '|' + sidikIsi(f);
         } catch (Exception e) {
             return null;
         }
     }
 
-    static long sidikUjung(File f) throws java.io.IOException {
-        long len = f.length();
+    // Audit 2634: sidik kini atas SELURUH isi,
+    // bukan hanya 512 byte tepi - penggantian
+    // byte tengah berukuran sama dalam TTL memo
+    // sebelumnya menyajikan vonis basi. Berkas
+    // sertifikat kecil; CRC penuh tetap jauh
+    // lebih murah daripada parse X.509 ulang.
+    static long sidikIsi(File f) throws java.io.IOException {
         java.util.zip.CRC32 crc = new java.util.zip.CRC32();
-        try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile(f, "r")) {
-            byte[] buf = new byte[512];
-            int n = raf.read(buf, 0, (int) Math.min(512L, len));
-            if (n > 0) {
+        try (java.io.InputStream in = new java.io.FileInputStream(f)) {
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) != -1) {
                 crc.update(buf, 0, n);
-            }
-            if (len > 512) {
-                raf.seek(len - 512);
-                n = raf.read(buf, 0, 512);
-                if (n > 0) {
-                    crc.update(buf, 0, n);
-                }
             }
         }
         return crc.getValue();
