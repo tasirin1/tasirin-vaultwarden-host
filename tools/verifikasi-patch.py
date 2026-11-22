@@ -15159,6 +15159,21 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 continue
             if opsi_tr and b_tr.startswith("--"):
                 nm_tr = b_tr.split("=", 1)[0]
+                if "=" not in b_tr:
+                    # Audit 2660: getopt_long
+                    # menyelesaikan singkatan unik
+                    # (--del = --delete) - pindaian
+                    # 2643 dulu hanya cocok eksak
+                    # sehingga singkatan sah tak
+                    # menandai bendera dan vonis
+                    # berbalik mati (fail-open).
+                    calon_tr = [x for x in (
+                        "--delete", "--squeeze-repeats",
+                        "--complement",
+                        "--truncate-set1")
+                        if x.startswith(nm_tr)]
+                    if len(calon_tr) == 1:
+                        nm_tr = calon_tr[0]
                 if nm_tr == "--delete":
                     d_tr = True
                 elif nm_tr == "--squeeze-repeats":

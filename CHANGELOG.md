@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: singkatan opsi panjang tr kini diselesaikan (Audit 2660)
+
+- tr --del a dan singkatan unik lain
+  (--squ, --comp, --trunc) tidak lagi
+  divonis mati: getopt memang
+  menyelesaikannya ke opsi penuh dan
+  alatnya membaca stdin, tetapi
+  pindaian gerbang dulu hanya mengenal
+  nama eksak. Satu skenario uji-diri
+  baru.
+
 ## [Belum rilis] — Gerbang: od -w<angka> diakui sebagai lebar sah (Audit 2659)
 
 - od dengan lebar menempel seperti
