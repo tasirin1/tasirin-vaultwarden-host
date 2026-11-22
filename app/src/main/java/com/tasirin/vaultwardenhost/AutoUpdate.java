@@ -96,15 +96,14 @@ public final class AutoUpdate {
 
                         pending.atur(latest);
                     } else {
+                        String msgBin = null;
                         try {
-                            String msg = Updater.tryUpdate(ctx);
+                            msgBin = Updater.tryUpdate(ctx);
                             pending.atur(null);
                             batalkanNotifikasiUpdate(ctx);
-                            if (Updater.binaryBerubah(msg)) {
+                            if (Updater.binaryBerubah(msgBin)) {
                                 adaTerpasang = true;
                             }
-                            aksi.toast(msg);
-                            aksi.catat("[app] " + msg);
                             try {
                                 sp.edit().remove(ServerService.KEY_BIN_DL_GAGAL_AT).apply();
                             } catch (Exception ignored) {
@@ -117,6 +116,21 @@ public final class AutoUpdate {
                             } catch (Exception ignored) {
                             }
                             pending.atur(latest);
+                            msgBin = null;
+                        }
+                        // Audit 2617: callback UI/log berjalan di luar
+                        // try pemasangan dan masing-masing dijaga -
+                        // callback yang melempar sesudah update
+                        // terpasang tidak lagi tercatat sebagai gagal.
+                        if (msgBin != null) {
+                            try {
+                                aksi.toast(msgBin);
+                            } catch (Exception ignored) {
+                            }
+                            try {
+                                aksi.catat("[app] " + msgBin);
+                            } catch (Exception ignored) {
+                            }
                         }
                     }
                 } else {
@@ -146,6 +160,7 @@ public final class AutoUpdate {
 
                 if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE_WV, false)
                         && tanpaKuota(ctx)) {
+                    String msgWv = null;
                     try {
                         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR,
                                 ServerService.dataDirBawaanSegar());
@@ -159,12 +174,10 @@ public final class AutoUpdate {
                                         ServerService.KEY_WV_DL_GAGAL_AT, 0);
                                 if (ServerService.bolehCobaUnduhLagi(gagalWvAt,
                                         System.currentTimeMillis())) {
-                                    String msg = Updater.updateWebVault(ctx);
-                                    if (TgBot.webVaultBerubah(msg)) {
+                                    msgWv = Updater.updateWebVault(ctx);
+                                    if (TgBot.webVaultBerubah(msgWv)) {
                                         adaTerpasang = true;
                                     }
-                                    aksi.toast(msg);
-                                    aksi.catat("[app] " + msg);
                                     try {
                                         sp.edit().remove(ServerService.KEY_WV_DL_GAGAL_AT).apply();
                                     } catch (Exception ignored) {
@@ -179,6 +192,19 @@ public final class AutoUpdate {
                         } catch (Exception ignored) {
                         }
                         aksi.catat("[app] Auto-update web-vault gagal: " + e.getMessage());
+                        msgWv = null;
+                    }
+                    // Audit 2617: callback di luar try pemasangan,
+                    // masing-masing dijaga (lihat cabang binary).
+                    if (msgWv != null) {
+                        try {
+                            aksi.toast(msgWv);
+                        } catch (Exception ignored) {
+                        }
+                        try {
+                            aksi.catat("[app] " + msgWv);
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
 

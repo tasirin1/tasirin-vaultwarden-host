@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Callback sukses AutoUpdate tak lagi bisa membalikkan hasil jadi gagal (Audit 2617)
+
+- Pada kedua jalur auto-update (binary dan web-vault),
+  `aksi.toast`/`aksi.catat` sukses kini berjalan di
+  luar try pemasangan dan masing-masing dijaga
+  pengecualiannya sendiri. Callback yang melempar
+  sesudah update benar-benar terpasang tidak lagi
+  mencatat "gagal" palsu, memasang stempel backoff,
+  atau mengembalikan penanda pending.
+
 ## [Belum rilis] — Keputusan terkunci web-vault otomatis kini memakai pin ternormalisasi (Audit 2616)
 
 - `AutoUpdate` kini menentukan status terkunci web-vault
