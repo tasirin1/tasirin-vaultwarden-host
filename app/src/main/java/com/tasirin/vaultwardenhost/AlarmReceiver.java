@@ -177,6 +177,13 @@ public class AlarmReceiver extends BroadcastReceiver {
             return;
         }
 
+        if (ACTION_TUNDA.equals(action)) {
+            TgBackup.tandaiBackupTertunda(context);
+            ServerService.catatLog("[tg] Alarm tunda tanpa penanda boot"
+                    + " - backup ditandai tertunda, tak dijalankan.");
+            return;
+        }
+
         if (Intent.ACTION_DATE_CHANGED.equals(action)
                 || Intent.ACTION_TIME_CHANGED.equals(action)
                 || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {

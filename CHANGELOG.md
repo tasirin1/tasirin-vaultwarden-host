@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Alarm tunda tanpa penanda boot tidak lagi jatuh ke backup umum (Audit 2596)
+
+- `AlarmReceiver` kini menolak aksi `ACTION_TUNDA`
+  yang tiba tanpa extra tunda-boot: backup ditandai
+  tertunda dan dicatat, tanpa menjalankan backup.
+  Sebelumnya intent seperti itu (receiver ter-export,
+  pengirim asing tak dikenal) jatuh tembus melewati
+  semua pemeriksaan susulan-boot ke jalur backup umum.
+  Semua pengirim sah selalu memasang penanda itu.
+
 ## [Belum rilis] — Sesi login bot kini per chat, bukan satu slot global (Audit 2595)
 
 - Sesi login disimpan per chat (`tg_login_<id chat>`)
