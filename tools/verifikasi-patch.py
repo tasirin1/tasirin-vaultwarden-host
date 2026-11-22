@@ -15187,6 +15187,15 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 continue
             if opsi_tr and b_tr.startswith("--"):
                 nm_tr = b_tr.split("=", 1)[0]
+                # Audit 2662: semua opsi panjang
+                # tr tak berargumen - bentuk =
+                # membunuh alat, dan nama yang
+                # tak terselesaikan ke satu opsi
+                # dikenal juga membunuh ("unrecog-
+                # nized option", rc=1); pindaian
+                # 2643 dulu melewatkan keduanya.
+                if "=" in b_tr:
+                    return False
                 if "=" not in b_tr:
                     # Audit 2660: getopt_long
                     # menyelesaikan singkatan unik
@@ -15202,6 +15211,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         if x.startswith(nm_tr)]
                     if len(calon_tr) == 1:
                         nm_tr = calon_tr[0]
+                    elif nm_tr not in (
+                            "--help", "--version"):
+                        return False
                 if nm_tr == "--delete":
                     d_tr = True
                 elif nm_tr == "--squeeze-repeats":
@@ -15215,7 +15227,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     elif ch_tr == "s":
                         s_tr = True
                     elif ch_tr not in "cCt":
-                        break
+                        # Audit 2662: huruf pendek
+                        # asing membunuh tr
+                        # ("invalid option", rc=1).
+                        return False
                 continue
             set_tr += 1
         if set_tr == 0 or (set_tr == 1

@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi asing tr kini divonis mati (Audit 2662)
+
+- tr dengan opsi tak dikenal
+  (--bogus, -x) atau bentuk = pada
+  opsi tanpa argumen tidak lagi
+  divonis menguras: alatnya berhenti
+  saat mengurai opsi, sebelum membaca
+  stdin. Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: opsi asing/informatif awk kini divonis mati (Audit 2661)
 
 - awk dengan opsi yang tak dikenal
