@@ -2147,11 +2147,18 @@ public final class TgBackup {
                                 "attachments");
                         tambahFolderZip(zos, buf, new File(asalSamping, "sends"),
                                 "sends");
-                        addFileEntry(zos, buf, new File(asalSamping, "rsa_key.pem"),
-                                "rsa_key.pem");
-                        addFileEntry(zos, buf, new File(asalSamping, "rsa_key.der"),
-                                "rsa_key.der");
                         if (denganKunci) {
+                            // Audit 2637: kunci RSA sesi
+                            // adalah kunci privat juga -
+                            // ikut gerbang yang sama dengan
+                            // kunci privat TLS. Backup polos
+                            // tak lagi memuatnya, sesuai
+                            // pesan ke pengguna bahwa kunci
+                            // privat tak ikut tanpa enkripsi.
+                            addFileEntry(zos, buf, new File(asalSamping, "rsa_key.pem"),
+                                    "rsa_key.pem");
+                            addFileEntry(zos, buf, new File(asalSamping, "rsa_key.der"),
+                                    "rsa_key.der");
                             addFileEntry(zos, buf, new File(tlsSrc, "ca-key.pem"),
                                     "tls/ca-key.pem");
                             addFileEntry(zos, buf, new File(tlsSrc, "key.pem"), "tls/key.pem");

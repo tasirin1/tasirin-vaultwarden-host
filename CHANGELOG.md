@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Backup polos tak lagi memuat kunci privat RSA (Audit 2637)
+
+- Kunci RSA sesi (rsa_key.pem/.der) kini
+  hanya masuk backup terenkripsi, segerbang
+  dengan kunci privat TLS. Sebelumnya ia ikut
+  juga di backup polos yang terkirim ke
+  Telegram dan tersimpan di folder backups,
+  padahal pesan sukses backup polos menyatakan
+  kunci privat tidak ikut.
+
 ## [Belum rilis] — Nama check job verifikasi build-binary dibedakan dari check wajib (Audit 2636)
 
 - Job verifikasi di build-binary kini bernama
