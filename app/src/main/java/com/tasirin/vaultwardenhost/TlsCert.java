@@ -138,10 +138,31 @@ public final class TlsCert {
                 return null;
             }
 
-            return f.getAbsolutePath() + '|' + f.length() + '|' + f.lastModified();
+            return f.getAbsolutePath() + '|' + f.length() + '|' + f.lastModified()
+                    + '|' + sidikUjung(f);
         } catch (Exception e) {
             return null;
         }
+    }
+
+    static long sidikUjung(File f) throws java.io.IOException {
+        long len = f.length();
+        java.util.zip.CRC32 crc = new java.util.zip.CRC32();
+        try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile(f, "r")) {
+            byte[] buf = new byte[512];
+            int n = raf.read(buf, 0, (int) Math.min(512L, len));
+            if (n > 0) {
+                crc.update(buf, 0, n);
+            }
+            if (len > 512) {
+                raf.seek(len - 512);
+                n = raf.read(buf, 0, 512);
+                if (n > 0) {
+                    crc.update(buf, 0, n);
+                }
+            }
+        }
+        return crc.getValue();
     }
 
     private static long[] bacaMasa(File certFile) {

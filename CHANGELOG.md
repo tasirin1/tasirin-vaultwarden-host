@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Kunci memo TlsCert kini memuat sidik isi ujung berkas (Audit 2598)
+
+- `kunciStat` kini menambahkan CRC32 atas 512 byte
+  pertama + 512 byte terakhir berkas ke kunci memo
+  verifikasi (path + ukuran + mtime): penggantian
+  sertifikat/kunci berukuran sama dalam tick mtime
+  yang sama tidak lagi mewarisi vonis memo lama sampai
+  60 detik.
+
 ## [Belum rilis] — Start yang dibatalkan kini membersihkan penanda jalan (Audit 2602)
 
 - Cabang batal pada persiapan start (Stop ditekan

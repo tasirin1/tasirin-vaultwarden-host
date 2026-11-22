@@ -14,6 +14,29 @@ import java.nio.file.Files;
 
 public class TlsCertTest {
 
+    @org.junit.Test
+    public void sidikUjung_bedaIsiBedaSidik() throws Exception {
+        java.io.File a = java.io.File.createTempFile("tlsa", ".pem");
+        java.io.File b = java.io.File.createTempFile("tlsb", ".pem");
+        byte[] isiA = new byte[2048];
+        byte[] isiB = new byte[2048];
+        for (int i = 0; i < isiA.length; i++) {
+            isiA[i] = (byte) (i % 253);
+            isiB[i] = (byte) (i % 253);
+        }
+        isiB[isiB.length - 1] = (byte) (isiB[isiB.length - 1] + 1);
+        java.nio.file.Files.write(a.toPath(), isiA);
+        java.nio.file.Files.write(b.toPath(), isiB);
+        org.junit.Assert.assertEquals(TlsCert.sidikUjung(a), TlsCert.sidikUjung(a));
+        org.junit.Assert.assertNotEquals(TlsCert.sidikUjung(a), TlsCert.sidikUjung(b));
+        java.io.File kecil = java.io.File.createTempFile("tlsk", ".pem");
+        java.nio.file.Files.write(kecil.toPath(), "abc".getBytes("UTF-8"));
+        TlsCert.sidikUjung(kecil);
+        a.delete();
+        b.delete();
+        kecil.delete();
+    }
+
     // Sertifikat uji self-signed (DER, CN=uji, berlaku 2026-2036) untuk
     // kunci regresi Audit 838.
     private static final String SERT_UJI_B64 =
