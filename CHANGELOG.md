@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Ekspor log API <29 tak lagi lapor sukses sebelum writer ditutup (Audit 2614)
+
+- Pada jalur ekspor log API <29, tanda sukses kini
+  dipasang sesudah `close()` writer selesai, bukan di
+  dalam blok try-with-resources — kegagalan flush saat
+  penutupan (mis. storage penuh) kini menghapus berkas
+  parsial dan melaporkan gagal, bukan menyerahkan log
+  terpotong yang diklaim berhasil.
+
 ## [Belum rilis] — catatHasil PinGate kini berkunci KUNCI_PERCOBAAN yang sama dengan penulis advisori (Audit 2613)
 
 - `PinGate.catatHasil` tidak lagi `synchronized` pada

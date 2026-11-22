@@ -151,8 +151,12 @@ public final class LogExport {
                         w.write(kepalaTeks);
                         w.write(badan);
                         w.write('\n');
-                        ok = true;
                     }
+                    // Audit 2614: ok hanya sesudah writer benar-benar
+                    // tertutup (flush akhir di close) - kegagalan close
+                    // jatuh ke catch luar dengan ok=false sehingga berkas
+                    // parsial dihapus, bukan dilaporkan sukses.
+                    ok = true;
                 }
             } catch (Exception ignored) {
             }
