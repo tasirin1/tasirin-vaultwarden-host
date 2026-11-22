@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Batas tunggu kunci pasang global dinaikkan 15 ke 75 menit (Audit 2601)
+
+- `tryLock` kunci pasang global kini menunggu sampai
+  75 menit — di atas anggaran unduhan sah terlama
+  (batas 20 menit × 3 percobaan = 60 menit) tambah masa
+  pasang. Sebelumnya pemicu pasang kedua yang sah gagal
+  keras sesudah 15 menit padahal pemasangan pertama
+  sehat dan masih dalam batas waktunya sendiri.
+
 ## [Belum rilis] — Pesan gagal swap web-vault kini jujur bila pengembalian versi lama ikut gagal (Audit 2599)
 
 - Hasil `renameTo` pengembalian `web-vault.bak` kini

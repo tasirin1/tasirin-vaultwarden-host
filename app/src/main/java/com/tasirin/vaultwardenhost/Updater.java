@@ -1704,14 +1704,18 @@ public final class Updater {
             // Audit 990: teks tunggu dari resource pemanggil.
             // Audit 1474: kunci pasang hanya untuk binary — field mesin.
             statusMesin = teksMenunggu;
-            // Audit 1602: penantian kini BERBATAS 15 menit —
+            // Audit 1602: penantian kini BERBATAS —
             // lock() tanpa batas membuat satu pemasangan yang
             // macet (unduhan menetes tanpa ujung) menggantung
             // semua penunggu selamanya. Habis batas → gagal
             // keras yang terlihat, bukan menggantung.
+            // Audit 2601: batas 75 menit — di atas anggaran
+            // unduhan sah terlama (20 menit x 3 percobaan)
+            // tambah masa pasang, agar pemicu kedua yang sah
+            // tak gagal keras di tengah pemasangan sehat.
             boolean terkunci;
             try {
-                terkunci = KUNCI_PASANG_GLOBAL.tryLock(15,
+                terkunci = KUNCI_PASANG_GLOBAL.tryLock(75,
                         java.util.concurrent.TimeUnit.MINUTES);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
@@ -1723,7 +1727,7 @@ public final class Updater {
                     statusMesin = "";
                 }
                 throw new IllegalStateException(
-                        "Kunci pasang global masih dipegang >15 menit"
+                        "Kunci pasang global masih dipegang >75 menit"
                         + " - pemasangan dibatalkan.");
             }
             // Audit 1573: teks tunggu yang kami pasang bisa
