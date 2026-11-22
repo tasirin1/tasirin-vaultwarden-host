@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Rantai jaga wakelock tugas berat tak lagi berhenti saat acquire gagal (Audit 2608)
+
+- Tick jaga wakelock kini tetap menjadwalkan tick
+  berikutnya walau `acquire()` melempar pengecualian —
+  sebelumnya tick kembali diam-diam dan tugas berat yang
+  masih berjalan hanya bersandar pada sisa timeout
+  acquire terakhir (20 menit) tanpa perpanjangan.
+
 ## [Belum rilis] — Stempel throttle boot kini dicap sesudah kerja boot, bukan sebelumnya (Audit 2607)
 
 - Throttle boot kini hanya mengklaim giliran saat

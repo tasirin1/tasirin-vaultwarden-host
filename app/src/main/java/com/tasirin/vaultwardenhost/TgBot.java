@@ -2738,7 +2738,10 @@ public final class TgBot {
                 try {
                     milik.acquire(WAKELOCK_TUGAS_BERAT_MS);
                 } catch (Exception ignored) {
-                    return;
+                    // Audit 2608: acquire gagal TIDAK menghentikan
+                    // rantai - tick berikutnya tetap dijadwalkan di
+                    // bawah agar perpanjangan dicoba lagi, bukan
+                    // berhenti diam-diam mengandalkan sisa timeout.
                 }
                 // Audit 2563: tugas bisa selesai di antara cek
                 // kunciMasihDijaga di atas dan acquire ini - tanpa
