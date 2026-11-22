@@ -13183,6 +13183,49 @@ def _menguras_khusus(perintah, toks, awal):
     return False
 
 
+_CHARSET_ICONV_66 = frozenset({
+        "1026", "1046", "1047", "1064611993", "1064611993UCS4", "437", "500", "500V1", "850", "851", "852", "855", "856", "857", "858", "860", "861", "862", "863", "864", "865", "866", "866NAV", "869", "874", "88591", "88592", "88593", "88594", "88595", "88596", "88597", "88598", "88599", "904", "ANSIX3110", "ANSIX31101983", "ANSIX34", "ANSIX341968", "ANSIX341986", "ARABIC", "ARABIC7", "ARMSCII8", "ASCII", "ASMO449", "ASMO708", "BALTIC", "BIG5", "BIG5HKSCS", "BIGFIVE", "BRF", "BS4730", "CA", "CN", "CNBIG5", "CNGB", "CP037", "CP038", "CP10007", "CP1004", "CP1008", "CP1025", "CP1026", "CP1046", "CP1047", "CP1070", "CP1079", "CP1081", "CP1084", "CP1089", "CP1097", "CP1112", "CP1122", "CP1123", "CP1124", "CP1125", "CP1129", "CP1130", "CP1132", "CP1133", "CP1137", "CP1140", "CP1141", "CP1142", "CP1143", "CP1144", "CP1145", "CP1146", "CP1147", "CP1148", "CP1149", "CP1153", "CP1154", "CP1155", "CP1156", "CP1157", "CP1158", "CP1160", "CP1161", "CP1162", "CP1163", "CP1164", "CP1166", "CP1167", "CP1250", "CP1251", "CP1252", "CP1253", "CP1254", "CP1255", "CP1256", "CP1257", "CP1258", "CP12712", "CP1282", "CP1361", "CP1364", "CP1371", "CP1388", "CP1390", "CP1399", "CP16804", "CP273", "CP274", "CP275", "CP278", "CP280", "CP281", "CP282", "CP284", "CP285", "CP290", "CP297", "CP367", "CP420", "CP423", "CP424", "CP437", "CP4517", "CP4899", "CP4909", "CP4971", "CP500", "CP5347", "CP737", "CP770", "CP771", "CP772", "CP773", "CP774", "CP775", "CP803", "CP813", "CP819", "CP850", "CP851", "CP852", "CP855", "CP856", "CP857", "CP858", "CP860", "CP861", "CP862", "CP863", "CP864", "CP865", "CP866", "CP866NAV", "CP868", "CP869", "CP870", "CP871", "CP874", "CP875", "CP880", "CP891", "CP901", "CP902", "CP903", "CP9030", "CP904", "CP905", "CP9066", "CP912", "CP915", "CP916", "CP918", "CP920", "CP921", "CP922", "CP930", "CP932", "CP933", "CP935", "CP936", "CP937", "CP939", "CP9448", "CP949", "CP950", "CPAR", "CPGR", "CPHU", "CPIBM861", "CSA71", "CSA72", "CSASCII", "CSAT500", "CSAT5001983", "CSAZ243419851", "CSAZ243419852", "CSDECMCS", "CSEBCDICATDE", "CSEBCDICATDEA", "CSEBCDICCAFR", "CSEBCDICDKNO", "CSEBCDICDKNOA", "CSEBCDICES", "CSEBCDICESA", "CSEBCDICESS", "CSEBCDICFISE", "CSEBCDICFISEA", "CSEBCDICFR", "CSEBCDICIT", "CSEBCDICPT", "CSEBCDICUK", "CSEBCDICUS", "CSEUCKR", "CSEUCPKDFMTJAPANESE", "CSGB2312", "CSHPROMAN8", "CSIBM037", "CSIBM038", "CSIBM1008", "CSIBM1025", "CSIBM1026", "CSIBM1097", "CSIBM1112", "CSIBM1122", "CSIBM1123", "CSIBM1124", "CSIBM1129", "CSIBM1130", "CSIBM1132", "CSIBM1133", "CSIBM1137", "CSIBM1140", "CSIBM1141", "CSIBM1142", "CSIBM1143", "CSIBM1144", "CSIBM1145", "CSIBM1146", "CSIBM1147", "CSIBM1148", "CSIBM1149", "CSIBM1153", "CSIBM1154", "CSIBM1155", "CSIBM1156", "CSIBM1157", "CSIBM1158", "CSIBM1160", "CSIBM1161", "CSIBM11621162", "CSIBM1163", "CSIBM1164", "CSIBM1166", "CSIBM1167", "CSIBM12712", "CSIBM1364", "CSIBM1371", "CSIBM1388", "CSIBM1390", "CSIBM1399", "CSIBM16804", "CSIBM273", "CSIBM274", "CSIBM275", "CSIBM277", "CSIBM278", "CSIBM280", "CSIBM281", "CSIBM284", "CSIBM285", "CSIBM290", "CSIBM297", "CSIBM420", "CSIBM423", "CSIBM424", "CSIBM4517", "CSIBM4899", "CSIBM4909", "CSIBM4971", "CSIBM500", "CSIBM5347", "CSIBM803", "CSIBM851", "CSIBM855", "CSIBM856", "CSIBM857", "CSIBM860", "CSIBM863", "CSIBM864", "CSIBM865", "CSIBM866", "CSIBM868", "CSIBM869", "CSIBM870", "CSIBM871", "CSIBM880", "CSIBM891", "CSIBM901", "CSIBM902", "CSIBM903", "CSIBM9030", "CSIBM904", "CSIBM905", "CSIBM9066", "CSIBM918", "CSIBM921", "CSIBM922", "CSIBM930", "CSIBM932", "CSIBM933", "CSIBM935", "CSIBM937", "CSIBM939", "CSIBM943", "CSIBM9448", "CSISO10367BOX", "CSISO103T618BIT", "CSISO10SWEDISH", "CSISO111ECMACYRILLIC", "CSISO11SWEDISHFORNAMES", "CSISO121CANADIAN1", "CSISO122CANADIAN2", "CSISO139CSN369103", "CSISO141JUSIB1002", "CSISO143IECP271", "CSISO14JISC6220RO", "CSISO150", "CSISO150GREEKCCITT", "CSISO151CUBA", "CSISO153GOST1976874", "CSISO15ITALIAN", "CSISO16PORTUGESE", "CSISO17SPANISH", "CSISO18GREEK7OLD", "CSISO19LATINGREEK", "CSISO2022CN", "CSISO2022JP", "CSISO2022JP2", "CSISO2022KR", "CSISO2033", "CSISO21GERMAN", "CSISO25FRENCH", "CSISO27LATINGREEK1", "CSISO49INIS", "CSISO4UNITEDKINGDOM", "CSISO50INIS8", "CSISO51INISCYRILLIC", "CSISO5427CYRILLIC", "CSISO5427CYRILLIC1981", "CSISO5428GREEK", "CSISO58GB1988", "CSISO60DANISHNORWEGIAN", "CSISO60NORWEGIAN1", "CSISO61NORWEGIAN2", "CSISO646DANISH", "CSISO69FRENCH", "CSISO84PORTUGUESE2", "CSISO85SPANISH2", "CSISO86HUNGARIAN", "CSISO88GREEK7", "CSISO89ASMO449", "CSISO90", "CSISO92JISC62991984B", "CSISO99NAPLPS", "CSISOLATIN1", "CSISOLATIN2", "CSISOLATIN3", "CSISOLATIN4", "CSISOLATIN5", "CSISOLATIN6", "CSISOLATINARABIC", "CSISOLATINCYRILLIC", "CSISOLATINGREEK", "CSISOLATINHEBREW", "CSKOI8R", "CSKSC5636", "CSMACINTOSH", "CSN369103", "CSNATSDANO", "CSNATSSEFI", "CSPC775BALTIC", "CSPC850MULTILINGUAL", "CSPC858MULTILINGUAL", "CSPC862LATINHEBREW", "CSPC8CODEPAGE437", "CSPCP852", "CSSHIFTJIS", "CSUCS4", "CSUNICODE", "CSWINDOWS31J", "CUBA", "CWI", "CWI2", "CYRILLIC", "DE", "DEC", "DECMCS", "DIN66003", "DK", "DS2089", "E13B", "EBCDICATDE", "EBCDICATDEA", "EBCDICBE", "EBCDICBR", "EBCDICCAFR", "EBCDICCPAR1", "EBCDICCPAR2", "EBCDICCPBE", "EBCDICCPCA", "EBCDICCPCH", "EBCDICCPDK", "EBCDICCPES", "EBCDICCPFI", "EBCDICCPFR", "EBCDICCPGB", "EBCDICCPGR", "EBCDICCPHE", "EBCDICCPIS", "EBCDICCPIT", "EBCDICCPNL", "EBCDICCPNO", "EBCDICCPROECE", "EBCDICCPSE", "EBCDICCPTR", "EBCDICCPUS", "EBCDICCPWT", "EBCDICCPYU", "EBCDICCYRILLIC", "EBCDICDKNO", "EBCDICDKNOA", "EBCDICES", "EBCDICESA", "EBCDICESS", "EBCDICFISE", "EBCDICFISEA", "EBCDICFR", "EBCDICGREEK", "EBCDICINT", "EBCDICINT1", "EBCDICISFRISS", "EBCDICIT", "EBCDICJPE", "EBCDICJPKANA", "EBCDICPT", "EBCDICUK", "EBCDICUS", "ECMA114", "ECMA118", "ECMA128", "ECMACYRILLIC", "ELOT928", "ES", "ES2", "EUCCN", "EUCJISX0213", "EUCJP", "EUCJPMS", "EUCJPOPEN", "EUCJPWIN", "EUCKR", "EUCTW", "FI", "FR", "GB", "GB13000", "GB18030", "GB198880", "GB2312", "GBK", "GEORGIANACADEMY", "GEORGIANPS", "GOST19768", "GOST1976874", "GREEK", "GREEK7", "GREEK7OLD", "GREEK8", "GREEKCCITT", "HEBREW", "HPGREEK8", "HPROMAN8", "HPROMAN9", "HPTHAI8", "HPTURKISH8", "HU", "IBM037", "IBM038", "IBM1004", "IBM1008", "IBM1025", "IBM1026", "IBM1046", "IBM1047", "IBM1089", "IBM1097", "IBM1112", "IBM1122", "IBM1123", "IBM1124", "IBM1129", "IBM1130", "IBM1132", "IBM1133", "IBM1137", "IBM1140", "IBM1141", "IBM1142", "IBM1143", "IBM1144", "IBM1145", "IBM1146", "IBM1147", "IBM1148", "IBM1149", "IBM1153", "IBM1154", "IBM1155", "IBM1156", "IBM1157", "IBM1158", "IBM1160", "IBM1161", "IBM1162", "IBM1163", "IBM1164", "IBM1166", "IBM1167", "IBM12712", "IBM1364", "IBM1371", "IBM1388", "IBM1390", "IBM1399", "IBM16804", "IBM256", "IBM273", "IBM274", "IBM275", "IBM277", "IBM278", "IBM280", "IBM281", "IBM284", "IBM285", "IBM290", "IBM297", "IBM367", "IBM420", "IBM423", "IBM424", "IBM437", "IBM4517", "IBM4899", "IBM4909", "IBM4971", "IBM500", "IBM5347", "IBM775", "IBM803", "IBM813", "IBM819", "IBM848", "IBM850", "IBM851", "IBM852", "IBM855", "IBM856", "IBM857", "IBM858", "IBM860", "IBM861", "IBM862", "IBM863", "IBM864", "IBM865", "IBM866", "IBM866NAV", "IBM868", "IBM869", "IBM870", "IBM871", "IBM874", "IBM875", "IBM880", "IBM891", "IBM901", "IBM902", "IBM903", "IBM9030", "IBM904", "IBM905", "IBM9066", "IBM912", "IBM915", "IBM916", "IBM918", "IBM920", "IBM921", "IBM922", "IBM930", "IBM932", "IBM933", "IBM935", "IBM937", "IBM939", "IBM943", "IBM9448", "IECP271", "INIS", "INIS8", "INISCYRILLIC", "ISIRI3342", "ISO10367BOX", "ISO10646", "ISO10646UCS2", "ISO10646UCS4", "ISO10646UTF8", "ISO115481", "ISO2022CN", "ISO2022CNEXT", "ISO2022JP", "ISO2022JP2", "ISO2022JP3", "ISO2022KR", "ISO2033", "ISO20331983", "ISO5427", "ISO54271981", "ISO5427EXT", "ISO5428", "ISO54281980", "ISO646CA", "ISO646CA2", "ISO646CN", "ISO646CU", "ISO646DE", "ISO646DK", "ISO646ES", "ISO646ES2", "ISO646FI", "ISO646FR", "ISO646FR1", "ISO646GB", "ISO646HU", "ISO646IRV1991", "ISO646IT", "ISO646JP", "ISO646JPOCRB", "ISO646KR", "ISO646NO", "ISO646NO2", "ISO646PT", "ISO646PT2", "ISO646SE", "ISO646SE2", "ISO646US", "ISO646YU", "ISO6937", "ISO69371992", "ISO69372", "ISO693721983", "ISO88591", "ISO885910", "ISO8859101992", "ISO885911", "ISO885911987", "ISO885913", "ISO885914", "ISO8859141998", "ISO885915", "ISO8859151998", "ISO885916", "ISO8859162001", "ISO88592", "ISO885921987", "ISO88593", "ISO885931988", "ISO88594", "ISO885941988", "ISO88595", "ISO885951988", "ISO88596", "ISO885961987", "ISO88597", "ISO885971987", "ISO885972003", "ISO88598", "ISO885981988", "ISO88599", "ISO885991989", "ISO88599E", "ISO9036", "ISOCELTIC", "ISOIR10", "ISOIR100", "ISOIR101", "ISOIR103", "ISOIR109", "ISOIR11", "ISOIR110", "ISOIR111", "ISOIR121", "ISOIR122", "ISOIR126", "ISOIR127", "ISOIR138", "ISOIR139", "ISOIR14", "ISOIR141", "ISOIR143", "ISOIR144", "ISOIR148", "ISOIR15", "ISOIR150", "ISOIR151", "ISOIR153", "ISOIR155", "ISOIR156", "ISOIR157", "ISOIR16", "ISOIR166", "ISOIR17", "ISOIR179", "ISOIR18", "ISOIR19", "ISOIR193", "ISOIR197", "ISOIR199", "ISOIR203", "ISOIR209", "ISOIR21", "ISOIR226", "ISOIR25", "ISOIR27", "ISOIR37", "ISOIR4", "ISOIR49", "ISOIR50", "ISOIR51", "ISOIR54", "ISOIR55", "ISOIR57", "ISOIR6", "ISOIR60", "ISOIR61", "ISOIR69", "ISOIR81", "ISOIR84", "ISOIR85", "ISOIR86", "ISOIR88", "ISOIR89", "ISOIR90", "ISOIR91", "ISOIR92", "ISOIR98", "ISOIR99", "ISOTR115481", "IT", "JISC62201969RO", "JISC62291984B", "JOHAB", "JP", "JPOCRB", "JS", "JUSIB1002", "KOI7", "KOI8", "KOI8R", "KOI8RU", "KOI8T", "KOI8U", "KSC5636", "L1", "L10", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "LATIN1", "LATIN10", "LATIN2", "LATIN3", "LATIN4", "LATIN5", "LATIN6", "LATIN7", "LATIN8", "LATIN9", "LATINGREEK", "LATINGREEK1", "MAC", "MACCENTRALEUROPE", "MACCYRILLIC", "MACINTOSH", "MACIS", "MACSAMI", "MACUK", "MACUKRAINIAN", "MIK", "MS932", "MS936", "MSANSI", "MSARAB", "MSCP1361", "MSCP949", "MSCYRL", "MSEE", "MSGREEK", "MSHEBR", "MSKANJI", "MSMACCYRILLIC", "MSTURK", "MSZ77953", "NAPLPS", "NATSDANO", "NATSSEFI", "NCNC0010", "NCNC001081", "NFZ62010", "NFZ620101973", "NO", "NO2", "NS45511", "NS45512", "OS2LATIN1", "OSF00010001", "OSF00010002", "OSF00010003", "OSF00010004", "OSF00010005", "OSF00010006", "OSF00010007", "OSF00010008", "OSF00010009", "OSF0001000A", "OSF00010020", "OSF00010100", "OSF00010101", "OSF00010102", "OSF00010104", "OSF00010105", "OSF00010106", "OSF00030010", "OSF0004000A", "OSF0005000A", "OSF05010001", "OSF10010001", "OSF10010004", "OSF10010006", "OSF10020025", "OSF10020111", "OSF10020115", "OSF10020116", "OSF10020118", "OSF1002011C", "OSF1002011D", "OSF10020122", "OSF10020129", "OSF100201A4", "OSF100201A8", "OSF100201B5", "OSF100201F4", "OSF10020352", "OSF10020354", "OSF10020357", "OSF10020359", "OSF1002035D", "OSF1002035E", "OSF1002035F", "OSF10020360", "OSF10020364", "OSF10020365", "OSF10020366", "OSF10020367", "OSF1002036B", "OSF10020370", "OSF1002037B", "OSF10020387", "OSF10020388", "OSF10020396", "OSF100203B5", "OSF10020402", "OSF10020417", "PT", "PT154", "PT2", "R8", "R9", "RK1048", "ROMAN8", "ROMAN9", "RUSCII", "SE", "SE2", "SEN850200B", "SEN850200C", "SHIFTJIS", "SHIFTJISX0213", "SJIS", "SJISOPEN", "SJISWIN", "SS636127", "STRK10482002", "STSEV35888", "T61", "T618BIT", "TCVN", "TCVN5712", "TCVN57121", "TCVN571211993", "THAI8", "TIS620", "TIS6200", "TIS62025291", "TIS62025330", "TS5881", "TSCII", "TURKISH8", "UCS2", "UCS2BE", "UCS2LE", "UCS4", "UCS4BE", "UCS4LE", "UHC", "UJIS", "UK", "UNICODE", "UNICODEBIG", "UNICODELITTLE", "US", "USASCII", "UTF16", "UTF16BE", "UTF16LE", "UTF32", "UTF32BE", "UTF32LE", "UTF7", "UTF7IMAP", "UTF8", "VISCII", "WCHART", "WINBALTRIM", "WINDOWS1250", "WINDOWS1251", "WINDOWS1252", "WINDOWS1253", "WINDOWS1254", "WINDOWS1255", "WINDOWS1256", "WINDOWS1257", "WINDOWS1258", "WINDOWS31J", "WINDOWS874", "WINDOWS936", "WINSAMI2", "WS2", "YU"})
+
+
+def _tipe_nilai_sah_66(jenis, nilai):
+    """Audit 2666: validasi nilai penerima bertipe untuk
+    pembaca generik 2645 - angka/enum/charset yang tak
+    sah membunuh alat saat urai, sebelum stdin dibaca
+    (preseden model 2619/2626). Daftar charset =
+    keluaran iconv -l glibc setempat, dikanonkan
+    (huruf besar, alfanumerik saja) seperti cara
+    iconv mencocokkan nama."""
+    v = nilai.strip("\"'")
+    if jenis == "angka0":
+        return v.isdigit() and len(v) <= 18
+    if jenis == "angka1":
+        return v.isdigit() and len(v) <= 18 \
+            and int(v) > 0
+    if jenis == "ukuran1":
+        m66 = re.fullmatch(
+            r"(\d{1,18})([KMGTPEZY]B?|b|c|w)?", v)
+        return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "nomor-split":
+        m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
+        return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "odnum":
+        return re.fullmatch(
+            r"(0[xX][0-9a-fA-F]{1,16}|\d{1,18})"
+            r"([KMGTPEZY]B?)?", v) is not None
+    if jenis == "enum-cksum":
+        return v in {"bsd", "sysv", "crc", "crc32b",
+                     "md5", "sha1", "sha224", "sha256",
+                     "sha384", "sha512", "blake2b",
+                     "sm3"}
+    if jenis == "enum-tee":
+        return v in {"warn", "warn-nopipe", "exit",
+                     "exit-nopipe"}
+    if jenis == "charset":
+        return re.sub(r"[^A-Z0-9]", "", v.upper()) \
+            in _CHARSET_ICONV_66
+    return True
+
+
 def _dd_operand_sah(tok):
     """Audit 2665: tata bahasa operand dd kunci=nilai -
     kunci asing, nilai angka tak sah, dan anggota enum
@@ -15126,8 +15169,38 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     "strings", "iconv", "cksum",
                     "split"):
         vokab_gu = _VOKAB_SK[perintah]
+        # Audit 2666: penerima bertipe per perintah
+        # (nama panjang dan huruf pendek -> jenis
+        # nilai); nilai tak sah = mati saat urai.
+        _TIPE66 = {
+            "fmt": {"width": "angka0", "goal": "angka0",
+                    "w": "angka0", "g": "angka0"},
+            "fold": {"width": "angka1", "w": "angka1"},
+            "strings": {"bytes": "angka1", "n": "angka1"},
+            "split": {"lines": "angka1", "l": "angka1",
+                      "bytes": "ukuran1", "b": "ukuran1",
+                      "line-bytes": "ukuran1",
+                      "C": "ukuran1",
+                      "number": "nomor-split",
+                      "n": "nomor-split", "a": "angka1"},
+            "shuf": {"head-count": "angka0",
+                     "n": "angka0"},
+            "od": {"read-bytes": "odnum", "N": "odnum",
+                   "skip-bytes": "odnum", "j": "odnum",
+                   "S": "odnum", "width": "odnum"},
+            "base64": {"wrap": "angka0", "w": "angka0"},
+            "base32": {"wrap": "angka0", "w": "angka0"},
+            "cksum": {"algorithm": "enum-cksum",
+                      "a": "enum-cksum",
+                      "length": "angka0", "l": "angka0"},
+            "tee": {"output-error": "enum-tee"},
+            "iconv": {"from-code": "charset",
+                      "f": "charset",
+                      "to-code": "charset",
+                      "t": "charset"},
+        }
         lewati_gu = 0
-        for t_gu in toks[awal + 1:]:
+        for j_gu, t_gu in enumerate(toks[awal + 1:]):
             b_gu = t_gu.strip("\"'")
             if lewati_gu > 0:
                 lewati_gu -= 1
@@ -15154,6 +15227,29 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         and perintah == "cut" and _nm_gu in (
                             "bytes", "characters", "fields")):
                     daftar_cut = True
+                if (st_gu in ("pembawa", "pembawa=")
+                        or (st_gu == "opsi"
+                            and "=" in b_gu)):
+                    # Bentuk opsi-opsional ber-= (tee
+                    # --output-error, od --width):
+                    # statusnya "opsi" tetapi nilai
+                    # nempelnya tetap dinilai alat.
+                    jenis66 = _TIPE66.get(
+                        perintah, {}).get(_nm_gu)
+                    if jenis66:
+                        if (st_gu == "pembawa="
+                                or st_gu == "opsi"):
+                            nilai66 = b_gu.split(
+                                "=", 1)[1]
+                        elif awal + 2 + j_gu < len(toks):
+                            nilai66 = toks[
+                                awal + 2 + j_gu]
+                        else:
+                            nilai66 = None
+                        if (nilai66 is not None
+                                and not _tipe_nilai_sah_66(
+                                    jenis66, nilai66)):
+                            return False
                 continue
             if (perintah in ("head", "tail")
                     and b_gu[1:].isdigit()):
@@ -15200,6 +15296,25 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 if (perintah == "cut"
                         and _ch_gu in ("b", "c", "f")):
                     daftar_cut = True
+                jenis66 = _TIPE66.get(
+                    perintah, {}).get(_ch_gu)
+                if jenis66:
+                    if st_gu == "pembawa-nempel":
+                        huruf66 = b_gu[1:]
+                        pos66 = next(
+                            i for i, c in enumerate(
+                                huruf66)
+                            if c in vokab_gu[
+                                "pembawa_pendek"])
+                        nilai66 = huruf66[pos66 + 1:]
+                    elif awal + 2 + j_gu < len(toks):
+                        nilai66 = toks[awal + 2 + j_gu]
+                    else:
+                        nilai66 = None
+                    if (nilai66 is not None
+                            and not _tipe_nilai_sah_66(
+                                jenis66, nilai66)):
+                        return False
     # Audit 2642: tanpa opsi daftar, cut mati
     # "you must specify a list of bytes,
     # characters, or fields" (rc=1) sebelum

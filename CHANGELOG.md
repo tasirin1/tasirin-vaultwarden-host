@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nilai bertipe pembaca generik kini divalidasi (Audit 2666)
+
+- Nilai tak sah untuk opsi penerima
+  bertipe tidak lagi divonis menguras:
+  angka rusak (fmt -w abc, split -b
+  abc, od -N abc), enum asing (cksum
+  --algorithm, tee --output-error), dan
+  charset tak dikenal (iconv -f)
+  semuanya membunuh alat saat mengurai
+  opsi. Nilai sah termasuk nol yang
+  memang diterima dan sufiks ukuran
+  tetap lolos. Satu skenario uji-diri
+  baru.
+
 ## [Belum rilis] — Gerbang: tata bahasa operand dd kini divalidasi (Audit 2665)
 
 - Operand dd yang tak sah (kunci asing
