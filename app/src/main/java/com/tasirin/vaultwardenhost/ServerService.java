@@ -3032,11 +3032,8 @@ public class ServerService extends Service {
             if (old.exists()) {
                 old.delete();
             }
-            if (!f.renameTo(old)) {
-                try {
-                    new FileOutputStream(f, false).close();
-                } catch (Exception ignored) {
-                }
+            if (!f.renameTo(old) && !rotasiLewatTmp(f)) {
+                return;
             }
         }
         try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
@@ -3055,6 +3052,31 @@ public class ServerService extends Service {
             return;
         }
         logFileBuf.setLength(0);
+    }
+
+    private static boolean rotasiLewatTmp(File f) {
+        File tmp = new File(f.getParentFile(), f.getName() + ".tmp");
+        try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
+                new FileOutputStream(tmp, false), StandardCharsets.UTF_8)) {
+            w.write(logFileBuf.toString());
+        } catch (Exception e) {
+            return false;
+        }
+        if (!tmp.renameTo(f)) {
+            try (java.io.InputStream in = new java.io.FileInputStream(tmp);
+                    java.io.OutputStream out = new FileOutputStream(f, false)) {
+                byte[] b = new byte[64 * 1024];
+                int n;
+                while ((n = in.read(b)) != -1) {
+                    out.write(b, 0, n);
+                }
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        tmp.delete();
+        logFileBuf.setLength(0);
+        return true;
     }
 
     static boolean bolehLogTickNetralJam(int n) {

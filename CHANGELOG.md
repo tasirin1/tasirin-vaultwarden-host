@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Rotasi log darurat menulis lewat berkas sementara dulu (Audit 2603)
+
+- Bila rotasi `vaultwarden.log` gagal mengganti nama ke
+  `.1`, berkas live tidak lagi dipotong di tempat sebelum
+  buffer ditulis. Buffer kini ditulis ke berkas `.tmp`
+  lebih dulu; hanya sesudah tulisan itu berhasil berkas
+  live diganti isinya — kegagalan tulis (disk penuh)
+  mempertahankan isi lama DAN buffer sekaligus.
+
 ## [Belum rilis] — Batas tunggu kunci pasang global dinaikkan 15 ke 75 menit (Audit 2601)
 
 - `tryLock` kunci pasang global kini menunggu sampai

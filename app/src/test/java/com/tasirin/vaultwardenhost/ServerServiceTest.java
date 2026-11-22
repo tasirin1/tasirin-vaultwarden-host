@@ -910,6 +910,68 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void rotasiRenameGagalMenulisLewatTmp() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwrot").toFile();
+        java.io.File f = new java.io.File(dir, "vaultwarden.log");
+        java.io.File bak = new java.io.File(dir, "vaultwarden.log.1");
+        org.junit.Assert.assertTrue(bak.mkdir());
+        java.nio.file.Files.write(new java.io.File(bak, "penghalang").toPath(),
+                "x".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        byte[] isiLama = new byte[2_100_000];
+        java.util.Arrays.fill(isiLama, (byte) 'L');
+        java.nio.file.Files.write(f.toPath(), isiLama);
+        java.lang.reflect.Field fLog = ServerService.class.getDeclaredField("logFile");
+        fLog.setAccessible(true);
+        java.lang.reflect.Field fBuf = ServerService.class.getDeclaredField("logFileBuf");
+        fBuf.setAccessible(true);
+        Object asliLog = fLog.get(null);
+        StringBuilder buf = (StringBuilder) fBuf.get(null);
+        try {
+            fLog.set(null, f);
+            buf.append("baris-baru\n");
+            ServerService.pindahLogFile(f);
+            String isi = new String(java.nio.file.Files.readAllBytes(f.toPath()),
+                    java.nio.charset.StandardCharsets.UTF_8);
+            assertEquals("baris-baru\n", isi);
+            assertEquals(0, buf.length());
+            org.junit.Assert.assertFalse(new java.io.File(dir, "vaultwarden.log.tmp").exists());
+        } finally {
+            fLog.set(null, asliLog);
+            buf.setLength(0);
+        }
+    }
+
+    @Test
+    public void rotasiTmpIkutGagalBerkasLamaUtuh() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwrot2").toFile();
+        java.io.File f = new java.io.File(dir, "vaultwarden.log");
+        java.io.File bak = new java.io.File(dir, "vaultwarden.log.1");
+        org.junit.Assert.assertTrue(bak.mkdir());
+        java.nio.file.Files.write(new java.io.File(bak, "penghalang").toPath(),
+                "x".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        org.junit.Assert.assertTrue(new java.io.File(dir, "vaultwarden.log.tmp").mkdir());
+        byte[] isiLama = new byte[2_100_000];
+        java.util.Arrays.fill(isiLama, (byte) 'L');
+        java.nio.file.Files.write(f.toPath(), isiLama);
+        java.lang.reflect.Field fLog = ServerService.class.getDeclaredField("logFile");
+        fLog.setAccessible(true);
+        java.lang.reflect.Field fBuf = ServerService.class.getDeclaredField("logFileBuf");
+        fBuf.setAccessible(true);
+        Object asliLog = fLog.get(null);
+        StringBuilder buf = (StringBuilder) fBuf.get(null);
+        try {
+            fLog.set(null, f);
+            buf.append("baris-baru\n");
+            ServerService.pindahLogFile(f);
+            assertEquals(2_100_000L, f.length());
+            assertTrue(buf.toString().contains("baris-baru"));
+        } finally {
+            fLog.set(null, asliLog);
+            buf.setLength(0);
+        }
+    }
+
+    @Test
     public void flushGagalTulisMempertahankanBuffer() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwlogfail").toFile();
         java.io.File penghalang = new java.io.File(dir, "penghalang");
