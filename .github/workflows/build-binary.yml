@@ -30,8 +30,14 @@ env:
   NDK_VERSION: 25.2.9519653
 
 jobs:
+  # Audit 2636: job ini hanya menjalankan 2 dari 4 langkah
+  # gerbang (tanpa dua suite uji-diri), jadi namanya dibedakan
+  # dari check wajib "Cek patch yang berubah" - pola yang sama
+  # dengan penamaan build-apk sejak Audit 2526. Check wajib
+  # bernama persis itu milik cek-wajib.yml (semua PR) dan
+  # tidak boleh dilaporkan oleh job yang lebih ringan.
   verifikasi:
-    name: Cek patch yang berubah
+    name: Cek patch yang berubah (build-binary)
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:

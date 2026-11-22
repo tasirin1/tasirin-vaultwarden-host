@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Nama check job verifikasi build-binary dibedakan dari check wajib (Audit 2636)
+
+- Job verifikasi di build-binary kini bernama
+  "Cek patch yang berubah (build-binary)".
+  Job itu hanya menjalankan dua dari empat
+  langkah gerbang (tanpa suite uji-diri),
+  sehingga tidak boleh melaporkan nama yang
+  sama persis dengan check wajib — mengikuti
+  penamaan build-apk sejak Audit 2526.
+
 ## [Belum rilis] — Push khusus dependabot.yml kini memicu gerbang (Audit 2635)
 
 - .github/dependabot.yml ditambahkan ke
