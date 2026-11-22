@@ -366,6 +366,8 @@ public final class Util {
         }
     }
 
+    static final long JEDA_ESKALASI_WATCHDOG_MS = 2000L;
+
     public static Thread pasangWatchdogProses(final Process proc,
             final java.util.concurrent.atomic.AtomicBoolean selesai,
             final long timeoutMs, final String nama) {
@@ -379,6 +381,22 @@ public final class Util {
                 try {
                     if (selesai != null && !selesai.get() && proc != null) {
                         proc.destroy();
+                        // Audit 2615: eskalasi paksa bila proses
+                        // mengabaikan destroy() - pola yang sama
+                        // dengan ServerService.matikanProsesTegas.
+                        try {
+                            Thread.sleep(JEDA_ESKALASI_WATCHDOG_MS);
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                        if (!selesai.get()) {
+                            if (android.os.Build.VERSION.SDK_INT
+                                    >= android.os.Build.VERSION_CODES.O) {
+                                proc.destroyForcibly();
+                            } else {
+                                proc.destroy();
+                            }
+                        }
                     }
                 } catch (Exception ignored) {
                 }

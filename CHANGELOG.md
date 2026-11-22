@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Watchdog proses Util kini meneskalasi ke destroyForcibly (Audit 2615)
+
+- `Util.pasangWatchdogProses` tidak berhenti pada satu
+  `destroy()`: bila proses belum selesai sesudah jeda
+  eskalasi 2 detik, watchdog memanggil
+  `destroyForcibly()` (API 26+; di bawah itu `destroy()`
+  ulang) — pola yang sama dengan
+  `ServerService.matikanProsesTegas`. Proses anak yang
+  mengabaikan SIGTERM tidak lagi menggantung yatim.
+
 ## [Belum rilis] — Ekspor log API <29 tak lagi lapor sukses sebelum writer ditutup (Audit 2614)
 
 - Pada jalur ekspor log API <29, tanda sukses kini

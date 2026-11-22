@@ -572,7 +572,10 @@ public class UtilTest {
         }
         @Override public void destroy() {
             hancur = true;
+            panggilanHancur.incrementAndGet();
         }
+        final java.util.concurrent.atomic.AtomicInteger panggilanHancur =
+                new java.util.concurrent.atomic.AtomicInteger(0);
     }
 
     @Test
@@ -585,6 +588,19 @@ public class UtilTest {
         assertTrue(w.isDaemon());
         w.join(3000);
         assertTrue(p.hancur);
+    }
+
+    @Test
+    public void watchdogEskalasiBilaProsesMengabaikanDestroy() throws Exception {
+        ProsesPalsu p = new ProsesPalsu();
+        java.util.concurrent.atomic.AtomicBoolean selesai =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        Thread w = Util.pasangWatchdogProses(p, selesai, 100, "uji-watchdog");
+        w.join(6000);
+        assertFalse(w.isAlive());
+        // destroy awal + satu panggilan eskalasi (di jalur JVM:
+        // destroy ulang; di Android API 26+: destroyForcibly).
+        assertTrue(p.panggilanHancur.get() >= 2);
     }
 
     @Test
