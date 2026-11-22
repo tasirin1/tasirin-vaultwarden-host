@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Dokumen: AGENTS.md dibetulkan soal nama check build-binary (Audit 2650)
+
+- Kalimat yang menyatakan job verifikasi
+  build-binary memakai nama yang sama
+  dengan check wajib sudah basi sejak
+  Audit 2636 mengganti namanya menjadi
+  "Cek patch yang berubah (build-binary)";
+  AGENTS.md kini menyebut nama yang benar
+  beserta alasannya.
+
 ## [Belum rilis] — CI: push khusus .gitignore kini memicu cek wajib (Audit 2649)
 
 - .gitignore ditambahkan ke paths push
