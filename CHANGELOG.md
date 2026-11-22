@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Verifikasi backup kini membaca semua entri zip, bukan hanya database (Audit 2589)
+
+- `verifikasiZip` kini membaca tuntas setiap entri
+  (lampiran, sends, RSA, TLS, config) sesudah pemeriksaan
+  header database, sehingga kerusakan CRC/potongan pada
+  entri mana pun menggagalkan backup sebelum terunggah —
+  bukan lagi baru ketahuan saat restore. Total bacaan
+  dibatasi batas wajar yang sama dengan restore.
+
 ## [Belum rilis] — Ekor log yang dikirim ke Telegram kini disamarkan dulu (Audit 2587)
 
 - Empat pemberitahuan otomatis (crash, gagal restart 5x,

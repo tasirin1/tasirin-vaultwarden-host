@@ -2103,6 +2103,56 @@ public class TgBackupTest {
     }
 
     @Test
+    public void verifikasiZip_tolakEntriSampingKorup() throws Exception {
+        File zip = File.createTempFile("vwkorup2", ".zip");
+        byte[] isiLampiran = new byte[4096];
+        for (int i = 0; i < isiLampiran.length; i++) {
+            isiLampiran[i] = (byte) (i % 251);
+        }
+        java.util.zip.CRC32 crc = new java.util.zip.CRC32();
+        crc.update(isiLampiran);
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+            zos.putNextEntry(new ZipEntry("db.sqlite3"));
+            byte[] magic = "SQLite format 3\0isi-palsu".getBytes("UTF-8");
+            zos.write(magic);
+            zos.write(new byte[1024 - magic.length]);
+            zos.closeEntry();
+            ZipEntry lampiran = new ZipEntry("attachments/uji.bin");
+            lampiran.setMethod(ZipEntry.STORED);
+            lampiran.setSize(isiLampiran.length);
+            lampiran.setCrc(crc.getValue());
+            zos.putNextEntry(lampiran);
+            zos.write(isiLampiran);
+            zos.closeEntry();
+        }
+        assertNull(TgBackup.verifikasiZip(zip));
+        byte[] mentah = java.nio.file.Files.readAllBytes(zip.toPath());
+        String nama = "attachments/uji.bin";
+        int posNama = -1;
+        cari:
+        for (int i = 0; i + nama.length() <= mentah.length; i++) {
+            for (int j = 0; j < nama.length(); j++) {
+                if (mentah[i + j] != (byte) nama.charAt(j)) {
+                    continue cari;
+                }
+            }
+            posNama = i;
+            break;
+        }
+        org.junit.Assert.assertTrue(posNama > 0);
+        int ekstra = (mentah[posNama - 2] & 0xff) | ((mentah[posNama - 1] & 0xff) << 8);
+        int awalData = posNama + nama.length() + ekstra;
+        try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile(zip, "rw")) {
+            raf.seek(awalData + 100);
+            int b = raf.read();
+            raf.seek(awalData + 100);
+            raf.write(b ^ 0xff);
+        }
+        assertNotNull(TgBackup.verifikasiZip(zip));
+        zip.delete();
+    }
+
+    @Test
     public void verifikasiZip_tolakKorup() throws Exception {
         assertNotNull(TgBackup.verifikasiZip(null));
         assertNotNull(TgBackup.verifikasiZip(new File("/tidak/ada.zip")));

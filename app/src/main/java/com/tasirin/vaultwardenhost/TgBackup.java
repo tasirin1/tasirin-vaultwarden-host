@@ -1799,6 +1799,25 @@ public final class TgBackup {
                     return "db.sqlite3 bukan database SQLite valid";
                 }
             }
+            java.util.Enumeration<? extends java.util.zip.ZipEntry> semua =
+                    zf.entries();
+            long totalBaca = 0;
+            byte[] bufBaca = new byte[64 * 1024];
+            while (semua.hasMoreElements()) {
+                java.util.zip.ZipEntry entri = semua.nextElement();
+                if (entri.isDirectory()) {
+                    continue;
+                }
+                try (InputStream in = zf.getInputStream(entri)) {
+                    int n;
+                    while ((n = in.read(bufBaca)) != -1) {
+                        totalBaca += n;
+                        if (totalBaca > Util.BATAS_UNZIP_RESTORE) {
+                            return "isi zip melebihi batas wajar";
+                        }
+                    }
+                }
+            }
             return null;
         } catch (Exception e) {
             String msgSebab = e.getMessage();
