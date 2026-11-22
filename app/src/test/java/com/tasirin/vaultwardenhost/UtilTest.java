@@ -689,4 +689,46 @@ public class UtilTest {
             lepas.countDown();
         }
     }
+
+    // Audit 2652: trio format tanggal murni
+    // sebelumnya tanpa satu pun jejak tes -
+    // regresi senyap pada penjaga null/pola/
+    // locale id_ID tak akan tertangkap.
+    @Test
+    public void formatTanggal_polaDanPenjagaNull() {
+        java.util.Date t = new java.util.Date(0L);
+        java.text.SimpleDateFormat cermin =
+                new java.text.SimpleDateFormat(
+                        "yyyy-MM-dd", java.util.Locale.US);
+        assertEquals(cermin.format(t),
+                Util.formatTanggal("yyyy-MM-dd", t));
+        assertEquals("", Util.formatTanggal(null, t));
+        assertEquals("", Util.formatTanggal(
+                "yyyy-MM-dd", null));
+        assertEquals("", Util.formatTanggal(
+                "yyyy-'abc", t));
+    }
+
+    @Test
+    public void tanggalStb_formatIndonesia() {
+        long ms = 1786968000000L;
+        java.text.SimpleDateFormat cermin =
+                new java.text.SimpleDateFormat(
+                        "d MMM yyyy HH:mm",
+                        new java.util.Locale("id", "ID"));
+        assertEquals(cermin.format(new java.util.Date(ms)),
+                Util.tanggalStb(ms));
+        assertTrue(Util.tanggalStb(ms).contains("Agu"));
+        assertTrue(Util.tanggalStb(ms).contains("2026"));
+    }
+
+    @Test
+    public void formatTanggalSekarang_bentukDanNull() {
+        String tahun = new java.text.SimpleDateFormat(
+                "yyyy", java.util.Locale.US)
+                .format(new java.util.Date());
+        assertEquals(tahun,
+                Util.formatTanggalSekarang("yyyy"));
+        assertEquals("", Util.formatTanggalSekarang(null));
+    }
 }

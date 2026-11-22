@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Tes: trio format tanggal Util kini teruji (Audit 2652)
+
+- UtilTest bertambah tiga tes untuk
+  formatTanggal, tanggalStb, dan
+  formatTanggalSekarang - fungsi murni
+  penentu stempel nama berkas ekspor/
+  backup dan pesan jam STB yang
+  sebelumnya tak punya satu pun jejak
+  tes (penjaga null, pola rusak, dan
+  locale Indonesia kini terkunci).
+
 ## [Belum rilis] — Dokumen: AGENTS.md kini menyebut 24 kelas tes (Audit 2651)
 
 - Dua daftar kelas tes di AGENTS.md masih
