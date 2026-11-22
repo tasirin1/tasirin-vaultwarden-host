@@ -36847,6 +36847,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("csvlook --bogus: argparse mati rc=2 unrecognized, tak menguras: gerbang lolos (Audit 2646)", rc == 0)
         shutil.rmtree(sub1737, ignore_errors=True)
+        sub1738 = klon(tmp, "sub1738")
+        berkas_aksi1738 = os.path.join(
+            sub1738, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1738, encoding="utf-8") as f:
+            isi_aksi1738 = f.read()
+        baris_aksi1738 = [b for b in isi_aksi1738.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1738 = isi_aksi1738.replace(
+                baris_aksi1738,
+                baris_aksi1738.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tsv-pretty -E -lfoo; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1738 != isi_aksi1738, \
+            "suntikan aksi1738 tidak menembak"
+        with open(berkas_aksi1738, "w", encoding="utf-8") as f:
+            f.write(isi_baru1738)
+        rc, out = jalan(sub1738,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tsv-pretty -E -lfoo: -lfoo nilai -E (pulau caseSensitive), alat menguras: gerbang gagal (Audit 2647)", rc != 0)
+        shutil.rmtree(sub1738, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

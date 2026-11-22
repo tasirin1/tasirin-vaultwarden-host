@@ -11680,7 +11680,15 @@ def _menguras_khusus(perintah, toks, awal):
                     i_mt += 1
                 i_mt += 1
                 continue
-            if kunci_mt in bernilai_lp and not eq_mt:
+            # Audit 2647: -E adalah pulau
+            # caseSensitive di sumber (ikatan
+            # "E|empty-replacement") - uji lewati
+            # harus memakai nama ASLI, bukan
+            # kunci terlipat; sebelumnya nilai
+            # -E tak pernah dilompati dan token
+            # berbentuk opsi divonis mati palsu.
+            if (kunci_mt in bernilai_lp
+                    or nama_mt == "-E") and not eq_mt:
                 i_mt += 2
                 continue
             if (len(t_mt) > 2 and t_mt.startswith("-")

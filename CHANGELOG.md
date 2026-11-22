@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nilai -E tsv-pretty kini dilompati dengan benar (Audit 2647)
+
+- Uji lewati pra-jalan tsv-pretty kini
+  mencocokkan -E dengan nama aslinya
+  (pulau caseSensitive di sumbernya),
+  bukan kunci huruf-kecil yang tak pernah
+  cocok - nilai -E berbentuk opsi tak lagi
+  divonis mati palsu. Satu skenario
+  uji-diri baru.
+
 ## [Belum rilis] — Gerbang: --bogus di delapan alat csvkit kini divonis mati (Audit 2646)
 
 - Cek terpusat baru sebelum rantai cabang
