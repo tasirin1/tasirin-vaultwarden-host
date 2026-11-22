@@ -14164,10 +14164,24 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 lewati_gu = 1
     # Audit 1102: panggilan informasional mencetak dan keluar
     # tanpa membaca stdin (--help/--version umum; iconv -l/--list).
-    if perintah in _PEMBACA_STDIN and any(
-            t.strip("\"'") in ("--help", "--version")
-            for t in toks[awal + 1:]):
-        return False
+    # Audit 2591: penyusuran sadar nilai (pola Audit 1690) -
+    # --help/--version yang menjadi NILAI opsi bernilai perintah
+    # itu (mis. sort --output --help) bukan panggilan bantuan;
+    # alatnya tetap membaca stdin.
+    if perintah in _PEMBACA_STDIN:
+        bernilai_umum = _OPSI_BERNILAI.get(perintah, set())
+        lewati_umum = 0
+        for t_umum in toks[awal + 1:]:
+            b_umum = t_umum.strip("\"'")
+            if lewati_umum > 0:
+                lewati_umum -= 1
+                continue
+            if b_umum == "--":
+                break
+            if b_umum in ("--help", "--version"):
+                return False
+            if b_umum in bernilai_umum:
+                lewati_umum = 1
     # Audit 1407: bendera info huruf tunggal milik perintah
     # tertentu juga informasional (cpan -v/-V/-h, utmpdump
     # -h) — penjaga 1102 hanya mengenal bentuk panjang.

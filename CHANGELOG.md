@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Gerbang patch: --help sebagai nilai opsi coreutils bukan lagi panggilan bantuan (Audit 2591)
+
+- Penjaga informasional umum di `verifikasi-patch.py`
+  kini menyusur token dengan sadar nilai (tabel
+  `_OPSI_BERNILAI`): `--help`/`--version` yang menjadi
+  nilai opsi string (mis. `sort --output --help`,
+  `paste -d --help`, `tac -s --help`,
+  `cut --output-delimiter --help`) tidak lagi dinilai
+  panggilan bantuan — perintahnya tetap membaca stdin
+  dan kini tertolak di wastafel proses-substitusi.
+  Skenario gerbang 1691–1695 + kontrol 1697.
+
 ## [Belum rilis] — Pesan ber-PIN di chat bukan konfigurasi kini dihapus/diperingatkan (Audit 2588)
 
 - Lingkar poll bot kini memeriksa pesan dari chat yang
