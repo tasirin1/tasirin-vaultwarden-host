@@ -705,103 +705,117 @@ public final class TgBot {
         String p = panelMenuValid(panel) ? panel.trim() : MENU_UTAMA;
         if (MENU_STATUS.equals(p)) {
             return rakitKeyboard(new String[][]{
-                    {"Status lengkap", "/status"}, {"Log", "/log"},
-                    {"Uptime", "/uptime"}, {"Cek sehat", "/alive"},
-                    {"Versi", "/versi"}, {"Crash log", "/crashlog"},
-                    {"Kembali", "m:" + MENU_UTAMA},
+                    {"\uD83D\uDCCA Status lengkap", "/status"}, {"\uD83D\uDCDC Log", "/log"},
+                    {"\u23F1 Uptime", "/uptime"}, {"\uD83D\uDC93 Cek sehat", "/alive"},
+                    {"\uD83C\uDFF7 Versi", "/versi"}, {"\uD83D\uDCA5 Crash log", "/crashlog"},
+                    {"\uD83C\uDFE0 Menu utama", "m:" + MENU_UTAMA},
             });
         }
         if (MENU_KONTROL.equals(p)) {
             return rakitKeyboard(new String[][]{
-                    {"Start", "/start"}, {"Stop", "/stop"},
-                    {"Restart", "/restart"},
-                    {"Kembali", "m:" + MENU_UTAMA},
+                    {"\u25B6\uFE0F Start", "/start"}, {"\u23F9\uFE0F Stop", "/stop"},
+                    {"\uD83D\uDD04 Restart", "/restart"},
+                    {"\uD83D\uDEAA Logout", "/logout"},
+                    {"\uD83C\uDFE0 Menu utama", "m:" + MENU_UTAMA},
             });
         }
         if (MENU_BACKUP.equals(p)) {
             return rakitKeyboard(new String[][]{
-                    {"Backup sekarang", "/backup"}, {"Info restore", "/restore"},
-                    {"Kembali", "m:" + MENU_UTAMA},
+                    {"\uD83D\uDCBE Backup sekarang", "/backup"}, {"\u267B\uFE0F Info restore", "/restore"},
+                    {"\uD83C\uDFE0 Menu utama", "m:" + MENU_UTAMA},
             });
         }
         if (MENU_UPDATE.equals(p)) {
             return rakitKeyboard(new String[][]{
-                    {"Update binary", "/update"}, {"Update web vault", "/webvault"},
-                    {"Versi", "/versi"},
-                    {"Kembali", "m:" + MENU_UTAMA},
+                    {"\u2B06\uFE0F Update binary", "/update"}, {"\uD83C\uDF10 Update web vault", "/webvault"},
+                    {"\uD83C\uDFF7 Versi", "/versi"},
+                    {"\uD83C\uDFE0 Menu utama", "m:" + MENU_UTAMA},
             });
         }
         if (MENU_SERTIFIKAT.equals(p)) {
             return rakitKeyboard(new String[][]{
-                    {"Kirim CA", "/ca"}, {"Backup CA", "/cabackup"},
-                    {"Reset CA", "/careset"},
-                    {"Kembali", "m:" + MENU_UTAMA},
+                    {"\uD83D\uDCDC Kirim CA", "/ca"}, {"\uD83D\uDDC4 Backup CA", "/cabackup"},
+                    {"\u267B\uFE0F Reset CA", "/careset"},
+                    {"\uD83C\uDFE0 Menu utama", "m:" + MENU_UTAMA},
             });
         }
         if (MENU_INFO.equals(p)) {
             return rakitKeyboard(new String[][]{
-                    {"Kembali", "m:" + MENU_UTAMA},
+                    {"\uD83D\uDCD6 Bantuan", "/help"}, {"\uD83D\uDEAA Logout", "/logout"},
+                    {"\uD83C\uDFE0 Menu utama", "m:" + MENU_UTAMA},
             });
         }
+        String[] cepatKontrol = ServerService.running
+                ? new String[]{"\u23F9\uFE0F Stop", "/stop"}
+                : new String[]{"\u25B6\uFE0F Start", "/start"};
         return rakitKeyboard(new String[][]{
-                {"Status", "m:" + MENU_STATUS}, {"Kontrol", "m:" + MENU_KONTROL},
-                {"Backup", "m:" + MENU_BACKUP}, {"Update", "m:" + MENU_UPDATE},
-                {"Sertifikat", "m:" + MENU_SERTIFIKAT}, {"Info", "m:" + MENU_INFO},
+                {"\uD83D\uDCCA Status", "/status"}, cepatKontrol,
+                {"\uD83D\uDCBE Backup", "/backup"}, {"\uD83D\uDD04 Restart", "/restart"},
+                {"\uD83D\uDCCB Status & log", "m:" + MENU_STATUS}, {"\uD83C\uDF9B Kontrol", "m:" + MENU_KONTROL},
+                {"\uD83D\uDDC4 Backup & restore", "m:" + MENU_BACKUP}, {"\u2B06\uFE0F Update", "m:" + MENU_UPDATE},
+                {"\uD83D\uDD10 Sertifikat", "m:" + MENU_SERTIFIKAT}, {"\u2139\uFE0F Info", "m:" + MENU_INFO},
         });
     }
 
     private static String teksMenu(Context ctx, String panel) {
+        return teksMenu(ctx, panel, 0);
+    }
+
+    private static String teksMenu(Context ctx, String panel, long chatId) {
         String p = panelMenuValid(panel) ? panel.trim() : MENU_UTAMA;
         if (MENU_STATUS.equals(p)) {
-            return "Status & diagnostik\n"
-                    + "Pilih tombol di bawah. /status, /log, dan /crashlog memuat"
-                    + " folder data, port, dan URL LAN sehingga butuh PIN bila PIN aktif.";
+            return "\uD83D\uDCCB Status & diagnostik\n"
+                    + "/status, /log, dan /crashlog memuat folder data, port,"
+                    + " dan URL LAN \u2014 butuh login bila PIN aktif.";
         }
         if (MENU_KONTROL.equals(p)) {
-            return "Kontrol server\n"
-                    + "Start menyalakan server, Stop menghentikannya, Restart saat server jalan.\n"
-                    + "Bila PIN aktif, ketuk tombol lalu balas dengan PIN (berlaku 5 menit)."
-                    + " Aksi ber-PIN hanya bisa dari chat pribadi; grup selalu ditolak.";
+            return "\uD83C\uDF9B Kontrol server\n"
+                    + "Start menyalakan, Stop menghentikan, Restart saat server jalan.\n"
+                    + "Bila PIN aktif dan belum login, tombol meminta PIN sekali"
+                    + " untuk login. Aksi ber-PIN hanya dari chat pribadi.";
         }
         if (MENU_BACKUP.equals(p)) {
-            return "Backup & restore\n"
-                    + "Backup mengirim salinan database ke chat ini. Restore memakai backup"
-                    + " terakhir: tekan Info restore untuk melihat tanggal, lalu ketik"
-                    + " /restore YA (+ PIN bila aktif). Server dihentikan saat restore.";
+            return "\uD83D\uDDC4 Backup & restore\n"
+                    + "Backup mengirim salinan database ke chat ini. Restore memakai"
+                    + " backup terakhir: ketuk Info restore untuk tanggalnya, lalu"
+                    + " ketik /restore YA. Server berhenti saat restore.";
         }
         if (MENU_UPDATE.equals(p)) {
-            return "Update binary & web vault\n"
-                    + "Update mengunduh dari rilis GitHub lalu restart otomatis bila server"
-                    + " sedang jalan. Bila PIN aktif, ketuk tombol lalu balas dengan PIN."
-                    + " Versi tertentu tetap bisa dikunci lewat teks: /update 1.32.0 (+ PIN).";
+            return "\u2B06\uFE0F Update binary & web vault\n"
+                    + "Update mengunduh dari rilis GitHub lalu restart otomatis bila"
+                    + " server sedang jalan. Versi tertentu bisa dikunci lewat teks:"
+                    + " /update 1.32.0; lepas kunci: /update terbaru.";
         }
         if (MENU_SERTIFIKAT.equals(p)) {
-            return "Sertifikat HTTPS\n"
+            return "\uD83D\uDD10 Sertifikat HTTPS\n"
                     + "Kirim CA mengirim file publik untuk dipasang di perangkat."
-                    + " Backup CA menyimpannya ke storage STB. Reset CA membuat sertifikat"
-                    + " baru sehingga semua perangkat harus memasang CA lagi.";
+                    + " Backup CA menyimpannya ke storage STB. Reset CA membuat"
+                    + " sertifikat baru \u2014 semua perangkat harus pasang CA lagi.";
         }
         if (MENU_INFO.equals(p)) {
-            return "Info & bantuan\n"
-                    + "Perintah teks: /status /log /uptime /alive /backup /restore /ca\n"
-                    + "/cabackup /careset /crashlog /versi /update /webvault"
-                    + " /restart /start /stop /help\n"
-                    + "Kunci versi: /update 1.32.0, /webvault 1.32.0; lepas: /update terbaru.\n"
-                    + "Bila PIN aktif: /start /stop /restart /backup /update /webvault"
-                    + " /restore /careset /status /log /crashlog /ca /cabackup butuh PIN"
-                    + " (mis. /stop 123456; PIN ber-spasi: /stop PIN:\"kunci saya\").\n"
-                    + "Tombol ber-PIN meminta PIN lewat balasan chat (5 menit) dan pesan PIN"
-                    + " dihapus otomatis bila bot punya izin hapus.";
+            return "\u2139\uFE0F Info & bantuan\n"
+                    + "Perintah teks: /status /log /uptime /alive /versi /crashlog"
+                    + " /backup /restore /ca /cabackup /careset /update /webvault"
+                    + " /start /stop /restart /login /logout /help\n"
+                    + "Login: /login <PIN> sekali, berlaku sampai /logout atau PIN"
+                    + " diganti; sesudah login semua perintah jalan tanpa PIN."
+                    + " Cara lama tetap bisa: /stop 123456.\n"
+                    + "Pesan berisi PIN dihapus otomatis bila bot punya izin hapus.";
         }
         String status = (ServerService.running || ServerService.isProcessAlive())
                 ? "jalan" : "berhenti";
-        return "Vaultwarden Host\n"
+        String login = "";
+        if (chatId != 0 && pinPerangkatAktif(ctx)) {
+            login = sudahLogin(ctx, chatId)
+                    ? "Login: sudah \u2705\n"
+                    : "Login: belum \u2014 kirim /login <PIN>\n";
+        }
+        return "\uD83E\uDD16 Vaultwarden Host\n"
                 + "Server: " + status + "\n"
-                + "Pilih menu tombol di bawah. Ketuk Kembali untuk naik satu panel;"
-                + " tombol menu berlaku 24 jam, kirim /help lagi bila kedaluwarsa.\n"
-                + "Bila PIN aktif, tombol ber-PIN meminta PIN lewat balasan chat."
-                + " Catatan: pesan /help pertamamu bisa dihapus bot sebagai uji"
-                + " sekali izin hapus pesan ber-PIN.";
+                + login
+                + "Pilih tombol di bawah. Tombol berlaku 24 jam, kirim /help"
+                + " lagi bila kedaluwarsa. Catatan: pesan /help pertamamu bisa"
+                + " dihapus bot sebagai uji sekali izin hapus pesan ber-PIN.";
     }
 
     static String kecilkanRentang(String text, int mulai, int akhir) {
@@ -1176,6 +1190,18 @@ public final class TgBot {
                 return;
             }
 
+            if (data.startsWith("segar:")) {
+                String cmdSegar = data.substring(6).trim();
+                if (idRuang > 0 && perintahBisaSegarkan(cmdSegar)) {
+                    hapusPending(ctx, idRuang);
+                    if (perluPinTombol(ctx, cmdSegar) && !sudahLogin(ctx, idRuang)) {
+                        mulaiAksiPin(ctx, idRuang, idPesan, cmdSegar);
+                    } else {
+                        segarkanLaporan(ctx, idRuang, idPesan, cmdSegar);
+                    }
+                }
+                return;
+            }
             if (callbackDataValid(data)) {
                 hapusPending(ctx, idRuang);
                 if (perluPinTombol(ctx, data) && !sudahLogin(ctx, idRuang)) {
@@ -1196,7 +1222,7 @@ public final class TgBot {
 
     private static void tampilkanMenu(Context ctx, long chatId, int messageId, String panel) {
         String p = panelMenuValid(panel) ? panel.trim() : MENU_UTAMA;
-        String teks = teksMenu(ctx, p);
+        String teks = teksMenu(ctx, p, chatId);
         String kb = keyboardMenu(p);
         if (chatId != 0 && messageId != 0) {
             TgBackup.editMessageKb(ctx, chatId, messageId, teks, kb);
@@ -1738,7 +1764,7 @@ public final class TgBot {
             case "/logout":
                 return tanganiLogout(ctx, idRuang);
             case "/help":
-                TgBackup.sendMessageKbKe(ctx, String.valueOf(idRuang), teksMenu(ctx, MENU_UTAMA),
+                TgBackup.sendMessageKbKe(ctx, String.valueOf(idRuang), teksMenu(ctx, MENU_UTAMA, idRuang),
                         keyboardMenu(MENU_UTAMA));
                 return false;
             default:
@@ -1804,7 +1830,7 @@ public final class TgBot {
                 + " langsung dipakai tanpa PIN, sampai kamu /logout atau"
                 + " PIN diganti.");
         TgBackup.sendMessageKbKe(ctx, String.valueOf(idRuang),
-                teksMenu(ctx, MENU_UTAMA), keyboardMenu(MENU_UTAMA));
+                teksMenu(ctx, MENU_UTAMA, idRuang), keyboardMenu(MENU_UTAMA));
         return true;
     }
 
@@ -2073,6 +2099,53 @@ public final class TgBot {
         }
     }
 
+    static boolean perintahBisaSegarkan(String cmd) {
+        return "/status".equals(cmd) || "/uptime".equals(cmd)
+                || "/alive".equals(cmd) || "/versi".equals(cmd);
+    }
+
+    static String keyboardSegarkan(String cmd) {
+        return rakitKeyboard(new String[][]{
+                {"\uD83D\uDD04 Segarkan", "segar:" + cmd},
+                {"\uD83C\uDFE0 Menu utama", "m:" + MENU_UTAMA},
+        });
+    }
+
+    static void balasLaporan(Context ctx, long idRuang, String teks, String cmd) {
+        if (teks != null && teks.length() <= 3500) {
+            TgBackup.sendMessageKbKe(ctx, String.valueOf(idRuang), teks,
+                    keyboardSegarkan(cmd));
+        } else {
+            balas(ctx, idRuang, teks);
+        }
+    }
+
+    static void segarkanLaporan(Context ctx, long idRuang, int idPesan,
+            String cmd) {
+        if (ctx == null || idPesan == 0) {
+            return;
+        }
+        String kb = keyboardSegarkan(cmd);
+        if ("/alive".equals(cmd)) {
+            if (!Util.jalankanBg(() -> TgBackup.editMessageKb(ctx, idRuang, idPesan,
+                    pesanAlive(ServerService.pingAlive(ctx)), kb))) {
+                balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
+            }
+            return;
+        }
+        String teks;
+        if ("/status".equals(cmd)) {
+            teks = statusText(ctx);
+        } else if ("/versi".equals(cmd)) {
+            teks = teksVersi(ctx);
+        } else {
+            long up = ServerService.uptimeMs();
+            teks = up <= 0 ? "Server sedang berhenti."
+                    : "Server jalan selama " + durationText(up) + ".";
+        }
+        TgBackup.editMessageKb(ctx, idRuang, idPesan, teks, kb);
+    }
+
     private static boolean perintahInfo(Context ctx, String cmd, String arg, long idRuang) {
         // Audit 861: SEMUA perintah info kini melewati gerbang PIN yang
         // sama bila PIN aktif atau chat berupa grup. Dulu /uptime,
@@ -2086,25 +2159,26 @@ public final class TgBot {
         if ("/uptime".equals(cmd)) {
             long up = ServerService.uptimeMs();
             if (up <= 0) {
-                balas(ctx, idRuang, "Server sedang berhenti.");
+                balasLaporan(ctx, idRuang, "Server sedang berhenti.", cmd);
             } else {
-                balas(ctx, idRuang, "Server jalan selama " + durationText(up) + ".");
+                balasLaporan(ctx, idRuang,
+                        "Server jalan selama " + durationText(up) + ".", cmd);
             }
             return perluPin;
         }
         if ("/alive".equals(cmd)) {
-            if (!Util.jalankanBg(() -> balas(ctx, idRuang,
-                    pesanAlive(ServerService.pingAlive(ctx))))) {
+            if (!Util.jalankanBg(() -> balasLaporan(ctx, idRuang,
+                    pesanAlive(ServerService.pingAlive(ctx)), "/alive"))) {
                 balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
             }
             return perluPin;
         }
         if ("/versi".equals(cmd)) {
-            balas(ctx, idRuang, teksVersi(ctx));
+            balasLaporan(ctx, idRuang, teksVersi(ctx), cmd);
             return perluPin;
         }
         if ("/status".equals(cmd)) {
-            balas(ctx, idRuang, statusText(ctx));
+            balasLaporan(ctx, idRuang, statusText(ctx), cmd);
         } else if ("/log".equals(cmd)) {
             balas(ctx, idRuang, tailLog());
         } else {

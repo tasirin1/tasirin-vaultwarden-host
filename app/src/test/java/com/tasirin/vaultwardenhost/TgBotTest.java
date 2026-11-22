@@ -771,4 +771,32 @@ public class TgBotTest {
         TgBot.simpanLogin(null, -1L, "hashA");
         TgBot.hapusLogin(null, 123L);
     }
+
+    @Test
+    public void keyboardMenu_utamaMemuatAksiCepat() {
+        String json = TgBot.keyboardMenu(TgBot.MENU_UTAMA);
+        assertTrue(json.contains("\"/status\""));
+        assertTrue(json.contains("\"/backup\""));
+        assertTrue(json.contains("\"/restart\""));
+        assertTrue(json.contains("\"/start\"") || json.contains("\"/stop\""));
+        assertTrue(TgBot.keyboardMenu(TgBot.MENU_KONTROL).contains("\"/logout\""));
+        assertTrue(TgBot.keyboardMenu(TgBot.MENU_INFO).contains("\"/help\""));
+    }
+
+    @Test
+    public void segarkan_hanyaLaporanBacaSaja() {
+        assertTrue(TgBot.perintahBisaSegarkan("/status"));
+        assertTrue(TgBot.perintahBisaSegarkan("/uptime"));
+        assertTrue(TgBot.perintahBisaSegarkan("/alive"));
+        assertTrue(TgBot.perintahBisaSegarkan("/versi"));
+        assertFalse(TgBot.perintahBisaSegarkan("/log"));
+        assertFalse(TgBot.perintahBisaSegarkan("/stop"));
+        assertFalse(TgBot.perintahBisaSegarkan("segar:/status"));
+        assertFalse(TgBot.perintahBisaSegarkan(null));
+        String kb = TgBot.keyboardSegarkan("/status");
+        assertTrue(kb.contains("\"segar:/status\""));
+        assertTrue(kb.contains("\"m:utama\""));
+        TgBot.balasLaporan(null, 0, "halo", "/status");
+        TgBot.segarkanLaporan(null, 1, 0, "/status");
+    }
 }

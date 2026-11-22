@@ -1,5 +1,30 @@
 # Changelog
 
+## [Belum rilis] — Desain tombol bot Telegram meniru Red-Eye: aksi cepat, emoji, Segarkan (permintaan owner)
+
+- Menu utama kini memuat aksi cepat di atas kategori:
+  Status, Start/Stop sesuai keadaan server, Backup,
+  Restart — lalu kategori Status & log, Kontrol,
+  Backup & restore, Update, Sertifikat, Info.
+  Semua label tombol memakai emoji (lolos \\u agar
+  aman dari enkoding sumber), tombol "Kembali"
+  menjadi "🏠 Menu utama", dan panel Kontrol + Info
+  mendapat tombol Logout.
+- Teks menu dipangkas ala Red-Eye dan sadar login:
+  menu utama menampilkan baris "Server:
+  jalan/berhenti" plus "Login: sudah/belum" bila
+  PIN aktif; penjelasan panel ditulis ulang ke
+  model login sekali pakai.
+- Balasan laporan /status, /uptime, /alive, /versi
+  kini membawa tombol 🔄 Segarkan + 🏠 Menu utama
+  (teks <= 3500 aksara; lebih panjang tetap pesan
+  polos). Mengetuk Segarkan mengedit pesan yang
+  sama dengan data terbaru (callback segar:,
+  daftar baca-saja dikunci perintahBisaSegarkan);
+  gerbang login tetap berlaku — yang belum login
+  diarahkan ke prompt PIN, dan grup ditolak.
+  /log dan /crashlog tidak ikut (keluaran panjang).
+
 ## [Belum rilis] — Login bot Telegram sekali pakai: /login dan /logout (permintaan owner)
 
 - Keluhan owner: PIN aplikasi diminta pada SETIAP aksi
