@@ -25,9 +25,14 @@ on:
   # Audit 2582: codeql.yml dan gitleaks.yml ditambahkan - jaring
   # 2558 semula kurang 2 dari 8 berkas workflow, push yang hanya
   # menyentuh keduanya lolos tanpa gerbang sama sekali.
+  # Audit 2635: .github/dependabot.yml ditambahkan - berkas itu
+  # ada di paths-ignore codeql/gitleaks dan tak ada di paths
+  # build-apk/build-binary, jadi push yang hanya menyentuhnya
+  # tidak memicu workflow apa pun.
   push:
     branches: [main]
     paths:
+      - '.github/dependabot.yml'
       - '.github/workflows/auto-merge.yml'
       - '.github/workflows/cek-wajib.yml'
       - '.github/workflows/codeql.yml'
@@ -78,7 +83,7 @@ jobs:
             if [ -n "$BERKAS" ]; then
               while IFS= read -r b; do
                 case "$b" in
-                  .github/workflows/auto-merge.yml|.github/workflows/cek-wajib.yml|.github/workflows/codeql.yml|.github/workflows/gitleaks.yml|.github/workflows/label-audit.yml|.github/workflows/labeler.yml|.github/workflows/stale.yml|tools/pasang-hook.sh) ;;
+                  .github/dependabot.yml|.github/workflows/auto-merge.yml|.github/workflows/cek-wajib.yml|.github/workflows/codeql.yml|.github/workflows/gitleaks.yml|.github/workflows/label-audit.yml|.github/workflows/labeler.yml|.github/workflows/stale.yml|tools/pasang-hook.sh) ;;
                   *) LANJUT=false ;;
                 esac
               done <<EOF

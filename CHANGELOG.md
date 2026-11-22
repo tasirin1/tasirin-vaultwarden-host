@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Push khusus dependabot.yml kini memicu gerbang (Audit 2635)
+
+- .github/dependabot.yml ditambahkan ke
+  daftar path push cek-wajib dan ke daftar
+  saringan push campurannya. Sebelumnya push
+  langsung yang hanya menyentuh berkas itu
+  tidak memicu workflow apa pun (ia dikecuali-
+  kan CodeQL/Gitleaks dan tak terdaftar di
+  build), pola lubang yang sama dengan
+  perbaikan Audit 2558/2582.
+
 ## [Belum rilis] — Sidik memo sertifikat kini atas seluruh isi berkas (Audit 2634)
 
 - Sidik kunci memo masa sertifikat kini
