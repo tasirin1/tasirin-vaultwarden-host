@@ -942,6 +942,17 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void tungguPembacaOutput_penjagaAman() throws Exception {
+        ServerService.tungguPembacaOutput(null);
+        ServerService.tungguPembacaOutput(Thread.currentThread());
+        Thread selesai = new Thread(() -> {
+        });
+        selesai.start();
+        selesai.join();
+        ServerService.tungguPembacaOutput(selesai);
+    }
+
+    @Test
     public void rotasiLewatTmp_langsung() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwrot3").toFile();
         java.io.File f = new java.io.File(dir, "vaultwarden.log");

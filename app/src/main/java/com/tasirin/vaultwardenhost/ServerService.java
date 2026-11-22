@@ -2425,7 +2425,7 @@ public class ServerService extends Service {
         startServerAsync();
     }
 
-    private static void tungguPembacaOutput(Thread baca) {
+    static void tungguPembacaOutput(Thread baca) {
         if (baca == null || baca == Thread.currentThread()) {
             return;
         }
