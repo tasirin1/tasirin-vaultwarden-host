@@ -150,7 +150,7 @@ public final class PinGate {
     }
 
     @SuppressLint("ApplySharedPref")
-    public static synchronized void catatHasil(Context ctx, boolean cocok, long sekarang) {
+    public static void catatHasil(Context ctx, boolean cocok, long sekarang) {
         if (ctx == null) {
             return;
         }
@@ -159,22 +159,30 @@ public final class PinGate {
         // menunda tugas, sehingga percobaan gagal dari UI bisa hilang
         // sebelum tercatat dan hitungan kunci terlewat; commit kecil ini
         // cukup murah untuk utas utama layar PIN.
-        SharedPreferences sp = ctx.getSharedPreferences(
-                ServerService.PREFS, Context.MODE_PRIVATE);
-        if (cocok) {
+        // Audit 2613: badan disinkronkan pada KUNCI_PERCOBAAN itu
+        // sendiri (bukan monitor kelas) supaya klaim Audit 1657 -
+        // penulis advisori dan penulis hasil berbagi kunci yang
+        // sama - benar secara struktur, bukan hanya konvensi
+        // pemanggil. Pemanggil yang sudah memegang kunci ini aman:
+        // synchronized Java reentrant.
+        synchronized (KUNCI_PERCOBAAN) {
+            SharedPreferences sp = ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            if (cocok) {
 
-            sp.edit().remove(KEY_GAGAL).remove(KEY_KUNCI_SAMPAI)
-                    .remove(KEY_KUNCI_ELAPSED).commit();
-            return;
+                sp.edit().remove(KEY_GAGAL).remove(KEY_KUNCI_SAMPAI)
+                        .remove(KEY_KUNCI_ELAPSED).commit();
+                return;
+            }
+
+            int gagal = TgBackup.amanInt(sp, KEY_GAGAL, 0) + 1;
+            sp.edit().putInt(KEY_GAGAL, gagal)
+                    .putLong(KEY_KUNCI_SAMPAI,
+                            PinCrypto.kunciBerikutnyaMs(gagal, sekarang))
+                    .putLong(KEY_KUNCI_ELAPSED, PinCrypto.kunciElapsedBerikutnyaMs(
+                            gagal, SystemClock.elapsedRealtime()))
+                    .commit();
         }
-
-        int gagal = TgBackup.amanInt(sp, KEY_GAGAL, 0) + 1;
-        sp.edit().putInt(KEY_GAGAL, gagal)
-                .putLong(KEY_KUNCI_SAMPAI,
-                        PinCrypto.kunciBerikutnyaMs(gagal, sekarang))
-                .putLong(KEY_KUNCI_ELAPSED, PinCrypto.kunciElapsedBerikutnyaMs(
-                        gagal, SystemClock.elapsedRealtime()))
-                .commit();
     }
 
     public static void kuatkanHashDini(Context ctx) {

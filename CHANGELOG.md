@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — catatHasil PinGate kini berkunci KUNCI_PERCOBAAN yang sama dengan penulis advisori (Audit 2613)
+
+- `PinGate.catatHasil` tidak lagi `synchronized` pada
+  monitor kelas; badannya kini disinkronkan pada
+  `KUNCI_PERCOBAAN` — kunci yang sama dengan penulis
+  advisori Audit 1657 — sehingga jaminan satu kunci
+  berlaku secara struktur, bukan hanya konvensi
+  pemanggil. Pemanggil lama yang sudah memegang kunci
+  itu tetap aman (kunci Java reentrant).
+
 ## [Belum rilis] — Unduhan backup terakhir kini lewat berkas .tmp + fsync + rename (Audit 2612)
 
 - `downloadLastBackup` tidak lagi menulis langsung ke
