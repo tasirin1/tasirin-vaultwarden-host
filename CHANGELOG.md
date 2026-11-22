@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Unduhan backup terakhir kini lewat berkas .tmp + fsync + rename (Audit 2612)
+
+- `downloadLastBackup` tidak lagi menulis langsung ke
+  berkas tujuan: unduhan ditulis ke `<tujuan>.tmp`,
+  di-fsync, lalu diganti-nama ke tujuan. Proses yang
+  mati di tengah unduhan tidak lagi meninggalkan berkas
+  tujuan terpotong di tempat akhir (dan unduhan gagal
+  tidak lagi menghapus backup unduhan sebelumnya yang
+  masih utuh).
+
 ## [Belum rilis] — Cek ruang cache backup tak terenkripsi kini menghitung snapshot penuh (Audit 2611)
 
 - `ruangBackupDibutuhkan` untuk folder cache tanpa

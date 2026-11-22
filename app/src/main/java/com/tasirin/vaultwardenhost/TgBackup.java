@@ -2931,8 +2931,10 @@ public final class TgBackup {
             if (code != 200) {
                 throw new IOException("Unduh backup gagal (Telegram HTTP " + code + ")");
             }
+            File tmpUnduh = new File(dest.getParentFile(),
+                    dest.getName() + ".tmp");
             try (InputStream in = conn.getInputStream();
-                 FileOutputStream fos = new FileOutputStream(dest)) {
+                 FileOutputStream fos = new FileOutputStream(tmpUnduh)) {
                 byte[] buf = new byte[64 * 1024];
                 int n;
                 long total = 0;
@@ -2945,13 +2947,28 @@ public final class TgBackup {
                     }
                     fos.write(buf, 0, n);
                 }
+                fos.getFD().sync();
             } catch (Exception e) {
                 try {
-                    dest.delete();
+                    tmpUnduh.delete();
                 } catch (Exception ignored) {
                 }
                 throw e;
             }
+            if (!tmpUnduh.renameTo(dest)) {
+                try {
+                    dest.delete();
+                } catch (Exception ignored) {
+                }
+                if (!tmpUnduh.renameTo(dest)) {
+                    try {
+                        tmpUnduh.delete();
+                    } catch (Exception ignored) {
+                    }
+                    throw new IOException("Gagal menyimpan backup unduhan.");
+                }
+            }
+            TlsCert.fsyncDirektori(dest.getParentFile());
         } finally {
             if (conn != null) {
                 conn.disconnect();
