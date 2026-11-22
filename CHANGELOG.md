@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Prompt PIN dari tombol Segarkan kini pesan baru, laporan asal utuh (Audit 2610)
+
+- Cabang `segar:` kini memanggil `mulaiAksiPin` dengan
+  id pesan 0 sehingga prompt login terkirim sebagai
+  pesan baru — sebelumnya prompt mengedit pesan laporan
+  /status//versi itu sendiri dan laporan asal hilang
+  permanen bila pengguna membatalkan atau membiarkan
+  sesi PIN kedaluwarsa.
+
 ## [Belum rilis] — Tombol di grup kini hanya melayani penekan pemilik (Audit 2609)
 
 - `tanganiCallback` kini memeriksa penekan (`cb.from`)

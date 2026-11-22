@@ -1228,7 +1228,7 @@ public final class TgBot {
                     }
                     if (segarWajibPrompt(perluPinTombol(ctx, cmdSegar),
                             grupSegar, pinAktifSegar, sudahLogin(ctx, idRuang))) {
-                        mulaiAksiPin(ctx, idRuang, idPesan, cmdSegar);
+                        mulaiAksiPin(ctx, idRuang, 0, cmdSegar);
                     } else {
                         segarkanLaporan(ctx, idRuang, idPesan, cmdSegar);
                     }
