@@ -155,6 +155,8 @@ public final class TgBot {
                 {"start", "Start server"},
                 {"stop", "Stop server"},
                 {"restart", "Restart server"},
+                {"login", "Login dengan PIN (sekali, sampai logout)"},
+                {"logout", "Keluar dari sesi login bot"},
                 {"help", "Menu tombol & daftar perintah"},
         };
     }
@@ -1176,7 +1178,7 @@ public final class TgBot {
 
             if (callbackDataValid(data)) {
                 hapusPending(ctx, idRuang);
-                if (perluPinTombol(ctx, data)) {
+                if (perluPinTombol(ctx, data) && !sudahLogin(ctx, idRuang)) {
                     mulaiAksiPin(ctx, idRuang, idPesan, data);
                 } else {
                     handleCommand(ctx, data, idRuang);
@@ -1275,9 +1277,11 @@ public final class TgBot {
             return;
         }
         simpanPending(ctx, chatId, data, System.currentTimeMillis());
-        String teks = "PIN diperlukan\n"
+        String teks = "Login diperlukan\n"
                 + "Aksi: " + data + "\n"
                 + "Balas pesan ini dengan PIN aplikasi (berlaku 5 menit)."
+                + " PIN yang benar sekaligus membuatmu login, jadi aksi"
+                + " berikutnya jalan langsung tanpa PIN."
                 + " Pesan PIN akan dihapus otomatis bila bot punya izin hapus.\n"
                 + "Kirim perintah lain atau tekan Batal untuk membatalkan.";
         String kb = rakitKeyboard(new String[][]{
@@ -1376,7 +1380,13 @@ public final class TgBot {
     }
 
     static String pinTebakan(String text) {
-        if (text == null || !perintahPerluPin(text)) {
+        if (text == null) {
+            return null;
+        }
+        if ("login".equals(namaPerintah(text))) {
+            return pinTebakanArgumen(ambilArgumen(text));
+        }
+        if (!perintahPerluPin(text)) {
             return null;
         }
         return pinTebakanArgumen(ambilArgumen(text));
@@ -1433,6 +1443,58 @@ public final class TgBot {
                     TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, ""));
         } catch (Exception e) {
             return true;
+        }
+    }
+
+    static final String KEY_TG_LOGIN_CHAT = "tg_login_chat";
+    static final String KEY_TG_LOGIN_HASH = "tg_login_hash";
+
+    static boolean loginBerlaku(long chatTersimpan, long idRuang, String hashTersimpan,
+            String hashKini, boolean pinOn) {
+        return pinOn && idRuang > 0 && chatTersimpan == idRuang
+                && hashTersimpan != null && !hashTersimpan.isEmpty()
+                && hashTersimpan.equals(hashKini);
+    }
+
+    static boolean sudahLogin(Context ctx, long idRuang) {
+        if (ctx == null || idRuang < 0) {
+            return false;
+        }
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            return loginBerlaku(TgBackup.amanLong(sp, KEY_TG_LOGIN_CHAT, 0), idRuang,
+                    TgBackup.amanString(sp, KEY_TG_LOGIN_HASH, ""),
+                    TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, ""),
+                    TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    static void simpanLogin(Context ctx, long idRuang, String hash) {
+        if (ctx == null || idRuang < 0 || hash == null || hash.isEmpty()) {
+            return;
+        }
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putLong(KEY_TG_LOGIN_CHAT, idRuang)
+                    .putString(KEY_TG_LOGIN_HASH, hash).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
+    static void hapusLogin(Context ctx, long idRuang) {
+        if (ctx == null) {
+            return;
+        }
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            if (TgBackup.amanLong(sp, KEY_TG_LOGIN_CHAT, 0) == idRuang) {
+                sp.edit().remove(KEY_TG_LOGIN_CHAT).remove(KEY_TG_LOGIN_HASH).apply();
+            }
+        } catch (Exception ignored) {
         }
     }
 
@@ -1671,6 +1733,10 @@ public final class TgBot {
             case "/versi":
             case "/crashlog":
                 return perintahInfo(ctx, cmd, arg, idRuang);
+            case "/login":
+                return tanganiLogin(ctx, arg, idRuang);
+            case "/logout":
+                return tanganiLogout(ctx, idRuang);
             case "/help":
                 TgBackup.sendMessageKbKe(ctx, String.valueOf(idRuang), teksMenu(ctx, MENU_UTAMA),
                         keyboardMenu(MENU_UTAMA));
@@ -1679,6 +1745,80 @@ public final class TgBot {
                 balas(ctx, idRuang, "Perintah tidak dikenal. Ketik /help");
                 return false;
         }
+    }
+
+    private static boolean tanganiLogin(Context ctx, String arg, long idRuang) {
+        if (idRuang < 0) {
+            balas(ctx, idRuang, "Login hanya bisa dari chat pribadi bot.");
+            return false;
+        }
+        if (!pinPerangkatAktif(ctx)) {
+            balas(ctx, idRuang, "PIN aplikasi belum aktif, jadi login belum"
+                    + " diperlukan. Aktifkan PIN dulu di Pengaturan aplikasi.");
+            return false;
+        }
+        if (sudahLogin(ctx, idRuang)) {
+            balas(ctx, idRuang, "Kamu sudah login. Semua perintah bisa langsung"
+                    + " dipakai; kirim /logout untuk keluar.");
+            return false;
+        }
+        String pin = pinTebakanArgumen(arg);
+        if (pin == null) {
+            balas(ctx, idRuang, "Kirim /login <PIN> dari chat pribadi, mis."
+                    + " /login 123456 (PIN ber-spasi: /login PIN:\"kunci saya\")."
+                    + " Login berlaku sampai /logout atau PIN diganti.");
+            return false;
+        }
+        SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                Context.MODE_PRIVATE);
+        long sekarang = System.currentTimeMillis();
+        long sisa = PinGate.sisaKunciMs(ctx, sekarang);
+        if (sisa > 0) {
+            balasPenting(ctx, idRuang, "PIN terkunci sementara (kebanyakan gagal)."
+                    + " Coba lagi " + ((sisa + 59000) / 60000) + " menit.");
+            return true;
+        }
+        boolean cocok = false;
+        long sisaKalah = 0;
+        synchronized (PinGate.KUNCI_PERCOBAAN) {
+            String hash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+            long sisa2 = PinGate.sisaKunciMs(ctx, System.currentTimeMillis());
+            if (sisa2 > 0) {
+                sisaKalah = sisa2;
+            } else {
+                cocok = PinCrypto.verify(hash == null ? "" : hash, pin);
+                PinGate.catatHasil(ctx, cocok, sekarang);
+            }
+        }
+        if (sisaKalah > 0) {
+            balasPenting(ctx, idRuang, "PIN terkunci sementara (kebanyakan gagal)."
+                    + " Coba lagi " + ((sisaKalah + 59000) / 60000) + " menit.");
+            return true;
+        }
+        if (!cocok) {
+            balas(ctx, idRuang, "PIN salah, login ditolak.");
+            return true;
+        }
+        simpanLogin(ctx, idRuang, TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, ""));
+        balas(ctx, idRuang, "Login berhasil. Semua perintah sekarang bisa"
+                + " langsung dipakai tanpa PIN, sampai kamu /logout atau"
+                + " PIN diganti.");
+        TgBackup.sendMessageKbKe(ctx, String.valueOf(idRuang),
+                teksMenu(ctx, MENU_UTAMA), keyboardMenu(MENU_UTAMA));
+        return true;
+    }
+
+    private static boolean tanganiLogout(Context ctx, long idRuang) {
+        if (idRuang < 0) {
+            balas(ctx, idRuang, "Logout hanya bisa dari chat pribadi bot.");
+            return false;
+        }
+        boolean sedang = sudahLogin(ctx, idRuang);
+        hapusLogin(ctx, idRuang);
+        balas(ctx, idRuang, sedang
+                ? "Sudah logout. Perintah ber-PIN akan meminta login lagi."
+                : "Kamu belum login.");
+        return false;
     }
 
     private static boolean perintahKontrol(Context ctx, String cmd, String arg, long idRuang) {
@@ -2113,6 +2253,9 @@ public final class TgBot {
             return t;
         }
 
+        if (sudahLogin(ctx, idRuang)) {
+            return pisahkanPin(t)[0];
+        }
         long sekarang = System.currentTimeMillis();
         long sisa = PinGate.sisaKunciMs(ctx, sekarang);
         if (sisa > 0) {
@@ -2181,6 +2324,8 @@ public final class TgBot {
                 } catch (Exception ignored) {
                 }
             }
+            simpanLogin(ctx, idRuang,
+                    TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, ""));
             return rest;
         }
         balas(ctx, idRuang, "Perintah ini butuh PIN app"

@@ -138,10 +138,10 @@ public class TgBotTest {
         assertTrue(json.startsWith("{\"commands\":["));
         for (String c : new String[]{"status", "log", "uptime", "alive", "backup",
                 "restore", "ca", "cabackup", "careset", "crashlog", "versi", "update", "webvault", "start", "stop",
-                "restart", "help"}) {
+                "restart", "login", "logout", "help"}) {
             assertTrue("hilang: " + c, json.contains("\"" + c + "\""));
         }
-        assertEquals(17, TgBot.daftarPerintahMenu().length);
+        assertEquals(19, TgBot.daftarPerintahMenu().length);
     }
 
     @Test
@@ -738,5 +738,37 @@ public class TgBotTest {
         assertFalse(TgBot.offsetPerluReset("", ""));
         assertFalse(TgBot.offsetPerluReset(null, "222"));
         assertFalse(TgBot.offsetPerluReset("111", null));
+    }
+
+    @Test
+    public void loginBerlaku_hanyaChatDanHashYangSama() {
+        assertTrue(TgBot.loginBerlaku(123L, 123L, "hashA", "hashA", true));
+        assertFalse(TgBot.loginBerlaku(123L, 456L, "hashA", "hashA", true));
+        assertFalse(TgBot.loginBerlaku(123L, 123L, "hashA", "hashB", true));
+        assertFalse(TgBot.loginBerlaku(123L, 123L, "", "hashA", true));
+        assertFalse(TgBot.loginBerlaku(123L, 123L, null, "hashA", true));
+        assertFalse(TgBot.loginBerlaku(123L, 123L, "hashA", null, true));
+        assertFalse(TgBot.loginBerlaku(123L, 123L, "hashA", "hashA", false));
+        assertFalse(TgBot.loginBerlaku(-99L, -99L, "hashA", "hashA", true));
+        assertFalse(TgBot.loginBerlaku(0L, 0L, "hashA", "hashA", true));
+    }
+
+    @Test
+    public void pinTebakan_loginIkutTerdeteksi() {
+        assertEquals("123456", TgBot.pinTebakan("/login 123456"));
+        assertEquals("123456", TgBot.pinTebakan("/login@BotSaya 123456"));
+        assertNull(TgBot.pinTebakan("/login"));
+        assertNull(TgBot.pinTebakan("/login halo"));
+        assertFalse(TgBot.perintahPerluPin("/login"));
+        assertFalse(TgBot.perintahPerluPin("/logout"));
+    }
+
+    @Test
+    public void loginKonteksNullAman() {
+        assertFalse(TgBot.sudahLogin(null, 123L));
+        assertFalse(TgBot.sudahLogin(null, -1L));
+        TgBot.simpanLogin(null, 123L, "hashA");
+        TgBot.simpanLogin(null, -1L, "hashA");
+        TgBot.hapusLogin(null, 123L);
     }
 }

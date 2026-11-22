@@ -1,5 +1,30 @@
 # Changelog
 
+## [Belum rilis] — Login bot Telegram sekali pakai: /login dan /logout (permintaan owner)
+
+- Keluhan owner: PIN aplikasi diminta pada SETIAP aksi
+  ber-PIN di bot Telegram. Model diganti meniru
+  Red-Eye: login sekali, aksi berikutnya bebas PIN.
+- Cara baru: kirim /login <PIN> dari chat pribadi,
+  atau balas PIN sekali saat tombol memintanya —
+  keberhasilan verifikasi PIN di authDangerous kini
+  juga mencatat login. Sesudah itu gerbang
+  authDangerous dan tombol panel melewatkan tuntutan
+  PIN untuk chat tersebut (argumen tetap dibersihkan
+  dari sufiks PIN bila masih diketik).
+- Login terikat ID chat + sidik hash PIN tersimpan
+  (tg_login_chat/tg_login_hash, keputusan murni
+  loginBerlaku terkunci uji): ganti PIN otomatis
+  mencabut login karena hash selalu bergaram acak,
+  /logout mencabutnya manual, dan login tidak
+  pernah berlaku di grup. Kunci anti-tebak PinGate
+  tetap berlaku untuk /login.
+- Pesan /login yang memuat PIN ikut terdeteksi
+  pinTebakan sehingga dihapus otomatis seperti
+  pesan ber-PIN lain; /login sendiri BUKAN perintah
+  ber-PIN. Perintah login/logout masuk daftar menu
+  bot (setMyCommands, kini 19 perintah).
+
 ## [Belum rilis] — Konstanta _CSVKIT_BOOL yang ikut terhapus di 2580 dipulihkan (koreksi Maraton 176)
 
 - Koreksi atas perbaikan 2580: penghapusan fungsi mati
