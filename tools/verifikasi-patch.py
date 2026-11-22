@@ -11375,6 +11375,9 @@ def _menguras_khusus(perintah, toks, awal):
         # sama seperti model 2573/2574 di
         # tsv-summarize. Penyusuran sadar nilai:
         # pembawa lain menelan nilainya lebih dulu.
+        # Audit 2627: -v/--seed-value uint
+        # (tsv-sample.d:223, ikatan :306) ikut
+        # divalidasi - 2620 melewatkannya.
         i_mt = 0
         while i_mt < len(mentah):
             t_mt = mentah[i_mt]
@@ -11382,7 +11385,8 @@ def _menguras_khusus(perintah, toks, awal):
                 break
             nama_mt, eq_mt, isi_mt = t_mt.partition("=")
             kunci_mt = nama_mt.lower()
-            if kunci_mt in ("-n", "--num", "-p", "--prob"):
+            if kunci_mt in ("-n", "--num", "-p", "--prob",
+                            "-v", "--seed-value"):
                 pred_mt = (_double_getopt_sah
                            if kunci_mt in ("-p", "--prob")
                            else _uint_getopt_sah)
@@ -11400,7 +11404,7 @@ def _menguras_khusus(perintah, toks, awal):
                 continue
             if (len(t_mt) > 2 and t_mt.startswith("-")
                     and not t_mt.startswith("--")
-                    and t_mt[1].lower() in ("n", "p")):
+                    and t_mt[1].lower() in ("n", "p", "v")):
                 pred_mt = (_double_getopt_sah
                            if t_mt[1].lower() == "p"
                            else _uint_getopt_sah)

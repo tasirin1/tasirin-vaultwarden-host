@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Gerbang memvalidasi seed-value tsv-sample (Audit 2627)
+
+- Pre-walk penerima bertipe tsv-sample kini
+  ikut memvalidasi -v/--seed-value (uint di
+  sumber tsv-utils) yang terlewat pada model
+  Audit 2620: nilai bukan angka kini dinilai
+  mati di getopt, bukan menguras. Dua skenario
+  uji baru (1720–1721).
+
 ## [Belum rilis] — Model kematian penerima jumlah head/tail di gerbang (Audit 2626)
 
 - Jalur generik gerbang kini memvalidasi nilai
