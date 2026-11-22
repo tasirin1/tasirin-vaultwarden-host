@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Koreksi verifikasi backup: CRC entri diperiksa manual (Audit 2589)
+
+- Perbaikan 2589 membaca semua entri zip sampai
+  habis, tetapi aliran ZipFile tidak menegakkan CRC
+  entri STORED sehingga entri sampingan yang korup
+  tetap lolos (ketahuan dari 1 tes JVM merah di CI).
+  Kini CRC32 tiap entri dihitung saat dibaca dan
+  dicocokkan dengan CRC direktori pusat, di
+  verifikasiZip maupun verifikasiIsiDbZip.
+
 ## [Belum rilis] — Gerbang memodelkan kematian penerima bertipe di tsv-sample/tsv-split/csv2tsv (Audit 2620)
 
 - Cabang tsv-sample (-n ulong, -p double),

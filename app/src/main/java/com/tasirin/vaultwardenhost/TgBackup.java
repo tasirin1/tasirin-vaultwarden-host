@@ -1808,14 +1808,24 @@ public final class TgBackup {
                 if (entri.isDirectory()) {
                     continue;
                 }
+                java.util.zip.CRC32 crcEntri = new java.util.zip.CRC32();
                 try (InputStream in = zf.getInputStream(entri)) {
                     int n;
                     while ((n = in.read(bufBaca)) != -1) {
                         totalBaca += n;
+                        crcEntri.update(bufBaca, 0, n);
                         if (totalBaca > Util.BATAS_UNZIP_RESTORE) {
                             return "isi zip melebihi batas wajar";
                         }
                     }
+                }
+                // Audit 2589: ZipFile tidak menegakkan CRC
+                // entri STORED; cocokkan sendiri dengan CRC
+                // direktori pusat sesudah entri terbaca habis.
+                if (entri.getCrc() != -1
+                        && crcEntri.getValue() != entri.getCrc()) {
+                    return "isi zip korup (CRC entri "
+                            + entri.getName() + " tidak cocok)";
                 }
             }
             return null;
@@ -1844,15 +1854,24 @@ public final class TgBackup {
                 if (entri == null) {
                     continue;
                 }
+                java.util.zip.CRC32 crcDb = new java.util.zip.CRC32();
                 try (java.io.InputStream in = zf.getInputStream(entri)) {
                     int n;
                     while ((n = in.read(buf)) != -1) {
                         total += n;
+                        crcDb.update(buf, 0, n);
                         if (total > Util.BATAS_UNZIP_RESTORE) {
                             return "isi DB melebihi batas aman ("
                                     + Util.BATAS_UNZIP_RESTORE + " byte)";
                         }
                     }
+                }
+                // Audit 2589: CRC entri dicocokkan manual
+                // seperti di verifikasiZip.
+                if (entri.getCrc() != -1
+                        && crcDb.getValue() != entri.getCrc()) {
+                    return "isi DB korup (CRC entri "
+                            + entri.getName() + " tidak cocok)";
                 }
             }
             return null;
