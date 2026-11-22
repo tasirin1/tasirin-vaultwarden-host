@@ -1128,6 +1128,10 @@ public final class TgBot {
         }
     }
 
+    static boolean penekanDiizinkan(boolean ruangGrup, boolean penekanPemilik) {
+        return !ruangGrup || penekanPemilik;
+    }
+
     static boolean callbackDataValid(String data) {
         if (data == null) {
             return false;
@@ -1159,6 +1163,16 @@ public final class TgBot {
 
                 jawabCallback(ctx, cb.optString("id", ""));
                 return;
+            }
+            if (idRuang < 0) {
+                JSONObject penekan = cb.optJSONObject("from");
+                long idPenekan = penekan != null ? penekan.optLong("id", 0) : 0;
+                boolean pemilik = idPenekan > 0
+                        && Util.cocokChatBanyak(chatKonfig, idPenekan, "");
+                if (!penekanDiizinkan(true, pemilik)) {
+                    jawabCallback(ctx, cb.optString("id", ""));
+                    return;
+                }
             }
 
             if (pesan == null) {

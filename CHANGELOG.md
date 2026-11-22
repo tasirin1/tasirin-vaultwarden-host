@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Tombol di grup kini hanya melayani penekan pemilik (Audit 2609)
+
+- `tanganiCallback` kini memeriksa penekan (`cb.from`)
+  untuk ruang grup: callback hanya dilayani bila id
+  penekan cocok dengan salah satu chat pribadi pada
+  daftar konfigurasi — anggota grup lain tidak lagi
+  setara pemilik untuk navigasi menu/panel. Chat
+  pribadi tak berubah (id ruang = id pengguna).
+
 ## [Belum rilis] — Rantai jaga wakelock tugas berat tak lagi berhenti saat acquire gagal (Audit 2608)
 
 - Tick jaga wakelock kini tetap menjadwalkan tick

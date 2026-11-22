@@ -792,6 +792,14 @@ public class TgBotTest {
     }
 
     @Test
+    public void penekanDiizinkan_grupHanyaPemilik() {
+        assertTrue(TgBot.penekanDiizinkan(false, false));
+        assertTrue(TgBot.penekanDiizinkan(false, true));
+        assertTrue(TgBot.penekanDiizinkan(true, true));
+        assertFalse(TgBot.penekanDiizinkan(true, false));
+    }
+
+    @Test
     public void perintahKomitDini_termasukLoginLogout() {
         assertTrue(TgBot.perintahKomitDini("/login 123456"));
         assertTrue(TgBot.perintahKomitDini("/logout"));
