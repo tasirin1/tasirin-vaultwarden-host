@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi dua-nilai sqlite3 kini dilompati utuh (Audit 2658)
+
+- sqlite3 -lookaside dan -pagecache
+  memakan dua angka; penghitung operand
+  gerbang dulu hanya melompati satu
+  sehingga angka kedua terbaca sebagai
+  operand SQL dan perintah divonis tak
+  membaca stdin. Kini keduanya dilompati
+  utuh. Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: sqlite3 -maxsize/-mmap diakui sebagai opsi bernilai (Audit 2657)
 
 - sqlite3 yang diberi batas seperti

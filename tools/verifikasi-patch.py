@@ -3122,10 +3122,14 @@ def _menguras_mapfile(toks, awal):
     return True
 
 
-def _operand_sesudah_opsi(toks, awal, bernilai):
+def _operand_sesudah_opsi(toks, awal, bernilai,
+                          bernilai2=frozenset()):
     """Daftar operand polos sesudah melompati opsi (yang bernilai
     menelan token berikutnya; bentuk --opsi=nilai dan -o<nilai>
-    merekat ditangani). Dipakai penilai khusus Audit 1059-1072."""
+    merekat ditangani). Dipakai penilai khusus Audit 1059-1072.
+    Audit 2658: bernilai2 = opsi yang menelan DUA token nilai
+    (sqlite3 -lookaside/-pagecache) - dulu hanya satu yang
+    dilompati sehingga nilai kedua terhitung operand."""
     hasil = []
     i = awal + 1
     n = len(toks)
@@ -3137,14 +3141,15 @@ def _operand_sesudah_opsi(toks, awal, bernilai):
             break
         if bersih.startswith("-") and bersih != "-":
             dasar = bersih.split("=", 1)[0]
-            if dasar in bernilai:
-                if "=" not in bersih and i + 1 >= n:
+            if dasar in bernilai or dasar in bernilai2:
+                _perlu = 2 if dasar in bernilai2 else 1
+                if "=" not in bersih and i + _perlu >= n:
                     # Audit 1096: opsi bernilai menggantung di
                     # token terakhir — program galat ("requires an
                     # argument") dan tak membaca. Penanda operand
                     # membuat semua pemanggil condong ke False.
                     hasil.append("\x00gantung")
-                i += 1 if "=" in bersih else 2
+                i += 1 if "=" in bersih else 1 + _perlu
                 continue
             i += 1
             continue
@@ -4138,7 +4143,8 @@ def _menguras_khusus(perintah, toks, awal):
              # Audit 1175: -newline/-nonce bernilai — vonis
              # sqlite3 menghitung jumlah operand, jadi nilai
              # yang tertelan langsung membalikkan vonis.
-             "-newline", "-nonce"})
+             "-newline", "-nonce"},
+            {"-lookaside", "-pagecache"})
         # Audit 1096: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False
