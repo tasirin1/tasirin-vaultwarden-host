@@ -33,6 +33,12 @@ on:
     branches: [main]
     paths:
       - '.github/dependabot.yml'
+      # Audit 2649: .gitignore ditambahkan -
+      # pola 2635 yang sama; sebelumnya push
+      # yang hanya mengubahnya tak memicu
+      # workflow apa pun walau isinya
+      # menentukan berkas yang ikut ter-commit.
+      - '.gitignore'
       - '.github/workflows/auto-merge.yml'
       - '.github/workflows/cek-wajib.yml'
       - '.github/workflows/codeql.yml'
@@ -83,7 +89,7 @@ jobs:
             if [ -n "$BERKAS" ]; then
               while IFS= read -r b; do
                 case "$b" in
-                  .github/dependabot.yml|.github/workflows/auto-merge.yml|.github/workflows/cek-wajib.yml|.github/workflows/codeql.yml|.github/workflows/gitleaks.yml|.github/workflows/label-audit.yml|.github/workflows/labeler.yml|.github/workflows/stale.yml|tools/pasang-hook.sh) ;;
+                  .github/dependabot.yml|.gitignore|.github/workflows/auto-merge.yml|.github/workflows/cek-wajib.yml|.github/workflows/codeql.yml|.github/workflows/gitleaks.yml|.github/workflows/label-audit.yml|.github/workflows/labeler.yml|.github/workflows/stale.yml|tools/pasang-hook.sh) ;;
                   *) LANJUT=false ;;
                 esac
               done <<EOF

@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — CI: push khusus .gitignore kini memicu cek wajib (Audit 2649)
+
+- .gitignore ditambahkan ke paths push
+  cek-wajib dan daftar saringan push-nya
+  (pola yang sama dengan dependabot.yml
+  pada Audit 2635) - sebelumnya ia satu-
+  satunya berkas yang push-nya tak memicu
+  workflow apa pun.
+
 ## [Belum rilis] — Rotasi log: jalur tukar gagal tak lagi menghapus berkas live (Audit 2648)
 
 - Bila penukaran salinan rotasi gagal,
