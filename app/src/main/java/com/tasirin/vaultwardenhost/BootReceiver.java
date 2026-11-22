@@ -54,6 +54,8 @@ public class BootReceiver extends BroadcastReceiver {
 
     private static final Object KUNCI_BOOT = new Object();
 
+    private static boolean bootSedangDiproses = false;
+
     static final String AKSI_GANTI_PAKET = "android.intent.action.MY_PACKAGE_REPLACED";
 
     static boolean perluThrottleBoot(String action) {
@@ -74,6 +76,10 @@ public class BootReceiver extends BroadcastReceiver {
 
         final PendingResult pending = goAsync();
         Runnable kerja = () -> {
+            final long[] capBoot = new long[3];
+            final boolean[] perluCapBoot = {false};
+            final boolean[] kerjaBootGagal = {false};
+            final boolean[] startBootDitolak = {false};
             try {
                 if (perluThrottleBoot(action)) {
                     long kiniElapsed = android.os.SystemClock.elapsedRealtime();
@@ -93,7 +99,8 @@ public class BootReceiver extends BroadcastReceiver {
                             pakaiCount = bacaThrottleBootCountTersimpan(ctx);
                         }
                         long kiniCount = bacaBootCount(ctx);
-                        boolean menahan = throttleBootMenahan(kiniElapsed, pakaiElapsed,
+                        boolean menahan = bootSedangDiproses
+                                || throttleBootMenahan(kiniElapsed, pakaiElapsed,
                                 kiniWall, pakaiWall, THROTTLE_BOOT_MS,
                                 kiniCount, pakaiCount);
                         if (menahan) {
@@ -102,12 +109,11 @@ public class BootReceiver extends BroadcastReceiver {
                                     + " boot sebelumnya pada boot yang sama.");
                             return;
                         }
-                        terakhirBootElapsed = kiniElapsed;
-                        terakhirBootWall = kiniWall;
-                        terakhirBootCount = kiniCount;
-                        simpanThrottleBoot(ctx, kiniElapsed);
-                        simpanThrottleBootWall(ctx, kiniWall);
-                        simpanThrottleBootCount(ctx, kiniCount);
+                        bootSedangDiproses = true;
+                        capBoot[0] = kiniElapsed;
+                        capBoot[1] = kiniWall;
+                        capBoot[2] = kiniCount;
+                        perluCapBoot[0] = true;
                     }
                 }
                 SharedPreferences sp = ctx.getSharedPreferences(
@@ -159,6 +165,7 @@ public class BootReceiver extends BroadcastReceiver {
                         jalan = false;
                     }
                     if (!jalan) {
+                        startBootDitolak[0] = true;
                         ServerService.catatLog("[app] Auto-start boot ditolak sistem"
                                 + " - dijalankan susulan saat app dibuka.");
                     }
@@ -202,10 +209,26 @@ public class BootReceiver extends BroadcastReceiver {
                             + eBot.getClass().getSimpleName());
                 }
             } catch (Exception e) {
-
+                kerjaBootGagal[0] = true;
                 ServerService.catatLog("[app] Penanganan boot gagal: "
                         + e.getClass().getSimpleName());
             } finally {
+                if (perluCapBoot[0]) {
+                    synchronized (KUNCI_BOOT) {
+                        bootSedangDiproses = false;
+                        if (!kerjaBootGagal[0] && !startBootDitolak[0]) {
+                            terakhirBootElapsed = capBoot[0];
+                            terakhirBootWall = capBoot[1];
+                            terakhirBootCount = capBoot[2];
+                            try {
+                                simpanThrottleBoot(ctx, capBoot[0]);
+                                simpanThrottleBootWall(ctx, capBoot[1]);
+                                simpanThrottleBootCount(ctx, capBoot[2]);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+                }
                 pending.finish();
             }
         };

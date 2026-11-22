@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Stempel throttle boot kini dicap sesudah kerja boot, bukan sebelumnya (Audit 2607)
+
+- Throttle boot kini hanya mengklaim giliran saat
+  broadcast diterima (penanda sedang-diproses) dan
+  stempel throttle (memori + tersimpan) baru dicap di
+  akhir penanganan, hanya bila kerja boot tidak gagal
+  dan auto-start tidak ditolak sistem. Kegagalan
+  percobaan pertama tidak lagi menelan siaran boot
+  susulan pada boot yang sama.
+
 ## [Belum rilis] — /login dan /logout kini ikut commit offset dini (Audit 2606)
 
 - Daftar perintah yang offset poll-nya di-commit lebih
