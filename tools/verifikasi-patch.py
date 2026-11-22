@@ -3788,6 +3788,21 @@ def _double_getopt_sah(nilai):
         nilai.strip()) is not None
 
 
+def _jumlah_head_sah(nilai):
+    # Penerima jumlah coreutils head/tail
+    # (xstrtol): tanda opsional, digit, lalu
+    # sufiks pengali opsional (huruf tunggal
+    # b/k/K/m/M/g/G/t/T/p/P/e/E/z/Z/y/Y, atau
+    # huruf itu + B untuk basis 1000); di luar
+    # itu alat mati "invalid number" sebelum
+    # membaca (terprobe coreutils 9.4: "1B"
+    # dan "1.5" mati, "1b"/"1k"/"1KB" jalan).
+    return re.fullmatch(
+        r"[+-]?\d+(?:[bkKmMgGtTpPeEzZyY]"
+        r"|[kKmMgGtTpPeEzZyY]B)?",
+        nilai) is not None
+
+
 def _menguras_khusus(perintah, toks, awal):
     """Audit 1059-1072: penilai perintah yang pengurasannya
     bergantung pada subcommand / bentuk opsi khas — tak bisa
@@ -14443,6 +14458,58 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # penyusuran sadar nilai (pembawa menelan token
     # berikutnya) agar nilai opsi tak dinilai
     # panggilan bantuan.
+    # Audit 2626: penerima jumlah head/tail
+    # (-n/-c/--lines/--bytes) - nilai bukan
+    # angka membunuh alat sebelum membaca
+    # stdin; jalur generik sebelumnya tanpa
+    # model kematian ini (head -n abc ditolak
+    # gerbang padahal alatnya mati). Penyusuran
+    # sadar nilai seperti 2622.
+    if perintah in ("head", "tail"):
+        bernilai_ht = _OPSI_BERNILAI.get(perintah, set())
+        toks_ht = [t.strip("\"'") for t in toks[awal + 1:]]
+        lewati_ht = 0
+        for idx_ht, b_ht in enumerate(toks_ht):
+            if lewati_ht > 0:
+                lewati_ht -= 1
+                continue
+            if b_ht == "--":
+                break
+            if b_ht.startswith("--"):
+                nama_ht, eq_ht, isi_ht = (
+                    b_ht[2:].partition("="))
+                if nama_ht in ("lines", "bytes"):
+                    if eq_ht:
+                        if not _jumlah_head_sah(isi_ht):
+                            return False
+                    elif idx_ht + 1 < len(toks_ht):
+                        if not _jumlah_head_sah(
+                                toks_ht[idx_ht + 1]):
+                            return False
+                        lewati_ht = 1
+                    continue
+                if ("--" + nama_ht) in bernilai_ht and not eq_ht:
+                    lewati_ht = 1
+                continue
+            if (b_ht.startswith("-") and b_ht != "-"
+                    and not b_ht[1:].isdigit()):
+                for pos_ht, ch_ht in enumerate(b_ht[1:]):
+                    if ch_ht in ("n", "c"):
+                        ekor_ht = b_ht[1:][pos_ht + 1:]
+                        if ekor_ht:
+                            if not _jumlah_head_sah(ekor_ht):
+                                return False
+                        elif idx_ht + 1 < len(toks_ht):
+                            if not _jumlah_head_sah(
+                                    toks_ht[idx_ht + 1]):
+                                return False
+                            lewati_ht = 1
+                        break
+                    if "-" + ch_ht in bernilai_ht:
+                        if pos_ht == len(b_ht) - 2:
+                            lewati_ht = 1
+                        break
+                continue
     if perintah in ("sort", "head", "tail", "uniq",
                     "cut", "wc"):
         vokab_gu = _VOKAB_SK[perintah]

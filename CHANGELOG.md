@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Model kematian penerima jumlah head/tail di gerbang (Audit 2626)
+
+- Jalur generik gerbang kini memvalidasi nilai
+  penerima jumlah head/tail (-n/-c/--lines/
+  --bytes) dengan tata bahasa coreutils (tanda
+  opsional + digit + sufiks pengali): nilai
+  bukan angka seperti head -n abc tak lagi
+  ditolak sebagai penguras, karena alatnya mati
+  sebelum membaca. Dua skenario uji baru
+  (1718–1719).
+
 ## [Belum rilis] — Gerbang menyelesaikan singkatan getopt_long grep (Audit 2625)
 
 - Penilai keluarga grep kini menyelesaikan
