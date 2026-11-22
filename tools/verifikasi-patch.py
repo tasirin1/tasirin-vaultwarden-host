@@ -4072,6 +4072,23 @@ def _menguras_khusus(perintah, toks, awal):
                     _lewati_44 = 1
                 continue
             _ops_44 += 1
+        # Audit 2653: nilai -cmd dieksekusi
+        # sebagai SQL sebelum stdin dibaca -
+        # nilai yang diawali "-" (bukan "--",
+        # yang adalah komentar SQL sah) pasti
+        # syntax error di prepare dan alat
+        # berhenti tanpa membaca (terbukti
+        # biner: -cmd "-lookaside"/"-x" mati,
+        # -cmd "-- komentar" jalan). Cacat
+        # lama: nilai berbentuk opsi dua-nilai
+        # juga membingungkan pindaian pendahulu
+        # informasional.
+        for k_53, t_53 in enumerate(mentah):
+            if t_53 == "-cmd" and k_53 + 1 < len(mentah):
+                v_53 = mentah[k_53 + 1]
+                if v_53.startswith("-") \
+                        and not v_53.startswith("--"):
+                    return False
         # Audit 1059: operand pertama = berkas db (bukan sumber
         # perintah); operand kedua = string SQL yang menekan.
         ops = _operand_sesudah_opsi(

@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nilai -cmd sqlite3 berawalan strip kini divonis mati (Audit 2653)
+
+- Nilai -cmd sqlite3 yang diawali "-"
+  (bukan "--" komentar SQL) pasti gagal
+  prepare sebagai syntax error dan alat
+  berhenti sebelum membaca stdin - gerbang
+  kini memvonisnya mati, bukan menguras.
+  Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Tes: trio format tanggal Util kini teruji (Audit 2652)
 
 - UtilTest bertambah tiga tes untuk

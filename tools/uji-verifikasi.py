@@ -36868,6 +36868,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tsv-pretty -E -lfoo: -lfoo nilai -E (pulau caseSensitive), alat menguras: gerbang gagal (Audit 2647)", rc != 0)
         shutil.rmtree(sub1738, ignore_errors=True)
+        sub1739 = klon(tmp, "sub1739")
+        berkas_aksi1739 = os.path.join(
+            sub1739, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1739, encoding="utf-8") as f:
+            isi_aksi1739 = f.read()
+        baris_aksi1739 = [b for b in isi_aksi1739.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1739 = isi_aksi1739.replace(
+                baris_aksi1739,
+                baris_aksi1739.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 -cmd \"-lookaside\" --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1739 != isi_aksi1739, \
+            "suntikan aksi1739 tidak menembak"
+        with open(berkas_aksi1739, "w", encoding="utf-8") as f:
+            f.write(isi_baru1739)
+        rc, out = jalan(sub1739,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("sqlite3 -cmd -lookaside: nilai -cmd syntax error di prepare, alat mati tanpa membaca: gerbang lolos (Audit 2653)", rc == 0)
+        shutil.rmtree(sub1739, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
