@@ -760,6 +760,12 @@ public class TgBotTest {
     }
 
     @Test
+    public void peringatkanPinChatAsing_ctxNullAman() {
+        TgBot.peringatkanPinChatAsing(null, 123456);
+        TgBot.peringatkanPinChatAsing(null, 0);
+    }
+
+    @Test
     public void kunciSesiLogin_perChat() {
         assertEquals("tg_login_123456", TgBot.kunciSesiLogin(123456));
         assertEquals("tg_login_0", TgBot.kunciSesiLogin(0));
