@@ -11507,6 +11507,55 @@ def _menguras_khusus(perintah, toks, awal):
         # -s/--space-between-fields,
         # -m/--max-text-width, -b/--preamble.
         bernilai_lp = ['--delimiter', '--empty-replacement', '--lookahead', '--max-text-width', '--preamble', '--precision', '--repeat-header', '--space-between-fields', '-E', '-V', '-b', '-d', '-l', '-m', '-p', '-r', '-s']
+        # Audit 2629: cabang ini sebelumnya
+        # tanpa model kematian penerima sama
+        # sekali (saudara-saudara tsv lain
+        # dibangun 2620). Penerima dari sumber
+        # tsv-pretty.d: size_t terikat langsung
+        # -l/-r/-s/-m/-b (:113-125), handler
+        # -p memakai to!size_t (:227-231),
+        # -d char (:121). Nilai tak terkonversi
+        # membunuh alat di getopt.
+        i_mt = 0
+        while i_mt < len(mentah):
+            t_mt = mentah[i_mt]
+            if t_mt == "--":
+                break
+            nama_mt, eq_mt, isi_mt = t_mt.partition("=")
+            kunci_mt = nama_mt.lower()
+            if kunci_mt in ("-l", "--lookahead",
+                            "-r", "--repeat-header",
+                            "-s", "--space-between-fields",
+                            "-m", "--max-text-width",
+                            "-b", "--preamble",
+                            "-p", "--precision",
+                            "-d", "--delimiter"):
+                pred_mt = (_char_getopt_sah
+                           if kunci_mt in ("-d", "--delimiter")
+                           else _uint_getopt_sah)
+                if eq_mt:
+                    if not pred_mt(isi_mt):
+                        return False
+                elif i_mt + 1 < len(mentah):
+                    if not pred_mt(mentah[i_mt + 1]):
+                        return False
+                    i_mt += 1
+                i_mt += 1
+                continue
+            if kunci_mt in bernilai_lp and not eq_mt:
+                i_mt += 2
+                continue
+            if (len(t_mt) > 2 and t_mt.startswith("-")
+                    and not t_mt.startswith("--")
+                    and t_mt[1].lower() in ("l", "r", "s",
+                                            "m", "b", "p",
+                                            "d")):
+                pred_mt = (_char_getopt_sah
+                           if t_mt[1].lower() == "d"
+                           else _uint_getopt_sah)
+                if not pred_mt(t_mt[2:]):
+                    return False
+            i_mt += 1
         # Audit 2484: --empty-replacement pulau
         # caseSensitive di sumber - varian
         # huruf lain galat getopt.

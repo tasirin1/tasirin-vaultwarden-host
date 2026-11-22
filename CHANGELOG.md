@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Model kematian penerima untuk tsv-pretty di gerbang (Audit 2629)
+
+- Cabang tsv-pretty yang sebelumnya tanpa
+  model kematian penerima sama sekali kini
+  memvalidasi penerima size_t (-l/-r/-s/-m/
+  -b/-p) dan char (-d) sesuai sumber tsv-utils:
+  nilai tak terkonversi dinilai mati di getopt.
+  Dua skenario uji baru (1724–1725).
+
 ## [Belum rilis] — Gerbang memvalidasi seed-value dan max-open-files tsv-split (Audit 2628)
 
 - Pre-walk penerima bertipe tsv-split kini
