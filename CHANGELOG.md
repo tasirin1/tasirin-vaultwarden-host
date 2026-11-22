@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga grep tanpa pola tak lagi dinilai menguras (Audit 2639)
+
+- Vonis akhir keluarga skrip kini
+  mengembalikan mati untuk grep/rg/egrep/
+  fgrep yang lingkarnya habis tanpa pola
+  terisi (alat asli mati usage rc=2), dan
+  opsi hantu --pattern dibuang dari semua
+  daftar pembawa gerbang (grep tak punya
+  opsi itu). Dua skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: opsi eksak grep --null/--binary tak lagi dibunuh resolusi singkatan (Audit 2638)
 
 - Resolusi singkatan getopt_long di gerbang

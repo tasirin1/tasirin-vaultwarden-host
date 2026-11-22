@@ -1879,7 +1879,11 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
         "awk": {"-F", "-v", "-f", "-W", "--field-separator",
                 "--assign", "--file"},
         "grep": {"-e", "-f", "-m", "-A", "-B", "-C", "-d", "-D",
-                 "--pattern", "--file", "--max-count",
+                 # Audit 2639: "--pattern" dibuang -
+                 # grep tak punya opsi itu (biner mati
+                 # "unrecognized option"); pembawa pola
+                 # yang asli --regexp/--regex di bawah.
+                 "--file", "--max-count",
                  # Audit 2459: ejaan pola grep -
                  # --regexp penuh dan singkatan
                  # getopt --regex sama-sama pembawa
@@ -1984,7 +1988,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             num_pendek_19 = set("ABCm")
             lewati_panjang_19 = {
                 "--" + x for x in (
-                    "pattern", "file", "max-count",
+                    "file", "max-count",
                     "regexp", "regex", "after-context",
                     "before-context", "context",
                     "devices", "directories",
@@ -2350,6 +2354,14 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     # galat dan tak membaca (operand berkas akan return False
     # di dalam lingkar).
     if perintah == "sed" and sed_i:
+        return False
+    # Audit 2639: keluarga grep mewajibkan operand
+    # pola (atau pola dari opsi -e/-f) - lingkar
+    # habis tanpa pola terisi berarti alat mati
+    # usage rc=2 tanpa membaca stdin (grep -m 1,
+    # grep --max-c 1, rg -c, egrep, fgrep).
+    if perintah == "grep" and not skrip_terisi \
+            and not skrip_dari_opsi:
         return False
     return True
 
@@ -14307,7 +14319,14 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # skrip (pola/berkas/label/glob) -
             # token berikutnya adalah nilai,
             # bukan informasional.
-            if (b_isk in ("-e", "-f", "--pattern",
+            if (b_isk in ("-e", "-f",
+                          # Audit 2639: "--pattern" dibuang
+                          # dari pendahulu keluarga skrip -
+                          # tak satu pun keluarga ini
+                          # (grep/sed/awk/jq/yq/fq) punya opsi
+                          # itu; tokennya kini jatuh ke cek
+                          # kosakata dan mati sebagaimana
+                          # binernya.
                           "--file", "--expression",
                           "--label", "--glob",
                           "--pre", "--pre-glob")
@@ -14328,7 +14347,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # Audit 2482: mawk/nawk/original-awk
                 # juga tak punya -e (nama asli dari
                 # token perintah, bukan keluarga).
-                if b_isk in ("-e", "-f", "--pattern",
+                if b_isk in ("-e", "-f",
                              "--file", "--expression"):
                     pola_opsi = True
                 lewati_info = 1
