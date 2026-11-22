@@ -1926,7 +1926,8 @@ public final class TgBackup {
 
             try (java.io.InputStream in = new java.io.FileInputStream(f)) {
                 m.put(nama, bacaTerbatas(in, BATAS_TLS_POTRET));
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                return null;
             }
         }
         return m;
@@ -3968,6 +3969,10 @@ public final class TgBackup {
         }
 
         java.util.Map<String, byte[]> tlsAsal = potretTls(new File(dataFolder, "tls"));
+        if (tlsAsal == null) {
+            return "Restore dibatalkan: berkas TLS lama gagal dibaca"
+                    + " untuk potret pengaman.";
+        }
         byte[] buf = new byte[64 * 1024];
         long totalUnzip = 0;
         int jumlahEntri = 0;

@@ -2265,6 +2265,12 @@ public class SettingsActivity extends Activity {
 
                     File dataFolder = new File(dataDir);
                     tlsAsal = TgBackup.potretTls(new File(dataFolder, "tls"));
+                    if (tlsAsal == null) {
+                        toast(getString(R.string.restore_tls_potret_gagal));
+                        appendUiLog("[app] Restore dibatalkan: potret TLS"
+                                + " lama gagal dibaca.");
+                        return;
+                    }
                     String canonBase = dataFolder.getCanonicalPath();
                     String awalanAman = canonBase + File.separator;
                     long totalUnzip = 0;

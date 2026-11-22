@@ -2276,6 +2276,21 @@ public class TgBackupTest {
         assertEquals("CA-LAMA", bacaTeks(new java.io.File(tls, "ca.pem")));
     }
 
+    @Test
+    public void potretTls_gagalBacaMengembalikanNull() throws Exception {
+        java.io.File tls = java.nio.file.Files.createTempDirectory("vwtls2").toFile();
+        java.io.File besar = new java.io.File(tls, "ca.pem");
+        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(besar)) {
+            byte[] gumpal = new byte[64 * 1024];
+            for (int i = 0; i < 17; i++) {
+                fos.write(gumpal);
+            }
+        }
+        org.junit.Assert.assertNull(TgBackup.potretTls(tls));
+        tulisTeks(new java.io.File(tls, "ca.pem"), "CA-KECIL");
+        org.junit.Assert.assertNotNull(TgBackup.potretTls(tls));
+    }
+
     private static void tulisTeks(java.io.File f, String isi) throws Exception {
         java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
         try {

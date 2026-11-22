@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Potret TLS yang gagal dibaca kini membatalkan restore, bukan menghapus berkas live (Audit 2590)
+
+- `potretTls` kini mengembalikan null bila berkas TLS
+  yang ada gagal dibaca (termasuk melebihi batas potret),
+  dan kedua jalur restore (bot + layar) membatalkan diri
+  sebelum menyentuh apa pun. Sebelumnya galat baca ditelan
+  sehingga `kembalikanTls` menafsirkan entri hilang sebagai
+  "dulu tidak ada" dan menghapus berkas live pada jalur
+  gagal-restore.
+
 ## [Belum rilis] — Verifikasi backup kini membaca semua entri zip, bukan hanya database (Audit 2589)
 
 - `verifikasiZip` kini membaca tuntas setiap entri
