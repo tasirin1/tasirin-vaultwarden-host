@@ -1770,13 +1770,14 @@ public final class TgBot {
         }
         java.util.List<java.util.Map.Entry<String, Long>> urut =
                 new java.util.ArrayList<>(cap.entrySet());
-        urut.sort(new java.util.Comparator<java.util.Map.Entry<String, Long>>() {
-            @Override
-            public int compare(java.util.Map.Entry<String, Long> a,
-                    java.util.Map.Entry<String, Long> b) {
-                return Long.compare(a.getValue(), b.getValue());
-            }
-        });
+        java.util.Collections.sort(urut,
+                new java.util.Comparator<java.util.Map.Entry<String, Long>>() {
+                    @Override
+                    public int compare(java.util.Map.Entry<String, Long> a,
+                            java.util.Map.Entry<String, Long> b) {
+                        return Long.compare(a.getValue(), b.getValue());
+                    }
+                });
         for (int i = 0; i < urut.size() - batas; i++) {
             buang.add(urut.get(i).getKey());
         }

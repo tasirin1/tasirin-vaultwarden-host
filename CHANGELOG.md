@@ -31,6 +31,13 @@
   menyajikan vonis masa sertifikat yang basi
   selama memo berlaku.
 
+## [Belum rilis] — Koreksi lint Maraton-178: Collections.sort menggantikan List.sort
+
+- Pengurutan kunci peringatan (2633) memakai
+  Collections.sort: List.sort menuntut API 24
+  padahal minSdk aplikasi 21 (lint NewApi
+  menggagalkan build fd5d0de8).
+
 ## [Belum rilis] — Cap peringatan PIN chat asing dibersihkan berkala (Audit 2633)
 
 - Kunci cap peringatan per chat asing kini
