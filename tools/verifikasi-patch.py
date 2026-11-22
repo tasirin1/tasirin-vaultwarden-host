@@ -2355,6 +2355,14 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     # di dalam lingkar).
     if perintah == "sed" and sed_i:
         return False
+    # Audit 2640: sed mewajibkan skrip (operand
+    # pertama atau -e/-f) - lingkar habis tanpa
+    # skrip terisi berarti alat mati usage rc=1
+    # tanpa membaca stdin (sed, sed -n,
+    # sed --posix).
+    if perintah == "sed" and not skrip_terisi \
+            and not skrip_dari_opsi:
+        return False
     # Audit 2639: keluarga grep mewajibkan operand
     # pola (atau pola dari opsi -e/-f) - lingkar
     # habis tanpa pola terisi berarti alat mati

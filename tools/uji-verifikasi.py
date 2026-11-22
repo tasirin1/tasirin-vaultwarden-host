@@ -36679,6 +36679,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("grep --pattern pola: opsi hantu, alat mati unrecognized option: gerbang lolos (Audit 2639)", rc == 0)
         shutil.rmtree(sub1729, ignore_errors=True)
+        sub1730 = klon(tmp, "sub1730")
+        berkas_aksi1730 = os.path.join(
+            sub1730, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1730, encoding="utf-8") as f:
+            isi_aksi1730 = f.read()
+        baris_aksi1730 = [b for b in isi_aksi1730.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1730 = isi_aksi1730.replace(
+                baris_aksi1730,
+                baris_aksi1730.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sed -n; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1730 != isi_aksi1730, \
+            "suntikan aksi1730 tidak menembak"
+        with open(berkas_aksi1730, "w", encoding="utf-8") as f:
+            f.write(isi_baru1730)
+        rc, out = jalan(sub1730,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("sed -n tanpa skrip: alat mati usage rc=1, tak menguras: gerbang lolos (Audit 2640)", rc == 0)
+        shutil.rmtree(sub1730, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

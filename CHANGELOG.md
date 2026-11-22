@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sed tanpa skrip tak lagi dinilai menguras (Audit 2640)
+
+- Vonis akhir keluarga skrip kini
+  mengembalikan mati untuk sed yang
+  lingkarnya habis tanpa skrip terisi dari
+  operand maupun -e/-f (alat asli mati
+  usage rc=1). Satu skenario uji-diri baru.
+
 ## [Belum rilis] — Gerbang: keluarga grep tanpa pola tak lagi dinilai menguras (Audit 2639)
 
 - Vonis akhir keluarga skrip kini
