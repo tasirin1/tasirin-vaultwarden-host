@@ -1011,6 +1011,31 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void rotasiTukarGagalBerkasLiveUtuh() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwrot5").toFile();
+        java.io.File f = new java.io.File(dir, "vaultwarden.log");
+        org.junit.Assert.assertTrue(f.mkdir());
+        java.nio.file.Files.write(new java.io.File(f, "penanda").toPath(),
+                "ISI-LAMA".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        java.lang.reflect.Field fBuf = ServerService.class.getDeclaredField("logFileBuf");
+        fBuf.setAccessible(true);
+        StringBuilder buf = (StringBuilder) fBuf.get(null);
+        try {
+            buf.append("ISI-BARU\n");
+            org.junit.Assert.assertFalse(ServerService.rotasiLewatTmp(f));
+            String isi = new String(java.nio.file.Files.readAllBytes(
+                    new java.io.File(f, "penanda").toPath()),
+                    java.nio.charset.StandardCharsets.UTF_8);
+            assertEquals("ISI-LAMA", isi);
+            assertTrue(buf.toString().contains("ISI-BARU"));
+            org.junit.Assert.assertFalse(
+                    new java.io.File(dir, "vaultwarden.log.tmp2").exists());
+        } finally {
+            buf.setLength(0);
+        }
+    }
+
+    @Test
     public void rotasiTmpIkutGagalBerkasLamaUtuh() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwrot2").toFile();
         java.io.File f = new java.io.File(dir, "vaultwarden.log");

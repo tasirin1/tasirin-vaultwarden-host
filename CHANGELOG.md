@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Cadangan salin rotasi log tak lagi memotong berkas live (Audit 2631)
+
+- Jalur cadangan rotasi log kini menyalin ke
+  berkas sementara kedua dulu dan menukar di
+  langkah terakhir. Sebelumnya berkas log aktif
+  dipotong lebih dulu baru disalin, sehingga
+  salinan yang gagal di tengah meninggalkan
+  berkas terpotong yang kemudian tertempel
+  ulang seluruh buffer (baris log ganda).
+
 ## [Belum rilis] — Buffer log dibatasi juga saat rotasi gagal total (Audit 2630)
 
 - Bila berkas log penuh dan rotasi gagal total

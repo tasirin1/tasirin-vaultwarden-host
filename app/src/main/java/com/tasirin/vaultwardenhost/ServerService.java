@@ -3081,15 +3081,33 @@ public class ServerService extends Service {
             return false;
         }
         if (!tmp.renameTo(f)) {
+            // Audit 2631: jangan potong berkas live
+            // sebelum salinan pengganti utuh -
+            // salin dulu ke tmp kedua, baru tukar
+            // di langkah terakhir. Salinan yang
+            // putus di tengah meninggalkan berkas
+            // live apa adanya dan buffer utuh,
+            // bukan parsial yang tertempel ulang
+            // seluruh buffer pada flush berikutnya.
+            File tmp2 = new File(f.getParentFile(),
+                    f.getName() + ".tmp2");
             try (java.io.InputStream in = new java.io.FileInputStream(tmp);
-                    java.io.OutputStream out = new FileOutputStream(f, false)) {
+                    java.io.OutputStream out = new FileOutputStream(tmp2, false)) {
                 byte[] b = new byte[64 * 1024];
                 int n;
                 while ((n = in.read(b)) != -1) {
                     out.write(b, 0, n);
                 }
             } catch (Exception e) {
+                tmp2.delete();
                 return false;
+            }
+            if (!tmp2.renameTo(f)) {
+                f.delete();
+                if (!tmp2.renameTo(f)) {
+                    tmp2.delete();
+                    return false;
+                }
             }
         }
         tmp.delete();
