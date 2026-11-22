@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Stempel sesi login kini dibaca di dalam kunci percobaan PIN (Audit 2594)
+
+- `simpanLogin` dari jalur verifikasi (`authDangerous`
+  dan `/login`) kini lewat `simpanLoginBilaHashTetap`:
+  hash yang dicap ke sesi adalah hash yang terbukti di
+  dalam `KUNCI_PERCOBAAN`, dan pencapan hanya terjadi
+  bila hash tersimpan masih persis sama saat dicap —
+  ganti PIN yang mendarat di jendela verifikasi tidak
+  lagi ikut terbawa menjadi sesi baru (pencabutan sesi
+  lewat ganti PIN kembali mutlak).
+
 ## [Belum rilis] — Tombol Segarkan kini menghormati gerbang chat-dianggap-grup (Audit 2593)
 
 - Cabang callback `segar:` kini memakai gerbang yang

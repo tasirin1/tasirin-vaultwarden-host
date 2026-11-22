@@ -760,6 +760,13 @@ public class TgBotTest {
     }
 
     @Test
+    public void simpanLoginBilaHashTetap_ctxNullAman() {
+        TgBot.simpanLoginBilaHashTetap(null, 123, "hash");
+        TgBot.simpanLoginBilaHashTetap(null, 123, "");
+        TgBot.simpanLoginBilaHashTetap(null, -1, "hash");
+    }
+
+    @Test
     public void loginBerlaku_hanyaChatDanHashYangSama() {
         assertTrue(TgBot.loginBerlaku(123L, 123L, "hashA", "hashA", true));
         assertFalse(TgBot.loginBerlaku(123L, 456L, "hashA", "hashA", true));

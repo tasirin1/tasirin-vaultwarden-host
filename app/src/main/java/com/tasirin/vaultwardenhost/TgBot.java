@@ -1529,6 +1529,25 @@ public final class TgBot {
         }
     }
 
+    static void simpanLoginBilaHashTetap(Context ctx, long idRuang,
+            String hashTerbukti) {
+        if (ctx == null || idRuang < 0 || hashTerbukti == null
+                || hashTerbukti.isEmpty()) {
+            return;
+        }
+        synchronized (PinGate.KUNCI_PERCOBAAN) {
+            try {
+                SharedPreferences sp = ctx.getSharedPreferences(
+                        ServerService.PREFS, Context.MODE_PRIVATE);
+                String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                if (hashTerbukti.equals(kini)) {
+                    simpanLogin(ctx, idRuang, kini);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     static void hapusLogin(Context ctx, long idRuang) {
         if (ctx == null) {
             return;
@@ -1857,6 +1876,7 @@ public final class TgBot {
         }
         boolean cocok = false;
         long sisaKalah = 0;
+        String hashTerbukti = "";
         synchronized (PinGate.KUNCI_PERCOBAAN) {
             String hash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
             long sisa2 = PinGate.sisaKunciMs(ctx, System.currentTimeMillis());
@@ -1864,6 +1884,9 @@ public final class TgBot {
                 sisaKalah = sisa2;
             } else {
                 cocok = PinCrypto.verify(hash == null ? "" : hash, pin);
+                if (cocok) {
+                    hashTerbukti = hash;
+                }
                 PinGate.catatHasil(ctx, cocok, sekarang);
             }
         }
@@ -1876,7 +1899,7 @@ public final class TgBot {
             balas(ctx, idRuang, "PIN salah, login ditolak.");
             return true;
         }
-        simpanLogin(ctx, idRuang, TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, ""));
+        simpanLoginBilaHashTetap(ctx, idRuang, hashTerbukti);
         balas(ctx, idRuang, "Login berhasil. Semua perintah sekarang bisa"
                 + " langsung dipakai tanpa PIN, sampai kamu /logout atau"
                 + " PIN diganti.");
@@ -2437,20 +2460,24 @@ public final class TgBot {
             return null;
         }
         if (cocok) {
+            String hashStempel = hash;
             if (PinCrypto.perluUpgradeHash(hash)) {
+                hashStempel = null;
                 try {
                     String hashBaru = PinCrypto.hash(pin);
                     synchronized (PinGate.KUNCI_PERCOBAAN) {
                         String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
                         if (hash.equals(kini)) {
                             sp.edit().putString(PinGate.KEY_PIN_HASH, hashBaru).apply();
+                            hashStempel = hashBaru;
                         }
                     }
                 } catch (Exception ignored) {
                 }
             }
-            simpanLogin(ctx, idRuang,
-                    TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, ""));
+            if (hashStempel != null) {
+                simpanLoginBilaHashTetap(ctx, idRuang, hashStempel);
+            }
             return rest;
         }
         balas(ctx, idRuang, "Perintah ini butuh PIN app"
