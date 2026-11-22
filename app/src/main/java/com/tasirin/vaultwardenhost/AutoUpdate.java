@@ -152,8 +152,7 @@ public final class AutoUpdate {
                         if (aksi.webVaultSiap(dataDir)) {
                             String targetWv = Updater.versiTargetWebVault(ctx);
                             String marker = Updater.webVaultFromVersion(ctx);
-                            boolean terkunciWv = !TgBackup.amanString(sp,
-                                    ServerService.KEY_WV_PILIH, "").isEmpty();
+                            boolean terkunciWv = Updater.adaKuncianWebVault(ctx);
                             if (Updater.webVaultOtomatisPerluUpdate(marker, targetWv,
                                     terkunciWv)) {
                                 long gagalWvAt = TgBackup.amanLong(sp,

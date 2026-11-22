@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Keputusan terkunci web-vault otomatis kini memakai pin ternormalisasi (Audit 2616)
+
+- `AutoUpdate` kini menentukan status terkunci web-vault
+  lewat `Updater.adaKuncianWebVault` (pin sesudah
+  `normalisasiPinVersi`), bukan string pin mentah. Pin
+  tersimpan yang tak valid tidak lagi membuat target
+  latest diperlakukan sebagai pin eksplisit — yang dulu
+  bisa mengejar selisih apa pun termasuk turun versi.
+
 ## [Belum rilis] — Watchdog proses Util kini meneskalasi ke destroyForcibly (Audit 2615)
 
 - `Util.pasangWatchdogProses` tidak berhenti pada satu
