@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Watcher proses kini men-join pembaca milik prosesnya sendiri (Audit 2605)
+
+- `watchProcess` menerima thread pembaca yang lahir
+  bersama prosesnya dan `tungguPembacaOutput` men-join
+  thread itu — bukan lagi membaca field bersama
+  `pembacaOutput` saat pemanggilan, yang bisa sudah
+  tertimpa pembaca proses baru (watcher lama men-join
+  pembaca proses baru sampai 2 detik dan klasifikasi
+  crash membaca ekor log yang tercampur).
+
 ## [Belum rilis] — Buffer log sisa flush gagal tidak lagi terbawa ke folder data baru (Audit 2604)
 
 - `pindahLogFile` kini membuang buffer yang tertahan

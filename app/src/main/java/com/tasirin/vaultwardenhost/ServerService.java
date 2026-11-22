@@ -2332,7 +2332,7 @@ public class ServerService extends Service {
         pembacaOutput = reader;
         reader.start();
 
-        Thread watcher = new Thread(() -> watchProcess(p), "vw-watch");
+        Thread watcher = new Thread(() -> watchProcess(p, reader), "vw-watch");
         watcher.setDaemon(true);
         watcher.start();
 
@@ -2425,8 +2425,7 @@ public class ServerService extends Service {
         startServerAsync();
     }
 
-    private static void tungguPembacaOutput() {
-        Thread baca = pembacaOutput;
+    private static void tungguPembacaOutput(Thread baca) {
         if (baca == null || baca == Thread.currentThread()) {
             return;
         }
@@ -2444,11 +2443,11 @@ public class ServerService extends Service {
         }
     }
 
-    private void watchProcess(Process p) {
+    private void watchProcess(Process p, Thread pembaca) {
         try {
             int code = p.waitFor();
 
-            tungguPembacaOutput();
+            tungguPembacaOutput(pembaca);
             if (isStopDisengaja(p) || process != p) {
 
                 lepasProses(p, this::efekProsesBerhenti);
