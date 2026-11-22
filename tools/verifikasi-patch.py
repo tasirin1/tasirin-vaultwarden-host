@@ -1941,6 +1941,124 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
         # POSIX yang tak mengenalnya akan galat dan tak
         # membaca stdin sama sekali.
         nilai = nilai | {"-i", "--include", "-l", "--load"}
+    if perintah == "grep":
+        # Audit 2619: penerima numerik keluarga grep/rg -
+        # nilai yang bukan angka membunuh alat di parser
+        # sebelum stdin dibaca (rg: "value is not a valid
+        # number"; grep: "invalid max count"/"invalid
+        # context length"; --max-filesize rg: "invalid
+        # size" - digit + sufiks huruf besar tunggal
+        # K/M/G). Terverifikasi biner rg 14.1.0 dan
+        # grep 3.11. Cermin model kematian penerima
+        # 2573/2574 di cabang tsv-summarize. Penyusuran
+        # sadar nilai: pembawa string keluarga (himpunan
+        # nilai + pembawa khas rg) menelan nilainya
+        # tanpa validasi angka.
+        if nama_asli == "rg":
+            num_panjang_19 = {"after-context",
+                              "before-context", "context",
+                              "max-count", "max-columns",
+                              "max-depth", "threads",
+                              "max-filesize"}
+            num_pendek_19 = set("ABCmMdj")
+            lewati_panjang_19 = {
+                "--" + x for x in num_panjang_19}
+            lewati_panjang_19 |= {
+                "--regexp", "--replace", "--glob",
+                "--iglob", "--pre", "--pre-glob",
+                "--field-match-separator",
+                "--field-context-separator",
+                "--context-separator", "--colors",
+                "--path-separator", "--type-add",
+                "--type", "--engine", "--encoding",
+                "--file", "--label", "--exclude",
+                "--include", "--exclude-dir",
+                "--exclude-from", "--group-separator",
+                "--binary-files", "--devices",
+                "--directories"}
+            lewati_pendek_19 = set("efrgABCdmD")
+        else:
+            num_panjang_19 = {"after-context",
+                              "before-context", "context",
+                              "max-count"}
+            num_pendek_19 = set("ABCm")
+            lewati_panjang_19 = {
+                "--" + x for x in (
+                    "pattern", "file", "max-count",
+                    "regexp", "regex", "after-context",
+                    "before-context", "context",
+                    "devices", "directories",
+                    "exclude-from", "exclude", "include",
+                    "exclude-dir", "label", "binary-files",
+                    "group-separator")}
+            lewati_pendek_19 = set("efmABCdD")
+        def _angka19(nama19, nilai19):
+            if nama19 == "max-filesize":
+                return re.fullmatch(
+                    r"\d+[KMG]?", nilai19) is not None
+            return _uint_getopt_sah(nilai19)
+        i_19 = awal + 1
+        while i_19 < len(toks):
+            t_19 = toks[i_19].strip("\"'")
+            if t_19 == "--":
+                break
+            if (t_19 in (">", ">>", "1>", "2>", "1>>",
+                         "2>>")
+                    or re.fullmatch(r"\d*>>?", t_19)):
+                i_19 += 2
+                continue
+            if re.match(r"\d*>>?\S", t_19):
+                i_19 += 1
+                continue
+            if t_19.startswith("--"):
+                nama_19, eq_19, isi_19 = (
+                    t_19[2:].partition("="))
+                if nama_19 in num_panjang_19:
+                    if eq_19:
+                        if not _angka19(nama_19, isi_19):
+                            return False
+                    elif i_19 + 1 < len(toks):
+                        if not _angka19(
+                                nama_19,
+                                toks[i_19 + 1].strip("\"'")):
+                            return False
+                        i_19 += 1
+                elif ("--" + nama_19) in lewati_panjang_19 \
+                        and not eq_19:
+                    i_19 += 1
+                i_19 += 1
+                continue
+            if t_19.startswith("-") and t_19 != "-":
+                huruf_19 = t_19[1:]
+                for pos_19, ch_19 in enumerate(huruf_19):
+                    if ch_19 in num_pendek_19:
+                        ekor_19 = huruf_19[pos_19 + 1:]
+                        # rg (clap) membuang "=" di depan
+                        # nilai pendek (-m=5 sah); grep
+                        # memperlakukan "=5" sebagai nilai
+                        # (mati) - terverifikasi biner.
+                        if (nama_asli == "rg"
+                                and ekor_19.startswith("=")):
+                            ekor_19 = ekor_19[1:]
+                        if ekor_19:
+                            if not _angka19("", ekor_19):
+                                return False
+                        elif i_19 + 1 < len(toks):
+                            if not _angka19(
+                                    "",
+                                    toks[i_19 + 1].strip(
+                                        "\"'")):
+                                return False
+                            i_19 += 1
+                        break
+                    if ch_19 in lewati_pendek_19:
+                        if (pos_19 == len(huruf_19) - 1
+                                and i_19 + 1 < len(toks)):
+                            i_19 += 1
+                        break
+                i_19 += 1
+                continue
+            i_19 += 1
     nilai2 = {"--arg", "--argjson", "--rawfile", "--slurpfile", "--argdecode", "--raw-file"}
     skrip_dari_opsi = False
     skrip_terisi = False

@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Gerbang memodelkan kematian penerima numerik grep/rg (Audit 2619)
+
+- Penilai keluarga skrip kini memeriksa nilai opsi
+  numerik grep/rg (`-A/-B/-C/-m`, `--max-count`,
+  `--max-columns`, `--max-depth`, `--threads`,
+  `--max-filesize`): nilai yang bukan angka membunuh
+  alat di parser (terverifikasi biner rg 14.1.0 dan
+  grep 3.11) sehingga perintah dinilai tidak menguras
+  stdin — sebelumnya gerbang menolak perintah yang
+  alatnya mati. Enam skenario uji baru (1699–1704).
+
 ## [Belum rilis] — CodeQL paths-ignore kini memuat .github/actions/** dan CODEOWNERS (Audit 2621)
 
 - Blok `paths-ignore` CodeQL pada push dan pull_request
