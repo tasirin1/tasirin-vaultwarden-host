@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Tulis teks atomik: fallback tak lagi menghapus isi lama dulu (Audit 2668)
+
+- Penulisan berkas kecil (stempel
+  versi dan daftar IP sertifikat) dulu
+  berisiko menghilangkan isi lama dan
+  baru sekaligus bila dua rename
+  beruntun gagal. Kini berkas lama
+  digeser dulu dan dipulihkan bila
+  penukaran gagal, mengikuti pola
+  perbaikan rotasi log sebelumnya.
+
 ## [Belum rilis] — Rotasi log: pemulihan berkas lama tak lagi bergantung rename terakhir (Audit 2667)
 
 - Pada jalur kegagalan beruntun rotasi

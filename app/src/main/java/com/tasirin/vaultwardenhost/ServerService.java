@@ -4530,7 +4530,55 @@ public class ServerService extends Service {
             }
         }
         if (!baru.renameTo(f)) {
-            if (!f.delete() || !baru.renameTo(f)) {
+            // Audit 2668: jangan hapus f dulu -
+            // pola lama menghapus f lalu mencoba
+            // rename kedua; bila itu pun gagal,
+            // isi lama dan isi baru hilang
+            // bersamaan (pola yang sama dengan
+            // temuan 2648). Kini f digeser ke
+            // .lama dulu dan dipulihkan bila
+            // tukar kedua gagal; f bukan berkas
+            // biasa (mis. folder penghalang)
+            // tak disentuh sama sekali.
+            File lama = new File(induk,
+                    f.getName() + ".lama");
+            boolean tergeser = false;
+            if (f.isFile()) {
+                try {
+                    lama.delete();
+                } catch (Exception ignored) {
+                }
+                tergeser = f.renameTo(lama);
+            }
+            if (tergeser && baru.renameTo(f)) {
+                try {
+                    lama.delete();
+                } catch (Exception ignored) {
+                }
+            } else {
+                if (tergeser && !lama.renameTo(f)) {
+                    boolean pulih = false;
+                    try (java.io.InputStream in =
+                            new java.io.FileInputStream(
+                                    lama);
+                            java.io.OutputStream out =
+                            new java.io.FileOutputStream(
+                                    f, false)) {
+                        byte[] b = new byte[64 * 1024];
+                        int n;
+                        while ((n = in.read(b)) != -1) {
+                            out.write(b, 0, n);
+                        }
+                        pulih = true;
+                    } catch (Exception ignored) {
+                    }
+                    if (pulih) {
+                        try {
+                            lama.delete();
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
                 try {
                     baru.delete();
                 } catch (Exception ignored) {
