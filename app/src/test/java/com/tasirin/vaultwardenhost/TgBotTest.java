@@ -741,6 +741,16 @@ public class TgBotTest {
     }
 
     @Test
+    public void segarWajibPrompt_mengikutiGerbangGrupJalurTeks() {
+        assertTrue(TgBot.segarWajibPrompt(false, true, true, false));
+        assertTrue(TgBot.segarWajibPrompt(true, false, true, false));
+        assertFalse(TgBot.segarWajibPrompt(false, true, true, true));
+        assertFalse(TgBot.segarWajibPrompt(false, true, false, false));
+        assertFalse(TgBot.segarWajibPrompt(false, false, true, false));
+        assertFalse(TgBot.segarWajibPrompt(true, false, false, false));
+    }
+
+    @Test
     public void bolehPeringatkanPinAsing_sekaliPerJamPerChat() {
         assertTrue(TgBot.bolehPeringatkanPinAsing(0, 1_000_000L));
         assertTrue(TgBot.bolehPeringatkanPinAsing(-5, 1_000_000L));

@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Tombol Segarkan kini menghormati gerbang chat-dianggap-grup (Audit 2593)
+
+- Cabang callback `segar:` kini memakai gerbang yang
+  sama dengan jalur teks (`perintahInfo`): ruang yang
+  dianggap grup selalu wajib PIN — dengan PIN mati
+  penyegaran ditolak, dengan PIN aktif diminta lewat
+  alur tombol (atau dilewati bila sudah login). Sebelumnya
+  cabang ini hanya memeriksa `perluPinTombol` sehingga
+  pada konfigurasi grup + PIN mati isi status bisa
+  disegarkan tanpa pemeriksaan apa pun.
+
 ## [Belum rilis] — Gerbang patch: -cmd sqlite3 diakui sebagai pendahulu bernilai (Audit 2592)
 
 - Himpunan pendahulu informasional untuk sqlite3 di

@@ -1207,7 +1207,13 @@ public final class TgBot {
                 String cmdSegar = data.substring(6).trim();
                 if (idRuang > 0 && perintahBisaSegarkan(cmdSegar)) {
                     hapusPending(ctx, idRuang);
-                    if (perluPinTombol(ctx, cmdSegar) && !sudahLogin(ctx, idRuang)) {
+                    boolean grupSegar = chatResmiAdalahGrup(ctx);
+                    boolean pinAktifSegar = pinPerangkatAktif(ctx);
+                    if (grupSegar && !pinAktifSegar) {
+                        return;
+                    }
+                    if (segarWajibPrompt(perluPinTombol(ctx, cmdSegar),
+                            grupSegar, pinAktifSegar, sudahLogin(ctx, idRuang))) {
                         mulaiAksiPin(ctx, idRuang, idPesan, cmdSegar);
                     } else {
                         segarkanLaporan(ctx, idRuang, idPesan, cmdSegar);
@@ -1676,6 +1682,11 @@ public final class TgBot {
         balas(ctx, idRuang, "Peringatan: bot tak bisa menghapus pesan ber-PIN"
                 + " dari riwayat chat (tanpa hak hapus; di grup jadikan bot admin)."
                 + " Hapus manual pesan berisi PIN agar tak dipakai ulang pengintip.");
+    }
+
+    static boolean segarWajibPrompt(boolean perluPinTombol, boolean grup,
+            boolean pinAktif, boolean sudahLogin) {
+        return (perluPinTombol || grup) && pinAktif && !sudahLogin;
     }
 
     static boolean bolehPeringatkanPinAsing(long terakhirMs, long kiniMs) {
