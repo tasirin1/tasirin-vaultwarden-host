@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pola '-' pada grep kini dikenali sebagai pola (Audit 2655)
+
+- grep yang polanya hanya "-" (mis.
+  mencari garis bertanda strip) tidak
+  lagi divonis mati: token itu dulu
+  dilewati begitu saja sehingga perintah
+  terbaca tak berpola, padahal alatnya
+  membaca stdin. Satu skenario uji-diri
+  baru.
+
 ## [Belum rilis] — Gerbang: pembawa nilai khas rg kini tertelan di penelusuran utama (Audit 2654)
 
 - Perintah rg dengan opsi bernilai khas

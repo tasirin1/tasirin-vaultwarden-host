@@ -2361,6 +2361,15 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             i += 1  # bendera polos
             continue
         if bersih == "-":
+            if (perintah == "grep"
+                    and not skrip_terisi
+                    and not skrip_dari_opsi):
+                # Audit 2655: "-" di slot pola grep
+                # adalah POLANYA sendiri (biner
+                # mencetak hasil dari stdin), bukan
+                # penanda berkas - tanpa ini vonis
+                # akhir 2639 membaliknya jadi mati.
+                skrip_terisi = True
             i += 1
             continue
         if (bersih in ("/dev/stdin", "/dev/fd/0", "/proc/self/fd/0")
