@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Rotasi log: jalur tukar gagal tak lagi menghapus berkas live (Audit 2648)
+
+- Bila penukaran salinan rotasi gagal,
+  berkas log live kini digeser ke nama
+  sementara dan dipulihkan utuh bila
+  penukaran kedua pun gagal - bukan
+  dihapus seperti sebelumnya, yang bisa
+  menghilangkan isi lama pada kegagalan
+  ganda walau fungsi melaporkan gagal.
+
 ## [Belum rilis] — Gerbang: nilai -E tsv-pretty kini dilompati dengan benar (Audit 2647)
 
 - Uji lewati pra-jalan tsv-pretty kini

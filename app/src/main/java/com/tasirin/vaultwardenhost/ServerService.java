@@ -3103,8 +3103,32 @@ public class ServerService extends Service {
                 return false;
             }
             if (!tmp2.renameTo(f)) {
-                f.delete();
-                if (!tmp2.renameTo(f)) {
+                // Audit 2648: jangan hapus f - pola
+                // lama menghapus f lalu mencoba
+                // rename kedua; bila itu pun gagal,
+                // isi lama hilang walau fungsi
+                // mengaku gagal dan komentar 2631
+                // menjanjikan berkas live utuh.
+                // Kini f digeser ke tmp3 dulu dan
+                // dipulihkan bila tukar kedua
+                // gagal; f bukan berkas biasa
+                // (mis. folder penghalang) tak
+                // disentuh sama sekali.
+                if (!f.isFile()) {
+                    tmp2.delete();
+                    return false;
+                }
+                File tmp3 = new File(f.getParentFile(),
+                        f.getName() + ".tmp3");
+                tmp3.delete();
+                if (!f.renameTo(tmp3)) {
+                    tmp2.delete();
+                    return false;
+                }
+                if (tmp2.renameTo(f)) {
+                    tmp3.delete();
+                } else {
+                    tmp3.renameTo(f);
                     tmp2.delete();
                     return false;
                 }
