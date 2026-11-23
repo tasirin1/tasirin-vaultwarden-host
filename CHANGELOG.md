@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — xargs -a: anak kembali divonis normal (Audit 2670)
+
+- Pengecualian lama yang membebaskan
+  semua perintah anak di balik
+  `xargs -a berkas` dicabut: berkas
+  argumen hanya memindahkan sumber
+  daftar item xargs, sedangkan anak
+  tetap mewarisi stdin bersama — berkas
+  kosong membuat anak membaca stdin
+  sampai habis. Kini anak divonis sama
+  seperti tanpa -a.
+
 ## [Belum rilis] — rg: union pembawa dilengkapi dari --help + --generate informasional (Audit 2669)
 
 - Penelusuran utama gerbang kini

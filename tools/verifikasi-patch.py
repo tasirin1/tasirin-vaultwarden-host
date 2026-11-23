@@ -14176,14 +14176,23 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return xargs_sendiri or _menguras_khusus(
                 perintah, toks, awal)
         return xargs_sendiri
-    if xargs_dari_berkas and perintah != "tee":
-        # Audit 962: perintah anak menerima operand item dari berkas
-        # argumen xargs, jadi tak membaca stdin bersama (tee
-        # dikecualikan: operandnya berkas keluaran, ia tetap
-        # menguras). Isi berkas tak bisa diketahui gerbang; vonis
-        # mengikuti pemakaian lazim -a, yaitu berkas berisi item.
-        # Audit 971: lapisan xargs lain tanpa -a tetap menguras.
-        return xargs_sendiri
+    if xargs_dari_berkas:
+        # Audit 2670: pengecualian menyeluruh 962
+        # DIBATALKAN oleh bukti biner - -a hanya
+        # memindahkan sumber DAFTAR ITEM xargs;
+        # stdin anak tidak dialihkan, anak
+        # mewarisi stdin bersama persis seperti
+        # tanpa -a. Berkas argumen kosong (mis.
+        # /dev/null) membuat anak berjalan tanpa
+        # operand berkas dan membaca stdin
+        # bersama sampai EOF (cat/grep/head
+        # terverifikasi menunggu 2 detik penuh).
+        # Vonis anak kini jatuh ke dispatch
+        # normal di bawah, sama seperti tanpa
+        # -a; yang berubah hanya xargs sendiri
+        # tak ikut menguras (xargs_sendiri tetap
+        # False kecuali nilai -a adalah "-").
+        pass
     if xargs_sendiri:
         return True
     # Audit 2452: keluarga skrip dirutekan
