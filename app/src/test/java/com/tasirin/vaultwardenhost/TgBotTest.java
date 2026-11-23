@@ -808,11 +808,46 @@ public class TgBotTest {
         assertEquals(789L, s[0]);
         assertEquals(12L, s[1]);
         assertEquals(0L, s[2]);
+        assertEquals(0L, s[3]);
         assertEquals(null, TgBot.uraiEntriHapusTertunda(null));
         assertEquals(null, TgBot.uraiEntriHapusTertunda("rusak"));
         assertEquals(null, TgBot.uraiEntriHapusTertunda("1:2:x"));
         assertEquals(null, TgBot.uraiEntriHapusTertunda("1:2"));
         assertEquals(null, TgBot.uraiEntriHapusTertunda("a:b:s"));
+        assertEquals(null, TgBot.uraiEntriHapusTertunda("1:2:s:-5"));
+        assertEquals(null, TgBot.uraiEntriHapusTertunda("1:2:s:abc"));
+    }
+
+    @Test
+    public void entriHapusTertundaPenuh_capWaktuDanKedaluwarsa() {
+        String e = TgBot.entriHapusTertundaPenuh(
+                -100123L, 456, true, 1_700_000_000_000L);
+        assertEquals("-100123:456:a:1700000000000", e);
+        long[] u = TgBot.uraiEntriHapusTertunda(e);
+        assertEquals(1_700_000_000_000L, u[3]);
+        long kini = 1_700_000_000_000L
+                + TgBot.BATAS_UMUR_HAPUS_TERTUNDA_MS;
+        assertFalse(TgBot.hapusTertundaKedaluwarsa(
+                1_700_000_000_000L, kini));
+        assertTrue(TgBot.hapusTertundaKedaluwarsa(
+                1_700_000_000_000L, kini + 1));
+        assertFalse(TgBot.hapusTertundaKedaluwarsa(0, kini + 1));
+    }
+
+    @Test
+    public void samaIdentitasHapus_cocokDanBeda() {
+        long[] u = TgBot.uraiEntriHapusTertunda(
+                "-100123:456:a:1700000000000");
+        assertTrue(TgBot.samaIdentitasHapus(u, -100123L, 456, true));
+        assertFalse(TgBot.samaIdentitasHapus(u, -100123L, 456, false));
+        assertFalse(TgBot.samaIdentitasHapus(u, -100123L, 457, true));
+        assertFalse(TgBot.samaIdentitasHapus(u, -100124L, 456, true));
+        assertFalse(TgBot.samaIdentitasHapus(null, -100123L, 456, true));
+    }
+
+    @Test
+    public void selesaikanHapusTertundaUntuk_ctxNullAman() {
+        TgBot.selesaikanHapusTertundaUntuk(null, 1, 2, false);
     }
 
     @Test

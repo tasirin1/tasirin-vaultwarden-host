@@ -1497,15 +1497,15 @@ public final class TgBot {
         if (!cobaJalankanBg(() -> {
             boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
             if (terhapus) {
-                selesaikanHapusTertunda(ctx,
-                        entriHapusTertunda(idRuang, idPesan, false));
+                selesaikanHapusTertundaUntuk(ctx,
+                        idRuang, idPesan, false);
             }
             peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
         })) {
             boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
             if (terhapus) {
-                selesaikanHapusTertunda(ctx,
-                        entriHapusTertunda(idRuang, idPesan, false));
+                selesaikanHapusTertundaUntuk(ctx,
+                        idRuang, idPesan, false);
             }
             peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
         }
@@ -1518,15 +1518,15 @@ public final class TgBot {
             if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
                 peringatkanPinChatAsing(ctx, idRuang);
             } else {
-                selesaikanHapusTertunda(ctx,
-                        entriHapusTertunda(idRuang, idPesan, true));
+                selesaikanHapusTertundaUntuk(ctx,
+                        idRuang, idPesan, true);
             }
         })) {
             if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
                 peringatkanPinChatAsing(ctx, idRuang);
             } else {
-                selesaikanHapusTertunda(ctx,
-                        entriHapusTertunda(idRuang, idPesan, true));
+                selesaikanHapusTertundaUntuk(ctx,
+                        idRuang, idPesan, true);
             }
         }
     }
@@ -1546,12 +1546,41 @@ public final class TgBot {
         return idRuang + ":" + idPesan + ":" + (asing ? "a" : "s");
     }
 
+    // Audit 2836: entri yang tersimpan membawa
+    // cap waktu catat pertama; pesan yang tak
+    // akan pernah terhapus (sudah dihapus
+    // manual, atau lewat jendela hapus 48 jam
+    // Telegram) tidak boleh dicoba ulang di
+    // tiap poll selamanya.
+    static final long BATAS_UMUR_HAPUS_TERTUNDA_MS =
+            48L * 3600_000L;
+
+    static boolean samaIdentitasHapus(long[] u,
+            long idRuang, int idPesan, boolean asing) {
+        return u != null && u[0] == idRuang
+                && u[1] == idPesan
+                && (u[2] == 1) == asing;
+    }
+
+    static String entriHapusTertundaPenuh(long idRuang,
+            int idPesan, boolean asing, long capMs) {
+        return entriHapusTertunda(idRuang, idPesan, asing)
+                + ":" + capMs;
+    }
+
+    static boolean hapusTertundaKedaluwarsa(long capMs,
+            long kiniMs) {
+        return capMs > 0
+                && kiniMs - capMs
+                        > BATAS_UMUR_HAPUS_TERTUNDA_MS;
+    }
+
     static long[] uraiEntriHapusTertunda(String entri) {
         if (entri == null) {
             return null;
         }
         String[] b = entri.split(":");
-        if (b.length != 3) {
+        if (b.length != 3 && b.length != 4) {
             return null;
         }
         try {
@@ -1560,8 +1589,19 @@ public final class TgBot {
             if (!b[2].equals("a") && !b[2].equals("s")) {
                 return null;
             }
+            // Audit 2836: bidang keempat =
+            // cap waktu catat pertama (ms);
+            // entri warisan 2830 tanpanya
+            // terbaca 0.
+            long cap = 0;
+            if (b.length == 4) {
+                cap = Long.parseLong(b[3]);
+                if (cap < 0) {
+                    return null;
+                }
+            }
             return new long[]{ruang, pesan,
-                    b[2].equals("a") ? 1 : 0};
+                    b[2].equals("a") ? 1 : 0, cap};
         } catch (Exception e) {
             return null;
         }
@@ -1583,8 +1623,19 @@ public final class TgBot {
                 if (lama != null) {
                     kini.addAll(lama);
                 }
-                if (kini.add(entriHapusTertunda(
-                        idRuang, idPesan, asing))) {
+                boolean sudahAda = false;
+                for (String e : kini) {
+                    if (samaIdentitasHapus(
+                            uraiEntriHapusTertunda(e),
+                            idRuang, idPesan, asing)) {
+                        sudahAda = true;
+                        break;
+                    }
+                }
+                if (!sudahAda) {
+                    kini.add(entriHapusTertundaPenuh(
+                            idRuang, idPesan, asing,
+                            System.currentTimeMillis()));
                     sp.edit().putStringSet(
                             KEY_TG_HAPUS_TERTUNDA, kini).apply();
                 }
@@ -1617,6 +1668,45 @@ public final class TgBot {
         }
     }
 
+    // Audit 2836: coret entri menurut identitas
+    // dasarnya (id ruang + id pesan + jenis),
+    // apa pun cap waktu yang tersimpan - jalur
+    // async tak memegang untaian entri persisnya.
+    static void selesaikanHapusTertundaUntuk(Context ctx,
+            long idRuang, int idPesan, boolean asing) {
+        if (ctx == null) {
+            return;
+        }
+        synchronized (KUNCI_PERINGATAN) {
+            try {
+                SharedPreferences sp = ctx.getSharedPreferences(
+                        ServerService.PREFS, Context.MODE_PRIVATE);
+                java.util.Set<String> lama = sp.getStringSet(
+                        KEY_TG_HAPUS_TERTUNDA, null);
+                if (lama == null) {
+                    return;
+                }
+                java.util.Set<String> kini =
+                        new java.util.HashSet<>();
+                boolean berubah = false;
+                for (String e : lama) {
+                    if (samaIdentitasHapus(
+                            uraiEntriHapusTertunda(e),
+                            idRuang, idPesan, asing)) {
+                        berubah = true;
+                        continue;
+                    }
+                    kini.add(e);
+                }
+                if (berubah) {
+                    sp.edit().putStringSet(
+                            KEY_TG_HAPUS_TERTUNDA, kini).apply();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     static void cobaHapusTertunda(Context ctx) {
         java.util.List<String> daftar =
                 new java.util.ArrayList<>();
@@ -1639,20 +1729,40 @@ public final class TgBot {
                 selesaikanHapusTertunda(ctx, entri);
                 continue;
             }
+            final long idRuang = u[0];
+            final int idPesan = (int) u[1];
+            final boolean asing = u[2] == 1;
+            // Audit 2836: entri kedaluwarsa
+            // dibuang (peringatan terakhir
+            // lewat jalur dedup yang sama);
+            // entri warisan tanpa cap diberi
+            // cap sekarang agar jamnya jalan.
+            if (hapusTertundaKedaluwarsa(
+                    u[3], System.currentTimeMillis())) {
+                selesaikanHapusTertunda(ctx, entri);
+                if (asing) {
+                    peringatkanPinChatAsing(ctx, idRuang);
+                } else {
+                    peringatkanBilaTakBisaHapus(
+                            ctx, false, idRuang);
+                }
+                continue;
+            }
+            if (u[3] == 0) {
+                selesaikanHapusTertunda(ctx, entri);
+                catatHapusTertunda(ctx, idRuang,
+                        idPesan, asing);
+            }
             if (diproses >= 10) {
                 break;
             }
             diproses++;
-            final long idRuang = u[0];
-            final int idPesan = (int) u[1];
-            final boolean asing = u[2] == 1;
             cobaJalankanBg(() -> {
                 boolean terhapus = hapusPesanPerintah(
                         ctx, idRuang, idPesan);
                 if (terhapus) {
-                    selesaikanHapusTertunda(ctx,
-                            entriHapusTertunda(
-                                    idRuang, idPesan, asing));
+                    selesaikanHapusTertundaUntuk(ctx,
+                            idRuang, idPesan, asing);
                 } else if (asing) {
                     peringatkanPinChatAsing(ctx, idRuang);
                 } else {

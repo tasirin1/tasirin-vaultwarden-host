@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot: antrean hapus pesan ber-PIN kini berumur maks 48 jam, tak dicoba selamanya (Audit 2836)
+
+Entri `tg_hapus_tertunda` dari perbaikan 2830 hanya dicoret bila penghapusan berhasil — pesan yang tak akan pernah bisa dihapus (sudah dihapus manual oleh pengguna, atau pesan grup lewat jendela hapus Telegram) dicoba ulang di tiap poll selamanya, tanpa batas umur. Entri tersimpan kini membawa cap waktu catat pertama (bidang keempat); entri yang lewat 48 jam dibuang sesudah peringatan terakhir lewat jalur dedup yang sama, dan entri warisan tanpa cap waktu diberi cap saat pertama terlihat agar jamnya mulai berjalan. Pencoretan sesudah berhasil kini menurut identitas dasar entri (ruang+pesan+jenis), bukan untaian persis, supaya cap waktu tidak mematahkan pencoretan dari jalur async. Uji JVM: urai format baru + warisan, predikat kedaluwarsa di batas persis.
+
+
 ## [Belum rilis] — Gerbang: boolean V8 di _NODE_HELP_TELANJANG kini menolak =nilai + enum --force-fips (Audit 2835)
 
 Sebagian anggota himpunan boolean node dari perbaikan 2818 ternyata boolean V8: diberi `=nilai` biner mati "illegal value ... of type bool" sementara gerbang menilai menguras. Sapuan biner induk atas 59 nama memisahkannya: 7 nama V8 (--prof, --jitless, --expose-gc, --abort-on-uncaught-exception, --disallow-code-generation-from-strings, --enable-etw-stack-walking, --interpreted-frames-native-stack) kini ditolak gerbang bila berbentuk `=`; sisanya boolean node-native yang memang menerima `=` diam-diam. Sapuan yang sama menemukan `--force-fips` hanya menerima `=provider`/`=strict` — nilai `=` lain kini ditolak (bentuk terpisah bukan nilainya, terprobe). Skenario uji-verifikasi 1904.
