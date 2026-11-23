@@ -5884,11 +5884,13 @@ def _menguras_khusus(perintah, toks, awal):
         # %regex%[+-offset], atau {N}/{*}
         # yang mengikuti pola bukan-kurung.
         ada_pola = False
+        kurung_cs = False
         for pola_cs in ops[1:]:
             if re.fullmatch(r"\d+", pola_cs):
                 if int(pola_cs) < 1:
                     return False
                 ada_pola = True
+                kurung_cs = False
                 continue
             if (pola_cs.startswith("/")
                     or pola_cs.startswith("%")):
@@ -5898,11 +5900,16 @@ def _menguras_khusus(perintah, toks, awal):
                 if tutup_cs < 0:
                     return False
                 ekor_cs = pola_cs[tutup_cs + 1:]
+                # Audit 2787: offset boleh
+                # TANPA tanda di biner
+                # (/b/5 terurai; gagalnya di
+                # tahap cocok, bukan urai).
                 if (ekor_cs
                         and not re.fullmatch(
-                            r"[+-]\d+", ekor_cs)):
+                            r"[+-]?\d+", ekor_cs)):
                     return False
                 ada_pola = True
+                kurung_cs = False
                 continue
             # Kurung tutup pola bisa
             # terpotong parser lapisan luar
@@ -5910,8 +5917,15 @@ def _menguras_khusus(perintah, toks, awal):
             # "{3}") - tutup opsional.
             if re.fullmatch(
                     r"\{(\d+|\*)\}?", pola_cs):
-                if not ada_pola:
+                # Audit 2787: pengulangan
+                # harus mengikuti pola
+                # BUKAN pengulangan - dua
+                # kurung berurutan mati di
+                # biner ('{2}': invalid
+                # pattern).
+                if not ada_pola or kurung_cs:
                     return False
+                kurung_cs = True
                 continue
             return False
         return bool(ops) and ops[0] == "-"

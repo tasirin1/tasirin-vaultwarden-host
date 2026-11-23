@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — csplit: offset tanpa tanda sah + pengulangan berurutan ditolak (Audit 2787)
+
+- Offset pola
+  csplit kini
+  boleh tanpa
+  tanda; pola
+  pengulangan
+  `{N}` sesudah
+  pengulangan lain
+  kini ditolak
+  (biner: invalid
+  pattern).
+
+
 ## [Belum rilis] — cmp: tata bahasa byte diselaraskan ke xstrtoumax basis 0 (Audit 2786)
 
 - Byte cmp kini
