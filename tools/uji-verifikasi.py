@@ -37730,6 +37730,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item timeout 5. cat: durasi titik-akhir diterima strtod, timeout menguras, gerbang menolak (Audit 2690)", rc != 0)
         shutil.rmtree(sub1779, ignore_errors=True)
+        sub1780 = klon(tmp, "sub1780")
+        berkas_aksi1780 = os.path.join(
+            sub1780, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1780, encoding="utf-8") as f:
+            isi_aksi1780 = f.read()
+        baris_aksi1780 = [b for b in isi_aksi1780.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1780 = isi_aksi1780.replace(
+                baris_aksi1780,
+                baris_aksi1780.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(timeout -s BOGUS 5 cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1780 != isi_aksi1780, \
+            "suntikan aksi1780 tidak menembak"
+        with open(berkas_aksi1780, "w", encoding="utf-8") as f:
+            f.write(isi_baru1780)
+        rc, out = jalan(sub1780,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item timeout -s BOGUS: nama sinyal asing membunuh timeout, gerbang lolos (Audit 2691)", rc == 0)
+        shutil.rmtree(sub1780, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

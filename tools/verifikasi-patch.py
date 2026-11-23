@@ -4223,6 +4223,36 @@ def _durasi_timeout_sah(nilai):
         r")[smhd]?", nilai) is not None
 
 
+def _sinyal_timeout_sah(nilai):
+    # Audit 2691: nilai -s/--signal timeout -
+    # angka 0..64, atau nama sinyal (huruf
+    # bebas, awalan SIG opsional) dari tabel
+    # coreutils, atau RTMIN/RTMAX +- geseran
+    # yang hasilnya tetap di rentang RT
+    # (34..64). Terverifikasi biner 9.4:
+    # UNUSED/LOST ditolak, CLD/POLL/IOT
+    # diterima, "+9" ditolak.
+    u = nilai.upper()
+    if u.isdigit():
+        return int(u) <= 64
+    m = re.fullmatch(r"(SIG)?(RTMIN|RTMAX)([+-]\d+)?", u)
+    if m:
+        dasar = 34 if m.group(2) == "RTMIN" else 64
+        if m.group(3):
+            dasar += int(m.group(3))
+        return 34 <= dasar <= 64
+    if u.startswith("SIG"):
+        u = u[3:]
+    return u in {
+        "HUP", "INT", "QUIT", "ILL", "TRAP", "ABRT",
+        "IOT", "BUS", "FPE", "KILL", "USR1", "SEGV",
+        "USR2", "PIPE", "ALRM", "TERM", "STKFLT",
+        "CHLD", "CLD", "CONT", "STOP", "TSTP",
+        "TTIN", "TTOU", "URG", "XCPU", "XFSZ",
+        "VTALRM", "PROF", "WINCH", "IO", "POLL",
+        "PWR", "SYS"}
+
+
 def _double_getopt_sah(nilai):
     # Penerima double Phobos (to!double): literal
     # desimal bertanda dengan pecahan/eksponen
@@ -14334,7 +14364,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                  or (t0 == "ionice"
                                      and opsi[1] in "nc")
                                  or (t0 == "timeout"
-                                     and opsi[1] == "k"))):
+                                     and opsi[1] in "ks"))):
                         nama2681 = opsi[:2]
                         nilai2681 = opsi[2:]
                     if nilai2681 is None \
@@ -14370,6 +14400,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 and nama2681 in (
                                     "-k", "--kill-after")
                                 and not _durasi_timeout_sah(
+                                    nilai2681)):
+                            return False
+                        if (t0 == "timeout"
+                                and nama2681 in (
+                                    "-s", "--signal")
+                                and not _sinyal_timeout_sah(
                                     nilai2681)):
                             return False
                 if opsi in bernilai:

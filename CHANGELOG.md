@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — Nilai -s/--signal timeout kini divalidasi gerbang (Audit 2691)
+
+- Nilai sinyal timeout kini
+  diperiksa: angka 0–64, nama
+  sinyal dari tabel biner
+  (huruf bebas, awalan `SIG`
+  opsional), atau `RTMIN`/
+  `RTMAX` bergeseran yang
+  hasilnya tetap di rentang
+  sinyal waktu-nyata. Nama
+  asing membunuh timeout saat
+  memilah perintah, tetapi
+  sebelumnya tertelan gerbang
+  tanpa diperiksa.
+
+
 ## [Belum rilis] — Tata bahasa durasi timeout kini mengikuti strtod (Audit 2690)
 
 - Gerbang kini menerima bentuk
