@@ -37793,6 +37793,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item nice --adj=abc: singkatan getopt_long lolos validasi 2681, gerbang lolos (Audit 2693)", rc == 0)
         shutil.rmtree(sub1782, ignore_errors=True)
+        sub1783 = klon(tmp, "sub1783")
+        berkas_aksi1783 = os.path.join(
+            sub1783, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1783, encoding="utf-8") as f:
+            isi_aksi1783 = f.read()
+        baris_aksi1783 = [b for b in isi_aksi1783.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1783 = isi_aksi1783.replace(
+                baris_aksi1783,
+                baris_aksi1783.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ionice -u abc cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1783 != isi_aksi1783, \
+            "suntikan aksi1783 tidak menembak"
+        with open(berkas_aksi1783, "w", encoding="utf-8") as f:
+            f.write(isi_baru1783)
+        rc, out = jalan(sub1783,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item ionice -u abc: UID bukan angka membunuh ionice, gerbang lolos (Audit 2694)", rc == 0)
+        shutil.rmtree(sub1783, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

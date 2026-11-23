@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — Nilai -u/--which ionice kini divalidasi gerbang (Audit 2694)
+
+- Nilai `-u`/`--which` ionice
+  kini diperiksa numerik:
+  opsi itu hanya menerima UID
+  angka (nama pengguna pun
+  ditolak biner), tetapi
+  sebelumnya tertelan gerbang
+  tanpa diperiksa sehingga
+  perintah yang mati divonis
+  membaca masukan.
+
+
 ## [Belum rilis] — Singkatan getopt_long pembungkus kini diselesaikan sebelum validasi (Audit 2693)
 
 - Singkatan unik opsi panjang

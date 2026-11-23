@@ -14386,7 +14386,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             and ((t0 == "nice"
                                   and opsi[1] == "n")
                                  or (t0 == "ionice"
-                                     and opsi[1] in "nc")
+                                     and opsi[1] in "ncu")
                                  or (t0 == "timeout"
                                      and opsi[1] in "ks"))):
                         nama2681 = opsi[:2]
@@ -14456,6 +14456,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 and not (
                                     nilai2681.isdigit()
                                     and int(nilai2681) <= 3)):
+                            return False
+                        if (t0 == "ionice"
+                                and nama2681 in (
+                                    "-u", "--which")
+                                and not nilai2681.isdigit()):
+                            # Audit 2694: -u hanya
+                            # menerima UID numerik -
+                            # nama pengguna pun mati
+                            # ("invalid UID
+                            # argument").
                             return False
                         if (t0 == "timeout"
                                 and nama2681 in (
