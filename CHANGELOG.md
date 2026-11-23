@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: `--infofile -`/`--gitfile -` tree kini ditolak di walk fromfile (Audit 2862)
+
+Opsi pemuat berkas keluarga [=] menelan `-` sebagai nilainya di gerbang, tetapi biner mati "Could not load infofile/gitignore file" — tree tidak membaca berkas itu dari stdin. Kedua bentuk (terpisah dan `=`) kini ditolak untuk `--infofile` dan `--gitfile`; `--hintro -`/`--houtro -` yang ditoleransi biner tidak ikut ditolak. Skenario uji-diri 1931.
+
+
 ## [Belum rilis] — Gerbang: huruf opsi pendek tak sah tree kini membunuh model fromfile (Audit 2861)
 
 Validasi kosakata 2845 hanya memeriksa opsi panjang; huruf pendek tak sah (`-Z`, `-aZ`, `-e`) dibiarkan sehingga `tree --fromfile -Z` dinilai menguras padahal biner mati "Invalid argument". Walk fromfile kini memeriksa setiap huruf token pendek terhadap alfabet sah tree 2.1.1 (baris usage `--help` + `-R` + huruf bernilai); nilai opsi yang tertelan (mis. `-P -Z`) tidak ikut diperiksa. Skenario uji-diri 1930.

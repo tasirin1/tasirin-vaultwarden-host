@@ -15619,11 +15619,31 @@ def _menguras_khusus(perintah, toks, awal):
                 if nama_tr2 in ("--help",
                                 "--version"):
                     return False
+            # Audit 2862: opsi pemuat berkas
+            # --infofile/--gitfile dengan
+            # nilai "-" membunuh biner
+            # ("Could not load ...") -
+            # tree tak membaca berkas info/
+            # gitignore dari stdin (terprobe
+            # bentuk terpisah dan =; saudara
+            # --hintro/--houtro justru
+            # menoleransi "-" jadi tak ikut).
+            if (t_tr2 in ("--infofile",
+                          "--gitfile")
+                    and k_tr2 + 1 < len(mentah)
+                    and mentah[k_tr2 + 1] == "-"):
+                return False
             if t_tr2 in bernilai_tr2:
                 k_tr2 += 2
                 continue
             if ("=" in t_tr2 and t_tr2.split("=", 1)[0]
                     in bernilai_tr2):
+                if (t_tr2.split("=", 1)[0]
+                        in ("--infofile",
+                            "--gitfile")
+                        and t_tr2.split("=", 1)[1]
+                        == "-"):
+                    return False
                 k_tr2 += 1
                 continue
             # Audit 1368: opsi bernilai di UJUNG bundel pendek
