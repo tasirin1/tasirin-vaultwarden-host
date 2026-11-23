@@ -13747,6 +13747,25 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "int-tanda":
+        # Audit 2747: bilangan bulat bertanda
+        # bebas (numfmt --padding; negatif
+        # sah = rata kiri di biner).
+        return re.fullmatch(r"[+-]?\d{1,18}",
+                            v) is not None
+    if jenis == "enum-skala-numfmt":
+        # Audit 2747: skala --to/--from numfmt.
+        return v in ("auto", "si", "iec",
+                     "iec-i", "none")
+    if jenis == "enum-invalid-numfmt":
+        # Audit 2747: mode --invalid numfmt.
+        return v in ("ignore", "warn",
+                     "fail", "abort")
+    if jenis == "enum-round-numfmt":
+        # Audit 2747: mode --round numfmt.
+        return v in ("up", "down",
+                     "from-zero", "towards-zero",
+                     "nearest")
     if jenis == "panjang-b2sum":
         # Audit 2746: panjang bit b2sum =
         # bilangan bulat positif kelipatan
@@ -17440,6 +17459,93 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             k_ic += 1
         if informasional_ic:
             return False
+    # Audit 2747: validasi nilai penerima
+    # bertipe untuk pembaca yang dinilai
+    # loop operand (bukan penjaga
+    # kosakata): penyusuran sadar nilai
+    # atas _OPSI_BERNILAI perintah itu;
+    # nilai asing membunuh alat saat urai
+    # sehingga vonisnya tak menguras.
+    _TIPE_OPERAND = {
+        "numfmt": {
+            "padding": "int-tanda",
+            "to": "enum-skala-numfmt",
+            "from": "enum-skala-numfmt",
+            "field": "daftar-cut",
+            "header": "angka1",
+            "invalid": "enum-invalid-numfmt",
+            "round": "enum-round-numfmt",
+            "to-unit": "angka1",
+            "from-unit": "angka1"},
+    }
+    if perintah in _TIPE_OPERAND:
+        tabel_op = _TIPE_OPERAND[perintah]
+        bernilai_op = _OPSI_BERNILAI.get(
+            perintah, set())
+        k_op = awal + 1
+        while k_op < len(toks):
+            b_op = toks[k_op].strip("\"'")
+            if b_op == "--":
+                break
+            if b_op.startswith("--"):
+                nama_op, eq_op, isi_op = (
+                    b_op[2:].partition("="))
+                if nama_op in tabel_op:
+                    if eq_op:
+                        if not _tipe_nilai_sah_66(
+                                tabel_op[nama_op],
+                                isi_op):
+                            return False
+                    elif (("--" + nama_op)
+                            in bernilai_op
+                            and k_op + 1
+                            < len(toks)):
+                        if not _tipe_nilai_sah_66(
+                                tabel_op[nama_op],
+                                toks[k_op + 1].strip(
+                                    "\"'")):
+                            return False
+                        k_op += 1
+                elif (("--" + nama_op)
+                        in bernilai_op
+                        and not eq_op):
+                    k_op += 1
+                k_op += 1
+                continue
+            if (b_op.startswith("-")
+                    and b_op != "-"):
+                for pos_op, ch_op in enumerate(
+                        b_op[1:]):
+                    if (("-" + ch_op)
+                            not in bernilai_op):
+                        continue
+                    sisa_op = b_op[1:][pos_op + 1:]
+                    if ch_op in tabel_op:
+                        if sisa_op:
+                            if not (
+                                    _tipe_nilai_sah_66(
+                                        tabel_op[
+                                            ch_op],
+                                        sisa_op)):
+                                return False
+                        elif (k_op + 1
+                                < len(toks)):
+                            if not (
+                                    _tipe_nilai_sah_66(
+                                        tabel_op[
+                                            ch_op],
+                                        toks[
+                                            k_op + 1]
+                                        .strip(
+                                            "\"'"))):
+                                return False
+                            k_op += 1
+                    elif not sisa_op:
+                        k_op += 1
+                    break
+                k_op += 1
+                continue
+            k_op += 1
     lewati = False
     # Audit 1286: pr membaca SETIAP operand berurutan.
     ada_stdin_pr = False

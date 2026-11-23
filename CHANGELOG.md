@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — penerima numfmt divalidasi lewat walk operand bertipe (Audit 2747)
+
+- Mesin validasi
+  operand bertipe baru
+  (penyusuran sadar
+  nilai di loop
+  operand); baris
+  pertama numfmt:
+  padding/skala/bidang/
+  header/invalid/
+  round/unit.
+
+
 ## [Belum rilis] — b2sum punya kosakata sendiri dengan -l/--length (Audit 2746)
 
 - b2sum tak lagi
