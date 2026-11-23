@@ -13747,6 +13747,13 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "enum-crypt-chpasswd":
+        # Audit 2753: metode kriptografi
+        # chpasswd build ini (BLOWFISH dan
+        # SHA1 terbukti tak didukung).
+        return v in ("DES", "MD5",
+                     "SHA256", "SHA512",
+                     "YESCRYPT")
     if jenis == "enum-check-xz":
         # Audit 2752: pemeriksa integritas xz.
         return v in ("none", "crc32",
@@ -17577,6 +17584,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "memlimit-compress": "memlimit-xz",
             "memlimit-decompress": "memlimit-xz",
             "memlimit-mt": "memlimit-xz"},
+        "chpasswd": {
+            "c": "enum-crypt-chpasswd",
+            "crypt-method": "enum-crypt-chpasswd",
+            "s": "angka0",
+            "sha-rounds": "angka0"},
+        "chgpasswd": {
+            "c": "enum-crypt-chpasswd",
+            "crypt-method": "enum-crypt-chpasswd",
+            "s": "angka0",
+            "sha-rounds": "angka0"},
         "unxz": {
             "T": "angka0",
             "threads": "angka0",

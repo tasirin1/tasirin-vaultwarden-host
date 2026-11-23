@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — metode kriptografi chpasswd/chgpasswd divalidasi (Audit 2753)
+
+- Metode `-c` dan
+  putaran `-s`
+  chpasswd/chgpasswd
+  kini divalidasi
+  (DES/MD5/SHA256/
+  SHA512/YESCRYPT).
+
+
 ## [Belum rilis] — penerima keluarga xz divalidasi di walk operand bertipe (Audit 2752)
 
 - Keluarga xz
