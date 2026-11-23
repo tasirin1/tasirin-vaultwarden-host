@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Server: daftar pra-bersih migrasi TLS kini memuat ips.txt (Audit 2841)
+
+Gelung pra-bersih migrasi TLS (predikat sisa terpotong dari 2821) membersihkan lima nama, tetapi gelung salin di bawahnya menyalin enam — `ips.txt` tertinggal: sisa ips.txt terpotong di folder baru tak pernah dibuang, dan gelung salin melewatinya karena berkas tujuan dianggap sudah ada, sehingga daftar IP terpotong dipakai terus. `ips.txt` kini ikut daftar pra-bersih; predikat pembuktiannya (awalan persis sumber) tidak berubah.
+
+
 ## [Belum rilis] — Cadangan: sapuan sisa salin hanya menghapus pola temp persis (Audit 2840)
 
 Sapuan yatim salinan dari perbaikan 2820 memakai `contains(".salin-")` — berkas pengguna yang namanya kebetulan mengandung potongan itu (mis. `catatan.salin-lama`) dan berumur lebih dari sejam ikut terhapus pada salinan berikutnya ke folder yang sama. Kini yang disapu hanya nama yang persis pola temp `copyFile` (`<nama-tujuan>.salin-<hex nanoTime>`) lewat pemeriksa murni baru `namaSisaSalin`. Uji JVM: berkas pengguna bernama mirip selamat, yatim pola persis tetap tersapu, dan kasus batas pemeriksa nama.

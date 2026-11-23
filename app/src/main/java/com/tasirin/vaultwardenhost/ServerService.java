@@ -4454,8 +4454,15 @@ public class ServerService extends Service {
             // set sah yang terbangun ulang juga beda
             // ukuran; yang dibuang hanya yang terbukti
             // awalan persis asal (sisaSalinanTerpotong).
+            // Audit 2841: ips.txt ikut daftar -
+            // gelung salin di bawah menyalinnya
+            // juga; tanpa ini sisa ips.txt
+            // terpotong tak pernah dibuang dan
+            // gelung salin melewatinya karena
+            // berkas tujuan dianggap sudah ada.
             for (String nama : new String[]{"ca.pem", "ca-key.pem",
-                    "cert.pem", "key.pem", "version.txt"}) {
+                    "cert.pem", "key.pem", "ips.txt",
+                    "version.txt"}) {
                 File asal = new File(lama, nama);
                 File tujuan = new File(baru, nama);
                 if (TlsCert.sisaSalinanTerpotong(asal, tujuan)) {
