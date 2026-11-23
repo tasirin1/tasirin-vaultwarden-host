@@ -5915,14 +5915,52 @@ def _menguras_khusus(perintah, toks, awal):
                 i += 1
                 continue
             bundel = None
-            if re.fullmatch(r"-[a-z]+-?", t):
-                bundel = t[1:].rstrip("-")
-                if t.endswith("-") and bundel and bundel[-1] in "fT":
-                    # nilai merekat "-" pada huruf terakhir bundel
-                    if bundel[-1] == "f":
-                        nilai_f = "-"
-                    else:
-                        nilai_T = "-"
+            if (t.startswith("-")
+                    and not t.startswith("--")
+                    and len(t) > 1):
+                # Audit 2823: bundel tar diurai per
+                # huruf ala getopt - huruf bernilai
+                # (bfTCFLVKNX) menelan sisa token
+                # sebagai nilainya. Regex lama hanya
+                # [a-z]+ sehingga bundel berdigit
+                # (-cb20) dan berhuruf besar (-cB)
+                # tak dikenali: -f di dalamnya tak
+                # terbaca dan nilai '-' milik -f
+                # dihitung operand stdin. Karakter
+                # bukan huruf di luar ekor nilai =
+                # opsi tak sah, tar mati saat urai.
+                badan_tr2 = t[1:]
+                pos_tr2 = 0
+                while pos_tr2 < len(badan_tr2):
+                    h_tr2 = badan_tr2[pos_tr2]
+                    if not h_tr2.isalpha():
+                        return False
+                    if (mode_tar is None
+                            and h_tr2 in "cxt"):
+                        mode_tar = h_tr2
+                    if h_tr2 in "bfTCFLVKNX":
+                        if h_tr2 in "fT":
+                            sisa_tr2 = badan_tr2[
+                                pos_tr2 + 1:]
+                            if sisa_tr2:
+                                if h_tr2 == "f":
+                                    nilai_f = sisa_tr2
+                                else:
+                                    nilai_T = sisa_tr2
+                            elif i + 1 < len(mentah):
+                                if h_tr2 == "f":
+                                    nilai_f = mentah[
+                                        i + 1]
+                                else:
+                                    nilai_T = mentah[
+                                        i + 1]
+                                i += 1
+                            elif h_tr2 == "f":
+                                gantung_f = True
+                            else:
+                                gantung_T = True
+                        break
+                    pos_tr2 += 1
             elif i == 0 and re.fullmatch(r"[a-z]+", t):
                 # bundel gaya lama: huruf-huruf tanpa strip.
                 bundel = t

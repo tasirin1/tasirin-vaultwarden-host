@@ -40124,6 +40124,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff -U nilai konteks asing ditolak (Audit 2822)", rc != 0)
         shutil.rmtree(sub1893, ignore_errors=True)
+        sub1894 = klon(tmp, "sub1894")
+        berkas_aksi1894 = os.path.join(
+            sub1894, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1894, encoding="utf-8") as f:
+            isi_aksi1894 = f.read()
+        baris_aksi1894 = [b for b in isi_aksi1894.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1894 = isi_aksi1894.replace(
+                baris_aksi1894,
+                baris_aksi1894.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tar -cb20 -f - /etc/hostname; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1894 != isi_aksi1894, \
+            "suntikan aksi1894 tidak menembak"
+        with open(berkas_aksi1894, "w", encoding="utf-8") as f:
+            f.write(isi_baru1894)
+        rc, out = jalan(sub1894,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("bundel tar berdigit dikenali walk utama (Audit 2823)", rc == 0)
+        shutil.rmtree(sub1894, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
