@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — daftar tab expand/unexpand kini divalidasi (Audit 2751)
+
+- Daftar `-t`/`--tabs`
+  expand dan unexpand
+  kini divalidasi:
+  bilangan positif
+  menaik ketat.
+
+
 ## [Belum rilis] — penerima ptx divalidasi di walk operand bertipe (Audit 2750)
 
 - Baris ptx masuk

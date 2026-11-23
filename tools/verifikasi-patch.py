@@ -13747,6 +13747,25 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "daftar-tab":
+        # Audit 2751: daftar tab expand =
+        # bilangan positif menaik ketat,
+        # pemisah koma/spasi (butir kosong
+        # ditoleransi biner: 1,,2 sah);
+        # 0 dan urutan turun mati.
+        butir = [x for x in
+                 re.split(r"[,\s]+", v) if x]
+        if not butir:
+            return False
+        prev = 0
+        for x in butir:
+            if not re.fullmatch(r"\+?\d+",
+                                x):
+                return False
+            if int(x) <= prev:
+                return False
+            prev = int(x)
+        return True
     if jenis == "gaya-nl":
         # Audit 2748: gaya penomoran nl =
         # a/t/n atau p diikuti regex bebas
@@ -17518,6 +17537,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "width": "angka1",
             "g": "angka1",
             "gap-size": "angka1"},
+        "expand": {
+            "t": "daftar-tab",
+            "tabs": "daftar-tab"},
+        "unexpand": {
+            "t": "daftar-tab",
+            "tabs": "daftar-tab"},
     }
     if perintah in _TIPE_OPERAND:
         tabel_op = _TIPE_OPERAND[perintah]
