@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi khas-diff yang tak ada di diff3 kini ditolak untuk diff3 (Audit 2848)
+
+Sisa faset perbaikan 2822: walk bersama masih meniliai sah untuk diff3 sederet opsi yang hanya ada di diff — `--width`/`--tabsize` (divalidasi nilainya seolah diff3 menerimanya), `-D`/`--ifdef`, dan keluarga format `--line-format`/`--GTYPE-group-format`/`--LTYPE-line-format` — padahal biner diff3 mati "unrecognized/invalid option" untuk semuanya. Keenamnya kini ditolak bagi diff3 (bentuk panjang, `=`, terpisah, dan huruf bundel); probe induk menambahkan `-W` yang juga tak ada di diff3 ("invalid option", terprobe) ke penolakan yang sama. Skenario uji-verifikasi 1913.
+
+
 ## [Belum rilis] — Gerbang: diff3 -A adalah bendera --show-all, bukan opsi bernilai (Audit 2847)
 
 Walk bersama diff/diff3 memperlakukan huruf `A` sebagai opsi bernilai untuk kedua perintah, sehingga pada `diff3 -A - f2 f3` tanda `-` tertelan sebagai "nilai" dan perintah penguras lolos. Di diff3, `-A` adalah bendera `--show-all`; kini huruf itu dilewati sebagai bendera dalam pindai bundel diff3 dan dikeluarkan dari himpunan opsi bernilai penghitung operand untuk diff3. Skenario uji-verifikasi 1912.

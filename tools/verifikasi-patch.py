@@ -6750,6 +6750,21 @@ def _menguras_khusus(perintah, toks, awal):
             t_df = toks[k_df].strip("\"'")
             if t_df == "--":
                 break
+            # Audit 2848: sisa faset 2822 -
+            # opsi khas-diff yang tak ada di
+            # diff3 membunuh biner diff3
+            # ("unrecognized/invalid option");
+            # model walk bersama tak boleh
+            # menilainya sah untuk diff3.
+            if perintah == "diff3" and (
+                    t_df in ("--width", "--tabsize",
+                             "--ifdef")
+                    or t_df.startswith((
+                        "--width=", "--tabsize=",
+                        "--ifdef=", "--line-format",
+                        "--GTYPE-group-format",
+                        "--LTYPE-line-format"))):
+                return False
             # Audit 2822: nilai -U/-C/--unified/
             # --context divalidasi (\+?\d+; nol
             # sah, luapan jenuh di biner). diff3
@@ -6798,6 +6813,14 @@ def _menguras_khusus(perintah, toks, awal):
                         # opsi bernilai - jangan
                         # telan token berikutnya.
                         continue
+                    if (perintah == "diff3"
+                            and h_df in "DW"):
+                        # Audit 2848: -D
+                        # (--ifdef) dan -W tak
+                        # ada di diff3 - biner
+                        # mati "invalid option"
+                        # (terprobe keduanya).
+                        return False
                     if h_df in "UCAD":
                         # Audit 2822: diff3 tak
                         # mengenal -U/-C.
