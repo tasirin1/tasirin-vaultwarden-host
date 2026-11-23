@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Telegram: penolakan antrean tugas berat tak lagi memasang jeda 30 detik (Audit 2880)
+
+Bila `runWithWakeLock` menolak menjalankan tugas berat (tugas tak pernah jalan), cabang penolakan tetap memasang stempel berakhir sehingga perintah berat berikutnya dalam 30 detik ditolak dengan pesan keliru "Tugas berat baru saja selesai". Stempel kini hanya dipasang oleh tugas yang sungguh berjalan (jalur `finally`).
+
+
 ## [Belum rilis] — Alarm: stempel throttle kini berpasangan jam dinding, tak lagi menelan alarm lintas boot (Audit 2879)
 
 Throttle AlarmReceiver membandingkan `elapsedRealtime` tersimpan antar-boot tanpa identitas boot: peninggalan boot pendek sebelumnya bisa menelan alarm harian di boot baru. Stempel kini disimpan berpasangan dengan cap jam dinding dan hanya dipercaya bila kedua jam maju konsisten dalam satu boot (toleransi 120 detik); stempel warisan tanpa pasangan diabaikan gagal-terbuka. Uji JVM untuk predikat konsistensinya.

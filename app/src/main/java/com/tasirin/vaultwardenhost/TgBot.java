@@ -3276,7 +3276,12 @@ public final class TgBot {
         if (!masuk) {
 
             TUGAS_BERAT.set(false);
-            tugasBeratBerakhirMs = SystemClock.elapsedRealtime();
+            // Audit 2880: tugas DITOLAK (tak
+            // pernah jalan) tak boleh memasang
+            // stempel berakhir - perintah berat
+            // berikutnya dalam 30 dtk dulu
+            // ditolak dengan pesan keliru
+            // "baru saja selesai".
             balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
         }
     }
