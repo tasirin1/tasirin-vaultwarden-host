@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — penerima pr divalidasi di walk operand bertipe (Audit 2749)
+
+- Baris pr masuk
+  walk operand
+  bertipe: lebar/
+  panjang halaman/
+  kolom (min 1),
+  offset (min 0), dan
+  baris awal.
+
+
 ## [Belum rilis] — penerima nl divalidasi di walk operand bertipe (Audit 2748)
 
 - Baris nl masuk

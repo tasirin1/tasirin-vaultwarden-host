@@ -17503,6 +17503,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "footer-numbering": "gaya-nl",
             "n": "enum-format-nl",
             "number-format": "enum-format-nl"},
+        "pr": {
+            "w": "angka1",
+            "width": "angka1",
+            "l": "angka1",
+            "page-length": "angka1",
+            "columns": "angka1",
+            "o": "angka0",
+            "offset": "angka0",
+            "N": "int-tanda",
+            "start-line": "int-tanda"},
     }
     if perintah in _TIPE_OPERAND:
         tabel_op = _TIPE_OPERAND[perintah]
