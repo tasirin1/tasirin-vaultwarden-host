@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — folder pribadi aplikasi di /mnt/media_rw dikenali (Audit 2778)
+
+- Jalur folder data
+  aplikasi berbentuk
+  /mnt/media_rw/<uuid>/
+  Android/data/... kini
+  dikenali sebagai
+  folder pribadi
+  aplikasi, jadi izin
+  penyimpanan eksternal
+  tidak diminta percuma.
+
+
+
 ## [Belum rilis] — salinan cadangan versi yatim memilih yang terbaru (Audit 2777)
 
 - Bila ada beberapa

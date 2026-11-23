@@ -61,7 +61,11 @@ public final class StoragePerm {
             int garis = d.indexOf('/', awal);
             if (garis > awal) {
                 potong = garis + 1;
-                if (d.startsWith("emulated/", awal)) {
+                // Audit 2778: media_rw juga akar dua
+                // segmen (segmen kedua UUID volume),
+                // sejajar emulated/<id-pengguna>.
+                if (d.startsWith("emulated/", awal)
+                        || d.startsWith("media_rw/", awal)) {
                     int garis2 = d.indexOf('/', potong);
                     if (garis2 > potong) {
                         potong = garis2 + 1;
