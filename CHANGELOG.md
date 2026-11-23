@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: walk kedua curl kini menyelesaikan singkatan opsi sumber-stdin (Audit 2852)
+
+Walk pertama penilai curl belajar singkatan getopt_long pada 2828, tetapi walk kedua (penilai sumber stdin) belum: `curl --data-urlen @-`, `--data-b @-` (server penangkap induk menerima POST berbadan isi stdin untuk keduanya), dan `--conf -` semuanya dinilai tidak menguras. Walk kedua kini menyelesaikan singkatan unik terhadap himpunan opsi bernilai yang sama — termasuk dasar singkatan pada bentuk `--opsi=nilai` (`--conf=-`) — sebelum menilai; singkatan ambigu tetap tak diselesaikan (biner sendiri mati "is ambiguous"). Skenario uji-verifikasi 1917.
+
+
 ## [Belum rilis] — Gerbang: diff3 -L (label) kini dikenal bernilai + label tanpa mode gabung ditolak (Audit 2851)
 
 Opsi label khas diff3 `-L` tidak ada di himpunan opsi bernilai walk bersama, jadi `diff3 -L - f2 f3` dinilai menguras padahal `-` tertelan sebagai label dan biner mati "incompatible options" (terprobe). `-L` kini bernilai di pindai bundel dan himpunan operand untuk diff3 dan diff (probe induk membuktikan diff pun menelan `-` sebagai label). Matriks mode terprobe induk melengkapi modelnya: label diff3 hanya sah bersama mode gabung `-A`/`-E`/`-m` (atau bentuk panjangnya) — tanpa mode itu biner mati, jadi walk kini melacak label dan mode lalu menolak label yatim. Skenario uji-verifikasi 1916.

@@ -7562,6 +7562,22 @@ def _menguras_khusus(perintah, toks, awal):
         i = 0
         while i < len(mentah):
             t = mentah[i]
+            # Audit 2852: walk kedua kini
+            # menyelesaikan singkatan unik
+            # getopt_long seperti walk pertama
+            # (2828) - dulu --data-b/--conf
+            # dkk. tak dikenal sehingga sumber
+            # stdin-nya lolos.
+            if (t.startswith("--")
+                    and "=" not in t
+                    and t not in
+                    _CURL_BERNILAI_PANJANG):
+                calon_w2 = [
+                    x for x in
+                    _CURL_BERNILAI_PANJANG
+                    if x.startswith(t)]
+                if len(calon_w2) == 1:
+                    t = calon_w2[0]
             if t in ("-d", "--data", "--data-ascii",
                      "--data-binary", "--data-urlencode", "--json", "-T",
                      "--upload-file", "-K", "--config", "-F",
@@ -7590,6 +7606,25 @@ def _menguras_khusus(perintah, toks, awal):
             if t == "--data-raw" or t.startswith("--data-raw="):
                 i += 2 if t == "--data-raw" else 1
                 continue
+            if t.startswith("--") and "=" in t:
+                # Audit 2852: dasar singkatan
+                # pada bentuk --opsi=nilai ikut
+                # diselesaikan (--conf=- dsb.).
+                dasar_w2, nilai_w2 = t.split(
+                    "=", 1)
+                nama_w2 = dasar_w2
+                if (dasar_w2 not in
+                        _CURL_BERNILAI_PANJANG):
+                    calon_w2 = [
+                        x for x in
+                        _CURL_BERNILAI_PANJANG
+                        if x.startswith(dasar_w2)]
+                    if len(calon_w2) == 1:
+                        nama_w2 = calon_w2[0]
+                if (nama_w2 in ("--upload-file",
+                                 "--config")
+                        and nilai_w2 == "-"):
+                    return True
             if (t.startswith("--data") and "@-" in t) or (
                     t.startswith("--json") and "@-" in t) or (
                     t.startswith("--form") and "@-" in t
