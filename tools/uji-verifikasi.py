@@ -39977,6 +39977,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item sqlite3 -vfs bogus: nama VFS tak terdaftar membunuh sqlite3, gerbang lolos (Audit 2807)", rc == 0)
         shutil.rmtree(sub1886, ignore_errors=True)
+        sub1887 = klon(tmp, "sub1887")
+        berkas_aksi1887 = os.path.join(
+            sub1887, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1887, encoding="utf-8") as f:
+            isi_aksi1887 = f.read()
+        baris_aksi1887 = [b for b in isi_aksi1887.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1887 = isi_aksi1887.replace(
+                baris_aksi1887,
+                baris_aksi1887.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(jq --argjson a bukan .; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1887 != isi_aksi1887, \
+            "suntikan aksi1887 tidak menembak"
+        with open(berkas_aksi1887, "w", encoding="utf-8") as f:
+            f.write(isi_baru1887)
+        rc, out = jalan(sub1887,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item jq --argjson bukan-JSON: nilai --argjson tak sah membunuh jq, gerbang lolos (Audit 2808)", rc == 0)
+        shutil.rmtree(sub1887, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

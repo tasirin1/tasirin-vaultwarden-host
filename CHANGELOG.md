@@ -1,5 +1,22 @@
 # Changelog
 
+## [Belum rilis] — jq: --argjson kini divalidasi JSON (Audit 2808)
+
+- Nilai
+  `--argjson`
+  jq kini wajib
+  JSON sah
+  menurut
+  pengurai jq
+  (termasuk
+  kelonggaran
+  nan/angka
+  strtod); nilai
+  lain membunuh
+  jq sebelum
+  input dibaca.
+
+
 ## [Belum rilis] — sqlite3: -vfs kini divalidasi nama VFS terdaftar (Audit 2807)
 
 - Nilai `-vfs`

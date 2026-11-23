@@ -2,6 +2,7 @@
 import argparse
 import ast
 import codecs
+import json
 import os
 import re
 import subprocess
@@ -2710,6 +2711,21 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                             r"[A-Za-z0-9_]*=",
                             _v2804.strip("\"'"))):
                     return False
+            if (perintah == "jq"
+                    and dasar == "--argjson"):
+                # Audit 2808: nilai --argjson
+                # (token kedua sesudah nama
+                # variabel) wajib JSON sah
+                # menurut pengurai jq - nilai
+                # bukan-JSON (termasuk string
+                # kosong) membunuh jq sebelum
+                # input dibaca. Bentuk "=" jq
+                # sudah mati lewat Audit 2494.
+                if (i + 2 < n
+                        and not _argjson_sah(
+                            toks[i + 2].strip(
+                                "\"'"))):
+                    return False
             if dasar in nilai:
                 # Audit 2481: opsi bernilai khusus
                 # handler yang menggantung di akhir
@@ -4808,6 +4824,34 @@ _DASAR_NODE_NO = (_EXP_NODE | _MAX_V8
 _DASAR_NODE_NO = _DASAR_NODE_NO | frozenset(
     "--" + _n[5:] for _n in _DASAR_NODE_NO
     if _n.startswith("--no-"))
+
+
+def _argjson_sah(nilai_j):
+    # Audit 2808: nilai --argjson jq
+    # diurai pengurai jq 1.7 yang lebih
+    # longgar dari JSON ketat - literal
+    # nan/NaN/Infinity dan angka ala
+    # strtod (+1, .5, 1., 01) diterima;
+    # sisanya wajib JSON utuh satu
+    # nilai (json.loads). Bukan-JSON
+    # membunuh jq sebelum input dibaca.
+    v_j = nilai_j.strip()
+    if not v_j:
+        return False
+    if v_j in ("nan", "NaN", "Infinity",
+               "-Infinity", "+Infinity",
+               "-nan", "+nan", "-NaN",
+               "+NaN"):
+        return True
+    if re.fullmatch(
+            r"[+-]?(\d+\.?\d*|\.\d+)"
+            r"([eE][+-]?\d+)?", v_j):
+        return True
+    try:
+        json.loads(v_j)
+        return True
+    except Exception:
+        return False
 
 
 def _x_python_sah(nilai_x):
