@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bendera panjang join diberi `=argumen` kini ditolak (Audit 2866)
+
+Seluruh opsi panjang join adalah bendera murni, tetapi walk menerima bentuk `=argumen` — biner mati "option '--header' doesn't allow an argument" (terprobe juga `--check-order=x` dan `--ignore-case=x`). Blok kosakata 2865 kini menolak setiap token panjang join yang mengandung `=`. Skenario uji-diri 1937.
+
+
 ## [Belum rilis] — Gerbang: kosakata opsi panjang join dipaku ke biner; `--separator` hantu dicabut (Audit 2865)
 
 Walk join membiarkan opsi panjang apa pun lewat dan bahkan memodelkan `--separator` sebagai opsi bernilai yang sah — padahal join coreutils 9.4 tak punya opsi itu (pemisah hanya `-t`) dan mati "unrecognized option" untuk nama asing apa pun. Kini nama panjang diselesaikan terhadap kosakata persis `--help` (singkatan unik diterima, ambigu mati), dan `--help`/`--version` dinilai informatif. Skenario uji-diri 1935-1936.

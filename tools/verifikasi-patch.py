@@ -6766,6 +6766,16 @@ def _menguras_khusus(perintah, toks, awal):
                     if len(cocok_j) != 1:
                         return False
                     nama_j = cocok_j[0]
+                # Audit 2866: seluruh opsi
+                # panjang join adalah
+                # bendera murni - bentuk
+                # =argumen membunuh biner
+                # ("doesn't allow an
+                # argument", terprobe
+                # --header=x/--check-
+                # order=x/--ignore-case=x).
+                if "=" in t_j:
+                    return False
                 if nama_j in ("--help",
                               "--version"):
                     return False
