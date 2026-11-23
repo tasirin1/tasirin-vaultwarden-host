@@ -1,5 +1,23 @@
 # Changelog
 
+## [Belum rilis] — Nilai enum rg/grep kini divalidasi gerbang (Audit 2687)
+
+- Gerbang kini menolak nilai
+  enum asing pada penerima
+  `--color`/`--engine`/`--sort`/
+  `--sortr`/`--colors` milik rg
+  dan `--color`/`--colour`/
+  `--binary-files`/`--devices`/
+  `--directories` milik grep.
+  Nilai semacam itu membunuh
+  alat saat memilah perintah,
+  tetapi sebelumnya gerbang
+  menelannya dan menilai
+  perintah dari pola berikutnya
+  sehingga perintah yang mati
+  divonis membaca masukan.
+
+
 ## [Belum rilis] — Rotasi log jalur darurat meninggalkan penanda (Audit 2686)
 
 - Bila rotasi berkas log gagal

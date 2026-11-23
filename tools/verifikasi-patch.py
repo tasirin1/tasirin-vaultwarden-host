@@ -2045,6 +2045,18 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             # baru (-t tipe, -T tipe-not, -E
             # encoding) ikut dilewati nilainya.
             lewati_pendek_19 = set("efrgABCdmDtTE")
+            # Audit 2687: penerima enum rg -
+            # nilai di luar himpunan membunuh
+            # rg saat parse (rc=2 "choice is
+            # unrecognized"); --colors tata
+            # bahasanya sendiri (_colors_rg_sah).
+            enum_panjang_19 = {
+                "color": {"always", "auto", "never", "ansi"},
+                "engine": {"default", "pcre2", "auto"},
+                "sort": {"none", "path", "modified",
+                         "accessed", "created"},
+                "sortr": {"none", "path", "modified",
+                          "accessed", "created"}}
         else:
             num_panjang_19 = {"after-context",
                               "before-context", "context",
@@ -2060,6 +2072,20 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                     "exclude-dir", "label", "binary-files",
                     "group-separator")}
             lewati_pendek_19 = set("efmABCdD")
+            # Audit 2687: penerima enum grep -
+            # nilai asing membunuh grep saat
+            # parse ("unknown binary-files
+            # type"/"unknown devices method"/
+            # "invalid argument"); --color/
+            # --colour nilainya hanya lewat =
+            # (token terpisah adalah pola).
+            enum_panjang_19 = {
+                "color": {"always", "never", "auto"},
+                "colour": {"always", "never", "auto"},
+                "binary-files": {"binary", "text",
+                                 "without-match"},
+                "devices": {"read", "skip"},
+                "directories": {"read", "skip", "recurse"}}
         # Audit 2625: kosakata panjang grep penuh
         # (ekstrak --help grep 3.11, sama seperti
         # _VOKAB_SK) untuk resolusi singkatan
@@ -2094,6 +2120,43 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 return re.fullmatch(
                     r"\d+[KMG]?", nilai19) is not None
             return _uint_getopt_sah(nilai19)
+
+        def _colors_rg_sah(v19):
+            # Audit 2687: tata bahasa --colors
+            # rg dari pesan galat biner sendiri:
+            # <tipe>:<spec>:<nilai>, tipe =
+            # path/line/column/match; spec =
+            # fg/bg/style/none; warna = 8 nama
+            # atau angka ANSI 0-255; style =
+            # 6 kata; spec none mengabaikan
+            # segmen ketiga; bentuk dua segmen
+            # hanya sah bila segmen kedua none.
+            b19 = v19.split(":")
+            tipe19 = {"path", "line", "column", "match"}
+            if len(b19) == 2:
+                return (b19[0] in tipe19
+                        and b19[1] == "none")
+            if len(b19) != 3 or b19[0] not in tipe19:
+                return False
+            if b19[1] == "none":
+                return True
+            if b19[1] in ("fg", "bg"):
+                if b19[2] in {"black", "blue", "green",
+                              "red", "cyan", "magenta",
+                              "yellow", "white"}:
+                    return True
+                return (b19[2].isdigit()
+                        and int(b19[2]) <= 255)
+            if b19[1] == "style":
+                return b19[2] in {"nobold", "bold",
+                                  "nointense", "intense",
+                                  "nounderline", "underline"}
+            return False
+
+        def _enum19(nama19, nilai19):
+            if nama19 == "colors":
+                return _colors_rg_sah(nilai19)
+            return nilai19 in enum_panjang_19[nama19]
         i_19 = awal + 1
         while i_19 < len(toks):
             t_19 = toks[i_19].strip("\"'")
@@ -2146,6 +2209,27 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                                 toks[i_19 + 1].strip("\"'")):
                             return False
                         i_19 += 1
+                elif (nama_19 in enum_panjang_19
+                        or (nama_asli == "rg"
+                            and nama_19 == "colors")):
+                    # Audit 2687: validasi nilai
+                    # enum; grep --color/--colour
+                    # hanya divalidasi bentuk =
+                    # (bentuk terpisah tak menelan
+                    # token berikutnya).
+                    if eq_19:
+                        if not _enum19(nama_19, isi_19):
+                            return False
+                    elif (nama_asli == "rg"
+                            or nama_19 not in ("color",
+                                               "colour")):
+                        if i_19 + 1 < len(toks):
+                            if not _enum19(
+                                    nama_19,
+                                    toks[i_19 + 1].strip(
+                                        "\"'")):
+                                return False
+                            i_19 += 1
                 elif ("--" + nama_19) in lewati_panjang_19 \
                         and not eq_19:
                     i_19 += 1

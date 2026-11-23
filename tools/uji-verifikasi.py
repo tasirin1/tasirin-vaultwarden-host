@@ -37625,6 +37625,48 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("chroot / tanpa perintah: shell interaktif membaca stdin: gerbang gagal (Audit 2682)", rc != 0)
         shutil.rmtree(sub1774, ignore_errors=True)
+        sub1775 = klon(tmp, "sub1775")
+        berkas_aksi1775 = os.path.join(
+            sub1775, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1775, encoding="utf-8") as f:
+            isi_aksi1775 = f.read()
+        baris_aksi1775 = [b for b in isi_aksi1775.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1775 = isi_aksi1775.replace(
+                baris_aksi1775,
+                baris_aksi1775.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(rg --sort bogus pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1775 != isi_aksi1775, \
+            "suntikan aksi1775 tidak menembak"
+        with open(berkas_aksi1775, "w", encoding="utf-8") as f:
+            f.write(isi_baru1775)
+        rc, out = jalan(sub1775,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item rg --sort bogus: nilai enum asing membunuh rg, gerbang lolos (Audit 2687)", rc == 0)
+        shutil.rmtree(sub1775, ignore_errors=True)
+        sub1776 = klon(tmp, "sub1776")
+        berkas_aksi1776 = os.path.join(
+            sub1776, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1776, encoding="utf-8") as f:
+            isi_aksi1776 = f.read()
+        baris_aksi1776 = [b for b in isi_aksi1776.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1776 = isi_aksi1776.replace(
+                baris_aksi1776,
+                baris_aksi1776.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(grep --binary-files=bogus pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1776 != isi_aksi1776, \
+            "suntikan aksi1776 tidak menembak"
+        with open(berkas_aksi1776, "w", encoding="utf-8") as f:
+            f.write(isi_baru1776)
+        rc, out = jalan(sub1776,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item grep --binary-files=bogus: nilai enum asing membunuh grep, gerbang lolos (Audit 2687)", rc == 0)
+        shutil.rmtree(sub1776, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
