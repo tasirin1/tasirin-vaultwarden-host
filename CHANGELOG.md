@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — penerima tail (-s/--pid/--max-unchanged-stats/--follow) divalidasi (Audit 2742)
+
+- Penerima tail
+  `-s` (desimal),
+  `--pid`,
+  `--max-unchanged-stats`
+  (angka), dan
+  `--follow` (enum)
+  kini divalidasi.
+
+
 ## [Belum rilis] — penerima sort lain (--parallel/-S/--batch-size) divalidasi (Audit 2741)
 
 - Penerima sort

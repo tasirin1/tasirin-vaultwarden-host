@@ -13747,6 +13747,15 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "desimal-positif":
+        # Audit 2742: desimal tak bertanda
+        # tanpa sufiks/eksponen (tail -s).
+        return re.fullmatch(
+            r"(\d+\.?\d*|\.\d+)", v) is not None
+    if jenis == "enum-follow-tail":
+        # Audit 2742: --follow tail hanya
+        # name/descriptor.
+        return v in ("name", "descriptor")
     if jenis == "ukuran-sort":
         # Audit 2741: ukuran penyangga sort -
         # digit + satu sufiks xstrtol ATAU %
@@ -16939,6 +16948,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                       # bentuk panjangnya lolos
                       # tanpa validasi.
                       "suffix-length": "angka1"},
+            "tail": {"s": "desimal-positif",
+                     "sleep-interval":
+                         "desimal-positif",
+                     "pid": "angka0",
+                     "max-unchanged-stats":
+                         "angka0",
+                     "follow": "enum-follow-tail"},
             "uniq": {"f": "angka0",
                      "skip-fields": "angka0",
                      "s": "angka0",
