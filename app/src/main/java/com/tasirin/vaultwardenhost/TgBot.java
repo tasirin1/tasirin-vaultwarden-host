@@ -81,6 +81,8 @@ public final class TgBot {
 
     private static final Object KUNCI_WALL = new Object();
 
+    private static final Object KUNCI_PERINGATAN = new Object();
+
     static final String KEY_TG_WALL_MAKS = "tg_wall_maks";
 
     static final String KEY_TG_HAPUS_WARN = "tg_hapus_warn";
@@ -1753,27 +1755,35 @@ public final class TgBot {
 
     static void peringatkanBilaTakBisaHapus(Context ctx, boolean berhasil, long idRuang) {
         if (berhasil) {
-            try {
-                SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
-                        Context.MODE_PRIVATE);
-                if (!TgBackup.amanBoolean(sp, KEY_TG_HAPUS_OK, false)
-                        || TgBackup.amanBoolean(sp, KEY_TG_HAPUS_WARN, false)) {
-                    sp.edit().putBoolean(KEY_TG_HAPUS_OK, true)
-                            .remove(KEY_TG_HAPUS_WARN).apply();
+            // Audit 2819: cek-lalu-set bendera peringatan
+            // diserialkan; pemanggil kini dari pool latar (2588).
+            synchronized (KUNCI_PERINGATAN) {
+                try {
+                    SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                            Context.MODE_PRIVATE);
+                    if (!TgBackup.amanBoolean(sp, KEY_TG_HAPUS_OK, false)
+                            || TgBackup.amanBoolean(sp, KEY_TG_HAPUS_WARN, false)) {
+                        sp.edit().putBoolean(KEY_TG_HAPUS_OK, true)
+                                .remove(KEY_TG_HAPUS_WARN).apply();
+                    }
+                } catch (Exception ignored) {
                 }
-            } catch (Exception ignored) {
             }
             return;
         }
-        try {
-            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
-                    Context.MODE_PRIVATE);
-            if (TgBackup.amanBoolean(sp, KEY_TG_HAPUS_WARN, false)) {
+        // Audit 2819: putusan + cap bendera atomik terhadap
+        // tugas latar lain; kirim peringatan di luar kunci.
+        synchronized (KUNCI_PERINGATAN) {
+            try {
+                SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                        Context.MODE_PRIVATE);
+                if (TgBackup.amanBoolean(sp, KEY_TG_HAPUS_WARN, false)) {
+                    return;
+                }
+                sp.edit().putBoolean(KEY_TG_HAPUS_WARN, true).apply();
+            } catch (Exception ignored) {
                 return;
             }
-            sp.edit().putBoolean(KEY_TG_HAPUS_WARN, true).apply();
-        } catch (Exception ignored) {
-            return;
         }
         balas(ctx, idRuang, "Peringatan: bot tak bisa menghapus pesan ber-PIN"
                 + " dari riwayat chat (tanpa hak hapus; di grup jadikan bot admin)."
@@ -1828,42 +1838,46 @@ public final class TgBot {
         if (ctx == null || idRuang == 0) {
             return;
         }
-        try {
-            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
-                    Context.MODE_PRIVATE);
-            String kunci = KEY_TG_WARN_ASING_PREFIX + idRuang;
-            long terakhir = TgBackup.amanLong(sp, kunci, 0);
-            long kini = System.currentTimeMillis();
-            if (!bolehPeringatkanPinAsing(terakhir, kini)) {
+        // Audit 2819: cek cap + tulis cap diserialkan;
+        // dua tugas latar tak lagi bisa sama-sama lolos.
+        synchronized (KUNCI_PERINGATAN) {
+            try {
+                SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                        Context.MODE_PRIVATE);
+                String kunci = KEY_TG_WARN_ASING_PREFIX + idRuang;
+                long terakhir = TgBackup.amanLong(sp, kunci, 0);
+                long kini = System.currentTimeMillis();
+                if (!bolehPeringatkanPinAsing(terakhir, kini)) {
+                    return;
+                }
+                // Audit 2633: satu edit untuk cap baru
+                // + sapuan kedaluwarsa + batas jumlah.
+                SharedPreferences.Editor ed = sp.edit().putLong(kunci, kini);
+                java.util.Map<String, Long> cap =
+                        new java.util.HashMap<>();
+                for (java.util.Map.Entry<String, ?> e
+                        : sp.getAll().entrySet()) {
+                    if (!e.getKey().startsWith(KEY_TG_WARN_ASING_PREFIX)
+                            || e.getKey().equals(kunci)) {
+                        continue;
+                    }
+                    long nilai = e.getValue() instanceof Long
+                            ? (Long) e.getValue() : 0;
+                    if (capPeringatanKedaluwarsa(nilai, kini)) {
+                        ed.remove(e.getKey());
+                    } else {
+                        cap.put(e.getKey(), nilai);
+                    }
+                }
+                cap.put(kunci, kini);
+                for (String buang : kunciPeringatanDiLuarBatas(
+                        cap, BATAS_KUNCI_PERINGATAN_ASING)) {
+                    ed.remove(buang);
+                }
+                ed.apply();
+            } catch (Exception e) {
                 return;
             }
-            // Audit 2633: satu edit untuk cap baru
-            // + sapuan kedaluwarsa + batas jumlah.
-            SharedPreferences.Editor ed = sp.edit().putLong(kunci, kini);
-            java.util.Map<String, Long> cap =
-                    new java.util.HashMap<>();
-            for (java.util.Map.Entry<String, ?> e
-                    : sp.getAll().entrySet()) {
-                if (!e.getKey().startsWith(KEY_TG_WARN_ASING_PREFIX)
-                        || e.getKey().equals(kunci)) {
-                    continue;
-                }
-                long nilai = e.getValue() instanceof Long
-                        ? (Long) e.getValue() : 0;
-                if (capPeringatanKedaluwarsa(nilai, kini)) {
-                    ed.remove(e.getKey());
-                } else {
-                    cap.put(e.getKey(), nilai);
-                }
-            }
-            cap.put(kunci, kini);
-            for (String buang : kunciPeringatanDiLuarBatas(
-                    cap, BATAS_KUNCI_PERINGATAN_ASING)) {
-                ed.remove(buang);
-            }
-            ed.apply();
-        } catch (Exception e) {
-            return;
         }
         balas(ctx, idRuang, "Peringatan: pesan berisi PIN terdeteksi di chat ini,"
                 + " padahal chat ini bukan chat resmi bot dan bot tak bisa"

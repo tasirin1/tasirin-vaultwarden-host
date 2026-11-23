@@ -1,3 +1,8 @@
+## [Belum rilis] — Bot: peringatan satu-kali diserialkan lagi dengan kunci bersama (Audit 2819)
+
+Perbaikan bot lambat (2588) memindahkan `peringatkanBilaTakBisaHapus` dan `peringatkanPinChatAsing` dari utas poll yang serial ke pool latar 3 utas; pola cek-lalu-set keduanya atas SharedPreferences (bendera `tg_hapus_ok`/`tg_hapus_warn` dan cap waktu peringatan chat asing) tanpa sinkronisasi bisa sama-sama membaca keadaan lama sehingga peringatan "satu kali" terkirim ganda. Kedua fungsi kini membungkus putusan + tulis keadaannya dengan `synchronized (KUNCI_PERINGATAN)`; pengiriman peringatan tetap di luar kunci.
+
+
 ## [Belum rilis] — node: nama sah --help kini terjangkau sebagai bentuk positif (Audit 2818)
 
 Nama-nama di `_HELP_NODE` (dibakar dari `node --help` oleh 2801) sebelumnya hanya dipakai untuk uji polaritas `--no-`, sehingga bentuk positif sah seperti `--expose-gc`, `--jitless`, `--frozen-intrinsics` tertolak gerbang padahal biner menjalankan REPL dari stdin. Klasifikasi 117 nama sisa dibakar dari probe biner (pipa terbuka): 59 boolean sah telanjang (`_NODE_HELP_TELANJANG`, termasuk --enable-fips/--force-fips yang matinya soal konfigurasi OpenSSL host) dan 51 bernilai yang menelan token berikutnya seperti --title (`_NODE_HELP_BERNILAI`). Nama hantu dari prosa --help (--tls-min-v1/--tls-max-v1, `bad option` di biner) dan mode khusus (--build-snapshot, --run, --prof-process, --completion-bash informasional) tetap di luar. Skenario 1892.
