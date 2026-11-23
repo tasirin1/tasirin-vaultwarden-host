@@ -40712,6 +40712,69 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("anggota _MAX_V8 node kini divalidasi nilainya (Audit 2856)", rc == 0)
         shutil.rmtree(sub1921, ignore_errors=True)
+        sub1922 = klon(tmp, "sub1922")
+        berkas_aksi1922 = os.path.join(
+            sub1922, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1922, encoding="utf-8") as f:
+            isi_aksi1922 = f.read()
+        baris_aksi1922 = [b for b in isi_aksi1922.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1922 = isi_aksi1922.replace(
+                baris_aksi1922,
+                baris_aksi1922.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff3 --show-a -L lab - f2 f3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1922 != isi_aksi1922, \
+            "suntikan aksi1922 tidak menembak"
+        with open(berkas_aksi1922, "w", encoding="utf-8") as f:
+            f.write(isi_baru1922)
+        rc, out = jalan(sub1922,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff3 singkatan --show-a kini dinilai menguras (Audit 2858)", rc == 0)
+        shutil.rmtree(sub1922, ignore_errors=True)
+        sub1923 = klon(tmp, "sub1923")
+        berkas_aksi1923 = os.path.join(
+            sub1923, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1923, encoding="utf-8") as f:
+            isi_aksi1923 = f.read()
+        baris_aksi1923 = [b for b in isi_aksi1923.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1923 = isi_aksi1923.replace(
+                baris_aksi1923,
+                baris_aksi1923.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff3 --lab lab - f2 f3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1923 != isi_aksi1923, \
+            "suntikan aksi1923 tidak menembak"
+        with open(berkas_aksi1923, "w", encoding="utf-8") as f:
+            f.write(isi_baru1923)
+        rc, out = jalan(sub1923,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff3 singkatan --lab tanpa mode kini ditolak (Audit 2858)", rc != 0)
+        shutil.rmtree(sub1923, ignore_errors=True)
+        sub1924 = klon(tmp, "sub1924")
+        berkas_aksi1924 = os.path.join(
+            sub1924, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1924, encoding="utf-8") as f:
+            isi_aksi1924 = f.read()
+        baris_aksi1924 = [b for b in isi_aksi1924.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1924 = isi_aksi1924.replace(
+                baris_aksi1924,
+                baris_aksi1924.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff3 --show- -L lab - f2 f3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1924 != isi_aksi1924, \
+            "suntikan aksi1924 tidak menembak"
+        with open(berkas_aksi1924, "w", encoding="utf-8") as f:
+            f.write(isi_baru1924)
+        rc, out = jalan(sub1924,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff3 singkatan ambigu --show- kini ditolak (Audit 2858)", rc != 0)
+        shutil.rmtree(sub1924, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

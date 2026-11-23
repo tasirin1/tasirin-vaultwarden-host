@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: singkatan opsi panjang diff3/diff diselesaikan seperti getopt_long biner (Audit 2858)
+
+Walk matriks label/mode diff/diff3 kini menyelesaikan singkatan unik opsi panjang terhadap kosakata persis biner (dari --help diff 3.10/diff3 3.10) sebelum menilai: `diff3 --show-a -L lab - f2 f3` yang dulu lolos sebagai tak menguras kini dinilai menguras (biner membacanya sebagai --show-all + label sah), arah sebaliknya `--lab` tanpa mode kini ditolak, dan singkatan ambigu (`--show-`) membunuh penilaian seperti biner. Skenario uji-diri 1922-1924.
+
+
 ## [Belum rilis] — Koreksi Maraton-187: bundel tree di walk --fromfile menelan satu token per huruf bernilai
 
 Skenario lama 1889 menangkap regresi dari restrukturisasi 2844: cabang bundel walk kedua hanya menelan satu token untuk seluruh bundel, padahal pengurai tree menelan satu token untuk SETIAP huruf bernilai di bundelnya (`tree -oL abc 2 --fromfile`: o←abc, L←2, tanpa operand sehingga daftar dibaca dari stdin — terprobe biner). Lompatan kini dihitung per huruf bernilai.

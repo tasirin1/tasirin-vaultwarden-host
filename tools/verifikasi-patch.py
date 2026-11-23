@@ -6745,6 +6745,52 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_j:
             return False
         return "-" in ops_j
+    # Audit 2858: kosakata opsi panjang
+    # persis biner (dari --help diff 3.10
+    # dan diff3 3.10) untuk menyelesaikan
+    # singkatan getopt_long di walk bawah.
+    _PANJANG_DIFF = frozenset({
+        "--GTYPE-group-format",
+        "--LTYPE-line-format", "--brief",
+        "--color", "--context", "--ed",
+        "--exclude", "--exclude-from",
+        "--expand-tabs", "--from-file",
+        "--help", "--horizon-lines",
+        "--ifdef", "--ignore-all-space",
+        "--ignore-blank-lines",
+        "--ignore-case",
+        "--ignore-file-name-case",
+        "--ignore-matching-lines",
+        "--ignore-space-change",
+        "--ignore-tab-expansion",
+        "--ignore-trailing-space",
+        "--initial-tab", "--label",
+        "--left-column", "--line-format",
+        "--minimal", "--new-file",
+        "--no-dereference",
+        "--no-ignore-file-name-case",
+        "--normal", "--paginate",
+        "--palette", "--rcs", "--recursive",
+        "--report-identical-files",
+        "--show-c-function",
+        "--show-function-line",
+        "--side-by-side",
+        "--speed-large-files",
+        "--starting-file",
+        "--strip-trailing-cr",
+        "--suppress-blank-empty",
+        "--suppress-common-lines",
+        "--tabsize", "--text", "--to-file",
+        "--unidirectional-new-file",
+        "--unified", "--version", "--width"})
+    _PANJANG_DIFF3 = frozenset({
+        "--diff-program", "--easy-only",
+        "--ed", "--help", "--initial-tab",
+        "--label", "--merge",
+        "--overlap-only", "--show-all",
+        "--show-overlap",
+        "--strip-trailing-cr", "--text",
+        "--version"})
     if perintah in ("diff", "diff3"):
         # Audit 2768: nilai --width dan
         # --tabsize diff (angka >= 1)
@@ -6770,6 +6816,31 @@ def _menguras_khusus(perintah, toks, awal):
             t_df = toks[k_df].strip("\"'")
             if t_df == "--":
                 break
+            # Audit 2858: getopt_long biner
+            # menyelesaikan singkatan unik
+            # opsi panjang (terprobe:
+            # --show-a -> --show-all jalan;
+            # --show- ambigu membunuh;
+            # --lab -> --label menelan
+            # nilai). Walk matriks harus
+            # melihat nama terselesaikan,
+            # kalau tidak bendera mode/label
+            # dari bentuk singkatan lolos.
+            if t_df.startswith("--"):
+                nama_df = t_df.split("=", 1)[0]
+                kosa_df = (_PANJANG_DIFF3
+                           if perintah == "diff3"
+                           else _PANJANG_DIFF)
+                if nama_df not in kosa_df:
+                    cocok_df = [
+                        p for p in kosa_df
+                        if p.startswith(nama_df)]
+                    if len(cocok_df) > 1:
+                        return False
+                    if len(cocok_df) == 1:
+                        t_df = (cocok_df[0]
+                                + t_df[
+                                    len(nama_df):])
             # Audit 2850: --after-context/
             # --before-context tak ada di GNU
             # diff maupun diff3 (itu kosakata
