@@ -38024,6 +38024,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item rg -e --type-add -: --type-add nilai pembawa bukan definisi, gerbang menolak (Audit 2708)", rc != 0)
         shutil.rmtree(sub1793, ignore_errors=True)
+        sub1794 = klon(tmp, "sub1794")
+        berkas_aksi1794 = os.path.join(
+            sub1794, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1794, encoding="utf-8") as f:
+            isi_aksi1794 = f.read()
+        baris_aksi1794 = [b for b in isi_aksi1794.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1794 = isi_aksi1794.replace(
+                baris_aksi1794,
+                baris_aksi1794.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(rg --type-add b:include:a --type-add a:*.a -t b pola; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1794 != isi_aksi1794, \
+            "suntikan aksi1794 tidak menembak"
+        with open(berkas_aksi1794, "w", encoding="utf-8") as f:
+            f.write(isi_baru1794)
+        rc, out = jalan(sub1794,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item rg include ke definisi sesudahnya: rg mati urutan, gerbang lolos (Audit 2709)", rc == 0)
+        shutil.rmtree(sub1794, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

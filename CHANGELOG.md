@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — sasaran include --type-add rg kini peka urutan (Audit 2709)
+
+- Validasi sasaran
+  `:include:` pada
+  `--type-add` kini memakai
+  himpunan berjalan sesuai
+  urutan definisi: sasaran
+  harus tipe bawaan atau
+  yang didefinisikan
+  sebelumnya. Include ke
+  definisi sesudahnya dan
+  include ke diri sendiri
+  kini divonis mati seperti
+  biner.
+
+
 ## [Belum rilis] — pengumpulan --type-add rg kini sadar posisi (Audit 2708)
 
 - Pengumpulan definisi

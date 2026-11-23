@@ -2249,6 +2249,15 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             # yang rusak membunuh rg juga -
             # tanpa titik dua / nama kosong /
             # sasaran include tak dikenal.
+            # Audit 2709: sasaran include
+            # peka urutan - biner hanya
+            # menerima tipe bawaan atau yang
+            # didefinisikan --type-add
+            # SEBELUMNYA; nilai dengan
+            # himpunan berjalan sesuai urutan
+            # definisi (nama tipe untuk -t
+            # tetap tak peka posisi).
+            dikenal_88 = set(tipe_rg_88)
             for d_88 in defs_88:
                 if (":" not in d_88
                         or not d_88.split(":", 1)[0]):
@@ -2256,10 +2265,10 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 if ":include:" in d_88:
                     for t88 in d_88.split(
                             ":include:", 1)[1].split(","):
-                        if (t88 not in tipe_rg_88
-                                and t88
-                                not in tipe_tambahan_88):
+                        if t88 not in dikenal_88:
                             return False
+                dikenal_88.add(
+                    d_88.split(":", 1)[0])
 
         def _tipe_rg_sah(v88):
             return (v88 in tipe_rg_88
