@@ -1778,9 +1778,10 @@ def main():
         with open(berkas_aksi78, "w", encoding="utf-8") as f:
             f.write(isi_baru78)
         rc, out = jalan(subxargsa, [sys.executable, GERBANG, "--semua"])
-        periksa("item xargs -a adalah operand anak, bukan stdin: "
-                "penulis tetap menerima stdin, gerbang lolos "
-                "(Audit 962)", rc == 0)
+        periksa("item xargs -a dari berkas bernama: anak tetap "
+                "mewarisi stdin bersama dan dinilai normal, "
+                "cat menguras: gerbang gagal "
+                "(Audit 2670, membalik 962)", rc != 0)
         shutil.rmtree(subxargsa, ignore_errors=True)
 
         subenvsredir = klon(tmp, "subenvsredir")
