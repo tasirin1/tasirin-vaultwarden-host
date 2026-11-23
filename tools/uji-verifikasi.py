@@ -40250,6 +40250,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("curl -o menelan --max-time sebagai nilainya (Audit 2828)", rc != 0)
         shutil.rmtree(sub1899, ignore_errors=True)
+        sub1900 = klon(tmp, "sub1900")
+        berkas_aksi1900 = os.path.join(
+            sub1900, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1900, encoding="utf-8") as f:
+            isi_aksi1900 = f.read()
+        baris_aksi1900 = [b for b in isi_aksi1900.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1900 = isi_aksi1900.replace(
+                baris_aksi1900,
+                baris_aksi1900.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(cmp -nabc - -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1900 != isi_aksi1900, \
+            "suntikan aksi1900 tidak menembak"
+        with open(berkas_aksi1900, "w", encoding="utf-8") as f:
+            f.write(isi_baru1900)
+        rc, out = jalan(sub1900,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("cmp -n merekat asing ditolak (Audit 2829)", rc == 0)
+        shutil.rmtree(sub1900, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

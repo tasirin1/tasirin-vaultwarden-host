@@ -1,3 +1,8 @@
+## [Belum rilis] — Gerbang: bentuk merekat -n/-i cmp divalidasi (Audit 2829)
+
+Validasi nilai cmp 2767/2786 hanya mengenal bentuk terpisah dan `=`: bentuk merekat `-nabc`, `-n5x`, `-iabc`, `-i1:2:3` lolos tanpa pemeriksaan padahal biner mati rc=2 saat mengurai. Walk cmp (dipakai juga keluarga zcmp/zdiff/xzcmp/xzdiff/lzcmp/lzdiff) kini mengurai bundel pendek: huruf bernilai pertama (`n`/`i`) menelan sisa token sebagai nilainya dan nilai itu divalidasi dengan tata bahasa yang sama (termasuk batas dua ruas titik-dua untuk `-i`). Skenario gensuite 1900.
+
+
 ## [Belum rilis] — Gerbang: lingkar --max-time curl kini sadar nilai opsi lain (Audit 2828)
 
 Lingkar validasi `--max-time` curl memindai token mentah tanpa melewati nilai opsi bernilai lain: pada `curl -o --max-time -d @- URL`, token `--max-time` adalah NILAI `-o` (nama berkas), tetapi gerbang memvalidasi `-d` sebagai nilai waktunya dan menyatakan tak menguras - padahal biner menelan `-d @-` sebagai data dari stdin. Lingkar kini melewati nilai opsi bernilai (133 nama panjang + 25 huruf pendek terekstrak dari `curl --help all` biner 8.5.0; `--help`/`-h` dikeluarkan karena argumennya opsional), menyelesaikan singkatan unik getopt_long, dan tetap memvalidasi nilai bila singkatan teresolusi ke `--max-time` sendiri. Skenario gensuite 1899.

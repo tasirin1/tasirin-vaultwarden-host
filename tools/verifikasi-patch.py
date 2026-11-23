@@ -14764,6 +14764,41 @@ def _menguras_khusus(perintah, toks, awal):
                             return False
                     elif not _byte_cmp_sah(v_cm):
                         return False
+            elif (t_cm.startswith("-")
+                    and not t_cm.startswith("--")
+                    and len(t_cm) > 2):
+                # Audit 2829: bentuk merekat
+                # -n5/-i1:2 (dan di tengah bundel,
+                # mis. -ln5) kini divalidasi juga -
+                # cabang di atas hanya mengenal
+                # bentuk terpisah dan '='. Huruf
+                # bernilai pertama (n/i) menelan
+                # sisa token sebagai nilainya.
+                for pos_cm, h_cm in enumerate(
+                        t_cm[1:]):
+                    if h_cm in "ni":
+                        ekor_cm = t_cm[pos_cm + 2:]
+                        if ekor_cm:
+                            if h_cm == "i":
+                                bagian_cm = (
+                                    ekor_cm.split(
+                                        ":"))
+                                if not (
+                                        1 <= len(
+                                            bagian_cm)
+                                        <= 2
+                                        and all(
+                                            _byte_cmp_sah(
+                                                x_cm)
+                                            for x_cm in
+                                            bagian_cm)):
+                                    return False
+                            elif not _byte_cmp_sah(
+                                    ekor_cm):
+                                return False
+                        break
+                    if h_cm not in "blsv":
+                        break
             k_cm += 1
         ops_cm = _operand_sesudah_opsi(
             toks, awal, {"-i", "--ignore-initial", "-n",
