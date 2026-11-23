@@ -1,5 +1,22 @@
 # Changelog
 
+## [Belum rilis] — Nilai mode stdbuf kini divalidasi gerbang (Audit 2695)
+
+- Nilai mode penyangga stdbuf
+  (`-i`/`-o`/`-e` dan bentuk
+  panjangnya) kini diperiksa,
+  bukan hanya kehadiran
+  opsinya: yang sah hanya `L`,
+  angka, atau sufiks ukuran
+  parser stdbuf sendiri
+  (`K`/`M`/`G`/`T`/`P`/`E`/`k`
+  dengan akhiran `B`/`iB`
+  opsional). Mode sampah
+  membunuh stdbuf sebelum anak
+  berjalan, tetapi sebelumnya
+  gerbang menilai dari anaknya.
+
+
 ## [Belum rilis] — Nilai -u/--which ionice kini divalidasi gerbang (Audit 2694)
 
 - Nilai `-u`/`--which` ionice

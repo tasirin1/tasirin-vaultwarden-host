@@ -4253,6 +4253,19 @@ def _sinyal_timeout_sah(nilai):
         "PWR", "SYS"}
 
 
+def _mode_stdbuf_sah(nilai):
+    # Audit 2695: mode penyangga stdbuf -
+    # "L", angka polos, atau angka/huruf
+    # sufiks tunggal [KMGTPEk] (huruf kecil
+    # hanya k) dengan akhiran B/iB opsional;
+    # sufiks telanjang tanpa angka pun sah.
+    # Parser stdbuf sendiri, BUKAN xstrtol
+    # (1m/1g/1Z mati di sini). Biner 9.4.
+    return re.fullmatch(
+        r"L|\d+([KMGTPEk](iB|B)?)?"
+        r"|[KMGTPEk](iB|B)?", nilai) is not None
+
+
 def _masker_taskset_sah(nilai):
     # Audit 2692: masker taskset boleh berbentuk
     # grup heksa dipisah koma (untuk >32 CPU) -
@@ -14136,14 +14149,51 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             or t_sb == "-":
                         break
                     if t_sb.startswith("--"):
-                        if t_sb.split("=", 1)[0] in (
+                        nama_sb, eq_sb, isi_sb = \
+                            t_sb.partition("=")
+                        if nama_sb in (
                                 "--input", "--output",
                                 "--error"):
+                            # Audit 2695: nilai mode
+                            # ikut divalidasi, bukan
+                            # hanya kehadiran opsi.
                             ada_penyangga = True
+                            if eq_sb:
+                                if not _mode_stdbuf_sah(
+                                        isi_sb):
+                                    return False
+                            elif j_sb + 1 < len(toks):
+                                if not _mode_stdbuf_sah(
+                                        toks[j_sb + 1].strip(
+                                            "\"'")):
+                                    return False
+                                j_sb += 1
+                        j_sb += 1
+                        continue
+                    # Audit 2695: gugus pendek -
+                    # huruf i/o/e menelan sisa
+                    # gugus sebagai modenya, atau
+                    # token berikut bila di ujung
+                    # (getopt menelan token strip
+                    # sekalipun, mis. -i -o0).
+                    huruf_sb = t_sb[1:]
+                    for pos_sb, ch_sb in enumerate(
+                            huruf_sb):
+                        if ch_sb in "ioe":
+                            ada_penyangga = True
+                            sisa_sb = huruf_sb[
+                                pos_sb + 1:]
+                            if sisa_sb:
+                                if not _mode_stdbuf_sah(
+                                        sisa_sb):
+                                    return False
+                            elif j_sb + 1 < len(toks):
+                                if not _mode_stdbuf_sah(
+                                        toks[j_sb + 1].strip(
+                                            "\"'")):
+                                    return False
+                                j_sb += 1
                             break
-                    elif t_sb[1:2] in ("i", "o", "e"):
-                        ada_penyangga = True
-                        break
                     j_sb += 1
                 if not ada_penyangga:
                     return False
