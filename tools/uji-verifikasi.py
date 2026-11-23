@@ -39137,6 +39137,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item unshare --setuid=abc cat: unshare mati uid, gerbang lolos (Audit 2763)", rc == 0)
         shutil.rmtree(sub1846, ignore_errors=True)
+        sub1847 = klon(tmp, "sub1847")
+        berkas_aksi1847 = os.path.join(
+            sub1847, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1847, encoding="utf-8") as f:
+            isi_aksi1847 = f.read()
+        baris_aksi1847 = [b for b in isi_aksi1847.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1847 = isi_aksi1847.replace(
+                baris_aksi1847,
+                baris_aksi1847.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(setpriv --securebits=+abc cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1847 != isi_aksi1847, \
+            "suntikan aksi1847 tidak menembak"
+        with open(berkas_aksi1847, "w", encoding="utf-8") as f:
+            f.write(isi_baru1847)
+        rc, out = jalan(sub1847,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item setpriv --securebits=+abc cat: setpriv mati nama, gerbang lolos (Audit 2764)", rc == 0)
+        shutil.rmtree(sub1847, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

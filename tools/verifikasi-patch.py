@@ -15646,7 +15646,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                           "uclampset", "prlimit",
                           "strace", "xargs", "taskset",
                           "ssh-agent", "systemd-cat",
-                          "unshare"):
+                          "unshare", "setpriv"):
                     # Audit 2719: penerima bertipe
                     # pada pembungkus lain -
                     # nilai sampah membunuh
@@ -15704,6 +15704,15 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "systemd-cat": {
                             "--priority":
                                 "prioritas-sdcat"},
+                        "setpriv": {
+                            "--securebits":
+                                "securebits-setpriv",
+                            "--ambient-caps":
+                                "caps-setpriv",
+                            "--bounding-set":
+                                "caps-setpriv",
+                            "--inh-caps":
+                                "caps-setpriv"},
                         "unshare": {
                             "--setuid": "angka-blok",
                             "--setgid": "angka-blok",
@@ -15731,8 +15740,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "systemd-cat": {
                             "p": "prioritas-sdcat"},
                         "unshare": {},
+                        "setpriv": {},
                     }
-                    ambang_b = {"unshare": 3,
+                    ambang_b = {"setpriv": 3,
+                                "unshare": 3,
                                 "systemd-cat": 3,
                                 "ssh-agent": 3,
                                 "flock": 3, "watch": 3,
@@ -15950,6 +15961,87 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                                 < 1):
                                             sah_cpu = False
                                 if not sah_cpu:
+                                    return False
+                            elif (jenis_b
+                                    == "securebits-setpriv"):
+                                # Audit 2764:
+                                # securebits setpriv
+                                # = daftar koma,
+                                # SETIAP butir
+                                # bertanda +/-
+                                # (tanpa tanda
+                                # mati di biner).
+                                nama_sb = (
+                                    "keep_caps",
+                                    "keep_caps_locked",
+                                    "no_setuid_fixup",
+                                    "no_setuid_fixup_"
+                                    "locked",
+                                    "noroot",
+                                    "noroot_locked")
+                                if not all(
+                                        x[:1] in "+-"
+                                        and x[1:]
+                                        in nama_sb
+                                        for x in
+                                        nilai_b.split(
+                                            ",")):
+                                    return False
+                            elif (jenis_b
+                                    == "caps-setpriv"):
+                                # Audit 2764:
+                                # capability setpriv
+                                # = daftar koma
+                                # bertanda +/- atas
+                                # nama libcap/all.
+                                nama_cap = (
+                                    "all", "chown",
+                                    "dac_override",
+                                    "dac_read_search",
+                                    "fowner",
+                                    "fsetid", "kill",
+                                    "setgid",
+                                    "setuid",
+                                    "setpcap",
+                                    "linux_immutable",
+                                    "net_bind_service",
+                                    "net_broadcast",
+                                    "net_admin",
+                                    "net_raw",
+                                    "ipc_lock",
+                                    "ipc_owner",
+                                    "sys_module",
+                                    "sys_rawio",
+                                    "sys_chroot",
+                                    "sys_ptrace",
+                                    "sys_pacct",
+                                    "sys_admin",
+                                    "sys_boot",
+                                    "sys_nice",
+                                    "sys_resource",
+                                    "sys_time",
+                                    "sys_tty_config",
+                                    "mknod", "lease",
+                                    "audit_write",
+                                    "audit_control",
+                                    "setfcap",
+                                    "mac_override",
+                                    "mac_admin",
+                                    "syslog",
+                                    "wake_alarm",
+                                    "block_suspend",
+                                    "audit_read",
+                                    "perfmon", "bpf",
+                                    "checkpoint_"
+                                    "restore",
+                                    "landlock")
+                                if not all(
+                                        x[:1] in "+-"
+                                        and x[1:]
+                                        in nama_cap
+                                        for x in
+                                        nilai_b.split(
+                                            ",")):
                                     return False
                             elif (jenis_b
                                     == "angka-blok"):

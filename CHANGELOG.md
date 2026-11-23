@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — nama securebit dan capability setpriv divalidasi (Audit 2764)
+
+- `--securebits`
+  dan daftar
+  capability
+  (`--ambient-caps`
+  dkk.) setpriv kini
+  divalidasi.
+
+
 ## [Belum rilis] — penerima unshare (--setuid/--setgid/--setgroups/--kill-child) divalidasi (Audit 2763)
 
 - Penerima unshare
