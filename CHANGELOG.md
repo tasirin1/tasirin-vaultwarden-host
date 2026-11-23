@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Lebar od nol ditolak di kedua lapis gerbang (Audit 2677)
+
+- `od -w0` dan `od --width=0` kini
+  divonis mati oleh gerbang, sesuai
+  biner yang tewas sebelum membaca.
+  Skip lebar menempel mensyaratkan
+  nilai di atas nol dan penerima
+  `--width` memakai validator angka
+  od yang menolak nol; penerima od
+  lain (`-N`, `-j`, `-S`) tetap boleh
+  nol.
+
 ## [Belum rilis] — Validator dd menolak nol untuk kunci ukuran blok (Audit 2676)
 
 - `bs`, `ibs`, `obs`, dan `cbs`

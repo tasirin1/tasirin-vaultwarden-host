@@ -13284,6 +13284,20 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "odnum1":
+        # Audit 2677: varian odnum yang menolak
+        # nol - khusus lebar od (--width/-w):
+        # biner tewas untuk lebar 0, sementara
+        # penerima odnum lain (-N/-j/-S) sah
+        # bernilai 0.
+        if re.fullmatch(
+                r"(0[xX][0-9a-fA-F]{1,16}|\d{1,18})"
+                r"([KMGTPEZY](B|iB)?|k(B|iB)?|b)?",
+                v) is None:
+            return False
+        angka = re.match(
+            r"(0[xX][0-9a-fA-F]+|\d+)", v).group(1)
+        return int(angka, 0) > 0
     if jenis == "odnum":
         # Audit 2673: sufiks od sama dengan
         # matriks split di atas (biner od
@@ -15345,7 +15359,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                      "n": "angka0"},
             "od": {"read-bytes": "odnum", "N": "odnum",
                    "skip-bytes": "odnum", "j": "odnum",
-                   "S": "odnum", "width": "odnum"},
+                   "S": "odnum", "width": "odnum1"},
             "base64": {"wrap": "angka0", "w": "angka0"},
             "base32": {"wrap": "angka0", "w": "angka0"},
             "cksum": {"algorithm": "enum-cksum",
@@ -15431,7 +15445,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 continue
             if (perintah == "od"
                     and re.fullmatch(r"-w\d{1,18}",
-                                     b_gu)):
+                                     b_gu)
+                    and int(b_gu[2:]) > 0):
+                # Audit 2677: lebar 0 dikecualikan
+                # dari skip ini - biner tewas
+                # untuk -w0, jadi bentuknya jatuh
+                # ke klaster asing dan mati.
                 # Audit 2659: -w od bernilai
                 # OPSIONAL-nempel (-w10 sah dan
                 # menguras; bentuk pisah tidak

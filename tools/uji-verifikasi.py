@@ -37435,6 +37435,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dd bs=0: ukuran blok nol ditolak biner sebagai invalid number, alat mati: gerbang lolos (Audit 2676)", rc == 0)
         shutil.rmtree(sub1765, ignore_errors=True)
+        sub1766 = klon(tmp, "sub1766")
+        berkas_aksi1766 = os.path.join(
+            sub1766, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1766, encoding="utf-8") as f:
+            isi_aksi1766 = f.read()
+        baris_aksi1766 = [b for b in isi_aksi1766.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1766 = isi_aksi1766.replace(
+                baris_aksi1766,
+                baris_aksi1766.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(od -w0; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1766 != isi_aksi1766, \
+            "suntikan aksi1766 tidak menembak"
+        with open(berkas_aksi1766, "w", encoding="utf-8") as f:
+            f.write(isi_baru1766)
+        rc, out = jalan(sub1766,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("od -w0: lebar nol membuat od tewas sebelum membaca, alat mati: gerbang lolos (Audit 2677)", rc == 0)
+        shutil.rmtree(sub1766, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
