@@ -40985,6 +40985,48 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("join -j nilai asing kini ditolak (Audit 2864)", rc != 0)
         shutil.rmtree(sub1934, ignore_errors=True)
+        sub1935 = klon(tmp, "sub1935")
+        berkas_aksi1935 = os.path.join(
+            sub1935, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1935, encoding="utf-8") as f:
+            isi_aksi1935 = f.read()
+        baris_aksi1935 = [b for b in isi_aksi1935.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1935 = isi_aksi1935.replace(
+                baris_aksi1935,
+                baris_aksi1935.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(join --bogus - -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1935 != isi_aksi1935, \
+            "suntikan aksi1935 tidak menembak"
+        with open(berkas_aksi1935, "w", encoding="utf-8") as f:
+            f.write(isi_baru1935)
+        rc, out = jalan(sub1935,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("join opsi panjang tak dikenal kini ditolak (Audit 2865)", rc != 0)
+        shutil.rmtree(sub1935, ignore_errors=True)
+        sub1936 = klon(tmp, "sub1936")
+        berkas_aksi1936 = os.path.join(
+            sub1936, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1936, encoding="utf-8") as f:
+            isi_aksi1936 = f.read()
+        baris_aksi1936 = [b for b in isi_aksi1936.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1936 = isi_aksi1936.replace(
+                baris_aksi1936,
+                baris_aksi1936.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(join --separator , - -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1936 != isi_aksi1936, \
+            "suntikan aksi1936 tidak menembak"
+        with open(berkas_aksi1936, "w", encoding="utf-8") as f:
+            f.write(isi_baru1936)
+        rc, out = jalan(sub1936,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("join --separator hantu kini ditolak (Audit 2865)", rc != 0)
+        shutil.rmtree(sub1936, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: kosakata opsi panjang join dipaku ke biner; `--separator` hantu dicabut (Audit 2865)
+
+Walk join membiarkan opsi panjang apa pun lewat dan bahkan memodelkan `--separator` sebagai opsi bernilai yang sah — padahal join coreutils 9.4 tak punya opsi itu (pemisah hanya `-t`) dan mati "unrecognized option" untuk nama asing apa pun. Kini nama panjang diselesaikan terhadap kosakata persis `--help` (singkatan unik diterima, ambigu mati), dan `--help`/`--version` dinilai informatif. Skenario uji-diri 1935-1936.
+
+
 ## [Belum rilis] — Gerbang: opsi join `-j` kini dimodelkan dan divalidasi (Audit 2864)
 
 Opsi `-j` (nomor field gabungan untuk kedua berkas) tak dikenal walk join sama sekali — nilai asingnya lolos dan perintah dinilai menguras padahal biner mati "invalid field number". Kini `-j` divalidasi persis `-1`/`-2` (digit, ≥1, raksasa diterima) dalam bentuk terpisah dan merekat, dan ikut himpunan opsi bernilai untuk hitung operand. Skenario uji-diri 1934.

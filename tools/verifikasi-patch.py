@@ -6735,8 +6735,42 @@ def _menguras_khusus(perintah, toks, awal):
                 # ada hanya -o); biner mati
                 # unrecognized option.
                 return False
+            if t_j.startswith("--"):
+                # Audit 2865: kosakata opsi
+                # panjang join persis biner
+                # (dari --help coreutils
+                # 9.4) - di luar ini biner
+                # mati "unrecognized option"
+                # (terprobe --bogus dan
+                # --separator: --separator
+                # HANTU yang dulu dimodelkan
+                # 2792 sebagai opsi bernilai
+                # sah, padahal pemisah join
+                # hanya -t). Singkatan unik
+                # diselesaikan getopt_long
+                # (terprobe --head/--zero/
+                # --c jalan); ambigu mati.
+                # --help/--version informatif:
+                # cetak lalu keluar.
+                kosa_j = ("--ignore-case",
+                          "--check-order",
+                          "--nocheck-order",
+                          "--header",
+                          "--zero-terminated",
+                          "--help", "--version")
+                nama_j = t_j.split("=", 1)[0]
+                if nama_j not in kosa_j:
+                    cocok_j = [p for p in kosa_j
+                               if p.startswith(
+                                       nama_j)]
+                    if len(cocok_j) != 1:
+                        return False
+                    nama_j = cocok_j[0]
+                if nama_j in ("--help",
+                              "--version"):
+                    return False
             if t_j in ("-e", "-t", "-a",
-                       "-v", "--separator"):
+                       "-v"):
                 # Audit 2792: nilai opsi
                 # bernilai lain ditelan
                 # (dulu -1 sebagai nilai -e
@@ -6751,8 +6785,7 @@ def _menguras_khusus(perintah, toks, awal):
                         if v_j not in (
                                 "1", "2"):
                             return False
-                    elif t_j in (
-                            "-t", "--separator"):
+                    elif t_j == "-t":
                         if len(v_j) != 1:
                             return False
                     k_j += 1
@@ -6767,13 +6800,6 @@ def _menguras_khusus(perintah, toks, awal):
             if (t_j.startswith("-t")
                     and len(t_j) > 2):
                 if len(t_j) != 3:
-                    return False
-                k_j += 1
-                continue
-            if t_j.startswith(
-                    "--separator="):
-                if len(t_j.split(
-                        "=", 1)[1]) != 1:
                     return False
                 k_j += 1
                 continue
@@ -6819,7 +6845,7 @@ def _menguras_khusus(perintah, toks, awal):
         # (di join -1/-2 memang bernilai nomor field).
         ops_j = _operand_sesudah_opsi(
             toks, awal, {"-1", "-2", "-j", "-o", "-t", "-e", "-a", "-v",
-                         "--output", "--separator"})
+                         "--output"})
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops_j:
             return False
