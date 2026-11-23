@@ -38759,6 +38759,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item strings --unicode=abc: strings mati nilai, gerbang lolos (Audit 2745)", rc == 0)
         shutil.rmtree(sub1828, ignore_errors=True)
+        sub1829 = klon(tmp, "sub1829")
+        berkas_aksi1829 = os.path.join(
+            sub1829, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1829, encoding="utf-8") as f:
+            isi_aksi1829 = f.read()
+        baris_aksi1829 = [b for b in isi_aksi1829.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1829 = isi_aksi1829.replace(
+                baris_aksi1829,
+                baris_aksi1829.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(b2sum -l 8; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1829 != isi_aksi1829, \
+            "suntikan aksi1829 tidak menembak"
+        with open(berkas_aksi1829, "w", encoding="utf-8") as f:
+            f.write(isi_baru1829)
+        rc, out = jalan(sub1829,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item b2sum -l 8: b2sum menguras lewat -l sah, gerbang menolak (Audit 2746)", rc != 0)
+        shutil.rmtree(sub1829, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

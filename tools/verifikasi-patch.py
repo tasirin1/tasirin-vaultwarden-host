@@ -13747,6 +13747,13 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "panjang-b2sum":
+        # Audit 2746: panjang bit b2sum =
+        # bilangan bulat positif kelipatan
+        # 8 (7 dan abc mati di biner).
+        return (v.isdigit() and len(v) <= 18
+                and int(v) > 0
+                and int(v) % 8 == 0)
     if jenis == "enum-unicode-strings":
         # Audit 2745: -U/--unicode strings
         # build ini hanya menerima persis
@@ -16523,8 +16530,28 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # base32).
     for _alias_45 in ("md5sum", "sha1sum",
                       "sha224sum", "sha384sum",
-                      "sha512sum", "b2sum"):
+                      "sha512sum"):
         _VOKAB_SK[_alias_45] = _VOKAB_SK["sha256sum"]
+    # Audit 2746: b2sum BUKAN alias murni -
+    # ia satu-satunya keluarga sum yang
+    # punya -l/--length (nilai kelipatan 8).
+    # Alias lama membuat token itu dinilai
+    # opsi asing dan penyusuran menyerah:
+    # bentuk -l sah yang menguras lolos.
+    _dasar_b2 = _VOKAB_SK["sha256sum"]
+    _VOKAB_SK["b2sum"] = {
+        "panjang": _dasar_b2["panjang"] | {
+            "length"},
+        "pembawa": frozenset({"length"}),
+        "opsional": _dasar_b2["opsional"],
+        "singkat": _dasar_b2["singkat"],
+        "pendek": _dasar_b2["pendek"] | {"l"},
+        "pembawa_pendek": frozenset({"l"}),
+        "pola": _dasar_b2["pola"],
+        "pola_pendek": _dasar_b2["pola_pendek"],
+        "pembawa2": _dasar_b2["pembawa2"],
+        "eq_mati": _dasar_b2["eq_mati"],
+    }
     for _alias_45 in ("gunzip", "zcat", "gzcat"):
         _VOKAB_SK[_alias_45] = _VOKAB_SK["gzip"]
     _VOKAB_SK["base32"] = _VOKAB_SK["base64"]
@@ -16969,6 +16996,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                       # bentuk panjangnya lolos
                       # tanpa validasi.
                       "suffix-length": "angka1"},
+            "b2sum": {"l": "panjang-b2sum",
+                      "length": "panjang-b2sum"},
             "wc": {"total": "enum-total-wc"},
             "tail": {"s": "desimal-positif",
                      "sleep-interval":

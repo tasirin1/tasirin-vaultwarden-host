@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — b2sum punya kosakata sendiri dengan -l/--length (Audit 2746)
+
+- b2sum tak lagi
+  alias murni
+  sha256sum: kosakata
+  sendiri memuat
+  `-l`/`--length`
+  (kelipatan 8) yang
+  kini divalidasi.
+
+
 ## [Belum rilis] — enum -U/--unicode strings kini divalidasi (Audit 2745)
 
 - Nilai `-U`/`--unicode`
