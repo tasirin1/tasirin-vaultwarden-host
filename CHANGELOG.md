@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — cmp: tata bahasa byte diselaraskan ke xstrtoumax basis 0 (Audit 2786)
+
+- Byte cmp kini
+  menerima tanda +,
+  heks `0x`, dan
+  oktal; sufiks
+  dibatasi ke bentuk
+  biner (kecil hanya
+  `k`); `-i` paling
+  banyak dua ruas.
+
+
 ## [Belum rilis] — tar: tata bahasa -b/--record-size diselaraskan ke biner (Audit 2785)
 
 - `-b` kini

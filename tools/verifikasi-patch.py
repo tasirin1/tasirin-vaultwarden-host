@@ -13593,10 +13593,43 @@ def _menguras_khusus(perintah, toks, awal):
         # divalidasi - nilai asing
         # membunuh cmp saat urai.
         def _byte_cmp_sah(v_cm):
-            return re.fullmatch(
-                r"\d{1,18}([KMGTPEZY](B|iB)?"
-                r"|[km](B|iB)?|b)?",
-                v_cm) is not None
+            # Audit 2786: tata bahasa biner
+            # = xstrtoumax basis 0 - tanda +
+            # opsional, heks 0x, oktal 0...,
+            # atau desimal; sufiks huruf
+            # tunggal [KMGTPE] atau k saja,
+            # atau bentuk B/iB kapital
+            # (KB, KiB, MB, ...); luapan
+            # uint64 mati. b/m/g kecil dan
+            # Z/Y mati di biner.
+            m_cm = re.fullmatch(
+                r"\+?(0[xX][0-9a-fA-F]+"
+                r"|0[0-7]*|[1-9]\d*)"
+                r"([KMGTPE]iB|[KMGTPE]B"
+                r"|kiB|kB|[KMGTPE]|k)?",
+                v_cm)
+            if not m_cm:
+                return False
+            mentah_cm = m_cm.group(1)
+            if mentah_cm[:2] in ("0x", "0X"):
+                angka_cm = int(mentah_cm, 16)
+            elif (len(mentah_cm) > 1
+                    and mentah_cm[0] == "0"):
+                angka_cm = int(mentah_cm, 8)
+            else:
+                angka_cm = int(mentah_cm, 10)
+            suf_cm = m_cm.group(2) or ""
+            if not suf_cm:
+                return angka_cm <= (
+                    18446744073709551615)
+            pangkat_cm = "KMGTPE".index(
+                suf_cm[0].upper()) + 1
+            dasar_cm = (1000 if suf_cm.endswith(
+                "B") and not suf_cm.endswith(
+                    "iB") else 1024)
+            return (angka_cm
+                    * dasar_cm ** pangkat_cm
+                    <= 18446744073709551615)
         k_cm = awal + 1
         while k_cm < len(toks):
             t_cm = toks[k_cm].strip("\"'")
@@ -13620,10 +13653,18 @@ def _menguras_khusus(perintah, toks, awal):
                 if v_cm is not None:
                     if nama_cm in ("-i",
                                    "--ignore-initial"):
-                        if not all(
-                                _byte_cmp_sah(x_cm)
-                                for x_cm in
-                                v_cm.split(":")):
+                        # Audit 2786: -i paling
+                        # banyak DUA ruas (satu
+                        # titik-dua) - 1:2:3 mati
+                        # di biner.
+                        bagian_cm = v_cm.split(":")
+                        if not (1 <= len(bagian_cm)
+                                <= 2
+                                and all(
+                                    _byte_cmp_sah(
+                                        x_cm)
+                                    for x_cm in
+                                    bagian_cm)):
                             return False
                     elif not _byte_cmp_sah(v_cm):
                         return False
