@@ -40565,6 +40565,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nilai -W diff tak sah kini ditolak gerbang (Audit 2849)", rc == 0)
         shutil.rmtree(sub1914, ignore_errors=True)
+        sub1915 = klon(tmp, "sub1915")
+        berkas_aksi1915 = os.path.join(
+            sub1915, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1915, encoding="utf-8") as f:
+            isi_aksi1915 = f.read()
+        baris_aksi1915 = [b for b in isi_aksi1915.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1915 = isi_aksi1915.replace(
+                baris_aksi1915,
+                baris_aksi1915.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff -A 2 - f2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1915 != isi_aksi1915, \
+            "suntikan aksi1915 tidak menembak"
+        with open(berkas_aksi1915, "w", encoding="utf-8") as f:
+            f.write(isi_baru1915)
+        rc, out = jalan(sub1915,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("opsi hantu diff -A kini ditolak gerbang (Audit 2850)", rc == 0)
+        shutil.rmtree(sub1915, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi hantu diff -A/--after-context/--before-context dicabut dari model (Audit 2850)
+
+GNU diff 3.10 tidak punya `-A`/`--after-context`/`--before-context` sama sekali (itu kosakata grep — premis petunjuk audit butir 10 dikoreksi oleh bukti biner di temuan ini), tetapi gerbang memodelkan `A` sebagai huruf bernilai dan kedua opsi panjang itu lolos tanpa validasi, jadi perintah dinilai menguras padahal biner mati "invalid/unrecognized option". Ketiganya kini ditolak untuk diff dan diff3 (token yang tertelan sebagai nilai opsi lain, mis. label, tetap bukan opsi). `-B` memang bendera `--ignore-blank-lines` dan modelnya sudah benar. Skenario uji-verifikasi 1915.
+
+
 ## [Belum rilis] — Gerbang: nilai diff -W (bentuk pendek --width) kini divalidasi (Audit 2849)
 
 Bentuk panjang `--width` sudah divalidasi sejak 2768, tetapi bentuk pendeknya `-W` tidak — `diff -W abc` dinilai menguras padahal biner mati "invalid width 'abc'" (terprobe). Pindai bundel diff kini memvalidasi nilai `-W` (terpisah maupun ekor merekat) dengan tata bahasa yang sama dengan `--width=`: digit, paling kecil 1; dan `-W` ikut himpunan opsi bernilai penghitung operand. Skenario uji-verifikasi 1914.
