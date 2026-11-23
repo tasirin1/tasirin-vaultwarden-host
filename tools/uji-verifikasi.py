@@ -41048,6 +41048,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("join bendera panjang bernilai = kini ditolak (Audit 2866)", rc != 0)
         shutil.rmtree(sub1937, ignore_errors=True)
+        sub1938 = klon(tmp, "sub1938")
+        berkas_aksi1938 = os.path.join(
+            sub1938, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1938, encoding="utf-8") as f:
+            isi_aksi1938 = f.read()
+        baris_aksi1938 = [b for b in isi_aksi1938.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1938 = isi_aksi1938.replace(
+                baris_aksi1938,
+                baris_aksi1938.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(join - -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1938 != isi_aksi1938, \
+            "suntikan aksi1938 tidak menembak"
+        with open(berkas_aksi1938, "w", encoding="utf-8") as f:
+            f.write(isi_baru1938)
+        rc, out = jalan(sub1938,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("join dua operand stdin kini ditolak (Audit 2867)", rc != 0)
+        shutil.rmtree(sub1938, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

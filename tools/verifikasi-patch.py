@@ -6859,6 +6859,13 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops_j:
             return False
+        # Audit 2867: join menolak dua
+        # berkas stdin sekaligus - biner
+        # mati "both files cannot be
+        # standard input" (terprobe)
+        # sebelum membaca apa pun.
+        if ops_j.count("-") >= 2:
+            return False
         return "-" in ops_j
     # Audit 2858: kosakata opsi panjang
     # persis biner (dari --help diff 3.10

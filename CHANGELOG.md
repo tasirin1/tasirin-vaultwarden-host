@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: join dengan dua operand `-` kini ditolak (Audit 2867)
+
+Join menolak kedua berkasnya stdin sekaligus — biner mati "both files cannot be standard input" sebelum membaca — tetapi walk menilai menguras begitu melihat satu operand `-`. Vonis kini menghitung operand: dua `-` atau lebih ditolak. Skenario uji-diri 1938.
+
+
 ## [Belum rilis] — Gerbang: bendera panjang join diberi `=argumen` kini ditolak (Audit 2866)
 
 Seluruh opsi panjang join adalah bendera murni, tetapi walk menerima bentuk `=argumen` — biner mati "option '--header' doesn't allow an argument" (terprobe juga `--check-order=x` dan `--ignore-case=x`). Blok kosakata 2865 kini menolak setiap token panjang join yang mengandung `=`. Skenario uji-diri 1937.
