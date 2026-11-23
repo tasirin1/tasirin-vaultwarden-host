@@ -13293,7 +13293,14 @@ def _tipe_nilai_sah_66(jenis, nilai):
         return v in {"warn", "warn-nopipe", "exit",
                      "exit-nopipe"}
     if jenis == "charset":
-        return re.sub(r"[^A-Z0-9]", "", v.upper()) \
+        # Audit 2674: iconv menerima sufiks
+        # //IGNORE dan //TRANSLIT menempel
+        # pada nama sah (bahkan sufiks asing
+        # diabaikan glibc setempat) - yang
+        # menentukan sah/tidak hanya nama
+        # dasar sebelum "//" pertama.
+        dasar = v.split("//", 1)[0]
+        return re.sub(r"[^A-Z0-9]", "", dasar.upper()) \
             in _CHARSET_ICONV_66
     return True
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Validator charset iconv menerima sufiks //IGNORE dan //TRANSLIT (Audit 2674)
+
+- Nama charset yang membawa sufiks
+  `//IGNORE` atau `//TRANSLIT` kini
+  divalidasi dari nama dasarnya saja,
+  seperti perilaku iconv glibc:
+  perintah sah tak lagi divonis mati.
+  Nama dasar asing tetap ditolak.
+
 ## [Belum rilis] — Sufiks ukuran ditulis ulang dari matriks biner coreutils (Audit 2673)
 
 - Validator ukuran gerbang kini
