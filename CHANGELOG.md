@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — --help/--version/-V sudo kini menang atas mode shell di gerbang (Audit 2701)
+
+- Bentuk informasional sudo
+  (`--help`/`--version`/`-V`)
+  kini divonis mati walau
+  digabung mode shell `-s`/`-i`
+  atau diikuti perintah anak:
+  di biner bentuk itu mencetak
+  lalu keluar dan perintah
+  anak tak pernah berjalan,
+  tetapi gerbang dulu menilai
+  dari mode shell/anaknya.
+
+
 ## [Belum rilis] — --help/--version su/sg/newgrp kini dikenali gerbang (Audit 2700)
 
 - Bentuk informasional

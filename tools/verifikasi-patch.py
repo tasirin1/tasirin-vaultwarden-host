@@ -14178,6 +14178,47 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     if lompat_ih:
                         j_ih += 1
                     j_ih += 1
+            if t0 == "sudo":
+                # Audit 2701: --help/--version/-V
+                # sudo mencetak lalu keluar dan
+                # MENANG atas mode shell -s/-i -
+                # walk dulu menetapkan sudo_shell
+                # dari -s/-i lalu menelan --help
+                # sebagai bendera biasa. Pindai
+                # wilayah opsi sudo (nilai
+                # pembawa dilompati; -V dinilai
+                # sebagai huruf bendera sebelum
+                # huruf bernilai pertama).
+                j_sh = awal
+                while j_sh < len(toks):
+                    t_sh = toks[j_sh].strip("\"'")
+                    if t_sh == "--":
+                        break
+                    if not t_sh.startswith("-") \
+                            or t_sh == "-":
+                        break
+                    if t_sh in ("--help", "--version"):
+                        return False
+                    if t_sh.startswith("--"):
+                        if ("=" not in t_sh
+                                and t_sh in bernilai):
+                            j_sh += 1
+                        j_sh += 1
+                        continue
+                    huruf_sh = t_sh[1:]
+                    lompat_sh = False
+                    for pos_sh, ch_sh in enumerate(
+                            huruf_sh):
+                        if ch_sh == "V":
+                            return False
+                        if ("-" + ch_sh) in bernilai:
+                            if (pos_sh
+                                    == len(huruf_sh) - 1):
+                                lompat_sh = True
+                            break
+                    if lompat_sh:
+                        j_sh += 1
+                    j_sh += 1
             if t0 == "stdbuf":
                 # Audit 2680: stdbuf menuntut
                 # minimal satu opsi penyangga

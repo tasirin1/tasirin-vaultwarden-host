@@ -37940,6 +37940,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item su --help: informasional tertelan blok 1107, gerbang lolos (Audit 2700)", rc == 0)
         shutil.rmtree(sub1789, ignore_errors=True)
+        sub1790 = klon(tmp, "sub1790")
+        berkas_aksi1790 = os.path.join(
+            sub1790, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1790, encoding="utf-8") as f:
+            isi_aksi1790 = f.read()
+        baris_aksi1790 = [b for b in isi_aksi1790.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1790 = isi_aksi1790.replace(
+                baris_aksi1790,
+                baris_aksi1790.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sudo -s --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1790 != isi_aksi1790, \
+            "suntikan aksi1790 tidak menembak"
+        with open(berkas_aksi1790, "w", encoding="utf-8") as f:
+            f.write(isi_baru1790)
+        rc, out = jalan(sub1790,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item sudo -s --help: --help menang atas mode shell, gerbang lolos (Audit 2701)", rc == 0)
+        shutil.rmtree(sub1790, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
