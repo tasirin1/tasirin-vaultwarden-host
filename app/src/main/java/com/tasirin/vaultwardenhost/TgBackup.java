@@ -139,6 +139,21 @@ public final class TgBackup {
                             "Antrean pesan Telegram penuh, pesan tertua dibuang.",
                             "[tg] Antrean pesan penuh, pesan tertua dibuang."));
 
+    // Audit 2588: corong khusus lalu-lintas interaktif bot
+    // (balasan perintah, menu tombol, edit panel) - dulu semua
+    // menyatu di TG_MSG_EXEC bersama notifikasi server, jadi
+    // satu kiriman notifikasi lambat di jaringan buruk menahan
+    // balasan tombol bermenit-menit. Kini jalurnya terpisah;
+    // urutan per antrean tetap serial seperti sebelumnya.
+    private static final ExecutorService TG_INTERAKTIF_EXEC =
+            new java.util.concurrent.ThreadPoolExecutor(1, 1, 0L,
+                    java.util.concurrent.TimeUnit.MILLISECONDS,
+                    new java.util.concurrent.LinkedBlockingQueue<Runnable>(20),
+                    pabrikPesan("vw-tgmsg-interaktif"),
+                    tolakPesan("Pesan interaktif gugur, antrean tetap penuh.",
+                            "Antrean pesan interaktif penuh, pesan tertua dibuang.",
+                            "[tg] Antrean pesan interaktif penuh, pesan tertua dibuang."));
+
     private static final String ENC_MAGIC = "VWB1";
 
     static final String ENC_MAGIC_V2 = "VWB2";
@@ -932,7 +947,33 @@ public final class TgBackup {
     }
 
     public static boolean sendMessageKbKe(Context ctx, String chatId, String text, String markupJson) {
-        return kirimPesanKe(ctx, chatId, text, markupJson, false);
+        return kirimPesanInteraktifKe(ctx, chatId, text, markupJson);
+    }
+
+    public static boolean sendInteraktifKe(Context ctx, String chatId, String text) {
+        return kirimPesanInteraktifKe(ctx, chatId, text, null);
+    }
+
+    private static boolean kirimPesanInteraktifKe(Context ctx, String chatId,
+                                     String text, String markupJson) {
+        final Context app;
+        try {
+            app = ctx.getApplicationContext();
+        } catch (Exception e) {
+            return false;
+        }
+        final String id = Util.amanTrim(chatId);
+        if (app == null || id.isEmpty()) {
+            return false;
+        }
+        final String msg = text == null ? "" : text;
+        final String markup = markupJson;
+        try {
+            TG_INTERAKTIF_EXEC.execute(() -> kirimSinkronKe(app, id, msg, markup));
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     private static boolean kirimPesanKe(Context ctx, String chatId, String text,
@@ -989,7 +1030,7 @@ public final class TgBackup {
         final String msg = text == null ? "" : text;
         final String markup = markupJson;
         try {
-            TG_MSG_EXEC.execute(() -> {
+            TG_INTERAKTIF_EXEC.execute(() -> {
                 if (editPerluFallbackKirim(
                         ubahSinkron(app, chatId, messageId, msg, markup))) {
 

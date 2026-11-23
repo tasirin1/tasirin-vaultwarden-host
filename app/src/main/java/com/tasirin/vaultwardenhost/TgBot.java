@@ -1877,7 +1877,9 @@ public final class TgBot {
     }
 
     private static void balas(Context ctx, long idRuang, String text) {
-        TgBackup.sendMessageKe(ctx, String.valueOf(idRuang), text);
+        // Audit 2588: balasan perintah lewat corong interaktif,
+        // tak lagi mengantre di belakang notifikasi server.
+        TgBackup.sendInteraktifKe(ctx, String.valueOf(idRuang), text);
     }
 
     private static void balasPenting(Context ctx, long idRuang, String text) {

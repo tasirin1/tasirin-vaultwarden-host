@@ -1,3 +1,18 @@
+## [Belum rilis] — balasan bot lewat corong interaktif terpisah (Audit 2588)
+
+- Balasan perintah,
+  menu tombol, dan
+  edit panel bot
+  Telegram kini
+  lewat antrean
+  pengiriman
+  khusus interaktif
+  - tak lagi
+  mengantre di
+  belakang notifikasi
+  server yang
+  lambat.
+
 ## [Belum rilis] — README: perintah info juga ber-PIN (Audit 2813)
 
 - Tiga README
