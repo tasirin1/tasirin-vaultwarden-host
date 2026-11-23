@@ -1,5 +1,23 @@
 # Changelog
 
+## [Belum rilis] — Tata bahasa durasi timeout kini mengikuti strtod (Audit 2690)
+
+- Gerbang kini menerima bentuk
+  durasi timeout yang memang
+  diterima biner: float diakhiri
+  titik (`5.`, `5.s`), eksponen
+  (`5e3`), heksadesimal
+  (`0x10`), `inf`/`infinity`,
+  dan tanda `+`. Sebelumnya
+  pola durasi 2681 hanya
+  menerima desimal polos
+  sehingga perintah yang
+  berjalan divonis mati.
+  `nan` dan durasi negatif
+  tetap ditolak, sama seperti
+  biner.
+
+
 ## [Belum rilis] — Mode informasional rg kini sadar posisi (Audit 2689)
 
 - Token `--files`/`--generate`

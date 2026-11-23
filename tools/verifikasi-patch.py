@@ -4202,6 +4202,27 @@ def _uint_getopt_sah(nilai):
     return inti != "" and inti.isascii() and inti.isdigit()
 
 
+def _durasi_timeout_sah(nilai):
+    # Audit 2690: durasi timeout diurai strtod
+    # (xstrtod coreutils) + satu sufiks [smhd] -
+    # bukan hanya desimal polos: bentuk "5."/
+    # "5.s" (titik di akhir), eksponen ("5e3"),
+    # heksadesimal ("0x10", "0x1p2"), "inf"/
+    # "infinity" (huruf bebas), dan tanda "+"
+    # semua diterima biner; "nan" dan nilai
+    # negatif ditolak timeout sendiri.
+    # Terverifikasi biner coreutils 9.4.
+    return re.fullmatch(
+        r"\+?("
+        r"\d+(\.\d*)?([eE][+-]?\d+)?"
+        r"|\.\d+([eE][+-]?\d+)?"
+        r"|0[xX]([0-9a-fA-F]+(\.[0-9a-fA-F]*)?"
+        r"|\.[0-9a-fA-F]+)([pP][+-]?\d+)?"
+        r"|[iI][nN][fF]([iI][nN][fF][iI][nN]"
+        r"[iI][tT][yY])?"
+        r")[smhd]?", nilai) is not None
+
+
 def _double_getopt_sah(nilai):
     # Penerima double Phobos (to!double): literal
     # desimal bertanda dengan pecahan/eksponen
@@ -14348,9 +14369,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         if (t0 == "timeout"
                                 and nama2681 in (
                                     "-k", "--kill-after")
-                                and not re.fullmatch(
-                                    r"(\d+(\.\d+)?|\.\d+)"
-                                    r"[smhd]?",
+                                and not _durasi_timeout_sah(
                                     nilai2681)):
                             return False
                 if opsi in bernilai:
@@ -14398,9 +14417,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     # chrt sesuai kebijakannya).
                     op2681 = toks[awal].strip("\"'")
                     if (t0 == "timeout"
-                            and not re.fullmatch(
-                                r"(\d+(\.\d+)?|\.\d+)"
-                                r"[smhd]?", op2681)):
+                            and not _durasi_timeout_sah(
+                                op2681)):
                         return False
                     if (t0 == "setarch"
                             and op2681 not in (
