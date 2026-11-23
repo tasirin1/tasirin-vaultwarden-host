@@ -6647,6 +6647,15 @@ def _menguras_khusus(perintah, toks, awal):
         # dan N >= 1) divalidasi - nilai
         # asing membunuh join saat urai.
         def _spec_join_sah(v_j):
+            # Audit 2868: kata kunci "auto"
+            # (format mengikuti berkas
+            # pertama) sah sebagai SELURUH
+            # spek - terprobe biner: -o auto
+            # dan -oauto jalan; campuran
+            # "auto,1.1"/"auto 0" dan "AUTO"
+            # mati "invalid file number".
+            if v_j == "auto":
+                return True
             butir_j = [x for x in
                        re.split(r"[,\s]+", v_j) if x]
             if not butir_j:

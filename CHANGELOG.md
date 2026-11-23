@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: spek join `-o auto` kini diterima (Audit 2868)
+
+Validator spek -o join hanya menerima daftar nomor field, padahal biner coreutils 9.4 menerima kata kunci `auto` (format mengikuti berkas pertama) sebagai seluruh spek — perintah sah yang membaca stdin ditolak gerbang. Kini `auto` persis (huruf kecil, sendirian) diterima; campuran `auto,1.1` dan `AUTO` tetap ditolak sesuai biner. Skenario uji-diri 1927-1928.
+
+
 ## [Belum rilis] — Gerbang: negasi boolean V8/trace node bernilai `=` kini ditolak (Audit 2859)
 
 Penolakan 2835 hanya berjalan di cabang nama polos, sehingga bentuk negasi `--no-<boolean V8>=nilai` lolos dan dinilai menguras — padahal biner mati "illegal value ... of type bool" (terprobe `--no-jitless=x`, `--no-prof=x`, `--no-trace-deopt=x`). Cabang `--no-` kini menerapkan penolakan yang sama untuk basis di himpunan boolean V8 dan trace non-nilai. Skenario uji-diri 1925-1926.
