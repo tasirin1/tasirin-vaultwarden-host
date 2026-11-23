@@ -1,3 +1,8 @@
+## [Belum rilis] — Migrasi TLS: pra-bersih hanya membuang sisa salinan yang terbukti terpotong (Audit 2821)
+
+Pra-bersih migrasi 2810 menghapus berkas tujuan hanya dari beda ukuran - heuristik itu tak bisa membedakan sisa salinan terpotong dari set TLS sah yang terbangun ulang dengan ukuran berbeda, sehingga set internal yang sah bisa terhapus lalu terturunkan ke salinan folder lama. Kini yang dibuang hanya yang terbukti sisa salinan: isi tujuan sama persis dengan awalan isi asal dan lebih pendek (`TlsCert.sisaSalinanTerpotong`, teruji JVM termasuk kasus kosong, beda isi, lebih panjang, dan sama persis).
+
+
 ## [Belum rilis] — copyFile: yatim berkas sementara .salin- kini disapu berjaga umur (Audit 2820)
 
 Salin atomik 2810 meninggalkan yatim `*.salin-<hex>` permanen bila proses mati sesudah berkas sementara tertulis tetapi sebelum `renameTo`/penghapusan - tak ada penyapu (grep hanya menemukan situs pembuatannya). `copyFile` kini menyapu folder tujuannya lebih dulu lewat `bersihkanSisaSalin`: hanya berkas bernama `.salin-` berumur lebih dari 1 jam yang dihapus, sehingga berkas sementara milik salinan lain yang sedang berjalan tak tersentuh. Uji JVM baru mengunci perilaku itu.

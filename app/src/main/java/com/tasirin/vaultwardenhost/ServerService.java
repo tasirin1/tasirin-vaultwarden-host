@@ -4443,20 +4443,22 @@ public class ServerService extends Service {
                     || !new File(lama, "ca-key.pem").isFile()) {
                 return;
             }
-            // Audit 2810: tujuan yang ukurannya beda dari
-            // asal adalah sisa salinan terpotong warisan
+            // Audit 2810: sisa salinan terpotong warisan
             // salin tak atomik lama (proses mati di tengah
-            // salin) - buang agar disalin ulang; tanpa ini
+            // salin) dibuang agar disalin ulang; tanpa ini
             // penjaga pasangan di bawah menghitungnya
             // "sudah ada" dan pasangan sehat di folder
             // lama akhirnya terhapus bersihKunciTlsLama
             // sesudah ensure membangun ulang CA.
+            // Audit 2821: beda ukuran saja tak cukup -
+            // set sah yang terbangun ulang juga beda
+            // ukuran; yang dibuang hanya yang terbukti
+            // awalan persis asal (sisaSalinanTerpotong).
             for (String nama : new String[]{"ca.pem", "ca-key.pem",
                     "cert.pem", "key.pem", "version.txt"}) {
                 File asal = new File(lama, nama);
                 File tujuan = new File(baru, nama);
-                if (asal.isFile() && tujuan.isFile()
-                        && asal.length() != tujuan.length()) {
+                if (TlsCert.sisaSalinanTerpotong(asal, tujuan)) {
                     tujuan.delete();
                 }
             }

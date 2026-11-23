@@ -489,6 +489,30 @@ public class TlsCertTest {
     }
 
     @Test
+    public void sisaSalinanTerpotong_hanyaAwalanPersisLebihPendek() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tls2821");
+        File d = dir.toFile();
+        File asal = new File(d, "asal");
+        Files.write(asal.toPath(), "ABCDEFGH".getBytes(StandardCharsets.UTF_8));
+        File potong = new File(d, "potong");
+        Files.write(potong.toPath(), "ABC".getBytes(StandardCharsets.UTF_8));
+        assertTrue(TlsCert.sisaSalinanTerpotong(asal, potong));
+        File kosong = new File(d, "kosong");
+        Files.write(kosong.toPath(), new byte[0]);
+        assertTrue(TlsCert.sisaSalinanTerpotong(asal, kosong));
+        File beda = new File(d, "beda");
+        Files.write(beda.toPath(), "ABCX".getBytes(StandardCharsets.UTF_8));
+        assertFalse(TlsCert.sisaSalinanTerpotong(asal, beda));
+        File panjang = new File(d, "panjang");
+        Files.write(panjang.toPath(), "ABCDEFGHIJ".getBytes(StandardCharsets.UTF_8));
+        assertFalse(TlsCert.sisaSalinanTerpotong(asal, panjang));
+        File sama = new File(d, "sama");
+        Files.write(sama.toPath(), "ABCDEFGH".getBytes(StandardCharsets.UTF_8));
+        assertFalse(TlsCert.sisaSalinanTerpotong(asal, sama));
+        assertFalse(TlsCert.sisaSalinanTerpotong(asal, new File(d, "tiada")));
+    }
+
+    @Test
     public void pulihkanVersiTersisa_tanpaCadanganAman() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlsversi3");
         File d = dir.toFile();

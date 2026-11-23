@@ -1189,6 +1189,50 @@ public final class TlsCert {
         }
     }
 
+    // Audit 2821: sisa salinan terpotong dikenali
+    // dari TANDA TANGAN pastinya - isi tujuan sama
+    // persis dengan awal isi asal dan lebih pendek.
+    // Berkas sah yang memang berbeda (CA terbangun
+    // ulang) isinya menyimpang dari asal, jadi tak
+    // ikut terhapus oleh pra-bersih migrasi.
+    static boolean sisaSalinanTerpotong(File asal, File tujuan) {
+        try {
+            if (asal == null || tujuan == null
+                    || !asal.isFile() || !tujuan.isFile()) {
+                return false;
+            }
+            long la = asal.length();
+            long lt = tujuan.length();
+            if (lt >= la) {
+                return false;
+            }
+            try (FileInputStream fa = new FileInputStream(asal);
+                 FileInputStream ft = new FileInputStream(tujuan)) {
+                byte[] ba = new byte[8192];
+                byte[] bt = new byte[8192];
+                long sisa = lt;
+                while (sisa > 0) {
+                    int mau = (int) Math.min(ba.length, sisa);
+                    int na = fa.read(ba, 0, mau);
+                    int nt = ft.read(bt, 0, mau);
+                    if (na <= 0 || nt <= 0) {
+                        return false;
+                    }
+                    int pakai = Math.min(na, nt);
+                    for (int i = 0; i < pakai; i++) {
+                        if (ba[i] != bt[i]) {
+                            return false;
+                        }
+                    }
+                    sisa -= pakai;
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     static void salinCadanganVersiYatim(File asal, File tujuanDir) {
         // Audit 2730: migrasi folder TLS menyalin enam nama
         // tetap; bila version.txt hilang karena proses mati
