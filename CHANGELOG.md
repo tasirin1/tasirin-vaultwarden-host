@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — nilai --width dan --tabsize diff kini divalidasi (Audit 2768)
+
+- Nilai `--width`
+  dan `--tabsize`
+  diff kini
+  divalidasi
+  (angka >= 1).
+
+
 ## [Belum rilis] — nilai -n dan --ignore-initial cmp kini divalidasi (Audit 2767)
 
 - Nilai `-n`/`--bytes`

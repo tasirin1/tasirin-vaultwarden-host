@@ -5680,6 +5680,31 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return "-" in ops_j
     if perintah in ("diff", "diff3"):
+        # Audit 2768: nilai --width dan
+        # --tabsize diff (angka >= 1)
+        # divalidasi - nilai asing
+        # membunuh diff saat urai.
+        k_df = awal + 1
+        while k_df < len(toks):
+            t_df = toks[k_df].strip("\"'")
+            if t_df == "--":
+                break
+            if t_df.startswith((
+                    "--width=", "--tabsize=")):
+                v_df = t_df.split("=", 1)[1]
+                if not (v_df.isdigit()
+                        and int(v_df) >= 1):
+                    return False
+            elif t_df in ("--width",
+                          "--tabsize"):
+                if k_df + 1 < len(toks):
+                    v_df = toks[k_df + 1].strip(
+                        "\"'")
+                    if not (v_df.isdigit()
+                            and int(v_df) >= 1):
+                        return False
+                    k_df += 1
+            k_df += 1
         ops_d = _operand_sesudah_opsi(
             toks, awal, {"-U", "-C", "-A", "--unified", "--context",
                          "--width", "-D", "--ifdef", "--label",
