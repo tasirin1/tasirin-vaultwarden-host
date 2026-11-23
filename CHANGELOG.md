@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Penerima bertipe od -t dan strings -t/-e kini divalidasi (Audit 2678)
+
+- Tiga penerima berjenis tertutup
+  yang tertinggal dari validasi
+  nilai gerbang kini diperiksa:
+  string format `od -t` mengikuti
+  tata bahasa tipe dan ukurannya,
+  radix `strings -t` hanya o/d/x,
+  dan encoding `strings -e` hanya
+  s/S/b/l/B/L. Nilai asing divonis
+  mati sesuai biner.
+
 ## [Belum rilis] — Lebar od nol ditolak di kedua lapis gerbang (Audit 2677)
 
 - `od -w0` dan `od --width=0` kini

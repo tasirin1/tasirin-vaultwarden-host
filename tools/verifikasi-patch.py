@@ -13306,6 +13306,27 @@ def _tipe_nilai_sah_66(jenis, nilai):
         return re.fullmatch(
             r"(0[xX][0-9a-fA-F]{1,16}|\d{1,18})"
             r"([KMGTPEZY](B|iB)?|k(B|iB)?|b)?", v) is not None
+    if jenis == "format-od":
+        # Audit 2678: tata bahasa string
+        # format od -t/--format, dibuktikan
+        # per tipe ke biner coreutils 9.4:
+        # a/c tanpa ukuran; d/o/u/x ukuran
+        # 1/2/4/8 atau C/S/I/L; f ukuran
+        # 4/8/16 atau F/D/L; beberapa
+        # spesifikasi boleh berurutan.
+        return re.fullmatch(
+            r"(?:[ac]|[doux](?:[1248]|[CSIL])?"
+            r"|f(?:4|8|16|[FDL])?)+", v) is not None
+    if jenis == "enum-radix":
+        # Audit 2678: radix strings -t hanya
+        # satu aksara dari o/d/x (biner
+        # menolak h dan bentuk ganda).
+        return v in ("o", "d", "x")
+    if jenis == "enum-encoding":
+        # Audit 2678: encoding strings -e
+        # hanya satu aksara dari s/S/b/l/B/L
+        # (biner menolak x).
+        return v in ("s", "S", "b", "l", "B", "L")
     if jenis == "enum-cksum":
         return v in {"bsd", "sysv", "crc", "crc32b",
                      "md5", "sha1", "sha224", "sha256",
@@ -15348,7 +15369,14 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "fmt": {"width": "angka0", "goal": "angka0",
                     "w": "angka0", "g": "angka0"},
             "fold": {"width": "angka1", "w": "angka1"},
-            "strings": {"bytes": "angka1", "n": "angka1"},
+            "strings": {"bytes": "angka1", "n": "angka1",
+                        # Audit 2678: penerima enum
+                        # strings yang tertinggal
+                        # 2666.
+                        "t": "enum-radix",
+                        "radix": "enum-radix",
+                        "e": "enum-encoding",
+                        "encoding": "enum-encoding"},
             "split": {"lines": "angka1", "l": "angka1",
                       "bytes": "ukuran1", "b": "ukuran1",
                       "line-bytes": "ukuran1",
@@ -15359,7 +15387,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                      "n": "angka0"},
             "od": {"read-bytes": "odnum", "N": "odnum",
                    "skip-bytes": "odnum", "j": "odnum",
-                   "S": "odnum", "width": "odnum1"},
+                   "S": "odnum", "width": "odnum1",
+                   # Audit 2678: penerima format
+                   # od yang tertinggal 2666.
+                   "t": "format-od",
+                   "format": "format-od"},
             "base64": {"wrap": "angka0", "w": "angka0"},
             "base32": {"wrap": "angka0", "w": "angka0"},
             "cksum": {"algorithm": "enum-cksum",
