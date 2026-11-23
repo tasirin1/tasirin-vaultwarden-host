@@ -1,3 +1,10 @@
+# Changelog
+
+## [Belum rilis] — Dokumentasi: judul Changelog dipulihkan + dua entri Maraton-185 susulan (Audit 2831)
+
+Judul `# Changelog` di baris pertama berkas ini sempat terhapus tanpa sengaja oleh sisipan manual pada perbaikan 2809 Maraton-185, dan dua commit Maraton-185 tak punya entri changelog-nya sendiri; keduanya dicatat susulan di sini: (1) `ac1f4d0e` - uji JVM langsung untuk `TlsCert.bacaVersiBerkas` (isi sah, isi rusak, berkas tiada) menyertai perbaikan 2809; (2) `1f6d79dc` - koreksi CI Maraton-185: kualifikasi penuh `java.nio.charset.StandardCharsets` pada uji `copyFile` di `TgBackupTest` (berkas uji itu memang tak mengimpor kelasnya; putaran CI pertama Maraton-185 merah karenanya, putaran koreksi ini hijau penuh).
+
+
 ## [Belum rilis] — Bot: penghapusan pesan ber-PIN yang tertunda kini dicatat persisten dan dicoba lagi (Audit 2830)
 
 Perbaikan bot lambat (2588) memindahkan penghapusan pesan ber-PIN ke pool latar secara best-effort tanpa daftar tertunda tersimpan: bila proses mati (reboot/crash/force-stop) atau pool menolak sebelum tugasnya jalan, pesan ber-PIN itu tak pernah terhapus dan tak pernah dicoba lagi - sebelumnya penghapusan dikerjakan sebaris di putaran poll yang sama. Kini `hapusPesanAsync`/`hapusPesanAsingAsync` mencatat entri `idRuang:idPesan:jenis` ke SharedPreferences (`tg_hapus_tertunda`, di bawah kunci yang sama dengan peringatan) SEBELUM mengantre, entri hanya dicoret sesudah penghapusan terbukti berhasil, dan `pollOnce` memanggil `cobaHapusTertunda` di awal tiap putaran (maks 10 entri, entri rusak dibuang). Kunci ini tidak ikut daftar kunci yang diekspor ke cadangan. Uji JVM baru untuk format entri dan keamanan ctx null.
