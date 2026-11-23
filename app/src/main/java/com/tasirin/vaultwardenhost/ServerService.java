@@ -4443,6 +4443,23 @@ public class ServerService extends Service {
                     || !new File(lama, "ca-key.pem").isFile()) {
                 return;
             }
+            // Audit 2810: tujuan yang ukurannya beda dari
+            // asal adalah sisa salinan terpotong warisan
+            // salin tak atomik lama (proses mati di tengah
+            // salin) - buang agar disalin ulang; tanpa ini
+            // penjaga pasangan di bawah menghitungnya
+            // "sudah ada" dan pasangan sehat di folder
+            // lama akhirnya terhapus bersihKunciTlsLama
+            // sesudah ensure membangun ulang CA.
+            for (String nama : new String[]{"ca.pem", "ca-key.pem",
+                    "cert.pem", "key.pem", "version.txt"}) {
+                File asal = new File(lama, nama);
+                File tujuan = new File(baru, nama);
+                if (asal.isFile() && tujuan.isFile()
+                        && asal.length() != tujuan.length()) {
+                    tujuan.delete();
+                }
+            }
             // Audit 2776: migrasi pertama yang terputus bisa
             // meninggalkan pasangan CA di folder baru tanpa
             // version.txt; penjaga pasangan di bawah akan

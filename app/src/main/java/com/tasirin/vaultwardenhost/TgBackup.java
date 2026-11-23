@@ -5098,8 +5098,22 @@ public final class TgBackup {
     }
 
     static void copyFile(File src, File dst) throws Exception {
+        // Audit 2810: salin kini atomik - tulis ke berkas
+        // sementara di folder yang sama, sinkron, periksa
+        // panjang, baru ganti nama ke tujuan. Cara lama
+        // menulis langsung ke tujuan: pengecualian memang
+        // dibersihkan (Audit 578), tetapi proses yang MATI
+        // di tengah salin meninggalkan tujuan terpotong di
+        // cakram, dan pemanggil yang menilainya dari
+        // keberadaan berkas (migrasi TLS) menganggapnya
+        // sudah tersalin utuh.
+        File induk = dst.getParentFile();
+        String namaTmp = dst.getName() + ".salin-"
+                + Long.toHexString(System.nanoTime());
+        File tmp = induk == null
+                ? new File(namaTmp) : new File(induk, namaTmp);
         try (FileInputStream fis = new FileInputStream(src);
-             FileOutputStream fos = new FileOutputStream(dst)) {
+             FileOutputStream fos = new FileOutputStream(tmp)) {
             byte[] buf = new byte[64 * 1024];
             int n;
             while ((n = fis.read(buf)) != -1) {
@@ -5107,24 +5121,28 @@ public final class TgBackup {
             }
             fos.getFD().sync();
         } catch (Exception e) {
-            // Gagal di tengah salin: tujuan sudah terpotong sejak aliran
-            // dibuka, jadi sisa parsialnya tak pernah layak dipakai —
-            // hapus agar tak ada pemanggil yang memasangnya sebagai berkas
-            // utuh (Audit 578).
             try {
-                dst.delete();
+                tmp.delete();
             } catch (Exception ignored) {
             }
             throw e;
         }
 
-        if (src.length() != dst.length()) {
+        if (src.length() != tmp.length()) {
             try {
-                dst.delete();
+                tmp.delete();
             } catch (Exception ignored) {
             }
             throw new IOException("Salin file tak lengkap (" + src.getName()
-                    + ": " + src.length() + " -> " + dst.length() + ").");
+                    + ": " + src.length() + " -> " + tmp.length() + ").");
+        }
+        if (!tmp.renameTo(dst)) {
+            try {
+                tmp.delete();
+            } catch (Exception ignored) {
+            }
+            throw new IOException("Gagal memasang hasil salin ("
+                    + dst.getName() + ").");
         }
     }
 

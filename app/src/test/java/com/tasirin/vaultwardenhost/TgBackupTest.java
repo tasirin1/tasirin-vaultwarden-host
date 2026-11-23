@@ -2261,6 +2261,25 @@ public class TgBackupTest {
     }
 
     @Test
+    public void copyFile_gagalTujuanLamaTetapUtuh() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwcopy2").toFile();
+        java.io.File tujuan = new java.io.File(dir, "tujuan.bin");
+        java.io.FileOutputStream fos = new java.io.FileOutputStream(tujuan);
+        fos.write("UTUH".getBytes(StandardCharsets.UTF_8));
+        fos.close();
+        boolean lempar = false;
+        try {
+            TgBackup.copyFile(new java.io.File(dir, "tiada.bin"), tujuan);
+        } catch (Exception e) {
+            lempar = true;
+        }
+        assertTrue(lempar);
+        assertEquals("UTUH", new String(java.nio.file.Files.readAllBytes(tujuan.toPath()), StandardCharsets.UTF_8));
+        String[] sisa = dir.list();
+        assertEquals(1, sisa.length);
+    }
+
+    @Test
     public void potretKembalikanTls_bulatkembali() throws Exception {
         java.io.File tls = java.nio.file.Files.createTempDirectory("vwtls").toFile();
         tulisTeks(new java.io.File(tls, "ca.pem"), "CA-LAMA");

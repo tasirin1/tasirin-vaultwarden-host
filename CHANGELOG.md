@@ -1,3 +1,16 @@
+## [Belum rilis] — copyFile atomik + migrasi TLS buang sisa terpotong (Audit 2810)
+
+- `copyFile` kini
+  atomik (sementara
+  + ganti nama) dan
+  migrasi TLS
+  membuang tujuan
+  berukuran beda
+  dari asal - sisa
+  salinan terpotong
+  tak lagi dihitung
+  berkas utuh.
+
 ## [Belum rilis] — pulihkanVersiTersisa pilih versi tertinggi (Audit 2809)
 
 - `pulihkanVersiTersisa`
