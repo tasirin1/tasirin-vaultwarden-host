@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — ffmpeg: durasi dua ruas kini membatasi komponen pertama < 60 (Audit 2793)
+
+- Durasi titik-dua
+  dua ruas (MM:SS)
+  kini juga
+  membatasi
+  komponen pertama
+  < 60, sesuai
+  av_parse_time;
+  bentuk tiga ruas
+  (jam) tetap bebas.
+
+
 ## [Belum rilis] — join: --output mati + walk kini sadar nilai opsi lain (Audit 2792)
 
 - `--output`

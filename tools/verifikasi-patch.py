@@ -14212,6 +14212,16 @@ def _menguras_khusus(perintah, toks, awal):
                 r"(\.\d+)?", v_ff2)
             if not m_ff2:
                 return False
+            # Audit 2793: pada bentuk DUA
+            # ruas (MM:SS) komponen pertama
+            # juga dibatasi < 60 oleh
+            # av_parse_time (100:00 dan
+            # 60:00 mati; 100:00:00 tiga
+            # ruas sah sebagai jam).
+            if (m_ff2.group(3) is None
+                    and int(m_ff2.group(1))
+                    >= 60):
+                return False
             if int(m_ff2.group(2)) >= 60:
                 return False
             if (m_ff2.group(3) is not None
