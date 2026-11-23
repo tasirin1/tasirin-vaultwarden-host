@@ -14768,8 +14768,37 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "desimal-positif":
         # Audit 2742: desimal tak bertanda
         # tanpa sufiks/eksponen (tail -s).
-        return re.fullmatch(
-            r"(\d+\.?\d*|\.\d+)", v) is not None
+        # Audit 2789: biner mengurai
+        # xstrtod penuh - eksponen, tanda
+        # +, inf/infinity, dan float heks
+        # diterima; negatif, nan, dan
+        # luapan hingga tak-hingga ditolak
+        # (ikut model _durasi_timeout_sah,
+        # tanpa sufiks satuan).
+        if not re.fullmatch(
+                r"\+?(\d+(\.\d*)?"
+                r"([eE][+-]?\d+)?"
+                r"|\.\d+([eE][+-]?\d+)?"
+                r"|0[xX]([0-9a-fA-F]+"
+                r"(\.[0-9a-fA-F]*)?"
+                r"|\.[0-9a-fA-F]+)"
+                r"([pP][+-]?\d+)?"
+                r"|[iI][nN][fF]([iI][nN][iI]"
+                r"[tT][yY])?)",
+                v):
+            return False
+        if v.lstrip("+").lower() in (
+                "inf", "infinity"):
+            return True
+        try:
+            if v.lower().lstrip(
+                    "+").startswith("0x"):
+                hasil_dp = float.fromhex(v)
+            else:
+                hasil_dp = float(v)
+        except (ValueError, OverflowError):
+            return False
+        return hasil_dp != float("inf")
     if jenis == "enum-follow-tail":
         # Audit 2742: --follow tail hanya
         # name/descriptor.

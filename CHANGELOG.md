@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — tail: desimal-positif kini tata bahasa xstrtod penuh (Audit 2789)
+
+- Jenis
+  `desimal-positif`
+  (tail `-s`) kini
+  menerima bentuk
+  xstrtod: eksponen,
+  tanda +, inf, dan
+  float heks; luapan
+  hingga tak-hingga
+  tetap ditolak.
+
+
 ## [Belum rilis] — env: anggota kosong daftar sinyal kini dilewati (Audit 2788)
 
 - Daftar sinyal
