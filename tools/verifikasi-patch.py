@@ -1864,19 +1864,6 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 # Audit 1638: varian GNU awk.
                 "gawk": "awk", "pgawk": "awk",
                 "igawk": "awk"}.get(perintah, perintah)
-    # Audit 1095: mode daftar rg tak membaca stdin sama sekali.
-    if nama_asli == "rg" and any(
-            t.strip("\"'") == "--files" for t in toks[awal + 1:]):
-        return False
-    # Audit 2669: --generate rg mencetak hasil
-    # (halaman man/penyelesaian) lalu keluar
-    # tanpa membaca stdin; nilai tak sah pun
-    # mati parse - keduanya kematian.
-    if nama_asli == "rg" and any(
-            t.strip("\"'") == "--generate"
-            or t.strip("\"'").startswith("--generate=")
-            for t in toks[awal + 1:]):
-        return False
     if nama_asli == "dgawk":
         # Audit 1652: debugger GNU awk membaca PERINTAH
         # debug dari stdin apa pun operand berkasnya
@@ -2384,6 +2371,60 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 i_19 += 1
                 continue
             i_19 += 1
+    if nama_asli == "rg":
+        # Audit 2689: mode informasional rg
+        # (--files Audit 1095 / --generate
+        # Audit 2669) hanya berlaku bila
+        # tokennya berposisi sebagai OPSI.
+        # Pindaian lama mencocokkan token di
+        # posisi mana pun, sehingga nilai
+        # pembawa dan pola sesudah -- yang
+        # kebetulan bernama sama ikut
+        # dinyatakan informasional dan rg
+        # yang menguras lolos. Kini token
+        # ditelusuri sadar posisi memakai
+        # himpunan pembawa penyusuran 2619:
+        # nilai pembawa dilompati, berhenti
+        # di --.
+        pembawa_panjang_89 = (
+            lewati_panjang_19
+            | {"--" + x for x in enum_panjang_19}
+            | {"--" + x for x in num_panjang_19}
+            | {"--type", "--type-not", "--colors"})
+        i_89 = awal + 1
+        while i_89 < len(toks):
+            t_89 = toks[i_89].strip("\"'")
+            if t_89 == "--":
+                break
+            if (t_89 in (">", ">>", "1>", "2>", "1>>",
+                         "2>>")
+                    or re.fullmatch(r"\d*>>?", t_89)):
+                i_89 += 2
+                continue
+            if re.match(r"\d*>>?\S", t_89):
+                i_89 += 1
+                continue
+            if (t_89 == "--files" or t_89 == "--generate"
+                    or t_89.startswith("--generate=")):
+                return False
+            if t_89.startswith("--"):
+                nama_89 = t_89[2:].partition("=")[0]
+                if (("--" + nama_89) in pembawa_panjang_89
+                        and "=" not in t_89):
+                    i_89 += 1
+                i_89 += 1
+                continue
+            if t_89.startswith("-") and t_89 != "-":
+                huruf_89 = t_89[1:]
+                for pos_89, ch_89 in enumerate(huruf_89):
+                    if (ch_89 in lewati_pendek_19
+                            or ch_89 in num_pendek_19):
+                        if pos_89 == len(huruf_89) - 1:
+                            i_89 += 1
+                        break
+                i_89 += 1
+                continue
+            i_89 += 1
     nilai2 = {"--arg", "--argjson", "--rawfile", "--slurpfile", "--argdecode", "--raw-file"}
     skrip_dari_opsi = False
     skrip_terisi = False
@@ -2431,6 +2472,22 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             i += 1
             continue
         if bersih.startswith("-") and bersih != "-":
+            if lewat_dd and perintah == "grep":
+                # Audit 2689: sesudah -- token
+                # strip keluarga grep adalah
+                # OPERAND (pola/berkas), bukan
+                # bendera (Audit 2441) - walk
+                # utama dulu melewatinya sebagai
+                # bendera polos sehingga pola
+                # tak pernah terisi dan vonis
+                # akhir 2639 membalikkan
+                # perintah yang menguras jadi
+                # mati (rg -- --generate).
+                if not skrip_terisi and not skrip_dari_opsi:
+                    skrip_terisi = True
+                    i += 1
+                    continue
+                return False
             if perintah == "awk":
                 if (nama_asli in ("awk", "mawk", "nawk",
                                   "original-awk")

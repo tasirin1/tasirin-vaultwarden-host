@@ -1,5 +1,24 @@
 # Changelog
 
+## [Belum rilis] — Mode informasional rg kini sadar posisi (Audit 2689)
+
+- Token `--files`/`--generate`
+  rg kini hanya dianggap
+  informasional bila berposisi
+  sebagai opsi. Sebelumnya
+  token yang sama di posisi
+  nilai pembawa (mis.
+  `-r --generate`) atau pola
+  sesudah `--` ikut dinyatakan
+  informasional sehingga rg
+  yang membaca masukan lolos.
+  Terkait: token strip sesudah
+  `--` pada keluarga grep kini
+  dinilai sebagai operand
+  (pola/berkas), bukan dilewati
+  sebagai bendera.
+
+
 ## [Belum rilis] — Nama tipe rg (-t/-T/--type/--type-not) kini divalidasi gerbang (Audit 2688)
 
 - Gerbang kini menolak nama
