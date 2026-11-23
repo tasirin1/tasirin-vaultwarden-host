@@ -14588,9 +14588,27 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 "supp-group"):
                             if not eq_rx:
                                 j_rx += 1
+                        elif nama_rx == (
+                                "session-command"):
+                            # Audit 2731: bentuk
+                            # panjang -c ini MEMBAWA
+                            # nilai; pengelompokan
+                            # lama sebagai bendera
+                            # membuat string
+                            # perintah terbaca
+                            # operand pengguna.
+                            scl_rx = True
+                            if c_rx is None:
+                                if eq_rx:
+                                    c_rx = isi_rx
+                                elif (j_rx + 1
+                                        < len(toks)):
+                                    j_rx += 1
+                                    c_rx = toks[
+                                        j_rx].strip(
+                                        "\"'")
                         elif nama_rx in (
                                 "login",
-                                "session-command",
                                 "fast"):
                             scl_rx = True
                         j_rx += 1

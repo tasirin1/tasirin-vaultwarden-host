@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — runuser --session-command terpisah kini ditelan resolver (Audit 2731)
+
+- Bentuk terpisah
+  `--session-command`
+  runuser kini ditelan
+  sebagai nilai perintah
+  oleh resolver khusus
+  2715 ( sebelumnya
+  terbaca operand
+  pengguna).
+
+
 ## [Belum rilis] — migrasi TLS membawa cadangan penanda versi yatim (Audit 2730)
 
 - Migrasi folder TLS ke
