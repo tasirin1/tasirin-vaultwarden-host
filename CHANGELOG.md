@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Koreksi Maraton-188: penanda komentar `#` bocor ke AlarmReceiver
+
+Skrip perbaikan 2879 menulis dua baris komentar Java dengan penanda `#` ala Python sehingga `AlarmReceiver.java` tak terkompilasi (tertangkap autobuild CodeQL putaran kedua; gerbang lokal memang tak mengompilasi Java). Kedua baris kini memakai `//`; seluruh berkas Java utama+uji sudah digrep bersih dari pola yang sama.
+
+
 ## [Belum rilis] — Koreksi skenario Maraton-188: arah vonis 23 skenario dibalik + skenario 2833 disesuaikan
 
 CI putaran pertama Maraton-188 merah pada 24 skenario: 23 skenario baru (1922–1944) memasang arah vonis terbalik dari vonis binernya (menguras harus `rc != 0`, tak menguras `rc == 0` — terverifikasi ulang satu-satu lewat jalur workflow), dan skenario 1902 (Audit 2833) memakai bentuk dua operand stdin yang oleh perbaikan 2867 kini sah dinilai tak menguras — perintahnya diganti bentuk satu operand stdin yang terbukti menguras di biner. Model gerbangnya sendiri tidak berubah; CodeQL pada putaran yang sama gagal karena Maven Central membalas 429, bukan karena kode.

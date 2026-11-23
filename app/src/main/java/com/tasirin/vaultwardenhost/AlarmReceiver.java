@@ -31,9 +31,9 @@ public class AlarmReceiver extends BroadcastReceiver {
     // peninggalan boot PENDEK sebelumnya
     // bisa menelan alarm harian di boot
     // baru. Stempel kini berpasangan cap
-    # jam dinding dan hanya dipercaya
+    // jam dinding dan hanya dipercaya
     // bila kedua jam maju konsisten
-    # (satu boot); selain itu diabaikan
+    // (satu boot); selain itu diabaikan
     // (gagal-terbuka: alarm tetap jalan).
     static final long TOLERANSI_STEMPEL_THROTTLE_MS = 120_000;
 
