@@ -39494,6 +39494,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item tar -fb0 -T -: b ekor nilai -f bukan faktor blok, gerbang menolak (Audit 2784)", rc != 0)
         shutil.rmtree(sub1863, ignore_errors=True)
+        sub1864 = klon(tmp, "sub1864")
+        berkas_aksi1864 = os.path.join(
+            sub1864, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1864, encoding="utf-8") as f:
+            isi_aksi1864 = f.read()
+        baris_aksi1864 = [b for b in isi_aksi1864.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1864 = isi_aksi1864.replace(
+                baris_aksi1864,
+                baris_aksi1864.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tar --record-size=10k -tf -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1864 != isi_aksi1864, \
+            "suntikan aksi1864 tidak menembak"
+        with open(berkas_aksi1864, "w", encoding="utf-8") as f:
+            f.write(isi_baru1864)
+        rc, out = jalan(sub1864,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item tar --record-size=10k: sufiks k kecil kini sah, gerbang menolak (Audit 2785)", rc != 0)
+        shutil.rmtree(sub1864, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — tar: tata bahasa -b/--record-size diselaraskan ke biner (Audit 2785)
+
+- `-b` kini
+  menerima tanda +
+  (polos, tanpa
+  sufiks); sufiks
+  `--record-size`
+  kini huruf tunggal
+  xstrtol (k/c/w
+  ikut; KB/KiB yang
+  mati di biner tak
+  lagi diterima).
+
+
 ## [Belum rilis] — tar: huruf b di bundel hanya -b bila tak didahului huruf bernilai (Audit 2784)
 
 - Walk faktor

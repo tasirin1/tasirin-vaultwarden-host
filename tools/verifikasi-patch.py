@@ -5085,33 +5085,52 @@ def _menguras_khusus(perintah, toks, awal):
         # divalidasi - nilai asing
         # membunuh tar saat urai.
         def _reksa_tar_sah(v_rt):
+            # Audit 2785: tata bahasa biner
+            # terbukti = tanda + opsional,
+            # angka, lalu sufiks HURUF
+            # TUNGGAL (c=1, w=2, B/b=512,
+            # K/k, M/m, G/g, T/t pangkat
+            # 1024); bentuk dua huruf
+            # (KB/KiB/dll.) mati di biner.
             m_rt = re.fullmatch(
-                r"(\d{1,18})([KMGT]B?|B|b)?",
+                r"\+?(\d{1,18})([BbckwKMGTkmgt])?",
                 v_rt)
             if not m_rt:
                 return False
             kali_rt = {"": 1, "B": 512,
-                       "b": 512, "K": 1024,
-                       "KB": 1000,
+                       "b": 512, "c": 1,
+                       "w": 2, "K": 1024,
+                       "k": 1024,
                        "M": 1024 ** 2,
-                       "MB": 1000 ** 2,
+                       "m": 1024 ** 2,
                        "G": 1024 ** 3,
-                       "GB": 1000 ** 3,
+                       "g": 1024 ** 3,
                        "T": 1024 ** 4,
-                       "TB": 1000 ** 4}
+                       "t": 1024 ** 4}
             total_rt = (int(m_rt.group(1))
                         * kali_rt[m_rt.group(2)
                                   or ""])
             return total_rt > 0 \
                 and total_rt % 512 == 0
+
+        def _faktor_tar_sah(v_ft):
+            # Audit 2785: -b tar = bilangan
+            # polos bertanda + opsional
+            # (sufiks/hex mati di biner),
+            # >= 1, dibatasi 18 digit
+            # (luapan xstrtol mati).
+            return bool(
+                re.fullmatch(
+                    r"\+?\d{1,18}", v_ft)
+                and int(v_ft) >= 1)
+
         k_tr = 0
         while k_tr < len(mentah):
             t_tr = mentah[k_tr]
             if t_tr.startswith(
                     "--blocking-factor="):
                 v_tr = t_tr.split("=", 1)[1]
-                if not (v_tr.isdigit()
-                        and int(v_tr) >= 1):
+                if not _faktor_tar_sah(v_tr):
                     return False
             elif t_tr.startswith(
                     "--record-size="):
@@ -5127,8 +5146,8 @@ def _menguras_khusus(perintah, toks, awal):
                         if not _reksa_tar_sah(
                                 v_tr):
                             return False
-                    elif not (v_tr.isdigit()
-                              and int(v_tr) >= 1):
+                    elif not _faktor_tar_sah(
+                            v_tr):
                         return False
                     k_tr += 1
             elif t_tr in ("-f", "-T", "-C",
@@ -5157,19 +5176,16 @@ def _menguras_khusus(perintah, toks, awal):
                                 pos_tr + 2:]
                             if ekor_tr:
                                 if not (
-                                        ekor_tr.isdigit()
-                                        and int(
-                                            ekor_tr)
-                                        >= 1):
+                                        _faktor_tar_sah(
+                                            ekor_tr)):
                                     return False
                             elif (k_tr + 1
                                     < len(mentah)):
                                 v_tr = mentah[
                                     k_tr + 1]
                                 if not (
-                                        v_tr.isdigit()
-                                        and int(v_tr)
-                                        >= 1):
+                                        _faktor_tar_sah(
+                                            v_tr)):
                                     return False
                                 k_tr += 1
                         elif (pos_tr
