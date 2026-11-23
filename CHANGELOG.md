@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — enum --total wc kini divalidasi (Audit 2743)
+
+- Nilai `--total` wc
+  kini diperiksa
+  terhadap himpunan
+  {auto, always, never,
+  only}.
+
+
 ## [Belum rilis] — penerima tail (-s/--pid/--max-unchanged-stats/--follow) divalidasi (Audit 2742)
 
 - Penerima tail

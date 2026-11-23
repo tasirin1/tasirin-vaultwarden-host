@@ -13747,6 +13747,11 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "enum-total-wc":
+        # Audit 2743: --total wc himpunan
+        # tertutup di biner.
+        return v in ("auto", "always",
+                     "never", "only")
     if jenis == "desimal-positif":
         # Audit 2742: desimal tak bertanda
         # tanpa sufiks/eksponen (tail -s).
@@ -16948,6 +16953,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                       # bentuk panjangnya lolos
                       # tanpa validasi.
                       "suffix-length": "angka1"},
+            "wc": {"total": "enum-total-wc"},
             "tail": {"s": "desimal-positif",
                      "sleep-interval":
                          "desimal-positif",
