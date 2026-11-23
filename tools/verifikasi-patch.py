@@ -18916,6 +18916,33 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             if b_op.startswith("--"):
                 nama_op, eq_op, isi_op = (
                     b_op[2:].partition("="))
+                if (nama_op
+                        and nama_op not in tabel_op
+                        and ("--" + nama_op)
+                        not in bernilai_op):
+                    # Audit 2795: getopt_long
+                    # menerima singkatan unik
+                    # opsi panjang - walk dulu
+                    # hanya cocok nama persis
+                    # sehingga nilai pada
+                    # bentuk singkatan tak
+                    # pernah divalidasi.
+                    dikenal_op = set(tabel_op) | {
+                        n_op[2:] for n_op
+                        in bernilai_op
+                        if n_op.startswith(
+                            "--")}
+                    calon_op = [
+                        k_op for k_op
+                        in dikenal_op
+                        if k_op.startswith(
+                            nama_op)]
+                    if len(calon_op) == 1:
+                        nama_op = calon_op[0]
+                    elif len(calon_op) > 1:
+                        # Ambigu: biner mati
+                        # "option is ambiguous".
+                        return False
                 if nama_op in tabel_op:
                     if eq_op:
                         if not _tipe_nilai_sah_66(
@@ -19143,6 +19170,20 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # nilai opsi yang terpisah bukan operand berkas.
             if t in _OPSI_BERNILAI.get(perintah, ()):
                 lewati = True
+            elif (perintah in _TIPE_OPERAND
+                    and t.startswith("--")
+                    and "=" not in t):
+                # Audit 2795: singkatan unik
+                # opsi panjang bernilai juga
+                # menelan token berikutnya -
+                # samakan dengan nama persis.
+                calon_utama = [
+                    n_utama for n_utama
+                    in _OPSI_BERNILAI.get(
+                        perintah, ())
+                    if n_utama.startswith(t)]
+                if len(calon_utama) == 1:
+                    lewati = True
             continue
         if (perintah in ("tail", "sort", "pr",
                          # Audit 1241: od juga ber-offset usang.

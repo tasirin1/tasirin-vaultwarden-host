@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — walk _TIPE_OPERAND kini kenal singkatan getopt_long (Audit 2795)
+
+- Nama opsi
+  panjang pada
+  walk penerima
+  operand kini
+  diresolusi sebagai
+  singkatan unik
+  getopt_long
+  (ambigu = mati),
+  di walk validasi
+  maupun loop
+  operand utama.
+
+
 ## [Belum rilis] — angka penerima coreutils kini menerima tanda + (Audit 2794)
 
 - Jenis `angka0`,
