@@ -15028,7 +15028,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 and not _sinyal_timeout_sah(
                                     nilai2681)):
                             return False
-                if t0 in ("flock", "watch", "choom"):
+                if t0 in ("flock", "watch", "choom",
+                          "uclampset"):
                     # Audit 2719: penerima bertipe
                     # pada pembungkus lain -
                     # nilai sampah membunuh
@@ -15053,15 +15054,18 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 "desimal-tanda"},
                         "choom": {
                             "--adjust": "choom-n"},
+                        "uclampset": {},
                     }
                     pendek_b = {
                         "flock": {"w": "flock-w",
                                   "E": "flock-E"},
                         "watch": {"n": "desimal-tanda"},
                         "choom": {"n": "choom-n"},
+                        "uclampset": {"m": "uclamp",
+                                      "M": "uclamp"},
                     }
                     ambang_b = {"flock": 3, "watch": 3,
-                                "choom": 3}
+                                "choom": 3, "uclampset": 3}
                     nama_b = opsi
                     nilai_b = None
                     if (opsi.startswith("--")
@@ -15139,6 +15143,23 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                         and -1000
                                         <= int(nilai_b)
                                         <= 1000):
+                                    return False
+                            elif jenis_b == "uclamp":
+                                # Audit 2722: nilai
+                                # uclampset = bilangan
+                                # bulat -1 (reset) atau
+                                # rentang [0:1024];
+                                # -m/-M hanya bentuk
+                                # pendek di biner.
+                                if not (
+                                        re.fullmatch(
+                                            r"-?\d+",
+                                            nilai_b)
+                                        and (int(nilai_b)
+                                             == -1
+                                             or 0 <= int(
+                                                 nilai_b)
+                                             <= 1024)):
                                     return False
                             elif jenis_b == "flock-E":
                                 if not (

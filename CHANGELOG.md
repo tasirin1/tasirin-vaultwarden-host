@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — nilai -m/-M uclampset kini divalidasi (Audit 2722)
+
+- Nilai `-m`/`-M`
+  uclampset kini
+  divalidasi: bilangan
+  bulat -1 (reset) atau
+  dalam rentang
+  [0:1024] seperti
+  binernya.
+
+
 ## [Belum rilis] — nilai -n choom kini divalidasi (Audit 2721)
 
 - Nilai `-n`/`--adjust`
