@@ -566,6 +566,23 @@ public class TlsCertTest {
     }
 
     @Test
+    public void salinCadanganVersiYatim_pilihYangTerbaru() throws Exception {
+        // Audit 2777: dua cadangan yatim - yang waktu
+        // ubahnya paling baru yang disalin.
+        java.nio.file.Path asal = Files.createTempDirectory("tlsyatim-asal4");
+        java.nio.file.Path tujuan = Files.createTempDirectory("tlsyatim-tujuan4");
+        File lamaF = new File(asal.toFile(), "version.txt.lama-111");
+        File baruF = new File(asal.toFile(), "version.txt.lama-222");
+        Files.write(lamaF.toPath(), "6\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(baruF.toPath(), "7\n".getBytes(StandardCharsets.UTF_8));
+        lamaF.setLastModified(1000000000L);
+        baruF.setLastModified(2000000000L);
+        TlsCert.salinCadanganVersiYatim(asal.toFile(), tujuan.toFile());
+        assertTrue(new File(tujuan.toFile(), "version.txt.lama-222").isFile());
+        assertFalse(new File(tujuan.toFile(), "version.txt.lama-111").exists());
+    }
+
+    @Test
     public void salinCadanganVersiYatim_lewatiSaatVersionAda() throws Exception {
         java.nio.file.Path asal = Files.createTempDirectory("tlsyatim-asal2");
         java.nio.file.Path tujuan = Files.createTempDirectory("tlsyatim-tujuan2");

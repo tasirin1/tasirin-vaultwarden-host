@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — salinan cadangan versi yatim memilih yang terbaru (Audit 2777)
+
+- Bila ada beberapa
+  cadangan penanda
+  versi yatim, yang
+  disalin saat
+  migrasi kini yang
+  waktu ubahnya
+  paling baru.
+
+
+
 ## [Belum rilis] — migrasi TLS terputus tetap membawa cadangan versi yatim (Audit 2776)
 
 - Migrasi TLS yang

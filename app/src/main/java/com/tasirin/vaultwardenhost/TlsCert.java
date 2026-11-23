@@ -1153,14 +1153,28 @@ public final class TlsCert {
             if (daftar == null) {
                 return;
             }
+            // Audit 2777: pilih cadangan yatim TERBARU
+            // menurut waktu ubah, bukan temuan pertama
+            // listFiles yang urutannya tak dijamin -
+            // cadangan lama bisa memasang versi basi.
+            File yatimTerbaru = null;
             for (File f : daftar) {
                 if (f != null && f.isFile()
                         && f.getName().startsWith(
                                 "version.txt.lama-")) {
-                    TgBackup.copyFile(
-                            f, new File(tujuanDir, f.getName()));
-                    return;
+                    if (yatimTerbaru == null
+                            || f.lastModified()
+                                    > yatimTerbaru
+                                            .lastModified()) {
+                        yatimTerbaru = f;
+                    }
                 }
+            }
+            if (yatimTerbaru != null) {
+                TgBackup.copyFile(
+                        yatimTerbaru,
+                        new File(tujuanDir,
+                                yatimTerbaru.getName()));
             }
         } catch (Exception ignored) {
         }
