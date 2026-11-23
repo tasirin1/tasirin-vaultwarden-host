@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — penerima od -A/--address-radix dan --endian divalidasi (Audit 2744)
+
+- Penerima od
+  `-A`/`--address-radix`
+  (enum o/d/x/n) dan
+  `--endian`
+  (little/big) kini
+  divalidasi.
+
+
 ## [Belum rilis] — enum --total wc kini divalidasi (Audit 2743)
 
 - Nilai `--total` wc

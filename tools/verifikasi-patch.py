@@ -13747,6 +13747,14 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "enum-radix-od":
+        # Audit 2744: radix alamat od satu
+        # huruf dari himpunan tertutup.
+        return v in ("o", "d", "x", "n")
+    if jenis == "enum-endian":
+        # Audit 2744: --endian od hanya
+        # little/big.
+        return v in ("little", "big")
     if jenis == "enum-total-wc":
         # Audit 2743: --total wc himpunan
         # tertutup di biner.
@@ -16982,7 +16990,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     "bytes": "daftar-cut"},
             "shuf": {"head-count": "angka0",
                      "n": "angka0"},
-            "od": {"read-bytes": "odnum", "N": "odnum",
+            "od": {"A": "enum-radix-od",
+                   "address-radix": "enum-radix-od",
+                   "endian": "enum-endian",
+                   "read-bytes": "odnum", "N": "odnum",
                    "skip-bytes": "odnum", "j": "odnum",
                    "S": "odnum", "width": "odnum1",
                    # Audit 2678: penerima format
