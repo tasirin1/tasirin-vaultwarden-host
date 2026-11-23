@@ -13747,6 +13747,11 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "enum-grup-uniq":
+        # Audit 2740: metode --group uniq
+        # himpunan tertutup di biner.
+        return v in ("separate", "prepend",
+                     "append", "both")
     if jenis == "kunci-sort":
         # Audit 2732: awalan + pada POS
         # (bentuk usang +POS yang masih
@@ -16919,6 +16924,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                       # bentuk panjangnya lolos
                       # tanpa validasi.
                       "suffix-length": "angka1"},
+            "uniq": {"f": "angka0",
+                     "skip-fields": "angka0",
+                     "s": "angka0",
+                     "skip-chars": "angka0",
+                     "w": "angka0",
+                     "check-chars": "angka0",
+                     "group": "enum-grup-uniq"},
             "sort": {"k": "kunci-sort",
                      "key": "kunci-sort"},
             "cut": {"f": "daftar-cut",

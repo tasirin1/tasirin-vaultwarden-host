@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — penerima uniq (-f/-s/-w/--group) kini divalidasi (Audit 2740)
+
+- uniq masuk tabel
+  penerima bertipe:
+  `-f`/`-s`/`-w` angka
+  dan `--group` enum
+  metode tertutup.
+
+
 ## [Belum rilis] — batas prlimit menolak sisi lunak kosong (Audit 2739)
 
 - Validator batas
