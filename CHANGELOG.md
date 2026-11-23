@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Alarm: stempel throttle kini berpasangan jam dinding, tak lagi menelan alarm lintas boot (Audit 2879)
+
+Throttle AlarmReceiver membandingkan `elapsedRealtime` tersimpan antar-boot tanpa identitas boot: peninggalan boot pendek sebelumnya bisa menelan alarm harian di boot baru. Stempel kini disimpan berpasangan dengan cap jam dinding dan hanya dipercaya bila kedua jam maju konsisten dalam satu boot (toleransi 120 detik); stempel warisan tanpa pasangan diabaikan gagal-terbuka. Uji JVM untuk predikat konsistensinya.
+
+
 ## [Belum rilis] — Log: literal IPv6 kini ikut disamarkan (Audit 2875)
 
 Penyensoran log/crashlog hanya berpola IPv4, sehingga alamat IPv6 publik bisa tertulis mentah ke crash-last.log dan terkirim lewat /crashlog. Pola `POLA_IP6` baru mencakup bentuk penuh, terkompres `::`, dan terpetakan IPv4 (dengan syarat grup ≥2 heksadesimal agar jam dan `std::` tak ikut tersamar); `butuhSamaran` dan `samarkanLog` kini mengenalnya sebagai `[ipv6]`. Uji JVM baru; pola terverifikasi induk 8/8 dari berkas tertulis.

@@ -23,6 +23,45 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     static final String KEY_THROTTLE_ALARM_ELAPSED = "alarm_throttle_elapsed";
     static final String KEY_THROTTLE_WAKTU_ELAPSED = "alarm_throttle_waktu_elapsed";
+    static final String KEY_THROTTLE_ALARM_WALL = "alarm_throttle_wall";
+    static final String KEY_THROTTLE_WAKTU_WALL = "alarm_throttle_waktu_wall";
+
+    // Audit 2879: stempel elapsedRealtime
+    // mentah tak punya identitas boot -
+    // peninggalan boot PENDEK sebelumnya
+    // bisa menelan alarm harian di boot
+    // baru. Stempel kini berpasangan cap
+    # jam dinding dan hanya dipercaya
+    // bila kedua jam maju konsisten
+    # (satu boot); selain itu diabaikan
+    // (gagal-terbuka: alarm tetap jalan).
+    static final long TOLERANSI_STEMPEL_THROTTLE_MS = 120_000;
+
+    static boolean stempelThrottleSatuBoot(long capElapsed,
+            long capWall, long kiniElapsed, long kiniWall) {
+        if (capElapsed <= 0 || capWall <= 0) {
+            return false;
+        }
+        long selisihElapsed = kiniElapsed - capElapsed;
+        long selisihWall = kiniWall - capWall;
+        return selisihElapsed >= 0
+                && Math.abs(selisihWall - selisihElapsed)
+                        <= TOLERANSI_STEMPEL_THROTTLE_MS;
+    }
+
+    static long throttleTervalidasi(Context context,
+            String kunciElapsed, String kunciWall) {
+        long capElapsed = TgBackup.bacaStempelThrottle(
+                context, kunciElapsed);
+        long capWall = TgBackup.bacaStempelThrottle(
+                context, kunciWall);
+        if (!stempelThrottleSatuBoot(capElapsed, capWall,
+                android.os.SystemClock.elapsedRealtime(),
+                System.currentTimeMillis())) {
+            return 0;
+        }
+        return capElapsed;
+    }
 
     static boolean bolehAlarmJalan(long kini, long terakhir, long jeda) {
         return terakhir <= 0 || kini < terakhir || kini - terakhir >= jeda;
@@ -33,21 +72,27 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     static long throttleTersimpan(Context context) {
-        return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_ALARM_ELAPSED);
+        return throttleTervalidasi(context,
+                KEY_THROTTLE_ALARM_ELAPSED, KEY_THROTTLE_ALARM_WALL);
     }
 
     static void simpanThrottle(Context context, long kini) {
         terakhirAlarmElapsed = kini;
         TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_ALARM_ELAPSED, kini);
+        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_ALARM_WALL,
+                System.currentTimeMillis());
     }
 
     static long throttleWaktuTersimpan(Context context) {
-        return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_WAKTU_ELAPSED);
+        return throttleTervalidasi(context,
+                KEY_THROTTLE_WAKTU_ELAPSED, KEY_THROTTLE_WAKTU_WALL);
     }
 
     static void simpanThrottleWaktu(Context context, long kini) {
         terakhirWaktuElapsed = kini;
         TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_WAKTU_ELAPSED, kini);
+        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_WAKTU_WALL,
+                System.currentTimeMillis());
     }
 
     @SuppressLint("ApplySharedPref")
