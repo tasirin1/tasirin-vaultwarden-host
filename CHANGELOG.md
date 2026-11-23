@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — --help/--version xargs kini dikenali gerbang (Audit 2702)
+
+- `xargs --help`/`--version`
+  kini divonis mati (mencetak
+  lalu keluar), bukan pembaca
+  item masukan. Bendera
+  pembaca bawaan xargs
+  sebelumnya menelan bentuk
+  informasional milik xargs
+  sendiri, termasuk yang
+  diikuti perintah anak.
+
+
 ## [Belum rilis] — --help/--version/-V sudo kini menang atas mode shell di gerbang (Audit 2701)
 
 - Bentuk informasional sudo

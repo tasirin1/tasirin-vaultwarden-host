@@ -14142,12 +14142,17 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     if toks[j_la] == "--list":
                         return False
                     j_la += 1
-            if t0 in ("unshare", "systemd-cat"):
+            if t0 in ("unshare", "systemd-cat",
+                      "xargs"):
                 # Audit 2699: --help/--version
                 # milik pembungkus sendiri
                 # mencetak lalu keluar (anak pun
                 # tak berjalan) - vonis tanpa-anak
                 # 1121/1070 menelannya mentah.
+                # Audit 2702: xargs sekelas -
+                # bendera xargs_sendiri (971)
+                # menelan --help/--version
+                # miliknya dengan cara yang sama.
                 # Pindai wilayah opsi pembungkus
                 # ini; nilai pembawa dilompati.
                 j_ih = awal
