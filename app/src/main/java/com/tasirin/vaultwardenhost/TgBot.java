@@ -1495,19 +1495,33 @@ public final class TgBot {
         // menghilangkan penghapusan ini selamanya.
         catatHapusTertunda(ctx, idRuang, idPesan, false);
         if (!cobaJalankanBg(() -> {
-            boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
-            if (terhapus) {
-                selesaikanHapusTertundaUntuk(ctx,
-                        idRuang, idPesan, false);
+            if (!mulaiHapusTertunda(idRuang, idPesan, false)) {
+                return;
             }
-            peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
+            try {
+                boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
+                if (terhapus) {
+                    selesaikanHapusTertundaUntuk(ctx,
+                            idRuang, idPesan, false);
+                }
+                peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
+            } finally {
+                selesaiHapusTertunda(idRuang, idPesan, false);
+            }
         })) {
-            boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
-            if (terhapus) {
-                selesaikanHapusTertundaUntuk(ctx,
-                        idRuang, idPesan, false);
+            if (!mulaiHapusTertunda(idRuang, idPesan, false)) {
+                return;
             }
-            peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
+            try {
+                boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
+                if (terhapus) {
+                    selesaikanHapusTertundaUntuk(ctx,
+                            idRuang, idPesan, false);
+                }
+                peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
+            } finally {
+                selesaiHapusTertunda(idRuang, idPesan, false);
+            }
         }
     }
 
@@ -1515,18 +1529,30 @@ public final class TgBot {
         // Audit 2830: catat persisten SEBELUM antre.
         catatHapusTertunda(ctx, idRuang, idPesan, true);
         if (!cobaJalankanBg(() -> {
-            if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
-                peringatkanPinChatAsing(ctx, idRuang);
-            } else {
-                selesaikanHapusTertundaUntuk(ctx,
-                        idRuang, idPesan, true);
+            if (mulaiHapusTertunda(idRuang, idPesan, true)) {
+                try {
+                    if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
+                        peringatkanPinChatAsing(ctx, idRuang);
+                    } else {
+                        selesaikanHapusTertundaUntuk(ctx,
+                                idRuang, idPesan, true);
+                    }
+                } finally {
+                    selesaiHapusTertunda(idRuang, idPesan, true);
+                }
             }
         })) {
-            if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
-                peringatkanPinChatAsing(ctx, idRuang);
-            } else {
-                selesaikanHapusTertundaUntuk(ctx,
-                        idRuang, idPesan, true);
+            if (mulaiHapusTertunda(idRuang, idPesan, true)) {
+                try {
+                    if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
+                        peringatkanPinChatAsing(ctx, idRuang);
+                    } else {
+                        selesaikanHapusTertundaUntuk(ctx,
+                                idRuang, idPesan, true);
+                    }
+                } finally {
+                    selesaiHapusTertunda(idRuang, idPesan, true);
+                }
             }
         }
     }
@@ -1573,6 +1599,35 @@ public final class TgBot {
         return capMs > 0
                 && kiniMs - capMs
                         > BATAS_UMUR_HAPUS_TERTUNDA_MS;
+    }
+
+    // Audit 2837: identitas pesan yang sedang
+    // dihapus satu tugas; tugas kedua untuk
+    // pesan yang sama (async awal vs coba-ulang
+    // poll) melewatkan gilirannya - yang kalah
+    // balapan menerima 400 dan dulu memicu
+    // peringatan palsu + memasang bendera
+    // dedup yang menelan peringatan sah
+    // berikutnya.
+    private static final java.util.Set<String>
+            HAPUS_SEDANG_JALAN = new java.util.HashSet<>();
+
+    static boolean mulaiHapusTertunda(long idRuang,
+            int idPesan, boolean asing) {
+        synchronized (KUNCI_PERINGATAN) {
+            return HAPUS_SEDANG_JALAN.add(
+                    entriHapusTertunda(
+                            idRuang, idPesan, asing));
+        }
+    }
+
+    static void selesaiHapusTertunda(long idRuang,
+            int idPesan, boolean asing) {
+        synchronized (KUNCI_PERINGATAN) {
+            HAPUS_SEDANG_JALAN.remove(
+                    entriHapusTertunda(
+                            idRuang, idPesan, asing));
+        }
     }
 
     static long[] uraiEntriHapusTertunda(String entri) {
@@ -1758,16 +1813,25 @@ public final class TgBot {
             }
             diproses++;
             cobaJalankanBg(() -> {
-                boolean terhapus = hapusPesanPerintah(
-                        ctx, idRuang, idPesan);
-                if (terhapus) {
-                    selesaikanHapusTertundaUntuk(ctx,
+                if (!mulaiHapusTertunda(
+                        idRuang, idPesan, asing)) {
+                    return;
+                }
+                try {
+                    boolean terhapus = hapusPesanPerintah(
+                            ctx, idRuang, idPesan);
+                    if (terhapus) {
+                        selesaikanHapusTertundaUntuk(ctx,
+                                idRuang, idPesan, asing);
+                    } else if (asing) {
+                        peringatkanPinChatAsing(ctx, idRuang);
+                    } else {
+                        peringatkanBilaTakBisaHapus(
+                                ctx, false, idRuang);
+                    }
+                } finally {
+                    selesaiHapusTertunda(
                             idRuang, idPesan, asing);
-                } else if (asing) {
-                    peringatkanPinChatAsing(ctx, idRuang);
-                } else {
-                    peringatkanBilaTakBisaHapus(
-                            ctx, false, idRuang);
                 }
             });
         }

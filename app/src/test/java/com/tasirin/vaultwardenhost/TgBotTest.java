@@ -846,6 +846,22 @@ public class TgBotTest {
     }
 
     @Test
+    public void mulaiSelesaiHapusTertunda_satuPemilik() {
+        assertTrue(TgBot.mulaiHapusTertunda(777001, 42, false));
+        try {
+            assertFalse(TgBot.mulaiHapusTertunda(777001, 42, false));
+            assertTrue(TgBot.mulaiHapusTertunda(777001, 43, false));
+            assertTrue(TgBot.mulaiHapusTertunda(777001, 42, true));
+            TgBot.selesaiHapusTertunda(777001, 43, false);
+            TgBot.selesaiHapusTertunda(777001, 42, true);
+        } finally {
+            TgBot.selesaiHapusTertunda(777001, 42, false);
+        }
+        assertTrue(TgBot.mulaiHapusTertunda(777001, 42, false));
+        TgBot.selesaiHapusTertunda(777001, 42, false);
+    }
+
+    @Test
     public void selesaikanHapusTertundaUntuk_ctxNullAman() {
         TgBot.selesaikanHapusTertundaUntuk(null, 1, 2, false);
     }

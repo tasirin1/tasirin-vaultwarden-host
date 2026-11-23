@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot: dua tugas hapus untuk pesan yang sama tak lagi balapan (Audit 2837)
+
+Tugas async awal (2588) dan tugas coba-ulang poll (2830) bisa menjalankan penghapusan untuk pesan yang sama bersamaan; yang kalah menerima jawaban 400 dari Telegram lalu memicu peringatan "tak bisa menghapus" yang palsu dan memasang bendera dedup, menelan peringatan sah berikutnya. Kini ada daftar identitas yang sedang dihapus (dijaga kunci yang sama dengan mesin peringatan): tugas kedua melewatkan gilirannya, dan penanda selalu dilepas di blok finally — termasuk bila antrean latar menolak tugas, penanda tidak pernah bocor karena ia baru dipasang di dalam tugas yang berjalan. Uji JVM: satu pemilik per identitas, identitas lain tetap bebas, pelepasan mengembalikan giliran.
+
+
 ## [Belum rilis] — Bot: antrean hapus pesan ber-PIN kini berumur maks 48 jam, tak dicoba selamanya (Audit 2836)
 
 Entri `tg_hapus_tertunda` dari perbaikan 2830 hanya dicoret bila penghapusan berhasil — pesan yang tak akan pernah bisa dihapus (sudah dihapus manual oleh pengguna, atau pesan grup lewat jendela hapus Telegram) dicoba ulang di tiap poll selamanya, tanpa batas umur. Entri tersimpan kini membawa cap waktu catat pertama (bidang keempat); entri yang lewat 48 jam dibuang sesudah peringatan terakhir lewat jalur dedup yang sama, dan entri warisan tanpa cap waktu diberi cap saat pertama terlihat agar jamnya mulai berjalan. Pencoretan sesudah berhasil kini menurut identitas dasar entri (ruang+pesan+jenis), bukan untaian persis, supaya cap waktu tidak mematahkan pencoretan dari jalur async. Uji JVM: urai format baru + warisan, predikat kedaluwarsa di batas persis.
