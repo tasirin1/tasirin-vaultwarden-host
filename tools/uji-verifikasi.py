@@ -38045,6 +38045,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item rg include ke definisi sesudahnya: rg mati urutan, gerbang lolos (Audit 2709)", rc == 0)
         shutil.rmtree(sub1794, ignore_errors=True)
+        sub1795 = klon(tmp, "sub1795")
+        berkas_aksi1795 = os.path.join(
+            sub1795, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1795, encoding="utf-8") as f:
+            isi_aksi1795 = f.read()
+        baris_aksi1795 = [b for b in isi_aksi1795.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1795 = isi_aksi1795.replace(
+                baris_aksi1795,
+                baris_aksi1795.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unshare -h; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1795 != isi_aksi1795, \
+            "suntikan aksi1795 tidak menembak"
+        with open(berkas_aksi1795, "w", encoding="utf-8") as f:
+            f.write(isi_baru1795)
+        rc, out = jalan(sub1795,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item unshare -h: bantuan pendek informasional, gerbang lolos (Audit 2710)", rc == 0)
+        shutil.rmtree(sub1795, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

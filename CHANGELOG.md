@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — bentuk -h dan singkatan informasional unshare/systemd-cat/xargs dikenali (Audit 2710)
+
+- Pindaian informasional
+  pembungkus kini juga
+  mengenali `-h` dan
+  singkatan getopt_long
+  atas `--help`/`--version`
+  (unik maupun ambigu,
+  keduanya membunuh
+  biner), tidak hanya
+  nama eksaknya.
+
+
 ## [Belum rilis] — sasaran include --type-add rg kini peka urutan (Audit 2709)
 
 - Validasi sasaran

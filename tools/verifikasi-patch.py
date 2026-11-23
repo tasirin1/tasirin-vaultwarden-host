@@ -14253,9 +14253,23 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     if not t_ih.startswith("-") \
                             or t_ih == "-":
                         break
-                    if t_ih in ("--help", "--version"):
-                        return False
                     if t_ih.startswith("--"):
+                        # Audit 2710: singkatan
+                        # getopt_long atas
+                        # --help/--version juga
+                        # mati - unik berarti
+                        # informasional, ambigu
+                        # berarti galat urai;
+                        # dua-duanya tak
+                        # menjalankan anak.
+                        nama_ih = t_ih[2:].partition(
+                            "=")[0]
+                        if (nama_ih
+                                and ("help".startswith(
+                                        nama_ih)
+                                     or "version".startswith(
+                                        nama_ih))):
+                            return False
                         if ("=" not in t_ih
                                 and t_ih in bernilai):
                             j_ih += 1
@@ -14265,6 +14279,15 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     lompat_ih = False
                     for pos_ih, ch_ih in enumerate(
                             huruf_ih):
+                        # Audit 2710: huruf h
+                        # sebelum huruf bernilai
+                        # pertama = bantuan
+                        # (unshare/systemd-cat)
+                        # atau opsi tak sah
+                        # (xargs) - sama-sama
+                        # mati sebelum anak.
+                        if ch_ih == "h":
+                            return False
                         if ("-" + ch_ih) in bernilai:
                             if (pos_ih
                                     == len(huruf_ih) - 1):
