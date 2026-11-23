@@ -38003,6 +38003,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item runuser telanjang: shell login root membaca stdin, gerbang menolak (Audit 2703)", rc != 0)
         shutil.rmtree(sub1792, ignore_errors=True)
+        sub1793 = klon(tmp, "sub1793")
+        berkas_aksi1793 = os.path.join(
+            sub1793, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1793, encoding="utf-8") as f:
+            isi_aksi1793 = f.read()
+        baris_aksi1793 = [b for b in isi_aksi1793.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1793 = isi_aksi1793.replace(
+                baris_aksi1793,
+                baris_aksi1793.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(rg -e --type-add -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1793 != isi_aksi1793, \
+            "suntikan aksi1793 tidak menembak"
+        with open(berkas_aksi1793, "w", encoding="utf-8") as f:
+            f.write(isi_baru1793)
+        rc, out = jalan(sub1793,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item rg -e --type-add -: --type-add nilai pembawa bukan definisi, gerbang menolak (Audit 2708)", rc != 0)
+        shutil.rmtree(sub1793, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

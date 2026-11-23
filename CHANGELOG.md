@@ -1,5 +1,22 @@
 # Changelog
 
+## [Belum rilis] — pengumpulan --type-add rg kini sadar posisi (Audit 2708)
+
+- Pengumpulan definisi
+  `--type-add` pada gerbang
+  kini melompati nilai opsi
+  pembawa, sama seperti
+  pindaian informasional
+  sebelumnya. String
+  `--type-add` yang berposisi
+  sebagai nilai (mis. pola
+  `-e` atau pengganti `-r`)
+  tidak lagi terbaca sebagai
+  definisi tipe, sehingga
+  perintah rg yang sah tidak
+  lagi divonis mati.
+
+
 ## [Belum rilis] — lima berkas non-dokumen kini ikut gerbang push (Audit 2707)
 
 - Lima berkas yang sebelumnya

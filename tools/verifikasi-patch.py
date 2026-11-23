@@ -2072,19 +2072,59 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             # berlaku dari posisi mana pun di
             # perintah yang sama, jadi kumpulkan
             # dulu dari seluruh token.
+            # Audit 2708: pengumpulan kini
+            # sadar posisi seperti pindaian
+            # 2689 - nilai pembawa dilompati,
+            # jadi --type-add yang berposisi
+            # sebagai nilai (-e/-r/dsb.) tak
+            # lagi terbaca sebagai definisi.
             defs_88 = []
+            pembawa_88 = (
+                lewati_panjang_19
+                | {"--" + x for x in num_panjang_19}
+                | {"--sort", "--sortr"})
             j_88 = awal + 1
             while j_88 < len(toks):
                 t_88 = toks[j_88].strip("\"'")
                 if t_88 == "--":
                     break
+                if (t_88 in (">", ">>", "1>", "2>", "1>>",
+                             "2>>")
+                        or re.fullmatch(r"\d*>>?", t_88)):
+                    j_88 += 2
+                    continue
+                if re.match(r"\d*>>?\S", t_88):
+                    j_88 += 1
+                    continue
                 if (t_88 == "--type-add"
                         and j_88 + 1 < len(toks)):
                     defs_88.append(
                         toks[j_88 + 1].strip("\"'"))
-                    j_88 += 1
-                elif t_88.startswith("--type-add="):
+                    j_88 += 2
+                    continue
+                if t_88.startswith("--type-add="):
                     defs_88.append(t_88[11:])
+                    j_88 += 1
+                    continue
+                if t_88.startswith("--"):
+                    nama_88 = t_88[2:].partition("=")[0]
+                    if (("--" + nama_88) in pembawa_88
+                            and "=" not in t_88):
+                        j_88 += 1
+                    j_88 += 1
+                    continue
+                if t_88.startswith("-") and t_88 != "-":
+                    huruf_88 = t_88[1:]
+                    for pos_88, ch_88 in enumerate(
+                            huruf_88):
+                        if (ch_88 in lewati_pendek_19
+                                or ch_88 in num_pendek_19):
+                            if (pos_88
+                                    == len(huruf_88) - 1):
+                                j_88 += 1
+                            break
+                    j_88 += 1
+                    continue
                 j_88 += 1
             tipe_tambahan_88 = set()
             for d_88 in defs_88:
