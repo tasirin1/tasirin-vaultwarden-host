@@ -40964,6 +40964,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("node --inspect kosong kini ditolak (Audit 2863)", rc != 0)
         shutil.rmtree(sub1933, ignore_errors=True)
+        sub1934 = klon(tmp, "sub1934")
+        berkas_aksi1934 = os.path.join(
+            sub1934, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1934, encoding="utf-8") as f:
+            isi_aksi1934 = f.read()
+        baris_aksi1934 = [b for b in isi_aksi1934.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1934 = isi_aksi1934.replace(
+                baris_aksi1934,
+                baris_aksi1934.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(join -j abc - -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1934 != isi_aksi1934, \
+            "suntikan aksi1934 tidak menembak"
+        with open(berkas_aksi1934, "w", encoding="utf-8") as f:
+            f.write(isi_baru1934)
+        rc, out = jalan(sub1934,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("join -j nilai asing kini ditolak (Audit 2864)", rc != 0)
+        shutil.rmtree(sub1934, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

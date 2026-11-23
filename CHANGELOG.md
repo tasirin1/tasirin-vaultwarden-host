@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi join `-j` kini dimodelkan dan divalidasi (Audit 2864)
+
+Opsi `-j` (nomor field gabungan untuk kedua berkas) tak dikenal walk join sama sekali — nilai asingnya lolos dan perintah dinilai menguras padahal biner mati "invalid field number". Kini `-j` divalidasi persis `-1`/`-2` (digit, ≥1, raksasa diterima) dalam bentuk terpisah dan merekat, dan ikut himpunan opsi bernilai untuk hitung operand. Skenario uji-diri 1934.
+
+
 ## [Belum rilis] — Gerbang: nilai `--inspect*` node kini divalidasi sempit (Audit 2863)
 
 Keluarga `--inspect`/`--inspect-brk`/`--inspect-wait` menerima nilai `=` apa pun di gerbang, padahal biner mati rc=9 untuk nilai kosong dan port numerik di luar {0}∪[1024,65535] (terprobe termasuk `host:80`, `[::1]:80`, dan nol di depan). Host non-numerik dan ekor sesudah `:` yang non-digit ditoleransi biner dan tidak ikut ditolak. Skenario uji-diri 1932-1933.

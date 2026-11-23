@@ -6693,6 +6693,12 @@ def _menguras_khusus(perintah, toks, awal):
         # bidang: 0 atau F.N dengan F 1/2
         # dan N >= 1) divalidasi - nilai
         # asing membunuh join saat urai.
+        # Audit 2864: -j (gabungan -1/-2
+        # satu nomor) ikut divalidasi -
+        # dulu tak dimodelkan sama sekali
+        # (terprobe: -j abc mati "invalid
+        # field number", -j1 merekat sah,
+        # nomor raksasa diterima).
         def _spec_join_sah(v_j):
             # Audit 2868: kata kunci "auto"
             # (format mengikuti berkas
@@ -6771,11 +6777,11 @@ def _menguras_khusus(perintah, toks, awal):
                     return False
                 k_j += 1
                 continue
-            if t_j in ("-1", "-2", "-o"):
+            if t_j in ("-1", "-2", "-j", "-o"):
                 if k_j + 1 < len(toks):
                     v_j = toks[k_j + 1].strip(
                         "\"'")
-                    if t_j in ("-1", "-2"):
+                    if t_j in ("-1", "-2", "-j"):
                         # Audit 2833: cek >= 1
                         # tanpa int() - digit
                         # ribuan meledakkan
@@ -6791,7 +6797,7 @@ def _menguras_khusus(perintah, toks, awal):
                     k_j += 1
                 k_j += 1
                 continue
-            if (t_j.startswith(("-1", "-2"))
+            if (t_j.startswith(("-1", "-2", "-j"))
                     and len(t_j) > 2):
                 if not (t_j[2:].isdigit()
                         and t_j[2:].strip("0") != ""):
@@ -6812,7 +6818,7 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1063: '-' di posisi operand mana pun = stdin
         # (di join -1/-2 memang bernilai nomor field).
         ops_j = _operand_sesudah_opsi(
-            toks, awal, {"-1", "-2", "-o", "-t", "-e", "-a", "-v",
+            toks, awal, {"-1", "-2", "-j", "-o", "-t", "-e", "-a", "-v",
                          "--output", "--separator"})
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops_j:
