@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — enum -U/--unicode strings kini divalidasi (Audit 2745)
+
+- Nilai `-U`/`--unicode`
+  strings kini diperiksa
+  (build ini hanya
+  menerima persis `l`
+  atau `e`).
+
+
 ## [Belum rilis] — penerima od -A/--address-radix dan --endian divalidasi (Audit 2744)
 
 - Penerima od

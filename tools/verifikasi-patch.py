@@ -13747,6 +13747,12 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "enum-unicode-strings":
+        # Audit 2745: -U/--unicode strings
+        # build ini hanya menerima persis
+        # "l" atau "e" (terverifikasi biner:
+        # b/s/B/S/L dan kata penuh mati).
+        return v in ("l", "e")
     if jenis == "enum-radix-od":
         # Audit 2744: radix alamat od satu
         # huruf dari himpunan tertutup.
@@ -16942,7 +16948,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "fmt": {"width": "angka0", "goal": "angka0",
                     "w": "angka0", "g": "angka0"},
             "fold": {"width": "angka1", "w": "angka1"},
-            "strings": {"bytes": "angka1", "n": "angka1",
+            "strings": {"unicode": "enum-unicode-strings",
+                        "U": "enum-unicode-strings",
+                        "bytes": "angka1", "n": "angka1",
                         # Audit 2678: penerima enum
                         # strings yang tertinggal
                         # 2666.
