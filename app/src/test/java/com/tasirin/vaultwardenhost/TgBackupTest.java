@@ -2274,7 +2274,7 @@ public class TgBackupTest {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwcopy2").toFile();
         java.io.File tujuan = new java.io.File(dir, "tujuan.bin");
         java.io.FileOutputStream fos = new java.io.FileOutputStream(tujuan);
-        fos.write("UTUH".getBytes(StandardCharsets.UTF_8));
+        fos.write("UTUH".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         fos.close();
         boolean lempar = false;
         try {
@@ -2283,7 +2283,7 @@ public class TgBackupTest {
             lempar = true;
         }
         assertTrue(lempar);
-        assertEquals("UTUH", new String(java.nio.file.Files.readAllBytes(tujuan.toPath()), StandardCharsets.UTF_8));
+        assertEquals("UTUH", new String(java.nio.file.Files.readAllBytes(tujuan.toPath()), java.nio.charset.StandardCharsets.UTF_8));
         String[] sisa = dir.list();
         assertEquals(1, sisa.length);
     }
