@@ -13747,6 +13747,21 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "ukuran-sort":
+        # Audit 2741: ukuran penyangga sort -
+        # digit + satu sufiks xstrtol ATAU %
+        # (persen tak berkombinasi sufiks;
+        # 0 sah = bawaan). Terverifikasi
+        # biner.
+        m66 = re.fullmatch(
+            r"(\d{1,18})([KMGTPEZY](B|iB)?"
+            r"|[km](B|iB)?|b|%)?", v)
+        return m66 is not None
+    if jenis == "batch-sort":
+        # Audit 2741: --batch-size sort
+        # minimal 2 (0 dan 1 mati di biner).
+        return v.isdigit() and len(v) <= 18 \
+            and int(v) >= 2
     if jenis == "enum-grup-uniq":
         # Audit 2740: metode --group uniq
         # himpunan tertutup di biner.
@@ -16932,7 +16947,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                      "check-chars": "angka0",
                      "group": "enum-grup-uniq"},
             "sort": {"k": "kunci-sort",
-                     "key": "kunci-sort"},
+                     "key": "kunci-sort",
+                     "parallel": "angka1",
+                     "buffer-size": "ukuran-sort",
+                     "S": "ukuran-sort",
+                     "batch-size": "batch-sort"},
             "cut": {"f": "daftar-cut",
                     "fields": "daftar-cut",
                     "c": "daftar-cut",

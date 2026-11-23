@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — penerima sort lain (--parallel/-S/--batch-size) divalidasi (Audit 2741)
+
+- Penerima sort
+  `--parallel`,
+  `--buffer-size`/`-S`,
+  dan `--batch-size`
+  kini divalidasi
+  (ukuran xstrtol/%,
+  batch minimal 2).
+
+
 ## [Belum rilis] — penerima uniq (-f/-s/-w/--group) kini divalidasi (Audit 2740)
 
 - uniq masuk tabel
