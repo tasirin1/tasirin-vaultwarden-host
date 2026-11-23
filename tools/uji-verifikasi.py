@@ -37898,6 +37898,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item iconv -f //IGNORE: dasar kosong sah di glibc, iconv menguras, gerbang menolak (Audit 2698)", rc != 0)
         shutil.rmtree(sub1787, ignore_errors=True)
+        sub1788 = klon(tmp, "sub1788")
+        berkas_aksi1788 = os.path.join(
+            sub1788, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1788, encoding="utf-8") as f:
+            isi_aksi1788 = f.read()
+        baris_aksi1788 = [b for b in isi_aksi1788.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1788 = isi_aksi1788.replace(
+                baris_aksi1788,
+                baris_aksi1788.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(unshare --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1788 != isi_aksi1788, \
+            "suntikan aksi1788 tidak menembak"
+        with open(berkas_aksi1788, "w", encoding="utf-8") as f:
+            f.write(isi_baru1788)
+        rc, out = jalan(sub1788,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item unshare --help: informasional tertelan vonis 1121, gerbang lolos (Audit 2699)", rc == 0)
+        shutil.rmtree(sub1788, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

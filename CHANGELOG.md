@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — --help/--version unshare dan systemd-cat kini dikenali gerbang (Audit 2699)
+
+- `unshare` dan `systemd-cat`
+  dengan `--help`/`--version`
+  kini divonis mati (mencetak
+  lalu keluar), bukan shell/
+  penerus masukan. Sebelumnya
+  vonis tanpa-anak untuk kedua
+  pembungkus itu tanpa syarat
+  sehingga bentuk informasional
+  — termasuk yang diikuti
+  perintah anak — divonis
+  membaca masukan.
+
+
 ## [Belum rilis] — Charset iconv berdasar kosong (//...) kini diterima gerbang (Audit 2698)
 
 - Nilai charset iconv yang

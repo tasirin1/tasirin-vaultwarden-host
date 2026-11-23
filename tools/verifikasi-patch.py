@@ -14142,6 +14142,42 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     if toks[j_la] == "--list":
                         return False
                     j_la += 1
+            if t0 in ("unshare", "systemd-cat"):
+                # Audit 2699: --help/--version
+                # milik pembungkus sendiri
+                # mencetak lalu keluar (anak pun
+                # tak berjalan) - vonis tanpa-anak
+                # 1121/1070 menelannya mentah.
+                # Pindai wilayah opsi pembungkus
+                # ini; nilai pembawa dilompati.
+                j_ih = awal
+                while j_ih < len(toks):
+                    t_ih = toks[j_ih].strip("\"'")
+                    if t_ih == "--":
+                        break
+                    if not t_ih.startswith("-") \
+                            or t_ih == "-":
+                        break
+                    if t_ih in ("--help", "--version"):
+                        return False
+                    if t_ih.startswith("--"):
+                        if ("=" not in t_ih
+                                and t_ih in bernilai):
+                            j_ih += 1
+                        j_ih += 1
+                        continue
+                    huruf_ih = t_ih[1:]
+                    lompat_ih = False
+                    for pos_ih, ch_ih in enumerate(
+                            huruf_ih):
+                        if ("-" + ch_ih) in bernilai:
+                            if (pos_ih
+                                    == len(huruf_ih) - 1):
+                                lompat_ih = True
+                            break
+                    if lompat_ih:
+                        j_ih += 1
+                    j_ih += 1
             if t0 == "stdbuf":
                 # Audit 2680: stdbuf menuntut
                 # minimal satu opsi penyangga
