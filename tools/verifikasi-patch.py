@@ -7237,14 +7237,70 @@ def _menguras_khusus(perintah, toks, awal):
                        "-p", "-r", "-u"})
         return not ops_gs or "-" in ops_gs
     if perintah == "curl":
+        # Audit 2828: kosakata opsi bernilai curl
+        # 8.5.0 terekstrak dari --help all biner
+        # (--help/-h dikeluarkan: argumennya
+        # opsional, tak menelan token terpisah).
+        _CURL_BERNILAI_PANJANG = frozenset({
+            "--abstract-unix-socket", "--alt-svc", "--aws-sigv4",
+            "--cacert", "--capath", "--cert", "--cert-type",
+            "--ciphers", "--config", "--connect-timeout",
+            "--connect-to", "--continue-at", "--cookie",
+            "--cookie-jar", "--create-file-mode", "--crlfile",
+            "--curves", "--data", "--data-ascii", "--data-binary",
+            "--data-raw", "--data-urlencode", "--delegation",
+            "--dns-interface", "--dns-ipv4-addr", "--dns-ipv6-addr",
+            "--dns-servers", "--doh-url", "--dump-header",
+            "--egd-file", "--engine", "--etag-compare", "--etag-save",
+            "--expect100-timeout", "--form", "--form-string",
+            "--ftp-account", "--ftp-alternative-to-user",
+            "--ftp-method", "--ftp-port", "--ftp-ssl-ccc-mode",
+            "--happy-eyeballs-timeout-ms", "--header", "--hostpubmd5",
+            "--hostpubsha256", "--hsts", "--interface",
+            "--ipfs-gateway", "--json", "--keepalive-time", "--key",
+            "--key-type", "--krb", "--libcurl", "--limit-rate",
+            "--local-port", "--login-options", "--mail-auth",
+            "--mail-from", "--mail-rcpt", "--max-filesize",
+            "--max-redirs", "--max-time", "--netrc-file", "--noproxy",
+            "--oauth2-bearer", "--output", "--output-dir",
+            "--parallel-max", "--pass", "--pinnedpubkey", "--proto",
+            "--proto-default", "--proto-redir", "--proxy-cacert",
+            "--proxy-capath", "--proxy-cert", "--proxy-cert-type",
+            "--proxy-ciphers", "--proxy-crlfile", "--proxy-header",
+            "--proxy-key", "--proxy-key-type", "--proxy-pass",
+            "--proxy-pinnedpubkey", "--proxy-service-name",
+            "--proxy-tls13-ciphers", "--proxy-tlsauthtype",
+            "--proxy-tlspassword", "--proxy-tlsuser", "--proxy-user",
+            "--proxy1.0", "--pubkey", "--quote", "--random-file",
+            "--range", "--rate", "--referer", "--request",
+            "--request-target", "--resolve", "--retry",
+            "--retry-delay", "--retry-max-time", "--sasl-authzid",
+            "--service-name", "--socks4", "--socks4a", "--socks5",
+            "--socks5-gssapi-service", "--socks5-hostname",
+            "--speed-limit", "--speed-time", "--stderr",
+            "--telnet-option", "--tftp-blksize", "--time-cond",
+            "--tls-max", "--tls13-ciphers", "--tlsauthtype",
+            "--tlspassword", "--tlsuser", "--trace", "--trace-ascii",
+            "--trace-config", "--unix-socket", "--upload-file",
+            "--url", "--url-query", "--user", "--user-agent",
+            "--variable", "--write-out",})
+        _CURL_BERNILAI_PENDEK = frozenset({
+            "-A", "-C", "-D", "-E", "-F", "-H", "-K", "-P", "-Q", "-T",
+            "-U", "-X", "-Y", "-b", "-c", "-d", "-e", "-m", "-o", "-r",
+            "-t", "-u", "-w", "-y", "-z",})
         # Audit 2775: nilai --max-time
         # curl (bilangan desimal tak
         # bertanda) divalidasi - nilai
         # asing membunuh curl saat urai
         # sebelum data dibaca.
         k_cu = 0
+        lewati_cu = False
         while k_cu < len(mentah):
             t_cu = mentah[k_cu]
+            if lewati_cu:
+                lewati_cu = False
+                k_cu += 1
+                continue
             if t_cu.startswith("--max-time="):
                 v_cu = t_cu.split("=", 1)[1]
                 if not re.fullmatch(
@@ -7259,6 +7315,51 @@ def _menguras_khusus(perintah, toks, awal):
                             r"|\.\d+)", v_cu):
                         return False
                     k_cu += 1
+            elif (t_cu.startswith("--")
+                    and "=" not in t_cu):
+                # Audit 2828: nilai opsi bernilai
+                # lain ditelan - token berikutnya
+                # bukan --max-time walau ejaannya
+                # sama (curl -o --max-time ...).
+                # Singkatan unik getopt_long ikut
+                # diselesaikan; singkatan yang
+                # teresolusi ke --max-time sendiri
+                # nilainya tetap divalidasi.
+                if t_cu in _CURL_BERNILAI_PANJANG:
+                    lewati_cu = True
+                else:
+                    calon_cu = [
+                        x for x in
+                        _CURL_BERNILAI_PANJANG
+                        if x.startswith(t_cu)]
+                    if len(calon_cu) == 1:
+                        if calon_cu[0] == "--max-time":
+                            if k_cu + 1 < len(mentah):
+                                v_cu = mentah[
+                                    k_cu + 1]
+                                if not re.fullmatch(
+                                        r"(\d+\.?\d*"
+                                        r"|\.\d+)",
+                                        v_cu):
+                                    return False
+                                k_cu += 1
+                        else:
+                            lewati_cu = True
+            elif (t_cu.startswith("-")
+                    and not t_cu.startswith("--")
+                    and len(t_cu) > 1):
+                # Audit 2828: huruf bernilai pertama
+                # di bundel pendek menelan sisa
+                # bundel; di ujung bundel ia menelan
+                # token berikutnya.
+                for pos_cu, h_cu in enumerate(
+                        t_cu[1:]):
+                    if ("-" + h_cu
+                            in _CURL_BERNILAI_PENDEK):
+                        if (pos_cu
+                                == len(t_cu) - 2):
+                            lewati_cu = True
+                        break
             k_cu += 1
         # Audit 1068: data/unggah/konfigurasi dari stdin.
         # Audit 1085: bentuk merekat (-d@-, -T-, nilai = pada --form)

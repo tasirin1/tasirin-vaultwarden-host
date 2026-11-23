@@ -1,3 +1,8 @@
+## [Belum rilis] — Gerbang: lingkar --max-time curl kini sadar nilai opsi lain (Audit 2828)
+
+Lingkar validasi `--max-time` curl memindai token mentah tanpa melewati nilai opsi bernilai lain: pada `curl -o --max-time -d @- URL`, token `--max-time` adalah NILAI `-o` (nama berkas), tetapi gerbang memvalidasi `-d` sebagai nilai waktunya dan menyatakan tak menguras - padahal biner menelan `-d @-` sebagai data dari stdin. Lingkar kini melewati nilai opsi bernilai (133 nama panjang + 25 huruf pendek terekstrak dari `curl --help all` biner 8.5.0; `--help`/`-h` dikeluarkan karena argumennya opsional), menyelesaikan singkatan unik getopt_long, dan tetap memvalidasi nilai bila singkatan teresolusi ke `--max-time` sendiri. Skenario gensuite 1899.
+
+
 ## [Belum rilis] — Gerbang: penjaga informasional menyelesaikan singkatan getopt_long (Audit 2827)
 
 Penjaga 2591 hanya mencocokkan nama opsi bernilai secara eksak, jadi singkatan getopt_long yang sah (`sort --out --help`, `sort --o --help`, `cut --output-del --help`) tak menandai nilai yang ditelan: `--help`/`--version` sesudahnya disalahbaca sebagai panggilan bantuan dan gerbang menyatakan tak menguras, padahal biner menelan token itu sebagai nilai dan tetap membaca stdin (terbukti: sort menulis stdin terurut ke berkas bernama `--help`). Singkatan kini diselesaikan unik terhadap daftar opsi bernilai perintah itu (pola 2660); singkatan yang juga awalan `--help`/`--version` tetap informasional/ambigu. Skenario gensuite 1898.

