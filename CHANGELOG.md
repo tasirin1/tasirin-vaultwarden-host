@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — tree: pre-walk level kini sadar nilai opsi lain (Audit 2782)
+
+- Pre-walk `-L`
+  tree (2774) kini
+  melewati token
+  yang tertelan opsi
+  bernilai lain dan
+  mengikuti model
+  parser tree untuk
+  bundel (huruf
+  bernilai menelan
+  token berikutnya).
+
+
 ## [Belum rilis] — ssh: -p sesudah tujuan tak lagi divalidasi sebagai port (Audit 2781)
 
 - Validasi port

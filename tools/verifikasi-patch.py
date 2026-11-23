@@ -13748,27 +13748,73 @@ def _menguras_khusus(perintah, toks, awal):
         # nilai asing membunuh tree
         # saat urai, termasuk pada
         # bentuk --fromfile -.
+        # Audit 2782: walk kini sadar
+        # nilai - token yang tertelan
+        # opsi bernilai lain (mis. -L
+        # sebagai pola -P) bukan opsi
+        # level; huruf bernilai di
+        # bundel menghentikan pindai
+        # token itu (sisanya nilai).
+        bernilai_tr3 = ("-P", "-I", "-o", "-T", "-H",
+                        "--charset", "--filelimit",
+                        "--timefmt", "--sort",
+                        "--gitfile")
         k_tr3 = 0
         while k_tr3 < len(mentah):
             t_tr3 = mentah[k_tr3]
+            if t_tr3 == "--":
+                break
             if t_tr3.startswith("--level="):
                 v_tr3 = t_tr3.split("=", 1)[1]
                 if not (v_tr3.isdigit()
                         and int(v_tr3) >= 1):
                     return False
-            elif t_tr3 in ("-L", "--level"):
+                k_tr3 += 1
+                continue
+            if t_tr3 in ("-L", "--level"):
                 if k_tr3 + 1 < len(mentah):
                     v_tr3 = mentah[k_tr3 + 1]
                     if not (v_tr3.isdigit()
                             and int(v_tr3) >= 1):
                         return False
-                    k_tr3 += 1
-            elif (t_tr3.startswith("-L")
+                    k_tr3 += 2
+                    continue
+                k_tr3 += 1
+                continue
+            if t_tr3 in bernilai_tr3:
+                k_tr3 += 2
+                continue
+            if ("=" in t_tr3
+                    and t_tr3.startswith("--")):
+                k_tr3 += 1
+                continue
+            if (t_tr3.startswith("-")
+                    and not t_tr3.startswith("--")
                     and len(t_tr3) > 2):
-                v_tr3 = t_tr3[2:]
-                if not (v_tr3.isdigit()
-                        and int(v_tr3) >= 1):
-                    return False
+                # Parser tree (bukan getopt):
+                # huruf bernilai di bundel
+                # menelan token BERIKUTNYA
+                # sebagai nilai (doktrin
+                # 1384); ekor menempel bukan
+                # nilai - huruf sisanya
+                # diurai sebagai opsi lain.
+                konsumsi_tr3 = 0
+                for h_tr3 in t_tr3[1:]:
+                    if h_tr3 in "PILOTH":
+                        konsumsi_tr3 += 1
+                        if h_tr3 == "L":
+                            idx_tr3 = (k_tr3
+                                       + konsumsi_tr3)
+                            if idx_tr3 < len(mentah):
+                                v_tr3 = mentah[
+                                    idx_tr3]
+                                if not (
+                                        v_tr3.isdigit()
+                                        and int(v_tr3)
+                                        >= 1):
+                                    return False
+                k_tr3 += 1 + konsumsi_tr3
+                continue
             k_tr3 += 1
         # Audit 1356: --fromfile hanya berarti sebagai token
         # opsi sungguhan — sebagai NILAI opsi bernilai (-P
