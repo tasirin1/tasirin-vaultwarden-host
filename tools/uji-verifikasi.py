@@ -38507,6 +38507,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item uclampset -m +5 cat: nilai bertanda + kini sah, gerbang menolak (Audit 2733)", rc != 0)
         shutil.rmtree(sub1816, ignore_errors=True)
+        sub1817 = klon(tmp, "sub1817")
+        berkas_aksi1817 = os.path.join(
+            sub1817, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1817, encoding="utf-8") as f:
+            isi_aksi1817 = f.read()
+        baris_aksi1817 = [b for b in isi_aksi1817.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1817 = isi_aksi1817.replace(
+                baris_aksi1817,
+                baris_aksi1817.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(flock -E +5 berkas cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1817 != isi_aksi1817, \
+            "suntikan aksi1817 tidak menembak"
+        with open(berkas_aksi1817, "w", encoding="utf-8") as f:
+            f.write(isi_baru1817)
+        rc, out = jalan(sub1817,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item flock -E +5 berkas cat: kode keluar bertanda + kini sah, gerbang menolak (Audit 2734)", rc != 0)
+        shutil.rmtree(sub1817, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

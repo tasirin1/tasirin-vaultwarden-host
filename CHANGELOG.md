@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — nilai flock -E menerima tanda + (Audit 2734)
+
+- Validator kode
+  keluar flock (`-E`)
+  kini menerima tanda
+  `+` di awal, selaras
+  validator `-w` dan
+  perilaku biner.
+
+
 ## [Belum rilis] — nilai uclamp menerima tanda + (Audit 2733)
 
 - Validator nilai

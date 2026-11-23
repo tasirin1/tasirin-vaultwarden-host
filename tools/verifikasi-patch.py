@@ -15359,8 +15359,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 if not sah_cpu:
                                     return False
                             elif jenis_b == "flock-E":
+                                # Audit 2734: tanda +
+                                # di awal sah di biner
+                                # (seperti flock-w).
                                 if not (
-                                        nilai_b.isdigit()
+                                        nilai_b.lstrip(
+                                            "+").isdigit()
                                         and int(
                                             nilai_b)
                                         <= 255):
