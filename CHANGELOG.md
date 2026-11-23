@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — awk: -v kini divalidasi penugasan nama=nilai (Audit 2804)
+
+- Nilai `-v`
+  awk kini wajib
+  penugasan
+  nama=nilai
+  (nama pengenal);
+  bentuk lain
+  membunuh awk
+  "improper
+  assignment"
+  sebelum stdin
+  dibaca.
+
+
 ## [Belum rilis] — node: --stack-size kini dikenal gerbang (Audit 2803)
 
 - `--stack-size`

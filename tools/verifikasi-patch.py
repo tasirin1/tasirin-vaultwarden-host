@@ -2689,6 +2689,27 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 # "not an option", stdin tak
                 # dibaca); gawk memang punya -e.
                 return False
+            if (perintah == "awk"
+                    and dasar in ("-v", "--assign")):
+                # Audit 2804: nilai -v/--assign
+                # wajib penugasan nama=nilai
+                # (nama pengenal awk) - bentuk
+                # lain membunuh awk "improper
+                # assignment" sebelum stdin
+                # dibaca (terverifikasi mawk).
+                if "=" in bersih:
+                    _v2804 = bersih.split(
+                        "=", 1)[1]
+                elif i + 1 < n:
+                    _v2804 = toks[i + 1]
+                else:
+                    _v2804 = None
+                if (_v2804 is not None
+                        and not re.match(
+                            r"^[A-Za-z_]"
+                            r"[A-Za-z0-9_]*=",
+                            _v2804.strip("\"'"))):
+                    return False
             if dasar in nilai:
                 # Audit 2481: opsi bernilai khusus
                 # handler yang menggantung di akhir
@@ -2771,6 +2792,14 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                     return True
                 if bersih.startswith("-f"):
                     skrip_dari_opsi = True
+                # Audit 2804: -v menempel juga
+                # wajib penugasan nama=nilai.
+                if (bersih.startswith("-v")
+                        and not re.match(
+                            r"^[A-Za-z_]"
+                            r"[A-Za-z0-9_]*=",
+                            bersih[2:])):
+                    return False
                 i += 1
                 continue
             if perintah == "sed" and (
