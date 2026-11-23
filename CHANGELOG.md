@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: token digit asing join (-0, -3, ...) kini ditolak (Audit 2842)
+
+Walk join melewatkan token opsi tak dikenal begitu saja, jadi `join -0 - -` dinilai menguras padahal biner mati "invalid option -- '0'" (terprobe). Satu-satunya opsi join berawalan digit adalah `-1`/`-2` (sudah tertangani, termasuk bentuk merekatnya seperti `-12` = field 2); token berawalan digit lain kini ditolak. Skenario uji-verifikasi 1907.
+
+
 ## [Belum rilis] — Server: daftar pra-bersih migrasi TLS kini memuat ips.txt (Audit 2841)
 
 Gelung pra-bersih migrasi TLS (predikat sisa terpotong dari 2821) membersihkan lima nama, tetapi gelung salin di bawahnya menyalin enam — `ips.txt` tertinggal: sisa ips.txt terpotong di folder baru tak pernah dibuang, dan gelung salin melewatinya karena berkas tujuan dianggap sudah ada, sehingga daftar IP terpotong dipakai terus. `ips.txt` kini ikut daftar pra-bersih; predikat pembuktiannya (awalan persis sumber) tidak berubah.

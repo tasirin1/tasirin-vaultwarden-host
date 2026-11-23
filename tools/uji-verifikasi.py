@@ -40397,6 +40397,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand - dalam mode --test node kini tak dinilai stdin (Audit 2839)", rc == 0)
         shutil.rmtree(sub1906, ignore_errors=True)
+        sub1907 = klon(tmp, "sub1907")
+        berkas_aksi1907 = os.path.join(
+            sub1907, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1907, encoding="utf-8") as f:
+            isi_aksi1907 = f.read()
+        baris_aksi1907 = [b for b in isi_aksi1907.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1907 = isi_aksi1907.replace(
+                baris_aksi1907,
+                baris_aksi1907.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(join -0 - -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1907 != isi_aksi1907, \
+            "suntikan aksi1907 tidak menembak"
+        with open(berkas_aksi1907, "w", encoding="utf-8") as f:
+            f.write(isi_baru1907)
+        rc, out = jalan(sub1907,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("join -0 kini ditolak gerbang (Audit 2842)", rc == 0)
+        shutil.rmtree(sub1907, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

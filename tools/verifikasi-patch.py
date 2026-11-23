@@ -6712,6 +6712,14 @@ def _menguras_khusus(perintah, toks, awal):
                     and len(t_j) > 2:
                 if not _spec_join_sah(t_j[2:]):
                     return False
+            elif (len(t_j) > 1 and t_j[0] == "-"
+                    and t_j[1].isdigit()):
+                # Audit 2842: token berawalan
+                # digit selain -1/-2 (yang
+                # tertangani di atas) bukan opsi
+                # join - biner mati
+                # "invalid option" (terprobe -0).
+                return False
             k_j += 1
         # Audit 1063: '-' di posisi operand mana pun = stdin
         # (di join -1/-2 memang bernilai nomor field).
