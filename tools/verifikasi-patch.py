@@ -13711,6 +13711,30 @@ def _menguras_khusus(perintah, toks, awal):
     return False
 
 
+_CHARSET_PICONV = frozenset({
+        "7bitjis", "adobestandardencoding", "adobesymbol", "adobezdingbat", "ascii", "asciictrl",
+        "big5eten", "big5hkscs", "cp1006", "cp1026", "cp1047", "cp1250",
+        "cp1251", "cp1252", "cp1253", "cp1254", "cp1255", "cp1256",
+        "cp1257", "cp1258", "cp37", "cp424", "cp437", "cp500",
+        "cp737", "cp775", "cp850", "cp852", "cp855", "cp856",
+        "cp857", "cp858", "cp860", "cp861", "cp862", "cp863",
+        "cp864", "cp865", "cp866", "cp869", "cp874", "cp875",
+        "cp932", "cp936", "cp949", "cp950", "dingbats", "euccn",
+        "eucjp", "euckr", "gb12345raw", "gb2312raw", "gsm0338", "hproman8",
+        "hz", "iso2022jp", "iso2022jp1", "iso2022kr", "iso88591", "iso885910",
+        "iso885911", "iso885913", "iso885914", "iso885915", "iso885916", "iso88592",
+        "iso88593", "iso88594", "iso88595", "iso88596", "iso88597", "iso88598",
+        "iso88599", "isoir165", "jis0201raw", "jis0208raw", "jis0212raw", "johab",
+        "koi8f", "koi8r", "koi8u", "ksc5601raw", "macarabic", "maccentraleurroman",
+        "macchinesesimp", "macchinesetrad", "maccroatian", "maccyrillic", "macdingbats", "macfarsi",
+        "macgreek", "machebrew", "macicelandic", "macjapanese", "mackorean", "macroman",
+        "macromanian", "macrumanian", "macsami", "macsymbol", "macthai", "macturkish",
+        "macukrainian", "mimeb", "mimeheader", "mimeheaderiso2022jp", "mimeq", "nextstep",
+        "null", "posixbc", "shiftjis", "symbol", "ucs2be", "ucs2le",
+        "utf16", "utf16be", "utf16le", "utf32", "utf32be", "utf32le",
+        "utf7", "utf8", "utf8strict", "viscii",})
+
+
 _CHARSET_UCONV = frozenset({
         "037", "1006", "1025", "1026", "1047", "1089",
         "1097", "1098", "1112", "1122", "1123", "1124",
@@ -13943,6 +13967,44 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "charset-piconv":
+        # Audit 2755: nama encoding Perl
+        # Encode dari piconv -l setempat,
+        # ternormalisasi (kecil, tanpa
+        # -/_/spasi) + alias baku Encode
+        # yang terverifikasi biner.
+        n_p = re.sub(r"[^a-z0-9]", "",
+                     v.lower())
+        if n_p in _CHARSET_PICONV:
+            return True
+        alias_p = {
+            "latin1": "iso88591",
+            "latin2": "iso88592",
+            "latin3": "iso88593",
+            "latin4": "iso88594",
+            "latin5": "iso88599",
+            "latin6": "iso885910",
+            "latin7": "iso885913",
+            "latin8": "iso885914",
+            "latin9": "iso885915",
+            "latin10": "iso885916",
+            "usascii": "ascii",
+            "sjis": "shiftjis",
+            "ms932": "cp932",
+            "gb2312": "euccn",
+            "big5": "big5eten",
+        }
+        for win_p in ("1250", "1251",
+                      "1252", "1253",
+                      "1254", "1255",
+                      "1256", "1257",
+                      "1258", "874",
+                      "932", "936",
+                      "949", "950"):
+            alias_p["windows" + win_p] = (
+                "cp" + win_p)
+        return alias_p.get(n_p) in (
+            _CHARSET_PICONV)
     if jenis == "charset-uconv":
         # Audit 2754: nama charset ICU dari
         # daftar biner uconv -l setempat
@@ -17802,6 +17864,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "from-code": "charset-uconv",
             "t": "charset-uconv",
             "to-code": "charset-uconv"},
+        "piconv": {
+            "f": "charset-piconv",
+            "from": "charset-piconv",
+            "t": "charset-piconv",
+            "to": "charset-piconv"},
         "unxz": {
             "T": "angka0",
             "threads": "angka0",

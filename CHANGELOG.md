@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — nama encoding piconv divalidasi dari daftar biner (Audit 2755)
+
+- Nama encoding
+  `-f`/`-t` piconv
+  kini diperiksa ke
+  tabel `piconv -l`
+  + alias baku Perl
+  Encode.
+
+
 ## [Belum rilis] — nama charset uconv divalidasi dari daftar biner (Audit 2754)
 
 - Nama charset
