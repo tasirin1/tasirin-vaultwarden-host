@@ -1,3 +1,8 @@
+## [Belum rilis] — Gerbang: penjaga informasional menyelesaikan singkatan getopt_long (Audit 2827)
+
+Penjaga 2591 hanya mencocokkan nama opsi bernilai secara eksak, jadi singkatan getopt_long yang sah (`sort --out --help`, `sort --o --help`, `cut --output-del --help`) tak menandai nilai yang ditelan: `--help`/`--version` sesudahnya disalahbaca sebagai panggilan bantuan dan gerbang menyatakan tak menguras, padahal biner menelan token itu sebagai nilai dan tetap membaca stdin (terbukti: sort menulis stdin terurut ke berkas bernama `--help`). Singkatan kini diselesaikan unik terhadap daftar opsi bernilai perintah itu (pola 2660); singkatan yang juga awalan `--help`/`--version` tetap informasional/ambigu. Skenario gensuite 1898.
+
+
 ## [Belum rilis] — Gerbang: saklar informasional perl -V/-v/-h tak lagi dinilai menguras (Audit 2826)
 
 Perl dengan `-V`/`-v`/`-h` (telanjang maupun di bundel bendera murni seperti `-vh`/`-wV`/`-Vw`) mencetak keterangan lalu keluar tanpa membaca stdin, tetapi cabang perl gerbang memperlakukannya sebagai bendera polos sehingga perintah tanpa skrip dinilai membaca skrip dari stdin. Pra-pindai kini mengenali saklar informasional pada posisi huruf efektif: ia menang bila ada sumber skrip (`-e`/berkas/`-`) atau tak ada saklar mode sama sekali; dengan saklar mode `n/p/a/d/x` tanpa skrip perl terbukti tetap menguras (`-nV`, `-Vp`, `-V -n`), jadi bentuk itu tak berubah. Skenario gensuite 1897.

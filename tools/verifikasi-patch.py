@@ -19537,6 +19537,27 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 return False
             if b_umum in bernilai_umum:
                 lewati_umum = 1
+            elif (b_umum.startswith("--")
+                    and len(b_umum) > 2
+                    and "=" not in b_umum):
+                # Audit 2827: getopt_long menyelesaikan
+                # singkatan unik nama panjang (pola
+                # 2660) - --out/--o sort adalah
+                # --output, jadi --help sesudahnya
+                # adalah NILAINYA, bukan bantuan;
+                # penjaga 2591 dulu hanya cocok eksak.
+                # Singkatan yang juga awalan --help/
+                # --version ambigu atau informasional
+                # - dua-duanya tak menguras.
+                if ("--help".startswith(b_umum)
+                        or "--version".startswith(
+                            b_umum)):
+                    return False
+                calon_umum = [x for x in bernilai_umum
+                              if x.startswith("--")
+                              and x.startswith(b_umum)]
+                if len(calon_umum) == 1:
+                    lewati_umum = 1
             elif (len(b_umum) > 2 and b_umum.startswith("-")
                     and not b_umum.startswith("--")):
                 # Audit 2622: bentuk klaster - huruf
