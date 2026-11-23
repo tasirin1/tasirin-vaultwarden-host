@@ -13719,6 +13719,9 @@ def _tipe_nilai_sah_66(jenis, nilai):
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
     if jenis == "kunci-sort":
+        # Audit 2732: awalan + pada POS
+        # (bentuk usang +POS yang masih
+        # diterima GNU sort) ikut sah.
         # Audit 2728: spesifikasi -k sort =
         # POS[,POS], POS = F[.C][bendera];
         # nomor bidang F dari 1, offset C
@@ -13730,7 +13733,7 @@ def _tipe_nilai_sah_66(jenis, nilai):
             return False
         for pos66 in bagian66:
             m66 = re.fullmatch(
-                r"(\d+)(?:\.(\d+))?"
+                r"\+?(\d+)(?:\.(\d+))?"
                 r"([bdfghiMnRrV]*)", pos66)
             if m66 is None:
                 return False

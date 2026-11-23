@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — kunci-sort menerima bentuk usang +POS (Audit 2732)
+
+- Validator kunci sort
+  kini menerima awalan
+  `+` pada posisi kunci
+  (bentuk usang yang
+  masih diterima GNU
+  sort).
+
+
 ## [Belum rilis] — runuser --session-command terpisah kini ditelan resolver (Audit 2731)
 
 - Bentuk terpisah
