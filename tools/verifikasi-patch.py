@@ -16123,6 +16123,16 @@ def _dd_operand_sah(tok):
             nilai)
         if cocok is None:
             return False
+        # Audit 2832: digit tiap faktor dipagari
+        # 18 - int() atas digit tanpa pagar
+        # meledak ValueError di Python 3.11+
+        # untuk >4300 digit (gerbang mati tanpa
+        # vonis) dan biner sendiri mati luapan
+        # xstrtol jauh di bawah itu; residu
+        # keluarga 2814 yang lolos di dd.
+        for faktor in nilai.split("x"):
+            if len(re.match(r"\d+", faktor).group()) > 18:
+                return False
         # Audit 2676: kunci ukuran blok menolak
         # total nol - biner mati "invalid
         # number: '0'" untuk bs/ibs/obs/cbs=0
@@ -16131,7 +16141,7 @@ def _dd_operand_sah(tok):
         # nol. Asimetri yang sama dengan
         # doktrin angka1 di 2666.
         if kunci in ("bs", "ibs", "obs", "cbs") and any(
-                int(re.match(r"\d+", faktor).group()) == 0
+                re.match(r"\d+", faktor).group().strip("0") == ""
                 for faktor in nilai.split("x")):
             return False
         return True

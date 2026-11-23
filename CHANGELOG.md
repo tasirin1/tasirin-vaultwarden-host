@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: faktor ukuran dd berdigit ribuan tak lagi meledakkan gerbang (Audit 2832)
+
+Pemeriksaan nol faktor ukuran `dd` (bs/ibs/obs/cbs) memakai `int()` atas potongan digit tanpa pagar panjang — Python 3.11+ melempar ValueError untuk lebih dari 4300 digit sehingga gerbang mati tanpa vonis; residu keluarga 2814 yang lolos di keluarga dd. Kini digit tiap faktor semua kunci numerik dd dipagari 18 (biner sendiri mati luapan xstrtol jauh di bawah itu, terprobe `Value too large`), dan cek nol dilakukan tanpa `int()` (digit yang seluruhnya nol). Skenario uji-verifikasi 1901.
+
+
 ## [Belum rilis] — Dokumentasi: judul Changelog dipulihkan + dua entri Maraton-185 susulan (Audit 2831)
 
 Judul `# Changelog` di baris pertama berkas ini sempat terhapus tanpa sengaja oleh sisipan manual pada perbaikan 2809 Maraton-185, dan dua commit Maraton-185 tak punya entri changelog-nya sendiri; keduanya dicatat susulan di sini: (1) `ac1f4d0e` - uji JVM langsung untuk `TlsCert.bacaVersiBerkas` (isi sah, isi rusak, berkas tiada) menyertai perbaikan 2809; (2) `1f6d79dc` - koreksi CI Maraton-185: kualifikasi penuh `java.nio.charset.StandardCharsets` pada uji `copyFile` di `TgBackupTest` (berkas uji itu memang tak mengimpor kelasnya; putaran CI pertama Maraton-185 merah karenanya, putaran koreksi ini hijau penuh).
