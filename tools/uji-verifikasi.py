@@ -38150,6 +38150,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item runuser -g root -u root: runuser mati tanpa perintah, gerbang lolos (Audit 2714)", rc == 0)
         shutil.rmtree(sub1799, ignore_errors=True)
+        sub1800 = klon(tmp, "sub1800")
+        berkas_aksi1800 = os.path.join(
+            sub1800, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1800, encoding="utf-8") as f:
+            isi_aksi1800 = f.read()
+        baris_aksi1800 = [b for b in isi_aksi1800.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1800 = isi_aksi1800.replace(
+                baris_aksi1800,
+                baris_aksi1800.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(runuser root; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1800 != isi_aksi1800, \
+            "suntikan aksi1800 tidak menembak"
+        with open(berkas_aksi1800, "w", encoding="utf-8") as f:
+            f.write(isi_baru1800)
+        rc, out = jalan(sub1800,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item runuser root: shell login pengguna menguras, gerbang menolak (Audit 2715)", rc != 0)
+        shutil.rmtree(sub1800, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

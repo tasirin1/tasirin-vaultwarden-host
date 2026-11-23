@@ -1517,7 +1517,7 @@ _OPSI_PEMBUNGKUS = {
     "systemd-cat": {"-t", "--identifier", "-p", "--priority"},
     # Audit 1107: pembungkus putaran-2 — strace (perintah di
     # belakang opsi pelacak), dbus-run-session (sesi baru lalu
-    # perintah operand), runuser (perintah operand sesudah -u).
+    # perintah operand), runuser (resolver khusus Audit 2715).
     "strace": {"-o", "--output", "-p", "--attach", "-e", "--trace",
                "-s", "--string-limit", "-u", "--runas", "-E", "--env",
                "-a", "--align", "-I", "--interruptible", "-b",
@@ -14436,6 +14436,146 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     j_sb += 1
                 if not ada_penyangga:
                     return False
+            if t0 == "runuser":
+                # Audit 2715: tata bahasa
+                # runuser terbalik dari model
+                # lama - operand pertama
+                # adalah PENGGUNA, bukan
+                # perintah. Tanpa -u,
+                # perintah hanya datang
+                # lewat -c; operand sesudah
+                # pengguna adalah argumen
+                # shell (berkas skrip) yang
+                # tak membaca stdin bersama.
+                # Bentuk -u: operand sesudah
+                # nilai -u adalah perintah
+                # yang di-exec langsung. -u
+                # saling meniadakan dengan
+                # -c/-s/-l/--session-command
+                # (urutan bebas), dan
+                # --help/--version berlaku
+                # dari posisi mana pun.
+                j_rx = awal
+                u_rx = False
+                c_rx = None
+                scl_rx = False
+                operand_rx = []
+                while j_rx < len(toks):
+                    t_rx = toks[j_rx].strip("\"'")
+                    if t_rx == "--":
+                        j_rx += 1
+                        while j_rx < len(toks):
+                            operand_rx.append(
+                                toks[j_rx].strip(
+                                    "\"'"))
+                            j_rx += 1
+                        break
+                    if (t_rx in (">", ">>", "1>", "2>",
+                                 "1>>", "2>>")
+                            or re.fullmatch(
+                                r"\d*>>?", t_rx)):
+                        j_rx += 2
+                        continue
+                    if re.match(r"\d*>>?\S", t_rx):
+                        j_rx += 1
+                        continue
+                    if t_rx.startswith("--"):
+                        nama_rx, eq_rx, isi_rx = (
+                            t_rx[2:].partition("="))
+                        if nama_rx in ("help",
+                                       "version"):
+                            return False
+                        if nama_rx == "user":
+                            u_rx = True
+                            if not eq_rx:
+                                j_rx += 1
+                        elif nama_rx == "command":
+                            scl_rx = True
+                            if c_rx is None:
+                                if eq_rx:
+                                    c_rx = isi_rx
+                                elif (j_rx + 1
+                                        < len(toks)):
+                                    j_rx += 1
+                                    c_rx = toks[
+                                        j_rx].strip(
+                                        "\"'")
+                        elif nama_rx == "shell":
+                            scl_rx = True
+                            if not eq_rx:
+                                j_rx += 1
+                        elif nama_rx in (
+                                "group",
+                                "supp-group"):
+                            if not eq_rx:
+                                j_rx += 1
+                        elif nama_rx in (
+                                "login",
+                                "session-command",
+                                "fast"):
+                            scl_rx = True
+                        j_rx += 1
+                        continue
+                    if (t_rx.startswith("-")
+                            and t_rx != "-"):
+                        huruf_rx = t_rx[1:]
+                        pos_rx = 0
+                        while pos_rx < len(huruf_rx):
+                            ch_rx = huruf_rx[pos_rx]
+                            if ch_rx == "u":
+                                u_rx = True
+                                if (pos_rx
+                                        == len(
+                                            huruf_rx)
+                                        - 1):
+                                    j_rx += 1
+                                break
+                            if ch_rx == "c":
+                                scl_rx = True
+                                if c_rx is None:
+                                    sisa_rx = (
+                                        huruf_rx[
+                                            pos_rx
+                                            + 1:])
+                                    if sisa_rx:
+                                        c_rx = sisa_rx
+                                    elif (j_rx + 1
+                                            < len(
+                                                toks)):
+                                        j_rx += 1
+                                        c_rx = toks[
+                                            j_rx].strip(
+                                            "\"'")
+                                break
+                            if ch_rx in "gGs":
+                                if ch_rx == "s":
+                                    scl_rx = True
+                                if (pos_rx
+                                        == len(
+                                            huruf_rx)
+                                        - 1):
+                                    j_rx += 1
+                                break
+                            if ch_rx == "l":
+                                scl_rx = True
+                            pos_rx += 1
+                        j_rx += 1
+                        continue
+                    operand_rx.append(t_rx)
+                    j_rx += 1
+                if u_rx and scl_rx:
+                    return False
+                if c_rx is not None:
+                    return _menguras_stdin(
+                        c_rx.strip("\"'"))
+                if u_rx:
+                    if operand_rx:
+                        return _menguras_stdin(
+                            " ".join(operand_rx))
+                    return False
+                if len(operand_rx) <= 1:
+                    return True
+                return False
             if t0 in ("su", "sg", "newgrp"):
                 # Audit 1107: su/sg — string -c dinilai seperti
                 # flock -c; tanpa -c keduanya menjatuhkan shell

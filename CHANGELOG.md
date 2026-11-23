@@ -1,5 +1,22 @@
 # Changelog
 
+## [Belum rilis] — model operand runuser dibetulkan: operand pertama pengguna (Audit 2715)
+
+- Runuser kini ditangani
+  resolver khusus sesuai
+  tata bahasa binernya:
+  operand pertama adalah
+  pengguna (bukan
+  perintah), perintah
+  hanya lewat `-c` atau
+  sesudah `-u`, operand
+  lain sesudah pengguna
+  adalah argumen shell,
+  dan `-u` saling
+  meniadakan dengan
+  `-c`/`-s`/`-l`.
+
+
 ## [Belum rilis] — pindaian -u runuser melompati nilai terpisah opsi pendek (Audit 2714)
 
 - Pindaian penyebutan
