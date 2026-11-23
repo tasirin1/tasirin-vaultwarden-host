@@ -40859,6 +40859,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("join -o campuran auto tetap ditolak (Audit 2868)", rc != 0)
         shutil.rmtree(sub1928, ignore_errors=True)
+        sub1929 = klon(tmp, "sub1929")
+        berkas_aksi1929 = os.path.join(
+            sub1929, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1929, encoding="utf-8") as f:
+            isi_aksi1929 = f.read()
+        baris_aksi1929 = [b for b in isi_aksi1929.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1929 = isi_aksi1929.replace(
+                baris_aksi1929,
+                baris_aksi1929.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --test -- -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1929 != isi_aksi1929, \
+            "suntikan aksi1929 tidak menembak"
+        with open(berkas_aksi1929, "w", encoding="utf-8") as f:
+            f.write(isi_baru1929)
+        rc, out = jalan(sub1929,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("node mode uji sesudah -- kini ditolak (Audit 2860)", rc != 0)
+        shutil.rmtree(sub1929, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

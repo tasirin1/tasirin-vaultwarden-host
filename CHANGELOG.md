@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mode `--test` node tak lagi lolos sesudah terminator `--` (Audit 2860)
+
+Cabang terminator `--` generik mengembalikan vonis dari token berikutnya tanpa melihat mode uji 2839, sehingga `node --test -- -` dinilai menguras — padahal biner memperlakukan `-` sesudah `--` sebagai path uji dan keluar rc=1 tanpa membaca stdin. Cabang itu kini menghormati mode uji node. Skenario uji-diri 1929.
+
+
 ## [Belum rilis] — Telegram: antrean hapus tertunda dibatasi 256 entri (Audit 2878)
 
 Himpunan `tg_hapus_tertunda` dulu hanya dikendalikan dedup identitas: laju masuk dari chat asing/grup jauh melebihi laju keluar (maks 10/poll, entri gagal menetap 48 jam), sehingga prefs membengkak dan disalin utuh di bawah kunci pada tiap operasi. Pencatatan kini memangkas entri tertua (cap terkecil; warisan tanpa cap dan entri rusak lebih dulu) sebelum menambah, dengan batas 256. Uji JVM untuk urutan pemangkasannya.

@@ -3570,6 +3570,18 @@ def _menguras_interpreter(perintah, toks, awal):
             return False
         if t == "--":
             i += 1
+            # Audit 2860: node dalam mode
+            # --test (2839) tak pernah
+            # membaca stdin - token sesudah
+            # -- adalah path uji, dan tanpa
+            # token pun penemu uji yang
+            # jalan; cabang -- generik dulu
+            # mengembalikan True untuk
+            # "-"-sesudah--- tanpa melihat
+            # mode (terprobe: --test -- -
+            # keluar rc=1 tanpa menguras).
+            if perintah == "node" and mode_test_nd:
+                return False
             return toks[i] == "-" if i < n else True
         # Audit 1705: -V mencetak versi lalu keluar.
         if perintah.startswith("python") and bersih_t == "-V":
