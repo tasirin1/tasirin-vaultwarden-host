@@ -218,6 +218,7 @@ public final class TlsCert {
             File keyFile = new File(dir, LEAF_KEY_FILE);
             pulihkanTukarTersisa(dir, CA_CERT_FILE, CA_KEY_FILE);
             pulihkanTukarTersisa(dir, LEAF_CERT_FILE, LEAF_KEY_FILE);
+            pulihkanVersiTersisa(dir);
 
             boolean caBaru = false;
             boolean caLamaAda = caCert.exists() || caKey.exists();
@@ -1101,6 +1102,36 @@ public final class TlsCert {
             return Integer.parseInt(v) >= CERT_VERSION;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    static void pulihkanVersiTersisa(File dir) {
+        // Audit 2704: tukar aman 2684 menyisakan cadangan
+        // bernama unik yang tak pernah dipulihkan/dibersihkan -
+        // proses mati di tengah tukar membuat version.txt hilang
+        // dan CA dibangun ulang walau cadangan utuh tersedia.
+        if (dir == null) {
+            return;
+        }
+        try {
+            File tujuan = new File(dir, "version.txt");
+            File[] daftar = dir.listFiles();
+            if (daftar == null) {
+                return;
+            }
+            for (File f : daftar) {
+                if (f == null || !f.isFile()
+                        || !f.getName().startsWith("version.txt.lama-")) {
+                    continue;
+                }
+                if (!tujuan.exists() && f.renameTo(tujuan)) {
+                    continue;
+                }
+                if (tujuan.exists()) {
+                    f.delete();
+                }
+            }
+        } catch (Exception ignored) {
         }
     }
 

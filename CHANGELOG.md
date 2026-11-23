@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — cadangan version.txt kini dipulihkan/dibersihkan (Audit 2704)
+
+- Cadangan unik
+  `version.txt.lama-*` dari
+  penulisan penanda versi kini
+  dipulihkan saat masuk
+  pemeriksaan sertifikat: bila
+  `version.txt` hilang (proses
+  mati di tengah tukar), salinan
+  cadangan dipasang kembali
+  sehingga CA tidak dibangun
+  ulang percuma; bila
+  `version.txt` utuh, cadangan
+  sisa dibersihkan.
+
+
 ## [Belum rilis] — runuser tanpa perintah kini divonis shell di gerbang (Audit 2703)
 
 - `runuser` tanpa perintah kini

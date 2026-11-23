@@ -416,6 +416,40 @@ public class TlsCertTest {
     }
 
     @Test
+    public void pulihkanVersiTersisa_kembalikanSaatVersionHilang() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsversi");
+        File d = dir.toFile();
+        Files.write(new File(d, "version.txt.lama-abc123").toPath(), "6\n".getBytes(StandardCharsets.UTF_8));
+        TlsCert.pulihkanVersiTersisa(d);
+        assertTrue(new File(d, "version.txt").isFile());
+        assertEquals("6\n", new String(Files.readAllBytes(new File(d, "version.txt").toPath()), StandardCharsets.UTF_8));
+        assertFalse(new File(d, "version.txt.lama-abc123").exists());
+        assertTrue(TlsCert.certVersionOk(d));
+    }
+
+    @Test
+    public void pulihkanVersiTersisa_hapusCadanganSaatVersionUtuh() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsversi2");
+        File d = dir.toFile();
+        Files.write(new File(d, "version.txt").toPath(), "6\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(d, "version.txt.lama-def456").toPath(), "5\n".getBytes(StandardCharsets.UTF_8));
+        TlsCert.pulihkanVersiTersisa(d);
+        assertEquals("6\n", new String(Files.readAllBytes(new File(d, "version.txt").toPath()), StandardCharsets.UTF_8));
+        assertFalse(new File(d, "version.txt.lama-def456").exists());
+    }
+
+    @Test
+    public void pulihkanVersiTersisa_tanpaCadanganAman() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsversi3");
+        File d = dir.toFile();
+        Files.write(new File(d, "version.txt").toPath(), "6\n".getBytes(StandardCharsets.UTF_8));
+        TlsCert.pulihkanVersiTersisa(d);
+        TlsCert.pulihkanVersiTersisa(null);
+        assertTrue(new File(d, "version.txt").isFile());
+        assertTrue(TlsCert.certVersionOk(d));
+    }
+
+    @Test
     public void pasanganCertKeyCocok_stabilUntukPasanganSilang() throws Exception {
         // Audit 1468: hasil tak cocok kini ikut dimemoisasi —
         // putusan untuk berkas yang sama harus stabil antar
