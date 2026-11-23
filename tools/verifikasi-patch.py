@@ -15113,10 +15113,17 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "--ignore-signal=")):
                     nilai_env = opsi.split(
                         "=", 1)[1].strip("\"'")
+                    # Audit 2788: anggota kosong
+                    # daftar sinyal dilewati
+                    # biner (nilai kosong
+                    # seluruhnya pun sah -
+                    # perintah anak tetap
+                    # berjalan).
                     if not all(
                             _sinyal_timeout_sah(x)
                             for x in
-                            nilai_env.split(",")):
+                            nilai_env.split(",")
+                            if x):
                         return False
                 if (opsi in ("-S", "--split-string")
                         or opsi.startswith("--split-string=")

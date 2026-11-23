@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — env: anggota kosong daftar sinyal kini dilewati (Audit 2788)
+
+- Daftar sinyal
+  env (`--block-
+  signal=` dll.)
+  kini melewati
+  anggota kosong;
+  nilai kosong
+  seluruhnya sah
+  di biner dan tak
+  lagi divonis
+  membunuh env.
+
+
 ## [Belum rilis] — csplit: offset tanpa tanda sah + pengulangan berurutan ditolak (Audit 2787)
 
 - Offset pola
