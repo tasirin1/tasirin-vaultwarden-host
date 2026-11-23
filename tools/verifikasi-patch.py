@@ -15030,7 +15030,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             return False
                 if t0 in ("flock", "watch", "choom",
                           "uclampset", "prlimit",
-                          "strace"):
+                          "strace", "xargs"):
                     # Audit 2719: penerima bertipe
                     # pada pembungkus lain -
                     # nilai sampah membunuh
@@ -15077,6 +15077,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "strace": {
                             "--string-limit":
                                 "angka-plus"},
+                        "xargs": {
+                            "--max-chars": "xargs-min1",
+                            "--max-args": "xargs-min1",
+                            "--max-procs": "xargs-min0",
+                            "--max-lines": "xargs-min1"},
                     }
                     pendek_b = {
                         "flock": {"w": "flock-w",
@@ -15087,10 +15092,15 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                       "M": "uclamp"},
                         "prlimit": {},
                         "strace": {"s": "angka-plus"},
+                        "xargs": {"s": "xargs-min1",
+                                  "n": "xargs-min1",
+                                  "P": "xargs-min0",
+                                  "L": "xargs-min1"},
                     }
                     ambang_b = {"flock": 3, "watch": 3,
                                 "choom": 3, "uclampset": 3,
-                                "prlimit": 3, "strace": 7}
+                                "prlimit": 3, "strace": 7,
+                                "xargs": 5}
                     nama_b = opsi
                     nilai_b = None
                     if (opsi.startswith("--")
@@ -15228,6 +15238,24 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 if not re.fullmatch(
                                         r"\+?\d+",
                                         nilai_b):
+                                    return False
+                            elif (jenis_b
+                                    == "xargs-min1"
+                                    or jenis_b
+                                    == "xargs-min0"):
+                                # Audit 2725: penerima
+                                # numerik xargs =
+                                # digit bertanda +;
+                                # -s/-n/-L minimal 1,
+                                # -P minimal 0.
+                                if not (
+                                        re.fullmatch(
+                                            r"\+?\d+",
+                                            nilai_b)
+                                        and int(nilai_b)
+                                        >= (1 if jenis_b
+                                            == "xargs-min1"
+                                            else 0)):
                                     return False
                             elif jenis_b == "flock-E":
                                 if not (

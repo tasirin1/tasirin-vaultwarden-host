@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — nilai numerik xargs (-s/-n/-P/-L) kini divalidasi (Audit 2725)
+
+- Penerima numerik
+  xargs (`-s`, `-n`,
+  `-P`, `-L` dan bentuk
+  panjangnya) kini
+  divalidasi: digit
+  dengan batas bawah
+  sesuai biner (1 untuk
+  -s/-n/-L, 0 untuk -P).
+
+
 ## [Belum rilis] — nilai -s strace kini divalidasi (Audit 2724)
 
 - Nilai `-s`/
