@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — operand - dan awalan keluaran split dimodelkan (Audit 2716)
+
+- Gelung operand kini
+  memodelkan tata bahasa
+  split: operand pertama
+  adalah masukan (`-`
+  berarti stdin) dan
+  operand kedua adalah
+  awalan berkas keluaran
+  yang tidak memutuskan
+  vonis.
+
+
 ## [Belum rilis] — model operand runuser dibetulkan: operand pertama pengguna (Audit 2715)
 
 - Runuser kini ditangani

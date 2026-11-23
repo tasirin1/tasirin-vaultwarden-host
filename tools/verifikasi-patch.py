@@ -16857,6 +16857,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     strings_tolak_dash = False
     strings_ada_stdin = False
     operand_tr = 0  # Audit 1047: penghitung operand himpunan tr.
+    # Audit 2716: operand masukan split sudah
+    # terlihat (operand keduanya awalan keluaran).
+    split_sudah_operand = False
     # Audit 1087: pada mode hapus (-d tanpa -s) GNU tr menolak
     # himpunan KEDUA — batas operand sah menyusut jadi 1.
     batas_tr = 2
@@ -17006,6 +17009,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # nama berkas harfiah) — bukan stdin baginya.
             if perintah == "strings":
                 strings_tolak_dash = True
+            # Audit 2716: '-' adalah operand
+            # masukan split - tandai terpakai.
+            if perintah == "split":
+                split_sudah_operand = True
             continue
         if t.startswith("-"):
             # Audit 938: opsi bernilai tak hanya -n/-c dan -o;
@@ -17066,6 +17073,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # dan lanjutkan ('-' bisa muncul sesudah berkas).
         if perintah == "pr":
             ada_operand_pr = True
+            continue
+        # Audit 2716: split - operand pertama
+        # adalah masukan (berkas = tak membaca
+        # stdin, vonis di sini); operand kedua
+        # adalah awalan berkas keluaran, bukan
+        # masukan, jadi tak memutuskan vonis.
+        if perintah == "split":
+            if not split_sudah_operand:
+                split_sudah_operand = True
+                return False
             continue
         return False
     # Audit 1096: opsi bernilai (atau operator redirect) di token
