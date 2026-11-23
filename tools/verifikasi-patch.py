@@ -15645,7 +15645,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 if t0 in ("flock", "watch", "choom",
                           "uclampset", "prlimit",
                           "strace", "xargs", "taskset",
-                          "ssh-agent", "systemd-cat"):
+                          "ssh-agent", "systemd-cat",
+                          "unshare"):
                     # Audit 2719: penerima bertipe
                     # pada pembungkus lain -
                     # nilai sampah membunuh
@@ -15703,6 +15704,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "systemd-cat": {
                             "--priority":
                                 "prioritas-sdcat"},
+                        "unshare": {
+                            "--setuid": "angka-blok",
+                            "--setgid": "angka-blok",
+                            "--setgroups":
+                                "enum-setgroups",
+                            "--kill-child":
+                                "sinyal-blok"},
                     }
                     pendek_b = {
                         "flock": {"w": "flock-w",
@@ -15722,8 +15730,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             "t": "umur-ssh-agent"},
                         "systemd-cat": {
                             "p": "prioritas-sdcat"},
+                        "unshare": {},
                     }
-                    ambang_b = {"systemd-cat": 3,
+                    ambang_b = {"unshare": 3,
+                                "systemd-cat": 3,
                                 "ssh-agent": 3,
                                 "flock": 3, "watch": 3,
                                 "choom": 3, "uclampset": 3,
@@ -15940,6 +15950,37 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                                 < 1):
                                             sah_cpu = False
                                 if not sah_cpu:
+                                    return False
+                            elif (jenis_b
+                                    == "angka-blok"):
+                                # Audit 2763: angka
+                                # polos penerima
+                                # pembungkus (uid/
+                                # gid unshare).
+                                if not (
+                                        nilai_b.isdigit()
+                                        and len(nilai_b)
+                                        <= 18):
+                                    return False
+                            elif (jenis_b
+                                    == "enum-setgroups"):
+                                # Audit 2763:
+                                # --setgroups
+                                # unshare hanya
+                                # allow/deny.
+                                if nilai_b not in (
+                                        "allow",
+                                        "deny"):
+                                    return False
+                            elif (jenis_b
+                                    == "sinyal-blok"):
+                                # Audit 2763:
+                                # sinyal pembungkus
+                                # (unshare
+                                # --kill-child).
+                                if not (
+                                        _sinyal_timeout_sah(
+                                            nilai_b)):
                                     return False
                             elif (jenis_b
                                     == "prioritas-sdcat"):

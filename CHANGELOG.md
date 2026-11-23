@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — penerima unshare (--setuid/--setgid/--setgroups/--kill-child) divalidasi (Audit 2763)
+
+- Penerima unshare
+  `--setuid`/`--setgid`
+  (angka), `--setgroups`
+  (allow/deny), dan
+  `--kill-child`
+  (sinyal) divalidasi.
+
+
 ## [Belum rilis] — prioritas systemd-cat kini divalidasi (Audit 2762)
 
 - Prioritas `-p`/
