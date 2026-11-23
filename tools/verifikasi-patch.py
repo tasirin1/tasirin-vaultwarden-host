@@ -14391,6 +14391,43 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                      and opsi[1] in "ks"))):
                         nama2681 = opsi[:2]
                         nilai2681 = opsi[2:]
+                    if nama2681.startswith("--"):
+                        # Audit 2693: getopt_long
+                        # menyelesaikan singkatan
+                        # unik opsi panjang ke nama
+                        # penuhnya (semesta penuh
+                        # ketiga pembungkus ini
+                        # terverifikasi tak punya
+                        # tabrakan awalan di luar
+                        # nama tervalidasi) -
+                        # selesaikan agar validasi
+                        # di sini dan konsumsi
+                        # nilai di walk berlaku;
+                        # singkatan yang ambigu
+                        # atas dua nama tervalidasi
+                        # membunuh pembungkus.
+                        sah2693 = {
+                            "nice": ("--adjustment",),
+                            "ionice": ("--classdata",
+                                       "--class",
+                                       "--which"),
+                            "timeout": ("--kill-after",
+                                        "--signal"),
+                        }[t0]
+                        if nama2681 not in sah2693:
+                            calon2693 = [
+                                x for x in sah2693
+                                if x.startswith(nama2681)]
+                            if len(calon2693) > 1:
+                                return False
+                            if len(calon2693) == 1:
+                                nama2681 = calon2693[0]
+                                if nilai2681 is None:
+                                    opsi = nama2681
+                                else:
+                                    opsi = (nama2681
+                                            + "="
+                                            + nilai2681)
                     if nilai2681 is None \
                             and nama2681 in bernilai:
                         k2681 = _sesudah_redirect_berantai(

@@ -1,5 +1,26 @@
 # Changelog
 
+## [Belum rilis] — Singkatan getopt_long pembungkus kini diselesaikan sebelum validasi (Audit 2693)
+
+- Singkatan unik opsi panjang
+  pembungkus (`--adj`,
+  `--kill`, `--sig`, `--classd`,
+  dan sejenisnya) kini
+  diselesaikan ke nama penuh
+  sebelum validasi nilai 2681
+  dan sebelum konsumsi nilai
+  di walk. Sebelumnya nama
+  singkatan tak cocok dengan
+  nama eksak sehingga nilai
+  sampah lolos validasi dan
+  nilai bentuk terpisah malah
+  terbaca sebagai perintah.
+  Singkatan ambigu atas dua
+  nama tervalidasi membunuh
+  pembungkus, sama seperti
+  biner.
+
+
 ## [Belum rilis] — Masker taskset bentuk grup koma kini diterima gerbang (Audit 2692)
 
 - Masker CPU taskset berbentuk
