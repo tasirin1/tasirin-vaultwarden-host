@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nomor field join berdigit ribuan tak lagi meledakkan gerbang (Audit 2833)
+
+Validasi nomor field `join -1/-2` memakai `int()` atas digit tanpa pagar — lebih dari 4300 digit meledakkan gerbang dengan ValueError (residu keluarga 2814). Biner join sungguhan menerima nomor field raksasa (terprobe rc=0 sampai 4301 digit), jadi perbaikannya bukan pagar panjang melainkan cek "paling kecil 1" tanpa `int()`: untaian digit sah bila mengandung digit bukan-nol. Berlaku untuk bentuk terpisah dan merekat. Skenario uji-verifikasi 1902.
+
+
 ## [Belum rilis] — Gerbang: faktor ukuran dd berdigit ribuan tak lagi meledakkan gerbang (Audit 2832)
 
 Pemeriksaan nol faktor ukuran `dd` (bs/ibs/obs/cbs) memakai `int()` atas potongan digit tanpa pagar panjang — Python 3.11+ melempar ValueError untuk lebih dari 4300 digit sehingga gerbang mati tanpa vonis; residu keluarga 2814 yang lolos di keluarga dd. Kini digit tiap faktor semua kunci numerik dd dipagari 18 (biner sendiri mati luapan xstrtol jauh di bawah itu, terprobe `Value too large`), dan cek nol dilakukan tanpa `int()` (digit yang seluruhnya nol). Skenario uji-verifikasi 1901.

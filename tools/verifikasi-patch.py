@@ -6637,8 +6637,15 @@ def _menguras_khusus(perintah, toks, awal):
                     v_j = toks[k_j + 1].strip(
                         "\"'")
                     if t_j in ("-1", "-2"):
+                        # Audit 2833: cek >= 1
+                        # tanpa int() - digit
+                        # ribuan meledakkan
+                        # int() Python 3.11+
+                        # padahal biner menerima
+                        # nomor field raksasa
+                        # (terprobe rc=0).
                         if not (v_j.isdigit()
-                                and int(v_j) >= 1):
+                                and v_j.strip("0") != ""):
                             return False
                     elif not _spec_join_sah(v_j):
                         return False
@@ -6648,7 +6655,7 @@ def _menguras_khusus(perintah, toks, awal):
             if (t_j.startswith(("-1", "-2"))
                     and len(t_j) > 2):
                 if not (t_j[2:].isdigit()
-                        and int(t_j[2:]) >= 1):
+                        and t_j[2:].strip("0") != ""):
                     return False
             elif t_j.startswith("-o") \
                     and len(t_j) > 2:
