@@ -15029,7 +15029,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                     nilai2681)):
                             return False
                 if t0 in ("flock", "watch", "choom",
-                          "uclampset", "prlimit"):
+                          "uclampset", "prlimit",
+                          "strace"):
                     # Audit 2719: penerima bertipe
                     # pada pembungkus lain -
                     # nilai sampah membunuh
@@ -15073,6 +15074,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             "--sigpending":
                                 "batas-prlimit",
                             "--stack": "batas-prlimit"},
+                        "strace": {
+                            "--string-limit":
+                                "angka-plus"},
                     }
                     pendek_b = {
                         "flock": {"w": "flock-w",
@@ -15082,10 +15086,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "uclampset": {"m": "uclamp",
                                       "M": "uclamp"},
                         "prlimit": {},
+                        "strace": {"s": "angka-plus"},
                     }
                     ambang_b = {"flock": 3, "watch": 3,
                                 "choom": 3, "uclampset": 3,
-                                "prlimit": 3}
+                                "prlimit": 3, "strace": 7}
                     nama_b = opsi
                     nilai_b = None
                     if (opsi.startswith("--")
@@ -15212,6 +15217,17 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                                 y.lstrip()
                                                 for y
                                                 in sisi_b))):
+                                    return False
+                            elif (jenis_b
+                                    == "angka-plus"):
+                                # Audit 2724: batas
+                                # string strace =
+                                # digit dengan + awal
+                                # bebas (0 sah, negatif
+                                # mati).
+                                if not re.fullmatch(
+                                        r"\+?\d+",
+                                        nilai_b):
                                     return False
                             elif jenis_b == "flock-E":
                                 if not (

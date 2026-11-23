@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — nilai -s strace kini divalidasi (Audit 2724)
+
+- Nilai `-s`/
+  `--string-limit`
+  strace kini divalidasi:
+  harus digit (dengan
+  `+` awal bebas);
+  negatif dan non-digit
+  divonis mati.
+
+
 ## [Belum rilis] — nilai keenam belas penerima batas prlimit kini divalidasi (Audit 2723)
 
 - Nilai keenam belas
