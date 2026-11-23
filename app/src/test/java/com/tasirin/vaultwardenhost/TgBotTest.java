@@ -846,6 +846,28 @@ public class TgBotTest {
     }
 
     @Test
+    public void entriHapusMasihAda_cocokBedaDanKosong() {
+        java.util.Set<String> h =
+                new java.util.HashSet<>();
+        h.add("-100123:456:a:1700000000000");
+        h.add("789:12:s");
+        assertTrue(TgBot.entriHapusMasihAda(
+                h, -100123L, 456, true));
+        assertTrue(TgBot.entriHapusMasihAda(
+                h, 789L, 12, false));
+        assertFalse(TgBot.entriHapusMasihAda(
+                h, -100123L, 456, false));
+        assertFalse(TgBot.entriHapusMasihAda(
+                h, -100123L, 457, true));
+        assertFalse(TgBot.entriHapusMasihAda(
+                h, 790L, 12, false));
+        assertFalse(TgBot.entriHapusMasihAda(
+                new java.util.HashSet<>(), 789L, 12, false));
+        assertFalse(TgBot.entriHapusMasihAda(
+                null, 789L, 12, false));
+    }
+
+    @Test
     public void mulaiSelesaiHapusTertunda_satuPemilik() {
         assertTrue(TgBot.mulaiHapusTertunda(777001, 42, false));
         try {

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Telegram: tugas hapus tertunda memeriksa ulang entri saat berjalan (Audit 2876)
+
+Penanda 2837 hanya mencegah penghapusan bersamaan; dua tugas yang mengantre untuk pesan yang sama berjalan berurutan dan yang kedua menghapus ulang pesan yang sudah terhapus, memicu peringatan palsu dan memasang bendera dedup yang menelan peringatan sah berikutnya. Kini kelima situs penghapusan memeriksa ulang lewat `hapusTertundaMasihTercatat` sesudah memegang penanda: entri yang sudah diselesaikan tugas lain (atau kedaluwarsa) dilewati diam-diam; galat baca prefs gagal-terbuka agar pesan ber-PIN tak tertinggal. Uji JVM baru untuk pencocokan himpunannya.
+
+
 ## [Belum rilis] — Gerbang: spek join `-o auto` kini diterima (Audit 2868)
 
 Validator spek -o join hanya menerima daftar nomor field, padahal biner coreutils 9.4 menerima kata kunci `auto` (format mengikuti berkas pertama) sebagai seluruh spek — perintah sah yang membaca stdin ditolak gerbang. Kini `auto` persis (huruf kecil, sendirian) diterima; campuran `auto,1.1` dan `AUTO` tetap ditolak sesuai biner. Skenario uji-diri 1927-1928.

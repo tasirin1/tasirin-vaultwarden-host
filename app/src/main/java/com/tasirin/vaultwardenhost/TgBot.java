@@ -1499,6 +1499,7 @@ public final class TgBot {
                 return;
             }
             try {
+                if (!hapusTertundaMasihTercatat(ctx, idRuang, idPesan, false)) { return; }
                 boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
                 if (terhapus) {
                     selesaikanHapusTertundaUntuk(ctx,
@@ -1513,6 +1514,7 @@ public final class TgBot {
                 return;
             }
             try {
+                if (!hapusTertundaMasihTercatat(ctx, idRuang, idPesan, false)) { return; }
                 boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
                 if (terhapus) {
                     selesaikanHapusTertundaUntuk(ctx,
@@ -1531,6 +1533,7 @@ public final class TgBot {
         if (!cobaJalankanBg(() -> {
             if (mulaiHapusTertunda(idRuang, idPesan, true)) {
                 try {
+                    if (!hapusTertundaMasihTercatat(ctx, idRuang, idPesan, true)) { return; }
                     if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
                         peringatkanPinChatAsing(ctx, idRuang);
                     } else {
@@ -1544,6 +1547,7 @@ public final class TgBot {
         })) {
             if (mulaiHapusTertunda(idRuang, idPesan, true)) {
                 try {
+                    if (!hapusTertundaMasihTercatat(ctx, idRuang, idPesan, true)) { return; }
                     if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
                         peringatkanPinChatAsing(ctx, idRuang);
                     } else {
@@ -1586,6 +1590,55 @@ public final class TgBot {
         return u != null && u[0] == idRuang
                 && u[1] == idPesan
                 && (u[2] == 1) == asing;
+    }
+
+    // Audit 2876: penanda 2837 hanya mencegah
+    // hapus BERSAMAAN; dua tugas yang mengantre
+    // untuk pesan yang sama berjalan BERURUTAN
+    // dan yang kedua menghapus ulang pesan yang
+    // sudah terhapus -> 400 -> peringatan palsu
+    // + bendera dedup menelan peringatan sah.
+    // Kini tiap tugas memeriksa ulang saat ia
+    // berjalan: entri yang sudah diselesaikan
+    // tugas lain (atau kedaluwarsa) tak dicoba
+    // lagi. Galat baca prefs = gagal-terbuka
+    // (tetap hapus) agar pesan ber-PIN tak
+    // pernah tertinggal karena galat baca.
+    static boolean entriHapusMasihAda(
+            java.util.Set<String> himpunan,
+            long idRuang, int idPesan,
+            boolean asing) {
+        if (himpunan == null) {
+            return false;
+        }
+        for (String e : himpunan) {
+            if (samaIdentitasHapus(
+                    uraiEntriHapusTertunda(e),
+                    idRuang, idPesan, asing)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean hapusTertundaMasihTercatat(
+            Context ctx, long idRuang,
+            int idPesan, boolean asing) {
+        synchronized (KUNCI_PERINGATAN) {
+            try {
+                SharedPreferences sp =
+                        ctx.getSharedPreferences(
+                                ServerService.PREFS,
+                                Context.MODE_PRIVATE);
+                return entriHapusMasihAda(
+                        sp.getStringSet(
+                                KEY_TG_HAPUS_TERTUNDA,
+                                null),
+                        idRuang, idPesan, asing);
+            } catch (Exception e) {
+                return true;
+            }
+        }
     }
 
     static String entriHapusTertundaPenuh(long idRuang,
@@ -1818,6 +1871,7 @@ public final class TgBot {
                     return;
                 }
                 try {
+                    if (!hapusTertundaMasihTercatat(ctx, idRuang, idPesan, asing)) { return; }
                     boolean terhapus = hapusPesanPerintah(
                             ctx, idRuang, idPesan);
                     if (terhapus) {
