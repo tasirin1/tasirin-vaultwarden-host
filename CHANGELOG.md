@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — resetTls kini menyapu cadangan version.txt.lama-* (Audit 2729)
+
+- `resetTls` kini ikut
+  menghapus cadangan
+  penanda versi bernama
+  unik
+  (`version.txt.lama-*`)
+  lewat pemindaian
+  awalan, jadi penanda
+  yang sudah direset
+  tidak bangkit lagi
+  pada start berikutnya.
+
+
 ## [Belum rilis] — spesifikasi -k sort kini divalidasi (Audit 2728)
 
 - Nilai `-k`/`--key`

@@ -1488,6 +1488,25 @@ public final class TlsCert {
                 } catch (Exception ignored) {
                 }
             }
+            // Audit 2729: cadangan tukar 2684 bernama unik
+            // tak termuat daftar nama tetap - sapu berdasar
+            // awalan agar reset tuntas dan ensure berikutnya
+            // tak membangkitkan lagi penanda yang sudah
+            // dihapus lewat pemulihan 2704.
+            try {
+                File[] sisa = tlsDir.listFiles();
+                if (sisa != null) {
+                    for (File f : sisa) {
+                        if (f != null && f.isFile()
+                                && f.getName().startsWith(
+                                        "version.txt.lama-")
+                                && f.delete()) {
+                            hapus++;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
             if (hapus > 0) {
                 // Samakan dengan mutator folder tls lain (Audit 768): tanpa
                 // fsync direktori, mati listrik bisa membatalkan penghapusan

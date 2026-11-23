@@ -541,6 +541,18 @@ public class TlsCertTest {
     }
 
     @Test
+    public void resetTls_hapusCadanganVersiYatim() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsresetyatim");
+        Files.write(new File(dir.toFile(), "version.txt").toPath(), "7\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(dir.toFile(), "version.txt.lama-12345").toPath(), "7\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(dir.toFile(), "version.txt.lama-67890").toPath(), "7\n".getBytes(StandardCharsets.UTF_8));
+        assertEquals(3, TlsCert.resetTls(dir.toFile()));
+        assertFalse(new File(dir.toFile(), "version.txt.lama-12345").exists());
+        TlsCert.pulihkanVersiTersisa(dir.toFile());
+        assertFalse(new File(dir.toFile(), "version.txt").exists());
+    }
+
+    @Test
     public void resetTls_hapusVarianRusak() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlsresetrusak");
         for (String n : new String[]{"ca.pem.rusak", "ca-key.pem.rusak",
