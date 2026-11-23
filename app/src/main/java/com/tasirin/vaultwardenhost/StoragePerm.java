@@ -64,8 +64,13 @@ public final class StoragePerm {
                 // Audit 2778: media_rw juga akar dua
                 // segmen (segmen kedua UUID volume),
                 // sejajar emulated/<id-pengguna>.
+                // Audit 2811: expand juga - volume
+                // adoptable terpasang di
+                // /mnt/expand/<uuid>, dua segmen
+                // sebelum Android/data.
                 if (d.startsWith("emulated/", awal)
-                        || d.startsWith("media_rw/", awal)) {
+                        || d.startsWith("media_rw/", awal)
+                        || d.startsWith("expand/", awal)) {
                     int garis2 = d.indexOf('/', potong);
                     if (garis2 > potong) {
                         potong = garis2 + 1;

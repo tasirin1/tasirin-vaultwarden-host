@@ -74,6 +74,15 @@ public class StoragePermTest {
                 "/mnt/media_rw/Android/data/com.tasirin.vaultwardenhost/files"));
         assertFalse(StoragePerm.butuhIzinEksternal(
                 "/mnt/media_rw/1234-5678/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
+        // Audit 2811: akar /mnt/expand/<uuid> dua segmen.
+        assertTrue(StoragePerm.folderPribadiAplikasi(
+                "/mnt/expand/1234-5678/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
+        assertFalse(StoragePerm.folderPribadiAplikasi(
+                "/mnt/expand/1234-5678/Android/data/com.aplikasi.lain/files"));
+        assertFalse(StoragePerm.folderPribadiAplikasi(
+                "/mnt/expand/Android/data/com.tasirin.vaultwardenhost/files"));
+        assertFalse(StoragePerm.butuhIzinEksternal(
+                "/mnt/expand/1234-5678/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
         assertFalse(StoragePerm.folderPribadiAplikasi(
                 "/storage//Android/data/com.tasirin.vaultwardenhost/files"));
     }

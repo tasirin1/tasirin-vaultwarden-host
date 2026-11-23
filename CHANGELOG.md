@@ -1,3 +1,18 @@
+## [Belum rilis] — folderPribadiAplikasi kenal /mnt/expand (Audit 2811)
+
+- Akar volume
+  adoptable
+  `/mnt/expand/<uuid>`
+  kini dikenali
+  sebagai akar dua
+  segmen - folder
+  pribadi aplikasi
+  di kartu yang
+  diadopsi tak
+  lagi dinilai
+  butuh izin
+  eksternal.
+
 ## [Belum rilis] — copyFile atomik + migrasi TLS buang sisa terpotong (Audit 2810)
 
 - `copyFile` kini
