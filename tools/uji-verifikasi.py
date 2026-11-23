@@ -41069,6 +41069,48 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("join dua operand stdin kini ditolak (Audit 2867)", rc != 0)
         shutil.rmtree(sub1938, ignore_errors=True)
+        sub1939 = klon(tmp, "sub1939")
+        berkas_aksi1939 = os.path.join(
+            sub1939, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1939, encoding="utf-8") as f:
+            isi_aksi1939 = f.read()
+        baris_aksi1939 = [b for b in isi_aksi1939.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1939 = isi_aksi1939.replace(
+                baris_aksi1939,
+                baris_aksi1939.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff --label x -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1939 != isi_aksi1939, \
+            "suntikan aksi1939 tidak menembak"
+        with open(berkas_aksi1939, "w", encoding="utf-8") as f:
+            f.write(isi_baru1939)
+        rc, out = jalan(sub1939,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff label dengan operand kurang kini ditolak (Audit 2869)", rc != 0)
+        shutil.rmtree(sub1939, ignore_errors=True)
+        sub1940 = klon(tmp, "sub1940")
+        berkas_aksi1940 = os.path.join(
+            sub1940, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1940, encoding="utf-8") as f:
+            isi_aksi1940 = f.read()
+        baris_aksi1940 = [b for b in isi_aksi1940.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1940 = isi_aksi1940.replace(
+                baris_aksi1940,
+                baris_aksi1940.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff3 - f2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1940 != isi_aksi1940, \
+            "suntikan aksi1940 tidak menembak"
+        with open(berkas_aksi1940, "w", encoding="utf-8") as f:
+            f.write(isi_baru1940)
+        rc, out = jalan(sub1940,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff3 operand kurang kini ditolak (Audit 2869)", rc != 0)
+        shutil.rmtree(sub1940, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -7180,7 +7180,16 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops_d:
             return False
-        return "-" in ops_d
+        # Audit 2869: diff wajib tepat 2
+        # operand dan diff3 tepat 3 -
+        # kurang dari itu biner mati
+        # "missing operand" dan lebih
+        # dari itu mati "extra operand"
+        # (keduanya terprobe, rc=2 tanpa
+        # membaca stdin); vonis lama
+        # hanya memeriksa keberadaan "-".
+        perlu_d = 3 if perintah == "diff3" else 2
+        return "-" in ops_d and len(ops_d) == perlu_d
     if perintah == "sdiff":
         # Audit 1249: operand '-' sdiff adalah stdin
         # (sekelas diff), tak dikenal khusus sebelumnya.
