@@ -7902,6 +7902,17 @@ def _menguras_khusus(perintah, toks, awal):
             # (2828) - dulu --data-b/--conf
             # dkk. tak dikenal sehingga sumber
             # stdin-nya lolos.
+            # Audit 2873: opsi informatif
+            # (--version/--help/--manual)
+            # mencetak lalu keluar tanpa
+            # membaca stdin - bentuk persis
+            # maupun singkatan uniknya.
+            if (t.startswith("--")
+                    and "=" not in t
+                    and t in ("--version",
+                              "--help",
+                              "--manual")):
+                return False
             if (t.startswith("--")
                     and "=" not in t
                     and t not in
@@ -7923,6 +7934,10 @@ def _menguras_khusus(perintah, toks, awal):
                     _CURL_SEMUA_PANJANG
                     if x.startswith(t)]
                 if len(calon_w2) != 1:
+                    return False
+                if calon_w2[0] in (
+                        "--version", "--help",
+                        "--manual"):
                     return False
                 if calon_w2[0] in \
                         _CURL_BERNILAI_PANJANG:
@@ -8064,6 +8079,10 @@ def _menguras_khusus(perintah, toks, awal):
                     if len(calon_w2) != 1:
                         return False
                     nama_w2 = calon_w2[0]
+                if nama_w2 in ("--version",
+                               "--help",
+                               "--manual"):
+                    return False
                 if (nama_w2 in ("--upload-file",
                                  "--config")
                         and nilai_w2 == "-"):

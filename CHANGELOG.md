@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: singkatan unik ke opsi informatif curl kini ditolak di walk kedua (Audit 2873)
+
+Singkatan unik yang menyelesaikan ke `--version`/`--help`/`--manual` membuat biner mencetak lalu keluar rc=0 tanpa membaca stdin, tetapi walk kedua tak mengenal penyelesaian ke bendera sehingga `-d @-` di belakangnya dinilai menguras. Nama informatif kini ditolak dalam bentuk persis, singkatan unik, dan bentuk `=`. Skenario uji-diri 1944.
+
+
 ## [Belum rilis] — Gerbang: ambiguitas singkatan curl dinilai terhadap himpunan opsi penuh (Audit 2872)
 
 Walk kedua menyelesaikan singkatan hanya terhadap opsi bernilai, sehingga `--v` (ambigu di himpunan penuh: --verbose + --version) lolos dan `-d @-` di belakangnya dinilai menguras — padahal biner mati "is ambiguous" sebelum menyambung (terprobe). Kini kosakata penuh curl 8.5.0 (258 opsi dari `--help all`) menjadi hakim: cocok >1 atau 0 = ditolak, unik ke opsi bernilai berjalan seperti 2852; berlaku juga untuk bentuk `=`. Skenario uji-diri 1943.
