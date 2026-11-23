@@ -13967,6 +13967,30 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "prioritas-logger":
+        # Audit 2757: prioritas logger =
+        # [fasilitas.]tingkat; fasilitas
+        # nama syslog, tingkat nama atau
+        # digit 0-7 (angka polos dan
+        # fasilitas angka mati di biner).
+        fas = ("auth", "authpriv", "cron",
+               "daemon", "ftp", "kern",
+               "lpr", "mail", "news",
+               "syslog", "user", "uucp") + \
+            tuple("local%d" % i
+                  for i in range(8))
+        ting = ("emerg", "panic", "alert",
+                "crit", "err", "error",
+                "warning", "warn",
+                "notice", "info", "debug")
+        if "." in v:
+            f_p, _, t_p = v.partition(".")
+            return (f_p in fas
+                    and (t_p in ting
+                         or (len(t_p) == 1
+                             and t_p in
+                             "01234567")))
+        return v in ting
     if jenis == "enum-algo-shasum":
         # Audit 2756: algoritma shasum
         # himpunan tertutup di biner.
@@ -17878,6 +17902,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         "shasum": {
             "a": "enum-algo-shasum",
             "algorithm": "enum-algo-shasum"},
+        "logger": {
+            "p": "prioritas-logger",
+            "priority": "prioritas-logger",
+            "S": "angka0",
+            "size": "angka0"},
         "unxz": {
             "T": "angka0",
             "threads": "angka0",

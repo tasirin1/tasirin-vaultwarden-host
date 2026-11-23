@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — prioritas dan ukuran logger kini divalidasi (Audit 2757)
+
+- Prioritas `-p`
+  (fasilitas.tingkat
+  syslog) dan ukuran
+  `-S` logger kini
+  divalidasi.
+
+
 ## [Belum rilis] — algoritma shasum kini divalidasi (Audit 2756)
 
 - Nilai `-a`/
