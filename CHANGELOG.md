@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — Charset iconv berdasar kosong (//...) kini diterima gerbang (Audit 2698)
+
+- Nilai charset iconv yang
+  diawali `//` (nama dasar
+  kosong, mis. `//IGNORE`)
+  kini dinyatakan sah: glibc
+  membacanya sebagai charset
+  bawaan ditambah sufiks dan
+  perintahnya membaca masukan.
+  Klaim perbaikan 2674 bahwa
+  dasar kosong tetap tak sah
+  terbantahkan oleh biner.
+
+
 ## [Belum rilis] — Parser lebar od (--width) kini digit polos di gerbang (Audit 2697)
 
 - Validasi lebar od kini hanya

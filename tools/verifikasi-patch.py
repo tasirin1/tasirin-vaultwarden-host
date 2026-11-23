@@ -13693,6 +13693,15 @@ def _tipe_nilai_sah_66(jenis, nilai):
         # diabaikan glibc setempat) - yang
         # menentukan sah/tidak hanya nama
         # dasar sebelum "//" pertama.
+        # Audit 2698: nama dasar KOSONG
+        # (nilai diawali "//") juga sah -
+        # glibc membacanya sebagai charset
+        # bawaan + sufiks dan perintah
+        # menguras; klaim 2674 bahwa dasar
+        # kosong tetap tak sah terbantahkan
+        # biner setempat.
+        if v.startswith("//"):
+            return True
         dasar = v.split("//", 1)[0]
         return re.sub(r"[^A-Z0-9]", "", dasar.upper()) \
             in _CHARSET_ICONV_66
