@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nilai diff -W (bentuk pendek --width) kini divalidasi (Audit 2849)
+
+Bentuk panjang `--width` sudah divalidasi sejak 2768, tetapi bentuk pendeknya `-W` tidak — `diff -W abc` dinilai menguras padahal biner mati "invalid width 'abc'" (terprobe). Pindai bundel diff kini memvalidasi nilai `-W` (terpisah maupun ekor merekat) dengan tata bahasa yang sama dengan `--width=`: digit, paling kecil 1; dan `-W` ikut himpunan opsi bernilai penghitung operand. Skenario uji-verifikasi 1914.
+
+
 ## [Belum rilis] — Gerbang: opsi khas-diff yang tak ada di diff3 kini ditolak untuk diff3 (Audit 2848)
 
 Sisa faset perbaikan 2822: walk bersama masih meniliai sah untuk diff3 sederet opsi yang hanya ada di diff — `--width`/`--tabsize` (divalidasi nilainya seolah diff3 menerimanya), `-D`/`--ifdef`, dan keluarga format `--line-format`/`--GTYPE-group-format`/`--LTYPE-line-format` — padahal biner diff3 mati "unrecognized/invalid option" untuk semuanya. Keenamnya kini ditolak bagi diff3 (bentuk panjang, `=`, terpisah, dan huruf bundel); probe induk menambahkan `-W` yang juga tak ada di diff3 ("invalid option", terprobe) ke penolakan yang sama. Skenario uji-verifikasi 1913.

@@ -40544,6 +40544,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi khas-diff --width kini ditolak untuk diff3 (Audit 2848)", rc == 0)
         shutil.rmtree(sub1913, ignore_errors=True)
+        sub1914 = klon(tmp, "sub1914")
+        berkas_aksi1914 = os.path.join(
+            sub1914, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1914, encoding="utf-8") as f:
+            isi_aksi1914 = f.read()
+        baris_aksi1914 = [b for b in isi_aksi1914.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1914 = isi_aksi1914.replace(
+                baris_aksi1914,
+                baris_aksi1914.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff -W abc - f2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1914 != isi_aksi1914, \
+            "suntikan aksi1914 tidak menembak"
+        with open(berkas_aksi1914, "w", encoding="utf-8") as f:
+            f.write(isi_baru1914)
+        rc, out = jalan(sub1914,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("nilai -W diff tak sah kini ditolak gerbang (Audit 2849)", rc == 0)
+        shutil.rmtree(sub1914, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

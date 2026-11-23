@@ -6821,6 +6821,38 @@ def _menguras_khusus(perintah, toks, awal):
                         # mati "invalid option"
                         # (terprobe keduanya).
                         return False
+                    if (perintah == "diff"
+                            and h_df == "W"):
+                        # Audit 2849: -W adalah
+                        # bentuk pendek
+                        # --width - nilainya
+                        # divalidasi persis
+                        # tata bahasa --width=
+                        # (digit, >= 1).
+                        if pos_df == len(t_df) - 2:
+                            if k_df + 1 < len(toks):
+                                v_df = toks[
+                                    k_df + 1].strip(
+                                    "\"'")
+                                if not (
+                                        v_df.isdigit()
+                                        and len(v_df)
+                                        <= 18
+                                        and int(v_df)
+                                        >= 1):
+                                    return False
+                            lompat_df = 2
+                        else:
+                            v_df = t_df[
+                                2 + pos_df:]
+                            if not (
+                                    v_df.isdigit()
+                                    and len(v_df)
+                                    <= 18
+                                    and int(v_df)
+                                    >= 1):
+                                return False
+                        break
                     if h_df in "UCAD":
                         # Audit 2822: diff3 tak
                         # mengenal -U/-C.
@@ -6879,6 +6911,8 @@ def _menguras_khusus(perintah, toks, awal):
                           "--LTYPE-line-format"}
         if perintah == "diff":
             bernilai_ops_d.add("-A")
+            # Audit 2849: -W bernilai (lebar).
+            bernilai_ops_d.add("-W")
         ops_d = _operand_sesudah_opsi(
             toks, awal, bernilai_ops_d)
         # Audit 1135: opsi menggantung = program galat.
