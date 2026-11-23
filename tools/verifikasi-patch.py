@@ -14724,6 +14724,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         j_su += 1
                         continue
                     break
+                # Audit 2718: sg mewajibkan
+                # operand grup - sg telanjang
+                # mati usage, bukan menjatuhkan
+                # shell (beda dari su/newgrp
+                # yang sah telanjang).
+                if t0 == "sg" and not operand_su:
+                    return False
                 return True
             while awal < len(toks):
                 if awal >= _batas_argv:

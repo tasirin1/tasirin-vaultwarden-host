@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — sg telanjang divonis mati, bukan shell (Audit 2718)
+
+- Blok bersama
+  su/sg/newgrp kini
+  membedakan sg: tanpa
+  operand grup ia mati
+  usage seperti biner,
+  tidak lagi divonis
+  menjatuhkan shell.
+
+
 ## [Belum rilis] — builtin read kini dimodelkan sebagai penelan baris (Audit 2717)
 
 - Builtin `read` kini
