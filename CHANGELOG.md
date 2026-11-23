@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — singkatan dan gugus informasional su/sg/newgrp dikenali (Audit 2711)
+
+- Pindaian informasional
+  su/sg/newgrp kini juga
+  mengenali singkatan
+  getopt_long atas
+  `--help`/`--version`
+  dan huruf informasional
+  di dalam gugus pendek
+  (mis. `-lh`, `-lV`),
+  tidak hanya token
+  utuhnya.
+
+
 ## [Belum rilis] — bentuk -h dan singkatan informasional unshare/systemd-cat/xargs dikenali (Audit 2710)
 
 - Pindaian informasional

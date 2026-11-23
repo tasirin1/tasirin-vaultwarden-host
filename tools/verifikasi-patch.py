@@ -14457,12 +14457,52 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     if t_su in bernilai_su:
                         j_su += 2
                         continue
-                    if (t_su.strip("\"'")
-                            in ("--help", "--version",
-                                "-h")
-                            or (t0 == "su"
-                                and t_su.strip("\"'")
-                                == "-V")):
+                    mentah_su = t_su.strip("\"'")
+                    info_su = (
+                        mentah_su
+                        in ("--help", "--version",
+                            "-h")
+                        or (t0 == "su"
+                            and mentah_su == "-V"))
+                    if (not info_su
+                            and mentah_su.startswith(
+                                "--")):
+                        # Audit 2711: singkatan
+                        # getopt_long atas
+                        # --help/--version sama
+                        # informasionalnya.
+                        nama_su = mentah_su[2:].partition(
+                            "=")[0]
+                        info_su = bool(
+                            nama_su
+                            and ("help".startswith(
+                                    nama_su)
+                                 or "version".startswith(
+                                    nama_su)))
+                    if (not info_su
+                            and mentah_su.startswith(
+                                "-")
+                            and not mentah_su.startswith(
+                                "--")
+                            and len(mentah_su) > 2):
+                        # Audit 2711: di gugus
+                        # pendek, huruf h (dan
+                        # V khusus su) sebelum
+                        # huruf bernilai pertama
+                        # tetap informasional.
+                        pembawa_su = (
+                            "cgGs" if t0 == "su"
+                            else "c")
+                        for ch_su in mentah_su[1:]:
+                            if ch_su in pembawa_su:
+                                break
+                            if (ch_su == "h"
+                                    or (t0 == "su"
+                                        and ch_su
+                                        == "V")):
+                                info_su = True
+                                break
+                    if info_su:
                         # Audit 2700: --help/--version
                         # (dan -h, serta -V khusus su)
                         # mencetak lalu keluar - blok
