@@ -5706,6 +5706,43 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops:
             return False
+        # Audit 2766: tata bahasa pola
+        # csplit divalidasi - pola sesudah
+        # operand berkas harus nomor baris
+        # >= 1, /regex/[+-offset],
+        # %regex%[+-offset], atau {N}/{*}
+        # yang mengikuti pola bukan-kurung.
+        ada_pola = False
+        for pola_cs in ops[1:]:
+            if re.fullmatch(r"\d+", pola_cs):
+                if int(pola_cs) < 1:
+                    return False
+                ada_pola = True
+                continue
+            if (pola_cs.startswith("/")
+                    or pola_cs.startswith("%")):
+                pisah_cs = pola_cs[0]
+                tutup_cs = pola_cs.find(
+                    pisah_cs, 1)
+                if tutup_cs < 0:
+                    return False
+                ekor_cs = pola_cs[tutup_cs + 1:]
+                if (ekor_cs
+                        and not re.fullmatch(
+                            r"[+-]\d+", ekor_cs)):
+                    return False
+                ada_pola = True
+                continue
+            # Kurung tutup pola bisa
+            # terpotong parser lapisan luar
+            # gerbang (token "{3" dari
+            # "{3}") - tutup opsional.
+            if re.fullmatch(
+                    r"\{(\d+|\*)\}?", pola_cs):
+                if not ada_pola:
+                    return False
+                continue
+            return False
         return bool(ops) and ops[0] == "-"
     if perintah in ("pdfinfo", "pdffonts", "pdfimages",
                     "pdftops"):

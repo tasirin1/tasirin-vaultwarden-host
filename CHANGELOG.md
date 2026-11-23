@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — tata bahasa pola csplit kini divalidasi (Audit 2766)
+
+- Pola csplit kini
+  divalidasi: nomor
+  baris >= 1, bentuk
+  /regex/ dan %regex%
+  ber-offset, dan
+  pengulangan {N}/{*}
+  sesudah pola.
+
+
 ## [Belum rilis] — nilai -1/-2 dan -o join kini divalidasi (Audit 2765)
 
 - Nomor bidang
