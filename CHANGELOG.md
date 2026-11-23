@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — TLS: perbandingan awalan salinan kini tahan baca pendek asimetris (Audit 2874)
+
+Loop `sisaSalinanTerpotong` mengurangi sisa hanya sebesar bacaan yang lebih pendek tetapi kedua stream maju sebesar bacaannya masing-masing — satu baca pendek asimetris (sah menurut kontrak InputStream, nyata di penyimpanan emulasi) menggeser seluruh perbandingan dan sisa salinan terpotong yang asli tak dikenali. Logika kini di helper `awalanSamaPersis` yang membawa sisa bacaan tiap stream; uji JVM baru memakai stream menetes asimetris (8191 vs 3 byte per baca).
+
+
 ## [Belum rilis] — Gerbang: singkatan unik ke opsi informatif curl kini ditolak di walk kedua (Audit 2873)
 
 Singkatan unik yang menyelesaikan ke `--version`/`--help`/`--manual` membuat biner mencetak lalu keluar rc=0 tanpa membaca stdin, tetapi walk kedua tak mengenal penyelesaian ke bendera sehingga `-d @-` di belakangnya dinilai menguras. Nama informatif kini ditolak dalam bentuk persis, singkatan unik, dan bentuk `=`. Skenario uji-diri 1944.

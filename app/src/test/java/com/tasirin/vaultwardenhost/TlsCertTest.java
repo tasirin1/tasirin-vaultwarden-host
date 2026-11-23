@@ -512,6 +512,54 @@ public class TlsCertTest {
         assertFalse(TlsCert.sisaSalinanTerpotong(asal, new File(d, "tiada")));
     }
 
+    static class AliranMenetes
+            extends java.io.FilterInputStream {
+        private final int maksPerBaca;
+
+        AliranMenetes(java.io.InputStream in, int maksPerBaca) {
+            super(in);
+            this.maksPerBaca = maksPerBaca;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws java.io.IOException {
+            return super.read(b, off, Math.min(len, maksPerBaca));
+        }
+    }
+
+    @Test
+    public void awalanSamaPersis_bacaPendekAsimetris() throws Exception {
+        byte[] isi = new byte[20_000];
+        for (int i = 0; i < isi.length; i++) {
+            isi[i] = (byte) (i % 251);
+        }
+        byte[] awalan = java.util.Arrays.copyOf(isi, 12_345);
+        assertTrue(TlsCert.awalanSamaPersis(
+                new AliranMenetes(
+                        new java.io.ByteArrayInputStream(isi), 8191),
+                new AliranMenetes(
+                        new java.io.ByteArrayInputStream(awalan), 3),
+                awalan.length));
+        assertTrue(TlsCert.awalanSamaPersis(
+                new AliranMenetes(
+                        new java.io.ByteArrayInputStream(isi), 1),
+                new AliranMenetes(
+                        new java.io.ByteArrayInputStream(awalan), 8192),
+                awalan.length));
+        byte[] rusak = awalan.clone();
+        rusak[rusak.length - 1] ^= 0x5A;
+        assertFalse(TlsCert.awalanSamaPersis(
+                new AliranMenetes(
+                        new java.io.ByteArrayInputStream(isi), 8191),
+                new AliranMenetes(
+                        new java.io.ByteArrayInputStream(rusak), 3),
+                rusak.length));
+        assertFalse(TlsCert.awalanSamaPersis(
+                new java.io.ByteArrayInputStream(isi),
+                new java.io.ByteArrayInputStream(awalan),
+                awalan.length + 1L));
+    }
+
     @Test
     public void pulihkanVersiTersisa_tanpaCadanganAman() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlsversi3");

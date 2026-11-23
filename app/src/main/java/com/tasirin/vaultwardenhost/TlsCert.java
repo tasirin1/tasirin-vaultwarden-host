@@ -1208,29 +1208,64 @@ public final class TlsCert {
             }
             try (FileInputStream fa = new FileInputStream(asal);
                  FileInputStream ft = new FileInputStream(tujuan)) {
-                byte[] ba = new byte[8192];
-                byte[] bt = new byte[8192];
-                long sisa = lt;
-                while (sisa > 0) {
-                    int mau = (int) Math.min(ba.length, sisa);
-                    int na = fa.read(ba, 0, mau);
-                    int nt = ft.read(bt, 0, mau);
-                    if (na <= 0 || nt <= 0) {
-                        return false;
-                    }
-                    int pakai = Math.min(na, nt);
-                    for (int i = 0; i < pakai; i++) {
-                        if (ba[i] != bt[i]) {
-                            return false;
-                        }
-                    }
-                    sisa -= pakai;
-                }
-                return true;
+                return awalanSamaPersis(fa, ft, lt);
             }
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // Audit 2874: perbandingan awalan membawa
+    // sisa bacaan tiap stream - kontrak
+    // InputStream membolehkan baca pendek,
+    // dan versi lama membuang kelebihan
+    // bacaan stream yang lebih panjang
+    // sehingga satu baca pendek asimetris
+    // (nyata di penyimpanan emulasi/FUSE)
+    // menggeser seluruh perbandingan
+    // sesudahnya dan sisa terpotong yang
+    // asli tak dikenali.
+    static boolean awalanSamaPersis(
+            java.io.InputStream fa,
+            java.io.InputStream ft,
+            long panjang) throws IOException {
+        byte[] ba = new byte[8192];
+        byte[] bt = new byte[8192];
+        int posA = 0;
+        int posT = 0;
+        int adaA = 0;
+        int adaT = 0;
+        long sisa = panjang;
+        while (sisa > 0) {
+            if (adaA == 0) {
+                adaA = fa.read(ba, 0,
+                        (int) Math.min(ba.length, sisa));
+                if (adaA <= 0) {
+                    return false;
+                }
+                posA = 0;
+            }
+            if (adaT == 0) {
+                adaT = ft.read(bt, 0,
+                        (int) Math.min(bt.length, sisa));
+                if (adaT <= 0) {
+                    return false;
+                }
+                posT = 0;
+            }
+            int pakai = Math.min(adaA, adaT);
+            for (int i = 0; i < pakai; i++) {
+                if (ba[posA + i] != bt[posT + i]) {
+                    return false;
+                }
+            }
+            posA += pakai;
+            adaA -= pakai;
+            posT += pakai;
+            adaT -= pakai;
+            sisa -= pakai;
+        }
+        return true;
     }
 
     static void salinCadanganVersiYatim(File asal, File tujuanDir) {
