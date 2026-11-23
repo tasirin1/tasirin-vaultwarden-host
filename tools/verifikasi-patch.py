@@ -14386,6 +14386,17 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         # mati sebelum anak.
                         if ch_ih == "h":
                             return False
+                        # Audit 2735: -e xargs
+                        # bernilai TEMPEL saja
+                        # (2685) jadi absen dari
+                        # tabel pembawa; sisa
+                        # token sesudahnya teks
+                        # nilai, bukan opsi -
+                        # berhenti memindai
+                        # gugus ini.
+                        if (t0 == "xargs"
+                                and ch_ih == "e"):
+                            break
                         if ("-" + ch_ih) in bernilai:
                             if (pos_ih
                                     == len(huruf_ih) - 1):

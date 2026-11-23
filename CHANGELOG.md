@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — pindaian gugus berhenti di -e xargs (Audit 2735)
+
+- Pindaian gugus
+  informasional 2710
+  kini berhenti di
+  huruf `e` xargs:
+  nilainya menempel,
+  jadi huruf sesudahnya
+  teks nilai, bukan
+  opsi bantuan.
+
+
 ## [Belum rilis] — nilai flock -E menerima tanda + (Audit 2734)
 
 - Validator kode
