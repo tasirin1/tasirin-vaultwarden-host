@@ -4458,6 +4458,9 @@ public class ServerService extends Service {
                     TgBackup.copyFile(asal, tujuan);
                 }
             }
+            // Audit 2730: bawa cadangan penanda versi yatim
+            // bila version.txt hilang di folder lama.
+            TlsCert.salinCadanganVersiYatim(lama, baru);
             appendLog("[app] TLS dimigrasi ke internal (kunci tak lagi di /sdcard).");
         } catch (Exception ignored) {
         }

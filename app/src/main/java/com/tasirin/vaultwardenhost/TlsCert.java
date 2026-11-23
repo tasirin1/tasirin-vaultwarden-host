@@ -1135,6 +1135,37 @@ public final class TlsCert {
         }
     }
 
+    static void salinCadanganVersiYatim(File asal, File tujuanDir) {
+        // Audit 2730: migrasi folder TLS menyalin enam nama
+        // tetap; bila version.txt hilang karena proses mati
+        // di tengah tukar 2684, cadangan yatimnya tertinggal
+        // dan CA dibangun ulang percuma di folder baru.
+        // Bawa satu cadangan agar pemulihan 2704 di folder
+        // tujuan bisa memasangnya.
+        if (asal == null || tujuanDir == null) {
+            return;
+        }
+        try {
+            if (new File(tujuanDir, "version.txt").isFile()) {
+                return;
+            }
+            File[] daftar = asal.listFiles();
+            if (daftar == null) {
+                return;
+            }
+            for (File f : daftar) {
+                if (f != null && f.isFile()
+                        && f.getName().startsWith(
+                                "version.txt.lama-")) {
+                    TgBackup.copyFile(
+                            f, new File(tujuanDir, f.getName()));
+                    return;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     private static void writeVersion(File dir) throws IOException {
 
         File tujuan = new File(dir, "version.txt");

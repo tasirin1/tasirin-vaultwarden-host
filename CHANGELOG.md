@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — migrasi TLS membawa cadangan penanda versi yatim (Audit 2730)
+
+- Migrasi folder TLS ke
+  internal kini membawa
+  satu cadangan
+  `version.txt.lama-*`
+  bila penanda versi
+  hilang di folder lama,
+  jadi CA tidak dibangun
+  ulang percuma sesudah
+  migrasi.
+
+
 ## [Belum rilis] — resetTls kini menyapu cadangan version.txt.lama-* (Audit 2729)
 
 - `resetTls` kini ikut

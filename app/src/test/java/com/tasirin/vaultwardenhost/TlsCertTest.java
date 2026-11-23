@@ -541,6 +541,28 @@ public class TlsCertTest {
     }
 
     @Test
+    public void salinCadanganVersiYatim_salinSaatVersionHilang() throws Exception {
+        java.nio.file.Path asal = Files.createTempDirectory("tlsyatim-asal");
+        java.nio.file.Path tujuan = Files.createTempDirectory("tlsyatim-tujuan");
+        Files.write(new File(asal.toFile(), "version.txt.lama-999").toPath(), "7\n".getBytes(StandardCharsets.UTF_8));
+        TlsCert.salinCadanganVersiYatim(asal.toFile(), tujuan.toFile());
+        assertTrue(new File(tujuan.toFile(), "version.txt.lama-999").isFile());
+        TlsCert.pulihkanVersiTersisa(tujuan.toFile());
+        assertEquals("7\n", new String(Files.readAllBytes(new File(tujuan.toFile(), "version.txt").toPath()), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void salinCadanganVersiYatim_lewatiSaatVersionAda() throws Exception {
+        java.nio.file.Path asal = Files.createTempDirectory("tlsyatim-asal2");
+        java.nio.file.Path tujuan = Files.createTempDirectory("tlsyatim-tujuan2");
+        Files.write(new File(asal.toFile(), "version.txt.lama-999").toPath(), "7\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(tujuan.toFile(), "version.txt").toPath(), "8\n".getBytes(StandardCharsets.UTF_8));
+        TlsCert.salinCadanganVersiYatim(asal.toFile(), tujuan.toFile());
+        assertFalse(new File(tujuan.toFile(), "version.txt.lama-999").exists());
+        TlsCert.salinCadanganVersiYatim(null, null);
+    }
+
+    @Test
     public void resetTls_hapusCadanganVersiYatim() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlsresetyatim");
         Files.write(new File(dir.toFile(), "version.txt").toPath(), "7\n".getBytes(StandardCharsets.UTF_8));
