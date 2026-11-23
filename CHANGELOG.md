@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — nilai -n watch kini divalidasi (Audit 2720)
+
+- Nilai `-n`/`--interval`
+  watch kini divalidasi
+  di blok penerima
+  pembungkus: harus
+  bilangan desimal
+  (tanpa eksponen dan
+  tanpa akhiran) seperti
+  parser binernya.
+
+
 ## [Belum rilis] — nilai -w/-E flock kini divalidasi (Audit 2719)
 
 - Blok validasi penerima

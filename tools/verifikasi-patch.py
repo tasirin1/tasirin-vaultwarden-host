@@ -15028,7 +15028,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 and not _sinyal_timeout_sah(
                                     nilai2681)):
                             return False
-                if t0 in ("flock",):
+                if t0 in ("flock", "watch"):
                     # Audit 2719: penerima bertipe
                     # pada pembungkus lain -
                     # nilai sampah membunuh
@@ -15048,12 +15048,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             "--wait": "flock-w",
                             "--conflict-exit-code":
                                 "flock-E"},
+                        "watch": {
+                            "--interval":
+                                "desimal-tanda"},
                     }
                     pendek_b = {
                         "flock": {"w": "flock-w",
                                   "E": "flock-E"},
+                        "watch": {"n": "desimal-tanda"},
                     }
-                    ambang_b = {"flock": 3}
+                    ambang_b = {"flock": 3, "watch": 3}
                     nama_b = opsi
                     nilai_b = None
                     if (opsi.startswith("--")
@@ -15107,6 +15111,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                         r"|\.\d+)"
                                         r"([eE][+-]?"
                                         r"\d+)?",
+                                        nilai_b):
+                                    return False
+                            elif (jenis_b
+                                    == "desimal-tanda"):
+                                # Audit 2720: interval
+                                # watch = strtod tanpa
+                                # eksponen, tanda bebas.
+                                if not re.fullmatch(
+                                        r"[+-]?(\d+\.?\d*"
+                                        r"|\.\d+)",
                                         nilai_b):
                                     return False
                             elif jenis_b == "flock-E":

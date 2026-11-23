@@ -38255,6 +38255,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item flock -w abc: flock mati nilai waktu, gerbang lolos (Audit 2719)", rc == 0)
         shutil.rmtree(sub1804, ignore_errors=True)
+        sub1805 = klon(tmp, "sub1805")
+        berkas_aksi1805 = os.path.join(
+            sub1805, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1805, encoding="utf-8") as f:
+            isi_aksi1805 = f.read()
+        baris_aksi1805 = [b for b in isi_aksi1805.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1805 = isi_aksi1805.replace(
+                baris_aksi1805,
+                baris_aksi1805.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(watch -n abc cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1805 != isi_aksi1805, \
+            "suntikan aksi1805 tidak menembak"
+        with open(berkas_aksi1805, "w", encoding="utf-8") as f:
+            f.write(isi_baru1805)
+        rc, out = jalan(sub1805,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item watch -n abc cat: watch mati nilai interval, gerbang lolos (Audit 2720)", rc == 0)
+        shutil.rmtree(sub1805, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
