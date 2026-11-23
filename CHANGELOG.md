@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — nilai enum pendek grep -d/-D kini divalidasi (Audit 2759)
+
+- Nilai enum bentuk
+  pendek `-d`/`-D`
+  grep (terpisah
+  maupun nempel) kini
+  divalidasi ke tabel
+  enum yang sama.
+
+
 ## [Belum rilis] — lebar pod2text kini divalidasi (Audit 2758)
 
 - Lebar `-w`/

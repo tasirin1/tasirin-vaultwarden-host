@@ -2413,6 +2413,37 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                             i_19 += 1
                         break
                     if ch_19 in lewati_pendek_19:
+                        # Audit 2759: nilai enum
+                        # pendek grep -d/-D -
+                        # bentuk terpisah lolos
+                        # tanpa pemeriksaan
+                        # (dan -D nempel pun);
+                        # validasi ke tabel
+                        # enum panjang yang sama.
+                        if (nama_asli != "rg"
+                                and ch_19 in "dD"):
+                            kunci_19 = (
+                                "directories"
+                                if ch_19 == "d"
+                                else "devices")
+                            if (pos_19
+                                    < len(huruf_19)
+                                    - 1):
+                                if (huruf_19[
+                                        pos_19 + 1:]
+                                        not in
+                                        enum_panjang_19[
+                                            kunci_19]):
+                                    return False
+                            elif (i_19 + 1
+                                    < len(toks)):
+                                if (toks[i_19 + 1]
+                                        .strip(
+                                            "\"'")
+                                        not in
+                                        enum_panjang_19[
+                                            kunci_19]):
+                                    return False
                         if (pos_19 == len(huruf_19) - 1
                                 and i_19 + 1 < len(toks)):
                             i_19 += 1
