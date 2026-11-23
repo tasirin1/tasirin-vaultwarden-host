@@ -40691,6 +40691,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("terminator -- menghentikan pindai sumber stdin curl (Audit 2855)", rc == 0)
         shutil.rmtree(sub1920, ignore_errors=True)
+        sub1921 = klon(tmp, "sub1921")
+        berkas_aksi1921 = os.path.join(
+            sub1921, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1921, encoding="utf-8") as f:
+            isi_aksi1921 = f.read()
+        baris_aksi1921 = [b for b in isi_aksi1921.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1921 = isi_aksi1921.replace(
+                baris_aksi1921,
+                baris_aksi1921.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --max-lazy=abc -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1921 != isi_aksi1921, \
+            "suntikan aksi1921 tidak menembak"
+        with open(berkas_aksi1921, "w", encoding="utf-8") as f:
+            f.write(isi_baru1921)
+        rc, out = jalan(sub1921,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("anggota _MAX_V8 node kini divalidasi nilainya (Audit 2856)", rc == 0)
+        shutil.rmtree(sub1921, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -3708,11 +3708,26 @@ def _menguras_interpreter(perintah, toks, awal):
             # node sendiri seperti
             # --max-http-header-size TIDAK
             # ikut: biner menerimanya.)
-            if dasar_nd in (
-                    "--max-old-space-size",
-                    "--max-semi-space-size",
-                    "--max-heap-size",
-                    "--max-shared-heap-size"):
+            # Audit 2856: --max-lazy anggota
+            # _MAX_V8 satu-satunya yang bool -
+            # bentuk "=" apa pun membunuh
+            # node ("illegal value ... of
+            # type bool"; =1 pun mati,
+            # terprobe sapuan induk atas
+            # seluruh _MAX_V8).
+            if dasar_nd == "--max-lazy":
+                if "=" in t:
+                    return False
+                i += 1
+                continue
+            # Audit 2856: cakupan 2800
+            # diperluas ke SELURUH anggota
+            # numerik _MAX_V8 (20 nama) -
+            # sapuan induk membuktikan semua
+            # mati "illegal value" pada nilai
+            # non-numerik dan bentuk terpisah.
+            if (dasar_nd in _MAX_V8
+                    and dasar_nd != "--max-lazy"):
                 if "=" not in t or not _ukuran_v8_sah(
                         t.split("=", 1)[1].strip(
                             "\"'")):

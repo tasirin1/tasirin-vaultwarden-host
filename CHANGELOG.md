@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: validasi nilai node diperluas ke seluruh anggota _MAX_V8 (Audit 2856)
+
+Validasi nilai `=` ala 2800 hanya menjaga empat anggota keluarga `--max-*`; anggota lain lolos dengan nilai apa pun padahal biner mati "illegal value ... of type int/bool". Sapuan induk atas seluruh 21 anggota `_MAX_V8` membuktikan: 20 numerik (mati pada nilai non-numerik dan bentuk terpisah, persis doktrin 2800) dan satu bool, `--max-lazy`, yang mati pada bentuk `=` apa pun — `=1` pun mati. Keduanya kini divalidasi; `--cpu-prof-interval`/`--heap-prof-interval` yang ditoleransi biner tidak disentuh. Skenario uji-verifikasi 1921.
+
+
 ## [Belum rilis] — Gerbang: walk kedua curl kini menghormati terminator -- (Audit 2855)
 
 Walk kedua mengabaikan terminator `--`: `curl -- -d @- URL` dinilai menguras padahal biner memperlakukan `-d` sebagai URL dan mengirim GET berbadan kosong (terprobe server penangkap induk — stdin tak pernah dibaca). Pindai kini berhenti di `--`; yang tertelan sebagai nilai opsi (mis. `--header --`, terprobe induk mengirim POST) tetap nilai, bukan terminator. Skenario uji-verifikasi 1920.
