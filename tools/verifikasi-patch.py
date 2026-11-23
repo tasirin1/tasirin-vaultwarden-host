@@ -13862,6 +13862,41 @@ def _menguras_khusus(perintah, toks, awal):
     # Audit 1358: keluarga ffmpeg — masukan '-'/'pipe:'
     # membaca media dari stdin sampai EOF.
     if perintah in ("ffmpeg", "ffprobe", "ffplay"):
+        # Audit 2771: durasi -t/-ss
+        # (av_parse_time) divalidasi:
+        # detik polos bertanda dengan
+        # sufiks s/ms/us, atau bentuk
+        # titik-dua dengan komponen
+        # sesudah pertama < 60 - nilai
+        # asing membunuh ffmpeg saat
+        # urai sebelum masukan dibaca.
+        def _durasi_ff_sah(v_ff2):
+            if re.fullmatch(
+                    r"[+-]?\d+(\.\d*)?"
+                    r"(s|ms|us)?", v_ff2):
+                return True
+            m_ff2 = re.fullmatch(
+                r"[+-]?(\d+):(\d{1,2})"
+                r"(?::(\d{1,2}))?"
+                r"(\.\d+)?", v_ff2)
+            if not m_ff2:
+                return False
+            if int(m_ff2.group(2)) >= 60:
+                return False
+            if (m_ff2.group(3) is not None
+                    and int(m_ff2.group(3))
+                    >= 60):
+                return False
+            return True
+        k_ff2 = 0
+        while k_ff2 < len(mentah):
+            if mentah[k_ff2] in ("-t", "-ss"):
+                if k_ff2 + 1 < len(mentah):
+                    if not _durasi_ff_sah(
+                            mentah[k_ff2 + 1]):
+                        return False
+                    k_ff2 += 1
+            k_ff2 += 1
         # Audit 1393: ffprobe/ffplay menerima TEPAT satu
         # masukan — hanya -i PERTAMA yang menentukan (masukan
         # kedua ditolak sebelum membaca); ffmpeg boleh banyak

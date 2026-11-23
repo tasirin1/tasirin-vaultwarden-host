@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — durasi -t/-ss ffmpeg kini divalidasi (Audit 2771)
+
+- Durasi `-t`/`-ss`
+  ffmpeg kini
+  divalidasi sesuai
+  tata bahasa
+  av_parse_time.
+
+
 ## [Belum rilis] — nilai -b dan --record-size tar kini divalidasi (Audit 2770)
 
 - Faktor blok `-b`
