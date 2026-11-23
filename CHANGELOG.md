@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi panjang tree tak dikenal kini ditolak (Audit 2845)
+
+Model tree membiarkan opsi panjang apa pun lewat — `--level=2`, `--output x`, `--bogus` sebelum `--fromfile` tetap dinilai menguras, padahal tree 2.1.1 mati "Invalid argument" pada nama pertama yang tak dikenalnya (dan memang tidak punya `--level`/`--output` sama sekali; validasi nilai `--level` warisan 2774 kini tak terjangkau karena namanya sendiri ditolak). Walk kedua kini memeriksa setiap token opsi panjang yang benar-benar terlandasi (bukan yang tertelan sebagai nilai) terhadap kosakata persis `--help` biner; `--help`/`--version` juga mengakhiri perintah tanpa membaca. Skenario uji-verifikasi 1910.
+
+
 ## [Belum rilis] — Gerbang: operand tree --fromfile/--fromtabfile kini menentukan sumber daftar (Audit 2844)
 
 Walk kedua tree mengembalikan "menguras" seketika saat melihat `--fromfile`, tanpa memeriksa operandnya — padahal mode itu membaca daftar dari operand pertamanya: `tree --fromfile daftar.txt` membaca berkas itu dan `tree --fromfile -` menganggap `-` nama direktori harfiah (biner rc=2); hanya tanpa operand, atau operand `.` / `/dev/stdin`, yang membaca stdin (semua terprobe, termasuk opsi lain yang menyelip di antara bendera dan operand). Walk kedua kini mencatat mode dan operand pertama dengan aturan konsumsi nilai yang sama seperti sebelumnya, lalu menilai dari keduanya. Skenario uji-verifikasi 1909.

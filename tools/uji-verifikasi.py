@@ -40460,6 +40460,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("operand berkas --fromfile kini tak dinilai stdin (Audit 2844)", rc == 0)
         shutil.rmtree(sub1909, ignore_errors=True)
+        sub1910 = klon(tmp, "sub1910")
+        berkas_aksi1910 = os.path.join(
+            sub1910, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1910, encoding="utf-8") as f:
+            isi_aksi1910 = f.read()
+        baris_aksi1910 = [b for b in isi_aksi1910.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1910 = isi_aksi1910.replace(
+                baris_aksi1910,
+                baris_aksi1910.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tree --bogus --fromfile; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1910 != isi_aksi1910, \
+            "suntikan aksi1910 tidak menembak"
+        with open(berkas_aksi1910, "w", encoding="utf-8") as f:
+            f.write(isi_baru1910)
+        rc, out = jalan(sub1910,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("opsi panjang tree tak dikenal kini membunuh model gerbang (Audit 2845)", rc == 0)
+        shutil.rmtree(sub1910, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -15173,6 +15173,26 @@ def _menguras_khusus(perintah, toks, awal):
         # berkas daftar dan stdin tak dibaca
         # (terprobe biner, termasuk dengan opsi
         # lain menyelip di antaranya).
+        # Audit 2845: kosakata opsi panjang
+        # tree 2.1.1 persis dari --help biner -
+        # nama di luar ini (termasuk hantu
+        # --level/--output yang dulu dimodelkan
+        # 2774) membunuh biner saat urai
+        # ("Invalid argument"), jadi perintah
+        # tak pernah membaca stdin.
+        sah_tr2 = {"--gitignore", "--gitfile",
+                   "--matchdirs", "--metafirst",
+                   "--ignore-case", "--nolinks",
+                   "--hintro", "--houtro",
+                   "--inodes", "--device",
+                   "--sort", "--dirsfirst",
+                   "--filesfirst", "--filelimit",
+                   "--si", "--du", "--prune",
+                   "--charset", "--timefmt",
+                   "--fromfile", "--fromtabfile",
+                   "--fflinks", "--info",
+                   "--infofile", "--noreport",
+                   "--version", "--help"}
         mode_tr2 = False
         operand_tr2 = None
         k_tr2 = 0
@@ -15191,6 +15211,13 @@ def _menguras_khusus(perintah, toks, awal):
                 mode_tr2 = True
                 k_tr2 += 1
                 continue
+            if t_tr2.startswith("--"):
+                nama_tr2 = t_tr2.split("=", 1)[0]
+                if nama_tr2 not in sah_tr2:
+                    return False
+                if nama_tr2 in ("--help",
+                                "--version"):
+                    return False
             if t_tr2 in bernilai_tr2:
                 k_tr2 += 2
                 continue
