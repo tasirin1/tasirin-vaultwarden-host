@@ -39956,6 +39956,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item perl -CZ: huruf -C di luar himpunan sah membunuh perl, gerbang lolos (Audit 2806)", rc == 0)
         shutil.rmtree(sub1885, ignore_errors=True)
+        sub1886 = klon(tmp, "sub1886")
+        berkas_aksi1886 = os.path.join(
+            sub1886, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1886, encoding="utf-8") as f:
+            isi_aksi1886 = f.read()
+        baris_aksi1886 = [b for b in isi_aksi1886.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1886 = isi_aksi1886.replace(
+                baris_aksi1886,
+                baris_aksi1886.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 -vfs bogus; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1886 != isi_aksi1886, \
+            "suntikan aksi1886 tidak menembak"
+        with open(berkas_aksi1886, "w", encoding="utf-8") as f:
+            f.write(isi_baru1886)
+        rc, out = jalan(sub1886,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item sqlite3 -vfs bogus: nama VFS tak terdaftar membunuh sqlite3, gerbang lolos (Audit 2807)", rc == 0)
+        shutil.rmtree(sub1886, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

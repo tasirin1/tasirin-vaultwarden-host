@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — sqlite3: -vfs kini divalidasi nama VFS terdaftar (Audit 2807)
+
+- Nilai `-vfs`
+  sqlite3 kini
+  wajib nama VFS
+  terdaftar di
+  biner (unix,
+  unix-dotfile,
+  unix-excl,
+  unix-none,
+  memdb); nama
+  lain mati "no
+  such VFS".
+
+
 ## [Belum rilis] — perl: -C kini divalidasi himpunan hurufnya (Audit 2806)
 
 - Argumen `-C`

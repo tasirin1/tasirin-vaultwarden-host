@@ -5174,7 +5174,7 @@ def _menguras_khusus(perintah, toks, awal):
                         "maxsize", "mmap"}
         _lewati_44 = 0
         _ops_44 = 0
-        for t_44 in mentah:
+        for _i_44, t_44 in enumerate(mentah):
             if _lewati_44 > 0:
                 _lewati_44 -= 1
                 continue
@@ -5190,6 +5190,23 @@ def _menguras_khusus(perintah, toks, awal):
                 if nm_44 in ("lookaside", "pagecache"):
                     _lewati_44 = 2
                 elif nm_44 in _pembawa1_44:
+                    # Audit 2807: nilai -vfs wajib
+                    # VFS yang terdaftar di biner
+                    # (terverifikasi 3.45.1 lokal:
+                    # unix, unix-dotfile, unix-
+                    # excl, unix-none, memdb) -
+                    # nama lain mati "no such
+                    # VFS" sebelum SQL stdin
+                    # dieksekusi.
+                    if nm_44 == "vfs":
+                        if _i_44 + 1 >= len(mentah):
+                            return False
+                        if mentah[_i_44 + 1].strip(
+                                "\"'") not in (
+                                "unix", "unix-dotfile",
+                                "unix-excl", "unix-none",
+                                "memdb"):
+                            return False
                     _lewati_44 = 1
                 continue
             _ops_44 += 1
