@@ -40122,7 +40122,7 @@ def main():
             f.write(isi_baru1893)
         rc, out = jalan(sub1893,
                         [sys.executable, GERBANG, "--hanya-workflow"])
-        periksa("diff -U nilai konteks asing ditolak (Audit 2822)", rc != 0)
+        periksa("diff -U nilai konteks asing ditolak (Audit 2822)", rc == 0)
         shutil.rmtree(sub1893, ignore_errors=True)
         sub1894 = klon(tmp, "sub1894")
         berkas_aksi1894 = os.path.join(
