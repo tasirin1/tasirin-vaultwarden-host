@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: huruf opsi pendek tak sah tree kini membunuh model fromfile (Audit 2861)
+
+Validasi kosakata 2845 hanya memeriksa opsi panjang; huruf pendek tak sah (`-Z`, `-aZ`, `-e`) dibiarkan sehingga `tree --fromfile -Z` dinilai menguras padahal biner mati "Invalid argument". Walk fromfile kini memeriksa setiap huruf token pendek terhadap alfabet sah tree 2.1.1 (baris usage `--help` + `-R` + huruf bernilai); nilai opsi yang tertelan (mis. `-P -Z`) tidak ikut diperiksa. Skenario uji-diri 1930.
+
+
 ## [Belum rilis] — Gerbang: mode `--test` node tak lagi lolos sesudah terminator `--` (Audit 2860)
 
 Cabang terminator `--` generik mengembalikan vonis dari token berikutnya tanpa melihat mode uji 2839, sehingga `node --test -- -` dinilai menguras — padahal biner memperlakukan `-` sesudah `--` sebagai path uji dan keluar rc=1 tanpa membaca stdin. Cabang itu kini menghormati mode uji node. Skenario uji-diri 1929.

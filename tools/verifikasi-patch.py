@@ -15583,6 +15583,17 @@ def _menguras_khusus(perintah, toks, awal):
                    "--fflinks", "--info",
                    "--infofile", "--noreport",
                    "--version", "--help"}
+        # Audit 2861: alfabet huruf pendek
+        # sah tree 2.1.1 (baris usage
+        # --help + -R sinopsis + huruf
+        # bernilai) - huruf di luar ini
+        # membunuh biner "Invalid
+        # argument" (terprobe -Z/-e/-y/-1
+        # mati, -R/-h jalan); validasi
+        # 2845 dulu hanya opsi panjang.
+        sah_pendek_tr2 = set(
+            "acdfghilnpqrstuvxACDFJQNSUXR"
+            "PILTHo")
         mode_tr2 = False
         operand_tr2 = None
         k_tr2 = 0
@@ -15623,6 +15634,17 @@ def _menguras_khusus(perintah, toks, awal):
             # pengurai tree mengambil nilai dari token
             # sesudahnya begitu huruf bernilai apa pun
             # ditemui di dalam bundel.
+            # Audit 2861: huruf pendek tak
+            # sah di token mana pun (tunggal
+            # maupun bundel) membunuh biner
+            # sebelum stdin dibaca.
+            if (t_tr2.startswith("-")
+                    and not t_tr2.startswith("--")
+                    and len(t_tr2) > 1
+                    and any(h_tr2
+                            not in sah_pendek_tr2
+                            for h_tr2 in t_tr2[1:])):
+                return False
             if (t_tr2.startswith("-")
                     and not t_tr2.startswith("--")
                     and len(t_tr2) > 2
