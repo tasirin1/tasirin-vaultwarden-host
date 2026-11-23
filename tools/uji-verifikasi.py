@@ -40586,6 +40586,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("opsi hantu diff -A kini ditolak gerbang (Audit 2850)", rc == 0)
         shutil.rmtree(sub1915, ignore_errors=True)
+        sub1916 = klon(tmp, "sub1916")
+        berkas_aksi1916 = os.path.join(
+            sub1916, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1916, encoding="utf-8") as f:
+            isi_aksi1916 = f.read()
+        baris_aksi1916 = [b for b in isi_aksi1916.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1916 = isi_aksi1916.replace(
+                baris_aksi1916,
+                baris_aksi1916.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff3 -L - f2 f3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1916 != isi_aksi1916, \
+            "suntikan aksi1916 tidak menembak"
+        with open(berkas_aksi1916, "w", encoding="utf-8") as f:
+            f.write(isi_baru1916)
+        rc, out = jalan(sub1916,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff3 -L kini bernilai di model gerbang (Audit 2851)", rc == 0)
+        shutil.rmtree(sub1916, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: diff3 -L (label) kini dikenal bernilai + label tanpa mode gabung ditolak (Audit 2851)
+
+Opsi label khas diff3 `-L` tidak ada di himpunan opsi bernilai walk bersama, jadi `diff3 -L - f2 f3` dinilai menguras padahal `-` tertelan sebagai label dan biner mati "incompatible options" (terprobe). `-L` kini bernilai di pindai bundel dan himpunan operand untuk diff3 dan diff (probe induk membuktikan diff pun menelan `-` sebagai label). Matriks mode terprobe induk melengkapi modelnya: label diff3 hanya sah bersama mode gabung `-A`/`-E`/`-m` (atau bentuk panjangnya) — tanpa mode itu biner mati, jadi walk kini melacak label dan mode lalu menolak label yatim. Skenario uji-verifikasi 1916.
+
+
 ## [Belum rilis] — Gerbang: opsi hantu diff -A/--after-context/--before-context dicabut dari model (Audit 2850)
 
 GNU diff 3.10 tidak punya `-A`/`--after-context`/`--before-context` sama sekali (itu kosakata grep — premis petunjuk audit butir 10 dikoreksi oleh bukti biner di temuan ini), tetapi gerbang memodelkan `A` sebagai huruf bernilai dan kedua opsi panjang itu lolos tanpa validasi, jadi perintah dinilai menguras padahal biner mati "invalid/unrecognized option". Ketiganya kini ditolak untuk diff dan diff3 (token yang tertelan sebagai nilai opsi lain, mis. label, tetap bukan opsi). `-B` memang bendera `--ignore-blank-lines` dan modelnya sudah benar. Skenario uji-verifikasi 1915.

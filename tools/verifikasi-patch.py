@@ -6745,6 +6745,11 @@ def _menguras_khusus(perintah, toks, awal):
                        "--LTYPE-line-format",
                        "--unified", "--context",
                        "--ifdef"}
+        # Audit 2851: pelacak label & mode
+        # gabung diff3 (label tanpa mode
+        # membunuh biner).
+        label_df = False
+        mode_df = False
         k_df = awal + 1
         while k_df < len(toks):
             t_df = toks[k_df].strip("\"'")
@@ -6799,7 +6804,15 @@ def _menguras_khusus(perintah, toks, awal):
                     k_df += 1
                 k_df += 1
                 continue
+            if t_df in ("--show-all",
+                        "--show-overlap",
+                        "--merge"):
+                mode_df = True
+            if t_df.startswith("--label="):
+                label_df = True
             if t_df in bernilai_df:
+                if t_df == "--label":
+                    label_df = True
                 k_df += 2
                 continue
             if (t_df.startswith("--")
@@ -6814,6 +6827,9 @@ def _menguras_khusus(perintah, toks, awal):
                 lompat_df = 1
                 for pos_df, h_df in enumerate(
                         t_df[1:]):
+                    if (perintah == "diff3"
+                            and h_df in "AEm"):
+                        mode_df = True
                     if (perintah == "diff"
                             and h_df == "A"):
                         # Audit 2850: -A tak
@@ -6837,6 +6853,18 @@ def _menguras_khusus(perintah, toks, awal):
                         # mati "invalid option"
                         # (terprobe keduanya).
                         return False
+                    if h_df == "L":
+                        # Audit 2851: -L
+                        # (label) bernilai di
+                        # diff3 dan diff
+                        # (terprobe induk:
+                        # diff -L - = label
+                        # tertelan, perintah
+                        # kekurangan operand).
+                        label_df = True
+                        if pos_df == len(t_df) - 2:
+                            lompat_df = 2
+                        break
                     if (perintah == "diff"
                             and h_df == "W"):
                         # Audit 2849: -W adalah
@@ -6916,6 +6944,15 @@ def _menguras_khusus(perintah, toks, awal):
                         return False
                     k_df += 1
             k_df += 1
+        # Audit 2851: label diff3 tanpa mode
+        # gabung (-A/-E/-m atau bentuk
+        # panjangnya) membunuh biner -
+        # "incompatible options" (matriks
+        # mode terprobe induk: -e/-x/-X dan
+        # tanpa mode mati; -A/-E/-m jalan).
+        if (perintah == "diff3" and label_df
+                and not mode_df):
+            return False
         # Audit 2847: -A bendera di diff3,
         # sehingga token sesudahnya operand.
         # Audit 2850: -A tak ada di diff sama
@@ -6923,6 +6960,7 @@ def _menguras_khusus(perintah, toks, awal):
         bernilai_ops_d = {"-U", "-C", "--unified",
                           "--context", "--width",
                           "-D", "--ifdef", "--label",
+                          "-L",
                           "--line-format",
                           "--GTYPE-group-format",
                           "--LTYPE-line-format"}
