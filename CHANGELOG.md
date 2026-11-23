@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — nilai -n dan --ignore-initial cmp kini divalidasi (Audit 2767)
+
+- Nilai `-n`/`--bytes`
+  dan `--ignore-initial`
+  (N atau N1:N2)
+  keluarga cmp kini
+  divalidasi.
+
+
 ## [Belum rilis] — tata bahasa pola csplit kini divalidasi (Audit 2766)
 
 - Pola csplit kini

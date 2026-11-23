@@ -13294,6 +13294,47 @@ def _menguras_khusus(perintah, toks, awal):
     # SENGAJA tak ikut: '-' mereka nama berkas harfiah).
     if perintah in ("cmp", "zcmp", "zdiff", "xzcmp", "xzdiff",
                     "lzcmp", "lzdiff"):
+        # Audit 2767: nilai -n/--bytes dan
+        # -i/--ignore-initial (N atau
+        # N1:N2, sufiks xstrtol bebas)
+        # divalidasi - nilai asing
+        # membunuh cmp saat urai.
+        def _byte_cmp_sah(v_cm):
+            return re.fullmatch(
+                r"\d{1,18}([KMGTPEZY](B|iB)?"
+                r"|[km](B|iB)?|b)?",
+                v_cm) is not None
+        k_cm = awal + 1
+        while k_cm < len(toks):
+            t_cm = toks[k_cm].strip("\"'")
+            if t_cm == "--":
+                break
+            nama_cm = t_cm.split("=", 1)[0]
+            if (nama_cm in ("-n", "--bytes",
+                            "-i",
+                            "--ignore-initial")
+                    or t_cm.startswith((
+                            "--bytes=",
+                            "--ignore-initial="))):
+                if "=" in t_cm:
+                    v_cm = t_cm.split("=", 1)[1]
+                elif k_cm + 1 < len(toks):
+                    v_cm = toks[k_cm + 1].strip(
+                        "\"'")
+                    k_cm += 1
+                else:
+                    v_cm = None
+                if v_cm is not None:
+                    if nama_cm in ("-i",
+                                   "--ignore-initial"):
+                        if not all(
+                                _byte_cmp_sah(x_cm)
+                                for x_cm in
+                                v_cm.split(":")):
+                            return False
+                    elif not _byte_cmp_sah(v_cm):
+                        return False
+            k_cm += 1
         ops_cm = _operand_sesudah_opsi(
             toks, awal, {"-i", "--ignore-initial", "-n",
                          "--bytes"})
