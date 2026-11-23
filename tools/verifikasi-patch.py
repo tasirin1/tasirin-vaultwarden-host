@@ -14549,11 +14549,14 @@ def _tipe_nilai_sah_66(jenis, nilai):
                 and int(v) > 0
                 and int(v) % 8 == 0)
     if jenis == "enum-unicode-strings":
-        # Audit 2745: -U/--unicode strings
-        # build ini hanya menerima persis
-        # "l" atau "e" (terverifikasi biner:
-        # b/s/B/S/L dan kata penuh mati).
-        return v in ("l", "e")
+        # Audit 2745, dikoreksi oleh suite
+        # Maraton-184 (skenario 1242): -U
+        # strings menerima TEPAT SATU huruf
+        # dari {d, e, h, i, l, x} - baterai
+        # awal 2745 kurang sampel sehingga
+        # d/x/h/i terlewat (b/s/B/S/L, kata
+        # penuh, dan gabungan huruf mati).
+        return len(v) == 1 and v in "dehilx"
     if jenis == "enum-radix-od":
         # Audit 2744: radix alamat od satu
         # huruf dari himpunan tertutup.

@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — koreksi nilai -U strings: enam huruf sah (Audit 2745)
+
+- Nilai `-U`/`--unicode`
+  strings ternyata
+  menerima tepat satu
+  huruf dari
+  {d, e, h, i, l, x};
+  validasi awal yang
+  hanya menerima l/e
+  sudah diperlebar
+  (tertangkap skenario
+  lama 1242 di suite).
+
+
+
 ## [Belum rilis] — README Telegram diperbarui ke model login sesi (Audit 2779)
 
 - Ketiga README kini
