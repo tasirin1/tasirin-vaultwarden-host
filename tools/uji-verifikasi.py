@@ -37267,6 +37267,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("xargs -a /dev/null echo: anak bukan pembaca stdin dan xargs sendiri tak menguras dari berkas: gerbang lolos (Audit 2670)", rc == 0)
         shutil.rmtree(sub1757, ignore_errors=True)
+        sub1758 = klon(tmp, "sub1758")
+        berkas_aksi1758 = os.path.join(
+            sub1758, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1758, encoding="utf-8") as f:
+            isi_aksi1758 = f.read()
+        baris_aksi1758 = [b for b in isi_aksi1758.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1758 = isi_aksi1758.replace(
+                baris_aksi1758,
+                baris_aksi1758.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(linux32; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1758 != isi_aksi1758, \
+            "suntikan aksi1758 tidak menembak"
+        with open(berkas_aksi1758, "w", encoding="utf-8") as f:
+            f.write(isi_baru1758)
+        rc, out = jalan(sub1758,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("linux32 tanpa program: menjalankan shell pembaca perintah dari stdin: gerbang gagal (Audit 2671)", rc != 0)
+        shutil.rmtree(sub1758, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

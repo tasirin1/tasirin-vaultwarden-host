@@ -13351,6 +13351,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # Audit 1070: pembungkus terakhir — systemd-cat tanpa operand
     # meneruskan stdin-nya sendiri.
     pembungkus_terakhir = ""
+    # Audit 2671: setarch hanya menjalankan shell
+    # bila ada token pengikut (arsitektur/bendera);
+    # telanjang tanpa apa pun ia mati.
+    setarch_punya_pengikut = False
+    awal_keluarga_setarch = -1
     # Audit 987: isi string env -S di-exec env sebagai program
     # eksternal — kata pertamanya tidak pernah builtin shell,
     # jadi rekursi -S berjalan dengan _posisi_awal=False.
@@ -13591,6 +13596,18 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # lagi transparan.
             lewat_pembungkus = True
             pembungkus_terakhir = t0
+            if t0 == "setarch":
+                # Audit 2671: ingat ada/tidaknya
+                # token sesudah kata setarch ini.
+                setarch_punya_pengikut = (
+                    len(toks) > awal + 1)
+            if t0 in ("setarch", "linux32", "linux64",
+                      "i386", "x86_64"):
+                # Audit 2671: posisi lapisan
+                # keluarga setarch terakhir, untuk
+                # penjaga --help/--version di vonis
+                # tanpa-anak.
+                awal_keluarga_setarch = awal
             if t0 == "sudo":
                 # Audit 1044: sudo menerima penetapan lingkungan
                 # sebagai bagian sintaksnya sendiri (VAR=nilai
@@ -14026,6 +14043,31 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # Audit 1121: unshare/chroot tanpa perintah menjalankan
         # shell interaktif yang membaca perintah dari stdin.
         if pembungkus_terakhir in ("unshare", "chroot"):
+            return True
+        # Audit 2671: keluarga setarch tanpa program
+        # juga menjalankan $SHELL pembaca stdin
+        # (terverifikasi biner: payload perintah
+        # tereksekusi) - tertinggal dari daftar
+        # 1121. Alias berarsitektur tersirat
+        # selalu; setarch polos hanya bila ada
+        # token pengikut, telanjang tanpa apa
+        # pun mati "no architecture argument".
+        if pembungkus_terakhir in ("linux32", "linux64",
+                                   "i386", "x86_64",
+                                   "setarch"):
+            # Audit 2671: --help/--version milik
+            # pembungkus sendiri mencetak lalu
+            # keluar - jangan tertukar shell.
+            if any(t.strip("\"'") in ("--help",
+                                       "--version")
+                   for t in toks[awal_keluarga_setarch
+                                 + 1:]):
+                return xargs_sendiri
+        if pembungkus_terakhir in ("linux32", "linux64",
+                                   "i386", "x86_64"):
+            return True
+        if (pembungkus_terakhir == "setarch"
+                and setarch_punya_pengikut):
             return True
         return xargs_sendiri
     perintah = _kata_shell(toks[awal])

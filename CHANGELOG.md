@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Keluarga setarch tanpa program divonis menjalankan shell (Audit 2671)
+
+- `linux32`, `linux64`, `i386`, `x86_64`,
+  dan `setarch` berarsitektur tanpa
+  perintah anak kini divonis menguras
+  stdin: semuanya menjalankan shell
+  yang membaca perintah dari stdin.
+  `setarch` yang benar-benar telanjang
+  tetap dinilai mati, dan --help/
+  --version milik pembungkus tetap
+  informasional.
+
 ## [Belum rilis] — xargs -a: anak kembali divonis normal (Audit 2670)
 
 - Pengecualian lama yang membebaskan
