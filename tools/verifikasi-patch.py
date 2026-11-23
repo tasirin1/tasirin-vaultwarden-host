@@ -3282,7 +3282,7 @@ def _menguras_interpreter(perintah, toks, awal):
         # operand skrip.
         if perintah == "node" and t in (
                 "-r", "--require", "--import", "--loader",
-                "--experimental-loader", "--input-type",
+                "--experimental-loader",
                 "--conditions", "--env-file"):
             # Audit 1722: menggantung = "requires an argument"
             # lalu keluar (sejajar Audit 1708/1713).
@@ -3418,6 +3418,29 @@ def _menguras_interpreter(perintah, toks, awal):
                     return False
                 else:
                     i += 2
+                continue
+            # Audit 2799: --input-type node
+            # wajib enum {module, commonjs,
+            # module-typescript,
+            # commonjs-typescript} - nilai
+            # lain membunuh node sebelum
+            # skrip stdin dibaca.
+            if dasar_nd == "--input-type":
+                if "=" in t:
+                    nilai_it = t.split(
+                        "=", 1)[1].strip("\"'")
+                    i += 1
+                elif i + 1 < n:
+                    nilai_it = toks[
+                        i + 1].strip("\"'")
+                    i += 2
+                else:
+                    return False
+                if nilai_it not in (
+                        "module", "commonjs",
+                        "module-typescript",
+                        "commonjs-typescript"):
+                    return False
                 continue
             dikenal_nd = (
                 dasar_nd in ("--version", "--help", "-v",

@@ -1,5 +1,22 @@
 # Changelog
 
+## [Belum rilis] — node: --input-type kini divalidasi enum (Audit 2799)
+
+- Nilai
+  `--input-type`
+  node kini wajib
+  salah satu
+  {module,
+  commonjs,
+  module-typescript,
+  commonjs-
+  typescript};
+  nilai lain
+  membunuh node
+  sebelum stdin
+  dibaca.
+
+
 ## [Belum rilis] — python: -X kini divalidasi per-kunci (Audit 2798)
 
 - Nilai `-X`
