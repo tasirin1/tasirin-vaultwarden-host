@@ -1642,13 +1642,30 @@ public final class TgBot {
     }
 
     static String entriHapusTertundaPenuh(long idRuang,
-            int idPesan, boolean asing, long capMs) {
+            int idPesan, boolean asing, long capMs,
+            long capElapsedMs) {
         return entriHapusTertunda(idRuang, idPesan, asing)
-                + ":" + capMs;
+                + ":" + capMs + ":" + capElapsedMs;
     }
 
+    // Audit 2877: umur diukur dari cap
+    // elapsedRealtime bila cap dan kini
+    // dari boot yang sama (elapsed kini
+    // tak lebih kecil) - jam dinding STB
+    // yang melompat maju >48 jam tak lagi
+    // membuang entri ber-PIN yang masih
+    // muda, dan lompatan mundur tak
+    // memperpanjang umurnya. Lintas boot
+    // atau entri warisan tanpa cap elapsed
+    // jatuh ke jam dinding seperti 2836.
     static boolean hapusTertundaKedaluwarsa(long capMs,
-            long kiniMs) {
+            long capElapsedMs, long kiniMs,
+            long kiniElapsedMs) {
+        if (capElapsedMs > 0
+                && kiniElapsedMs >= capElapsedMs) {
+            return kiniElapsedMs - capElapsedMs
+                    > BATAS_UMUR_HAPUS_TERTUNDA_MS;
+        }
         return capMs > 0
                 && kiniMs - capMs
                         > BATAS_UMUR_HAPUS_TERTUNDA_MS;
@@ -1688,7 +1705,8 @@ public final class TgBot {
             return null;
         }
         String[] b = entri.split(":");
-        if (b.length != 3 && b.length != 4) {
+        if (b.length != 3 && b.length != 4
+                && b.length != 5) {
             return null;
         }
         try {
@@ -1702,14 +1720,28 @@ public final class TgBot {
             // entri warisan 2830 tanpanya
             // terbaca 0.
             long cap = 0;
-            if (b.length == 4) {
+            if (b.length >= 4) {
                 cap = Long.parseLong(b[3]);
                 if (cap < 0) {
                     return null;
                 }
             }
+            // Audit 2877: bidang kelima =
+            // cap elapsedRealtime saat catat
+            // (jam monoton, kebal lompatan
+            // jam dinding STB); entri lama
+            // tanpanya terbaca 0 dan dinilai
+            // dari jam dinding seperti dulu.
+            long capElapsed = 0;
+            if (b.length == 5) {
+                capElapsed = Long.parseLong(b[4]);
+                if (capElapsed < 0) {
+                    return null;
+                }
+            }
             return new long[]{ruang, pesan,
-                    b[2].equals("a") ? 1 : 0, cap};
+                    b[2].equals("a") ? 1 : 0, cap,
+                    capElapsed};
         } catch (Exception e) {
             return null;
         }
@@ -1743,7 +1775,9 @@ public final class TgBot {
                 if (!sudahAda) {
                     kini.add(entriHapusTertundaPenuh(
                             idRuang, idPesan, asing,
-                            System.currentTimeMillis()));
+                            System.currentTimeMillis(),
+                            SystemClock
+                                    .elapsedRealtime()));
                     sp.edit().putStringSet(
                             KEY_TG_HAPUS_TERTUNDA, kini).apply();
                 }
@@ -1846,7 +1880,9 @@ public final class TgBot {
             // entri warisan tanpa cap diberi
             // cap sekarang agar jamnya jalan.
             if (hapusTertundaKedaluwarsa(
-                    u[3], System.currentTimeMillis())) {
+                    u[3], u[4],
+                    System.currentTimeMillis(),
+                    SystemClock.elapsedRealtime())) {
                 selesaikanHapusTertunda(ctx, entri);
                 if (asing) {
                     peringatkanPinChatAsing(ctx, idRuang);

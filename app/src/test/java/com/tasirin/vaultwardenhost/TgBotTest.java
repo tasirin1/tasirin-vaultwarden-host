@@ -821,17 +821,45 @@ public class TgBotTest {
     @Test
     public void entriHapusTertundaPenuh_capWaktuDanKedaluwarsa() {
         String e = TgBot.entriHapusTertundaPenuh(
-                -100123L, 456, true, 1_700_000_000_000L);
-        assertEquals("-100123:456:a:1700000000000", e);
+                -100123L, 456, true, 1_700_000_000_000L,
+                123_000L);
+        assertEquals("-100123:456:a:1700000000000:123000", e);
         long[] u = TgBot.uraiEntriHapusTertunda(e);
         assertEquals(1_700_000_000_000L, u[3]);
+        assertEquals(123_000L, u[4]);
         long kini = 1_700_000_000_000L
                 + TgBot.BATAS_UMUR_HAPUS_TERTUNDA_MS;
         assertFalse(TgBot.hapusTertundaKedaluwarsa(
-                1_700_000_000_000L, kini));
+                1_700_000_000_000L, 0, kini, 0));
         assertTrue(TgBot.hapusTertundaKedaluwarsa(
-                1_700_000_000_000L, kini + 1));
-        assertFalse(TgBot.hapusTertundaKedaluwarsa(0, kini + 1));
+                1_700_000_000_000L, 0, kini + 1, 0));
+        assertFalse(TgBot.hapusTertundaKedaluwarsa(
+                0, 0, kini + 1, 0));
+    }
+
+    @Test
+    public void hapusTertundaKedaluwarsa_elapsedKebalLompatanJam() {
+        long capWall = 1_700_000_000_000L;
+        long capElapsed = 60_000L;
+        long lompatMaju = capWall + 100L * 24 * 3600_000L;
+        assertFalse(TgBot.hapusTertundaKedaluwarsa(
+                capWall, capElapsed, lompatMaju,
+                capElapsed + 3600_000L));
+        assertTrue(TgBot.hapusTertundaKedaluwarsa(
+                capWall, capElapsed, lompatMaju,
+                capElapsed
+                        + TgBot.BATAS_UMUR_HAPUS_TERTUNDA_MS
+                        + 1));
+        assertTrue(TgBot.hapusTertundaKedaluwarsa(
+                capWall, capElapsed,
+                capWall + TgBot.BATAS_UMUR_HAPUS_TERTUNDA_MS
+                        + 1,
+                30_000L));
+        long[] warisan = TgBot.uraiEntriHapusTertunda(
+                "-100123:456:a:1700000000000");
+        assertEquals(0L, warisan[4]);
+        assertEquals(null, TgBot.uraiEntriHapusTertunda(
+                "1:2:s:1700000000000:-5"));
     }
 
     @Test

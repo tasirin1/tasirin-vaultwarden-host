@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Telegram: kedaluwarsa hapus tertunda diukur jam monoton, kebal lompatan jam dinding (Audit 2877)
+
+Kedaluwarsa 48 jam 2836 murni jam dinding: jam STB yang melompat maju sesudah boot membuang entri ber-PIN yang masih muda, lompatan mundur memperpanjang umurnya. Entri kini membawa cap kedua `elapsedRealtime`; dalam boot yang sama umur diukur jam monoton (kebal lompatan), lintas boot atau entri warisan jatuh ke jam dinding seperti dulu. Uji JVM diperbarui + kasus lompatan 100 hari.
+
+
 ## [Belum rilis] — Telegram: tugas hapus tertunda memeriksa ulang entri saat berjalan (Audit 2876)
 
 Penanda 2837 hanya mencegah penghapusan bersamaan; dua tugas yang mengantre untuk pesan yang sama berjalan berurutan dan yang kedua menghapus ulang pesan yang sudah terhapus, memicu peringatan palsu dan memasang bendera dedup yang menelan peringatan sah berikutnya. Kini kelima situs penghapusan memeriksa ulang lewat `hapusTertundaMasihTercatat` sesudah memegang penanda: entri yang sudah diselesaikan tugas lain (atau kedaluwarsa) dilewati diam-diam; galat baca prefs gagal-terbuka agar pesan ber-PIN tak tertinggal. Uji JVM baru untuk pencocokan himpunannya.
