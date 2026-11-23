@@ -2230,8 +2230,15 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             continue
         if bersih.startswith("-") and bersih != "-":
             if perintah == "awk":
-                if nama_asli in ("awk", "mawk", "nawk",
-                                 "original-awk"):
+                if (nama_asli in ("awk", "mawk", "nawk",
+                                  "original-awk")
+                        and not lewat_dd):
+                    # Audit 2675: blok ini (dan cek
+                    # -e 2482 di hilir) hanya berlaku
+                    # SEBELUM --; sesudah -- token
+                    # strip adalah teks program
+                    # (ekspresi -x/-5 sah dan
+                    # menguras), bukan opsi.
                     # Audit 2661: semesta opsi mawk
                     # kecil (F/f/v/W, semua pembawa;
                     # tanpa opsi panjang) - token
@@ -2336,6 +2343,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             if (perintah == "awk"
                     and nama_asli in ("mawk", "nawk",
                                       "original-awk")
+                    and not lewat_dd
                     and dasar == "-e"):
                 # Audit 2482: ketiga awk itu tak
                 # punya -e sama sekali (galat

@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Validasi awk menghormati keadaan sesudah -- (Audit 2675)
+
+- Blok validasi opsi mawk dan cek
+  `-e` di gerbang kini hanya berlaku
+  sebelum `--`. Sesudah `--`, token
+  berawalan strip adalah teks program
+  awk yang sah (mis. ekspresi `-x`)
+  dan perintahnya divonis menguras
+  stdin seperti perilaku binernya.
+
 ## [Belum rilis] — Validator charset iconv menerima sufiks //IGNORE dan //TRANSLIT (Audit 2674)
 
 - Nama charset yang membawa sufiks

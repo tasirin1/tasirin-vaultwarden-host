@@ -37393,6 +37393,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("iconv -f UTF-8//IGNORE: sufiks //IGNORE sah pada charset sah, iconv mengonversi stdin: gerbang gagal (Audit 2674)", rc != 0)
         shutil.rmtree(sub1763, ignore_errors=True)
+        sub1764 = klon(tmp, "sub1764")
+        berkas_aksi1764 = os.path.join(
+            sub1764, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1764, encoding="utf-8") as f:
+            isi_aksi1764 = f.read()
+        baris_aksi1764 = [b for b in isi_aksi1764.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1764 = isi_aksi1764.replace(
+                baris_aksi1764,
+                baris_aksi1764.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(awk -- -x; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1764 != isi_aksi1764, \
+            "suntikan aksi1764 tidak menembak"
+        with open(berkas_aksi1764, "w", encoding="utf-8") as f:
+            f.write(isi_baru1764)
+        rc, out = jalan(sub1764,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("awk -- -x: sesudah -- token strip adalah teks program yang sah, mawk menguras stdin: gerbang gagal (Audit 2675)", rc != 0)
+        shutil.rmtree(sub1764, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
