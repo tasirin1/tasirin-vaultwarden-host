@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — memlimit-xz: peta sufiks diselaraskan ke biner (Audit 2796)
+
+- Sufiks
+  `memlimit-xz`
+  kini [KMGkmg] +
+  (B|iB|i)
+  opsional; `T`
+  yang mati di
+  biner tak lagi
+  diterima gerbang.
+
+
 ## [Belum rilis] — walk _TIPE_OPERAND kini kenal singkatan getopt_long (Audit 2795)
 
 - Nama opsi

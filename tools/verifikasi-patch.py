@@ -14751,13 +14751,19 @@ def _tipe_nilai_sah_66(jenis, nilai):
         # persen 1-100, atau byte dengan
         # sufiks [KMGT](B|iB) bebas; B
         # polos mati. Terverifikasi biner.
+        # Audit 2796: peta biner ulang -
+        # sufiks sah [KMGkmg] + (B|iB|i)
+        # opsional; T/t BUKAN sufiks xz
+        # (mati "Invalid multiplier
+        # suffix"), huruf kecil k/m/g
+        # sah setara besarnya.
         if v.endswith("%"):
             ang = v[:-1]
             return (ang.isdigit()
                     and len(ang) <= 3
                     and 1 <= int(ang) <= 100)
         return re.fullmatch(
-            r"\d{1,18}([KMGT](B|iB)?)?",
+            r"\d{1,18}([KMGkmg](B|iB|i)?)?",
             v) is not None
     if jenis == "daftar-tab":
         # Audit 2751: daftar tab expand =
