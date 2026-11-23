@@ -1,5 +1,23 @@
 # Changelog
 
+## [Belum rilis] — salinan pulih writeText kini lewat berkas pentas (Audit 2705)
+
+- Pemulihan tempel pada
+  penulisan berkas teks kini
+  menyalin isi cadangan ke
+  berkas pentas `.pulih` lalu
+  memasangnya dengan rename,
+  bukan menyalin langsung ke
+  berkas tujuan. Salinan yang
+  terputus di tengah tidak
+  lagi meninggalkan berkas
+  tujuan sebagian yang bisa
+  disalahbaca sebagai tukar
+  yang selesai; sisa berkas
+  pentas juga dibersihkan
+  pada penulisan berikutnya.
+
+
 ## [Belum rilis] — cadangan version.txt kini dipulihkan/dibersihkan (Audit 2704)
 
 - Cadangan unik

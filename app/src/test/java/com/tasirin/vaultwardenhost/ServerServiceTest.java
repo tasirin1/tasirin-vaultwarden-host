@@ -1639,6 +1639,21 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void writeText_bersihkanSisaPulihSaatMenulis() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwwt3").toFile();
+        java.io.File f = new java.io.File(dir, "data.txt");
+        java.nio.file.Files.write(f.toPath(),
+                "isi lama".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        java.io.File sisa = new java.io.File(dir, "data.txt.pulih");
+        java.nio.file.Files.write(sisa.toPath(),
+                "sebagian".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        ServerService.writeText(f, "isi baru");
+        assertEquals("isi baru", new String(java.nio.file.Files.readAllBytes(f.toPath()),
+                java.nio.charset.StandardCharsets.UTF_8));
+        assertFalse(sisa.exists());
+    }
+
+    @Test
     public void writeText_pulihkanLamaSaatFHilangDanTulisGagal() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwwt2").toFile();
         java.io.File f = new java.io.File(dir, "data.txt");

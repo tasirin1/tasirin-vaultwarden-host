@@ -4542,6 +4542,11 @@ public class ServerService extends Service {
             baru.delete();
         } catch (Exception ignored) {
         }
+        File sisaPulih = new File(induk, f.getName() + ".pulih");
+        try {
+            sisaPulih.delete();
+        } catch (Exception ignored) {
+        }
         File lama = new File(induk, f.getName() + ".lama");
         try {
             if (lama.isFile()) {
@@ -4594,20 +4599,49 @@ public class ServerService extends Service {
                 }
             } else {
                 if (tergeser && !lama.renameTo(f)) {
+                    // Audit 2705: salin pulih jangan
+                    // langsung ke f - salinan yang
+                    // terputus di tengah meninggalkan
+                    // f sebagian, dan pemulihan pintu
+                    // masuk 2685 akan membaca f
+                    // sebagian itu sebagai tukar yang
+                    // selesai lalu menghapus .lama
+                    // yang utuh. Salin ke berkas
+                    // pentas .pulih dulu, pasang
+                    // dengan rename; gagal di titik
+                    // mana pun membuat f tetap tidak
+                    // ada dan .lama utuh.
                     boolean pulih = false;
-                    try (java.io.InputStream in =
+                    File tmpPulih = new File(induk,
+                            f.getName() + ".pulih");
+                    try {
+                        tmpPulih.delete();
+                    } catch (Exception ignored) {
+                    }
+                    try (java.io.FileInputStream in =
                             new java.io.FileInputStream(
                                     lama);
-                            java.io.OutputStream out =
+                            java.io.FileOutputStream out =
                             new java.io.FileOutputStream(
-                                    f, false)) {
+                                    tmpPulih, false)) {
                         byte[] b = new byte[64 * 1024];
                         int n;
                         while ((n = in.read(b)) != -1) {
                             out.write(b, 0, n);
                         }
-                        pulih = true;
+                        out.flush();
+                        try {
+                            out.getFD().sync();
+                        } catch (Exception ignored) {
+                        }
+                        pulih = tmpPulih.renameTo(f);
                     } catch (Exception ignored) {
+                    }
+                    if (!pulih) {
+                        try {
+                            tmpPulih.delete();
+                        } catch (Exception ignored) {
+                        }
                     }
                     if (pulih) {
                         try {
