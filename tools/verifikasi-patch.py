@@ -7915,8 +7915,9 @@ def _menguras_khusus(perintah, toks, awal):
                 # Audit 2781: nilai -p terpisah
                 # divalidasi hanya sebelum tujuan.
                 if (t_sh == "-p" and not tujuan_sh
-                        and not (mentah[i_sh + 1].isdigit()
-                                 and len(mentah[i_sh + 1]) <= 18
+                        and not (re.fullmatch(
+                                     r"\+?\d{1,18}",
+                                     mentah[i_sh + 1])
                                  and 1 <= int(
                                      mentah[i_sh + 1])
                                  <= 65535)):
@@ -7952,15 +7953,17 @@ def _menguras_khusus(perintah, toks, awal):
                         if pos_sh < len(huruf_sh) - 1:
                             v_sh3 = huruf_sh[
                                 pos_sh + 1:]
-                            if not (v_sh3.isdigit()
-                                    and len(v_sh3) <= 18
+                            if not (re.fullmatch(
+                                        r"\+?\d{1,18}",
+                                        v_sh3)
                                     and 1 <= int(v_sh3)
                                     <= 65535):
                                 return False
                         elif i_sh + 1 < len(mentah):
                             v_sh3 = mentah[i_sh + 1]
-                            if not (v_sh3.isdigit()
-                                    and len(v_sh3) <= 18
+                            if not (re.fullmatch(
+                                        r"\+?\d{1,18}",
+                                        v_sh3)
                                     and 1 <= int(v_sh3)
                                     <= 65535):
                                 return False

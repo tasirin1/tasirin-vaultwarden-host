@@ -1,3 +1,8 @@
+## [Belum rilis] — ssh: port menerima tanda + seperti strtol biner (Audit 2816)
+
+Validasi port ssh di ketiga situs (terpisah + dua bentuk bundel) memakai `isdigit()` sehingga menolak `+22` yang diterima biner ssh (a2port memakai strtol: satu tanda `+` opsional, digit, rentang 1..65535; `-1`, `+0`, `+65536`, `22x` mati di biner). Sesi interaktif ke port bertanda + lolos penilaian sebagai perintah mati. Kini pola `\+?\d{1,18}` + rentang yang sama. Skenario 1890.
+
+
 ## [Belum rilis] — tree: huruf o masuk himpunan bundel kedua walk (Audit 2815)
 
 Himpunan huruf bernilai bundel tree di kedua walk (`"PILOTH"`) memuat huruf O besar tetapi kehilangan `o` kecil - padahal di parser tree (bukan getopt) justru `-o` yang bernilai dan menelan token berikutnya. Akibatnya nilai `-o` di dalam bundel divalidasi sebagai nilai `-L` (vonis salah dua arah: `tree -oL abc 2 --fromfile` yang menguras dinilai mati, `tree -ao --fromfile` yang menelan `--fromfile` sebagai nama berkas dinilai menguras). Himpunan kini `"PILOTHo"`. Skenario 1889.
