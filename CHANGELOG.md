@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — lebar pod2text kini divalidasi (Audit 2758)
+
+- Lebar `-w`/
+  `--width` pod2text
+  kini divalidasi
+  sebagai angka.
+
+
 ## [Belum rilis] — prioritas dan ukuran logger kini divalidasi (Audit 2757)
 
 - Prioritas `-p`

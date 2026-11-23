@@ -17907,6 +17907,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "priority": "prioritas-logger",
             "S": "angka0",
             "size": "angka0"},
+        "pod2text": {
+            "w": "angka0",
+            "width": "angka0"},
         "unxz": {
             "T": "angka0",
             "threads": "angka0",
