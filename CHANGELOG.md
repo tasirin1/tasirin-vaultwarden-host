@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — tar: huruf b di bundel hanya -b bila tak didahului huruf bernilai (Audit 2784)
+
+- Walk faktor
+  blok tar (2770)
+  kini memindai
+  bundel berurutan:
+  `b` hanya opsi
+  `-b` bila tak ada
+  huruf bernilai
+  sebelumnya; nilai
+  opsi lain juga
+  dilewati.
+
+
 ## [Belum rilis] — diff: walk lebar kini melewati nilai opsi lain (Audit 2783)
 
 - Walk `--width`/

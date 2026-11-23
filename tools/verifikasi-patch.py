@@ -5131,17 +5131,51 @@ def _menguras_khusus(perintah, toks, awal):
                               and int(v_tr) >= 1):
                         return False
                     k_tr += 1
+            elif t_tr in ("-f", "-T", "-C",
+                          "-F", "-L", "-V",
+                          "-X", "-K", "-N"):
+                # Audit 2784: nilai opsi
+                # bernilai lain ditelan -
+                # token berikutnya bukan
+                # opsi untuk walk ini.
+                k_tr += 1
             elif (t_tr.startswith("-")
                     and not t_tr.startswith(
                         "--")
                     and "b" in t_tr[1:]):
-                ekor_tr = t_tr[
-                    t_tr.index("b") + 1:]
-                if ekor_tr:
-                    if not (ekor_tr.isdigit()
-                            and int(ekor_tr)
-                            >= 1):
-                        return False
+                # Audit 2784: huruf b hanya
+                # opsi -b bila tak ada huruf
+                # bernilai yang mendahului
+                # di bundel yang sama (pada
+                # -fb0, b adalah ekor nilai
+                # -f, bukan faktor blok).
+                for pos_tr, h_tr in enumerate(
+                        t_tr[1:]):
+                    if h_tr in "bfTCFLVKNX":
+                        if h_tr == "b":
+                            ekor_tr = t_tr[
+                                pos_tr + 2:]
+                            if ekor_tr:
+                                if not (
+                                        ekor_tr.isdigit()
+                                        and int(
+                                            ekor_tr)
+                                        >= 1):
+                                    return False
+                            elif (k_tr + 1
+                                    < len(mentah)):
+                                v_tr = mentah[
+                                    k_tr + 1]
+                                if not (
+                                        v_tr.isdigit()
+                                        and int(v_tr)
+                                        >= 1):
+                                    return False
+                                k_tr += 1
+                        elif (pos_tr
+                                == len(t_tr) - 2):
+                            k_tr += 1
+                        break
             k_tr += 1
         # Audit 1061: arsip '-' (nilai -f) atau daftar -T '-'.
         # Audit 1077: bundel gaya lama tanpa strip (tf) dan nilai
