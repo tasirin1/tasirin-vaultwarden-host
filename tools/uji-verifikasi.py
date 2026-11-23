@@ -38612,6 +38612,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item taskset -c 0-3:0 cat: stride 0 mati di biner, gerbang lolos (Audit 2738)", rc == 0)
         shutil.rmtree(sub1821, ignore_errors=True)
+        sub1822 = klon(tmp, "sub1822")
+        berkas_aksi1822 = os.path.join(
+            sub1822, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1822, encoding="utf-8") as f:
+            isi_aksi1822 = f.read()
+        baris_aksi1822 = [b for b in isi_aksi1822.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1822 = isi_aksi1822.replace(
+                baris_aksi1822,
+                baris_aksi1822.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(prlimit --cpu=:5 cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1822 != isi_aksi1822, \
+            "suntikan aksi1822 tidak menembak"
+        with open(berkas_aksi1822, "w", encoding="utf-8") as f:
+            f.write(isi_baru1822)
+        rc, out = jalan(sub1822,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item prlimit --cpu=:5 cat: sisi lunak kosong mati di biner, gerbang lolos (Audit 2739)", rc == 0)
+        shutil.rmtree(sub1822, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

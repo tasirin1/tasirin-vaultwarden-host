@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — batas prlimit menolak sisi lunak kosong (Audit 2739)
+
+- Validator batas
+  prlimit kini menolak
+  sisi lunak kosong
+  (`:5`); kosong hanya
+  sah sebagai sisi
+  keras (`5:`).
+
+
 ## [Belum rilis] — daftar CPU taskset menolak stride 0 (Audit 2738)
 
 - Validator daftar

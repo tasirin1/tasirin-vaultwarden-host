@@ -15352,6 +15352,17 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 # biner satu-satu.
                                 sisi_b = nilai_b.split(
                                     ":")
+                                # Audit 2739: sisi
+                                # lunak (pertama)
+                                # kosong selalu mati
+                                # di biner - kosong
+                                # hanya sah sebagai
+                                # sisi keras (5:).
+                                if (len(sisi_b) == 2
+                                        and sisi_b[0]
+                                        .lstrip()
+                                        == ""):
+                                    return False
                                 if (nilai_b == ""
                                         or len(sisi_b)
                                         > 2
