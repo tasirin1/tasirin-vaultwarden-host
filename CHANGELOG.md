@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: negasi boolean V8/trace node bernilai `=` kini ditolak (Audit 2859)
+
+Penolakan 2835 hanya berjalan di cabang nama polos, sehingga bentuk negasi `--no-<boolean V8>=nilai` lolos dan dinilai menguras — padahal biner mati "illegal value ... of type bool" (terprobe `--no-jitless=x`, `--no-prof=x`, `--no-trace-deopt=x`). Cabang `--no-` kini menerapkan penolakan yang sama untuk basis di himpunan boolean V8 dan trace non-nilai. Skenario uji-diri 1925-1926.
+
+
 ## [Belum rilis] — Gerbang: singkatan opsi panjang diff3/diff diselesaikan seperti getopt_long biner (Audit 2858)
 
 Walk matriks label/mode diff/diff3 kini menyelesaikan singkatan unik opsi panjang terhadap kosakata persis biner (dari --help diff 3.10/diff3 3.10) sebelum menilai: `diff3 --show-a -L lab - f2 f3` yang dulu lolos sebagai tak menguras kini dinilai menguras (biner membacanya sebagai --show-all + label sah), arah sebaliknya `--lab` tanpa mode kini ditolak, dan singkatan ambigu (`--show-`) membunuh penilaian seperti biner. Skenario uji-diri 1922-1924.

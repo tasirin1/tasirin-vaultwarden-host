@@ -40775,6 +40775,48 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff3 singkatan ambigu --show- kini ditolak (Audit 2858)", rc != 0)
         shutil.rmtree(sub1924, ignore_errors=True)
+        sub1925 = klon(tmp, "sub1925")
+        berkas_aksi1925 = os.path.join(
+            sub1925, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1925, encoding="utf-8") as f:
+            isi_aksi1925 = f.read()
+        baris_aksi1925 = [b for b in isi_aksi1925.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1925 = isi_aksi1925.replace(
+                baris_aksi1925,
+                baris_aksi1925.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --no-jitless=x -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1925 != isi_aksi1925, \
+            "suntikan aksi1925 tidak menembak"
+        with open(berkas_aksi1925, "w", encoding="utf-8") as f:
+            f.write(isi_baru1925)
+        rc, out = jalan(sub1925,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("node negasi boolean V8 bernilai kini ditolak (Audit 2859)", rc != 0)
+        shutil.rmtree(sub1925, ignore_errors=True)
+        sub1926 = klon(tmp, "sub1926")
+        berkas_aksi1926 = os.path.join(
+            sub1926, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1926, encoding="utf-8") as f:
+            isi_aksi1926 = f.read()
+        baris_aksi1926 = [b for b in isi_aksi1926.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1926 = isi_aksi1926.replace(
+                baris_aksi1926,
+                baris_aksi1926.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --no-trace-deopt=x -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1926 != isi_aksi1926, \
+            "suntikan aksi1926 tidak menembak"
+        with open(berkas_aksi1926, "w", encoding="utf-8") as f:
+            f.write(isi_baru1926)
+        rc, out = jalan(sub1926,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("node negasi trace boolean bernilai kini ditolak (Audit 2859)", rc != 0)
+        shutil.rmtree(sub1926, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

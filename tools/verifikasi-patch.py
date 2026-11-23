@@ -3786,6 +3786,23 @@ def _menguras_interpreter(perintah, toks, awal):
                 if ("--" + dasar_nd[5:]) in (
                         _NODE_TAK_NEGASI):
                     return False
+                # Audit 2859: bentuk negasi
+                # boolean V8/trace juga mati
+                # bila diberi =nilai (terprobe
+                # biner: --no-jitless=x,
+                # --no-prof=x, --no-trace-
+                # deopt=x -> "illegal value
+                # ... of type bool"); cek 2835
+                # dulu hanya di cabang nama
+                # polos sehingga negasi lolos.
+                if "=" in t and (
+                        ("--" + dasar_nd[5:])
+                        in _NODE_HELP_V8_BOOL
+                        or (("--" + dasar_nd[5:])
+                            in _TRACE_V8
+                            and ("--" + dasar_nd[5:])
+                            not in _TRACE_V8_NILAI)):
+                    return False
             elif "=" in t and (
                     (dasar_nd in _TRACE_V8
                      and dasar_nd
