@@ -1,3 +1,8 @@
+## [Belum rilis] — Gerbang: pola inf durasi timeout dibetulkan (Audit 2824)
+
+Pola `inf` di `_durasi_timeout_sah` terbalik: ia menuntut `inf`+`infinity` (= `infinfinity`, ditolak biner rc=125) dan menolak `infinity` yang benar-benar diterima strtod - fail-open sekaligus fail-closed pada kedua pemakai helper (operand durasi dan `-k`/`--kill-after`). Pola kini `inf` + `inity` opsional. Skenario gensuite 1895.
+
+
 ## [Belum rilis] — Gerbang: bundel tar berdigit/huruf besar dikenali walk utama (Audit 2823)
 
 Walk utama tar hanya menerima bundel `-[a-z]+` sehingga bundel berdigit (`-cb20`, `-cvb20`) dan berhuruf besar (`-cB`) tak dikenali: `-f` di dalamnya tak terbaca sebagai opsi bernilai dan nilai `-` milik `-f -` dihitung operand stdin - gerbang menyatakan menguras padahal biner menulis arsip ke stdout. Bundel kini diurai per huruf ala getopt (huruf bernilai `bfTCFLVKNX` menelan sisa token sebagai nilainya; karakter bukan huruf di luar ekor nilai = opsi tak sah). Skenario gensuite 1894.

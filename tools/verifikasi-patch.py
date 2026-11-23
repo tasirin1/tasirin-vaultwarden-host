@@ -4627,6 +4627,10 @@ def _durasi_timeout_sah(nilai):
     # "infinity" (huruf bebas), dan tanda "+"
     # semua diterima biner; "nan" dan nilai
     # negatif ditolak timeout sendiri.
+    # Audit 2824: pola inf sebelumnya menuntut
+    # "inf"+"infinity" (= "infinfinity") dan
+    # menolak "infinity" yang benar - kini
+    # "inf" + "inity" opsional.
     # Terverifikasi biner coreutils 9.4.
     return re.fullmatch(
         r"\+?("
@@ -4634,8 +4638,8 @@ def _durasi_timeout_sah(nilai):
         r"|\.\d+([eE][+-]?\d+)?"
         r"|0[xX]([0-9a-fA-F]+(\.[0-9a-fA-F]*)?"
         r"|\.[0-9a-fA-F]+)([pP][+-]?\d+)?"
-        r"|[iI][nN][fF]([iI][nN][fF][iI][nN]"
-        r"[iI][tT][yY])?"
+        r"|[iI][nN][fF]([iI][nN][iI][tT]"
+        r"[yY])?"
         r")[smhd]?", nilai) is not None
 
 

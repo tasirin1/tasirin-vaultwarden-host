@@ -40145,6 +40145,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel tar berdigit dikenali walk utama (Audit 2823)", rc == 0)
         shutil.rmtree(sub1894, ignore_errors=True)
+        sub1895 = klon(tmp, "sub1895")
+        berkas_aksi1895 = os.path.join(
+            sub1895, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1895, encoding="utf-8") as f:
+            isi_aksi1895 = f.read()
+        baris_aksi1895 = [b for b in isi_aksi1895.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1895 = isi_aksi1895.replace(
+                baris_aksi1895,
+                baris_aksi1895.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(timeout infinity cat -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1895 != isi_aksi1895, \
+            "suntikan aksi1895 tidak menembak"
+        with open(berkas_aksi1895, "w", encoding="utf-8") as f:
+            f.write(isi_baru1895)
+        rc, out = jalan(sub1895,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("timeout infinity diterima biner, ditolak gerbang (Audit 2824)", rc != 0)
+        shutil.rmtree(sub1895, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
