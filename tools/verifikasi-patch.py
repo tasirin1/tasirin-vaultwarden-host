@@ -2045,6 +2045,65 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             # baru (-t tipe, -T tipe-not, -E
             # encoding) ikut dilewati nilainya.
             lewati_pendek_19 = set("efrgABCdmDtTE")
+            # Audit 2688: tipe bawaan rg 14.1.0
+            # (ekstrak `rg --type-list`, 203
+            # nama) - nama tipe asing membunuh
+            # rg ("unrecognized file type").
+            tipe_rg_88 = frozenset({
+                "ada", "agda", "aidl", "alire", "amake", "asciidoc", "asm",
+                "asp", "ats", "avro", "awk", "bat", "batch", "bazel",
+                "bitbake", "brotli", "buildstream", "bzip2", "c", "cabal",
+                "candid", "carp", "cbor", "ceylon", "clojure", "cmake",
+                "cmd", "cml", "coffeescript", "config", "coq", "cpp",
+                "creole", "crystal", "cs", "csharp", "cshtml", "csproj",
+                "css", "csv", "cuda", "cython", "d", "dart", "devicetree",
+                "dhall", "diff", "dita", "docker", "dockercompose", "dts",
+                "dvc", "ebuild", "edn", "elisp", "elixir", "elm", "erb",
+                "erlang", "fennel", "fidl", "fish", "flatbuffers",
+                "fortran", "fsharp", "fut", "gap", "gn", "go", "gprbuild",
+                "gradle", "graphql", "groovy", "gzip", "h", "haml", "hare",
+                "haskell", "hbs", "hs", "html", "hy", "idris", "janet",
+                "java", "jinja", "jl", "js", "json", "jsonl", "julia",
+                "jupyter", "k", "kotlin", "lean", "less", "license",
+                "lilypond", "lisp", "lock", "log", "lua", "lz4", "lzma",
+                "m4", "make", "mako", "man", "markdown", "matlab", "md",
+                "meson", "minified", "mint", "mk", "ml", "motoko",
+                "msbuild", "nim", "nix", "objc", "objcpp", "ocaml", "org",
+                "pants", "pascal", "pdf", "perl", "php", "po", "pod",
+                "postscript", "prolog", "protobuf", "ps", "puppet", "purs",
+                "py", "python", "qmake", "qml", "r", "racket", "raku",
+                "rdoc", "readme", "reasonml", "red", "rescript", "robot",
+                "rst", "ruby", "rust", "sass", "scala", "sh", "slim",
+                "smarty", "sml", "solidity", "soy", "spark", "spec", "sql",
+                "stylus", "sv", "svg", "swift", "swig", "systemd",
+                "taskpaper", "tcl", "tex", "texinfo", "textile", "tf",
+                "thrift", "toml", "ts", "twig", "txt", "typescript",
+                "typoscript", "usd", "v", "vala", "vb", "vcl", "verilog",
+                "vhdl", "vim", "vimscript", "webidl", "wiki", "xml", "xz",
+                "yacc", "yaml", "yang", "z", "zig", "zsh", "zstd"})
+            # Audit 2688: definisi --type-add
+            # berlaku dari posisi mana pun di
+            # perintah yang sama, jadi kumpulkan
+            # dulu dari seluruh token.
+            defs_88 = []
+            j_88 = awal + 1
+            while j_88 < len(toks):
+                t_88 = toks[j_88].strip("\"'")
+                if t_88 == "--":
+                    break
+                if (t_88 == "--type-add"
+                        and j_88 + 1 < len(toks)):
+                    defs_88.append(
+                        toks[j_88 + 1].strip("\"'"))
+                    j_88 += 1
+                elif t_88.startswith("--type-add="):
+                    defs_88.append(t_88[11:])
+                j_88 += 1
+            tipe_tambahan_88 = set()
+            for d_88 in defs_88:
+                if d_88.split(":", 1)[0]:
+                    tipe_tambahan_88.add(
+                        d_88.split(":", 1)[0])
             # Audit 2687: penerima enum rg -
             # nilai di luar himpunan membunuh
             # rg saat parse (rc=2 "choice is
@@ -2157,6 +2216,27 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             if nama19 == "colors":
                 return _colors_rg_sah(nilai19)
             return nilai19 in enum_panjang_19[nama19]
+
+        if nama_asli == "rg":
+            # Audit 2688: definisi --type-add
+            # yang rusak membunuh rg juga -
+            # tanpa titik dua / nama kosong /
+            # sasaran include tak dikenal.
+            for d_88 in defs_88:
+                if (":" not in d_88
+                        or not d_88.split(":", 1)[0]):
+                    return False
+                if ":include:" in d_88:
+                    for t88 in d_88.split(
+                            ":include:", 1)[1].split(","):
+                        if (t88 not in tipe_rg_88
+                                and t88
+                                not in tipe_tambahan_88):
+                            return False
+
+        def _tipe_rg_sah(v88):
+            return (v88 in tipe_rg_88
+                    or v88 in tipe_tambahan_88)
         i_19 = awal + 1
         while i_19 < len(toks):
             t_19 = toks[i_19].strip("\"'")
@@ -2230,6 +2310,25 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                                         "\"'")):
                                 return False
                             i_19 += 1
+                elif (nama_asli == "rg"
+                        and nama_19 in ("type",
+                                        "type-not")):
+                    # Audit 2688: nama tipe
+                    # divalidasi terhadap tipe
+                    # bawaan + definisi --type-add
+                    # perintah yang sama.
+                    # --type-clear sengaja TIDAK
+                    # divalidasi (biner menerima
+                    # nama asing di sana).
+                    if eq_19:
+                        if not _tipe_rg_sah(isi_19):
+                            return False
+                    elif i_19 + 1 < len(toks):
+                        if not _tipe_rg_sah(
+                                toks[i_19 + 1].strip(
+                                    "\"'")):
+                            return False
+                        i_19 += 1
                 elif ("--" + nama_19) in lewati_panjang_19 \
                         and not eq_19:
                     i_19 += 1
@@ -2253,6 +2352,25 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                         elif i_19 + 1 < len(toks):
                             if not _angka19(
                                     "",
+                                    toks[i_19 + 1].strip(
+                                        "\"'")):
+                                return False
+                            i_19 += 1
+                        break
+                    if (nama_asli == "rg"
+                            and ch_19 in "tT"):
+                        # Audit 2688: nilai tipe
+                        # pendek - nempel (sisa
+                        # gugus; "=" dibuang ala
+                        # clap) atau token berikut.
+                        ekor_t88 = huruf_19[pos_19 + 1:]
+                        if ekor_t88.startswith("="):
+                            ekor_t88 = ekor_t88[1:]
+                        if ekor_t88:
+                            if not _tipe_rg_sah(ekor_t88):
+                                return False
+                        elif i_19 + 1 < len(toks):
+                            if not _tipe_rg_sah(
                                     toks[i_19 + 1].strip(
                                         "\"'")):
                                 return False

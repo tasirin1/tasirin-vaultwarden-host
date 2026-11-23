@@ -1,5 +1,25 @@
 # Changelog
 
+## [Belum rilis] — Nama tipe rg (-t/-T/--type/--type-not) kini divalidasi gerbang (Audit 2688)
+
+- Gerbang kini menolak nama
+  tipe berkas asing pada
+  penerima tipe rg. Nama yang
+  sah adalah 203 tipe bawaan
+  (`rg --type-list`) ditambah
+  tipe yang didefinisikan
+  perintah yang sama lewat
+  `--type-add`; definisi
+  `--type-add` yang rusak
+  (tanpa titik dua, nama
+  kosong, sasaran `include`
+  tak dikenal) juga membunuh
+  rg dan kini ditolak.
+  `--type-clear` sengaja tidak
+  divalidasi karena biner
+  menerima nama asing di sana.
+
+
 ## [Belum rilis] — Nilai enum rg/grep kini divalidasi gerbang (Audit 2687)
 
 - Gerbang kini menolak nilai
