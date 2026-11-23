@@ -14552,6 +14552,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 u_rx = False
                 c_rx = None
                 scl_rx = False
+                gantung_rx = False
                 operand_rx = []
                 while j_rx < len(toks):
                     t_rx = toks[j_rx].strip("\"'")
@@ -14581,6 +14582,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         if nama_rx == "user":
                             u_rx = True
                             if not eq_rx:
+                                if (j_rx + 1
+                                        >= len(toks)):
+                                    gantung_rx = True
                                 j_rx += 1
                         elif nama_rx == "command":
                             scl_rx = True
@@ -14593,14 +14597,22 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                     c_rx = toks[
                                         j_rx].strip(
                                         "\"'")
+                                else:
+                                    gantung_rx = True
                         elif nama_rx == "shell":
                             scl_rx = True
                             if not eq_rx:
+                                if (j_rx + 1
+                                        >= len(toks)):
+                                    gantung_rx = True
                                 j_rx += 1
                         elif nama_rx in (
                                 "group",
                                 "supp-group"):
                             if not eq_rx:
+                                if (j_rx + 1
+                                        >= len(toks)):
+                                    gantung_rx = True
                                 j_rx += 1
                         elif nama_rx == (
                                 "session-command"):
@@ -14621,6 +14633,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                     c_rx = toks[
                                         j_rx].strip(
                                         "\"'")
+                                else:
+                                    gantung_rx = True
                         elif nama_rx in (
                                 "login",
                                 "fast"):
@@ -14639,6 +14653,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                         == len(
                                             huruf_rx)
                                         - 1):
+                                    if (j_rx + 1
+                                            >= len(
+                                                toks)):
+                                        gantung_rx = (
+                                            True)
                                     j_rx += 1
                                 break
                             if ch_rx == "c":
@@ -14657,6 +14676,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                         c_rx = toks[
                                             j_rx].strip(
                                             "\"'")
+                                    else:
+                                        gantung_rx = (
+                                            True)
                                 break
                             if ch_rx in "gGs":
                                 if ch_rx == "s":
@@ -14665,6 +14687,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                         == len(
                                             huruf_rx)
                                         - 1):
+                                    if (j_rx + 1
+                                            >= len(
+                                                toks)):
+                                        gantung_rx = (
+                                            True)
                                     j_rx += 1
                                 break
                             if ch_rx == "l":
@@ -14674,6 +14701,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         continue
                     operand_rx.append(t_rx)
                     j_rx += 1
+                # Audit 2736: opsi bernilai
+                # menggantung di ujung tanpa
+                # nilai - biner mati meminta
+                # argumen, bukan shell login.
+                if gantung_rx:
+                    return False
                 if u_rx and scl_rx:
                     return False
                 if c_rx is not None:

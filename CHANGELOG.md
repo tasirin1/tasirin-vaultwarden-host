@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — runuser: opsi bernilai menggantung divonis mati (Audit 2736)
+
+- Resolver runuser
+  kini memvonis mati
+  bentuk opsi bernilai
+  yang menggantung di
+  ujung tanpa nilai
+  (`-c`, `-g`, `--user`,
+  dan sejenisnya).
+
+
 ## [Belum rilis] — pindaian gugus berhenti di -e xargs (Audit 2735)
 
 - Pindaian gugus
