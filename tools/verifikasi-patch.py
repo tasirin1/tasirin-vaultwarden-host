@@ -2931,6 +2931,24 @@ def _menguras_interpreter(perintah, toks, awal):
                     if _h_pl not in _sah_pl:
                         _ok_pl = False
                         break
+                    if _h_pl == "C":
+                        # Audit 2806: argumen -C
+                        # (menempel saja) wajib
+                        # digit murni atau huruf
+                        # dari {a,i,o,A,D,E,I,L,
+                        # O,S} - huruf lain
+                        # membunuh perl "Unknown
+                        # Unicode option letter"
+                        # (terverifikasi biner).
+                        _arg_c = _huruf_pl[
+                            _k_pl + 1:]
+                        if (_arg_c
+                                and not _arg_c.isdigit()
+                                and not all(
+                                    _c in "aioADEILOS"
+                                    for _c in _arg_c)):
+                            return False
+                        break
                     if _h_pl in "IMmeECDFx":
                         break
                     if (_h_pl == "d"

@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — perl: -C kini divalidasi himpunan hurufnya (Audit 2806)
+
+- Argumen `-C`
+  perl kini wajib
+  digit murni
+  atau huruf dari
+  {a,i,o,A,D,E,I,
+  L,O,S}; huruf
+  lain membunuh
+  perl sebelum
+  stdin dibaca.
+
+
 ## [Belum rilis] — perl: saklar tak dikenal kini ditolak gerbang (Audit 2805)
 
 - Saklar perl
