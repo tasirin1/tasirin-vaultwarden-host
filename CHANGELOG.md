@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — nilai -b dan --record-size tar kini divalidasi (Audit 2770)
+
+- Faktor blok `-b`
+  dan `--record-size`
+  (kelipatan 512)
+  tar kini
+  divalidasi.
+
+
 ## [Belum rilis] — nilai --max-depth dan --threshold du kini divalidasi (Audit 2769)
 
 - Nilai `--max-depth`

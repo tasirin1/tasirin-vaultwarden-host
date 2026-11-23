@@ -5078,6 +5078,71 @@ def _menguras_khusus(perintah, toks, awal):
             return not ops or "-" in ops
         return False
     if perintah == "tar":
+        # Audit 2770: nilai -b/--blocking-
+        # factor (angka polos >= 1) dan
+        # --record-size (ukuran yang
+        # hasilnya kelipatan 512) tar
+        # divalidasi - nilai asing
+        # membunuh tar saat urai.
+        def _reksa_tar_sah(v_rt):
+            m_rt = re.fullmatch(
+                r"(\d{1,18})([KMGT]B?|B|b)?",
+                v_rt)
+            if not m_rt:
+                return False
+            kali_rt = {"": 1, "B": 512,
+                       "b": 512, "K": 1024,
+                       "KB": 1000,
+                       "M": 1024 ** 2,
+                       "MB": 1000 ** 2,
+                       "G": 1024 ** 3,
+                       "GB": 1000 ** 3,
+                       "T": 1024 ** 4,
+                       "TB": 1000 ** 4}
+            total_rt = (int(m_rt.group(1))
+                        * kali_rt[m_rt.group(2)
+                                  or ""])
+            return total_rt > 0 \
+                and total_rt % 512 == 0
+        k_tr = 0
+        while k_tr < len(mentah):
+            t_tr = mentah[k_tr]
+            if t_tr.startswith(
+                    "--blocking-factor="):
+                v_tr = t_tr.split("=", 1)[1]
+                if not (v_tr.isdigit()
+                        and int(v_tr) >= 1):
+                    return False
+            elif t_tr.startswith(
+                    "--record-size="):
+                if not _reksa_tar_sah(
+                        t_tr.split("=", 1)[1]):
+                    return False
+            elif t_tr in ("--blocking-factor",
+                          "--record-size",
+                          "-b"):
+                if k_tr + 1 < len(mentah):
+                    v_tr = mentah[k_tr + 1]
+                    if t_tr == "--record-size":
+                        if not _reksa_tar_sah(
+                                v_tr):
+                            return False
+                    elif not (v_tr.isdigit()
+                              and int(v_tr) >= 1):
+                        return False
+                    k_tr += 1
+            elif (t_tr.startswith("-")
+                    and not t_tr.startswith(
+                        "--")
+                    and "b" in t_tr[1:]):
+                ekor_tr = t_tr[
+                    t_tr.index("b") + 1:]
+                if ekor_tr:
+                    if not (ekor_tr.isdigit()
+                            and int(ekor_tr)
+                            >= 1):
+                        return False
+            k_tr += 1
         # Audit 1061: arsip '-' (nilai -f) atau daftar -T '-'.
         # Audit 1077: bundel gaya lama tanpa strip (tf) dan nilai
         # merekat pada bundel (-tf-, -f-) — regex lama mewajibkan
