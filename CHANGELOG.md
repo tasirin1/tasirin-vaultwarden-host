@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: walk kedua curl kini melewati nilai opsi bernilai lain (Audit 2854)
+
+Walk kedua tidak pernah melewati nilai opsi lain, jadi `-d @-` yang sebenarnya nilai milik opsi sebelumnya dinilai sumber stdin: terprobe server penangkap induk — `--header -d @-` dan `-H -d @-` mengirim GET berbadan kosong, `-o -d @-` malah menjadikan "-d" nama berkas keluaran, `--uplo -d @-` mengunggah 0 byte dari berkas "-d". Walk kedua kini menelan nilai opsi bernilai (panjang maupun pendek, memakai himpunan 2828 yang sama) sebelum menilai, dan singkatan ambigu seperti `--out` ditolak karena biner mati "is ambiguous" (terprobe). Kontrol arah sebaliknya (`--header X-Test -d @-`) tetap menguras. Skenario uji-verifikasi 1919.
+
+
 ## [Belum rilis] — Gerbang: walk kedua curl kini mengurai bundel opsi pendek (Audit 2853)
 
 Walk kedua hanya mengenal opsi pendek yang berdiri sendiri, jadi huruf sumber di dalam bundel tak terlihat: `curl -sd @-` dan `-sd@-` dinilai tidak menguras padahal server penangkap induk menerima POST berbadan isi stdin untuk keduanya. Walk kedua kini mengurai bundel huruf demi huruf — huruf sumber `-d`/`-F`/`-T`/`-K` menilai nilai ekornya atau token berikutnya persis seperti bentuk berdirinya, dan huruf bernilai bukan sumber menelan ekor bundel (atau token berikutnya bila di ujung). Skenario uji-verifikasi 1918.

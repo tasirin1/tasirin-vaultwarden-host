@@ -7669,6 +7669,31 @@ def _menguras_khusus(perintah, toks, awal):
                     j_w2 += 1
                 i += konsumsi_w2
                 continue
+            # Audit 2854: nilai opsi bernilai
+            # lain ditelan - "-d @-" yang
+            # sebenarnya NILAI opsi lain
+            # (--header/-H/-o/...) bukan
+            # sumber stdin (terprobe server
+            # penangkap: GET berbadan kosong).
+            if t in _CURL_BERNILAI_PANJANG:
+                i += 2
+                continue
+            if t in _CURL_BERNILAI_PENDEK:
+                i += 2
+                continue
+            if (t.startswith("--")
+                    and "=" not in t):
+                calon_w2 = [
+                    x for x in
+                    _CURL_BERNILAI_PANJANG
+                    if x.startswith(t)]
+                if len(calon_w2) >= 2:
+                    # Audit 2854: singkatan
+                    # ambigu membunuh biner
+                    # ("option --out... is
+                    # ambiguous", terprobe) -
+                    # tak ada sumber yang sah.
+                    return False
             if t.startswith("--") and "=" in t:
                 # Audit 2852: dasar singkatan
                 # pada bentuk --opsi=nilai ikut

