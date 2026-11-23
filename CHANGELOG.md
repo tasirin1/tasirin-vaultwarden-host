@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — node: opsi ukuran V8 bentuk = kini divalidasi numerik (Audit 2800)
+
+- Opsi ukuran
+  V8 node
+  (--max-old-
+  space-size dan
+  kawan size_t)
+  kini wajib
+  bentuk "=" dan
+  nilai numerik;
+  nilai asing
+  membunuh node
+  sebelum stdin
+  dibaca.
+
+
 ## [Belum rilis] — node: --input-type kini divalidasi enum (Audit 2799)
 
 - Nilai

@@ -3442,6 +3442,26 @@ def _menguras_interpreter(perintah, toks, awal):
                         "commonjs-typescript"):
                     return False
                 continue
+            # Audit 2800: opsi ukuran V8
+            # (size_t) hanya sah bentuk
+            # "=" bernilai numerik - bentuk
+            # terpisah dan nilai non-numerik
+            # membunuh node "illegal value"
+            # sebelum stdin dibaca. (Nilai
+            # node sendiri seperti
+            # --max-http-header-size TIDAK
+            # ikut: biner menerimanya.)
+            if dasar_nd in (
+                    "--max-old-space-size",
+                    "--max-semi-space-size",
+                    "--max-heap-size",
+                    "--max-shared-heap-size"):
+                if "=" not in t or not _ukuran_v8_sah(
+                        t.split("=", 1)[1].strip(
+                            "\"'")):
+                    return False
+                i += 1
+                continue
             dikenal_nd = (
                 dasar_nd in ("--version", "--help", "-v",
                              "--eval", "--print", "--check",
@@ -4444,6 +4464,22 @@ def _x_python_sah(nilai_x):
         return re.fullmatch(
             r"\d{1,18}", isi_x) is not None
     return True
+
+
+def _ukuran_v8_sah(nilai_uk):
+    # Audit 2800: nilai numerik V8
+    # (size_t/int) diurai ala strtoull
+    # - kosong diterima diam-diam,
+    # tanda/spasi awal + digit hingga
+    # akhir diterima (negatif dan
+    # luapan hanya diperingatkan lalu
+    # jalan); selain itu node mati
+    # "illegal value" sebelum stdin
+    # dibaca. Terverifikasi biner.
+    if nilai_uk == "":
+        return True
+    return re.fullmatch(
+        r"\s*[+-]?\d+", nilai_uk) is not None
 
 
 def _sinyal_timeout_sah(nilai):
