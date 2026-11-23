@@ -136,7 +136,7 @@ jobs:
       - name: Uji-diri cek-cepat (cabang deteksi cek-cepat)
         run: python3 tools/uji-cek-cepat-1.py
       # Audit 2557: skenario terbagi dua berkas titik-masuk;
-      # check wajib PR tetap menjalankan seluruh 106 skenario
+      # check wajib PR tetap menjalankan seluruh 105 skenario
       # (paruh awal oleh langkah di atas, paruh akhir oleh langkah
       # berikut). Audit 2559: langkah di atas sebelumnya menjalankan
       # berkas utama utuh sehingga paruh akhir berjalan dua kali.

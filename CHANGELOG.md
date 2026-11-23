@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — angka jumlah skenario uji-cek-cepat dibetulkan (Audit 2706)
+
+- Dua klaim jumlah skenario
+  yang basi dibetulkan dari
+  106 menjadi 105 sesuai
+  hitungan aktual panggilan
+  pemeriksa di suite
+  uji-cek-cepat: komentar di
+  workflow cek wajib dan
+  kepala berkas suite paralel
+  pertama.
+
+
 ## [Belum rilis] — salinan pulih writeText kini lewat berkas pentas (Audit 2705)
 
 - Pemulihan tempel pada

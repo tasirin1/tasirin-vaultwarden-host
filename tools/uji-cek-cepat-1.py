@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Paruh pertama uji-diri cek-cepat (Audit 2557, kabel Audit 2559).
 
-Suite ini dulu satu berkas 106 skenario yang berjalan serial.
+Suite ini dulu satu berkas 105 skenario yang berjalan serial.
 Skenarionya terbagi dua fungsi di tools/uji-cek-cepat.py
 (_bagian_awal/_bagian_akhir); berkas ini menjalankan paruh
 awalnya saja agar CI dapat menjalankan kedua paruh sebagai dua
