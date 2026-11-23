@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — runuser tanpa perintah kini divonis shell di gerbang (Audit 2703)
+
+- `runuser` tanpa perintah kini
+  divonis membaca masukan:
+  untuk pemanggil root ia
+  menjalankan shell login yang
+  membaca perintah dari
+  masukan (juga bentuk `-l`,
+  `-s`, `-g`, `--`). Satu-satunya
+  pengecualian adalah bila
+  pengguna disebut lewat
+  `-u`/`--user` tanpa perintah
+  — bentuk itu mati di biner
+  dan tetap divonis mati.
+
+
 ## [Belum rilis] — --help/--version xargs kini dikenali gerbang (Audit 2702)
 
 - `xargs --help`/`--version`

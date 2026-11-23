@@ -13812,6 +13812,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
     # telanjang tanpa apa pun ia mati.
     setarch_punya_pengikut = False
     awal_keluarga_setarch = -1
+    # Audit 2703: runuser tanpa perintah
+    # menjatuhkan shell login pembaca stdin
+    # kecuali bila pengguna disebut.
+    runuser_punya_user = False
     # Audit 987: isi string env -S di-exec env sebagai program
     # eksternal — kata pertamanya tidak pernah builtin shell,
     # jadi rekursi -S berjalan dengan _posisi_awal=False.
@@ -14057,6 +14061,43 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 # token sesudah kata setarch ini.
                 setarch_punya_pengikut = (
                     len(toks) > awal + 1)
+            if t0 == "runuser":
+                # Audit 2703: pindai wilayah opsi
+                # runuser untuk penyebutan
+                # pengguna (-u/--user, segala
+                # bentuk) - satu-satunya bentuk
+                # tanpa perintah yang mati.
+                j_ru = awal + 1
+                while j_ru < len(toks):
+                    t_ru = toks[j_ru].strip("\"'")
+                    if t_ru == "--":
+                        break
+                    if not t_ru.startswith("-") \
+                            or t_ru == "-":
+                        break
+                    if (t_ru == "--user"
+                            or t_ru.startswith(
+                                "--user=")):
+                        runuser_punya_user = True
+                        break
+                    if t_ru.startswith("--"):
+                        if ("=" not in t_ru
+                                and t_ru in (
+                                    "--group",
+                                    "--supp-group",
+                                    "--shell")):
+                            j_ru += 1
+                        j_ru += 1
+                        continue
+                    for ch_ru in t_ru[1:]:
+                        if ch_ru == "u":
+                            runuser_punya_user = True
+                            break
+                        if ch_ru in "gGsc":
+                            break
+                    if runuser_punya_user:
+                        break
+                    j_ru += 1
             if t0 in ("setarch", "linux32", "linux64",
                       "i386", "x86_64"):
                 # Audit 2671: posisi lapisan
@@ -14826,6 +14867,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         # shell interaktif yang membaca perintah dari stdin.
         if pembungkus_terakhir == "unshare":
             return True
+        # Audit 2703: runuser tanpa perintah -
+        # shell login pembaca stdin (pemanggil
+        # root), kecuali pengguna disebut
+        # (mati "no command was specified").
+        if pembungkus_terakhir == "runuser":
+            return not runuser_punya_user
         # Audit 2682: chroot ikut vonis 1121 hanya bila
         # operand direktorinya tertelan; chroot telanjang
         # mati "missing operand" rc=125 di biner, jadi

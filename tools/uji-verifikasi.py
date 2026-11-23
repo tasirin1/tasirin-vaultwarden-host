@@ -37982,6 +37982,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item xargs --help: informasional tertelan xargs_sendiri, gerbang lolos (Audit 2702)", rc == 0)
         shutil.rmtree(sub1791, ignore_errors=True)
+        sub1792 = klon(tmp, "sub1792")
+        berkas_aksi1792 = os.path.join(
+            sub1792, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1792, encoding="utf-8") as f:
+            isi_aksi1792 = f.read()
+        baris_aksi1792 = [b for b in isi_aksi1792.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1792 = isi_aksi1792.replace(
+                baris_aksi1792,
+                baris_aksi1792.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(runuser; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1792 != isi_aksi1792, \
+            "suntikan aksi1792 tidak menembak"
+        with open(berkas_aksi1792, "w", encoding="utf-8") as f:
+            f.write(isi_baru1792)
+        rc, out = jalan(sub1792,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item runuser telanjang: shell login root membaca stdin, gerbang menolak (Audit 2703)", rc != 0)
+        shutil.rmtree(sub1792, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
