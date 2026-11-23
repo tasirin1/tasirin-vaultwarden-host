@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — nilai uclamp menerima tanda + (Audit 2733)
+
+- Validator nilai
+  uclampset kini
+  menerima tanda `+`
+  di awal bilangan
+  (sah di biner).
+
+
 ## [Belum rilis] — kunci-sort menerima bentuk usang +POS (Audit 2732)
 
 - Validator kunci sort

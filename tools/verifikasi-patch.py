@@ -15256,7 +15256,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 # pendek di biner.
                                 if not (
                                         re.fullmatch(
-                                            r"-?\d+",
+                                            r"[+-]?\d+",
                                             nilai_b)
                                         and (int(nilai_b)
                                              == -1
