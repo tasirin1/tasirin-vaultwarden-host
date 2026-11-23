@@ -3610,6 +3610,26 @@ def _menguras_interpreter(perintah, toks, awal):
                     return False
                 i += 1
                 continue
+            # Audit 2818: nama sah dari
+            # --help yang hanya terbakar di
+            # _HELP_NODE kini terjangkau -
+            # yang bernilai menelan nilai
+            # seperti --title (menggantung
+            # mati), yang boolean cukup
+            # keanggotaan. Klasifikasi
+            # dibakar dari probe biner
+            # (telanjang sah vs menelan
+            # nilai); nama hantu prosa
+            # --help (--tls-min-v1 dst.)
+            # dan mode khusus tetap di luar.
+            if dasar_nd in _NODE_HELP_BERNILAI:
+                if "=" in t:
+                    i += 1
+                elif i + 1 >= n:
+                    return False
+                else:
+                    i += 2
+                continue
             # Audit 2817: polaritas dan nilai
             # mengikuti TIPE opsi di biner -
             # --no-X mati untuk opsi bernilai
@@ -3653,6 +3673,7 @@ def _menguras_interpreter(perintah, toks, awal):
                 # --v8-* selain --v8-options bukan
                 # opsi nyata; --no-X hanya sah bila
                 # bentuk positifnya dikenal.
+                or dasar_nd in _NODE_HELP_TELANJANG
                 or dasar_nd in _EXP_NODE
                 or dasar_nd in _MAX_V8
                 or dasar_nd in _TRACE_V8
@@ -4895,6 +4916,45 @@ _TRACE_V8_NILAI = frozenset({
     "--trace-sigint", "--trace-sync-io", "--trace-tls",
     "--trace-turbo-cfg-file", "--trace-turbo-file-prefix", "--trace-turbo-filter",
     "--trace-turbo-path", "--trace-uncaught", "--trace-warnings",})
+_NODE_HELP_TELANJANG = frozenset({
+    "--abort-on-uncaught-exception", "--allow-addons", "--allow-child-process",
+    "--allow-inspector", "--allow-openssl-store", "--allow-wasi",
+    "--allow-worker", "--disable-sigusr1", "--disable-wasm-trap-handler",
+    "--disallow-code-generation-from-strings", "--enable-etw-stack-walking", "--enable-fips",
+    "--enable-fips-indicator-events", "--enable-network-family-autoselection", "--entry-url",
+    "--expose-gc", "--force-context-aware", "--force-fips",
+    "--force-node-api-uncaught-exceptions-policy", "--frozen-intrinsics", "--insecure-http-parser",
+    "--inspect-wait", "--interpreted-frames-native-stack", "--jitless",
+    "--no-addons", "--no-async-context-frame", "--no-deprecation",
+    "--no-extra-info-on-fatal-exception", "--no-force-async-hooks-checks", "--no-global-search-paths",
+    "--no-require-module", "--no-warnings", "--node-memory-debug",
+    "--openssl-legacy-provider", "--openssl-shared-config", "--pending-deprecation",
+    "--permission", "--permission-audit", "--preserve-symlinks",
+    "--preserve-symlinks-main", "--prof", "--report-compact",
+    "--report-exclude-env", "--report-exclude-network", "--report-on-fatalerror",
+    "--report-on-signal", "--report-uncaught-exception", "--require-module",
+    "--test-force-exit", "--test-only", "--test-randomize",
+    "--test-update-snapshots", "--throw-deprecation", "--track-heap-objects",
+    "--use-bundled-ca", "--use-env-proxy", "--use-openssl-ca",
+    "--use-system-ca", "--watch-preserve-output",})
+_NODE_HELP_BERNILAI = frozenset({
+    "--allow-fs-read", "--allow-fs-write", "--cpu-prof-dir",
+    "--cpu-prof-interval", "--cpu-prof-name", "--debug-port",
+    "--diagnostic-dir", "--disable-proto", "--disable-warning",
+    "--dns-result-order", "--env-file-if-exists", "--heap-prof-dir",
+    "--heap-prof-interval", "--heap-prof-name", "--heapsnapshot-near-heap-limit",
+    "--heapsnapshot-signal", "--icu-data-dir", "--inspect-publish-uid",
+    "--localstorage-file", "--max-http-header-size", "--max-old-space-size-percentage",
+    "--network-family-autoselection-attempt-timeout", "--openssl-config", "--redirect-warnings",
+    "--report-directory", "--report-filename", "--report-signal",
+    "--secure-heap", "--secure-heap-min", "--snapshot-blob",
+    "--test-concurrency", "--test-coverage-branches", "--test-coverage-exclude",
+    "--test-coverage-functions", "--test-coverage-include", "--test-coverage-lines",
+    "--test-global-setup", "--test-name-pattern", "--test-random-seed",
+    "--test-reporter", "--test-reporter-destination", "--test-rerun-failures",
+    "--test-shard", "--test-skip-pattern", "--test-timeout",
+    "--tls-cipher-list", "--tls-keylog", "--unhandled-rejections",
+    "--v8-pool-size", "--watch-kill-signal", "--watch-path",})
 
 
 def _argjson_sah(nilai_j):

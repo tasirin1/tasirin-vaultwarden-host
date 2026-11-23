@@ -1,3 +1,8 @@
+## [Belum rilis] — node: nama sah --help kini terjangkau sebagai bentuk positif (Audit 2818)
+
+Nama-nama di `_HELP_NODE` (dibakar dari `node --help` oleh 2801) sebelumnya hanya dipakai untuk uji polaritas `--no-`, sehingga bentuk positif sah seperti `--expose-gc`, `--jitless`, `--frozen-intrinsics` tertolak gerbang padahal biner menjalankan REPL dari stdin. Klasifikasi 117 nama sisa dibakar dari probe biner (pipa terbuka): 59 boolean sah telanjang (`_NODE_HELP_TELANJANG`, termasuk --enable-fips/--force-fips yang matinya soal konfigurasi OpenSSL host) dan 51 bernilai yang menelan token berikutnya seperti --title (`_NODE_HELP_BERNILAI`). Nama hantu dari prosa --help (--tls-min-v1/--tls-max-v1, `bad option` di biner) dan mode khusus (--build-snapshot, --run, --prof-process, --completion-bash informasional) tetap di luar. Skenario 1892.
+
+
 ## [Belum rilis] — node: negasi dan nilai mengikuti tipe opsi biner (Audit 2817)
 
 Keanggotaan tertutup 2801 berhenti di nama - polaritas dan nilai kini mengikuti tipe opsi dari sapuan biner node v24.22.1 (328 nama x 2 bentuk): `--no-X` ditolak untuk 112 opsi bernilai/bukan-boolean (`_NODE_TAK_NEGASI`: keluarga max-*, --title, --env-file, --input-type, --use-largepages, opsi report/test/tls, dst.) yang di biner mati `invalid negation`; flag boolean V8 keluarga --trace-* (di luar 18 nama bernilai di `_TRACE_V8_NILAI`) ditolak bila diberi `=nilai` yang di biner mati `illegal value ... of type bool`; --test/--watch/--experimental-default-config-file juga ditolak dengan argumen `=`. Skenario 1891.

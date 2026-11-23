@@ -40082,6 +40082,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("node negasi opsi enum kini dinilai mati", rc == 0)
         shutil.rmtree(sub1891, ignore_errors=True)
+        sub1892 = klon(tmp, "sub1892")
+        berkas_aksi1892 = os.path.join(
+            sub1892, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1892, encoding="utf-8") as f:
+            isi_aksi1892 = f.read()
+        baris_aksi1892 = [b for b in isi_aksi1892.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1892 = isi_aksi1892.replace(
+                baris_aksi1892,
+                baris_aksi1892.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --expose-gc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1892 != isi_aksi1892, \
+            "suntikan aksi1892 tidak menembak"
+        with open(berkas_aksi1892, "w", encoding="utf-8") as f:
+            f.write(isi_baru1892)
+        rc, out = jalan(sub1892,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("node --expose-gc kini dinilai menguras", rc != 0)
+        shutil.rmtree(sub1892, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
