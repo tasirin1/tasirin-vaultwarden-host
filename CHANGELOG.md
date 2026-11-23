@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga [=] tree (--hintro/--houtro/--infofile) kini menelan nilai di kedua walk (Audit 2846)
+
+Tiga opsi tree bernilai opsional — `--hintro`, `--houtro`, `--infofile` — hilang dari himpunan bernilai kedua walk, padahal biner menelan token berikutnya sebagai nilainya untuk seluruh keluarga `[=]` (terprobe: pesan biner membuktikan `--fromfile` tertelan jadi nilai). Akibatnya `tree --hintro --fromfile` dinilai mode stdin padahal `--fromfile`-nya hanya nilai. Ketiga nama kini ikut himpunan bernilai walk pertama (validasi -L) dan walk kedua (mode/operand). Skenario uji-verifikasi 1911.
+
+
 ## [Belum rilis] — Gerbang: opsi panjang tree tak dikenal kini ditolak (Audit 2845)
 
 Model tree membiarkan opsi panjang apa pun lewat — `--level=2`, `--output x`, `--bogus` sebelum `--fromfile` tetap dinilai menguras, padahal tree 2.1.1 mati "Invalid argument" pada nama pertama yang tak dikenalnya (dan memang tidak punya `--level`/`--output` sama sekali; validasi nilai `--level` warisan 2774 kini tak terjangkau karena namanya sendiri ditolak). Walk kedua kini memeriksa setiap token opsi panjang yang benar-benar terlandasi (bukan yang tertelan sebagai nilai) terhadap kosakata persis `--help` biner; `--help`/`--version` juga mengakhiri perintah tanpa membaca. Skenario uji-verifikasi 1910.

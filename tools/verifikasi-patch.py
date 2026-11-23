@@ -15094,7 +15094,8 @@ def _menguras_khusus(perintah, toks, awal):
         bernilai_tr3 = ("-P", "-I", "-o", "-T", "-H",
                         "--charset", "--filelimit",
                         "--timefmt", "--sort",
-                        "--gitfile")
+                        "--gitfile", "--hintro",
+                        "--houtro", "--infofile")
         k_tr3 = 0
         while k_tr3 < len(mentah):
             t_tr3 = mentah[k_tr3]
@@ -15162,9 +15163,16 @@ def _menguras_khusus(perintah, toks, awal):
         # pola nama, bukan mode stdin.
         # Audit 1385: --gitfile (tree 2.x) juga opsi
         # bernilai — nilainya menelan token berikutnya.
+        # Audit 2846: keluarga [=] tree
+        # (--hintro/--houtro/--infofile)
+        # menelan token berikutnya sebagai
+        # nilai, sama seperti --sort/
+        # --gitfile (terprobe biner) -
+        # ketiganya kini ikut di kedua walk.
         bernilai_tr2 = ("-P", "-I", "-L", "-o", "-T", "-H",
                         "--charset", "--filelimit", "--timefmt",
-                        "--sort", "--gitfile")
+                        "--sort", "--gitfile", "--hintro",
+                        "--houtro", "--infofile")
         # Audit 2844: mode fromfile/fromtabfile
         # membaca daftar dari OPERAND pertamanya -
         # tanpa operand, atau operand "." /
