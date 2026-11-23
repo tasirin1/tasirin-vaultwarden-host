@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — stdbuf tanpa opsi penyangga divonis mati (Audit 2680)
+
+- `stdbuf` yang tidak membawa satu
+  pun opsi penyangga (`-i`, `-o`,
+  `-e`) kini divonis mati oleh
+  gerbang sebelum menilai anaknya,
+  sesuai biner yang berhenti rc=125
+  tanpa menjalankan perintah anak.
+
 ## [Belum rilis] — Tabel tipe split dilengkapi nama --suffix-length (Audit 2679)
 
 - Bentuk panjang `split

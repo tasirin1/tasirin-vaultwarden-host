@@ -37519,6 +37519,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("split --suffix-length abc: nilai bukan angka membunuh split saat urai, alat mati: gerbang lolos (Audit 2679)", rc == 0)
         shutil.rmtree(sub1769, ignore_errors=True)
+        sub1770 = klon(tmp, "sub1770")
+        berkas_aksi1770 = os.path.join(
+            sub1770, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1770, encoding="utf-8") as f:
+            isi_aksi1770 = f.read()
+        baris_aksi1770 = [b for b in isi_aksi1770.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1770 = isi_aksi1770.replace(
+                baris_aksi1770,
+                baris_aksi1770.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(stdbuf cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1770 != isi_aksi1770, \
+            "suntikan aksi1770 tidak menembak"
+        with open(berkas_aksi1770, "w", encoding="utf-8") as f:
+            f.write(isi_baru1770)
+        rc, out = jalan(sub1770,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("stdbuf cat: tanpa opsi penyangga stdbuf mati rc=125 sebelum cat berjalan, alat mati: gerbang lolos (Audit 2680)", rc == 0)
+        shutil.rmtree(sub1770, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

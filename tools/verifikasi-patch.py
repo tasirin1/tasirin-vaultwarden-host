@@ -13773,6 +13773,37 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     if toks[j_la] == "--list":
                         return False
                     j_la += 1
+            if t0 == "stdbuf":
+                # Audit 2680: stdbuf menuntut
+                # minimal satu opsi penyangga
+                # (-i/-o/-e); tanpa itu biner
+                # mati rc=125 sebelum anak
+                # berjalan, tetapi gerbang
+                # menilai dari anaknya. Pindai
+                # wilayah opsi stdbuf sendiri:
+                # token tak berawalan strip =
+                # anak tercapai.
+                ada_penyangga = False
+                j_sb = awal
+                while j_sb < len(toks):
+                    t_sb = toks[j_sb].strip("\"'")
+                    if t_sb == "--":
+                        break
+                    if not t_sb.startswith("-") \
+                            or t_sb == "-":
+                        break
+                    if t_sb.startswith("--"):
+                        if t_sb.split("=", 1)[0] in (
+                                "--input", "--output",
+                                "--error"):
+                            ada_penyangga = True
+                            break
+                    elif t_sb[1:2] in ("i", "o", "e"):
+                        ada_penyangga = True
+                        break
+                    j_sb += 1
+                if not ada_penyangga:
+                    return False
             if t0 in ("su", "sg", "newgrp"):
                 # Audit 1107: su/sg — string -c dinilai seperti
                 # flock -c; tanpa -c keduanya menjatuhkan shell
