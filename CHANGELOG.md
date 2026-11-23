@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — python: --check-hash-based-pycs kini divalidasi enum (Audit 2797)
+
+- Nilai
+  `--check-hash-
+  based-pycs` kini
+  wajib salah satu
+  {default, always,
+  never}; nilai
+  lain membunuh
+  python sebelum
+  stdin dibaca.
+
+
 ## [Belum rilis] — memlimit-xz: peta sufiks diselaraskan ke biner (Audit 2796)
 
 - Sufiks

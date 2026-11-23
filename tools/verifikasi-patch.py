@@ -3362,7 +3362,15 @@ def _menguras_interpreter(perintah, toks, awal):
             if t == "--check-hash-based-pycs":
                 # Audit 1720: menggantung = "Argument expected"
                 # lalu keluar (sejajar -W/-X Audit 1708).
+                # Audit 2797: nilai wajib enum
+                # {default, always, never} -
+                # nilai lain mati ("must be one
+                # of ...") sebelum stdin dibaca.
                 if i + 1 >= n:
+                    return False
+                if toks[i + 1].strip("\"'") not in (
+                        "default", "always",
+                        "never"):
                     return False
                 i += 2
                 continue
