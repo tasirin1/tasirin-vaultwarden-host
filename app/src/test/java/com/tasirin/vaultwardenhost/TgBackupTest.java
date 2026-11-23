@@ -2289,6 +2289,28 @@ public class TgBackupTest {
     }
 
     @Test
+    public void bersihkanSisaSalin_hapusYatimTuaSaja() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwsalin").toFile();
+        long kini = System.currentTimeMillis();
+        java.io.File yatim = new java.io.File(dir, "ca.pem.salin-abc123");
+        java.io.File hidup = new java.io.File(dir, "cert.pem.salin-def456");
+        java.io.File biasa = new java.io.File(dir, "ca.pem");
+        for (java.io.File f : new java.io.File[]{yatim, hidup, biasa}) {
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+            fos.write(1);
+            fos.close();
+        }
+        assertTrue(yatim.setLastModified(kini - 2 * 3600_000L));
+        assertTrue(hidup.setLastModified(kini));
+        assertTrue(biasa.setLastModified(kini - 2 * 3600_000L));
+        assertEquals(1, TgBackup.bersihkanSisaSalin(dir, kini));
+        assertFalse(yatim.exists());
+        assertTrue(hidup.exists());
+        assertTrue(biasa.exists());
+        assertEquals(0, TgBackup.bersihkanSisaSalin(null, kini));
+    }
+
+    @Test
     public void potretKembalikanTls_bulatkembali() throws Exception {
         java.io.File tls = java.nio.file.Files.createTempDirectory("vwtls").toFile();
         tulisTeks(new java.io.File(tls, "ca.pem"), "CA-LAMA");

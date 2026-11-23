@@ -1,3 +1,8 @@
+## [Belum rilis] — copyFile: yatim berkas sementara .salin- kini disapu berjaga umur (Audit 2820)
+
+Salin atomik 2810 meninggalkan yatim `*.salin-<hex>` permanen bila proses mati sesudah berkas sementara tertulis tetapi sebelum `renameTo`/penghapusan - tak ada penyapu (grep hanya menemukan situs pembuatannya). `copyFile` kini menyapu folder tujuannya lebih dulu lewat `bersihkanSisaSalin`: hanya berkas bernama `.salin-` berumur lebih dari 1 jam yang dihapus, sehingga berkas sementara milik salinan lain yang sedang berjalan tak tersentuh. Uji JVM baru mengunci perilaku itu.
+
+
 ## [Belum rilis] — Bot: peringatan satu-kali diserialkan lagi dengan kunci bersama (Audit 2819)
 
 Perbaikan bot lambat (2588) memindahkan `peringatkanBilaTakBisaHapus` dan `peringatkanPinChatAsing` dari utas poll yang serial ke pool latar 3 utas; pola cek-lalu-set keduanya atas SharedPreferences (bendera `tg_hapus_ok`/`tg_hapus_warn` dan cap waktu peringatan chat asing) tanpa sinkronisasi bisa sama-sama membaca keadaan lama sehingga peringatan "satu kali" terkirim ganda. Kedua fungsi kini membungkus putusan + tulis keadaannya dengan `synchronized (KUNCI_PERINGATAN)`; pengiriman peringatan tetap di luar kunci.

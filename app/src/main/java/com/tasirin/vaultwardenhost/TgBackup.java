@@ -5149,6 +5149,12 @@ public final class TgBackup {
         // keberadaan berkas (migrasi TLS) menganggapnya
         // sudah tersalin utuh.
         File induk = dst.getParentFile();
+        // Audit 2820: sapu yatim .salin- lama di
+        // folder tujuan sebelum menyalin lagi.
+        if (induk != null) {
+            bersihkanSisaSalin(induk,
+                    System.currentTimeMillis());
+        }
         String namaTmp = dst.getName() + ".salin-"
                 + Long.toHexString(System.nanoTime());
         File tmp = induk == null
@@ -5185,6 +5191,36 @@ public final class TgBackup {
             throw new IOException("Gagal memasang hasil salin ("
                     + dst.getName() + ").");
         }
+    }
+
+    // Audit 2820: proses yang mati sesudah berkas
+    // sementara .salin- tertulis tetapi sebelum
+    // renameTo/penghapusan meninggalkan yatim
+    // permanen di folder tujuan. Sapuan berjaga
+    // umur (1 jam) pada salinan berikutnya ke
+    // folder yang sama membersihkannya tanpa
+    // menyentuh berkas sementara milik salinan
+    // lain yang masih berjalan.
+    static int bersihkanSisaSalin(File dir, long kiniMs) {
+        if (dir == null) {
+            return 0;
+        }
+        File[] daftar = dir.listFiles();
+        if (daftar == null) {
+            return 0;
+        }
+        int terhapus = 0;
+        for (File f : daftar) {
+            if (f.isFile()
+                    && f.getName().contains(".salin-")
+                    && kiniMs - f.lastModified()
+                            > 3600_000L) {
+                if (f.delete()) {
+                    terhapus++;
+                }
+            }
+        }
+        return terhapus;
     }
 
     static boolean adaSegmenDotDot(String n) {
