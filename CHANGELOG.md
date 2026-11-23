@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — Rotasi log jalur darurat meninggalkan penanda (Audit 2686)
+
+- Bila rotasi berkas log gagal
+  memakai ganti nama biasa dan
+  terpaksa lewat jalur darurat,
+  berkas log baru kini diberi
+  baris penanda bahwa riwayat
+  log sebelumnya dibuang tanpa
+  tersalin ke berkas `.1`.
+  Sebelumnya riwayat sampai
+  batas berkas bisa hilang
+  tanpa catatan apa pun.
+
+
 ## [Belum rilis] — Sisa .lama yatim writeText dipulihkan atau dibersihkan (Audit 2685)
 
 - `writeText` kini memeriksa

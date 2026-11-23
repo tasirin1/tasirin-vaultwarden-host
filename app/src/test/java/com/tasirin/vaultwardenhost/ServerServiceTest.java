@@ -932,7 +932,10 @@ public class ServerServiceTest {
             ServerService.pindahLogFile(f);
             String isi = new String(java.nio.file.Files.readAllBytes(f.toPath()),
                     java.nio.charset.StandardCharsets.UTF_8);
-            assertEquals("baris-baru\n", isi);
+            assertEquals("baris-baru\n"
+                    + "[app] Rotasi lewat jalur darurat:"
+                    + " riwayat log sebelumnya dibuang"
+                    + " tanpa tersalin ke berkas .1.\n", isi);
             assertEquals(0, buf.length());
             org.junit.Assert.assertFalse(new java.io.File(dir, "vaultwarden.log.tmp").exists());
         } finally {

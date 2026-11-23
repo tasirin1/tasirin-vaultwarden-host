@@ -3039,19 +3039,40 @@ public class ServerService extends Service {
             if (old.exists()) {
                 old.delete();
             }
-            if (!f.renameTo(old) && !rotasiLewatTmp(f)) {
-                // Audit 2630: rotasi gagal total -
-                // katup pengaman 2564 hidup di
-                // cabang catch penulisan yang tak
-                // terjangkau dari jalur ini, jadi
-                // terapkan batas yang sama di sini
-                // agar buffer tak tumbuh tanpa
-                // batas selama rotasi terus gagal.
-                if (logFileBuf.length() > MAX_LOG_FILE) {
-                    logFileBuf.delete(0,
-                            logFileBuf.length() - (int) MAX_LOG_FILE);
+            boolean rotasiDarurat = false;
+            if (!f.renameTo(old)) {
+                rotasiDarurat = rotasiLewatTmp(f);
+                if (!rotasiDarurat) {
+                    // Audit 2630: rotasi gagal total -
+                    // katup pengaman 2564 hidup di
+                    // cabang catch penulisan yang tak
+                    // terjangkau dari jalur ini, jadi
+                    // terapkan batas yang sama di sini
+                    // agar buffer tak tumbuh tanpa
+                    // batas selama rotasi terus gagal.
+                    if (logFileBuf.length() > MAX_LOG_FILE) {
+                        logFileBuf.delete(0,
+                                logFileBuf.length() - (int) MAX_LOG_FILE);
+                    }
+                    return;
                 }
-                return;
+            }
+            if (rotasiDarurat) {
+                // Audit 2686: jalur tmp memasang isi
+                // buffer sebagai berkas baru dan
+                // riwayat lama hilang tanpa tersalin
+                // ke .1 - tinggalkan baris penanda di
+                // berkas baru agar hilangnya riwayat
+                // tercatat, bukan diam-diam.
+                try (java.io.OutputStreamWriter wp =
+                        new java.io.OutputStreamWriter(
+                                new FileOutputStream(f, true),
+                                StandardCharsets.UTF_8)) {
+                    wp.write("[app] Rotasi lewat jalur darurat:"
+                            + " riwayat log sebelumnya dibuang"
+                            + " tanpa tersalin ke berkas .1.\n");
+                } catch (Exception ignored) {
+                }
             }
         }
         try (java.io.OutputStreamWriter w = new java.io.OutputStreamWriter(
