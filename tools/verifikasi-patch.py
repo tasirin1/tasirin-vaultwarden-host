@@ -14318,6 +14318,21 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     if t_sh in ("--help", "--version"):
                         return False
                     if t_sh.startswith("--"):
+                        # Audit 2713: parser
+                        # sudo bukan getopt_long
+                        # - bentuk seperti
+                        # --hel adalah opsi tak
+                        # dikenal dan sudo mati
+                        # seketika, bukan
+                        # singkatan informasional.
+                        nama_sh = t_sh[2:].partition(
+                            "=")[0]
+                        if (nama_sh
+                                and ("help".startswith(
+                                        nama_sh)
+                                     or "version".startswith(
+                                        nama_sh))):
+                            return False
                         if ("=" not in t_sh
                                 and t_sh in bernilai):
                             j_sh += 1

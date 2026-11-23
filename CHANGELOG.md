@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — bentuk mirip singkatan pada sudo divonis mati (Audit 2713)
+
+- Parser sudo bukan
+  getopt_long, jadi
+  token panjang yang
+  mengarah ke
+  `--help`/`--version`
+  tanpa menjadi nama
+  eksaknya (mis. `--hel`)
+  adalah opsi tak
+  dikenal yang membunuh
+  sudo; pindaian sudo
+  kini memvonisnya mati.
+
+
 ## [Belum rilis] — singkatan informasional/ambigu nice, ionice, timeout divonis mati (Audit 2712)
 
 - Di wilayah opsi nice,
