@@ -4157,15 +4157,27 @@ def _menguras_khusus(perintah, toks, awal):
             "html", "init",
             "interactive", "json", "line", "list",
             "lookaside", "markdown",
-            "maxsize", "maxwidth", "memtrace",
+            "maxsize", "memtrace",
             "mmap", "newline", "nofollow",
             "noheader", "nonce", "nullvalue",
             "pagecache", "pcachetrace", "quote",
             "readonly", "safe", "separator",
-            "stats", "table", "tabs", "unsafe",
+            "stats", "table", "tabs",
+            # Audit 2672: "unsafe" hantu disapu
+            # (biner menolaknya); yang asli
+            # justru -unsafe-testing, opsi sah
+            # 3.45.1 yang mengeksekusi SQL
+            # terpipa - dulu hilang dari
+            # kosakata (fail-open). Ejaannya
+            # bertanda hubung, persis seperti
+            # yang dibandingkan pindaian.
+            "unsafe-testing",
             "version", "vfs", "zip"})
         _pembawa1_44 = {"cmd", "init", "separator",
-                        "nullvalue", "maxwidth", "vfs",
+                        # Audit 2672: maxwidth hantu
+                        # dibuang dari himpunan ini
+                        # juga (duduk di 3 tempat).
+                        "nullvalue", "vfs",
                         "newline", "nonce", "A",
                         # Audit 2657: -maxsize/-mmap
                         # bernilai angka tetapi dulu
@@ -4221,7 +4233,9 @@ def _menguras_khusus(perintah, toks, awal):
         # nilai -cmd 2653 di atas kini mencocokkan --cmd juga.
         _bernilai_sq = {
             "-cmd", "-init", "-separator", "-nullvalue",
-            "-maxwidth", "-vfs", "-pagecache", "-lookaside",
+            # Audit 2672: "-maxwidth" hantu
+            # dibuang dari himpunan lompati.
+            "-vfs", "-pagecache", "-lookaside",
             # Audit 2657: -maxsize/-mmap bernilai
             # juga - nilainya bukan operand.
             "-maxsize", "-mmap",

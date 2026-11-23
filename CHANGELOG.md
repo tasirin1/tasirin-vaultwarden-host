@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Kosakata sqlite3: dua hantu disapu, -unsafe-testing dipulihkan (Audit 2672)
+
+- `-maxwidth` dan `-unsafe` dibuang
+  dari kosakata gerbang (biner menolak
+  keduanya sebagai opsi tak dikenal),
+  termasuk dari himpunan pembawa dan
+  himpunan lompati operand. Sebaliknya
+  `-unsafe-testing`, opsi asli yang
+  mengeksekusi SQL terpipa, dimasukkan
+  kembali ke kosakata.
+
 ## [Belum rilis] — Keluarga setarch tanpa program divonis menjalankan shell (Audit 2671)
 
 - `linux32`, `linux64`, `i386`, `x86_64`,

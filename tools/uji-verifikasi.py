@@ -37288,6 +37288,48 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("linux32 tanpa program: menjalankan shell pembaca perintah dari stdin: gerbang gagal (Audit 2671)", rc != 0)
         shutil.rmtree(sub1758, ignore_errors=True)
+        sub1759 = klon(tmp, "sub1759")
+        berkas_aksi1759 = os.path.join(
+            sub1759, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1759, encoding="utf-8") as f:
+            isi_aksi1759 = f.read()
+        baris_aksi1759 = [b for b in isi_aksi1759.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1759 = isi_aksi1759.replace(
+                baris_aksi1759,
+                baris_aksi1759.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 -maxwidth 5 :memory:; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1759 != isi_aksi1759, \
+            "suntikan aksi1759 tidak menembak"
+        with open(berkas_aksi1759, "w", encoding="utf-8") as f:
+            f.write(isi_baru1759)
+        rc, out = jalan(sub1759,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("sqlite3 -maxwidth 5: opsi hantu ditolak biner, alat mati sebelum membaca: gerbang lolos (Audit 2672)", rc == 0)
+        shutil.rmtree(sub1759, ignore_errors=True)
+        sub1760 = klon(tmp, "sub1760")
+        berkas_aksi1760 = os.path.join(
+            sub1760, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1760, encoding="utf-8") as f:
+            isi_aksi1760 = f.read()
+        baris_aksi1760 = [b for b in isi_aksi1760.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1760 = isi_aksi1760.replace(
+                baris_aksi1760,
+                baris_aksi1760.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sqlite3 -unsafe-testing :memory:; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1760 != isi_aksi1760, \
+            "suntikan aksi1760 tidak menembak"
+        with open(berkas_aksi1760, "w", encoding="utf-8") as f:
+            f.write(isi_baru1760)
+        rc, out = jalan(sub1760,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("sqlite3 -unsafe-testing: opsi asli 3.45.1 mengeksekusi SQL terpipa, alat menguras: gerbang gagal (Audit 2672)", rc != 0)
+        shutil.rmtree(sub1760, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
