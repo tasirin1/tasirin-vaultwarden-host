@@ -1,3 +1,8 @@
+## [Belum rilis] — node: negasi dan nilai mengikuti tipe opsi biner (Audit 2817)
+
+Keanggotaan tertutup 2801 berhenti di nama - polaritas dan nilai kini mengikuti tipe opsi dari sapuan biner node v24.22.1 (328 nama x 2 bentuk): `--no-X` ditolak untuk 112 opsi bernilai/bukan-boolean (`_NODE_TAK_NEGASI`: keluarga max-*, --title, --env-file, --input-type, --use-largepages, opsi report/test/tls, dst.) yang di biner mati `invalid negation`; flag boolean V8 keluarga --trace-* (di luar 18 nama bernilai di `_TRACE_V8_NILAI`) ditolak bila diberi `=nilai` yang di biner mati `illegal value ... of type bool`; --test/--watch/--experimental-default-config-file juga ditolak dengan argumen `=`. Skenario 1891.
+
+
 ## [Belum rilis] — ssh: port menerima tanda + seperti strtol biner (Audit 2816)
 
 Validasi port ssh di ketiga situs (terpisah + dua bentuk bundel) memakai `isdigit()` sehingga menolak `+22` yang diterima biner ssh (a2port memakai strtol: satu tanda `+` opsional, digit, rentang 1..65535; `-1`, `+0`, `+65536`, `22x` mati di biner). Sesi interaktif ke port bertanda + lolos penilaian sebagai perintah mati. Kini pola `\+?\d{1,18}` + rentang yang sama. Skenario 1890.

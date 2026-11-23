@@ -3610,6 +3610,30 @@ def _menguras_interpreter(perintah, toks, awal):
                     return False
                 i += 1
                 continue
+            # Audit 2817: polaritas dan nilai
+            # mengikuti TIPE opsi di biner -
+            # --no-X mati untuk opsi bernilai
+            # (bukan boolean; himpunan
+            # _NODE_TAK_NEGASI dibakar dari
+            # sapuan biner), dan flag boolean
+            # V8 (keluarga --trace-* di luar
+            # yang bernilai) mati bila diberi
+            # =nilai; --test/--watch dan
+            # --experimental-default-config-file
+            # juga menolak argumen =.
+            if dasar_nd.startswith("--no-"):
+                if ("--" + dasar_nd[5:]) in (
+                        _NODE_TAK_NEGASI):
+                    return False
+            elif "=" in t and (
+                    (dasar_nd in _TRACE_V8
+                     and dasar_nd
+                     not in _TRACE_V8_NILAI)
+                    or dasar_nd in (
+                        "--test", "--watch",
+                        "--experimental-default"
+                        "-config-file")):
+                return False
             dikenal_nd = (
                 dasar_nd in ("--version", "--help", "-v",
                              "--eval", "--print", "--check",
@@ -4825,6 +4849,52 @@ _DASAR_NODE_NO = (_EXP_NODE | _MAX_V8
 _DASAR_NODE_NO = _DASAR_NODE_NO | frozenset(
     "--" + _n[5:] for _n in _DASAR_NODE_NO
     if _n.startswith("--no-"))
+_NODE_TAK_NEGASI = frozenset({
+    "--allow-fs-read", "--allow-fs-write", "--build-snapshot-config",
+    "--cpu-prof-dir", "--cpu-prof-interval", "--cpu-prof-name",
+    "--debug-port", "--diagnostic-dir", "--disable-proto",
+    "--disable-warning", "--dns-result-order", "--env-file",
+    "--env-file-if-exists", "--experimental-default-config-file", "--experimental-package-map",
+    "--experimental-sea-config", "--experimental-test-isolation", "--experimental-test-tag-filter",
+    "--heap-prof-dir", "--heap-prof-interval", "--heap-prof-name",
+    "--heapsnapshot-near-heap-limit", "--heapsnapshot-signal", "--icu-data-dir",
+    "--import", "--input-type", "--inspect-publish-uid",
+    "--loader", "--localstorage-file", "--max-fast-properties",
+    "--max-heap-size", "--max-http-header-size", "--max-inlined-bytecode-size",
+    "--max-inlined-bytecode-size-absolute", "--max-inlined-bytecode-size-cumulative", "--max-inlined-bytecode-size-small",
+    "--max-maglev-hard-inline-depth", "--max-maglev-inline-depth", "--max-maglev-inlined-bytecode-size",
+    "--max-maglev-inlined-bytecode-size-cumulative", "--max-maglev-inlined-bytecode-size-small", "--max-old-space-size",
+    "--max-old-space-size-percentage", "--max-opt", "--max-optimized-bytecode-size",
+    "--max-semi-space-size", "--max-serializer-nesting", "--max-shared-heap-size",
+    "--max-stack-trace-source-length", "--max-valid-polymorphic-map-count", "--max-wasm-functions",
+    "--network-family-autoselection-attempt-timeout", "--no-addons", "--no-async-context-frame",
+    "--no-deprecation", "--no-experimental-detect-module", "--no-experimental-global-navigator",
+    "--no-experimental-repl-await", "--no-experimental-require-module", "--no-experimental-sqlite",
+    "--no-experimental-websocket", "--no-extra-info-on-fatal-exception", "--no-force-async-hooks-checks",
+    "--no-global-search-paths", "--no-require-module", "--no-warnings",
+    "--node-memory-debug", "--openssl-config", "--prof-process",
+    "--redirect-warnings", "--report-directory", "--report-filename",
+    "--report-signal", "--run", "--secure-heap",
+    "--secure-heap-min", "--snapshot-blob", "--test-concurrency",
+    "--test-coverage-branches", "--test-coverage-exclude", "--test-coverage-functions",
+    "--test-coverage-include", "--test-coverage-lines", "--test-global-setup",
+    "--test-name-pattern", "--test-random-seed", "--test-reporter",
+    "--test-reporter-destination", "--test-rerun-failures", "--test-shard",
+    "--test-skip-pattern", "--test-timeout", "--title",
+    "--tls-cipher-list", "--tls-keylog", "--tls-max-v1",
+    "--tls-min-v1", "--trace-allocation-stack-interval", "--trace-duplicate-threshold-kb",
+    "--trace-event-categories", "--trace-event-file-pattern", "--trace-ignition-dispatches-output-file",
+    "--trace-require-module", "--trace-turbo-cfg-file", "--trace-turbo-file-prefix",
+    "--trace-turbo-filter", "--trace-turbo-path", "--unhandled-rejections",
+    "--use-largepages", "--v8-pool-size", "--watch-kill-signal",
+    "--watch-path",})
+_TRACE_V8_NILAI = frozenset({
+    "--trace-deprecation", "--trace-env", "--trace-env-js-stack",
+    "--trace-env-native-stack", "--trace-event-categories", "--trace-event-file-pattern",
+    "--trace-exit", "--trace-ignition-dispatches-output-file", "--trace-promises",
+    "--trace-sigint", "--trace-sync-io", "--trace-tls",
+    "--trace-turbo-cfg-file", "--trace-turbo-file-prefix", "--trace-turbo-filter",
+    "--trace-turbo-path", "--trace-uncaught", "--trace-warnings",})
 
 
 def _argjson_sah(nilai_j):
