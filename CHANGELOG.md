@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — algoritma shasum kini divalidasi (Audit 2756)
+
+- Nilai `-a`/
+  `--algorithm`
+  shasum kini diperiksa
+  ke himpunan
+  {1,224,256,384,512,
+  512224,512256}.
+
+
 ## [Belum rilis] — nama encoding piconv divalidasi dari daftar biner (Audit 2755)
 
 - Nama encoding

@@ -13967,6 +13967,12 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "enum-algo-shasum":
+        # Audit 2756: algoritma shasum
+        # himpunan tertutup di biner.
+        return v in ("1", "224", "256",
+                     "384", "512", "512224",
+                     "512256")
     if jenis == "charset-piconv":
         # Audit 2755: nama encoding Perl
         # Encode dari piconv -l setempat,
@@ -17869,6 +17875,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "from": "charset-piconv",
             "t": "charset-piconv",
             "to": "charset-piconv"},
+        "shasum": {
+            "a": "enum-algo-shasum",
+            "algorithm": "enum-algo-shasum"},
         "unxz": {
             "T": "angka0",
             "threads": "angka0",
