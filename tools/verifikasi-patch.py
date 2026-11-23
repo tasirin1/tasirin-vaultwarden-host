@@ -5749,11 +5749,42 @@ def _menguras_khusus(perintah, toks, awal):
         # --tabsize diff (angka >= 1)
         # divalidasi - nilai asing
         # membunuh diff saat urai.
+        # Audit 2783: walk kini melewati
+        # nilai opsi bernilai lain -
+        # --width yang tertelan --label
+        # adalah teks label, bukan opsi
+        # lebar.
+        bernilai_df = {"--label", "--line-format",
+                       "--GTYPE-group-format",
+                       "--LTYPE-line-format",
+                       "--unified", "--context",
+                       "--ifdef"}
         k_df = awal + 1
         while k_df < len(toks):
             t_df = toks[k_df].strip("\"'")
             if t_df == "--":
                 break
+            if t_df in bernilai_df:
+                k_df += 2
+                continue
+            if (t_df.startswith("--")
+                    and "=" in t_df
+                    and not t_df.startswith((
+                        "--width=", "--tabsize="))):
+                k_df += 1
+                continue
+            if (t_df.startswith("-")
+                    and not t_df.startswith("--")
+                    and len(t_df) > 1):
+                lompat_df = 1
+                for pos_df, h_df in enumerate(
+                        t_df[1:]):
+                    if h_df in "UCAD":
+                        if pos_df == len(t_df) - 2:
+                            lompat_df = 2
+                        break
+                k_df += lompat_df
+                continue
             if t_df.startswith((
                     "--width=", "--tabsize=")):
                 v_df = t_df.split("=", 1)[1]

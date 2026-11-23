@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — diff: walk lebar kini melewati nilai opsi lain (Audit 2783)
+
+- Walk `--width`/
+  `--tabsize` diff
+  (2768) kini
+  melewati nilai
+  opsi bernilai
+  lain (terpisah,
+  bentuk =, dan
+  gugus pendek)
+  sebelum menilai.
+
+
 ## [Belum rilis] — tree: pre-walk level kini sadar nilai opsi lain (Audit 2782)
 
 - Pre-walk `-L`
