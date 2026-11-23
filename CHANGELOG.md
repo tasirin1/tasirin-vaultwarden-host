@@ -1,5 +1,23 @@
 # Changelog
 
+## [Belum rilis] — Operand dan nilai bertipe pembungkus divalidasi (Audit 2681)
+
+- Operand posisi dan nilai opsi
+  bertipe milik pembungkus kini
+  divalidasi gerbang sebelum
+  menilai anak: durasi `timeout`
+  (termasuk nilai `-k`), nama
+  arsitektur `setarch`, masker hex
+  bukan nol `taskset`, prioritas
+  `chrt` sesuai kebijakannya, nilai
+  penyesuaian `nice`, serta nilai
+  data dan kelas `ionice` (kelas
+  sah hanya 0 sampai 3). Bentuk
+  sampah yang mati saat biner
+  mengurai kini divonis mati,
+  bukan lagi dinilai dari anaknya.
+
+
 ## [Belum rilis] — stdbuf tanpa opsi penyangga divonis mati (Audit 2680)
 
 - `stdbuf` yang tidak membawa satu

@@ -13715,6 +13715,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # Audit 989: mode pid ionice/taskset — semua operand
             # sesudah bendera -p adalah pid, tak pernah perintah.
             mode_pid = False
+            # Audit 2681: kebijakan chrt yang menuntut
+            # prioritas 0 (-o/-b/-i/-d); bawaan dan
+            # -f/-r menuntut 1..99.
+            chrt_kebijakan_nol = False
             awal += 1
             # Audit 957: nilai opsi pembungkus yang terpisah bukan
             # perintah — lompatan wajib melewatinya juga, kalau
@@ -14016,6 +14020,75 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             break
                         if ch_w not in "degptx":
                             break
+                if t0 == "chrt" and opsi in (
+                        "-o", "--other", "-b", "--batch",
+                        "-i", "--idle", "-d", "--deadline"):
+                    # Audit 2681: kebijakan non-RT -
+                    # prioritas sahnya hanya 0.
+                    chrt_kebijakan_nol = True
+                if t0 in ("nice", "ionice", "timeout"):
+                    # Audit 2681: nilai opsi bertipe
+                    # pembungkus - nilai sampah
+                    # membunuh pembungkus saat urai
+                    # (nice/ionice "invalid
+                    # adjustment/class data", kelas
+                    # ionice di luar 0..3 "unknown
+                    # prio class", -k timeout tata
+                    # bahasa durasi), tetapi selama
+                    # ini tertelan tanpa diperiksa.
+                    nama2681 = opsi
+                    nilai2681 = None
+                    if opsi.startswith("--") \
+                            and "=" in opsi:
+                        nama2681, _, nilai2681 = \
+                            opsi.partition("=")
+                    elif (not opsi.startswith("--")
+                            and len(opsi) > 2
+                            and ((t0 == "nice"
+                                  and opsi[1] == "n")
+                                 or (t0 == "ionice"
+                                     and opsi[1] in "nc")
+                                 or (t0 == "timeout"
+                                     and opsi[1] == "k"))):
+                        nama2681 = opsi[:2]
+                        nilai2681 = opsi[2:]
+                    if nilai2681 is None \
+                            and nama2681 in bernilai:
+                        k2681 = _sesudah_redirect_berantai(
+                            toks, awal, _batas_argv)
+                        if 0 <= k2681 < len(toks):
+                            nilai2681 = toks[k2681]
+                    if nilai2681 is not None:
+                        nilai2681 = nilai2681.strip("\"'")
+                        if (t0 == "nice"
+                                and nama2681 in (
+                                    "-n", "--adjustment")
+                                and not re.fullmatch(
+                                    r"[+-]?\d+",
+                                    nilai2681)):
+                            return False
+                        if (t0 == "ionice"
+                                and nama2681 in (
+                                    "-n", "--classdata")
+                                and not re.fullmatch(
+                                    r"[+-]?\d+",
+                                    nilai2681)):
+                            return False
+                        if (t0 == "ionice"
+                                and nama2681 in (
+                                    "-c", "--class")
+                                and not (
+                                    nilai2681.isdigit()
+                                    and int(nilai2681) <= 3)):
+                            return False
+                        if (t0 == "timeout"
+                                and nama2681 in (
+                                    "-k", "--kill-after")
+                                and not re.fullmatch(
+                                    r"(\d+(\.\d+)?|\.\d+)"
+                                    r"[smhd]?",
+                                    nilai2681)):
+                            return False
                 if opsi in bernilai:
                     # Audit 968: redirect yang menyela bukan nilai
                     # opsi — lompati dulu, baru telan nilainya.
@@ -14051,6 +14124,41 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 if awal < 0:
                     return False
                 if awal < len(toks):
+                    # Audit 2681: operand posisi
+                    # bertipe ikut divalidasi -
+                    # bentuk sampah mati parse di
+                    # biner (durasi timeout, nama
+                    # arsitektur setarch dari
+                    # --list setempat, masker hex
+                    # taskset bukan nol, prioritas
+                    # chrt sesuai kebijakannya).
+                    op2681 = toks[awal].strip("\"'")
+                    if (t0 == "timeout"
+                            and not re.fullmatch(
+                                r"(\d+(\.\d+)?|\.\d+)"
+                                r"[smhd]?", op2681)):
+                        return False
+                    if (t0 == "setarch"
+                            and op2681 not in (
+                                "uname26", "linux32",
+                                "linux64", "i386", "i486",
+                                "i586", "i686", "athlon",
+                                "x86_64")):
+                        return False
+                    if (t0 == "taskset"
+                            and (not re.fullmatch(
+                                r"(0[xX])?[0-9a-fA-F]+",
+                                op2681)
+                                or int(op2681, 16) == 0)):
+                        return False
+                    if t0 == "chrt":
+                        if not op2681.isdigit():
+                            return False
+                        if chrt_kebijakan_nol:
+                            if int(op2681) != 0:
+                                return False
+                        elif not 1 <= int(op2681) <= 99:
+                            return False
                     awal += 1  # operand durasi/masker/prio
             if (t0 == "flock" and awal < len(toks)
                     and toks[awal] in ("-c", "--command")):
