@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nilai port sftp -P kini divalidasi (Audit 2838)
+
+Walk sftp tidak memvalidasi nilai `-P` sama sekali — dengan sumber stdin nyata (`-b -`) gerbang menilai menguras padahal biner OpenSSH mati saat urai dengan "Bad port". Nilai `-P` (terpisah maupun merekat) kini divalidasi dengan tata bahasa port yang sama dengan perbaikan ssh 2816: satu `+` opsional, digit (dipagari 18), rentang 1..65535 — terprobe biner untuk 0, 65536, 99999 (mati) dan +22, 00022, 65535 (lolos urai). Skenario uji-verifikasi 1905.
+
+
 ## [Belum rilis] — Bot: dua tugas hapus untuk pesan yang sama tak lagi balapan (Audit 2837)
 
 Tugas async awal (2588) dan tugas coba-ulang poll (2830) bisa menjalankan penghapusan untuk pesan yang sama bersamaan; yang kalah menerima jawaban 400 dari Telegram lalu memicu peringatan "tak bisa menghapus" yang palsu dan memasang bendera dedup, menelan peringatan sah berikutnya. Kini ada daftar identitas yang sedang dihapus (dijaga kunci yang sama dengan mesin peringatan): tugas kedua melewatkan gilirannya, dan penanda selalu dilepas di blok finally — termasuk bila antrean latar menolak tugas, penanda tidak pernah bocor karena ia baru dipasang di dalam tugas yang berjalan. Uji JVM: satu pemilik per identitas, identitas lain tetap bebas, pelepasan mengembalikan giliran.

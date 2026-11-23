@@ -7862,6 +7862,23 @@ def _menguras_khusus(perintah, toks, awal):
     # input); tanpa -b, mode interaktif membaca perintah dari
     # stdin yang ter-redirect; -b berkas membacanya dari berkas.
     if perintah == "sftp":
+        # Audit 2838: nilai -P divalidasi dengan
+        # tata bahasa port yang sama dengan ssh
+        # 2816 (strtol: satu + opsional, digit,
+        # rentang 1..65535) - port tak sah
+        # membunuh sftp saat urai ("Bad port",
+        # terprobe OpenSSH) sebelum -b - dibaca.
+        for k_sf, t_sf in enumerate(mentah):
+            v_sf = None
+            if t_sf == "-P" and k_sf + 1 < len(mentah):
+                v_sf = mentah[k_sf + 1].strip("\"'")
+            elif len(t_sf) > 2 and t_sf[:2] == "-P":
+                v_sf = t_sf[2:].strip("\"'")
+            if v_sf is not None and not (
+                    re.fullmatch(r"\+?\d{1,18}", v_sf)
+                    and v_sf.strip("+").strip("0") != ""
+                    and int(v_sf) <= 65535):
+                return False
         # Audit 1907: nilai '-' pada opsi bernilai selain
         # -b (-P/-F/-J/-D/-B) gugur fatal saat parsing di
         # OpenSSH - perintah tak pernah berjalan walau

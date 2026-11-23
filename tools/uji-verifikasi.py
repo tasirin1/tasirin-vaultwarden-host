@@ -40355,6 +40355,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("boolean V8 --prof diberi =nilai kini ditolak gerbang (Audit 2835)", rc == 0)
         shutil.rmtree(sub1904, ignore_errors=True)
+        sub1905 = klon(tmp, "sub1905")
+        berkas_aksi1905 = os.path.join(
+            sub1905, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1905, encoding="utf-8") as f:
+            isi_aksi1905 = f.read()
+        baris_aksi1905 = [b for b in isi_aksi1905.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1905 = isi_aksi1905.replace(
+                baris_aksi1905,
+                baris_aksi1905.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sftp -b - -P abc host; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1905 != isi_aksi1905, \
+            "suntikan aksi1905 tidak menembak"
+        with open(berkas_aksi1905, "w", encoding="utf-8") as f:
+            f.write(isi_baru1905)
+        rc, out = jalan(sub1905,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("port sftp tak sah kini ditolak gerbang (Audit 2838)", rc == 0)
+        shutil.rmtree(sub1905, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
