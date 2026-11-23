@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — level -L tree kini divalidasi (Audit 2774)
+
+- Level `-L`/`--level`
+  tree kini
+  divalidasi
+  (angka >= 1).
+
+
 ## [Belum rilis] — hitungan -j merekat make kini divalidasi (Audit 2773)
 
 - Hitungan `-j`

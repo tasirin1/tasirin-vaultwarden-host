@@ -13707,6 +13707,33 @@ def _menguras_khusus(perintah, toks, awal):
         return False
     # Audit 1342: tree --fromfile membaca daftar dari stdin.
     if perintah == "tree":
+        # Audit 2774: level -L/--level
+        # tree (angka >= 1) divalidasi -
+        # nilai asing membunuh tree
+        # saat urai, termasuk pada
+        # bentuk --fromfile -.
+        k_tr3 = 0
+        while k_tr3 < len(mentah):
+            t_tr3 = mentah[k_tr3]
+            if t_tr3.startswith("--level="):
+                v_tr3 = t_tr3.split("=", 1)[1]
+                if not (v_tr3.isdigit()
+                        and int(v_tr3) >= 1):
+                    return False
+            elif t_tr3 in ("-L", "--level"):
+                if k_tr3 + 1 < len(mentah):
+                    v_tr3 = mentah[k_tr3 + 1]
+                    if not (v_tr3.isdigit()
+                            and int(v_tr3) >= 1):
+                        return False
+                    k_tr3 += 1
+            elif (t_tr3.startswith("-L")
+                    and len(t_tr3) > 2):
+                v_tr3 = t_tr3[2:]
+                if not (v_tr3.isdigit()
+                        and int(v_tr3) >= 1):
+                    return False
+            k_tr3 += 1
         # Audit 1356: --fromfile hanya berarti sebagai token
         # opsi sungguhan — sebagai NILAI opsi bernilai (-P
         # menelan token berikutnya walau berawalan --) ia
