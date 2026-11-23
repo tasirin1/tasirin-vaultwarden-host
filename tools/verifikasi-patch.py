@@ -13718,6 +13718,28 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "kunci-sort":
+        # Audit 2728: spesifikasi -k sort =
+        # POS[,POS], POS = F[.C][bendera];
+        # nomor bidang F dari 1, offset C
+        # (bila ditulis) dari 1, bendera
+        # hanya huruf opsi kunci yang sah
+        # (semua terverifikasi biner).
+        bagian66 = v.split(",")
+        if len(bagian66) > 2:
+            return False
+        for pos66 in bagian66:
+            m66 = re.fullmatch(
+                r"(\d+)(?:\.(\d+))?"
+                r"([bdfghiMnRrV]*)", pos66)
+            if m66 is None:
+                return False
+            if int(m66.group(1)) < 1:
+                return False
+            if (m66.group(2) is not None
+                    and int(m66.group(2)) < 1):
+                return False
+        return True
     if jenis == "daftar-cut":
         # Audit 2727: daftar cut = item
         # dipisah koma berbentuk N, N-M,
@@ -16776,6 +16798,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                       # bentuk panjangnya lolos
                       # tanpa validasi.
                       "suffix-length": "angka1"},
+            "sort": {"k": "kunci-sort",
+                     "key": "kunci-sort"},
             "cut": {"f": "daftar-cut",
                     "fields": "daftar-cut",
                     "c": "daftar-cut",

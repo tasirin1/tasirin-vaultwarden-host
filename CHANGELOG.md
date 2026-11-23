@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — spesifikasi -k sort kini divalidasi (Audit 2728)
+
+- Nilai `-k`/`--key`
+  sort kini divalidasi
+  lewat tabel penerima
+  bertipe: bentuk
+  F[.C][bendera] dengan
+  nomor bidang dan
+  offset mulai dari 1.
+
+
 ## [Belum rilis] — nilai daftar cut (-f/-c/-b) kini divalidasi (Audit 2727)
 
 - Nilai daftar cut

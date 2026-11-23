@@ -38423,6 +38423,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item cut -f abc: cut mati nilai daftar, gerbang lolos (Audit 2727)", rc == 0)
         shutil.rmtree(sub1812, ignore_errors=True)
+        sub1813 = klon(tmp, "sub1813")
+        berkas_aksi1813 = os.path.join(
+            sub1813, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1813, encoding="utf-8") as f:
+            isi_aksi1813 = f.read()
+        baris_aksi1813 = [b for b in isi_aksi1813.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1813 = isi_aksi1813.replace(
+                baris_aksi1813,
+                baris_aksi1813.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sort -k abc; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1813 != isi_aksi1813, \
+            "suntikan aksi1813 tidak menembak"
+        with open(berkas_aksi1813, "w", encoding="utf-8") as f:
+            f.write(isi_baru1813)
+        rc, out = jalan(sub1813,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item sort -k abc: sort mati spesifikasi kunci, gerbang lolos (Audit 2728)", rc == 0)
+        shutil.rmtree(sub1813, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
