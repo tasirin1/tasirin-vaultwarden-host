@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: node --watch=<nilai> tak lagi ditolak — biner menerimanya (Audit 2834)
+
+Perbaikan 2817 memasukkan `--watch` ke daftar opsi yang dianggap menolak argumen `=`; premis itu keliru — node v24.22.1 menerima `node --watch=x -` dan menjalankan skrip dari stdin (terprobe: skrip tercetak dan "Completed running '-'"). `--watch` dikeluarkan dari daftar penolak `=`; `--test` dan `--experimental-default-config-file` tetap di sana (premis keduanya terverifikasi benar). Skenario uji-verifikasi 1903.
+
+
 ## [Belum rilis] — Gerbang: nomor field join berdigit ribuan tak lagi meledakkan gerbang (Audit 2833)
 
 Validasi nomor field `join -1/-2` memakai `int()` atas digit tanpa pagar — lebih dari 4300 digit meledakkan gerbang dengan ValueError (residu keluarga 2814). Biner join sungguhan menerima nomor field raksasa (terprobe rc=0 sampai 4301 digit), jadi perbaikannya bukan pagar panjang melainkan cek "paling kecil 1" tanpa `int()`: untaian digit sah bila mengandung digit bukan-nol. Berlaku untuk bentuk terpisah dan merekat. Skenario uji-verifikasi 1902.

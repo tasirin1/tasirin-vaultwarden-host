@@ -3741,9 +3741,14 @@ def _menguras_interpreter(perintah, toks, awal):
             # sapuan biner), dan flag boolean
             # V8 (keluarga --trace-* di luar
             # yang bernilai) mati bila diberi
-            # =nilai; --test/--watch dan
+            # =nilai; --test dan
             # --experimental-default-config-file
             # juga menolak argumen =.
+            # Audit 2834: --watch DIKELUARKAN
+            # dari daftar itu - premis 2817
+            # keliru, biner menerima
+            # --watch=<nilai> dan tetap
+            # menjalankan skrip stdin.
             if dasar_nd.startswith("--no-"):
                 if ("--" + dasar_nd[5:]) in (
                         _NODE_TAK_NEGASI):
@@ -3753,7 +3758,7 @@ def _menguras_interpreter(perintah, toks, awal):
                      and dasar_nd
                      not in _TRACE_V8_NILAI)
                     or dasar_nd in (
-                        "--test", "--watch",
+                        "--test",
                         "--experimental-default"
                         "-config-file")):
                 return False
