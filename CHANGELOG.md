@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — join: --output mati + walk kini sadar nilai opsi lain (Audit 2792)
+
+- `--output`
+  kini membunuh
+  vonis (join tak
+  mengenalnya);
+  walk menelan
+  nilai `-e`/`-t`/
+  `-a`/`-v`/
+  `--separator`
+  dengan tata
+  bahasanya (nomor
+  berkas 1/2, tab
+  satu karakter).
+
+
 ## [Belum rilis] — setpriv: landlock dicabut dari daftar capability (Audit 2791)
 
 - `landlock`

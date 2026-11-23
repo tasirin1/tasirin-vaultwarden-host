@@ -5757,8 +5757,57 @@ def _menguras_khusus(perintah, toks, awal):
             t_j = toks[k_j].strip("\"'")
             if t_j == "--":
                 break
-            if t_j in ("-1", "-2", "-o",
-                       "--output"):
+            if (t_j == "--output"
+                    or t_j.startswith(
+                        "--output=")):
+                # Audit 2792: join tak
+                # mengenal --output (yang
+                # ada hanya -o); biner mati
+                # unrecognized option.
+                return False
+            if t_j in ("-e", "-t", "-a",
+                       "-v", "--separator"):
+                # Audit 2792: nilai opsi
+                # bernilai lain ditelan
+                # (dulu -1 sebagai nilai -e
+                # disalahartikan opsi
+                # bidang); -a/-v wajib nomor
+                # berkas 1/2 dan -t wajib
+                # satu karakter di biner.
+                if k_j + 1 < len(toks):
+                    v_j = toks[k_j + 1].strip(
+                        "\"'")
+                    if t_j in ("-a", "-v"):
+                        if v_j not in (
+                                "1", "2"):
+                            return False
+                    elif t_j in (
+                            "-t", "--separator"):
+                        if len(v_j) != 1:
+                            return False
+                    k_j += 1
+                k_j += 1
+                continue
+            if (t_j.startswith(("-a", "-v"))
+                    and len(t_j) > 2):
+                if t_j[2:] not in ("1", "2"):
+                    return False
+                k_j += 1
+                continue
+            if (t_j.startswith("-t")
+                    and len(t_j) > 2):
+                if len(t_j) != 3:
+                    return False
+                k_j += 1
+                continue
+            if t_j.startswith(
+                    "--separator="):
+                if len(t_j.split(
+                        "=", 1)[1]) != 1:
+                    return False
+                k_j += 1
+                continue
+            if t_j in ("-1", "-2", "-o"):
                 if k_j + 1 < len(toks):
                     v_j = toks[k_j + 1].strip(
                         "\"'")
@@ -5779,10 +5828,6 @@ def _menguras_khusus(perintah, toks, awal):
             elif t_j.startswith("-o") \
                     and len(t_j) > 2:
                 if not _spec_join_sah(t_j[2:]):
-                    return False
-            elif t_j.startswith("--output="):
-                if not _spec_join_sah(
-                        t_j.split("=", 1)[1]):
                     return False
             k_j += 1
         # Audit 1063: '-' di posisi operand mana pun = stdin
