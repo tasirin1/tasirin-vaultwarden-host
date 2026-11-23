@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi panjang tak dikenal diff/diff3 kini membunuh walk (Audit 2871)
+
+Resolusi singkatan 2858 membiarkan nama tanpa padanan apa pun jatuh ke cabang generik, sehingga `diff --bogus - f2` dinilai menguras — biner mati "unrecognized option". Nama tanpa padanan kini ditolak, dan `--help`/`--version` dinilai informatif (cetak lalu keluar). Skenario uji-diri 1942.
+
+
 ## [Belum rilis] — Gerbang: jumlah label diff/diff3 kini dibatasi seperti biner (Audit 2870)
 
 Walk 2851 mencatat label sebagai bendera boolean, sehingga label ke-3 untuk diff dan ke-4 untuk diff3 lolos — padahal biner mati "too many file label options" (terprobe). Penanda kini penghitung di ketiga bentuk label (`--label x`, `--label=x`, `-L`), dengan batas 2 untuk diff dan 3 untuk diff3. Skenario uji-diri 1941.

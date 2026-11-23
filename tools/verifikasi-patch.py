@@ -6963,6 +6963,24 @@ def _menguras_khusus(perintah, toks, awal):
                         t_df = (cocok_df[0]
                                 + t_df[
                                     len(nama_df):])
+                    else:
+                        # Audit 2871: nama
+                        # tanpa padanan sama
+                        # sekali = opsi tak
+                        # dikenal - biner mati
+                        # "unrecognized
+                        # option"; resolusi
+                        # 2858 dulu membiarkan
+                        # bentuk ini jatuh ke
+                        # cabang generik.
+                        return False
+                # Audit 2871: --help/--version
+                # informatif di diff/diff3 -
+                # cetak lalu keluar tanpa
+                # membaca stdin.
+                if t_df.split("=", 1)[0] in (
+                        "--help", "--version"):
+                    return False
             # Audit 2850: --after-context/
             # --before-context tak ada di GNU
             # diff maupun diff3 (itu kosakata
