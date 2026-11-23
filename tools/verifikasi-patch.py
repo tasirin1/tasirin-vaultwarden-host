@@ -14617,9 +14617,20 @@ def _tipe_nilai_sah_66(jenis, nilai):
     iconv mencocokkan nama."""
     v = nilai.strip("\"'")
     if jenis == "angka0":
-        return v.isdigit() and len(v) <= 18
+        # Audit 2794: penerima coreutils
+        # (xstrtol) menerima tanda + di
+        # awal - terbukti biner pada
+        # semua pemakai jenis ini (uniq,
+        # sort, xz -T, pr, logger -S,
+        # numfmt, nl, ptx, tail --pid,
+        # fmt, fold, head, split, shuf,
+        # base64, cksum, chpasswd,
+        # pod2text).
+        return re.fullmatch(
+            r"\+?\d{1,18}", v) is not None
     if jenis == "angka1":
-        return v.isdigit() and len(v) <= 18 \
+        return re.fullmatch(
+            r"\+?\d{1,18}", v) is not None \
             and int(v) > 0
     if jenis == "ukuran1":
         # Audit 2673: sufiks ukuran xstrtol
@@ -14875,7 +14886,9 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "batch-sort":
         # Audit 2741: --batch-size sort
         # minimal 2 (0 dan 1 mati di biner).
-        return v.isdigit() and len(v) <= 18 \
+        # Audit 2794: tanda + sah (xstrtol).
+        return re.fullmatch(
+            r"\+?\d{1,18}", v) is not None \
             and int(v) >= 2
     if jenis == "enum-grup-uniq":
         # Audit 2740: metode --group uniq

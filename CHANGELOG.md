@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — angka penerima coreutils kini menerima tanda + (Audit 2794)
+
+- Jenis `angka0`,
+  `angka1`, dan
+  `batch-sort`
+  kini menerima
+  tanda + di awal
+  (xstrtol) -
+  terbukti biner
+  pada semua alat
+  pemakainya.
+
+
 ## [Belum rilis] — ffmpeg: durasi dua ruas kini membatasi komponen pertama < 60 (Audit 2793)
 
 - Durasi titik-dua
