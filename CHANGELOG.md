@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Koreksi skenario Maraton-188: arah vonis 23 skenario dibalik + skenario 2833 disesuaikan
+
+CI putaran pertama Maraton-188 merah pada 24 skenario: 23 skenario baru (1922–1944) memasang arah vonis terbalik dari vonis binernya (menguras harus `rc != 0`, tak menguras `rc == 0` — terverifikasi ulang satu-satu lewat jalur workflow), dan skenario 1902 (Audit 2833) memakai bentuk dua operand stdin yang oleh perbaikan 2867 kini sah dinilai tak menguras — perintahnya diganti bentuk satu operand stdin yang terbukti menguras di biner. Model gerbangnya sendiri tidak berubah; CodeQL pada putaran yang sama gagal karena Maven Central membalas 429, bukan karena kode.
+
+
 ## [Belum rilis] — Telegram: penolakan antrean tugas berat tak lagi memasang jeda 30 detik (Audit 2880)
 
 Bila `runWithWakeLock` menolak menjalankan tugas berat (tugas tak pernah jalan), cabang penolakan tetap memasang stempel berakhir sehingga perintah berat berikutnya dalam 30 detik ditolak dengan pesan keliru "Tugas berat baru saja selesai". Stempel kini hanya dipasang oleh tugas yang sungguh berjalan (jalur `finally`).
