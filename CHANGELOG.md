@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — penerima ptx divalidasi di walk operand bertipe (Audit 2750)
+
+- Baris ptx masuk
+  walk operand
+  bertipe: lebar
+  baris dan lebar
+  celah (keduanya
+  minimal 1).
+
+
 ## [Belum rilis] — penerima pr divalidasi di walk operand bertipe (Audit 2749)
 
 - Baris pr masuk

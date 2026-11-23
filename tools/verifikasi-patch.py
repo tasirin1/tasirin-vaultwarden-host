@@ -17513,6 +17513,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "offset": "angka0",
             "N": "int-tanda",
             "start-line": "int-tanda"},
+        "ptx": {
+            "w": "angka1",
+            "width": "angka1",
+            "g": "angka1",
+            "gap-size": "angka1"},
     }
     if perintah in _TIPE_OPERAND:
         tabel_op = _TIPE_OPERAND[perintah]
