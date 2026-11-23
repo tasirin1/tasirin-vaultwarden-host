@@ -1,3 +1,16 @@
+## [Belum rilis] — gagal tulis penanda IP tak lagi batalkan Start (Audit 2812)
+
+- Kegagalan
+  menulis
+  `ips.txt` sesudah
+  sertifikat siap
+  kini hanya dicatat
+  di log - dulu
+  membatalkan
+  seluruh Start
+  ("Gagal siapkan
+  TLS").
+
 ## [Belum rilis] — folderPribadiAplikasi kenal /mnt/expand (Audit 2811)
 
 - Akar volume

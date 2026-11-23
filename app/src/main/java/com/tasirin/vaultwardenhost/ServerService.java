@@ -4530,7 +4530,20 @@ public class ServerService extends Service {
         }
         File dir = TlsCert.ensure(tlsDir, ips, ipBerubah);
         if (dir != null) {
-            writeText(ipFile, cur);
+            // Audit 2812: ips.txt hanya penanda
+            // perubahan IP - gagal menulisnya
+            // jangan membatalkan Start yang
+            // sertifikatnya sudah siap (dulu
+            // pengecualiannya naik ke penangkap
+            // prepareTls dan seluruh Start
+            // gagal); cukup catat log, penanda
+            // basi hanya memicu regenerasi
+            // ulang pada Start berikut.
+            try {
+                writeText(ipFile, cur);
+            } catch (Exception e) {
+                appendLog("[app] Gagal menulis penanda IP: " + e);
+            }
 
             synchronized (KUNCI_SSL) {
                 sslFactory = null;
