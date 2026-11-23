@@ -40502,6 +40502,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--fromfile tertelan --hintro kini tak dinilai mode stdin (Audit 2846)", rc == 0)
         shutil.rmtree(sub1911, ignore_errors=True)
+        sub1912 = klon(tmp, "sub1912")
+        berkas_aksi1912 = os.path.join(
+            sub1912, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1912, encoding="utf-8") as f:
+            isi_aksi1912 = f.read()
+        baris_aksi1912 = [b for b in isi_aksi1912.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1912 = isi_aksi1912.replace(
+                baris_aksi1912,
+                baris_aksi1912.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff3 -A - f2 f3; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1912 != isi_aksi1912, \
+            "suntikan aksi1912 tidak menembak"
+        with open(berkas_aksi1912, "w", encoding="utf-8") as f:
+            f.write(isi_baru1912)
+        rc, out = jalan(sub1912,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff3 -A bendera kini tak menelan operand stdin (Audit 2847)", rc != 0)
+        shutil.rmtree(sub1912, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

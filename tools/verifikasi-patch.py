@@ -6790,6 +6790,14 @@ def _menguras_khusus(perintah, toks, awal):
                 lompat_df = 1
                 for pos_df, h_df in enumerate(
                         t_df[1:]):
+                    if (perintah == "diff3"
+                            and h_df == "A"):
+                        # Audit 2847: -A di
+                        # diff3 adalah bendera
+                        # --show-all, BUKAN
+                        # opsi bernilai - jangan
+                        # telan token berikutnya.
+                        continue
                     if h_df in "UCAD":
                         # Audit 2822: diff3 tak
                         # mengenal -U/-C.
@@ -6837,11 +6845,19 @@ def _menguras_khusus(perintah, toks, awal):
                         return False
                     k_df += 1
             k_df += 1
+        # Audit 2847: -A hanya bernilai di
+        # model diff; di diff3 ia bendera
+        # sehingga token sesudahnya operand.
+        bernilai_ops_d = {"-U", "-C", "--unified",
+                          "--context", "--width",
+                          "-D", "--ifdef", "--label",
+                          "--line-format",
+                          "--GTYPE-group-format",
+                          "--LTYPE-line-format"}
+        if perintah == "diff":
+            bernilai_ops_d.add("-A")
         ops_d = _operand_sesudah_opsi(
-            toks, awal, {"-U", "-C", "-A", "--unified", "--context",
-                         "--width", "-D", "--ifdef", "--label",
-                         "--line-format", "--GTYPE-group-format",
-                         "--LTYPE-line-format"})
+            toks, awal, bernilai_ops_d)
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops_d:
             return False

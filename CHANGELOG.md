@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: diff3 -A adalah bendera --show-all, bukan opsi bernilai (Audit 2847)
+
+Walk bersama diff/diff3 memperlakukan huruf `A` sebagai opsi bernilai untuk kedua perintah, sehingga pada `diff3 -A - f2 f3` tanda `-` tertelan sebagai "nilai" dan perintah penguras lolos. Di diff3, `-A` adalah bendera `--show-all`; kini huruf itu dilewati sebagai bendera dalam pindai bundel diff3 dan dikeluarkan dari himpunan opsi bernilai penghitung operand untuk diff3. Skenario uji-verifikasi 1912.
+
+
 ## [Belum rilis] — Gerbang: keluarga [=] tree (--hintro/--houtro/--infofile) kini menelan nilai di kedua walk (Audit 2846)
 
 Tiga opsi tree bernilai opsional — `--hintro`, `--houtro`, `--infofile` — hilang dari himpunan bernilai kedua walk, padahal biner menelan token berikutnya sebagai nilainya untuk seluruh keluarga `[=]` (terprobe: pesan biner membuktikan `--fromfile` tertelan jadi nilai). Akibatnya `tree --hintro --fromfile` dinilai mode stdin padahal `--fromfile`-nya hanya nilai. Ketiga nama kini ikut himpunan bernilai walk pertama (validasi -L) dan walk kedua (mode/operand). Skenario uji-verifikasi 1911.
