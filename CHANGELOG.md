@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — nilai -1/-2 dan -o join kini divalidasi (Audit 2765)
+
+- Nomor bidang
+  `-1`/`-2` dan
+  spesifikasi `-o`
+  join kini
+  divalidasi di
+  penilai khususnya.
+
+
 ## [Belum rilis] — nama securebit dan capability setpriv divalidasi (Audit 2764)
 
 - `--securebits`

@@ -5618,6 +5618,58 @@ def _menguras_khusus(perintah, toks, awal):
             return False
         return "-" in ops_c
     if perintah == "join":
+        # Audit 2765: nilai -1/-2 (nomor
+        # bidang >= 1) dan -o (spesifikasi
+        # bidang: 0 atau F.N dengan F 1/2
+        # dan N >= 1) divalidasi - nilai
+        # asing membunuh join saat urai.
+        def _spec_join_sah(v_j):
+            butir_j = [x for x in
+                       re.split(r"[,\s]+", v_j) if x]
+            if not butir_j:
+                return False
+            for x_j in butir_j:
+                if x_j == "0":
+                    continue
+                m_j = re.fullmatch(
+                    r"([12])\.(\d+)", x_j)
+                if (not m_j
+                        or int(m_j.group(2)) < 1):
+                    return False
+            return True
+        k_j = awal + 1
+        while k_j < len(toks):
+            t_j = toks[k_j].strip("\"'")
+            if t_j == "--":
+                break
+            if t_j in ("-1", "-2", "-o",
+                       "--output"):
+                if k_j + 1 < len(toks):
+                    v_j = toks[k_j + 1].strip(
+                        "\"'")
+                    if t_j in ("-1", "-2"):
+                        if not (v_j.isdigit()
+                                and int(v_j) >= 1):
+                            return False
+                    elif not _spec_join_sah(v_j):
+                        return False
+                    k_j += 1
+                k_j += 1
+                continue
+            if (t_j.startswith(("-1", "-2"))
+                    and len(t_j) > 2):
+                if not (t_j[2:].isdigit()
+                        and int(t_j[2:]) >= 1):
+                    return False
+            elif t_j.startswith("-o") \
+                    and len(t_j) > 2:
+                if not _spec_join_sah(t_j[2:]):
+                    return False
+            elif t_j.startswith("--output="):
+                if not _spec_join_sah(
+                        t_j.split("=", 1)[1]):
+                    return False
+            k_j += 1
         # Audit 1063: '-' di posisi operand mana pun = stdin
         # (di join -1/-2 memang bernilai nomor field).
         ops_j = _operand_sesudah_opsi(
