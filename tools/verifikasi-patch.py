@@ -2233,6 +2233,7 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                               "yellow", "white"}:
                     return True
                 return (b19[2].isdigit()
+                        and len(b19[2]) <= 18
                         and int(b19[2]) <= 255)
             if b19[1] == "style":
                 return b19[2] in {"nobold", "bold",
@@ -4910,8 +4911,8 @@ def _sinyal_timeout_sah(nilai):
     # diterima, "+9" ditolak.
     u = nilai.upper()
     if u.isdigit():
-        return int(u) <= 64
-    m = re.fullmatch(r"(SIG)?(RTMIN|RTMAX)([+-]\d+)?", u)
+        return len(u) <= 18 and int(u) <= 64
+    m = re.fullmatch(r"(SIG)?(RTMIN|RTMAX)([+-]\d{1,18})?", u)
     if m:
         dasar = 34 if m.group(2) == "RTMIN" else 64
         if m.group(3):
@@ -6296,7 +6297,7 @@ def _menguras_khusus(perintah, toks, awal):
                 if x_j == "0":
                     continue
                 m_j = re.fullmatch(
-                    r"([12])\.(\d+)", x_j)
+                    r"([12])\.(\d{1,18})", x_j)
                 if (not m_j
                         or int(m_j.group(2)) < 1):
                     return False
@@ -6433,6 +6434,7 @@ def _menguras_khusus(perintah, toks, awal):
                     "--width=", "--tabsize=")):
                 v_df = t_df.split("=", 1)[1]
                 if not (v_df.isdigit()
+                        and len(v_df) <= 18
                         and int(v_df) >= 1):
                     return False
             elif t_df in ("--width",
@@ -6441,6 +6443,7 @@ def _menguras_khusus(perintah, toks, awal):
                     v_df = toks[k_df + 1].strip(
                         "\"'")
                     if not (v_df.isdigit()
+                            and len(v_df) <= 18
                             and int(v_df) >= 1):
                         return False
                     k_df += 1
@@ -6480,7 +6483,7 @@ def _menguras_khusus(perintah, toks, awal):
         ada_pola = False
         kurung_cs = False
         for pola_cs in ops[1:]:
-            if re.fullmatch(r"\d+", pola_cs):
+            if re.fullmatch(r"\d{1,18}", pola_cs):
                 if int(pola_cs) < 1:
                     return False
                 ada_pola = True
@@ -6978,12 +6981,14 @@ def _menguras_khusus(perintah, toks, awal):
             if t_mk.startswith("--jobs="):
                 v_mk = t_mk.split("=", 1)[1]
                 if not (v_mk.isdigit()
+                        and len(v_mk) <= 18
                         and int(v_mk) >= 1):
                     return False
             elif (t_mk.startswith("-j")
                     and len(t_mk) > 2):
                 v_mk = t_mk[2:]
                 if not (v_mk.isdigit()
+                        and len(v_mk) <= 18
                         and int(v_mk) >= 1):
                     return False
         # Audit 1071: makefile dari stdin lewat -f -.
@@ -7911,6 +7916,7 @@ def _menguras_khusus(perintah, toks, awal):
                 # divalidasi hanya sebelum tujuan.
                 if (t_sh == "-p" and not tujuan_sh
                         and not (mentah[i_sh + 1].isdigit()
+                                 and len(mentah[i_sh + 1]) <= 18
                                  and 1 <= int(
                                      mentah[i_sh + 1])
                                  <= 65535)):
@@ -7947,12 +7953,14 @@ def _menguras_khusus(perintah, toks, awal):
                             v_sh3 = huruf_sh[
                                 pos_sh + 1:]
                             if not (v_sh3.isdigit()
+                                    and len(v_sh3) <= 18
                                     and 1 <= int(v_sh3)
                                     <= 65535):
                                 return False
                         elif i_sh + 1 < len(mentah):
                             v_sh3 = mentah[i_sh + 1]
                             if not (v_sh3.isdigit()
+                                    and len(v_sh3) <= 18
                                     and 1 <= int(v_sh3)
                                     <= 65535):
                                 return False
@@ -11438,6 +11446,7 @@ def _menguras_khusus(perintah, toks, awal):
             if buang_qfx or nilai_qfx is None:
                 return False
             return (nilai_qfx.isdigit()
+                    and len(nilai_qfx) <= 20
                     and 0 < int(nilai_qfx)
                     <= 18446744073709551615)
         # Audit 2323: sub 'table' qsv - masukan
@@ -12201,6 +12210,7 @@ def _menguras_khusus(perintah, toks, awal):
             # wajib angka u64 ('-' maupun bukan
             # angka = galat parse).
             if ops_xsa and (not ops_xsa[0].isdigit()
+                    or len(ops_xsa[0]) > 20
                     or int(ops_xsa[0])
                     > 18446744073709551615):
                 return False
@@ -14212,7 +14222,7 @@ def _menguras_khusus(perintah, toks, awal):
             # Z/Y mati di biner.
             m_cm = re.fullmatch(
                 r"\+?(0[xX][0-9a-fA-F]+"
-                r"|0[0-7]*|[1-9]\d*)"
+                r"|0[0-7]*|[1-9]\d{0,19})"
                 r"([KMGTPE]iB|[KMGTPE]B"
                 r"|kiB|kB|[KMGTPE]|k)?",
                 v_cm)
@@ -14497,6 +14507,7 @@ def _menguras_khusus(perintah, toks, awal):
             if t_tr3.startswith("--level="):
                 v_tr3 = t_tr3.split("=", 1)[1]
                 if not (v_tr3.isdigit()
+                        and len(v_tr3) <= 18
                         and int(v_tr3) >= 1):
                     return False
                 k_tr3 += 1
@@ -14505,6 +14516,7 @@ def _menguras_khusus(perintah, toks, awal):
                 if k_tr3 + 1 < len(mentah):
                     v_tr3 = mentah[k_tr3 + 1]
                     if not (v_tr3.isdigit()
+                            and len(v_tr3) <= 18
                             and int(v_tr3) >= 1):
                         return False
                     k_tr3 += 2
@@ -14540,6 +14552,8 @@ def _menguras_khusus(perintah, toks, awal):
                                     idx_tr3]
                                 if not (
                                         v_tr3.isdigit()
+                                        and len(v_tr3)
+                                        <= 18
                                         and int(v_tr3)
                                         >= 1):
                                     return False
@@ -14756,7 +14770,7 @@ def _menguras_khusus(perintah, toks, awal):
                     r"(s|ms|us)?", v_ff2):
                 return True
             m_ff2 = re.fullmatch(
-                r"[+-]?(\d+):(\d{1,2})"
+                r"[+-]?(\d{1,18}):(\d{1,2})"
                 r"(?::(\d{1,2}))?"
                 r"(\.\d+)?", v_ff2)
             if not m_ff2:
@@ -15326,7 +15340,7 @@ def _tipe_nilai_sah_66(jenis, nilai):
             return False
         prev = 0
         for x in butir:
-            if not re.fullmatch(r"\+?\d+",
+            if not re.fullmatch(r"\+?\d{1,18}",
                                 x):
                 return False
             if int(x) <= prev:
@@ -15465,7 +15479,7 @@ def _tipe_nilai_sah_66(jenis, nilai):
             return False
         for pos66 in bagian66:
             m66 = re.fullmatch(
-                r"\+?(\d+)(?:\.(\d+))?"
+                r"\+?(\d{1,18})(?:\.(\d{1,18}))?"
                 r"([bdfghiMnRrV]*)", pos66)
             if m66 is None:
                 return False
@@ -15483,7 +15497,7 @@ def _tipe_nilai_sah_66(jenis, nilai):
         # (semua terverifikasi biner).
         for item66 in v.split(","):
             m66 = re.fullmatch(
-                r"(\d+)(?:-(\d*))?|-(\d+)", item66)
+                r"(\d{1,18})(?:-(\d{0,18}))?|-(\d{1,18})", item66)
             if m66 is None:
                 return False
             if m66.group(3) is not None:
@@ -16870,6 +16884,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                     "-c", "--class")
                                 and not (
                                     nilai2681.isdigit()
+                                    and len(nilai2681) <= 18
                                     and int(nilai2681) <= 3)):
                             return False
                         if (t0 == "ionice"
@@ -17074,7 +17089,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 # -1000..1000.
                                 if not (
                                         re.fullmatch(
-                                            r"[+-]?\d+",
+                                            r"[+-]?\d{1,18}",
                                             nilai_b)
                                         and -1000
                                         <= int(nilai_b)
@@ -17089,7 +17104,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 # pendek di biner.
                                 if not (
                                         re.fullmatch(
-                                            r"[+-]?\d+",
+                                            r"[+-]?\d{1,18}",
                                             nilai_b)
                                         and (int(nilai_b)
                                              == -1
@@ -17162,7 +17177,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 # -P minimal 0.
                                 if not (
                                         re.fullmatch(
-                                            r"\+?\d+",
+                                            r"\+?\d{1,18}",
                                             nilai_b)
                                         and int(nilai_b)
                                         >= (1 if jenis_b
@@ -17180,10 +17195,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 # awalnya.
                                 sah_cpu = bool(
                                     re.fullmatch(
-                                        r"\d+(-\d+"
-                                        r"(:\d+)?)?"
-                                        r"(,\d+(-\d+"
-                                        r"(:\d+)?)?)*",
+                                        r"\d{1,18}(-\d{1,18}"
+                                        r"(:\d{1,18})?)?"
+                                        r"(,\d{1,18}(-\d{1,18}"
+                                        r"(:\d{1,18})?)?)*",
                                         nilai_b))
                                 if sah_cpu:
                                     for item_cpu in (
@@ -17379,7 +17394,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 # tanda + opsional.
                                 if not (
                                         re.fullmatch(
-                                            r"\+?\d+",
+                                            r"\+?\d{1,18}",
                                             nilai_b)
                                         and int(
                                             nilai_b)
@@ -17445,7 +17460,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 op2681)):
                         return False
                     if t0 == "chrt":
-                        if not op2681.isdigit():
+                        if not (op2681.isdigit()
+                                and len(op2681)
+                                <= 18):
                             return False
                         if chrt_kebijakan_nol:
                             if int(op2681) != 0:
