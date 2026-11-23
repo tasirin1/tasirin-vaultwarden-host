@@ -1,3 +1,8 @@
+## [Belum rilis] — Gerbang: nama terlarang mawk untuk -v awk ditolak (Audit 2825)
+
+Nilai `-v`/`--assign` awk (terpisah, `=`, maupun menempel) dan penetapan operand kini juga ditolak bila nama targetnya termasuk 44 nama terlarang mawk 1.3.4 (19 kata kunci + 24 fungsi bawaan + `ENVIRON`, tersapu biner) - biner mati "cannot command line assign" sebelum membaca stdin, sementara gerbang sebelumnya hanya memeriksa tata bahasa `nama=nilai` (2804). Variabel bawaan (`ARGC`, `FS`, ...) dan nama khas gawk (`gensub`, ...) tidak ikut terlarang; pemeriksaan hanya berlaku untuk `awk`/`mawk` karena himpunannya khas mawk. Skenario gensuite 1896.
+
+
 ## [Belum rilis] — Gerbang: pola inf durasi timeout dibetulkan (Audit 2824)
 
 Pola `inf` di `_durasi_timeout_sah` terbalik: ia menuntut `inf`+`infinity` (= `infinfinity`, ditolak biner rc=125) dan menolak `infinity` yang benar-benar diterima strtod - fail-open sekaligus fail-closed pada kedua pemakai helper (operand durasi dan `-k`/`--kill-after`). Pola kini `inf` + `inity` opsional. Skenario gensuite 1895.

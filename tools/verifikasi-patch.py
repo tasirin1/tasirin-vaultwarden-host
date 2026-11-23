@@ -1839,6 +1839,31 @@ def _kata_shell(token):
     return kata
 
 
+# Audit 2825: nama yang tak boleh jadi target
+# -v/--assign maupun penetapan operand pada
+# mawk 1.3.4 (tersapu biner): 19 kata kunci +
+# 24 fungsi bawaan + ENVIRON. Variabel bawaan
+# (ARGC, FS, NF, ...) dan nama khas gawk
+# (gensub, ...) TIDAK terlarang di mawk.
+_AWK_V_TERLARANG = frozenset({
+    "BEGIN", "END", "break", "continue", "delete",
+    "do", "else", "exit", "for", "function",
+    "getline", "if", "in", "next", "nextfile",
+    "print", "printf", "return", "while",
+    "atan2", "close", "cos", "exp", "fflush",
+    "gsub", "index", "int", "length", "log",
+    "match", "mktime", "rand", "sin", "split",
+    "sprintf", "sqrt", "srand", "strftime",
+    "substr", "systime", "system", "tolower",
+    "toupper", "ENVIRON"})
+
+
+def _nama_terlarang_awk_v(teks):
+    if "=" not in teks:
+        return False
+    return teks.split("=", 1)[0] in _AWK_V_TERLARANG
+
+
 def _menguras_keluarga_skrip(perintah, toks, awal):
     """Audit 1038: bagi sed/awk/grep/jq operand pertama adalah
     skrip/pola/filter, BUKAN berkas masukan. Menguras bila tak ada
@@ -2712,6 +2737,15 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                             r"[A-Za-z0-9_]*=",
                             _v2804.strip("\"'"))):
                     return False
+                # Audit 2825: nama target terlarang
+                # (kata kunci/fungsi bawaan mawk)
+                # juga membunuh awk "cannot command
+                # line assign" sebelum stdin dibaca.
+                if (_v2804 is not None
+                        and nama_asli in ("awk", "mawk")
+                        and _nama_terlarang_awk_v(
+                            _v2804.strip("\"'"))):
+                    return False
             if (perintah == "jq"
                     and dasar == "--argjson"):
                 # Audit 2808: nilai --argjson
@@ -2817,6 +2851,13 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                             r"[A-Za-z0-9_]*=",
                             bersih[2:])):
                     return False
+                # Audit 2825: nama terlarang juga
+                # ditolak pada -v menempel.
+                if (bersih.startswith("-v")
+                        and nama_asli in ("awk", "mawk")
+                        and _nama_terlarang_awk_v(
+                            bersih[2:])):
+                    return False
                 i += 1
                 continue
             if perintah == "sed" and (
@@ -2844,6 +2885,13 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             # Audit 1099: jalur fd-0 di posisi berkas adalah stdin.
             i += 1
             continue
+        if (perintah == "awk" and (skrip_terisi or skrip_dari_opsi)
+                and nama_asli in ("awk", "mawk")
+                and _nama_terlarang_awk_v(bersih)):
+            # Audit 2825: penetapan operand ke nama
+            # terlarang mawk juga mati sebelum
+            # stdin dibaca (bukan penetapan sah).
+            return False
         if (perintah == "awk" and (skrip_terisi or skrip_dari_opsi)
                 and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", bersih)):
             # Audit 1052: penetapan awk hanya sah SESUDAH slot

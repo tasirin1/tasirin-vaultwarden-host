@@ -40166,6 +40166,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("timeout infinity diterima biner, ditolak gerbang (Audit 2824)", rc != 0)
         shutil.rmtree(sub1895, ignore_errors=True)
+        sub1896 = klon(tmp, "sub1896")
+        berkas_aksi1896 = os.path.join(
+            sub1896, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1896, encoding="utf-8") as f:
+            isi_aksi1896 = f.read()
+        baris_aksi1896 = [b for b in isi_aksi1896.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1896 = isi_aksi1896.replace(
+                baris_aksi1896,
+                baris_aksi1896.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(awk -v print=1 '{print}' -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1896 != isi_aksi1896, \
+            "suntikan aksi1896 tidak menembak"
+        with open(berkas_aksi1896, "w", encoding="utf-8") as f:
+            f.write(isi_baru1896)
+        rc, out = jalan(sub1896,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("awk -v nama terlarang mawk ditolak (Audit 2825)", rc == 0)
+        shutil.rmtree(sub1896, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
