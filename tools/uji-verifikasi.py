@@ -39830,6 +39830,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item node --max-old-space-size=abc: nilai ukuran V8 non-numerik membunuh node, gerbang lolos (Audit 2800)", rc == 0)
         shutil.rmtree(sub1879, ignore_errors=True)
+        sub1880 = klon(tmp, "sub1880")
+        berkas_aksi1880 = os.path.join(
+            sub1880, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1880, encoding="utf-8") as f:
+            isi_aksi1880 = f.read()
+        baris_aksi1880 = [b for b in isi_aksi1880.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1880 = isi_aksi1880.replace(
+                baris_aksi1880,
+                baris_aksi1880.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --experimental-foo; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1880 != isi_aksi1880, \
+            "suntikan aksi1880 tidak menembak"
+        with open(berkas_aksi1880, "w", encoding="utf-8") as f:
+            f.write(isi_baru1880)
+        rc, out = jalan(sub1880,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item node --experimental-foo: keluarga awalan node kini keanggotaan tertutup, gerbang lolos (Audit 2801)", rc == 0)
+        shutil.rmtree(sub1880, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

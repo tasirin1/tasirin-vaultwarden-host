@@ -3408,6 +3408,11 @@ def _menguras_interpreter(perintah, toks, awal):
             # keluar di posisi mana pun.
             if dasar_nd in ("--version", "--help", "-v"):
                 return False
+            # Audit 2801: --v8-options mencetak
+            # daftar opsi lalu keluar tanpa
+            # membaca stdin (informatif).
+            if dasar_nd == "--v8-options":
+                return False
             # Audit 1721: --title BERNILAI (mengambil argumen;
             # menggantung = "--title requires an argument"
             # lalu keluar) — nilainya bukan operand skrip.
@@ -3475,11 +3480,20 @@ def _menguras_interpreter(perintah, toks, awal):
                              "--heap-prof",
                              "--use-largepages",
                              "--zero-fill-buffers")
-                or dasar_nd.startswith("--experimental-")
-                or dasar_nd.startswith("--v8-")
-                or dasar_nd.startswith("--trace-")
-                or dasar_nd.startswith("--no-")
-                or dasar_nd.startswith("--max-")
+                # Audit 2801: keluarga awalan kini
+                # keanggotaan tertutup dari kosakata
+                # biner (_EXP_NODE/_MAX_V8/_TRACE_V8);
+                # --v8-* selain --v8-options bukan
+                # opsi nyata; --no-X hanya sah bila
+                # bentuk positifnya dikenal.
+                or dasar_nd in _EXP_NODE
+                or dasar_nd in _MAX_V8
+                or dasar_nd in _TRACE_V8
+                or (dasar_nd.startswith("--no-")
+                    and ("--" + dasar_nd[5:])
+                    in _DASAR_NODE_NO)
+                or ("--no-" + dasar_nd[2:])
+                in _DASAR_NODE_NO
                 or (len(dasar_nd) == 2
                     and dasar_nd[1] in "ceiprv"))
             if not dikenal_nd:
@@ -4435,6 +4449,239 @@ def _durasi_timeout_sah(nilai):
         r"|[iI][nN][fF]([iI][nN][fF][iI][nN]"
         r"[iI][tT][yY])?"
         r")[smhd]?", nilai) is not None
+
+
+# Audit 2801: kosakata node/V8 yang
+# diekstrak dari biner node lokal
+# (--help dan --v8-options) -
+# keluarga awalan gerbang kini
+# keanggotaan tertutup.
+_EXP_NODE = frozenset({
+    "--experimental-addon-modules",
+    "--experimental-default-config-file",
+    "--experimental-eventsource",
+    "--experimental-import-meta-resolve",
+    "--experimental-import-text",
+    "--experimental-inspector-network-resource",
+    "--experimental-network-inspection",
+    "--experimental-package-map",
+    "--experimental-print-required-tla",
+    "--experimental-sea-config",
+    "--experimental-storage-inspection",
+    "--experimental-stream-iter", "--experimental-strip-types",
+    "--experimental-test-coverage",
+    "--experimental-test-isolation",
+    "--experimental-test-module-mocks",
+    "--experimental-test-tag-filter",
+    "--experimental-transform-types", "--experimental-vm-modules",
+    "--experimental-webstorage",
+    "--experimental-worker-inspection",
+    "--no-experimental-detect-module",
+    "--no-experimental-global-navigator",
+    "--no-experimental-repl-await",
+    "--no-experimental-require-module", "--no-experimental-sqlite",
+    "--no-experimental-websocket",})
+_MAX_V8 = frozenset({
+    "--max-fast-properties", "--max-heap-size",
+    "--max-inlined-bytecode-size",
+    "--max-inlined-bytecode-size-absolute",
+    "--max-inlined-bytecode-size-cumulative",
+    "--max-inlined-bytecode-size-small", "--max-lazy",
+    "--max-maglev-hard-inline-depth", "--max-maglev-inline-depth",
+    "--max-maglev-inlined-bytecode-size",
+    "--max-maglev-inlined-bytecode-size-cumulative",
+    "--max-maglev-inlined-bytecode-size-small",
+    "--max-old-space-size", "--max-opt",
+    "--max-optimized-bytecode-size", "--max-semi-space-size",
+    "--max-serializer-nesting", "--max-shared-heap-size",
+    "--max-stack-trace-source-length",
+    "--max-valid-polymorphic-map-count", "--max-wasm-functions",})
+_TRACE_V8 = frozenset({
+    "--trace-all-uses", "--trace-allocation-stack-interval",
+    "--trace-asm-parser", "--trace-asm-scanner",
+    "--trace-asm-time", "--trace-backing-store",
+    "--trace-baseline", "--trace-baseline-batch-compilation",
+    "--trace-block-coverage", "--trace-code-range-allocation",
+    "--trace-compilation-dependencies",
+    "--trace-compiler-dispatcher", "--trace-concurrent-marking",
+    "--trace-concurrent-recompilation", "--trace-context-disposal",
+    "--trace-contexts", "--trace-creation-allocation-sites",
+    "--trace-deopt", "--trace-deopt-verbose",
+    "--trace-deprecation", "--trace-deserialization",
+    "--trace-detached-contexts", "--trace-duplicate-threshold-kb",
+    "--trace-elements-transitions", "--trace-env",
+    "--trace-env-js-stack", "--trace-env-native-stack",
+    "--trace-environment-liveness", "--trace-evacuation",
+    "--trace-evacuation-candidates", "--trace-event-categories",
+    "--trace-event-file-pattern", "--trace-exit",
+    "--trace-experimental-regexp-engine", "--trace-file-names",
+    "--trace-flush-code", "--trace-for-in-enumerate",
+    "--trace-fragmentation", "--trace-fragmentation-verbose",
+    "--trace-gc", "--trace-gc-freelists",
+    "--trace-gc-freelists-verbose", "--trace-gc-heap-layout",
+    "--trace-gc-heap-layout-ignore-minor-gc",
+    "--trace-gc-ignore-scavenger", "--trace-gc-nvp",
+    "--trace-gc-object-stats", "--trace-gc-verbose",
+    "--trace-generalization", "--trace-heap-broker",
+    "--trace-heap-broker-verbose", "--trace-ignition-codegen",
+    "--trace-ignition-dispatches-output-file",
+    "--trace-incremental-marking", "--trace-isolates",
+    "--trace-lazy", "--trace-liftoff",
+    "--trace-maglev-escape-analysis",
+    "--trace-maglev-graph-building", "--trace-maglev-inlining",
+    "--trace-maglev-inlining-verbose",
+    "--trace-maglev-loop-speeling",
+    "--trace-maglev-object-tracking",
+    "--trace-maglev-phi-untagging", "--trace-maglev-regalloc",
+    "--trace-memory-balancer", "--trace-memory-reducer",
+    "--trace-migration", "--trace-minor-ms-parallel-marking",
+    "--trace-module-status", "--trace-mutator-utilization",
+    "--trace-normalization", "--trace-opt", "--trace-opt-stats",
+    "--trace-opt-status", "--trace-opt-verbose", "--trace-osr",
+    "--trace-page-promotions", "--trace-parallel-scavenge",
+    "--trace-pending-allocations", "--trace-pretenuring",
+    "--trace-pretenuring-statistics", "--trace-promises",
+    "--trace-protector-invalidation", "--trace-prototype-users",
+    "--trace-rail", "--trace-read-only-promotion",
+    "--trace-read-only-promotion-verbose",
+    "--trace-regexp-assembler", "--trace-regexp-bytecodes",
+    "--trace-regexp-graph", "--trace-regexp-parser",
+    "--trace-regexp-peephole-optimization",
+    "--trace-regexp-tier-up", "--trace-representation",
+    "--trace-require-module", "--trace-serializer",
+    "--trace-side-effect-free-debug-evaluate", "--trace-sigint",
+    "--trace-store-elimination", "--trace-stress-marking",
+    "--trace-stress-scavenge", "--trace-sync-io",
+    "--trace-temporal", "--trace-tls",
+    "--trace-track-allocation-sites", "--trace-turbo",
+    "--trace-turbo-alloc", "--trace-turbo-ceq",
+    "--trace-turbo-cfg-file", "--trace-turbo-escape",
+    "--trace-turbo-file-prefix", "--trace-turbo-filter",
+    "--trace-turbo-graph", "--trace-turbo-inlining",
+    "--trace-turbo-jt", "--trace-turbo-load-elimination",
+    "--trace-turbo-loop", "--trace-turbo-path",
+    "--trace-turbo-reduction", "--trace-turbo-scheduled",
+    "--trace-turbo-scheduler", "--trace-turbo-stack-accesses",
+    "--trace-turbo-trimming", "--trace-turbo-types",
+    "--trace-uncaught", "--trace-unmapper", "--trace-verify-csa",
+    "--trace-warnings", "--trace-wasm", "--trace-wasm-code-gc",
+    "--trace-wasm-compilation-times", "--trace-wasm-compiler",
+    "--trace-wasm-decoder", "--trace-wasm-inlining",
+    "--trace-wasm-instances", "--trace-wasm-lazy-compilation",
+    "--trace-wasm-loop-peeling", "--trace-wasm-memory",
+    "--trace-wasm-native-heap", "--trace-wasm-offheap-memory",
+    "--trace-wasm-revectorize", "--trace-wasm-serialization",
+    "--trace-wasm-stack-switching", "--trace-wasm-streaming",
+    "--trace-wasm-typer", "--trace-zone-stats",
+    "--trace-zone-type-stats",})
+_HELP_NODE = frozenset({
+    "--abort-on-uncaught-exception", "--allow-addons",
+    "--allow-child-process", "--allow-fs-read", "--allow-fs-write",
+    "--allow-inspector", "--allow-openssl-store", "--allow-wasi",
+    "--allow-worker", "--build-snapshot",
+    "--build-snapshot-config", "--completion-bash", "--cpu-prof",
+    "--cpu-prof-dir", "--cpu-prof-interval", "--cpu-prof-name",
+    "--debug-port", "--diagnostic-dir", "--disable-proto",
+    "--disable-sigusr1", "--disable-warning",
+    "--disable-wasm-trap-handler",
+    "--disallow-code-generation-from-strings",
+    "--dns-result-order", "--enable-etw-stack-walking",
+    "--enable-fips", "--enable-fips-indicator-events",
+    "--enable-network-family-autoselection",
+    "--enable-source-maps", "--entry-url", "--env-file",
+    "--env-file-if-exists", "--experimental-addon-modules",
+    "--experimental-default-config-file",
+    "--experimental-eventsource",
+    "--experimental-import-meta-resolve",
+    "--experimental-import-text",
+    "--experimental-inspector-network-resource",
+    "--experimental-network-inspection",
+    "--experimental-package-map",
+    "--experimental-print-required-tla",
+    "--experimental-sea-config",
+    "--experimental-storage-inspection",
+    "--experimental-stream-iter", "--experimental-strip-types",
+    "--experimental-test-coverage",
+    "--experimental-test-isolation",
+    "--experimental-test-module-mocks",
+    "--experimental-test-tag-filter",
+    "--experimental-transform-types", "--experimental-vm-modules",
+    "--experimental-webstorage",
+    "--experimental-worker-inspection", "--expose-gc",
+    "--force-context-aware", "--force-fips",
+    "--force-node-api-uncaught-exceptions-policy",
+    "--frozen-intrinsics", "--heap-prof", "--heap-prof-dir",
+    "--heap-prof-interval", "--heap-prof-name",
+    "--heapsnapshot-near-heap-limit", "--heapsnapshot-signal",
+    "--icu-data-dir", "--import", "--input-type",
+    "--insecure-http-parser", "--inspect", "--inspect-brk",
+    "--inspect-publish-uid", "--inspect-wait",
+    "--interpreted-frames-native-stack", "--jitless", "--loader",
+    "--localstorage-file", "--max-http-header-size",
+    "--max-old-space-size", "--max-old-space-size-percentage",
+    "--network-family-autoselection-attempt-timeout",
+    "--no-addons", "--no-async-context-frame", "--no-deprecation",
+    "--no-experimental-detect-module",
+    "--no-experimental-global-navigator",
+    "--no-experimental-repl-await",
+    "--no-experimental-require-module", "--no-experimental-sqlite",
+    "--no-experimental-websocket",
+    "--no-extra-info-on-fatal-exception",
+    "--no-force-async-hooks-checks", "--no-global-search-paths",
+    "--no-require-module", "--no-warnings", "--node-memory-debug",
+    "--openssl-config", "--openssl-legacy-provider",
+    "--openssl-shared-config", "--pending-deprecation",
+    "--permission", "--permission-audit", "--preserve-symlinks",
+    "--preserve-symlinks-main", "--prof", "--prof-process",
+    "--redirect-warnings", "--report-compact",
+    "--report-directory", "--report-exclude-env",
+    "--report-exclude-network", "--report-filename",
+    "--report-on-fatalerror", "--report-on-signal",
+    "--report-signal", "--report-uncaught-exception",
+    "--require-module", "--run", "--secure-heap",
+    "--secure-heap-min", "--snapshot-blob", "--test",
+    "--test-concurrency", "--test-coverage-branches",
+    "--test-coverage-exclude", "--test-coverage-functions",
+    "--test-coverage-include", "--test-coverage-lines",
+    "--test-force-exit", "--test-global-setup",
+    "--test-name-pattern", "--test-only", "--test-random-seed",
+    "--test-randomize", "--test-reporter",
+    "--test-reporter-destination", "--test-rerun-failures",
+    "--test-shard", "--test-skip-pattern", "--test-timeout",
+    "--test-update-snapshots", "--throw-deprecation", "--title",
+    "--tls-cipher-list", "--tls-keylog", "--tls-max-v1",
+    "--tls-min-v1", "--trace-deprecation", "--trace-env",
+    "--trace-env-js-stack", "--trace-env-native-stack",
+    "--trace-event-categories", "--trace-event-file-pattern",
+    "--trace-exit", "--trace-promises", "--trace-require-module",
+    "--trace-sigint", "--trace-sync-io", "--trace-tls",
+    "--trace-uncaught", "--trace-warnings", "--track-heap-objects",
+    "--unhandled-rejections", "--use-bundled-ca",
+    "--use-env-proxy", "--use-largepages", "--use-openssl-ca",
+    "--use-system-ca", "--v8-options", "--v8-pool-size", "--watch",
+    "--watch-kill-signal", "--watch-path",
+    "--watch-preserve-output", "--zero-fill-buffers",})
+_DASAR_NODE_NO = (_EXP_NODE | _MAX_V8
+    | _TRACE_V8 | _HELP_NODE | frozenset({
+    "--eval", "--print", "--check",
+    "--interactive", "--require",
+    "--import", "--loader",
+    "--experimental-loader",
+    "--input-type", "--conditions",
+    "--env-file",
+    "--enable-source-maps", "--watch",
+    "--test", "--inspect",
+    "--inspect-brk", "--cpu-prof",
+    "--heap-prof", "--use-largepages",
+    "--zero-fill-buffers"}))
+# Biner node menerima dua polaritas
+# opsi booleannya: nama yang hanya
+# terkatalog sebagai --no-X tetap
+# sah dipakai sebagai --X dan
+# sebaliknya (terverifikasi biner).
+_DASAR_NODE_NO = _DASAR_NODE_NO | frozenset(
+    "--" + _n[5:] for _n in _DASAR_NODE_NO
+    if _n.startswith("--no-"))
 
 
 def _x_python_sah(nilai_x):

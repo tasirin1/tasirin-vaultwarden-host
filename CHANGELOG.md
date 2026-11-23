@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — node: keluarga awalan kini keanggotaan tertutup (Audit 2801)
+
+- Keluarga
+  awalan node
+  (--experimental-,
+  --max-, --trace-,
+  --no-) kini
+  keanggotaan
+  tertutup dari
+  kosakata biner;
+  nama karangan
+  membunuh node.
+  --v8-options
+  kini informatif.
+
+
 ## [Belum rilis] — node: opsi ukuran V8 bentuk = kini divalidasi numerik (Audit 2800)
 
 - Opsi ukuran
