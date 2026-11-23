@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — Tulis version.txt sertifikat tak lagi hapus-dulu (Audit 2684)
+
+- Penulisan `version.txt` pada
+  penyiapan sertifikat TLS kini
+  memakai pola geser-aman yang
+  sama seperti penyalinan CA:
+  berkas lama digeser ke cadangan
+  dulu, berkas baru dipasang, dan
+  cadangan dipulihkan bila
+  pemasangan gagal. Kegagalan
+  ganti nama tak lagi bisa
+  menghapus versi lama dan baru
+  sekaligus sampai server gagal
+  mulai dan CA harus dibuat ulang.
+
+
 ## [Belum rilis] — chroot telanjang divonis mati (Audit 2682)
 
 - `chroot` tanpa operand direktori

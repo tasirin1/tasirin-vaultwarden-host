@@ -1125,9 +1125,23 @@ public final class TlsCert {
         }
 
         if (!baru.renameTo(tujuan)) {
-            if (!tujuan.delete() || !baru.renameTo(tujuan)) {
+            // Audit 2684: jangan hapus version.txt lama
+            // sebelum yang baru terpasang - geser dulu ke
+            // cadangan, pasang yang baru, pulihkan cadangan
+            // bila pemasangan gagal (pola salinCaKeStorage).
+            File cadangan = new File(dir, "version.txt.lama-"
+                    + Long.toHexString(System.nanoTime()));
+            boolean digeser = !tujuan.exists() || tujuan.renameTo(cadangan);
+            if (!digeser || !baru.renameTo(tujuan)) {
+                if (digeser && cadangan.isFile() && !tujuan.exists()) {
+                    cadangan.renameTo(tujuan);
+                }
                 baru.delete();
                 throw new IOException("gagal menulis version.txt");
+            }
+            try {
+                cadangan.delete();
+            } catch (Exception ignored) {
             }
         }
         fsyncDirektori(dir);
