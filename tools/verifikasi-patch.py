@@ -3541,7 +3541,36 @@ def _menguras_read(toks, awal):
             continue
         if t in ("-p", "-t", "-d", "-n", "-N", "-i",
                  "-a"):
+            # Audit 2737: -t 0 hanya memindai
+            # (nol byte terbaca) dan -n/-N 0
+            # meminta nol aksara - keduanya
+            # tak mengonsumsi stdin.
+            if (t in ("-t", "-n", "-N")
+                    and i + 1 < n):
+                nilai_r = toks[i + 1].strip("\"'")
+                try:
+                    if t == "-t":
+                        if float(nilai_r) == 0:
+                            return False
+                    elif int(nilai_r) == 0:
+                        return False
+                except ValueError:
+                    pass
             i += 2
+            continue
+        # Audit 2737: bentuk tempel -t0/-n0/-N0.
+        if (len(t) > 2 and t[:2] in ("-t", "-n", "-N")
+                and not t.startswith("--")):
+            nilai_r = t[2:].strip("\"'")
+            try:
+                if t[:2] == "-t":
+                    if float(nilai_r) == 0:
+                        return False
+                elif int(nilai_r) == 0:
+                    return False
+            except ValueError:
+                pass
+            i += 1
             continue
         i += 1
     return True

@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — read -t 0 dan -n/-N 0 divonis tak menguras (Audit 2737)
+
+- Penilai `read` kini
+  memvonis tak menguras
+  untuk `-t 0` (pindai
+  saja) dan `-n`/`-N 0`
+  (nol aksara), bentuk
+  terpisah maupun
+  tempel.
+
+
 ## [Belum rilis] — runuser: opsi bernilai menggantung divonis mati (Audit 2736)
 
 - Resolver runuser
