@@ -40418,6 +40418,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("join -0 kini ditolak gerbang (Audit 2842)", rc == 0)
         shutil.rmtree(sub1907, ignore_errors=True)
+        sub1908 = klon(tmp, "sub1908")
+        berkas_aksi1908 = os.path.join(
+            sub1908, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1908, encoding="utf-8") as f:
+            isi_aksi1908 = f.read()
+        baris_aksi1908 = [b for b in isi_aksi1908.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1908 = isi_aksi1908.replace(
+                baris_aksi1908,
+                baris_aksi1908.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tree --fromtabfile; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1908 != isi_aksi1908, \
+            "suntikan aksi1908 tidak menembak"
+        with open(berkas_aksi1908, "w", encoding="utf-8") as f:
+            f.write(isi_baru1908)
+        rc, out = jalan(sub1908,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tree --fromtabfile kini dinilai menguras (Audit 2843)", rc != 0)
+        shutil.rmtree(sub1908, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

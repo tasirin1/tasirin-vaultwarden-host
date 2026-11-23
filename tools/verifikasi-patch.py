@@ -15173,7 +15173,12 @@ def _menguras_khusus(perintah, toks, awal):
             # mode stdin. (Audit 1368: -T/-H kini ikut bernilai.)
             if t_tr2 == "--":
                 return False
-            if t_tr2 == "--fromfile":
+            if t_tr2 in ("--fromfile",
+                         "--fromtabfile"):
+                # Audit 2843: --fromtabfile
+                # (daftar tab) mode stdin
+                # yang sama - sebelumnya
+                # tak dimodelkan sama sekali.
                 return True
             if t_tr2 in bernilai_tr2:
                 k_tr2 += 2

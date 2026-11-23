@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: tree --fromtabfile kini dikenal sebagai mode stdin (Audit 2843)
+
+Mode `--fromtabfile` tree (daftar berkas terpisah tab dari stdin) tidak muncul sama sekali di gerbang — perintah penguras lolos. Walk kedua kini memperlakukannya sama dengan `--fromfile` (terprobe biner pipa-terbuka rc=124). Skenario uji-verifikasi 1908.
+
+
 ## [Belum rilis] — Gerbang: token digit asing join (-0, -3, ...) kini ditolak (Audit 2842)
 
 Walk join melewatkan token opsi tak dikenal begitu saja, jadi `join -0 - -` dinilai menguras padahal biner mati "invalid option -- '0'" (terprobe). Satu-satunya opsi join berawalan digit adalah `-1`/`-2` (sudah tertangani, termasuk bentuk merekatnya seperti `-12` = field 2); token berawalan digit lain kini ditolak. Skenario uji-verifikasi 1907.
