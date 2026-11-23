@@ -3512,6 +3512,41 @@ def _menguras_mapfile(toks, awal):
     return True
 
 
+def _menguras_read(toks, awal):
+    """Audit 2717: builtin read menelan baris stdin
+    (satu baris penuh secara bawaan). Aliran bersama
+    gerbang berisi tepat satu baris keluaran, jadi
+    konsumsi read berdampak utuh - sekelas head -1.
+    -u fd lain dan redirect masukan mengganti
+    sumber bacanya."""
+    i = awal + 1
+    n = len(toks)
+    while i < n:
+        t = toks[i]
+        if (t.startswith("<") and not t.startswith("<<")
+                and _fd_norm(t[1:].lstrip("&")) != "0"):
+            return False
+        if (t.startswith("<&") and t[2:].strip("\"'")
+                not in ("0", "0-")):
+            return False
+        if t == "-u":
+            if i + 1 < n and toks[i + 1].strip("\"'") != "0":
+                return False
+            i += 2
+            continue
+        if t.startswith("-u") and len(t) > 2:
+            if t[2:].strip("\"'") != "0":
+                return False
+            i += 1
+            continue
+        if t in ("-p", "-t", "-d", "-n", "-N", "-i",
+                 "-a"):
+            i += 2
+            continue
+        i += 1
+    return True
+
+
 def _operand_sesudah_opsi(toks, awal, bernilai,
                           bernilai2=frozenset()):
     """Daftar operand polos sesudah melompati opsi (yang bernilai
@@ -15275,6 +15310,10 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 nama_interp, toks, awal)
         if perintah in ("mapfile", "readarray"):
             return xargs_sendiri or _menguras_mapfile(toks, awal)
+        # Audit 2717: builtin read - penelan baris
+        # bawaan shell, dinilai penilai khususnya.
+        if perintah == "read":
+            return xargs_sendiri or _menguras_read(toks, awal)
         # Audit 1302-1304: nama kompiler bertriple/bersufiks
         # versi dinormalkan ke nama kanonisnya.
         m_komp = re.fullmatch(

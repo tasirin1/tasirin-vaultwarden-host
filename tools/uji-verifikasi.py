@@ -38192,6 +38192,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item split - hasil: operand - adalah stdin split, gerbang menolak (Audit 2716)", rc != 0)
         shutil.rmtree(sub1801, ignore_errors=True)
+        sub1802 = klon(tmp, "sub1802")
+        berkas_aksi1802 = os.path.join(
+            sub1802, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1802, encoding="utf-8") as f:
+            isi_aksi1802 = f.read()
+        baris_aksi1802 = [b for b in isi_aksi1802.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1802 = isi_aksi1802.replace(
+                baris_aksi1802,
+                baris_aksi1802.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(read baris; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1802 != isi_aksi1802, \
+            "suntikan aksi1802 tidak menembak"
+        with open(berkas_aksi1802, "w", encoding="utf-8") as f:
+            f.write(isi_baru1802)
+        rc, out = jalan(sub1802,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item read baris: builtin read menelan baris bersama, gerbang menolak (Audit 2717)", rc != 0)
+        shutil.rmtree(sub1802, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

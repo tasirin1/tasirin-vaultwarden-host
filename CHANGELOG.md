@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — builtin read kini dimodelkan sebagai penelan baris (Audit 2717)
+
+- Builtin `read` kini
+  punya penilai khusus:
+  secara bawaan ia
+  menelan satu baris
+  stdin (seluruh muatan
+  aliran bersama),
+  kecuali sumbernya
+  diganti `-u` fd lain
+  atau redirect masukan.
+
+
 ## [Belum rilis] — operand - dan awalan keluaran split dimodelkan (Audit 2716)
 
 - Gelung operand kini
