@@ -14537,6 +14537,31 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 awal += 1
                 if opsi == "--":
                     break
+                if (t0 in ("nice", "ionice", "timeout")
+                        and opsi.startswith("--")):
+                    # Audit 2712: singkatan
+                    # getopt_long atas nama
+                    # yang tak divalidasi
+                    # nilainya lolos sebagai
+                    # bendera tak dikenal -
+                    # yang informasional
+                    # (nice --h/--v, ionice
+                    # --h, timeout --h)
+                    # mencetak lalu keluar
+                    # dan yang ambigu
+                    # (timeout --v, tabrakan
+                    # --verbose/--version)
+                    # membunuh biner; kedua
+                    # kelas itu mati sebelum
+                    # anak berjalan.
+                    nama_op = opsi[2:].partition(
+                        "=")[0]
+                    if (nama_op
+                            and ("help".startswith(
+                                    nama_op)
+                                 or "version".startswith(
+                                    nama_op))):
+                        return False
                 if t0 == "sudo" and opsi in (
                         "-s", "--shell", "-i", "--login"):
                     # Audit 1050: mode shell sudo.

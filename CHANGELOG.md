@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — singkatan informasional/ambigu nice, ionice, timeout divonis mati (Audit 2712)
+
+- Di wilayah opsi nice,
+  ionice, dan timeout,
+  singkatan getopt_long
+  yang mengarah ke
+  `--help`/`--version`
+  kini divonis mati:
+  yang unik mencetak
+  lalu keluar, yang
+  ambigu (mis. `--v`
+  pada timeout) membunuh
+  biner.
+
+
 ## [Belum rilis] — singkatan dan gugus informasional su/sg/newgrp dikenali (Audit 2711)
 
 - Pindaian informasional
