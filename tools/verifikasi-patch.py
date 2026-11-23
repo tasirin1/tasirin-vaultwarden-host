@@ -14542,7 +14542,7 @@ def _menguras_khusus(perintah, toks, awal):
                 # diurai sebagai opsi lain.
                 konsumsi_tr3 = 0
                 for h_tr3 in t_tr3[1:]:
-                    if h_tr3 in "PILOTH":
+                    if h_tr3 in "PILOTHo":
                         konsumsi_tr3 += 1
                         if h_tr3 == "L":
                             idx_tr3 = (k_tr3
@@ -14597,7 +14597,7 @@ def _menguras_khusus(perintah, toks, awal):
             if (t_tr2.startswith("-")
                     and not t_tr2.startswith("--")
                     and len(t_tr2) > 2
-                    and any(h_tr2 in "PILOTH"
+                    and any(h_tr2 in "PILOTHo"
                             for h_tr2 in t_tr2[1:])):
                 k_tr2 += 2
                 continue

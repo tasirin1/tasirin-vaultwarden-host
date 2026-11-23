@@ -40019,6 +40019,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("flock -E digit raksasa tak lagi crash gerbang", rc == 0)
         shutil.rmtree(sub1888, ignore_errors=True)
+        sub1889 = klon(tmp, "sub1889")
+        berkas_aksi1889 = os.path.join(
+            sub1889, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1889, encoding="utf-8") as f:
+            isi_aksi1889 = f.read()
+        baris_aksi1889 = [b for b in isi_aksi1889.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1889 = isi_aksi1889.replace(
+                baris_aksi1889,
+                baris_aksi1889.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tree -oL abc 2 --fromfile; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1889 != isi_aksi1889, \
+            "suntikan aksi1889 tidak menembak"
+        with open(berkas_aksi1889, "w", encoding="utf-8") as f:
+            f.write(isi_baru1889)
+        rc, out = jalan(sub1889,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tree bundel -oL kini dinilai menguras", rc != 0)
+        shutil.rmtree(sub1889, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

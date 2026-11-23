@@ -1,3 +1,8 @@
+## [Belum rilis] — tree: huruf o masuk himpunan bundel kedua walk (Audit 2815)
+
+Himpunan huruf bernilai bundel tree di kedua walk (`"PILOTH"`) memuat huruf O besar tetapi kehilangan `o` kecil - padahal di parser tree (bukan getopt) justru `-o` yang bernilai dan menelan token berikutnya. Akibatnya nilai `-o` di dalam bundel divalidasi sebagai nilai `-L` (vonis salah dua arah: `tree -oL abc 2 --fromfile` yang menguras dinilai mati, `tree -ao --fromfile` yang menelan `--fromfile` sebagai nama berkas dinilai menguras). Himpunan kini `"PILOTHo"`. Skenario 1889.
+
+
 ## [Belum rilis] — Gerbang: keluarga crash int() digit tak terbatas dimatikan (Audit 2814)
 
 Validator gerbang yang menjalankan `int()` atas string digit tanpa batas panjang kini dibatasi (pola digit {1,18}/{1,20} atau penjaga panjang sebelum konversi): flock -E, xargs-min, choom, uclampset, daftar CPU taskset, daftar monoton + kunci-sort + daftar-cut _TIPE66, ssh -p (3 situs), tree -L (3 situs), cmp desimal, ffmpeg ruas pertama, pola angka csplit, --width/--tabsize diff, --colors rg, -o join, --jobs make, fixlengths qsv, sample xsv, ionice -c pembungkus, helper sinyal (digit + geseran RTMIN/RTMAX), dan prioritas chrt. Python 3.11+ menolak konversi string >4.300 digit dengan ValueError sehingga satu nilai ekstrem menggugurkan seluruh verifikasi; kini semuanya memberi vonis normal. Skenario 1888.
