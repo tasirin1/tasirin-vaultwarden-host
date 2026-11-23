@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — Sufiks ukuran m kecil (split/od) kini diterima gerbang (Audit 2696)
+
+- Matriks sufiks ukuran 2673
+  kini juga menerima `m` kecil
+  beserta `mB`/`miB` — keanehan
+  xstrtol: huruf kecil yang
+  sah hanya `k` dan `m`.
+  Sebelumnya `split -b 1m` dan
+  `od -N 1m` ditolak gerbang
+  padahal biner menerimanya.
+  Matriks dd tidak berubah
+  (biner dd memang menolak
+  `1m`).
+
+
 ## [Belum rilis] — Nilai mode stdbuf kini divalidasi gerbang (Audit 2695)
 
 - Nilai mode penyangga stdbuf

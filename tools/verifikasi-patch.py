@@ -13625,8 +13625,11 @@ def _tipe_nilai_sah_66(jenis, nilai):
         # tunggal DITOLAK split (pola lama
         # menolak KiB/kB yang sah dan
         # menerima c/w yang asing).
+        # Audit 2696: m kecil juga sah penuh
+        # (m/mB/miB - keanehan xstrtol: huruf
+        # kecil yang sah hanya k dan m).
         m66 = re.fullmatch(
-            r"(\d{1,18})([KMGTPEZY](B|iB)?|k(B|iB)?|b)?", v)
+            r"(\d{1,18})([KMGTPEZY](B|iB)?|[km](B|iB)?|b)?", v)
         return m66 is not None and int(m66.group(1)) > 0
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
@@ -13639,7 +13642,7 @@ def _tipe_nilai_sah_66(jenis, nilai):
         # bernilai 0.
         if re.fullmatch(
                 r"(0[xX][0-9a-fA-F]{1,16}|\d{1,18})"
-                r"([KMGTPEZY](B|iB)?|k(B|iB)?|b)?",
+                r"([KMGTPEZY](B|iB)?|[km](B|iB)?|b)?",
                 v) is None:
             return False
         angka = re.match(
@@ -13652,7 +13655,7 @@ def _tipe_nilai_sah_66(jenis, nilai):
         # KiB/kB/kiB/k/b).
         return re.fullmatch(
             r"(0[xX][0-9a-fA-F]{1,16}|\d{1,18})"
-            r"([KMGTPEZY](B|iB)?|k(B|iB)?|b)?", v) is not None
+            r"([KMGTPEZY](B|iB)?|[km](B|iB)?|b)?", v) is not None
     if jenis == "format-od":
         # Audit 2678: tata bahasa string
         # format od -t/--format, dibuktikan
