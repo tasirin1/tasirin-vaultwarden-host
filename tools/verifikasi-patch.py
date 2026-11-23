@@ -4253,6 +4253,30 @@ def _sinyal_timeout_sah(nilai):
         "PWR", "SYS"}
 
 
+def _masker_taskset_sah(nilai):
+    # Audit 2692: masker taskset boleh berbentuk
+    # grup heksa dipisah koma (untuk >32 CPU) -
+    # awalan 0x hanya di grup pertama, grup
+    # kosong hanya ditoleransi di ujung akhir,
+    # dan masker keseluruhan tak boleh nol.
+    # Terverifikasi biner util-linux setempat.
+    v = nilai
+    if v.startswith(("0x", "0X")):
+        v = v[2:]
+    grup = v.split(",")
+    if grup and grup[-1] == "":
+        grup.pop()
+    if not grup:
+        return False
+    bukan_nol = False
+    for g in grup:
+        if not re.fullmatch(r"[0-9a-fA-F]+", g):
+            return False
+        if int(g, 16) != 0:
+            bukan_nol = True
+    return bukan_nol
+
+
 def _double_getopt_sah(nilai):
     # Penerima double Phobos (to!double): literal
     # desimal bertanda dengan pecahan/eksponen
@@ -14464,10 +14488,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 "x86_64")):
                         return False
                     if (t0 == "taskset"
-                            and (not re.fullmatch(
-                                r"(0[xX])?[0-9a-fA-F]+",
-                                op2681)
-                                or int(op2681, 16) == 0)):
+                            and not _masker_taskset_sah(
+                                op2681)):
                         return False
                     if t0 == "chrt":
                         if not op2681.isdigit():

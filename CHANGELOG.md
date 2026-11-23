@@ -1,5 +1,22 @@
 # Changelog
 
+## [Belum rilis] — Masker taskset bentuk grup koma kini diterima gerbang (Audit 2692)
+
+- Masker CPU taskset berbentuk
+  grup heksa dipisah koma
+  (`ff,ff`, untuk lebih dari
+  32 CPU) kini divalidasi
+  dengan benar: awalan `0x`
+  hanya di grup pertama, grup
+  kosong hanya ditoleransi di
+  ujung, dan masker keseluruhan
+  tetap tak boleh nol.
+  Sebelumnya bentuk koma
+  ditolak gerbang sehingga
+  perintah yang berjalan
+  divonis mati.
+
+
 ## [Belum rilis] — Nilai -s/--signal timeout kini divalidasi gerbang (Audit 2691)
 
 - Nilai sinyal timeout kini
