@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: boolean V8 di _NODE_HELP_TELANJANG kini menolak =nilai + enum --force-fips (Audit 2835)
+
+Sebagian anggota himpunan boolean node dari perbaikan 2818 ternyata boolean V8: diberi `=nilai` biner mati "illegal value ... of type bool" sementara gerbang menilai menguras. Sapuan biner induk atas 59 nama memisahkannya: 7 nama V8 (--prof, --jitless, --expose-gc, --abort-on-uncaught-exception, --disallow-code-generation-from-strings, --enable-etw-stack-walking, --interpreted-frames-native-stack) kini ditolak gerbang bila berbentuk `=`; sisanya boolean node-native yang memang menerima `=` diam-diam. Sapuan yang sama menemukan `--force-fips` hanya menerima `=provider`/`=strict` — nilai `=` lain kini ditolak (bentuk terpisah bukan nilainya, terprobe). Skenario uji-verifikasi 1904.
+
+
 ## [Belum rilis] — Gerbang: node --watch=<nilai> tak lagi ditolak — biner menerimanya (Audit 2834)
 
 Perbaikan 2817 memasukkan `--watch` ke daftar opsi yang dianggap menolak argumen `=`; premis itu keliru — node v24.22.1 menerima `node --watch=x -` dan menjalankan skrip dari stdin (terprobe: skrip tercetak dan "Completed running '-'"). `--watch` dikeluarkan dari daftar penolak `=`; `--test` dan `--experimental-default-config-file` tetap di sana (premis keduanya terverifikasi benar). Skenario uji-verifikasi 1903.

@@ -40334,6 +40334,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("node --watch=<nilai> kini dinilai menguras (Audit 2834)", rc != 0)
         shutil.rmtree(sub1903, ignore_errors=True)
+        sub1904 = klon(tmp, "sub1904")
+        berkas_aksi1904 = os.path.join(
+            sub1904, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1904, encoding="utf-8") as f:
+            isi_aksi1904 = f.read()
+        baris_aksi1904 = [b for b in isi_aksi1904.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1904 = isi_aksi1904.replace(
+                baris_aksi1904,
+                baris_aksi1904.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(node --prof=x -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1904 != isi_aksi1904, \
+            "suntikan aksi1904 tidak menembak"
+        with open(berkas_aksi1904, "w", encoding="utf-8") as f:
+            f.write(isi_baru1904)
+        rc, out = jalan(sub1904,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("boolean V8 --prof diberi =nilai kini ditolak gerbang (Audit 2835)", rc == 0)
+        shutil.rmtree(sub1904, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

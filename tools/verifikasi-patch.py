@@ -3749,6 +3749,18 @@ def _menguras_interpreter(perintah, toks, awal):
             # keliru, biner menerima
             # --watch=<nilai> dan tetap
             # menjalankan skrip stdin.
+            # Audit 2835: --force-fips hanya
+            # menerima =provider/=strict -
+            # nilai = lain mati di biner
+            # (bentuk terpisah BUKAN nilainya,
+            # terprobe: token berikut jadi
+            # operand skrip).
+            if (dasar_nd == "--force-fips"
+                    and "=" in t
+                    and t.split("=", 1)[1].strip(
+                        "\"'") not in (
+                            "provider", "strict")):
+                return False
             if dasar_nd.startswith("--no-"):
                 if ("--" + dasar_nd[5:]) in (
                         _NODE_TAK_NEGASI):
@@ -3757,6 +3769,8 @@ def _menguras_interpreter(perintah, toks, awal):
                     (dasar_nd in _TRACE_V8
                      and dasar_nd
                      not in _TRACE_V8_NILAI)
+                    or dasar_nd
+                    in _NODE_HELP_V8_BOOL
                     or dasar_nd in (
                         "--test",
                         "--experimental-default"
@@ -5049,6 +5063,20 @@ _NODE_HELP_TELANJANG = frozenset({
     "--test-update-snapshots", "--throw-deprecation", "--track-heap-objects",
     "--use-bundled-ca", "--use-env-proxy", "--use-openssl-ca",
     "--use-system-ca", "--watch-preserve-output",})
+# Audit 2835: subset boolean V8 dari
+# _NODE_HELP_TELANJANG - diberi =nilai
+# biner mati "illegal value ... of type
+# bool" (sapuan biner induk Audit-187 atas
+# 59 nama: 7 mati, sisanya boolean
+# node-native yang menerima = diam-diam).
+_NODE_HELP_V8_BOOL = frozenset({
+    "--abort-on-uncaught-exception",
+    "--disallow-code-generation-from-strings",
+    "--enable-etw-stack-walking", "--expose-gc",
+    "--interpreted-frames-native-stack",
+    "--jitless", "--prof"})
+
+
 _NODE_HELP_BERNILAI = frozenset({
     "--allow-fs-read", "--allow-fs-write", "--cpu-prof-dir",
     "--cpu-prof-interval", "--cpu-prof-name", "--debug-port",
