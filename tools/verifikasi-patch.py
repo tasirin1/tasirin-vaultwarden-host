@@ -13640,14 +13640,15 @@ def _tipe_nilai_sah_66(jenis, nilai):
         # biner tewas untuk lebar 0, sementara
         # penerima odnum lain (-N/-j/-S) sah
         # bernilai 0.
-        if re.fullmatch(
-                r"(0[xX][0-9a-fA-F]{1,16}|\d{1,18})"
-                r"([KMGTPEZY](B|iB)?|[km](B|iB)?|b)?",
-                v) is None:
+        # Audit 2697: parser lebar od ternyata
+        # hanya menerima digit desimal polos
+        # (tanda + boleh di depan) - sufiks
+        # dan bentuk heksa yang lolos odnum
+        # membunuhnya ("invalid suffix in
+        # --width argument", biner 9.4).
+        if re.fullmatch(r"\+?\d{1,18}", v) is None:
             return False
-        angka = re.match(
-            r"(0[xX][0-9a-fA-F]+|\d+)", v).group(1)
-        return int(angka, 0) > 0
+        return int(v) > 0
     if jenis == "odnum":
         # Audit 2673: sufiks od sama dengan
         # matriks split di atas (biner od

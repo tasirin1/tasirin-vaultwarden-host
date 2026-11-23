@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — Parser lebar od (--width) kini digit polos di gerbang (Audit 2697)
+
+- Validasi lebar od kini hanya
+  menerima digit desimal polos
+  (tanda `+` boleh), sesuai
+  parser binernya: sufiks
+  (`1K`, `1b`, `1m`) dan bentuk
+  heksa (`0x10`) membunuh od
+  tetapi sebelumnya lolos
+  validasi `odnum1` yang
+  meminjam matriks sufiks
+  penerima od lain.
+
+
 ## [Belum rilis] — Sufiks ukuran m kecil (split/od) kini diterima gerbang (Audit 2696)
 
 - Matriks sufiks ukuran 2673
