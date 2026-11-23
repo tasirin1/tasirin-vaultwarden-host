@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — daftar CPU taskset menolak stride 0 (Audit 2738)
+
+- Validator daftar
+  CPU taskset kini
+  menolak langkah
+  (stride) 0 pada
+  bentuk rentang
+  `N-M:S`.
+
+
 ## [Belum rilis] — read -t 0 dan -n/-N 0 divonis tak menguras (Audit 2737)
 
 - Penilai `read` kini

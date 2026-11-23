@@ -15429,6 +15429,18 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                                 < int(
                                                     ujung_cpu[0])):
                                             sah_cpu = False
+                                        # Audit 2738:
+                                        # langkah :0 mati
+                                        # di biner.
+                                        potong_cpu = (
+                                            item_cpu.split(
+                                                ":"))
+                                        if (len(potong_cpu)
+                                                == 2
+                                                and int(
+                                                    potong_cpu[1])
+                                                < 1):
+                                            sah_cpu = False
                                 if not sah_cpu:
                                     return False
                             elif jenis_b == "flock-E":
