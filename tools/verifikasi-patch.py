@@ -13262,16 +13262,28 @@ def _tipe_nilai_sah_66(jenis, nilai):
         return v.isdigit() and len(v) <= 18 \
             and int(v) > 0
     if jenis == "ukuran1":
+        # Audit 2673: sufiks ukuran xstrtol
+        # ditulis persis dari matriks biner
+        # coreutils 9.4 - keluarga huruf besar
+        # boleh +B/+iB, k kecil setara K
+        # (k/kB/kiB sah), b sah; c/w dan B
+        # tunggal DITOLAK split (pola lama
+        # menolak KiB/kB yang sah dan
+        # menerima c/w yang asing).
         m66 = re.fullmatch(
-            r"(\d{1,18})([KMGTPEZY]B?|b|c|w)?", v)
+            r"(\d{1,18})([KMGTPEZY](B|iB)?|k(B|iB)?|b)?", v)
         return m66 is not None and int(m66.group(1)) > 0
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
     if jenis == "odnum":
+        # Audit 2673: sufiks od sama dengan
+        # matriks split di atas (biner od
+        # menolak c/w/B tunggal, menerima
+        # KiB/kB/kiB/k/b).
         return re.fullmatch(
             r"(0[xX][0-9a-fA-F]{1,16}|\d{1,18})"
-            r"([KMGTPEZY]B?)?", v) is not None
+            r"([KMGTPEZY](B|iB)?|k(B|iB)?|b)?", v) is not None
     if jenis == "enum-cksum":
         return v in {"bsd", "sysv", "crc", "crc32b",
                      "md5", "sha1", "sha224", "sha256",
@@ -13300,8 +13312,14 @@ def _dd_operand_sah(tok):
         return True
     if kunci in ("bs", "ibs", "obs", "cbs", "count",
                  "skip", "seek"):
+        # Audit 2673: matriks sufiks dd lebih
+        # longgar dari od/split - biner dd
+        # juga menerima B tunggal dan c/w
+        # (xstrtol penuh); KiB/kB/kiB/k kini
+        # ikut sah di kedua faktor perkalian.
         return re.fullmatch(
-            r"\d+([KMGTPEZY]B?)?(x\d+([KMGTPEZY]B?)?)*",
+            r"\d+([KMGTPEZY](B|iB)?|k(B|iB)?|B|b|c|w)?"
+            r"(x\d+([KMGTPEZY](B|iB)?|k(B|iB)?|B|b|c|w)?)*",
             nilai) is not None
     if kunci == "conv":
         sah = {"ascii", "ebcdic", "ibm", "block",

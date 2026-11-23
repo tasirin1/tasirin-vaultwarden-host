@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Sufiks ukuran ditulis ulang dari matriks biner coreutils (Audit 2673)
+
+- Validator ukuran gerbang kini
+  menerima bentuk sah yang dulu
+  ditolak: KiB/MiB, kiB, kB, dan k
+  (untuk dd juga B tunggal dan c/w).
+  Sebaliknya split dan od tidak lagi
+  menerima c/w/B tunggal yang memang
+  ditolak binernya. Matriksnya
+  dibuktikan per alat ke biner
+  coreutils 9.4 setempat.
+
 ## [Belum rilis] — Kosakata sqlite3: dua hantu disapu, -unsafe-testing dipulihkan (Audit 2672)
 
 - `-maxwidth` dan `-unsafe` dibuang
