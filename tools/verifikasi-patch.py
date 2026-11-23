@@ -15644,7 +15644,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             return False
                 if t0 in ("flock", "watch", "choom",
                           "uclampset", "prlimit",
-                          "strace", "xargs", "taskset"):
+                          "strace", "xargs", "taskset",
+                          "ssh-agent"):
                     # Audit 2719: penerima bertipe
                     # pada pembungkus lain -
                     # nilai sampah membunuh
@@ -15698,6 +15699,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             "--max-lines": "xargs-min1"},
                         "taskset": {
                             "--cpu-list": "daftar-cpu"},
+                        "ssh-agent": {},
                     }
                     pendek_b = {
                         "flock": {"w": "flock-w",
@@ -15713,8 +15715,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                   "P": "xargs-min0",
                                   "L": "xargs-min1"},
                         "taskset": {"c": "daftar-cpu"},
+                        "ssh-agent": {
+                            "t": "umur-ssh-agent"},
                     }
-                    ambang_b = {"flock": 3, "watch": 3,
+                    ambang_b = {"ssh-agent": 3,
+                                "flock": 3, "watch": 3,
                                 "choom": 3, "uclampset": 3,
                                 "prlimit": 3, "strace": 7,
                                 "xargs": 5, "taskset": 3}
@@ -15929,6 +15934,20 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                                 < 1):
                                             sah_cpu = False
                                 if not sah_cpu:
+                                    return False
+                            elif (jenis_b
+                                    == "umur-ssh-agent"):
+                                # Audit 2761: masa
+                                # hidup ssh-agent =
+                                # rangkaian angka +
+                                # sufiks [smhdw]
+                                # bebas (600, 90s,
+                                # 1h30m sah; abc
+                                # mati). Biner tanpa
+                                # opsi panjang.
+                                if not re.fullmatch(
+                                        r"(\d+[smhdw]?)+",
+                                        nilai_b):
                                     return False
                             elif jenis_b == "flock-E":
                                 # Audit 2734: tanda +

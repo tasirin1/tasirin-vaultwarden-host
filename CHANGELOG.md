@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — masa hidup ssh-agent -t kini divalidasi (Audit 2761)
+
+- Masa hidup `-t`
+  ssh-agent kini
+  divalidasi di blok
+  penerima pembungkus
+  (rangkaian angka +
+  sufiks s/m/h/d/w).
+
+
 ## [Belum rilis] — nilai sinyal env kini divalidasi (Audit 2760)
 
 - Nilai sinyal

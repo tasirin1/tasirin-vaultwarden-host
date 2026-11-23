@@ -39074,6 +39074,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item env --block-signal=abc cat: env mati sinyal, gerbang lolos (Audit 2760)", rc == 0)
         shutil.rmtree(sub1843, ignore_errors=True)
+        sub1844 = klon(tmp, "sub1844")
+        berkas_aksi1844 = os.path.join(
+            sub1844, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1844, encoding="utf-8") as f:
+            isi_aksi1844 = f.read()
+        baris_aksi1844 = [b for b in isi_aksi1844.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1844 = isi_aksi1844.replace(
+                baris_aksi1844,
+                baris_aksi1844.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ssh-agent -t abc cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1844 != isi_aksi1844, \
+            "suntikan aksi1844 tidak menembak"
+        with open(berkas_aksi1844, "w", encoding="utf-8") as f:
+            f.write(isi_baru1844)
+        rc, out = jalan(sub1844,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item ssh-agent -t abc cat: ssh-agent mati masa hidup, gerbang lolos (Audit 2761)", rc == 0)
+        shutil.rmtree(sub1844, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
