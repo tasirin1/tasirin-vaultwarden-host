@@ -1174,7 +1174,7 @@ public final class TlsCert {
         }
     }
 
-    private static int bacaVersiBerkas(File f) {
+    static int bacaVersiBerkas(File f) {
         try (java.io.FileInputStream in =
                 new java.io.FileInputStream(f)) {
             byte[] buf = new byte[16];

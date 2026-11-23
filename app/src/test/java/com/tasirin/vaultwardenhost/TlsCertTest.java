@@ -476,6 +476,19 @@ public class TlsCertTest {
     }
 
     @Test
+    public void bacaVersiBerkas_uraiIsiDanTolakRusak() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsversi7");
+        File d = dir.toFile();
+        File ok = new File(d, "v1");
+        Files.write(ok.toPath(), "6\n".getBytes(StandardCharsets.UTF_8));
+        assertEquals(6, TlsCert.bacaVersiBerkas(ok));
+        File rusak = new File(d, "v2");
+        Files.write(rusak.toPath(), "rusak".getBytes(StandardCharsets.UTF_8));
+        assertEquals(-1, TlsCert.bacaVersiBerkas(rusak));
+        assertEquals(-1, TlsCert.bacaVersiBerkas(new File(d, "tiada")));
+    }
+
+    @Test
     public void pulihkanVersiTersisa_tanpaCadanganAman() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlsversi3");
         File d = dir.toFile();
