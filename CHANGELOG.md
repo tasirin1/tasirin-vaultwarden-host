@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — lima berkas non-dokumen kini ikut gerbang push (Audit 2707)
+
+- Lima berkas yang sebelumnya
+  bisa berubah lewat push
+  tanpa memicu gerbang apa pun
+  kini masuk daftar jalur
+  gerbang penuh: konfigurasi
+  label PR, kepemilikan kode,
+  aturan format editor, dan
+  dua berkas lisensi. Daftar
+  pada pemicu workflow dan
+  saringan push campuran
+  diselaraskan.
+
+
 ## [Belum rilis] — angka jumlah skenario uji-cek-cepat dibetulkan (Audit 2706)
 
 - Dua klaim jumlah skenario

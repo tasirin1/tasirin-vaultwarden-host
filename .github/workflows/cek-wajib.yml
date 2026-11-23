@@ -47,6 +47,17 @@ on:
       - '.github/workflows/labeler.yml'
       - '.github/workflows/stale.yml'
       - 'tools/pasang-hook.sh'
+      # Audit 2707: lima berkas non-dokumen
+      # yang sebelumnya lolos semua gerbang
+      # push - labeler mengatur label PR,
+      # CODEOWNERS mengatur peninjau,
+      # .editorconfig mengatur format,
+      # dan dua berkas lisensi.
+      - '.github/labeler.yml'
+      - '.github/CODEOWNERS'
+      - '.editorconfig'
+      - 'LICENSE'
+      - 'LICENSE.vaultwarden'
 
 permissions:
   contents: read
@@ -89,7 +100,7 @@ jobs:
             if [ -n "$BERKAS" ]; then
               while IFS= read -r b; do
                 case "$b" in
-                  .github/dependabot.yml|.gitignore|.github/workflows/auto-merge.yml|.github/workflows/cek-wajib.yml|.github/workflows/codeql.yml|.github/workflows/gitleaks.yml|.github/workflows/label-audit.yml|.github/workflows/labeler.yml|.github/workflows/stale.yml|tools/pasang-hook.sh) ;;
+                  .github/dependabot.yml|.gitignore|.github/workflows/auto-merge.yml|.github/workflows/cek-wajib.yml|.github/workflows/codeql.yml|.github/workflows/gitleaks.yml|.github/workflows/label-audit.yml|.github/workflows/labeler.yml|.github/workflows/stale.yml|tools/pasang-hook.sh|.github/labeler.yml|.github/CODEOWNERS|.editorconfig|LICENSE|LICENSE.vaultwarden) ;;
                   *) LANJUT=false ;;
                 esac
               done <<EOF
