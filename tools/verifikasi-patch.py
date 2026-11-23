@@ -14138,14 +14138,30 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             j_ru += 1
                         j_ru += 1
                         continue
-                    for ch_ru in t_ru[1:]:
+                    lompat_ru = False
+                    for pos_ru, ch_ru in enumerate(
+                            t_ru[1:]):
                         if ch_ru == "u":
                             runuser_punya_user = True
                             break
                         if ch_ru in "gGsc":
+                            # Audit 2714: huruf
+                            # bernilai di ujung
+                            # gugus menelan token
+                            # berikutnya sebagai
+                            # nilai terpisah -
+                            # lompati juga, agar
+                            # -u sesudahnya tetap
+                            # terlihat.
+                            if (pos_ru
+                                    == len(t_ru[1:])
+                                    - 1):
+                                lompat_ru = True
                             break
                     if runuser_punya_user:
                         break
+                    if lompat_ru:
+                        j_ru += 1
                     j_ru += 1
             if t0 in ("setarch", "linux32", "linux64",
                       "i386", "x86_64"):

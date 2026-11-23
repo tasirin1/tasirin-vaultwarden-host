@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — pindaian -u runuser melompati nilai terpisah opsi pendek (Audit 2714)
+
+- Pindaian penyebutan
+  pengguna pada runuser
+  kini melompati nilai
+  terpisah dari opsi
+  pendek bernilai di
+  ujung gugus, sehingga
+  `-u` yang muncul
+  sesudahnya tetap
+  terlihat dan vonis
+  tanpa perintahnya
+  tepat.
+
+
 ## [Belum rilis] — bentuk mirip singkatan pada sudo divonis mati (Audit 2713)
 
 - Parser sudo bukan
