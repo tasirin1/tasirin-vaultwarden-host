@@ -896,6 +896,29 @@ public class TgBotTest {
     }
 
     @Test
+    public void pangkasHapusTertunda_buangTerlamaDulu() {
+        java.util.Set<String> h =
+                new java.util.HashSet<>();
+        h.add("1:11:s:3000");
+        h.add("1:12:s:1000");
+        h.add("1:13:s:2000");
+        h.add("1:14:s");
+        h.add("rusak");
+        java.util.List<String> buang =
+                TgBot.pangkasHapusTertunda(h, 3);
+        assertEquals(2, buang.size());
+        assertTrue(buang.contains("rusak"));
+        assertTrue(buang.contains("1:14:s"));
+        assertTrue(TgBot.pangkasHapusTertunda(h, 5).isEmpty());
+        assertTrue(TgBot.pangkasHapusTertunda(h, 9).isEmpty());
+        assertTrue(TgBot.pangkasHapusTertunda(null, 3).isEmpty());
+        java.util.List<String> buang2 =
+                TgBot.pangkasHapusTertunda(h, 4);
+        assertEquals(1, buang2.size());
+        assertTrue(buang2.contains("rusak"));
+    }
+
+    @Test
     public void mulaiSelesaiHapusTertunda_satuPemilik() {
         assertTrue(TgBot.mulaiHapusTertunda(777001, 42, false));
         try {

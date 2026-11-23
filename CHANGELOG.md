@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Telegram: antrean hapus tertunda dibatasi 256 entri (Audit 2878)
+
+Himpunan `tg_hapus_tertunda` dulu hanya dikendalikan dedup identitas: laju masuk dari chat asing/grup jauh melebihi laju keluar (maks 10/poll, entri gagal menetap 48 jam), sehingga prefs membengkak dan disalin utuh di bawah kunci pada tiap operasi. Pencatatan kini memangkas entri tertua (cap terkecil; warisan tanpa cap dan entri rusak lebih dulu) sebelum menambah, dengan batas 256. Uji JVM untuk urutan pemangkasannya.
+
+
 ## [Belum rilis] — Telegram: kedaluwarsa hapus tertunda diukur jam monoton, kebal lompatan jam dinding (Audit 2877)
 
 Kedaluwarsa 48 jam 2836 murni jam dinding: jam STB yang melompat maju sesudah boot membuang entri ber-PIN yang masih muda, lompatan mundur memperpanjang umurnya. Entri kini membawa cap kedua `elapsedRealtime`; dalam boot yang sama umur diukur jam monoton (kebal lompatan), lintas boot atau entri warisan jatuh ke jam dinding seperti dulu. Uji JVM diperbarui + kasus lompatan 100 hari.

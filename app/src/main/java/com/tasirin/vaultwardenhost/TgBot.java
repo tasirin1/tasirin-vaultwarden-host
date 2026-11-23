@@ -1585,6 +1585,45 @@ public final class TgBot {
     static final long BATAS_UMUR_HAPUS_TERTUNDA_MS =
             48L * 3600_000L;
 
+    // Audit 2878: himpunan hapus tertunda
+    // dulu hanya dikendalikan dedup
+    // identitas - laju masuk dari chat
+    // asing/grup jauh melebihi laju keluar
+    // (maks 10/poll, entri gagal menetap
+    // 48 jam) sehingga prefs membengkak
+    // dan disalin utuh di bawah kunci pada
+    // tiap operasi. Kini dibatasi; yang
+    // dikorbankan entri paling tua (cap
+    // terkecil, warisan tanpa cap dan
+    // entri rusak paling dulu).
+    static final int BATAS_ENTRI_HAPUS_TERTUNDA = 256;
+
+    static java.util.List<String>
+            pangkasHapusTertunda(
+                    java.util.Set<String> himpunan,
+                    int batas) {
+        java.util.List<String> buang =
+                new java.util.ArrayList<>();
+        if (himpunan == null
+                || himpunan.size() <= batas) {
+            return buang;
+        }
+        java.util.List<String> urut =
+                new java.util.ArrayList<>(himpunan);
+        java.util.Collections.sort(urut, (x, y) -> {
+            long[] ux = uraiEntriHapusTertunda(x);
+            long[] uy = uraiEntriHapusTertunda(y);
+            long cx = ux == null ? -1 : ux[3];
+            long cy = uy == null ? -1 : uy[3];
+            return Long.compare(cx, cy);
+        });
+        int lebih = himpunan.size() - batas;
+        for (int i = 0; i < lebih; i++) {
+            buang.add(urut.get(i));
+        }
+        return buang;
+    }
+
     static boolean samaIdentitasHapus(long[] u,
             long idRuang, int idPesan, boolean asing) {
         return u != null && u[0] == idRuang
@@ -1773,6 +1812,13 @@ public final class TgBot {
                     }
                 }
                 if (!sudahAda) {
+                    for (String buang
+                            : pangkasHapusTertunda(
+                                    kini,
+                                    BATAS_ENTRI_HAPUS_TERTUNDA
+                                            - 1)) {
+                        kini.remove(buang);
+                    }
                     kini.add(entriHapusTertundaPenuh(
                             idRuang, idPesan, asing,
                             System.currentTimeMillis(),
