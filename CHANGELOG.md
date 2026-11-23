@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: ambiguitas singkatan curl dinilai terhadap himpunan opsi penuh (Audit 2872)
+
+Walk kedua menyelesaikan singkatan hanya terhadap opsi bernilai, sehingga `--v` (ambigu di himpunan penuh: --verbose + --version) lolos dan `-d @-` di belakangnya dinilai menguras — padahal biner mati "is ambiguous" sebelum menyambung (terprobe). Kini kosakata penuh curl 8.5.0 (258 opsi dari `--help all`) menjadi hakim: cocok >1 atau 0 = ditolak, unik ke opsi bernilai berjalan seperti 2852; berlaku juga untuk bentuk `=`. Skenario uji-diri 1943.
+
+
 ## [Belum rilis] — Gerbang: opsi panjang tak dikenal diff/diff3 kini membunuh walk (Audit 2871)
 
 Resolusi singkatan 2858 membiarkan nama tanpa padanan apa pun jatuh ke cabang generik, sehingga `diff --bogus - f2` dinilai menguras — biner mati "unrecognized option". Nama tanpa padanan kini ditolak, dan `--help`/`--version` dinilai informatif (cetak lalu keluar). Skenario uji-diri 1942.

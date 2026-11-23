@@ -7724,6 +7724,89 @@ def _menguras_khusus(perintah, toks, awal):
             "-A", "-C", "-D", "-E", "-F", "-H", "-K", "-P", "-Q", "-T",
             "-U", "-X", "-Y", "-b", "-c", "-d", "-e", "-m", "-o", "-r",
             "-t", "-u", "-w", "-y", "-z",})
+        # Audit 2872: kosakata PENUH opsi
+        # panjang curl 8.5.0 (bernilai +
+        # bendera) dari --help all biner -
+        # ambiguitas singkatan dinilai
+        # biner terhadap himpunan ini,
+        # bukan hanya yang bernilai.
+        _CURL_SEMUA_PANJANG = frozenset({
+            "--abstract-unix-socket", "--alt-svc", "--anyauth", "--append",
+            "--aws-sigv4", "--basic", "--ca-native", "--cacert",
+            "--capath", "--cert", "--cert-status", "--cert-type",
+            "--ciphers", "--compressed", "--compressed-ssh", "--config",
+            "--connect-timeout", "--connect-to", "--continue-at",
+            "--cookie", "--cookie-jar", "--create-dirs",
+            "--create-file-mode", "--crlf", "--crlfile", "--curves",
+            "--data", "--data-ascii", "--data-binary", "--data-raw",
+            "--data-urlencode", "--delegation", "--digest", "--disable",
+            "--disable-eprt", "--disable-epsv",
+            "--disallow-username-in-url", "--dns-interface",
+            "--dns-ipv4-addr", "--dns-ipv6-addr", "--dns-servers",
+            "--doh-cert-status", "--doh-insecure", "--doh-url",
+            "--dump-header", "--egd-file", "--engine", "--etag-compare",
+            "--etag-save", "--expect100-timeout", "--fail", "--fail-early",
+            "--fail-with-body", "--false-start", "--form", "--form-escape",
+            "--form-string", "--ftp-account", "--ftp-alternative-to-user",
+            "--ftp-create-dirs", "--ftp-method", "--ftp-pasv",
+            "--ftp-port", "--ftp-pret", "--ftp-skip-pasv-ip",
+            "--ftp-ssl-ccc", "--ftp-ssl-ccc-mode", "--ftp-ssl-control",
+            "--get", "--globoff", "--happy-eyeballs-timeout-ms",
+            "--haproxy-clientip", "--haproxy-protocol", "--head",
+            "--header", "--help", "--hostpubmd5", "--hostpubsha256",
+            "--hsts", "--http0.9", "--http1.0", "--http1.1", "--http2",
+            "--http2-prior-knowledge", "--http3", "--http3-only",
+            "--ignore-content-length", "--include", "--insecure",
+            "--interface", "--ipfs-gateway", "--ipv4", "--ipv6", "--json",
+            "--junk-session-cookies", "--keepalive-time", "--key",
+            "--key-type", "--krb", "--libcurl", "--limit-rate",
+            "--list-only", "--local-port", "--location",
+            "--location-trusted", "--login-options", "--mail-auth",
+            "--mail-from", "--mail-rcpt", "--mail-rcpt-allowfails",
+            "--manual", "--max-filesize", "--max-redirs", "--max-time",
+            "--metalink", "--negotiate", "--netrc", "--netrc-file",
+            "--netrc-optional", "--next", "--no-alpn", "--no-buffer",
+            "--no-clobber", "--no-keepalive", "--no-npn",
+            "--no-progress-meter", "--no-sessionid", "--noproxy", "--ntlm",
+            "--ntlm-wb", "--oauth2-bearer", "--output", "--output-dir",
+            "--parallel", "--parallel-immediate", "--parallel-max",
+            "--pass", "--path-as-is", "--pinnedpubkey", "--post301",
+            "--post302", "--post303", "--preproxy", "--progress-bar",
+            "--proto", "--proto-default", "--proto-redir", "--proxy",
+            "--proxy-anyauth", "--proxy-basic", "--proxy-ca-native",
+            "--proxy-cacert", "--proxy-capath", "--proxy-cert",
+            "--proxy-cert-type", "--proxy-ciphers", "--proxy-crlfile",
+            "--proxy-digest", "--proxy-header", "--proxy-http2",
+            "--proxy-insecure", "--proxy-key", "--proxy-key-type",
+            "--proxy-negotiate", "--proxy-ntlm", "--proxy-pass",
+            "--proxy-pinnedpubkey", "--proxy-service-name",
+            "--proxy-ssl-allow-beast", "--proxy-ssl-auto-client-cert",
+            "--proxy-tls13-ciphers", "--proxy-tlsauthtype",
+            "--proxy-tlspassword", "--proxy-tlsuser", "--proxy-tlsv1",
+            "--proxy-user", "--proxy1.0", "--proxytunnel", "--pubkey",
+            "--quote", "--random-file", "--range", "--rate", "--raw",
+            "--referer", "--remote-header-name", "--remote-name",
+            "--remote-name-all", "--remote-time", "--remove-on-error",
+            "--request", "--request-target", "--resolve", "--retry",
+            "--retry-all-errors", "--retry-connrefused", "--retry-delay",
+            "--retry-max-time", "--sasl-authzid", "--sasl-ir",
+            "--service-name", "--show-error", "--silent", "--socks4",
+            "--socks4a", "--socks5", "--socks5-basic", "--socks5-gssapi",
+            "--socks5-gssapi-nec", "--socks5-gssapi-service",
+            "--socks5-hostname", "--speed-limit", "--speed-time", "--ssl",
+            "--ssl-allow-beast", "--ssl-auto-client-cert",
+            "--ssl-no-revoke", "--ssl-reqd", "--ssl-revoke-best-effort",
+            "--sslv2", "--sslv3", "--stderr", "--styled-output",
+            "--suppress-connect-headers", "--tcp-fastopen",
+            "--tcp-nodelay", "--telnet-option", "--tftp-blksize",
+            "--tftp-no-options", "--time-cond", "--tls-max",
+            "--tls13-ciphers", "--tlsauthtype", "--tlspassword",
+            "--tlsuser", "--tlsv1", "--tlsv1.0", "--tlsv1.1", "--tlsv1.2",
+            "--tlsv1.3", "--tr-encoding", "--trace", "--trace-ascii",
+            "--trace-config", "--trace-ids", "--trace-time",
+            "--unix-socket", "--upload-file", "--url", "--url-query",
+            "--use-ascii", "--user", "--user-agent", "--variable",
+            "--verbose", "--version", "--write-out", "--xattr",})
         # Audit 2775: nilai --max-time
         # curl (bilangan desimal tak
         # bertanda) divalidasi - nilai
@@ -7822,12 +7905,27 @@ def _menguras_khusus(perintah, toks, awal):
             if (t.startswith("--")
                     and "=" not in t
                     and t not in
-                    _CURL_BERNILAI_PANJANG):
+                    _CURL_SEMUA_PANJANG):
+                # Audit 2872: ambiguitas
+                # dinilai terhadap himpunan
+                # PENUH - awalan yang cocok
+                # dengan >1 opsi (bernilai
+                # atau bendera) membunuh
+                # biner (terprobe --v:
+                # verbose+version), dan nama
+                # tanpa padanan adalah opsi
+                # tak dikenal yang juga
+                # membunuh; resolusi unik ke
+                # opsi bernilai berjalan
+                # seperti 2852.
                 calon_w2 = [
                     x for x in
-                    _CURL_BERNILAI_PANJANG
+                    _CURL_SEMUA_PANJANG
                     if x.startswith(t)]
-                if len(calon_w2) == 1:
+                if len(calon_w2) != 1:
+                    return False
+                if calon_w2[0] in \
+                        _CURL_BERNILAI_PANJANG:
                     t = calon_w2[0]
             if t in ("-d", "--data", "--data-ascii",
                      "--data-binary", "--data-urlencode", "--json", "-T",
@@ -7953,13 +8051,19 @@ def _menguras_khusus(perintah, toks, awal):
                     "=", 1)
                 nama_w2 = dasar_w2
                 if (dasar_w2 not in
-                        _CURL_BERNILAI_PANJANG):
+                        _CURL_SEMUA_PANJANG):
+                    # Audit 2872: bentuk =
+                    # juga dinilai terhadap
+                    # himpunan penuh - ambigu
+                    # atau tak dikenal
+                    # membunuh biner.
                     calon_w2 = [
                         x for x in
-                        _CURL_BERNILAI_PANJANG
+                        _CURL_SEMUA_PANJANG
                         if x.startswith(dasar_w2)]
-                    if len(calon_w2) == 1:
-                        nama_w2 = calon_w2[0]
+                    if len(calon_w2) != 1:
+                        return False
+                    nama_w2 = calon_w2[0]
                 if (nama_w2 in ("--upload-file",
                                  "--config")
                         and nilai_w2 == "-"):
