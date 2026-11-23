@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: walk kedua curl kini mengurai bundel opsi pendek (Audit 2853)
+
+Walk kedua hanya mengenal opsi pendek yang berdiri sendiri, jadi huruf sumber di dalam bundel tak terlihat: `curl -sd @-` dan `-sd@-` dinilai tidak menguras padahal server penangkap induk menerima POST berbadan isi stdin untuk keduanya. Walk kedua kini mengurai bundel huruf demi huruf — huruf sumber `-d`/`-F`/`-T`/`-K` menilai nilai ekornya atau token berikutnya persis seperti bentuk berdirinya, dan huruf bernilai bukan sumber menelan ekor bundel (atau token berikutnya bila di ujung). Skenario uji-verifikasi 1918.
+
+
 ## [Belum rilis] — Gerbang: walk kedua curl kini menyelesaikan singkatan opsi sumber-stdin (Audit 2852)
 
 Walk pertama penilai curl belajar singkatan getopt_long pada 2828, tetapi walk kedua (penilai sumber stdin) belum: `curl --data-urlen @-`, `--data-b @-` (server penangkap induk menerima POST berbadan isi stdin untuk keduanya), dan `--conf -` semuanya dinilai tidak menguras. Walk kedua kini menyelesaikan singkatan unik terhadap himpunan opsi bernilai yang sama — termasuk dasar singkatan pada bentuk `--opsi=nilai` (`--conf=-`) — sebelum menilai; singkatan ambigu tetap tak diselesaikan (biner sendiri mati "is ambiguous"). Skenario uji-verifikasi 1917.

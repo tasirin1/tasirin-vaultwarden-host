@@ -7606,6 +7606,69 @@ def _menguras_khusus(perintah, toks, awal):
             if t == "--data-raw" or t.startswith("--data-raw="):
                 i += 2 if t == "--data-raw" else 1
                 continue
+            if (t.startswith("-")
+                    and not t.startswith("--")
+                    and len(t) > 2):
+                # Audit 2853: bundel pendek
+                # diurai huruf demi huruf -
+                # huruf sumber (d/F/T/K) di
+                # dalam bundel dulu tak
+                # terlihat walk kedua (-sd @-
+                # lolos; server penangkap
+                # menerima POST isi stdin).
+                j_w2 = 1
+                konsumsi_w2 = 1
+                while j_w2 < len(t):
+                    h_w2 = "-" + t[j_w2]
+                    if h_w2 in ("-d", "-F",
+                                "-T", "-K"):
+                        if j_w2 == len(t) - 1:
+                            konsumsi_w2 = 2
+                            if i + 1 < len(mentah):
+                                v = mentah[i + 1]
+                                if h_w2 == "-d":
+                                    if (v == "@-"
+                                            or v.startswith(
+                                                "@-")):
+                                        return True
+                                elif h_w2 == "-F":
+                                    seg_f = v.split(
+                                        "=", 1)[-1]
+                                    if seg_f.startswith(
+                                            "<@"):
+                                        seg_f = (
+                                            seg_f[1:])
+                                    if (seg_f == "@-"
+                                            or seg_f.startswith(
+                                                "@-;")):
+                                        return True
+                                elif v == "-":
+                                    return True
+                        else:
+                            ekor_w2 = t[j_w2 + 1:]
+                            if h_w2 == "-d":
+                                if ekor_w2.startswith(
+                                        "@-"):
+                                    return True
+                            elif h_w2 == "-F":
+                                if "@-" in ekor_w2:
+                                    return True
+                            elif ekor_w2 == "-":
+                                return True
+                        break
+                    if (h_w2
+                            in _CURL_BERNILAI_PENDEK):
+                        # Audit 2853: huruf
+                        # bernilai bukan sumber
+                        # menelan ekor bundel,
+                        # atau token berikutnya
+                        # bila di ujung.
+                        if j_w2 == len(t) - 1:
+                            konsumsi_w2 = 2
+                        break
+                    j_w2 += 1
+                i += konsumsi_w2
+                continue
             if t.startswith("--") and "=" in t:
                 # Audit 2852: dasar singkatan
                 # pada bentuk --opsi=nilai ikut
