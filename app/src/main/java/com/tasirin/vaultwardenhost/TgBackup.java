@@ -5201,6 +5201,35 @@ public final class TgBackup {
     // folder yang sama membersihkannya tanpa
     // menyentuh berkas sementara milik salinan
     // lain yang masih berjalan.
+    // Audit 2840: nama sisa salin yang sah
+    // persis pola temp copyFile -
+    // <nama-tujuan>.salin-<hex nanoTime>;
+    // pola longgar contains(".salin-") versi
+    // 2820 ikut menghapus berkas pengguna
+    // yang namanya kebetulan mengandung
+    // potongan itu.
+    static boolean namaSisaSalin(String nama) {
+        if (nama == null) {
+            return false;
+        }
+        int i = nama.lastIndexOf(".salin-");
+        if (i <= 0) {
+            return false;
+        }
+        String ekor = nama.substring(i + 7);
+        if (ekor.isEmpty()) {
+            return false;
+        }
+        for (int k = 0; k < ekor.length(); k++) {
+            char c = ekor.charAt(k);
+            if (!((c >= '0' && c <= '9')
+                    || (c >= 'a' && c <= 'f'))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     static int bersihkanSisaSalin(File dir, long kiniMs) {
         if (dir == null) {
             return 0;
@@ -5212,7 +5241,7 @@ public final class TgBackup {
         int terhapus = 0;
         for (File f : daftar) {
             if (f.isFile()
-                    && f.getName().contains(".salin-")
+                    && namaSisaSalin(f.getName())
                     && kiniMs - f.lastModified()
                             > 3600_000L) {
                 if (f.delete()) {

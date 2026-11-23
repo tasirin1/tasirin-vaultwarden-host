@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cadangan: sapuan sisa salin hanya menghapus pola temp persis (Audit 2840)
+
+Sapuan yatim salinan dari perbaikan 2820 memakai `contains(".salin-")` — berkas pengguna yang namanya kebetulan mengandung potongan itu (mis. `catatan.salin-lama`) dan berumur lebih dari sejam ikut terhapus pada salinan berikutnya ke folder yang sama. Kini yang disapu hanya nama yang persis pola temp `copyFile` (`<nama-tujuan>.salin-<hex nanoTime>`) lewat pemeriksa murni baru `namaSisaSalin`. Uji JVM: berkas pengguna bernama mirip selamat, yatim pola persis tetap tersapu, dan kasus batas pemeriksa nama.
+
+
 ## [Belum rilis] — Gerbang: mode --test node tak lagi dinilai membaca stdin (Audit 2839)
 
 Walk interpreter menilai operand `-` sebagai skrip stdin untuk semua interpreter, tetapi dalam mode `--test` node memperlakukan `-` sebagai path berkas uji — biner menjawab "Could not find '-'" dan keluar tanpa membaca stdin (terprobe pipa-terbuka). Walk kini menandai mode `--test` saat opsi itu terlihat sebelum operand: operand `-` dan bentuk tanpa operand sama-sama dinilai tidak menguras (bentuk telanjang terprobe rc=0 "tests 0" di direktori kosong). Urutan tetap dihormati: `node - --test` tetap menguras karena `-` datang lebih dulu dan `--test` menjadi argumen skrip. Skenario uji-verifikasi 1906.

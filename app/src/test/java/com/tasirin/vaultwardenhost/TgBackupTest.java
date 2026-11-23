@@ -2311,6 +2311,37 @@ public class TgBackupTest {
     }
 
     @Test
+    public void bersihkanSisaSalin_berkasPenggunaSelamat() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwsalin2").toFile();
+        long kini = System.currentTimeMillis();
+        java.io.File pengguna = new java.io.File(dir, "catatan.salin-lama");
+        java.io.File pengguna2 = new java.io.File(dir, "arsip.salin-XYZ");
+        java.io.File yatim = new java.io.File(dir, "db.sqlite3.salin-9f3a");
+        for (java.io.File f : new java.io.File[]{pengguna, pengguna2, yatim}) {
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+            fos.write(1);
+            fos.close();
+            assertTrue(f.setLastModified(kini - 2 * 3600_000L));
+        }
+        assertEquals(1, TgBackup.bersihkanSisaSalin(dir, kini));
+        assertTrue(pengguna.exists());
+        assertTrue(pengguna2.exists());
+        assertFalse(yatim.exists());
+    }
+
+    @Test
+    public void namaSisaSalin_polaPersis() {
+        assertTrue(TgBackup.namaSisaSalin("ca.pem.salin-abc123"));
+        assertTrue(TgBackup.namaSisaSalin("db.salin-0"));
+        assertFalse(TgBackup.namaSisaSalin("catatan.salin-lama"));
+        assertFalse(TgBackup.namaSisaSalin("arsip.salin-XYZ"));
+        assertFalse(TgBackup.namaSisaSalin(".salin-abc"));
+        assertFalse(TgBackup.namaSisaSalin("ca.pem.salin-"));
+        assertFalse(TgBackup.namaSisaSalin("ca.pem"));
+        assertFalse(TgBackup.namaSisaSalin(null));
+    }
+
+    @Test
     public void potretKembalikanTls_bulatkembali() throws Exception {
         java.io.File tls = java.nio.file.Files.createTempDirectory("vwtls").toFile();
         tulisTeks(new java.io.File(tls, "ca.pem"), "CA-LAMA");
