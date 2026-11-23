@@ -6256,6 +6256,24 @@ def _menguras_khusus(perintah, toks, awal):
     if perintah in ("make",
                     # Audit 1252: alias GNU make.
                     "gmake"):
+        # Audit 2773: hitungan -j MEREKAT
+        # make (angka >= 1) divalidasi -
+        # bentuk terpisah -j abc justru
+        # sah (abc dibaca target), jadi
+        # hanya ekor merekat dan bentuk
+        # --jobs= yang diperiksa.
+        for t_mk in mentah:
+            if t_mk.startswith("--jobs="):
+                v_mk = t_mk.split("=", 1)[1]
+                if not (v_mk.isdigit()
+                        and int(v_mk) >= 1):
+                    return False
+            elif (t_mk.startswith("-j")
+                    and len(t_mk) > 2):
+                v_mk = t_mk[2:]
+                if not (v_mk.isdigit()
+                        and int(v_mk) >= 1):
+                    return False
         # Audit 1071: makefile dari stdin lewat -f -.
         # Audit 1300: nilai /dev/stdin juga stdin; bundel
         # berakhiran f (-nf) menelan operand berikutnya

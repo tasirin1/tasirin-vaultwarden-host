@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — hitungan -j merekat make kini divalidasi (Audit 2773)
+
+- Hitungan `-j`
+  merekat make kini
+  divalidasi; bentuk
+  terpisahnya memang
+  sah sebagai
+  target.
+
+
 ## [Belum rilis] — port -p ssh kini divalidasi (Audit 2772)
 
 - Port `-p` ssh
