@@ -39620,6 +39620,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item logger -p USER.ERR: prioritas huruf besar kini sah, gerbang menolak (Audit 2790)", rc != 0)
         shutil.rmtree(sub1869, ignore_errors=True)
+        sub1870 = klon(tmp, "sub1870")
+        berkas_aksi1870 = os.path.join(
+            sub1870, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1870, encoding="utf-8") as f:
+            isi_aksi1870 = f.read()
+        baris_aksi1870 = [b for b in isi_aksi1870.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1870 = isi_aksi1870.replace(
+                baris_aksi1870,
+                baris_aksi1870.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(setpriv --bounding-set=+landlock cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1870 != isi_aksi1870, \
+            "suntikan aksi1870 tidak menembak"
+        with open(berkas_aksi1870, "w", encoding="utf-8") as f:
+            f.write(isi_baru1870)
+        rc, out = jalan(sub1870,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item setpriv +landlock: bukan capability, setpriv mati, gerbang lolos (Audit 2791)", rc == 0)
+        shutil.rmtree(sub1870, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

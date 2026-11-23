@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — setpriv: landlock dicabut dari daftar capability (Audit 2791)
+
+- `landlock`
+  dicabut dari
+  daftar nama
+  capability
+  setpriv - ia LSM,
+  bukan capability
+  libcap, dan
+  biner menolaknya
+  sebagai unknown
+  capability.
+
+
 ## [Belum rilis] — logger: prioritas kini tak peka huruf (Audit 2790)
 
 - Jenis

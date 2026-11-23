@@ -16662,8 +16662,13 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                     "audit_read",
                                     "perfmon", "bpf",
                                     "checkpoint_"
-                                    "restore",
-                                    "landlock")
+                                    "restore")
+                                # Audit 2791: landlock
+                                # BUKAN capability
+                                # libcap (ia LSM) -
+                                # biner menolaknya
+                                # "unknown capability";
+                                # dicabut dari daftar.
                                 if not all(
                                         x[:1] in "+-"
                                         and x[1:]
