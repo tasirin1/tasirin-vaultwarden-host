@@ -16508,9 +16508,16 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 # Audit 2734: tanda +
                                 # di awal sah di biner
                                 # (seperti flock-w).
+                                # Audit 2780: lstrip
+                                # meloloskan "++5"
+                                # lalu int() meledak
+                                # (crash gerbang) -
+                                # kini fullmatch satu
+                                # tanda + opsional.
                                 if not (
-                                        nilai_b.lstrip(
-                                            "+").isdigit()
+                                        re.fullmatch(
+                                            r"\+?\d+",
+                                            nilai_b)
                                         and int(
                                             nilai_b)
                                         <= 255):

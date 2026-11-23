@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — flock -E ++5 tak lagi meruntuhkan penilai gerbang (Audit 2780)
+
+- Nilai `++5` pada
+  `flock -E` kini
+  ditolak validator
+  dengan fullmatch
+  satu tanda +
+  opsional; penilai
+  gerbang tak lagi
+  crash ValueError
+  (regresi 2734).
+
+
 ## [Belum rilis] — koreksi nilai -U strings: enam huruf sah (Audit 2745)
 
 - Nilai `-U`/`--unicode`
