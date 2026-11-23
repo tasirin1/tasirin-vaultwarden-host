@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — Tabel tipe split dilengkapi nama --suffix-length (Audit 2679)
+
+- Bentuk panjang `split
+  --suffix-length` kini divalidasi
+  angka sama seperti bentuk pendek
+  `-a`; nilai bukan angka divonis
+  mati sesuai biner, bukan lagi
+  lolos tanpa pemeriksaan.
+
 ## [Belum rilis] — Penerima bertipe od -t dan strings -t/-e kini divalidasi (Audit 2678)
 
 - Tiga penerima berjenis tertutup

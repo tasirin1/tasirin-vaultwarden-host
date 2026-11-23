@@ -15382,7 +15382,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                       "line-bytes": "ukuran1",
                       "C": "ukuran1",
                       "number": "nomor-split",
-                      "n": "nomor-split", "a": "angka1"},
+                      "n": "nomor-split", "a": "angka1",
+                      # Audit 2679: nama panjang
+                      # -a tertinggal dari tabel -
+                      # bentuk panjangnya lolos
+                      # tanpa validasi.
+                      "suffix-length": "angka1"},
             "shuf": {"head-count": "angka0",
                      "n": "angka0"},
             "od": {"read-bytes": "odnum", "N": "odnum",
