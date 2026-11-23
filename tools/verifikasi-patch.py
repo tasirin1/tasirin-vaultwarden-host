@@ -15645,7 +15645,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 if t0 in ("flock", "watch", "choom",
                           "uclampset", "prlimit",
                           "strace", "xargs", "taskset",
-                          "ssh-agent"):
+                          "ssh-agent", "systemd-cat"):
                     # Audit 2719: penerima bertipe
                     # pada pembungkus lain -
                     # nilai sampah membunuh
@@ -15700,6 +15700,9 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "taskset": {
                             "--cpu-list": "daftar-cpu"},
                         "ssh-agent": {},
+                        "systemd-cat": {
+                            "--priority":
+                                "prioritas-sdcat"},
                     }
                     pendek_b = {
                         "flock": {"w": "flock-w",
@@ -15717,8 +15720,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "taskset": {"c": "daftar-cpu"},
                         "ssh-agent": {
                             "t": "umur-ssh-agent"},
+                        "systemd-cat": {
+                            "p": "prioritas-sdcat"},
                     }
-                    ambang_b = {"ssh-agent": 3,
+                    ambang_b = {"systemd-cat": 3,
+                                "ssh-agent": 3,
                                 "flock": 3, "watch": 3,
                                 "choom": 3, "uclampset": 3,
                                 "prlimit": 3, "strace": 7,
@@ -15934,6 +15940,28 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                                 < 1):
                                             sah_cpu = False
                                 if not sah_cpu:
+                                    return False
+                            elif (jenis_b
+                                    == "prioritas-sdcat"):
+                                # Audit 2762:
+                                # prioritas
+                                # systemd-cat = nama
+                                # tingkat syslog
+                                # atau digit 0-7.
+                                if not (
+                                        nilai_b in (
+                                            "emerg",
+                                            "alert",
+                                            "crit",
+                                            "err",
+                                            "warning",
+                                            "notice",
+                                            "info",
+                                            "debug")
+                                        or (len(nilai_b)
+                                            == 1
+                                            and nilai_b
+                                            in "01234567")):
                                     return False
                             elif (jenis_b
                                     == "umur-ssh-agent"):

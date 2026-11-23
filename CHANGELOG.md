@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — prioritas systemd-cat kini divalidasi (Audit 2762)
+
+- Prioritas `-p`/
+  `--priority`
+  systemd-cat kini
+  divalidasi di blok
+  penerima pembungkus.
+
+
 ## [Belum rilis] — masa hidup ssh-agent -t kini divalidasi (Audit 2761)
 
 - Masa hidup `-t`
