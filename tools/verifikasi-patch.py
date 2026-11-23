@@ -7143,6 +7143,29 @@ def _menguras_khusus(perintah, toks, awal):
                         "-F", "-I", "-i", "-J", "-L", "-l",
                         "-m", "-O", "-o", "-p", "-R", "-S",
                         "-W", "-w"}
+        # Audit 2772: port -p ssh (angka
+        # 1-65535) divalidasi - "Bad
+        # port" membunuh ssh sebelum
+        # sesi dimulai.
+        k_sh2 = 0
+        while k_sh2 < len(mentah):
+            t_sh2 = mentah[k_sh2]
+            if t_sh2 == "-p":
+                if k_sh2 + 1 < len(mentah):
+                    v_sh2 = mentah[k_sh2 + 1]
+                    if not (v_sh2.isdigit()
+                            and 1 <= int(v_sh2)
+                            <= 65535):
+                        return False
+                    k_sh2 += 1
+            elif (t_sh2.startswith("-p")
+                    and len(t_sh2) > 2):
+                v_sh2 = t_sh2[2:]
+                if not (v_sh2.isdigit()
+                        and 1 <= int(v_sh2)
+                        <= 65535):
+                    return False
+            k_sh2 += 1
         i_sh = 0
         tujuan_sh = False
         while i_sh < len(mentah):

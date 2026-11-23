@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — port -p ssh kini divalidasi (Audit 2772)
+
+- Port `-p` ssh
+  kini divalidasi
+  (angka 1-65535).
+
+
 ## [Belum rilis] — durasi -t/-ss ffmpeg kini divalidasi (Audit 2771)
 
 - Durasi `-t`/`-ss`

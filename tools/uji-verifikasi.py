@@ -39305,6 +39305,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item ffmpeg -t abc: ffmpeg mati durasi, gerbang lolos (Audit 2771)", rc == 0)
         shutil.rmtree(sub1854, ignore_errors=True)
+        sub1855 = klon(tmp, "sub1855")
+        berkas_aksi1855 = os.path.join(
+            sub1855, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1855, encoding="utf-8") as f:
+            isi_aksi1855 = f.read()
+        baris_aksi1855 = [b for b in isi_aksi1855.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1855 = isi_aksi1855.replace(
+                baris_aksi1855,
+                baris_aksi1855.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(ssh -p abc host; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1855 != isi_aksi1855, \
+            "suntikan aksi1855 tidak menembak"
+        with open(berkas_aksi1855, "w", encoding="utf-8") as f:
+            f.write(isi_baru1855)
+        rc, out = jalan(sub1855,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item ssh -p abc: ssh mati port, gerbang lolos (Audit 2772)", rc == 0)
+        shutil.rmtree(sub1855, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
