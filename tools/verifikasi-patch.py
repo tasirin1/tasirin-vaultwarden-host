@@ -6931,7 +6931,7 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2851: pelacak label & mode
         # gabung diff3 (label tanpa mode
         # membunuh biner).
-        label_df = False
+        label_df = 0
         mode_df = False
         k_df = awal + 1
         while k_df < len(toks):
@@ -7017,10 +7017,10 @@ def _menguras_khusus(perintah, toks, awal):
                         "--merge"):
                 mode_df = True
             if t_df.startswith("--label="):
-                label_df = True
+                label_df += 1
             if t_df in bernilai_df:
                 if t_df == "--label":
-                    label_df = True
+                    label_df += 1
                 k_df += 2
                 continue
             if (t_df.startswith("--")
@@ -7069,7 +7069,7 @@ def _menguras_khusus(perintah, toks, awal):
                         # diff -L - = label
                         # tertelan, perintah
                         # kekurangan operand).
-                        label_df = True
+                        label_df += 1
                         if pos_df == len(t_df) - 2:
                             lompat_df = 2
                         break
@@ -7158,8 +7158,16 @@ def _menguras_khusus(perintah, toks, awal):
         # "incompatible options" (matriks
         # mode terprobe induk: -e/-x/-X dan
         # tanpa mode mati; -A/-E/-m jalan).
-        if (perintah == "diff3" and label_df
+        if (perintah == "diff3" and label_df > 0
                 and not mode_df):
+            return False
+        # Audit 2870: biner membatasi
+        # jumlah label (diff maks 2,
+        # diff3 maks 3) - lebih dari itu
+        # mati "too many file label
+        # options" (terprobe).
+        if label_df > (3 if perintah == "diff3"
+                       else 2):
             return False
         # Audit 2847: -A bendera di diff3,
         # sehingga token sesudahnya operand.

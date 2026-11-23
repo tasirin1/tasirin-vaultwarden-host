@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: jumlah label diff/diff3 kini dibatasi seperti biner (Audit 2870)
+
+Walk 2851 mencatat label sebagai bendera boolean, sehingga label ke-3 untuk diff dan ke-4 untuk diff3 lolos — padahal biner mati "too many file label options" (terprobe). Penanda kini penghitung di ketiga bentuk label (`--label x`, `--label=x`, `-L`), dengan batas 2 untuk diff dan 3 untuk diff3. Skenario uji-diri 1941.
+
+
 ## [Belum rilis] — Gerbang: vonis diff/diff3 kini mensyaratkan hitungan operand tepat (Audit 2869)
 
 Vonis lama hanya memeriksa keberadaan operand `-`: `diff -`, `diff3 - f2`, dan bentuk berlabel dengan operand kurang dinilai menguras padahal biner mati "missing operand"; arah sebaliknya operand berlebih mati "extra operand" (keduanya terprobe rc=2 tanpa membaca stdin). Kini diff wajib tepat 2 operand dan diff3 tepat 3. Skenario uji-diri 1939-1940.

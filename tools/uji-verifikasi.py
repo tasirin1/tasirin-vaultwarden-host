@@ -41111,6 +41111,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff3 operand kurang kini ditolak (Audit 2869)", rc != 0)
         shutil.rmtree(sub1940, ignore_errors=True)
+        sub1941 = klon(tmp, "sub1941")
+        berkas_aksi1941 = os.path.join(
+            sub1941, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1941, encoding="utf-8") as f:
+            isi_aksi1941 = f.read()
+        baris_aksi1941 = [b for b in isi_aksi1941.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1941 = isi_aksi1941.replace(
+                baris_aksi1941,
+                baris_aksi1941.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff --label a --label b --label c - f2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1941 != isi_aksi1941, \
+            "suntikan aksi1941 tidak menembak"
+        with open(berkas_aksi1941, "w", encoding="utf-8") as f:
+            f.write(isi_baru1941)
+        rc, out = jalan(sub1941,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff label berlebih kini ditolak (Audit 2870)", rc != 0)
+        shutil.rmtree(sub1941, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
