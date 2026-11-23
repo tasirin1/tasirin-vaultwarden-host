@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Koreksi Maraton-187: bundel tree di walk --fromfile menelan satu token per huruf bernilai
+
+Skenario lama 1889 menangkap regresi dari restrukturisasi 2844: cabang bundel walk kedua hanya menelan satu token untuk seluruh bundel, padahal pengurai tree menelan satu token untuk SETIAP huruf bernilai di bundelnya (`tree -oL abc 2 --fromfile`: o←abc, L←2, tanpa operand sehingga daftar dibaca dari stdin — terprobe biner). Lompatan kini dihitung per huruf bernilai.
+
+
 ## [Belum rilis] — Kunci antrean hapus tertunda Telegram kini dikunci dari ekspor cadangan (Audit 2857)
 
 Kunci pref `tg_hapus_tertunda` (perbaikan 2830) tidak terdaftar di `TAK_DIEKSPOR_KEYS`, tidak seperti dua saudaranya `tg_hapus_ok`/`tg_hapus_warn`. Ia tidak bocor hari ini hanya karena satu-satunya penulis `config.json` tidak punya cabang untuk nilai Set — perlindungan kebetulan jenis data, bukan kebijakan. Isinya pasangan id chat:pesan dari pesan yang memuat PIN. Kini kuncinya terdaftar eksplisit, dengan asersi uji di TgBackupTest.

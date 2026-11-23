@@ -15519,7 +15519,16 @@ def _menguras_khusus(perintah, toks, awal):
                     and len(t_tr2) > 2
                     and any(h_tr2 in "PILOTHo"
                             for h_tr2 in t_tr2[1:])):
-                k_tr2 += 2
+                # Koreksi Maraton-187 (skenario
+                # 1889): SETIAP huruf bernilai
+                # di bundel menelan SATU token
+                # berikutnya sendiri-sendiri
+                # (-oL abc 2 = o<-abc, L<-2,
+                # terprobe biner) - bukan satu
+                # token untuk seluruh bundel.
+                k_tr2 += 1 + sum(
+                    1 for h_tr2 in t_tr2[1:]
+                    if h_tr2 in "PILOTHo")
                 continue
             if (not t_tr2.startswith("-")
                     or t_tr2 == "-"):
