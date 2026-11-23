@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — penerima nl divalidasi di walk operand bertipe (Audit 2748)
+
+- Baris nl masuk
+  walk operand
+  bertipe: lebar/
+  nomor awal/kenaikan/
+  batas kosong (angka),
+  gaya penomoran, dan
+  format nomor.
+
+
 ## [Belum rilis] — penerima numfmt divalidasi lewat walk operand bertipe (Audit 2747)
 
 - Mesin validasi

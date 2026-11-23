@@ -13747,6 +13747,15 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "gaya-nl":
+        # Audit 2748: gaya penomoran nl =
+        # a/t/n atau p diikuti regex bebas
+        # (p polos pun sah di biner).
+        return v in ("a", "t", "n") \
+            or v.startswith("p")
+    if jenis == "enum-format-nl":
+        # Audit 2748: format nomor nl.
+        return v in ("ln", "rn", "rz")
     if jenis == "int-tanda":
         # Audit 2747: bilangan bulat bertanda
         # bebas (numfmt --padding; negatif
@@ -17477,6 +17486,23 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             "round": "enum-round-numfmt",
             "to-unit": "angka1",
             "from-unit": "angka1"},
+        "nl": {
+            "w": "angka1",
+            "number-width": "angka1",
+            "v": "int-tanda",
+            "starting-line-number": "int-tanda",
+            "i": "int-tanda",
+            "line-increment": "int-tanda",
+            "l": "angka1",
+            "join-blank-lines": "angka1",
+            "b": "gaya-nl",
+            "body-numbering": "gaya-nl",
+            "h": "gaya-nl",
+            "header-numbering": "gaya-nl",
+            "f": "gaya-nl",
+            "footer-numbering": "gaya-nl",
+            "n": "enum-format-nl",
+            "number-format": "enum-format-nl"},
     }
     if perintah in _TIPE_OPERAND:
         tabel_op = _TIPE_OPERAND[perintah]
