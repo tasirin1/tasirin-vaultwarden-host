@@ -531,11 +531,8 @@ public final class TgBot {
                                 String teksAsing = msg.optString("text", "").trim();
                                 if (pinTebakan(teksAsing) != null
                                         && pinPerangkatAktif(ctx)) {
-                                    boolean terhapusAsing = hapusPesanPerintah(ctx,
-                                            idRuang, msg.optInt("message_id", 0));
-                                    if (!terhapusAsing) {
-                                        peringatkanPinChatAsing(ctx, idRuang);
-                                    }
+                                    hapusPesanAsingAsync(ctx, idRuang,
+                                            msg.optInt("message_id", 0));
                                 }
                                 continue;
                             }
@@ -627,16 +624,12 @@ public final class TgBot {
                                 boolean hapusPin = wajibHapusPesanPin(pinBasi, pinGrup,
                                         pinPending, obrolan, terotorisasi, text);
                                 if (idPesan != 0 && hapusPin && pinPerangkatAktif(ctx)) {
-                                    boolean terhapus = hapusPesanPerintah(ctx,
-                                            idRuang, idPesan);
-                                    peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
+                                    hapusPesanAsync(ctx, idRuang, idPesan);
                                 } else if (idPesan != 0 && "help".equals(namaPerintah(text))
                                         && pinPerangkatAktif(ctx)
                                         && !sudahUjiHapus(ctx)) {
 
-                                    boolean terhapus = hapusPesanPerintah(ctx,
-                                            idRuang, idPesan);
-                                    peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
+                                    hapusPesanAsync(ctx, idRuang, idPesan);
                                 }
                             }
                         } catch (Exception eUpdate) {
@@ -1462,6 +1455,35 @@ public final class TgBot {
         return pinTebakanArgumen(ambilArgumen(text));
     }
 
+    // Audit 2588: penghapusan pesan ber-PIN (anggaran coba
+    // sampai 60 dtk di jaringan buruk) tak lagi dikerjakan
+    // sebaris di utas poll - satu pesan bisa menahan semua
+    // update di belakangnya semenit penuh. Dikerjakan di
+    // pool latar, peringatan kegagalannya ikut di dalamnya.
+    // Pool penuh = jatuh ke cara lama sebaris, agar pesan
+    // ber-PIN tak pernah dibiarkan tak terhapus diam-diam.
+    private static void hapusPesanAsync(Context ctx, long idRuang, int idPesan) {
+        if (!cobaJalankanBg(() -> {
+            boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
+            peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
+        })) {
+            boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
+            peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
+        }
+    }
+
+    private static void hapusPesanAsingAsync(Context ctx, long idRuang, int idPesan) {
+        if (!cobaJalankanBg(() -> {
+            if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
+                peringatkanPinChatAsing(ctx, idRuang);
+            }
+        })) {
+            if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
+                peringatkanPinChatAsing(ctx, idRuang);
+            }
+        }
+    }
+
     private static void hapusBilaPinBasi(Context ctx, long idRuang, String teks,
             int idPesan, long kiniPoll) {
         if (idPesan == 0 || !pinPerangkatAktif(ctx)) {
@@ -1475,8 +1497,7 @@ public final class TgBot {
             pendingBasi = pb.kedaluwarsa;
         }
         if (pinBasiPerluHapus(teks, adaPending, pendingBasi)) {
-            boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
-            peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
+            hapusPesanAsync(ctx, idRuang, idPesan);
         }
     }
 

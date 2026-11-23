@@ -1,3 +1,19 @@
+## [Belum rilis] — hapus pesan ber-PIN tak lagi menahan poll (Audit 2588)
+
+- Penghapusan
+  pesan ber-PIN
+  di jalur polling
+  bot Telegram
+  kini dikerjakan
+  di latar -
+  dulu sebaris
+  dengan anggaran
+  coba sampai
+  60 detik dan
+  menahan semua
+  tombol/perintah
+  di belakangnya.
+
 ## [Belum rilis] — balasan bot lewat corong interaktif terpisah (Audit 2588)
 
 - Balasan perintah,
