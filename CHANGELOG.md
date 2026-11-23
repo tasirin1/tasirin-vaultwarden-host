@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — nilai daftar -c taskset kini divalidasi (Audit 2726)
+
+- Nilai `-c`/
+  `--cpu-list` taskset
+  kini divalidasi:
+  daftar item N atau
+  N-M(:S) dipisah koma
+  dengan ujung rentang
+  tidak lebih kecil
+  dari awalnya.
+
+
 ## [Belum rilis] — nilai numerik xargs (-s/-n/-P/-L) kini divalidasi (Audit 2725)
 
 - Penerima numerik

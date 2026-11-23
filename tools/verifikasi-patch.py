@@ -15030,7 +15030,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             return False
                 if t0 in ("flock", "watch", "choom",
                           "uclampset", "prlimit",
-                          "strace", "xargs"):
+                          "strace", "xargs", "taskset"):
                     # Audit 2719: penerima bertipe
                     # pada pembungkus lain -
                     # nilai sampah membunuh
@@ -15082,6 +15082,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                             "--max-args": "xargs-min1",
                             "--max-procs": "xargs-min0",
                             "--max-lines": "xargs-min1"},
+                        "taskset": {
+                            "--cpu-list": "daftar-cpu"},
                     }
                     pendek_b = {
                         "flock": {"w": "flock-w",
@@ -15096,11 +15098,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                   "n": "xargs-min1",
                                   "P": "xargs-min0",
                                   "L": "xargs-min1"},
+                        "taskset": {"c": "daftar-cpu"},
                     }
                     ambang_b = {"flock": 3, "watch": 3,
                                 "choom": 3, "uclampset": 3,
                                 "prlimit": 3, "strace": 7,
-                                "xargs": 5}
+                                "xargs": 5, "taskset": 3}
                     nama_b = opsi
                     nilai_b = None
                     if (opsi.startswith("--")
@@ -15256,6 +15259,39 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                         >= (1 if jenis_b
                                             == "xargs-min1"
                                             else 0)):
+                                    return False
+                            elif (jenis_b
+                                    == "daftar-cpu"):
+                                # Audit 2726: daftar
+                                # CPU taskset -c =
+                                # item N atau N-M(:S)
+                                # dipisah koma, ujung
+                                # rentang tak boleh
+                                # lebih kecil dari
+                                # awalnya.
+                                sah_cpu = bool(
+                                    re.fullmatch(
+                                        r"\d+(-\d+"
+                                        r"(:\d+)?)?"
+                                        r"(,\d+(-\d+"
+                                        r"(:\d+)?)?)*",
+                                        nilai_b))
+                                if sah_cpu:
+                                    for item_cpu in (
+                                            nilai_b.split(
+                                                ",")):
+                                        ujung_cpu = (
+                                            item_cpu.split(
+                                                ":")[0]
+                                            .split("-"))
+                                        if (len(ujung_cpu)
+                                                == 2
+                                                and int(
+                                                    ujung_cpu[1])
+                                                < int(
+                                                    ujung_cpu[0])):
+                                            sah_cpu = False
+                                if not sah_cpu:
                                     return False
                             elif jenis_b == "flock-E":
                                 if not (

@@ -38381,6 +38381,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item xargs -n abc cat: xargs mati nilai numerik, gerbang lolos (Audit 2725)", rc == 0)
         shutil.rmtree(sub1810, ignore_errors=True)
+        sub1811 = klon(tmp, "sub1811")
+        berkas_aksi1811 = os.path.join(
+            sub1811, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1811, encoding="utf-8") as f:
+            isi_aksi1811 = f.read()
+        baris_aksi1811 = [b for b in isi_aksi1811.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1811 = isi_aksi1811.replace(
+                baris_aksi1811,
+                baris_aksi1811.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(taskset -c xyz cat; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1811 != isi_aksi1811, \
+            "suntikan aksi1811 tidak menembak"
+        with open(berkas_aksi1811, "w", encoding="utf-8") as f:
+            f.write(isi_baru1811)
+        rc, out = jalan(sub1811,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item taskset -c xyz cat: taskset mati daftar CPU, gerbang lolos (Audit 2726)", rc == 0)
+        shutil.rmtree(sub1811, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
