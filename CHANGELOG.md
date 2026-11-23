@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nilai `--inspect*` node kini divalidasi sempit (Audit 2863)
+
+Keluarga `--inspect`/`--inspect-brk`/`--inspect-wait` menerima nilai `=` apa pun di gerbang, padahal biner mati rc=9 untuk nilai kosong dan port numerik di luar {0}∪[1024,65535] (terprobe termasuk `host:80`, `[::1]:80`, dan nol di depan). Host non-numerik dan ekor sesudah `:` yang non-digit ditoleransi biner dan tidak ikut ditolak. Skenario uji-diri 1932-1933.
+
+
 ## [Belum rilis] — Gerbang: `--infofile -`/`--gitfile -` tree kini ditolak di walk fromfile (Audit 2862)
 
 Opsi pemuat berkas keluarga [=] menelan `-` sebagai nilainya di gerbang, tetapi biner mati "Could not load infofile/gitignore file" — tree tidak membaca berkas itu dari stdin. Kedua bentuk (terpisah dan `=`) kini ditolak untuk `--infofile` dan `--gitfile`; `--hintro -`/`--houtro -` yang ditoleransi biner tidak ikut ditolak. Skenario uji-diri 1931.

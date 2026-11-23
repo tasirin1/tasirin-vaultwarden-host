@@ -3794,6 +3794,41 @@ def _menguras_interpreter(perintah, toks, awal):
                         "\"'") not in (
                             "provider", "strict")):
                 return False
+            # Audit 2863: nilai = keluarga
+            # --inspect divalidasi sempit
+            # sesuai biner (terprobe):
+            # kosong mati rc=9; port numerik
+            # (seluruh nilai digit, atau
+            # ekor sesudah ":" terakhir)
+            # hanya sah 0 atau 1024..65535;
+            # host non-numerik dan ekor
+            # non-digit ditoleransi.
+            if (dasar_nd in ("--inspect",
+                             "--inspect-brk",
+                             "--inspect-wait")
+                    and "=" in t):
+                v_insp = t.split("=", 1)[1].strip(
+                    "\"'")
+                if v_insp == "":
+                    return False
+                ekor_insp = None
+                if ":" in v_insp:
+                    c_insp = v_insp.rsplit(
+                        ":", 1)[1]
+                    if c_insp.isdigit():
+                        ekor_insp = c_insp
+                elif v_insp.isdigit():
+                    ekor_insp = v_insp
+                if ekor_insp is not None:
+                    r_insp = ekor_insp.lstrip("0")
+                    if len(r_insp) > 5:
+                        return False
+                    p_insp = int(r_insp) if r_insp \
+                        else 0
+                    if not (p_insp == 0
+                            or 1024 <= p_insp
+                            <= 65535):
+                        return False
             if dasar_nd.startswith("--no-"):
                 if ("--" + dasar_nd[5:]) in (
                         _NODE_TAK_NEGASI):
