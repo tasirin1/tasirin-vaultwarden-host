@@ -40103,6 +40103,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("node --expose-gc kini dinilai menguras", rc != 0)
         shutil.rmtree(sub1892, ignore_errors=True)
+        sub1893 = klon(tmp, "sub1893")
+        berkas_aksi1893 = os.path.join(
+            sub1893, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1893, encoding="utf-8") as f:
+            isi_aksi1893 = f.read()
+        baris_aksi1893 = [b for b in isi_aksi1893.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1893 = isi_aksi1893.replace(
+                baris_aksi1893,
+                baris_aksi1893.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff -Uabc - -; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1893 != isi_aksi1893, \
+            "suntikan aksi1893 tidak menembak"
+        with open(berkas_aksi1893, "w", encoding="utf-8") as f:
+            f.write(isi_baru1893)
+        rc, out = jalan(sub1893,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff -U nilai konteks asing ditolak (Audit 2822)", rc != 0)
+        shutil.rmtree(sub1893, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -6539,6 +6539,31 @@ def _menguras_khusus(perintah, toks, awal):
             t_df = toks[k_df].strip("\"'")
             if t_df == "--":
                 break
+            # Audit 2822: nilai -U/-C/--unified/
+            # --context divalidasi (\+?\d+; nol
+            # sah, luapan jenuh di biner). diff3
+            # tak mengenal keempatnya sama sekali.
+            if (t_df in ("--unified", "--context")
+                    or t_df.startswith((
+                        "--unified=", "--context="))):
+                if perintah == "diff3":
+                    return False
+                if "=" in t_df:
+                    v_df = t_df.split("=", 1)[1]
+                    if not re.fullmatch(
+                            r"\+?\d+", v_df):
+                        return False
+                    k_df += 1
+                    continue
+                if k_df + 1 < len(toks):
+                    v_df = toks[k_df + 1].strip(
+                        "\"'")
+                    if not re.fullmatch(
+                            r"\+?\d+", v_df):
+                        return False
+                    k_df += 1
+                k_df += 1
+                continue
             if t_df in bernilai_df:
                 k_df += 2
                 continue
@@ -6555,7 +6580,30 @@ def _menguras_khusus(perintah, toks, awal):
                 for pos_df, h_df in enumerate(
                         t_df[1:]):
                     if h_df in "UCAD":
-                        if pos_df == len(t_df) - 2:
+                        # Audit 2822: diff3 tak
+                        # mengenal -U/-C.
+                        if (perintah == "diff3"
+                                and h_df in "UC"):
+                            return False
+                        if h_df in "UC":
+                            if pos_df == len(t_df) - 2:
+                                if k_df + 1 < len(toks):
+                                    v_df = toks[
+                                        k_df + 1].strip(
+                                        "\"'")
+                                    if not re.fullmatch(
+                                            r"\+?\d+",
+                                            v_df):
+                                        return False
+                                lompat_df = 2
+                            else:
+                                v_df = t_df[
+                                    2 + pos_df:]
+                                if not re.fullmatch(
+                                        r"\+?\d+",
+                                        v_df):
+                                    return False
+                        elif pos_df == len(t_df) - 2:
                             lompat_df = 2
                         break
                 k_df += lompat_df
@@ -6592,6 +6640,57 @@ def _menguras_khusus(perintah, toks, awal):
         # (sekelas diff), tak dikenal khusus sebelumnya.
         # Audit 1282: -W adalah BENDERA abaikan-spasi; yang
         # bernilai -w/--width (tertulis terbalik sebelumnya).
+        # Audit 2822: nilai -w/--width divalidasi
+        # (\+?\d+ dan >= 1; nol membunuh biner).
+        def _lebar_sdiff_sah(v_sw):
+            return bool(re.fullmatch(
+                r"\+?\d+", v_sw)) and (
+                v_sw.lstrip("+").lstrip("0") != "")
+        k_sw = awal + 1
+        while k_sw < len(toks):
+            t_sw = toks[k_sw].strip("\"'")
+            if t_sw == "--":
+                break
+            if t_sw.startswith("--width="):
+                if not _lebar_sdiff_sah(
+                        t_sw.split("=", 1)[1]):
+                    return False
+                k_sw += 1
+                continue
+            if t_sw == "--width":
+                if k_sw + 1 < len(toks):
+                    if not _lebar_sdiff_sah(
+                            toks[k_sw + 1].strip(
+                                "\"'")):
+                        return False
+                    k_sw += 1
+                k_sw += 1
+                continue
+            if t_sw in ("-o", "--output"):
+                k_sw += 2
+                continue
+            if (t_sw.startswith("-")
+                    and not t_sw.startswith("--")
+                    and len(t_sw) > 1):
+                for pos_sw, h_sw in enumerate(
+                        t_sw[1:]):
+                    if h_sw == "o":
+                        if pos_sw == len(t_sw) - 2:
+                            k_sw += 1
+                        break
+                    if h_sw == "w":
+                        if pos_sw == len(t_sw) - 2:
+                            if k_sw + 1 < len(toks):
+                                if not _lebar_sdiff_sah(
+                                        toks[k_sw + 1].strip(
+                                            "\"'")):
+                                    return False
+                                k_sw += 1
+                        elif not _lebar_sdiff_sah(
+                                t_sw[2 + pos_sw:]):
+                            return False
+                        break
+            k_sw += 1
         ops_sdf = _operand_sesudah_opsi(
             toks, awal, {"-w", "--width", "-o", "--output"})
         if "\x00gantung" in ops_sdf:

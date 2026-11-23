@@ -1,3 +1,8 @@
+## [Belum rilis] — Gerbang: nilai konteks diff/sdiff divalidasi; diff3 menolak -U/-C (Audit 2822)
+
+Nilai `-U`/`-C`/`--unified`/`--context` diff (tertanam, terpisah, maupun `=`) kini divalidasi `\+?\d+` (nol sah, luapan jenuh mengikuti biner) - sebelumnya nilai asing lolos dan biner mati "invalid context length" sesudah gerbang menyatakan aman. diff3 yang berbagi walk yang sama tak mengenal keempat opsi itu sama sekali, jadi kehadirannya kini ditolak. sdiff mendapat walk validasi `-w`/`--width` (`\+?\d+` dan >= 1) termasuk bentuk bundel dan nilai yang tertelan `-o`. Skenario gensuite 1893.
+
+
 ## [Belum rilis] — Migrasi TLS: pra-bersih hanya membuang sisa salinan yang terbukti terpotong (Audit 2821)
 
 Pra-bersih migrasi 2810 menghapus berkas tujuan hanya dari beda ukuran - heuristik itu tak bisa membedakan sisa salinan terpotong dari set TLS sah yang terbangun ulang dengan ukuran berbeda, sehingga set internal yang sah bisa terhapus lalu terturunkan ke salinan folder lama. Kini yang dibuang hanya yang terbukti sisa salinan: isi tujuan sama persis dengan awalan isi asal dan lebih pendek (`TlsCert.sisaSalinanTerpotong`, teruji JVM termasuk kasus kosong, beda isi, lebih panjang, dan sama persis).
