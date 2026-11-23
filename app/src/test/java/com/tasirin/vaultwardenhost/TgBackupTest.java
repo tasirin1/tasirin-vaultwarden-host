@@ -16,6 +16,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class TgBackupTest {
+    @Test
+    public void kirimInteraktif_tolakKonteksDanTujuanRusak() {
+        // Audit 2588: corong interaktif menolak konteks null
+        // dan chat kosong tanpa melempar - pemanggil hanya
+        // menerima false.
+        assertFalse(TgBackup.sendInteraktifKe(null, "123", "halo"));
+        assertFalse(TgBackup.sendMessageKbKe(null, "123", "halo", null));
+    }
+
 
     @Test
     public void jadwalTundaBackupMs_jedaTakSahDitolak() {

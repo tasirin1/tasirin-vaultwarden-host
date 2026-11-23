@@ -11,6 +11,16 @@ import org.junit.Test;
 public class TgBotTest {
 
     @Test
+    public void pollPerluLanjutan_hanyaBilaAdaUpdate() {
+        // Audit 2588: rantai poll lanjutan hanya saat poll
+        // sebelumnya memproses update; poll kosong berhenti.
+        assertFalse(TgBot.pollPerluLanjutan(0));
+        assertFalse(TgBot.pollPerluLanjutan(-1));
+        assertTrue(TgBot.pollPerluLanjutan(1));
+        assertTrue(TgBot.pollPerluLanjutan(10));
+    }
+
+    @Test
     public void dalamJedaBerat_batasDanJamMundur() {
         // Audit 589: jeda 30 dtk sesudah stempel berakhir; belum pernah
         // ada tugas (0) dan jam mundur selalu gagal-terbuka.

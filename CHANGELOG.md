@@ -1,3 +1,21 @@
+## [Belum rilis] — poll bot langsung lanjut saat user aktif (Audit 2588)
+
+- Sesudah poll
+  Telegram yang
+  memproses update,
+  poll berikutnya
+  kini langsung
+  jalan lagi tanpa
+  menunggu alarm
+  60 detik - jeda
+  ambil update
+  saat ngobrol
+  aktif dengan bot
+  menyusut; rantai
+  berhenti sendiri
+  saat poll pulang
+  kosong.
+
 ## [Belum rilis] — hapus pesan ber-PIN tak lagi menahan poll (Audit 2588)
 
 - Penghapusan

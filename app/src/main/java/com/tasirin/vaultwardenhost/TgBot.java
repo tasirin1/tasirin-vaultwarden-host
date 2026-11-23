@@ -425,11 +425,17 @@ public final class TgBot {
     }
 
     @SuppressLint("ApplySharedPref")
+    static boolean pollPerluLanjutan(int jumlahUpdate) {
+        return jumlahUpdate > 0;
+    }
+
     public static void pollOnce(Context ctx) {
 
         if (!POLLING.compareAndSet(false, true)) {
             return;
         }
+        final Context ctxPoll = ctx;
+        int jumlahUpdate = 0;
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
             String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
@@ -489,6 +495,7 @@ public final class TgBot {
             try {
                 JSONObject root = new JSONObject(body);
                 JSONArray arr = root.optJSONArray("result");
+                jumlahUpdate = arr == null ? 0 : arr.length();
                 if (arr != null) {
                     int updateRusak = 0;
                     String contohGalatUpdate = null;
@@ -674,6 +681,18 @@ public final class TgBot {
         } finally {
             simpanWallMaks(ctx);
             POLLING.set(false);
+            // Audit 2588: update baru saja diproses berarti
+            // user sedang aktif - poll berikutnya langsung
+            // jalan lagi tanpa menunggu alarm 60 dtk yang
+            // tak eksak, agar ketukan berikutnya tak ikut
+            // mengantre semenit lebih. Rantai berhenti
+            // sendiri saat satu poll pulang kosong
+            // (long-poll 50 dtk tanpa update). POLLING
+            // sudah dilepas di atas sebelum rantai dipasang,
+            // jadi tak ada balapan dengan siklus alarm.
+            if (pollPerluLanjutan(jumlahUpdate)) {
+                cobaJalankanBg(() -> pollOnce(ctxPoll));
+            }
         }
     }
 
