@@ -6310,6 +6310,51 @@ def _menguras_khusus(perintah, toks, awal):
                          "--base2lsbf", "--z85")
                    or t.startswith("--base") for t in mentah)
     if perintah == "du":
+        # Audit 2769: nilai --max-depth
+        # (bilangan bertanda) dan
+        # --threshold (ukuran bertanda,
+        # negatif sah) du divalidasi -
+        # nilai asing membunuh du saat
+        # urai, termasuk pada bentuk
+        # --files0-from=-.
+        k_du = 0
+        while k_du < len(mentah):
+            t_du = mentah[k_du]
+            if t_du.startswith((
+                    "--max-depth=",
+                    "--threshold=")):
+                v_du = t_du.split("=", 1)[1]
+                if t_du.startswith(
+                        "--max-depth="):
+                    if not re.fullmatch(
+                            r"[+-]?\d{1,18}",
+                            v_du):
+                        return False
+                elif not re.fullmatch(
+                        r"[+-]?\d{1,18}"
+                        r"([KMGTPEZY](B|iB)?"
+                        r"|[km](B|iB)?|b)?",
+                        v_du):
+                    return False
+            elif t_du in ("--max-depth",
+                          "--threshold"):
+                if k_du + 1 < len(mentah):
+                    v_du = mentah[k_du + 1]
+                    if t_du == "--max-depth":
+                        if not re.fullmatch(
+                                r"[+-]?\d{1,18}",
+                                v_du):
+                            return False
+                    elif not re.fullmatch(
+                            r"[+-]?\d{1,18}"
+                            r"([KMGTPEZY]"
+                            r"(B|iB)?"
+                            r"|[km](B|iB)?"
+                            r"|b)?",
+                            v_du):
+                        return False
+                    k_du += 1
+            k_du += 1
         # Audit 1111: --files0-from membaca daftar nama dari stdin.
         for k_d, t_d in enumerate(mentah):
             if t_d == "--files0-from=-":

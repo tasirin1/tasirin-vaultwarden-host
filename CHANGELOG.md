@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — nilai --max-depth dan --threshold du kini divalidasi (Audit 2769)
+
+- Nilai `--max-depth`
+  dan `--threshold`
+  du kini divalidasi,
+  termasuk pada
+  bentuk stdin.
+
+
 ## [Belum rilis] — nilai --width dan --tabsize diff kini divalidasi (Audit 2768)
 
 - Nilai `--width`
