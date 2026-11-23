@@ -2329,7 +2329,7 @@ public final class TgBackup {
             java.util.Arrays.asList(ServerService.KEY_DATA_DIR, ServerService.KEY_TLS_DIR, KEY_TG_LAST,
                     TgBot.KEY_TG_OFFSET, TgBot.KEY_TG_OFFSET_BOT_ID,
                     TgBot.KEY_TG_WALL_MAKS,
-                    TgBot.KEY_TG_HAPUS_OK, TgBot.KEY_TG_HAPUS_WARN,
+                    TgBot.KEY_TG_HAPUS_OK, TgBot.KEY_TG_HAPUS_WARN, TgBot.KEY_TG_HAPUS_TERTUNDA,
                     "tg_notified_version", "wv_from_version",
                     "wv_fallback_for", "wv_fallback_at",
                     Updater.KEY_WV_SHA,

@@ -1929,6 +1929,11 @@ public class TgBackupTest {
         assertFalse(TgBackup.kunciDiekspor(TgBot.KEY_TG_LOGIN_HASH));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(TgBot.KEY_TG_LOGIN_CHAT));
         assertFalse(TgBackup.kunciDiekspor(TgBot.KEY_TG_LOGIN_CHAT));
+        // Audit 2857: antrean hapus tertunda (isinya pasangan
+        // id chat:pesan yang memuat PIN) ikut dikunci - selama
+        // ini ia lolos hanya karena serializer tak menulis Set.
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(TgBot.KEY_TG_HAPUS_TERTUNDA));
+        assertFalse(TgBackup.kunciDiekspor(TgBot.KEY_TG_HAPUS_TERTUNDA));
         // Audit 1637: tiga kunci sidik Audit 1592/1604/1636 ikut
         // dikunci di sini (sebelumnya tanpa asersi sama sekali).
         assertFalse(TgBackup.kunciDiekspor("bin_sha_fp"));

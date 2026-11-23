@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kunci antrean hapus tertunda Telegram kini dikunci dari ekspor cadangan (Audit 2857)
+
+Kunci pref `tg_hapus_tertunda` (perbaikan 2830) tidak terdaftar di `TAK_DIEKSPOR_KEYS`, tidak seperti dua saudaranya `tg_hapus_ok`/`tg_hapus_warn`. Ia tidak bocor hari ini hanya karena satu-satunya penulis `config.json` tidak punya cabang untuk nilai Set — perlindungan kebetulan jenis data, bukan kebijakan. Isinya pasangan id chat:pesan dari pesan yang memuat PIN. Kini kuncinya terdaftar eksplisit, dengan asersi uji di TgBackupTest.
+
+
 ## [Belum rilis] — Gerbang: validasi nilai node diperluas ke seluruh anggota _MAX_V8 (Audit 2856)
 
 Validasi nilai `=` ala 2800 hanya menjaga empat anggota keluarga `--max-*`; anggota lain lolos dengan nilai apa pun padahal biner mati "illegal value ... of type int/bool". Sapuan induk atas seluruh 21 anggota `_MAX_V8` membuktikan: 20 numerik (mati pada nilai non-numerik dan bentuk terpisah, persis doktrin 2800) dan satu bool, `--max-lazy`, yang mati pada bentuk `=` apa pun — `=1` pun mati. Keduanya kini divalidasi; `--cpu-prof-interval`/`--heap-prof-interval` yang ditoleransi biner tidak disentuh. Skenario uji-verifikasi 1921.
