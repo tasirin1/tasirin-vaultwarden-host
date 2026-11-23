@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — logger: prioritas kini tak peka huruf (Audit 2790)
+
+- Jenis
+  `prioritas-logger`
+  kini mengecilkan
+  huruf nilai dulu;
+  nama fasilitas
+  dan tingkat
+  campuran huruf
+  sah seperti di
+  biner.
+
+
 ## [Belum rilis] — tail: desimal-positif kini tata bahasa xstrtod penuh (Audit 2789)
 
 - Jenis

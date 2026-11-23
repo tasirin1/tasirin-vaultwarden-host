@@ -14600,6 +14600,10 @@ def _tipe_nilai_sah_66(jenis, nilai):
                 "crit", "err", "error",
                 "warning", "warn",
                 "notice", "info", "debug")
+        # Audit 2790: biner tak peka
+        # huruf untuk nama fasilitas
+        # maupun tingkat (USER.ERR sah).
+        v = v.lower()
         if "." in v:
             f_p, _, t_p = v.partition(".")
             return (f_p in fas
