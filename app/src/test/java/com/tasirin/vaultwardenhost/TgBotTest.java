@@ -796,6 +796,33 @@ public class TgBotTest {
     }
 
     @Test
+    public void entriHapusTertunda_bulakBalikDanTolakRusak() {
+        String e = TgBot.entriHapusTertunda(-100123L, 456, true);
+        assertEquals("-100123:456:a", e);
+        long[] u = TgBot.uraiEntriHapusTertunda(e);
+        assertEquals(-100123L, u[0]);
+        assertEquals(456L, u[1]);
+        assertEquals(1L, u[2]);
+        long[] s = TgBot.uraiEntriHapusTertunda(
+                TgBot.entriHapusTertunda(789, 12, false));
+        assertEquals(789L, s[0]);
+        assertEquals(12L, s[1]);
+        assertEquals(0L, s[2]);
+        assertEquals(null, TgBot.uraiEntriHapusTertunda(null));
+        assertEquals(null, TgBot.uraiEntriHapusTertunda("rusak"));
+        assertEquals(null, TgBot.uraiEntriHapusTertunda("1:2:x"));
+        assertEquals(null, TgBot.uraiEntriHapusTertunda("1:2"));
+        assertEquals(null, TgBot.uraiEntriHapusTertunda("a:b:s"));
+    }
+
+    @Test
+    public void catatHapusTertunda_ctxNullAman() {
+        TgBot.catatHapusTertunda(null, 1, 2, false);
+        TgBot.selesaikanHapusTertunda(null, "1:2:s");
+        TgBot.cobaHapusTertunda(null);
+    }
+
+    @Test
     public void peringatkanPinChatAsing_ctxNullAman() {
         TgBot.peringatkanPinChatAsing(null, 123456);
         TgBot.peringatkanPinChatAsing(null, 0);

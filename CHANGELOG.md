@@ -1,3 +1,8 @@
+## [Belum rilis] — Bot: penghapusan pesan ber-PIN yang tertunda kini dicatat persisten dan dicoba lagi (Audit 2830)
+
+Perbaikan bot lambat (2588) memindahkan penghapusan pesan ber-PIN ke pool latar secara best-effort tanpa daftar tertunda tersimpan: bila proses mati (reboot/crash/force-stop) atau pool menolak sebelum tugasnya jalan, pesan ber-PIN itu tak pernah terhapus dan tak pernah dicoba lagi - sebelumnya penghapusan dikerjakan sebaris di putaran poll yang sama. Kini `hapusPesanAsync`/`hapusPesanAsingAsync` mencatat entri `idRuang:idPesan:jenis` ke SharedPreferences (`tg_hapus_tertunda`, di bawah kunci yang sama dengan peringatan) SEBELUM mengantre, entri hanya dicoret sesudah penghapusan terbukti berhasil, dan `pollOnce` memanggil `cobaHapusTertunda` di awal tiap putaran (maks 10 entri, entri rusak dibuang). Kunci ini tidak ikut daftar kunci yang diekspor ke cadangan. Uji JVM baru untuk format entri dan keamanan ctx null.
+
+
 ## [Belum rilis] — Gerbang: bentuk merekat -n/-i cmp divalidasi (Audit 2829)
 
 Validasi nilai cmp 2767/2786 hanya mengenal bentuk terpisah dan `=`: bentuk merekat `-nabc`, `-n5x`, `-iabc`, `-i1:2:3` lolos tanpa pemeriksaan padahal biner mati rc=2 saat mengurai. Walk cmp (dipakai juga keluarga zcmp/zdiff/xzcmp/xzdiff/lzcmp/lzdiff) kini mengurai bundel pendek: huruf bernilai pertama (`n`/`i`) menelan sisa token sebagai nilainya dan nilai itu divalidasi dengan tata bahasa yang sama (termasuk batas dua ruas titik-dua untuk `-i`). Skenario gensuite 1900.

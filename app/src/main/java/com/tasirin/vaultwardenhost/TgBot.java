@@ -89,6 +89,8 @@ public final class TgBot {
 
     static final String KEY_TG_HAPUS_OK = "tg_hapus_ok";
 
+    static final String KEY_TG_HAPUS_TERTUNDA = "tg_hapus_tertunda";
+
     static final long PERINGATAN_MUNDUR_MS = 3600_000;
     static volatile long peringatanMundurPada = 0;
 
@@ -445,6 +447,10 @@ public final class TgBot {
             if (token.isEmpty() || chat.isEmpty()) {
                 return;
             }
+            // Audit 2830: coba lagi penghapusan pesan
+            // ber-PIN yang tertunda dari proses/poll
+            // sebelumnya (dicatat persisten).
+            cobaHapusTertunda(ctx);
             // Offset getUpdates adalah urutan per-bot (Audit 779): ganti ke
             // bot LAIN dengan offset warisan membuat semua perintah diabaikan
             // diam-diam selamanya. Selaraskan identitas pemilik offset dulu.
@@ -1484,24 +1490,176 @@ public final class TgBot {
     // Pool penuh = jatuh ke cara lama sebaris, agar pesan
     // ber-PIN tak pernah dibiarkan tak terhapus diam-diam.
     private static void hapusPesanAsync(Context ctx, long idRuang, int idPesan) {
+        // Audit 2830: catat persisten SEBELUM antre -
+        // proses mati sebelum tugas jalan tak lagi
+        // menghilangkan penghapusan ini selamanya.
+        catatHapusTertunda(ctx, idRuang, idPesan, false);
         if (!cobaJalankanBg(() -> {
             boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
+            if (terhapus) {
+                selesaikanHapusTertunda(ctx,
+                        entriHapusTertunda(idRuang, idPesan, false));
+            }
             peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
         })) {
             boolean terhapus = hapusPesanPerintah(ctx, idRuang, idPesan);
+            if (terhapus) {
+                selesaikanHapusTertunda(ctx,
+                        entriHapusTertunda(idRuang, idPesan, false));
+            }
             peringatkanBilaTakBisaHapus(ctx, terhapus, idRuang);
         }
     }
 
     private static void hapusPesanAsingAsync(Context ctx, long idRuang, int idPesan) {
+        // Audit 2830: catat persisten SEBELUM antre.
+        catatHapusTertunda(ctx, idRuang, idPesan, true);
         if (!cobaJalankanBg(() -> {
             if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
                 peringatkanPinChatAsing(ctx, idRuang);
+            } else {
+                selesaikanHapusTertunda(ctx,
+                        entriHapusTertunda(idRuang, idPesan, true));
             }
         })) {
             if (!hapusPesanPerintah(ctx, idRuang, idPesan)) {
                 peringatkanPinChatAsing(ctx, idRuang);
+            } else {
+                selesaikanHapusTertunda(ctx,
+                        entriHapusTertunda(idRuang, idPesan, true));
             }
+        }
+    }
+
+    // Audit 2830: daftar penghapusan tertunda
+    // persisten (idRuang:idPesan:a/s per entri).
+    // Sebelum 2588 penghapusan dikerjakan sebaris
+    // di utas poll sehingga selalu dicoba di
+    // putaran yang sama; sesudah dipindah ke pool
+    // latar, proses yang mati sebelum tugasnya
+    // jalan menghilangkan penghapusan itu tanpa
+    // sisa. Kini dicatat lebih dulu, dicoba lagi
+    // di awal tiap pollOnce, dan hanya dicoret
+    // sesudah biner membuktikan terhapus.
+    static String entriHapusTertunda(long idRuang, int idPesan,
+            boolean asing) {
+        return idRuang + ":" + idPesan + ":" + (asing ? "a" : "s");
+    }
+
+    static long[] uraiEntriHapusTertunda(String entri) {
+        if (entri == null) {
+            return null;
+        }
+        String[] b = entri.split(":");
+        if (b.length != 3) {
+            return null;
+        }
+        try {
+            long ruang = Long.parseLong(b[0]);
+            long pesan = Long.parseLong(b[1]);
+            if (!b[2].equals("a") && !b[2].equals("s")) {
+                return null;
+            }
+            return new long[]{ruang, pesan,
+                    b[2].equals("a") ? 1 : 0};
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    static void catatHapusTertunda(Context ctx, long idRuang,
+            int idPesan, boolean asing) {
+        if (ctx == null || idRuang == 0 || idPesan == 0) {
+            return;
+        }
+        synchronized (KUNCI_PERINGATAN) {
+            try {
+                SharedPreferences sp = ctx.getSharedPreferences(
+                        ServerService.PREFS, Context.MODE_PRIVATE);
+                java.util.Set<String> kini =
+                        new java.util.HashSet<>();
+                java.util.Set<String> lama = sp.getStringSet(
+                        KEY_TG_HAPUS_TERTUNDA, null);
+                if (lama != null) {
+                    kini.addAll(lama);
+                }
+                if (kini.add(entriHapusTertunda(
+                        idRuang, idPesan, asing))) {
+                    sp.edit().putStringSet(
+                            KEY_TG_HAPUS_TERTUNDA, kini).apply();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    static void selesaikanHapusTertunda(Context ctx,
+            String entri) {
+        if (ctx == null) {
+            return;
+        }
+        synchronized (KUNCI_PERINGATAN) {
+            try {
+                SharedPreferences sp = ctx.getSharedPreferences(
+                        ServerService.PREFS, Context.MODE_PRIVATE);
+                java.util.Set<String> lama = sp.getStringSet(
+                        KEY_TG_HAPUS_TERTUNDA, null);
+                if (lama == null || !lama.contains(entri)) {
+                    return;
+                }
+                java.util.Set<String> kini =
+                        new java.util.HashSet<>(lama);
+                kini.remove(entri);
+                sp.edit().putStringSet(
+                        KEY_TG_HAPUS_TERTUNDA, kini).apply();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    static void cobaHapusTertunda(Context ctx) {
+        java.util.List<String> daftar =
+                new java.util.ArrayList<>();
+        synchronized (KUNCI_PERINGATAN) {
+            try {
+                SharedPreferences sp = ctx.getSharedPreferences(
+                        ServerService.PREFS, Context.MODE_PRIVATE);
+                java.util.Set<String> lama = sp.getStringSet(
+                        KEY_TG_HAPUS_TERTUNDA, null);
+                if (lama != null) {
+                    daftar.addAll(lama);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        int diproses = 0;
+        for (String entri : daftar) {
+            long[] u = uraiEntriHapusTertunda(entri);
+            if (u == null) {
+                selesaikanHapusTertunda(ctx, entri);
+                continue;
+            }
+            if (diproses >= 10) {
+                break;
+            }
+            diproses++;
+            final long idRuang = u[0];
+            final int idPesan = (int) u[1];
+            final boolean asing = u[2] == 1;
+            cobaJalankanBg(() -> {
+                boolean terhapus = hapusPesanPerintah(
+                        ctx, idRuang, idPesan);
+                if (terhapus) {
+                    selesaikanHapusTertunda(ctx,
+                            entriHapusTertunda(
+                                    idRuang, idPesan, asing));
+                } else if (asing) {
+                    peringatkanPinChatAsing(ctx, idRuang);
+                } else {
+                    peringatkanBilaTakBisaHapus(
+                            ctx, false, idRuang);
+                }
+            });
         }
     }
 
