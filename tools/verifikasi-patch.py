@@ -7187,26 +7187,13 @@ def _menguras_khusus(perintah, toks, awal):
         # Audit 2772: port -p ssh (angka
         # 1-65535) divalidasi - "Bad
         # port" membunuh ssh sebelum
-        # sesi dimulai.
-        k_sh2 = 0
-        while k_sh2 < len(mentah):
-            t_sh2 = mentah[k_sh2]
-            if t_sh2 == "-p":
-                if k_sh2 + 1 < len(mentah):
-                    v_sh2 = mentah[k_sh2 + 1]
-                    if not (v_sh2.isdigit()
-                            and 1 <= int(v_sh2)
-                            <= 65535):
-                        return False
-                    k_sh2 += 1
-            elif (t_sh2.startswith("-p")
-                    and len(t_sh2) > 2):
-                v_sh2 = t_sh2[2:]
-                if not (v_sh2.isdigit()
-                        and 1 <= int(v_sh2)
-                        <= 65535):
-                    return False
-            k_sh2 += 1
+        # sesi dimulai. Audit 2781:
+        # validasinya kini di dalam
+        # walk utama di bawah dan hanya
+        # SEBELUM tujuan - sesudah
+        # tujuan -p adalah kata perintah
+        # jauh, bukan port (ssh -G
+        # membuktikan port tetap 22).
         i_sh = 0
         tujuan_sh = False
         while i_sh < len(mentah):
@@ -7231,6 +7218,14 @@ def _menguras_khusus(perintah, toks, awal):
                 # tanpa membaca stdin.
                 if i_sh + 1 >= len(mentah):
                     return False
+                # Audit 2781: nilai -p terpisah
+                # divalidasi hanya sebelum tujuan.
+                if (t_sh == "-p" and not tujuan_sh
+                        and not (mentah[i_sh + 1].isdigit()
+                                 and 1 <= int(
+                                     mentah[i_sh + 1])
+                                 <= 65535)):
+                    return False
                 i_sh += 2
                 continue
             if t_sh.startswith("--"):
@@ -7254,6 +7249,24 @@ def _menguras_khusus(perintah, toks, awal):
                     # Audit 1911: huruf bernilai di ujung
                     # bundel menelan token berikutnya -
                     # yang menggantung juga galat.
+                    # Audit 2781: ekor/nilai -p di
+                    # bundel divalidasi hanya sebelum
+                    # tujuan.
+                    if (huruf_sh[pos_sh] == "p"
+                            and not tujuan_sh):
+                        if pos_sh < len(huruf_sh) - 1:
+                            v_sh3 = huruf_sh[
+                                pos_sh + 1:]
+                            if not (v_sh3.isdigit()
+                                    and 1 <= int(v_sh3)
+                                    <= 65535):
+                                return False
+                        elif i_sh + 1 < len(mentah):
+                            v_sh3 = mentah[i_sh + 1]
+                            if not (v_sh3.isdigit()
+                                    and 1 <= int(v_sh3)
+                                    <= 65535):
+                                return False
                     if pos_sh < len(huruf_sh) - 1:
                         i_sh += 1
                     elif i_sh + 1 >= len(mentah):

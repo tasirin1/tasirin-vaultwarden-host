@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — ssh: -p sesudah tujuan tak lagi divalidasi sebagai port (Audit 2781)
+
+- Validasi port
+  `-p` (2772) kini
+  berjalan di dalam
+  walk utama dan
+  hanya sebelum
+  operand tujuan;
+  sesudah tujuan
+  `-p` adalah kata
+  perintah jauh.
+
+
 ## [Belum rilis] — flock -E ++5 tak lagi meruntuhkan penilai gerbang (Audit 2780)
 
 - Nilai `++5` pada
