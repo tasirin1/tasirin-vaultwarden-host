@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: operand tree --fromfile/--fromtabfile kini menentukan sumber daftar (Audit 2844)
+
+Walk kedua tree mengembalikan "menguras" seketika saat melihat `--fromfile`, tanpa memeriksa operandnya — padahal mode itu membaca daftar dari operand pertamanya: `tree --fromfile daftar.txt` membaca berkas itu dan `tree --fromfile -` menganggap `-` nama direktori harfiah (biner rc=2); hanya tanpa operand, atau operand `.` / `/dev/stdin`, yang membaca stdin (semua terprobe, termasuk opsi lain yang menyelip di antara bendera dan operand). Walk kedua kini mencatat mode dan operand pertama dengan aturan konsumsi nilai yang sama seperti sebelumnya, lalu menilai dari keduanya. Skenario uji-verifikasi 1909.
+
+
 ## [Belum rilis] — Gerbang: tree --fromtabfile kini dikenal sebagai mode stdin (Audit 2843)
 
 Mode `--fromtabfile` tree (daftar berkas terpisah tab dari stdin) tidak muncul sama sekali di gerbang — perintah penguras lolos. Walk kedua kini memperlakukannya sama dengan `--fromfile` (terprobe biner pipa-terbuka rc=124). Skenario uji-verifikasi 1908.

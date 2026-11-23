@@ -15165,6 +15165,16 @@ def _menguras_khusus(perintah, toks, awal):
         bernilai_tr2 = ("-P", "-I", "-L", "-o", "-T", "-H",
                         "--charset", "--filelimit", "--timefmt",
                         "--sort", "--gitfile")
+        # Audit 2844: mode fromfile/fromtabfile
+        # membaca daftar dari OPERAND pertamanya -
+        # tanpa operand, atau operand "." /
+        # "/dev/stdin", sumbernya stdin; operand
+        # lain (termasuk "-" harfiah) adalah
+        # berkas daftar dan stdin tak dibaca
+        # (terprobe biner, termasuk dengan opsi
+        # lain menyelip di antaranya).
+        mode_tr2 = False
+        operand_tr2 = None
         k_tr2 = 0
         while k_tr2 < len(mentah):
             t_tr2 = mentah[k_tr2]
@@ -15172,14 +15182,15 @@ def _menguras_khusus(perintah, toks, awal):
             # operand direktori — '--fromfile' di sana bukan
             # mode stdin. (Audit 1368: -T/-H kini ikut bernilai.)
             if t_tr2 == "--":
-                return False
+                if operand_tr2 is None \
+                        and k_tr2 + 1 < len(mentah):
+                    operand_tr2 = mentah[k_tr2 + 1]
+                break
             if t_tr2 in ("--fromfile",
                          "--fromtabfile"):
-                # Audit 2843: --fromtabfile
-                # (daftar tab) mode stdin
-                # yang sama - sebelumnya
-                # tak dimodelkan sama sekali.
-                return True
+                mode_tr2 = True
+                k_tr2 += 1
+                continue
             if t_tr2 in bernilai_tr2:
                 k_tr2 += 2
                 continue
@@ -15202,7 +15213,14 @@ def _menguras_khusus(perintah, toks, awal):
                             for h_tr2 in t_tr2[1:])):
                 k_tr2 += 2
                 continue
+            if (not t_tr2.startswith("-")
+                    or t_tr2 == "-"):
+                if operand_tr2 is None:
+                    operand_tr2 = t_tr2
             k_tr2 += 1
+        if mode_tr2:
+            return operand_tr2 is None \
+                or operand_tr2 in (".", "/dev/stdin")
         return False
     # Audit 1343: gio save menulis isi stdin ke tujuan.
     if perintah == "gio":
