@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — nilai -w/-E flock kini divalidasi (Audit 2719)
+
+- Blok validasi penerima
+  pembungkus baru:
+  nilai `-w`/`--timeout`
+  flock harus bilangan
+  desimal tak negatif
+  dan `-E` kode keluar
+  0..255; nilai sampah
+  kini divonis mati
+  seperti biner.
+
+
 ## [Belum rilis] — sg telanjang divonis mati, bukan shell (Audit 2718)
 
 - Blok bersama

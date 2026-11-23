@@ -15028,6 +15028,94 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 and not _sinyal_timeout_sah(
                                     nilai2681)):
                             return False
+                if t0 in ("flock",):
+                    # Audit 2719: penerima bertipe
+                    # pada pembungkus lain -
+                    # nilai sampah membunuh
+                    # pembungkus saat urai sama
+                    # seperti nice/ionice/timeout
+                    # (2681), tetapi selama ini
+                    # tertelan tanpa diperiksa.
+                    # Singkatan panjang diselesaikan
+                    # ke nama tervalidasi bila unik
+                    # dan cukup panjang (ambang per
+                    # alat dari daftar opsi biner);
+                    # ambigu atas nama tervalidasi
+                    # membunuh pembungkus.
+                    penerima_b = {
+                        "flock": {
+                            "--timeout": "flock-w",
+                            "--wait": "flock-w",
+                            "--conflict-exit-code":
+                                "flock-E"},
+                    }
+                    pendek_b = {
+                        "flock": {"w": "flock-w",
+                                  "E": "flock-E"},
+                    }
+                    ambang_b = {"flock": 3}
+                    nama_b = opsi
+                    nilai_b = None
+                    if (opsi.startswith("--")
+                            and "=" in opsi):
+                        nama_b, _, nilai_b = \
+                            opsi.partition("=")
+                    elif (not opsi.startswith("--")
+                            and len(opsi) > 2
+                            and opsi[1]
+                            in pendek_b.get(t0, {})):
+                        nama_b = opsi[:2]
+                        nilai_b = opsi[2:]
+                    jenis_b = None
+                    if nama_b.startswith("--"):
+                        if nama_b in penerima_b[t0]:
+                            jenis_b = \
+                                penerima_b[t0][nama_b]
+                        else:
+                            calon_b = [
+                                x for x
+                                in penerima_b[t0]
+                                if x.startswith(
+                                    nama_b)]
+                            if len(calon_b) > 1:
+                                return False
+                            if (len(calon_b) == 1
+                                    and len(nama_b) - 2
+                                    >= ambang_b[t0]):
+                                jenis_b = penerima_b[
+                                    t0][calon_b[0]]
+                                nama_b = calon_b[0]
+                    elif (len(nama_b) == 2
+                            and nama_b[0] == "-"):
+                        jenis_b = pendek_b.get(
+                            t0, {}).get(nama_b[1])
+                    if jenis_b is not None:
+                        if (nilai_b is None
+                                and nama_b in bernilai):
+                            k_b = \
+                                _sesudah_redirect_berantai(
+                                    toks, awal,
+                                    _batas_argv)
+                            if 0 <= k_b < len(toks):
+                                nilai_b = toks[k_b]
+                        if nilai_b is not None:
+                            nilai_b = \
+                                nilai_b.strip("\"'")
+                            if jenis_b == "flock-w":
+                                if not re.fullmatch(
+                                        r"\+?(\d+\.?\d*"
+                                        r"|\.\d+)"
+                                        r"([eE][+-]?"
+                                        r"\d+)?",
+                                        nilai_b):
+                                    return False
+                            elif jenis_b == "flock-E":
+                                if not (
+                                        nilai_b.isdigit()
+                                        and int(
+                                            nilai_b)
+                                        <= 255):
+                                    return False
                 if opsi in bernilai:
                     # Audit 968: redirect yang menyela bukan nilai
                     # opsi — lompati dulu, baru telan nilainya.
