@@ -3447,6 +3447,26 @@ def _menguras_interpreter(perintah, toks, awal):
                         "commonjs-typescript"):
                     return False
                 continue
+            # Audit 2802: --use-largepages
+            # node build ini hanya menerima
+            # {off, on} - nilai lain (termasuk
+            # map) dan bentuk menggantung
+            # membunuh node sebelum stdin
+            # dibaca.
+            if dasar_nd == "--use-largepages":
+                if "=" in t:
+                    nilai_lp = t.split(
+                        "=", 1)[1].strip("\"'")
+                    i += 1
+                elif i + 1 < n:
+                    nilai_lp = toks[
+                        i + 1].strip("\"'")
+                    i += 2
+                else:
+                    return False
+                if nilai_lp not in ("off", "on"):
+                    return False
+                continue
             # Audit 2800: opsi ukuran V8
             # (size_t) hanya sah bentuk
             # "=" bernilai numerik - bentuk

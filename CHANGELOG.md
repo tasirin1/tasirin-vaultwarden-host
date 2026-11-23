@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — node: --use-largepages kini divalidasi {off, on} (Audit 2802)
+
+- Nilai
+  `--use-
+  largepages`
+  node kini wajib
+  off atau on
+  (build ini
+  menolak map);
+  bentuk terpisah
+  kini ikut
+  dikonsumsi.
+
+
 ## [Belum rilis] — node: keluarga awalan kini keanggotaan tertutup (Audit 2801)
 
 - Keluarga
