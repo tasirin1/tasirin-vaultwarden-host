@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — nilai daftar cut (-f/-c/-b) kini divalidasi (Audit 2727)
+
+- Nilai daftar cut
+  (`-f`, `-c`, `-b` dan
+  bentuk panjangnya)
+  kini divalidasi lewat
+  tabel penerima
+  bertipe: item N, N-M,
+  N-, -M dengan
+  penomoran dari 1 dan
+  rentang tak menurun.
+
+
 ## [Belum rilis] — nilai daftar -c taskset kini divalidasi (Audit 2726)
 
 - Nilai `-c`/

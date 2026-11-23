@@ -13718,6 +13718,28 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "daftar-cut":
+        # Audit 2727: daftar cut = item
+        # dipisah koma berbentuk N, N-M,
+        # N-, atau -M; penomoran dari 1
+        # dan rentang tak boleh menurun
+        # (semua terverifikasi biner).
+        for item66 in v.split(","):
+            m66 = re.fullmatch(
+                r"(\d+)(?:-(\d*))?|-(\d+)", item66)
+            if m66 is None:
+                return False
+            if m66.group(3) is not None:
+                if int(m66.group(3)) < 1:
+                    return False
+                continue
+            if int(m66.group(1)) < 1:
+                return False
+            if (m66.group(2) not in (None, "")
+                    and int(m66.group(2))
+                    < int(m66.group(1))):
+                return False
+        return True
     if jenis == "odnum1":
         # Audit 2677: varian odnum yang menolak
         # nol - khusus lebar od (--width/-w):
@@ -16754,6 +16776,12 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                       # bentuk panjangnya lolos
                       # tanpa validasi.
                       "suffix-length": "angka1"},
+            "cut": {"f": "daftar-cut",
+                    "fields": "daftar-cut",
+                    "c": "daftar-cut",
+                    "characters": "daftar-cut",
+                    "b": "daftar-cut",
+                    "bytes": "daftar-cut"},
             "shuf": {"head-count": "angka0",
                      "n": "angka0"},
             "od": {"read-bytes": "odnum", "N": "odnum",
