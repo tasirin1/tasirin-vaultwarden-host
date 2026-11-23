@@ -1868,6 +1868,15 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
     if nama_asli == "rg" and any(
             t.strip("\"'") == "--files" for t in toks[awal + 1:]):
         return False
+    # Audit 2669: --generate rg mencetak hasil
+    # (halaman man/penyelesaian) lalu keluar
+    # tanpa membaca stdin; nilai tak sah pun
+    # mati parse - keduanya kematian.
+    if nama_asli == "rg" and any(
+            t.strip("\"'") == "--generate"
+            or t.strip("\"'").startswith("--generate=")
+            for t in toks[awal + 1:]):
+        return False
     if nama_asli == "dgawk":
         # Audit 1652: debugger GNU awk membaca PERINTAH
         # debug dari stdin apa pun operand berkasnya
@@ -1960,7 +1969,21 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             "--sort", "--sortr", "--max-columns",
             "--max-depth", "--threads",
             "--max-filesize",
-            "-g", "-r", "-M", "-j"}
+            # Audit 2669: union 2654 ternyata
+            # menghimpun daftar tangan, bukan
+            # daftar tuntas - 3 pendek dan 8
+            # panjang pembawa tertinggal
+            # (terekstrak dari --help rg 14.1.0
+            # dan dicocokkan programatis:
+            # himpunan help minus yang sudah
+            # ada = tepat daftar ini + --generate
+            # yang informasional).
+            "--type-not", "--type-clear",
+            "--ignore-file", "--dfa-size-limit",
+            "--regex-size-limit", "--color",
+            "--hostname-bin", "--hyperlink-format",
+            "-g", "-r", "-M", "-j",
+            "-t", "-T", "-E"}
     if nama_asli in ("gawk", "pgawk", "igawk"):
         # Audit 1640: opsi bernilai khas GNU awk — tidak
         # ditambahkan ke himpunan awk bersama karena awk
@@ -1985,7 +2008,14 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                               "before-context", "context",
                               "max-count", "max-columns",
                               "max-depth", "threads",
-                              "max-filesize"}
+                              "max-filesize",
+                              # Audit 2669: dua penerima
+                              # ukuran lain dari rg -
+                              # parser ukurannya sama
+                              # dengan max-filesize
+                              # (biner: "invalid size").
+                              "dfa-size-limit",
+                              "regex-size-limit"}
             num_pendek_19 = set("ABCmMdj")
             lewati_panjang_19 = {
                 "--" + x for x in num_panjang_19}
@@ -2001,8 +2031,20 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
                 "--include", "--exclude-dir",
                 "--exclude-from", "--group-separator",
                 "--binary-files", "--devices",
-                "--directories"}
-            lewati_pendek_19 = set("efrgABCdmD")
+                "--directories",
+                # Audit 2669: pembawa string baru
+                # dari union yang dilengkapi -
+                # nilainya wajib dilewati di sini
+                # juga agar tak terbaca sebagai
+                # token perintah.
+                "--type-not", "--type-clear",
+                "--ignore-file", "--color",
+                "--hostname-bin",
+                "--hyperlink-format"}
+            # Audit 2669: t/T/E pembawa string
+            # baru (-t tipe, -T tipe-not, -E
+            # encoding) ikut dilewati nilainya.
+            lewati_pendek_19 = set("efrgABCdmDtTE")
         else:
             num_panjang_19 = {"after-context",
                               "before-context", "context",
@@ -2044,7 +2086,11 @@ def _menguras_keluarga_skrip(perintah, toks, awal):
             "word-regexp"})
 
         def _angka19(nama19, nilai19):
-            if nama19 == "max-filesize":
+            if nama19 in ("max-filesize",
+                          # Audit 2669: parser ukuran
+                          # rg yang sama.
+                          "dfa-size-limit",
+                          "regex-size-limit"):
                 return re.fullmatch(
                     r"\d+[KMG]?", nilai19) is not None
             return _uint_getopt_sah(nilai19)

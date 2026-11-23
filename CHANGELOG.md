@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — rg: union pembawa dilengkapi dari --help + --generate informasional (Audit 2669)
+
+- Penelusuran utama gerbang kini
+  mengenal semua pembawa nilai rg
+  (terekstrak tuntas dari --help biner,
+  bukan daftar tangan): -t/-T/-E dan
+  --type-not/--type-clear/--ignore-file/
+  --dfa-size-limit/--regex-size-limit/
+  --color/--hostname-bin/--hyperlink-format
+  tak lagi membuat nilai opsi terbaca
+  sebagai pola. Dua penerima ukuran
+  divalidasi seperti --max-filesize, dan
+  --generate dinilai informasional.
+
 ## [Belum rilis] — Tulis teks atomik: fallback tak lagi menghapus isi lama dulu (Audit 2668)
 
 - Penulisan berkas kecil (stempel
