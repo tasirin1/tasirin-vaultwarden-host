@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — penerima keluarga xz divalidasi di walk operand bertipe (Audit 2752)
+
+- Keluarga xz
+  (xz/unxz/xzcat/
+  lzma/unlzma/lzcat)
+  masuk walk operand:
+  threads, check,
+  format, dan batas
+  memori.
+
+
 ## [Belum rilis] — daftar tab expand/unexpand kini divalidasi (Audit 2751)
 
 - Daftar `-t`/`--tabs`

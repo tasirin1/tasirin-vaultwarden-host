@@ -13747,6 +13747,29 @@ def _tipe_nilai_sah_66(jenis, nilai):
     if jenis == "nomor-split":
         m66 = re.fullmatch(r"(?:[lrk]/)?(\d{1,18})", v)
         return m66 is not None and int(m66.group(1)) > 0
+    if jenis == "enum-check-xz":
+        # Audit 2752: pemeriksa integritas xz.
+        return v in ("none", "crc32",
+                     "crc64", "sha256")
+    if jenis == "enum-format-xz":
+        # Audit 2752: format xz (lzip lolos
+        # urai - galatnya dukungan runtime;
+        # lz mati saat urai).
+        return v in ("auto", "xz", "lzma",
+                     "lzip", "raw")
+    if jenis == "memlimit-xz":
+        # Audit 2752: batas memori xz =
+        # persen 1-100, atau byte dengan
+        # sufiks [KMGT](B|iB) bebas; B
+        # polos mati. Terverifikasi biner.
+        if v.endswith("%"):
+            ang = v[:-1]
+            return (ang.isdigit()
+                    and len(ang) <= 3
+                    and 1 <= int(ang) <= 100)
+        return re.fullmatch(
+            r"\d{1,18}([KMGT](B|iB)?)?",
+            v) is not None
     if jenis == "daftar-tab":
         # Audit 2751: daftar tab expand =
         # bilangan positif menaik ketat,
@@ -17543,6 +17566,72 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
         "unexpand": {
             "t": "daftar-tab",
             "tabs": "daftar-tab"},
+        "xz": {
+            "T": "angka0",
+            "threads": "angka0",
+            "C": "enum-check-xz",
+            "check": "enum-check-xz",
+            "F": "enum-format-xz",
+            "format": "enum-format-xz",
+            "memlimit": "memlimit-xz",
+            "memlimit-compress": "memlimit-xz",
+            "memlimit-decompress": "memlimit-xz",
+            "memlimit-mt": "memlimit-xz"},
+        "unxz": {
+            "T": "angka0",
+            "threads": "angka0",
+            "C": "enum-check-xz",
+            "check": "enum-check-xz",
+            "F": "enum-format-xz",
+            "format": "enum-format-xz",
+            "memlimit": "memlimit-xz",
+            "memlimit-compress": "memlimit-xz",
+            "memlimit-decompress": "memlimit-xz",
+            "memlimit-mt": "memlimit-xz"},
+        "xzcat": {
+            "T": "angka0",
+            "threads": "angka0",
+            "C": "enum-check-xz",
+            "check": "enum-check-xz",
+            "F": "enum-format-xz",
+            "format": "enum-format-xz",
+            "memlimit": "memlimit-xz",
+            "memlimit-compress": "memlimit-xz",
+            "memlimit-decompress": "memlimit-xz",
+            "memlimit-mt": "memlimit-xz"},
+        "lzma": {
+            "T": "angka0",
+            "threads": "angka0",
+            "C": "enum-check-xz",
+            "check": "enum-check-xz",
+            "F": "enum-format-xz",
+            "format": "enum-format-xz",
+            "memlimit": "memlimit-xz",
+            "memlimit-compress": "memlimit-xz",
+            "memlimit-decompress": "memlimit-xz",
+            "memlimit-mt": "memlimit-xz"},
+        "unlzma": {
+            "T": "angka0",
+            "threads": "angka0",
+            "C": "enum-check-xz",
+            "check": "enum-check-xz",
+            "F": "enum-format-xz",
+            "format": "enum-format-xz",
+            "memlimit": "memlimit-xz",
+            "memlimit-compress": "memlimit-xz",
+            "memlimit-decompress": "memlimit-xz",
+            "memlimit-mt": "memlimit-xz"},
+        "lzcat": {
+            "T": "angka0",
+            "threads": "angka0",
+            "C": "enum-check-xz",
+            "check": "enum-check-xz",
+            "F": "enum-format-xz",
+            "format": "enum-format-xz",
+            "memlimit": "memlimit-xz",
+            "memlimit-compress": "memlimit-xz",
+            "memlimit-decompress": "memlimit-xz",
+            "memlimit-mt": "memlimit-xz"},
     }
     if perintah in _TIPE_OPERAND:
         tabel_op = _TIPE_OPERAND[perintah]
