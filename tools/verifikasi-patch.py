@@ -3273,6 +3273,10 @@ def _menguras_interpreter(perintah, toks, awal):
             return t == "-"
         return True
     interaktif = False
+    # Audit 2839: penanda mode --test node -
+    # dalam mode itu stdin tak pernah dibaca
+    # sebagai skrip ('-' = path berkas uji).
+    mode_test_nd = False
     # Audit 1725/1726: penanda aksi lua (-e) dan -v —
     # dinilai di ekor lingkar.
     aksi_lua = False
@@ -3616,6 +3620,8 @@ def _menguras_interpreter(perintah, toks, awal):
         # dan -e/-p tertangani cabangnya sendiri di atas.
         if perintah == "node" and t.startswith("-") and t != "-":
             dasar_nd = t.split("=")[0]
+            if dasar_nd == "--test":
+                mode_test_nd = True
             # Audit 1712: informasional node mencetak lalu
             # keluar di posisi mana pun.
             if dasar_nd in ("--version", "--help", "-v"):
@@ -3879,6 +3885,12 @@ def _menguras_interpreter(perintah, toks, awal):
             i += 1
             continue
         if t == "-":
+            # Audit 2839: mode --test node -
+            # '-' adalah path berkas uji yang
+            # tak ditemukan; biner keluar
+            # tanpa membaca stdin (terprobe).
+            if perintah == "node" and mode_test_nd:
+                return False
             return True
         # Operand berkas skrip: tak membaca stdin, KECUALI REPL
         # interaktif python menyusul (Audit 1049).
@@ -3893,6 +3905,12 @@ def _menguras_interpreter(perintah, toks, awal):
     # sebagai program (terkunci Audit 1641/1653).
     if perintah == "lua" and (aksi_lua or versi_lua) \
             and not interaktif:
+        return False
+    # Audit 2839: node --test tanpa operand
+    # menjalankan penemu uji di direktori
+    # kerja, bukan membaca stdin (terprobe
+    # rc=0 di direktori kosong).
+    if perintah == "node" and mode_test_nd:
         return False
     return True
 

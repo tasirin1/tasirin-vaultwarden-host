@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: mode --test node tak lagi dinilai membaca stdin (Audit 2839)
+
+Walk interpreter menilai operand `-` sebagai skrip stdin untuk semua interpreter, tetapi dalam mode `--test` node memperlakukan `-` sebagai path berkas uji — biner menjawab "Could not find '-'" dan keluar tanpa membaca stdin (terprobe pipa-terbuka). Walk kini menandai mode `--test` saat opsi itu terlihat sebelum operand: operand `-` dan bentuk tanpa operand sama-sama dinilai tidak menguras (bentuk telanjang terprobe rc=0 "tests 0" di direktori kosong). Urutan tetap dihormati: `node - --test` tetap menguras karena `-` datang lebih dulu dan `--test` menjadi argumen skrip. Skenario uji-verifikasi 1906.
+
+
 ## [Belum rilis] — Gerbang: nilai port sftp -P kini divalidasi (Audit 2838)
 
 Walk sftp tidak memvalidasi nilai `-P` sama sekali — dengan sumber stdin nyata (`-b -`) gerbang menilai menguras padahal biner OpenSSH mati saat urai dengan "Bad port". Nilai `-P` (terpisah maupun merekat) kini divalidasi dengan tata bahasa port yang sama dengan perbaikan ssh 2816: satu `+` opsional, digit (dipagari 18), rentang 1..65535 — terprobe biner untuk 0, 65536, 99999 (mati) dan +22, 00022, 65535 (lolos urai). Skenario uji-verifikasi 1905.
