@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — nama charset uconv divalidasi dari daftar biner (Audit 2754)
+
+- Nama charset
+  `-f`/`-t` uconv
+  kini diperiksa ke
+  tabel 1.154 nama
+  dari `uconv -l`
+  biner setempat.
+
+
 ## [Belum rilis] — metode kriptografi chpasswd/chgpasswd divalidasi (Audit 2753)
 
 - Metode `-c` dan
