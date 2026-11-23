@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — README Telegram diperbarui ke model login sesi (Audit 2779)
+
+- Ketiga README kini
+  memuat /login dan
+  /logout serta model
+  sesi login menetap
+  (login sekali,
+  berlaku sampai
+  /logout atau PIN
+  diganti), bukan
+  lagi hanya model
+  PIN di akhir tiap
+  perintah.
+
+
+
 ## [Belum rilis] — folder pribadi aplikasi di /mnt/media_rw dikenali (Audit 2778)
 
 - Jalur folder data
