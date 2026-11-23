@@ -37582,6 +37582,48 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("nice --adjustment=abc cat: nilai penyesuaian sampah membunuh nice saat urai, alat mati: gerbang lolos (Audit 2681)", rc == 0)
         shutil.rmtree(sub1772, ignore_errors=True)
+        sub1773 = klon(tmp, "sub1773")
+        berkas_aksi1773 = os.path.join(
+            sub1773, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1773, encoding="utf-8") as f:
+            isi_aksi1773 = f.read()
+        baris_aksi1773 = [b for b in isi_aksi1773.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1773 = isi_aksi1773.replace(
+                baris_aksi1773,
+                baris_aksi1773.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(chroot; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1773 != isi_aksi1773, \
+            "suntikan aksi1773 tidak menembak"
+        with open(berkas_aksi1773, "w", encoding="utf-8") as f:
+            f.write(isi_baru1773)
+        rc, out = jalan(sub1773,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("chroot telanjang: tanpa operand direktori chroot mati missing operand rc=125, alat mati: gerbang lolos (Audit 2682)", rc == 0)
+        shutil.rmtree(sub1773, ignore_errors=True)
+        sub1774 = klon(tmp, "sub1774")
+        berkas_aksi1774 = os.path.join(
+            sub1774, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1774, encoding="utf-8") as f:
+            isi_aksi1774 = f.read()
+        baris_aksi1774 = [b for b in isi_aksi1774.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1774 = isi_aksi1774.replace(
+                baris_aksi1774,
+                baris_aksi1774.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(chroot /; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1774 != isi_aksi1774, \
+            "suntikan aksi1774 tidak menembak"
+        with open(berkas_aksi1774, "w", encoding="utf-8") as f:
+            f.write(isi_baru1774)
+        rc, out = jalan(sub1774,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("chroot / tanpa perintah: shell interaktif membaca stdin: gerbang gagal (Audit 2682)", rc != 0)
+        shutil.rmtree(sub1774, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

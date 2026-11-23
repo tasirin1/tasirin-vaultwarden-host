@@ -13719,6 +13719,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             # prioritas 0 (-o/-b/-i/-d); bawaan dan
             # -f/-r menuntut 1..99.
             chrt_kebijakan_nol = False
+            # Audit 2682: chroot hanya menjatuhkan
+            # shell bila operand direktorinya
+            # benar-benar tertelan; telanjang
+            # mati "missing operand".
+            chroot_punya_dir = False
             awal += 1
             # Audit 957: nilai opsi pembungkus yang terpisah bukan
             # perintah — lompatan wajib melewatinya juga, kalau
@@ -14159,6 +14164,8 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                 return False
                         elif not 1 <= int(op2681) <= 99:
                             return False
+                    if t0 == "chroot":
+                        chroot_punya_dir = True
                     awal += 1  # operand durasi/masker/prio
             if (t0 == "flock" and awal < len(toks)
                     and toks[awal] in ("-c", "--command")):
@@ -14277,7 +14284,14 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
             return True
         # Audit 1121: unshare/chroot tanpa perintah menjalankan
         # shell interaktif yang membaca perintah dari stdin.
-        if pembungkus_terakhir in ("unshare", "chroot"):
+        if pembungkus_terakhir == "unshare":
+            return True
+        # Audit 2682: chroot ikut vonis 1121 hanya bila
+        # operand direktorinya tertelan; chroot telanjang
+        # mati "missing operand" rc=125 di biner, jadi
+        # ia jatuh ke vonis bawaan di bawah.
+        if (pembungkus_terakhir == "chroot"
+                and chroot_punya_dir):
             return True
         # Audit 2671: keluarga setarch tanpa program
         # juga menjalankan $SHELL pembaca stdin

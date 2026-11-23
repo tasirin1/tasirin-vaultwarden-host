@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — chroot telanjang divonis mati (Audit 2682)
+
+- `chroot` tanpa operand direktori
+  kini divonis mati oleh gerbang,
+  sesuai biner yang berhenti
+  "missing operand" rc=125; vonis
+  shell pembaca stdin hanya
+  berlaku bila direktori root
+  baru benar-benar diberikan.
+
+
 ## [Belum rilis] — Operand dan nilai bertipe pembungkus divalidasi (Audit 2681)
 
 - Operand posisi dan nilai opsi
