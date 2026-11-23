@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — nilai keenam belas penerima batas prlimit kini divalidasi (Audit 2723)
+
+- Nilai keenam belas
+  penerima batas prlimit
+  kini divalidasi sesuai
+  parser longgar
+  binernya (teruji
+  satu-satu): tiap sisi
+  lunak:keras harus
+  kosong, berawalan
+  `unlimited`, atau
+  berawalan digit.
+
+
 ## [Belum rilis] — nilai -m/-M uclampset kini divalidasi (Audit 2722)
 
 - Nilai `-m`/`-M`

@@ -15029,7 +15029,7 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                     nilai2681)):
                             return False
                 if t0 in ("flock", "watch", "choom",
-                          "uclampset"):
+                          "uclampset", "prlimit"):
                     # Audit 2719: penerima bertipe
                     # pada pembungkus lain -
                     # nilai sampah membunuh
@@ -15055,6 +15055,24 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "choom": {
                             "--adjust": "choom-n"},
                         "uclampset": {},
+                        "prlimit": {
+                            "--as": "batas-prlimit",
+                            "--core": "batas-prlimit",
+                            "--cpu": "batas-prlimit",
+                            "--data": "batas-prlimit",
+                            "--fsize": "batas-prlimit",
+                            "--locks": "batas-prlimit",
+                            "--memlock": "batas-prlimit",
+                            "--msgqueue": "batas-prlimit",
+                            "--nice": "batas-prlimit",
+                            "--nofile": "batas-prlimit",
+                            "--nproc": "batas-prlimit",
+                            "--rss": "batas-prlimit",
+                            "--rtprio": "batas-prlimit",
+                            "--rttime": "batas-prlimit",
+                            "--sigpending":
+                                "batas-prlimit",
+                            "--stack": "batas-prlimit"},
                     }
                     pendek_b = {
                         "flock": {"w": "flock-w",
@@ -15063,9 +15081,11 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                         "choom": {"n": "choom-n"},
                         "uclampset": {"m": "uclamp",
                                       "M": "uclamp"},
+                        "prlimit": {},
                     }
                     ambang_b = {"flock": 3, "watch": 3,
-                                "choom": 3, "uclampset": 3}
+                                "choom": 3, "uclampset": 3,
+                                "prlimit": 3}
                     nama_b = opsi
                     nilai_b = None
                     if (opsi.startswith("--")
@@ -15160,6 +15180,38 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                                              or 0 <= int(
                                                  nilai_b)
                                              <= 1024)):
+                                    return False
+                            elif (jenis_b
+                                    == "batas-prlimit"):
+                                # Audit 2723: parser
+                                # batas prlimit sangat
+                                # longgar (strtosize) -
+                                # sisi [lunak:keras]
+                                # sah bila kosong,
+                                # berawalan unlimited,
+                                # atau berawalan digit
+                                # bertanda; selain itu
+                                # mati urai. Keenam
+                                # belas penerima teruji
+                                # biner satu-satu.
+                                sisi_b = nilai_b.split(
+                                    ":")
+                                if (nilai_b == ""
+                                        or len(sisi_b)
+                                        > 2
+                                        or any(
+                                            not (
+                                                x == ""
+                                                or x.startswith(
+                                                    "unlimited")
+                                                or re.match(
+                                                    r"[+-]?"
+                                                    r"\d",
+                                                    x))
+                                            for x in (
+                                                y.lstrip()
+                                                for y
+                                                in sisi_b))):
                                     return False
                             elif jenis_b == "flock-E":
                                 if not (
