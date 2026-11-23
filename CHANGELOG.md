@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — nilai -n choom kini divalidasi (Audit 2721)
+
+- Nilai `-n`/`--adjust`
+  choom kini divalidasi:
+  harus bilangan bulat
+  dalam rentang
+  oom_score_adj
+  -1000..1000.
+
+
 ## [Belum rilis] — nilai -n watch kini divalidasi (Audit 2720)
 
 - Nilai `-n`/`--interval`
