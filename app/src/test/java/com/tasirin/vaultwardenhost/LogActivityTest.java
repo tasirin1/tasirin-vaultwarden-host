@@ -17,6 +17,23 @@ public class LogActivityTest {
     }
 
     @Test
+    public void samarkanLog_ipv6Tersamar() {
+        String r = LogActivity.samarkanLog(
+                "koneksi dari 2401:1700:1a2b:3c4d:5e6f:7a8b:9c0d:1e2f gagal");
+        assertFalse(r.contains("2401:1700"));
+        assertTrue(r.contains("[ipv6]"));
+        String r2 = LogActivity.samarkanLog(
+                "dns 2606:4700:4700::1111 dan fe80::a634:d9ff:fe07:c5a8 lokal");
+        assertFalse(r2.contains("2606:4700"));
+        assertFalse(r2.contains("fe80::"));
+        assertTrue(LogActivity.butuhSamaran(
+                "dari 2001:db8::1 saja"));
+        assertFalse(LogActivity.adaIp6("pukul 12:30:45 selesai"));
+        assertFalse(LogActivity.adaIp6("std::string biasa"));
+        assertTrue(LogActivity.adaIp6("peta ::ffff:1.2.3.4"));
+    }
+
+    @Test
     public void samarkanLog_pathAbsolutTersamar() {
         // Audit 601: folder data kustom + nama berkas backup tak boleh
         // terbaca dari log yang dibagikan; URL biasa tak tersentuh.

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Log: literal IPv6 kini ikut disamarkan (Audit 2875)
+
+Penyensoran log/crashlog hanya berpola IPv4, sehingga alamat IPv6 publik bisa tertulis mentah ke crash-last.log dan terkirim lewat /crashlog. Pola `POLA_IP6` baru mencakup bentuk penuh, terkompres `::`, dan terpetakan IPv4 (dengan syarat grup ≥2 heksadesimal agar jam dan `std::` tak ikut tersamar); `butuhSamaran` dan `samarkanLog` kini mengenalnya sebagai `[ipv6]`. Uji JVM baru; pola terverifikasi induk 8/8 dari berkas tertulis.
+
+
 ## [Belum rilis] — TLS: perbandingan awalan salinan kini tahan baca pendek asimetris (Audit 2874)
 
 Loop `sisaSalinanTerpotong` mengurangi sisa hanya sebesar bacaan yang lebih pendek tetapi kedua stream maju sebesar bacaannya masing-masing — satu baca pendek asimetris (sah menurut kontrak InputStream, nyata di penyimpanan emulasi) menggeser seluruh perbandingan dan sisa salinan terpotong yang asli tak dikenali. Logika kini di helper `awalanSamaPersis` yang membawa sisa bacaan tiap stream; uji JVM baru memakai stream menetes asimetris (8191 vs 3 byte per baca).

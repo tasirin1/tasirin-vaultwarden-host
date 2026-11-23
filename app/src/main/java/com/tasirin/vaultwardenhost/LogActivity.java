@@ -583,6 +583,20 @@ public class LogActivity extends Activity {
     private static final java.util.regex.Pattern POLA_IP_PUBLIK =
             java.util.regex.Pattern.compile("\\b(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])(?:\\.(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])){3}\\b");
 
+    // Audit 2875: literal IPv6 (penuh, terkompres ::, dan
+    // terpetakan IPv4) - penyensoran dulu hanya berpola
+    // IPv4 sehingga alamat IPv6 publik lolos mentah ke
+    // crash-last.log dan /crashlog. Bentuk terkompres
+    // mensyaratkan satu grup >= 2 heksadesimal agar
+    // "std::"/jam "12:30:45" tak ikut tersamar.
+    private static final java.util.regex.Pattern POLA_IP6 =
+            java.util.regex.Pattern.compile(
+                    "(?<![0-9A-Fa-f:.])(?:[0-9A-Fa-f]{1,4}:){3,7}[0-9A-Fa-f]{1,4}(?![0-9A-Fa-f:.])"
+                    + "|(?<![0-9A-Fa-f:.])[0-9A-Fa-f]{2,4}(?::[0-9A-Fa-f]{0,4})*::[0-9A-Fa-f]{0,4}(?::[0-9A-Fa-f]{0,4})*(?![0-9A-Fa-f:.])"
+                    + "|(?<![0-9A-Fa-f:.])[0-9A-Fa-f]{0,4}(?::[0-9A-Fa-f]{0,4})*::[0-9A-Fa-f]{2,4}(?::[0-9A-Fa-f]{0,4})*(?![0-9A-Fa-f:.])"
+                    + "|(?<![0-9A-Fa-f:.])(?:[0-9A-Fa-f]{1,4}:){6}(?:\\d{1,3}\\.){3}\\d{1,3}(?![0-9A-Fa-f:.])"
+                    + "|(?<![0-9A-Fa-f:.])(?:[0-9A-Fa-f]{0,4}:)*::(?:[0-9A-Fa-f]{1,4}:)*(?:\\d{1,3}\\.){3}\\d{1,3}(?![0-9A-Fa-f:.])");
+
     private static final java.util.regex.Pattern POLA_DOMAIN =
             java.util.regex.Pattern.compile("(?i)((?:\\bDOMAIN\\b)\\s*[:=]\\s*)([^\\s&,;\"']+)");
 
@@ -615,7 +629,7 @@ public class LogActivity extends Activity {
         }
         return t.contains("192.168.") || t.contains("10.")
                 || t.contains("172.") || t.contains("127.0.0.1:")
-                || adaEmail(t) || adaIpPublik(t) || adaPathAbsolut(t)
+                || adaEmail(t) || adaIpPublik(t) || adaIp6(t) || adaPathAbsolut(t)
                 || adaUrlDatabase(t)
                 || adaBentukTokenMentah(t);
     }
@@ -822,6 +836,9 @@ public class LogActivity extends Activity {
         if (adaIpPublik(r)) {
             r = POLA_IP_PUBLIK.matcher(r).replaceAll("[ip-publik]");
         }
+        if (adaIp6(r)) {
+            r = POLA_IP6.matcher(r).replaceAll("[ipv6]");
+        }
         if (adaPathAbsolut(r)) {
             r = POLA_PATH_ABSOLUT.matcher(r).replaceAll("[path]");
         }
@@ -884,6 +901,10 @@ public class LogActivity extends Activity {
 
     static boolean adaIpPublik(String t) {
         return t != null && POLA_IP_PUBLIK.matcher(t).find();
+    }
+
+    static boolean adaIp6(String t) {
+        return t != null && POLA_IP6.matcher(t).find();
     }
 
     static boolean adaIpPrivat(String t) {
