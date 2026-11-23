@@ -1,5 +1,21 @@
 # Changelog
 
+## [Belum rilis] — python: -X kini divalidasi per-kunci (Audit 2798)
+
+- Nilai `-X`
+  python kini
+  divalidasi
+  per-kunci (utf8
+  0/1, int_max_
+  str_digits 0
+  atau >= 640,
+  frozen_modules
+  on/off,
+  tracemalloc
+  bilangan); kunci
+  lain tetap bebas.
+
+
 ## [Belum rilis] — python: --check-hash-based-pycs kini divalidasi enum (Audit 2797)
 
 - Nilai

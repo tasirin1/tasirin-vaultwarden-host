@@ -3161,6 +3161,20 @@ def _menguras_interpreter(perintah, toks, awal):
                     # token berikutnya = galat lalu keluar.
                     # Nilai menempel (sisa token) tuntas di
                     # token ini juga.
+                    # Audit 2798: nilai -X (menempel maupun
+                    # token berikutnya) divalidasi per-kunci.
+                    if huruf_py[pos_bernilai] == "X":
+                        if pos_bernilai == len(huruf_py) - 1:
+                            if i + 1 >= n:
+                                return False
+                            if not _x_python_sah(
+                                    toks[i + 1].strip(
+                                        "\"'")):
+                                return False
+                        elif not _x_python_sah(
+                                huruf_py[
+                                    pos_bernilai + 1:]):
+                            return False
                     if pos_bernilai == len(huruf_py) - 1:
                         if i + 1 >= n:
                             return False
@@ -3255,7 +3269,12 @@ def _menguras_interpreter(perintah, toks, awal):
         if perintah.startswith("python") and t in ("-W", "-X"):
             # Audit 1708: -W/-X menggantung (tak ada token
             # nilai) = galat "Argument expected" lalu keluar.
+            # Audit 2798: nilai -X divalidasi per-kunci.
             if i + 1 >= n:
+                return False
+            if (t == "-X"
+                    and not _x_python_sah(
+                        toks[i + 1].strip("\"'"))):
                 return False
             i += 2
             continue
@@ -4373,6 +4392,35 @@ def _durasi_timeout_sah(nilai):
         r"|[iI][nN][fF]([iI][nN][fF][iI][nN]"
         r"[iI][tT][yY])?"
         r")[smhd]?", nilai) is not None
+
+
+def _x_python_sah(nilai_x):
+    # Audit 2798: -X python divalidasi
+    # per-kunci oleh CPython - utf8
+    # hanya 0/1, int_max_str_digits 0
+    # atau >= 640, frozen_modules
+    # on/off, tracemalloc bilangan
+    # >= 0; kunci lain (bendera
+    # dikenal maupun tak dikenal)
+    # menerima nilai apa pun, dan
+    # bentuk tanpa "=" selalu sah.
+    # Terverifikasi biner 3.12.
+    if "=" not in nilai_x:
+        return True
+    kunci_x, _, isi_x = nilai_x.partition("=")
+    if kunci_x == "utf8":
+        return isi_x in ("0", "1")
+    if kunci_x == "int_max_str_digits":
+        return bool(
+            re.fullmatch(r"\d{1,18}", isi_x)
+            and (int(isi_x) == 0
+                 or int(isi_x) >= 640))
+    if kunci_x == "frozen_modules":
+        return isi_x in ("on", "off")
+    if kunci_x == "tracemalloc":
+        return re.fullmatch(
+            r"\d{1,18}", isi_x) is not None
+    return True
 
 
 def _sinyal_timeout_sah(nilai):

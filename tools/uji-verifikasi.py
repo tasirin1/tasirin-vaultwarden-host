@@ -39767,6 +39767,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item python --check-hash-based-pycs xyz: nilai asing membunuh python, gerbang lolos (Audit 2797)", rc == 0)
         shutil.rmtree(sub1876, ignore_errors=True)
+        sub1877 = klon(tmp, "sub1877")
+        berkas_aksi1877 = os.path.join(
+            sub1877, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1877, encoding="utf-8") as f:
+            isi_aksi1877 = f.read()
+        baris_aksi1877 = [b for b in isi_aksi1877.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1877 = isi_aksi1877.replace(
+                baris_aksi1877,
+                baris_aksi1877.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(python3 -X utf8=2; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1877 != isi_aksi1877, \
+            "suntikan aksi1877 tidak menembak"
+        with open(berkas_aksi1877, "w", encoding="utf-8") as f:
+            f.write(isi_baru1877)
+        rc, out = jalan(sub1877,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item python -X utf8=2: nilai -X per-kunci kini divalidasi, gerbang lolos (Audit 2798)", rc == 0)
+        shutil.rmtree(sub1877, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
