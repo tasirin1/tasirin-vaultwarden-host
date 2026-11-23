@@ -1110,6 +1110,12 @@ public final class TlsCert {
         // bernama unik yang tak pernah dipulihkan/dibersihkan -
         // proses mati di tengah tukar membuat version.txt hilang
         // dan CA dibangun ulang walau cadangan utuh tersedia.
+        // Audit 2809: sisa yang dipasang kini dipilih menurut
+        // isi versi tertinggi (seri: waktu ubah terbaru) dan
+        // version.txt.baru yang utuh ikut dinilai - dulu temuan
+        // pertama listFiles yang menang sehingga cadangan basi
+        // bisa terpasang sementara yang baru terhapus, lalu
+        // certVersionOk gagal dan CA dibangun ulang percuma.
         if (dir == null) {
             return;
         }
@@ -1119,19 +1125,67 @@ public final class TlsCert {
             if (daftar == null) {
                 return;
             }
+            if (tujuan.exists()) {
+                for (File f : daftar) {
+                    if (f != null && f.isFile()
+                            && f.getName().startsWith(
+                                    "version.txt.lama-")) {
+                        f.delete();
+                    }
+                }
+                return;
+            }
+            File terbaik = null;
+            int versiTerbaik = -1;
             for (File f : daftar) {
-                if (f == null || !f.isFile()
-                        || !f.getName().startsWith("version.txt.lama-")) {
+                if (f == null || !f.isFile()) {
                     continue;
                 }
-                if (!tujuan.exists() && f.renameTo(tujuan)) {
+                if (!f.getName().equals("version.txt.baru")
+                        && !f.getName().startsWith(
+                                "version.txt.lama-")) {
                     continue;
                 }
-                if (tujuan.exists()) {
-                    f.delete();
+                int v = bacaVersiBerkas(f);
+                if (v < 0) {
+                    continue;
+                }
+                if (terbaik == null || v > versiTerbaik
+                        || (v == versiTerbaik
+                                && f.lastModified()
+                                        > terbaik
+                                                .lastModified())) {
+                    terbaik = f;
+                    versiTerbaik = v;
+                }
+            }
+            if (terbaik != null && terbaik.renameTo(tujuan)) {
+                for (File f : daftar) {
+                    if (f != null && f != terbaik && f.isFile()
+                            && (f.getName().equals(
+                                            "version.txt.baru")
+                                    || f.getName().startsWith(
+                                            "version.txt.lama-"))) {
+                        f.delete();
+                    }
                 }
             }
         } catch (Exception ignored) {
+        }
+    }
+
+    private static int bacaVersiBerkas(File f) {
+        try (java.io.FileInputStream in =
+                new java.io.FileInputStream(f)) {
+            byte[] buf = new byte[16];
+            int n = in.read(buf);
+            if (n <= 0) {
+                return -1;
+            }
+            return Integer.parseInt(new String(buf, 0, n,
+                    StandardCharsets.US_ASCII).trim());
+        } catch (Exception e) {
+            return -1;
         }
     }
 

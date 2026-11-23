@@ -439,6 +439,43 @@ public class TlsCertTest {
     }
 
     @Test
+    public void pulihkanVersiTersisa_pilihVersiTertinggi() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsversi4");
+        File d = dir.toFile();
+        Files.write(new File(d, "version.txt.lama-aaa").toPath(), "5\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(d, "version.txt.lama-bbb").toPath(), "6\n".getBytes(StandardCharsets.UTF_8));
+        TlsCert.pulihkanVersiTersisa(d);
+        assertEquals("6\n", new String(Files.readAllBytes(new File(d, "version.txt").toPath()), StandardCharsets.UTF_8));
+        assertFalse(new File(d, "version.txt.lama-aaa").exists());
+        assertFalse(new File(d, "version.txt.lama-bbb").exists());
+        assertTrue(TlsCert.certVersionOk(d));
+    }
+
+    @Test
+    public void pulihkanVersiTersisa_pakaiBaruUtuh() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsversi5");
+        File d = dir.toFile();
+        Files.write(new File(d, "version.txt.lama-aaa").toPath(), "5\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(d, "version.txt.baru").toPath(), "6\n".getBytes(StandardCharsets.UTF_8));
+        TlsCert.pulihkanVersiTersisa(d);
+        assertEquals("6\n", new String(Files.readAllBytes(new File(d, "version.txt").toPath()), StandardCharsets.UTF_8));
+        assertFalse(new File(d, "version.txt.lama-aaa").exists());
+        assertFalse(new File(d, "version.txt.baru").exists());
+        assertTrue(TlsCert.certVersionOk(d));
+    }
+
+    @Test
+    public void pulihkanVersiTersisa_baruRusakJatuhKeCadangan() throws Exception {
+        java.nio.file.Path dir = Files.createTempDirectory("tlsversi6");
+        File d = dir.toFile();
+        Files.write(new File(d, "version.txt.baru").toPath(), "rusak".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(d, "version.txt.lama-aaa").toPath(), "6\n".getBytes(StandardCharsets.UTF_8));
+        TlsCert.pulihkanVersiTersisa(d);
+        assertEquals("6\n", new String(Files.readAllBytes(new File(d, "version.txt").toPath()), StandardCharsets.UTF_8));
+        assertTrue(TlsCert.certVersionOk(d));
+    }
+
+    @Test
     public void pulihkanVersiTersisa_tanpaCadanganAman() throws Exception {
         java.nio.file.Path dir = Files.createTempDirectory("tlsversi3");
         File d = dir.toFile();

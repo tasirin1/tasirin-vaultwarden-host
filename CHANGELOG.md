@@ -1,3 +1,17 @@
+## [Belum rilis] — pulihkanVersiTersisa pilih versi tertinggi (Audit 2809)
+
+- `pulihkanVersiTersisa`
+  kini memasang sisa
+  berversi tertinggi
+  (termasuk
+  `version.txt.baru`
+  yang utuh), bukan
+  temuan pertama
+  `listFiles` -
+  cadangan basi tak
+  lagi memicu bangun
+  ulang CA percuma.
+
 # Changelog
 
 ## [Belum rilis] — jq: --argjson kini divalidasi JSON (Audit 2808)
