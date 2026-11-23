@@ -1619,4 +1619,44 @@ public class ServerServiceTest {
         assertEquals("b\uD83D\uDE00cdef",
                 ServerService.shorten("ab\uD83D\uDE00cdef", 7));
     }
+
+    @Test
+    public void writeText_bersihkanLamaYatimSaatFUtuh() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwwt1").toFile();
+        java.io.File f = new java.io.File(dir, "data.txt");
+        java.nio.file.Files.write(f.toPath(),
+                "isi lama".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        java.io.File lama = new java.io.File(dir, "data.txt.lama");
+        java.nio.file.Files.write(lama.toPath(),
+                "yatim".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        ServerService.writeText(f, "isi baru");
+        assertEquals("isi baru", new String(java.nio.file.Files.readAllBytes(f.toPath()),
+                java.nio.charset.StandardCharsets.UTF_8));
+        assertFalse(lama.exists());
+    }
+
+    @Test
+    public void writeText_pulihkanLamaSaatFHilangDanTulisGagal() throws Exception {
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwwt2").toFile();
+        java.io.File f = new java.io.File(dir, "data.txt");
+        java.io.File lama = new java.io.File(dir, "data.txt.lama");
+        java.nio.file.Files.write(lama.toPath(),
+                "isi lama".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        java.io.File penghalang = new java.io.File(dir, "data.txt.baru");
+        assertTrue(penghalang.mkdir());
+        java.nio.file.Files.write(
+                new java.io.File(penghalang, "anak.txt").toPath(),
+                "x".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        boolean gagal = false;
+        try {
+            ServerService.writeText(f, "isi baru");
+        } catch (Exception e) {
+            gagal = true;
+        }
+        assertTrue(gagal);
+        assertTrue(f.isFile());
+        assertEquals("isi lama", new String(java.nio.file.Files.readAllBytes(f.toPath()),
+                java.nio.charset.StandardCharsets.UTF_8));
+        assertFalse(lama.exists());
+    }
 }

@@ -4521,6 +4521,24 @@ public class ServerService extends Service {
             baru.delete();
         } catch (Exception ignored) {
         }
+        File lama = new File(induk, f.getName() + ".lama");
+        try {
+            if (lama.isFile()) {
+                if (!f.exists()) {
+                    // Audit 2685: proses mati di tengah
+                    // tukar darurat sebelum f terpasang
+                    // kembali - .lama adalah satu-satunya
+                    // salinan isi lama, pulihkan sebagai f.
+                    lama.renameTo(f);
+                } else if (f.isFile()) {
+                    // Audit 2685: f utuh, jadi .lama hanya
+                    // yatim sisa tukar darurat lama; buang
+                    // agar tak tertinggal permanen.
+                    lama.delete();
+                }
+            }
+        } catch (Exception ignored) {
+        }
         try (java.io.FileOutputStream fos = new java.io.FileOutputStream(baru)) {
             fos.write(text.getBytes(StandardCharsets.UTF_8));
             fos.flush();
@@ -4540,8 +4558,6 @@ public class ServerService extends Service {
             // tukar kedua gagal; f bukan berkas
             // biasa (mis. folder penghalang)
             // tak disentuh sama sekali.
-            File lama = new File(induk,
-                    f.getName() + ".lama");
             boolean tergeser = false;
             if (f.isFile()) {
                 try {

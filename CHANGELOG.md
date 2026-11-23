@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — Sisa .lama yatim writeText dipulihkan atau dibersihkan (Audit 2685)
+
+- `writeText` kini memeriksa
+  sisa berkas `.lama` saat mulai:
+  bila berkas tujuan hilang, sisa
+  itu dipulihkan sebagai salinan
+  isi lama satu-satunya; bila
+  berkas tujuan utuh, sisa yatim
+  dari tukar darurat yang
+  prosesnya mati itu dibuang.
+  Sebelumnya sisa `.lama` tak
+  pernah tersentuh lagi dan
+  tertinggal permanen.
+
+
 ## [Belum rilis] — Tulis version.txt sertifikat tak lagi hapus-dulu (Audit 2684)
 
 - Penulisan `version.txt` pada
