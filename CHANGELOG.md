@@ -1,3 +1,17 @@
+## [Belum rilis] — README: perintah info juga ber-PIN (Audit 2813)
+
+- Tiga README
+  dikoreksi:
+  `/uptime`,
+  `/alive`, `/versi`
+  juga wajib PIN
+  (atau sesi login)
+  bila PIN aktif
+  atau di grup -
+  hanya `/help`
+  yang cukup auth
+  chat.
+
 ## [Belum rilis] — gagal tulis penanda IP tak lagi batalkan Start (Audit 2812)
 
 - Kegagalan
