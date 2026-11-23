@@ -3467,6 +3467,20 @@ def _menguras_interpreter(perintah, toks, awal):
                 if nilai_lp not in ("off", "on"):
                     return False
                 continue
+            # Audit 2803: --stack-size adalah
+            # opsi V8 nyata (int, bentuk "=")
+            # yang belum dikenal gerbang -
+            # node menjalankannya dan membaca
+            # stdin, gerbang menilainya mati
+            # (fail-open). Nilai non-numerik
+            # membunuh node seperti size_t.
+            if dasar_nd == "--stack-size":
+                if "=" not in t or not _ukuran_v8_sah(
+                        t.split("=", 1)[1].strip(
+                            "\"'")):
+                    return False
+                i += 1
+                continue
             # Audit 2800: opsi ukuran V8
             # (size_t) hanya sah bentuk
             # "=" bernilai numerik - bentuk

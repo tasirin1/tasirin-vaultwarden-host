@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — node: --stack-size kini dikenal gerbang (Audit 2803)
+
+- `--stack-size`
+  node (opsi V8
+  nyata) kini
+  dikenal gerbang
+  dengan validasi
+  nilai numerik
+  bentuk "=";
+  sebelumnya
+  fail-open.
+
+
 ## [Belum rilis] — node: --use-largepages kini divalidasi {off, on} (Audit 2802)
 
 - Nilai
