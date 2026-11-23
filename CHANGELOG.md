@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: walk kedua curl kini menghormati terminator -- (Audit 2855)
+
+Walk kedua mengabaikan terminator `--`: `curl -- -d @- URL` dinilai menguras padahal biner memperlakukan `-d` sebagai URL dan mengirim GET berbadan kosong (terprobe server penangkap induk — stdin tak pernah dibaca). Pindai kini berhenti di `--`; yang tertelan sebagai nilai opsi (mis. `--header --`, terprobe induk mengirim POST) tetap nilai, bukan terminator. Skenario uji-verifikasi 1920.
+
+
 ## [Belum rilis] — Gerbang: walk kedua curl kini melewati nilai opsi bernilai lain (Audit 2854)
 
 Walk kedua tidak pernah melewati nilai opsi lain, jadi `-d @-` yang sebenarnya nilai milik opsi sebelumnya dinilai sumber stdin: terprobe server penangkap induk — `--header -d @-` dan `-H -d @-` mengirim GET berbadan kosong, `-o -d @-` malah menjadikan "-d" nama berkas keluaran, `--uplo -d @-` mengunggah 0 byte dari berkas "-d". Walk kedua kini menelan nilai opsi bernilai (panjang maupun pendek, memakai himpunan 2828 yang sama) sebelum menilai, dan singkatan ambigu seperti `--out` ditolak karena biner mati "is ambiguous" (terprobe). Kontrol arah sebaliknya (`--header X-Test -d @-`) tetap menguras. Skenario uji-verifikasi 1919.

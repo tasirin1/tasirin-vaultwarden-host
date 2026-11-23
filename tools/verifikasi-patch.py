@@ -7562,6 +7562,14 @@ def _menguras_khusus(perintah, toks, awal):
         i = 0
         while i < len(mentah):
             t = mentah[i]
+            # Audit 2855: terminator --
+            # menghentikan pindai opsi -
+            # semua token sesudahnya URL
+            # (terprobe server penangkap:
+            # -- -d @- mengirim GET kosong,
+            # stdin tak pernah dibaca).
+            if t == "--":
+                break
             # Audit 2852: walk kedua kini
             # menyelesaikan singkatan unik
             # getopt_long seperti walk pertama
