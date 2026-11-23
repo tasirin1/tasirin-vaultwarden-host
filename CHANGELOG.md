@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — perl: saklar tak dikenal kini ditolak gerbang (Audit 2805)
+
+- Saklar perl
+  tak dikenal
+  (-Z, -09,
+  --bogus) kini
+  ditolak
+  gerbang; biner
+  membunuhnya
+  "Unrecognized
+  switch" sebelum
+  stdin dibaca.
+
+
 ## [Belum rilis] — awk: -v kini divalidasi penugasan nama=nilai (Audit 2804)
 
 - Nilai `-v`

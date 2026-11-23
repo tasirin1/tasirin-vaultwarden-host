@@ -2896,6 +2896,51 @@ def _menguras_interpreter(perintah, toks, awal):
                 i += 2
                 continue
             if t.startswith("-") and t != "-":
+                # Audit 2805: saklar tak dikenal
+                # membunuh perl "Unrecognized
+                # switch" sebelum stdin dibaca -
+                # cabang ini dulu menerima token
+                # strip apa pun. Opsi panjang
+                # perl hanya --help/--version
+                # (informatif); selain itu mati.
+                if t.startswith("--") and t != "--":
+                    return False
+                # Huruf bundel divalidasi terhadap
+                # alfabet saklar perl 5.38
+                # (terverifikasi biner); huruf
+                # bernilai (I/M/m/e/E/C/D/F/x)
+                # menelan sisa token sebagai
+                # argumennya sehingga pindaian
+                # berhenti di sana; -0 menelan
+                # digit oktalnya.
+                _sah_pl = set(
+                    "CDEFI MSTUVWXacdefghilmnpstuvwx"
+                    .replace(" ", ""))
+                _huruf_pl = t[1:]
+                _k_pl = 0
+                _ok_pl = True
+                while _k_pl < len(_huruf_pl):
+                    _h_pl = _huruf_pl[_k_pl]
+                    if _h_pl == "0":
+                        _k_pl += 1
+                        while (_k_pl < len(_huruf_pl)
+                                and _huruf_pl[_k_pl]
+                                in "01234567"):
+                            _k_pl += 1
+                        continue
+                    if _h_pl not in _sah_pl:
+                        _ok_pl = False
+                        break
+                    if _h_pl in "IMmeECDFx":
+                        break
+                    if (_h_pl == "d"
+                            and _k_pl + 1 < len(_huruf_pl)
+                            and _huruf_pl[_k_pl + 1]
+                            == ":"):
+                        break
+                    _k_pl += 1
+                if not _ok_pl:
+                    return False
                 huruf = t[1:]
                 # Audit 1392: huruf-huruf bundel dinilai
                 # sebagai jalan huruf EFEKTIF yang berhenti
