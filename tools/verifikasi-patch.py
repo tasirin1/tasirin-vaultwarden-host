@@ -13332,10 +13332,24 @@ def _dd_operand_sah(tok):
         # juga menerima B tunggal dan c/w
         # (xstrtol penuh); KiB/kB/kiB/k kini
         # ikut sah di kedua faktor perkalian.
-        return re.fullmatch(
+        cocok = re.fullmatch(
             r"\d+([KMGTPEZY](B|iB)?|k(B|iB)?|B|b|c|w)?"
             r"(x\d+([KMGTPEZY](B|iB)?|k(B|iB)?|B|b|c|w)?)*",
-            nilai) is not None
+            nilai)
+        if cocok is None:
+            return False
+        # Audit 2676: kunci ukuran blok menolak
+        # total nol - biner mati "invalid
+        # number: '0'" untuk bs/ibs/obs/cbs=0
+        # dan untuk produk berfaktor nol
+        # (0x512, 1x0); skip/seek/count boleh
+        # nol. Asimetri yang sama dengan
+        # doktrin angka1 di 2666.
+        if kunci in ("bs", "ibs", "obs", "cbs") and any(
+                int(re.match(r"\d+", faktor).group()) == 0
+                for faktor in nilai.split("x")):
+            return False
+        return True
     if kunci == "conv":
         sah = {"ascii", "ebcdic", "ibm", "block",
                "unblock", "lcase", "ucase", "sparse",

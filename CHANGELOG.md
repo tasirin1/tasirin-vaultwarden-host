@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Validator dd menolak nol untuk kunci ukuran blok (Audit 2676)
+
+- `bs`, `ibs`, `obs`, dan `cbs`
+  bernilai nol (termasuk produk
+  berfaktor nol seperti `0x512`)
+  kini dinyatakan tak sah oleh
+  gerbang, sama seperti biner dd
+  yang mati "invalid number".
+  `skip`, `seek`, dan `count` tetap
+  boleh nol.
+
 ## [Belum rilis] — Validasi awk menghormati keadaan sesudah -- (Audit 2675)
 
 - Blok validasi opsi mawk dan cek

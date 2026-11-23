@@ -37414,6 +37414,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("awk -- -x: sesudah -- token strip adalah teks program yang sah, mawk menguras stdin: gerbang gagal (Audit 2675)", rc != 0)
         shutil.rmtree(sub1764, ignore_errors=True)
+        sub1765 = klon(tmp, "sub1765")
+        berkas_aksi1765 = os.path.join(
+            sub1765, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1765, encoding="utf-8") as f:
+            isi_aksi1765 = f.read()
+        baris_aksi1765 = [b for b in isi_aksi1765.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1765 = isi_aksi1765.replace(
+                baris_aksi1765,
+                baris_aksi1765.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(dd bs=0; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1765 != isi_aksi1765, \
+            "suntikan aksi1765 tidak menembak"
+        with open(berkas_aksi1765, "w", encoding="utf-8") as f:
+            f.write(isi_baru1765)
+        rc, out = jalan(sub1765,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("dd bs=0: ukuran blok nol ditolak biner sebagai invalid number, alat mati: gerbang lolos (Audit 2676)", rc == 0)
+        shutil.rmtree(sub1765, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
