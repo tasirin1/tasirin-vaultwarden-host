@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — --help/--version su/sg/newgrp kini dikenali gerbang (Audit 2700)
+
+- Bentuk informasional
+  `su`/`sg`/`newgrp`
+  (`--help`/`--version`, juga
+  `-h` dan `-V` khusus su)
+  kini divonis mati, bukan
+  shell pembaca masukan.
+  Blok vonis shell untuk
+  ketiganya hanya melompati
+  opsi-opsi itu sehingga
+  tertelan tanpa diperiksa.
+
+
 ## [Belum rilis] — --help/--version unshare dan systemd-cat kini dikenali gerbang (Audit 2699)
 
 - `unshare` dan `systemd-cat`

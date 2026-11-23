@@ -37919,6 +37919,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("item unshare --help: informasional tertelan vonis 1121, gerbang lolos (Audit 2699)", rc == 0)
         shutil.rmtree(sub1788, ignore_errors=True)
+        sub1789 = klon(tmp, "sub1789")
+        berkas_aksi1789 = os.path.join(
+            sub1789, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1789, encoding="utf-8") as f:
+            isi_aksi1789 = f.read()
+        baris_aksi1789 = [b for b in isi_aksi1789.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1789 = isi_aksi1789.replace(
+                baris_aksi1789,
+                baris_aksi1789.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(su --help; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1789 != isi_aksi1789, \
+            "suntikan aksi1789 tidak menembak"
+        with open(berkas_aksi1789, "w", encoding="utf-8") as f:
+            f.write(isi_baru1789)
+        rc, out = jalan(sub1789,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("item su --help: informasional tertelan blok 1107, gerbang lolos (Audit 2700)", rc == 0)
+        shutil.rmtree(sub1789, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -14298,6 +14298,19 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                     if t_su in bernilai_su:
                         j_su += 2
                         continue
+                    if (t_su.strip("\"'")
+                            in ("--help", "--version",
+                                "-h")
+                            or (t0 == "su"
+                                and t_su.strip("\"'")
+                                == "-V")):
+                        # Audit 2700: --help/--version
+                        # (dan -h, serta -V khusus su)
+                        # mencetak lalu keluar - blok
+                        # 1107 hanya melompati mereka
+                        # lewat pindaian -c sehingga
+                        # tertelan vonis shell.
+                        return False
                     if t_su == "--" or t_su.startswith("-"):
                         j_su += 1
                         continue
