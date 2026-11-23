@@ -1,3 +1,8 @@
+## [Belum rilis] — Gerbang: saklar informasional perl -V/-v/-h tak lagi dinilai menguras (Audit 2826)
+
+Perl dengan `-V`/`-v`/`-h` (telanjang maupun di bundel bendera murni seperti `-vh`/`-wV`/`-Vw`) mencetak keterangan lalu keluar tanpa membaca stdin, tetapi cabang perl gerbang memperlakukannya sebagai bendera polos sehingga perintah tanpa skrip dinilai membaca skrip dari stdin. Pra-pindai kini mengenali saklar informasional pada posisi huruf efektif: ia menang bila ada sumber skrip (`-e`/berkas/`-`) atau tak ada saklar mode sama sekali; dengan saklar mode `n/p/a/d/x` tanpa skrip perl terbukti tetap menguras (`-nV`, `-Vp`, `-V -n`), jadi bentuk itu tak berubah. Skenario gensuite 1897.
+
+
 ## [Belum rilis] — Gerbang: nama terlarang mawk untuk -v awk ditolak (Audit 2825)
 
 Nilai `-v`/`--assign` awk (terpisah, `=`, maupun menempel) dan penetapan operand kini juga ditolak bila nama targetnya termasuk 44 nama terlarang mawk 1.3.4 (19 kata kunci + 24 fungsi bawaan + `ENVIRON`, tersapu biner) - biner mati "cannot command line assign" sebelum membaca stdin, sementara gerbang sebelumnya hanya memeriksa tata bahasa `nama=nilai` (2804). Variabel bawaan (`ARGC`, `FS`, ...) dan nama khas gawk (`gensub`, ...) tidak ikut terlarang; pemeriksaan hanya berlaku untuk `awk`/`mawk` karena himpunannya khas mawk. Skenario gensuite 1896.

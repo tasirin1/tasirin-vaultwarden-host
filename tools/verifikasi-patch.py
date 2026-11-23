@@ -2947,6 +2947,61 @@ def _menguras_interpreter(perintah, toks, awal):
     i = awal + 1
     n = len(toks)
     if perintah == "perl":
+        # Audit 2826: saklar informasional -V/-v/-h
+        # perl mencetak lalu KELUAR tanpa membaca
+        # stdin - tetapi hanya bila ada sumber skrip
+        # (-e/berkas/'-') ATAU tak ada saklar mode
+        # (n/p/a/d/x) sama sekali; dengan saklar
+        # mode tanpa skrip, perl tetap membaca
+        # skrip dari stdin (terprobe biner 5.38:
+        # -nV/-Vp/-V -n menguras, -wV/-sV/-n
+        # berkas -V keluar). Pra-pindai memakai
+        # doktrin huruf efektif yang sama (berhenti
+        # di huruf bernilai pertama).
+        _info_pl = False
+        _mode_pl = False
+        _sumber_pl = False
+        for _t_pl in toks[awal + 1:]:
+            if _t_pl == "--":
+                break
+            if _t_pl == "-":
+                _sumber_pl = True
+                continue
+            if (_t_pl.startswith("-")
+                    and not _t_pl.startswith("--")):
+                _hh_pl = _t_pl[1:]
+                _kk_pl = 0
+                while _kk_pl < len(_hh_pl):
+                    _hc_pl = _hh_pl[_kk_pl]
+                    if _hc_pl == "0":
+                        _kk_pl += 1
+                        while (_kk_pl < len(_hh_pl)
+                                and _hh_pl[_kk_pl]
+                                in "01234567"):
+                            _kk_pl += 1
+                        continue
+                    if _hc_pl in "Vvh":
+                        _info_pl = True
+                    if _hc_pl in "npadx":
+                        _mode_pl = True
+                    if _hc_pl in "eE":
+                        _sumber_pl = True
+                        break
+                    if _hc_pl in "IMmECDFx":
+                        break
+                    if (_hc_pl == "d"
+                            and _kk_pl + 1 < len(_hh_pl)
+                            and _hh_pl[_kk_pl + 1]
+                            == ":"):
+                        break
+                    if not _hc_pl.isalpha():
+                        break
+                    _kk_pl += 1
+                continue
+            if not _t_pl.startswith("-"):
+                _sumber_pl = True
+        if _info_pl and (_sumber_pl or not _mode_pl):
+            return False
         pakai_lingkar = False
         ada_berkas = False
         debugger = False

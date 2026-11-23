@@ -40187,6 +40187,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("awk -v nama terlarang mawk ditolak (Audit 2825)", rc == 0)
         shutil.rmtree(sub1896, ignore_errors=True)
+        sub1897 = klon(tmp, "sub1897")
+        berkas_aksi1897 = os.path.join(
+            sub1897, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1897, encoding="utf-8") as f:
+            isi_aksi1897 = f.read()
+        baris_aksi1897 = [b for b in isi_aksi1897.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1897 = isi_aksi1897.replace(
+                baris_aksi1897,
+                baris_aksi1897.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(perl -V; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1897 != isi_aksi1897, \
+            "suntikan aksi1897 tidak menembak"
+        with open(berkas_aksi1897, "w", encoding="utf-8") as f:
+            f.write(isi_baru1897)
+        rc, out = jalan(sub1897,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("perl -V informasional tak menguras (Audit 2826)", rc == 0)
+        shutil.rmtree(sub1897, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
