@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — migrasi TLS terputus tetap membawa cadangan versi yatim (Audit 2776)
+
+- Migrasi TLS yang
+  terputus sesudah
+  pasangan CA tersalin
+  kini tetap membawa
+  cadangan penanda
+  versi yatim ke
+  folder baru, jadi
+  CA tidak dibangun
+  ulang percuma.
+
+
+
 ## [Belum rilis] — nilai --max-time curl kini divalidasi (Audit 2775)
 
 - Nilai `--max-time`

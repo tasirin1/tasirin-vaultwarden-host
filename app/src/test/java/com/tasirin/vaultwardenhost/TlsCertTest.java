@@ -552,6 +552,20 @@ public class TlsCertTest {
     }
 
     @Test
+    public void salinCadanganVersiYatim_salinSaatTujuanSudahPunyaPasanganCa() throws Exception {
+        // Audit 2776: keadaan migrasi terputus - folder tujuan
+        // sudah punya pasangan CA tetapi belum version.txt;
+        // cadangan yatim tetap harus terbawa.
+        java.nio.file.Path asal = Files.createTempDirectory("tlsyatim-asal3");
+        java.nio.file.Path tujuan = Files.createTempDirectory("tlsyatim-tujuan3");
+        Files.write(new File(asal.toFile(), "version.txt.lama-555").toPath(), "7\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(tujuan.toFile(), "ca.pem").toPath(), "x".getBytes(StandardCharsets.UTF_8));
+        Files.write(new File(tujuan.toFile(), "ca-key.pem").toPath(), "x".getBytes(StandardCharsets.UTF_8));
+        TlsCert.salinCadanganVersiYatim(asal.toFile(), tujuan.toFile());
+        assertTrue(new File(tujuan.toFile(), "version.txt.lama-555").isFile());
+    }
+
+    @Test
     public void salinCadanganVersiYatim_lewatiSaatVersionAda() throws Exception {
         java.nio.file.Path asal = Files.createTempDirectory("tlsyatim-asal2");
         java.nio.file.Path tujuan = Files.createTempDirectory("tlsyatim-tujuan2");

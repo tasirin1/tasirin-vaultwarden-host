@@ -4443,6 +4443,13 @@ public class ServerService extends Service {
                     || !new File(lama, "ca-key.pem").isFile()) {
                 return;
             }
+            // Audit 2776: migrasi pertama yang terputus bisa
+            // meninggalkan pasangan CA di folder baru tanpa
+            // version.txt; penjaga pasangan di bawah akan
+            // kembali awal dan cadangan yatim tak pernah
+            // terbawa (perbaikan 2730 tak terjangkau), jadi
+            // bawa dulu sebelum penjaga itu.
+            TlsCert.salinCadanganVersiYatim(lama, baru);
             if (new File(baru, "ca.pem").isFile()
                     && new File(baru, "ca-key.pem").isFile()) {
                 return;
