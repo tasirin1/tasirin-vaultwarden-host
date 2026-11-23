@@ -6171,6 +6171,29 @@ def _menguras_khusus(perintah, toks, awal):
                        "-p", "-r", "-u"})
         return not ops_gs or "-" in ops_gs
     if perintah == "curl":
+        # Audit 2775: nilai --max-time
+        # curl (bilangan desimal tak
+        # bertanda) divalidasi - nilai
+        # asing membunuh curl saat urai
+        # sebelum data dibaca.
+        k_cu = 0
+        while k_cu < len(mentah):
+            t_cu = mentah[k_cu]
+            if t_cu.startswith("--max-time="):
+                v_cu = t_cu.split("=", 1)[1]
+                if not re.fullmatch(
+                        r"(\d+\.?\d*|\.\d+)",
+                        v_cu):
+                    return False
+            elif t_cu == "--max-time":
+                if k_cu + 1 < len(mentah):
+                    v_cu = mentah[k_cu + 1]
+                    if not re.fullmatch(
+                            r"(\d+\.?\d*"
+                            r"|\.\d+)", v_cu):
+                        return False
+                    k_cu += 1
+            k_cu += 1
         # Audit 1068: data/unggah/konfigurasi dari stdin.
         # Audit 1085: bentuk merekat (-d@-, -T-, nilai = pada --form)
         # dan bagian-berkas -F/--data-urlencode (name@-).

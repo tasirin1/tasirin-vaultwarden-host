@@ -1,5 +1,14 @@
 # Changelog
 
+## [Belum rilis] — nilai --max-time curl kini divalidasi (Audit 2775)
+
+- Nilai `--max-time`
+  curl kini
+  divalidasi
+  (bilangan desimal
+  tak bertanda).
+
+
 ## [Belum rilis] — level -L tree kini divalidasi (Audit 2774)
 
 - Level `-L`/`--level`
