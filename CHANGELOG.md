@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — nilai sinyal env kini divalidasi (Audit 2760)
+
+- Nilai sinyal
+  `--block-signal`/
+  `--default-signal`/
+  `--ignore-signal`
+  env kini divalidasi
+  (daftar koma ikut).
+
+
 ## [Belum rilis] — nilai enum pendek grep -d/-D kini divalidasi (Audit 2759)
 
 - Nilai enum bentuk

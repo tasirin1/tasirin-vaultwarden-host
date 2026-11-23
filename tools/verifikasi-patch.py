@@ -14511,6 +14511,24 @@ def _menguras_stdin(bagian, _batas_argv=0, _posisi_awal=True):
                 awal += 1
                 if opsi == "--":
                     break
+                # Audit 2760: nilai sinyal env
+                # (--block-signal/--default-
+                # signal/--ignore-signal bentuk
+                # =) - nama/nomor asing (atau
+                # anggota daftar koma yang
+                # asing) membunuh env sebelum
+                # anak berjalan.
+                if opsi.startswith((
+                        "--block-signal=",
+                        "--default-signal=",
+                        "--ignore-signal=")):
+                    nilai_env = opsi.split(
+                        "=", 1)[1].strip("\"'")
+                    if not all(
+                            _sinyal_timeout_sah(x)
+                            for x in
+                            nilai_env.split(",")):
+                        return False
                 if (opsi in ("-S", "--split-string")
                         or opsi.startswith("--split-string=")
                         or (opsi.startswith("-S") and len(opsi) > 2)):
