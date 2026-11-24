@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — diff: opsi bernilai bentuk terpisah kini diakui pada hitungan operand (Audit 2904)
+
+--exclude, --exclude-from, --ignore-matching-lines, dan --show-function-line hanya dikenal gerbang pada bentuk = (2885); bentuk terpisahnya tidak diakui di himpunan bernilai hitungan operand maupun walk token, sehingga nilai - tertelan biner terhitung operand (perintah mati lolos) dan nilai biasa ikut mengacaukan hitungan tepat-2-operand (perintah sah tertolak). Keempatnya kini masuk kedua himpunan bernilai walk diff. Skenario gensuite 1966 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — curl: nilai --form/--form-string/-F kini wajib mengandung = (Audit 2903)
 
 Nilai --form/--form-string/-F tanpa = dibunuh biner (Illegally formatted input field / is badly used) tetapi gerbang meloloskannya. Ketiganya kini tervalidasi di walk pertama (huruf pendek -F dipetakan ke --form, termasuk bentuk merekat dan ujung bundel): nilai wajib mengandung =. Skenario gensuite 1965 (arah terverifikasi repro jalur workflow: rc == 0).

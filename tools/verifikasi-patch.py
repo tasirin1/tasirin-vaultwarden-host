@@ -6923,11 +6923,23 @@ def _menguras_khusus(perintah, toks, awal):
         # --width yang tertelan --label
         # adalah teks label, bukan opsi
         # lebar.
+        # Audit 2904: --exclude, --exclude-from,
+        # --ignore-matching-lines, dan
+        # --show-function-line adalah opsi
+        # bernilai wajib-argumen yang bentuk
+        # terpisahnya terlewat dari himpunan
+        # ini (2885 hanya memasukkan mereka ke
+        # daftar putih bentuk =) - nilai "-"
+        # mereka tertelan biner sebagai nilai,
+        # bukan operand.
         bernilai_df = {"--label", "--line-format",
                        "--GTYPE-group-format",
                        "--LTYPE-line-format",
                        "--unified", "--context",
-                       "--ifdef", "--horizon-lines"}
+                       "--ifdef", "--horizon-lines",
+                       "--exclude", "--exclude-from",
+                       "--ignore-matching-lines",
+                       "--show-function-line"}
         # Audit 2851: pelacak label & mode
         # gabung diff3 (label tanpa mode
         # membunuh biner).
@@ -7253,7 +7265,10 @@ def _menguras_khusus(perintah, toks, awal):
                           "-L", "--horizon-lines",
                           "--line-format",
                           "--GTYPE-group-format",
-                          "--LTYPE-line-format"}
+                          "--LTYPE-line-format",
+                          "--exclude", "--exclude-from",
+                          "--ignore-matching-lines",
+                          "--show-function-line"}
         if perintah == "diff":
             # Audit 2849: -W bernilai (lebar).
             bernilai_ops_d.add("-W")
