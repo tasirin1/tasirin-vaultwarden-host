@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot Telegram: PIN di caption pesan media baru di chat resmi kini ikut disaring untuk dihapus (Audit 2938)
+
+Jalur utama pesan baru yang segar di chat resmi sebelumnya hanya membaca `text`, padahal pesan media membawa teksnya di `caption` — caption berisi PIN (mis. `/login 123456` pada foto/dokumen) menetap di riwayat chat tanpa pernah masuk saringan hapus, tidak seperti cabang chat asing, jam mundur, pesan basi, suntingan, dan kanal yang sudah menyaring caption sejak Audit 2914/2922. Keputusan hapus jalur segar kini juga memeriksa caption dengan predikat yang sama (`teksSuntinganPerluHapus`), tanpa mengubah pemrosesan perintah yang tetap berbasis `text`.
+
+
 ## [Belum rilis] — Bot Telegram: entri antrean hapus terpangkas batas kini diperingatkan ke chat (Audit 2937)
 
 catatHapusTertunda kini mengumpulkan ruang dari entri yang terpangkas batas 256 dan mengirim peringatan ke chat sesudah kunci lepas - jalur gagal-hapus untuk entri milik sendiri dan jalur PIN chat asing untuk entri asing, sekali per ruang per pangkasan. Sebelumnya entri terpangkas gugur senyap: tugas latarnya pulang tanpa jejak, entri asing tidak dicatat di mana pun, dan entri milik sendiri hanya masuk log lokal.

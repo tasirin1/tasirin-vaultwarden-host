@@ -745,8 +745,16 @@ public final class TgBot {
                                 int idPesan = msg.optInt("message_id", 0);
 
                                 boolean pinGrup = idRuang < 0 && pinTebakan(text) != null;
+                                // Audit 2938: pesan media baru di chat
+                                // resmi membawa teksnya di caption -
+                                // saring caption dengan predikat yang
+                                // sama seperti suntingan/kanal, supaya
+                                // PIN di caption ikut terhapus (jalur
+                                // segar dulu hanya membaca text).
                                 boolean hapusPin = wajibHapusPesanPin(pinBasi, pinGrup,
-                                        pinPending, obrolan, terotorisasi, text);
+                                        pinPending, obrolan, terotorisasi, text)
+                                        || teksSuntinganPerluHapus(
+                                                msg.optString("caption", ""));
                                 if (idPesan != 0 && hapusPin && pinPerangkatAktif(ctx)) {
                                     hapusPesanAsync(ctx, idRuang, idPesan);
                                 } else if (idPesan != 0 && "help".equals(namaPerintah(text))
