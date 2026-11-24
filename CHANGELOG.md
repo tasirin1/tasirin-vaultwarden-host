@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — curl: nilai --hostpubmd5 kini wajib tepat 32 karakter (Audit 2902)
+
+Biner mensyaratkan nilai --hostpubmd5 tepat 32 karakter (bukan heksadesimal - 32 huruf sembarang diterima; panjang 3/31/33/47 mati) tetapi gerbang tak memvalidasinya. Kini terdaftar di himpunan tervalidasi walk pertama dengan pemeriksaan panjang persis. Skenario gensuite 1964 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — curl: nilai --tls-max kini divalidasi enum (Audit 2901)
 
 --tls-max hanya menerima default/1.0/1.1/1.2/1.3 persis huruf kecil; nilai lain dibunuh biner tetapi lolos gerbang. Walk pertama kini memvalidasinya lewat himpunan tervalidasi baru (numerik 2886 plus opsi tak numerik), termasuk lewat singkatan unik. Skenario gensuite 1963 (arah terverifikasi repro jalur workflow: rc == 0).

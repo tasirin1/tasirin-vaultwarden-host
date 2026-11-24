@@ -7992,7 +7992,7 @@ def _menguras_khusus(perintah, toks, awal):
         # tak numerik (--tls-max: enum).
         _CURL_DIVALIDASI_PANJANG = (
             _CURL_NUMERIK_PANJANG | frozenset({
-                "--tls-max"}))
+                "--tls-max", "--hostpubmd5"}))
         _CURL_DIVALIDASI_PENDEK = dict(
             _CURL_NUMERIK_PENDEK)
 
@@ -8027,6 +8027,14 @@ def _menguras_khusus(perintah, toks, awal):
                 return v_cu in ("default",
                                 "1.0", "1.1",
                                 "1.2", "1.3")
+            if nama_cu == "--hostpubmd5":
+                # Audit 2902: tepat 32
+                # karakter - BUKAN wajib
+                # heksadesimal (32 huruf
+                # sembarang terprobe lolos;
+                # panjang 3/31/33/47 mati
+                # "is badly used").
+                return len(v_cu) == 32
             if nama_cu == "--max-redirs":
                 return (v_cu == "-1"
                         or _curl_bulat_sah(v_cu))
