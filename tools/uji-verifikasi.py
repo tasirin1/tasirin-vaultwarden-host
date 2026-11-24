@@ -41804,6 +41804,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff -F terpisah menelan pola, operand - menguras: gerbang gagal (Audit 2919)", rc != 0)
         shutil.rmtree(sub1973, ignore_errors=True)
+        sub1974 = klon(tmp, "sub1974")
+        berkas_aksi1974 = os.path.join(
+            sub1974, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1974, encoding="utf-8") as f:
+            isi_aksi1974 = f.read()
+        baris_aksi1974 = [b for b in isi_aksi1974.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1974 = isi_aksi1974.replace(
+                baris_aksi1974,
+                baris_aksi1974.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff --tabsize 8 - /etc/hosts; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1974 != isi_aksi1974, \
+            "suntikan aksi1974 tidak menembak"
+        with open(berkas_aksi1974, "w", encoding="utf-8") as f:
+            f.write(isi_baru1974)
+        rc, out = jalan(sub1974,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff --tabsize terpisah menelan nilai, operand - menguras: gerbang gagal (Audit 2920)", rc != 0)
+        shutil.rmtree(sub1974, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

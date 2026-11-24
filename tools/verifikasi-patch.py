@@ -6939,7 +6939,9 @@ def _menguras_khusus(perintah, toks, awal):
                        "--ifdef", "--horizon-lines",
                        "--exclude", "--exclude-from",
                        "--ignore-matching-lines",
-                       "--show-function-line"}
+                       "--show-function-line",
+                       "--palette",
+                       "--starting-file"}
         if perintah == "diff":
             # Audit 2919: bentuk pendek
             # bernilai diff (-F pola fungsi,
@@ -7279,7 +7281,26 @@ def _menguras_khusus(perintah, toks, awal):
                           "--LTYPE-line-format",
                           "--exclude", "--exclude-from",
                           "--ignore-matching-lines",
-                          "--show-function-line"}
+                          "--show-function-line",
+                          # Audit 2920: --tabsize
+                          # divalidasi cabang khusus
+                          # walk token (jadi hanya
+                          # di pas operand ini);
+                          # --palette/--starting-
+                          # file bernilai biasa -
+                          # nilai "-" tertelan,
+                          # bukan operand.
+                          # --diff-program (diff3)
+                          # SENGAJA di luar: terprobe
+                          # induk, program anak
+                          # menerima "-" sebagai
+                          # nama harfiah dan stdin
+                          # program kosong - diff3
+                          # tak pernah menguras
+                          # stdin pemanggil bila
+                          # opsi itu hadir.
+                          "--tabsize", "--palette",
+                          "--starting-file"}
         if perintah == "diff":
             # Audit 2849: -W bernilai (lebar).
             bernilai_ops_d.add("-W")

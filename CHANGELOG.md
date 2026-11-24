@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --tabsize/--palette/--starting-file diff bentuk terpisah kini menelan nilai (Audit 2920)
+
+--tabsize masuk himpunan bernilai pas operand (walk token sudah memvalidasinya lewat cabang khusus), dan --palette serta --starting-file masuk kedua himpunan bernilai - bentuk terpisah ketiganya tak lagi mengacaukan hitungan operand. Faset --diff-program pada temuan yang sama DIBATALKAN sesudah penelusuran induk: dengan opsi itu diff3 menyerahkan "-" sebagai nama harfiah ke program anak yang stdin-nya kosong, jadi stdin pemanggil memang tak pernah dikuras dan vonis lama gerbang sudah benar.
+
+
 ## [Belum rilis] — Gerbang: bentuk pendek bernilai diff (-F/-x/-X/-I/-S) kini menelan nilai (Audit 2919)
 
 Opsi pendek bernilai diff --show-function-line (-F), --exclude (-x), --exclude-from (-X), --ignore-matching-lines (-I), dan --starting-file (-S) kini ikut di himpunan bernilai walk token dan pas operand, khusus perintah diff: bentuk terpisah tak lagi mengacaukan hitungan tepat-2 operand dua arah. Di diff3 -x/-X adalah bendera dan -F/-I/-S tak dikenal, jadi himpunan diff3 tak berubah.
