@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Alarm: pasangan stempel throttle kini ditulis atomik dalam satu edit (Audit 2895)
+
+simpanThrottle dan simpanThrottleWaktu menulis cap elapsed dan cap wall lewat dua edit().apply() terpisah; kematian proses di antaranya menyisakan pasangan tak konsisten yang diabaikan predikat satu-boot sehingga throttle hilang dan backup terjadwal bisa duplikat. TgBackup kini menyediakan simpanPasanganStempelThrottle yang menulis kedua kunci dalam satu edit(), dipakai kedua penulis AlarmReceiver.
+
+
 ## [Belum rilis] — sdiff: bendera panjang diberi =value kini ditolak gerbang (Audit 2894)
 
 Walk sdiff membiarkan bendera panjang berbentuk --bendera=nilai jatuh lolos padahal biner membunuhnya doesnt allow an argument - terprobe --text=x, --left-column=x, --suppress-common-lines=x. Walk kini menolak bentuk = untuk 15 bendera panjang sdiff 3.10 (kosakata persis --help biner); opsi bernilai (--output/--width/--tabsize/--diff-program/--ignore-matching-lines) tidak berubah. Skenario gensuite 1955 (arah terverifikasi repro jalur workflow: rc == 0).

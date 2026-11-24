@@ -95,8 +95,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     static void simpanThrottle(Context context, long kini) {
         terakhirAlarmElapsed = kini;
-        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_ALARM_ELAPSED, kini);
-        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_ALARM_WALL,
+        // Audit 2895: pasangan ditulis atomik.
+        TgBackup.simpanPasanganStempelThrottle(context,
+                KEY_THROTTLE_ALARM_ELAPSED, kini,
+                KEY_THROTTLE_ALARM_WALL,
                 System.currentTimeMillis());
     }
 
@@ -107,8 +109,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     static void simpanThrottleWaktu(Context context, long kini) {
         terakhirWaktuElapsed = kini;
-        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_WAKTU_ELAPSED, kini);
-        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_WAKTU_WALL,
+        // Audit 2895: pasangan ditulis atomik.
+        TgBackup.simpanPasanganStempelThrottle(context,
+                KEY_THROTTLE_WAKTU_ELAPSED, kini,
+                KEY_THROTTLE_WAKTU_WALL,
                 System.currentTimeMillis());
     }
 

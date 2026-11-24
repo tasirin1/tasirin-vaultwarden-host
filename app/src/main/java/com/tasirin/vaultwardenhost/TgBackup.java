@@ -4920,6 +4920,26 @@ public final class TgBackup {
         }
     }
 
+    // Audit 2895: pasangan stempel throttle (elapsed+wall)
+    // adalah SATU fakta - ditulis dalam satu edit() agar
+    // kematian proses di antaranya tidak menyisakan
+    // pasangan tak konsisten (cap elapsed baru + wall
+    // lama) yang membuat predikat satu-boot mengabaikan
+    // stempel dan throttle hilang (backup duplikat).
+    static void simpanPasanganStempelThrottle(Context ctx,
+            String kunciElapsed, long nilaiElapsed,
+            String kunciWall, long nilaiWall) {
+        if (ctx == null) {
+            return;
+        }
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putLong(kunciElapsed, nilaiElapsed)
+                    .putLong(kunciWall, nilaiWall).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
     static void healkanStringPrefs(Context ctx) {
         try {
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
