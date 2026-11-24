@@ -15730,6 +15730,33 @@ def _menguras_khusus(perintah, toks, awal):
                     continue
                 k_tr3 += 1
                 continue
+            if t_tr3 == "--sort":
+                # Audit 2883: nilai --sort
+                # divalidasi biner terhadap
+                # {name,version,size,mtime,
+                # ctime} case-insensitive
+                # penuh (tanpa singkatan);
+                # nilai asing/tiada membunuh
+                # ("Sort type ... not valid" /
+                # "Missing argument").
+                if k_tr3 + 1 >= len(mentah):
+                    return False
+                if (mentah[k_tr3 + 1].lower()
+                        not in ("name", "version",
+                                "size", "mtime",
+                                "ctime")):
+                    return False
+                k_tr3 += 2
+                continue
+            if t_tr3.startswith("--sort="):
+                v_tr3 = t_tr3.split("=", 1)[1]
+                if (v_tr3.lower()
+                        not in ("name", "version",
+                                "size", "mtime",
+                                "ctime")):
+                    return False
+                k_tr3 += 1
+                continue
             if t_tr3 in bernilai_tr3:
                 k_tr3 += 2
                 continue

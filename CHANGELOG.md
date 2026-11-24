@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — tree: nilai --sort kini divalidasi gerbang (Audit 2883)
+
+Walk validasi tree tidak memvalidasi nilai --sort sama sekali. Biner hanya menerima {name, version, size, mtime, ctime} case-insensitive penuh tanpa singkatan; nilai lain (zzz, -, kosong, none) mati Sort type not valid dan --sort tanpa nilai mati Missing argument. Walk ketiga gerbang kini memvalidasi kedua bentuk (terpisah dan =) termasuk ketiadaan nilai. Skenario gensuite 1947 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — curl: bentuk --opsi=nilai ditolak gerbang untuk semua opsi panjang (Audit 2882, mengoreksi 2852)
 
 Verifikasi induk Maraton-189 membuktikan akar yang lebih besar dari bunyi temuan awal: curl < 8.16 tidak mendukung bentuk --opsi=nilai sama sekali - semua opsi panjang wajib argumen terpisah spasi (Daniel Stenberg, option parsing in curl, 2025; dukungan = baru tiba di 8.16.0). Di biner 8.5.0 semua bentuk ini mati is unknown: --fail=x, --data=@-, --config=-, --upload-file=-, --max-time=5. Walk kedua gerbang kini menolak token --...=... apa pun di posisi opsi; resolusi bentuk = dari perbaikan 2852 (yang menilai --upload-file=-/--config=- menguras) gugur sebagai fail-open. Bentuk terpisah dan merekat pendek (-d@-) tidak berubah. Skenario gensuite 1945-1946 (arah terverifikasi repro jalur workflow: rc == 0).
