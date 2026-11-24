@@ -6927,7 +6927,7 @@ def _menguras_khusus(perintah, toks, awal):
                        "--GTYPE-group-format",
                        "--LTYPE-line-format",
                        "--unified", "--context",
-                       "--ifdef"}
+                       "--ifdef", "--horizon-lines"}
         # Audit 2851: pelacak label & mode
         # gabung diff3 (label tanpa mode
         # membunuh biner).
@@ -7039,6 +7039,19 @@ def _menguras_khusus(perintah, toks, awal):
             if t_df in bernilai_df:
                 if t_df == "--label":
                     label_df += 1
+                if t_df == "--horizon-lines":
+                    # Audit 2887: nilai
+                    # --horizon-lines terpisah
+                    # divalidasi (\\+?\\d+,
+                    # jenuh pada luapan -
+                    # tata bahasa 2822).
+                    if k_df + 1 >= len(toks):
+                        return False
+                    if not re.fullmatch(
+                            r"\+?\d+",
+                            toks[k_df + 1].strip(
+                                "\"'")):
+                        return False
                 k_df += 2
                 continue
             if (t_df.startswith("--")
@@ -7054,6 +7067,27 @@ def _menguras_khusus(perintah, toks, awal):
                 # --brief=x diff dan
                 # --merge=x diff3).
                 dasar_df = t_df.split("=", 1)[0]
+                # Audit 2887: nilai --color=
+                # hanya {always,never,auto}
+                # dan --horizon-lines= hanya
+                # \+?\d+ - nilai asing
+                # membunuh biner ("invalid
+                # color" / "invalid horizon
+                # length", terprobe);
+                # --palette= sengaja TIDAK
+                # divalidasi (biner menerima
+                # nilai apa pun, terprobe).
+                if dasar_df == "--color":
+                    if (t_df.split("=", 1)[1]
+                            not in ("always",
+                                    "never",
+                                    "auto")):
+                        return False
+                elif dasar_df == "--horizon-lines":
+                    if not re.fullmatch(
+                            r"\+?\d+",
+                            t_df.split("=", 1)[1]):
+                        return False
                 if (dasar_df not in bernilai_df
                         and dasar_df not in (
                             "--color", "--palette",
@@ -7216,7 +7250,7 @@ def _menguras_khusus(perintah, toks, awal):
         bernilai_ops_d = {"-U", "-C", "--unified",
                           "--context", "--width",
                           "-D", "--ifdef", "--label",
-                          "-L",
+                          "-L", "--horizon-lines",
                           "--line-format",
                           "--GTYPE-group-format",
                           "--LTYPE-line-format"}

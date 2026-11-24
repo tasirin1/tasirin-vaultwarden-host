@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — diff: nilai --color dan --horizon-lines kini divalidasi gerbang (Audit 2887)
+
+Nilai --color= hanya sah {always, never, auto} dan --horizon-lines hanya angka (terprobe biner: invalid color / invalid horizon length); gerbang dulu melewatkan keduanya. Kini bentuk = divalidasi di cabang skip 2885, dan --horizon-lines diakui sebagai opsi bernilai pada bentuk terpisah (divalidasi di cabang bernilai + himpunan operand) - bentuk terpisahnya dulu malah terhitung operand. --palette= sengaja tidak divalidasi (biner menerima nilai apa pun, terprobe pembeda). Skenario gensuite 1953-1954 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — curl: nilai numerik 18 opsi kini divalidasi gerbang (Audit 2886)
 
 Selain --max-time (2775), nilai opsi numerik curl tidak divalidasi - sapuan biner atas 133 opsi bernilai menemukan 18 opsi yang membunuh curl saat urai pada nilai asing. Walk pertama kini memvalidasi per tata bahasa terprobe: desimal strtod utk --connect-timeout/--expect100-timeout (termasuk eksponen dan batas detik x1000 <= LONG_MAX - lubang luapan yang sama juga menutup --max-time), bulat strtol <= LONG_MAX utk --retry/--retry-delay/--retry-max-time/--keepalive-time/--speed-time/--happy-eyeballs-timeout-ms/--parallel-max/--tftp-blksize/--speed-limit, digit+sufiks [kKmMgG] utk --max-filesize/--limit-rate, --max-redirs (-1 atau bulat), --rate (bulat >= 1 + satuan /s|sec|secs|m|min|mins|h|hour|hours|d|day|days|ms), --create-file-mode (oktal <= 0777), --local-port (awalan strtol, rentang a-b urut <= 65535), --continue-at (bulat atau -). Bentuk pendek -m/-Y/-y/-C ikut divalidasi (terpisah maupun merekat). Skenario gensuite 1951-1952 (arah terverifikasi repro jalur workflow: rc == 0).
