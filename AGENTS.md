@@ -161,10 +161,12 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
    binary/APK/shim/zip ke repo** — inti desain: APK tetap kecil (~0,28 MB,
    rilis terakhir 285 KB);
    binary & web-vault diunduh dari release dan diverifikasi SHA-256.
-7. **Jaga kompatibilitas Android 5 (API 21)**: hindari API ≥ 21 tanpa fallback,
-   jangan `NetworkOnMainThreadException` (semua tugas jaringan di thread),
-   UI harus bisa dinavigasi **D-pad** (setiap kontrol berfokus:
-   `nextFocusUp/Down`, background `@drawable/item_focus_bg`).
+7. **Jaga kompatibilitas Android 5 (API 21)**: hindari API di atas 21 tanpa
+   fallback — jebakan yang sudah terbukti merah di lint `NewApi`:
+   `List.sort` itu API 24, untuk minSdk 21 pakai `java.util.Collections.sort`
+   (pelajaran Maraton-178); jangan `NetworkOnMainThreadException` (semua
+   tugas jaringan di thread), UI harus bisa dinavigasi **D-pad** (setiap
+   kontrol berfokus: `nextFocusUp/Down`, background `@drawable/item_focus_bg`).
 8. **UI 2 mode**: layar sentuh HP dan remote TV — ukuran tombol cukup besar,
    tidak memakai gesture yang butuh sentuhan presisi. Layar awal
    (`MainActivity`) wajib tetap ringkas (status, Start/Stop, log realtime,
@@ -178,25 +180,33 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 11. **Jangan mengubah workflow CI atau asset release manual** — rilis hanya
     lewat workflow; jangan edit asset release lewat web/UI manual.
 12. **Resource yatim terdeteksi otomatis di CI** — `UnusedResources`/`UnusedIds`/`UnusedQuantity`/`MissingQuantity` dipasang sebagai error lint (`app/build.gradle.kts`): push yang menyisakan drawable/warna/string/gaya/id/plurals tak terpakai langsung gagal build. Alias gaya lintas-aplikasi yang disengaja wajib `tools:ignore="UnusedResources"`.
-13. **Setiap selesai perbaikan langsung commit + push ke `main`** — jangan
-    menunda push, jangan menunggu perintah, jangan menumpuk perubahan di
-    working tree. Alur wajib tiap selesai satu tujuan logis: `git add` →
-    `git commit` → `git push origin main` (lihat aturan #1 dan
-    "Verifikasi setelah build"). Pengecualian hanya bila pengguna eksplisit
-    meminta menahan push.
+13. **Setiap selesai perbaikan langsung commit; pola push mengikuti jenis
+    kerja** — jangan menumpuk perubahan di working tree: tiap selesai satu
+    tujuan logis langsung `git add` → `git commit`. Push-nya: (a) perbaikan
+    tunggal/laporan langsung pengguna → langsung `git push origin main`;
+    (b) maraton audit (aturan #17) → commit ditahan lokal dan di-push
+    SEKALI di akhir maraton, karena tiap push memicu CI penuh (~30 menit)
+    dan menaikkan versionCode — pola ini yang berjalan sejak Maraton-172
+    atas praktik yang disetujui owner. Pengecualian hanya bila pengguna
+    eksplisit meminta pola lain.
 14. **Jangan pantau build kecuali disuruh** — setelah `push`, JANGAN
     menjalankan `gh run watch`, `gh run view`, atau `gh release view`
     kecuali pengguna eksplisit menyuruh memantau/memverifikasi. Push saja,
     lalu selesai dan laporkan. Ini menghemat waktu polling CI (~15 menit)
     dan token. Pantau hanya bila kalimat pengguna memuat kata pantau/
-    monitor/cek build/tunggu/verifikasi rilis.
+    monitor/cek build/tunggu/verifikasi rilis. Pengecualian: selama
+    perintah loop owner aktif (audit → perbaiki → pantau → audit …),
+    langkah "pantau" di dalam loop itu berlaku untuk push loop tersebut;
+    di luar loop, aturan ini yang menang.
 15. **Metode yang dihapus wajib dicatat, namanya tak boleh dipakai lagi** —
     tiap menghapus metode, tambahkan namanya ke `tools/bekas-hapusan.txt`;
     jangan pernah membuat metode baru dengan nama yang ada di daftar itu
     (verifikasi-patch menggagalkan push yang memanggilnya — pelajaran
     audit-45: `batalTunda` yang diciptakan ulang menabrak nama yang dibuang
     audit-38). Pengecualian: nama yang masih didefinisikan di berkas lain
-    (pindah, bukan hapus) dilarang masuk daftar.
+    (pindah, bukan hapus) dilarang masuk daftar. Mengubah SIGNATUR metode
+    sambil mempertahankan namanya BUKAN penghapusan — tak masuk daftar
+    (diterapkan pada perbaikan 2877).
 16. **Cek program lokal dulu, manfaatkan semaksimal mungkin** — di awal tiap
     pekerjaan, cek program lokal yang terinstal (`command -v` + `--version`;
     mis. `rg`, `fd`, `fzf`, `bat`, `eza`, `jq`, `file`, `lsof`, `htop`,
@@ -209,10 +219,13 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 
 17. **Mode perbaiki = maraton** — perintah "perbaiki/fix/lanjutkan" atas temuan
     audit dikerjakan sampai habis: satu temuan satu perbaikan akar masalah, tiap
-    perbaikan selesai langsung commit + push `main` (aturan #13), tanpa memantau
-    build (aturan #14), tidak berhenti di tengah, tidak menumpuk perubahan di
-    working tree. Bila owner melapor build gagal, perbaiki itu dulu sebelum
-    lanjut ke temuan berikutnya.
+    perbaikan selesai langsung commit lokal, lalu push SEKALI di akhir maraton
+    (aturan #13b), tidak berhenti di tengah, tidak menumpuk perubahan di
+    working tree. Bila build gagal (dilaporkan owner atau terlihat saat
+    memantau dalam loop), perbaiki itu dulu sebelum lanjut ke temuan
+    berikutnya. Perilaku yang diubah wajib menyapu uji/skenario lama yang
+    mengunci perilaku sebelumnya untuk keluarga perintah yang sama, di
+    commit yang sama (pelajaran 2867 vs skenario 1902).
 18. **Audit menyeluruh = sub-agen paralel + verifikasi mandiri** — pecah jadi
     2–5 sub-agen per area (mis. shim/binary, UI-Kotlin, workflow-verifikasi,
     izin/manifest), lalu verifikasi sendiri tiap klaim berat langsung ke kode
@@ -304,7 +317,7 @@ dan `workflow_dispatch`:
    rilis hanya dipakai kembali bila uji zip + digest tertanamnya cocok,
    selain itu dibangun ulang dari Docker.
 
-**B. `build-apk.yml` (ringan, ~4 mnt)** — `push` ke `main` yang menyentuh
+**B. `build-apk.yml` (~30 mnt, didominasi suite uji-diri)** — `push` ke `main` yang menyentuh
 daftar-putih path pembentuk APK (`app/**`, Gradle akar + wrapper, gerbang
 `tools/verifikasi-patch.py` + `tools/uji-verifikasi.py` +
 `scripts/cek-cepat.sh`, workflow ini sendiri, dan action `resolve-vw`),
@@ -373,6 +386,29 @@ sengaja dibuat ulang, perbarui konstanta itu di commit yang sama.
   keamanan, nama terlarang `bekas-hapusan.txt`) menempel di baris kode yang
   tepat. Log hanya ringkasan. Jalankan `python3 tools/verifikasi-patch.py`
   di lokal untuk reproduksi persis sebelum memperbaiki.
+- **Arah vonis skenario gensuite** (`tools/uji-verifikasi.py`, suntikan ke
+  sink `tag_mentah` di action resolve-vw): semantik Audit 931 — perintah
+  yang MENGURAS stdin membuat `cat` penulis kehabisan stdin sehingga
+  gerbang GAGAL (rc≠0); perintah yang tak menguras → gerbang lolos (rc=0).
+  Jadi skenario untuk perintah penguras memasang `rc != 0`, yang tak
+  menguras `rc == 0`. Verifikasi arah tiap skenario baru lewat repro jalur
+  workflow (mekanisme suntikan yang sama), BUKAN hanya probe in-process
+  `_menguras_stdin` — pelajaran Maraton-188: 23 skenario terpasang terbalik
+  dan CI putaran pertama merah walau model gerbangnya benar.
+- **Edit Java lewat skrip buta kompilasi lokal** — gerbang lokal tidak
+  mengompilasi Java, jadi kesalahan sintaksis hanya tertangkap CI. Sesudah
+  mengedit `.java` dengan skrip: grep penanda komentar asing
+  (`grep -rn '^\s*#' app/src --include=*.java` harus kosong — pelajaran
+  koreksi `5d20378d`: komentar `#` ala Python bocor dari skrip perbaikan),
+  dan saat menambah uji, tiru gaya import/kualifikasi yang sudah dipakai
+  berkas uji itu (pelajaran Maraton-185: `TgBackupTest` memakai
+  `StandardCharsets` serba kualifikasi-penuh).
+- **Suite lokal mati "Operation not permitted"** — `uji-verifikasi.py` /
+  `uji-cek-cepat.py` bisa mati di tengah karena clone scratch gagal
+  checkout (`unable to write file`, RC=1) dengan **0 baris GAGAL**: itu
+  gangguan mesin, BUKAN vonis atas kode. Vonis wajib membaca pesan gagal
+  aktual, bukan kode keluar. Bila ini menghalangi push maraton, keputusan
+  push-vs-ulang milik owner.
 - **Unit test**: 24 kelas (`Updater`, `ServerService`, `TgBot`, `TgBackup`,
   `PinCrypto`, `PinGate`, `KernelCompat`, `Util`, `TlsCert`, `StoragePerm`,
   `LogActivity`, `FileShareProvider`, `SettingsActivity`, `PinActivity`,
