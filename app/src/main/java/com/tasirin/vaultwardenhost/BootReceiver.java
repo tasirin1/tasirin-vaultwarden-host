@@ -228,9 +228,8 @@ public class BootReceiver extends BroadcastReceiver {
                             terakhirBootWall = capBoot[1];
                             terakhirBootCount = capBoot[2];
                             try {
-                                simpanThrottleBoot(ctx, capBoot[0]);
-                                simpanThrottleBootWall(ctx, capBoot[1]);
-                                simpanThrottleBootCount(ctx, capBoot[2]);
+                                simpanThrottleBootTiga(ctx, capBoot[0],
+                                        capBoot[1], capBoot[2]);
                             } catch (Exception ignored) {
                             }
                         }
@@ -255,8 +254,15 @@ public class BootReceiver extends BroadcastReceiver {
         return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_BOOT_ELAPSED);
     }
 
-    static void simpanThrottleBoot(Context context, long kini) {
-        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_BOOT_ELAPSED, kini);
+    // Audit 2906: ketiga stempel throttle
+    // boot kini ditulis atomik lewat satu
+    // penolong tiga-kunci di TgBackup.
+    static void simpanThrottleBootTiga(Context context, long elapsed,
+                                       long wall, long count) {
+        TgBackup.simpanTigaStempelThrottle(context,
+                KEY_THROTTLE_BOOT_ELAPSED, elapsed,
+                KEY_THROTTLE_BOOT_WALL, wall,
+                KEY_THROTTLE_BOOT_COUNT, count);
     }
 
     static int bacaBootCount(Context context) {
@@ -276,16 +282,10 @@ public class BootReceiver extends BroadcastReceiver {
         return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_BOOT_COUNT);
     }
 
-    static void simpanThrottleBootCount(Context context, long kini) {
-        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_BOOT_COUNT, kini);
-    }
 
     static long bacaThrottleBootWall(Context context) {
         return TgBackup.bacaStempelThrottle(context, KEY_THROTTLE_BOOT_WALL);
     }
 
-    static void simpanThrottleBootWall(Context context, long kini) {
-        TgBackup.simpanStempelThrottle(context, KEY_THROTTLE_BOOT_WALL, kini);
-    }
 
 }

@@ -128,3 +128,6 @@ databaseUrlIkutEksporTapiTakBolehImpor
 _numerik_penuh
 sidikUjung
 sidikUjung_bedaIsiBedaSidik
+simpanThrottleBoot
+simpanThrottleBootWall
+simpanThrottleBootCount

@@ -4926,6 +4926,29 @@ public final class TgBackup {
     // pasangan tak konsisten (cap elapsed baru + wall
     // lama) yang membuat predikat satu-boot mengabaikan
     // stempel dan throttle hilang (backup duplikat).
+    // Audit 2906: tiga stempel throttle boot
+    // (elapsed+wall+count) ditulis dalam SATU
+    // edit() - sebelumnya tiga apply() terpisah
+    // bisa menyisakan kombinasi tercampur dari
+    // dua boot berbeda bila proses mati di
+    // antaranya (kelas yang ditutup 2895 untuk
+    // pasangan alarm).
+    static void simpanTigaStempelThrottle(Context ctx,
+            String kunciElapsed, long nilaiElapsed,
+            String kunciWall, long nilaiWall,
+            String kunciCount, long nilaiCount) {
+        if (ctx == null) {
+            return;
+        }
+        try {
+            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+                    .edit().putLong(kunciElapsed, nilaiElapsed)
+                    .putLong(kunciWall, nilaiWall)
+                    .putLong(kunciCount, nilaiCount).apply();
+        } catch (Exception ignored) {
+        }
+    }
+
     static void simpanPasanganStempelThrottle(Context ctx,
             String kunciElapsed, long nilaiElapsed,
             String kunciWall, long nilaiWall) {
