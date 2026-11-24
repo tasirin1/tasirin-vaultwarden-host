@@ -2043,6 +2043,28 @@ public final class TgBot {
         // titik pangkasnya, sekali per ruang
         // per pangkasan, tunduk dedup/throttle
         // masing-masing jalur.
+        // Audit 2948: peringatan pangkas jalur
+        // milik sendiri memakai fungsi dedup yang
+        // sama dengan 2936 - bendera basi dari
+        // kegagalan lama menelannya mentah-mentah
+        // (cacat yang sama tertinggal di jalur
+        // pangkas). Bersihkan bendera sekali
+        // sebelum putaran, persis pola 2936 di
+        // jalur kedaluwarsa.
+        if (!ruangMilikTerbuang.isEmpty()) {
+            synchronized (KUNCI_PERINGATAN) {
+                try {
+                    SharedPreferences spPangkas =
+                            ctx.getSharedPreferences(
+                                    ServerService.PREFS,
+                                    Context.MODE_PRIVATE);
+                    spPangkas.edit()
+                            .remove(KEY_TG_HAPUS_WARN)
+                            .apply();
+                } catch (Exception ignored) {
+                }
+            }
+        }
         for (long ruang : ruangMilikTerbuang) {
             peringatkanBilaTakBisaHapus(ctx, false, ruang);
         }

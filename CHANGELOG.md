@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot Telegram: peringatan pangkas antrean hapus tak lagi tertelan bendera dedup basi (Audit 2948)
+
+Residu 2937: peringatan dari titik pangkas untuk entri milik sendiri memanggil `peringatkanBilaTakBisaHapus` tanpa membersihkan bendera dedup `tg_hapus_warn` lebih dulu — persis cacat 2936 yang tertinggal di jalur pangkas. Bila bot memang tak punya hak hapus, bendera itu terpasang permanen (hanya hapus yang berhasil membersihkannya), sehingga peringatan kesempatan-terakhir untuk entri terpangkas tak pernah terkirim dan sisanya hanya log lokal. Bendera kini dibersihkan sekali sebelum putaran peringatan pangkas bila ada ruang milik yang terbuang, meniru pola 2936 di jalur kedaluwarsa.
+
+
 ## [Belum rilis] — Ekspor: status PIN aktif (pin_on) tak lagi ikut config.json (Audit 2947)
 
 Kelas 2923 yang tertinggal satu kunci: `pin_on` lolos dari daftar hitam `kunciDiekspor` sehingga status PIN aktif/tidaknya aplikasi ikut tertulis di config.json hasil ekspor — termasuk jalur ekspor polos tanpa sandi yang dibagikan sebagai berkas — padahal sisi impor tidak pernah membacanya (impor membangun `pin_on` ulang dari keadaan lokal lewat `pinOnHasilRestore`). Kunci itu kini masuk `TAK_DIEKSPOR_KEYS` sejajar kunci status lokal lain, dengan aseran uji pengunci. Sapuan konstanta Audit-192 membuktikan ia satu-satunya kunci tereksport di luar daftar impor sesudah perbaikan ini.
