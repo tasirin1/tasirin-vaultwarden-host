@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pesan asing berbentuk balasan PIN utuh kini ikut terhapus (Audit 2922)
+
+- **Saringan hapus chat asing kini mengenal balasan PIN utuh:** cabang chat asing pada pesan baru hanya memeriksa tebakan berbentuk perintah (`pinTebakan`), sehingga pesan yang seluruh isinya balasan PIN polos (`123456`, `PIN: 123456`) — bentuk tebakan paling sederhana — tidak terhapus, padahal cabang suntingan dan kanal sudah memakainya. Cabang asing kini memakai predikat gabungan `teksSuntinganPerluHapus` yang sama (tebakan perintah atau balasan PIN utuh). (Audit 2922)
+
+
 ## [Belum rilis] — gantiAtomik tak lagi menghapus .bak yang menjadi salinan satu-satunya (Audit 2915)
 
 - **Salinan `.bak` terakhir tak lagi terhapus sebelum swap baru terbukti:** `gantiAtomik` selalu menghapus `.bak` lama tanpa syarat di awal. Bila swap sebelumnya terputus mati listrik tepat di antara dua pengubahan nama, berkas hanya tersisa sebagai `.bak` — dan jalur restore/pasang (yang tidak melewati pemulihan `.bak` milik jalur Start) akan menghapus salinan satu-satunya itu pada panggilan berikutnya; gangguan kedua berarti kehilangan permanen. Kini `.bak` yang tersisa tanpa berkas utama dipulihkan dulu ke tempatnya, dan penghapusan awal hanya berlaku bila berkas utama memang ada. (Audit 2915)

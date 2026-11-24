@@ -648,7 +648,10 @@ public final class TgBot {
                                 String teksAsing = pilihTeksSuntingan(
                                         msg.optString("text", ""),
                                         msg.optString("caption", ""));
-                                if (pinTebakan(teksAsing) != null
+                                // Audit 2922: predikat gabungan yang sama
+                                // dengan suntingan/kanal - balasan PIN utuh
+                                // (pinDariBalasan) dulu tak diperiksa di sini.
+                                if (teksSuntinganPerluHapus(teksAsing)
                                         && pinPerangkatAktif(ctx)) {
                                     hapusPesanAsingAsync(ctx, idRuang,
                                             msg.optInt("message_id", 0));
