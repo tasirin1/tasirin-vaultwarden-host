@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: huruf pendek curl tak dikenal kini membunuh vonis (Audit 2941)
+
+Kelas DG-2 di curl: walk bundel pendek membiarkan huruf apa pun lewat sebagai bendera, padahal biner mati `option -X: is unknown` (rc=2) sebelum membaca stdin — terprobe lolos `-W`, `-5`, `-7`, `-8`, `-9`, `-.`, `-@`, `-!`, termasuk di dalam bundel seperti `-sW`. Walk validasi kini menolak huruf di luar himpunan sah curl 8.5.0 yang terprobe induk dari pesan kesalahan biner: semua huruf kecuali `W` besar, digit hanya `0/1/2/3/4/6` (versi HTTP dan IP), tanpa simbol. Sapuan ulang induk atas semua huruf+digit+simbol: 0 yang lolos.
+
+
 ## [Belum rilis] — Gerbang: kosa kata huruf pendek diff/diff3/sdiff kini divalidasi (Audit 2940)
 
 DG-2 terbukti di Audit-192: walk bundel ketiga program membiarkan huruf pendek apa pun lewat, padahal biner mati `invalid option` sebelum membaca stdin — sapuan induk menemukan 15 huruf lolos di diff, puluhan di diff3 dan sdiff. Kedua walk kini memvalidasi tiap huruf terhadap himpunan sah yang terprobe dari pesan kesalahan biner diffutils 3.10 (diff memuat juga digit sebagai konteks warisan, diff3 hanya digit `3` untuk `-3`, sdiff tanpa digit dan `-W`-nya adalah bendera `--ignore-all-space`). Di walk diff, lima huruf bernilai 2919 (`-F/-x/-X/-I/-S`) kini ikut memutus bundel — sisa bundel adalah nilai mereka, bukan huruf bendera. Sapuan ulang induk: 0 huruf invalid lolos di ketiga program.

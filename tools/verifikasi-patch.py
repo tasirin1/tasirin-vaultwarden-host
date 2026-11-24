@@ -8136,6 +8136,16 @@ def _menguras_khusus(perintah, toks, awal):
             "-A", "-C", "-D", "-E", "-F", "-H", "-K", "-P", "-Q", "-T",
             "-U", "-X", "-Y", "-b", "-c", "-d", "-e", "-m", "-o", "-r",
             "-t", "-u", "-w", "-y", "-z",})
+        # Audit 2941: huruf pendek curl yang
+        # dikenal biner 8.5.0 (terprobe induk
+        # dari pesan "is unknown"): semua
+        # huruf kecuali W besar, digit hanya
+        # 0/1/2/3/4/6 (versi HTTP dan IP);
+        # simbol tak ada yang sah.
+        _CURL_HURUF_PENDEK_SAH = frozenset(
+            "abcdefghijklmnopqrstuvwxyz"
+            "ABCDEFGHIJKLMNOPQRSTUVXYZ"
+            "012346")
         # Audit 2872: kosakata PENUH opsi
         # panjang curl 8.5.0 (bernilai +
         # bendera) dari --help all biner -
@@ -8588,6 +8598,15 @@ def _menguras_khusus(perintah, toks, awal):
                 # token berikutnya.
                 for pos_cu, h_cu in enumerate(
                         t_cu[1:]):
+                    # Audit 2941: huruf pendek tak
+                    # dikenal membunuh biner
+                    # ("option -X: is unknown",
+                    # rc=2) sebelum stdin dibaca -
+                    # dulu lolos sebagai bendera.
+                    if (h_cu
+                            not in
+                            _CURL_HURUF_PENDEK_SAH):
+                        return False
                     if ("-" + h_cu
                             in _CURL_BERNILAI_PENDEK):
                         # Audit 2886: huruf
