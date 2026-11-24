@@ -7067,19 +7067,24 @@ def _menguras_khusus(perintah, toks, awal):
                 if perintah == "diff3":
                     return False
                 if "=" in t_df:
+                    # Audit 2939: nilai = boleh
+                    # KOSONG (biner menerima
+                    # --unified= sebagai bawaan,
+                    # terprobe rc=1); selain itu
+                    # tata bahasa 2822.
                     v_df = t_df.split("=", 1)[1]
-                    if not re.fullmatch(
-                            r"\+?\d+", v_df):
+                    if (v_df != ""
+                            and not re.fullmatch(
+                                r"\+?\d+", v_df)):
                         return False
                     k_df += 1
                     continue
-                if k_df + 1 < len(toks):
-                    v_df = toks[k_df + 1].strip(
-                        "\"'")
-                    if not re.fullmatch(
-                            r"\+?\d+", v_df):
-                        return False
-                    k_df += 1
+                # Audit 2939 (DG-1): argumen
+                # --unified/--context OPSIONAL -
+                # token terpisah adalah OPERAND,
+                # bukan nilai (biner: "extra
+                # operand" rc=2 untuk angka,
+                # "-" sah sebagai operand stdin).
                 k_df += 1
                 continue
             if t_df in ("--show-all",
@@ -7249,9 +7254,15 @@ def _menguras_khusus(perintah, toks, awal):
                                     v_df = toks[
                                         k_df + 1].strip(
                                         "\"'")
-                                    if not re.fullmatch(
-                                            r"\+?\d+",
-                                            v_df):
+                                    # Audit 2939: nilai
+                                    # kosong sah juga di
+                                    # bentuk pendek
+                                    # (terprobe -U "" rc=1).
+                                    if (v_df != ""
+                                            and not
+                                            re.fullmatch(
+                                                r"\+?\d+",
+                                                v_df)):
                                         return False
                                 lompat_df = 2
                             else:
@@ -7305,8 +7316,7 @@ def _menguras_khusus(perintah, toks, awal):
         # sehingga token sesudahnya operand.
         # Audit 2850: -A tak ada di diff sama
         # sekali - tak lagi bernilai di sini.
-        bernilai_ops_d = {"-U", "-C", "--unified",
-                          "--context", "--width",
+        bernilai_ops_d = {"-U", "-C", "--width",
                           "-D", "--ifdef", "--label",
                           "-L", "--horizon-lines",
                           "--line-format",
@@ -7359,8 +7369,8 @@ def _menguras_khusus(perintah, toks, awal):
         # --unified/--context dikecualikan:
         # argumennya OPSIONAL ([=NUM] di
         # --help biner) sehingga token
-        # terpisah adalah operand - akar
-        # modelnya dugaan Audit-192.
+        # terpisah adalah operand - model
+        # diperbaiki Audit 2939 (DG-1).
         kosa_pd = (_PANJANG_DIFF3
                    if perintah == "diff3"
                    else _PANJANG_DIFF)

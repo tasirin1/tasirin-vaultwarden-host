@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: diff --unified/--context kini dimodelkan berargumen opsional (Audit 2939)
+
+DG-1 terbukti di Audit-192: `--unified`/`--context` berargumen OPSIONAL (`--unified[=NUM]` di `--help` biner) tetapi gerbang memodelkannya wajib-argumen di kedua pas — `diff --unified 3 - f` dinilai menguras padahal biner mati `extra operand` (token `3` adalah operand), dan `diff --unified - f` dinilai tidak menguras padahal `-` adalah operand stdin yang sah. Cabang validasi kini hanya memeriksa bentuk `=` (nilai kosong juga sah sebagai bawaan, terprobe), token terpisah dibiarkan menjadi operand, kedua nama keluar dari himpunan penelan nilai pas operand, dan nilai kosong bentuk pendek `-U ""`/`-C ""` ikut diterima. Terverifikasi baterai induk 28/28 terhadap biner diffutils 3.10 termasuk bentuk singkatan `--unif`/`--cont`.
+
+
 ## [Belum rilis] — Bot Telegram: PIN di caption pesan media baru di chat resmi kini ikut disaring untuk dihapus (Audit 2938)
 
 Jalur utama pesan baru yang segar di chat resmi sebelumnya hanya membaca `text`, padahal pesan media membawa teksnya di `caption` — caption berisi PIN (mis. `/login 123456` pada foto/dokumen) menetap di riwayat chat tanpa pernah masuk saringan hapus, tidak seperti cabang chat asing, jam mundur, pesan basi, suntingan, dan kanal yang sudah menyaring caption sejak Audit 2914/2922. Keputusan hapus jalur segar kini juga memeriksa caption dengan predikat yang sama (`teksSuntinganPerluHapus`), tanpa mengubah pemrosesan perintah yang tetap berbasis `text`.
