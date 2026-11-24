@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: singkatan sdiff --out ikut menelan nilai di pas operand (Audit 2931)
+
+Kasus ini tertutup oleh perbaikan Audit 2930: pas operand sdiff kini memakai himpunan bernilai yang diperluas awalan unik terhadap kosakata sdiff, jadi --out diselesaikan ke --output di pas operand juga, bukan hanya di walk. Skenario regresi khusus ditambahkan sebagai pengunci.
+
+
 ## [Belum rilis] — Gerbang: sdiff --diff-program/--ignore-matching-lines/-I bentuk terpisah kini menelan nilai (Audit 2930)
 
 Walk dan pas operand sdiff kini mengenal --diff-program, --ignore-matching-lines, dan -I sebagai opsi bernilai (pas operand juga diperluas awalan unik, yang ikut menutup Audit 2931 untuk --out). Berbeda dari diff3, sdiff meneruskan stdin-nya ke program anak sehingga operand "-" tetap menguras - terverifikasi probe program-bungkus dan uji pipa-tidur induk.
