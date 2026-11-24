@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — curl: nilai --tls-max kini divalidasi enum (Audit 2901)
+
+--tls-max hanya menerima default/1.0/1.1/1.2/1.3 persis huruf kecil; nilai lain dibunuh biner tetapi lolos gerbang. Walk pertama kini memvalidasinya lewat himpunan tervalidasi baru (numerik 2886 plus opsi tak numerik), termasuk lewat singkatan unik. Skenario gensuite 1963 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — sdiff: singkatan getopt_long kini diselesaikan sebelum penilaian (Audit 2900)
 
 Walk sdiff hanya mencocokkan nama panjang utuh, padahal biner menyelesaikan singkatan unik getopt_long: --lef=x (bendera diberi nilai), --wid=abc dan --tab=abc (nilai tak sah) lolos gerbang walau mati di biner. Kini tiap token panjang diselesaikan dulu ke kosakata sdiff persis --help (20 opsi): singkatan unik ditulis ulang ke nama persisnya lalu dinilai cabang yang ada (2894/2899), ambigu dan tak dikenal ditolak, dan --help/--version dinilai informatif (keluar tanpa membaca stdin). Skenario gensuite 1962 (arah terverifikasi repro jalur workflow: rc == 0).
