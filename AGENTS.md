@@ -207,15 +207,17 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
     (pindah, bukan hapus) dilarang masuk daftar. Mengubah SIGNATUR metode
     sambil mempertahankan namanya BUKAN penghapusan — tak masuk daftar
     (diterapkan pada perbaikan 2877).
-16. **Cek program lokal dulu, manfaatkan semaksimal mungkin** — di awal tiap
-    pekerjaan, cek program lokal yang terinstal (`command -v` + `--version`;
-    mis. `rg`, `fd`, `fzf`, `bat`, `eza`, `jq`, `file`, `lsof`, `htop`,
-    `strace`/`ltrace`, `gdb`, `git`, `python3`, `bash`, `gh`) lalu pakai yang
-    paling tepat semaksimal mungkin: `rg` untuk cari teks (bukan `grep`
-    lambat), `fd` untuk cari berkas, `jq` untuk JSON, `bat`/`eza` untuk
-    baca/daftar, sisanya sesuai kebutuhan (profil/debug). Tetap patuhi
-    aturan No. 1: program toolchain Android (`gradle`, `javac`/`kotlinc`,
-    `apktool`, emulator, `adb install`) dilarang dipakai walau terinstal.
+16. **Kerja lokal = bash + perkakas standar yang benar-benar ada** —
+    pekerjaan lokal dikerjakan lewat bash dengan perkakas standar
+    (`grep`, `sed`, `find`, `awk`, `sort`, `diff`), `python3` untuk
+    skrip/probe/verifikasi, serta `git` + `gh` untuk repo dan GitHub.
+    `rg`, `jq`, `file`, `lsof`, `strace` memang terinstal dan boleh dipakai
+    bila pas, tetapi JANGAN mengandalkan `fd`, `fzf`, `bat`, `eza`,
+    `htop`, `ltrace`, atau `gdb` — semuanya TIDAK terinstal di mesin kerja
+    (terverifikasi 2026-11-24). Ragu soal ketersediaan: cek dulu dengan
+    `command -v`. Tetap patuhi aturan No. 1: program toolchain Android
+    (`gradle`, `javac`/`kotlinc`, `apktool`, emulator, `adb install`)
+    dilarang dipakai walau terinstal.
 
 17. **Mode perbaiki = maraton** — perintah "perbaiki/fix/lanjutkan" atas temuan
     audit dikerjakan sampai habis: satu temuan satu perbaikan akar masalah, tiap
