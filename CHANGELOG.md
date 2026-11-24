@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: opsi curl yang tak didukung build libcurl setempat kini membunuh vonis (Audit 2927)
+
+Delapan opsi yang selalu ditolak biner acuan (libcurl tanpa c-ares/HTTP3/NTLM-WB/metalink) - --dns-interface, --dns-ipv4-addr, --dns-ipv6-addr, --dns-servers, --http3, --http3-only, --ntlm-wb, --metalink - kini membuat gerbang menilai perintah tak menguras, sama seperti kematian urai lainnya, termasuk lewat singkatan unik.
+
+
 ## [Belum rilis] — Gerbang: bendera persis --parallel tak lagi diselesaikan sebagai --parallel-max (Audit 2926)
 
 Kasus ini tertutup oleh perbaikan akar yang sama dengan Audit 2918: walk 1 curl kini memeriksa keanggotaan nama persis di himpunan penuh sebelum menyelesaikan singkatan, jadi token sesudah --parallel tak lagi divalidasi sebagai nilai numerik --parallel-max. Skenario regresi khusus ditambahkan di sini sebagai pengunci.

@@ -8497,6 +8497,25 @@ def _menguras_khusus(perintah, toks, awal):
                     if len(calon_cb) == 1:
                         nama_cb = calon_cb[0]
                 if nama_cb is not None:
+                    if nama_cb in (
+                            "--dns-interface",
+                            "--dns-ipv4-addr",
+                            "--dns-ipv6-addr",
+                            "--dns-servers",
+                            "--http3",
+                            "--http3-only",
+                            "--ntlm-wb",
+                            "--metalink"):
+                        # Audit 2927: fitur tak
+                        # didukung build libcurl
+                        # setempat (tanpa
+                        # c-ares/HTTP3/NTLM-WB/
+                        # metalink) - biner mati
+                        # rc=2 "the installed
+                        # libcurl version doesn't
+                        # support this" untuk
+                        # nilai apa pun.
+                        return False
                     if (nama_cb
                             in _CURL_BERNILAI_PANJANG):
                         if (nama_cb
