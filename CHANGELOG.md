@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Telegram: predikat komit-dini diluruskan, daftar nama hampa 2893 dibuang (Audit 2913)
+
+Perluasan perintahKomitDini pada 2893 tidak mengubah perilaku apa pun: ketujuh nama yang ditambahkan (backup, restore, ca, cabackup, careset, update, webvault) sudah tercakup perintahPerluPin sejak baseline - yang pertama lima lewat perintahBerbahaya, ca/cabackup harfiah. Perubahan nyata 2893 hanyalah apply ke commit pada finally pollOnce. Predikat kini kembali ke bentuk setara-perilaku tanpa daftar mati, dan komentarnya meluruskan catatan itu.
+
+
 ## [Belum rilis] — Telegram: postingan kanal berisi PIN kini ikut dihapus (Audit 2912)
 
 pollOnce tidak menangani channel_post/edited_channel_post sama sekali: update kanal jatuh ke continue sesudah offset maju sehingga PIN yang tertulis di kanal tempat bot menjadi admin tidak pernah dihapus. Cabang kanal baru melewati saringan hapus yang sama seperti suntingan (teks atau caption, chat terkonfigurasi atau asing); perintah tidak pernah dijalankan dari postingan kanal.

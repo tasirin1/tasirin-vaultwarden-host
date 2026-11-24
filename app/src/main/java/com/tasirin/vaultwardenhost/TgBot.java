@@ -1550,20 +1550,21 @@ public final class TgBot {
 
     static boolean perintahKomitDini(String text) {
         String cmd = namaPerintah(text);
-        // Audit 2893: perintah berat (yang berjalan di
-        // antrean asinkron runBeratDenganKunci) ikut
-        // komit dini - offset tersimpan sinkron SEBELUM
-        // tugas diantrekan, jadi kematian proses di
-        // jendela antre tidak bisa membuat perintah
-        // terkirim ulang dan berjalan dua kali
-        // (/restore, /careset, /update). Perintah berat
-        // yang hilang karena proses mati terlihat dari
-        // ketiadaan balasannya dan bisa dikirim ulang.
-        return perintahPerluPin(text) || "login".equals(cmd) || "logout".equals(cmd)
-                || "backup".equals(cmd) || "restore".equals(cmd)
-                || "ca".equals(cmd) || "cabackup".equals(cmd)
-                || "careset".equals(cmd) || "update".equals(cmd)
-                || "webvault".equals(cmd);
+        // Perintah berat (yang berjalan di antrean
+        // asinkron runBeratDenganKunci) tercakup
+        // komit dini lewat perintahPerluPin -
+        // backup/restore/update/webvault/careset
+        // adalah perintahBerbahaya dan ca/cabackup
+        // tercantum harfiah di perintahPerluPin.
+        // Audit 2913: daftar tujuh nama tambahan
+        // yang ditulis 2893 di sini ternyata
+        // HAMPA (ketujuhnya sudah tercakup
+        // perintahPerluPin sejak sebelum 2893);
+        // perubahan perilaku 2893 yang nyata
+        // adalah apply()->commit() pada finally
+        // pollOnce. Daftar mati itu kini dibuang
+        // agar cakupan tidak menyesatkan.
+        return perintahPerluPin(text) || "login".equals(cmd) || "logout".equals(cmd);
     }
 
     static boolean wajibHapusPesanPin(boolean pinBasi, boolean pinGrup,
