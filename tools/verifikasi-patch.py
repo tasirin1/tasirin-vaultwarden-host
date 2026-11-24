@@ -8017,6 +8017,12 @@ def _menguras_khusus(perintah, toks, awal):
             "--form")
 
         def _curl_bulat_sah(v_cu):
+            # Audit 2917: strtol biner
+            # melompati whitespace awal
+            # (isspace: spasi/tab/dll.) -
+            # nilai berkutip " 5" sah di
+            # semua opsi bulat.
+            v_cu = v_cu.lstrip(" \t\n\r\v\f")
             if not re.fullmatch(r"\+?\d+", v_cu):
                 return False
             d_cu = v_cu.lstrip("+").lstrip("0") or "0"
@@ -8039,29 +8045,43 @@ def _menguras_khusus(perintah, toks, awal):
                 # perbandingan NaN selalu
                 # salah); inf gugur oleh batas
                 # yang sama.
+                # Audit 2917: strtod juga
+                # melompati whitespace awal
+                # dan menerima tanda +/- -
+                # nan bertanda lolos (NaN tak
+                # pernah < 0), -0 lolos,
+                # negatif sejati dan inf
+                # gugur.
+                w_cu = v_cu.lstrip(
+                    " \t\n\r\v\f")
                 if re.fullmatch(
-                        r"(?i)nan(\([\w]*\))?",
-                        v_cu):
+                        r"(?i)[+-]?nan"
+                        r"(\([\w]*\))?",
+                        w_cu):
                     return True
                 if re.fullmatch(
-                        r"\+?0[xX]([0-9A-Fa-f]+"
+                        r"[+-]?0[xX]([0-9A-Fa-f]+"
                         r"\.?[0-9A-Fa-f]*"
                         r"|\.[0-9A-Fa-f]+)"
                         r"([pP][+-]?\d+)?",
-                        v_cu):
+                        w_cu):
                     try:
-                        return (float.fromhex(
-                            v_cu.lstrip("+"))
-                            <= 9223372036854775.0)
+                        f_cu = float.fromhex(
+                            w_cu)
+                        return (not (f_cu < 0)
+                                and f_cu
+                                <= 9223372036854775.0)
                     except (ValueError,
                             OverflowError):
                         return False
                 if not re.fullmatch(
-                        r"\+?(\d+\.?\d*|\.\d+)"
-                        r"([eE][+-]?\d+)?", v_cu):
+                        r"[+-]?(\d+\.?\d*|\.\d+)"
+                        r"([eE][+-]?\d+)?", w_cu):
                     return False
                 try:
-                    return (float(v_cu)
+                    f_cu = float(w_cu)
+                    return (not (f_cu < 0)
+                            and f_cu
                             <= 9223372036854775.0)
                 except ValueError:
                     return False
@@ -8099,7 +8119,9 @@ def _menguras_khusus(perintah, toks, awal):
                 # -01 yang terprobe lolos;
                 # -2 ke bawah mati.
                 m_cu = re.fullmatch(
-                    r"([+-]?)(\d+)", v_cu)
+                    r"([+-]?)(\d+)",
+                    v_cu.lstrip(
+                        " \t\n\r\v\f"))
                 if m_cu is None:
                     return False
                 d_cu = (m_cu.group(2)
@@ -8125,7 +8147,9 @@ def _menguras_khusus(perintah, toks, awal):
                 # terprobe rc: tepat LONG_MAX
                 # dibagi pengali tiap sufiks).
                 m_cu = re.fullmatch(
-                    r"(\d+)([kKmMgG]?)", v_cu)
+                    r"(\d+)([kKmMgG]?)",
+                    v_cu.lstrip(
+                        " \t\n\r\v\f"))
                 if m_cu is None:
                     return False
                 d_cu = (m_cu.group(1)
@@ -8140,6 +8164,8 @@ def _menguras_khusus(perintah, toks, awal):
                 return (int(d_cu) * pengali_cu
                         <= 9223372036854775807)
             if nama_cu == "--create-file-mode":
+                v_cu = v_cu.lstrip(
+                    " \t\n\r\v\f")
                 if not re.fullmatch(
                         r"\+?[0-7]+", v_cu):
                     return False
@@ -8159,7 +8185,9 @@ def _menguras_khusus(perintah, toks, awal):
                 if not _curl_bulat_sah(
                         pisah_cu[0]):
                     return False
-                if (pisah_cu[0].lstrip("+")
+                if (pisah_cu[0]
+                        .lstrip(" \t\n\r\v\f")
+                        .lstrip("+")
                         .lstrip("0") == ""):
                     return False
                 if len(pisah_cu) == 1:

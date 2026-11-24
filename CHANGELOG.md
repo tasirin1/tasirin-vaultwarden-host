@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nilai numerik curl berawalan spasi/tab kini sah (Audit 2917)
+
+Pengurai strtol/strtod biner melompati whitespace awal, jadi nilai berkutip seperti " 5" sah di opsi numerik curl - gerbang kini menoleransi spasi/tab/baris-baru awal di penilai bulat bersama, cabang desimal waktu (termasuk +nan/-nan dan -0), --max-redirs, sufiks ukuran, --create-file-mode, dan bagian angka --rate. Spasi sesudah tanda dan spasi akhir tetap ditolak, sama seperti biner; --local-port tak berubah (biner sendiri menolaknya).
+
+
 ## [Belum rilis] — Gerbang: konflik metode HTTP curl kini membunuh vonis kuras (Audit 2916)
 
 Pra-pindai curl kini juga mencatat keluarga unggah (-T/--upload-file) dan head (-I/--head); bila dua keluarga metode berbeda (data, form, unggah, head) muncul bersamaan, biner mati rc=2 sebelum membaca stdin ("You can only select one HTTP request method!") sehingga gerbang kini menilai perintah tidak menguras stdin. -G/-X tidak menyelamatkan konflik; keluarga yang sama berulang tetap sah.
