@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sdiff --diff-program/--ignore-matching-lines/-I bentuk terpisah kini menelan nilai (Audit 2930)
+
+Walk dan pas operand sdiff kini mengenal --diff-program, --ignore-matching-lines, dan -I sebagai opsi bernilai (pas operand juga diperluas awalan unik, yang ikut menutup Audit 2931 untuk --out). Berbeda dari diff3, sdiff meneruskan stdin-nya ke program anak sehingga operand "-" tetap menguras - terverifikasi probe program-bungkus dan uji pipa-tidur induk.
+
+
 ## [Belum rilis] — Gerbang: nama nyata opsi format grup/baris diff menggantikan placeholder GTYPE/LTYPE (Audit 2929)
 
 Kosakata dan himpunan bernilai diff kini memuat tujuh nama format nyata - --old-group-format, --new-group-format, --unchanged-group-format, --changed-group-format, --old-line-format, --new-line-format, --unchanged-line-format - menggantikan placeholder dokumentasi --GTYPE-group-format/--LTYPE-line-format yang tak bisa diketik. Koreksi atas temuan: --changed-line-format ternyata tidak ada di biner (rc=2 terprobe), jadi tidak ikut dimasukkan.

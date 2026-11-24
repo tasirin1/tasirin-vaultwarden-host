@@ -7507,11 +7507,27 @@ def _menguras_khusus(perintah, toks, awal):
             if t_sw in ("-o", "--output"):
                 k_sw += 2
                 continue
+            if t_sw in ("--diff-program",
+                        "--ignore-matching-lines"):
+                # Audit 2930: dua opsi bernilai
+                # ini dulu tak punya cabang -
+                # nilainya terpindai sebagai
+                # token sendiri di walk.
+                k_sw += 2
+                continue
             if (t_sw.startswith("-")
                     and not t_sw.startswith("--")
                     and len(t_sw) > 1):
                 for pos_sw, h_sw in enumerate(
                         t_sw[1:]):
+                    if h_sw == "I":
+                        # Audit 2930: -I bernilai
+                        # (pola abaikan) - di ujung
+                        # bundel menelan token
+                        # berikutnya.
+                        if pos_sw == len(t_sw) - 2:
+                            k_sw += 1
+                        break
                     if h_sw == "o":
                         if pos_sw == len(t_sw) - 2:
                             k_sw += 1
@@ -7529,9 +7545,35 @@ def _menguras_khusus(perintah, toks, awal):
                             return False
                         break
             k_sw += 1
+        # Audit 2930: --diff-program dan
+        # --ignore-matching-lines/-I ikut
+        # bernilai di pas operand (2904
+        # hanya membetulkan himpunan diff).
+        # Audit 2931 ikut tertutup: himpunan
+        # diperluas awalan unik terhadap
+        # kosakata sdiff (teknik 2921),
+        # jadi --out tertelan sebagai
+        # --output juga di pas ini.
+        bernilai_sdf = {"-w", "--width", "-o",
+                        "--output", "--tabsize",
+                        "--diff-program",
+                        "--ignore-matching-lines",
+                        "-I"}
+        for nama_sw in list(bernilai_sdf):
+            if not nama_sw.startswith("--"):
+                continue
+            for potong_sw in range(
+                    3, len(nama_sw)):
+                awalan_sw = nama_sw[:potong_sw]
+                cocok_sw = [
+                    p for p in _SDIFF_PANJANG
+                    if p.startswith(awalan_sw)]
+                if (len(cocok_sw) == 1
+                        and cocok_sw[0]
+                        == nama_sw):
+                    bernilai_sdf.add(awalan_sw)
         ops_sdf = _operand_sesudah_opsi(
-            toks, awal, {"-w", "--width", "-o", "--output",
-                         "--tabsize"})
+            toks, awal, bernilai_sdf)
         if "\x00gantung" in ops_sdf:
             return False
         return "-" in ops_sdf
