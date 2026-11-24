@@ -41552,6 +41552,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sdiff --tabsize nilai tak sah kini ditolak (Audit 2899)", rc == 0)
         shutil.rmtree(sub1961, ignore_errors=True)
+        sub1962 = klon(tmp, "sub1962")
+        berkas_aksi1962 = os.path.join(
+            sub1962, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1962, encoding="utf-8") as f:
+            isi_aksi1962 = f.read()
+        baris_aksi1962 = [b for b in isi_aksi1962.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1962 = isi_aksi1962.replace(
+                baris_aksi1962,
+                baris_aksi1962.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sdiff --wid=abc - /etc/hosts; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1962 != isi_aksi1962, \
+            "suntikan aksi1962 tidak menembak"
+        with open(berkas_aksi1962, "w", encoding="utf-8") as f:
+            f.write(isi_baru1962)
+        rc, out = jalan(sub1962,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("sdiff singkatan --wid=abc kini diselesaikan dan ditolak (Audit 2900)", rc == 0)
+        shutil.rmtree(sub1962, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

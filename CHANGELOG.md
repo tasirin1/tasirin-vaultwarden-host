@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — sdiff: singkatan getopt_long kini diselesaikan sebelum penilaian (Audit 2900)
+
+Walk sdiff hanya mencocokkan nama panjang utuh, padahal biner menyelesaikan singkatan unik getopt_long: --lef=x (bendera diberi nilai), --wid=abc dan --tab=abc (nilai tak sah) lolos gerbang walau mati di biner. Kini tiap token panjang diselesaikan dulu ke kosakata sdiff persis --help (20 opsi): singkatan unik ditulis ulang ke nama persisnya lalu dinilai cabang yang ada (2894/2899), ambigu dan tak dikenal ditolak, dan --help/--version dinilai informatif (keluar tanpa membaca stdin). Skenario gensuite 1962 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — sdiff: nilai --tabsize kini divalidasi dan diakui bernilai (Audit 2899)
 
 Walk sdiff hanya memvalidasi --width; --tabsize (opsi bernilai, tata bahasa sama: bilangan bulat >= 1 dengan + opsional) lolos dalam bentuk = maupun terpisah, dan nilainya terhitung operand. Kini kedua bentuk divalidasi dengan pemeriksa yang sama seperti --width, dan --tabsize masuk himpunan opsi bernilai pada hitungan operand. Skenario gensuite 1961 (arah terverifikasi repro jalur workflow: rc == 0).

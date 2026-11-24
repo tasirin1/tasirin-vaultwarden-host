@@ -7283,11 +7283,49 @@ def _menguras_khusus(perintah, toks, awal):
             return bool(re.fullmatch(
                 r"\+?\d+", v_sw)) and (
                 v_sw.lstrip("+").lstrip("0") != "")
+        # Audit 2900: kosakata panjang sdiff
+        # 3.10 persis --help biner (20 opsi) -
+        # dasar resolusi singkatan getopt_long.
+        _SDIFF_PANJANG = frozenset({
+            "--diff-program", "--expand-tabs",
+            "--help", "--ignore-all-space",
+            "--ignore-blank-lines", "--ignore-case",
+            "--ignore-matching-lines",
+            "--ignore-space-change",
+            "--ignore-tab-expansion",
+            "--ignore-trailing-space",
+            "--left-column", "--minimal",
+            "--output", "--speed-large-files",
+            "--strip-trailing-cr",
+            "--suppress-common-lines", "--tabsize",
+            "--text", "--version", "--width"})
         k_sw = awal + 1
         while k_sw < len(toks):
             t_sw = toks[k_sw].strip("\"'")
             if t_sw == "--":
                 break
+            if t_sw.startswith("--"):
+                # Audit 2900: singkatan unik
+                # getopt_long diselesaikan ke
+                # nama persisnya sebelum cabang
+                # bentuk persis menilai (2894/
+                # 2899 hanya mencocokkan nama
+                # utuh, jadi --lef=x, --wid=abc,
+                # --tab=abc lolos); ambigu dan
+                # tak dikenal membunuh biner.
+                basis_sw = t_sw.split("=", 1)[0]
+                if basis_sw not in _SDIFF_PANJANG:
+                    calon_sw = [
+                        x for x in _SDIFF_PANJANG
+                        if x.startswith(basis_sw)]
+                    if len(calon_sw) != 1:
+                        return False
+                    t_sw = (calon_sw[0]
+                            + t_sw[len(basis_sw):])
+                if (t_sw in ("--help", "--version")):
+                    # informatif: cetak lalu
+                    # keluar, stdin tak dibaca.
+                    return False
             if t_sw.startswith("--width="):
                 if not _lebar_sdiff_sah(
                         t_sw.split("=", 1)[1]):
