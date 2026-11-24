@@ -2363,7 +2363,8 @@ public final class TgBackup {
                     "sec_buka_keamanan", "sec_buka_rawat",
                     "sec_buka_telegram", "sec_buka_log",
                     "home_log_expanded",
-                    ServerService.KEY_SERVER_DIMINTA));
+                    ServerService.KEY_SERVER_DIMINTA,
+                    PinGate.KEY_PIN_ON));
 
     static boolean kunciDiekspor(String kunci) {
         return kunci != null

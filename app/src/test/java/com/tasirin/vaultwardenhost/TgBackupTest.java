@@ -1933,6 +1933,10 @@ public class TgBackupTest {
                 AlarmReceiver.KEY_THROTTLE_WAKTU_WALL));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(TgBot.KEY_TG_LOGIN_CHAT));
         assertFalse(TgBackup.kunciDiekspor(TgBot.KEY_TG_LOGIN_CHAT));
+        // Audit 2947: status PIN aktif (pin_on) tak diekspor -
+        // ia dibangun ulang dari keadaan lokal saat impor dan
+        // tak punya konsumen impor (kelas 2923).
+        assertFalse(TgBackup.kunciDiekspor(PinGate.KEY_PIN_ON));
         // Audit 2923: metadata keadaan UI lokal (wizard,
         // seksi Settings terbuka, log layar utama, status
         // server diminta) tak ikut config.json ekspor.

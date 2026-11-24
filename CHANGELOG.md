@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Ekspor: status PIN aktif (pin_on) tak lagi ikut config.json (Audit 2947)
+
+Kelas 2923 yang tertinggal satu kunci: `pin_on` lolos dari daftar hitam `kunciDiekspor` sehingga status PIN aktif/tidaknya aplikasi ikut tertulis di config.json hasil ekspor — termasuk jalur ekspor polos tanpa sandi yang dibagikan sebagai berkas — padahal sisi impor tidak pernah membacanya (impor membangun `pin_on` ulang dari keadaan lokal lewat `pinOnHasilRestore`). Kunci itu kini masuk `TAK_DIEKSPOR_KEYS` sejajar kunci status lokal lain, dengan aseran uji pengunci. Sapuan konstanta Audit-192 membuktikan ia satu-satunya kunci tereksport di luar daftar impor sesudah perbaikan ini.
+
+
 ## [Belum rilis] — Log: alternatif IPv6 2935 tak lagi memotong kata berdigit (Audit 2946)
 
 Positif palsu baru dari fix 2935: lookahead digit alternatif terkompresi grup-pertama 1 digit puas oleh digit di dalam kata ekor, dan pagar akhirnya membiarkan huruf non-heksa — sehingga `c::3rd` tersamar menjadi `[ipv6]rd` dan `a::1st` menjadi `[ipv6]st`, padahal pola lama membiarkan keduanya utuh. Pagar akhir alternatif itu kini menolak semua huruf sesudah kecocokan (kecocokan wajib berakhir di batas kata), tanpa menyentuh alternatif lain: `1::1`, `1::1:2`, dan bentuk berektor IPv4 tetap tersamar utuh. Terverifikasi porting 1:1 pola terekstrak: 13/13 kasus termasuk `b::2fast` yang memang sudah tersamar sejak pola lama.
