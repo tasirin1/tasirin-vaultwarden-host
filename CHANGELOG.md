@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Ekspor: dua stempel wall throttle alarm kini ikut ditahan dari config.json (Audit 2911)
+
+alarm_throttle_wall dan alarm_throttle_waktu_wall tidak ada di daftar kunci tak-dieksport padahal pasangan elapsed-nya dan stempel wall boot ditahan - keduanya ikut tertulis ke config.json ekspor/backup sebagai metadata waktu aktivitas. Kedua kunci kini ditahan dan uji ekspor mengasersi mereka.
+
+
 ## [Belum rilis] — Log: urutan penyamaran IPv6/IPv4 diluruskan, bentuk terpetakan penuh tak lagi bocor (Audit 2910)
 
 samarkanLog menjalankan pola IPv4 sebelum IPv6, sehingga ekor IPv4 alamat IPv6 terpetakan diganti lebih dulu dan pola IPv6 berektor IPv4 tidak bisa lagi cocok - enam grup awal bentuk penuh seperti 1:2:3:4:5:6:192.0.2.1 bocor ke log yang dibagikan. Urutan kini dibalik: IPv6 dulu, IPv4 sesudahnya; bentuk terkompresi dan IPv4 polos tidak berubah. Uji JVM diperluas ke kedua bentuk penuh.

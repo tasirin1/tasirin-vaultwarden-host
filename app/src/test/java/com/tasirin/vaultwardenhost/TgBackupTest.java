@@ -1927,6 +1927,10 @@ public class TgBackupTest {
         // id chat login) tak boleh ikut config.json backup.
         assertTrue(TgBackup.SECRET_PREF_KEYS.contains(TgBot.KEY_TG_LOGIN_HASH));
         assertFalse(TgBackup.kunciDiekspor(TgBot.KEY_TG_LOGIN_HASH));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(
+                AlarmReceiver.KEY_THROTTLE_ALARM_WALL));
+        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(
+                AlarmReceiver.KEY_THROTTLE_WAKTU_WALL));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(TgBot.KEY_TG_LOGIN_CHAT));
         assertFalse(TgBackup.kunciDiekspor(TgBot.KEY_TG_LOGIN_CHAT));
         // Audit 2857: antrean hapus tertunda (isinya pasangan

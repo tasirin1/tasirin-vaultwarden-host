@@ -2352,6 +2352,8 @@ public final class TgBackup {
                     TgBot.KEY_TG_MENU_HASH,
                     AlarmReceiver.KEY_THROTTLE_ALARM_ELAPSED,
                     AlarmReceiver.KEY_THROTTLE_WAKTU_ELAPSED,
+                    AlarmReceiver.KEY_THROTTLE_ALARM_WALL,
+                    AlarmReceiver.KEY_THROTTLE_WAKTU_WALL,
                     BootReceiver.KEY_THROTTLE_BOOT_ELAPSED,
                     BootReceiver.KEY_THROTTLE_BOOT_WALL,
                     BootReceiver.KEY_THROTTLE_BOOT_COUNT,
