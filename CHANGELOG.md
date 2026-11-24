@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — curl: --max-redirs kini menerima ejaan -0/-01 (Audit 2908)
+
+Model 2886 hanya menerima -1 harfiah atau bulat tak bertanda; biner menilai --max-redirs lewat strtol sehingga -0 dan -01 (bernilai 0 dan -1) sah dan terprobe lolos, sedangkan -2 ke bawah mati. Validasi kini menilai nilai bertandanya: negatif hanya sah bila bernilai 0 atau 1. Skenario gensuite 1968 (arah terverifikasi repro jalur workflow: rc != 0).
+
+
 ## [Belum rilis] — curl: luapan sufiks ukuran --max-filesize/--limit-rate kini ditolak (Audit 2907)
 
 Validasi 2886 hanya memeriksa bagian digit nilai ukuran; sufiks k/m/g mengalikan nilai (1024/1024^2/1024^3) sehingga nilai digit maksimum bersufiks dibunuh biner (too large number) tetapi lolos gerbang. Kini hasil kali digit x pengali wajib muat LONG_MAX, dengan ambang terprobe persis untuk tiap sufiks. Skenario gensuite 1967 (arah terverifikasi repro jalur workflow: rc == 0).

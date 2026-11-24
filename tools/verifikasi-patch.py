@@ -8064,8 +8064,25 @@ def _menguras_khusus(perintah, toks, awal):
                 # used" (terprobe --form abc).
                 return "=" in v_cu
             if nama_cu == "--max-redirs":
-                return (v_cu == "-1"
-                        or _curl_bulat_sah(v_cu))
+                # Audit 2908 (menyempurnakan
+                # 2886): biner menerima nilai
+                # strtol -1 (tak terbatas) dan
+                # >= 0 dalam ejaan bertanda
+                # apa pun - termasuk -0 dan
+                # -01 yang terprobe lolos;
+                # -2 ke bawah mati.
+                m_cu = re.fullmatch(
+                    r"([+-]?)(\d+)", v_cu)
+                if m_cu is None:
+                    return False
+                d_cu = (m_cu.group(2)
+                        .lstrip("0") or "0")
+                if m_cu.group(1) == "-":
+                    return d_cu in ("0", "1")
+                return (len(d_cu) < 19
+                        or (len(d_cu) == 19
+                            and int(d_cu)
+                            <= 9223372036854775807))
             if nama_cu in ("--max-filesize",
                            "--limit-rate"):
                 # Audit 2907 (menyempurnakan
