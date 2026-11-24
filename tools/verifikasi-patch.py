@@ -7310,8 +7310,46 @@ def _menguras_khusus(perintah, toks, awal):
             bernilai_ops_d |= {"-F", "-x",
                                "-X", "-I",
                                "-S"}
+        # Audit 2921: pas operand ikut
+        # menyelesaikan singkatan unik -
+        # himpunan diperluas dengan semua
+        # awalan yang unik (terhadap
+        # kosakata cabang) dari tiap nama
+        # bernilai; awalan ambigu tak
+        # ditambahkan (walk token sudah
+        # membunuhnya lebih dulu).
+        # --unified/--context dikecualikan:
+        # argumennya OPSIONAL ([=NUM] di
+        # --help biner) sehingga token
+        # terpisah adalah operand - akar
+        # modelnya dugaan Audit-192.
+        kosa_pd = (_PANJANG_DIFF3
+                   if perintah == "diff3"
+                   else _PANJANG_DIFF)
+        bernilai_luas_pd = set(
+            bernilai_ops_d)
+        for nama_pd in bernilai_ops_d:
+            if (not nama_pd.startswith(
+                    "--")
+                    or nama_pd in (
+                        "--unified",
+                        "--context")):
+                continue
+            for potong_pd in range(
+                    3, len(nama_pd)):
+                awalan_pd = nama_pd[
+                    :potong_pd]
+                cocok_pd = [
+                    p for p in kosa_pd
+                    if p.startswith(
+                        awalan_pd)]
+                if (len(cocok_pd) == 1
+                        and cocok_pd[0]
+                        == nama_pd):
+                    bernilai_luas_pd.add(
+                        awalan_pd)
         ops_d = _operand_sesudah_opsi(
-            toks, awal, bernilai_ops_d)
+            toks, awal, bernilai_luas_pd)
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops_d:
             return False
