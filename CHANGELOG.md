@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Telegram: PIN yang disunting masuk ke caption media kini ikut dihapus (Audit 2905)
+
+Cabang edited_message dari 2889 hanya membaca field text; pesan media menyimpan tulisannya di caption, sehingga PIN yang disunting masuk ke caption foto/video/dokumen tidak pernah terdeteksi saringan hapus. Teks suntingan kini diambil lewat penolong pilihTeksSuntingan: text bila terisi, selain itu caption. Suntingan tetap tidak pernah menjalankan perintah. Uji JVM baru untuk penolongnya.
+
+
 ## [Belum rilis] — diff: opsi bernilai bentuk terpisah kini diakui pada hitungan operand (Audit 2904)
 
 --exclude, --exclude-from, --ignore-matching-lines, dan --show-function-line hanya dikenal gerbang pada bentuk = (2885); bentuk terpisahnya tidak diakui di himpunan bernilai hitungan operand maupun walk token, sehingga nilai - tertelan biner terhitung operand (perintah mati lolos) dan nilai biasa ikut mengacaukan hitungan tepat-2-operand (perintah sah tertolak). Keempatnya kini masuk kedua himpunan bernilai walk diff. Skenario gensuite 1966 (arah terverifikasi repro jalur workflow: rc == 0).

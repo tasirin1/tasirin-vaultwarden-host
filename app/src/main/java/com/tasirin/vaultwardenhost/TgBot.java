@@ -551,8 +551,11 @@ public final class TgBot {
                                             "id", -1);
                                     String namaSunting = cSunting.optString(
                                             "username", "");
-                                    String teksSunting = sunting.optString(
-                                            "text", "").trim();
+                                    String teksSunting = pilihTeksSuntingan(
+                                            sunting.optString(
+                                                    "text", ""),
+                                            sunting.optString(
+                                                    "caption", ""));
                                     int idPesanSunting = sunting.optInt(
                                             "message_id", 0);
                                     if (idPesanSunting != 0
@@ -1534,6 +1537,21 @@ public final class TgBot {
     // membawa PIN dalam bentuk apa pun yang dikenal
     // jalur pesan biasa - argumen perintah ber-PIN
     // (pinTebakan) atau balasan PIN utuh (pinDariBalasan).
+    // Audit 2905: pesan media (foto/video/
+    // dokumen) menyimpan tulisannya di
+    // caption, bukan text - teks suntingan
+    // adalah text bila terisi, selain itu
+    // caption. Tanpa ini PIN yang disunting
+    // masuk ke caption lolos saringan 2889.
+    static String pilihTeksSuntingan(String teks,
+                                     String caption) {
+        String t = teks == null ? "" : teks.trim();
+        if (!t.isEmpty()) {
+            return t;
+        }
+        return caption == null ? "" : caption.trim();
+    }
+
     static boolean teksSuntinganPerluHapus(String teks) {
         return pinTebakan(teks) != null
                 || pinDariBalasan(teks) != null;

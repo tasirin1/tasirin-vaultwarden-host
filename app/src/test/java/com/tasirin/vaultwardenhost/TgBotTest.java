@@ -296,6 +296,19 @@ public class TgBotTest {
     }
 
     @Test
+    public void pilihTeksSuntingan_captionCadangan() {
+        assertEquals("halo",
+                TgBot.pilihTeksSuntingan("halo", "lain"));
+        assertEquals("123456",
+                TgBot.pilihTeksSuntingan("", "123456"));
+        assertEquals("123456",
+                TgBot.pilihTeksSuntingan("  ", " 123456 "));
+        assertEquals("",
+                TgBot.pilihTeksSuntingan(null, null));
+        assertEquals("",
+                TgBot.pilihTeksSuntingan("", ""));
+    }
+
     public void teksSuntinganPerluHapus_kenaliBentukPin() {
         assertTrue(TgBot.teksSuntinganPerluHapus("123456"));
         assertTrue(TgBot.teksSuntinganPerluHapus("PIN: 123456"));
