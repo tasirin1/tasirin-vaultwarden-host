@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — curl: nilai waktu kini menerima heksadesimal strtod dan nan (Audit 2909)
+
+Pengurai nilai --max-time/--connect-timeout/--expect100-timeout di biner adalah strtod: selain desimal ia menerima bentuk heksadesimal 0x... (0x10, 0x1.8p1 terprobe) dan nan, yang dulu ditolak pola desimal 2886. Model kini menerima heksadesimal (dengan batas nilai yang sama) dan nan; inf tetap gugur oleh batas, negatif tetap mati. Skenario gensuite 1969 (arah terverifikasi repro jalur workflow: rc != 0).
+
+
 ## [Belum rilis] — curl: --max-redirs kini menerima ejaan -0/-01 (Audit 2908)
 
 Model 2886 hanya menerima -1 harfiah atau bulat tak bertanda; biner menilai --max-redirs lewat strtol sehingga -0 dan -01 (bernilai 0 dan -1) sah dan terprobe lolos, sedangkan -2 ke bawah mati. Validasi kini menilai nilai bertandanya: negatif hanya sah bila bernilai 0 atau 1. Skenario gensuite 1968 (arah terverifikasi repro jalur workflow: rc != 0).

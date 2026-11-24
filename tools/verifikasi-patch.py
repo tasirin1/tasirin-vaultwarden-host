@@ -8029,6 +8029,33 @@ def _menguras_khusus(perintah, toks, awal):
             if nama_cu in ("--max-time",
                            "--connect-timeout",
                            "--expect100-timeout"):
+                # Audit 2909 (menyempurnakan
+                # 2886): pengurai biner adalah
+                # strtod - selain desimal ia
+                # menerima heksadesimal 0x...
+                # (terprobe 0x10, 0X10, 0x1p4,
+                # 0x1.8p1) dan nan (lolos
+                # pemeriksaan batas karena
+                # perbandingan NaN selalu
+                # salah); inf gugur oleh batas
+                # yang sama.
+                if re.fullmatch(
+                        r"(?i)nan(\([\w]*\))?",
+                        v_cu):
+                    return True
+                if re.fullmatch(
+                        r"\+?0[xX]([0-9A-Fa-f]+"
+                        r"\.?[0-9A-Fa-f]*"
+                        r"|\.[0-9A-Fa-f]+)"
+                        r"([pP][+-]?\d+)?",
+                        v_cu):
+                    try:
+                        return (float.fromhex(
+                            v_cu.lstrip("+"))
+                            <= 9223372036854775.0)
+                    except (ValueError,
+                            OverflowError):
+                        return False
                 if not re.fullmatch(
                         r"\+?(\d+\.?\d*|\.\d+)"
                         r"([eE][+-]?\d+)?", v_cu):
