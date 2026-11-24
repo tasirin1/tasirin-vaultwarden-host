@@ -8303,10 +8303,20 @@ def _menguras_khusus(perintah, toks, awal):
         # keluarga data (form tetap mati);
         # -T/-K bukan pemicu; offset 0, +0, 00,
         # dan "-" aman.
+        # Audit 2916: konflik metode HTTP -
+        # dua keluarga berbeda dari {data,
+        # form, unggah (-T/--upload-file),
+        # head (-I/--head)} membunuh biner
+        # rc=2 ("You can only select one HTTP
+        # request method!"); -G/-X tidak
+        # menyelamatkan; keluarga yang sama
+        # berulang sah.
         c_cb = False
         data_cb = False
         form_cb = False
         get_cb = False
+        upload_cb = False
+        head_cb = False
         j_cb = 0
         while j_cb < len(mentah):
             t_cb = mentah[j_cb]
@@ -8353,10 +8363,15 @@ def _menguras_khusus(perintah, toks, awal):
                                 "--form",
                                 "--form-string"):
                             form_cb = True
+                        if (nama_cb
+                                == "--upload-file"):
+                            upload_cb = True
                         j_cb += 2
                         continue
                     if nama_cb == "--get":
                         get_cb = True
+                    if nama_cb == "--head":
+                        head_cb = True
                 j_cb += 1
                 continue
             if (t_cb.startswith("-")
@@ -8369,12 +8384,18 @@ def _menguras_khusus(perintah, toks, awal):
                         get_cb = True
                         pos_cb += 1
                         continue
+                    if h_cb == "-I":
+                        head_cb = True
+                        pos_cb += 1
+                        continue
                     if (h_cb
                             in _CURL_BERNILAI_PENDEK):
                         if h_cb == "-d":
                             data_cb = True
                         if h_cb == "-F":
                             form_cb = True
+                        if h_cb == "-T":
+                            upload_cb = True
                         if h_cb == "-C":
                             v_cb = None
                             if (pos_cb
@@ -8406,6 +8427,9 @@ def _menguras_khusus(perintah, toks, awal):
             j_cb += 1
         if c_cb and (form_cb
                 or (data_cb and not get_cb)):
+            return False
+        if (data_cb + form_cb + upload_cb
+                + head_cb) >= 2:
             return False
         # Audit 1068: data/unggah/konfigurasi dari stdin.
         # Audit 1085: bentuk merekat (-d@-, -T-, nilai = pada --form)

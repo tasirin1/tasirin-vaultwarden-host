@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: konflik metode HTTP curl kini membunuh vonis kuras (Audit 2916)
+
+Pra-pindai curl kini juga mencatat keluarga unggah (-T/--upload-file) dan head (-I/--head); bila dua keluarga metode berbeda (data, form, unggah, head) muncul bersamaan, biner mati rc=2 sebelum membaca stdin ("You can only select one HTTP request method!") sehingga gerbang kini menilai perintah tidak menguras stdin. -G/-X tidak menyelamatkan konflik; keluarga yang sama berulang tetap sah.
+
+
 ## [Belum rilis] — Pesan asing berbentuk balasan PIN utuh kini ikut terhapus (Audit 2922)
 
 - **Saringan hapus chat asing kini mengenal balasan PIN utuh:** cabang chat asing pada pesan baru hanya memeriksa tebakan berbentuk perintah (`pinTebakan`), sehingga pesan yang seluruh isinya balasan PIN polos (`123456`, `PIN: 123456`) — bentuk tebakan paling sederhana — tidak terhapus, padahal cabang suntingan dan kanal sudah memakainya. Cabang asing kini memakai predikat gabungan `teksSuntinganPerluHapus` yang sama (tebakan perintah atau balasan PIN utuh). (Audit 2922)
