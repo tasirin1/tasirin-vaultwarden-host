@@ -296,6 +296,15 @@ public class TgBotTest {
     }
 
     @Test
+    public void teksSuntinganPerluHapus_kenaliBentukPin() {
+        assertTrue(TgBot.teksSuntinganPerluHapus("123456"));
+        assertTrue(TgBot.teksSuntinganPerluHapus("PIN: 123456"));
+        assertTrue(TgBot.teksSuntinganPerluHapus("/login 123456"));
+        assertFalse(TgBot.teksSuntinganPerluHapus("halo apa kabar"));
+        assertFalse(TgBot.teksSuntinganPerluHapus("besok jam 12:30 ya"));
+        assertFalse(TgBot.teksSuntinganPerluHapus(""));
+    }
+
     public void pinDariBalasanBedakanPinDanObrolan() {
 
         assertEquals("123456", TgBot.pinDariBalasan("123456"));

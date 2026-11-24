@@ -531,6 +531,48 @@ public final class TgBot {
                                 tanganiCallback(ctx, cb, chatKonfig);
                                 continue;
                             }
+                            // Audit 2889: suntingan pesan
+                            // (edited_message) dulu jatuh ke
+                            // continue sesudah offset maju -
+                            // pesan yang disunting menjadi
+                            // berisi PIN menetap di riwayat
+                            // tanpa pernah dihapus. Suntingan
+                            // kini melewati saringan hapus
+                            // yang sama; perintah TIDAK
+                            // pernah dijalankan dari suntingan.
+                            JSONObject sunting = upd.optJSONObject(
+                                    "edited_message");
+                            if (sunting != null) {
+                                JSONObject cSunting = sunting.optJSONObject(
+                                        "chat");
+                                if (cSunting != null
+                                        && pinPerangkatAktif(ctx)) {
+                                    long idRuangSunting = cSunting.optLong(
+                                            "id", -1);
+                                    String namaSunting = cSunting.optString(
+                                            "username", "");
+                                    String teksSunting = sunting.optString(
+                                            "text", "").trim();
+                                    int idPesanSunting = sunting.optInt(
+                                            "message_id", 0);
+                                    if (idPesanSunting != 0
+                                            && teksSuntinganPerluHapus(
+                                                    teksSunting)) {
+                                        if (!Util.cocokChatBanyak(
+                                                chatKonfig, idRuangSunting,
+                                                namaSunting)) {
+                                            hapusPesanAsingAsync(ctx,
+                                                    idRuangSunting,
+                                                    idPesanSunting);
+                                        } else {
+                                            hapusPesanAsync(ctx,
+                                                    idRuangSunting,
+                                                    idPesanSunting);
+                                        }
+                                    }
+                                }
+                                continue;
+                            }
                             JSONObject msg = upd.optJSONObject("message");
                             if (msg == null) {
                                 continue;
@@ -1467,6 +1509,15 @@ public final class TgBot {
     static String pinTebakanArgumen(String arg) {
         String pin = pisahkanPin(arg == null ? "" : arg)[1];
         return pin.length() >= 4 ? pin : null;
+    }
+
+    // Audit 2889: teks suntingan perlu dihapus bila ia
+    // membawa PIN dalam bentuk apa pun yang dikenal
+    // jalur pesan biasa - argumen perintah ber-PIN
+    // (pinTebakan) atau balasan PIN utuh (pinDariBalasan).
+    static boolean teksSuntinganPerluHapus(String teks) {
+        return pinTebakan(teks) != null
+                || pinDariBalasan(teks) != null;
     }
 
     static String pinTebakan(String text) {

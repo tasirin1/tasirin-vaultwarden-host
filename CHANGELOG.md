@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot Telegram: pesan disunting menjadi berisi PIN kini ikut dihapus (Audit 2889)
+
+pollOnce hanya mengolah update callback_query dan message; update edited_message jatuh ke continue sesudah offset dimajukan, jadi pesan yang awalnya bersih lalu disunting menjadi berisi PIN menetap di riwayat chat tanpa pernah dihapus. Suntingan kini melewati saringan hapus yang sama (chat asing lewat hapusPesanAsingAsync, chat terkonfigurasi lewat antrean hapus persisten) dengan penanda teksSuntinganPerluHapus = pinTebakan atau pinDariBalasan; perintah tidak pernah dijalankan dari suntingan. Uji JVM baru di TgBotTest.
+
+
 ## [Belum rilis] — Log: IPv6 terkompres berprefiks grup berpungkas IPv4 kini tersamar (Audit 2888)
 
 Satu bentuk IPv6 sah lolos dari kelima alternatif POLA_IP6 (perbaikan 2875): bentuk terkompres yang punya grup heksadesimal sebelum :: dan berpungkas IPv4, mis. 2001:db8::192.0.2.1 - alternatif pungkas-IPv4 yang ada mensyaratkan grup sebelum :: tanpa kolon penutup sehingga grup terakhir sebelum :: tidak tertampung. Alternatif keenam ditambahkan dengan struktur grup awalan seperti alternatif terkompres lain; terverifikasi porting pola 12/12 (bentuk target tersamar, ::1/1::1/std::/jam tetap tidak tersamar sesuai desain anti-salah-samar). Uji JVM LogActivityTest diperluas.
