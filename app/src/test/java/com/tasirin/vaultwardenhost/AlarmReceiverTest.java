@@ -46,7 +46,12 @@ public class AlarmReceiverTest {
                 0, capW, capE + 45_000, capW + 45_000));
         assertTrue(AlarmReceiver.stempelThrottleSatuBoot(
                 capE, capW, capE + 45_000,
+                capW + 45_000 + 5_000));
+        assertFalse(AlarmReceiver.stempelThrottleSatuBoot(
+                capE, capW, capE + 45_000,
                 capW + 45_000 + 60_000));
+        assertFalse(AlarmReceiver.stempelThrottleSatuBoot(
+                20_000, capW, 70_000, capW + 80_000));
     }
 
     @Test

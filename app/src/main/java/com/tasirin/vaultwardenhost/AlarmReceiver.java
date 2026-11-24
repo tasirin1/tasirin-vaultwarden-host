@@ -35,7 +35,24 @@ public class AlarmReceiver extends BroadcastReceiver {
     // bila kedua jam maju konsisten
     // (satu boot); selain itu diabaikan
     // (gagal-terbuka: alarm tetap jalan).
-    static final long TOLERANSI_STEMPEL_THROTTLE_MS = 120_000;
+    // Audit 2892: toleransi diperketat
+    // 120 dtk -> 10 dtk. Pasangan cap
+    // ditulis nyaris serentak (elapsed
+    // dari pemanggil, wall di dalam
+    // simpanThrottle), jadi selisih epoch
+    // boot yang besar hanya berarti jam
+    // dinding meloncat jauh atau BOOT
+    // BERBEDA; toleransi 120 dtk masih
+    // memvalidasi palsu cap boot lama
+    // pada reboot cepat (mati <= ~2 mnt)
+    // dan menelan siaran alarm/jam boot
+    // baru. Sisa jendela palsu kini hanya
+    // reboot yang total selisih epoch-nya
+    // <= 10 dtk; lompatan jam sah > 10 dtk
+    // berakibat gagal-terbuka (alarm
+    // jalan, throttle statik proses
+    // tetap menjaga), arah yang aman.
+    static final long TOLERANSI_STEMPEL_THROTTLE_MS = 10_000;
 
     static boolean stempelThrottleSatuBoot(long capElapsed,
             long capWall, long kiniElapsed, long kiniWall) {

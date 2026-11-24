@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Alarm: toleransi pasangan stempel throttle diperketat 120 dtk menjadi 10 dtk (Audit 2892)
+
+Predikat stempelThrottleSatuBoot (2879) memvalidasi pasangan cap elapsed+wall sebagai satu boot bila selisih epoch-nya sampai 120 detik - reboot cepat (boot lama singkat + mati sebentar) masih tervalidasi palsu dan siaran alarm/perubahan jam boot baru tertelan tanpa penjadwalan ulang. Pasangan cap ditulis nyaris serentak sehingga toleransi besar tidak dibutuhkan untuk kemiringan tulis; toleransi kini 10 detik, selaras toleransi epoch BootReceiver (2881). Lompatan jam sah yang lebih besar berakibat gagal-terbuka (alarm tetap jalan), arah yang aman. Uji JVM diperbarui: geser 60 detik dan skenario reboot cepat kini ditolak.
+
+
 ## [Belum rilis] — Bot Telegram: stempel jeda /restart kini dipasang sesudah restart terbukti berjalan (Audit 2891)
 
 Handler /restart memasang stempel jeda 30 detik SEBELUM ServerService.restart dicoba (faset 2880 yang tersisa): restart yang gagal atau tidak berlaku karena server sedang berhenti tetap mengunci /restart dengan pesan keliru Restart baru saja dilakukan. Stempel kini dipasang hanya di cabang restart yang berhasil.
