@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot Telegram: coba-ulang antrean hapus kini bergiliran adil (Audit 2949)
+
+Potret antrean hapus tertunda disalin dari himpunan tak berurutan lalu diproses maksimal 10 entri per poll tanpa rotasi apa pun — entri gagal permanen (mis. pesan yang sudah dihapus manual, gagal selamanya) menetap sampai kedaluwarsa 48 jam dan, bila jumlahnya memenuhi slot pertama urutan iterasi, entri lain tak pernah dicoba ulang walau kegagalannya sudah sembuh (mis. bot menjadi admin lagi), sampai akhirnya ikut terbuang sebagai kedaluwarsa. Titik awal potret kini diputar tiap sapuan memakai penghitung atomik dalam memori, sehingga jendela 10 slot bergeser dan semua entri kebagian giliran coba-ulang.
+
+
 ## [Belum rilis] — Bot Telegram: peringatan pangkas antrean hapus tak lagi tertelan bendera dedup basi (Audit 2948)
 
 Residu 2937: peringatan dari titik pangkas untuk entri milik sendiri memanggil `peringatkanBilaTakBisaHapus` tanpa membersihkan bendera dedup `tg_hapus_warn` lebih dulu — persis cacat 2936 yang tertinggal di jalur pangkas. Bila bot memang tak punya hak hapus, bendera itu terpasang permanen (hanya hapus yang berhasil membersihkannya), sehingga peringatan kesempatan-terakhir untuk entri terpangkas tak pernah terkirim dan sisanya hanya log lokal. Bendera kini dibersihkan sekali sebelum putaran peringatan pangkas bila ada ruang milik yang terbuang, meniru pola 2936 di jalur kedaluwarsa.

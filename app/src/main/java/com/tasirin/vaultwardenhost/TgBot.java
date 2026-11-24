@@ -59,6 +59,12 @@ public final class TgBot {
 
     private static final AtomicBoolean TUGAS_BERAT = new AtomicBoolean(false);
 
+    // Audit 2949: penghitung putaran titik awal
+    // potret antrean hapus tertunda.
+    private static final java.util.concurrent.atomic.AtomicInteger
+            ROTASI_HAPUS_TERTUNDA =
+            new java.util.concurrent.atomic.AtomicInteger();
+
     // Jeda minimum antar tugas berat dan antar /restart manual
     // (Audit 589): kunci cegah-bersamaan saja tak menghentikan deretan
     // perintah yang masing-masing jalan penuh begitu yang sebelumnya
@@ -2149,6 +2155,22 @@ public final class TgBot {
                     daftar.addAll(lama);
                 }
             } catch (Exception ignored) {
+            }
+        }
+        // Audit 2949: putar titik awal potret
+        // tiap sapuan. Potret himpunan tak
+        // berurutan + batas 10/poll tanpa
+        // putaran membuat entri gagal permanen
+        // (pesan sudah dihapus manual) memenuhi
+        // slot pertama selamanya - entri lain
+        // yang kegagalannya sudah sembuh tak
+        // pernah dicoba ulang sampai kedaluwarsa.
+        if (daftar.size() > 1) {
+            int putar = (int) (ROTASI_HAPUS_TERTUNDA
+                    .getAndIncrement() % daftar.size());
+            if (putar > 0) {
+                java.util.Collections.rotate(
+                        daftar, -putar);
             }
         }
         int diproses = 0;
