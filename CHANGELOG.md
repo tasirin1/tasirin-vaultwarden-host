@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — sdiff: bendera panjang diberi =value kini ditolak gerbang (Audit 2894)
+
+Walk sdiff membiarkan bendera panjang berbentuk --bendera=nilai jatuh lolos padahal biner membunuhnya doesnt allow an argument - terprobe --text=x, --left-column=x, --suppress-common-lines=x. Walk kini menolak bentuk = untuk 15 bendera panjang sdiff 3.10 (kosakata persis --help biner); opsi bernilai (--output/--width/--tabsize/--diff-program/--ignore-matching-lines) tidak berubah. Skenario gensuite 1955 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — Bot Telegram: offset poll perintah berat kini awet sebelum tugas diantrekan (Audit 2893)
 
 Offset poll hanya disimpan dengan apply() (tulis disk asinkron) di finally pollOnce, sementara perintah berat berjalan di antrean memori asinkron - kematian proses di jendela itu membuat perintah berat hilang senyap atau terkirim ulang dan berjalan dua kali. Dua penutup: (1) offset batch di finally kini commit() sinkron; (2) perintahKomitDini diperluas dari perintah ber-PIN/login/logout ke seluruh perintah berat (backup, restore, ca, cabackup, careset, update, webvault) sehingga offset perintah itu tersimpan sinkron sebelum tugasnya diantrekan - perintah yang hilang terlihat dari ketiadaan balasan dan bisa dikirim ulang, perintah tak lagi berjalan dua kali. Uji JVM perintahKomitDini diperluas.

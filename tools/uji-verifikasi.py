@@ -41405,6 +41405,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff nilai --horizon-lines asing kini ditolak (Audit 2887)", rc == 0)
         shutil.rmtree(sub1954, ignore_errors=True)
+        sub1955 = klon(tmp, "sub1955")
+        berkas_aksi1955 = os.path.join(
+            sub1955, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1955, encoding="utf-8") as f:
+            isi_aksi1955 = f.read()
+        baris_aksi1955 = [b for b in isi_aksi1955.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1955 = isi_aksi1955.replace(
+                baris_aksi1955,
+                baris_aksi1955.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sdiff --text=x - /etc/hosts; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1955 != isi_aksi1955, \
+            "suntikan aksi1955 tidak menembak"
+        with open(berkas_aksi1955, "w", encoding="utf-8") as f:
+            f.write(isi_baru1955)
+        rc, out = jalan(sub1955,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("sdiff bendera panjang diberi =value kini ditolak (Audit 2894)", rc == 0)
+        shutil.rmtree(sub1955, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

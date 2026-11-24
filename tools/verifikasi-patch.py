@@ -7303,6 +7303,32 @@ def _menguras_khusus(perintah, toks, awal):
                     k_sw += 1
                 k_sw += 1
                 continue
+            if (t_sw.startswith("--")
+                    and "=" in t_sw):
+                # Audit 2894: bendera panjang
+                # sdiff yang diberi =value
+                # membunuh biner ("doesn't
+                # allow an argument", terprobe
+                # --text=x, --left-column=x,
+                # --suppress-common-lines=x);
+                # hanya opsi bernilai yang
+                # boleh bentuk =.
+                if t_sw.split("=", 1)[0] in (
+                        "--expand-tabs", "--help",
+                        "--ignore-all-space",
+                        "--ignore-blank-lines",
+                        "--ignore-case",
+                        "--ignore-space-change",
+                        "--ignore-tab-expansion",
+                        "--ignore-trailing-space",
+                        "--left-column", "--minimal",
+                        "--speed-large-files",
+                        "--strip-trailing-cr",
+                        "--suppress-common-lines",
+                        "--text", "--version"):
+                    return False
+                k_sw += 1
+                continue
             if t_sw in ("-o", "--output"):
                 k_sw += 2
                 continue
