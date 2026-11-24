@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Telegram: postingan kanal berisi PIN kini ikut dihapus (Audit 2912)
+
+pollOnce tidak menangani channel_post/edited_channel_post sama sekali: update kanal jatuh ke continue sesudah offset maju sehingga PIN yang tertulis di kanal tempat bot menjadi admin tidak pernah dihapus. Cabang kanal baru melewati saringan hapus yang sama seperti suntingan (teks atau caption, chat terkonfigurasi atau asing); perintah tidak pernah dijalankan dari postingan kanal.
+
+
 ## [Belum rilis] — Ekspor: dua stempel wall throttle alarm kini ikut ditahan dari config.json (Audit 2911)
 
 alarm_throttle_wall dan alarm_throttle_waktu_wall tidak ada di daftar kunci tak-dieksport padahal pasangan elapsed-nya dan stempel wall boot ditahan - keduanya ikut tertulis ke config.json ekspor/backup sebagai metadata waktu aktivitas. Kedua kunci kini ditahan dan uji ekspor mengasersi mereka.

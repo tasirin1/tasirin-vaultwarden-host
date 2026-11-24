@@ -576,6 +576,59 @@ public final class TgBot {
                                 }
                                 continue;
                             }
+                            // Audit 2912: postingan kanal
+                            // (channel_post dan
+                            // edited_channel_post) dulu
+                            // jatuh ke continue sesudah
+                            // offset maju - PIN yang
+                            // tertulis di kanal tempat
+                            // bot menjadi admin tak
+                            // pernah dihapus. Kini
+                            // melewati saringan hapus
+                            // yang sama (teks atau
+                            // caption); perintah tidak
+                            // pernah dijalankan dari
+                            // postingan kanal.
+                            JSONObject kanal = upd.optJSONObject(
+                                    "channel_post");
+                            if (kanal == null) {
+                                kanal = upd.optJSONObject(
+                                        "edited_channel_post");
+                            }
+                            if (kanal != null) {
+                                JSONObject cKanal = kanal.optJSONObject(
+                                        "chat");
+                                if (cKanal != null
+                                        && pinPerangkatAktif(ctx)) {
+                                    long idRuangKanal = cKanal.optLong(
+                                            "id", -1);
+                                    String namaKanal = cKanal.optString(
+                                            "username", "");
+                                    String teksKanal = pilihTeksSuntingan(
+                                            kanal.optString(
+                                                    "text", ""),
+                                            kanal.optString(
+                                                    "caption", ""));
+                                    int idPesanKanal = kanal.optInt(
+                                            "message_id", 0);
+                                    if (idPesanKanal != 0
+                                            && teksSuntinganPerluHapus(
+                                                    teksKanal)) {
+                                        if (!Util.cocokChatBanyak(
+                                                chatKonfig, idRuangKanal,
+                                                namaKanal)) {
+                                            hapusPesanAsingAsync(ctx,
+                                                    idRuangKanal,
+                                                    idPesanKanal);
+                                        } else {
+                                            hapusPesanAsync(ctx,
+                                                    idRuangKanal,
+                                                    idPesanKanal);
+                                        }
+                                    }
+                                }
+                                continue;
+                            }
                             JSONObject msg = upd.optJSONObject("message");
                             if (msg == null) {
                                 continue;
