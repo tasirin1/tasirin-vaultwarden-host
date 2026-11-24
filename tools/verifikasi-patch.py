@@ -6980,6 +6980,11 @@ def _menguras_khusus(perintah, toks, awal):
         # -A/-E yang tidak membuka ulang
         # operand pertama.
         gabung_df = False
+        # Audit 2943: mode ed/gabung diff3
+        # (huruf A/E/e/x/X/3/m dan bentuk
+        # panjangnya) - menentukan apakah
+        # dua operand "-" boleh di posisi 1-2.
+        mode_ganda_df = False
         k_df = awal + 1
         while k_df < len(toks):
             t_df = toks[k_df].strip("\"'")
@@ -7091,6 +7096,12 @@ def _menguras_khusus(perintah, toks, awal):
                         "--show-overlap",
                         "--merge"):
                 mode_df = True
+            if t_df in ("--show-all",
+                        "--show-overlap",
+                        "--merge", "--ed",
+                        "--overlap-only",
+                        "--easy-only"):
+                mode_ganda_df = True
             if (perintah == "diff3"
                     and t_df == "--merge"):
                 gabung_df = True
@@ -7206,6 +7217,9 @@ def _menguras_khusus(perintah, toks, awal):
                     if (perintah == "diff3"
                             and h_df in "AEm"):
                         mode_df = True
+                    if (perintah == "diff3"
+                            and h_df in "AEexX3m"):
+                        mode_ganda_df = True
                     if (perintah == "diff3"
                             and h_df == "m"):
                         gabung_df = True
@@ -7453,6 +7467,23 @@ def _menguras_khusus(perintah, toks, awal):
         if (perintah == "diff3" and gabung_df
                 and ops_d and ops_d[0] == "-"):
             return False
+        # Audit 2943: diff3 menolak dua operand
+        # "-" kecuali keduanya di posisi 1-2
+        # berurutan (stdin dibaca sekali untuk
+        # pasangan pertama; terprobe semua
+        # posisi: 1-3 dan 2-3 mati rc=2 "'-'
+        # specified for more than one input
+        # file", tiga "-" juga mati; tunggal
+        # di posisi mana pun sah). diff/sdiff
+        # menerima "-" ganda bebas.
+        if perintah == "diff3":
+            posisi_m = [i for i, o in
+                        enumerate(ops_d)
+                        if o == "-"]
+            if (len(posisi_m) >= 2
+                    and (posisi_m != [0, 1]
+                         or mode_ganda_df)):
+                return False
         return "-" in ops_d and len(ops_d) == perlu_d
     if perintah == "sdiff":
         # Audit 1249: operand '-' sdiff adalah stdin

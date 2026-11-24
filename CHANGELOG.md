@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: diff3 kini menolak dua operand "-" di luar posisi 1-2 mode polos (Audit 2943)
+
+Vonis akhir diff3 dulu hanya menghitung jumlah operand, padahal biner menolak dua operand stdin (`'-' specified for more than one input file`, rc=2) — kecuali pasangan di posisi 1-2 pada mode perbandingan polos, di mana stdin dibaca sekali untuk keduanya. Gerbang kini melacak posisi semua operand `-`: dua atau lebih selalu mati kecuali tepat posisi 1-2 tanpa mode ed/gabung; mode ed/gabung (`-A/-E/-e/-x/-X/-3/-m` dan bentuk panjangnya, kini dilacak khusus) membunuh pasangan di posisi mana pun. Terverifikasi baterai induk 18/18 atas semua posisi dan mode terhadap biner diffutils 3.10; diff/sdiff tidak berubah (keduanya menerima `-` ganda bebas).
+
+
 ## [Belum rilis] — Gerbang: -G curl kini menetralkan pasangan data x head di vonis konflik metode (Audit 2942)
 
 Residu 2916: hitungan keluarga pra-pindai menilai `curl -G -I -d @- <url>` sebagai konflik metode, padahal -G mengubah data menjadi query GET sehingga biner menerimanya dan menguras stdin (rc=7). Vonis kini berbentuk pasangan eksplisit hasil matriks probe induk lengkap: -G menetralkan HANYA pasangan data x head (posisi -G bebas); data x form, data x upload, form x upload, form x head, dan upload x head tetap konflik walau ada -G. Koreksi atas klaim audit awal yang menyebut sel -G lain sudah cocok — matriks induk membuktikan data x form/upload memang tidak dinetralkan -G.
