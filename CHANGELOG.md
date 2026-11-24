@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Ekspor: metadata UI lokal tak lagi ikut config.json (Audit 2923)
+
+Kunci keadaan lokal wizard_selesai, sec_buka_server/keamanan/rawat/telegram/log, home_log_expanded, dan server_diminta kini masuk daftar tak-diekspor TgBackup, jadi config.json hasil ekspor/backup tak lagi membawa metadata tampilan perangkat. Arah impor memang sudah tertutup untuk kunci-kunci ini.
+
+
 ## [Belum rilis] — Gerbang: vonis akhir diff ikut menyelesaikan singkatan opsi bernilai (Audit 2921)
 
 Pas operand diff/diff3 kini memakai himpunan bernilai yang diperluas dengan semua awalan unik tiap opsi bernilai (terhadap kosakata cabang), jadi singkatan seperti --wid/--tab/--lab menelan nilainya di hitungan operand akhir sama seperti di walk token - perintah penguras tak lagi lolos dan label "-" tak lagi terhitung operand. --unified/--context dikecualikan dari perluasan karena argumen panjangnya opsional; akar model keduanya dicatat sebagai dugaan untuk Audit-192.

@@ -2358,7 +2358,12 @@ public final class TgBackup {
                     BootReceiver.KEY_THROTTLE_BOOT_WALL,
                     BootReceiver.KEY_THROTTLE_BOOT_COUNT,
                     KEY_TG_LAST_NAME, KEY_TG_LOW_STORAGE,
-                    KEY_TG_LOW_STORAGE_MS));
+                    KEY_TG_LOW_STORAGE_MS,
+                    "wizard_selesai", "sec_buka_server",
+                    "sec_buka_keamanan", "sec_buka_rawat",
+                    "sec_buka_telegram", "sec_buka_log",
+                    "home_log_expanded",
+                    ServerService.KEY_SERVER_DIMINTA));
 
     static boolean kunciDiekspor(String kunci) {
         return kunci != null

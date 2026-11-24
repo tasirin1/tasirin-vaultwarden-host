@@ -1933,6 +1933,18 @@ public class TgBackupTest {
                 AlarmReceiver.KEY_THROTTLE_WAKTU_WALL));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains(TgBot.KEY_TG_LOGIN_CHAT));
         assertFalse(TgBackup.kunciDiekspor(TgBot.KEY_TG_LOGIN_CHAT));
+        // Audit 2923: metadata keadaan UI lokal (wizard,
+        // seksi Settings terbuka, log layar utama, status
+        // server diminta) tak ikut config.json ekspor.
+        assertFalse(TgBackup.kunciDiekspor("wizard_selesai"));
+        assertFalse(TgBackup.kunciDiekspor("sec_buka_server"));
+        assertFalse(TgBackup.kunciDiekspor("sec_buka_keamanan"));
+        assertFalse(TgBackup.kunciDiekspor("sec_buka_rawat"));
+        assertFalse(TgBackup.kunciDiekspor("sec_buka_telegram"));
+        assertFalse(TgBackup.kunciDiekspor("sec_buka_log"));
+        assertFalse(TgBackup.kunciDiekspor("home_log_expanded"));
+        assertFalse(TgBackup.kunciDiekspor(
+                ServerService.KEY_SERVER_DIMINTA));
         // Audit 2857: antrean hapus tertunda (isinya pasangan
         // id chat:pesan yang memuat PIN) ikut dikunci - selama
         // ini ia lolos hanya karena serializer tak menulis Set.
