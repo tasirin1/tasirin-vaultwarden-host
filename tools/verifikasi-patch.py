@@ -8287,11 +8287,32 @@ def _menguras_khusus(perintah, toks, awal):
                         .lstrip("+")
                         .lstrip("0") == ""):
                     return False
+                # Audit 2924 (residu 2897):
+                # laju berplafon ekuivalen
+                # 1000/detik - 1001/s,
+                # 60001/m, 3600001/h,
+                # 86400001/d mati "too large
+                # number" (terprobe rc);
+                # tanpa satuan setara /h.
                 if len(pisah_cu) == 1:
-                    return True
-                return (len(pisah_cu[1]) > 0
-                        and pisah_cu[1][0]
-                        in "smhd")
+                    faktor_cu = 3600
+                else:
+                    if not (len(pisah_cu[1]) > 0
+                            and pisah_cu[1][0]
+                            in "smhd"):
+                        return False
+                    faktor_cu = {
+                        "s": 1, "m": 60,
+                        "h": 3600,
+                        "d": 86400}[
+                            pisah_cu[1][0]]
+                angka_cu = int(
+                    pisah_cu[0]
+                    .lstrip(" \t\n\r\v\f")
+                    .lstrip("+")
+                    .lstrip("0") or "0")
+                return (angka_cu
+                        <= 1000 * faktor_cu)
             if nama_cu == "--local-port":
                 m_cu = re.match(r"(\d+)", v_cu)
                 if (m_cu is None

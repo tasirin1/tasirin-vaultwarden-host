@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --rate curl kini berplafon ekuivalen 1000/detik (Audit 2924)
+
+Nilai --rate yang lajunya melewati 1000 permintaan per detik membunuh biner ("too large number") walau jauh di bawah LONG_MAX - gerbang kini menerapkan plafon yang sama: maks 1000/s, 60000/m, 3600000/h, 86400000/d, dan tanpa satuan setara per jam.
+
+
 ## [Belum rilis] — Ekspor: metadata UI lokal tak lagi ikut config.json (Audit 2923)
 
 Kunci keadaan lokal wizard_selesai, sec_buka_server/keamanan/rawat/telegram/log, home_log_expanded, dan server_diminta kini masuk daftar tak-diekspor TgBackup, jadi config.json hasil ekspor/backup tak lagi membawa metadata tampilan perangkat. Arah impor memang sudah tertutup untuk kunci-kunci ini.
