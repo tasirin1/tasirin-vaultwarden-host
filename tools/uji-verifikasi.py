@@ -42098,6 +42098,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff --unified tanpa nilai: token berikut operand stdin (Audit 2939)", rc != 0)
         shutil.rmtree(sub1987, ignore_errors=True)
+        sub1988 = klon(tmp, "sub1988")
+        berkas_aksi1988 = os.path.join(
+            sub1988, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1988, encoding="utf-8") as f:
+            isi_aksi1988 = f.read()
+        baris_aksi1988 = [b for b in isi_aksi1988.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1988 = isi_aksi1988.replace(
+                baris_aksi1988,
+                baris_aksi1988.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff -m - /etc/hosts; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1988 != isi_aksi1988, \
+            "suntikan aksi1988 tidak menembak"
+        with open(berkas_aksi1988, "w", encoding="utf-8") as f:
+            f.write(isi_baru1988)
+        rc, out = jalan(sub1988,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff -m huruf tak dikenal membunuh biner (Audit 2940)", rc == 0)
+        shutil.rmtree(sub1988, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

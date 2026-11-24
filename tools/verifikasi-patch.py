@@ -7169,6 +7169,40 @@ def _menguras_khusus(perintah, toks, awal):
                 lompat_df = 1
                 for pos_df, h_df in enumerate(
                         t_df[1:]):
+                    # Audit 2940 (DG-2): kosa kata
+                    # huruf pendek divalidasi -
+                    # huruf tak dikenal membunuh
+                    # biner ("invalid option")
+                    # sebelum stdin dibaca.
+                    # Himpunan terprobe induk dari
+                    # pesan kesalahan biner 3.10:
+                    # diff memuat juga digit
+                    # (konteks warisan -5/-a5 sah),
+                    # diff3 hanya digit 3 (-3).
+                    if perintah == "diff3":
+                        if h_df not in (
+                                "aeimvxAELTX3"):
+                            return False
+                    elif h_df not in (
+                            "abcdefhilnpqrstuvwxy"
+                            "BCDEFHILNPSTUWXZ"
+                            "0123456789"):
+                        return False
+                    if (perintah == "diff"
+                            and h_df in "FxXIS"):
+                        # Audit 2940: lima huruf
+                        # bernilai 2919 kini ikut
+                        # memutus bundel di walk -
+                        # sisa bundel adalah nilai
+                        # mereka (dulu sisa itu
+                        # terpindai sebagai huruf
+                        # bendera, jadi pola seperti
+                        # -Fz lolos tanpa divalidasi
+                        # dan huruf nilai bisa
+                        # terbaca sebagai opsi).
+                        if pos_df == len(t_df) - 2:
+                            lompat_df = 2
+                        break
                     if (perintah == "diff3"
                             and h_df in "AEm"):
                         mode_df = True
@@ -7562,6 +7596,15 @@ def _menguras_khusus(perintah, toks, awal):
                     and len(t_sw) > 1):
                 for pos_sw, h_sw in enumerate(
                         t_sw[1:]):
+                    # Audit 2940 (DG-2): kosa kata
+                    # huruf pendek sdiff divalidasi
+                    # (terprobe induk dari pesan
+                    # "invalid option" biner 3.10;
+                    # -W di sdiff adalah bendera
+                    # --ignore-all-space).
+                    if h_sw not in (
+                            "abdilostvwBEHIWZ"):
+                        return False
                     if h_sw == "I":
                         # Audit 2930: -I bernilai
                         # (pola abaikan) - di ujung

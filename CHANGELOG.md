@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: kosa kata huruf pendek diff/diff3/sdiff kini divalidasi (Audit 2940)
+
+DG-2 terbukti di Audit-192: walk bundel ketiga program membiarkan huruf pendek apa pun lewat, padahal biner mati `invalid option` sebelum membaca stdin — sapuan induk menemukan 15 huruf lolos di diff, puluhan di diff3 dan sdiff. Kedua walk kini memvalidasi tiap huruf terhadap himpunan sah yang terprobe dari pesan kesalahan biner diffutils 3.10 (diff memuat juga digit sebagai konteks warisan, diff3 hanya digit `3` untuk `-3`, sdiff tanpa digit dan `-W`-nya adalah bendera `--ignore-all-space`). Di walk diff, lima huruf bernilai 2919 (`-F/-x/-X/-I/-S`) kini ikut memutus bundel — sisa bundel adalah nilai mereka, bukan huruf bendera. Sapuan ulang induk: 0 huruf invalid lolos di ketiga program.
+
+
 ## [Belum rilis] — Gerbang: diff --unified/--context kini dimodelkan berargumen opsional (Audit 2939)
 
 DG-1 terbukti di Audit-192: `--unified`/`--context` berargumen OPSIONAL (`--unified[=NUM]` di `--help` biner) tetapi gerbang memodelkannya wajib-argumen di kedua pas — `diff --unified 3 - f` dinilai menguras padahal biner mati `extra operand` (token `3` adalah operand), dan `diff --unified - f` dinilai tidak menguras padahal `-` adalah operand stdin yang sah. Cabang validasi kini hanya memeriksa bentuk `=` (nilai kosong juga sah sebagai bawaan, terprobe), token terpisah dibiarkan menjadi operand, kedua nama keluar dari himpunan penelan nilai pas operand, dan nilai kosong bentuk pendek `-U ""`/`-C ""` ikut diterima. Terverifikasi baterai induk 28/28 terhadap biner diffutils 3.10 termasuk bentuk singkatan `--unif`/`--cont`.
