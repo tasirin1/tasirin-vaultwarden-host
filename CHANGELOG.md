@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -G curl kini menetralkan pasangan data x head di vonis konflik metode (Audit 2942)
+
+Residu 2916: hitungan keluarga pra-pindai menilai `curl -G -I -d @- <url>` sebagai konflik metode, padahal -G mengubah data menjadi query GET sehingga biner menerimanya dan menguras stdin (rc=7). Vonis kini berbentuk pasangan eksplisit hasil matriks probe induk lengkap: -G menetralkan HANYA pasangan data x head (posisi -G bebas); data x form, data x upload, form x upload, form x head, dan upload x head tetap konflik walau ada -G. Koreksi atas klaim audit awal yang menyebut sel -G lain sudah cocok — matriks induk membuktikan data x form/upload memang tidak dinetralkan -G.
+
+
 ## [Belum rilis] — Gerbang: huruf pendek curl tak dikenal kini membunuh vonis (Audit 2941)
 
 Kelas DG-2 di curl: walk bundel pendek membiarkan huruf apa pun lewat sebagai bendera, padahal biner mati `option -X: is unknown` (rc=2) sebelum membaca stdin — terprobe lolos `-W`, `-5`, `-7`, `-8`, `-9`, `-.`, `-@`, `-!`, termasuk di dalam bundel seperti `-sW`. Walk validasi kini menolak huruf di luar himpunan sah curl 8.5.0 yang terprobe induk dari pesan kesalahan biner: semua huruf kecuali `W` besar, digit hanya `0/1/2/3/4/6` (versi HTTP dan IP), tanpa simbol. Sapuan ulang induk atas semua huruf+digit+simbol: 0 yang lolos.

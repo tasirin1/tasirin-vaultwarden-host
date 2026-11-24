@@ -8820,8 +8820,19 @@ def _menguras_khusus(perintah, toks, awal):
         if c_cb and (form_cb
                 or (data_cb and not get_cb)):
             return False
-        if (data_cb + form_cb + upload_cb
-                + head_cb) >= 2:
+        # Audit 2942: -G menetralkan HANYA
+        # pasangan data x head (data menjadi
+        # query GET; terprobe rc=7, posisi -G
+        # bebas). Pasangan lain tetap konflik
+        # walau ada -G (terprobe: data x form,
+        # data x upload, form x head,
+        # form x upload, upload x head rc=2).
+        if (form_cb + upload_cb + head_cb) >= 2:
+            return False
+        if data_cb and (form_cb or upload_cb):
+            return False
+        if (data_cb and head_cb
+                and not get_cb):
             return False
         # Audit 1068: data/unggah/konfigurasi dari stdin.
         # Audit 1085: bentuk merekat (-d@-, -T-, nilai = pada --form)
