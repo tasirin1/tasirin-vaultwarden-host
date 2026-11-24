@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bendera persis --parallel tak lagi diselesaikan sebagai --parallel-max (Audit 2926)
+
+Kasus ini tertutup oleh perbaikan akar yang sama dengan Audit 2918: walk 1 curl kini memeriksa keanggotaan nama persis di himpunan penuh sebelum menyelesaikan singkatan, jadi token sesudah --parallel tak lagi divalidasi sebagai nilai numerik --parallel-max. Skenario regresi khusus ditambahkan di sini sebagai pengunci.
+
+
 ## [Belum rilis] — Gerbang: --tlsauthtype/--proxy-tlsauthtype curl hanya menerima SRP (Audit 2925)
 
 Kedua opsi auth TLS itu kini divalidasi gerbang: nilai selain SRP (tak peka kapital) membunuh biner saat urai, jadi perintahnya kini dinilai tak menguras - termasuk lewat singkatan unik seperti --tlsa.
