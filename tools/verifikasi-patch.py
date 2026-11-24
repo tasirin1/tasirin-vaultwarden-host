@@ -8113,6 +8113,121 @@ def _menguras_khusus(perintah, toks, awal):
                             lewati_cu = True
                         break
             k_cu += 1
+        # Audit 2898: kombinasi --continue-at
+        # (-C) offset > 0 dengan opsi data/form/
+        # json membunuh biner saat inisialisasi
+        # ("cannot mix --continue-at with
+        # --data", rc=2; terprobe semua --data-*,
+        # --json, --form, --form-string, -d, -F,
+        # termasuk bundel dan singkatan unik).
+        # -G/--get membatalkan hanya untuk
+        # keluarga data (form tetap mati);
+        # -T/-K bukan pemicu; offset 0, +0, 00,
+        # dan "-" aman.
+        c_cb = False
+        data_cb = False
+        form_cb = False
+        get_cb = False
+        j_cb = 0
+        while j_cb < len(mentah):
+            t_cb = mentah[j_cb]
+            if t_cb == "--":
+                break
+            if (t_cb.startswith("--")
+                    and "=" not in t_cb):
+                nama_cb = None
+                if t_cb in _CURL_SEMUA_PANJANG:
+                    nama_cb = t_cb
+                else:
+                    calon_cb = [
+                        x for x in
+                        _CURL_SEMUA_PANJANG
+                        if x.startswith(t_cb)]
+                    if len(calon_cb) == 1:
+                        nama_cb = calon_cb[0]
+                if nama_cb is not None:
+                    if (nama_cb
+                            in _CURL_BERNILAI_PANJANG):
+                        if (nama_cb
+                                == "--continue-at"
+                                and j_cb + 1
+                                < len(mentah)):
+                            v_cb = mentah[j_cb + 1]
+                            if (v_cb != "-"
+                                    and
+                                    _curl_bulat_sah(
+                                        v_cb)
+                                    and v_cb
+                                    .lstrip("+")
+                                    .lstrip("0")
+                                    != ""):
+                                c_cb = True
+                        if nama_cb in (
+                                "--data",
+                                "--data-ascii",
+                                "--data-binary",
+                                "--data-raw",
+                                "--data-urlencode",
+                                "--json"):
+                            data_cb = True
+                        if nama_cb in (
+                                "--form",
+                                "--form-string"):
+                            form_cb = True
+                        j_cb += 2
+                        continue
+                    if nama_cb == "--get":
+                        get_cb = True
+                j_cb += 1
+                continue
+            if (t_cb.startswith("-")
+                    and not t_cb.startswith("--")
+                    and len(t_cb) > 1):
+                pos_cb = 1
+                while pos_cb < len(t_cb):
+                    h_cb = "-" + t_cb[pos_cb]
+                    if h_cb == "-G":
+                        get_cb = True
+                        pos_cb += 1
+                        continue
+                    if (h_cb
+                            in _CURL_BERNILAI_PENDEK):
+                        if h_cb == "-d":
+                            data_cb = True
+                        if h_cb == "-F":
+                            form_cb = True
+                        if h_cb == "-C":
+                            v_cb = None
+                            if (pos_cb
+                                    == len(t_cb)
+                                    - 1):
+                                if (j_cb + 1
+                                        < len(
+                                            mentah)):
+                                    v_cb = mentah[
+                                        j_cb + 1]
+                                    j_cb += 1
+                            else:
+                                v_cb = t_cb[
+                                    pos_cb + 1:]
+                            if (v_cb is not None
+                                    and v_cb != "-"
+                                    and
+                                    _curl_bulat_sah(
+                                        v_cb)
+                                    and v_cb
+                                    .lstrip("+")
+                                    .lstrip("0")
+                                    != ""):
+                                c_cb = True
+                        break
+                    pos_cb += 1
+                j_cb += 1
+                continue
+            j_cb += 1
+        if c_cb and (form_cb
+                or (data_cb and not get_cb)):
+            return False
         # Audit 1068: data/unggah/konfigurasi dari stdin.
         # Audit 1085: bentuk merekat (-d@-, -T-, nilai = pada --form)
         # dan bagian-berkas -F/--data-urlencode (name@-).

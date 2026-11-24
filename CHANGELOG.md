@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — curl: kombinasi --continue-at offset>0 dengan opsi data/form kini ditolak gerbang (Audit 2898)
+
+Melanjutkan unduhan dari offset bukan-nol sambil mengirim data dibunuh biner saat inisialisasi (cannot mix --continue-at with --data, rc=2) tetapi gerbang menilainya menguras. Pra-pindai baru menilai kombinasi itu persis seperti biner: pemicu = semua --data-*, --json, -d, --form, --form-string, -F (termasuk bundel pendek, bentuk merekat, dan singkatan unik); -G/--get membatalkan hanya untuk keluarga data, bukan form; -T/-K bukan pemicu; offset 0/+0/00/- aman; token yang tertelan sebagai nilai opsi lain dan token sesudah -- tidak dihitung. Skenario gensuite 1959-1960 (arah terverifikasi repro jalur workflow).
+
+
 ## [Belum rilis] — curl: validasi satuan --rate diluruskan mengikuti huruf pertama (Audit 2897)
 
 Model 2886 untuk --rate salah dua arah: daftar satuan utuh case-insensitive menolak satuan awalan huruf kecil yang diterima biner (seconds, hr, sx) dan meloloskan satuan huruf besar yang dibunuh biner (5/SEC). Terprobe menyeluruh: biner menilai satuan dari huruf pertamanya saja - huruf kecil s/m/h/d, sisa satuan apa pun diabaikan (szz, h2, s! ikut lolos); huruf besar, huruf lain, dan satuan kosong mati. Validasi kini: bilangan bulat >= 1, lalu opsional /satuan yang huruf pertamanya s/m/h/d. Skenario gensuite 1957-1958 (arah terverifikasi repro jalur workflow).
