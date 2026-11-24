@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — curl: --proxy dan --preproxy kini dikenali sebagai opsi bernilai oleh gerbang (Audit 2896)
+
+Dua opsi bernilai curl terlewat dari ekstrak kosakata 2828. Ketiadaan --proxy membuat walk kedua menghukum token persisnya sebagai singkatan ambigu (ia awalan keluarganya sendiri --proxy-*), sehingga SEMUA perintah curl ber---proxy dinilai tidak menguras stdin dan perintah sah yang membaca data dari stdin tertolak. --proxy dan --preproxy kini masuk himpunan opsi bernilai; nilai keduanya ditelan dengan benar di kedua walk. Skenario gensuite 1956 (arah terverifikasi repro jalur workflow: rc != 0).
+
+
 ## [Belum rilis] — Alarm: pasangan stempel throttle kini ditulis atomik dalam satu edit (Audit 2895)
 
 simpanThrottle dan simpanThrottleWaktu menulis cap elapsed dan cap wall lewat dua edit().apply() terpisah; kematian proses di antaranya menyisakan pasangan tak konsisten yang diabaikan predikat satu-boot sehingga throttle hilang dan backup terjadwal bisa duplikat. TgBackup kini menyediakan simpanPasanganStempelThrottle yang menulis kedua kunci dalam satu edit(), dipakai kedua penulis AlarmReceiver.

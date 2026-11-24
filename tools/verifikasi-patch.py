@@ -7759,6 +7759,14 @@ def _menguras_khusus(perintah, toks, awal):
         # 8.5.0 terekstrak dari --help all biner
         # (--help/-h dikeluarkan: argumennya
         # opsional, tak menelan token terpisah).
+        # Audit 2896: --proxy dan --preproxy
+        # adalah opsi bernilai yang terlewat
+        # dari ekstrak 2828 - ketiadaan --proxy
+        # membuat walk ke-2 menghukum token
+        # persisnya sebagai singkatan ambigu
+        # (awalan keluarga --proxy-* sendiri)
+        # sehingga semua perintah ber---proxy
+        # dinilai tak menguras.
         _CURL_BERNILAI_PANJANG = frozenset({
             "--abstract-unix-socket", "--alt-svc", "--aws-sigv4",
             "--cacert", "--capath", "--cert", "--cert-type",
@@ -7781,8 +7789,10 @@ def _menguras_khusus(perintah, toks, awal):
             "--mail-from", "--mail-rcpt", "--max-filesize",
             "--max-redirs", "--max-time", "--netrc-file", "--noproxy",
             "--oauth2-bearer", "--output", "--output-dir",
-            "--parallel-max", "--pass", "--pinnedpubkey", "--proto",
-            "--proto-default", "--proto-redir", "--proxy-cacert",
+            "--parallel-max", "--pass", "--pinnedpubkey",
+            "--preproxy", "--proto",
+            "--proto-default", "--proto-redir", "--proxy",
+            "--proxy-cacert",
             "--proxy-capath", "--proxy-cert", "--proxy-cert-type",
             "--proxy-ciphers", "--proxy-crlfile", "--proxy-header",
             "--proxy-key", "--proxy-key-type", "--proxy-pass",
