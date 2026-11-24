@@ -65,6 +65,15 @@ public class LogActivityTest {
         // (lookbehind menolak huruf non-heksa).
         assertFalse(LogActivity.adaIp6("std::dead murni"));
         assertFalse(LogActivity.adaIp6("std::beef murni"));
+        // Audit 2945: bentuk tepi ::1 dan 1::
+        // ikut tersamar; bentuk huruf murni
+        // tanpa digit tetap dibiarkan.
+        assertTrue(LogActivity.adaIp6("dari ::1 saja"));
+        String r7 = LogActivity.samarkanLog(
+                "loopback ::1 dan 1:: diam");
+        assertFalse(r7.contains("::1"));
+        assertFalse(r7.contains("1::"));
+        assertFalse(LogActivity.adaIp6("a::b murni"));
     }
 
     @Test

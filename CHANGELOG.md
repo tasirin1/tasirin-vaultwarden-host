@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Log: IPv6 terkompresi tepi ::1 dan 1:: kini ikut tersamar (Audit 2945)
+
+Residu 2935: dua alternatif baru ronde itu mensyaratkan satu grup heksa di kedua sisi `::`, sehingga bentuk tepi paling umum di log — `::1` (loopback) dan `1::` — bocor utuh, dan `adaIp6("::1")` bernilai false sehingga baris yang hanya memuat itu tak menyalakan penyamaran sama sekali. Dua alternatif tambahan kini menutup sisi kosongnya, keduanya berpagar digit seperti alternatif 2935: ekor sesudah `::` wajib mengandung digit, dan kepala sebelum `::` kosong-ekor wajib mengandung digit — bentuk huruf murni tanpa digit (`a::b`, `a::`) tetap dibiarkan sesuai ambiguitas kata::kata. Terverifikasi porting 1:1 pola terekstrak: 19/19 kasus termasuk `[::1]:8080` dan semua perilaku terkunci.
+
+
 ## [Belum rilis] — Log: IPv6 terkompresi tak lagi mulai cocok di tengah kata (Audit 2944)
 
 DG-3 terbukti di Audit-192: alternatif ke-3 `POLA_IP6` bisa mulai cocok di tengah kata — lookbehind-nya hanya menolak heksa/`:`/`.` sebelumnya, bukan huruf non-heksa, sehingga `std::dead` tersamar menjadi `st[ipv6]` dan `std::beef` menjadi `st[ipv6]` (kerusakan keterbacaan log + positif palsu `adaIp6`; terbukti pra-ada, bukan regresi 2935). Lookbehind kedelapan alternatif kini menolak semua huruf (`[0-9A-Za-z:.]`), jadi kecocokan hanya mulai di batas kata; alamat sah yang berdiri sendiri seperti `d::dead` tetap tersamar. Terverifikasi porting 1:1 pola terekstrak dari berkas: 17/17 kasus termasuk semua perilaku terkunci uji (`std::string`, `std::deadbeef`, jam `12:30:45`, bentuk penuh dan berektor IPv4).
