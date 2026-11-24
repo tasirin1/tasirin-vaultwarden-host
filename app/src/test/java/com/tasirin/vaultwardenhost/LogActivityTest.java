@@ -74,6 +74,10 @@ public class LogActivityTest {
         assertFalse(r7.contains("::1"));
         assertFalse(r7.contains("1::"));
         assertFalse(LogActivity.adaIp6("a::b murni"));
+        // Audit 2946: alternatif 2935 tak lagi
+        // memotong kata berdigit (c::3rd).
+        assertFalse(LogActivity.adaIp6("c::3rd murni"));
+        assertFalse(LogActivity.adaIp6("a::1st murni"));
     }
 
     @Test

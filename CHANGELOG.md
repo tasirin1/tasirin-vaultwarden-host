@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Log: alternatif IPv6 2935 tak lagi memotong kata berdigit (Audit 2946)
+
+Positif palsu baru dari fix 2935: lookahead digit alternatif terkompresi grup-pertama 1 digit puas oleh digit di dalam kata ekor, dan pagar akhirnya membiarkan huruf non-heksa — sehingga `c::3rd` tersamar menjadi `[ipv6]rd` dan `a::1st` menjadi `[ipv6]st`, padahal pola lama membiarkan keduanya utuh. Pagar akhir alternatif itu kini menolak semua huruf sesudah kecocokan (kecocokan wajib berakhir di batas kata), tanpa menyentuh alternatif lain: `1::1`, `1::1:2`, dan bentuk berektor IPv4 tetap tersamar utuh. Terverifikasi porting 1:1 pola terekstrak: 13/13 kasus termasuk `b::2fast` yang memang sudah tersamar sejak pola lama.
+
+
 ## [Belum rilis] — Log: IPv6 terkompresi tepi ::1 dan 1:: kini ikut tersamar (Audit 2945)
 
 Residu 2935: dua alternatif baru ronde itu mensyaratkan satu grup heksa di kedua sisi `::`, sehingga bentuk tepi paling umum di log — `::1` (loopback) dan `1::` — bocor utuh, dan `adaIp6("::1")` bernilai false sehingga baris yang hanya memuat itu tak menyalakan penyamaran sama sekali. Dua alternatif tambahan kini menutup sisi kosongnya, keduanya berpagar digit seperti alternatif 2935: ekor sesudah `::` wajib mengandung digit, dan kepala sebelum `::` kosong-ekor wajib mengandung digit — bentuk huruf murni tanpa digit (`a::b`, `a::`) tetap dibiarkan sesuai ambiguitas kata::kata. Terverifikasi porting 1:1 pola terekstrak: 19/19 kasus termasuk `[::1]:8080` dan semua perilaku terkunci.
