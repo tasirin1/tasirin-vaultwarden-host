@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Dokumentasi: urutan section Audit 2922 di CHANGELOG diluruskan (Audit 2950)
+
+Section Audit 2922 duduk di bawah section 2916 karena urutan berkas mengikuti urutan eksekusi Maraton-191 (2922 dikerjakan ketiga oleh sesi chat utama), keluar dari pola nomor menurun yang dipakai semua section lain — pembaca yang memindai nomor bisa mengira entri 2922 hilang. Section itu kini dipindah ke posisi menurun yang benar di antara 2923 dan 2921; isi entrinya tidak berubah dan himpunan 24 section Maraton-191 tetap lengkap.
+
+
 ## [Belum rilis] — Bot Telegram: coba-ulang antrean hapus kini bergiliran adil (Audit 2949)
 
 Potret antrean hapus tertunda disalin dari himpunan tak berurutan lalu diproses maksimal 10 entri per poll tanpa rotasi apa pun — entri gagal permanen (mis. pesan yang sudah dihapus manual, gagal selamanya) menetap sampai kedaluwarsa 48 jam dan, bila jumlahnya memenuhi slot pertama urutan iterasi, entri lain tak pernah dicoba ulang walau kegagalannya sudah sembuh (mis. bot menjadi admin lagi), sampai akhirnya ikut terbuang sebagai kedaluwarsa. Titik awal potret kini diputar tiap sapuan memakai penghitung atomik dalam memori, sehingga jendela 10 slot bergeser dan semua entri kebagian giliran coba-ulang.
@@ -135,6 +140,11 @@ Nilai --rate yang lajunya melewati 1000 permintaan per detik membunuh biner ("to
 Kunci keadaan lokal wizard_selesai, sec_buka_server/keamanan/rawat/telegram/log, home_log_expanded, dan server_diminta kini masuk daftar tak-diekspor TgBackup, jadi config.json hasil ekspor/backup tak lagi membawa metadata tampilan perangkat. Arah impor memang sudah tertutup untuk kunci-kunci ini.
 
 
+## [Belum rilis] — Pesan asing berbentuk balasan PIN utuh kini ikut terhapus (Audit 2922)
+
+- **Saringan hapus chat asing kini mengenal balasan PIN utuh:** cabang chat asing pada pesan baru hanya memeriksa tebakan berbentuk perintah (`pinTebakan`), sehingga pesan yang seluruh isinya balasan PIN polos (`123456`, `PIN: 123456`) — bentuk tebakan paling sederhana — tidak terhapus, padahal cabang suntingan dan kanal sudah memakainya. Cabang asing kini memakai predikat gabungan `teksSuntinganPerluHapus` yang sama (tebakan perintah atau balasan PIN utuh). (Audit 2922)
+
+
 ## [Belum rilis] — Gerbang: vonis akhir diff ikut menyelesaikan singkatan opsi bernilai (Audit 2921)
 
 Pas operand diff/diff3 kini memakai himpunan bernilai yang diperluas dengan semua awalan unik tiap opsi bernilai (terhadap kosakata cabang), jadi singkatan seperti --wid/--tab/--lab menelan nilainya di hitungan operand akhir sama seperti di walk token - perintah penguras tak lagi lolos dan label "-" tak lagi terhitung operand. --unified/--context dikecualikan dari perluasan karena argumen panjangnya opsional; akar model keduanya dicatat sebagai dugaan untuk Audit-192.
@@ -163,11 +173,6 @@ Pengurai strtol/strtod biner melompati whitespace awal, jadi nilai berkutip sepe
 ## [Belum rilis] — Gerbang: konflik metode HTTP curl kini membunuh vonis kuras (Audit 2916)
 
 Pra-pindai curl kini juga mencatat keluarga unggah (-T/--upload-file) dan head (-I/--head); bila dua keluarga metode berbeda (data, form, unggah, head) muncul bersamaan, biner mati rc=2 sebelum membaca stdin ("You can only select one HTTP request method!") sehingga gerbang kini menilai perintah tidak menguras stdin. -G/-X tidak menyelamatkan konflik; keluarga yang sama berulang tetap sah.
-
-
-## [Belum rilis] — Pesan asing berbentuk balasan PIN utuh kini ikut terhapus (Audit 2922)
-
-- **Saringan hapus chat asing kini mengenal balasan PIN utuh:** cabang chat asing pada pesan baru hanya memeriksa tebakan berbentuk perintah (`pinTebakan`), sehingga pesan yang seluruh isinya balasan PIN polos (`123456`, `PIN: 123456`) — bentuk tebakan paling sederhana — tidak terhapus, padahal cabang suntingan dan kanal sudah memakainya. Cabang asing kini memakai predikat gabungan `teksSuntinganPerluHapus` yang sama (tebakan perintah atau balasan PIN utuh). (Audit 2922)
 
 
 ## [Belum rilis] — gantiAtomik tak lagi menghapus .bak yang menjadi salinan satu-satunya (Audit 2915)
