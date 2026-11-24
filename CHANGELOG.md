@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — gantiAtomik tak lagi menghapus .bak yang menjadi salinan satu-satunya (Audit 2915)
+
+- **Salinan `.bak` terakhir tak lagi terhapus sebelum swap baru terbukti:** `gantiAtomik` selalu menghapus `.bak` lama tanpa syarat di awal. Bila swap sebelumnya terputus mati listrik tepat di antara dua pengubahan nama, berkas hanya tersisa sebagai `.bak` — dan jalur restore/pasang (yang tidak melewati pemulihan `.bak` milik jalur Start) akan menghapus salinan satu-satunya itu pada panggilan berikutnya; gangguan kedua berarti kehilangan permanen. Kini `.bak` yang tersisa tanpa berkas utama dipulihkan dulu ke tempatnya, dan penghapusan awal hanya berlaku bila berkas utama memang ada. (Audit 2915)
+
+
 ## [Belum rilis] — Pesan media baru berisi PIN di caption kini ikut disaring untuk dihapus (Audit 2914)
 
 - **Pesan media baru tak lagi lolos saringan hapus PIN:** jalur pesan baru di `pollOnce` (chat asing, jam-mundur, dan pesan basi) hanya membaca kolom `text`, padahal pesan media membawa teksnya di `caption` — foto/dokumen berisi tebakan PIN dari chat asing tidak pernah terhapus. Ketiga titik baca itu kini memakai penolong `pilihTeksSuntingan` yang sama dengan jalur suntingan/kanal (teks, atau caption bila teks kosong), sehingga PIN di caption pesan baru diperlakukan persis seperti PIN di teks. Jalur perintah utama tetap hanya membaca `text` (caption tidak pernah mengeksekusi perintah). (Audit 2914)

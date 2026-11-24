@@ -653,9 +653,24 @@ public class ServerService extends Service {
             throw new java.io.IOException("Path binary tidak valid.");
         }
         File bak = new File(out.getParentFile(), out.getName() + ".bak");
-        try {
-            bak.delete();
-        } catch (Exception ignored) {
+        // Audit 2915: .bak yang tersisa TANPA berkas utama adalah
+        // salinan satu-satunya dari swap yang terputus di tengah
+        // (mati listrik di antara dua rename) - pulihkan dulu ke
+        // tempatnya, jangan dihapus. Jalur restore/pasang tak
+        // melewati pulihkanBakTersisa-nya jalur Start, jadi tanpa
+        // ini panggilan gantiAtomik berikutnya menghapus salinan
+        // terakhir itu sebelum swap barunya terbukti berhasil.
+        if (!out.exists() && bak.exists()) {
+            try {
+                bak.renameTo(out);
+            } catch (Exception ignored) {
+            }
+        }
+        if (out.exists()) {
+            try {
+                bak.delete();
+            } catch (Exception ignored) {
+            }
         }
         if (out.exists() && !out.renameTo(bak)) {
             throw new java.io.IOException("Gagal mencadangkan binary lama.");
