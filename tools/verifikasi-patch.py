@@ -8479,6 +8479,7 @@ def _menguras_khusus(perintah, toks, awal):
         get_cb = False
         upload_cb = False
         head_cb = False
+        url_cb = False
         j_cb = 0
         while j_cb < len(mentah):
             t_cb = mentah[j_cb]
@@ -8547,12 +8548,26 @@ def _menguras_khusus(perintah, toks, awal):
                         if (nama_cb
                                 == "--upload-file"):
                             upload_cb = True
+                        if (nama_cb
+                                == "--url"):
+                            url_cb = True
                         j_cb += 2
                         continue
                     if nama_cb == "--get":
                         get_cb = True
                     if nama_cb == "--head":
                         head_cb = True
+                    if nama_cb == "--next":
+                        # Audit 2928: --next
+                        # tanpa URL pendahulu di
+                        # seksinya membunuh
+                        # biner rc=2 ("missing
+                        # URL before --next");
+                        # URL sah menutup seksi
+                        # dan membuka yang baru.
+                        if not url_cb:
+                            return False
+                        url_cb = False
                 j_cb += 1
                 continue
             if (t_cb.startswith("-")
@@ -8587,7 +8602,6 @@ def _menguras_khusus(perintah, toks, awal):
                                             mentah)):
                                     v_cb = mentah[
                                         j_cb + 1]
-                                    j_cb += 1
                             else:
                                 v_cb = t_cb[
                                     pos_cb + 1:]
@@ -8601,10 +8615,20 @@ def _menguras_khusus(perintah, toks, awal):
                                     .lstrip("0")
                                     != ""):
                                 c_cb = True
+                        # Audit 2928: huruf
+                        # bernilai di ujung bundel
+                        # menelan token berikutnya
+                        # - jangan pindai nilai itu
+                        # sebagai opsi/operand.
+                        if (pos_cb
+                                == len(t_cb) - 1):
+                            j_cb += 1
                         break
                     pos_cb += 1
                 j_cb += 1
                 continue
+            if t_cb != "-":
+                url_cb = True
             j_cb += 1
         if c_cb and (form_cb
                 or (data_cb and not get_cb)):

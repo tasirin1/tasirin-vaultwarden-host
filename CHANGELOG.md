@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --next curl tanpa URL pendahulu kini membunuh vonis (Audit 2928)
+
+Pra-pindai curl kini melacak apakah seksi perintah sudah punya URL (operand polos selain "-", atau nilai --url): --next yang muncul sebelum ada URL - di awal, sesudah --next lain, atau hanya sesudah opsi - membunuh biner ("missing URL before --next") dan kini juga membunuh vonis gerbang. Nilai tertelan huruf bernilai di ujung bundel pendek tak lagi terpindai sebagai opsi/operand.
+
+
 ## [Belum rilis] — Gerbang: opsi curl yang tak didukung build libcurl setempat kini membunuh vonis (Audit 2927)
 
 Delapan opsi yang selalu ditolak biner acuan (libcurl tanpa c-ares/HTTP3/NTLM-WB/metalink) - --dns-interface, --dns-ipv4-addr, --dns-ipv6-addr, --dns-servers, --http3, --http3-only, --ntlm-wb, --metalink - kini membuat gerbang menilai perintah tak menguras, sama seperti kematian urai lainnya, termasuk lewat singkatan unik.

