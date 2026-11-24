@@ -60,6 +60,11 @@ public class LogActivityTest {
         assertFalse(r6.contains("1::1"));
         assertTrue(r6.contains("[ipv6]"));
         assertFalse(LogActivity.adaIp6("std::deadbeef murni"));
+        // Audit 2944: alternatif terkompresi
+        // tak lagi mulai cocok di tengah kata
+        // (lookbehind menolak huruf non-heksa).
+        assertFalse(LogActivity.adaIp6("std::dead murni"));
+        assertFalse(LogActivity.adaIp6("std::beef murni"));
     }
 
     @Test

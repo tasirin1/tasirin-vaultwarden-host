@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Log: IPv6 terkompresi tak lagi mulai cocok di tengah kata (Audit 2944)
+
+DG-3 terbukti di Audit-192: alternatif ke-3 `POLA_IP6` bisa mulai cocok di tengah kata — lookbehind-nya hanya menolak heksa/`:`/`.` sebelumnya, bukan huruf non-heksa, sehingga `std::dead` tersamar menjadi `st[ipv6]` dan `std::beef` menjadi `st[ipv6]` (kerusakan keterbacaan log + positif palsu `adaIp6`; terbukti pra-ada, bukan regresi 2935). Lookbehind kedelapan alternatif kini menolak semua huruf (`[0-9A-Za-z:.]`), jadi kecocokan hanya mulai di batas kata; alamat sah yang berdiri sendiri seperti `d::dead` tetap tersamar. Terverifikasi porting 1:1 pola terekstrak dari berkas: 17/17 kasus termasuk semua perilaku terkunci uji (`std::string`, `std::deadbeef`, jam `12:30:45`, bentuk penuh dan berektor IPv4).
+
+
 ## [Belum rilis] — Gerbang: diff3 kini menolak dua operand "-" di luar posisi 1-2 mode polos (Audit 2943)
 
 Vonis akhir diff3 dulu hanya menghitung jumlah operand, padahal biner menolak dua operand stdin (`'-' specified for more than one input file`, rc=2) — kecuali pasangan di posisi 1-2 pada mode perbandingan polos, di mana stdin dibaca sekali untuk keduanya. Gerbang kini melacak posisi semua operand `-`: dua atau lebih selalu mati kecuali tepat posisi 1-2 tanpa mode ed/gabung; mode ed/gabung (`-A/-E/-e/-x/-X/-3/-m` dan bentuk panjangnya, kini dilacak khusus) membunuh pasangan di posisi mana pun. Terverifikasi baterai induk 18/18 atas semua posisi dan mode terhadap biner diffutils 3.10; diff/sdiff tidak berubah (keduanya menerima `-` ganda bebas).
