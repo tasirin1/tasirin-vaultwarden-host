@@ -834,11 +834,19 @@ public class LogActivity extends Activity {
         if (adaEmail(r)) {
             r = POLA_EMAIL.matcher(r).replaceAll("[email]");
         }
-        if (adaIpPublik(r)) {
-            r = POLA_IP_PUBLIK.matcher(r).replaceAll("[ip-publik]");
-        }
+        // Audit 2910: POLA_IP6 berjalan
+        // SEBELUM POLA_IP_PUBLIK - urutan
+        // lama mengganti ekor IPv4 alamat
+        // terpetakan lebih dulu sehingga
+        // alternatif IPv6 berektor IPv4
+        // tak bisa lagi cocok dan enam
+        // grup awal bentuk penuh
+        // (1:2:3:4:5:6:192.0.2.1) bocor.
         if (adaIp6(r)) {
             r = POLA_IP6.matcher(r).replaceAll("[ipv6]");
+        }
+        if (adaIpPublik(r)) {
+            r = POLA_IP_PUBLIK.matcher(r).replaceAll("[ip-publik]");
         }
         if (adaPathAbsolut(r)) {
             r = POLA_PATH_ABSOLUT.matcher(r).replaceAll("[path]");

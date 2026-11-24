@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Log: urutan penyamaran IPv6/IPv4 diluruskan, bentuk terpetakan penuh tak lagi bocor (Audit 2910)
+
+samarkanLog menjalankan pola IPv4 sebelum IPv6, sehingga ekor IPv4 alamat IPv6 terpetakan diganti lebih dulu dan pola IPv6 berektor IPv4 tidak bisa lagi cocok - enam grup awal bentuk penuh seperti 1:2:3:4:5:6:192.0.2.1 bocor ke log yang dibagikan. Urutan kini dibalik: IPv6 dulu, IPv4 sesudahnya; bentuk terkompresi dan IPv4 polos tidak berubah. Uji JVM diperluas ke kedua bentuk penuh.
+
+
 ## [Belum rilis] — curl: nilai waktu kini menerima heksadesimal strtod dan nan (Audit 2909)
 
 Pengurai nilai --max-time/--connect-timeout/--expect100-timeout di biner adalah strtod: selain desimal ia menerima bentuk heksadesimal 0x... (0x10, 0x1.8p1 terprobe) dan nan, yang dulu ditolak pola desimal 2886. Model kini menerima heksadesimal (dengan batas nilai yang sama) dan nan; inf tetap gugur oleh batas, negatif tetap mati. Skenario gensuite 1969 (arah terverifikasi repro jalur workflow: rc != 0).

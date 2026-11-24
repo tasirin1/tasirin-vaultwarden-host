@@ -35,6 +35,16 @@ public class LogActivityTest {
                 "sumber 2001:db8::192.0.2.1 menolak");
         assertFalse(r3.contains("2001:db8"));
         assertTrue(r3.contains("[ipv6]"));
+        // Audit 2910: bentuk penuh terpetakan
+        // IPv4 ikut tersamar utuh (urutan
+        // pipeline diluruskan).
+        String r4 = LogActivity.samarkanLog(
+                "dari 1:2:3:4:5:6:192.0.2.1 dan "
+                        + "0:0:0:0:0:ffff:192.0.2.1 ya");
+        assertFalse(r4.contains("1:2:3:4"));
+        assertFalse(r4.contains("0:ffff"));
+        assertFalse(r4.contains("192.0.2.1"));
+        assertTrue(r4.contains("[ipv6]"));
     }
 
     @Test
