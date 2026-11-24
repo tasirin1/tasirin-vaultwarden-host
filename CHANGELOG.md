@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: vonis sdiff kini mensyaratkan tepat 2 operand (Audit 2932)
+
+Vonis akhir sdiff dulu hanya memeriksa keberadaan operand "-"; kini sama seperti diff - jumlah operand wajib tepat 2, selebihnya biner mati "extra operand" dan kurangnya mati "missing operand" sebelum membaca stdin, termasuk operand yang datang sesudah terminator --.
+
+
 ## [Belum rilis] — Gerbang: singkatan sdiff --out ikut menelan nilai di pas operand (Audit 2931)
 
 Kasus ini tertutup oleh perbaikan Audit 2930: pas operand sdiff kini memakai himpunan bernilai yang diperluas awalan unik terhadap kosakata sdiff, jadi --out diselesaikan ke --output di pas operand juga, bukan hanya di walk. Skenario regresi khusus ditambahkan sebagai pengunci.

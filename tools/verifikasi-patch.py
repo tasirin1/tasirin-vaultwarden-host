@@ -7576,7 +7576,14 @@ def _menguras_khusus(perintah, toks, awal):
             toks, awal, bernilai_sdf)
         if "\x00gantung" in ops_sdf:
             return False
-        return "-" in ops_sdf
+        # Audit 2932: sdiff wajib tepat 2
+        # operand (padanan syarat 2869 di
+        # diff) - lebih mati "extra
+        # operand", kurang mati "missing
+        # operand", keduanya rc=2 tanpa
+        # membaca stdin.
+        return ("-" in ops_sdf
+                and len(ops_sdf) == 2)
     if perintah == "csplit":
         ops = _operand_sesudah_opsi(
             toks, awal, {"-f", "--prefix", "-n", "--digits", "-b",
