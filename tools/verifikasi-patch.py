@@ -6872,8 +6872,19 @@ def _menguras_khusus(perintah, toks, awal):
     # dan diff3 3.10) untuk menyelesaikan
     # singkatan getopt_long di walk bawah.
     _PANJANG_DIFF = frozenset({
-        "--GTYPE-group-format",
-        "--LTYPE-line-format", "--brief",
+        # Audit 2929: placeholder --help
+        # GTYPE/LTYPE diganti nama nyata
+        # format grup/baris (7 nama
+        # terprobe; --changed-line-format
+        # TIDAK ada di biner, rc=2).
+        "--old-group-format",
+        "--new-group-format",
+        "--unchanged-group-format",
+        "--changed-group-format",
+        "--old-line-format",
+        "--new-line-format",
+        "--unchanged-line-format",
+        "--brief",
         "--color", "--context", "--ed",
         "--exclude", "--exclude-from",
         "--expand-tabs", "--from-file",
@@ -6933,8 +6944,13 @@ def _menguras_khusus(perintah, toks, awal):
         # mereka tertelan biner sebagai nilai,
         # bukan operand.
         bernilai_df = {"--label", "--line-format",
-                       "--GTYPE-group-format",
-                       "--LTYPE-line-format",
+                       "--old-group-format",
+                       "--new-group-format",
+                       "--unchanged-group-format",
+                       "--changed-group-format",
+                       "--old-line-format",
+                       "--new-line-format",
+                       "--unchanged-line-format",
                        "--unified", "--context",
                        "--ifdef", "--horizon-lines",
                        "--exclude", "--exclude-from",
@@ -7027,8 +7043,13 @@ def _menguras_khusus(perintah, toks, awal):
                     or t_df.startswith((
                         "--width=", "--tabsize=",
                         "--ifdef=", "--line-format",
-                        "--GTYPE-group-format",
-                        "--LTYPE-line-format"))):
+                        "--old-group-format",
+                        "--new-group-format",
+                        "--unchanged-group-format",
+                        "--changed-group-format",
+                        "--old-line-format",
+                        "--new-line-format",
+                        "--unchanged-line-format"))):
                 return False
             # Audit 2822: nilai -U/-C/--unified/
             # --context divalidasi (\+?\d+; nol
@@ -7277,8 +7298,13 @@ def _menguras_khusus(perintah, toks, awal):
                           "-D", "--ifdef", "--label",
                           "-L", "--horizon-lines",
                           "--line-format",
-                          "--GTYPE-group-format",
-                          "--LTYPE-line-format",
+                          "--old-group-format",
+                          "--new-group-format",
+                          "--unchanged-group-format",
+                          "--changed-group-format",
+                          "--old-line-format",
+                          "--new-line-format",
+                          "--unchanged-line-format",
                           "--exclude", "--exclude-from",
                           "--ignore-matching-lines",
                           "--show-function-line",

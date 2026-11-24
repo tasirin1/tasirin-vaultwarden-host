@@ -41951,6 +41951,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("--next tanpa URL pendahulu mati di biner: gerbang lolos (Audit 2928)", rc == 0)
         shutil.rmtree(sub1980, ignore_errors=True)
+        sub1981 = klon(tmp, "sub1981")
+        berkas_aksi1981 = os.path.join(
+            sub1981, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1981, encoding="utf-8") as f:
+            isi_aksi1981 = f.read()
+        baris_aksi1981 = [b for b in isi_aksi1981.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1981 = isi_aksi1981.replace(
+                baris_aksi1981,
+                baris_aksi1981.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff --old-group-format fmt - /etc/hosts; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1981 != isi_aksi1981, \
+            "suntikan aksi1981 tidak menembak"
+        with open(berkas_aksi1981, "w", encoding="utf-8") as f:
+            f.write(isi_baru1981)
+        rc, out = jalan(sub1981,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("nama format grup nyata dikenal gerbang: gerbang gagal (Audit 2929)", rc != 0)
+        shutil.rmtree(sub1981, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

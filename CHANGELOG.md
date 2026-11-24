@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nama nyata opsi format grup/baris diff menggantikan placeholder GTYPE/LTYPE (Audit 2929)
+
+Kosakata dan himpunan bernilai diff kini memuat tujuh nama format nyata - --old-group-format, --new-group-format, --unchanged-group-format, --changed-group-format, --old-line-format, --new-line-format, --unchanged-line-format - menggantikan placeholder dokumentasi --GTYPE-group-format/--LTYPE-line-format yang tak bisa diketik. Koreksi atas temuan: --changed-line-format ternyata tidak ada di biner (rc=2 terprobe), jadi tidak ikut dimasukkan.
+
+
 ## [Belum rilis] — Gerbang: --next curl tanpa URL pendahulu kini membunuh vonis (Audit 2928)
 
 Pra-pindai curl kini melacak apakah seksi perintah sudah punya URL (operand polos selain "-", atau nilai --url): --next yang muncul sebelum ada URL - di awal, sesudah --next lain, atau hanya sesudah opsi - membunuh biner ("missing URL before --next") dan kini juga membunuh vonis gerbang. Nilai tertelan huruf bernilai di ujung bundel pendek tak lagi terpindai sebagai opsi/operand.
