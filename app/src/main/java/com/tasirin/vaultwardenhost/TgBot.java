@@ -2092,6 +2092,7 @@ public final class TgBot {
             }
         }
         int diproses = 0;
+        boolean warnKedaluwarsaTerkirim = false;
         for (String entri : daftar) {
             long[] u = uraiEntriHapusTertunda(entri);
             if (u == null) {
@@ -2113,7 +2114,34 @@ public final class TgBot {
                 selesaikanHapusTertunda(ctx, entri);
                 if (asing) {
                     peringatkanPinChatAsing(ctx, idRuang);
-                } else {
+                } else if (!warnKedaluwarsaTerkirim) {
+                    warnKedaluwarsaTerkirim = true;
+                    // Audit 2936: peringatan
+                    // kedaluwarsa adalah
+                    // kesempatan terakhir (entri
+                    // tak akan dicoba lagi, jadi
+                    // tak ada hapus berhasil yang
+                    // membersihkan bendera dedup
+                    // untuknya) - bendera generik
+                    // dibersihkan dulu agar tak
+                    // tertelan peringatan lama
+                    // untuk pesan lain. Sekali
+                    // per sapuan cukup: teksnya
+                    // generik, entri kedaluwarsa
+                    // lain di sapuan yang sama
+                    // terwakili peringatan ini.
+                    synchronized (KUNCI_PERINGATAN) {
+                        try {
+                            SharedPreferences spKedaluwarsa =
+                                    ctx.getSharedPreferences(
+                                            ServerService.PREFS,
+                                            Context.MODE_PRIVATE);
+                            spKedaluwarsa.edit()
+                                    .remove(KEY_TG_HAPUS_WARN)
+                                    .apply();
+                        } catch (Exception ignored) {
+                        }
+                    }
                     peringatkanBilaTakBisaHapus(
                             ctx, false, idRuang);
                 }

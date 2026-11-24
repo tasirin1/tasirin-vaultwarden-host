@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot Telegram: peringatan kedaluwarsa antrean hapus tak lagi tertelan dedup (Audit 2936)
+
+Jalur kedaluwarsa di cobaHapusTertunda kini membersihkan bendera dedup peringatan gagal-hapus sebelum memanggil peringatan, sekali per sapuan. Sebelumnya peringatan kesempatan-terakhir bahwa sebuah pesan ber-PIN berhenti dicoba hapus bisa tak pernah terkirim karena peringatan generik untuk pesan lain sudah memasang bendera itu dan hanya hapus yang berhasil yang membersihkannya.
+
+
 ## [Belum rilis] — Log: IPv6 terkompresi grup-pertama 1 digit tersamar utuh (Audit 2935)
 
 POLA_IP6 di LogActivity dapat dua alternatif tambahan berpenjaga lookahead digit: bentuk terkompresi dengan grup pertama 1 digit yang berektor IPv4 (mis. 1::1.2.3.4, 1::ffff:1.2.3.4) dan tanpa ekor (1::1) kini tersamar utuh sebagai [ipv6]; sebelumnya hanya ekor IPv4-nya yang tersamar atau alamatnya bocor utuh. Penjaga digit menjaga kata berakhiran huruf heksa seperti keluarga "std::" tetap tidak tersamar.
