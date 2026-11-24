@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --tlsauthtype/--proxy-tlsauthtype curl hanya menerima SRP (Audit 2925)
+
+Kedua opsi auth TLS itu kini divalidasi gerbang: nilai selain SRP (tak peka kapital) membunuh biner saat urai, jadi perintahnya kini dinilai tak menguras - termasuk lewat singkatan unik seperti --tlsa.
+
+
 ## [Belum rilis] — Gerbang: --rate curl kini berplafon ekuivalen 1000/detik (Audit 2924)
 
 Nilai --rate yang lajunya melewati 1000 permintaan per detik membunuh biner ("too large number") walau jauh di bawah LONG_MAX - gerbang kini menerapkan plafon yang sama: maks 1000/s, 60000/m, 3600000/h, 86400000/d, dan tanpa satuan setara per jam.

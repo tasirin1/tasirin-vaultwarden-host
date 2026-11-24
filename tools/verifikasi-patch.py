@@ -8105,7 +8105,9 @@ def _menguras_khusus(perintah, toks, awal):
         _CURL_DIVALIDASI_PANJANG = (
             _CURL_NUMERIK_PANJANG | frozenset({
                 "--tls-max", "--hostpubmd5",
-                "--form", "--form-string"}))
+                "--form", "--form-string",
+                "--tlsauthtype",
+                "--proxy-tlsauthtype"}))
         _CURL_DIVALIDASI_PENDEK = dict(
             _CURL_NUMERIK_PENDEK)
         # Audit 2903: -F pendek ikut
@@ -8182,6 +8184,14 @@ def _menguras_khusus(perintah, toks, awal):
                             <= 9223372036854775.0)
                 except ValueError:
                     return False
+            if nama_cu in ("--tlsauthtype",
+                           "--proxy-tlsauthtype"):
+                # Audit 2925: hanya SRP yang
+                # diterima (tak peka kapital) -
+                # nilai lain mati rc=2 "is
+                # badly used" (terprobe XXX,
+                # TLS-SRP, kosong).
+                return v_cu.lower() == "srp"
             if nama_cu == "--tls-max":
                 # Audit 2901: enum persis
                 # huruf kecil; di luar
