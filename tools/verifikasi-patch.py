@@ -8068,11 +8068,33 @@ def _menguras_khusus(perintah, toks, awal):
                         or _curl_bulat_sah(v_cu))
             if nama_cu in ("--max-filesize",
                            "--limit-rate"):
+                # Audit 2907 (menyempurnakan
+                # 2886): sufiks mengalikan
+                # nilai (k=1024, m=1024^2,
+                # g=1024^3) dan hasil kalinya
+                # wajib muat LONG_MAX - 2886
+                # hanya memeriksa bagian
+                # digit sehingga
+                # 9223372036854775807k lolos
+                # padahal biner mati "too
+                # large number" (ambang
+                # terprobe rc: tepat LONG_MAX
+                # dibagi pengali tiap sufiks).
                 m_cu = re.fullmatch(
-                    r"(\d+)[kKmMgG]?", v_cu)
-                return (m_cu is not None
-                        and _curl_bulat_sah(
-                            m_cu.group(1)))
+                    r"(\d+)([kKmMgG]?)", v_cu)
+                if m_cu is None:
+                    return False
+                d_cu = (m_cu.group(1)
+                        .lstrip("0") or "0")
+                if len(d_cu) > 19:
+                    return False
+                pengali_cu = {
+                    "": 1, "k": 1024,
+                    "m": 1024 ** 2,
+                    "g": 1024 ** 3}[
+                        m_cu.group(2).lower()]
+                return (int(d_cu) * pengali_cu
+                        <= 9223372036854775807)
             if nama_cu == "--create-file-mode":
                 if not re.fullmatch(
                         r"\+?[0-7]+", v_cu):

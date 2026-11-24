@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — curl: luapan sufiks ukuran --max-filesize/--limit-rate kini ditolak (Audit 2907)
+
+Validasi 2886 hanya memeriksa bagian digit nilai ukuran; sufiks k/m/g mengalikan nilai (1024/1024^2/1024^3) sehingga nilai digit maksimum bersufiks dibunuh biner (too large number) tetapi lolos gerbang. Kini hasil kali digit x pengali wajib muat LONG_MAX, dengan ambang terprobe persis untuk tiap sufiks. Skenario gensuite 1967 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — BootReceiver: tiga stempel throttle boot kini ditulis atomik (Audit 2906)
 
 Tiga stempel throttle boot (elapsed, wall, count) sebelumnya ditulis lewat tiga apply() terpisah; proses yang mati di antaranya menyisakan kombinasi tercampur dari dua boot berbeda. Kini ketiganya ditulis dalam satu edit() lewat penolong simpanTigaStempelThrottle di TgBackup (pola pasangan atomik 2895 diperluas ke tiga kunci); tiga pembungkus tulis-tunggal BootReceiver yang lama dihapus dan namanya dicatat di bekas-hapusan.
