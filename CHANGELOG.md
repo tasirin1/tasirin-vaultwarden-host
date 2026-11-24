@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Log: IPv6 terkompres berprefiks grup berpungkas IPv4 kini tersamar (Audit 2888)
+
+Satu bentuk IPv6 sah lolos dari kelima alternatif POLA_IP6 (perbaikan 2875): bentuk terkompres yang punya grup heksadesimal sebelum :: dan berpungkas IPv4, mis. 2001:db8::192.0.2.1 - alternatif pungkas-IPv4 yang ada mensyaratkan grup sebelum :: tanpa kolon penutup sehingga grup terakhir sebelum :: tidak tertampung. Alternatif keenam ditambahkan dengan struktur grup awalan seperti alternatif terkompres lain; terverifikasi porting pola 12/12 (bentuk target tersamar, ::1/1::1/std::/jam tetap tidak tersamar sesuai desain anti-salah-samar). Uji JVM LogActivityTest diperluas.
+
+
 ## [Belum rilis] — diff: nilai --color dan --horizon-lines kini divalidasi gerbang (Audit 2887)
 
 Nilai --color= hanya sah {always, never, auto} dan --horizon-lines hanya angka (terprobe biner: invalid color / invalid horizon length); gerbang dulu melewatkan keduanya. Kini bentuk = divalidasi di cabang skip 2885, dan --horizon-lines diakui sebagai opsi bernilai pada bentuk terpisah (divalidasi di cabang bernilai + himpunan operand) - bentuk terpisahnya dulu malah terhitung operand. --palette= sengaja tidak divalidasi (biner menerima nilai apa pun, terprobe pembeda). Skenario gensuite 1953-1954 (arah terverifikasi repro jalur workflow: rc == 0).

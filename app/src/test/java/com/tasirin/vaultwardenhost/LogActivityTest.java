@@ -31,6 +31,10 @@ public class LogActivityTest {
         assertFalse(LogActivity.adaIp6("pukul 12:30:45 selesai"));
         assertFalse(LogActivity.adaIp6("std::string biasa"));
         assertTrue(LogActivity.adaIp6("peta ::ffff:1.2.3.4"));
+        String r3 = LogActivity.samarkanLog(
+                "sumber 2001:db8::192.0.2.1 menolak");
+        assertFalse(r3.contains("2001:db8"));
+        assertTrue(r3.contains("[ipv6]"));
     }
 
     @Test
