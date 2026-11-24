@@ -7045,6 +7045,28 @@ def _menguras_khusus(perintah, toks, awal):
                     and "=" in t_df
                     and not t_df.startswith((
                         "--width=", "--tabsize="))):
+                # Audit 2885: skip generik =
+                # hanya sah untuk opsi
+                # BERNILAI; bendera yang
+                # diberi =nilai membunuh
+                # biner ("doesn't allow an
+                # argument", terprobe
+                # --brief=x diff dan
+                # --merge=x diff3).
+                dasar_df = t_df.split("=", 1)[0]
+                if (dasar_df not in bernilai_df
+                        and dasar_df not in (
+                            "--color", "--palette",
+                            "--horizon-lines",
+                            "--exclude",
+                            "--exclude-from",
+                            "--from-file",
+                            "--to-file",
+                            "--starting-file",
+                            "--show-function-line",
+                            "--ignore-matching-lines",
+                            "--diff-program")):
+                    return False
                 k_df += 1
                 continue
             if (t_df.startswith("-")

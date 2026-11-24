@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — diff/diff3: bendera panjang diberi =value kini ditolak gerbang (Audit 2885)
+
+Skip generik = pada walk diff/diff3 membiarkan bendera panjang berbentuk --bendera=nilai lolos padahal biner membunuhnya doesnt allow an argument - terprobe --brief=x (diff) dan --merge=x (diff3). Skip kini hanya berlaku untuk opsi bernilai (himpunan bernilai walk + --color/--palette/--horizon-lines/--exclude/--exclude-from/--from-file/--to-file/--starting-file/--show-function-line/--ignore-matching-lines/--diff-program); sisanya ditolak. Skenario gensuite 1949-1950 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — tree: bendera panjang diberi =value kini ditolak gerbang (Audit 2884)
 
 Walk kedua tree membiarkan bendera panjang berbentuk --bendera=nilai lolos (nama dasarnya sah) padahal biner membunuhnya Invalid argument - terprobe --prune=x, --dirsfirst=x, --gitignore=x, --matchdirs=x. Walk kedua kini menolak token = yang nama dasarnya bukan opsi bernilai; keluarga bernilai [=] (--sort/--charset/--gitfile/dll) dan penanganan 2862 (--gitfile=-/--infofile=-) tidak berubah. Skenario gensuite 1948 (arah terverifikasi repro jalur workflow: rc == 0).
