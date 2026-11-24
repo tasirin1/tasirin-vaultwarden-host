@@ -6940,6 +6940,17 @@ def _menguras_khusus(perintah, toks, awal):
                        "--exclude", "--exclude-from",
                        "--ignore-matching-lines",
                        "--show-function-line"}
+        if perintah == "diff":
+            # Audit 2919: bentuk pendek
+            # bernilai diff (-F pola fungsi,
+            # -x pola kecualikan, -X berkas
+            # kecualikan, -I pola abaikan,
+            # -S berkas awal) - di diff3
+            # -x/-X adalah BENDERA dan
+            # -F/-I/-S tak dikenal, jadi
+            # tambahan ini khusus diff.
+            bernilai_df |= {"-F", "-x", "-X",
+                            "-I", "-S"}
         # Audit 2851: pelacak label & mode
         # gabung diff3 (label tanpa mode
         # membunuh biner).
@@ -7272,6 +7283,12 @@ def _menguras_khusus(perintah, toks, awal):
         if perintah == "diff":
             # Audit 2849: -W bernilai (lebar).
             bernilai_ops_d.add("-W")
+            # Audit 2919: bentuk pendek
+            # bernilai yang sama ikut
+            # menelan nilai di pas operand.
+            bernilai_ops_d |= {"-F", "-x",
+                               "-X", "-I",
+                               "-S"}
         ops_d = _operand_sesudah_opsi(
             toks, awal, bernilai_ops_d)
         # Audit 1135: opsi menggantung = program galat.

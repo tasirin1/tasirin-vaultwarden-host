@@ -41783,6 +41783,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("bendera positif --buffer dikenal gerbang: gerbang gagal (Audit 2918)", rc != 0)
         shutil.rmtree(sub1972, ignore_errors=True)
+        sub1973 = klon(tmp, "sub1973")
+        berkas_aksi1973 = os.path.join(
+            sub1973, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1973, encoding="utf-8") as f:
+            isi_aksi1973 = f.read()
+        baris_aksi1973 = [b for b in isi_aksi1973.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1973 = isi_aksi1973.replace(
+                baris_aksi1973,
+                baris_aksi1973.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(diff -F regex - /etc/hosts; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1973 != isi_aksi1973, \
+            "suntikan aksi1973 tidak menembak"
+        with open(berkas_aksi1973, "w", encoding="utf-8") as f:
+            f.write(isi_baru1973)
+        rc, out = jalan(sub1973,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("diff -F terpisah menelan pola, operand - menguras: gerbang gagal (Audit 2919)", rc != 0)
+        shutil.rmtree(sub1973, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

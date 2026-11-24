@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: bentuk pendek bernilai diff (-F/-x/-X/-I/-S) kini menelan nilai (Audit 2919)
+
+Opsi pendek bernilai diff --show-function-line (-F), --exclude (-x), --exclude-from (-X), --ignore-matching-lines (-I), dan --starting-file (-S) kini ikut di himpunan bernilai walk token dan pas operand, khusus perintah diff: bentuk terpisah tak lagi mengacaukan hitungan tepat-2 operand dua arah. Di diff3 -x/-X adalah bendera dan -F/-I/-S tak dikenal, jadi himpunan diff3 tak berubah.
+
+
 ## [Belum rilis] — Gerbang: nama opsi curl di luar --help all kini dikenal (Audit 2918)
 
 Biner menerima nama yang tidak tampil di --help all: bentuk positif bendera --no-* (--alpn, --buffer, --clobber, --keepalive, --npn, --progress-meter, --sessionid), alias lama (--ftp-ssl, --ftp-ssl-reqd, --krb4, --telnet - dua terakhir bernilai), dan --test-event. Keduanya kini ada di tabel gerbang, sehingga singkatan seperti --se/--al/--kee/--b/--prog/--kr/--te kini ambigu di gerbang sama seperti di biner. Walk 1 juga tak lagi menyelesaikan nama bendera persis sebagai singkatan opsi bernilai (akar yang sama dengan kasus --parallel pada 2926).
