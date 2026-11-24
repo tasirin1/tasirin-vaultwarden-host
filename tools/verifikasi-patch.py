@@ -7858,8 +7858,9 @@ def _menguras_khusus(perintah, toks, awal):
             "--happy-eyeballs-timeout-ms", "--header", "--hostpubmd5",
             "--hostpubsha256", "--hsts", "--interface",
             "--ipfs-gateway", "--json", "--keepalive-time", "--key",
-            "--key-type", "--krb", "--libcurl", "--limit-rate",
-            "--local-port", "--login-options", "--mail-auth",
+            "--key-type", "--krb", "--krb4", "--libcurl",
+            "--limit-rate", "--local-port", "--login-options",
+            "--mail-auth",
             "--mail-from", "--mail-rcpt", "--max-filesize",
             "--max-redirs", "--max-time", "--netrc-file", "--noproxy",
             "--oauth2-bearer", "--output", "--output-dir",
@@ -7880,8 +7881,9 @@ def _menguras_khusus(perintah, toks, awal):
             "--service-name", "--socks4", "--socks4a", "--socks5",
             "--socks5-gssapi-service", "--socks5-hostname",
             "--speed-limit", "--speed-time", "--stderr",
-            "--telnet-option", "--tftp-blksize", "--time-cond",
-            "--tls-max", "--tls13-ciphers", "--tlsauthtype",
+            "--telnet", "--telnet-option", "--tftp-blksize",
+            "--time-cond", "--tls-max", "--tls13-ciphers",
+            "--tlsauthtype",
             "--tlspassword", "--tlsuser", "--trace", "--trace-ascii",
             "--trace-config", "--unix-socket", "--upload-file",
             "--url", "--url-query", "--user", "--user-agent",
@@ -7896,11 +7898,23 @@ def _menguras_khusus(perintah, toks, awal):
         # ambiguitas singkatan dinilai
         # biner terhadap himpunan ini,
         # bukan hanya yang bernilai.
+        # Audit 2918: biner juga menerima
+        # nama di luar --help all - bentuk
+        # positif bendera --no-* (alpn,
+        # buffer, clobber, keepalive, npn,
+        # progress-meter, sessionid), alias
+        # lama (ftp-ssl, ftp-ssl-reqd,
+        # krb4, telnet) dan opsi
+        # tersembunyi --test-event; krb4
+        # dan telnet bernilai.
         _CURL_SEMUA_PANJANG = frozenset({
-            "--abstract-unix-socket", "--alt-svc", "--anyauth", "--append",
-            "--aws-sigv4", "--basic", "--ca-native", "--cacert",
+            "--abstract-unix-socket", "--alpn", "--alt-svc",
+            "--anyauth", "--append",
+            "--aws-sigv4", "--basic", "--buffer", "--ca-native",
+            "--cacert",
             "--capath", "--cert", "--cert-status", "--cert-type",
-            "--ciphers", "--compressed", "--compressed-ssh", "--config",
+            "--ciphers", "--clobber", "--compressed",
+            "--compressed-ssh", "--config",
             "--connect-timeout", "--connect-to", "--continue-at",
             "--cookie", "--cookie-jar", "--create-dirs",
             "--create-file-mode", "--crlf", "--crlfile", "--curves",
@@ -7916,7 +7930,8 @@ def _menguras_khusus(perintah, toks, awal):
             "--form-string", "--ftp-account", "--ftp-alternative-to-user",
             "--ftp-create-dirs", "--ftp-method", "--ftp-pasv",
             "--ftp-port", "--ftp-pret", "--ftp-skip-pasv-ip",
-            "--ftp-ssl-ccc", "--ftp-ssl-ccc-mode", "--ftp-ssl-control",
+            "--ftp-ssl", "--ftp-ssl-ccc", "--ftp-ssl-ccc-mode",
+            "--ftp-ssl-control", "--ftp-ssl-reqd",
             "--get", "--globoff", "--happy-eyeballs-timeout-ms",
             "--haproxy-clientip", "--haproxy-protocol", "--head",
             "--header", "--help", "--hostpubmd5", "--hostpubsha256",
@@ -7924,20 +7939,24 @@ def _menguras_khusus(perintah, toks, awal):
             "--http2-prior-knowledge", "--http3", "--http3-only",
             "--ignore-content-length", "--include", "--insecure",
             "--interface", "--ipfs-gateway", "--ipv4", "--ipv6", "--json",
-            "--junk-session-cookies", "--keepalive-time", "--key",
-            "--key-type", "--krb", "--libcurl", "--limit-rate",
-            "--list-only", "--local-port", "--location",
+            "--junk-session-cookies", "--keepalive",
+            "--keepalive-time", "--key",
+            "--key-type", "--krb", "--krb4", "--libcurl",
+            "--limit-rate", "--list-only", "--local-port",
+            "--location",
             "--location-trusted", "--login-options", "--mail-auth",
             "--mail-from", "--mail-rcpt", "--mail-rcpt-allowfails",
             "--manual", "--max-filesize", "--max-redirs", "--max-time",
             "--metalink", "--negotiate", "--netrc", "--netrc-file",
             "--netrc-optional", "--next", "--no-alpn", "--no-buffer",
             "--no-clobber", "--no-keepalive", "--no-npn",
-            "--no-progress-meter", "--no-sessionid", "--noproxy", "--ntlm",
+            "--no-progress-meter", "--no-sessionid", "--npn",
+            "--noproxy", "--ntlm",
             "--ntlm-wb", "--oauth2-bearer", "--output", "--output-dir",
             "--parallel", "--parallel-immediate", "--parallel-max",
             "--pass", "--path-as-is", "--pinnedpubkey", "--post301",
             "--post302", "--post303", "--preproxy", "--progress-bar",
+            "--progress-meter",
             "--proto", "--proto-default", "--proto-redir", "--proxy",
             "--proxy-anyauth", "--proxy-basic", "--proxy-ca-native",
             "--proxy-cacert", "--proxy-capath", "--proxy-cert",
@@ -7956,7 +7975,8 @@ def _menguras_khusus(perintah, toks, awal):
             "--request", "--request-target", "--resolve", "--retry",
             "--retry-all-errors", "--retry-connrefused", "--retry-delay",
             "--retry-max-time", "--sasl-authzid", "--sasl-ir",
-            "--service-name", "--show-error", "--silent", "--socks4",
+            "--service-name", "--sessionid", "--show-error",
+            "--silent", "--socks4",
             "--socks4a", "--socks5", "--socks5-basic", "--socks5-gssapi",
             "--socks5-gssapi-nec", "--socks5-gssapi-service",
             "--socks5-hostname", "--speed-limit", "--speed-time", "--ssl",
@@ -7964,7 +7984,8 @@ def _menguras_khusus(perintah, toks, awal):
             "--ssl-no-revoke", "--ssl-reqd", "--ssl-revoke-best-effort",
             "--sslv2", "--sslv3", "--stderr", "--styled-output",
             "--suppress-connect-headers", "--tcp-fastopen",
-            "--tcp-nodelay", "--telnet-option", "--tftp-blksize",
+            "--tcp-nodelay", "--telnet", "--telnet-option",
+            "--test-event", "--tftp-blksize",
             "--tftp-no-options", "--time-cond", "--tls-max",
             "--tls13-ciphers", "--tlsauthtype", "--tlspassword",
             "--tlsuser", "--tlsv1", "--tlsv1.0", "--tlsv1.1", "--tlsv1.2",
@@ -8259,7 +8280,13 @@ def _menguras_khusus(perintah, toks, awal):
                 # nilainya tetap divalidasi.
                 if t_cu in _CURL_BERNILAI_PANJANG:
                     lewati_cu = True
-                else:
+                elif t_cu not in _CURL_SEMUA_PANJANG:
+                    # Audit 2918: nama bendera
+                    # persis (mis. --keepalive,
+                    # --parallel) BUKAN singkatan
+                    # dari opsi bernilai yang
+                    # memakainya sebagai awalan -
+                    # jangan diselesaikan ke sana.
                     calon_cu = [
                         x for x in
                         _CURL_BERNILAI_PANJANG

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: nama opsi curl di luar --help all kini dikenal (Audit 2918)
+
+Biner menerima nama yang tidak tampil di --help all: bentuk positif bendera --no-* (--alpn, --buffer, --clobber, --keepalive, --npn, --progress-meter, --sessionid), alias lama (--ftp-ssl, --ftp-ssl-reqd, --krb4, --telnet - dua terakhir bernilai), dan --test-event. Keduanya kini ada di tabel gerbang, sehingga singkatan seperti --se/--al/--kee/--b/--prog/--kr/--te kini ambigu di gerbang sama seperti di biner. Walk 1 juga tak lagi menyelesaikan nama bendera persis sebagai singkatan opsi bernilai (akar yang sama dengan kasus --parallel pada 2926).
+
+
 ## [Belum rilis] — Gerbang: nilai numerik curl berawalan spasi/tab kini sah (Audit 2917)
 
 Pengurai strtol/strtod biner melompati whitespace awal, jadi nilai berkutip seperti " 5" sah di opsi numerik curl - gerbang kini menoleransi spasi/tab/baris-baru awal di penilai bulat bersama, cabang desimal waktu (termasuk +nan/-nan dan -0), --max-redirs, sufiks ukuran, --create-file-mode, dan bagian angka --rate. Spasi sesudah tanda dan spasi akhir tetap ditolak, sama seperti biner; --local-port tak berubah (biner sendiri menolaknya).
