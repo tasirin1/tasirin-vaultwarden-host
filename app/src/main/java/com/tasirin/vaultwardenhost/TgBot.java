@@ -641,7 +641,13 @@ public final class TgBot {
                             String namaUser = c.optString("username", "");
                             long idRuang = c.optLong("id", -1);
                             if (!Util.cocokChatBanyak(chatKonfig, idRuang, namaUser)) {
-                                String teksAsing = msg.optString("text", "").trim();
+                                // Audit 2914: pesan media baru membawa teksnya di
+                                // caption, bukan text - tanpa cadangan ini PIN di
+                                // caption pesan baru tak pernah masuk saringan hapus
+                                // (2905/2912 hanya menutup suntingan dan kanal).
+                                String teksAsing = pilihTeksSuntingan(
+                                        msg.optString("text", ""),
+                                        msg.optString("caption", ""));
                                 if (pinTebakan(teksAsing) != null
                                         && pinPerangkatAktif(ctx)) {
                                     hapusPesanAsingAsync(ctx, idRuang,
@@ -657,8 +663,9 @@ public final class TgBot {
                                     if (catatMundurDanBolehIngatkan(kiniPoll)) {
                                         rollbackDitolak++;
                                     }
-                                    String teksMundur = msg.optString("text", "")
-                                            .trim();
+                                    String teksMundur = pilihTeksSuntingan(
+                                            msg.optString("text", ""),
+                                            msg.optString("caption", ""));
                                     int idPesanMundur = msg.optInt("message_id", 0);
                                     hapusBilaPinBasi(ctx, idRuang, teksMundur,
                                             idPesanMundur, kiniPoll);
@@ -669,8 +676,9 @@ public final class TgBot {
                                 if (!Util.pesanSegar(dateMs,
                                         System.currentTimeMillis(),
                                         STALE_MSG_MS)) {
-                                    String teksBasi = msg.optString("text", "")
-                                            .trim();
+                                    String teksBasi = pilihTeksSuntingan(
+                                            msg.optString("text", ""),
+                                            msg.optString("caption", ""));
                                     int idPesanBasi = msg.optInt("message_id", 0);
                                     hapusBilaPinBasi(ctx, idRuang, teksBasi,
                                             idPesanBasi, kiniPoll);

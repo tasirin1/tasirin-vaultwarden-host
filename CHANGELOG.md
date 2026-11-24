@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pesan media baru berisi PIN di caption kini ikut disaring untuk dihapus (Audit 2914)
+
+- **Pesan media baru tak lagi lolos saringan hapus PIN:** jalur pesan baru di `pollOnce` (chat asing, jam-mundur, dan pesan basi) hanya membaca kolom `text`, padahal pesan media membawa teksnya di `caption` — foto/dokumen berisi tebakan PIN dari chat asing tidak pernah terhapus. Ketiga titik baca itu kini memakai penolong `pilihTeksSuntingan` yang sama dengan jalur suntingan/kanal (teks, atau caption bila teks kosong), sehingga PIN di caption pesan baru diperlakukan persis seperti PIN di teks. Jalur perintah utama tetap hanya membaca `text` (caption tidak pernah mengeksekusi perintah). (Audit 2914)
+
+
 ## [Belum rilis] — Telegram: predikat komit-dini diluruskan, daftar nama hampa 2893 dibuang (Audit 2913)
 
 Perluasan perintahKomitDini pada 2893 tidak mengubah perilaku apa pun: ketujuh nama yang ditambahkan (backup, restore, ca, cabackup, careset, update, webvault) sudah tercakup perintahPerluPin sejak baseline - yang pertama lima lewat perintahBerbahaya, ca/cabackup harfiah. Perubahan nyata 2893 hanyalah apply ke commit pada finally pollOnce. Predikat kini kembali ke bentuk setara-perilaku tanpa daftar mati, dan komentarnya meluruskan catatan itu.
