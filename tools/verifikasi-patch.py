@@ -15874,6 +15874,20 @@ def _menguras_khusus(perintah, toks, awal):
                 if nama_tr2 in ("--help",
                                 "--version"):
                     return False
+                if ("=" in t_tr2
+                        and nama_tr2
+                        not in bernilai_tr2):
+                    # Audit 2884: bendera
+                    # panjang yang diberi
+                    # =value membunuh biner
+                    # ("Invalid argument",
+                    # terprobe --prune=x,
+                    # --dirsfirst=x,
+                    # --gitignore=x); hanya
+                    # opsi bernilai (keluarga
+                    # [=] di bernilai_tr2)
+                    # yang boleh bentuk =.
+                    return False
             # Audit 2862: opsi pemuat berkas
             # --infofile/--gitfile dengan
             # nilai "-" membunuh biner

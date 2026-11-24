@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — tree: bendera panjang diberi =value kini ditolak gerbang (Audit 2884)
+
+Walk kedua tree membiarkan bendera panjang berbentuk --bendera=nilai lolos (nama dasarnya sah) padahal biner membunuhnya Invalid argument - terprobe --prune=x, --dirsfirst=x, --gitignore=x, --matchdirs=x. Walk kedua kini menolak token = yang nama dasarnya bukan opsi bernilai; keluarga bernilai [=] (--sort/--charset/--gitfile/dll) dan penanganan 2862 (--gitfile=-/--infofile=-) tidak berubah. Skenario gensuite 1948 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — tree: nilai --sort kini divalidasi gerbang (Audit 2883)
 
 Walk validasi tree tidak memvalidasi nilai --sort sama sekali. Biner hanya menerima {name, version, size, mtime, ctime} case-insensitive penuh tanpa singkatan; nilai lain (zzz, -, kosong, none) mati Sort type not valid dan --sort tanpa nilai mati Missing argument. Walk ketiga gerbang kini memvalidasi kedua bentuk (terpisah dan =) termasuk ketiadaan nilai. Skenario gensuite 1947 (arah terverifikasi repro jalur workflow: rc == 0).

@@ -41258,6 +41258,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("tree nilai --sort asing kini ditolak (Audit 2883)", rc == 0)
         shutil.rmtree(sub1947, ignore_errors=True)
+        sub1948 = klon(tmp, "sub1948")
+        berkas_aksi1948 = os.path.join(
+            sub1948, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1948, encoding="utf-8") as f:
+            isi_aksi1948 = f.read()
+        baris_aksi1948 = [b for b in isi_aksi1948.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1948 = isi_aksi1948.replace(
+                baris_aksi1948,
+                baris_aksi1948.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(tree --prune=x --fromfile; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1948 != isi_aksi1948, \
+            "suntikan aksi1948 tidak menembak"
+        with open(berkas_aksi1948, "w", encoding="utf-8") as f:
+            f.write(isi_baru1948)
+        rc, out = jalan(sub1948,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("tree bendera panjang diberi =value kini ditolak (Audit 2884)", rc == 0)
+        shutil.rmtree(sub1948, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
