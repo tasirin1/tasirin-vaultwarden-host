@@ -32,6 +32,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── .github/actions/resolve-vw/         # action komposit penentu versi Vaultwarden (dipakai kedua build)
 ├── tools/verifikasi-patch.py            # Verifikator patch murni-Python (boleh jalan lokal, tanpa toolchain)
 ├── tools/uji-verifikasi.py              # Uji-diri gerbang: skenario cabang langka verifikasi-patch pada salinan buang (langkah tetap CI)
+├── tools/uji_bersama.py                 # Helper bersama uji-diri (clone scratch, suntikan, penolong skenario)
 ├── tools/uji-cek-cepat.py               # Uji-diri cek-cepat: skenario pola rahasia (termasuk token terbelah) & vektor pada salinan buang (langkah tetap CI)
 ├── tools/uji-cek-cepat-1.py             # Paruh awal skenario uji-cek-cepat.py (Audit 2559: titik masuk yang benar-benar dijalankan job verifikasi-cek)
 ├── tools/uji-cek-cepat-2.py             # Paruh akhir skenario uji-cek-cepat.py (Audit 2557: job CI paralel; definisi skenario tetap di berkas utama)
@@ -46,7 +47,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── app/src/main/
 │   ├── AndroidManifest.xml           # permission, activity/service/receiver, TV (touchscreen opsional)
 │   ├── assets/certs/github-chain.pem # trust anchor TLS GitHub untuk Android 5/6 (TLS lama)
-│   ├── res/layout/ (+layout-land untuk activity_pin) # activity_main.xml (ringkas, satu layout portrait+landscape) + activity_settings.xml + main_card_*.xml
+│   ├── res/layout/ (+layout-land untuk activity_pin) # activity_main.xml (ringkas, satu layout portrait+landscape) + activity_settings.xml + activity_log.xml + activity_pin.xml + dialog_about.xml + main_card_*.xml
 │   ├── res/drawable/                 # bg_hero, bg_btn_*, bg_info_box, chip status, item_focus_bg
 │   ├── res/values/ (+in, night, sw600dp, sw600dp-land, sw480dp-land) # warna (sinkron terang/gelap), gaya, string, dimensi
 │   └── java/com/tasirin/vaultwardenhost/
@@ -65,6 +66,7 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 │       ├── Util.java                 # logika murni + helper satu pintu (handler, watchdog proses, tanggal, redirect)
 │       ├── StoragePerm.java          # izin storage runtime (All files opsional, tak diminta)
 │       ├── BootReceiver.java / AlarmReceiver.java           # auto-start boot & jadwal backup
+│       ├── MemoVersiCocok.java       # pencocokan versi murni (dipakai Updater; diuji MemoVersiCocokTest)
 │       └── FileShareProvider.java    # content provider (install cert / restore file)
 ├── app/src/test/                     # 24 kelas test JVM (junit4): Updater, ServerService,
                                       # TgBot, TgBackup, PinCrypto, PinGate, KernelCompat, Util,
@@ -158,8 +160,8 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
    (STB 32-bit). Menambah arm64 membuat APK/binary membengkak dan menambah
    waktu build.
 6. **Jangan membundel binary/web-vault ke APK, dan jangan commit
-   binary/APK/shim/zip ke repo** — inti desain: APK tetap kecil (~0,28 MB,
-   rilis terakhir 285 KB);
+   binary/APK/shim/zip ke repo** — inti desain: APK tetap kecil (~0,33 MB,
+   aset rilis terakhir 333.785 byte di v1.37.5, terverifikasi 2026-11-24);
    binary & web-vault diunduh dari release dan diverifikasi SHA-256.
 7. **Jaga kompatibilitas Android 5 (API 21)**: hindari API di atas 21 tanpa
    fallback — jebakan yang sudah terbukti merah di lint `NewApi`:
