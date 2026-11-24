@@ -45,6 +45,21 @@ public class LogActivityTest {
         assertFalse(r4.contains("0:ffff"));
         assertFalse(r4.contains("192.0.2.1"));
         assertTrue(r4.contains("[ipv6]"));
+        // Audit 2935: terkompresi grup-pertama
+        // 1 digit - berektor IPv4 tersamar
+        // utuh sebagai [ipv6], bukan hanya
+        // ekornya; tanpa ekor pun tersamar.
+        String r5 = LogActivity.samarkanLog(
+                "dari 1::1.2.3.4 dan a::1.2.3.4 ya");
+        assertFalse(r5.contains("1::"));
+        assertFalse(r5.contains("a::"));
+        assertTrue(r5.contains("[ipv6]"));
+        String r6 = LogActivity.samarkanLog(
+                "peta 1::ffff:1.2.3.4 dan 1::1 diam");
+        assertFalse(r6.contains("1::ffff:"));
+        assertFalse(r6.contains("1::1"));
+        assertTrue(r6.contains("[ipv6]"));
+        assertFalse(LogActivity.adaIp6("std::deadbeef murni"));
     }
 
     @Test

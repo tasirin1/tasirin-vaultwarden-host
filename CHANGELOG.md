@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Log: IPv6 terkompresi grup-pertama 1 digit tersamar utuh (Audit 2935)
+
+POLA_IP6 di LogActivity dapat dua alternatif tambahan berpenjaga lookahead digit: bentuk terkompresi dengan grup pertama 1 digit yang berektor IPv4 (mis. 1::1.2.3.4, 1::ffff:1.2.3.4) dan tanpa ekor (1::1) kini tersamar utuh sebagai [ipv6]; sebelumnya hanya ekor IPv4-nya yang tersamar atau alamatnya bocor utuh. Penjaga digit menjaga kata berakhiran huruf heksa seperti keluarga "std::" tetap tidak tersamar.
+
+
 ## [Belum rilis] — Gerbang: diff3 mode gabung menolak operand pertama "-" (Audit 2934)
 
 Cabang diff3 kini melacak mode gabung sungguhan (-m/--merge, terpisah dari pelacak mode label Audit 2851 yang juga menyala oleh -A/-E): pada mode gabung, diff3 membuka ulang operand pertama menurut nama sehingga "-" di posisi pertama mati "failed to reopen" (rc=2), sedangkan "-" di posisi tengah/terakhir tetap dibaca dari stdin seperti biasa.

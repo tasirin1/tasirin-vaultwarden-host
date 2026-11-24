@@ -589,6 +589,15 @@ public class LogActivity extends Activity {
     // crash-last.log dan /crashlog. Bentuk terkompres
     // mensyaratkan satu grup >= 2 heksadesimal agar
     // "std::"/jam "12:30:45" tak ikut tersamar.
+    // Audit 2935: dua alternatif tambahan menutup
+    // bentuk terkompresi bergrup-pertama 1 digit yang
+    // berektor IPv4 (1::1.2.3.4, 1::ffff:1.2.3.4) dan
+    // tanpa ekor (1::1) - dulu hanya ekor IPv4-nya
+    // tersamar atau bocor utuh. Syarat lookahead
+    // digit di jajaran alamat menjaga kata berakhiran
+    // huruf heksa + "::" (keluarga "std::") tetap
+    // aman: alamat sungguhan selalu mengandung digit,
+    // kata heksa murni tidak.
     private static final java.util.regex.Pattern POLA_IP6 =
             java.util.regex.Pattern.compile(
                     "(?<![0-9A-Fa-f:.])(?:[0-9A-Fa-f]{1,4}:){3,7}[0-9A-Fa-f]{1,4}(?![0-9A-Fa-f:.])"
@@ -596,7 +605,9 @@ public class LogActivity extends Activity {
                     + "|(?<![0-9A-Fa-f:.])[0-9A-Fa-f]{0,4}(?::[0-9A-Fa-f]{0,4})*::[0-9A-Fa-f]{2,4}(?::[0-9A-Fa-f]{0,4})*(?![0-9A-Fa-f:.])"
                     + "|(?<![0-9A-Fa-f:.])(?:[0-9A-Fa-f]{1,4}:){6}(?:\\d{1,3}\\.){3}\\d{1,3}(?![0-9A-Fa-f:.])"
                     + "|(?<![0-9A-Fa-f:.])(?:[0-9A-Fa-f]{0,4}:)*::(?:[0-9A-Fa-f]{1,4}:)*(?:\\d{1,3}\\.){3}\\d{1,3}(?![0-9A-Fa-f:.])"
-                    + "|(?<![0-9A-Fa-f:.])[0-9A-Fa-f]{2,4}(?::[0-9A-Fa-f]{0,4})*::(?:[0-9A-Fa-f]{1,4}:)*(?:\\d{1,3}\\.){3}\\d{1,3}(?![0-9A-Fa-f:.])");
+                    + "|(?<![0-9A-Fa-f:.])[0-9A-Fa-f]{2,4}(?::[0-9A-Fa-f]{0,4})*::(?:[0-9A-Fa-f]{1,4}:)*(?:\\d{1,3}\\.){3}\\d{1,3}(?![0-9A-Fa-f:.])"
+                    + "|(?<![0-9A-Fa-f:.])(?=[0-9A-Fa-f:.]*[0-9])[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{0,4})*::[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{0,4})*(?![0-9A-Fa-f:.])"
+                    + "|(?<![0-9A-Fa-f:.])(?=[0-9A-Fa-f:.]*[0-9])[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{0,4})*::(?:[0-9A-Fa-f]{1,4}:)*(?:\\d{1,3}\\.){3}\\d{1,3}(?![0-9A-Fa-f:.])");
 
     private static final java.util.regex.Pattern POLA_DOMAIN =
             java.util.regex.Pattern.compile("(?i)((?:\\bDOMAIN\\b)\\s*[:=]\\s*)([^\\s&,;\"']+)");
