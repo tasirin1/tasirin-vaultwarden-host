@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — curl: nilai numerik 18 opsi kini divalidasi gerbang (Audit 2886)
+
+Selain --max-time (2775), nilai opsi numerik curl tidak divalidasi - sapuan biner atas 133 opsi bernilai menemukan 18 opsi yang membunuh curl saat urai pada nilai asing. Walk pertama kini memvalidasi per tata bahasa terprobe: desimal strtod utk --connect-timeout/--expect100-timeout (termasuk eksponen dan batas detik x1000 <= LONG_MAX - lubang luapan yang sama juga menutup --max-time), bulat strtol <= LONG_MAX utk --retry/--retry-delay/--retry-max-time/--keepalive-time/--speed-time/--happy-eyeballs-timeout-ms/--parallel-max/--tftp-blksize/--speed-limit, digit+sufiks [kKmMgG] utk --max-filesize/--limit-rate, --max-redirs (-1 atau bulat), --rate (bulat >= 1 + satuan /s|sec|secs|m|min|mins|h|hour|hours|d|day|days|ms), --create-file-mode (oktal <= 0777), --local-port (awalan strtol, rentang a-b urut <= 65535), --continue-at (bulat atau -). Bentuk pendek -m/-Y/-y/-C ikut divalidasi (terpisah maupun merekat). Skenario gensuite 1951-1952 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — diff/diff3: bendera panjang diberi =value kini ditolak gerbang (Audit 2885)
 
 Skip generik = pada walk diff/diff3 membiarkan bendera panjang berbentuk --bendera=nilai lolos padahal biner membunuhnya doesnt allow an argument - terprobe --brief=x (diff) dan --merge=x (diff3). Skip kini hanya berlaku untuk opsi bernilai (himpunan bernilai walk + --color/--palette/--horizon-lines/--exclude/--exclude-from/--from-file/--to-file/--starting-file/--show-function-line/--ignore-matching-lines/--diff-program); sisanya ditolak. Skenario gensuite 1949-1950 (arah terverifikasi repro jalur workflow: rc == 0).

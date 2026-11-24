@@ -7834,6 +7834,110 @@ def _menguras_khusus(perintah, toks, awal):
         # bertanda) divalidasi - nilai
         # asing membunuh curl saat urai
         # sebelum data dibaca.
+        # Audit 2886: nilai numerik opsi
+        # curl selain --max-time kini ikut
+        # divalidasi - tata bahasa per
+        # keluarga terprobe biner 8.5.0
+        # (nilai asing membunuh saat urai,
+        # "expected a proper numerical
+        # parameter" / "is badly used").
+        _CURL_NUMERIK_PANJANG = frozenset({
+            "--max-time", "--connect-timeout",
+            "--expect100-timeout", "--retry",
+            "--retry-delay", "--retry-max-time",
+            "--keepalive-time", "--speed-time",
+            "--happy-eyeballs-timeout-ms",
+            "--parallel-max", "--tftp-blksize",
+            "--speed-limit", "--max-filesize",
+            "--limit-rate", "--max-redirs",
+            "--rate", "--create-file-mode",
+            "--local-port", "--continue-at"})
+        _CURL_NUMERIK_PENDEK = {
+            "m": "--max-time",
+            "Y": "--speed-limit",
+            "y": "--speed-time",
+            "C": "--continue-at"}
+
+        def _curl_bulat_sah(v_cu):
+            if not re.fullmatch(r"\+?\d+", v_cu):
+                return False
+            d_cu = v_cu.lstrip("+").lstrip("0") or "0"
+            return (len(d_cu) < 19
+                    or (len(d_cu) == 19
+                        and int(d_cu)
+                        <= 9223372036854775807))
+
+        def _nilai_curl_sah(nama_cu, v_cu):
+            if nama_cu in ("--max-time",
+                           "--connect-timeout",
+                           "--expect100-timeout"):
+                if not re.fullmatch(
+                        r"\+?(\d+\.?\d*|\.\d+)"
+                        r"([eE][+-]?\d+)?", v_cu):
+                    return False
+                try:
+                    return (float(v_cu)
+                            <= 9223372036854775.0)
+                except ValueError:
+                    return False
+            if nama_cu == "--max-redirs":
+                return (v_cu == "-1"
+                        or _curl_bulat_sah(v_cu))
+            if nama_cu in ("--max-filesize",
+                           "--limit-rate"):
+                m_cu = re.fullmatch(
+                    r"(\d+)[kKmMgG]?", v_cu)
+                return (m_cu is not None
+                        and _curl_bulat_sah(
+                            m_cu.group(1)))
+            if nama_cu == "--create-file-mode":
+                if not re.fullmatch(
+                        r"\+?[0-7]+", v_cu):
+                    return False
+                return (len(v_cu.lstrip("+")
+                            .lstrip("0")) <= 3)
+            if nama_cu == "--rate":
+                m_cu = re.fullmatch(
+                    r"(\d+)(?:/([A-Za-z]+))?",
+                    v_cu)
+                if (m_cu is None
+                        or not _curl_bulat_sah(
+                            m_cu.group(1))
+                        or int(m_cu.group(1)) < 1):
+                    return False
+                return (m_cu.group(2) is None
+                        or m_cu.group(2).lower()
+                        in ("s", "sec", "secs",
+                            "m", "min", "mins",
+                            "h", "hour", "hours",
+                            "d", "day", "days",
+                            "ms"))
+            if nama_cu == "--local-port":
+                m_cu = re.match(r"(\d+)", v_cu)
+                if (m_cu is None
+                        or not _curl_bulat_sah(
+                            m_cu.group(1))
+                        or int(m_cu.group(1))
+                        > 65535):
+                    return False
+                sisa_cu = v_cu[m_cu.end():]
+                if not sisa_cu:
+                    return True
+                if sisa_cu.startswith("-"):
+                    ekor_cu = sisa_cu[1:]
+                    return (
+                        re.fullmatch(r"\d+",
+                                     ekor_cu)
+                        is not None
+                        and _curl_bulat_sah(ekor_cu)
+                        and int(m_cu.group(1))
+                        <= int(ekor_cu) <= 65535)
+                return True
+            if nama_cu == "--continue-at":
+                return (v_cu == "-"
+                        or _curl_bulat_sah(v_cu))
+            return _curl_bulat_sah(v_cu)
+
         k_cu = 0
         lewati_cu = False
         while k_cu < len(mentah):
@@ -7848,14 +7952,18 @@ def _menguras_khusus(perintah, toks, awal):
                         r"(\d+\.?\d*|\.\d+)",
                         v_cu):
                     return False
-            elif t_cu == "--max-time":
-                if k_cu + 1 < len(mentah):
-                    v_cu = mentah[k_cu + 1]
-                    if not re.fullmatch(
-                            r"(\d+\.?\d*"
-                            r"|\.\d+)", v_cu):
-                        return False
-                    k_cu += 1
+            elif t_cu in _CURL_NUMERIK_PANJANG:
+                # Audit 2886: opsi numerik
+                # persis - nilai berikutnya
+                # divalidasi per tata bahasa
+                # opsinya; tiada nilai juga
+                # membunuh biner.
+                if k_cu + 1 >= len(mentah):
+                    return False
+                if not _nilai_curl_sah(
+                        t_cu, mentah[k_cu + 1]):
+                    return False
+                k_cu += 1
             elif (t_cu.startswith("--")
                     and "=" not in t_cu):
                 # Audit 2828: nilai opsi bernilai
@@ -7874,16 +7982,16 @@ def _menguras_khusus(perintah, toks, awal):
                         _CURL_BERNILAI_PANJANG
                         if x.startswith(t_cu)]
                     if len(calon_cu) == 1:
-                        if calon_cu[0] == "--max-time":
-                            if k_cu + 1 < len(mentah):
-                                v_cu = mentah[
-                                    k_cu + 1]
-                                if not re.fullmatch(
-                                        r"(\d+\.?\d*"
-                                        r"|\.\d+)",
-                                        v_cu):
-                                    return False
-                                k_cu += 1
+                        if (calon_cu[0]
+                                in _CURL_NUMERIK_PANJANG):
+                            if (k_cu + 1
+                                    >= len(mentah)):
+                                return False
+                            if not _nilai_curl_sah(
+                                    calon_cu[0],
+                                    mentah[k_cu + 1]):
+                                return False
+                            k_cu += 1
                         else:
                             lewati_cu = True
             elif (t_cu.startswith("-")
@@ -7897,7 +8005,34 @@ def _menguras_khusus(perintah, toks, awal):
                         t_cu[1:]):
                     if ("-" + h_cu
                             in _CURL_BERNILAI_PENDEK):
-                        if (pos_cu
+                        # Audit 2886: huruf
+                        # numerik (-m/-Y/-y/-C)
+                        # nilainya divalidasi -
+                        # ekor bundel bila
+                        # menempel, token
+                        # berikutnya bila di
+                        # ujung bundel.
+                        if (h_cu
+                                in _CURL_NUMERIK_PENDEK):
+                            nama_pdk = (
+                                _CURL_NUMERIK_PENDEK[
+                                    h_cu])
+                            if (pos_cu
+                                    == len(t_cu) - 2):
+                                if (k_cu + 1
+                                        >= len(mentah)):
+                                    return False
+                                if not _nilai_curl_sah(
+                                        nama_pdk,
+                                        mentah[
+                                            k_cu + 1]):
+                                    return False
+                                lewati_cu = True
+                            elif not _nilai_curl_sah(
+                                    nama_pdk,
+                                    t_cu[pos_cu + 2:]):
+                                return False
+                        elif (pos_cu
                                 == len(t_cu) - 2):
                             lewati_cu = True
                         break
