@@ -928,6 +928,22 @@ public class TgBotTest {
     }
 
     @Test
+    public void pangkasHapusTertunda_asingDuluBaruMilikSendiri() {
+        java.util.Set<String> h =
+                new java.util.HashSet<>();
+        h.add("1:11:s:1000");
+        h.add("1:12:s:3000");
+        h.add("2:21:a:2000");
+        h.add("2:22:a:500");
+        java.util.List<String> buang =
+                TgBot.pangkasHapusTertunda(h, 2);
+        assertEquals(2, buang.size());
+        assertTrue(buang.contains("2:22:a:500"));
+        assertTrue(buang.contains("2:21:a:2000"));
+        assertFalse(buang.contains("1:11:s:1000"));
+    }
+
+    @Test
     public void mulaiSelesaiHapusTertunda_satuPemilik() {
         assertTrue(TgBot.mulaiHapusTertunda(777001, 42, false));
         try {

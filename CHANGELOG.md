@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot Telegram: eviksi antrean hapus tertunda kini mengorbankan entri asing dulu dan tercatat (Audit 2890)
+
+Pemangkasan antrean hapus tertunda (2878) membuang entri bercap tertua secara membabi buta dan senyap: banjir entri dari chat asing bisa mengorbankan entri sah berisi PIN milik pengguna yang penghapusannya sedang gagal. Urutan buang kini: entri rusak, lalu entri asing tertua, terakhir entri milik sendiri tertua; dan bila entri milik sendiri tetap harus terbuang (antrean seluruhnya milik), pengorbanan itu kini ditulis ke log aplikasi. Uji JVM baru membuktikan entri asing yang lebih baru dibuang sebelum entri milik yang lebih tua.
+
+
 ## [Belum rilis] — Bot Telegram: pesan disunting menjadi berisi PIN kini ikut dihapus (Audit 2889)
 
 pollOnce hanya mengolah update callback_query dan message; update edited_message jatuh ke continue sesudah offset dimajukan, jadi pesan yang awalnya bersih lalu disunting menjadi berisi PIN menetap di riwayat chat tanpa pernah dihapus. Suntingan kini melewati saringan hapus yang sama (chat asing lewat hapusPesanAsingAsync, chat terkonfigurasi lewat antrean hapus persisten) dengan penanda teksSuntinganPerluHapus = pinTebakan atau pinDariBalasan; perintah tidak pernah dijalankan dari suntingan. Uji JVM baru di TgBotTest.

@@ -1661,9 +1661,20 @@ public final class TgBot {
         }
         java.util.List<String> urut =
                 new java.util.ArrayList<>(himpunan);
+        // Audit 2890: urutan buang bukan lagi cap
+        // semata - entri rusak dulu, lalu entri ASING
+        // tertua, terakhir entri MILIK SENDIRI tertua.
+        // Banjir entri asing tak lagi bisa mengorbankan
+        // pesan ber-PIN sah yang penghapusannya sedang
+        // gagal hanya karena capnya paling tua.
         java.util.Collections.sort(urut, (x, y) -> {
             long[] ux = uraiEntriHapusTertunda(x);
             long[] uy = uraiEntriHapusTertunda(y);
+            int kx = ux == null ? 0 : (ux[2] == 1 ? 1 : 2);
+            int ky = uy == null ? 0 : (uy[2] == 1 ? 1 : 2);
+            if (kx != ky) {
+                return Integer.compare(kx, ky);
+            }
             long cx = ux == null ? -1 : ux[3];
             long cy = uy == null ? -1 : uy[3];
             return Long.compare(cx, cy);
@@ -1863,12 +1874,29 @@ public final class TgBot {
                     }
                 }
                 if (!sudahAda) {
+                    int milikTerbuang = 0;
                     for (String buang
                             : pangkasHapusTertunda(
                                     kini,
                                     BATAS_ENTRI_HAPUS_TERTUNDA
                                             - 1)) {
+                        long[] ub = uraiEntriHapusTertunda(
+                                buang);
+                        if (ub != null && ub[2] == 0) {
+                            milikTerbuang++;
+                        }
                         kini.remove(buang);
+                    }
+                    // Audit 2890: pengorbanan entri milik
+                    // sendiri (kasus terburuk: antrean
+                    // seluruhnya milik) tak lagi senyap.
+                    if (milikTerbuang > 0) {
+                        ServerService.catatLog("[tg] Antrean hapus"
+                                + " tertunda penuh: "
+                                + milikTerbuang
+                                + " entri hapus milik sendiri"
+                                + " terbuang - pesan ber-PIN itu"
+                                + " mungkin tak terhapus otomatis.");
                     }
                     kini.add(entriHapusTertundaPenuh(
                             idRuang, idPesan, asing,
