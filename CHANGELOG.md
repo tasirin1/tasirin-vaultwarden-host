@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — curl: validasi satuan --rate diluruskan mengikuti huruf pertama (Audit 2897)
+
+Model 2886 untuk --rate salah dua arah: daftar satuan utuh case-insensitive menolak satuan awalan huruf kecil yang diterima biner (seconds, hr, sx) dan meloloskan satuan huruf besar yang dibunuh biner (5/SEC). Terprobe menyeluruh: biner menilai satuan dari huruf pertamanya saja - huruf kecil s/m/h/d, sisa satuan apa pun diabaikan (szz, h2, s! ikut lolos); huruf besar, huruf lain, dan satuan kosong mati. Validasi kini: bilangan bulat >= 1, lalu opsional /satuan yang huruf pertamanya s/m/h/d. Skenario gensuite 1957-1958 (arah terverifikasi repro jalur workflow).
+
+
 ## [Belum rilis] — curl: --proxy dan --preproxy kini dikenali sebagai opsi bernilai oleh gerbang (Audit 2896)
 
 Dua opsi bernilai curl terlewat dari ekstrak kosakata 2828. Ketiadaan --proxy membuat walk kedua menghukum token persisnya sebagai singkatan ambigu (ia awalan keluarganya sendiri --proxy-*), sehingga SEMUA perintah curl ber---proxy dinilai tidak menguras stdin dan perintah sah yang membaca data dari stdin tertolak. --proxy dan --preproxy kini masuk himpunan opsi bernilai; nilai keduanya ditelan dengan benar di kedua walk. Skenario gensuite 1956 (arah terverifikasi repro jalur workflow: rc != 0).

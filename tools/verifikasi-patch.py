@@ -7967,21 +7967,27 @@ def _menguras_khusus(perintah, toks, awal):
                 return (len(v_cu.lstrip("+")
                             .lstrip("0")) <= 3)
             if nama_cu == "--rate":
-                m_cu = re.fullmatch(
-                    r"(\d+)(?:/([A-Za-z]+))?",
-                    v_cu)
-                if (m_cu is None
-                        or not _curl_bulat_sah(
-                            m_cu.group(1))
-                        or int(m_cu.group(1)) < 1):
+                # Audit 2897 (mengoreksi 2886):
+                # biner menilai satuan --rate
+                # dari huruf pertamanya saja -
+                # huruf kecil s/m/h/d, sisa
+                # satuan apa pun diabaikan
+                # (sx, szz, h2, s! lolos
+                # terprobe); huruf besar (SEC),
+                # huruf lain (w), dan satuan
+                # kosong mati.
+                pisah_cu = v_cu.split("/", 1)
+                if not _curl_bulat_sah(
+                        pisah_cu[0]):
                     return False
-                return (m_cu.group(2) is None
-                        or m_cu.group(2).lower()
-                        in ("s", "sec", "secs",
-                            "m", "min", "mins",
-                            "h", "hour", "hours",
-                            "d", "day", "days",
-                            "ms"))
+                if (pisah_cu[0].lstrip("+")
+                        .lstrip("0") == ""):
+                    return False
+                if len(pisah_cu) == 1:
+                    return True
+                return (len(pisah_cu[1]) > 0
+                        and pisah_cu[1][0]
+                        in "smhd")
             if nama_cu == "--local-port":
                 m_cu = re.match(r"(\d+)", v_cu)
                 if (m_cu is None
