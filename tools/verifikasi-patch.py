@@ -7416,6 +7416,7 @@ def _menguras_khusus(perintah, toks, awal):
             "--strip-trailing-cr",
             "--suppress-common-lines", "--tabsize",
             "--text", "--version", "--width"})
+        ada_o_sdf = False
         k_sw = awal + 1
         while k_sw < len(toks):
             t_sw = toks[k_sw].strip("\"'")
@@ -7443,6 +7444,15 @@ def _menguras_khusus(perintah, toks, awal):
                     # informatif: cetak lalu
                     # keluar, stdin tak dibaca.
                     return False
+                # Audit 2933: -o/--output
+                # (termasuk singkatan --out
+                # yang sudah diselesaikan di
+                # atas) mengalihkan sdiff ke
+                # gabung interaktif.
+                if (t_sw == "--output"
+                        or t_sw.startswith(
+                            "--output=")):
+                    ada_o_sdf = True
             if t_sw.startswith("--width="):
                 if not _lebar_sdiff_sah(
                         t_sw.split("=", 1)[1]):
@@ -7505,6 +7515,7 @@ def _menguras_khusus(perintah, toks, awal):
                 k_sw += 1
                 continue
             if t_sw in ("-o", "--output"):
+                ada_o_sdf = True
                 k_sw += 2
                 continue
             if t_sw in ("--diff-program",
@@ -7529,6 +7540,7 @@ def _menguras_khusus(perintah, toks, awal):
                             k_sw += 1
                         break
                     if h_sw == "o":
+                        ada_o_sdf = True
                         if pos_sw == len(t_sw) - 2:
                             k_sw += 1
                         break
@@ -7582,8 +7594,15 @@ def _menguras_khusus(perintah, toks, awal):
         # operand", kurang mati "missing
         # operand", keduanya rc=2 tanpa
         # membaca stdin.
+        # Audit 2933: mode gabung interaktif
+        # (-o/--output) menolak operand "-"
+        # secara eksplisit ("cannot
+        # interactively merge standard
+        # input", rc=2) - vonis terbalik
+        # bila mode itu aktif.
         return ("-" in ops_sdf
-                and len(ops_sdf) == 2)
+                and len(ops_sdf) == 2
+                and not ada_o_sdf)
     if perintah == "csplit":
         ops = _operand_sesudah_opsi(
             toks, awal, {"-f", "--prefix", "-n", "--digits", "-b",

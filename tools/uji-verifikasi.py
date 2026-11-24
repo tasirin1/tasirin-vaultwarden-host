@@ -42035,6 +42035,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("sdiff 3 operand mati extra operand: gerbang lolos (Audit 2932)", rc == 0)
         shutil.rmtree(sub1984, ignore_errors=True)
+        sub1985 = klon(tmp, "sub1985")
+        berkas_aksi1985 = os.path.join(
+            sub1985, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1985, encoding="utf-8") as f:
+            isi_aksi1985 = f.read()
+        baris_aksi1985 = [b for b in isi_aksi1985.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1985 = isi_aksi1985.replace(
+                baris_aksi1985,
+                baris_aksi1985.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(sdiff -o /tmp/o.txt - /etc/hosts; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1985 != isi_aksi1985, \
+            "suntikan aksi1985 tidak menembak"
+        with open(berkas_aksi1985, "w", encoding="utf-8") as f:
+            f.write(isi_baru1985)
+        rc, out = jalan(sub1985,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("sdiff -o menolak operand stdin secara eksplisit: gerbang lolos (Audit 2933)", rc == 0)
+        shutil.rmtree(sub1985, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

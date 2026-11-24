@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: sdiff mode gabung interaktif (-o/--output) menolak operand stdin (Audit 2933)
+
+Cabang sdiff kini melacak kehadiran -o/--output (termasuk singkatan --out, bentuk =, dan di dalam bundel pendek); bila mode gabung interaktif aktif, operand "-" tidak lagi dinilai menguras karena biner menolaknya mentah-mentah ("cannot interactively merge standard input", rc=2).
+
+
 ## [Belum rilis] — Gerbang: vonis sdiff kini mensyaratkan tepat 2 operand (Audit 2932)
 
 Vonis akhir sdiff dulu hanya memeriksa keberadaan operand "-"; kini sama seperti diff - jumlah operand wajib tepat 2, selebihnya biner mati "extra operand" dan kurangnya mati "missing operand" sebelum membaca stdin, termasuk operand yang datang sesudah terminator --.
