@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot Telegram: stempel jeda /restart kini dipasang sesudah restart terbukti berjalan (Audit 2891)
+
+Handler /restart memasang stempel jeda 30 detik SEBELUM ServerService.restart dicoba (faset 2880 yang tersisa): restart yang gagal atau tidak berlaku karena server sedang berhenti tetap mengunci /restart dengan pesan keliru Restart baru saja dilakukan. Stempel kini dipasang hanya di cabang restart yang berhasil.
+
+
 ## [Belum rilis] — Bot Telegram: eviksi antrean hapus tertunda kini mengorbankan entri asing dulu dan tercatat (Audit 2890)
 
 Pemangkasan antrean hapus tertunda (2878) membuang entri bercap tertua secara membabi buta dan senyap: banjir entri dari chat asing bisa mengorbankan entri sah berisi PIN milik pengguna yang penghapusannya sedang gagal. Urutan buang kini: entri rusak, lalu entri asing tertua, terakhir entri milik sendiri tertua; dan bila entri milik sendiri tetap harus terbuang (antrean seluruhnya milik), pengorbanan itu kini ditulis ke log aplikasi. Uji JVM baru membuktikan entri asing yang lebih baru dibuang sebelum entri milik yang lebih tua.

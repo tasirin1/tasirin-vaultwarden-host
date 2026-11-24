@@ -2669,9 +2669,15 @@ public final class TgBot {
                     + " (±30 dtk) sebelum restart lagi.");
             return true;
         }
-        restartManualTerakhirMs = kiniRestart;
         try {
             if (ServerService.restart(ctx)) {
+                // Audit 2891: stempel jeda dipasang
+                // SESUDAH restart terbukti berjalan -
+                // dulu dipasang sebelumnya, jadi
+                // restart gagal/tak berlaku tetap
+                // mengunci 30 dtk dengan pesan keliru
+                // "Restart baru saja dilakukan".
+                restartManualTerakhirMs = kiniRestart;
                 balas(ctx, idRuang, "Perintah diterima: server restart...");
             } else {
                 balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
