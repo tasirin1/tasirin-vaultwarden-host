@@ -714,8 +714,14 @@ public final class TgBot {
                 }
             } finally {
                 if (newOffset != offset) {
-
-                    sp.edit().putLong(KEY_TG_OFFSET, newOffset).apply();
+                    // Audit 2893: commit() sinkron, bukan
+                    // apply() - offset batch harus awet di
+                    // disk sebelum pollOnce kembali, kalau
+                    // tidak kematian proses sebelum flush
+                    // apply membuat Telegram mengirim ulang
+                    // update yang tugas beratnya sudah
+                    // terantre/terjalan.
+                    sp.edit().putLong(KEY_TG_OFFSET, newOffset).commit();
                 }
             }
         } catch (Exception e) {
@@ -1488,7 +1494,20 @@ public final class TgBot {
 
     static boolean perintahKomitDini(String text) {
         String cmd = namaPerintah(text);
-        return perintahPerluPin(text) || "login".equals(cmd) || "logout".equals(cmd);
+        // Audit 2893: perintah berat (yang berjalan di
+        // antrean asinkron runBeratDenganKunci) ikut
+        // komit dini - offset tersimpan sinkron SEBELUM
+        // tugas diantrekan, jadi kematian proses di
+        // jendela antre tidak bisa membuat perintah
+        // terkirim ulang dan berjalan dua kali
+        // (/restore, /careset, /update). Perintah berat
+        // yang hilang karena proses mati terlihat dari
+        // ketiadaan balasannya dan bisa dikirim ulang.
+        return perintahPerluPin(text) || "login".equals(cmd) || "logout".equals(cmd)
+                || "backup".equals(cmd) || "restore".equals(cmd)
+                || "ca".equals(cmd) || "cabackup".equals(cmd)
+                || "careset".equals(cmd) || "update".equals(cmd)
+                || "webvault".equals(cmd);
     }
 
     static boolean wajibHapusPesanPin(boolean pinBasi, boolean pinGrup,

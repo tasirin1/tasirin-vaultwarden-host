@@ -1016,6 +1016,11 @@ public class TgBotTest {
         assertTrue(TgBot.perintahKomitDini("/login 123456"));
         assertTrue(TgBot.perintahKomitDini("/logout"));
         assertTrue(TgBot.perintahKomitDini("/stop 123456"));
+        assertTrue(TgBot.perintahKomitDini("/backup"));
+        assertTrue(TgBot.perintahKomitDini("/restore YA PIN:123456"));
+        assertTrue(TgBot.perintahKomitDini("/careset"));
+        assertTrue(TgBot.perintahKomitDini("/update"));
+        assertTrue(TgBot.perintahKomitDini("/webvault"));
         assertFalse(TgBot.perintahKomitDini("/help"));
         assertFalse(TgBot.perintahKomitDini("halo biasa"));
         assertFalse(TgBot.perintahKomitDini(null));

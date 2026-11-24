@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot Telegram: offset poll perintah berat kini awet sebelum tugas diantrekan (Audit 2893)
+
+Offset poll hanya disimpan dengan apply() (tulis disk asinkron) di finally pollOnce, sementara perintah berat berjalan di antrean memori asinkron - kematian proses di jendela itu membuat perintah berat hilang senyap atau terkirim ulang dan berjalan dua kali. Dua penutup: (1) offset batch di finally kini commit() sinkron; (2) perintahKomitDini diperluas dari perintah ber-PIN/login/logout ke seluruh perintah berat (backup, restore, ca, cabackup, careset, update, webvault) sehingga offset perintah itu tersimpan sinkron sebelum tugasnya diantrekan - perintah yang hilang terlihat dari ketiadaan balasan dan bisa dikirim ulang, perintah tak lagi berjalan dua kali. Uji JVM perintahKomitDini diperluas.
+
+
 ## [Belum rilis] — Alarm: toleransi pasangan stempel throttle diperketat 120 dtk menjadi 10 dtk (Audit 2892)
 
 Predikat stempelThrottleSatuBoot (2879) memvalidasi pasangan cap elapsed+wall sebagai satu boot bila selisih epoch-nya sampai 120 detik - reboot cepat (boot lama singkat + mati sebentar) masih tervalidasi palsu dan siaran alarm/perubahan jam boot baru tertelan tanpa penjadwalan ulang. Pasangan cap ditulis nyaris serentak sehingga toleransi besar tidak dibutuhkan untuk kemiringan tulis; toleransi kini 10 detik, selaras toleransi epoch BootReceiver (2881). Lompatan jam sah yang lebih besar berakibat gagal-terbuka (alarm tetap jalan), arah yang aman. Uji JVM diperbarui: geser 60 detik dan skenario reboot cepat kini ditolak.
