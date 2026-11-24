@@ -7992,9 +7992,14 @@ def _menguras_khusus(perintah, toks, awal):
         # tak numerik (--tls-max: enum).
         _CURL_DIVALIDASI_PANJANG = (
             _CURL_NUMERIK_PANJANG | frozenset({
-                "--tls-max", "--hostpubmd5"}))
+                "--tls-max", "--hostpubmd5",
+                "--form", "--form-string"}))
         _CURL_DIVALIDASI_PENDEK = dict(
             _CURL_NUMERIK_PENDEK)
+        # Audit 2903: -F pendek ikut
+        # tervalidasi sebagai --form.
+        _CURL_DIVALIDASI_PENDEK["F"] = (
+            "--form")
 
         def _curl_bulat_sah(v_cu):
             if not re.fullmatch(r"\+?\d+", v_cu):
@@ -8035,6 +8040,14 @@ def _menguras_khusus(perintah, toks, awal):
                 # panjang 3/31/33/47 mati
                 # "is badly used").
                 return len(v_cu) == 32
+            if nama_cu in ("--form",
+                           "--form-string"):
+                # Audit 2903: nilai wajib
+                # berbentuk nama=isi (atau
+                # nama=@berkas dsb.); tanpa
+                # = biner mati "is badly
+                # used" (terprobe --form abc).
+                return "=" in v_cu
             if nama_cu == "--max-redirs":
                 return (v_cu == "-1"
                         or _curl_bulat_sah(v_cu))

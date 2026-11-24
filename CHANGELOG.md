@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — curl: nilai --form/--form-string/-F kini wajib mengandung = (Audit 2903)
+
+Nilai --form/--form-string/-F tanpa = dibunuh biner (Illegally formatted input field / is badly used) tetapi gerbang meloloskannya. Ketiganya kini tervalidasi di walk pertama (huruf pendek -F dipetakan ke --form, termasuk bentuk merekat dan ujung bundel): nilai wajib mengandung =. Skenario gensuite 1965 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — curl: nilai --hostpubmd5 kini wajib tepat 32 karakter (Audit 2902)
 
 Biner mensyaratkan nilai --hostpubmd5 tepat 32 karakter (bukan heksadesimal - 32 huruf sembarang diterima; panjang 3/31/33/47 mati) tetapi gerbang tak memvalidasinya. Kini terdaftar di himpunan tervalidasi walk pertama dengan pemeriksaan panjang persis. Skenario gensuite 1964 (arah terverifikasi repro jalur workflow: rc == 0).
