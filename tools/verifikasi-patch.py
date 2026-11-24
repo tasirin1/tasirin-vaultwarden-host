@@ -8059,34 +8059,20 @@ def _menguras_khusus(perintah, toks, awal):
                     # tak ada sumber yang sah.
                     return False
             if t.startswith("--") and "=" in t:
-                # Audit 2852: dasar singkatan
-                # pada bentuk --opsi=nilai ikut
-                # diselesaikan (--conf=- dsb.).
-                dasar_w2, nilai_w2 = t.split(
-                    "=", 1)
-                nama_w2 = dasar_w2
-                if (dasar_w2 not in
-                        _CURL_SEMUA_PANJANG):
-                    # Audit 2872: bentuk =
-                    # juga dinilai terhadap
-                    # himpunan penuh - ambigu
-                    # atau tak dikenal
-                    # membunuh biner.
-                    calon_w2 = [
-                        x for x in
-                        _CURL_SEMUA_PANJANG
-                        if x.startswith(dasar_w2)]
-                    if len(calon_w2) != 1:
-                        return False
-                    nama_w2 = calon_w2[0]
-                if nama_w2 in ("--version",
-                               "--help",
-                               "--manual"):
-                    return False
-                if (nama_w2 in ("--upload-file",
-                                 "--config")
-                        and nilai_w2 == "-"):
-                    return True
+                # Audit 2882 (mengoreksi 2852):
+                # curl < 8.16 tak mendukung
+                # bentuk --opsi=nilai sama
+                # sekali - opsi panjang wajib
+                # argumen terpisah spasi (Daniel
+                # Stenberg, "option parsing in
+                # curl", 2025: dukungan = baru
+                # tiba di 8.16.0). Token bentuk
+                # ini di posisi opsi membunuh
+                # biner saat urai ("is unknown",
+                # terprobe --fail=x, --data=@-,
+                # --config=-, --upload-file=-,
+                # --max-time=5 di curl 8.5.0).
+                return False
             if (t.startswith("--data") and "@-" in t) or (
                     t.startswith("--json") and "@-" in t) or (
                     t.startswith("--form") and "@-" in t
