@@ -23,6 +23,23 @@ public class BootReceiverTest {
     }
 
     @Test
+    public void throttleBootMenahan_rebootCepatBootBaruDilepas() {
+        assertFalse(BootReceiver.throttleBootMenahan(
+                70_000, 20_000, 1_080_000, 1_000_000,
+                BootReceiver.THROTTLE_BOOT_MS, 0, 0));
+        assertFalse(BootReceiver.throttleBootMenahan(
+                70_000, 45_000, 1_025_000, 0,
+                BootReceiver.THROTTLE_BOOT_MS, 0, 0));
+    }
+
+    @Test
+    public void throttleBootMenahan_duplikatBootSamaGeserJamKecilDitahan() {
+        assertTrue(BootReceiver.throttleBootMenahan(
+                70_000, 45_000, 1_030_000, 1_000_000,
+                BootReceiver.THROTTLE_BOOT_MS, 0, 0));
+    }
+
+    @Test
     public void throttleBootMenahan_bootBerbedaDilepasWalauElapsedDekat() {
         assertFalse(BootReceiver.throttleBootMenahan(
                 70_000, 45_000, 1_000_000 + 259_200_000L, 1_000_000,

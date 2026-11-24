@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Boot: throttle boot tak lagi menelan boot baru di API 21-23 (Audit 2881)
+
+Di Android 5/6 tidak ada BOOT_COUNT (baru ada di API 24), jadi throttle BootReceiver jatuh ke perbandingan elapsed+wall yang longgar: reboot cepat (boot lama singkat + mati sebentar) dinilai sebagai boot yang sama dan BOOT_COMPLETED boot baru diabaikan total - auto-start, jadwal backup, dan jadwal bot tidak dipasang. Jalur tanpa hitungan kini menuntut bukti boot yang sama yang sesungguhnya: epoch boot (wall - elapsed) kedua cap harus sama dalam toleransi 10 detik, dan tanpa pasangan cap wall throttle gagal-terbuka. Uji JVM baru: skenario reboot cepat dilepas, duplikat boot sama dengan geser jam kecil tetap ditahan.
+
+
 ## [Belum rilis] — Koreksi Maraton-188: penanda komentar `#` bocor ke AlarmReceiver
 
 Skrip perbaikan 2879 menulis dua baris komentar Java dengan penanda `#` ala Python sehingga `AlarmReceiver.java` tak terkompilasi (tertangkap autobuild CodeQL putaran kedua; gerbang lokal memang tak mengompilasi Java). Kedua baris kini memakai `//`; seluruh berkas Java utama+uji sudah digrep bersih dari pola yang sama.

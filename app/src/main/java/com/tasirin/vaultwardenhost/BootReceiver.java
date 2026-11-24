@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 public class BootReceiver extends BroadcastReceiver {
 
     static final long THROTTLE_BOOT_MS = 60_000;
+    static final long TOLERANSI_BOOT_EPOCH_MS = 10_000;
     private static volatile long terakhirBootElapsed = 0;
     private static volatile long terakhirBootWall = 0;
 
@@ -40,14 +41,20 @@ public class BootReceiver extends BroadcastReceiver {
         if (kiniElapsed - terakhirElapsed >= jeda) {
             return false;
         }
-        if (terakhirWall > 0 && kiniWall > 0) {
-            long majuDinding = kiniWall - terakhirWall;
-            if (majuDinding < 0) {
-                return false;
-            }
-            if (majuDinding - (kiniElapsed - terakhirElapsed) > jeda) {
-                return false;
-            }
+        // Audit 2881: tanpa BOOT_COUNT (API < 24) satu-satunya
+        // bukti "boot yang sama" adalah epoch boot (wall - elapsed)
+        // yang sama; selisih epoch berarti boot BERBEDA dan tak
+        // boleh ditahan, dan tanpa pasangan wall buktinya tak ada
+        // (gagal-terbuka). Aturan lama menelan boot baru sesudah
+        // reboot cepat karena hanya membandingkan selisih longgar.
+        if (terakhirWall <= 0 || kiniWall <= 0) {
+            return false;
+        }
+        long epochTerakhir = terakhirWall - terakhirElapsed;
+        long epochKini = kiniWall - kiniElapsed;
+        if (Math.abs(epochKini - epochTerakhir)
+                > TOLERANSI_BOOT_EPOCH_MS) {
+            return false;
         }
         return true;
     }
