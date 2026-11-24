@@ -1955,6 +1955,16 @@ public final class TgBot {
         if (ctx == null || idRuang == 0 || idPesan == 0) {
             return;
         }
+        // Audit 2937: ruang entri yang terpangkas
+        // dikumpulkan untuk diperingatkan sesudah
+        // kunci lepas (jalur gugur lain sudah
+        // memperingatkan: kedaluwarsa di
+        // cobaHapusTertunda, gagal hapus di
+        // peringatkanBilaTakBisaHapus).
+        java.util.Set<Long> ruangMilikTerbuang =
+                new java.util.HashSet<>();
+        java.util.Set<Long> ruangAsingTerbuang =
+                new java.util.HashSet<>();
         synchronized (KUNCI_PERINGATAN) {
             try {
                 SharedPreferences sp = ctx.getSharedPreferences(
@@ -1986,6 +1996,9 @@ public final class TgBot {
                                 buang);
                         if (ub != null && ub[2] == 0) {
                             milikTerbuang++;
+                            ruangMilikTerbuang.add(ub[0]);
+                        } else if (ub != null) {
+                            ruangAsingTerbuang.add(ub[0]);
                         }
                         kini.remove(buang);
                     }
@@ -2010,6 +2023,23 @@ public final class TgBot {
                 }
             } catch (Exception ignored) {
             }
+        }
+        // Audit 2937: entri terpangkas batas 256
+        // dulu gugur tanpa peringatan ke chat
+        // (milik sendiri hanya log lokal 2890,
+        // asing tak dicatat di mana pun) dan
+        // tugas latarnya pulang senyap saat
+        // entri tak tercatat lagi - pesan
+        // ber-PIN bisa tetap ada tanpa owner
+        // tahu. Peringatan kini dikirim dari
+        // titik pangkasnya, sekali per ruang
+        // per pangkasan, tunduk dedup/throttle
+        // masing-masing jalur.
+        for (long ruang : ruangMilikTerbuang) {
+            peringatkanBilaTakBisaHapus(ctx, false, ruang);
+        }
+        for (long ruang : ruangAsingTerbuang) {
+            peringatkanPinChatAsing(ctx, ruang);
         }
     }
 

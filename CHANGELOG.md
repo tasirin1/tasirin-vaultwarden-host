@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bot Telegram: entri antrean hapus terpangkas batas kini diperingatkan ke chat (Audit 2937)
+
+catatHapusTertunda kini mengumpulkan ruang dari entri yang terpangkas batas 256 dan mengirim peringatan ke chat sesudah kunci lepas - jalur gagal-hapus untuk entri milik sendiri dan jalur PIN chat asing untuk entri asing, sekali per ruang per pangkasan. Sebelumnya entri terpangkas gugur senyap: tugas latarnya pulang tanpa jejak, entri asing tidak dicatat di mana pun, dan entri milik sendiri hanya masuk log lokal.
+
+
 ## [Belum rilis] — Bot Telegram: peringatan kedaluwarsa antrean hapus tak lagi tertelan dedup (Audit 2936)
 
 Jalur kedaluwarsa di cobaHapusTertunda kini membersihkan bendera dedup peringatan gagal-hapus sebelum memanggil peringatan, sekali per sapuan. Sebelumnya peringatan kesempatan-terakhir bahwa sebuah pesan ber-PIN berhenti dicoba hapus bisa tak pernah terkirim karena peringatan generik untuk pesan lain sudah memasang bendera itu dan hanya hapus yang berhasil yang membersihkannya.
