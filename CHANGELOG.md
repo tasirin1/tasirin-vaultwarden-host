@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: diff3 mode gabung menolak operand pertama "-" (Audit 2934)
+
+Cabang diff3 kini melacak mode gabung sungguhan (-m/--merge, terpisah dari pelacak mode label Audit 2851 yang juga menyala oleh -A/-E): pada mode gabung, diff3 membuka ulang operand pertama menurut nama sehingga "-" di posisi pertama mati "failed to reopen" (rc=2), sedangkan "-" di posisi tengah/terakhir tetap dibaca dari stdin seperti biasa.
+
+
 ## [Belum rilis] — Gerbang: sdiff mode gabung interaktif (-o/--output) menolak operand stdin (Audit 2933)
 
 Cabang sdiff kini melacak kehadiran -o/--output (termasuk singkatan --out, bentuk =, dan di dalam bundel pendek); bila mode gabung interaktif aktif, operand "-" tidak lagi dinilai menguras karena biner menolaknya mentah-mentah ("cannot interactively merge standard input", rc=2).

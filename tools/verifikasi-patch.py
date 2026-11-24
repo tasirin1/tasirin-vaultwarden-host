@@ -6974,6 +6974,12 @@ def _menguras_khusus(perintah, toks, awal):
         # membunuh biner).
         label_df = 0
         mode_df = False
+        # Audit 2934: pelacak khusus mode
+        # gabung sungguhan (-m/--merge) -
+        # mode_df 2851 juga menyala oleh
+        # -A/-E yang tidak membuka ulang
+        # operand pertama.
+        gabung_df = False
         k_df = awal + 1
         while k_df < len(toks):
             t_df = toks[k_df].strip("\"'")
@@ -7080,6 +7086,9 @@ def _menguras_khusus(perintah, toks, awal):
                         "--show-overlap",
                         "--merge"):
                 mode_df = True
+            if (perintah == "diff3"
+                    and t_df == "--merge"):
+                gabung_df = True
             if t_df.startswith("--label="):
                 label_df += 1
             if t_df in bernilai_df:
@@ -7158,6 +7167,9 @@ def _menguras_khusus(perintah, toks, awal):
                     if (perintah == "diff3"
                             and h_df in "AEm"):
                         mode_df = True
+                    if (perintah == "diff3"
+                            and h_df == "m"):
+                        gabung_df = True
                     if (perintah == "diff"
                             and h_df == "A"):
                         # Audit 2850: -A tak
@@ -7388,6 +7400,15 @@ def _menguras_khusus(perintah, toks, awal):
         # membaca stdin); vonis lama
         # hanya memeriksa keberadaan "-".
         perlu_d = 3 if perintah == "diff3" else 2
+        # Audit 2934: mode gabung diff3
+        # membuka ulang operand PERTAMA
+        # menurut nama, jadi "-" di posisi
+        # pertama mati "failed to reopen"
+        # (rc=2) walau "-" di posisi lain
+        # dibaca normal dari stdin.
+        if (perintah == "diff3" and gabung_df
+                and ops_d and ops_d[0] == "-"):
+            return False
         return "-" in ops_d and len(ops_d) == perlu_d
     if perintah == "sdiff":
         # Audit 1249: operand '-' sdiff adalah stdin
