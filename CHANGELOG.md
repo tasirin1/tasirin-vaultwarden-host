@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — sdiff: nilai --tabsize kini divalidasi dan diakui bernilai (Audit 2899)
+
+Walk sdiff hanya memvalidasi --width; --tabsize (opsi bernilai, tata bahasa sama: bilangan bulat >= 1 dengan + opsional) lolos dalam bentuk = maupun terpisah, dan nilainya terhitung operand. Kini kedua bentuk divalidasi dengan pemeriksa yang sama seperti --width, dan --tabsize masuk himpunan opsi bernilai pada hitungan operand. Skenario gensuite 1961 (arah terverifikasi repro jalur workflow: rc == 0).
+
+
 ## [Belum rilis] — curl: kombinasi --continue-at offset>0 dengan opsi data/form kini ditolak gerbang (Audit 2898)
 
 Melanjutkan unduhan dari offset bukan-nol sambil mengirim data dibunuh biner saat inisialisasi (cannot mix --continue-at with --data, rc=2) tetapi gerbang menilainya menguras. Pra-pindai baru menilai kombinasi itu persis seperti biner: pemicu = semua --data-*, --json, -d, --form, --form-string, -F (termasuk bundel pendek, bentuk merekat, dan singkatan unik); -G/--get membatalkan hanya untuk keluarga data, bukan form; -T/-K bukan pemicu; offset 0/+0/00/- aman; token yang tertelan sebagai nilai opsi lain dan token sesudah -- tidak dihitung. Skenario gensuite 1959-1960 (arah terverifikasi repro jalur workflow).

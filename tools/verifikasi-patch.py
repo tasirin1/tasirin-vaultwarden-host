@@ -7303,6 +7303,26 @@ def _menguras_khusus(perintah, toks, awal):
                     k_sw += 1
                 k_sw += 1
                 continue
+            # Audit 2899: --tabsize opsi
+            # bernilai yang nilainya
+            # divalidasi biner ("invalid
+            # tabsize") - tata bahasa sama
+            # dengan --width (2822).
+            if t_sw.startswith("--tabsize="):
+                if not _lebar_sdiff_sah(
+                        t_sw.split("=", 1)[1]):
+                    return False
+                k_sw += 1
+                continue
+            if t_sw == "--tabsize":
+                if k_sw + 1 < len(toks):
+                    if not _lebar_sdiff_sah(
+                            toks[k_sw + 1].strip(
+                                "\"'")):
+                        return False
+                    k_sw += 1
+                k_sw += 1
+                continue
             if (t_sw.startswith("--")
                     and "=" in t_sw):
                 # Audit 2894: bendera panjang
@@ -7355,7 +7375,8 @@ def _menguras_khusus(perintah, toks, awal):
                         break
             k_sw += 1
         ops_sdf = _operand_sesudah_opsi(
-            toks, awal, {"-w", "--width", "-o", "--output"})
+            toks, awal, {"-w", "--width", "-o", "--output",
+                         "--tabsize"})
         if "\x00gantung" in ops_sdf:
             return False
         return "-" in ops_sdf
