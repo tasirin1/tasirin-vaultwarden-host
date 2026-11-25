@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: skenario kunci arah sebaliknya DG-4 - bundel menelan '-' satu-satunya (Audit 2961)
+
+Arah sebaliknya dari 2960: bila huruf bernilai di ujung bundel menelan `-` SATU-SATUNYA sebagai nilainya, operand tersisa kurang dari wajib dan biner mati `missing operand` rc=2 tanpa membaca stdin — tetapi pas operand lama menghitung `-` itu sebagai operand stdin sehingga gerbang menilai menguras (fail-closed, patch sah bisa digagalkan tanpa dasar; terprobe induk: gerbang True, biner rc=2, repro jalur-workflow RC=1). Mekanismenya sudah ditutup perbaikan akar 2960 (pas operand sadar bundel — baterai induk 2960 memuat kasus-kasus arah ini: `-iF -`, `-iL -`, `sdiff -aI -`, `diff3 -AL -`, `-iF - --`, semuanya False kini); entri ini menambahkan skenario gensuite pengunci arah sebaliknya agar tak regresi diam-diam.
+
+
 ## [Belum rilis] — Telegram: peringatan kesempatan-terakhir entri asing melewati throttle 1 jam (Audit 2959, DD-2)
 
 Peringatan untuk entri asing yang kedaluwarsa (di `cobaHapusTertunda`) atau terpangkas (di `catatHapusTertunda`) memanggil `peringatkanPinChatAsing` apa adanya, sehingga tunduk throttle 1 jam per chat: bila chat yang sama baru diperingatkan <1 jam sebelumnya, peringatan terakhir itu tertelan — padahal entrinya sudah dicoret dari antrean, jadi tak ada sinyal susulan selamanya untuk pesan itu. Sisi milik-sendiri di jalur kedaluwarsa (2936) sengaja membersihkan bendera dedupnya persis karena kesempatan terakhir; perlakuan setara itu tak ada untuk asing dan fix 2948 hanya menyentuh sisi milik-sendiri. Kini ada overload `lewatiThrottle`: kedua situs kesempatan-terakhir melewati cek throttle (cap peringatan tetap ditulis), sedangkan semua pemanggil biasa tetap ter-throttle seperti sebelumnya. Terverifikasi baca kode: predikat throttle di TgBot.java:2557 dan kelima situs pemanggil terpetakan (2 kesempatan-terakhir diubah, 3 biasa utuh).
