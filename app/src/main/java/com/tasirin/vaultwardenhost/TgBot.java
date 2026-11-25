@@ -2084,7 +2084,10 @@ public final class TgBot {
             peringatkanBilaTakBisaHapus(ctx, false, ruang);
         }
         for (long ruang : ruangAsingTerbuang) {
-            peringatkanPinChatAsing(ctx, ruang);
+            // Audit 2959: kesempatan terakhir -
+            // lewati throttle (entri sudah
+            // terpangkas permanen).
+            peringatkanPinChatAsing(ctx, ruang, true);
         }
     }
 
@@ -2204,7 +2207,9 @@ public final class TgBot {
                     SystemClock.elapsedRealtime())) {
                 selesaikanHapusTertunda(ctx, entri);
                 if (asing) {
-                    peringatkanPinChatAsing(ctx, idRuang);
+                    // Audit 2959: kesempatan
+                    // terakhir - lewati throttle.
+                    peringatkanPinChatAsing(ctx, idRuang, true);
                 } else if (!warnKedaluwarsaTerkirim) {
                     warnKedaluwarsaTerkirim = true;
                     // Audit 2936: peringatan
@@ -2603,6 +2608,21 @@ public final class TgBot {
     }
 
     static void peringatkanPinChatAsing(Context ctx, long idRuang) {
+        peringatkanPinChatAsing(ctx, idRuang, false);
+    }
+
+    // Audit 2959: jalur kesempatan terakhir
+    // (entri kedaluwarsa/terpangkas - entri
+    // SUDAH dicoret dari antrean) memanggil
+    // dengan lewatiThrottle=true: peringatan
+    // terakhir itu tak boleh tertelan throttle
+    // 1 jam per chat, persis alasan sisi
+    // milik-sendiri membersihkan bendera
+    // dedupnya di jalur kedaluwarsa (2936).
+    // Cap tetap ditulis agar jalur biasa
+    // sesudahnya tetap ter-throttle.
+    static void peringatkanPinChatAsing(Context ctx, long idRuang,
+            boolean lewatiThrottle) {
         if (ctx == null || idRuang == 0) {
             return;
         }
@@ -2615,7 +2635,8 @@ public final class TgBot {
                 String kunci = KEY_TG_WARN_ASING_PREFIX + idRuang;
                 long terakhir = TgBackup.amanLong(sp, kunci, 0);
                 long kini = System.currentTimeMillis();
-                if (!bolehPeringatkanPinAsing(terakhir, kini)) {
+                if (!lewatiThrottle
+                        && !bolehPeringatkanPinAsing(terakhir, kini)) {
                     return;
                 }
                 // Audit 2633: satu edit untuk cap baru

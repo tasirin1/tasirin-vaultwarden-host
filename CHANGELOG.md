@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Telegram: peringatan kesempatan-terakhir entri asing melewati throttle 1 jam (Audit 2959, DD-2)
+
+Peringatan untuk entri asing yang kedaluwarsa (di `cobaHapusTertunda`) atau terpangkas (di `catatHapusTertunda`) memanggil `peringatkanPinChatAsing` apa adanya, sehingga tunduk throttle 1 jam per chat: bila chat yang sama baru diperingatkan <1 jam sebelumnya, peringatan terakhir itu tertelan — padahal entrinya sudah dicoret dari antrean, jadi tak ada sinyal susulan selamanya untuk pesan itu. Sisi milik-sendiri di jalur kedaluwarsa (2936) sengaja membersihkan bendera dedupnya persis karena kesempatan terakhir; perlakuan setara itu tak ada untuk asing dan fix 2948 hanya menyentuh sisi milik-sendiri. Kini ada overload `lewatiThrottle`: kedua situs kesempatan-terakhir melewati cek throttle (cap peringatan tetap ditulis), sedangkan semua pemanggil biasa tetap ter-throttle seperti sebelumnya. Terverifikasi baca kode: predikat throttle di TgBot.java:2557 dan kelima situs pemanggil terpetakan (2 kesempatan-terakhir diubah, 3 biasa utuh).
+
+
 ## [Belum rilis] — Telegram: pangkasan serentak di banyak ruang - semua ruang milik-sendiri kini menerima peringatan (Audit 2958)
 
 Fix 2948 membersihkan bendera dedup `KEY_TG_HAPUS_WARN` sekali sebelum putaran peringatan pangkas, tetapi bendera itu boolean global (bukan per ruang): panggilan pertama memasangnya lagi, sehingga pada pangkasan serentak di ≥2 ruang resmi hanya ruang pertama yang menerima peringatan kesempatan-terakhir dan ruang berikutnya tertelan — bertentangan dengan niat 2937 "sekali per ruang per pangkasan" (jalur asing di sebelahnya memang dedup per ruang). Bendera kini dibersihkan sebelum setiap panggilan di putaran itu (pola kesempatan-terakhir 2936), sehingga semua ruang terpangkas menerima peringatannya; semantik dedup global untuk kegagalan asinkron biasa tidak berubah. Terverifikasi baca kode sampai ujung kedua fungsi; daftar ruang adalah Set (tanpa duplikat).
