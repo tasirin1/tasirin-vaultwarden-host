@@ -8195,10 +8195,14 @@ def _menguras_khusus(perintah, toks, awal):
             "--trace-config", "--unix-socket", "--upload-file",
             "--url", "--url-query", "--user", "--user-agent",
             "--variable", "--write-out",})
+        # Audit 2954: -x (proxy) ikut bernilai -
+        # 2896 hanya menambahkan --proxy ke
+        # himpunan panjang, jadi token sesudah
+        # -x dulu dibaca sebagai opsi sungguhan.
         _CURL_BERNILAI_PENDEK = frozenset({
             "-A", "-C", "-D", "-E", "-F", "-H", "-K", "-P", "-Q", "-T",
             "-U", "-X", "-Y", "-b", "-c", "-d", "-e", "-m", "-o", "-r",
-            "-t", "-u", "-w", "-y", "-z", "-*",})
+            "-t", "-u", "-w", "-y", "-z", "-*", "-x",})
         # Audit 2941: huruf pendek curl yang
         # dikenal biner 8.5.0 (terprobe induk
         # dari pesan "is unknown"): semua

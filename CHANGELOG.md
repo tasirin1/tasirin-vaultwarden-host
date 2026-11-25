@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -x (proxy) masuk himpunan opsi pendek bernilai curl (Audit 2954)
+
+Fix 2896 menambahkan `--proxy` ke himpunan opsi panjang bernilai tetapi bentuk pendeknya `-x` tertinggal, jadi token sesudah `-x` dibaca gerbang sebagai opsi/sumber sungguhan dan vonis salah dua arah (terprobe induk): `curl -x -d @- <url>` dinilai menguras padahal `-x` menelan `-d` sebagai nilai proxy (biner instan rc=7, `@-` jadi operand), dan `curl -x -I -d @- <url>` dinilai konflik head padahal `-I` tertelan `-x` dan `-d @-` sungguh memblokir. `-x` kini anggota himpunan pendek bernilai, sehingga ketiga walk menelan nilainya — merekat maupun token berikutnya — persis opsi bernilai lain. Baterai induk 7/7.
+
+
 ## [Belum rilis] — Gerbang: huruf informasional curl -h/-V/-M memintas vonis kuras (Audit 2951, DG-5)
 
 Mekanisme informasional 2873 hanya mengenali bentuk panjang `--help`/`--version`/`--manual`; bentuk pendeknya tidak: `curl -h -d @- <url>` dinilai menguras padahal biner mencetak bantuan lalu keluar seketika tanpa menyentuh stdin (terprobe pipa-tidur: instan rc=0, termasuk bundel `-sh` dan anggota keluarga yang baru tercatat `-M`). Walk pertama kini mencatat huruf `h`/`V`/`M` yang dicapai sebagai bendera di bundel sebagai pembunuh posisional (mekanisme pencatatan 2952), sehingga putusan posisi berlaku dua arah: informasional sebelum sumber → tak menguras; sumber saat-urai sebelumnya (mis. `-d @- -h`) tetap menguras karena bacaan sudah terjadi; informasional yang tertelan nilai (`-o -h`) bukan informasional. Baterai induk 26/26 termasuk kontrol `-dh` (h tertelan -d sebagai nilai merekat, biner instan rc=7).
