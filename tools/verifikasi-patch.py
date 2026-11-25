@@ -4099,7 +4099,8 @@ def _menguras_read(toks, awal):
 
 
 def _operand_sesudah_opsi(toks, awal, bernilai,
-                          bernilai2=frozenset()):
+                          bernilai2=frozenset(),
+                          bundel_bernilai=frozenset()):
     """Daftar operand polos sesudah melompati opsi (yang bernilai
     menelan token berikutnya; bentuk --opsi=nilai dan -o<nilai>
     merekat ditangani). Dipakai penilai khusus Audit 1059-1072.
@@ -4126,6 +4127,31 @@ def _operand_sesudah_opsi(toks, awal, bernilai,
                     # membuat semua pemanggil condong ke False.
                     hasil.append("\x00gantung")
                 i += 1 if "=" in bersih else 1 + _perlu
+                continue
+            # Audit 2960: bundel pendek yang huruf
+            # bernilai PERTAMANYA (bundel_bernilai)
+            # ada di UJUNG bundel menelan token
+            # berikutnya sebagai nilainya - pas ini
+            # dulu buta bundel sehingga token itu
+            # terhitung operand (DG-4). Huruf
+            # bernilai di tengah bundel menelan sisa
+            # bundel sebagai nilai merekat, jadi
+            # cukup tokennya sendiri yang dilewati.
+            if (bundel_bernilai
+                    and not bersih.startswith("--")
+                    and len(bersih) > 2):
+                for pos_b in range(1, len(bersih)):
+                    if bersih[pos_b] in bundel_bernilai:
+                        if pos_b == len(bersih) - 1:
+                            if i + 1 >= n:
+                                hasil.append(
+                                    "\x00gantung")
+                            i += 2
+                        else:
+                            i += 1
+                        break
+                else:
+                    i += 1
                 continue
             i += 1
             continue
@@ -7445,7 +7471,12 @@ def _menguras_khusus(perintah, toks, awal):
                     bernilai_luas_pd.add(
                         awalan_pd)
         ops_d = _operand_sesudah_opsi(
-            toks, awal, bernilai_luas_pd)
+            toks, awal, bernilai_luas_pd,
+            bundel_bernilai=(
+                {"F", "x", "X", "I", "S", "L",
+                 "D", "U", "C", "W"}
+                if perintah == "diff"
+                else {"L"}))
         # Audit 1135: opsi menggantung = program galat.
         if "\x00gantung" in ops_d:
             return False
@@ -7690,7 +7721,8 @@ def _menguras_khusus(perintah, toks, awal):
                         == nama_sw):
                     bernilai_sdf.add(awalan_sw)
         ops_sdf = _operand_sesudah_opsi(
-            toks, awal, bernilai_sdf)
+            toks, awal, bernilai_sdf,
+            bundel_bernilai={"I", "o", "w"})
         if "\x00gantung" in ops_sdf:
             return False
         # Audit 2932: sdiff wajib tepat 2

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: pas operand sadar bundel - bundel berakhiran huruf bernilai menelan token berikutnya (Audit 2960, DG-4)
+
+Pas operand (`_operand_sesudah_opsi`) hanya mencocokkan token persis, sehingga bundel pendek seperti `-iF` tak pernah dikenal sebagai penelan: token berikutnya — yang di biner adalah nilai huruf bernilai di ujung bundel — terhitung operand. Akibatnya perintah yang sungguh menguras lolos, mis. `diff -iF - - /etc/hosts` (biner menggantung membaca stdin, gerbang menilai tak menguras; repro jalur-workflow RC=0). Cakupannya luas: diff berakhiran F/x/X/I/S/L/D dan bundel angka bernilai U/C/W (terprobe `-U 3` menelan token berikutnya — bentuk pendeknya wajib-argumen walau bentuk panjangnya opsional), sdiff I/w, diff3 L. Pas operand kini menerima parameter `bundel_bernilai` (pemanggil lain tak berubah): huruf bernilai pertama di ujung bundel menelan token berikutnya (menggantung di akhir = galat seperti opsi bernilai lain), di tengah bundel ia menelan sisa bundel sebagai nilai merekat. Arah sebaliknya (2961) ikut lurus: `-` satu-satunya yang tertelan tak lagi terhitung operand. Baterai induk 38/38 termasuk kontrol bentuk tunggal dan pemanggil lain.
+
+
 ## [Belum rilis] — Gerbang: koreksi 2941 - simbol pendek curl # $ * : yang dikenal biner (Audit 2953)
 
 Klaim terkunci 2941 bahwa tak ada simbol pendek yang sah menyimpang dari biner 8.5.0: `-#` adalah bendera `--progress-bar`, `-$` bendera tersembunyi, `-*` opsi bernilai tersembunyi, dan `-:` bentuk pendek `--next` (klasifikasi dari pesan kesalahan biner: `-#`/`-$` sah, `-*` "requires parameter", `-:` "missing URL before --next", pembeda `-W` "is unknown"). Gerbang menolak keempatnya sehingga perintah sah dinilai tak menguras walau menguras, mis. `curl -# -d @- <url>` (terprobe memblokir). Kini: `#`/`$`/`*` masuk himpunan huruf sah, `-*` masuk himpunan bernilai (nilainya ditelan seperti opsi bernilai lain), dan `-:` dinilai walk konflik persis seperti `--next` 2928 — hanya sah sebagai token berdiri sendiri (di bundel ia membunuh biner, "badly used") dan menuntut URL pendahulu di seksinya, tercatat posisional mengikuti 2952. Baterai induk 18/18.
