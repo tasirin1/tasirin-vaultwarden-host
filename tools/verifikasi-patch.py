@@ -8166,17 +8166,28 @@ def _menguras_khusus(perintah, toks, awal):
         _CURL_BERNILAI_PENDEK = frozenset({
             "-A", "-C", "-D", "-E", "-F", "-H", "-K", "-P", "-Q", "-T",
             "-U", "-X", "-Y", "-b", "-c", "-d", "-e", "-m", "-o", "-r",
-            "-t", "-u", "-w", "-y", "-z",})
+            "-t", "-u", "-w", "-y", "-z", "-*",})
         # Audit 2941: huruf pendek curl yang
         # dikenal biner 8.5.0 (terprobe induk
         # dari pesan "is unknown"): semua
         # huruf kecuali W besar, digit hanya
         # 0/1/2/3/4/6 (versi HTTP dan IP);
         # simbol tak ada yang sah.
+        # Audit 2953: koreksi atas klaim itu -
+        # empat simbol dikenal biner 8.5.0
+        # (terprobe dari pesan kesalahan):
+        # -# bendera (--progress-bar), -$
+        # bendera tersembunyi, -* opsi
+        # bernilai tersembunyi, dan -: bentuk
+        # pendek --next yang HANYA sah sebagai
+        # token berdiri sendiri (di bundel ia
+        # membunuh: "option -s:: is badly used
+        # here") - ':' dinilai walk konflik
+        # sebagai --next, bukan himpunan ini.
         _CURL_HURUF_PENDEK_SAH = frozenset(
             "abcdefghijklmnopqrstuvwxyz"
             "ABCDEFGHIJKLMNOPQRSTUVXYZ"
-            "012346")
+            "012346" "#$*")
         # Audit 2872: kosakata PENUH opsi
         # panjang curl 8.5.0 (bernilai +
         # bendera) dari --help all biner -
@@ -8618,6 +8629,12 @@ def _menguras_khusus(perintah, toks, awal):
                 lewati_cu = False
                 k_cu += 1
                 continue
+            if t_cu == "-:":
+                # Audit 2953: --next versi pendek;
+                # syarat URL pendahulunya dinilai
+                # walk konflik seperti --next.
+                k_cu += 1
+                continue
             if t_cu.startswith("--max-time="):
                 v_cu = t_cu.split("=", 1)[1]
                 if not re.fullmatch(
@@ -8853,6 +8870,20 @@ def _menguras_khusus(perintah, toks, awal):
                 if (pos_pembunuh is None
                         or j_cb < pos_pembunuh):
                     pos_pembunuh = j_cb
+            if t_cb == "-:":
+                # Audit 2953: --next versi pendek -
+                # semantik sama dengan --next di
+                # cabang panjang (2928): tanpa URL
+                # pendahulu di seksinya ia membunuh
+                # di posisinya; URL sah mereset
+                # seksi.
+                if not url_cb:
+                    if (pos_pembunuh is None
+                            or j_cb < pos_pembunuh):
+                        pos_pembunuh = j_cb
+                url_cb = False
+                j_cb += 1
+                continue
             if (t_cb.startswith("--")
                     and "=" not in t_cb):
                 nama_cb = None

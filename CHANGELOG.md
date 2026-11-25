@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: koreksi 2941 - simbol pendek curl # $ * : yang dikenal biner (Audit 2953)
+
+Klaim terkunci 2941 bahwa tak ada simbol pendek yang sah menyimpang dari biner 8.5.0: `-#` adalah bendera `--progress-bar`, `-$` bendera tersembunyi, `-*` opsi bernilai tersembunyi, dan `-:` bentuk pendek `--next` (klasifikasi dari pesan kesalahan biner: `-#`/`-$` sah, `-*` "requires parameter", `-:` "missing URL before --next", pembeda `-W` "is unknown"). Gerbang menolak keempatnya sehingga perintah sah dinilai tak menguras walau menguras, mis. `curl -# -d @- <url>` (terprobe memblokir). Kini: `#`/`$`/`*` masuk himpunan huruf sah, `-*` masuk himpunan bernilai (nilainya ditelan seperti opsi bernilai lain), dan `-:` dinilai walk konflik persis seperti `--next` 2928 — hanya sah sebagai token berdiri sendiri (di bundel ia membunuh biner, "badly used") dan menuntut URL pendahulu di seksinya, tercatat posisional mengikuti 2952. Baterai induk 18/18.
+
+
 ## [Belum rilis] — Gerbang: vonis curl sadar posisi - sumber saat-urai mendahului pembunuh/konflik tetap menguras (Audit 2952)
 
 Biner mengurai token berurutan: sumber stdin saat-urai (`-d @-`, `-F …@-`, `-K -`, `--variable …@-`) dibaca sampai EOF pada gilirannya, dan kematian di akhir urai (konflik metode, campuran `-C`) tidak pernah mencegah bacaan yang sudah terjadi — tetapi ketiga walk gerbang memvonis `False` tanpa memandang posisi (walk validasi 2941, pra-pass konflik 2942/2898, fitur tak didukung 2927, `--next` 2928). Akibatnya perintah yang sungguh menguras lolos, mis. `curl -d @- -I <url>` dan `curl -d @- -W <url>` (keduanya terprobe memblokir di pipa tidur, baru mati rc=2). Ketiga walk kini mencatat posisi sumber saat-urai dan pembunuh posisional pertama (termasuk nama panjang tak teresolusi, informasional, dan bentuk `=` 2882 di walk konflik), dan putusan diambil sekali di titik putus: sumber mendahului pembunuh → menguras; pembunuh mendahului → tidak; kematian akhir-urai hanya berlaku bila tak ada sumber saat-urai. Terverifikasi baterai induk 35/35 kasus posisi (kasus `-h` pendek adalah temuan 2951 yang terpisah).
