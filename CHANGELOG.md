@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: vonis curl sadar posisi - sumber saat-urai mendahului pembunuh/konflik tetap menguras (Audit 2952)
+
+Biner mengurai token berurutan: sumber stdin saat-urai (`-d @-`, `-F …@-`, `-K -`, `--variable …@-`) dibaca sampai EOF pada gilirannya, dan kematian di akhir urai (konflik metode, campuran `-C`) tidak pernah mencegah bacaan yang sudah terjadi — tetapi ketiga walk gerbang memvonis `False` tanpa memandang posisi (walk validasi 2941, pra-pass konflik 2942/2898, fitur tak didukung 2927, `--next` 2928). Akibatnya perintah yang sungguh menguras lolos, mis. `curl -d @- -I <url>` dan `curl -d @- -W <url>` (keduanya terprobe memblokir di pipa tidur, baru mati rc=2). Ketiga walk kini mencatat posisi sumber saat-urai dan pembunuh posisional pertama (termasuk nama panjang tak teresolusi, informasional, dan bentuk `=` 2882 di walk konflik), dan putusan diambil sekali di titik putus: sumber mendahului pembunuh → menguras; pembunuh mendahului → tidak; kematian akhir-urai hanya berlaku bila tak ada sumber saat-urai. Terverifikasi baterai induk 35/35 kasus posisi (kasus `-h` pendek adalah temuan 2951 yang terpisah).
+
+
 ## [Belum rilis] — Dokumentasi: urutan section Audit 2922 di CHANGELOG diluruskan (Audit 2950)
 
 Section Audit 2922 duduk di bawah section 2916 karena urutan berkas mengikuti urutan eksekusi Maraton-191 (2922 dikerjakan ketiga oleh sesi chat utama), keluar dari pola nomor menurun yang dipakai semua section lain — pembaca yang memindai nomor bisa mengira entri 2922 hilang. Section itu kini dipindah ke posisi menurun yang benar di antara 2923 dan 2921; isi entrinya tidak berubah dan himpunan 24 section Maraton-191 tetap lengkap.

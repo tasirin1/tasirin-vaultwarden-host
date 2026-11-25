@@ -8558,6 +8558,58 @@ def _menguras_khusus(perintah, toks, awal):
                         or _curl_bulat_sah(v_cu))
             return _curl_bulat_sah(v_cu)
 
+        # Audit 2952: biner mengurai token
+        # berurutan - sumber stdin SAAT-URAI
+        # (-d/--data*/--json @-, -F/--form
+        # ...@-, -K/--config -, --variable
+        # ...@-) dibaca sampai EOF pada
+        # gilirannya, sebelum pembunuh
+        # posisional apa pun (huruf tak
+        # dikenal, nilai tak sah, nama tak
+        # dikenal/ambigu, bentuk = 2882,
+        # fitur tak didukung 2927, --next
+        # tanpa URL 2928, informasional)
+        # yang datang SESUDAHNYA membunuh;
+        # dan kematian AKHIR-urai (konflik
+        # metode 2942, campuran -C 2898)
+        # pun tak mencegah kuras bila ada
+        # sumber saat-urai di mana pun.
+        # Ketiga walk kini MENCATAT posisi
+        # sumber/pembunuh pertama; putusan
+        # diambil sekali sesudah walk
+        # konflik, sebelum walk sumber.
+        pos_sumber_urai = None
+        pos_pembunuh = None
+        mati_akhir = False
+
+        def _form_urai(nilai):
+            seg = nilai.split("=", 1)[-1]
+            if seg.startswith("<@"):
+                seg = seg[1:]
+            return (seg == "@-"
+                    or seg.startswith("@-;"))
+
+        def _sumber_urai_cu(nama, nilai):
+            if nama in ("--data", "--data-ascii",
+                        "--data-binary", "--json"):
+                return (nilai == "@-"
+                        or nilai.startswith("@-"))
+            if nama == "--data-urlencode":
+                return (nilai == "@-"
+                        or nilai.startswith("@-")
+                        or ("@" in nilai
+                            and nilai.split(
+                                "@", 1)[1] == "-"))
+            if nama == "--form":
+                return _form_urai(nilai)
+            if nama == "--config":
+                return nilai == "-"
+            if nama == "--variable":
+                return ("@" in nilai
+                        and nilai.split(
+                            "@", 1)[1] == "-")
+            return False
+
         k_cu = 0
         lewati_cu = False
         while k_cu < len(mentah):
@@ -8571,7 +8623,9 @@ def _menguras_khusus(perintah, toks, awal):
                 if not re.fullmatch(
                         r"(\d+\.?\d*|\.\d+)",
                         v_cu):
-                    return False
+                    if pos_pembunuh is None:
+                        pos_pembunuh = k_cu
+                    k_cu = len(mentah)
             elif t_cu in _CURL_DIVALIDASI_PANJANG:
                 # Audit 2886: opsi numerik
                 # persis - nilai berikutnya
@@ -8579,11 +8633,16 @@ def _menguras_khusus(perintah, toks, awal):
                 # opsinya; tiada nilai juga
                 # membunuh biner.
                 if k_cu + 1 >= len(mentah):
-                    return False
-                if not _nilai_curl_sah(
+                    if pos_pembunuh is None:
+                        pos_pembunuh = k_cu
+                    k_cu = len(mentah)
+                elif not _nilai_curl_sah(
                         t_cu, mentah[k_cu + 1]):
-                    return False
-                k_cu += 1
+                    if pos_pembunuh is None:
+                        pos_pembunuh = k_cu
+                    k_cu = len(mentah)
+                else:
+                    k_cu += 1
             elif (t_cu.startswith("--")
                     and "=" not in t_cu):
                 # Audit 2828: nilai opsi bernilai
@@ -8596,6 +8655,12 @@ def _menguras_khusus(perintah, toks, awal):
                 # nilainya tetap divalidasi.
                 if t_cu in _CURL_BERNILAI_PANJANG:
                     lewati_cu = True
+                    if (pos_sumber_urai is None
+                            and k_cu + 1 < len(mentah)
+                            and _sumber_urai_cu(
+                                t_cu,
+                                mentah[k_cu + 1])):
+                        pos_sumber_urai = k_cu
                 elif t_cu not in _CURL_SEMUA_PANJANG:
                     # Audit 2918: nama bendera
                     # persis (mis. --keepalive,
@@ -8612,14 +8677,33 @@ def _menguras_khusus(perintah, toks, awal):
                                 in _CURL_DIVALIDASI_PANJANG):
                             if (k_cu + 1
                                     >= len(mentah)):
-                                return False
-                            if not _nilai_curl_sah(
+                                if (pos_pembunuh
+                                        is None):
+                                    pos_pembunuh = (
+                                        k_cu)
+                                k_cu = len(mentah)
+                            elif not _nilai_curl_sah(
                                     calon_cu[0],
                                     mentah[k_cu + 1]):
-                                return False
-                            k_cu += 1
+                                if (pos_pembunuh
+                                        is None):
+                                    pos_pembunuh = (
+                                        k_cu)
+                                k_cu = len(mentah)
+                            else:
+                                k_cu += 1
                         else:
                             lewati_cu = True
+                            if (pos_sumber_urai
+                                    is None
+                                    and k_cu + 1
+                                    < len(mentah)
+                                    and _sumber_urai_cu(
+                                        calon_cu[0],
+                                        mentah[
+                                            k_cu + 1])):
+                                pos_sumber_urai = (
+                                    k_cu)
             elif (t_cu.startswith("-")
                     and not t_cu.startswith("--")
                     and len(t_cu) > 1):
@@ -8637,9 +8721,52 @@ def _menguras_khusus(perintah, toks, awal):
                     if (h_cu
                             not in
                             _CURL_HURUF_PENDEK_SAH):
-                        return False
+                        if pos_pembunuh is None:
+                            pos_pembunuh = k_cu
+                        k_cu = len(mentah)
+                        break
                     if ("-" + h_cu
                             in _CURL_BERNILAI_PENDEK):
+                        # Audit 2952: sumber stdin
+                        # saat-urai di bundel
+                        # (d/F/K) dicatat posisinya.
+                        if (pos_sumber_urai is None
+                                and h_cu in "dFK"):
+                            if (pos_cu
+                                    == len(t_cu) - 2):
+                                if (k_cu + 1
+                                        < len(mentah)):
+                                    _v = mentah[
+                                        k_cu + 1]
+                                    if ((h_cu == "d"
+                                            and (_v
+                                                 == "@-"
+                                                 or _v.startswith(
+                                                     "@-")))
+                                            or (h_cu
+                                                == "F"
+                                                and _form_urai(
+                                                    _v))
+                                            or (h_cu
+                                                == "K"
+                                                and _v
+                                                == "-")):
+                                        pos_sumber_urai = (
+                                            k_cu)
+                            else:
+                                _r = t_cu[
+                                    pos_cu + 2:]
+                                if ((h_cu == "d"
+                                        and _r.startswith(
+                                            "@-"))
+                                        or (h_cu == "F"
+                                            and "@-"
+                                            in _r)
+                                        or (h_cu == "K"
+                                            and _r
+                                            == "-")):
+                                    pos_sumber_urai = (
+                                        k_cu)
                         # Audit 2886: huruf
                         # numerik (-m/-Y/-y/-C)
                         # nilainya divalidasi -
@@ -8656,17 +8783,30 @@ def _menguras_khusus(perintah, toks, awal):
                                     == len(t_cu) - 2):
                                 if (k_cu + 1
                                         >= len(mentah)):
-                                    return False
-                                if not _nilai_curl_sah(
+                                    if (pos_pembunuh
+                                            is None):
+                                        pos_pembunuh = (
+                                            k_cu)
+                                    k_cu = len(mentah)
+                                elif not _nilai_curl_sah(
                                         nama_pdk,
                                         mentah[
                                             k_cu + 1]):
-                                    return False
-                                lewati_cu = True
+                                    if (pos_pembunuh
+                                            is None):
+                                        pos_pembunuh = (
+                                            k_cu)
+                                    k_cu = len(mentah)
+                                else:
+                                    lewati_cu = True
                             elif not _nilai_curl_sah(
                                     nama_pdk,
                                     t_cu[pos_cu + 2:]):
-                                return False
+                                if (pos_pembunuh
+                                        is None):
+                                    pos_pembunuh = (
+                                        k_cu)
+                                k_cu = len(mentah)
                         elif (pos_cu
                                 == len(t_cu) - 2):
                             lewati_cu = True
@@ -8703,6 +8843,16 @@ def _menguras_khusus(perintah, toks, awal):
             t_cb = mentah[j_cb]
             if t_cb == "--":
                 break
+            # Audit 2952: token --opsi=nilai di
+            # posisi opsi adalah pembunuh
+            # posisional (2882: semua bentuk =
+            # mati "is unknown") - dicatat
+            # posisinya, bukan langsung divonis.
+            if (t_cb.startswith("--")
+                    and "=" in t_cb):
+                if (pos_pembunuh is None
+                        or j_cb < pos_pembunuh):
+                    pos_pembunuh = j_cb
             if (t_cb.startswith("--")
                     and "=" not in t_cb):
                 nama_cb = None
@@ -8715,6 +8865,17 @@ def _menguras_khusus(perintah, toks, awal):
                         if x.startswith(t_cb)]
                     if len(calon_cb) == 1:
                         nama_cb = calon_cb[0]
+                # Audit 2952: nama panjang yang
+                # tak teresolusi membunuh di
+                # posisinya; nama informasional
+                # keluar di posisinya - catat.
+                if (nama_cb is None
+                        or nama_cb in (
+                            "--version", "--help",
+                            "--manual")):
+                    if (pos_pembunuh is None
+                            or j_cb < pos_pembunuh):
+                        pos_pembunuh = j_cb
                 if nama_cb is not None:
                     if nama_cb in (
                             "--dns-interface",
@@ -8734,7 +8895,10 @@ def _menguras_khusus(perintah, toks, awal):
                         # libcurl version doesn't
                         # support this" untuk
                         # nilai apa pun.
-                        return False
+                        if (pos_pembunuh is None
+                                or j_cb
+                                < pos_pembunuh):
+                            pos_pembunuh = j_cb
                     if (nama_cb
                             in _CURL_BERNILAI_PANJANG):
                         if (nama_cb
@@ -8784,7 +8948,10 @@ def _menguras_khusus(perintah, toks, awal):
                         # URL sah menutup seksi
                         # dan membuka yang baru.
                         if not url_cb:
-                            return False
+                            if (pos_pembunuh is None
+                                    or j_cb
+                                    < pos_pembunuh):
+                                pos_pembunuh = j_cb
                         url_cb = False
                 j_cb += 1
                 continue
@@ -8850,7 +9017,7 @@ def _menguras_khusus(perintah, toks, awal):
             j_cb += 1
         if c_cb and (form_cb
                 or (data_cb and not get_cb)):
-            return False
+            mati_akhir = True
         # Audit 2942: -G menetralkan HANYA
         # pasangan data x head (data menjadi
         # query GET; terprobe rc=7, posisi -G
@@ -8859,11 +9026,28 @@ def _menguras_khusus(perintah, toks, awal):
         # data x upload, form x head,
         # form x upload, upload x head rc=2).
         if (form_cb + upload_cb + head_cb) >= 2:
-            return False
+            mati_akhir = True
         if data_cb and (form_cb or upload_cb):
-            return False
+            mati_akhir = True
         if (data_cb and head_cb
                 and not get_cb):
+            mati_akhir = True
+        # Audit 2952: titik putus posisi -
+        # sumber saat-urai yang mendahului
+        # pembunuh posisional pertama (atau
+        # tanpa pembunuh sama sekali) berarti
+        # stdin SUDAH terkuras walau biner
+        # akhirnya mati/konflik; pembunuh
+        # yang mendahului sumber berarti
+        # stdin tak pernah disentuh.
+        if (pos_sumber_urai is not None
+                and (pos_pembunuh is None
+                     or pos_sumber_urai
+                     < pos_pembunuh)):
+            return True
+        if pos_pembunuh is not None:
+            return False
+        if mati_akhir:
             return False
         # Audit 1068: data/unggah/konfigurasi dari stdin.
         # Audit 1085: bentuk merekat (-d@-, -T-, nilai = pada --form)
