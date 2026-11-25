@@ -78,6 +78,21 @@ public class LogActivityTest {
         // memotong kata berdigit (c::3rd).
         assertFalse(LogActivity.adaIp6("c::3rd murni"));
         assertFalse(LogActivity.adaIp6("a::1st murni"));
+        // Audit 2956: alamat di ujung kalimat
+        // (langsung diikuti titik) ikut
+        // tersamar; titik yang diikuti digit
+        // tetap kelanjutan ekor, bukan akhir.
+        assertTrue(LogActivity.adaIp6(
+                "koneksi dari 2001:db8::1."));
+        assertTrue(LogActivity.adaIp6(
+                "dari fe80::1."));
+        assertTrue(LogActivity.adaIp6(
+                "dari ::1."));
+        String r8 = LogActivity.samarkanLog(
+                "koneksi dari 2001:db8::1.");
+        assertFalse(r8.contains("2001:db8::1"));
+        assertFalse(LogActivity.adaIp6(
+                "pukul 12:30:45."));
     }
 
     @Test

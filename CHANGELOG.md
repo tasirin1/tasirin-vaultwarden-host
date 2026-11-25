@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — LogActivity: alamat IPv6 di ujung kalimat (diikuti titik) ikut tersamar (Audit 2956)
+
+Kesepuluh alternatif `POLA_IP6` menutup dengan lookahead yang ikut melarang titik, sehingga alamat yang menjadi token terakhir sebelum titik akhir kalimat — bentuk wajar di baris log naratif — tidak cocok dengan alternatif mana pun dan tampil mentah di log yang dibagikan/disalin/dikirim (terbukti porting: `2001:db8::1.`, `fe80::1.`, `::1.`, `2606:4700:4700::1111.` semua lolos, sedangkan koma/kurung normal). Penjaga ekor kini memisahkan dua peran titik: titik yang diikuti digit tetap menolak (itu kelanjutan ekor IPv4, mis. bentuk 5-grup `a::1.2.3.4.5` tetap utuh), titik yang tidak diikuti digit diizinkan sebagai akhir token. Porting pola baru 24/24 termasuk semua kasus terkunci lama (perlindungan `std::`, waktu, bentuk tepi 2944–2946); asersi JVM baru ditambahkan.
+
+
 ## [Belum rilis] — Gerbang: --variable nama@- dikenali sebagai sumber stdin saat-urai (Audit 2955)
 
 `--variable nama@-` mengimpor isi stdin sebagai variabel saat penguraian (terprobe memblokir di pipa tidur), tetapi walk sumber gerbang menelan nilainya sebagai opsi bernilai biasa tanpa memeriksa bentuk `@-`, sehingga perintah itu lolos (gerbang False). Walk kedua kini mengembalikan menguras untuk nilai berbentuk `nama@-`; walk pertama sudah mencatat bentuk yang sama untuk putusan posisi 2952, jadi vonis ujung-ke-ujung kini benar dari kedua walk (faset `%env` tetap dugaan B D-1 karena vonisnya bergantung isi environment). Baterai induk 9/9.
