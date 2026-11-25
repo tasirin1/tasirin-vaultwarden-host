@@ -604,9 +604,16 @@ public class LogActivity extends Activity {
     // - alamat di ujung kalimat dulu lolos
     // utuh; titik yang diikuti digit tetap
     // menolak karena itu kelanjutan ekor IPv4.
+    // Audit 2957: alternatif pertama kini
+    // menuntut TEPAT 8 grup - bentuk penuh
+    // IPv6 yang sah memang 8 grup; token
+    // kolon-heksa 4-7 grup tanpa "::"
+    // (alamat MAC, fragmen heksa, mirip
+    // waktu 4 grup) bukan alamat dan dulu
+    // ikut tersamar (info diagnostik hilang).
     private static final java.util.regex.Pattern POLA_IP6 =
             java.util.regex.Pattern.compile(
-                    "(?<![0-9A-Za-z:.])(?:[0-9A-Fa-f]{1,4}:){3,7}[0-9A-Fa-f]{1,4}(?![0-9A-Fa-f:])(?!\\.[0-9])"
+                    "(?<![0-9A-Za-z:.])(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}(?![0-9A-Fa-f:])(?!\\.[0-9])"
                     + "|(?<![0-9A-Za-z:.])[0-9A-Fa-f]{2,4}(?::[0-9A-Fa-f]{0,4})*::[0-9A-Fa-f]{0,4}(?::[0-9A-Fa-f]{0,4})*(?![0-9A-Fa-f:])(?!\\.[0-9])"
                     + "|(?<![0-9A-Za-z:.])[0-9A-Fa-f]{0,4}(?::[0-9A-Fa-f]{0,4})*::[0-9A-Fa-f]{2,4}(?::[0-9A-Fa-f]{0,4})*(?![0-9A-Fa-f:])(?!\\.[0-9])"
                     + "|(?<![0-9A-Za-z:.])(?:[0-9A-Fa-f]{1,4}:){6}(?:\\d{1,3}\\.){3}\\d{1,3}(?![0-9A-Fa-f:])(?!\\.[0-9])"

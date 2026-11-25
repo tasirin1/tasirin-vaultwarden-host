@@ -93,6 +93,18 @@ public class LogActivityTest {
         assertFalse(r8.contains("2001:db8::1"));
         assertFalse(LogActivity.adaIp6(
                 "pukul 12:30:45."));
+        // Audit 2957: token kolon-heksa 4-7
+        // grup tanpa "::" bukan IPv6 (bentuk
+        // penuh yang sah tepat 8 grup).
+        assertFalse(LogActivity.adaIp6("a:b:c:d"));
+        assertFalse(LogActivity.adaIp6(
+                "12:34:56:78"));
+        assertFalse(LogActivity.adaIp6(
+                "00:11:22:33:44:55"));
+        assertFalse(LogActivity.adaIp6(
+                "1:2:3:4:5:6:7"));
+        assertTrue(LogActivity.adaIp6(
+                "1:2:3:4:5:6:7:8"));
     }
 
     @Test

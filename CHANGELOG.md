@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — LogActivity: alternatif pertama POLA_IP6 menuntut tepat 8 grup - token 4-7 grup bukan IPv6 tak lagi tersamar (Audit 2957, D-C3)
+
+Alternatif pertama `POLA_IP6` menerima token kolon-heksa 4–7 grup tanpa `::`, padahal bentuk penuh IPv6 yang sah adalah tepat 8 grup (yang terkompresi punya alternatif sendiri, yang berekor IPv4 juga) — akibatnya alamat MAC (`00:11:22:33:44:55`), fragmen heksa (`a:b:c:d`), dan token mirip waktu 4 grup (`12:34:56:78`) ikut diganti `[ipv6]` dan isi diagnostik yang sah hilang dari log yang dibagikan (overmask, bukan kebocoran; terbukti porting). Alternatif itu kini menuntut tepat 8 grup (`{7}` pengulangan + grup terakhir). Porting pola baru 27/27: semua bentuk sah (penuh 8 grup, terkompresi, ekor IPv4, tepi 2944–2946, ujung kalimat 2956) tetap tersamar, token 4–7 grup lolos utuh; asersi JVM baru ditambahkan.
+
+
 ## [Belum rilis] — LogActivity: alamat IPv6 di ujung kalimat (diikuti titik) ikut tersamar (Audit 2956)
 
 Kesepuluh alternatif `POLA_IP6` menutup dengan lookahead yang ikut melarang titik, sehingga alamat yang menjadi token terakhir sebelum titik akhir kalimat — bentuk wajar di baris log naratif — tidak cocok dengan alternatif mana pun dan tampil mentah di log yang dibagikan/disalin/dikirim (terbukti porting: `2001:db8::1.`, `fe80::1.`, `::1.`, `2606:4700:4700::1111.` semua lolos, sedangkan koma/kurung normal). Penjaga ekor kini memisahkan dua peran titik: titik yang diikuti digit tetap menolak (itu kelanjutan ekor IPv4, mis. bentuk 5-grup `a::1.2.3.4.5` tetap utuh), titik yang tidak diikuti digit diizinkan sebagai akhir token. Porting pola baru 24/24 termasuk semua kasus terkunci lama (perlindungan `std::`, waktu, bentuk tepi 2944–2946); asersi JVM baru ditambahkan.
