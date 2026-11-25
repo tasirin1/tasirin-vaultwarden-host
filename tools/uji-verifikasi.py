@@ -41508,7 +41508,7 @@ def main():
             f.write(isi_baru1959)
         rc, out = jalan(sub1959,
                         [sys.executable, GERBANG, "--hanya-workflow"])
-        periksa("curl -C offset>0 campur -d mati di biner, tak menguras (Audit 2898)", rc == 0)
+        periksa("curl -C offset>0 campur -d: -d @- terkuras lebih dulu, konflik akhir-urai (Audit 2898; dikoreksi Audit 2952)", rc != 0)
         shutil.rmtree(sub1959, ignore_errors=True)
         sub1960 = klon(tmp, "sub1960")
         berkas_aksi1960 = os.path.join(
@@ -41739,7 +41739,7 @@ def main():
             f.write(isi_baru1970)
         rc, out = jalan(sub1970,
                         [sys.executable, GERBANG, "--hanya-workflow"])
-        periksa("konflik metode curl form+data mati sebelum membaca stdin: gerbang lolos (Audit 2916)", rc == 0)
+        periksa("konflik metode curl form+data: -d @- terkuras lebih dulu, konflik akhir-urai (Audit 2916; dikoreksi Audit 2952)", rc != 0)
         shutil.rmtree(sub1970, ignore_errors=True)
         sub1971 = klon(tmp, "sub1971")
         berkas_aksi1971 = os.path.join(

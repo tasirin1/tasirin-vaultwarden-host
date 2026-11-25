@@ -8665,6 +8665,18 @@ def _menguras_khusus(perintah, toks, awal):
                 lewati_cu = False
                 k_cu += 1
                 continue
+            if t_cu == "--":
+                # Koreksi 2952 (temuan suite
+                # Maraton-193): walk pertama
+                # merekam sumber sejak 2952,
+                # tetapi tak pernah berhenti
+                # di terminator -- (2855 hanya
+                # memasangnya di walk kedua) -
+                # -d @- SESUDAH -- (operand,
+                # bukan opsi) ikut tercatat
+                # sebagai sumber. Semua token
+                # sesudah -- adalah operand.
+                break
             if t_cu == "-:":
                 # Audit 2953: --next versi pendek;
                 # syarat URL pendahulunya dinilai

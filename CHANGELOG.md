@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Koreksi Maraton-193 atas 2952: walk pertama curl berhenti di terminator -- + dua ekspektasi skenario konflik diluruskan per biner
+
+Suite penuh Maraton-193 menangkap 3 penyimpangan. (1) Regresi sungguhan dari 2952: walk pertama mulai merekam sumber saat-urai tetapi tak pernah berhenti di terminator `--` (2855 hanya memasangnya di walk kedua dan pas konflik), sehingga `curl -- -d @- http://x/` — semua token sesudah `--` adalah operand — dinilai menguras padahal biner tak menyentuh stdin (terprobe pipa-tidur: curl jalan ke jaringan, rc=52, tanpa memblokir). Walk pertama kini berhenti di `--` (nilai opsi yang menelan `--` sebagai nilainya tetap dihormati lewat mekanisme lewati yang lebih dulu). (2)+(3) Dua ekspektasi lama terbukti basi oleh biner, bukan oleh gerbang: `curl -C 100 -d @-` dan `curl --form a=b -d @-` sama-sama MEMBLOKIR di pipa-tidur (rc=124 timeout, kedua urutan) — sumber saat-urai memang terkuras sebelum kematian konflik akhir-urai, persis model 2952; klaim terkunci 2898 "tak menguras" dan 2916 "mati sebelum membaca stdin" dikoreksi di skenarionya (op dibalik, label ditandai dikoreksi Audit 2952). Baterai induk koreksi 9/9.
+
+
 ## [Belum rilis] — Gerbang: skenario kunci arah sebaliknya DG-4 - bundel menelan '-' satu-satunya (Audit 2961)
 
 Arah sebaliknya dari 2960: bila huruf bernilai di ujung bundel menelan `-` SATU-SATUNYA sebagai nilainya, operand tersisa kurang dari wajib dan biner mati `missing operand` rc=2 tanpa membaca stdin — tetapi pas operand lama menghitung `-` itu sebagai operand stdin sehingga gerbang menilai menguras (fail-closed, patch sah bisa digagalkan tanpa dasar; terprobe induk: gerbang True, biner rc=2, repro jalur-workflow RC=1). Mekanismenya sudah ditutup perbaikan akar 2960 (pas operand sadar bundel — baterai induk 2960 memuat kasus-kasus arah ini: `-iF -`, `-iL -`, `sdiff -aI -`, `diff3 -AL -`, `-iF - --`, semuanya False kini); entri ini menambahkan skenario gensuite pengunci arah sebaliknya agar tak regresi diam-diam.
