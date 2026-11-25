@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: huruf informasional curl -h/-V/-M memintas vonis kuras (Audit 2951, DG-5)
+
+Mekanisme informasional 2873 hanya mengenali bentuk panjang `--help`/`--version`/`--manual`; bentuk pendeknya tidak: `curl -h -d @- <url>` dinilai menguras padahal biner mencetak bantuan lalu keluar seketika tanpa menyentuh stdin (terprobe pipa-tidur: instan rc=0, termasuk bundel `-sh` dan anggota keluarga yang baru tercatat `-M`). Walk pertama kini mencatat huruf `h`/`V`/`M` yang dicapai sebagai bendera di bundel sebagai pembunuh posisional (mekanisme pencatatan 2952), sehingga putusan posisi berlaku dua arah: informasional sebelum sumber → tak menguras; sumber saat-urai sebelumnya (mis. `-d @- -h`) tetap menguras karena bacaan sudah terjadi; informasional yang tertelan nilai (`-o -h`) bukan informasional. Baterai induk 26/26 termasuk kontrol `-dh` (h tertelan -d sebagai nilai merekat, biner instan rc=7).
+
+
 ## [Belum rilis] — Gerbang: pas operand sadar bundel - bundel berakhiran huruf bernilai menelan token berikutnya (Audit 2960, DG-4)
 
 Pas operand (`_operand_sesudah_opsi`) hanya mencocokkan token persis, sehingga bundel pendek seperti `-iF` tak pernah dikenal sebagai penelan: token berikutnya — yang di biner adalah nilai huruf bernilai di ujung bundel — terhitung operand. Akibatnya perintah yang sungguh menguras lolos, mis. `diff -iF - - /etc/hosts` (biner menggantung membaca stdin, gerbang menilai tak menguras; repro jalur-workflow RC=0). Cakupannya luas: diff berakhiran F/x/X/I/S/L/D dan bundel angka bernilai U/C/W (terprobe `-U 3` menelan token berikutnya — bentuk pendeknya wajib-argumen walau bentuk panjangnya opsional), sdiff I/w, diff3 L. Pas operand kini menerima parameter `bundel_bernilai` (pemanggil lain tak berubah): huruf bernilai pertama di ujung bundel menelan token berikutnya (menggantung di akhir = galat seperti opsi bernilai lain), di tengah bundel ia menelan sisa bundel sebagai nilai merekat. Arah sebaliknya (2961) ikut lurus: `-` satu-satunya yang tertelan tak lagi terhitung operand. Baterai induk 38/38 termasuk kontrol bentuk tunggal dan pemanggil lain.

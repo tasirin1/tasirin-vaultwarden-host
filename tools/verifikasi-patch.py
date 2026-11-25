@@ -8774,6 +8774,23 @@ def _menguras_khusus(perintah, toks, awal):
                             pos_pembunuh = k_cu
                         k_cu = len(mentah)
                         break
+                    # Audit 2951 (DG-5): huruf
+                    # informasional -h/-V/-M
+                    # mencetak lalu keluar di
+                    # posisinya tanpa membaca
+                    # stdin (pasangan pendek
+                    # mekanisme 2873 untuk bentuk
+                    # panjang) - dicatat sebagai
+                    # pembunuh posisional 2952:
+                    # sumber saat-urai SEBELUMNYA
+                    # tetap menguras, sumber
+                    # sesudahnya tak pernah
+                    # dicapai.
+                    if h_cu in "hVM":
+                        if (pos_pembunuh is None
+                                or k_cu
+                                < pos_pembunuh):
+                            pos_pembunuh = k_cu
                     if ("-" + h_cu
                             in _CURL_BERNILAI_PENDEK):
                         # Audit 2952: sumber stdin
