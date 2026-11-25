@@ -9195,6 +9195,23 @@ def _menguras_khusus(perintah, toks, awal):
                 if calon_w2[0] in \
                         _CURL_BERNILAI_PANJANG:
                     t = calon_w2[0]
+            if t == "--variable":
+                # Audit 2955: --variable nama@-
+                # mengimpor isi stdin sebagai
+                # variabel SAAT URAI (terprobe
+                # memblokir; sekelas -d @-) -
+                # walk kedua kini mengenalnya
+                # juga; walk pertama sudah
+                # mencatatnya untuk putusan
+                # posisi 2952.
+                if i + 1 < len(mentah):
+                    v = mentah[i + 1]
+                    if ("@" in v
+                            and v.split("@", 1)[1]
+                            == "-"):
+                        return True
+                i += 2
+                continue
             if t in ("-d", "--data", "--data-ascii",
                      "--data-binary", "--data-urlencode", "--json", "-T",
                      "--upload-file", "-K", "--config", "-F",

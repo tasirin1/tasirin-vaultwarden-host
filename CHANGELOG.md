@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --variable nama@- dikenali sebagai sumber stdin saat-urai (Audit 2955)
+
+`--variable nama@-` mengimpor isi stdin sebagai variabel saat penguraian (terprobe memblokir di pipa tidur), tetapi walk sumber gerbang menelan nilainya sebagai opsi bernilai biasa tanpa memeriksa bentuk `@-`, sehingga perintah itu lolos (gerbang False). Walk kedua kini mengembalikan menguras untuk nilai berbentuk `nama@-`; walk pertama sudah mencatat bentuk yang sama untuk putusan posisi 2952, jadi vonis ujung-ke-ujung kini benar dari kedua walk (faset `%env` tetap dugaan B D-1 karena vonisnya bergantung isi environment). Baterai induk 9/9.
+
+
 ## [Belum rilis] — Gerbang: -x (proxy) masuk himpunan opsi pendek bernilai curl (Audit 2954)
 
 Fix 2896 menambahkan `--proxy` ke himpunan opsi panjang bernilai tetapi bentuk pendeknya `-x` tertinggal, jadi token sesudah `-x` dibaca gerbang sebagai opsi/sumber sungguhan dan vonis salah dua arah (terprobe induk): `curl -x -d @- <url>` dinilai menguras padahal `-x` menelan `-d` sebagai nilai proxy (biner instan rc=7, `@-` jadi operand), dan `curl -x -I -d @- <url>` dinilai konflik head padahal `-I` tertelan `-x` dan `-d @-` sungguh memblokir. `-x` kini anggota himpunan pendek bernilai, sehingga ketiga walk menelan nilainya — merekat maupun token berikutnya — persis opsi bernilai lain. Baterai induk 7/7.
