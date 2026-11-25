@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Telegram: pangkasan serentak di banyak ruang - semua ruang milik-sendiri kini menerima peringatan (Audit 2958)
+
+Fix 2948 membersihkan bendera dedup `KEY_TG_HAPUS_WARN` sekali sebelum putaran peringatan pangkas, tetapi bendera itu boolean global (bukan per ruang): panggilan pertama memasangnya lagi, sehingga pada pangkasan serentak di ≥2 ruang resmi hanya ruang pertama yang menerima peringatan kesempatan-terakhir dan ruang berikutnya tertelan — bertentangan dengan niat 2937 "sekali per ruang per pangkasan" (jalur asing di sebelahnya memang dedup per ruang). Bendera kini dibersihkan sebelum setiap panggilan di putaran itu (pola kesempatan-terakhir 2936), sehingga semua ruang terpangkas menerima peringatannya; semantik dedup global untuk kegagalan asinkron biasa tidak berubah. Terverifikasi baca kode sampai ujung kedua fungsi; daftar ruang adalah Set (tanpa duplikat).
+
+
 ## [Belum rilis] — LogActivity: alternatif pertama POLA_IP6 menuntut tepat 8 grup - token 4-7 grup bukan IPv6 tak lagi tersamar (Audit 2957, D-C3)
 
 Alternatif pertama `POLA_IP6` menerima token kolon-heksa 4–7 grup tanpa `::`, padahal bentuk penuh IPv6 yang sah adalah tepat 8 grup (yang terkompresi punya alternatif sendiri, yang berekor IPv4 juga) — akibatnya alamat MAC (`00:11:22:33:44:55`), fragmen heksa (`a:b:c:d`), dan token mirip waktu 4 grup (`12:34:56:78`) ikut diganti `[ipv6]` dan isi diagnostik yang sah hilang dari log yang dibagikan (overmask, bukan kebocoran; terbukti porting). Alternatif itu kini menuntut tepat 8 grup (`{7}` pengulangan + grup terakhir). Porting pola baru 27/27: semua bentuk sah (penuh 8 grup, terkompresi, ekor IPv4, tepi 2944–2946, ujung kalimat 2956) tetap tersamar, token 4–7 grup lolos utuh; asersi JVM baru ditambahkan.

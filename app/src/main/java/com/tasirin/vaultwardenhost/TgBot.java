@@ -2054,10 +2054,21 @@ public final class TgBot {
         // sama dengan 2936 - bendera basi dari
         // kegagalan lama menelannya mentah-mentah
         // (cacat yang sama tertinggal di jalur
-        // pangkas). Bersihkan bendera sekali
-        // sebelum putaran, persis pola 2936 di
-        // jalur kedaluwarsa.
-        if (!ruangMilikTerbuang.isEmpty()) {
+        // pangkas). Pola 2936 di jalur
+        // kedaluwarsa diterapkan di putaran
+        // bawah (lihat 2958).
+        // Audit 2958: bendera dedup itu boolean
+        // GLOBAL, bukan per ruang - dibersihkan
+        // sekali saja sebelum putaran (bentuk
+        // awal 2948) hanya menyelamatkan ruang
+        // pertama, karena panggilan pertama
+        // memasangnya lagi dan ruang berikutnya
+        // pulang tertelan di cek dedup. Kini
+        // bendera dibersihkan sebelum SETIAP
+        // panggilan di putaran ini, jadi niat
+        // 2937 "sekali per ruang per pangkasan"
+        // sungguh berlaku untuk semua ruang.
+        for (long ruang : ruangMilikTerbuang) {
             synchronized (KUNCI_PERINGATAN) {
                 try {
                     SharedPreferences spPangkas =
@@ -2070,8 +2081,6 @@ public final class TgBot {
                 } catch (Exception ignored) {
                 }
             }
-        }
-        for (long ruang : ruangMilikTerbuang) {
             peringatkanBilaTakBisaHapus(ctx, false, ruang);
         }
         for (long ruang : ruangAsingTerbuang) {
