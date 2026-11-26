@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: keluarga data curl hanya mengakui tepat @- sebagai stdin
+
+Memperbaiki temuan Audit 2965 (Rendah): sembilan titik penilaian
+keluarga data (-d/--data*/--json/--data-urlencode) memakai
+startswith('@-'), padahal hanya nilai tepat @- yang berarti
+stdin - @-x dan @-; adalah berkas bernama -x/-; yang gagal
+dibuka biner (rc=26, tanpa membaca). Perintah sah yang membaca
+berkas lokal bisa digagalkan gerbang tanpa dasar (fail-closed).
+Semua titik kini memakai kesetaraan tepat @- (bentuk nama@- di
+--data-urlencode tidak berubah). Ditambah skenario regresi 2001.
+
+
 ## [Belum rilis] — Gerbang: -F nama=<- (isi field dari stdin) kini dikenali; cermin <@- diluruskan
 
 Memperbaiki temuan Audit 2964 (Rendah): nilai -F/--form yang

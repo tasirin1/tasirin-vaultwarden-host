@@ -8648,11 +8648,15 @@ def _menguras_khusus(perintah, toks, awal):
         def _sumber_urai_cu(nama, nilai):
             if nama in ("--data", "--data-ascii",
                         "--data-binary", "--json"):
-                return (nilai == "@-"
-                        or nilai.startswith("@-"))
+                # Audit 2965: hanya tepat "@-"
+                # yang stdin; "@-x"/"@-;" adalah
+                # berkas bernama -x/-; (biner
+                # rc=26 gagal buka, tanpa
+                # membaca) - startswith lama
+                # menilainya sumber (fail-closed).
+                return nilai == "@-"
             if nama == "--data-urlencode":
                 return (nilai == "@-"
-                        or nilai.startswith("@-")
                         or ("@" in nilai
                             and nilai.split(
                                 "@", 1)[1] == "-"))
@@ -8830,10 +8834,7 @@ def _menguras_khusus(perintah, toks, awal):
                                     _v = mentah[
                                         k_cu + 1]
                                     if ((h_cu == "d"
-                                            and (_v
-                                                 == "@-"
-                                                 or _v.startswith(
-                                                     "@-")))
+                                            and _v == "@-")
                                             or (h_cu
                                                 == "F"
                                                 and _form_urai(
@@ -8848,8 +8849,7 @@ def _menguras_khusus(perintah, toks, awal):
                                 _r = t_cu[
                                     pos_cu + 2:]
                                 if ((h_cu == "d"
-                                        and _r.startswith(
-                                            "@-"))
+                                        and _r == "@-")
                                         or (h_cu == "F"
                                             and _form_urai(
                                                 _r))
@@ -9302,10 +9302,12 @@ def _menguras_khusus(perintah, toks, awal):
                     v = mentah[i + 1]
                     if t in ("-d", "--data", "--data-ascii",
                              "--data-binary", "--json"):
-                        if v == "@-" or v.startswith("@-"):
+                        # Audit 2965: tepat "@-"
+                        # saja (lihat _sumber_urai_cu).
+                        if v == "@-":
                             return True
                     elif t == "--data-urlencode":
-                        if v == "@-" or v.startswith("@-") or (
+                        if v == "@-" or (
                                 "@" in v
                                 and v.split("@", 1)[1] == "-"):
                             return True
@@ -9366,9 +9368,7 @@ def _menguras_khusus(perintah, toks, awal):
                             if i + 1 < len(mentah):
                                 v = mentah[i + 1]
                                 if h_w2 == "-d":
-                                    if (v == "@-"
-                                            or v.startswith(
-                                                "@-")):
+                                    if v == "@-":
                                         return True
                                 elif h_w2 == "-F":
                                     seg_f = v.split(
@@ -9405,8 +9405,7 @@ def _menguras_khusus(perintah, toks, awal):
                         else:
                             ekor_w2 = t[j_w2 + 1:]
                             if h_w2 == "-d":
-                                if ekor_w2.startswith(
-                                        "@-"):
+                                if ekor_w2 == "@-":
                                     return True
                             elif h_w2 == "-F":
                                 # Audit 2964: nilai
@@ -9509,7 +9508,7 @@ def _menguras_khusus(perintah, toks, awal):
                     t.startswith("--form") and "@-" in t
                     and "--form-string" not in t) or (
                     t.startswith("-d") and len(t) > 2
-                    and t[2:].startswith("@-")) or (
+                    and t[2:] == "@-") or (
                     t.startswith("-K") and len(t) > 2
                     and t[2:] == "-") or (
                     t.startswith("-F") and len(t) > 2
