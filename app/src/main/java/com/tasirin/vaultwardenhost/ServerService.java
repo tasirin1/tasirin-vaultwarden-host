@@ -5526,12 +5526,33 @@ public class ServerService extends Service {
                 }
                 hapusTandaStop(p);
                 jalankanStartTertundaStop();
+                // Audit 2963: wake lock baru
+                // dilepas di ujung kerja thread
+                // ini (berpenjaga: proses sudah
+                // terbukti mati lewat
+                // lepasProses di atas), bukan
+                // oleh onDestroy di awal.
+                releaseWakeLockBilaBerhenti();
             }, "vw-stop");
             stopper.setDaemon(true);
             stopper.start();
         }
 
-        releaseWakeLock();
+        // Audit 2963: dulu releaseWakeLock()
+        // tanpa syarat di sini - satu-satunya
+        // jalur yang melanggar invarian
+        // releaseWakeLockBilaBerhenti: lock
+        // lepas padahal thread vw-stop masih
+        // bekerja membunuh proses (sampai
+        // +/-8 dtk), sehingga niat stop bisa
+        // kalah diam-diam dan proses yatim
+        // tetap melayani. Bila ada proses,
+        // pelepasannya kini di ujung thread
+        // vw-stop; batas 12 jam akuisisi
+        // tetap jadi jaring terakhir.
+        if (p == null) {
+            releaseWakeLock();
+        }
         super.onDestroy();
     }
 }

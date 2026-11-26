@@ -1,5 +1,22 @@
 # Changelog
 
+## [Belum rilis] — ServerService: wake lock onDestroy ditahan sampai proses terbukti mati
+
+Memperbaiki temuan Audit 2963 (Rendah): onDestroy melepas wake
+lock tanpa syarat tepat sesudah melahirkan thread vw-stop,
+padahal thread itu masih bekerja membunuh proses vaultwarden
+(sampai sekitar 8 detik) - satu-satunya jalur yang melanggar
+invarian berkas yang sama (releaseWakeLockBilaBerhenti menolak
+melepas selama proses belum terbukti mati). Sesudah callback
+komponen selesai, sistem boleh membunuh proses aplikasi kapan
+saja dan wake lock parsial hanya menahan CPU selama dipegang,
+sehingga niat stop bisa kalah diam-diam dan proses yatim tetap
+melayani sampai start berikutnya. Kini pelepasan terjadi di
+ujung thread vw-stop lewat jalur berpenjaga yang sama; jalur
+tanpa proses tetap melepas seketika, dan batas akuisisi 12 jam
+tetap menjadi jaring terakhir.
+
+
 ## [Belum rilis] — Gerbang: konflik metode curl dinilai per seksi --next
 
 Memperbaiki temuan Audit 2962 (Sedang): pas konflik gerbang
