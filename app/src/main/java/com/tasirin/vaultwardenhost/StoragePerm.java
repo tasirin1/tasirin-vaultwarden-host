@@ -1,6 +1,7 @@
 package com.tasirin.vaultwardenhost;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -258,6 +259,11 @@ public final class StoragePerm {
     // Audit 2968: layar sistem akses semua file untuk aplikasi
     // ini; fallback ke daftar semua aplikasi bila layar langsung
     // tak tersedia. Hanya dipanggil pada API 30+.
+    // Peringatan lint InlinedApi ditekan dengan sengaja: kedua
+    // konstanta aksi adalah String yang ter-inline saat
+    // kompilasi (tak ada akses field di runtime perangkat lama)
+    // dan satu-satunya pemanggil terjaga syarat API 30+.
+    @SuppressLint("InlinedApi")
     static boolean bukaPengaturanSemuaFile(Activity act) {
         try {
             Intent langsung = new Intent(

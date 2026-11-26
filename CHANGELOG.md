@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Peringatan lint InlinedApi di layar semua-file ditekan dengan alasan
+
+Kedua konstanta aksi Settings untuk layar akses
+semua file adalah konstanta String API 30 yang
+ter-inline saat kompilasi - tidak ada akses field
+yang bisa gagal di perangkat lama - dan metodenya
+hanya dipanggil dari jalur yang terjaga API 30+.
+Perilaku tidak berubah; peringatan ditekan di
+metodenya dengan alasan tercatat.
+
+
 ## [Belum rilis] — Peringatan lint ApplySharedPref di update web-vault ditekan dengan alasan
 
 Keempat commit() cap versi web-vault di
