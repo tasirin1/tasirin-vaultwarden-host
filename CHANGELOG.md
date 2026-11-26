@@ -1,5 +1,19 @@
 # Changelog
 
+## [Belum rilis] — Telegram: nama berkas dokumen ikut disaring dari PIN
+
+Memperbaiki temuan Audit 2967 (Rendah): saringan hapus di
+semua jalur pesan Telegram (segar resmi/asing, suntingan,
+kanal, basi/mundur) hanya membaca text + caption - field
+document.file_name tak pernah dibaca kode mana pun, sehingga
+berkas yang namanya memuat PIN lolos dari penghapusan dan PIN
+menetap sebagai nama berkas di riwayat chat. Nama berkas kini
+diekstrak (namaBerkasDokumen) dan disaring dengan predikat
+yang sama seperti teks/caption di semua jalur, termasuk
+overload hapusBilaPinBasi untuk jalur basi/mundur. Ditambah
+uji JVM untuk predikat gabungan pesanPerluHapus.
+
+
 ## [Belum rilis] — Gerbang: --variable curl kini mensyaratkan nama variabel yang sah
 
 Memperbaiki temuan Audit 2966 (Rendah, residu 2955): aturan

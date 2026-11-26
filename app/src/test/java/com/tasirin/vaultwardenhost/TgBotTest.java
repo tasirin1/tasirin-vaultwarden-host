@@ -318,6 +318,19 @@ public class TgBotTest {
         assertFalse(TgBot.teksSuntinganPerluHapus(""));
     }
 
+    @Test
+    public void pesanPerluHapus_namaBerkasDokumen() {
+        // Audit 2967: nama berkas adalah teks
+        // bebas ketiga yang disaring.
+        assertTrue(TgBot.pesanPerluHapus("", "", "123456"));
+        assertTrue(TgBot.pesanPerluHapus("", "", "123456.pdf"));
+        assertTrue(TgBot.pesanPerluHapus("123456", "", "laporan.pdf"));
+        assertTrue(TgBot.pesanPerluHapus("", "123456", ""));
+        assertFalse(TgBot.pesanPerluHapus("halo", "", "laporan.pdf"));
+        assertFalse(TgBot.pesanPerluHapus("halo", "biasa saja", "modul.pdf"));
+        assertFalse(TgBot.pesanPerluHapus("", "", ""));
+    }
+
     public void pinDariBalasanBedakanPinDanObrolan() {
 
         assertEquals("123456", TgBot.pinDariBalasan("123456"));

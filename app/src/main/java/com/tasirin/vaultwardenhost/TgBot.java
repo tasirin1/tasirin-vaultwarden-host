@@ -557,16 +557,16 @@ public final class TgBot {
                                             "id", -1);
                                     String namaSunting = cSunting.optString(
                                             "username", "");
-                                    String teksSunting = pilihTeksSuntingan(
-                                            sunting.optString(
-                                                    "text", ""),
-                                            sunting.optString(
-                                                    "caption", ""));
                                     int idPesanSunting = sunting.optInt(
                                             "message_id", 0);
                                     if (idPesanSunting != 0
-                                            && teksSuntinganPerluHapus(
-                                                    teksSunting)) {
+                                            && pesanPerluHapus(
+                                                    sunting.optString(
+                                                            "text", ""),
+                                                    sunting.optString(
+                                                            "caption", ""),
+                                                    namaBerkasDokumen(
+                                                            sunting))) {
                                         if (!Util.cocokChatBanyak(
                                                 chatKonfig, idRuangSunting,
                                                 namaSunting)) {
@@ -610,16 +610,16 @@ public final class TgBot {
                                             "id", -1);
                                     String namaKanal = cKanal.optString(
                                             "username", "");
-                                    String teksKanal = pilihTeksSuntingan(
-                                            kanal.optString(
-                                                    "text", ""),
-                                            kanal.optString(
-                                                    "caption", ""));
                                     int idPesanKanal = kanal.optInt(
                                             "message_id", 0);
                                     if (idPesanKanal != 0
-                                            && teksSuntinganPerluHapus(
-                                                    teksKanal)) {
+                                            && pesanPerluHapus(
+                                                    kanal.optString(
+                                                            "text", ""),
+                                                    kanal.optString(
+                                                            "caption", ""),
+                                                    namaBerkasDokumen(
+                                                            kanal))) {
                                         if (!Util.cocokChatBanyak(
                                                 chatKonfig, idRuangKanal,
                                                 namaKanal)) {
@@ -651,13 +651,16 @@ public final class TgBot {
                                 // caption, bukan text - tanpa cadangan ini PIN di
                                 // caption pesan baru tak pernah masuk saringan hapus
                                 // (2905/2912 hanya menutup suntingan dan kanal).
-                                String teksAsing = pilihTeksSuntingan(
-                                        msg.optString("text", ""),
-                                        msg.optString("caption", ""));
+                                // Audit 2967: pilihan teks kini
+                                // dihitung di dalam pesanPerluHapus
+                                // di bawah (teks/caption/nama berkas).
                                 // Audit 2922: predikat gabungan yang sama
                                 // dengan suntingan/kanal - balasan PIN utuh
                                 // (pinDariBalasan) dulu tak diperiksa di sini.
-                                if (teksSuntinganPerluHapus(teksAsing)
+                                if (pesanPerluHapus(
+                                        msg.optString("text", ""),
+                                        msg.optString("caption", ""),
+                                        namaBerkasDokumen(msg))
                                         && pinPerangkatAktif(ctx)) {
                                     hapusPesanAsingAsync(ctx, idRuang,
                                             msg.optInt("message_id", 0));
@@ -677,6 +680,7 @@ public final class TgBot {
                                             msg.optString("caption", ""));
                                     int idPesanMundur = msg.optInt("message_id", 0);
                                     hapusBilaPinBasi(ctx, idRuang, teksMundur,
+                                            namaBerkasDokumen(msg),
                                             idPesanMundur, kiniPoll);
                                     continue;
                                 } else {
@@ -690,6 +694,7 @@ public final class TgBot {
                                             msg.optString("caption", ""));
                                     int idPesanBasi = msg.optInt("message_id", 0);
                                     hapusBilaPinBasi(ctx, idRuang, teksBasi,
+                                            namaBerkasDokumen(msg),
                                             idPesanBasi, kiniPoll);
                                     continue;
                                 }
@@ -757,10 +762,14 @@ public final class TgBot {
                                 // sama seperti suntingan/kanal, supaya
                                 // PIN di caption ikut terhapus (jalur
                                 // segar dulu hanya membaca text).
+                                // Audit 2967: nama berkas dokumen
+                                // ikut disaring di jalur resmi juga.
                                 boolean hapusPin = wajibHapusPesanPin(pinBasi, pinGrup,
                                         pinPending, obrolan, terotorisasi, text)
                                         || teksSuntinganPerluHapus(
-                                                msg.optString("caption", ""));
+                                                msg.optString("caption", ""))
+                                        || teksSuntinganPerluHapus(
+                                                namaBerkasDokumen(msg));
                                 if (idPesan != 0 && hapusPin && pinPerangkatAktif(ctx)) {
                                     hapusPesanAsync(ctx, idRuang, idPesan);
                                 } else if (idPesan != 0 && "help".equals(namaPerintah(text))
@@ -1636,6 +1645,34 @@ public final class TgBot {
                 || pinDariBalasan(teks) != null;
     }
 
+    // Audit 2967: pesan dokumen membawa teks
+    // bebas ketiga - document.file_name - yang
+    // tak pernah dibaca saringan mana pun:
+    // berkas bernama persis PIN (atau memuatnya
+    // sebagai nama + ekstensi) lolos dari semua
+    // jalur hapus dan PIN menetap sebagai nama
+    // berkas di riwayat chat. Nama berkas kini
+    // disaring dengan predikat yang sama
+    // seperti teks/caption di semua jalur.
+    static String namaBerkasDokumen(JSONObject pesan) {
+        if (pesan == null) {
+            return "";
+        }
+        JSONObject dok = pesan.optJSONObject("document");
+        if (dok == null) {
+            return "";
+        }
+        return dok.optString("file_name", "");
+    }
+
+    static boolean pesanPerluHapus(String teks,
+                                   String caption,
+                                   String namaBerkas) {
+        return teksSuntinganPerluHapus(
+                pilihTeksSuntingan(teks, caption))
+                || teksSuntinganPerluHapus(namaBerkas);
+    }
+
     static String pinTebakan(String text) {
         if (text == null) {
             return null;
@@ -2280,6 +2317,15 @@ public final class TgBot {
 
     private static void hapusBilaPinBasi(Context ctx, long idRuang, String teks,
             int idPesan, long kiniPoll) {
+        hapusBilaPinBasi(ctx, idRuang, teks, "", idPesan, kiniPoll);
+    }
+
+    // Audit 2967: jalur basi/mundur ikut
+    // menyaring nama berkas dokumen - PIN
+    // sebagai nama berkas juga menghapus
+    // pesannya, seperti jalur lain.
+    private static void hapusBilaPinBasi(Context ctx, long idRuang, String teks,
+            String namaBerkas, int idPesan, long kiniPoll) {
         if (idPesan == 0 || !pinPerangkatAktif(ctx)) {
             return;
         }
@@ -2290,7 +2336,8 @@ public final class TgBot {
             adaPending = !pb.cmd.isEmpty();
             pendingBasi = pb.kedaluwarsa;
         }
-        if (pinBasiPerluHapus(teks, adaPending, pendingBasi)) {
+        if (pinBasiPerluHapus(teks, adaPending, pendingBasi)
+                || teksSuntinganPerluHapus(namaBerkas)) {
             hapusPesanAsync(ctx, idRuang, idPesan);
         }
     }
