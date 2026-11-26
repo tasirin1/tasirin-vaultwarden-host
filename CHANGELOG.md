@@ -1,5 +1,20 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -F nama=<- (isi field dari stdin) kini dikenali; cermin <@- diluruskan
+
+Memperbaiki temuan Audit 2964 (Rendah): nilai -F/--form yang
+diawali < berarti isi field dibaca dari berkas, dan tepatnya <-
+berarti dari stdin saat urai (terprobe memblokir, termasuk
+bentuk <-;type=...) - gerbang tak mengenalinya sehingga penguras
+lolos (fail-open). Cerminnya, <@- dinilai gerbang sebagai sumber
+padahal biner memperlakukannya sebagai berkas bernama @-
+(gagal buka, rc=26). Aturan seg yang sama kini berlaku di kelima
+titik penilaian form (walk pertama termasuk bundel merekat,
+walk kedua di cabang bernilai, bundel, dan merekat): diawali <
+hanya <- atau <-;... yang sumber; selain itu hanya @- atau
+@-;... yang sumber. Ditambah skenario regresi 2000.
+
+
 ## [Belum rilis] — ServerService: wake lock onDestroy ditahan sampai proses terbukti mati
 
 Memperbaiki temuan Audit 2963 (Rendah): onDestroy melepas wake

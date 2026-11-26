@@ -8631,8 +8631,17 @@ def _menguras_khusus(perintah, toks, awal):
 
         def _form_urai(nilai):
             seg = nilai.split("=", 1)[-1]
-            if seg.startswith("<@"):
-                seg = seg[1:]
+            # Audit 2964: nilai diawali <
+            # berarti isi-dari-berkas; hanya
+            # tepat <- (atau <-;param) yang
+            # stdin (terprobe memblokir).
+            # <@- adalah berkas bernama @-
+            # (biner rc=26 gagal buka), bukan
+            # stdin - pengupasan <@ lama
+            # menilainya sumber (arah salah).
+            if seg.startswith("<"):
+                return (seg == "<-"
+                        or seg.startswith("<-;"))
             return (seg == "@-"
                     or seg.startswith("@-;"))
 
@@ -8842,8 +8851,8 @@ def _menguras_khusus(perintah, toks, awal):
                                         and _r.startswith(
                                             "@-"))
                                         or (h_cu == "F"
-                                            and "@-"
-                                            in _r)
+                                            and _form_urai(
+                                                _r))
                                         or (h_cu == "K"
                                             and _r
                                             == "-")):
@@ -9302,9 +9311,16 @@ def _menguras_khusus(perintah, toks, awal):
                             return True
                     elif t in ("-F", "--form"):
                         seg_f = v.split("=", 1)[-1]
-                        if seg_f.startswith("<@"):
-                            seg_f = seg_f[1:]
-                        if seg_f == "@-" or seg_f.startswith("@-;"):
+                        # Audit 2964: aturan <
+                        # seperti _form_urai.
+                        if seg_f.startswith("<"):
+                            if (seg_f == "<-"
+                                    or seg_f.startswith(
+                                        "<-;")):
+                                return True
+                        elif (seg_f == "@-"
+                                or seg_f.startswith(
+                                    "@-;")):
                             return True
                     elif t in ("-K", "--config"):
                         # Audit 2962: -K - dibaca
@@ -9357,11 +9373,19 @@ def _menguras_khusus(perintah, toks, awal):
                                 elif h_w2 == "-F":
                                     seg_f = v.split(
                                         "=", 1)[-1]
+                                    # Audit 2964:
+                                    # aturan <
+                                    # seperti
+                                    # _form_urai.
                                     if seg_f.startswith(
-                                            "<@"):
-                                        seg_f = (
-                                            seg_f[1:])
-                                    if (seg_f == "@-"
+                                            "<"):
+                                        if (seg_f
+                                                == "<-"
+                                                or seg_f.startswith(
+                                                    "<-;")):
+                                            return True
+                                    elif (seg_f
+                                            == "@-"
                                             or seg_f.startswith(
                                                 "@-;")):
                                         return True
@@ -9385,7 +9409,24 @@ def _menguras_khusus(perintah, toks, awal):
                                         "@-"):
                                     return True
                             elif h_w2 == "-F":
-                                if "@-" in ekor_w2:
+                                # Audit 2964: nilai
+                                # merekat dinilai
+                                # dengan aturan seg
+                                # yang sama (dulu
+                                # "@-" in ekor -
+                                # <@- dan x@- ikut
+                                # dinilai sumber).
+                                seg_f = ekor_w2.split(
+                                    "=", 1)[-1]
+                                if seg_f.startswith(
+                                        "<"):
+                                    if (seg_f == "<-"
+                                            or seg_f.startswith(
+                                                "<-;")):
+                                        return True
+                                elif (seg_f == "@-"
+                                        or seg_f.startswith(
+                                            "@-;")):
                                     return True
                             elif h_w2 == "-K":
                                 if ekor_w2 == "-":

