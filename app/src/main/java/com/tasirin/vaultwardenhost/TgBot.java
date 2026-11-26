@@ -439,6 +439,13 @@ public final class TgBot {
         return jumlahUpdate > 0;
     }
 
+    // Peringatan lint ApplySharedPref ditekan dengan
+    // sengaja: semua commit() di pollOnce menulis offset
+    // Telegram yang wajib awet di disk sebelum update
+    // diproses - proses mati sebelum flush apply()
+    // membuat update yang kerja beratnya sudah berjalan
+    // terkirim ulang (lihat catatan di badan metode).
+    @SuppressLint("ApplySharedPref")
     public static void pollOnce(Context ctx) {
 
         if (!POLLING.compareAndSet(false, true)) {

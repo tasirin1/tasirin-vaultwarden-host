@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Peringatan lint ApplySharedPref di pollOnce ditekan dengan alasan
+
+Kelima commit() penulisan offset Telegram di
+pollOnce memang disengaja - offset wajib awet di
+disk sebelum update diproses, kalau tidak proses
+yang mati sebelum flush apply() membuat Telegram
+mengirim ulang update yang kerja beratnya sudah
+berjalan. Perilaku tidak berubah; peringatan
+ditekan di metodenya dengan alasan tercatat.
+
+
 ## [Belum rilis] — Klausul longgar tak terjangkau di pemeriksa stdin dihapus (Audit 2982)
 
 Sisa pola longgar terakhir di model curl gerbang
