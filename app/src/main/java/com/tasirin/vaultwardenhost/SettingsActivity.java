@@ -679,7 +679,13 @@ public class SettingsActivity extends Activity {
         adminTokenInput.setText(TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""));
         databaseUrlInput.setText(TgBackup.amanString(sp, ServerService.KEY_DATABASE_URL, ""));
         autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
-        sp.edit().putBoolean(ServerService.KEY_HTTPS, true).apply();
+        // Audit 2977: tulis hanya bila belum true - dulu
+        // penulisan prefs ke disk terjadi tanpa syarat pada
+        // tiap layar Pengaturan dibuka walau nilainya tak
+        // berubah sama sekali.
+        if (!sp.getBoolean(ServerService.KEY_HTTPS, false)) {
+            sp.edit().putBoolean(ServerService.KEY_HTTPS, true).apply();
+        }
         tgTokenInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
         tgAutoCheck.setChecked(TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));

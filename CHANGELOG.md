@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Pengaturan tak lagi menulis ulang kunci HTTPS tiap dibuka (Audit 2977)
+
+Penulisan preferensi HTTPS kini hanya terjadi bila
+nilainya belum benar; sebelumnya setiap membuka
+layar Pengaturan selalu mengantrekan satu penulisan
+ke disk yang tidak mengubah apa pun.
+
+
 ## [Belum rilis] — Teks poll Telegram ikut disaring PIN (Audit 2976)
 
 Pesan berbentuk poll yang pertanyaan atau opsi-
