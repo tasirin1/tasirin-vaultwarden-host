@@ -68,7 +68,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto-merge; then
+          if ! gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto; then
             # Audit 1670: bedakan "memang belum aktif" dari
             # kegagalan gh asli (API/token) — tanyakan keadaan
             # akhirnya; masih aktif = langkah gagal, bukan hijau.
@@ -92,7 +92,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto-merge; then
+          if ! gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto; then
             # Audit 1670: bedakan "memang belum aktif" dari
             # kegagalan gh asli (API/token) — tanyakan keadaan
             # akhirnya; masih aktif = langkah gagal, bukan hijau.
@@ -116,7 +116,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto-merge; then
+          if ! gh pr merge ${{ github.event.pull_request.number }} -R ${{ github.repository }} --disable-auto; then
             SISA=$(gh pr view ${{ github.event.pull_request.number }} -R ${{ github.repository }} --json autoMergeRequest --jq '.autoMergeRequest')
             if [ "$SISA" != "null" ]; then
               echo "::error::Gagal mematikan auto-merge; auto-merge masih aktif untuk PR kelas manual ini."

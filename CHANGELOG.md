@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — CI: flag gh untuk mematikan auto-merge diluruskan (--disable-auto)
+
+Workflow Auto-merge PR Dependabot memakai `gh pr merge --disable-auto-merge` di ketiga langkah penjaga kelas manual (dependensi Gradle, workflow binary/shim, workflow gerbang) — flag itu tidak ada di gh (yang benar `--disable-auto`, terbukti dari teks bantuan gh di log kegagalan run PR #2737), sehingga perintah selalu gagal: untuk PR #2737 (gradle-wrapper 8.14.7 → 8.14.8) auto-merge memang sedang aktif, jadi penjaga Audit 1670 menggagalkan job dan PR tertahan dengan satu cek merah walau semua cek isi hijau penuh. Ketiga situs kini memakai flag yang benar; PR kelas manual berikutnya bisa dimatikan auto-merge-nya seperti desain. PR #2737 sendiri sudah ditinjau dan di-merge manual (diff 1 berkas properties + checksum, Assemble APK dan suite Cek patch PR hijau).
+
+
 ## [Belum rilis] — Koreksi Maraton-193 atas 2952: walk pertama curl berhenti di terminator -- + dua ekspektasi skenario konflik diluruskan per biner
 
 Suite penuh Maraton-193 menangkap 3 penyimpangan. (1) Regresi sungguhan dari 2952: walk pertama mulai merekam sumber saat-urai tetapi tak pernah berhenti di terminator `--` (2855 hanya memasangnya di walk kedua dan pas konflik), sehingga `curl -- -d @- http://x/` — semua token sesudah `--` adalah operand — dinilai menguras padahal biner tak menyentuh stdin (terprobe pipa-tidur: curl jalan ke jaringan, rc=52, tanpa memblokir). Walk pertama kini berhenti di `--` (nilai opsi yang menelan `--` sebagai nilainya tetap dihormati lewat mekanisme lewati yang lebih dulu). (2)+(3) Dua ekspektasi lama terbukti basi oleh biner, bukan oleh gerbang: `curl -C 100 -d @-` dan `curl --form a=b -d @-` sama-sama MEMBLOKIR di pipa-tidur (rc=124 timeout, kedua urutan) — sumber saat-urai memang terkuras sebelum kematian konflik akhir-urai, persis model 2952; klaim terkunci 2898 "tak menguras" dan 2916 "mati sebelum membaca stdin" dikoreksi di skenarionya (op dibalik, label ditandai dikoreksi Audit 2952). Baterai induk koreksi 9/9.
