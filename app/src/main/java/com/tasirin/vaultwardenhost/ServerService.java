@@ -4330,8 +4330,9 @@ public class ServerService extends Service {
         final java.util.concurrent.atomic.AtomicBoolean versiSelesai =
                 new java.util.concurrent.atomic.AtomicBoolean(false);
         Thread versiWatchdog = null;
+        String capOtomatis = null;
         try {
-            String capOtomatis = modeProbe == PROBE_OTOMATIS
+            capOtomatis = modeProbe == PROBE_OTOMATIS
                     ? capProbeOtomatis(binary) : null;
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath(), "--version")
                     .redirectErrorStream(true);
