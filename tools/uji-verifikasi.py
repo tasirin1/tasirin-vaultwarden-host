@@ -6245,27 +6245,6 @@ def _bagian_awal(tmp):
                     [sys.executable, GERBANG, "--hanya-workflow"])
     periksa("zip - -@: gerbang gagal (Audit 1130)", rc != 0 and rc != 124 and "Traceback" not in out)
     shutil.rmtree(sub278, ignore_errors=True)
-    sub279 = klon(tmp, "sub279")
-    berkas_aksi279 = os.path.join(
-        sub279, ".github", "actions", "resolve-vw",
-        "action.yml")
-    with open(berkas_aksi279, encoding="utf-8") as f:
-        isi_aksi279 = f.read()
-    baris_aksi279 = [b for b in isi_aksi279.splitlines()
-                      if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-    isi_baru279 = isi_aksi279.replace(
-            baris_aksi279,
-            baris_aksi279.replace(
-                '>> "$GITHUB_OUTPUT"',
-                "> >(zip -@; cat >> \"$GITHUB_OUTPUT\")"), 1)
-    assert isi_baru279 != isi_aksi279, \
-        "suntikan aksi279 tidak menembak"
-    with open(berkas_aksi279, "w", encoding="utf-8") as f:
-        f.write(isi_baru279)
-    rc, out = jalan(sub279,
-                    [sys.executable, GERBANG, "--hanya-workflow"])
-    periksa("zip -@ tanpa arsip: gerbang lolos (Audit 1130)", rc == 0)
-    shutil.rmtree(sub279, ignore_errors=True)
     sub280 = klon(tmp, "sub280")
     berkas_aksi280 = os.path.join(
         sub280, ".github", "actions", "resolve-vw",
@@ -17677,27 +17656,6 @@ def _bagian_akhir(tmp):
                     [sys.executable, GERBANG, "--hanya-workflow"])
     periksa("busybox timeout: applet pembungkus dikupas tahap yang sama, cat membaca stdin - gerbang gagal (Audit 1739)", rc != 0 and rc != 124 and "Traceback" not in out)
     shutil.rmtree(sub823, ignore_errors=True)
-    sub824 = klon(tmp, "sub824")
-    berkas_aksi824 = os.path.join(
-        sub824, ".github", "actions", "resolve-vw",
-        "action.yml")
-    with open(berkas_aksi824, encoding="utf-8") as f:
-        isi_aksi824 = f.read()
-    baris_aksi824 = [b for b in isi_aksi824.splitlines()
-                      if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-    isi_baru824 = isi_aksi824.replace(
-            baris_aksi824,
-            baris_aksi824.replace(
-                '>> "$GITHUB_OUTPUT"',
-                "> >(busybox ls; cat >> \"$GITHUB_OUTPUT\")"), 1)
-    assert isi_baru824 != isi_aksi824, \
-        "suntikan aksi824 tidak menembak"
-    with open(berkas_aksi824, "w", encoding="utf-8") as f:
-        f.write(isi_baru824)
-    rc, out = jalan(sub824,
-                    [sys.executable, GERBANG, "--hanya-workflow"])
-    periksa("busybox ls dinilai sebagai applet ls yang tidak membaca stdin: gerbang lolos (Audit 1739)", rc == 0)
-    shutil.rmtree(sub824, ignore_errors=True)
     sub825 = klon(tmp, "sub825")
     berkas_aksi825 = os.path.join(
         sub825, ".github", "actions", "resolve-vw",
@@ -31579,27 +31537,6 @@ def _bagian_akhir(tmp):
                     [sys.executable, GERBANG, "--hanya-workflow"])
     periksa("csvgrep -f di bundel: pencocok hadir, penguras - gerbang gagal (Audit 2389)", rc != 0 and rc != 124 and "Traceback" not in out)
     shutil.rmtree(sub1486, ignore_errors=True)
-    sub1487 = klon(tmp, "sub1487")
-    berkas_aksi1487 = os.path.join(
-        sub1487, ".github", "actions", "resolve-vw",
-        "action.yml")
-    with open(berkas_aksi1487, encoding="utf-8") as f:
-        isi_aksi1487 = f.read()
-    baris_aksi1487 = [b for b in isi_aksi1487.splitlines()
-                      if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-    isi_baru1487 = isi_aksi1487.replace(
-            baris_aksi1487,
-            baris_aksi1487.replace(
-                '>> "$GITHUB_OUTPUT"',
-                "> >(csvclean; cat >> \"$GITHUB_OUTPUT\")"), 1)
-    assert isi_baru1487 != isi_aksi1487, \
-        "suntikan aksi1487 tidak menembak"
-    with open(berkas_aksi1487, "w", encoding="utf-8") as f:
-        f.write(isi_baru1487)
-    rc, out = jalan(sub1487,
-                    [sys.executable, GERBANG, "--hanya-workflow"])
-    periksa("csvclean tanpa pengaktif: berhenti - gerbang lolos (Audit 2390)", rc == 0)
-    shutil.rmtree(sub1487, ignore_errors=True)
     sub1488 = klon(tmp, "sub1488")
     berkas_aksi1488 = os.path.join(
         sub1488, ".github", "actions", "resolve-vw",
@@ -32650,27 +32587,6 @@ def _bagian_akhir(tmp):
                     [sys.executable, GERBANG, "--hanya-workflow"])
     periksa("in2csv format tak dikenal tanpa operand: galat - gerbang lolos (Audit 2431)", rc == 0)
     shutil.rmtree(sub1537, ignore_errors=True)
-    sub1538 = klon(tmp, "sub1538")
-    berkas_aksi1538 = os.path.join(
-        sub1538, ".github", "actions", "resolve-vw",
-        "action.yml")
-    with open(berkas_aksi1538, encoding="utf-8") as f:
-        isi_aksi1538 = f.read()
-    baris_aksi1538 = [b for b in isi_aksi1538.splitlines()
-                      if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
-    isi_baru1538 = isi_aksi1538.replace(
-            baris_aksi1538,
-            baris_aksi1538.replace(
-                '>> "$GITHUB_OUTPUT"',
-                "> >(in2csv; cat >> \"$GITHUB_OUTPUT\")"), 1)
-    assert isi_baru1538 != isi_aksi1538, \
-        "suntikan aksi1538 tidak menembak"
-    with open(berkas_aksi1538, "w", encoding="utf-8") as f:
-        f.write(isi_baru1538)
-    rc, out = jalan(sub1538,
-                    [sys.executable, GERBANG, "--hanya-workflow"])
-    periksa("in2csv telanjang tanpa format: galat argparse - gerbang lolos (Audit 2431)", rc == 0)
-    shutil.rmtree(sub1538, ignore_errors=True)
     sub1539 = klon(tmp, "sub1539")
     berkas_aksi1539 = os.path.join(
         sub1539, ".github", "actions", "resolve-vw",

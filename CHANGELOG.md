@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Empat skenario uji ganda persis dicabut (Audit 2981)
+
+Suite uji-verifikasi tak lagi menjalankan dua kali
+empat skenario yang perintah dan vonisnya identik
+(zip -@, busybox ls, in2csv, csvclean - salinan
+koreksi yang ditambahkan tanpa mencabut skenario
+lama yang digantikannya). Jumlah skenario turun
+dari 2.046 menjadi 2.042 tanpa kehilangan cakupan.
+
+
 ## [Belum rilis] — Gerbang: -F dengan type= tak sah dinilai mati saat urai (Audit 2980)
 
 Perintah curl yang bagian form-nya memuat
