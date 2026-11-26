@@ -1,5 +1,22 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: konflik metode curl dinilai per seksi --next
+
+Memperbaiki temuan Audit 2962 (Sedang): pas konflik gerbang
+mengumpulkan bendera keluarga data/form/head/unggah secara global
+lintas --next, padahal biner menilainya per seksi transfer - `-d x`
+di seksi 1 dan `-T -` di seksi 2 tidak berkonflik dan unggahannya
+sungguh membaca stdin (terprobe server penangkap), tetapi gerbang
+menilai tidak menguras (fail-open). Bendera kini himpunan nomor
+seksi; aturan konflik 2898/2942 dinilai per seksi dan seksi
+berkonflik paling awal dicatat: konflik di seksi S membunuh run
+di penyiapan transfer S (seksi sebelumnya tetap berjalan). Walk
+kedua menghitung seksi dengan cara yang sama dan hanya mengakui
+sumber -T dari seksi yang berjalan; sumber saat-urai (-K -, data
+@-) tetap menguras walau seksinya berkonflik. Ditambah skenario
+regresi 1999.
+
+
 ## [Belum rilis] — CI: flag gh untuk mematikan auto-merge diluruskan (--disable-auto)
 
 Workflow Auto-merge PR Dependabot memakai `gh pr merge --disable-auto-merge` di ketiga langkah penjaga kelas manual (dependensi Gradle, workflow binary/shim, workflow gerbang) — flag itu tidak ada di gh (yang benar `--disable-auto`, terbukti dari teks bantuan gh di log kegagalan run PR #2737), sehingga perintah selalu gagal: untuk PR #2737 (gradle-wrapper 8.14.7 → 8.14.8) auto-merge memang sedang aktif, jadi penjaga Audit 1670 menggagalkan job dan PR tertahan dengan satu cek merah walau semua cek isi hijau penuh. Ketiga situs kini memakai flag yang benar; PR kelas manual berikutnya bisa dimatikan auto-merge-nya seperti desain. PR #2737 sendiri sudah ditinjau dan di-merge manual (diff 1 berkas properties + checksum, Assemble APK dan suite Cek patch PR hijau).
