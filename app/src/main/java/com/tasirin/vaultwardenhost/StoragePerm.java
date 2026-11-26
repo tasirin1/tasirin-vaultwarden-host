@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -148,7 +149,60 @@ public final class StoragePerm {
         return mintaIzinBilaPerlu(act, reqTulis);
     }
 
+    static final String KEY_IZIN_TULIS_DIMINTA = "izin_tulis_diminta";
+
+    // Audit 2978: predikat murni jalur pasif - izin tulis
+    // hanya diminta dari pembukaan layar bila memang ada
+    // yang bisa diminta (API 23-29), belum diberikan, dan
+    // belum pernah diminta lewat jalur pasif.
+    static boolean perluMintaIzinTulis(int sdk, boolean tulisDiberikan,
+            boolean sudahDiminta) {
+        if (sdk < Build.VERSION_CODES.M || butuhKelolaSemuaFile(sdk)) {
+            return false;
+        }
+        return !tulisDiberikan && !sudahDiminta;
+    }
+
     public static boolean mintaIzinBilaPerlu(Activity act, int reqTulis) {
+        // Audit 2978: jalur pasif (membuka layar utama /
+        // pengaturan) meminta SEKALI saja - dulu dialog izin
+        // sistem menyembul pada tiap cold start di API 23-29
+        // dengan folder kustom tanpa grant, walau pengguna
+        // tak menekan apa pun. Bendera dicatat hanya bila
+        // permintaan sungguh dilayangkan. Jalur aksi sengaja
+        // (tombol Start, ekspor log) memakai mintaIzinRuntime
+        // langsung dan tak terhalang bendera ini.
+        boolean diberikan = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                diberikan = act.checkSelfPermission(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED;
+            } catch (Exception ignored) {
+            }
+        }
+        boolean sudah = false;
+        SharedPreferences sp = null;
+        try {
+            sp = act.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            sudah = sp.getBoolean(KEY_IZIN_TULIS_DIMINTA, false);
+        } catch (Exception ignored) {
+        }
+        if (!perluMintaIzinTulis(Build.VERSION.SDK_INT, diberikan, sudah)) {
+            return false;
+        }
+        boolean diminta = mintaIzinRuntime(act, reqTulis);
+        if (diminta && sp != null) {
+            try {
+                sp.edit().putBoolean(KEY_IZIN_TULIS_DIMINTA, true).apply();
+            } catch (Exception ignored) {
+            }
+        }
+        return diminta;
+    }
+
+    static boolean mintaIzinRuntime(Activity act, int reqTulis) {
         // Audit 2968: di API 30+ tak ada izin runtime yang bisa
         // diminta untuk folder kustom; memintanya hanya memicu
         // penolakan semu. Jalur grant-nya layar akses semua
@@ -191,7 +245,7 @@ public final class StoragePerm {
             return false;
         }
 
-        boolean diminta = mintaIzinBilaPerlu(act, reqTulis);
+        boolean diminta = mintaIzinRuntime(act, reqTulis);
         if (!diminta) {
             Toast.makeText(act, act.getString(R.string.izin_storage_belum),
                     Toast.LENGTH_LONG).show();

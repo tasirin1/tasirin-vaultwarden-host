@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Dialog izin tulis tak lagi muncul tiap membuka aplikasi (Audit 2978)
+
+Di Android 6-10 dengan folder data kustom, dialog
+izin penyimpanan kini hanya ditawarkan sekali dari
+pembukaan layar; sebelumnya ia menyembul pada setiap
+cold start walau pengguna tidak menekan apa pun.
+Tombol Start dan ekspor log tetap dapat meminta izin
+kapan pun, seperti sebelumnya.
+
+
 ## [Belum rilis] — Pengaturan tak lagi menulis ulang kunci HTTPS tiap dibuka (Audit 2977)
 
 Penulisan preferensi HTTPS kini hanya terjadi bila

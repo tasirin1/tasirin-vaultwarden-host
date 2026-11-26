@@ -100,6 +100,17 @@ public class StoragePermTest {
     }
 
     @Test
+    public void perluMintaIzinTulis_hanyaApi23ke29BelumAdaBelumDiminta() {
+        // Audit 2978: jalur pasif meminta sekali saja.
+        assertTrue(StoragePerm.perluMintaIzinTulis(23, false, false));
+        assertTrue(StoragePerm.perluMintaIzinTulis(29, false, false));
+        assertFalse(StoragePerm.perluMintaIzinTulis(29, true, false));
+        assertFalse(StoragePerm.perluMintaIzinTulis(23, false, true));
+        assertFalse(StoragePerm.perluMintaIzinTulis(30, false, false));
+        assertFalse(StoragePerm.perluMintaIzinTulis(22, false, false));
+    }
+
+    @Test
     public void cukupAkses_apiLamaPakaiIzinRuntime() {
         assertTrue(StoragePerm.cukupAkses(29, false, true));
         assertFalse(StoragePerm.cukupAkses(29, false, false));

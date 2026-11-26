@@ -1278,7 +1278,7 @@ public class LogActivity extends Activity {
         if (Build.VERSION.SDK_INT < 29 && !StoragePerm.sudahPunyaAkses(this)) {
             simpanUlangSetelahIzin = true;
 
-            if (!StoragePerm.mintaIzinBilaPerlu(this, REQ_WRITE)) {
+            if (!StoragePerm.mintaIzinRuntime(this, REQ_WRITE)) {
                 simpanUlangSetelahIzin = false;
                 toast(getString(R.string.izin_simpan_belum));
             }

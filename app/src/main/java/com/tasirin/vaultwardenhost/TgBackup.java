@@ -2438,6 +2438,7 @@ public final class TgBackup {
                     "sec_buka_keamanan", "sec_buka_rawat",
                     "sec_buka_telegram", "sec_buka_log",
                     "home_log_expanded", MainActivity.KEY_NOTIF_DIMINTA,
+                    StoragePerm.KEY_IZIN_TULIS_DIMINTA,
                     ServerService.KEY_SERVER_DIMINTA,
                     PinGate.KEY_PIN_ON));
 
