@@ -1,5 +1,18 @@
 # Changelog
 
+## [Belum rilis] — Suite uji-verifikasi dibelah dua job paralel (Audit 2979)
+
+Suite uji-diri gerbang (2.040 skenario, terukur 22:18
+serial di CI) kini terbagi dua fungsi di
+tools/uji-verifikasi.py dan berjalan sebagai dua job
+paralel di build APK lewat berkas titik-masuk baru
+tools/uji-verifikasi-1.py dan tools/uji-verifikasi-2.py
+- pola belahan yang sama dengan suite cek-cepat.
+Check wajib PR tetap menjalankan seluruh skenario
+sebagai dua langkah. Berkas utama tetap menjalankan
+kedua paruh berurutan seperti sebelumnya.
+
+
 ## [Belum rilis] — Perbaikan: izin notifikasi kini diminta di Android 13+ (Audit 2970)
 
 Memperbaiki temuan putaran khusus targetSdk 2970 (Sedang):

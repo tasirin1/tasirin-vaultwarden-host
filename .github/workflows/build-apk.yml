@@ -14,6 +14,8 @@ on:
       - 'gradlew.bat'
       - 'tools/verifikasi-patch.py'
       - 'tools/uji-verifikasi.py'
+      - 'tools/uji-verifikasi-1.py'
+      - 'tools/uji-verifikasi-2.py'
       - 'tools/uji-cek-cepat-1.py'
       - 'tools/uji-cek-cepat.py'
       - 'tools/uji-cek-cepat-2.py'
@@ -34,6 +36,8 @@ on:
       - 'gradlew.bat'
       - 'tools/verifikasi-patch.py'
       - 'tools/uji-verifikasi.py'
+      - 'tools/uji-verifikasi-1.py'
+      - 'tools/uji-verifikasi-2.py'
       - 'tools/uji-cek-cepat-1.py'
       - 'tools/uji-cek-cepat.py'
       - 'tools/uji-cek-cepat-2.py'
@@ -103,9 +107,31 @@ jobs:
       # cek-wajib.yml sudah menjalankannya untuk SEMUA PR tanpa
       # saringan path; menjalankannya lagi di sini menggandakan
       # ±19-25 menit per PR. Push tetap menjalankannya.
+      # Audit 2979: langkah ini kini menjalankan PARUH AWAL saja
+      # (uji-verifikasi-1.py); paruh akhir berjalan sebagai job
+      # paralel verifikasi-2 di bawah.
       - name: Uji-diri gerbang (cabang langka verifikasi-patch)
         if: github.event_name != 'pull_request'
-        run: python3 tools/uji-verifikasi.py
+        run: python3 tools/uji-verifikasi-1.py
+  verifikasi-2:
+    name: Cek patch yang berubah (build-apk 2)
+    runs-on: ubuntu-24.04
+    # Audit 2979: paruh akhir skenario suite uji-verifikasi
+    # berjalan sebagai job paralel sendiri (berkas
+    # tools/uji-verifikasi-2.py memuat paruh itu dari berkas
+    # suite utama) agar jalur kritis Assemble APK tak lagi
+    # ditentukan satu suite serial +-22 menit - pola yang sama
+    # dengan verifikasi-cek-2 (Audit 2557).
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+
+          persist-credentials: false
+      - name: Uji-diri gerbang bagian 2 (paruh akhir skenario)
+        if: github.event_name != 'pull_request'
+        run: python3 tools/uji-verifikasi-2.py
   verifikasi-cek:
     name: Cek patch yang berubah (cek-cepat)
     runs-on: ubuntu-24.04
@@ -169,7 +195,7 @@ jobs:
 
   build-apk:
     name: Assemble APK
-    needs: [resolve, verifikasi, verifikasi-cek, verifikasi-cek-2]
+    needs: [resolve, verifikasi, verifikasi-2, verifikasi-cek, verifikasi-cek-2]
     runs-on: ubuntu-24.04
     timeout-minutes: 90
 

@@ -142,8 +142,13 @@ jobs:
           python3 tools/verifikasi-patch.py --rentang "$RENTANG"
       - name: Cek cepat (vektor 0.x, README, secret)
         run: bash scripts/cek-cepat.sh
+      # Audit 2979: suite terbagi dua berkas titik-masuk;
+      # check wajib tetap menjalankan seluruh skenario (paruh
+      # awal oleh langkah ini, paruh akhir oleh langkah berikut).
       - name: Uji-diri gerbang (cabang langka verifikasi-patch)
-        run: python3 tools/uji-verifikasi.py
+        run: python3 tools/uji-verifikasi-1.py
+      - name: Uji-diri gerbang bagian 2 (paruh akhir skenario)
+        run: python3 tools/uji-verifikasi-2.py
       - name: Uji-diri cek-cepat (cabang deteksi cek-cepat)
         run: python3 tools/uji-cek-cepat-1.py
       # Audit 2557: skenario terbagi dua berkas titik-masuk;
