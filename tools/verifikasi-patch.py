@@ -9603,21 +9603,19 @@ def _menguras_khusus(perintah, toks, awal):
                          or seksi_w2
                          < konflik_pertama)):
                 return True
-            if (t.startswith("--data") and "@-" in t) or (
-                    t.startswith("--json") and "@-" in t) or (
-                    t.startswith("--form") and "@-" in t
-                    and "--form-string" not in t) or (
-                    t.startswith("-d") and len(t) > 2
-                    and t[2:] == "@-") or (
-                    t.startswith("-K") and len(t) > 2
-                    and t[2:] == "-") or (
-                    t.startswith("-F") and len(t) > 2
-                    and "@-" in t) or (
-                    t.startswith("--upload-file=")
-                    and t.split("=", 1)[1] == "-") or (
-                    t.startswith("--config=")
-                    and t.split("=", 1)[1] == "-"):
-                return True
+            # Audit 2982: klausul fallthrough longgar
+            # ("@-" in t untuk --data/--json/--form/-F,
+            # warisan semantik pra-2964/2965) dihapus -
+            # terverifikasi tak terjangkau: 22 token uji
+            # gabungan jalur + induk yang memenuhi pola
+            # longgarnya semuanya diputuskan lebih dulu
+            # oleh lintasan tepat, dan pencabutannya
+            # mengubah 0 vonis pada 37 perintah beragam.
+            # Alternatif tepatnya di klausul yang sama
+            # (-d/-K merekat, --upload-file=/--config=)
+            # ikut bayangan: -d/-K diputuskan cabang
+            # bundel tepat, bentuk = sudah gugur oleh
+            # penjaga 2882 di atas.
             i += 1
         return False
     if perintah == "wget":

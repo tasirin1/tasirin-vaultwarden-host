@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Klausul longgar tak terjangkau di pemeriksa stdin dihapus (Audit 2982)
+
+Sisa pola longgar terakhir di model curl gerbang
+(token mengandung @- di mana saja, semantik yang
+sudah diganti model tepat pada 2964/2965) dihapus.
+Terbukti tak pernah menentukan vonis - seluruh
+bentuknya diputuskan lebih dulu oleh lintasan
+tepat - dan pencabutannya mengubah nol vonis pada
+baterai 37 perintah beragam.
+
+
 ## [Belum rilis] — Empat skenario uji ganda persis dicabut (Audit 2981)
 
 Suite uji-verifikasi tak lagi menjalankan dua kali
