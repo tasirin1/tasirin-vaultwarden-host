@@ -1,5 +1,28 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan: folder data kustom bisa dipakai lagi di Android 11+ (Audit 2968)
+
+Memperbaiki temuan putaran khusus targetSdk 2968 (Tinggi):
+model izin folder data kustom masih model pra-scoped-storage.
+Sesudah targetSdk naik, di perangkat Android 11+ grant
+WRITE_EXTERNAL_STORAGE tidak lagi memberi tulis ke folder
+sembarang (dan sejak target 33 tidak bisa diberikan sama
+sekali), requestLegacyExternalStorage diabaikan, dan jalur
+resmi akses berkas luas (MANAGE_EXTERNAL_STORAGE + layar
+akses semua file) tidak dideklarasikan maupun ditawarkan -
+folder kustom jadi jalan buntu: Start menolak terus dengan
+pesan izin yang tidak bisa dipenuhi. Kini: izin
+MANAGE_EXTERNAL_STORAGE dideklarasikan; vonis akses API 30+
+hanya mengakui akses semua file (cukupAkses); izin runtime
+WRITE tidak lagi diminta di API 30+ (izinRuntime kosong,
+mintaIzinBilaPerlu berhenti lebih awal agar tak ada
+penolakan semu); dan siapStart membuka layar sistem akses
+semua file dari aksi Start pengguna disertai toast panduan
+(izin_semua_file_panduan, en+in) dan catatan log. Perilaku
+API <= 29 tidak berubah; folder bawaan khusus aplikasi
+tidak pernah terpengaruh.
+
+
 ## [Belum rilis] — Telegram: nama berkas dokumen ikut disaring dari PIN
 
 Memperbaiki temuan Audit 2967 (Rendah): saringan hapus di

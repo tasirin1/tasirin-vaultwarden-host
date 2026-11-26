@@ -3,9 +3,12 @@ package com.tasirin.vaultwardenhost;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.Settings;
 import android.widget.Toast;
 
 public final class StoragePerm {
@@ -29,6 +32,13 @@ public final class StoragePerm {
 
     public static String[] izinRuntime(int sdk) {
         if (sdk < Build.VERSION_CODES.M) {
+            return IZIN_KOSONG;
+        }
+        // Audit 2968: sejak API 30 izin tulis runtime tak lagi
+        // membuka jalur berkas sembarang (scoped storage) dan
+        // sejak target 33 tak bisa diberikan sama sekali -
+        // folder kustom jalurnya izin akses semua file.
+        if (butuhKelolaSemuaFile(sdk)) {
             return IZIN_KOSONG;
         }
         return IZIN_RW.clone();
@@ -87,7 +97,10 @@ public final class StoragePerm {
 
     static boolean cukupAkses(int sdk, boolean kelolaSemuaFile, boolean tulisDiberikan) {
         if (butuhKelolaSemuaFile(sdk)) {
-            return kelolaSemuaFile || tulisDiberikan;
+            // Audit 2968: grant WRITE lama bukan akses nyata ke
+            // folder kustom sejak scoped storage (API 30+) -
+            // hanya akses semua file yang berlaku.
+            return kelolaSemuaFile;
         }
         if (sdk >= 23) {
             return tulisDiberikan;
@@ -136,6 +149,13 @@ public final class StoragePerm {
     }
 
     public static boolean mintaIzinBilaPerlu(Activity act, int reqTulis) {
+        // Audit 2968: di API 30+ tak ada izin runtime yang bisa
+        // diminta untuk folder kustom; memintanya hanya memicu
+        // penolakan semu. Jalur grant-nya layar akses semua
+        // file, dibuka siapStart atas aksi pengguna.
+        if (butuhKelolaSemuaFile(Build.VERSION.SDK_INT)) {
+            return false;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
                 if (act.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -157,6 +177,20 @@ public final class StoragePerm {
             return true;
         }
 
+        // Audit 2968: API 30+ - satu-satunya jalan memberi akses
+        // folder kustom adalah layar akses semua file sistem;
+        // dibuka dari aksi Start yang disengaja pengguna.
+        if (butuhKelolaSemuaFile(Build.VERSION.SDK_INT)) {
+            boolean dibuka = bukaPengaturanSemuaFile(act);
+            Toast.makeText(act, act.getString(R.string.izin_semua_file_panduan),
+                    Toast.LENGTH_LONG).show();
+            ServerService.catatLog("[app] Start dibatalkan: folder kustom butuh izin"
+                    + " akses semua file (Android 11+) untuk " + dataDir
+                    + (dibuka ? "." : " - layar pengaturan gagal dibuka, aktifkan"
+                    + " manual lewat Pengaturan HP."));
+            return false;
+        }
+
         boolean diminta = mintaIzinBilaPerlu(act, reqTulis);
         if (!diminta) {
             Toast.makeText(act, act.getString(R.string.izin_storage_belum),
@@ -165,6 +199,27 @@ public final class StoragePerm {
         ServerService.catatLog("[app] Start dibatalkan: izin penyimpanan belum diberikan "
                 + "untuk " + dataDir + ".");
         return false;
+    }
+
+    // Audit 2968: layar sistem akses semua file untuk aplikasi
+    // ini; fallback ke daftar semua aplikasi bila layar langsung
+    // tak tersedia. Hanya dipanggil pada API 30+.
+    static boolean bukaPengaturanSemuaFile(Activity act) {
+        try {
+            Intent langsung = new Intent(
+                    Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                    Uri.parse("package:" + act.getPackageName()));
+            act.startActivity(langsung);
+            return true;
+        } catch (Exception e) {
+            try {
+                act.startActivity(new Intent(
+                        Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
+                return true;
+            } catch (Exception e2) {
+                return false;
+            }
+        }
     }
 
     static boolean penolakanPermanen(boolean rationaleTampil, boolean sudahDiizinkan) {

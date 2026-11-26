@@ -21,7 +21,9 @@ public class StoragePermTest {
         assertEquals(0, StoragePerm.izinRuntime(21).length);
         assertEquals(0, StoragePerm.izinRuntime(22).length);
         assertEquals(1, StoragePerm.izinRuntime(23).length);
-        assertEquals(1, StoragePerm.izinRuntime(34).length);
+        assertEquals(1, StoragePerm.izinRuntime(29).length);
+        assertEquals(0, StoragePerm.izinRuntime(30).length);
+        assertEquals(0, StoragePerm.izinRuntime(34).length);
     }
 
     @Test
@@ -88,12 +90,12 @@ public class StoragePermTest {
     }
 
     @Test
-    public void cukupAkses_api30TerimaLegacyAtauKelola() {
+    public void cukupAkses_api30TolakGrantTulisLama() {
         assertTrue(StoragePerm.cukupAkses(30, true, false));
         assertTrue(StoragePerm.cukupAkses(34, true, true));
 
-        assertTrue(StoragePerm.cukupAkses(30, false, true));
-        assertTrue(StoragePerm.cukupAkses(33, false, true));
+        assertFalse(StoragePerm.cukupAkses(30, false, true));
+        assertFalse(StoragePerm.cukupAkses(33, false, true));
         assertFalse(StoragePerm.cukupAkses(33, false, false));
     }
 
