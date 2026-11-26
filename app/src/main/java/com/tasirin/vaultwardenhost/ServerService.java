@@ -4712,8 +4712,17 @@ public class ServerService extends Service {
             }
 
             synchronized (KUNCI_SSL) {
-                sslFactory = null;
-                sslCaCap = -1L;
+                // Audit 2974: factory SSL JANGAN dibuang di
+                // sini. loopbackSslFactory membanding cap CA
+                // aktif dengan cap factory tersimpan pada
+                // tiap panggilan dan membangun ulang hanya
+                // bila CA sungguh berganti; membuangnya tanpa
+                // syarat memaksa bangun ulang (parse sertifikat
+                // + keystore + SSLContext) pada ping health
+                // pertama tiap start walau tak ada yang
+                // berubah. Yang disegarkan cukup cache stat
+                // cap CA, agar panggilan berikut membaca CA
+                // dari disk lagi.
                 capCaStat = Long.MIN_VALUE;
                 capCaWaktu = 0;
             }

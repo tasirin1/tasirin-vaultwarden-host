@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Factory SSL health-check tak lagi dibangun ulang tiap start (Audit 2974)
+
+Pemeriksaan kesehatan kini memakai ulang factory
+SSL ter-pin CA dari start sebelumnya selama CA-nya
+tidak berganti (perbandingan cap CA pada tiap
+panggilan sudah ada dan tetap menjadi penentu);
+sebelumnya factory dibuang tanpa syarat pada tiap
+penyiapan sertifikat sehingga selalu dibangun ulang
+dari nol pada ping pertama.
+
+
 ## [Belum rilis] — Sapuan sisa .bak pohon lampiran hanya sesudah swap terputus (Audit 2973)
 
 Start tidak lagi memindai rekursif seluruh folder
