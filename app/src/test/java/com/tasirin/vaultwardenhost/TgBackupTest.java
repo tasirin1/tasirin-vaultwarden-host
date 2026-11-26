@@ -3233,4 +3233,13 @@ public class TgBackupTest {
         assertFalse(TgBackup.namaKunciLampiran("rsa_key.pem.bak"));
         assertFalse(TgBackup.namaKunciLampiran(null));
     }
+
+    @Test
+    public void trampolinStartBoleh_hanyaAndroid12DanExact() {
+        assertTrue(TgBackup.trampolinStartBoleh(31, true));
+        assertTrue(TgBackup.trampolinStartBoleh(34, true));
+        assertFalse(TgBackup.trampolinStartBoleh(31, false));
+        assertFalse(TgBackup.trampolinStartBoleh(30, true));
+        assertFalse(TgBackup.trampolinStartBoleh(28, true));
+    }
 }

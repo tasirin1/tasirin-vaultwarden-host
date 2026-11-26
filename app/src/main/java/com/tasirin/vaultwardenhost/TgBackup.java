@@ -226,6 +226,8 @@ public final class TgBackup {
 
     static final int REQ_TUNDA_BOOT = 101;
 
+    static final int REQ_START_SERVER = 102;
+
     static final int REQ_HARIAN = 0;
 
     static final String EXTRA_TUNDA_BOOT = "tunda_boot";
@@ -374,6 +376,55 @@ public final class TgBackup {
             return pasangAlarmTundaBoot(ctx,
                     SystemClock.elapsedRealtime() + jedaMs);
         } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    static final long TRAMPOLIN_START_MS = 2000;
+
+    // Audit 2969: keputusan murni trampolin start - hanya
+    // berarti di Android 12+ (di sanalah start FGS dari
+    // background ditolak untuk aplikasi target 31+) dan hanya
+    // bila alarm exact diizinkan; tanpa izin exact, jalur
+    // tertunda lama yang berlaku.
+    static boolean trampolinStartBoleh(int sdk, boolean exactDiizinkan) {
+        return sdk >= 31 && exactDiizinkan;
+    }
+
+    // Audit 2969: pasang alarm exact sekali tembak yang
+    // penyerahannya (konteks pengecualian resmi) menjalankan
+    // ulang aksi start yang ditolak background. Rahasia alarm
+    // sama seperti alarm backup lain.
+    public static boolean jadwalTrampolinStart(Context ctx, String aksiLanjutan) {
+        try {
+            AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) {
+                return false;
+            }
+            boolean exact = true;
+            if (Build.VERSION.SDK_INT >= 31) {
+                try {
+                    exact = am.canScheduleExactAlarms();
+                } catch (Exception ignored) {
+                    exact = false;
+                }
+            }
+            if (!trampolinStartBoleh(Build.VERSION.SDK_INT, exact)) {
+                return false;
+            }
+            Intent intent = new Intent(ctx, AlarmReceiver.class)
+                    .setAction(AlarmReceiver.ACTION_START_SERVER)
+                    .putExtra(AlarmReceiver.EXTRA_AKSI_LANJUTAN, aksiLanjutan)
+                    .putExtra(AlarmReceiver.EXTRA_RAHASIA, rahasiaAlarm(ctx));
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT
+                    | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                            ? PendingIntent.FLAG_IMMUTABLE : 0);
+            PendingIntent pi = PendingIntent.getBroadcast(ctx, REQ_START_SERVER,
+                    intent, flags);
+            am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + TRAMPOLIN_START_MS, pi);
+            return true;
+        } catch (Exception e) {
             return false;
         }
     }

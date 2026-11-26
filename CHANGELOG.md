@@ -1,5 +1,30 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan: perintah Telegram tetap bisa menyalakan server di Android 12+ (Audit 2969)
+
+Memperbaiki temuan putaran khusus targetSdk 2969 (Sedang):
+poll bot Telegram hidup di luar foreground service, jadi
+perintah /start, /restart saat server mati, dan backup
+perintah Telegram bermuara ke startForegroundService dari
+background - ditolak Android 12+ untuk aplikasi target 31+
+di luar pengecualian resmi (ForegroundServiceStartNotAllowed-
+Exception), sehingga kendali jarak jauh merosot diam-diam
+begitu targetSdk naik. Kini mulaiService yang gagal start
+untuk aksi penyala (START/RESTART/TG_BACKUP) di Android 12+
+memasang trampolin: alarm exact sekali tembak
+(TgBackup.jadwalTrampolinStart, +2 detik, rahasia alarm yang
+sama seperti alarm backup) yang penyerahannya - konteks
+pengecualian resmi - menjalankan aksi lewat
+ServerService.startDariTrampolin, yang sengaja tidak
+memasang trampolin lagi agar kegagalan lain tidak berputar.
+Bila izin alarm exact tidak ada, perilaku lama berlaku
+penuh: penanda start-tertunda + balasan jujur. Keputusan
+murninya (aksiPerluTrampolin, trampolinStartBoleh) teruji
+JVM. Faset DATE_CHANGED di AlarmReceiver ikut sembuh lewat
+jahitan yang sama (backupNow-nya kini bisa diteruskan
+trampolin).
+
+
 ## [Belum rilis] — Perbaikan: folder data kustom bisa dipakai lagi di Android 11+ (Audit 2968)
 
 Memperbaiki temuan putaran khusus targetSdk 2968 (Tinggi):

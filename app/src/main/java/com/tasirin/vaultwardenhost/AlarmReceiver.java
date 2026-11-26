@@ -14,6 +14,12 @@ public class AlarmReceiver extends BroadcastReceiver {
     public static final String ACTION_TUNDA =
             "com.tasirin.vaultwardenhost.ALARM_TUNDA_BOOT";
 
+    public static final String ACTION_START_SERVER =
+            "com.tasirin.vaultwardenhost.ALARM_START_SERVER";
+
+    public static final String EXTRA_AKSI_LANJUTAN =
+            "com.tasirin.vaultwardenhost.ALARM_AKSI_LANJUTAN";
+
     public static final String EXTRA_RAHASIA =
             "com.tasirin.vaultwardenhost.ALARM_SECRET";
 
@@ -156,6 +162,25 @@ public class AlarmReceiver extends BroadcastReceiver {
         boolean siaranWaktu = Intent.ACTION_DATE_CHANGED.equals(action)
                 || Intent.ACTION_TIME_CHANGED.equals(action)
                 || Intent.ACTION_TIMEZONE_CHANGED.equals(action);
+
+        // Audit 2969: penyerahan trampolin start - konteks
+        // alarm exact termasuk pengecualian start FGS dari
+        // background, jadi aksi lanjutan dijalankan di sini.
+        if (ACTION_START_SERVER.equals(action)) {
+            if (!TgBackup.rahasiaAlarmCocok(context, intent)) {
+                ServerService.catatLog("[app] Trampolin start gugur: rahasia alarm"
+                        + " tak cocok.");
+                return;
+            }
+            String aksi = intent.getStringExtra(EXTRA_AKSI_LANJUTAN);
+            boolean ok = ServerService.startDariTrampolin(context, aksi);
+            if (!ok && ServerService.ACTION_TG_BACKUP.equals(aksi)) {
+                TgBackup.tandaiBackupTertunda(context);
+            }
+            ServerService.catatLog("[app] Trampolin start (" + aksi + "): "
+                    + (ok ? "service dinyalakan." : "start tetap gagal."));
+            return;
+        }
 
         if (!alarmApp && !siaranWaktu) {
             return;

@@ -568,6 +568,12 @@ public class ServerService extends Service {
 
     @SuppressLint("ApplySharedPref")
     private static boolean mulaiService(Context context, String aksi) {
+        return mulaiService(context, aksi, true);
+    }
+
+    @SuppressLint("ApplySharedPref")
+    private static boolean mulaiService(Context context, String aksi,
+            boolean bolehTrampolin) {
         try {
             Intent i = new Intent(context, ServerService.class).setAction(aksi);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -590,6 +596,18 @@ public class ServerService extends Service {
             return true;
         } catch (Exception e) {
             catatLog("[app] Gagal start service (" + aksi + "): " + e);
+            // Audit 2969: start dari background ditolak Android
+            // 12+ (target 31+) di luar pengecualian - teruskan
+            // lewat trampolin alarm exact, yang penyerahannya
+            // termasuk pengecualian resmi, agar perintah jarak
+            // jauh (Telegram) tetap bisa menyalakan service.
+            if (bolehTrampolin && Build.VERSION.SDK_INT >= 31
+                    && aksiPerluTrampolin(aksi)
+                    && TgBackup.jadwalTrampolinStart(context, aksi)) {
+                catatLog("[app] Start (" + aksi + ") diteruskan lewat trampolin"
+                        + " alarm exact (batasan background Android 12+).");
+                return true;
+            }
             if (ACTION_START.equals(aksi)) {
 
                 try {
@@ -600,6 +618,28 @@ public class ServerService extends Service {
             }
             return false;
         }
+    }
+
+    // Audit 2969: aksi yang layak diteruskan lewat trampolin
+    // alarm exact bila start langsung dari background ditolak -
+    // aksi yang tujuannya menyalakan service. STOP tidak:
+    // gagal menghentikan dari background tak menyisakan kerja.
+    static boolean aksiPerluTrampolin(String aksi) {
+        return ACTION_START.equals(aksi) || ACTION_RESTART.equals(aksi)
+                || ACTION_TG_BACKUP.equals(aksi);
+    }
+
+    // Audit 2969: pintu masuk penyerahan trampolin - start
+    // dicoba sekali dari konteks alarm exact TANPA memasang
+    // trampolin lagi, agar kegagalan lain tak berputar.
+    public static boolean startDariTrampolin(Context context, String aksi) {
+        if (ACTION_TG_BACKUP.equals(aksi)) {
+            return mulaiService(context, ACTION_TG_BACKUP, false);
+        }
+        if (ACTION_RESTART.equals(aksi)) {
+            return mulaiService(context, ACTION_RESTART, false);
+        }
+        return mulaiService(context, ACTION_START, false);
     }
 
     public static boolean stop(Context context) {

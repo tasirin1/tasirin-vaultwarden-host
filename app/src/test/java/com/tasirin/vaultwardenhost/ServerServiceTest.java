@@ -1677,4 +1677,14 @@ public class ServerServiceTest {
                 java.nio.charset.StandardCharsets.UTF_8));
         assertFalse(lama.exists());
     }
+
+    @Test
+    public void aksiPerluTrampolin_hanyaAksiPenyala() {
+        assertTrue(ServerService.aksiPerluTrampolin(ServerService.ACTION_START));
+        assertTrue(ServerService.aksiPerluTrampolin(ServerService.ACTION_RESTART));
+        assertTrue(ServerService.aksiPerluTrampolin(ServerService.ACTION_TG_BACKUP));
+        assertFalse(ServerService.aksiPerluTrampolin(ServerService.ACTION_STOP));
+        assertFalse(ServerService.aksiPerluTrampolin("com.tasirin.vaultwardenhost.LAIN"));
+        assertFalse(ServerService.aksiPerluTrampolin(null));
+    }
 }
