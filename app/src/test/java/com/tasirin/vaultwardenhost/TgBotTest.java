@@ -331,6 +331,26 @@ public class TgBotTest {
         assertFalse(TgBot.pesanPerluHapus("", "", ""));
     }
 
+    @Test
+    public void pesanPerluHapus_teksPollDanGabungnya() {
+        // Audit 2976: teks poll adalah teks bebas
+        // keempat yang disaring - PIN di pertanyaan
+        // atau di opsi sama-sama menghapus pesannya.
+        assertTrue(TgBot.pesanPerluHapus("", "", "",
+                "berapa pin-nya? 123456"));
+        assertTrue(TgBot.pesanPerluHapus("", "", "",
+                TgBot.gabungTeksPoll("pilih satu",
+                        new String[]{"biasa", "123456"})));
+        assertFalse(TgBot.pesanPerluHapus("", "", "",
+                TgBot.gabungTeksPoll("makan apa hari ini",
+                        new String[]{"nasi", "mie"})));
+        assertEquals("tanya\nopsi1\nopsi2",
+                TgBot.gabungTeksPoll("tanya",
+                        new String[]{"opsi1", "opsi2"}));
+        assertEquals("", TgBot.gabungTeksPoll(null, null));
+        assertEquals("tanya", TgBot.gabungTeksPoll("tanya", null));
+    }
+
     public void pinDariBalasanBedakanPinDanObrolan() {
 
         assertEquals("123456", TgBot.pinDariBalasan("123456"));

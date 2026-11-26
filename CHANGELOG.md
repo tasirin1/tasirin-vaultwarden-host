@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Teks poll Telegram ikut disaring PIN (Audit 2976)
+
+Pesan berbentuk poll yang pertanyaan atau opsi-
+nya memuat PIN aplikasi kini ikut terhapus otomatis
+seperti teks, caption, dan nama berkas dokumen:
+teks poll diekstrak dan dinilai dengan predikat
+yang sama di semua jalur (pesan baru, suntingan,
+kanal, chat asing, dan jalur pesan basi).
+
+
 ## [Belum rilis] — Metode yatim simpanStempelThrottle dihapus (Audit 2975)
 
 Penulis stempel throttle lama yang sudah tak

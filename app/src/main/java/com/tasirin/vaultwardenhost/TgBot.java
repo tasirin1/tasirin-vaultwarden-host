@@ -566,7 +566,8 @@ public final class TgBot {
                                                     sunting.optString(
                                                             "caption", ""),
                                                     namaBerkasDokumen(
-                                                            sunting))) {
+                                                            sunting),
+                                                    teksPoll(sunting))) {
                                         if (!Util.cocokChatBanyak(
                                                 chatKonfig, idRuangSunting,
                                                 namaSunting)) {
@@ -619,7 +620,8 @@ public final class TgBot {
                                                     kanal.optString(
                                                             "caption", ""),
                                                     namaBerkasDokumen(
-                                                            kanal))) {
+                                                            kanal),
+                                                    teksPoll(kanal))) {
                                         if (!Util.cocokChatBanyak(
                                                 chatKonfig, idRuangKanal,
                                                 namaKanal)) {
@@ -660,7 +662,8 @@ public final class TgBot {
                                 if (pesanPerluHapus(
                                         msg.optString("text", ""),
                                         msg.optString("caption", ""),
-                                        namaBerkasDokumen(msg))
+                                        namaBerkasDokumen(msg),
+                                        teksPoll(msg))
                                         && pinPerangkatAktif(ctx)) {
                                     hapusPesanAsingAsync(ctx, idRuang,
                                             msg.optInt("message_id", 0));
@@ -681,6 +684,7 @@ public final class TgBot {
                                     int idPesanMundur = msg.optInt("message_id", 0);
                                     hapusBilaPinBasi(ctx, idRuang, teksMundur,
                                             namaBerkasDokumen(msg),
+                                            teksPoll(msg),
                                             idPesanMundur, kiniPoll);
                                     continue;
                                 } else {
@@ -695,6 +699,7 @@ public final class TgBot {
                                     int idPesanBasi = msg.optInt("message_id", 0);
                                     hapusBilaPinBasi(ctx, idRuang, teksBasi,
                                             namaBerkasDokumen(msg),
+                                            teksPoll(msg),
                                             idPesanBasi, kiniPoll);
                                     continue;
                                 }
@@ -769,7 +774,9 @@ public final class TgBot {
                                         || teksSuntinganPerluHapus(
                                                 msg.optString("caption", ""))
                                         || teksSuntinganPerluHapus(
-                                                namaBerkasDokumen(msg));
+                                                namaBerkasDokumen(msg))
+                                        || teksSuntinganPerluHapus(
+                                                teksPoll(msg));
                                 if (idPesan != 0 && hapusPin && pinPerangkatAktif(ctx)) {
                                     hapusPesanAsync(ctx, idRuang, idPesan);
                                 } else if (idPesan != 0 && "help".equals(namaPerintah(text))
@@ -1668,9 +1675,61 @@ public final class TgBot {
     static boolean pesanPerluHapus(String teks,
                                    String caption,
                                    String namaBerkas) {
+        return pesanPerluHapus(teks, caption, namaBerkas, "");
+    }
+
+    // Audit 2976: pesan poll membawa teks bebas KEEMPAT -
+    // pertanyaan + teks opsi - yang tak pernah dibaca
+    // saringan mana pun: poll yang pertanyaan/opsi-nya
+    // memuat PIN lolos dari semua jalur hapus dan PIN
+    // menetap di riwayat chat. Teks poll kini diekstrak
+    // dan disaring dengan predikat yang sama di semua
+    // jalur, seperti nama berkas pada 2967.
+    static String teksPoll(JSONObject pesan) {
+        if (pesan == null) {
+            return "";
+        }
+        JSONObject poll = pesan.optJSONObject("poll");
+        if (poll == null) {
+            return "";
+        }
+        org.json.JSONArray opsi = poll.optJSONArray("options");
+        int n = opsi == null ? 0 : opsi.length();
+        String[] daftar = new String[n];
+        for (int i = 0; i < n; i++) {
+            JSONObject o = opsi.optJSONObject(i);
+            daftar[i] = o == null ? "" : o.optString("text", "");
+        }
+        return gabungTeksPoll(poll.optString("question", ""), daftar);
+    }
+
+    static String gabungTeksPoll(String pertanyaan, String[] opsi) {
+        StringBuilder sb = new StringBuilder();
+        if (pertanyaan != null) {
+            sb.append(pertanyaan);
+        }
+        if (opsi != null) {
+            for (String o : opsi) {
+                if (o == null) {
+                    continue;
+                }
+                if (sb.length() > 0) {
+                    sb.append('\n');
+                }
+                sb.append(o);
+            }
+        }
+        return sb.toString();
+    }
+
+    static boolean pesanPerluHapus(String teks,
+                                   String caption,
+                                   String namaBerkas,
+                                   String teksPoll) {
         return teksSuntinganPerluHapus(
                 pilihTeksSuntingan(teks, caption))
-                || teksSuntinganPerluHapus(namaBerkas);
+                || teksSuntinganPerluHapus(namaBerkas)
+                || teksSuntinganPerluHapus(teksPoll);
     }
 
     static String pinTebakan(String text) {
@@ -2320,12 +2379,19 @@ public final class TgBot {
         hapusBilaPinBasi(ctx, idRuang, teks, "", idPesan, kiniPoll);
     }
 
+    private static void hapusBilaPinBasi(Context ctx, long idRuang, String teks,
+            String namaBerkas, int idPesan, long kiniPoll) {
+        hapusBilaPinBasi(ctx, idRuang, teks, namaBerkas, "", idPesan, kiniPoll);
+    }
+
     // Audit 2967: jalur basi/mundur ikut
     // menyaring nama berkas dokumen - PIN
     // sebagai nama berkas juga menghapus
     // pesannya, seperti jalur lain.
+    // Audit 2976: teks poll ikut disaring di
+    // jalur ini juga.
     private static void hapusBilaPinBasi(Context ctx, long idRuang, String teks,
-            String namaBerkas, int idPesan, long kiniPoll) {
+            String namaBerkas, String teksPoll, int idPesan, long kiniPoll) {
         if (idPesan == 0 || !pinPerangkatAktif(ctx)) {
             return;
         }
@@ -2337,7 +2403,8 @@ public final class TgBot {
             pendingBasi = pb.kedaluwarsa;
         }
         if (pinBasiPerluHapus(teks, adaPending, pendingBasi)
-                || teksSuntinganPerluHapus(namaBerkas)) {
+                || teksSuntinganPerluHapus(namaBerkas)
+                || teksSuntinganPerluHapus(teksPoll)) {
             hapusPesanAsync(ctx, idRuang, idPesan);
         }
     }
