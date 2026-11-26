@@ -421,8 +421,12 @@ public final class TgBackup {
                             ? PendingIntent.FLAG_IMMUTABLE : 0);
             PendingIntent pi = PendingIntent.getBroadcast(ctx, REQ_START_SERVER,
                     intent, flags);
-            am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + TRAMPOLIN_START_MS, pi);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime() + TRAMPOLIN_START_MS, pi);
+            } else {
+                return false;
+            }
             return true;
         } catch (Exception e) {
             return false;

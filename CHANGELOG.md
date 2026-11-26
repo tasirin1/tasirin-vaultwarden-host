@@ -42,7 +42,11 @@ penuh: penanda start-tertunda + balasan jujur. Keputusan
 murninya (aksiPerluTrampolin, trampolinStartBoleh) teruji
 JVM. Faset DATE_CHANGED di AlarmReceiver ikut sembuh lewat
 jahitan yang sama (backupNow-nya kini bisa diteruskan
-trampolin).
+trampolin). Koreksi susulan (CI merah putaran pertama):
+panggilan setExactAndAllowWhileIdle kini dicabang langsung
+pada Build.VERSION_CODES.M di dalam metode - lint NewApi
+tidak melihat menembus helper keputusan trampolinStartBoleh
+untuk API 23 di minSdk 21.
 
 
 ## [Belum rilis] — Perbaikan: folder data kustom bisa dipakai lagi di Android 11+ (Audit 2968)
