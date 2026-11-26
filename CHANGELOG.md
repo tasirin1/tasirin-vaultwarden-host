@@ -1,5 +1,25 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan: izin notifikasi kini diminta di Android 13+ (Audit 2970)
+
+Memperbaiki temuan putaran khusus targetSdk 2970 (Sedang):
+POST_NOTIFICATIONS sudah dideklarasikan di manifest tetapi
+tidak pernah diminta saat runtime di mana pun (satu-satunya
+sentuhan adalah pemeriksaan + catatan log di AutoUpdate),
+jadi pasang baru di Android 13+ tidak pernah menampilkan
+notifikasi apa pun - notifikasi foreground service tidak
+muncul di laci dan kabar update tidak terkirim - tanpa satu
+pun dialog yang ditawarkan aplikasi. MainActivity kini
+memintanya sekali saat dibuka pertama kali di Android 13+
+(keputusan murni perluMintaIzinNotif teruji JVM: hanya API
+33+, hanya bila belum diberikan, hanya sekali), hasilnya
+dicatat di log, dan penolakan tidak diulang-ulang - pengguna
+bisa mengubahnya lewat Pengaturan HP. Bendera sudah-diminta
+(izin_notif_diminta) adalah keadaan UI, dimasukkan ke
+TAK_DIEKSPOR_KEYS agar tidak ikut cadangan konfigurasi.
+Pemasangan lama mempertahankan keadaan notifikasinya.
+
+
 ## [Belum rilis] — Perbaikan: perintah Telegram tetap bisa menyalakan server di Android 12+ (Audit 2969)
 
 Memperbaiki temuan putaran khusus targetSdk 2969 (Sedang):

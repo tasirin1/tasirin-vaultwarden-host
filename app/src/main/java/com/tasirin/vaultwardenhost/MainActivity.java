@@ -28,6 +28,9 @@ public class MainActivity extends Activity {
 
     private static final int REQ_WRITE = 1001;
     private static final int REQ_PIN = 1002;
+    private static final int REQ_NOTIF = 1003;
+
+    static final String KEY_NOTIF_DIMINTA = "izin_notif_diminta";
 
     private static final int MAKS_BARIS_LOG = 150;
 
@@ -180,6 +183,8 @@ public class MainActivity extends Activity {
                         MODE_PRIVATE), ServerService.KEY_DATA_DIR,
                         ServerService.dataDirBawaanSegar()),
                 REQ_WRITE);
+
+        mintaIzinNotifBilaPerlu();
 
         try {
             android.content.pm.PackageInfo infoBar = getPackageManager()
@@ -352,6 +357,16 @@ public class MainActivity extends Activity {
             mulaiUlangSetelahIzin = false;
             StoragePerm.tanganiHasilIzinTulis(this, permissions,
                     grantResults, lanjut, this::saveAndStart);
+        }
+        if (requestCode == REQ_NOTIF) {
+            boolean diberikan = grantResults != null && grantResults.length > 0
+                    && grantResults[0]
+                            == android.content.pm.PackageManager.PERMISSION_GRANTED;
+            ServerService.catatLog(diberikan
+                    ? "[app] Izin notifikasi diberikan."
+                    : "[app] Izin notifikasi tidak diberikan - notifikasi server"
+                            + " dan kabar update tidak akan tampil; aktifkan lewat"
+                            + " Pengaturan HP bila berubah pikiran.");
         }
     }
 
@@ -1066,6 +1081,37 @@ public class MainActivity extends Activity {
             {"error", "exception", "panic", "gagal", "fatal", "traceback"};
     private static final String[] KATA_AWAS =
             {"warn", "peringatan", "deprecated", "awas"};
+
+    // Audit 2970: izin notifikasi hanya perlu diminta di
+    // Android 13+ (API 33), hanya bila belum diberikan, dan
+    // hanya sekali - penolakan tidak diulang-ulang; pengguna
+    // bisa mengubahnya lewat Pengaturan HP.
+    static boolean perluMintaIzinNotif(int sdk, boolean diberikan, boolean sudahDiminta) {
+        return sdk >= 33 && !diberikan && !sudahDiminta;
+    }
+
+    private void mintaIzinNotifBilaPerlu() {
+        if (android.os.Build.VERSION.SDK_INT < 33) {
+            return;
+        }
+        try {
+            SharedPreferences sp = getSharedPreferences(ServerService.PREFS,
+                    MODE_PRIVATE);
+            boolean diberikan = checkSelfPermission(
+                    android.Manifest.permission.POST_NOTIFICATIONS)
+                    == android.content.pm.PackageManager.PERMISSION_GRANTED;
+            boolean sudah = TgBackup.amanBoolean(sp, KEY_NOTIF_DIMINTA, false);
+            if (!perluMintaIzinNotif(android.os.Build.VERSION.SDK_INT,
+                    diberikan, sudah)) {
+                return;
+            }
+            sp.edit().putBoolean(KEY_NOTIF_DIMINTA, true).apply();
+            requestPermissions(
+                    new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
+                    REQ_NOTIF);
+        } catch (Exception ignored) {
+        }
+    }
 
     static int indeksTakPekaRentang(String s, int dari, int sampai, String kata) {
         int m = kata.length();

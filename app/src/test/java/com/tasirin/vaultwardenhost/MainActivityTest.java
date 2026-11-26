@@ -9,6 +9,16 @@ import org.junit.Test;
 public class MainActivityTest {
 
     @Test
+    public void perluMintaIzinNotif_hanyaApi33BelumDanSekali() {
+        assertTrue(MainActivity.perluMintaIzinNotif(33, false, false));
+        assertTrue(MainActivity.perluMintaIzinNotif(34, false, false));
+        assertFalse(MainActivity.perluMintaIzinNotif(32, false, false));
+        assertFalse(MainActivity.perluMintaIzinNotif(28, false, false));
+        assertFalse(MainActivity.perluMintaIzinNotif(34, true, false));
+        assertFalse(MainActivity.perluMintaIzinNotif(34, false, true));
+    }
+
+    @Test
     public void indeksTakPekaAscii() {
         assertEquals(4, MainActivity.indeksTakPekaRentang("tls ERROR sini", 0, 14, "error"));
         assertEquals(-1, MainActivity.indeksTakPekaRentang("log bersih", 0, 10, "error"));
