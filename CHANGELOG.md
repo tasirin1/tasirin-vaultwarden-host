@@ -1,5 +1,17 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: --variable curl kini mensyaratkan nama variabel yang sah
+
+Memperbaiki temuan Audit 2966 (Rendah, residu 2955): aturan
+--variable gerbang hanya memeriksa bagian sesudah @ == '-'
+tanpa memvalidasi nama sebelumnya, padahal bentuk yang namanya
+tak sah (x=@-, a=b@-, =x@-, @- polos, x-y@-, x.y@-) dinilai
+biner sebagai nilai harfiah dan lanjut tanpa membaca stdin -
+gerbang menilainya menguras (fail-closed). Nama kini wajib
+[A-Za-z0-9_]+ tak kosong (terprobe: 1x@-, _x@-, X9_@- sah dan
+memblokir) di kedua walk. Ditambah skenario regresi 2002.
+
+
 ## [Belum rilis] — Gerbang: keluarga data curl hanya mengakui tepat @- sebagai stdin
 
 Memperbaiki temuan Audit 2965 (Rendah): sembilan titik penilaian

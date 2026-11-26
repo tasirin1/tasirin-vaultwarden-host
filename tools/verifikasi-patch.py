@@ -8665,9 +8665,23 @@ def _menguras_khusus(perintah, toks, awal):
             if nama == "--config":
                 return nilai == "-"
             if nama == "--variable":
+                # Audit 2966 (residu 2955):
+                # nama variabel harus sah -
+                # [A-Za-z0-9_]+ tak kosong
+                # (terprobe: 1x/_x/X9_ sah dan
+                # memblokir; x=@-, a=b@-, =x@-,
+                # @- polos, x-y@-, x.y@- dinilai
+                # biner harfiah, lanjut tanpa
+                # membaca). Nama tak sah bukan
+                # impor stdin.
                 return ("@" in nilai
                         and nilai.split(
-                            "@", 1)[1] == "-")
+                            "@", 1)[1] == "-"
+                        and re.fullmatch(
+                            "[A-Za-z0-9_]+",
+                            nilai.split(
+                                "@", 1)[0])
+                        is not None)
             return False
 
         k_cu = 0
@@ -9286,11 +9300,17 @@ def _menguras_khusus(perintah, toks, awal):
                 # juga; walk pertama sudah
                 # mencatatnya untuk putusan
                 # posisi 2952.
+                # Audit 2966: syarat nama sah
+                # yang sama seperti walk pertama.
                 if i + 1 < len(mentah):
                     v = mentah[i + 1]
                     if ("@" in v
                             and v.split("@", 1)[1]
-                            == "-"):
+                            == "-"
+                            and re.fullmatch(
+                                "[A-Za-z0-9_]+",
+                                v.split("@", 1)[0])
+                            is not None):
                         return True
                 i += 2
                 continue
