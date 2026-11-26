@@ -131,3 +131,4 @@ sidikUjung_bedaIsiBedaSidik
 simpanThrottleBoot
 simpanThrottleBootWall
 simpanThrottleBootCount
+simpanStempelThrottle

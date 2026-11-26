@@ -1,5 +1,13 @@
 # Changelog
 
+## [Belum rilis] — Metode yatim simpanStempelThrottle dihapus (Audit 2975)
+
+Penulis stempel throttle lama yang sudah tak
+dipanggil siapa pun (digantikan penolong pasangan
+stempel atomik) dihapus dari TgBackup; namanya
+dicatat di daftar bekas hapusan sesuai aturan repo.
+
+
 ## [Belum rilis] — Factory SSL health-check tak lagi dibangun ulang tiap start (Audit 2974)
 
 Pemeriksaan kesehatan kini memakai ulang factory

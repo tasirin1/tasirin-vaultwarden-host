@@ -4992,17 +4992,6 @@ public final class TgBackup {
         }
     }
 
-    static void simpanStempelThrottle(Context ctx, String kunci, long kini) {
-        if (ctx == null) {
-            return;
-        }
-        try {
-            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putLong(kunci, kini).apply();
-        } catch (Exception ignored) {
-        }
-    }
-
     // Audit 2895: pasangan stempel throttle (elapsed+wall)
     // adalah SATU fakta - ditulis dalam satu edit() agar
     // kematian proses di antaranya tidak menyisakan
