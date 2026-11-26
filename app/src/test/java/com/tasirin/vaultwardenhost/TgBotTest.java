@@ -336,11 +336,16 @@ public class TgBotTest {
         // Audit 2976: teks poll adalah teks bebas
         // keempat yang disaring - PIN di pertanyaan
         // atau di opsi sama-sama menghapus pesannya.
+        // Predikatnya sama seperti teks lain: teks poll
+        // yang utuh adalah tebakan PIN (bentuk balasan)
+        // terhapus; PIN di tengah kalimat bukan tebakan.
         assertTrue(TgBot.pesanPerluHapus("", "", "",
+                "123456"));
+        assertTrue(TgBot.pesanPerluHapus("", "", "",
+                TgBot.gabungTeksPoll("123456",
+                        new String[0])));
+        assertFalse(TgBot.pesanPerluHapus("", "", "",
                 "berapa pin-nya? 123456"));
-        assertTrue(TgBot.pesanPerluHapus("", "", "",
-                TgBot.gabungTeksPoll("pilih satu",
-                        new String[]{"biasa", "123456"})));
         assertFalse(TgBot.pesanPerluHapus("", "", "",
                 TgBot.gabungTeksPoll("makan apa hari ini",
                         new String[]{"nasi", "mie"})));

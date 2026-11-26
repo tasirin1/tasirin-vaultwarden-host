@@ -1423,6 +1423,15 @@ public class ServerServiceTest {
         java.io.File bakSisa = new java.io.File(sendsDir, "x.bak");
         java.nio.file.Files.write(bakSisa.toPath(),
                 "sisa".getBytes("UTF-8"));
+        // Audit 2973: sapuan pohon hanya berjalan bila
+        // penanda swap terputus tertinggal di akar pohon -
+        // keadaan uji ini menirunya di kedua pohon.
+        java.nio.file.Files.write(new java.io.File(
+                new java.io.File(dir, "attachments"),
+                ".bak-terbuka").toPath(), new byte[0]);
+        java.nio.file.Files.write(new java.io.File(
+                new java.io.File(dir, "sends"),
+                ".bak-terbuka").toPath(), new byte[0]);
         ServerService.pulihkanBakTersisa(dir);
         assertTrue(new java.io.File(dir, "rsa_key.pem").exists());
         assertFalse(rsaBak.exists());
@@ -1435,6 +1444,9 @@ public class ServerServiceTest {
         java.nio.file.Files.write(lampBak.toPath(),
                 "isi2".getBytes("UTF-8"));
         new java.io.File(lampDir, "f.bin").delete();
+        java.nio.file.Files.write(new java.io.File(
+                new java.io.File(dir, "attachments"),
+                ".bak-terbuka").toPath(), new byte[0]);
         ServerService.pulihkanBakPohon(
                 new java.io.File(dir, "attachments"));
         assertEquals("isi2", new String(java.nio.file.Files
