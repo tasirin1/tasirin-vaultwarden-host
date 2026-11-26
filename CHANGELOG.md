@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Peringatan lint TextFields di kolom URL basis data ditekan dengan alasan
+
+Lint menyarankan inputType textUri dari nama id
+databaseUrl, tetapi kolom ini sengaja
+textPassword - URL basis data bisa memuat sandi
+dan di sebelahnya ada tombol tampil/sembunyi.
+Mengikuti saran itu akan membuka kedok isinya.
+Perilaku tidak berubah; peringatan ditekan di
+elemennya dengan alasan tercatat.
+
+
 ## [Belum rilis] — Peringatan lint InlinedApi di layar semua-file ditekan dengan alasan
 
 Kedua konstanta aksi Settings untuk layar akses

@@ -190,6 +190,10 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
+                <!-- TextFields ditekan untuk kolom ini: URL basis
+                     data sengaja textPassword (bisa memuat sandi,
+                     ada tombol tampil di sebelahnya); saran
+                     textUri dari nama id akan membuka kedoknya. -->
                 <EditText
                     android:id="@+id/databaseUrl"
                     android:nextFocusDown="@id/showDatabaseUrl"
@@ -202,7 +206,7 @@
                     android:inputType="textPassword"
                     android:maxLength="2048"
                     android:saveEnabled="false"
-                    tools:ignore="LabelFor" />
+                    tools:ignore="LabelFor,TextFields" />
 
                 <Button
                     android:id="@+id/showDatabaseUrl"
