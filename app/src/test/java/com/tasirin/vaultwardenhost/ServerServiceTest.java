@@ -1719,4 +1719,67 @@ public class ServerServiceTest {
                 new java.io.File("/data/tls/cert.pem")));
         assertNull(ServerService.akarPohonBak(null));
     }
+
+    @Test
+    public void penandaBakPohon_diAkarPohonDanNullDiLuar()
+            throws Exception {
+        // Audit 2973: penanda swap terputus selalu di akar
+        // pohon attachments/sends; di luar pohon tak ada
+        // penanda (swap berkas biasa tak memicu sapuan).
+        assertEquals(new java.io.File(
+                        "/data/attachments/.bak-terbuka"),
+                ServerService.penandaBakPohon(new java.io.File(
+                        "/data/attachments/u1/f.bin")));
+        assertEquals(new java.io.File("/data/sends/.bak-terbuka"),
+                ServerService.penandaBakPohon(new java.io.File(
+                        "/data/sends/s1/x")));
+        assertNull(ServerService.penandaBakPohon(
+                new java.io.File("/data/db.sqlite3")));
+        assertNull(ServerService.penandaBakPohon(null));
+    }
+
+    @Test
+    public void gantiAtomikInti_tukarRollbackDanBakYatim()
+            throws Exception {
+        // Audit 2973/2915: inti swap - berkas baru terpasang,
+        // .bak dibersihkan sesudah sukses; kegagalan pasang
+        // mengembalikan berkas lama dari .bak; .bak yatim
+        // (berkas utama hilang) tidak menghapus data baru.
+        java.io.File dir = java.nio.file.Files
+                .createTempDirectory("vwswapinti").toFile();
+        java.io.File out = new java.io.File(dir, "vaultwarden");
+        java.io.File tmp = new java.io.File(dir, "vaultwarden.tmp");
+        java.io.File bak = new java.io.File(dir, "vaultwarden.bak");
+        java.nio.file.Files.write(out.toPath(),
+                "lama".getBytes("UTF-8"));
+        java.nio.file.Files.write(tmp.toPath(),
+                "baru".getBytes("UTF-8"));
+        ServerService.gantiAtomikInti(tmp, out);
+        assertEquals("baru", new String(java.nio.file.Files
+                .readAllBytes(out.toPath()), "UTF-8"));
+        assertFalse(tmp.exists());
+        assertFalse(bak.exists());
+        // Pasang gagal (tmp tak ada): IOException dan berkas
+        // lama kembali utuh dari .bak.
+        boolean ioGagal = false;
+        try {
+            ServerService.gantiAtomikInti(tmp, out);
+        } catch (java.io.IOException e) {
+            ioGagal = true;
+        }
+        assertTrue(ioGagal);
+        assertEquals("baru", new String(java.nio.file.Files
+                .readAllBytes(out.toPath()), "UTF-8"));
+        // .bak yatim: berkas utama hilang, .bak tertinggal,
+        // swap baru tetap memasang berkas barunya.
+        assertTrue(out.delete());
+        java.nio.file.Files.write(bak.toPath(),
+                "selamat".getBytes("UTF-8"));
+        java.nio.file.Files.write(tmp.toPath(),
+                "terbaru".getBytes("UTF-8"));
+        ServerService.gantiAtomikInti(tmp, out);
+        assertEquals("terbaru", new String(java.nio.file.Files
+                .readAllBytes(out.toPath()), "UTF-8"));
+        assertFalse(bak.exists());
+    }
 }

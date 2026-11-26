@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Uji JVM untuk penandaBakPohon dan gantiAtomikInti
+
+Dua helper swap berkas murni (java.io) yang
+sempat memicu pengingat gerbang "tanpa jejak di
+app/src/test" kini teruji sungguhan: lokasi
+penanda di akar pohon dan ketiadaan penanda di
+luar pohon, serta inti swap - pemasangan berkas
+baru, pengembalian berkas lama dari .bak saat
+pemasangan gagal, dan perlakuan .bak yatim.
+
+
 ## [Belum rilis] — Peringatan lint TextFields di kolom URL basis data ditekan dengan alasan
 
 Lint menyarankan inputType textUri dari nama id
