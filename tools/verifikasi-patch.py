@@ -8645,6 +8645,37 @@ def _menguras_khusus(perintah, toks, awal):
             return (seg == "@-"
                     or seg.startswith("@-;"))
 
+        def _form_maut(nilai):
+            # Audit 2980: parameter type= pada
+            # -F/--form yang tak sah membunuh biner
+            # SAAT URAI (curl 8.5.0 rc=2, stdin tak
+            # pernah dibaca - terprobe pipa lambat:
+            # bentuk maut kembali seketika, kontrol
+            # type=text/plain memblokir). Aturan
+            # terprobe 63 bentuk: kumpulkan semua
+            # parameter bernama type (nama tak peka
+            # huruf, wajib berbentuk nama=nilai);
+            # sebuah nilai SAH bila tanpa spasi dan
+            # garis miring pertamanya berteks tak
+            # kosong di kedua sisi. Bagian form MAUT
+            # bila ada >=1 parameter type= dan tak
+            # satu pun nilainya sah (yang tak sah
+            # diabaikan selama ada yang sah).
+            seg = nilai.split("=", 1)[-1]
+            ada_type = False
+            for param in seg.split(";")[1:]:
+                if "=" not in param:
+                    continue
+                nama_p, nilai_p = param.split("=", 1)
+                if nama_p.lower() != "type":
+                    continue
+                ada_type = True
+                if " " not in nilai_p:
+                    potong = nilai_p.find("/")
+                    if 0 < potong < len(nilai_p) - 1:
+                        return False
+            return ada_type
+
         def _sumber_urai_cu(nama, nilai):
             if nama in ("--data", "--data-ascii",
                         "--data-binary", "--json"):
@@ -8661,7 +8692,11 @@ def _menguras_khusus(perintah, toks, awal):
                             and nilai.split(
                                 "@", 1)[1] == "-"))
             if nama == "--form":
-                return _form_urai(nilai)
+                # Audit 2980: bagian maut (type= tak
+                # sah) mati saat urai sebelum membaca -
+                # bukan sumber walau bentuknya sumber.
+                return (_form_urai(nilai)
+                        and not _form_maut(nilai))
             if nama == "--config":
                 return nilai == "-"
             if nama == "--variable":
@@ -8747,6 +8782,12 @@ def _menguras_khusus(perintah, toks, awal):
                 # nilainya tetap divalidasi.
                 if t_cu in _CURL_BERNILAI_PANJANG:
                     lewati_cu = True
+                    if (t_cu == "--form"
+                            and pos_pembunuh is None
+                            and k_cu + 1 < len(mentah)
+                            and _form_maut(
+                                mentah[k_cu + 1])):
+                        pos_pembunuh = k_cu
                     if (pos_sumber_urai is None
                             and k_cu + 1 < len(mentah)
                             and _sumber_urai_cu(
@@ -8786,6 +8827,17 @@ def _menguras_khusus(perintah, toks, awal):
                                 k_cu += 1
                         else:
                             lewati_cu = True
+                            if (calon_cu[0]
+                                    == "--form"
+                                    and pos_pembunuh
+                                    is None
+                                    and k_cu + 1
+                                    < len(mentah)
+                                    and _form_maut(
+                                        mentah[
+                                            k_cu + 1])):
+                                pos_pembunuh = (
+                                    k_cu)
                             if (pos_sumber_urai
                                     is None
                                     and k_cu + 1
@@ -8847,7 +8899,14 @@ def _menguras_khusus(perintah, toks, awal):
                                         < len(mentah)):
                                     _v = mentah[
                                         k_cu + 1]
-                                    if ((h_cu == "d"
+                                    if (h_cu == "F"
+                                            and pos_pembunuh
+                                            is None
+                                            and _form_maut(
+                                                _v)):
+                                        pos_pembunuh = (
+                                            k_cu)
+                                    elif ((h_cu == "d"
                                             and _v == "@-")
                                             or (h_cu
                                                 == "F"
@@ -8862,7 +8921,14 @@ def _menguras_khusus(perintah, toks, awal):
                             else:
                                 _r = t_cu[
                                     pos_cu + 2:]
-                                if ((h_cu == "d"
+                                if (h_cu == "F"
+                                        and pos_pembunuh
+                                        is None
+                                        and _form_maut(
+                                            _r)):
+                                    pos_pembunuh = (
+                                        k_cu)
+                                elif ((h_cu == "d"
                                         and _r == "@-")
                                         or (h_cu == "F"
                                             and _form_urai(
@@ -9335,7 +9401,12 @@ def _menguras_khusus(perintah, toks, awal):
                         seg_f = v.split("=", 1)[-1]
                         # Audit 2964: aturan <
                         # seperti _form_urai.
-                        if seg_f.startswith("<"):
+                        # Audit 2980: bagian maut
+                        # (type= tak sah) mati saat
+                        # urai - bukan sumber.
+                        if _form_maut(v):
+                            pass
+                        elif seg_f.startswith("<"):
                             if (seg_f == "<-"
                                     or seg_f.startswith(
                                         "<-;")):
@@ -9397,7 +9468,12 @@ def _menguras_khusus(perintah, toks, awal):
                                     # aturan <
                                     # seperti
                                     # _form_urai.
-                                    if seg_f.startswith(
+                                    # Audit 2980:
+                                    # bagian maut
+                                    # bukan sumber.
+                                    if _form_maut(v):
+                                        pass
+                                    elif seg_f.startswith(
                                             "<"):
                                         if (seg_f
                                                 == "<-"
@@ -9435,9 +9511,13 @@ def _menguras_khusus(perintah, toks, awal):
                                 # "@-" in ekor -
                                 # <@- dan x@- ikut
                                 # dinilai sumber).
+                                # Audit 2980: bagian
+                                # maut bukan sumber.
                                 seg_f = ekor_w2.split(
                                     "=", 1)[-1]
-                                if seg_f.startswith(
+                                if _form_maut(ekor_w2):
+                                    pass
+                                elif seg_f.startswith(
                                         "<"):
                                     if (seg_f == "<-"
                                             or seg_f.startswith(

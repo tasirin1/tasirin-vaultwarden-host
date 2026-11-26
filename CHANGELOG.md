@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Gerbang: -F dengan type= tak sah dinilai mati saat urai (Audit 2980)
+
+Perintah curl yang bagian form-nya memuat
+parameter type= tanpa satu pun nilai yang sah
+(kosong, berspasi, atau tanpa garis miring) kini
+dinilai gerbang sebagai mati saat penguraian -
+sesuai perilaku curl nyata (rc=2, stdin tak dibaca)
+- bukan lagi sebagai penguras stdin.
+
+
 ## [Belum rilis] — Dialog izin tulis tak lagi muncul tiap membuka aplikasi (Audit 2978)
 
 Di Android 6-10 dengan folder data kustom, dialog

