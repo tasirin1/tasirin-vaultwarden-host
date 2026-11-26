@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Probe versi binary tak lagi jalan dua kali per start (Audit 2972)
+
+Di perangkat legacy, start yang binary-nya sudah
+terbukti jalan pada pemeriksaan unduhan/cache tidak
+mengulang eksekusi --version yang sama persis saat
+menyiapkan shim: hasil probe pertama kini dicap
+(identitas binary + keadaan shim) dan dipakai ulang
+hanya bila cap-nya sama persis; keadaan berubah
+tetap mem-probe ulang.
+
+
 ## [Belum rilis] — Trampolin start: slot alarm per aksi (Audit 2971)
 
 Dua perintah penyala yang datang berdekatan (mis.

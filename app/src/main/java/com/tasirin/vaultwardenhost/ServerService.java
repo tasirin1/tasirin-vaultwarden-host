@@ -2127,7 +2127,9 @@ public class ServerService extends Service {
                 } else {
                     return false;
                 }
-            } else if (!detectBinaryVersion(sesi.binary)) {
+            } else if (!capProbeOtomatis(sesi.binary)
+                    .equals(capProbeOtomatisTerakhir)
+                    && !detectBinaryVersion(sesi.binary)) {
                 appendLog("[app] FATAL: binary gagal --version walau shim terpasang"
                         + " - start dibatalkan.");
                 setStatus("Binary tidak jalan di perangkat ini - cek log.");
@@ -4225,6 +4227,39 @@ public class ServerService extends Service {
     private static final int PROBE_PAKSA_SHIM = 1;
     private static final int PROBE_TANPA_SHIM = 2;
 
+    // Audit 2972: cap keadaan yang diuji probe PROBE_OTOMATIS -
+    // identitas binary (jalur + ukuran + waktu ubah) dan
+    // keadaan shim yang akan dipakai probe (terpasang utuh
+    // atau tidak, plus identitas berkasnya). Dua probe dengan
+    // cap sama persis menjawab pertanyaan yang sama.
+    private String capProbeOtomatis(File binary) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append(binary.getAbsolutePath()).append('|')
+                    .append(binary.length()).append('|')
+                    .append(binary.lastModified()).append('|');
+            File shim = new File(getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
+            String shaShim = "";
+            try {
+                shaShim = getSharedPreferences(PREFS, MODE_PRIVATE)
+                        .getString(Updater.KEY_SHIM_SHA, "");
+            } catch (Exception ignored) {
+            }
+            if (Updater.shimUtuh(shim, shaShim)) {
+                sb.append(shim.getAbsolutePath()).append('|')
+                        .append(shim.length()).append('|')
+                        .append(shim.lastModified());
+            } else {
+                sb.append('-');
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String capProbeOtomatisTerakhir;
+
     private boolean detectBinaryVersion(File binary) {
         return detectBinaryVersionMode(binary, PROBE_OTOMATIS);
     }
@@ -4237,6 +4272,8 @@ public class ServerService extends Service {
                 new java.util.concurrent.atomic.AtomicBoolean(false);
         Thread versiWatchdog = null;
         try {
+            String capOtomatis = modeProbe == PROBE_OTOMATIS
+                    ? capProbeOtomatis(binary) : null;
             ProcessBuilder pb = new ProcessBuilder(binary.getAbsolutePath(), "--version")
                     .redirectErrorStream(true);
             if (modeProbe == PROBE_PAKSA_SHIM
@@ -4297,6 +4334,9 @@ public class ServerService extends Service {
                 return false;
             }
             binaryVersion = first.trim();
+            if (capOtomatis != null) {
+                capProbeOtomatisTerakhir = capOtomatis;
+            }
             return true;
         } catch (Exception e) {
 
@@ -4309,6 +4349,9 @@ public class ServerService extends Service {
                     versiWatchdog.interrupt();
                 }
             } catch (Exception ignored) {
+            }
+            if (capOtomatis != null) {
+                capProbeOtomatisTerakhir = null;
             }
             binaryVersion = "?";
             lastVersionOutput = "";
