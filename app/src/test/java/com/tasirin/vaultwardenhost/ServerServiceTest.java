@@ -1692,19 +1692,19 @@ public class ServerServiceTest {
     public void akarPohonBak_akarTepatDanDiLuarPohon() {
         // Audit 2973: penanda swap terputus ditaruh di akar
         // pohon attachments/sends yang memuat target swap.
-        assertEquals(new File("/data/attachments"),
+        assertEquals(new java.io.File("/data/attachments"),
                 ServerService.akarPohonBak(
-                        new File("/data/attachments/uuid-1/berkas.pdf")));
-        assertEquals(new File("/data/sends"),
+                        new java.io.File("/data/attachments/uuid-1/berkas.pdf")));
+        assertEquals(new java.io.File("/data/sends"),
                 ServerService.akarPohonBak(
-                        new File("/data/sends/uuid-2/berkas.pdf")));
-        assertEquals(new File("/data/attachments"),
+                        new java.io.File("/data/sends/uuid-2/berkas.pdf")));
+        assertEquals(new java.io.File("/data/attachments"),
                 ServerService.akarPohonBak(
-                        new File("/data/attachments/berkas.pdf")));
+                        new java.io.File("/data/attachments/berkas.pdf")));
         assertNull(ServerService.akarPohonBak(
-                new File("/data/db.sqlite3")));
+                new java.io.File("/data/db.sqlite3")));
         assertNull(ServerService.akarPohonBak(
-                new File("/data/tls/cert.pem")));
+                new java.io.File("/data/tls/cert.pem")));
         assertNull(ServerService.akarPohonBak(null));
     }
 }
