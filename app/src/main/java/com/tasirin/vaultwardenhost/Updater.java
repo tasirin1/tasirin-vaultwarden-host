@@ -2360,6 +2360,13 @@ public final class Updater {
         return total;
     }
 
+    // Peringatan lint ApplySharedPref ditekan dengan
+    // sengaja: cap versi web-vault yang ditulis metode
+    // ini (KEY_WV_FROM/SHA/FALLBACK_FOR) wajib awet di
+    // disk bersamaan dengan berkas yang baru ditukar -
+    // commit(), bukan apply(), agar catatan versi tak
+    // pernah tertinggal dari isi folder web-vault.
+    @android.annotation.SuppressLint("ApplySharedPref")
     private static String updateWebVaultInner(Context ctx, String diminta) throws Exception {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String dataDir = TgBackup.amanString(sp, ServerService.KEY_DATA_DIR, ServerService.dataDirBawaanSegar());

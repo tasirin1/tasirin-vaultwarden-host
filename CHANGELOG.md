@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Peringatan lint ApplySharedPref di update web-vault ditekan dengan alasan
+
+Keempat commit() cap versi web-vault di
+updateWebVaultInner memang disengaja - catatan
+versi (asal, SHA, penanda fallback) harus awet
+di disk bersamaan dengan berkas web-vault yang
+baru ditukar, bukan menunggu flush apply().
+Perilaku tidak berubah; peringatan ditekan di
+metodenya dengan alasan tercatat.
+
+
 ## [Belum rilis] — Peringatan lint ApplySharedPref di pollOnce ditekan dengan alasan
 
 Kelima commit() penulisan offset Telegram di
