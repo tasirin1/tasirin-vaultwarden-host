@@ -1687,4 +1687,24 @@ public class ServerServiceTest {
         assertFalse(ServerService.aksiPerluTrampolin("com.tasirin.vaultwardenhost.LAIN"));
         assertFalse(ServerService.aksiPerluTrampolin(null));
     }
+
+    @Test
+    public void akarPohonBak_akarTepatDanDiLuarPohon() {
+        // Audit 2973: penanda swap terputus ditaruh di akar
+        // pohon attachments/sends yang memuat target swap.
+        assertEquals(new File("/data/attachments"),
+                ServerService.akarPohonBak(
+                        new File("/data/attachments/uuid-1/berkas.pdf")));
+        assertEquals(new File("/data/sends"),
+                ServerService.akarPohonBak(
+                        new File("/data/sends/uuid-2/berkas.pdf")));
+        assertEquals(new File("/data/attachments"),
+                ServerService.akarPohonBak(
+                        new File("/data/attachments/berkas.pdf")));
+        assertNull(ServerService.akarPohonBak(
+                new File("/data/db.sqlite3")));
+        assertNull(ServerService.akarPohonBak(
+                new File("/data/tls/cert.pem")));
+        assertNull(ServerService.akarPohonBak(null));
+    }
 }

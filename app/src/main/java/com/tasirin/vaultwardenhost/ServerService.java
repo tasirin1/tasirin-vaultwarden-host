@@ -688,7 +688,55 @@ public class ServerService extends Service {
         return bak.renameTo(out);
     }
 
+    // Audit 2973: akar pohon sapuan .bak (attachments/sends)
+    // yang memuat berkas ini, atau null bila di luar kedua
+    // pohon itu. Dipakai menaruh penanda swap terputus tepat
+    // di akar pohonnya.
+    static File akarPohonBak(File berkas) {
+        File d = berkas == null ? null : berkas.getParentFile();
+        while (d != null) {
+            String nama = d.getName();
+            if ("attachments".equals(nama) || "sends".equals(nama)) {
+                return d;
+            }
+            d = d.getParentFile();
+        }
+        return null;
+    }
+
+    static File penandaBakPohon(File out) {
+        File akar = akarPohonBak(out);
+        return akar == null ? null : new File(akar, ".bak-terbuka");
+    }
+
+    // Audit 2973: swap di dalam pohon attachments/sends
+    // menaruh penanda di akar pohonnya selama swap berjalan
+    // dan mencabutnya di semua jalan keluar. Proses mati di
+    // tengah swap = penanda tertinggal = sapuan pohon pada
+    // start berikut berjalan; tanpa penanda, start melewati
+    // sapuan rekursif seluruh pohon (dulu dibayar tiap start
+    // walau tak ada sisa .bak sama sekali).
     static void gantiAtomik(File tmp, File out) throws java.io.IOException {
+        File penanda = penandaBakPohon(out);
+        if (penanda != null) {
+            try {
+                penanda.createNewFile();
+            } catch (Exception ignored) {
+            }
+        }
+        try {
+            gantiAtomikInti(tmp, out);
+        } finally {
+            if (penanda != null) {
+                try {
+                    penanda.delete();
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    static void gantiAtomikInti(File tmp, File out) throws java.io.IOException {
         if (tmp == null || out == null || out.getParentFile() == null) {
             throw new java.io.IOException("Path binary tidak valid.");
         }
@@ -799,6 +847,13 @@ public class ServerService extends Service {
         if (akar == null) {
             return;
         }
+        // Audit 2973: tanpa penanda swap terputus di akar
+        // pohon, tak ada sisa .bak yang mungkin tertinggal -
+        // lewati sapuan rekursifnya.
+        File penanda = new File(akar, ".bak-terbuka");
+        if (!penanda.exists()) {
+            return;
+        }
         String basis;
         try {
             basis = akar.getCanonicalPath();
@@ -806,6 +861,10 @@ public class ServerService extends Service {
             return;
         }
         pulihkanBakPohon(akar, basis, new java.util.HashSet<String>());
+        try {
+            penanda.delete();
+        } catch (Exception ignored) {
+        }
     }
 
     static void pulihkanBakPohon(File dir, String basis,

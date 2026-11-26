@@ -1,5 +1,16 @@
 # Changelog
 
+## [Belum rilis] — Sapuan sisa .bak pohon lampiran hanya sesudah swap terputus (Audit 2973)
+
+Start tidak lagi memindai rekursif seluruh folder
+attachments/ dan sends/ pada setiap start: swap
+berkas di dalam kedua pohon itu kini menaruh penanda
+kecil di akar pohonnya selama swap berjalan. Sapuan
+pemulihan hanya berjalan bila penandanya tertinggal
+(tanda proses mati di tengah swap); start normal
+melewatinya langsung.
+
+
 ## [Belum rilis] — Probe versi binary tak lagi jalan dua kali per start (Audit 2972)
 
 Di perangkat legacy, start yang binary-nya sudah
