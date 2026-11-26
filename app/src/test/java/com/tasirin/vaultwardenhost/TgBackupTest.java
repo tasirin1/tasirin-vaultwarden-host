@@ -3242,4 +3242,27 @@ public class TgBackupTest {
         assertFalse(TgBackup.trampolinStartBoleh(30, true));
         assertFalse(TgBackup.trampolinStartBoleh(28, true));
     }
+
+    @Test
+    public void kodeTrampolin_slotBerbedaPerAksi() {
+        // Audit 2971: tiga aksi penyala tiga slot berbeda,
+        // agar trampolin tak saling menimpa; selainnya slot
+        // start umum.
+        assertEquals(TgBackup.REQ_START_SERVER,
+                TgBackup.kodeTrampolin(ServerService.ACTION_START));
+        assertEquals(TgBackup.REQ_START_SERVER_RESTART,
+                TgBackup.kodeTrampolin(ServerService.ACTION_RESTART));
+        assertEquals(TgBackup.REQ_START_SERVER_BACKUP,
+                TgBackup.kodeTrampolin(ServerService.ACTION_TG_BACKUP));
+        assertNotEquals(TgBackup.kodeTrampolin(ServerService.ACTION_START),
+                TgBackup.kodeTrampolin(ServerService.ACTION_RESTART));
+        assertNotEquals(TgBackup.kodeTrampolin(ServerService.ACTION_START),
+                TgBackup.kodeTrampolin(ServerService.ACTION_TG_BACKUP));
+        assertNotEquals(TgBackup.kodeTrampolin(ServerService.ACTION_RESTART),
+                TgBackup.kodeTrampolin(ServerService.ACTION_TG_BACKUP));
+        assertEquals(TgBackup.REQ_START_SERVER,
+                TgBackup.kodeTrampolin("aksi-ngawur"));
+        assertEquals(TgBackup.REQ_START_SERVER,
+                TgBackup.kodeTrampolin(null));
+    }
 }

@@ -227,6 +227,8 @@ public final class TgBackup {
     static final int REQ_TUNDA_BOOT = 101;
 
     static final int REQ_START_SERVER = 102;
+    static final int REQ_START_SERVER_RESTART = 103;
+    static final int REQ_START_SERVER_BACKUP = 104;
 
     static final int REQ_HARIAN = 0;
 
@@ -395,6 +397,24 @@ public final class TgBackup {
     // penyerahannya (konteks pengecualian resmi) menjalankan
     // ulang aksi start yang ditolak background. Rahasia alarm
     // sama seperti alarm backup lain.
+    // Audit 2971: slot PendingIntent trampolin PER AKSI.
+    // Identitas PendingIntent ditentukan request code +
+    // filter intent (extra tak dihitung), jadi satu slot
+    // bersama membuat dua trampolin dalam jendela yang sama
+    // saling menimpa: aksi pertama hilang diam-diam padahal
+    // pemanggilnya sudah dijawab berhasil. Tiap aksi penyala
+    // kini slotnya sendiri; aksi tak dikenal jatuh ke slot
+    // start umum.
+    static int kodeTrampolin(String aksiLanjutan) {
+        if (ServerService.ACTION_RESTART.equals(aksiLanjutan)) {
+            return REQ_START_SERVER_RESTART;
+        }
+        if (ServerService.ACTION_TG_BACKUP.equals(aksiLanjutan)) {
+            return REQ_START_SERVER_BACKUP;
+        }
+        return REQ_START_SERVER;
+    }
+
     public static boolean jadwalTrampolinStart(Context ctx, String aksiLanjutan) {
         try {
             AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
@@ -419,8 +439,8 @@ public final class TgBackup {
             int flags = PendingIntent.FLAG_UPDATE_CURRENT
                     | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                             ? PendingIntent.FLAG_IMMUTABLE : 0);
-            PendingIntent pi = PendingIntent.getBroadcast(ctx, REQ_START_SERVER,
-                    intent, flags);
+            PendingIntent pi = PendingIntent.getBroadcast(ctx,
+                    kodeTrampolin(aksiLanjutan), intent, flags);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                         SystemClock.elapsedRealtime() + TRAMPOLIN_START_MS, pi);

@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Trampolin start: slot alarm per aksi (Audit 2971)
+
+Dua perintah penyala yang datang berdekatan (mis.
+start lalu backup lewat Telegram pada keadaan start
+dari background ditolak) tidak lagi saling menimpa:
+tiap aksi kini memakai slot alarm trampolinnya
+sendiri, jadi tak ada perintah yang hilang diam-diam
+sesudah dijawab berhasil.
+
+
 ## [Belum rilis] — Suite uji-verifikasi dibelah dua job paralel (Audit 2979)
 
 Suite uji-diri gerbang (2.040 skenario, terukur 22:18
