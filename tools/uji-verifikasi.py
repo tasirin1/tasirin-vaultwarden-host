@@ -15457,6 +15457,26 @@ def _bagian_awal(tmp):
     periksa("openssl aes-256-cbc -ciphers: gerbang lolos (Audit 1583)", rc == 0)
     shutil.rmtree(sub715, ignore_errors=True)
 
+    kurungjava = klon(tmp, "kurungjava")
+    berkas_kj = os.path.join(
+        kurungjava, "app", "src", "main", "java", "com", "tasirin",
+        "vaultwardenhost", "PinGate.java")
+    with open(berkas_kj, "a", encoding="utf-8") as f:
+        f.write("\nclass UjiKurungRusak { int y = )()(; }\n")
+    rc, out = jalan(kurungjava, [sys.executable, GERBANG, "--semua"])
+    periksa("kurung urutan rusak seimbang-neto di .java: gerbang gagal (Audit 2918)",
+            rc != 0 and "urutannya rusak" in out)
+    shutil.rmtree(kurungjava, ignore_errors=True)
+
+    kurungkts = klon(tmp, "kurungkts")
+    berkas_kk = os.path.join(kurungkts, "build.gradle.kts")
+    with open(berkas_kk, "a", encoding="utf-8") as f:
+        f.write("\nval ujiKurung = )()(\n")
+    rc, out = jalan(kurungkts, [sys.executable, GERBANG, "--semua"])
+    periksa("kurung urutan rusak di .kts: gerbang gagal (Audit 2918)",
+            rc != 0 and "urutannya rusak" in out)
+    shutil.rmtree(kurungkts, ignore_errors=True)
+
 
 def _bagian_akhir(tmp):
     sub716 = klon(tmp, "sub716")

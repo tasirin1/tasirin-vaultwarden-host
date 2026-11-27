@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang kurung kini sadar urutan dan mencakup berkas .kts (Audit 2918)
+
+- `tools/verifikasi-patch.py` (`cek_kurung_java`): pemeriksaan kurung dulu menghitung selisih neto per jenis — urutan rusak yang seimbang-neto seperti `)()(` lolos — dan berkas `.kts` tidak dicek sama sekali. Kini pemindaian tumpukan sadar-urutan atas teks terkupas yang sama (menangkap ketidakseimbangan neto, urutan rusak, dan silang jenis) untuk `.java` dan `.kts`; terverifikasi 0 positif palsu di seluruh pohon. Ditambah dua skenario suite.
+
+
 ## [Belum rilis] — Perbaikan build: labelPesan memanggil samarkanLog dari LogActivity (dari Audit 2879)
 
 - `TgBackup.labelPesan`: pemanggilan penyamaran pada Audit 2879 menyebut `ServerService.samarkanLog`, padahal helper itu milik `LogActivity` — kompilasi CI gagal ("cannot find symbol", CodeQL untuk `cbcbbbd0`). Pemanggilan kini lewat `LogActivity` dengan gerbang `butuhSamaran` yang sama seperti pemanggil lainnya.

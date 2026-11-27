@@ -24158,19 +24158,37 @@ def kupas_komentar_saja(isi):
     return "".join(keluar)
 
 def cek_kurung_java(gagal, berubah):
+    # Audit 2918: pemindaian tumpukan sadar-urutan (dulu
+    # hitung neto - urutan rusak yang seimbang-neto
+    # seperti ")()(" lolos) dan mencakup .kts juga.
+    pasangan = {"}": ("{", "kurawal"), ")": ("(", "lengkung"),
+                "]": ("[", "siku")}
+    nama_buka = {"{": "kurawal", "(": "lengkung", "[": "siku"}
     for path in berubah:
-        if not path.endswith(".java"):
+        if not (path.endswith(".java") or path.endswith(".kts")):
             continue
         penuh = os.path.join(AKAR, path)
         if not os.path.isfile(penuh):
             continue
         isi = kupas_java(baca(path))
-        for buka, tutup, nama in (("{", "}", "kurawal"), ("(", ")", "lengkung"), ("[", "]", "siku")):
-            selisih = isi.count(buka) - isi.count(tutup)
-            if selisih:
-                gagal.append("Kurung %s tak seimbang di %s (%+d) — kompilasi pasti gagal"
-                             % (nama, path, selisih))
-                break
+        tumpuk = []
+        pesan = None
+        for ch in isi:
+            if ch in "{([":
+                tumpuk.append(ch)
+            elif ch in pasangan:
+                buka, nama = pasangan[ch]
+                if not tumpuk or tumpuk[-1] != buka:
+                    pesan = ("Kurung %s urutannya rusak di %s"
+                             " — kompilasi pasti gagal" % (nama, path))
+                    break
+                tumpuk.pop()
+        if pesan is None and tumpuk:
+            pesan = ("Kurung %s tak seimbang di %s (%+d)"
+                     " — kompilasi pasti gagal"
+                     % (nama_buka[tumpuk[-1]], path, len(tumpuk)))
+        if pesan is not None:
+            gagal.append(pesan)
 
 POLA_BOROS = [
     ("String.format(", "Formatter+Locale mahal di ART lama; pakai concat/manual"),
