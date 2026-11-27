@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — cek_uji_ubah hidup lagi: nama metode dari peta rentang berkas, bukan konteks git (Audit 2899)
+
+- `tools/verifikasi-patch.py` (`hunk_fungsi`): nama metode yang diubah dulu dibaca dari ekor header `@@` (konteks funcname git) yang untuk Java hampir selalu menunjuk baris deklarasi kelas — pada diff nyata fungsi itu menghasilkan 0 nama, sehingga pengingat "metode diubah tapi tanpa jejak di app/src/test" (aturan uji menyertai perubahan perilaku) tidak pernah berbunyi sama sekali. Kini posisi baris-baru tiap hunk dipetakan ke metode yang memuatnya di berkas saat ini: peta rentang metode dibangun dari pola signatur + hitung kurung pada isi yang sudah dikupas komentar/string, di-cache per berkas. Sifatnya tetap PERINGATAN, bukan kegagalan.
+
+
 ## [Belum rilis] — Cek locale gerbang kini menilai argumen, bukan kurung kosong (Audit 2902)
 
 - `tools/verifikasi-patch.py` (`cek_locale_baru`): pola lama hanya menangkap `toLowerCase()` berkurung kosong, sehingga bentuk yang justru paling berbahaya — `toLowerCase(Locale.getDefault())`, bug locale Turki utuh — lolos, begitu pula bentuk pecah baris dan method-reference `::toLowerCase`. Cek kini menggabungkan baris tambah per berkas, mengupasnya, dan menilai argumen setiap panggilan: hanya `Locale.US` / `Locale.ROOT` yang lolos; method-reference selalu gagal karena bentuk itu tidak bisa membawa Locale. Satu skenario suite baru mengunci bentuk `getDefault` yang ter-commit.

@@ -25002,6 +25002,48 @@ def cek_panggil_bekas_hapusan(gagal, diff):
             if kode.strip():
                 sebelumnya[path] = kode
 
+_POLA_SIGNATUR_METODE = re.compile(
+    r"\s*(?:(?:public|protected|private)\s+)?(?:static\s+)?"
+    r"[\w<>\[\].,? ]+\s+(\w+)\s*\(")
+
+_PETA_METODE_CACHE = {}
+
+
+def _peta_metode(path):
+    """Rentang (baris_mulai, baris_akhir, nama) tiap metode di
+    berkas saat ini, dari signatur + hitung kurung pada isi
+    terkupas. Audit 2899: pengganti konteks funcname git yang
+    untuk Java hampir selalu menunjuk deklarasi kelas."""
+    if path in _PETA_METODE_CACHE:
+        return _PETA_METODE_CACHE[path]
+    hasil = []
+    isi = baca(path)
+    if isi:
+        baris = kupas_java(isi).splitlines()
+        i = 0
+        while i < len(baris):
+            m = _POLA_SIGNATUR_METODE.match(baris[i])
+            if m and m.group(1) not in KATA_KUNCI_JAVA:
+                kedalaman = 0
+                mulai_isi = None
+                j = i
+                while j < len(baris):
+                    kedalaman += (baris[j].count("{")
+                                  - baris[j].count("}"))
+                    if mulai_isi is None and "{" in baris[j]:
+                        mulai_isi = j
+                    if mulai_isi is not None and kedalaman <= 0:
+                        break
+                    j += 1
+                if mulai_isi is not None:
+                    hasil.append((i + 1, j + 1, m.group(1)))
+                    i = j + 1
+                    continue
+            i += 1
+    _PETA_METODE_CACHE[path] = hasil
+    return hasil
+
+
 def hunk_fungsi(diff):
     path = ""
     for baris in diff.splitlines():
@@ -25009,10 +25051,17 @@ def hunk_fungsi(diff):
             bagian = baris.split()
             path = bagian[-1][2:] if len(bagian) >= 4 else ""
         elif baris.startswith("@@ ") and path.endswith(".java"):
-            ekor = baris.split("@@", 2)[-1]
-            cocok = re.search(r"(\w+)\s*\(", ekor)
-            if cocok:
-                yield path, cocok.group(1)
+            m = re.match(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@",
+                         baris)
+            if not m:
+                continue
+            nomor = int(m.group(1))
+            panjang = int(m.group(2)) if m.group(2) else 1
+            ujung = nomor + max(panjang, 1) - 1
+            for mulai, akhir, nama in _peta_metode(path):
+                if mulai <= ujung and nomor <= akhir:
+                    yield path, nama
+                    break
 
 def cek_uji_ubah(peringatan, diff):
     sudah = set()
