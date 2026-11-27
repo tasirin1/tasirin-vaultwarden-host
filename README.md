@@ -27,7 +27,7 @@ Download from another phone, put in the data folder, press **Start**:
 
 ## Features
 
-Auto-update of binary & web vault, encrypted backups (local + Telegram), self-signed HTTPS, PIN, boot auto-start, auto-restart, TV-remote friendly.
+Auto-update of binary & web vault, encrypted Telegram backups (local backups are plaintext zip), self-signed HTTPS, PIN, boot auto-start, auto-restart, TV-remote friendly.
 
 Single vertical column layout (portrait and landscape share the same order): links card on top, realtime log in the middle, server status below (log font scales with screen size) and every button works with a TV remote D-pad.
 

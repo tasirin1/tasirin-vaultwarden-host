@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — README dikoreksi: backup lokal tidak terenkripsi (Audit 3025)
+
+- README (Inggris/Indonesia/Rusia) tak lagi mengklaim backup lokal terenkripsi. Yang terenkripsi hanya backup Telegram; backup lokal dari Settings adalah berkas zip polos — kini tertulis apa adanya di ketiga README agar tak ada yang menyimpan backup lokal tanpa perlindungan tambahan karena mengira sudah terenkripsi.
+
+
 ## [Belum rilis] — Restore via pemilih berkas bisa memulihkan backup terenkripsi (Audit 3016)
 
 - Settings > Restore: berkas backup terenkripsi (.enc) — format bawaan aplikasi sendiri — kini didekripsi dulu dengan sandi backup tersimpan sebelum dipulihkan, sama seperti jalur restore-dari-Telegram dan bot. Sebelumnya berkas sah itu ditolak mentah-mentah sebagai "bukan database SQLite". Bila sandi backup belum diisi, pesan yang benar kini tampil: backup terenkripsi, isi sandi backup dulu.

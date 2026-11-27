@@ -27,7 +27,7 @@ Unduh dari HP lain, taruh di folder data, tekan **Start**:
 
 ## Fitur
 
-Auto-update binary & web vault, backup terenkripsi (lokal + Telegram), HTTPS self-signed, PIN, auto-start boot, restart otomatis, ramah remote TV.
+Auto-update binary & web vault, backup Telegram terenkripsi (backup lokal zip polos tanpa enkripsi), HTTPS self-signed, PIN, auto-start boot, restart otomatis, ramah remote TV.
 
 Tampilan satu kolom vertikal (portrait + landscape sama): kartu tautan di atas, log realtime di tengah, status server di bawah (font log ikut ukuran layar) dan semua tombol bisa dipakai D-pad remote.
 
