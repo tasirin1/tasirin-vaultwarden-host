@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pesan galat unduh kini teredaksi seperti pesan galat backup (Audit 3014)
+
+- `Updater` + `TgBot` + `ServerService`: pesan kesalahan unduhan dulu menampilkan pesan exception mentah ke balasan bot dan status layar — memuat URL lengkap, path berkas lokal, dan IP tujuan — sementara jalur backup sudah lama menyamarkannya. Pesan unduh kini melewati penyamaran yang sama (URL, token, dan path disamarkan, pesan dibatasi), termasuk cabang pesan yang kebetulan sudah mengandung kata saran, status gagal start, dan baris log gagal unduh.
+
+
 ## [Belum rilis] — Kegagalan pasang kunci RSA saat restore: coba lagi + peringatan berisi langkah pemulihan (Audit 3005)
 
 - `TgBackup`: bila pemasangan kunci RSA dari backup gagal, database baru terpasang berpasangan dengan kunci lama — berisiko membuat sesi login tidak berlaku — tetapi dulu tidak ada percobaan ulang dan pesan peringatan hanya berkata "pemulihan manual" tanpa menyebut akibatnya atau berkas mana yang harus diganti namanya. Pemasangan kunci RSA kini dicoba sekali lagi (sisa swap terputus bisa dibersihkan oleh percobaan pertama), dan pesannya kini menyebut akibatnya serta langkah pemulihan konkret per nama berkas.

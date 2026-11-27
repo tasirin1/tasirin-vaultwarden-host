@@ -731,7 +731,13 @@ public final class Updater {
     }
 
     static String pesanGalatUnduh(String aksi, Exception e) {
-        String inti = (e == null || e.getMessage() == null) ? String.valueOf(e) : e.getMessage();
+        // Audit 3014: inti yang DITAMPILKAN teredaksi
+        // (URL/path/token disamarkan seperti jalur
+        // backup); klasifikasi di bawah tetap membaca
+        // pesan mentah.
+        String inti = TgBackup.redaksiDetailGalat(
+                (e == null || e.getMessage() == null)
+                        ? String.valueOf(e) : e.getMessage());
         String rendah = ((e != null ? e.getClass().getSimpleName() + " " : "")
                 + String.valueOf(e != null ? e.getMessage() : "")).toLowerCase(Locale.US);
         if (e instanceof java.util.zip.ZipException
@@ -743,6 +749,24 @@ public final class Updater {
                     + " aman diulang. " + saranKoneksi(e);
         }
         return aksi + " gagal: " + inti + ". " + saranKoneksi(e);
+    }
+
+    // Audit 3014: pilihan pesan ramah untuk perender
+    // luar - produk pesanGalatUnduh (sudah teredaksi
+    // di corongnya) lolos apa adanya; pesan mentah
+    // lain yang kebetulan mengandung kata saran tetap
+    // teredaksi sebelum tampil ke bot/status.
+    static String ramahGalatUnduh(String pesanMentah, String aksi,
+            Exception e) {
+        if (!mengandungSaran(pesanMentah)) {
+            return pesanGalatUnduh(aksi, e);
+        }
+        if (pesanMentah.startsWith("Unduh binary gagal:")
+                || pesanMentah.startsWith("Unduh web-vault gagal:")
+                || pesanMentah.startsWith("Unduh shim gagal:")) {
+            return pesanMentah;
+        }
+        return TgBackup.redaksiDetailGalat(pesanMentah);
     }
 
     static boolean isDnsHijackKeIpLokal(String pesanRendah) {

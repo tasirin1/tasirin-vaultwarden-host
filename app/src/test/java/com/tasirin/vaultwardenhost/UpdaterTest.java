@@ -13,6 +13,38 @@ import org.junit.Test;
 public class UpdaterTest {
 
     @Test
+    public void pesanGalatUnduh_intiTeredaksi() {
+        // Audit 3014: URL lengkap di pesan exception
+        // tidak tampil mentah ke bot/status.
+        String out = Updater.pesanGalatUnduh("Unduh binary",
+                new Exception("Server returned HTTP response code: 403"
+                        + " for URL: https://api.github.com/repos/x/y"));
+        org.junit.Assert.assertTrue(out.contains("<url>"));
+        org.junit.Assert.assertFalse(out.contains("api.github.com"));
+        String zip = Updater.pesanGalatUnduh("Unduh web-vault",
+                new java.util.zip.ZipException(
+                        "invalid block di https://contoh.invalid/a.zip"));
+        org.junit.Assert.assertTrue(zip.contains("<url>"));
+        org.junit.Assert.assertFalse(zip.contains("contoh.invalid"));
+    }
+
+    @Test
+    public void ramahGalatUnduh_produkCorongLolosPesanMentahTeredaksi() {
+        // Audit 3014: produk corong tidak dipotong
+        // ulang; pesan mentah berkata-saran teredaksi.
+        Exception e = new Exception("mentah");
+        String corong = Updater.pesanGalatUnduh("Unduh binary",
+                new Exception("gagal total"));
+        org.junit.Assert.assertEquals(corong,
+                Updater.ramahGalatUnduh(corong, "Unduh binary", e));
+        String mentah = "Cek internet STB lalu buka"
+                + " https://rahasia.invalid/jalur?x=1";
+        String ramah = Updater.ramahGalatUnduh(mentah, "Unduh binary", e);
+        org.junit.Assert.assertTrue(ramah.contains("<url>"));
+        org.junit.Assert.assertFalse(ramah.contains("rahasia.invalid"));
+    }
+
+    @Test
     public void kodeSementara_hanyaGangguanSesaat() {
         assertTrue(Updater.kodeSementara(429));
         assertTrue(Updater.kodeSementara(408));

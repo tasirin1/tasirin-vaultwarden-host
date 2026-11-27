@@ -2232,7 +2232,8 @@ public class ServerService extends Service {
             resetPenandaJalan();
             releaseWakeLock();
             appendLog("[app] ERROR start: " + e);
-            setStatus("Gagal start: " + e.getMessage());
+            setStatus("Gagal start: " + TgBackup.redaksiDetailGalat(
+                    String.valueOf(e.getMessage())));
         }
     }
 
@@ -4673,9 +4674,10 @@ public class ServerService extends Service {
             }
 
             String msgBin = e.getMessage();
-            String ramah = Updater.mengandungSaran(msgBin)
-                    ? msgBin : Updater.pesanGalatUnduh("Unduh binary", e);
-            appendLog("[app] Gagal unduh binary: " + e
+            String ramah = Updater.ramahGalatUnduh(
+                    msgBin, "Unduh binary", e);
+            appendLog("[app] Gagal unduh binary: "
+                    + TgBackup.redaksiDetailGalat(String.valueOf(e))
                     // Audit 1683: baris Saran hanya bila pesan
                     // mentahnya belum memuat saran (terbungkus).
                     + (Updater.mengandungSaran(msgBin) ? ""

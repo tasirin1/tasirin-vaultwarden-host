@@ -3499,8 +3499,8 @@ public final class TgBot {
                             pinLama == null ? "" : pinLama);
                 }
                 String pesan = e.getMessage();
-                String ramah = Updater.mengandungSaran(pesan)
-                        ? pesan : Updater.pesanGalatUnduh("Unduh binary", e);
+                String ramah = Updater.ramahGalatUnduh(
+                        pesan, "Unduh binary", e);
                 balas(ctx, idRuang, "Update gagal: " + ramah);
             }
         });
@@ -3526,8 +3526,8 @@ public final class TgBot {
                             pinLama == null ? "" : pinLama);
                 }
                 String pesan = e.getMessage();
-                String ramah = Updater.mengandungSaran(pesan)
-                        ? pesan : Updater.pesanGalatUnduh("Unduh web-vault", e);
+                String ramah = Updater.ramahGalatUnduh(
+                        pesan, "Unduh web-vault", e);
                 balas(ctx, idRuang, "Update web-vault gagal: " + ramah);
             }
         });
