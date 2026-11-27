@@ -21,6 +21,16 @@ public class MemoVersiCocokTest {
     }
 
     @Test
+    public void pendNullTidakNpe() {
+        // Audit 2805: pend null dinormalkan "", tak meledak.
+        MemoVersiCocok m = new MemoVersiCocok();
+        m.cocokTahap1("1.32.0", null);
+        m.cocokTahap1("1.32.0", null);
+        m.cocokTahap2(null, null);
+        m.cocokTahap2(null, null);
+    }
+
+    @Test
     public void duaTahapTidakSalingBocor() {
         MemoVersiCocok m = new MemoVersiCocok();
         assertFalse(m.cocokTahap1("1.0.0", "2.0.0"));

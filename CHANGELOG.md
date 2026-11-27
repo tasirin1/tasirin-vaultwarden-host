@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — MemoVersiCocok tak lagi bisa NPE oleh pend null (Audit 2805)
+
+- `MemoVersiCocok.cocokTahap1/2`: argumen `pend` kini dinormalkan ke "" bila null, sama seperti `versi` — dulu `pend.equals(...)` meledak NPE laten bagi pemanggil mana pun yang mengoper null (pemanggil hari ini mengawal null, jadi ini pengerasan, bukan perbaikan crash yang terjadi). Diuji dengan pend null dua tahap. Field memo tetap tidak tersinkron — kedua pemanggilnya activity di UI thread.
+
+
 ## [Belum rilis] — Penghitung PIN gagal kini terpagar dari luapan integer (Audit 2803)
 
 - `PinGate`: penghitung percobaan PIN gagal dulu dinaikkan tanpa pagar — pada nilai `Integer.MAX_VALUE` penambahan meluap ke negatif dan lockout hilang. Nilai itu praktis mustahil dicapai lewat UI (lockout berhenti jauh sebelumnya), tapi pagarnya murah: helper murni `gagalBerikutnya` memagari di 10.000, jauh di atas tingkat durasi kunci tertinggi sehingga perilaku normal tidak berubah. Diuji termasuk kasus MAX_VALUE.

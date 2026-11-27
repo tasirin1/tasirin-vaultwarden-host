@@ -17,24 +17,29 @@ final class MemoVersiCocok {
 
     boolean cocokTahap1(String versi, String pend) {
         String a = versi == null ? "" : versi;
-        if (a.equals(a1) && pend.equals(b1)) {
+        // Audit 2805: pend dinormalkan seperti versi - dulu
+        // pend.equals() meledak NPE bila pemanggil mengoper
+        // null (pemanggil kini mengawal, tapi laten).
+        String b = pend == null ? "" : pend;
+        if (a.equals(a1) && b.equals(b1)) {
             return hasil1;
         }
         boolean cocok = Updater.versiCocok(versi, pend);
         a1 = a;
-        b1 = pend;
+        b1 = b;
         hasil1 = cocok;
         return cocok;
     }
 
     boolean cocokTahap2(String versi, String pend) {
         String a = versi == null ? "" : versi;
-        if (a.equals(a2) && pend.equals(b2)) {
+        String b = pend == null ? "" : pend;
+        if (a.equals(a2) && b.equals(b2)) {
             return hasil2;
         }
         boolean cocok = Updater.versiCocok(versi, pend);
         a2 = a;
-        b2 = pend;
+        b2 = b;
         hasil2 = cocok;
         return cocok;
     }
