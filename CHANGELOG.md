@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Trampolin start kini punya alarm cadangan (Audit 2847)
+
+- Perintah start/restart jarak jauh tidak lagi bergantung pada satu alarm tepat waktu: bila sistem menundanya, alarm cadangan 90 detik kemudian tetap menyalakan server.
+
+
 ## [Belum rilis] — Poll bot Telegram kini rantai alarm AllowWhileIdle (Audit 2842)
 
 - Bot Telegram tidak lagi menunggu jendela perawatan Doze: alarm poll kini berbunyi tepat waktu dan memasang alarm berikutnya sendiri, jadi perintah seperti /start tetap dibalas cepat walau server mati dan perangkat lama menganggur.

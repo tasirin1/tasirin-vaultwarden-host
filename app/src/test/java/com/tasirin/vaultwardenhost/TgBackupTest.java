@@ -16,6 +16,28 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class TgBackupTest {
+
+    @Test
+    public void kodeTrampolinCadanganSlotSendiri() {
+        // Audit 2847: slot cadangan per aksi memetakan
+        // seperti slot utama tetapi tak pernah sama -
+        // alarm cadangan tak menimpa alarm exact.
+        assertEquals(TgBackup.REQ_START_SERVER_RESTART_CADANGAN,
+                TgBackup.kodeTrampolinCadangan(ServerService.ACTION_RESTART));
+        assertEquals(TgBackup.REQ_START_SERVER_BACKUP_CADANGAN,
+                TgBackup.kodeTrampolinCadangan(ServerService.ACTION_TG_BACKUP));
+        assertEquals(TgBackup.REQ_START_SERVER_CADANGAN,
+                TgBackup.kodeTrampolinCadangan(ServerService.ACTION_START));
+        assertEquals(TgBackup.REQ_START_SERVER_CADANGAN,
+                TgBackup.kodeTrampolinCadangan("aksi-tak-dikenal"));
+        assertNotEquals(TgBackup.kodeTrampolin(ServerService.ACTION_RESTART),
+                TgBackup.kodeTrampolinCadangan(ServerService.ACTION_RESTART));
+        assertNotEquals(TgBackup.kodeTrampolin(ServerService.ACTION_TG_BACKUP),
+                TgBackup.kodeTrampolinCadangan(ServerService.ACTION_TG_BACKUP));
+        assertNotEquals(TgBackup.kodeTrampolin(ServerService.ACTION_START),
+                TgBackup.kodeTrampolinCadangan(ServerService.ACTION_START));
+    }
+
     @Test
     public void kirimInteraktif_tolakKonteksDanTujuanRusak() {
         // Audit 2588: corong interaktif menolak konteks null

@@ -279,6 +279,13 @@ public final class TgBackup {
     static final int REQ_START_SERVER_RESTART = 103;
     static final int REQ_START_SERVER_BACKUP = 104;
 
+    // Audit 2847: slot alarm cadangan trampolin
+    // (jaring pengaman inexact) - kode terpisah agar
+    // tak menimpa slot exact utama.
+    static final int REQ_START_SERVER_CADANGAN = 105;
+    static final int REQ_START_SERVER_RESTART_CADANGAN = 106;
+    static final int REQ_START_SERVER_BACKUP_CADANGAN = 107;
+
     static final int REQ_HARIAN = 0;
 
     static final String EXTRA_TUNDA_BOOT = "tunda_boot";
@@ -437,6 +444,9 @@ public final class TgBackup {
 
     static final long TRAMPOLIN_START_MS = 2000;
 
+    // Audit 2847: jeda alarm cadangan trampolin.
+    static final long TRAMPOLIN_CADANGAN_MS = 90_000;
+
     // Audit 2969: keputusan murni trampolin start - hanya
     // berarti di Android 12+ (di sanalah start FGS dari
     // background ditolak untuk aplikasi target 31+) dan hanya
@@ -466,6 +476,18 @@ public final class TgBackup {
             return REQ_START_SERVER_BACKUP;
         }
         return REQ_START_SERVER;
+    }
+
+    // Audit 2847: pasangan kodeTrampolin untuk slot
+    // cadangan - pemetaan aksi yang sama, slot berbeda.
+    static int kodeTrampolinCadangan(String aksiLanjutan) {
+        if (ServerService.ACTION_RESTART.equals(aksiLanjutan)) {
+            return REQ_START_SERVER_RESTART_CADANGAN;
+        }
+        if (ServerService.ACTION_TG_BACKUP.equals(aksiLanjutan)) {
+            return REQ_START_SERVER_BACKUP_CADANGAN;
+        }
+        return REQ_START_SERVER_CADANGAN;
     }
 
     public static boolean jadwalTrampolinStart(Context ctx, String aksiLanjutan) {
@@ -499,6 +521,19 @@ public final class TgBackup {
                         SystemClock.elapsedRealtime() + TRAMPOLIN_START_MS, pi);
             } else {
                 return false;
+            }
+            // Audit 2847: jaring pengaman - alarm inexact
+            // belakangan di slot sendiri. Bila alarm exact
+            // tertunda sistem, cadangan ini tetap
+            // menyerahkan start; startDariTrampolin
+            // idempoten jadi bunyi ganda tak berbahaya.
+            try {
+                PendingIntent piCadangan = PendingIntent.getBroadcast(ctx,
+                        kodeTrampolinCadangan(aksiLanjutan), intent, flags);
+                am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime() + TRAMPOLIN_CADANGAN_MS,
+                        piCadangan);
+            } catch (Exception ignored) {
             }
             return true;
         } catch (Exception e) {
