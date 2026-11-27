@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Ukuran APK di README diselaraskan ke ~0,33 MB (Audit 2951)
+
+- `README.md` + `README.id.md` + `README.ru.md`: angka ukuran APK di baris pembuka masih ~0,28 MB, tertinggal dari ukuran rilis terakhir (~0,33 MB, 333.785 byte di v1.37.5) yang sudah lebih dulu dicatat aturan repo. Ketiga terjemahan kini menyebut angka yang sama.
+
+
 ## [Belum rilis] — Intent tunda tanpa rahasia tak lagi menyetel flag backup tertunda (Audit 2949)
 
 - `AlarmReceiver`: cabang rahasia-tak-cocok untuk alarm tunda boot dulu menyetel flag backup-tertunda persisten — karena receiver ini exported dan string aksinya publik, aplikasi mana pun bisa menyetel state itu tanpa tahu rahasia dan memicu satu backup susulan plus pesan Telegram di luar jadwal. Semua pengirim sah kini membawa rahasia alarm, jadi cabang itu disamakan dengan cabang harian di atasnya: cukup catat log dan jadwal ulang rantai harian, tanpa menyetel flag dari intent yang tak terotentikasi.
