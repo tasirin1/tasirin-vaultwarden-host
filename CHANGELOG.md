@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cek ruang yang tak bisa dilakukan kini tercatat, bukan dilewati diam-diam (Audit 2881)
+
+- `TgBackup`: tiga cek ruang (backup, unduhan ke cache, restore) dulu dilewati tanpa jejak bila pembacaan ruang bebas gagal (-1) — kegagalan baca yang menetap membuat semua cek mati dalam diam. Kini tiap situs mencatat peringatan ke log aplikasi bahwa cek tak bisa dilakukan dan dilewati; perilaku keputusannya tidak berubah (cek yang tak terukur tidak boleh memblokir operasi yang mungkin muat), sejalan dengan perlakuan yang sama di unduh binary (Audit 2855).
+
+
 ## [Belum rilis] — Unggahan backup kini bertenggat total — koneksi macet tak lagi menahan kunci backup (Audit 2880)
 
 - `TgBackup` (unggah multipart dokumen): `HttpURLConnection` tidak menyediakan batas waktu tulis, jadi koneksi yang macet di tengah unggah menahan kunci backup tanpa batas waktu. Tiap percobaan kini dipasangi benang pengawas yang memutus koneksi bila tenggat total lewat — dasar 120 detik ditambah jatah alir 16 KB/detik dari ukuran berkas, maksimal 30 menit (helper murni `batasUnggahMs`); unggahan yang selesai normal membongkar pengawasnya. Ditambah uji JVM.

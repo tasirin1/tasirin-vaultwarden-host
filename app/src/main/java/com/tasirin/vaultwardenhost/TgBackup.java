@@ -724,6 +724,12 @@ public final class TgBackup {
             long butuh = ruangBackupDibutuhkan(isiDb, isiLampiran,
                     folderCache, terenkripsi);
             long free = freeBytes(ctx, folder);
+            if (free < 0) {
+                // Audit 2881: cek dilewati tercatat, bukan diam.
+                ServerService.catatLog("[tg] Cek ruang backup tak bisa"
+                        + " dilakukan (ruang bebas tak terbaca) di "
+                        + folder + " - cek dilewati.");
+            }
             if (free >= 0 && free < butuh) {
                 throw new IOException("Storage kurang untuk backup (butuh "
                         + humanBytes(butuh) + ", sisa " + humanBytes(free)
@@ -3364,6 +3370,12 @@ public final class TgBackup {
                 java.io.File cache = ctx.getCacheDir();
                 if (cache != null) {
                     long sisa = freeBytes(ctx, cache.getAbsolutePath());
+                    if (sisa < 0) {
+                        // Audit 2881: cek dilewati tercatat.
+                        ServerService.catatLog("[tg] Cek ruang unduhan tak"
+                                + " bisa dilakukan (ruang bebas tak terbaca)"
+                                + " - cek dilewati.");
+                    }
                     if (sisa >= 0 && ukuran > sisa) {
                         throw new IOException("Storage kurang (butuh "
                                 + humanBytes(ukuran) + ", sisa " + humanBytes(sisa)
@@ -4282,6 +4294,12 @@ public final class TgBackup {
         if (isiZip >= 0) {
             long butuh = isiZip + 5L * 1024 * 1024;
             long sisa = freeBytes(ctx, dataDir);
+            if (sisa < 0) {
+                // Audit 2881: cek dilewati tercatat.
+                ServerService.catatLog("[tg] Cek ruang restore tak bisa"
+                        + " dilakukan (ruang bebas tak terbaca) - cek"
+                        + " dilewati.");
+            }
             if (sisa >= 0 && butuh > sisa) {
                 throw new IOException("Storage kurang untuk restore (butuh "
                         + humanBytes(butuh) + ", sisa " + humanBytes(sisa)
