@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cabang verifikasi PIN lawas non-ASCII kini teruji (Audit 2938)
+
+- Uji JVM: verifikasi PIN punya jalur cadangan khusus untuk hash lawas milik PIN non-ASCII (dibuat dari byte rendah tiap karakter, berbeda dari jalur utama) — jalur itu dulu tidak punya satu pun uji, jadi kerusakannya tidak akan ketahuan sampai pemilik PIN lama terkunci. Uji baru membangun fixture hash lawas persis lewat jalur cadangan itu dan memverifikasi PIN yang benar lolos dan yang salah tertolak.
+
+
 ## [Belum rilis] — Uji URL fallback binary kini memaku host secara literal (Audit 2941)
 
 - Uji JVM: URL fallback binary dulu hanya diperiksa strukturnya (mengandung potongan jalur, berakhiran nama aset) dan satu uji tetangga membandingkan dua panggilan kode produksi yang sama — penggantian host atau repo pada alamat unduh fallback akan lolos dengan suite tetap hijau sementara unduhan pergi ke tempat yang salah. Ujinya kini memaku alamat lengkap secara literal.

@@ -18,6 +18,25 @@ public class PinCryptoTest {
     }
 
     @Test
+    public void verifikasiJatuhKeCadanganUntukHashLawasNonAscii() {
+        // Audit 2938: fixture hash lawas PIN non-ASCII
+        // dibangun lewat deriveCadangan (byte rendah);
+        // verify wajib menemukannya lewat fallback -
+        // cabang ini dulu tak teruji sama sekali.
+        byte[] salt = new byte[16];
+        for (int i = 0; i < salt.length; i++) {
+            salt[i] = (byte) (i * 3 + 1);
+        }
+        String pin = "1234\u00e9";
+        byte[] dk = PinCrypto.deriveCadangan(pin, salt, 10000);
+        String stored = "PBKDF2$10000$" + PinCrypto.hex(salt)
+                + "$" + PinCrypto.hex(dk);
+        assertTrue(PinCrypto.verify(stored, pin));
+        assertFalse(PinCrypto.verify(stored, "1234x"));
+        assertTrue(PinCrypto.verify(PinCrypto.hash(pin), pin));
+    }
+
+    @Test
     public void hashLaluVerifikasi() {
         String h = PinCrypto.hash("123456");
         assertTrue(PinCrypto.isNewFormat(h));
