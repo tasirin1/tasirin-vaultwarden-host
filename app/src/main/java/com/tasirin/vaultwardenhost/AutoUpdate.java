@@ -62,10 +62,14 @@ public final class AutoUpdate {
 
             String latest = Updater.versiTargetBinary(ctx);
             if (latest == null) {
-
-                aksi.catat("[app] Cek update dilewati: versi terbaru tak terbaca"
-                        + " (offline/rate-limit).");
-                return;
+                // Audit 2860 arah (b): jangan return - blok
+                // web-vault di bawah bisa tetap jalan dari pin
+                // web-vault-nya sendiri. Rantai binary di bawah
+                // aman terhadap latest null: versiSamaPersis
+                // false, bandingVersi terhadap null >= 0, dan
+                // cabang bandingReal > 0 digerbang eksplisit.
+                aksi.catat("[app] Cek update binary dilewati: versi terbaru"
+                        + " tak terbaca (offline/rate-limit).");
             }
 
             SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
@@ -76,16 +80,41 @@ public final class AutoUpdate {
             String current = Updater.versiSaatIni(ctx, real);
             boolean adaTerpasang = false;
 
+            // Audit 2860 arah (a): target dari PIN belum tentu
+            // ada rilisnya - pin salah ketik dulu tetap
+            // diumumkan "tersedia" dan jalur auto memasang
+            // stempel gagal 6 jam untuk upaya yang mustahil.
+            // Verifikasi keberadaan asetnya lewat probe
+            // checksum: tak terbukti -> lewati pengumuman dan
+            // pemasangan putaran ini, tanpa stempel.
+            boolean pinTakTerbukti = false;
+            if (latest != null && Updater.adaKuncianBinary(ctx)
+                    && Updater.bandingVersi(current, latest) < 0) {
+                Updater.HasilChecksum probe = Updater.fetchChecksumRinci(ctx,
+                        Updater.binaryAssetUrl(latest, ServerService.ABI)
+                                + ".sha256", 20000, 20000);
+                if (probe.hex == null) {
+                    pinTakTerbukti = true;
+                    aksi.catat("[app] Pin binary v" + latest
+                            + (probe.sementara
+                                    ? " belum bisa diverifikasi (jaringan"
+                                            + " terganggu); pengumuman dan"
+                                            + " pemasangan ditunda."
+                                    : " tidak punya aset rilis; pengumuman"
+                                            + " dan pemasangan dilewati."));
+                }
+            }
+
             int bandingReal = Updater.bandingVersi(real, latest);
             if (Updater.versiSamaPersis(real, latest)) {
                 sp.edit().putString(ServerService.KEY_UPDATE_VERSION, latest).apply();
                 pending.atur(null);
                 batalkanNotifikasiUpdate(ctx);
-            } else if (bandingReal > 0) {
+            } else if (latest != null && bandingReal > 0) {
 
                 pending.atur(null);
                 batalkanNotifikasiUpdate(ctx);
-            } else if (Updater.bandingVersi(current, latest) < 0) {
+            } else if (!pinTakTerbukti && Updater.bandingVersi(current, latest) < 0) {
                 if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false) && tanpaKuota(ctx)) {
 
                     long gagalAt = TgBackup.amanLong(sp, ServerService.KEY_BIN_DL_GAGAL_AT, 0);

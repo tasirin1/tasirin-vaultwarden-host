@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Asimetri pin versi vs guard offline diperbaiki dua arah (Audit 2860)
+
+- Arah (a): target binary dari PIN tidak lagi diperlakukan seolah terverifikasi. Pin yang lebih baru dari versi terpasang kini dibuktikan dulu keberadaan aset rilisnya lewat probe checksum yang sudah ada (`fetchChecksumRinci`, kini package-private): pin salah ketik yang tidak punya rilis tidak lagi diumumkan sebagai "update tersedia" dan tidak lagi memasang stempel gagal unduh 6 jam; bila jaringan terganggu, pengumuman/pemasangan ditunda ke cek berikutnya tanpa stempel. - Arah (b): bila target binary tak terbaca (pin kosong dan API GitHub gagal), `cek()` tidak lagi berhenti dini — blok auto-update web-vault di bawahnya tetap jalan karena targetnya bisa diketahui dari pin web-vault sendiri. Rantai binary dibuat aman terhadap target kosong (cabang `bandingReal > 0` digerbang eksplisit; perbandingan lain terbukti aman terhadap null).
+
+
 ## [Belum rilis] — Cek update tak lagi percaya penanda versi tanpa binary di disk (Audit 2853)
 
 - `Updater.tryUpdateVersi`: keputusan terakhir "Sudah versi terbaru" dulu memakai `versiSaatIni()`, yang bila server berhenti jatuh ke penanda pref `KEY_UPDATE_VERSION` atau versi bundel di APK — keduanya tidak membuktikan binary benar-benar ada di disk. Pada instalasi baru (penanda = versi bundel = versi terbaru) cek update mengklaim sudah terbaru padahal binary belum diunduh sama sekali; hal yang sama terjadi bila binary diganti manual dengan versi lebih lama/rusak sementara penanda tetap baru. Cek itu kini memakai `realBerkas` — versi berkas binary di disk yang terikat sidik berkas (Audit 1604) — sehingga penanda sendirian tidak bisa lagi membatalkan unduhan; jalur Start tetap memulihkan lewat `ensureBinary` seperti sebelumnya.

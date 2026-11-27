@@ -3179,7 +3179,7 @@ public final class Updater {
         return baris;
     }
 
-    private static HasilChecksum fetchChecksumRinci(Context ctx, String url,
+    static HasilChecksum fetchChecksumRinci(Context ctx, String url,
                                                     int connectMs, int readMs) {
 
         if (url == null || !url.regionMatches(true, 0, "https://", 0, 8)) {
