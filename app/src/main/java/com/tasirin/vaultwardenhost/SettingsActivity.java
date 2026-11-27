@@ -2456,6 +2456,16 @@ public class SettingsActivity extends Activity {
 
                     TgBackup.hapusWalShm(new File(dataDir));
                     restored = true;
+                    // Audit 2822: jalur mentah tak bisa membawa
+                    // -wal pendamping dari folder asal (berkas
+                    // dipilih lewat SAF sebagai satu aliran) -
+                    // beri tahu user agar tak mengira restore
+                    // ini selalu lengkap.
+                    appendUiLog("[app] Peringatan: restore dari berkas DB"
+                            + " mentah tidak membawa berkas -wal pendamping."
+                            + " Bila folder asal punya db.sqlite3-wal,"
+                            + " transaksi terbarunya tidak ikut terpulihkan."
+                            + " Pakai backup ZIP untuk restore lengkap.");
                 }
             }
             if (!restored) {

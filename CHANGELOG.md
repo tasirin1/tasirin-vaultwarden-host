@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Restore berkas DB mentah kini memperingatkan soal -wal yang tak terbawa (Audit 2822)
+
+- `SettingsActivity` (restore dari pemilih berkas): jalur berkas mentah (bukan ZIP) hanya menyalin berkas yang dipilih — berkas `-wal` pendamping di folder asal tidak ikut, dan transaksi yang masih tinggal di dalamnya hilang tanpa peringatan apa pun. Berkas dipilih lewat SAF sebagai satu aliran dokumen sehingga `-wal` saudara memang tidak terjangkau untuk disalin; jalur ini kini menulis peringatan jelas di log UI bahwa restore mentah bisa tidak lengkap dan backup ZIP adalah jalur restore lengkap — setara peringatan `-wal` yang sudah ada di jalur ZIP/bot.
+
+
 ## [Belum rilis] — Sisa plaintext dekripsi kini disapu juga saat service dibuat (Audit 2821)
 
 - `ServerService.onCreate`: berkas plaintext hasil dekripsi di cache (`vwtg-plain-*.zip`, `vwtg-dec-*.tmp`) dulu hanya disapu ketika operasi backup/restore/dekripsi berikutnya berjalan — proses yang mati di tengah operasi (LMK, crash, listrik padam) bisa meninggalkannya berminggu-minggu. Kedua sapuan kini ikut berjalan (di latar) setiap service dibuat, yang mencakup boot, Start dari UI, dan alarm. Pagar umur ≥10 menit di dalam sapuan tetap melindungi berkas operasi yang sedang berjalan. Dampak sisa memang terbatas (cache privat aplikasi), tapi jendela paparannya kini maksimal satu siklus hidup proses.
