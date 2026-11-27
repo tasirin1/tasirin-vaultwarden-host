@@ -631,7 +631,7 @@ public final class TgBackup {
         ui.catat("[tg] Backup otomatis saat Start akan dijalankan...");
         final Context app = ctx.getApplicationContext();
 
-        Util.jalankanLama(() -> {
+        boolean masuk = Util.jalankanLama(() -> {
             try {
                 final String msg = backupTungguDb(app);
                 ui.jalankanUi(() -> {
@@ -644,6 +644,13 @@ public final class TgBackup {
                 ui.catat("[tg] " + pesanGalatBackup(e));
             }
         });
+        // Audit 2962: penolakan antrean dulu sunyi (hanya
+        // logcat) - kini tercatat di log aplikasi.
+        if (!masuk) {
+            ui.catat("[tg] Backup otomatis saat Start gagal dijalankan:"
+                    + " antrean tugas latar penuh - backup akan dicoba"
+                    + " pada Start berikutnya.");
+        }
     }
 
     static boolean bolehBackupOtomatis(String pass) {

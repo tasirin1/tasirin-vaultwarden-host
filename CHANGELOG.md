@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penolakan antrean backup otomatis kini tercatat di log aplikasi (Audit 2962)
+
+- `TgBackup.maybeAutoBackup`: sesudah mencatat "akan dijalankan", tugas diserahkan ke antrean latar tanpa memeriksa hasil penyerahannya — bila antrean penuh tugas dibuang dan satu-satunya jejak ada di logcat, bukan log aplikasi yang dilihat pengguna. Hasil penyerahan kini diperiksa dan penolakannya dicatat ke log aplikasi, sama seperti jalur lewati lain di metode yang sama.
+
+
 ## [Belum rilis] — Balasan login bot kini hanya menyatakan berhasil bila sesi benar tersimpan (Audit 2961)
 
 - `TgBot`: balasan "Login berhasil" dulu dikirim tanpa syarat, padahal penyimpanan sesi bisa diam-diam tidak terjadi (hash PIN berubah di antara verifikasi dan penyimpanan, atau penulisan preferensi gagal tertelan) — pengguna mengira sudah login tetapi perintah berikutnya tetap meminta PIN. Penyimpanan sesi kini memakai `commit()` dan mengembalikan hasilnya, dan penangan login membalas jujur meminta `/login` lagi bila sesi gagal tersimpan.
