@@ -1214,9 +1214,12 @@ public class ServerService extends Service {
         }
         stop(context);
 
-        long anggaran = timeoutMs < ANGGARAN_STOP_MIN_MS
-                ? ANGGARAN_STOP_MIN_MS : timeoutMs;
-        long deadline = SystemClock.elapsedRealtime() + anggaran;
+        // Audit 2795: timeout pemanggil adalah sumber
+        // kebenaran - lantai minimum 15 dtk di sini dulu
+        // logika mati (kedua pemanggil memang mengoper
+        // ANGGARAN_STOP_MIN_MS) yang membingungkan pembaca.
+        long deadline = SystemClock.elapsedRealtime()
+                + Math.max(0, timeoutMs);
         while (SystemClock.elapsedRealtime() < deadline
                 && (isProcessAlive() || starting.get())) {
             try {

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — stopAndWait: timeout pemanggil jadi sumber kebenaran (Audit 2795)
+
+- `ServerService.stopAndWait`: anggaran tunggu dulu dipaksa minimum 15 detik (`max(timeoutMs, 15000)`) padahal kedua pemanggil memang mengoper 15 detik — lantai itu logika mati. Kini batas pemanggil dipakai apa adanya. Perilaku teramati tidak berubah: loop-nya memang polling tiap 500 mdtk dan kembali segera sesudah proses mati, jadi tidak pernah ada tunggu paksa 15 detik pada proses yang cepat mati.
+
+
 ## [Belum rilis] — Kegagalan start dan restart yang dilewati kini berkabar ke Telegram (Audit 2988)
 
 - `ServerService`: balasan bot "Perintah diterima: server start..." dulu bisa jadi kabar terakhir — kelas kegagalan start folder data, unduh binary, shim, dan exception tak pernah mengirim Telegram sama sekali, dan restart yang dilewati karena persiapan start sedang berjalan hanya tercatat di log. Kini cabang kegagalan start permanen mengirim satu kabar per paling cepat 10 menit ("Start server gagal — mencoba lagi otomatis / server berhenti. Cek /log untuk sebabnya."; kabar penutup gerbang loop dan menyerah 5x yang sudah ada tetap berlaku), dan kedua sebab restart dilewati kini mengirim kabar juga. Antrean start penuh tetap hanya status layar — sifatnya sesaat dan pesannya memang menyuruh mencoba lagi.
