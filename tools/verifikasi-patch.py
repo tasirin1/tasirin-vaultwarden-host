@@ -24829,6 +24829,31 @@ def blok_repositories(isi):
     return hasil
 
 
+def cek_blok_repositories(blok, nama_berkas, gagal):
+    """Nilai isi satu blok repositories terhadap allowlist.
+
+    Entri berkurung (google()/mavenCentral()/...) dicocokkan
+    persis dengan REPO_SETTINGS_BOLEH. Audit 2898: bentuk
+    TANPA kurung (maven { url = ... }) dulu tak terlihat regex
+    entri sama sekali - kini kata kunci repositori tanpa
+    kurung yang membuka blok langsung GAGAL.
+    """
+    for entri in re.findall(r"[A-Za-z_][A-Za-z0-9_.]*\s*\([^)]*\)"
+                            r"(?:\s*\{[^}]*\})?", blok):
+        entri = entri.strip()
+        if entri not in REPO_SETTINGS_BOLEH:
+            gagal.append("%s: repositori tak diizinkan di blok "
+                         "repositories: %s - hanya google()/"
+                         "mavenCentral()/gradlePluginPortal() yang "
+                         "terpaku (Audit 835)" % (nama_berkas, entri))
+    for kata in re.findall(r"\b(maven|ivy|flatDir|jcenter)\s*\{", blok):
+        gagal.append("%s: repositori tak diizinkan di blok "
+                     "repositories: %s { ... } (bentuk tanpa kurung) "
+                     "- hanya google()/mavenCentral()/"
+                     "gradlePluginPortal() yang terpaku "
+                     "(Audit 2898)" % (nama_berkas, kata))
+
+
 def _dekode_escape_properties(baris):
     """Dekode escape format Java properties pada satu baris logis:
     escape unicode (huruf u boleh berulang, empat digit heksa),
@@ -24885,6 +24910,11 @@ def cek_gradle_akar(gagal):
                      + VERSI_AGP_TERPAKU + " + apply false — mengganti versi "
                      "AGP wajib menyelaraskan VERSI_AGP_TERPAKU di "
                      "verifikasi-patch pada commit yang sama (Audit 835)")
+    # Audit 2898: blok repositories di build.gradle.kts akar
+    # (mis. buildscript { repositories { ... } }) dulu tak
+    # pernah dipindai - kini dinilai allowlist yang sama.
+    for blok in blok_repositories(isi):
+        cek_blok_repositories(blok, "build.gradle.kts", gagal)
     isi = kupas_komentar_kotlin(baca("settings.gradle.kts"),
                                 kosongkan_string=True)
     if not os.path.isfile(os.path.join(AKAR, "settings.gradle.kts")):
@@ -24900,14 +24930,7 @@ def cek_gradle_akar(gagal):
                 gagal.append("settings.gradle.kts: repositori %s hilang dari "
                              "daftar yang dipaku" % repo)
         for blok in blok_repositories(isi):
-            for entri in re.findall(r"[A-Za-z_][A-Za-z0-9_.]*\s*\([^)]*\)"
-                                    r"(?:\s*\{[^}]*\})?", blok):
-                entri = entri.strip()
-                if entri not in REPO_SETTINGS_BOLEH:
-                    gagal.append("settings.gradle.kts: repositori tak "
-                                 "diizinkan di blok repositories: %s — hanya "
-                                 "google()/mavenCentral()/gradlePluginPortal() "
-                                 "yang terpaku (Audit 835)" % entri)
+            cek_blok_repositories(blok, "settings.gradle.kts", gagal)
     isi = baca("gradle.properties")
     if not os.path.isfile(os.path.join(AKAR, "gradle.properties")):
         gagal.append("gradle.properties hilang")
