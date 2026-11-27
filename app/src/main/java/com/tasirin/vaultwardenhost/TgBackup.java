@@ -135,7 +135,8 @@ public final class TgBackup {
         if (satu.length() > 60) {
             satu = satu.substring(0, 60);
         }
-        return ServerService.samarkanLog(satu);
+        return LogActivity.butuhSamaran(satu)
+                ? LogActivity.samarkanLog(satu) : satu;
     }
 
     private static java.util.concurrent.RejectedExecutionHandler tolakPesan(

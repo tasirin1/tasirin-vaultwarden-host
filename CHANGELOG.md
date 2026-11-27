@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan build: labelPesan memanggil samarkanLog dari LogActivity (dari Audit 2879)
+
+- `TgBackup.labelPesan`: pemanggilan penyamaran pada Audit 2879 menyebut `ServerService.samarkanLog`, padahal helper itu milik `LogActivity` — kompilasi CI gagal ("cannot find symbol", CodeQL untuk `cbcbbbd0`). Pemanggilan kini lewat `LogActivity` dengan gerbang `butuhSamaran` yang sama seperti pemanggil lainnya.
+
+
 ## [Belum rilis] — Rollback restore tak lagi bisa menghapus DB live yang belum disentuh (Audit 2888)
 
 - `TgBackup.pulihkanDbLama` + `SettingsActivity`: cabang `preBackup == null` dulu menghapus berkas DB berdasar asumsi "belum ada DB sebelum restore" — padahal `preBackup` juga null bila fase pre-backup sendiri gagal sebelum penugasannya (mis. pemeriksaan checkpoint melempar) sementara DB live ada dan belum disentuh; rollback lalu menghapus DB live yang sehat. Pemanggil kini menangkap fakta keberadaan DB sebelum restore mengubah apa pun dan meneruskannya; cabang hapus hanya berjalan bila memang belum ada DB sebelumnya, selain itu DB live dibiarkan apa adanya. Uji JVM penguncinya diperbarui di commit yang sama.
