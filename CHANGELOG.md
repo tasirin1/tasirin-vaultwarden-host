@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cek kurung memakai pengupas Kotlin untuk berkas .kts (susulan Audit 2918)
+
+- `tools/verifikasi-patch.py`: cek kurung sadar-urutan dari Audit 2918 memakai pengupas Java untuk semua berkas termasuk .kts — pengupas itu tidak memahami string templat Kotlin dan string mentah, sehingga kode Gradle yang sehat (templat berisi komentar berpetik, string mentah berpetik) dinilai rusak urutannya dan build CI merah pada dua skenario lama. Berkas .kts kini dikupas dengan pengupas Kotlin (isi string dikosongkan) sebelum dipindai; kontrol negatifnya — urutan rusak dan kurung tak seimbang — tetap tertangkap.
+
+
 ## [Belum rilis] — Toast restore file-picker kini mengabarkan kegagalan sertifikat juga (Audit 2996)
 
 - `SettingsActivity` + `TgBackup`: restore lewat pemilih berkas dulu selalu menampilkan toast "Restore done" walau hasil restorenya memuat peringatan bahwa sertifikat dari backup gagal dipasang dan TLS perangkat dipertahankan — peringatan itu hanya masuk layar log, sehingga pengguna menekan Start lalu kliennya gagal terhubung tanpa tahu sebabnya. Toast kini memilih varian peringatan TLS bila pesan hasil memuatnya (pendeteksinya fungsi murni yang diuji), sama seperti jalur restore satunya.

@@ -24207,7 +24207,15 @@ def cek_kurung_java(gagal, berubah):
         penuh = os.path.join(AKAR, path)
         if not os.path.isfile(penuh):
             continue
-        isi = kupas_java(baca(path))
+        # Susulan Audit 2918: berkas .kts dikupas
+        # pengupas KOTLIN (string dikosongkan) - pengupas
+        # Java tak paham template/raw-string Kotlin dan
+        # mengarang ketidakseimbangan pada kode sehat.
+        if path.endswith(".kts"):
+            isi = kupas_komentar_kotlin(baca(path),
+                    kosongkan_string=True)
+        else:
+            isi = kupas_java(baca(path))
         tumpuk = []
         pesan = None
         for ch in isi:
