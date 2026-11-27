@@ -656,6 +656,11 @@ public class ServerServiceTest {
         assertTrue(ServerService.folderDiStorageBersama("/sdcard/vaultwarden"));
         assertTrue(ServerService.folderDiStorageBersama("/sdcard"));
         assertTrue(ServerService.folderDiStorageBersama("/storage/emulated/0/vw"));
+        // Audit 2796: awalan /mnt/... ikut volume bersama.
+        assertTrue(ServerService.folderDiStorageBersama("/mnt/sdcard/vaultwarden"));
+        assertTrue(ServerService.folderDiStorageBersama("/mnt/media_rw/sdcard/vw"));
+        assertTrue(!ServerService.folderDiStorageBersama(
+                "/mnt/sdcard/Android/data/com.tasirin.vaultwardenhost/files/vw"));
         assertTrue(!ServerService.folderDiStorageBersama(
                 "/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
         assertTrue(!ServerService.folderDiStorageBersama("/data/data/com.tasirin.vaultwardenhost/files"));

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Peringatan folder bersama kini mencakup /mnt/sdcard dan /mnt/media_rw (Audit 2796)
+
+- `ServerService.folderDiStorageBersama`: daftar awalan volume bersama disamakan dengan `diStoragePublik` — folder data yang ditulis lewat `/mnt/sdcard/...` atau `/mnt/media_rw/...` dulu lolos dari peringatan folder publik (log Start dan validasi Settings) padahal keputusan fallback TLS menganggapnya publik. Pengecualian area khusus aplikasi (`Android/data`, `Android/media`) tetap berlaku di semua awalan. Diuji pada klasifikasi yang sama.
+
+
 ## [Belum rilis] — stopAndWait: timeout pemanggil jadi sumber kebenaran (Audit 2795)
 
 - `ServerService.stopAndWait`: anggaran tunggu dulu dipaksa minimum 15 detik (`max(timeoutMs, 15000)`) padahal kedua pemanggil memang mengoper 15 detik — lantai itu logika mati. Kini batas pemanggil dipakai apa adanya. Perilaku teramati tidak berubah: loop-nya memang polling tiap 500 mdtk dan kembali segera sesudah proses mati, jadi tidak pernah ada tunggu paksa 15 detik pada proses yang cepat mati.

@@ -5491,8 +5491,14 @@ public class ServerService extends Service {
         if (path == null) {
             return false;
         }
+        // Audit 2796: awalan disamakan dengan diStoragePublik -
+        // /mnt/sdcard dan /mnt/media_rw juga volume bersama,
+        // dulu folder data yang ditulis lewat awalan itu lolos
+        // tanpa peringatan.
         boolean diVolume = path.startsWith("/sdcard/") || path.startsWith("/storage/")
-                || path.equals("/sdcard");
+                || path.startsWith("/mnt/sdcard/") || path.startsWith("/mnt/media_rw/")
+                || path.equals("/sdcard") || path.equals("/storage")
+                || path.equals("/mnt/sdcard") || path.equals("/mnt/media_rw");
         if (!diVolume) {
             return false;
         }
