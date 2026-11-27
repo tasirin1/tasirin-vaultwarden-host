@@ -43,6 +43,19 @@ public final class AutoUpdate {
         return pengumumanDicoba && tawarkanBaru(tercatat, versi);
     }
 
+    // Audit 2862: tryUpdateVersi melaporkan tertunda
+    // lewat STRING hasil, bukan lemparan - tiga bentuk
+    // produksinya harus dikenali agar tak dinilai sukses.
+    static boolean hasilUpdateTertunda(String msg) {
+        if (msg == null) {
+            return false;
+        }
+        return msg.startsWith("Cek pembaruan tertunda")
+                || msg.startsWith("Cek pembaruan terganggu")
+                || (msg.startsWith("Build Android")
+                        && msg.contains("belum tersedia"));
+    }
+
     static boolean bolehLewatiCobaLagi(boolean adaCache, long gagalAt, long sekarang) {
         return adaCache && !ServerService.bolehCobaUnduhLagi(gagalAt, sekarang);
     }
@@ -134,14 +147,27 @@ public final class AutoUpdate {
                         String msgBin = null;
                         try {
                             msgBin = Updater.tryUpdate(ctx);
-                            pending.atur(null);
-                            batalkanNotifikasiUpdate(ctx);
-                            if (Updater.binaryBerubah(msgBin)) {
-                                adaTerpasang = true;
-                            }
-                            try {
-                                sp.edit().remove(ServerService.KEY_BIN_DL_GAGAL_AT).apply();
-                            } catch (Exception ignored) {
+                            if (hasilUpdateTertunda(msgBin)) {
+                                // Audit 2862: tertunda bukan
+                                // sukses - stempel gagal tetap
+                                // berlaku dan pending disimpan,
+                                // sama seperti jalur exception.
+                                try {
+                                    sp.edit().putLong(ServerService.KEY_BIN_DL_GAGAL_AT,
+                                            System.currentTimeMillis()).apply();
+                                } catch (Exception ignored) {
+                                }
+                                pending.atur(latest);
+                            } else {
+                                pending.atur(null);
+                                batalkanNotifikasiUpdate(ctx);
+                                if (Updater.binaryBerubah(msgBin)) {
+                                    adaTerpasang = true;
+                                }
+                                try {
+                                    sp.edit().remove(ServerService.KEY_BIN_DL_GAGAL_AT).apply();
+                                } catch (Exception ignored) {
+                                }
                             }
                         } catch (Exception e) {
                             aksi.catat("[app] Auto-update gagal: " + e.getMessage());

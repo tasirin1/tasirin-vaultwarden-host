@@ -8,6 +8,22 @@ import org.junit.Test;
 public class AutoUpdateTest {
 
     @Test
+    public void hasilUpdateTertunda_kenaliTigaBentukProduksi() {
+        // Audit 2862.
+        assertTrue(AutoUpdate.hasilUpdateTertunda(
+                "Cek pembaruan tertunda (jaringan GitHub terganggu); binary"
+                        + " rilis sebelumnya tetap dipakai."));
+        assertTrue(AutoUpdate.hasilUpdateTertunda(
+                "Cek pembaruan terganggu jaringan; binary rilis sebelumnya"
+                        + " tetap dipakai."));
+        assertTrue(AutoUpdate.hasilUpdateTertunda(
+                "Build Android v1.37.5 belum tersedia; binary rilis"
+                        + " sebelumnya tetap dipakai."));
+        assertFalse(AutoUpdate.hasilUpdateTertunda("Sudah versi terbaru."));
+        assertFalse(AutoUpdate.hasilUpdateTertunda(null));
+    }
+
+    @Test
     public void lewatiBilaBaruGagalDanCacheAda() {
         long sekarang = 10_000_000L;
         assertTrue(AutoUpdate.bolehLewatiCobaLagi(true, sekarang - 1000, sekarang));

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Hasil update 'tertunda' tak lagi dinilai sukses oleh AutoUpdate (Audit 2862)
+
+- `AutoUpdate.cek`: `Updater.tryUpdateVersi` melaporkan jaringan terganggu dan build belum terbit lewat string hasil (bukan lemparan), dan semua hasil non-lemparan dulu diperlakukan sebagai sukses — stempel gagal 6 jam dihapus, notifikasi update dibatalkan, dan pending dibersihkan padahal tidak ada yang terpasang. Hasil tertunda kini dikenali predikat murni `hasilUpdateTertunda` (tiga bentuk pesan produksi) dan diperlakukan seperti kegagalan untuk urusan stempel dan pending; pesannya tetap diteruskan ke pengguna seperti biasa. Ditambah uji JVM untuk predikatnya.
+
+
 ## [Belum rilis] — Cabang versi-lebih-baru kini ikut menulis penanda versi (Audit 2861)
 
 - `AutoUpdate.cek`: cabang "versi yang berjalan sama persis dengan target" menulis penanda `KEY_UPDATE_VERSION`, tetapi cabang "versi berjalan lebih baru dari target" tidak — penanda bisa tertinggal basi padahal penanda itu sumber "versi saat ini" saat server mati (`Updater.versiSaatIni`), sehingga cek berikutnya bisa salah menilai versi terpasang dan memicu pemberitahuan/upaya update yang tidak perlu. Cabang itu kini menulis penanda dari versi nyata yang berjalan.
