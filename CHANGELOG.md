@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Label audit kini terpasang juga untuk issue berjudul [audit] (Audit 3027)
+
+- Workflow label-otomatis kini mengenali format issue audit terbaru (judul berawalan [audit]) di samping penanda lama di badan issue. Sebelumnya format baru itu tak pernah mendapat label audit, sehingga pengecualian bot stale untuk label audit tak berlaku dan antrean issue bisa tertutup massal sesudah 45+14 hari tanpa aktivitas.
+
+
 ## [Belum rilis] — README dikoreksi: backup lokal tidak terenkripsi (Audit 3025)
 
 - README (Inggris/Indonesia/Rusia) tak lagi mengklaim backup lokal terenkripsi. Yang terenkripsi hanya backup Telegram; backup lokal dari Settings adalah berkas zip polos — kini tertulis apa adanya di ketiga README agar tak ada yang menyimpan backup lokal tanpa perlindungan tambahan karena mengira sudah terenkripsi.

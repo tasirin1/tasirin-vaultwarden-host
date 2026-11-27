@@ -47,7 +47,7 @@ jobs:
           case ",$ASOSIASI," in
             *,OWNER,*|*,MEMBER,*|*,COLLABORATOR,*) dipercaya=1 ;;
           esac
-          if [ "$dipercaya" = 1 ] && { printf '%s' "$BADAN" | grep -qE '^(- )?Ronde: [Aa]udit[- ][0-9]+' || printf '%s' "$JUDUL" | grep -qE '\(Audit [0-9]+\)'; }; then
+          if [ "$dipercaya" = 1 ] && { printf '%s' "$BADAN" | grep -qE '^(- )?Ronde: [Aa]udit[- ][0-9]+' || printf '%s' "$JUDUL" | grep -qE '\(Audit [0-9]+\)' || printf '%s' "$JUDUL" | grep -qE '^\[audit\]'; }; then
             gh issue edit "$NOMOR" --repo "$REPO" --add-label audit
           elif [ "$AKSI" != "reopened" ] && printf ',%s,' "$LABELS" | grep -q ',audit,'; then
             gh issue edit "$NOMOR" --repo "$REPO" --remove-label audit
