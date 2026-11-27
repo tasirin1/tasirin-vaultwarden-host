@@ -4285,7 +4285,8 @@ public class SettingsActivity extends Activity {
         synchronized (kunciAktifPin) {
             epAktifPin++;
             getSharedPreferences(ServerService.PREFS, MODE_PRIVATE)
-                    .edit().putBoolean(PinGate.KEY_PIN_ON, false).apply();
+                    .edit().putBoolean(PinGate.KEY_PIN_ON, false)
+                    .remove(PinGate.KEY_PIN_HASH).apply();
         }
         pinCentangProgram = true;
         pinEnabledCheck.setChecked(false);

@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Mematikan PIN kini menghapus pin_hash
+
+Konfirmasi matikan PIN selama ini hanya menulis pin_on=false — hash PBKDF2 + salt tertinggal selamanya di vw_prefs dan bisa di-brute-force offline dari prefs/backup yang bocor, padahal pengguna mengira kredensialnya sudah hilang. matikanPinTerkonfirmasi kini menghapus pin_hash dalam edit yang sama; sesi login Telegram ikut mati karena hash pembandingnya hilang.
+
+Closes #2827
+
+
 ## [Belum rilis] — Restore kini menolak database SQLite yang bukan Vaultwarden
 
 Pemasangan DB restore selama ini hanya memeriksa magic SQLite dan PRAGMA quick_check — berkas SQLite valid apa pun (DB kosong, DB aplikasi lain, DB versi jauh lebih baru) lolos dan tertukar menjadi DB live dengan pesan sukses. pasangDbRestoreAtomik kini juga memeriksa skema: tabel inti users/ciphers/folders/devices wajib ada (query sqlite_master baca-saja, pola sama seperti cekIntegritasDb); jalur salinan pengaman (pasangDbDariSalinan) memakai penjaga yang sama sesuai prinsipnya sendiri. Predikat murni skemaVaultwardenCocok teruji JVM.
