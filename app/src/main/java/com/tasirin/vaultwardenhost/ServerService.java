@@ -1238,6 +1238,15 @@ public class ServerService extends Service {
         try {
             TgBackup.healkanStringPrefs(this);
             migrasiPortSekali(getSharedPreferences(PREFS, MODE_PRIVATE));
+            // Audit 2821: sapu sisa plaintext dekripsi dari
+            // operasi yang mati di tengah jalan - dulu hanya
+            // disapu saat operasi backup/restore berikutnya,
+            // bisa berminggu-minggu tertinggal di cache.
+            final java.io.File cacheSapu = getCacheDir();
+            Util.jalankanBg(() -> {
+                TgBackup.sapuTmpPlainBasi(cacheSapu);
+                TgBackup.sapuZipPlainCacheBasi(cacheSapu);
+            });
             // Audit 2783: daftarkan nilai rahasia tersimpan agar
             // penyamaran log berbasis nilai aktif di proses ini.
             LogActivity.catatNilaiRahasiaDariPrefs(

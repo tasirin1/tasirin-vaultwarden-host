@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Sisa plaintext dekripsi kini disapu juga saat service dibuat (Audit 2821)
+
+- `ServerService.onCreate`: berkas plaintext hasil dekripsi di cache (`vwtg-plain-*.zip`, `vwtg-dec-*.tmp`) dulu hanya disapu ketika operasi backup/restore/dekripsi berikutnya berjalan — proses yang mati di tengah operasi (LMK, crash, listrik padam) bisa meninggalkannya berminggu-minggu. Kedua sapuan kini ikut berjalan (di latar) setiap service dibuat, yang mencakup boot, Start dari UI, dan alarm. Pagar umur ≥10 menit di dalam sapuan tetap melindungi berkas operasi yang sedang berjalan. Dampak sisa memang terbatas (cache privat aplikasi), tapi jendela paparannya kini maksimal satu siklus hidup proses.
+
+
 ## [Belum rilis] — Uji kunci pasang global tak lagi tidur buta 300 mdtk (Audit 2814)
 
 - `UpdaterTest`: dua skenario kunci pasang global dulu memakai `Thread.sleep(300)` untuk memberi waktu thread penunggu parkir — penanda waktu rapuh di runner CI yang lambat. Keduanya kini menunggu sinyal yang deterministik: `statusMesin` hanya diisi oleh penunggu yang parkir (pemegang kunci tidak mengisinya), dipolling dengan tenggat 5 detik sebelum asersi. Cakupan ujinya sama, kerapuhannya hilang.
