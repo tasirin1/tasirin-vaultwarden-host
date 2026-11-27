@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Sinkron TLS internal kini memverifikasi kelengkapan staging sebelum menukar (Audit 2884)
+
+- `TgBackup.sinkronTlsKeInternal`: folder staging dulu ditukar menjadi folder TLS internal hanya dengan memeriksa `ca.pem` — salinan parsial (mis. `cert.pem`/`key.pem` gagal tersalin) ikut tertukar masuk dan HTTPS rusak dengan folder campuran. Kini kelengkapan staging diverifikasi terhadap asal untuk seluruh daftar berkas TLS (helper murni `tlsLengkap`); tak lengkap berarti tukar dibatalkan, staging dihapus, kegagalan dicatat dan dikembalikan agar pemanggil memperingatkan pengguna. Ditambah uji JVM.
+
+
 ## [Belum rilis] — Snapshot plaintext yatim kini ikut disapu saat layanan mulai (Audit 2882)
 
 - `ServerService.onCreate` + `TgBackup.sapuSnapshotBasiUmur`: folder snapshot `vwsnap-*` (salinan plaintext vault lengkap di cache) dulu hanya disapu saat backup berikutnya dibuat, jadi snapshot dari backup yang mati di tengah jalan bisa tertinggal berminggu-minggu. Sapuan start kini mencakup snapshot yang berumur ≥10 menit; penjaga umur melindungi snapshot yang sedang dibangun benang backup dari instans layanan sebelumnya di proses yang sama. Bagian laporan soal zip polos `backup-telegram-*` sudah tertutup lebih dulu oleh sapuan start Audit 2821. Ditambah uji JVM.

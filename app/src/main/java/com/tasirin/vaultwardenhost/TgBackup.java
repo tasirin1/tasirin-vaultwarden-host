@@ -2300,6 +2300,21 @@ public final class TgBackup {
         }
     }
 
+    // Audit 2884: staging lengkap bila setiap berkas
+    // TLS yang ada di asal juga ada di staging.
+    static boolean tlsLengkap(File asal, File staging) {
+        if (asal == null || staging == null) {
+            return false;
+        }
+        for (String nama : BERKAS_TLS) {
+            if (new File(asal, nama).isFile()
+                    && !new File(staging, nama).isFile()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     static boolean sinkronTlsKeInternal(Context ctx, File dataFolder) {
         File tujuan = new File(ctx.getFilesDir(), "tls");
         File staging = new File(ctx.getFilesDir(), "tls-sinkron-tmp");
@@ -2315,6 +2330,14 @@ public final class TgBackup {
             if (n <= 0 || !new File(staging, "ca.pem").isFile()) {
                 hapusPohon(staging);
                 return true;
+            }
+            // Audit 2884: ca.pem saja tak cukup - salinan
+            // parsial yang tertukar masuk merusak HTTPS.
+            if (!tlsLengkap(asal, staging)) {
+                hapusPohon(staging);
+                ServerService.catatLog("[tls] Sinkron TLS internal dibatalkan:"
+                        + " salinan staging tak lengkap dibanding asal.");
+                return false;
             }
             hapusPohon(cadangan);
             boolean adaTujuan = tujuan.isDirectory();

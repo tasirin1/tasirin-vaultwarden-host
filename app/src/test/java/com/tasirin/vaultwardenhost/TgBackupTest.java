@@ -1803,6 +1803,28 @@ public class TgBackupTest {
     }
 
     @Test
+    public void tlsLengkap_bandingSetAsal() throws Exception {
+        // Audit 2884.
+        java.io.File dir = java.nio.file.Files.createTempDirectory(
+                "tls-lengkap").toFile();
+        try {
+            java.io.File asal = new java.io.File(dir, "asal");
+            java.io.File staging = new java.io.File(dir, "staging");
+            assertTrue(asal.mkdir());
+            assertTrue(staging.mkdir());
+            assertTrue(new java.io.File(asal, "ca.pem").createNewFile());
+            assertTrue(new java.io.File(asal, "cert.pem").createNewFile());
+            assertTrue(new java.io.File(staging, "ca.pem").createNewFile());
+            assertFalse(TgBackup.tlsLengkap(asal, staging));
+            assertTrue(new java.io.File(staging, "cert.pem").createNewFile());
+            assertTrue(TgBackup.tlsLengkap(asal, staging));
+            assertFalse(TgBackup.tlsLengkap(null, staging));
+        } finally {
+            TgBackup.hapusPohon(dir);
+        }
+    }
+
+    @Test
     public void labelPesan_cuplikSatuBarisMaks60() {
         // Audit 2879.
         assertEquals("(pesan kosong)", TgBackup.labelPesan(null));
