@@ -409,6 +409,30 @@ public class TgBackupTest {
     }
 
     @Test
+    public void kumpulkanBerkasZip_lewatiBatasEntriLempar() throws Exception {
+        // Audit 3024: cap ditegakkan saat mengumpulkan.
+        java.io.File akar = java.nio.file.Files.createTempDirectory(
+                "vwkumpulcap").toFile();
+        try {
+            for (int i = 0; i <= Util.BATAS_JUMLAH_ENTRI; i++) {
+                new java.io.File(akar, "f" + i + ".bin").createNewFile();
+            }
+            java.util.List<java.io.File> ke = new java.util.ArrayList<>();
+            boolean lempar = false;
+            try {
+                TgBackup.kumpulkanBerkasZip(akar, ke);
+            } catch (java.io.IOException e) {
+                lempar = true;
+            }
+            org.junit.Assert.assertTrue(lempar);
+            org.junit.Assert.assertTrue(ke.size()
+                    <= Util.BATAS_JUMLAH_ENTRI);
+        } finally {
+            hapusPohonUji(akar);
+        }
+    }
+
+    @Test
     public void kumpulkanBerkasZip_hanyaBerkasRekursif() throws Exception {
         java.io.File akar = java.nio.file.Files.createTempDirectory(
                 "vwkumpul").toFile();

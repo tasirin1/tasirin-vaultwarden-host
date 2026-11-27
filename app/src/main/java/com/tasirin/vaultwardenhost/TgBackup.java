@@ -2671,7 +2671,8 @@ public final class TgBackup {
     }
 
     static void kumpulkanBerkasZip(File dir,
-                                   java.util.List<File> ke) {
+                                   java.util.List<File> ke)
+            throws Exception {
         kumpulkanBerkasZip(dir, ke, new java.util.HashSet<String>());
     }
 
@@ -2683,7 +2684,8 @@ public final class TgBackup {
     // StackOverflowError (sebuah Error, tak tertangkap handler
     // Exception jalur backup) sehingga backup gagal permanen.
     private static void kumpulkanBerkasZip(File dir,
-            java.util.List<File> ke, java.util.Set<String> sudah) {
+            java.util.List<File> ke, java.util.Set<String> sudah)
+            throws Exception {
         if (dir == null) {
             return;
         }
@@ -2713,6 +2715,16 @@ public final class TgBackup {
                 // mengembalikannya lewat restore memasang
                 // berkas akhir bernama .bak yang lalu disapu
                 // pemulihan start (Audit 1540).
+                // Audit 3024: batas entri ditegakkan SAAT
+                // mengumpulkan, bukan sesudah zip ditulis -
+                // daftar tanpa batas bisa menghabiskan
+                // memori STB sebelum pemeriksaan apa pun.
+                if (ke.size() >= Util.BATAS_JUMLAH_ENTRI) {
+                    throw new java.io.IOException(
+                            "Jumlah berkas melebihi batas "
+                                    + Util.BATAS_JUMLAH_ENTRI
+                                    + " - pengumpulan dihentikan.");
+                }
                 ke.add(a);
             }
         }

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Batas jumlah berkas backup kini ditegakkan saat pengumpulan (Audit 3024)
+
+- Pembuatan backup kini berhenti dengan pesan jelas begitu jumlah berkas lampiran/sends melewati batas 20.000 — saat pengumpulan, sebelum berkas zip ditulis. Sebelumnya seluruh isi folder dikumpulkan dulu ke memori tanpa batas (berisiko kehabisan memori di STB) dan batas baru diperiksa sesudah zip selesai dibuat.
+
+
 ## [Belum rilis] — Versi web vault kini dibaca dari disk folder aktif, bukan penanda lama (Audit 3022)
 
 - Penentu versi web vault sekarang memeriksa folder web vault yang benar-benar dipakai (folder data aktif, lalu salinan internal) dan membaca versi dari berkas penanda di dalamnya. Sebelumnya ia hanya membaca satu penanda global yang tidak pernah diperbarui saat folder data berganti, sehingga status, peringatan beda versi, dan penawaran update bisa menampilkan versi yang salah.
