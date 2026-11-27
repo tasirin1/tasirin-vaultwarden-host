@@ -17,6 +17,9 @@ public class AlarmReceiver extends BroadcastReceiver {
     public static final String ACTION_START_SERVER =
             "com.tasirin.vaultwardenhost.ALARM_START_SERVER";
 
+    public static final String ACTION_CEK_UPDATE =
+            "com.tasirin.vaultwardenhost.ALARM_CEK_UPDATE";
+
     public static final String EXTRA_AKSI_LANJUTAN =
             "com.tasirin.vaultwardenhost.ALARM_AKSI_LANJUTAN";
 
@@ -179,6 +182,17 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             ServerService.catatLog("[app] Trampolin start (" + aksi + "): "
                     + (ok ? "service dinyalakan." : "start tetap gagal."));
+            return;
+        }
+
+        // Audit 2858: alarm cek update berkala harian.
+        if (ACTION_CEK_UPDATE.equals(action)) {
+            if (!TgBackup.rahasiaAlarmCocok(context, intent)) {
+                ServerService.catatLog("[app] Alarm cek update gugur: rahasia alarm"
+                        + " tak cocok.");
+                return;
+            }
+            AutoUpdate.cekBerkala(context);
             return;
         }
 

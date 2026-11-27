@@ -223,6 +223,8 @@ public class MainActivity extends Activity {
 
         TgBot.schedule(this);
 
+        AutoUpdate.jadwalkanCekBerkala(this);
+
         if (TgBackup.amanBoolean(sp, TgBackup.KEY_BACKUP_TERTUNDA, false)) {
 
             if (!TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {

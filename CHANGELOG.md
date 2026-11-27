@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cek update kini berjalan harian walau aplikasi tak dibuka (Audit 2858)
+
+- Alarm harian baru memeriksa update binary dan web vault tiap hari (dan memasangnya bila auto-update aktif), tanpa menunggu aplikasi dibuka lebih dulu.
+
+
 ## [Belum rilis] — Trampolin start kini punya alarm cadangan (Audit 2847)
 
 - Perintah start/restart jarak jauh tidak lagi bergantung pada satu alarm tepat waktu: bila sistem menundanya, alarm cadangan 90 detik kemudian tetap menyalakan server.

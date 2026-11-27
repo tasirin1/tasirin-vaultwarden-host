@@ -7,6 +7,17 @@ import org.junit.Test;
 
 public class AutoUpdateTest {
 
+
+    @Test
+    public void cekBerkalaAktifMengikutiSakelar() {
+        // Audit 2858: alarm cek harian hanya hidup bila
+        // salah satu auto-update menyala.
+        org.junit.Assert.assertTrue(AutoUpdate.cekBerkalaAktif(true, false));
+        org.junit.Assert.assertTrue(AutoUpdate.cekBerkalaAktif(false, true));
+        org.junit.Assert.assertTrue(AutoUpdate.cekBerkalaAktif(true, true));
+        org.junit.Assert.assertFalse(AutoUpdate.cekBerkalaAktif(false, false));
+    }
+
     @Test
     public void hasilUpdateTertunda_kenaliTigaBentukProduksi() {
         // Audit 2862.

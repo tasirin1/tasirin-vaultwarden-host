@@ -3,6 +3,7 @@ package com.tasirin.vaultwardenhost;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +34,79 @@ public final class AutoUpdate {
 
     private static final java.util.concurrent.locks.ReentrantLock KUNCI_CEK =
             new java.util.concurrent.locks.ReentrantLock();
+
+    static final int REQ_CEK_UPDATE = 108;
+
+    // Audit 2858: cek berkala hanya hidup bila salah
+    // satu sakelar auto-update menyala.
+    static boolean cekBerkalaAktif(boolean autoBinary, boolean autoWv) {
+        return autoBinary || autoWv;
+    }
+
+    // Audit 2858: pasang/batalkan alarm cek update
+    // harian (satu jam sesudah tengah malam, menyusul
+    // backup harian) mengikuti sakelar auto-update.
+    public static void jadwalkanCekBerkala(Context ctx) {
+        try {
+            AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) {
+                return;
+            }
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
+                    Context.MODE_PRIVATE);
+            boolean aktif = cekBerkalaAktif(
+                    TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false),
+                    TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE_WV, false));
+            Intent intent = new Intent(ctx, AlarmReceiver.class)
+                    .setAction(AlarmReceiver.ACTION_CEK_UPDATE)
+                    .putExtra(AlarmReceiver.EXTRA_RAHASIA, TgBackup.rahasiaAlarm(ctx));
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT
+                    | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                            ? PendingIntent.FLAG_IMMUTABLE : 0);
+            PendingIntent pi = PendingIntent.getBroadcast(ctx, REQ_CEK_UPDATE, intent, flags);
+            if (!aktif) {
+                am.cancel(pi);
+                return;
+            }
+            long trigger = TgBackup.nextMidnight(System.currentTimeMillis())
+                    + 60L * 60 * 1000;
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger,
+                    AlarmManager.INTERVAL_DAY, pi);
+        } catch (Exception ignored) {
+        }
+    }
+
+    // Audit 2858: cek dari alarm berkala - tanpa layar:
+    // kabar lewat log aplikasi, notifikasi, dan
+    // Telegram (ditangani cek() sendiri).
+    public static void cekBerkala(final Context ctx) {
+        Thread t = new Thread(() -> {
+            try {
+                cek(ctx.getApplicationContext(), new Aksi() {
+                    @Override public void toast(String pesan) {
+                        ServerService.catatLog("[app] " + pesan);
+                    }
+                    @Override public void catat(String baris) {
+                        ServerService.catatLog(baris);
+                    }
+                    @Override public void kabariTersedia(String versi) {
+                    }
+                    @Override public void tawarkanWebVault() {
+                    }
+                    @Override public boolean webVaultSiap(String dataDir) {
+                        return Updater.webVaultReady(ctx, dataDir);
+                    }
+                    @Override public void restartServer() {
+                        ServerService.restart(ctx);
+                    }
+                }, versi -> {
+                }, true);
+            } catch (Exception ignored) {
+            }
+        }, "vw-cek-berkala");
+        t.setDaemon(true);
+        t.start();
+    }
 
     static boolean tawarkanBaru(String sudah, String versi) {
         return !Updater.versiCocok(versi, sudah);

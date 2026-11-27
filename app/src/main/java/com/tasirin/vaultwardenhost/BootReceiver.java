@@ -213,6 +213,11 @@ public class BootReceiver extends BroadcastReceiver {
                 }
 
                 try {
+                    AutoUpdate.jadwalkanCekBerkala(ctx);
+                } catch (Exception ignored2) {
+                }
+
+                try {
                     TgBot.schedule(ctx);
                 } catch (Exception eBot) {
                     ServerService.catatLog("[app] Jadwal bot boot gagal: "
