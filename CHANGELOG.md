@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Restore-dari-Telegram di Settings kini menahan kunci sejak sebelum unduh (Audit 3017)
+
+- Alur restore dari Telegram di Settings kini mengambil kunci tugas data sebelum mengunduh backup dan menahannya selama dialog konfirmasi tampil, sama seperti jalur bot. Sebelumnya backup yang baru tiba selama dialog tampil bisa membuat pengguna tanpa sadar memulihkan berkas yang lebih lama dari yang ia kira. Kunci dilepas pada semua jalan keluar: batal, gagal unduh, aktivitas ditutup, atau restore selesai.
+
+
 ## [Belum rilis] — Kunci privat publik tak lagi dihapus sebelum salinan internal terbukti (Audit 3035)
 
 - Perbaikan lanjutan Audit 2850: saat penyiapan TLS gagal total, kunci privat lama di penyimpanan publik kini hanya dihapus bila salinan internal kedua kunci (CA dan server) terbukti ada. Sebelumnya kunci itu dihapus walau penyalinan ke internal gagal (mis. penyimpanan penuh) — satu-satunya salinan hilang dan sertifikat CA berganti diam-diam pada Start berikutnya sehingga semua perangkat klien terputus. Bila salinan internal belum lengkap, kunci dipertahankan dan peringatan tercatat di log.

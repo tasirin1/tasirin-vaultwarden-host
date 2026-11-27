@@ -148,6 +148,11 @@ public class SettingsActivity extends Activity {
 
     private boolean dialogRestoreTgTampil = false;
 
+    // Audit 3017: true selama alur restore-dari-Telegram
+    // Settings memegang kunciRestore (diambil sebelum
+    // unduh, ditahan melewati dialog konfirmasi).
+    private boolean restoreTgKunciDipegang = false;
+
     static final long EXPORT_PLAIN_TTL_MS = 2L * 60 * 1000;
 
     static final long RESTORE_TG_TTL_MS = 60L * 60 * 1000;
@@ -2782,6 +2787,10 @@ public class SettingsActivity extends Activity {
                     dialogRestoreTgTampil = false;
                     restoreTgTertundaFile = null;
                     restoreTgTertundaNama = null;
+                    if (restoreTgKunciDipegang) {
+                        restoreTgKunciDipegang = false;
+                        TgBackup.lepasRestore();
+                    }
                     try {
                         tmp.delete();
                     } catch (Exception ignored) {
@@ -2801,6 +2810,19 @@ public class SettingsActivity extends Activity {
                     .putString(ServerService.KEY_DATA_DIR, aman).apply();
             paksaCacheUbah = true;
         }
+        // Audit 3017: kunci diambil SEBELUM unduh dan
+        // ditahan melewati dialog - penanda backup
+        // dibaca saat unduh, jadi backup baru tak bisa
+        // mendarat di tengah jalan dan membuat
+        // pengguna memulihkan berkas yang lebih lama
+        // dari yang ia kira (paritas jalur bot).
+        if (!TgBackup.kunciRestore()) {
+            toast(getString(R.string.tugas_lain_jalan));
+            appendUiLog("[app] Restore ditolak: tugas backup/restore"
+                    + " lain sedang berjalan.");
+            return;
+        }
+        restoreTgKunciDipegang = true;
         runBusy(() -> {
 
             File tmp = new File(getCacheDir(),
@@ -2817,6 +2839,10 @@ public class SettingsActivity extends Activity {
                             tmp.delete();
                         } catch (Exception ignored) {
                         }
+                        if (restoreTgKunciDipegang) {
+                            restoreTgKunciDipegang = false;
+                            TgBackup.lepasRestore();
+                        }
                         return;
                     }
                     tanyaRestoreTelegram(tmp, fname);
@@ -2826,6 +2852,10 @@ public class SettingsActivity extends Activity {
                     tmp.delete();
                 } catch (Exception ignored) {
                 }
+                if (restoreTgKunciDipegang) {
+                    restoreTgKunciDipegang = false;
+                    TgBackup.lepasRestore();
+                }
                 toast(getString(R.string.backup_ambil_gagal, String.valueOf(e.getMessage())));
                 appendUiLog("[tg] Failed to fetch backup: " + e);
             }
@@ -2833,6 +2863,11 @@ public class SettingsActivity extends Activity {
     }
 
     private void restoreTelegramTerkonfirmasi(File unduhan) {
+        // Audit 3017: kepemilikan kunci dari
+        // restoreFromTelegram diambil alih di sini dan
+        // dilepas di finally, apa pun hasil restorenya.
+        boolean dipegang = restoreTgKunciDipegang;
+        restoreTgKunciDipegang = false;
 
         File plain = new File(getCacheDir(),
                 unduhan.getName().replace(".zip", "-dec.zip"));
@@ -2848,11 +2883,14 @@ public class SettingsActivity extends Activity {
                 TgBackup.decryptFile(unduhan, plain, pass.trim());
                 zip = plain;
             }
-            restoreFromZip(zip);
+            restoreFromZip(zip, dipegang);
         } catch (Exception e) {
             toast(getString(R.string.restore_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Restore failed: " + e);
         } finally {
+            if (dipegang) {
+                TgBackup.lepasRestore();
+            }
             try {
                 unduhan.delete();
             } catch (Exception ignored) {
@@ -2865,7 +2903,14 @@ public class SettingsActivity extends Activity {
     }
 
     private void restoreFromZip(File zip) {
-        if (!TgBackup.kunciRestore()) {
+        restoreFromZip(zip, false);
+    }
+
+    // Audit 3017: kunciDipegang=true berarti kunci
+    // sudah dipegang pemanggil dan pelepasannya
+    // tanggung jawab pemanggil.
+    private void restoreFromZip(File zip, boolean kunciDipegang) {
+        if (!kunciDipegang && !TgBackup.kunciRestore()) {
             toast(getString(R.string.tugas_lain_jalan));
             appendUiLog("[app] Restore ditolak: tugas backup/restore lain sedang berjalan.");
             return;
@@ -2890,7 +2935,9 @@ public class SettingsActivity extends Activity {
             toast(getString(R.string.restore_gagal, String.valueOf(e.getMessage())));
             appendUiLog("[app] Restore failed: " + e);
         } finally {
-            TgBackup.lepasRestore();
+            if (!kunciDipegang) {
+                TgBackup.lepasRestore();
+            }
         }
     }
 
@@ -4960,6 +5007,15 @@ public class SettingsActivity extends Activity {
     protected void onDestroy() {
 
         DialogAman.tutup(this);
+        // Audit 3017: aktivitas mati saat dialog restore
+        // Telegram masih tertunda - kunci yang dipegang
+        // alur itu dilepas agar tak bocor selamanya.
+        // Berkas tertunda tampil lagi sebagai dialog dan
+        // mengambil kunci segar saat dikonfirmasi.
+        if (restoreTgKunciDipegang && restoreTgTertundaFile != null) {
+            restoreTgKunciDipegang = false;
+            TgBackup.lepasRestore();
+        }
         try {
             siramTulisTertunda();
         } catch (Exception ignored) {
