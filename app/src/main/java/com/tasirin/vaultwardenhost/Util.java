@@ -242,6 +242,15 @@ public final class Util {
         return digit || simbol;
     }
 
+    // Audit 2799: aturan PASANG PIN baru - sama seperti
+    // pinKataValid (yang dipakai jalur bot) ditambah batas
+    // atas 64 aksara. Hanya untuk memasang/mengganti PIN;
+    // verifikasi PIN lama tidak memakai ini agar PIN yang
+    // terpasang sebelum aturan ada tetap bisa membuka.
+    static boolean pinBaruValid(String s) {
+        return pinKataValid(s) && s.length() <= 64;
+    }
+
     private static final java.util.concurrent.ConcurrentHashMap<String, ThreadLocal<java.text.SimpleDateFormat>> FMT_CACHE =
             new java.util.concurrent.ConcurrentHashMap<String, ThreadLocal<java.text.SimpleDateFormat>>();
 

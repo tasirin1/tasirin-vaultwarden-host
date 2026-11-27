@@ -61,6 +61,22 @@ public class UtilTest {
     }
 
     @Test
+    public void pinBaruValidSamakanBotPlusBatasAtas() {
+        // Audit 2799: pasang baru menolak spasi & huruf-saja
+        // seperti bot, plus batas atas 64.
+        assertTrue(Util.pinBaruValid("abc1"));
+        assertTrue(!Util.pinBaruValid("aaaa"));
+        assertTrue(!Util.pinBaruValid("    "));
+        assertTrue(!Util.pinBaruValid("ab 1"));
+        assertTrue(!Util.pinBaruValid("ab1"));
+        StringBuilder sb = new StringBuilder("a1");
+        while (sb.length() <= 64) {
+            sb.append("x");
+        }
+        assertTrue(!Util.pinBaruValid(sb.toString()));
+    }
+
+    @Test
     public void pinKataValidAturanDigitAtauSimbol() {
         // Audit 1116: min 4 char, tanpa char <= spasi, dan wajib
         // digit ATAU simbol (huruf murni ditolak).

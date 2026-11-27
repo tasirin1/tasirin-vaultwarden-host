@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Validasi pasang PIN disamakan dengan jalur bot (Audit 2799)
+
+- `Util.pinBaruValid` baru: aturan memasang/mengganti PIN = aturan bot (`pinKataValid`: minimal 4 aksara, tanpa spasi, wajib mengandung angka atau simbol) ditambah batas atas 64 aksara. Gerbang pasang PIN di `SettingsActivity` memakainya dengan pesan galat baru `pin_lemah` (Inggris + Indonesia) — dulu hanya panjang ≥ 4 yang diperiksa, jadi PIN "    " (empat spasi) dan "aaaa" sah terpasang di UI walau ditolak bot. Jalur verifikasi sengaja tidak diubah: PIN lemah yang sudah terpasang sebelum aturan ini tetap bisa membuka kunci. Diuji di `UtilTest`.
+
+
 ## [Belum rilis] — Cache TLS HttpsCompat kini tersinkron (Audit 2797)
 
 - `HttpsCompat.PabrikTls12`: empat cache statik TLS (protokol/cipher mentah dan hasil saringan) dulu ditulis dari banyak soket tanpa kunci — data race formal, dampak praktis hampir nol karena nilainya deterministik per perangkat, tapi polanya salah. Pengisian dan pemakaian cache kini lewat empat helper `synchronized`; logika pemilihan dan cabang hitung-ulang per soket (yang memang tidak di-cache) dipertahankan persis, dan uji soket palsu yang ada tetap melatih jalur ini.

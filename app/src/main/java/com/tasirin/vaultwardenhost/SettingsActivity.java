@@ -857,9 +857,12 @@ public class SettingsActivity extends Activity {
             }
             String fieldPin = pinInput.getText() == null ? ""
                     : pinInput.getText().toString();
-            if (fieldPin.length() < 4) {
+            // Audit 2799: gerbang pasang PIN disamakan dengan
+            // aturan bot (pinKataValid) + batas atas - dulu
+            // panjang >= 4 saja, jadi "    " dan "aaaa" sah.
+            if (!Util.pinBaruValid(fieldPin)) {
 
-                toast(getString(R.string.pin_min));
+                toast(getString(R.string.pin_lemah));
                 pinCentangProgram = true;
                 b.setChecked(false);
                 pinCentangProgram = false;
