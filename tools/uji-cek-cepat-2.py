@@ -8,26 +8,20 @@ tools/uji-cek-cepat.py (_bagian_awal/_bagian_akhir); berkas ini
 menjalankan paruh akhirnya saja agar CI dapat menjalankan kedua
 paruh sebagai dua job paralel. Definisi skenario tetap satu
 pintu di berkas pertama - berkas ini hanya pemuat + pelari.
+
+Audit 2794: badan berkas ini kini hanya mendelegasikan ke pelari bersama tools/lari-paruh.py.
 """
 
 import importlib.util
 import os
 import sys
-import tempfile
 
 _SPES = importlib.util.spec_from_file_location(
-    "uji_cek_cepat",
+    "lari_paruh",
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "uji-cek-cepat.py"))
-_U = importlib.util.module_from_spec(_SPES)
-_SPES.loader.exec_module(_U)
-
-
-def main():
-    with tempfile.TemporaryDirectory(prefix="uji-cek-cepat-2-") as tmp:
-        _U.uji_bersama.paruh_aman(_U._bagian_akhir, tmp)
-    return _U.lapor()
-
+                 "lari-paruh.py"))
+_L = importlib.util.module_from_spec(_SPES)
+_SPES.loader.exec_module(_L)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_L.jalankan("uji-cek-cepat.py", 2))

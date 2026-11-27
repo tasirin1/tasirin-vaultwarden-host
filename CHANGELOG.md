@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Empat titik-masuk suite disatukan ke pelari bersama lari-paruh.py (Audit 2794)
+
+- Logika muat + lari paruh suite yang dulu tersalin di empat berkas titik-masuk kini satu pintu di tools/lari-paruh.py; keempat berkas tetap ada dengan nama yang sama (dipanggil workflow CI) tetapi hanya mendelegasikan.
+
+
 ## [Belum rilis] — Tiga aturan repo kini ditegakkan gerbang: format commit, komentar Audit, API di atas 21 (Audit 2922)
 
 - Gerbang kini membaca subjek commit pada mode --rentang (wajib berawalan feat:/fix:/docs:/chore:/perf:/test:), menggagalkan komentar Java baru di luar gaya blok // Audit NNNN:, dan menggagalkan baris baru app/src/main yang memakai API di atas 21 dari daftar sempit (List.sort, List/Map/Set.of, Path.of, Files.read/writeString, String.join, String.repeat).
