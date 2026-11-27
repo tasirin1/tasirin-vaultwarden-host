@@ -2290,7 +2290,26 @@ public final class TgBackup {
             if (cadangan.isDirectory()) {
                 if (!tujuan.isDirectory()) {
                     if (!cadangan.renameTo(tujuan)) {
-                        hapusPohon(cadangan);
+                        // Audit 2886: rename gagal tak boleh
+                        // memusnahkan satu-satunya salinan
+                        // TLS lama - coba pulihkan lewat
+                        // salin; bak hanya dihapus sesudah
+                        // folder tls terisi lagi, dan bila
+                        // salin pun gagal bak dibiarkan untuk
+                        // rekonsiliasi berikutnya.
+                        boolean pulih = false;
+                        try {
+                            salinTls(cadangan, tujuan);
+                            pulih = new File(tujuan, "ca.pem").isFile();
+                        } catch (Exception ignored) {
+                        }
+                        if (pulih) {
+                            hapusPohon(cadangan);
+                        } else {
+                            ServerService.catatLog("[tls] Sisa sinkron TLS"
+                                    + " belum bisa dipulihkan; folder"
+                                    + " tls-sinkron-bak dipertahankan.");
+                        }
                     }
                 } else {
                     hapusPohon(cadangan);

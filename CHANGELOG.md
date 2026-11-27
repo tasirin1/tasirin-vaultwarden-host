@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pemulihan sisa sinkron TLS tak lagi memusnahkan salinan terakhir saat rename gagal (Audit 2886)
+
+- `TgBackup.pulihkanSisaSinkronTls`: bila folder cadangan sinkron (`tls-sinkron-bak`) tak bisa di-rename menjadi folder tls, kode lama langsung menghapusnya — satu-satunya salinan TLS lama, termasuk kunci privat CA, musnah permanen. Kini rename yang gagal beralih ke pemulihan lewat penyalinan; cadangan hanya dihapus sesudah folder tls terisi lagi, dan bila penyalinan pun gagal cadangan dibiarkan di tempat (tercatat di log) untuk dicoba lagi pada rekonsiliasi berikutnya.
+
+
 ## [Belum rilis] — Reset sertifikat kini ikut menyapu sisa folder sinkron TLS (Audit 2885)
 
 - `TgBackup.resetSertifikat`: folder sisa sinkron `tls-sinkron-bak` dan `tls-sinkron-tmp` di folder internal dulu tak disentuh reset — pada Start berikutnya rekonsiliasi sisa sinkron menilai "bak tanpa folder tls = tukar terputus" dan mengembalikan bak menjadi folder tls, sehingga CA yang baru saja direset bangkit lagi. Reset kini membersihkan kedua folder itu juga (berkas TLS di dalamnya terhitung dalam jumlah terhapus).
