@@ -1978,14 +1978,19 @@ public class ServerService extends Service {
         batalUtama(startTunda);
 
         simpanNiatJalan(false);
-        SharedPreferences spGagal = getSharedPreferences(PREFS, MODE_PRIVATE);
-        if (!TgBackup.amanBoolean(spGagal, TgBackup.KEY_TG_AUTO, false)) {
-            turunkanForeground(true);
-            try {
+        // Audit 2774: foreground selalu diturunkan dan service
+        // dihentikan di akhir episode gagal, juga bila auto-backup
+        // Telegram aktif - backup terjadwal dan poll bot digerakkan
+        // alarm (AlarmReceiver) dan bisa menyalakan service lagi
+        // saat waktunya tiba, jadi tak ada yang perlu service
+        // menumpang hidup tanpa proses. Dulu cabang auto membuat
+        // notifikasi "Stopped" menetap dan service makan baterai
+        // sampai aplikasi dibuka.
+        turunkanForeground(true);
+        try {
 
-                stopSelfResult(idAwal);
-            } catch (Exception ignored) {
-            }
+            stopSelfResult(idAwal);
+        } catch (Exception ignored) {
         }
     }
 

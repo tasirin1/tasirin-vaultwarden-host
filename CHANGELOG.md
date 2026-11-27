@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Service berhenti bersih sesudah gagal permanen, juga saat auto-backup aktif (Audit 2774)
+
+- `ServerService.akhiriEpisodeGagal`: notifikasi foreground kini selalu diturunkan dan service dihentikan sesudah episode start gagal permanen, termasuk bila auto-backup Telegram aktif. Backup terjadwal dan poll bot digerakkan alarm dan tetap bisa menyalakan service saat waktunya tiba; sebelumnya service menumpang hidup tanpa proses dengan notifikasi "Stopped" yang menetap sampai aplikasi dibuka.
+
+
 ## [Belum rilis] — Server gantung di-restart lebih cepat: kesempatan TCP dibatasi satu tick (Audit 2773)
 
 - `ServerService`: gerbang kesempatan-kedua pada `healthFail` kini memakai predikat murni `beriKesempatanTcp` dengan `BATAS_KESEMPATAN_TCP = 1` — TCP yang masih tersambung (bukti lemah; kernel tetap menerima koneksi walau proses gantung) hanya membeli satu tick tambahan, bukan dua. Server yang /alive-nya mati kini di-restart sesudah 4 tick (paling lama ±6 menit pada interval 2 menit), bukan 5 tick (±10 menit). Ada uji JVM baru untuk predikatnya.
