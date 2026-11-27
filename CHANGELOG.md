@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pemetaan kartu pengaturan di AGENTS.md dikoreksi (Audit 2952)
+
+- `AGENTS.md` (Pemetaan fitur): dulu tertulis kartu esensial termasuk Admin Token dan PIN ada di `main_card_server.xml` dan "selalu tampil" — keduanya keliru: field Admin Token dan PIN sebenarnya di `main_card_security.xml`, dan kartu server berada di dalam seksi buka-tutup Server, bukan selalu tampil. Pemetaan kini sesuai layout sebenarnya (Folder, Port, aksi cepat di kartu server).
+
+
 ## [Belum rilis] — Ukuran APK di README diselaraskan ke ~0,33 MB (Audit 2951)
 
 - `README.md` + `README.id.md` + `README.ru.md`: angka ukuran APK di baris pembuka masih ~0,28 MB, tertinggal dari ukuran rilis terakhir (~0,33 MB, 333.785 byte di v1.37.5) yang sudah lebih dulu dicatat aturan repo. Ketiga terjemahan kini menyebut angka yang sama.
