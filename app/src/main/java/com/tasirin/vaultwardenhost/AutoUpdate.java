@@ -139,7 +139,7 @@ public final class AutoUpdate {
 
                     String tercatat = TgBackup.amanString(sp, "tg_notified_version", "");
                     if (tawarkanBaru(tercatat, latest)) {
-                        tampilkanNotifikasi(ctx, latest);
+                        boolean notifTampil = tampilkanNotifikasi(ctx, latest);
                         TgBackup.sendMessage(ctx, "Update Vaultwarden v" + latest
                                 + " tersedia. Kirim /update ke bot untuk memasang dari jauh.");
                         // Penanda dicatat sesudah pengumuman DICOBA di
@@ -150,7 +150,23 @@ public final class AutoUpdate {
                         // Keputusan itu predikat murni catatPenandaPengumuman
                         // — tanda tangannya sengaja tak menerima hasil
                         // notifikasi sistem (Audit 609).
-                        if (catatPenandaPengumuman(tercatat, latest, true)) {
+                        // Audit 2859: "dicoba" kini dihitung jujur -
+                        // pengumuman hanya dianggap tersampaikan bila
+                        // minimal satu kanal benar-benar bisa
+                        // menyampaikan: notifikasi tampil, ATAU
+                        // Telegram terkonfigurasi (token+chat terisi).
+                        // Bila keduanya mustahil, penanda TIDAK
+                        // ditulis agar versi itu diumumkan ulang
+                        // sesudah ada kanal yang hidup; tanpa kanal
+                        // yang hidup pun tak ada kirim ulang yang
+                        // bisa mengganggu, jadi pelajaran Audit 599
+                        // tetap utuh.
+                        boolean tgSiap = !Util.amanTrim(TgBackup.amanString(
+                                sp, TgBackup.KEY_TG_TOKEN, "")).isEmpty()
+                                && !Util.amanTrim(TgBackup.amanString(
+                                        sp, TgBackup.KEY_TG_CHAT, "")).isEmpty();
+                        if (catatPenandaPengumuman(tercatat, latest,
+                                notifTampil || tgSiap)) {
                             sp.edit().putString("tg_notified_version", latest).apply();
                         }
                     }

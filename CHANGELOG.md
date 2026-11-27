@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penanda versi terumumkan tak lagi ditulis bila kedua kanal pengumuman mustahil (Audit 2859)
+
+- `AutoUpdate`: penanda `tg_notified_version` dulu ditulis tanpa syarat sesudah pengumuman "dicoba" — termasuk bila izin notifikasi belum diberikan DAN Telegram belum dikonfigurasi, sehingga versi itu tidak pernah diumumkan lagi selamanya. Argumen `pengumumanDicoba` kini dihitung jujur: notifikasi benar-benar tampil, atau Telegram siap (token dan chat terisi). Bila kedua kanal mustahil, penanda tidak ditulis dan pengumuman diulang pada cek berikutnya sesudah ada kanal yang hidup. Pelajaran lama tetap dijaga: izin notifikasi mati tetapi Telegram terkonfigurasi tetap menulis penanda, jadi tidak ada pesan Telegram terkirim ulang tiap aplikasi dibuka (Audit 599/609).
+
+
 ## [Belum rilis] — Restart untuk DB tak terjangkau kini sesudah 3 tick, bukan 10 (Audit 2871)
 
 - `ServerService.BATAS_CONFIG_SAJA_BERUNTUN`: 10 → 3. Keadaan yang dijaga penghitung ini sudah terdiagnosis jelas — `/alive` membalas 5xx (server tidak bisa mencapai database, login dan akses vault gagal) sementara `/api/config` tetap 200 — bukan gejolak jaringan sesaat (itu cabang pemeriksaan TCP sendiri). Dengan interval health 2 menit, ambang lama berarti vault tidak bisa dipakai ±20 menit sebelum restart otomatis dicoba. Ambang 3 tick tetap memberi peredam ±1,5 menit (jendela tick 30 detik sesudah start) sampai ±6 menit untuk gejolak sesaat seperti checkpoint database.
