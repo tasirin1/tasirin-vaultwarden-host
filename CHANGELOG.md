@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penghitung coba-ulang jam-salah direset saat jam kembali benar (Audit 2977)
+
+- `AlarmReceiver`: penghitung coba-ulang backup per jam saat jam STB salah dulu hanya bertambah dan hanya terhapus oleh backup yang sukses penuh — jam yang kembali benar tidak meresetnya, sehingga episode jam-salah berikutnya bisa kebagian nol coba-ulang karena jatahnya habis di episode lama. Jalur susulan yang sama kini mereset penghitung itu begitu jam terbaca wajar lagi: episode berakhir, episode berikutnya mulai dari jatah penuh.
+
+
 ## [Belum rilis] — Penanda backup tertunda tak lagi dihapus sebelum susulan jalan (Audit 2975)
 
 - `MainActivity`: penanda backup tertunda dulu dihapus di awal, sebelum backup susulan dijalankan — setiap kegagalan sesudahnya (jaringan mati, sandi belum diisi, penundaan boot) membuang satu-satunya kesempatan kejar dan membuka aplikasi lagi tidak mengulanginya. Penanda kini hanya dihapus bila auto-backup dimatikan (susulan memang tidak berlaku) atau sesudah susulan berhasil, sejalan dengan filosofi hapus-hanya-bila-sukses di jalur backup lain.

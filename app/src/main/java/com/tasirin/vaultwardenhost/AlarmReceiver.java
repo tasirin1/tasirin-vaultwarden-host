@@ -239,6 +239,20 @@ public class AlarmReceiver extends BroadcastReceiver {
                     TgBot.idBotDariToken(TgBackup.amanString(
                             sp, TgBackup.KEY_TG_TOKEN, "")));
             long kini = System.currentTimeMillis();
+            // Audit 2977: jam terbaca wajar lagi = episode
+            // jam-salah berakhir. Penghitung coba-ulang per
+            // jam direset di sini agar episode berikutnya
+            // dapat jatah penuh (dulu hanya sukses penuh
+            // yang menghapusnya).
+            if (TgBackup.jamStbWajar(kini)
+                    && TgBackup.amanInt(sp,
+                            TgBackup.KEY_TUNDA_JAM_HITUNG, 0) > 0) {
+                try {
+                    sp.edit().remove(
+                            TgBackup.KEY_TUNDA_JAM_HITUNG).apply();
+                } catch (Exception ignored) {
+                }
+            }
             if (TgBackup.bolehBackupSusulanBoot(last, kini)) {
                 mulaiBackup(context);
             } else {
