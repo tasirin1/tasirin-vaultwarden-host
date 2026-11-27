@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kabar "Server dihentikan" kini menunggu kematian proses terkonfirmasi (Audit 2994)
+
+- `ServerService`: pesan Telegram "Server dihentikan." dulu dikirim segera saat Stop ditekan, sementara pembunuhan prosesnya berjalan di latar dan pada Android lama tidak ada bunuh paksa — proses yang mengabaikan sinyal berhenti hidup terus memegang port sementara pengguna percaya server sudah berhenti (dan Start berikutnya gagal "port sudah dipakai"). Pembunuh proses kini melaporkan kematian yang terkonfirmasi, dan kabar berhenti dikirim sesudah hasil itu: mati berarti "Server dihentikan.", belum mati berarti peringatan jujur plus catatan log.
+
+
 ## [Belum rilis] — Kegagalan menulis crash log tak lagi senyap (Audit 2995)
 
 - `ServerService`: penulisan crash log dulu menelan semua pengecualian tanpa jejak, dan pembacaannya menyamakan gagal baca dengan tidak ada berkas — crash yang catatannya gagal ditulis (mis. disk penuh) membuat perintah /crashlog menjawab "belum ada crash log" dan pengguna menyimpulkan tidak pernah ada crash. Kegagalan menulis maupun membaca crash log kini dicatat ke log aplikasi, jadi keduanya bisa dibedakan.

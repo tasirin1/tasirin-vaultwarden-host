@@ -2705,9 +2705,29 @@ public class ServerService extends Service {
             setStatus("Menghentikan...");
             p.destroy();
             Thread stopper = new Thread(() -> {
+                boolean mati = false;
                 try {
-                    matikanProsesTegas(p, 5000);
+                    mati = matikanProsesTegas(p, 5000);
                 } finally {
+
+                    // Audit 2994: kabar berhenti dikirim
+                    // SESUDAH kematian terkonfirmasi, bukan
+                    // sebelumnya - proses yang mengabaikan
+                    // SIGTERM (API <26 tanpa destroyForcibly)
+                    // dulu tetap dikabarkan "dihentikan".
+                    if (!mati) {
+                        appendLog("[app] Proses belum mati sesudah"
+                                + " dimatikan tegas - port mungkin"
+                                + " masih dipegangnya.");
+                    }
+                    if (!pengulangan) {
+                        TgBackup.sendMessage(this, mati
+                                ? "Server dihentikan."
+                                : "Server BELUM berhenti - proses masih"
+                                + " hidup sesudah dimatikan. Coba Stop"
+                                + " lagi, atau paksa berhenti dari"
+                                + " Pengaturan Android.");
+                    }
 
                     if (!lepasProses(p, this::efekProsesBerhenti)) {
                         // Audit 2973: proses sudah dilepas
@@ -2732,9 +2752,6 @@ public class ServerService extends Service {
             flushLogFile();
         }
 
-        if (p != null && !pengulangan) {
-            TgBackup.sendMessage(this, "Server dihentikan.");
-        }
     }
 
     private void jalankanStartTertundaStop() {
@@ -5997,22 +6014,26 @@ public class ServerService extends Service {
         }
     }
 
-    static void matikanProsesTegas(Process p, long tungguMs) {
+    // Audit 2994: kini mengembalikan kematian yang
+    // TERKONFIRMASI agar pemanggil tak mengklaim
+    // berhenti sebelum proses sungguh mati.
+    static boolean matikanProsesTegas(Process p, long tungguMs) {
         if (p == null) {
-            return;
+            return true;
         }
         try {
             p.destroy();
             if (waitForOrKill(p, tungguMs)) {
-                return;
+                return true;
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 p.destroyForcibly();
             } else {
                 p.destroy();
             }
-            waitForOrKill(p, 3000);
+            return waitForOrKill(p, 3000);
         } catch (Exception ignored) {
+            return !alive(p);
         }
     }
 
