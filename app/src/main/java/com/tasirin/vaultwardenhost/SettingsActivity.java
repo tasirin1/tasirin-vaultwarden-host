@@ -776,6 +776,13 @@ public class SettingsActivity extends Activity {
             @Override
             public void onTextChanged(CharSequence s, int a, int b, int c) {
                 pinSeq++;
+                // Audit 2957: perubahan field membatalkan
+                // aktivasi yang sedang menghitung hash -
+                // tanpa ini hash PIN yang lama tetap
+                // terpasang walau field sudah berubah.
+                synchronized (kunciAktifPin) {
+                    epAktifPin++;
+                }
 
                 if (pinTunda != null) {
                     ui.removeCallbacks(pinTunda);

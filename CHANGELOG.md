@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Mengubah field PIN saat aktivasi berjalan kini membatalkan aktivasi basi itu (Audit 2957)
+
+- `SettingsActivity`: aktivasi PIN menghitung hash di latar (PBKDF2, sekitar sedetik) dan penyelesaiannya hanya dijaga epoch aktivasi — tetapi perubahan field selama penghitungan hanya menaikkan penomoran jalur tunda, bukan epoch itu, jadi hash PIN lama tetap terpasang dan dinyatakan aktif walau field sudah berisi PIN lain. Pengamat teks field kini ikut menaikkan epoch aktivasi, sehingga penyelesaian yang basi gugur lewat penjaga yang sudah ada dan centang kembali lepas.
+
+
 ## [Belum rilis] — Dialog ganti PIN yang dibatalkan lewat Back tak lagi meninggalkan kandidat basi (Audit 2956)
 
 - `SettingsActivity`: kandidat PIN baru disetel sebelum dialog konfirmasi tampil dan hanya dibersihkan oleh tombol Batal — membatalkan dialog lewat tombol Back atau sentuhan di luar tidak membersihkan apa pun, sehingga penjaga kesamaan kandidat menelan semua upaya berikutnya untuk PIN yang sama dan dialog tidak pernah tampil lagi selama sesi itu. Dialog kini memasang `OnCancelListener` yang membersihkan kandidat.
