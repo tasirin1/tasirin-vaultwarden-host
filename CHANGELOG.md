@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kegagalan pasang kunci RSA saat restore: coba lagi + peringatan berisi langkah pemulihan (Audit 3005)
+
+- `TgBackup`: bila pemasangan kunci RSA dari backup gagal, database baru terpasang berpasangan dengan kunci lama — berisiko membuat sesi login tidak berlaku — tetapi dulu tidak ada percobaan ulang dan pesan peringatan hanya berkata "pemulihan manual" tanpa menyebut akibatnya atau berkas mana yang harus diganti namanya. Pemasangan kunci RSA kini dicoba sekali lagi (sisa swap terputus bisa dibersihkan oleh percobaan pertama), dan pesannya kini menyebut akibatnya serta langkah pemulihan konkret per nama berkas.
+
+
 ## [Belum rilis] — Rollback TLS kini atomik per berkas dan per pasangan (Audit 3004)
 
 - `TgBackup.kembalikanTls`: pengembalian sertifikat saat restore gagal dulu menulis tiap berkas langsung ke tujuannya — proses mati di tengah jalan meninggalkan folder sertifikat campuran dan berkas yang terpotong, dan kegagalannya ditelan diam-diam. Kini isi lama ditulis dulu ke berkas sementara (gagal di tahap ini berarti berkas asli tidak disentuh), pasangan sertifikat dan kuncinya ditukar kembali sebagai satu pasangan, berkas lain dipasang lewat jalur atomik yang sama seperti pemasangan biasa, dan setiap kegagalan dicatat di log.

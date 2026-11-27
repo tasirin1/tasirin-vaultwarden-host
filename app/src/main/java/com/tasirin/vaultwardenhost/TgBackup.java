@@ -4813,6 +4813,23 @@ public final class TgBackup {
                     + " SEBELUM restore berikutnya (restore lain"
                     + " akan menyapunya, Audit 1537);"
                     + " periksa lampiran lalu mulai ulang server.";
+            // Audit 3005: kegagalan kunci RSA disebut
+            // akibat + langkah pemulihannya secara
+            // khusus - pasangan db-baru + kunci-lama
+            // berisiko membunuh sesi login (simetris
+            // Audit 1510) dan "pemulihan manual" tanpa
+            // nama berkas tidak bisa dilakukan pengguna.
+            if (gagalLampAdaKunciRsa(gagalLamp)) {
+                peringatanLamp += " Khusus kunci RSA: database"
+                        + " baru dengan kunci RSA lama bisa"
+                        + " membuat sesi login tidak berlaku."
+                        + " Pemulihan: di folder data, ubah nama"
+                        + " 'rsa_key.pem.restore-tmp' menjadi"
+                        + " 'rsa_key.pem' (dan"
+                        + " 'rsa_key.der.restore-tmp' menjadi"
+                        + " 'rsa_key.der' bila ada), lalu mulai"
+                        + " ulang server.";
+            }
         }
         boolean lengkap = false;
         String peringatan = "";
@@ -5062,6 +5079,19 @@ public final class TgBackup {
                 || "rsa_key.der".equals(nama);
     }
 
+    static boolean gagalLampAdaKunciRsa(
+            java.util.List<String> gagal) {
+        if (gagal == null) {
+            return false;
+        }
+        for (String nama : gagal) {
+            if (namaKunciLampiran(nama)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static java.util.List<String> pasangLampiranRestore(
             File dataFolder, java.util.List<String> daftar) {
         java.util.List<String> gagal = new java.util.ArrayList<>();
@@ -5075,8 +5105,8 @@ public final class TgBackup {
             }
             File dari = new File(dataFolder, staging);
             if (dari.isFile()) {
+                File tujuan = new File(dataFolder, nama);
                 try {
-                    File tujuan = new File(dataFolder, nama);
                     ServerService.gantiAtomik(dari, tujuan);
                     // Audit 1569: rsa_key hasil restore juga
                     // diketatkan.
@@ -5090,7 +5120,22 @@ public final class TgBackup {
                         TlsCert.ketatkanIzinKunci(tujuan);
                     }
                 } catch (Exception e) {
-                    gagal.add(nama);
+                    // Audit 3005: kunci RSA dicoba sekali
+                    // lagi - swap pertama bisa gagal oleh
+                    // sisa swap terputus yang justru
+                    // dibersihkan percobaan pertama itu.
+                    boolean pulih = false;
+                    if (namaKunciLampiran(nama) && dari.isFile()) {
+                        try {
+                            ServerService.gantiAtomik(dari, tujuan);
+                            TlsCert.ketatkanIzinKunci(tujuan);
+                            pulih = true;
+                        } catch (Exception e2) {
+                        }
+                    }
+                    if (!pulih) {
+                        gagal.add(nama);
+                    }
                 }
             }
         }

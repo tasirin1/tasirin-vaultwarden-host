@@ -1405,6 +1405,21 @@ public class TgBackupTest {
     }
 
     @Test
+    public void gagalLampAdaKunciRsa_hanyaNamaKunciPersis() {
+        // Audit 3005: peringatan khusus kunci RSA hanya
+        // untuk nama kunci persis, bukan lampiran biasa.
+        assertTrue(TgBackup.gagalLampAdaKunciRsa(
+                java.util.Arrays.asList("attachments/x", "rsa_key.pem")));
+        assertTrue(TgBackup.gagalLampAdaKunciRsa(
+                java.util.Collections.singletonList("rsa_key.der")));
+        assertFalse(TgBackup.gagalLampAdaKunciRsa(
+                java.util.Collections.singletonList("attachments/rsa_key.pem")));
+        assertFalse(TgBackup.gagalLampAdaKunciRsa(
+                java.util.Collections.<String>emptyList()));
+        assertFalse(TgBackup.gagalLampAdaKunciRsa(null));
+    }
+
+    @Test
     public void pesanRestoreAdaPeringatanTls_kenaliTigaBentuk() {
         // Audit 2996: tiga bentuk peringatan TLS di
         // pesan restore terdeteksi; pesan bersih tidak.
