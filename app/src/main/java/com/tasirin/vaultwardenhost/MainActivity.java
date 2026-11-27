@@ -1188,7 +1188,10 @@ public class MainActivity extends Activity {
             @Override public void tawarkanWebVault() {
             }
             @Override public boolean webVaultSiap(String dataDir) {
-                return false;
+                // Audit 2865: delegasi yang sama seperti
+                // Settings - cek tingkat konteks, bukan
+                // khas layar pengaturan.
+                return Updater.webVaultReady(MainActivity.this, dataDir);
             }
             @Override public void restartServer() {
                 ServerService.restart(MainActivity.this);
@@ -1202,7 +1205,7 @@ public class MainActivity extends Activity {
                     pendingVersion = versi;
                 }
             }
-        }, false);
+        }, true);
     }
 
     private void maybeAutoBackup() {

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Auto-update web-vault kini jalan juga dari layar utama (Audit 2865)
+
+- `MainActivity`: cek update dipanggil dengan `lengkap=false` dan `webVaultSiap` berupa stub `false`, jadi blok auto-update web-vault tidak pernah berjalan dari layar utama — pengguna yang tidak pernah membuka Settings tidak pernah menerima auto-update web-vault walau pengaturannya menyala. Layar utama kini meneruskan `lengkap=true` dan `webVaultSiap` mendelegasi ke `Updater.webVaultReady` yang sama seperti Settings (pemeriksaan tingkat konteks, bukan khas layar pengaturan). Dialog tawaran web-vault tetap khas Settings; yang dibetulkan di sini substansinya — update otomatisnya sendiri, yang tetap digerbang pref `auto_update_webvault` dan `tanpaKuota`.
+
+
 ## [Belum rilis] — Cek VPN tanpaKuota kini gagal-tertutup bila kapabilitas tak terbaca (Audit 2864)
 
 - `AutoUpdate.tanpaKuota`: pemeriksaan VPN dulu bisa terlewat diam-diam — bila `getNetworkCapabilities` mengembalikan null atau melempar, pengecualian ditelan dan alur jatuh ke pemeriksaan metered saja, sehingga unduhan binary/web-vault puluhan MB bisa berjalan lewat VPN padahal desainnya sengaja menolak VPN. Ketidakmampuan memeriksa kini gagal-tertutup: auto-update dilewati putaran ini dan dicoba lagi pada putaran berikut, bukan diloloskan tanpa bukti.
