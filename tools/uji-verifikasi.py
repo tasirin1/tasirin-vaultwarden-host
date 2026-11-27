@@ -310,7 +310,7 @@ def _bagian_awal(tmp):
             rc == 0)
     shutil.rmtree(prodkom, ignore_errors=True)
 
-    umpankomen = klon(tmp, "umpankomen")
+    umpankomen = klon(tmp, "umpankomen2")
     berkas_aksi9 = os.path.join(
         umpankomen, ".github", "actions", "resolve-vw", "action.yml")
     with open(berkas_aksi9, encoding="utf-8") as f:
@@ -1429,7 +1429,7 @@ def _bagian_awal(tmp):
             "yatim: gerbang lolos (Audit 933)", rc == 0)
     shutil.rmtree(kurungekspansi, ignore_errors=True)
 
-    kurungtempel = klon(tmp, "kurungtempel")
+    kurungtempel = klon(tmp, "kurungtempel2")
     berkas_aksi61 = os.path.join(
         kurungtempel, ".github", "actions", "resolve-vw",
         "action.yml")
@@ -42659,7 +42659,7 @@ def _bagian_akhir(tmp):
             rc != 0 and "ambil" in out)
     shutil.rmtree(idl, ignore_errors=True)
 
-    sarang = klon(tmp, "sarang")
+    sarang = klon(tmp, "sarangakhir")
     berkas_set5 = os.path.join(sarang, "settings.gradle.kts")
     with open(berkas_set5, encoding="utf-8") as f:
         isi_set5 = f.read()

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Nama klon scratch ganda di suite gerbang diganti unik (Audit 2924)
+
+- `tools/uji-verifikasi.py`: tiga nama klon scratch dipakai dua kali (`sarang` lintas paruh, `umpankomen` dan `kurungtempel` di paruh yang sama) — skenario yang berhenti sebelum pembersihannya membuat klon berikutnya bernama sama gagal dan mematikan sisa paruh. Kemunculan kedua tiap nama kini unik (`umpankomen2`, `kurungtempel2`, `sarangakhir`).
+
+
 ## [Belum rilis] — Kumpulan celah kecil gerbang ditutup (Audit 2921)
 
 - `tools/verifikasi-patch.py`: (1) `cek_berkas_java_dihapus` kini mencakup berkas uji di `app/src/test/java/`, bukan hanya sumber utama; (2) pemeriksaan spasi mode lokal kini juga menjalankan `git diff --cached --check` agar perubahan yang sudah di-staged terlihat; (3) `namespace_aplikasi` membaca teks terupas komentar agar baris namespace di komentar tak tertukar yang asli; (5) sambungan lintas-baris di `cek_panggil_bekas_hapusan` diperluas dari 2 menjadi 3 baris; (6) pelewatan impor wildcard kini didokumentasikan sebagai keterbatasan sadar di titiknya. Butir (4) soal `OVERRIDE_AMAN` dipertahankan sebagai peringatan — panggilan `super.` bisa berarti induk framework (sah) atau induk serepo (putus) dan gerbang tak punya resolusi tipe untuk membedakannya; kompilasi CI tetap penegaknya. Ditambah satu skenario suite.
