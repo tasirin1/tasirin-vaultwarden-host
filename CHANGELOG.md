@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Tombol bot di grup kini menjelaskan kenapa tidak aktif untuk bukan pemilik (Audit 2790)
+
+- `TgBot.tanganiCallback`: penolakan tombol untuk anggota grup yang bukan pemilik kini dijawab dengan teks penjelasan lewat `answerCallbackQuery` (`show_alert`), bukan callback kosong. Sebelumnya, pada konfigurasi `tg_chat` yang hanya berisi grup, menu tampil untuk semua orang tetapi tombol yang ditekan bukan-pemilik terlihat mati — pengguna bisa mengira perintahnya (mis. Stop/Backup) berhasil padahal tidak ada aksi apa pun. Perilaku keamanannya tidak berubah: tombol tetap hanya aktif untuk pemilik terdaftar.
+
+
 ## [Belum rilis] — Perintah info bot kini punya jeda per chat (Audit 2789)
 
 - `TgBot.perintahInfo`: perintah info ringan (`/status`, `/log`, `/uptime`, `/alive`, `/versi`, `/crashlog`) kini dibatasi satu kali per 10 detik per chat sesudah lolos gerbang PIN — sebelumnya anggota grup terkonfigurasi bisa membanjiri antrean bot dengan `/log` berulang (tiap balasan sampai 3.500 aksara) sampai baterai/kuota terkuras atau kena batas Telegram. Predikat murninya `dalamJedaInfo` meniru pola jeda tugas berat, ada uji JVM.

@@ -1362,7 +1362,14 @@ public final class TgBot {
                 boolean pemilik = idPenekan > 0
                         && Util.cocokChatBanyak(chatKonfig, idPenekan, namaPenekan);
                 if (!penekanDiizinkan(true, pemilik)) {
-                    jawabCallback(ctx, cb.optString("id", ""));
+                    // Audit 2790: jangan diam - anggota grup yang
+                    // bukan pemilik harus tahu tombolnya memang
+                    // tak aktif untuk dia, bukan rusak/berhasil.
+                    jawabCallback(ctx, cb.optString("id", ""),
+                            "Tombol ini hanya aktif untuk pemilik yang"
+                                    + " ID/username-nya terdaftar di Chat ID"
+                                    + " bot (Settings). Kamu tidak terdaftar,"
+                                    + " jadi tidak ada aksi yang dijalankan.");
                     return;
                 }
             }
@@ -2855,6 +2862,12 @@ public final class TgBot {
     }
 
     private static void jawabCallback(Context ctx, String callbackId) {
+        jawabCallback(ctx, callbackId, null);
+    }
+
+    // Audit 2790: varian berteks - teks tampil sebagai alert ke
+    // penekan (answerCallbackQuery text + show_alert).
+    private static void jawabCallback(Context ctx, String callbackId, String teks) {
         if (callbackId == null || callbackId.isEmpty()) {
             return;
         }
@@ -2868,9 +2881,13 @@ public final class TgBot {
                 if (token.isEmpty()) {
                     return;
                 }
-                byte[] body = ("callback_query_id="
-                        + URLEncoder.encode(callbackId, "UTF-8"))
-                        .getBytes(StandardCharsets.UTF_8);
+                String isi = "callback_query_id="
+                        + URLEncoder.encode(callbackId, "UTF-8");
+                if (teks != null && !teks.isEmpty()) {
+                    isi += "&text=" + URLEncoder.encode(teks, "UTF-8")
+                            + "&show_alert=true";
+                }
+                byte[] body = isi.getBytes(StandardCharsets.UTF_8);
                 c = TgBackup.bukaPostTelegram(app,
                         TG_API + token + "/answerCallbackQuery", body,
                         "application/x-www-form-urlencoded", 15000, 30000);
