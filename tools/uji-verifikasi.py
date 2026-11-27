@@ -2646,12 +2646,46 @@ def _bagian_awal(tmp):
             "(Audit 1024)", rc != 0 and rc != 124 and "Traceback" not in out)
     shutil.rmtree(suboperand, ignore_errors=True)
 
-    with open(GERBANG, encoding="utf-8") as f:
-        isi_gerbang_1030 = f.read()
-    periksa("definisi _substitusi_masukan_menguras tunggal "
-            "(Audit 1030)",
-            isi_gerbang_1030.count(
-                "def _substitusi_masukan_menguras") == 1)
+    substitusimati = klon(tmp, "substitusimati")
+    berkas_gerbang_2923a = os.path.join(
+        substitusimati, "tools", "verifikasi-patch.py")
+    with open(berkas_gerbang_2923a, encoding="utf-8") as f:
+        isi_gerbang_2923a = f.read()
+    jangkar_2923a = ("    if _substitusi_masukan_menguras"
+                     "(bagian):\n        return True")
+    assert isi_gerbang_2923a.count(jangkar_2923a) == 1, \
+        "jangkar panggilan substitusi berubah"
+    with open(berkas_gerbang_2923a, "w",
+              encoding="utf-8") as f:
+        f.write(isi_gerbang_2923a.replace(
+            jangkar_2923a,
+            "    if False:\n        return True"))
+    berkas_aksi2923a = os.path.join(
+        substitusimati, ".github", "actions", "resolve-vw",
+        "action.yml")
+    with open(berkas_aksi2923a, encoding="utf-8") as f:
+        isi_aksi2923a = f.read()
+    baris_tulis2923a = [b for b in isi_aksi2923a.splitlines()
+                        if "tag_mentah" in b
+                        and "GITHUB_OUTPUT" in b][0]
+    isi_baru2923a = isi_aksi2923a.replace(
+            baris_tulis2923a,
+            baris_tulis2923a.replace(
+                '>> "$GITHUB_OUTPUT"',
+                "> >(cat <(cat); "
+                "cat >> \"$GITHUB_OUTPUT\")"), 1)
+    assert isi_baru2923a != isi_aksi2923a, \
+        "suntikan aksi2923a tidak menembak"
+    with open(berkas_aksi2923a, "w", encoding="utf-8") as f:
+        f.write(isi_baru2923a)
+    rc, out = jalan(substitusimati,
+                    [sys.executable, GERBANG, "--semua"])
+    periksa("panggilan _substitusi_masukan_menguras "
+            "dimatikan di klon: suntikan substitusi "
+            "Audit 1024 yang tertangkap gerbang utuh kini "
+            "lolos - vonis perilaku, bukan hitungan teks "
+            "(Audit 2923)", rc == 0)
+    shutil.rmtree(substitusimati, ignore_errors=True)
 
     subcmdsub = klon(tmp, "subcmdsub")
     berkas_aksi116 = os.path.join(
@@ -3137,12 +3171,46 @@ def _bagian_awal(tmp):
     periksa("redirect sesudah mapfile mengganti stdin: bukan penguras — gerbang lolos (Audit 1053)", rc == 0)
     shutil.rmtree(submapredir, ignore_errors=True)
 
-    with open(GERBANG, encoding="utf-8") as f:
-        isi_gerbang_1054 = f.read()
-    periksa("komentar Audit 987 tunggal "
-            "(Audit 1054)",
-            isi_gerbang_1054.count(
-                "# Audit 987: isi string env -S") == 1)
+    envsmutasi = klon(tmp, "envsmutasi")
+    berkas_gerbang_2923b = os.path.join(
+        envsmutasi, "tools", "verifikasi-patch.py")
+    with open(berkas_gerbang_2923b, encoding="utf-8") as f:
+        isi_gerbang_2923b = f.read()
+    assert isi_gerbang_2923b.count(
+        "_posisi_awal=False)") == 1, \
+        "jangkar rekursi env -S berubah"
+    with open(berkas_gerbang_2923b, "w",
+              encoding="utf-8") as f:
+        f.write(isi_gerbang_2923b.replace(
+            "_posisi_awal=False)", "_posisi_awal=True)"))
+    berkas_aksi2923b = os.path.join(
+        envsmutasi, ".github", "actions", "resolve-vw",
+        "action.yml")
+    with open(berkas_aksi2923b, encoding="utf-8") as f:
+        isi_aksi2923b = f.read()
+    baris_tulis2923b = [b for b in isi_aksi2923b.splitlines()
+                        if "tag_mentah" in b
+                        and "GITHUB_OUTPUT" in b][0]
+    isi_baru2923b = isi_aksi2923b.replace(
+            baris_tulis2923b,
+            baris_tulis2923b.replace(
+                '>> "$GITHUB_OUTPUT"',
+                "> >(env -S command cat; "
+                "cat >> \"$GITHUB_OUTPUT\")"), 1)
+    assert isi_baru2923b != isi_aksi2923b, \
+        "suntikan aksi2923b tidak menembak"
+    with open(berkas_aksi2923b, "w", encoding="utf-8") as f:
+        f.write(isi_baru2923b)
+    rc, out = jalan(envsmutasi,
+                    [sys.executable, GERBANG, "--semua"])
+    periksa("rekursi env -S diposisi-awalkan di klon: "
+            "'command' di string -S terkupas sebagai "
+            "builtin sehingga suntikan yang lolos di "
+            "gerbang utuh (semantik Audit 987) kini gagal "
+            "- vonis perilaku, bukan hitungan teks "
+            "(Audit 2923)",
+            rc != 0 and rc != 124 and "Traceback" not in out)
+    shutil.rmtree(envsmutasi, ignore_errors=True)
 
     subchecksum = klon(tmp, "subchecksum")
     berkas_aksi133 = os.path.join(

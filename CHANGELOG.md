@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Dua asersi hitungan teks suite diganti vonis perilaku (Audit 2923)
+
+- Skenario yang dulu hanya menghitung teks sumber gerbang (definisi helper tunggal, komentar tunggal) kini membuktikan perilaku: mematikan panggilan helper substitusi atau membalik posisi-awal rekursi env -S di klon membalik vonis gerbang atas suntikan yang sama.
+
+
 ## [Belum rilis] — Substitusi proses di workflow kini menggagalkan gerbang (Audit 2917)
 
 - Analisis penguras-stdin gerbang hanya menilai action resolve-vw; kemunculan substitusi proses '<(' di berkas workflow mana pun kini gagal terang agar konstruksi penguras tidak masuk lewat blok run: tanpa dinilai.
