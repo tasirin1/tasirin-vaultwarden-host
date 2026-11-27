@@ -212,6 +212,18 @@ public final class AutoUpdate {
             if (adaTerpasang && ServerService.running
                     && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_RESTART_UPDATE, false)) {
                 aksi.catat("[app] Auto-restart setelah update...");
+                // Audit 2792: kabari pemilik lewat Telegram
+                // SEBELUM restart, bukan sesudah - vault akan
+                // tak terjangkau sebentar dan ia berhak tahu
+                // sebabnya lebih dulu.
+                try {
+                    TgBackup.sendMessage(ctx, "Update otomatis terpasang"
+                            + " - server Vaultwarden restart otomatis"
+                            + " sekarang agar versi baru aktif. Vault tak"
+                            + " terjangkau sebentar; bila tak kembali"
+                            + " dalam beberapa menit, kirim /start.");
+                } catch (Exception ignoredKabar) {
+                }
                 aksi.restartServer();
             }
             TgBackup.notifyLowStorage(ctx);

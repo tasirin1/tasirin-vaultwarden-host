@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kabar Telegram sebelum auto-restart sesudah auto-update (Audit 2792, sebagian)
+
+- `AutoUpdate`: bila update otomatis terpasang dan auto-restart aktif, pemilik kini dikabari lewat Telegram SEBELUM server di-restart — sebelumnya restart terjadi tanpa pemberitahuan apa pun di kanal yang dipantau pemilik, sehingga vault yang tak terjangkau sebentar tampak seperti kerusakan. Pesan menyebut sebabnya dan langkah bila server tak kembali (`/start`). Separuh saran lain dari temuan ini — jeda rendam (soak time) sebelum rilis baru dipasang otomatis — belum dikerjakan: butuh menyalurkan tanggal terbit rilis dari API GitHub ke jalur cek update dan keputusan pemilik soal lama jedanya; issue tetap terbuka untuk bagian itu.
+
+
 ## [Belum rilis] — AGENTS.md tak lagi menyebut metode throttle yang sudah dihapus (Audit 2793)
 
 - `AGENTS.md` (daftar satu pintu): `simpanStempelThrottle` sudah lama dihapus dan tercatat di `tools/bekas-hapusan.txt`, tetapi dokumen masih menyebutnya sebagai pintu throttle — agen/perbaikan berikutnya yang mengikuti dokumen bisa memanggil metode yang tidak ada atau membuat ulang nama terlarang itu dan menabrak gerbang daftar hapusan. Dokumen kini menyebut penggantinya yang hidup: `simpanPasanganStempelThrottle` dan `simpanTigaStempelThrottle` (tulis atomik satu `edit()`), dengan catatan nama lama jangan dibuat ulang.
