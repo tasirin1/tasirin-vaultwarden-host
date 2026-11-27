@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Integritas binary selalu dari SHA-256 penuh, sidik tak lagi dipercaya (Audit 2786)
+
+- Pemeriksaan binary saat Start tidak lagi melewati hash penuh hanya karena ukuran + waktu berkas cocok: berkas yang diganti dengan ukuran dan waktu yang disamakan kini tetap ketahuan karena SHA-256 selalu dihitung penuh.
+
+
 ## [Belum rilis] — Restore/reset menolak jalan selama Start berjalan (Audit 2778)
 
 - Jendela balapan ditutup: Start melepas kunci data selama mengunduh binary, dan restore/reset kini menolak mulai selama episode Start berjalan (sebelumnya keduanya bisa mengutak-atik folder data bersamaan dengan pertukaran binary).

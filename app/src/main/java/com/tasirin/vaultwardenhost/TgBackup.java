@@ -2750,7 +2750,7 @@ public final class TgBackup {
                     Updater.KEY_BIN_FALLBACK_FOR, Updater.KEY_BIN_FALLBACK_AT,
                     Updater.KEY_CEK_GANGGUAN_AT,
                     ServerService.KEY_BIN_MANUAL_FP,
-                    Updater.KEY_BIN_SHA_PIN, Updater.KEY_BIN_SHA_FP,
+                    Updater.KEY_BIN_SHA_PIN,
                     Updater.KEY_VERSI_FP, Updater.KEY_VERSI_FILE,
                     Updater.KEY_SHIM_SHA,
                     ServerService.KEY_BIN_PATCH, KEY_RESTORE_TANDA,

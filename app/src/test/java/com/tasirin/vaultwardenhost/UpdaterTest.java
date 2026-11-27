@@ -2029,18 +2029,32 @@ public class UpdaterTest {
     }
 
     @Test
-    public void pinBolehLewatiHash_sidikSamaDanBerkasAda() throws Exception {
-        java.io.File f = java.io.File.createTempFile("pin", ".bin");
+    public void binaryUtuhTersidik_hashPenuhYangMenentukan() throws Exception {
+        // Audit 2786: berkas diganti isi lain berukuran
+        // sama + mtime disamakan TIDAK lagi lolos -
+        // keputusan kini selalu dari SHA-256 penuh.
+        java.io.File bin = java.io.File.createTempFile("binuji", ".bin");
         try {
-            String sidik = ServerService.sidikManualFile(f);
-            assertTrue(Updater.pinBolehLewatiHash(sidik, f));
-            assertFalse(Updater.pinBolehLewatiHash("", f));
-            assertFalse(Updater.pinBolehLewatiHash(null, f));
-            assertFalse(Updater.pinBolehLewatiHash("0:0", f));
-            assertFalse(Updater.pinBolehLewatiHash(sidik,
-                    new java.io.File(f.getParent(), "tidak-ada.bin")));
+            byte[] isiA = "isi-binary-uji-aaaa".getBytes(
+                    java.nio.charset.StandardCharsets.UTF_8);
+            byte[] isiB = "isi-binary-uji-bbbb".getBytes(
+                    java.nio.charset.StandardCharsets.UTF_8);
+            assertEquals(isiA.length, isiB.length);
+            try (java.io.FileOutputStream o = new java.io.FileOutputStream(bin)) {
+                o.write(isiA);
+            }
+            String pin = Updater.sha256Hex(bin);
+            long mtime = bin.lastModified();
+            assertTrue(Updater.binaryUtuhTersidik(null, bin, pin));
+            try (java.io.FileOutputStream o = new java.io.FileOutputStream(bin)) {
+                o.write(isiB);
+            }
+            bin.setLastModified(mtime);
+            assertFalse(Updater.binaryUtuhTersidik(null, bin, pin));
+            assertTrue(Updater.binaryUtuhTersidik(null, bin, ""));
+            assertTrue(Updater.binaryUtuhTersidik(null, bin, null));
         } finally {
-            f.delete();
+            bin.delete();
         }
     }
 

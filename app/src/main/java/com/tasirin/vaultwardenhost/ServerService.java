@@ -4592,8 +4592,6 @@ public class ServerService extends Service {
                                             .putString(KEY_BIN_MANUAL_FP, sidikAwal)
                                             .putString(Updater.KEY_BIN_SHA_PIN,
                                                     Updater.sha256Hex(out))
-                                            .putString(Updater.KEY_BIN_SHA_FP,
-                                                    sidikManualFile(out))
                                             .apply();
 
                                     if (realManual != null && !realManual.isEmpty()) {
@@ -4694,7 +4692,6 @@ public class ServerService extends Service {
                 try {
                     sp.edit().remove(KEY_UPDATE_VERSION)
                             .remove(Updater.KEY_BIN_SHA_PIN)
-                            .remove(Updater.KEY_BIN_SHA_FP)
                             .commit();
                 } catch (Exception ignored) {
                 }
