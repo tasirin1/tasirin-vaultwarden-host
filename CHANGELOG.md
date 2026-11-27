@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Docstring suite tak lagi menyebut hitungan skenario yang basi (Audit 2925)
+
+- `tools/uji-verifikasi-1.py` + `tools/uji-verifikasi-2.py`: docstring menyebut "2.040 skenario" padahal hitungan `periksa()` aktual sudah bergeser (2.041 saat diaudit, dan bertambah tiap skenario baru) — angka persis di docstring pasti basi lagi. Diganti sebutan tak-berangka ("ribuan skenario") agar tak bisa basi.
+
+
 ## [Belum rilis] — Nama klon scratch ganda di suite gerbang diganti unik (Audit 2924)
 
 - `tools/uji-verifikasi.py`: tiga nama klon scratch dipakai dua kali (`sarang` lintas paruh, `umpankomen` dan `kurungtempel` di paruh yang sama) — skenario yang berhenti sebelum pembersihannya membuat klon berikutnya bernama sama gagal dan mematikan sisa paruh. Kemunculan kedua tiap nama kini unik (`umpankomen2`, `kurungtempel2`, `sarangakhir`).

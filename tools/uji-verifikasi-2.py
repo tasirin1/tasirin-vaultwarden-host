@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Paruh kedua uji-diri gerbang verifikasi-patch (Audit 2979).
 
-Suite ini dulu satu main() serial 2.040 skenario (terukur
+Suite ini dulu satu main() serial ribuan skenario (terukur
 22:18 di CI, Audit 1617) dan menjadi jalur kritis tiap push.
 Skenarionya kini terbagi dua fungsi di tools/uji-verifikasi.py
 (_bagian_awal/_bagian_akhir); berkas ini menjalankan paruh
