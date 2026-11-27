@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Daftar cipher yang diumumkan factory TLS kini ikut disaring (Audit 2852)
+
+- `HttpsCompat.PabrikTls12`: `getDefaultCipherSuites()` dan `getSupportedCipherSuites()` dulu meneruskan daftar bawaan platform tanpa saringan, padahal soketnya sendiri dipasang hanya cipher kuat oleh `nyalakan()`. Pemakai factory yang memilih suite dari daftar resmi itu (framework/perpustakaan) bisa memilih cipher lemah seperti RC4/DES. Kedua daftar kini melewati `saringCipher` yang sama, jadi yang diumumkan factory persis yang boleh dipakai.
+
+
 ## [Belum rilis] — Factory SSL kini dibangun ulang tiap 24 jam, tak lagi abadi (Audit 2851)
 
 - `HttpsCompat`: factory SSL dulu di-cache selamanya — proses `ServerService` yang berumur berminggu-minggu tetap mempercayai root CA yang sudah dicabut/didistrust di store sistem sampai aplikasi di-restart. Cache kini berumur maksimal 24 jam (predikat murni `cacheFactorySegar`, penanda waktu dicatat saat bangun); lewat itu `socketFactory` membangun ulang dari store sistem terkini lewat jalur bangun + jeda-gagal yang sudah ada. Ditambah uji JVM untuk batas umurnya.

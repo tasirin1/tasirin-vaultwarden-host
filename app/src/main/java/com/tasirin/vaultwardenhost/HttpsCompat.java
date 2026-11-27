@@ -542,12 +542,16 @@ public final class HttpsCompat {
 
         @Override
         public String[] getDefaultCipherSuites() {
-            return bawaan.getDefaultCipherSuites();
+            // Audit 2852: daftar yang diumumkan factory
+            // harus sama saringannya dengan yang dipasang
+            // nyalakan() - dulu daftar bawaan lolos utuh
+            // termasuk cipher lemah.
+            return saringCipher(bawaan.getDefaultCipherSuites());
         }
 
         @Override
         public String[] getSupportedCipherSuites() {
-            return bawaan.getSupportedCipherSuites();
+            return saringCipher(bawaan.getSupportedCipherSuites());
         }
 
         @Override
