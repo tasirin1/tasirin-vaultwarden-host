@@ -49,6 +49,18 @@ public class PinGateTest {
     }
 
     @Test
+    public void gagalBerikutnyaTerpagar() {
+        // Audit 2803: plafon 10_000, tak pernah meluap.
+        org.junit.Assert.assertEquals(1, PinGate.gagalBerikutnya(0));
+        org.junit.Assert.assertEquals(10_000,
+                PinGate.gagalBerikutnya(9_999));
+        org.junit.Assert.assertEquals(10_000,
+                PinGate.gagalBerikutnya(10_000));
+        org.junit.Assert.assertEquals(10_000,
+                PinGate.gagalBerikutnya(Integer.MAX_VALUE));
+    }
+
+    @Test
     public void pinAktifTanpaGraceMembukaLayar() {
         assertEquals(PinGate.KUNCI_BUKA,
                 PinGate.putusKunci(true, false, "pbkdf2"));

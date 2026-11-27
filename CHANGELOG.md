@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penghitung PIN gagal kini terpagar dari luapan integer (Audit 2803)
+
+- `PinGate`: penghitung percobaan PIN gagal dulu dinaikkan tanpa pagar — pada nilai `Integer.MAX_VALUE` penambahan meluap ke negatif dan lockout hilang. Nilai itu praktis mustahil dicapai lewat UI (lockout berhenti jauh sebelumnya), tapi pagarnya murah: helper murni `gagalBerikutnya` memagari di 10.000, jauh di atas tingkat durasi kunci tertinggi sehingga perilaku normal tidak berubah. Diuji termasuk kasus MAX_VALUE.
+
+
 ## [Belum rilis] — Validasi pasang PIN disamakan dengan jalur bot (Audit 2799)
 
 - `Util.pinBaruValid` baru: aturan memasang/mengganti PIN = aturan bot (`pinKataValid`: minimal 4 aksara, tanpa spasi, wajib mengandung angka atau simbol) ditambah batas atas 64 aksara. Gerbang pasang PIN di `SettingsActivity` memakainya dengan pesan galat baru `pin_lemah` (Inggris + Indonesia) — dulu hanya panjang ≥ 4 yang diperiksa, jadi PIN "    " (empat spasi) dan "aaaa" sah terpasang di UI walau ditolak bot. Jalur verifikasi sengaja tidak diubah: PIN lemah yang sudah terpasang sebelum aturan ini tetap bisa membuka kunci. Diuji di `UtilTest`.

@@ -150,6 +150,14 @@ public final class PinGate {
     }
 
     @SuppressLint("ApplySharedPref")
+    // Audit 2803: penghitung gagal dipagari - +1 pada
+    // Integer.MAX_VALUE dulu meluap ke negatif dan lockout
+    // hilang. Plafon 10_000 jauh di atas tingkat durasi
+    // kunci tertinggi, jadi perilaku normal tak berubah.
+    static int gagalBerikutnya(int gagalKini) {
+        return gagalKini >= 10_000 ? 10_000 : gagalKini + 1;
+    }
+
     public static void catatHasil(Context ctx, boolean cocok, long sekarang) {
         if (ctx == null) {
             return;
@@ -175,7 +183,7 @@ public final class PinGate {
                 return;
             }
 
-            int gagal = TgBackup.amanInt(sp, KEY_GAGAL, 0) + 1;
+            int gagal = gagalBerikutnya(TgBackup.amanInt(sp, KEY_GAGAL, 0));
             sp.edit().putInt(KEY_GAGAL, gagal)
                     .putLong(KEY_KUNCI_SAMPAI,
                             PinCrypto.kunciBerikutnyaMs(gagal, sekarang))
