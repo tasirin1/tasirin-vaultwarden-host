@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penundaan backup saat boot baru kini jujur soal alarmnya (Audit 2976)
+
+- `TgBackup.tundaBilaBootBaru`: nilai baliknya dulu selalu "tertunda" selama masih masa tunggu boot, membuang hasil pemasangan alarm tunda — ketiga pemanggilnya bertindak seolah backup pasti jalan nanti walau alarmnya gagal dipasang, dan backup hilang diam-diam dengan pesan sukses. Nilai baliknya kini hasil penjadwalan itu sendiri: benar hanya bila alarm sungguh terpasang; bila gagal, pemanggil melanjutkan backup sekarang (atau menandai tertunda lewat jalur gagalnya).
+
+
 ## [Belum rilis] — Status berhenti tak lagi beku bila Stop berbarengan dengan restart kesehatan (Audit 2973)
 
 - `ServerService`: bila pemeriksaan kesehatan sedang membunuh server yang gantung tepat saat pengguna menekan Stop, jalur kesehatan melepas proses tanpa efek dan thread Stop kalah perebutan lepas-proses — efek berhentinya (status "Stopped") tidak pernah jalan, sehingga status membeku di "restart otomatis" padahal Stop sudah membatalkan restart itu. Thread Stop kini tetap menjalankan efek berhenti bila perebutan kalah; isi efeknya sendiri tergerbang keadaan sehingga aman bila start baru sungguh sedang berjalan.

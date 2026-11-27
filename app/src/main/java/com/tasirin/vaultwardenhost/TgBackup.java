@@ -399,7 +399,11 @@ public final class TgBackup {
         ServerService.catatLog("[tg] STB baru hidup - " + label + " ditunda"
                 + " sampai sistem stabil"
                 + (ok ? " (alarm terpasang)." : " (alarm gagal, coba jadwal berikut)."));
-        return true;
+        // Audit 2976: nilai balik = hasil penjadwalan,
+        // bukan sekadar "masih masa tunggu". Dulu true
+        // dibuang-buang: pemanggil mengira penundaan
+        // aman walau alarm gagal dan backup hilang.
+        return ok;
     }
 
     public static boolean jadwalTundaBoot(Context ctx) {
