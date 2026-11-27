@@ -1246,6 +1246,10 @@ public class ServerService extends Service {
             Util.jalankanBg(() -> {
                 TgBackup.sapuTmpPlainBasi(cacheSapu);
                 TgBackup.sapuZipPlainCacheBasi(cacheSapu);
+                // Audit 2832: plaintext ekspor config yatim
+                // ikut disapu di start - dulu hanya Settings
+                // yang menyapunya.
+                SettingsActivity.sapuExportPlainCacheStatis(cacheSapu);
             });
             // Audit 2783: daftarkan nilai rahasia tersimpan agar
             // penyamaran log berbasis nilai aktif di proses ini.

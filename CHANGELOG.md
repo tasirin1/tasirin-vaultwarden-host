@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Plaintext ekspor config yatim kini disapu juga saat service dibuat (Audit 2832)
+
+- Berkas ekspor config plaintext (`app-config-*.json`) di cache dulu hanya disapu dari `SettingsActivity` — bila proses mati atau pengguna tidak membuka Settings lagi, plaintext itu bertahan sampai Settings dibuka berikutnya. Varian statis kebijakan sapu yang sama (`SettingsActivity.sapuExportPlainCacheStatis`: berkas enkrip-sementara langsung, plaintext hanya bila melewati TTL 2 menit) kini ikut berjalan di latar pada `ServerService.onCreate`, bersama sapuan plaintext dekripsi Audit 2821. Zip restore yang tertunda konfirmasinya sengaja tidak disentuh jalur ini — tetap urusan sapuan Settings yang tahu berkas tertundanya.
+
+
 ## [Belum rilis] — Chat ID mirip nomor telepon kini ditolak dengan pesan khusus (Audit 2831)
 
 - Validasi chat ID dulu meloloskan nomor telepon format internasional (`62812…`) sebagai chat ID yang sah — kegagalannya baru ketahuan dari API Telegram ("chat not found") saat bot pertama mengirim. `SettingsActivity.galatChat` kini mengenali pola nomor telepon Indonesia lewat predikat murni baru `Util.miripNomorTelepon` (digit, awalan 62, 11–15 digit, `+` opsional) dan mengembalikan pesan khusus (string baru `chat_mirip_telepon`, EN + ID) yang menjelaskan chat ID yang benar dan cara mendapatkannya. Validasi umum dan tanda tangan lama `galatChat` tidak berubah.

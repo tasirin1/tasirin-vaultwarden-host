@@ -2820,6 +2820,47 @@ public class SettingsActivity extends Activity {
         return hapus;
     }
 
+    // Audit 2832: varian statis kebijakan sapu yang sama
+    // untuk start service/aplikasi - di proses segar tak
+    // ada berkas tertunda yang perlu dikecualikan; pagar
+    // TTL melindungi ekspor yang sedang berjalan di
+    // proses yang sama. Hanya keluarga app-config: zip
+    // restore tertunda tetap urusan sapuan instans yang
+    // tahu berkas tertundanya (Audit 852).
+    static void sapuExportPlainCacheStatis(File cacheDir) {
+        try {
+            if (cacheDir == null) {
+                return;
+            }
+            File[] sisa = cacheDir.listFiles();
+            if (sisa == null) {
+                return;
+            }
+            long kini = System.currentTimeMillis();
+            for (File f : sisa) {
+                try {
+                    String n = f.getName();
+                    if (!n.startsWith("app-config-") || !n.endsWith(".json")) {
+                        continue;
+                    }
+                    if (sisaEnkripTmp(n)) {
+                        f.delete();
+                        continue;
+                    }
+                    long umur = kini - f.lastModified();
+                    if (umur < 0) {
+                        umur = 0;
+                    }
+                    if (umur > EXPORT_PLAIN_TTL_MS) {
+                        f.delete();
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     private void bersihkanExportPlainCache() {
         try {
             File pending = exportPlainTertunda;
