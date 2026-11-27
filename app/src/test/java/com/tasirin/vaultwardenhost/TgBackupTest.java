@@ -42,6 +42,49 @@ public class TgBackupTest {
     }
 
     @Test
+    public void bandingBackupTerbaru_bandingkanStempelBukanAwalan() {
+        // Audit 3036: telegram yang lebih baru menang
+        // atas db-backup yang lebih lama walau 'b' < 'd'.
+        assertTrue(TgBackup.bandingBackupTerbaru(
+                "backup-telegram-20260201-000000-000.zip", 0,
+                "db-backup-20260101-000000-000-abcdef012345.zip", 0) < 0);
+        assertTrue(TgBackup.bandingBackupTerbaru(
+                "db-backup-20260101-000000-000-abcdef012345.zip", 0,
+                "backup-telegram-20260201-000000-000.zip", 0) > 0);
+    }
+
+    @Test
+    public void cleanupCampuranKeluargaYangTerbaruBertahan() throws Exception {
+        // Audit 3036: 10 db-backup lama + 3 backup
+        // telegram paling baru -> yang bertahan 10
+        // teratas menurut stempel, telegram termasuk.
+        java.io.File dir = java.nio.file.Files.createTempDirectory(
+                "vwretensi3").toFile();
+        try {
+            for (int i = 0; i < 10; i++) {
+                new java.io.File(dir, "db-backup-20260101-0000"
+                        + (10 + i) + "-000-abcdef012345.zip")
+                        .createNewFile();
+            }
+            for (int i = 0; i < 3; i++) {
+                new java.io.File(dir, "backup-telegram-20260201-0000"
+                        + (10 + i) + "-000.zip").createNewFile();
+            }
+            TgBackup.cleanupOldBackups(dir);
+            assertEquals(10, dir.listFiles().length);
+            assertTrue(new java.io.File(dir,
+                    "backup-telegram-20260201-000010-000.zip").isFile());
+            assertTrue(new java.io.File(dir,
+                    "backup-telegram-20260201-000012-000.zip").isFile());
+            assertTrue(!new java.io.File(dir,
+                    "db-backup-20260101-000010-000-abcdef012345.zip")
+                    .isFile());
+        } finally {
+            hapusPohonUji(dir);
+        }
+    }
+
+    @Test
     public void cleanupBackupBaruBercapMundurTetapDipertahankan() throws Exception {
         // Audit 2820: backup bernama paling baru tapi
         // lastModified-nya paling lama (jam STB mundur) tidak

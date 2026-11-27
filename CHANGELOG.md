@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Retensi backup kini membandingkan stempel di nama, bukan awalan nama (Audit 3036)
+
+- Perbaikan lanjutan Audit 2820: urutan simpan backup kini ditentukan stempel waktu pembuatan di dalam nama berkas, bukan nama utuhnya. Sebelumnya semua backup lokal (db-backup-…) selalu menang atas salinan backup Telegram (backup-telegram-…) hanya karena huruf awalnya, sehingga begitu backup lokal mencapai 10, semua salinan lokal backup Telegram — termasuk yang paling baru — ikut terhapus. Ketahanan terhadap jam STB yang mundur tetap terjaga.
+
+
 ## [Belum rilis] — Batas jumlah berkas backup kini ditegakkan saat pengumpulan (Audit 3024)
 
 - Pembuatan backup kini berhenti dengan pesan jelas begitu jumlah berkas lampiran/sends melewati batas 20.000 — saat pengumpulan, sebelum berkas zip ditulis. Sebelumnya seluruh isi folder dikumpulkan dulu ke memori tanpa batas (berisiko kehabisan memori di STB) dan batas baru diperiksa sesudah zip selesai dibuat.

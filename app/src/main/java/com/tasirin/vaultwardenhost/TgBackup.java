@@ -2903,11 +2903,12 @@ public final class TgBackup {
         for (File f : pre) {
             waktuUbah.put(f, f.lastModified());
         }
-        // Audit 2820: urutan retensi dari NAMA berkas (memuat
-        // stempel pembuatan yang tetap), bukan lastModified -
-        // jam STB yang mundur membuat backup baru bercap lama
-        // dan terhapus sebagai "tertua". lastModified hanya
-        // pemecah seri untuk nama yang sama.
+        // Audit 2820: urutan retensi dari stempel pembuatan
+        // di NAMA berkas, bukan lastModified - jam STB yang
+        // mundur membuat backup baru bercap lama dan
+        // terhapus sebagai "tertua". Audit 3036: stempel
+        // dibandingkan antar-keluarga nama, bukan nama
+        // utuh. lastModified hanya pemecah seri terakhir.
         Comparator<File> terbaruDulu = new Comparator<File>() {
             @Override
             public int compare(File a, File b) {
@@ -2929,10 +2930,52 @@ public final class TgBackup {
         }
     }
 
-    // Audit 2820: nama yang lebih besar (stempel pembuatan
-    // lebih baru) = lebih dulu dipertahankan.
+    // Audit 3036: stempel pembuatan di dalam nama
+    // backup (yyyyMMdd-HHmmss-SSS, sesudah awalan
+    // keluarga) - deretan digit/dash pertama di nama.
+    // Nama tanpa stempel terbaca -> "" (paling lama).
+    static String stempelDariNamaBackup(String nama) {
+        if (nama == null) {
+            return "";
+        }
+        int awal = -1;
+        for (int i = 0; i < nama.length(); i++) {
+            char c = nama.charAt(i);
+            if (c >= '0' && c <= '9') {
+                awal = i;
+                break;
+            }
+        }
+        if (awal < 0) {
+            return "";
+        }
+        int akhir = awal;
+        while (akhir < nama.length() && akhir - awal < 19) {
+            char c = nama.charAt(akhir);
+            if ((c >= '0' && c <= '9') || c == '-') {
+                akhir++;
+            } else {
+                break;
+            }
+        }
+        return nama.substring(awal, akhir);
+    }
+
+    // Audit 2820: urutan dari stempel pembuatan di nama
+    // (bukan lastModified - jam STB yang mundur membuat
+    // backup baru bercap lama). Audit 3036: yang
+    // dibandingkan stempelnya, BUKAN nama utuh - nama
+    // utuh membuat semua db-backup-* selalu menang atas
+    // backup-telegram-* ('d' > 'b') apa pun umurnya,
+    // sehingga salinan lokal backup Telegram terhapus
+    // semua begitu backup lokal mencapai batas simpan.
     static int bandingBackupTerbaru(String namaA, long ubahA,
             String namaB, long ubahB) {
+        int byCap = stempelDariNamaBackup(namaB)
+                .compareTo(stempelDariNamaBackup(namaA));
+        if (byCap != 0) {
+            return byCap;
+        }
         int byNama = namaB.compareTo(namaA);
         if (byNama != 0) {
             return byNama;
