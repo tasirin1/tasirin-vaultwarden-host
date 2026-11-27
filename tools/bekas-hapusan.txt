@@ -4,6 +4,11 @@
 # melihat diff saat itu, daftar inilah yang menjaga push-push berikut.
 # (JANGAN masukkan nama yang masih didefinisikan di berkas lain, mis.
 # readWvVersion/hex12 — itu pindah, bukan hapus.)
+# Audit 2915: nama non-metode dicatat BERJENIS - "field:<nama>" atau
+# "konstanta:<nama>" untuk field/konstanta Java, "python:<nama>" untuk
+# fungsi/variabel modul di tools/*.py; gerbang menegakkan definisi dan
+# rujukannya. Nama polos selalu berarti metode: field bernama sama
+# dengan metode terhapus (mis. gagalTrustTerakhir) sah dan tak kena.
 batalTunda
 isLegacyDevice
 tokenPertama

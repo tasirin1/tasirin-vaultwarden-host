@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — bekas-hapusan kini menegakkan nama field/konstanta dan fungsi Python (Audit 2915)
+
+- `tools/verifikasi-patch.py`: penegakan `tools/bekas-hapusan.txt` dulu hanya mengenali deklarasi dan pemanggilan metode Java — nama yang tercatat untuk konstanta/field atau fungsi Python di `tools/` tak pernah bisa terdeteksi bila didefinisikan ulang. Daftar kini menerima entri berjenis `field:<nama>`/`konstanta:<nama>` (definisi field Java atau rujukan telanjangnya di teks ter-kupas = GAGAL) dan `python:<nama>` (`def`/penetapan modul atau pemanggilan di `tools/*.py` = GAGAL). Nama polos tetap berarti metode saja — disengaja: `gagalTrustTerakhir` adalah metode getter yang terhapus sementara field bernama sama hidup sah, jadi cek field atas nama polos akan positif palsu permanen. Format didokumentasikan di kepala daftar dan aturan #15 `AGENTS.md`; satu skenario suite baru menanam entri `field:` + `python:` beserta definisinya dan menuntut gerbang gagal menyebut keduanya.
+
+
 ## [Belum rilis] — cek-cepat kini memindai rahasia yang hanya ada di HEAD (Audit 2912)
 
 - `scripts/cek-cepat.sh`: rahasia yang ter-commit lalu dihapus dari pohon kerja dan indeks (`git rm`, riwayat belum ditulis ulang) dulu lolos fase bungkus dan fase header — hanya pola satu-baris yang menengok HEAD. Kini kandidat header juga dikumpulkan dari `git grep HEAD` dan isi blob HEAD ikut diuji biner; fase bungkus menambah entri untuk berkas yang ada di HEAD tapi terhapus dari indeks (`git diff --cached --diff-filter=D HEAD`), diwujudkan dari blob HEAD ke berkas sementara dengan mekanisme yang sama seperti wujud indeks, lalu ikut diratakan. Dua skenario suite baru membuktikannya: token terbelah ter-commit lalu `git rm`, dan header kunci di berkas biner ter-commit lalu `git rm` — keduanya kini tertangkap.

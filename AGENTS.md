@@ -209,7 +209,10 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
     audit-38). Pengecualian: nama yang masih didefinisikan di berkas lain
     (pindah, bukan hapus) dilarang masuk daftar. Mengubah SIGNATUR metode
     sambil mempertahankan namanya BUKAN penghapusan — tak masuk daftar
-    (diterapkan pada perbaikan 2877).
+    (diterapkan pada perbaikan 2877). Nama NON-metode dicatat berjenis
+    (Audit 2915): `field:<nama>`/`konstanta:<nama>` untuk field/konstanta
+    Java, `python:<nama>` untuk fungsi tools/*.py — gerbang menegakkan
+    definisi + rujukan tiap jenis; nama polos tetap berarti metode saja.
 16. **Kerja lokal = bash + perkakas standar yang benar-benar ada** —
     pekerjaan lokal dikerjakan lewat bash dengan perkakas standar
     (`grep`, `sed`, `find`, `awk`, `sort`, `diff`), `python3` untuk

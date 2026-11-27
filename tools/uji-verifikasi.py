@@ -171,6 +171,30 @@ def _bagian_awal(tmp):
             rc != 0 and "Locale" in out)
     shutil.rmtree(lok, ignore_errors=True)
 
+    jenis = klon(tmp, "jenis")
+    berkas_jenis = os.path.join(jenis, "tools", "bekas-hapusan.txt")
+    with open(berkas_jenis, "a", encoding="utf-8") as f:
+        f.write("field:capUjiHapus2915\n")
+        f.write("python:_cap_uji_hapus_2915\n")
+    berkas_jv = os.path.join(jenis, "app", "src", "main", "java", "com",
+                             "tasirin", "vaultwardenhost",
+                             "MemoJenisUji.java")
+    with open(berkas_jv, "w", encoding="utf-8") as f:
+        f.write("package com.tasirin.vaultwardenhost;\n\n"
+                "final class MemoJenisUji {\n"
+                "    static long capUjiHapus2915;\n}\n")
+    berkas_py = os.path.join(jenis, "tools", "cap_uji_2915.py")
+    with open(berkas_py, "w", encoding="utf-8") as f:
+        f.write("def _cap_uji_hapus_2915():\n    return 1\n")
+    git(jenis, "add", "-A")
+    git(jenis, "commit", "-q", "-m", "tanam bekas berjenis uji")
+    rc, out = jalan(jenis, [sys.executable, GERBANG, "--semua"])
+    periksa("bekas-hapusan berjenis field:/python: ditegakkan "
+            "(Audit 2915)",
+            rc != 0 and "capUjiHapus2915" in out
+            and "_cap_uji_hapus_2915" in out)
+    shutil.rmtree(jenis, ignore_errors=True)
+
     umpan = klon(tmp, "umpan")
     berkas_ump = os.path.join(umpan, ".github", "actions",
                               "resolve-vw", "action.yml")

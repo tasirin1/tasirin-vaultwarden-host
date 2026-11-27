@@ -39,14 +39,94 @@ _BACAS_HAPUSAN = []
 def bekas_hapusan():
     if not _BACAS_HAPUSAN:
         _BACAS_HAPUSAN.append(muat_bekas_hapusan())
-    return _BACAS_HAPUSAN[0]
+    mentah = _BACAS_HAPUSAN[0]
+    if mentah is None:
+        return None
+    # Audit 2915: token berawalan jenis (field:/konstanta:/
+    # python:) bukan nama metode - penegakannya sendiri di
+    # cek_daftar_hapusan lewat bekas_hapusan_berjenis().
+    return {t for t in mentah if ":" not in t}
+
+
+def bekas_hapusan_berjenis():
+    mentah = muat_bekas_hapusan()
+    if mentah is None:
+        return None
+    jenis = {"metode": set(), "field": set(), "python": set()}
+    for token in mentah:
+        awalan, pisah, nama = token.partition(":")
+        if pisah and nama and awalan in ("field", "konstanta"):
+            jenis["field"].add(nama)
+        elif pisah and nama and awalan == "python":
+            jenis["python"].add(nama)
+        elif not pisah:
+            jenis["metode"].add(token)
+    return jenis
+
+
+def _cek_bekas_berjenis(gagal, jenis, isi_java):
+    # Audit 2915: penegakan entri berjenis. Field/konstanta:
+    # deklarasi Java (modifikator + tipe + nama + =/;) atau
+    # rujukan telanjang di teks ter-kupas. Python: def atau
+    # penetapan modul di tools/*.py, atau pemanggilan nama(.
+    terdefinisi = set()
+    for nama in sorted(jenis["field"]):
+        pola = re.compile(
+            r"^\s*(?:@[\w.]+(?:\([^)]*\))?\s+)*"
+            r"(?:(?:public|protected|private|static|final"
+            r"|volatile|transient)\s+)*"
+            r"[\w$][\w$<>\[\].,?&]*\s+"
+            + re.escape(nama) + r"\s*(?:=[^=]|;\s*$)")
+        for p, isi in isi_java:
+            if any(pola.match(b) for b in isi.splitlines()):
+                gagal.append("Nama field %s di tools/bekas-hapusan.txt "
+                             "masih terdefinisi di %s - keluarkan dari "
+                             "daftar atau ganti nama fieldnya" % (nama, p))
+                terdefinisi.add(nama)
+                break
+    for nama in sorted(jenis["field"] - terdefinisi):
+        pola = re.compile(r"\b" + re.escape(nama) + r"\b")
+        for p, isi in isi_java:
+            if pola.search(isi):
+                gagal.append("Nama field %s di tools/bekas-hapusan.txt "
+                             "masih dirujuk di %s - keluarkan dari "
+                             "daftar atau ganti rujukannya" % (nama, p))
+                break
+    for nama in sorted(jenis["python"]):
+        pola_def = re.compile(
+            r"^\s*def\s+" + re.escape(nama) + r"\s*\(|^"
+            + re.escape(nama) + r"\s*=[^=]", re.M)
+        pola_panggil = re.compile(r"\b" + re.escape(nama) + r"\s*\(")
+        for akar, _dirs, berkas2 in os.walk(
+                os.path.join(AKAR, "tools")):
+            for b in berkas2:
+                if not b.endswith(".py"):
+                    continue
+                p = os.path.relpath(os.path.join(akar, b), AKAR)
+                teks = baca(p)
+                if pola_def.search(teks):
+                    gagal.append("Nama python %s di tools/bekas-hapusan.txt "
+                                 "masih terdefinisi di %s - keluarkan dari "
+                                 "daftar atau ganti nama fungsinya"
+                                 % (nama, p))
+                    terdefinisi.add(nama)
+                    break
+                if pola_panggil.search(teks):
+                    gagal.append("Nama python %s di tools/bekas-hapusan.txt "
+                                 "masih dipanggil di %s - keluarkan dari "
+                                 "daftar atau ganti panggilannya"
+                                 % (nama, p))
+                    terdefinisi.add(nama)
+                    break
 
 def cek_daftar_hapusan(gagal):
-    BEKAS_HAPUSAN = bekas_hapusan()
-    if BEKAS_HAPUSAN is None:
+    JENIS_HAPUSAN = bekas_hapusan_berjenis()
+    BEKAS_HAPUSAN = (set() if JENIS_HAPUSAN is None
+                     else JENIS_HAPUSAN["metode"])
+    if JENIS_HAPUSAN is None:
         gagal.append("tools/bekas-hapusan.txt tak terbaca — penjagaan nama "
                      "metode terhapus tidak bisa dijalankan")
-    elif not BEKAS_HAPUSAN:
+    elif not any(JENIS_HAPUSAN.values()):
         gagal.append("tools/bekas-hapusan.txt kosong — daftar nama metode "
                      "terhapus wajib berisi")
     else:
@@ -78,6 +158,9 @@ def cek_daftar_hapusan(gagal):
                 gagal.append("Pohon masih memanggil %s() yang sudah "
                              "dihapus (di %s) — regresi hapusan di luar "
                              "rentang diff" % (nama, berkas_pertama[nama]))
+        # Audit 2915: entri berjenis field:/konstanta:/python:
+        if JENIS_HAPUSAN["field"] or JENIS_HAPUSAN["python"]:
+            _cek_bekas_berjenis(gagal, JENIS_HAPUSAN, isi_java)
 
 def _impor_yaml(gagal):
     """PyYAML wajib ada: tanpa itu validasi YAML mati diam-diam sementara
