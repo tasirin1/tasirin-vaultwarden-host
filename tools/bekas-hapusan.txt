@@ -147,3 +147,5 @@ jedaRetryAfterMsDibatasiSatuSampaiLimaDetik
 pinBolehLewatiHash
 pinBolehLewatiHash_sidikSamaDanBerkasAda
 konstanta:KEY_BIN_SHA_FP
+samakanHexLegasi
+hashLamaTetapDikenali

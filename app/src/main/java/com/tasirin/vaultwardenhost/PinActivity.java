@@ -178,6 +178,7 @@ public class PinActivity extends Activity {
                     // memakai hash lama tepat sesudah PIN diganti jalur
                     // lain — pola yang sudah ditutup jalur bot (Audit 809).
                     segar = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                    segar = PinGate.paksaMigrasiLegasi(appCtx, sp, segar);
                     // Audit 791: cek ulang otoritatif di dalam kunci bersama
                     // dengan jalur bot — kunci yang terpasang jalur lain
                     // sejak cek awal membatalkan percobaan tanpa verifikasi.

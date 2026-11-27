@@ -168,7 +168,12 @@ public final class PinCrypto {
                 return verifikasiPbkdf2(parts, sha256(pin));
             }
 
-            return samakanHexLegasi(sha256(pin), stored);
+            // Audit 2767: format mentah SHA-256(pin) tak lagi
+            // diterima. Migrasi paksa PinGate.paksaMigrasiLegasi
+            // membungkusnya sebelum verify di semua jalur
+            // aplikasi; nilai mentah yang sampai di sini berarti
+            // prefs diubah di luar aplikasi - gagal tertutup.
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -201,7 +206,9 @@ public final class PinCrypto {
                 }
                 return verifikasiPbkdf2(parts, sha256(pinStr));
             }
-            return samakanHexLegasi(sha256(pinStr), stored);
+            // Audit 2767: format mentah ditolak, sama seperti
+            // varian String di atas.
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -535,33 +542,6 @@ public final class PinCrypto {
         } catch (Exception e) {
             return "";
         }
-    }
-
-    private static boolean samakanHexLegasi(String hexKecil, String stored) {
-        if (hexKecil == null || stored == null) {
-            return false;
-        }
-        int n = stored.length();
-        int awal = 0;
-        while (awal < n && stored.charAt(awal) <= ' ') {
-            awal++;
-        }
-        int akhir = n;
-        while (akhir > awal && stored.charAt(akhir - 1) <= ' ') {
-            akhir--;
-        }
-        if (akhir - awal != hexKecil.length()) {
-            return false;
-        }
-        int beda = 0;
-        for (int i = 0; i < hexKecil.length(); i++) {
-            char c = stored.charAt(awal + i);
-            if (c >= 'A' && c <= 'F') {
-                c = (char) (c + 32);
-            }
-            beda |= c ^ hexKecil.charAt(i);
-        }
-        return beda == 0;
     }
 
     static String hex(byte[] data) {

@@ -3253,6 +3253,7 @@ public final class TgBot {
         String hashTerbukti = "";
         synchronized (PinGate.KUNCI_PERCOBAAN) {
             String hash = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+            hash = PinGate.paksaMigrasiLegasi(ctx, sp, hash);
             long sisa2 = PinGate.sisaKunciMs(ctx, System.currentTimeMillis());
             if (sisa2 > 0) {
                 sisaKalah = sisa2;
@@ -3886,6 +3887,7 @@ public final class TgBot {
             // ke hash basi hasil bacaan luar kunci.
             String segarAwal = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
             hash = segarAwal == null ? "" : segarAwal;
+            hash = PinGate.paksaMigrasiLegasi(ctx, sp, hash);
             // Audit 791: cek ulang otoritatif di dalam kunci bersama —
             // tanpa ini percobaan bot dan UI bisa sama-sama lolos cek awal
             // dan sama-sama memverifikasi sebelum satu pun mencatat.

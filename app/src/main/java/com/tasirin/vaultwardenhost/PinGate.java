@@ -223,4 +223,32 @@ public final class PinGate {
     ServerService.catatLog("[app] Penguatan hash PIN gagal: " + ignored);
 }
     }
+
+    // Audit 2767: migrasi paksa SINKRON di titik verifikasi.
+    // kuatkanHashDini berjalan async dan bisa tak sempat jalan
+    // (proses mati sebelum antrean jalan) sehingga hash mentah
+    // bertahan selamanya; di sini pemanggil - yang sudah
+    // memegang KUNCI_PERCOBAAN - membungkusnya lebih dulu
+    // sebelum verify dipanggil, jadi verify tak pernah lagi
+    // berhadapan dengan format mentah di jalur aplikasi.
+    // Nilai balik = nilai tersimpan yang siap diverifikasi.
+    @SuppressLint("ApplySharedPref")
+    public static String paksaMigrasiLegasi(Context ctx,
+            SharedPreferences sp, String simpan) {
+        if (ctx == null || sp == null
+                || !PinCrypto.perluMigrasi(simpan)) {
+            return simpan;
+        }
+        String bungkus = PinCrypto.bungkusLegasi(simpan);
+        if (bungkus == null) {
+            return simpan;
+        }
+        try {
+            sp.edit().putString(KEY_PIN_HASH, bungkus).commit();
+        } catch (Exception ignored) {
+            ServerService.catatLog("[app] Migrasi paksa hash PIN"
+                    + " gagal disimpan: " + ignored);
+        }
+        return bungkus;
+    }
 }

@@ -254,11 +254,19 @@ public class PinCryptoTest {
     }
 
     @Test
-    public void hashLamaTetapDikenali() {
+    public void hashLamaMentahDitolakVerifikasi() {
+        // Audit 2767: format mentah tak lagi diterima verify -
+        // jalur aplikasi membungkusnya lebih dulu lewat
+        // PinGate.paksaMigrasiLegasi; format bungkus hasil
+        // migrasi itu yang lolos.
         String lama = PinCrypto.sha256("9999");
         assertFalse(PinCrypto.isNewFormat(lama));
-        assertTrue(PinCrypto.verify(lama, "9999"));
+        assertTrue(PinCrypto.perluMigrasi(lama));
+        assertFalse(PinCrypto.verify(lama, "9999"));
+        assertFalse(PinCrypto.verify(lama, "9999".toCharArray()));
         assertFalse(PinCrypto.verify(lama, "0000"));
+        String bungkus = PinCrypto.bungkusLegasi(lama);
+        assertTrue(PinCrypto.verify(bungkus, "9999"));
     }
 
     @Test

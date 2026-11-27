@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Hash PIN legasi mentah tidak lagi diterima (Audit 2767)
+
+Hash PIN format lama (SHA-256 polos tanpa garam) dulu bisa dipakai masuk selamanya karena migrasi otomatisnya berjalan di latar dan bisa tidak sempat jalan. Sekarang setiap jalur masuk (layar PIN dan bot) membungkus hash lama itu ke format kuat secara langsung sebelum memeriksa PIN, dan format mentahnya sendiri ditolak. Hash lama yang sudah terbungkus tetap bisa dipakai dan otomatis naik ke format terkuat sesudah masuk berhasil.
+
+
 ## [Belum rilis] — Perbaiki dua regresi gerbang dari batch sebelumnya
 
 Cek paritas isi README di cek-cepat kini tahan berkas hilang (kegagalan membaca satu README tidak lagi mematikan skrip sebelum pemindaian rahasia berjalan), dan skenario uji peringatan nomor Audit baru tidak lagi menodai pohon dasar dengan nomor racunnya sendiri. Keduanya tertangkap CI dan diperbaiki sebelum build APK berikutnya.
