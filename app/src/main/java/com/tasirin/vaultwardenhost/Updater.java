@@ -311,8 +311,16 @@ public final class Updater {
         if (!versiSamaPersis(latest, untuk)) {
             return false;
         }
-        if (at <= 0 || kiniWall < at) {
+        if (at <= 0) {
             return false;
+        }
+        // Audit 2984: stempel di masa depan (jam
+        // dikoreksi mundur) = jendela dianggap berlaku,
+        // selaras jendela tetangga yang fail-open - dulu
+        // jendela batal dan unduhan membuang round-trip
+        // ke URL latest yang 404.
+        if (kiniWall < at) {
+            return true;
         }
         return kiniWall - at < WV_FALLBACK_TUNDA_MS;
     }

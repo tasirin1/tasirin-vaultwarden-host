@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Jendela fallback binary tak lagi batal karena rollback jam (Audit 2984)
+
+- `Updater`: jendela 6 jam untuk mulai unduhan dari URL fallback dulu satu-satunya jendela yang batal total bila stempelnya berada di masa depan sesudah jam dikoreksi mundur — dua jendela tetangganya justru menganggap stempel masa depan sebagai berlaku. Akibatnya unduhan mulai dari URL latest yang belum terbit (404) dan membuang satu percobaan per putaran. Arahnya kini selaras: stempel masa depan berarti jendela berlaku; uji pengunci perilaku lamanya diperbarui di commit yang sama.
+
+
 ## [Belum rilis] — Sisa pembersihan clipboard tak lagi membengkak karena rollback jam (Audit 2983)
 
 - `LogActivity`: jalur pemulihan pembersihan clipboard otomatis menghitung sisa dari stempel jam dinding tanpa batas — salinan yang dibuat saat jam sedang maju, lalu aplikasi mati dan jam dikoreksi mundur, menjadwalkan pembersihan 30 detik ditambah seluruh selisih rollback ke depan, sehingga teks log bertahan di clipboard jauh melewati janji 30 detiknya. Sisa jalur dinding kini dibatasi jendela aslinya; sisa yang sah memang tidak mungkin melebihinya.

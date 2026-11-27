@@ -1757,7 +1757,8 @@ public class UpdaterTest {
         assertFalse(Updater.fallbackBinaryBerlaku("1.34.3", "1.34.3",
                 kini - Updater.WV_FALLBACK_TUNDA_MS - 1, kini));
         assertFalse(Updater.fallbackBinaryBerlaku("1.34.3", "1.34.3", 0, kini));
-        assertFalse(Updater.fallbackBinaryBerlaku("1.34.3", "1.34.3",
+        // Audit 2984: stempel masa depan kini berlaku.
+        assertTrue(Updater.fallbackBinaryBerlaku("1.34.3", "1.34.3",
                 kini + 1000, kini));
     }
 
