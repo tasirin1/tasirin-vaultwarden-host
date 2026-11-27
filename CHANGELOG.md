@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Mode --rentang (mode produksi CI) kini punya skenario cabangnya (Audit 2893)
+
+- Suite verifikasi kini memaku perilaku mode --rentang: rentang tak valid jatuh ke cadangan yang tetap memeriksa, rentang sah di pohon bersih lolos, dan repo satu commit gagal terang — bukan lolos diam-diam.
+
+
 ## [Belum rilis] — Cabang labeler, dependabot, dan kunci jobs workflow kini punya skenario (Audit 2908)
 
 - Suite verifikasi kini meracuni labeler.yml, dependabot.yml, dan kunci jobs sebuah workflow secara bergantian dan membuktikan gerbang gagal untuk ketiganya — cabang-cabang itu sebelumnya tanpa skenario sama sekali.

@@ -15574,6 +15574,57 @@ def _bagian_awal(tmp):
             rc == 0, "" if rc == 0 else out[-400:])
     shutil.rmtree(selaras0, ignore_errors=True)
 
+    def _rentang2893_racun(klon_r):
+        p = os.path.join(
+            klon_r, "app", "src", "main", "java", "com",
+            "tasirin", "vaultwardenhost", "Util.java")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "public final class Util {",
+                "public final class Util {\n"
+                "    static String ujiRentang2893(String s) "
+                "{ return s.toLowerCase(); }", 1))
+        p2 = os.path.join(klon_r, "CHANGELOG.md")
+        with open(p2, "a", encoding="utf-8") as f:
+            f.write("\n")
+
+    rentang2893a = klon(tmp, "rentang2893a")
+    _rentang2893_racun(rentang2893a)
+    git(rentang2893a, "add", "-A")
+    git(rentang2893a, "commit", "-qm", "racun rentang uji")
+    rc, out = jalan(rentang2893a,
+                    [sys.executable, GERBANG,
+                     "--rentang", "ngawur..banget"])
+    periksa("rentang tak valid: cadangan HEAD~1..HEAD "
+            "tetap menangkap racun (Audit 2893)",
+            rc != 0 and rc != 124 and "rentang tak valid"
+            in out and "tanpa Locale.US/" in out)
+    shutil.rmtree(rentang2893a, ignore_errors=True)
+
+    rentang2893b = klon(tmp, "rentang2893b")
+    rc, out = jalan(rentang2893b,
+                    [sys.executable, GERBANG,
+                     "--rentang", "HEAD~1..HEAD"])
+    periksa("rentang sah di pohon bersih: gerbang lolos "
+            "(Audit 2893)", rc == 0,
+            "" if rc == 0 else out[-400:])
+    shutil.rmtree(rentang2893b, ignore_errors=True)
+
+    rentang2893c = klon(tmp, "rentang2893c")
+    git(rentang2893c, "checkout", "-q", "--orphan",
+        "satu2893")
+    git(rentang2893c, "add", "-A")
+    git(rentang2893c, "commit", "-qm", "satu-satunya")
+    rc, out = jalan(rentang2893c,
+                    [sys.executable, GERBANG,
+                     "--rentang", "HEAD~1..HEAD"])
+    periksa("repo satu commit: gerbang gagal terang "
+            "bukan lolos diam-diam (Audit 2893)",
+            rc != 0 and rc != 124 and "tak terbaca" in out)
+    shutil.rmtree(rentang2893c, ignore_errors=True)
+
     def racun_workflow(nama, ubah, label, frag):
         klon_w = klon(tmp, nama)
         ubah(klon_w)
