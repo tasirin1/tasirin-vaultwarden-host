@@ -448,6 +448,15 @@ function proses(line,   awal, hd, sp, pos, s, ekort, hx, hv, ox, ov) {
     else { ekordgt = 0; if (match(ekort, /[0-9]+$/)) ekordgt = RLENGTH }
   } else { ekordgt = 0 }
   gsub(/[ \t\r\013\014\012]/, "", $0)
+  # Audit 2891: pemisah petik/kurung/backtick yang
+  # DIAPIT dua aksara token dilucuti, agar token yang
+  # dibelah satu aksara itu menyambung lagi. Pemisah
+  # yang tak diapit (rakitan string berpetik di kode
+  # uji) dibiarkan - fixture token yang memang dirakit
+  # dari potongan tidak ikut tertangkap.
+  while (match($0, /[A-Za-z0-9]["()`][A-Za-z0-9]/)) {
+    $0 = substr($0, 1, RSTART) substr($0, RSTART + 2)
+  }
   return $0
 }
 BEGIN {

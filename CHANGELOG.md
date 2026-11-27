@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Token terbelah tanda petik/kurung/backtick kini tertangkap cek-cepat (Audit 2891)
+
+- Fase bungkus cek-cepat kini mengupas juga aksara " ( ) dan backtick, menutup sisa celah token terbelah yang terbukti lolos. Belahan ':'/'-'/'_' untuk token GitHub ternyata sudah tertangkap charset badan polanya; tujuh skenario baru mengunci ketujuh pemisah itu ujung-ke-ujung di suite.
+
+
 ## [Belum rilis] — Hook pre-push kini ikut memindai branch/tag baru (Audit 3030)
 
 - Kait pre-push sekarang memverifikasi juga isi ref baru (branch atau tag yang belum ada di remote) dengan rentang dari titik temunya dengan main. Sebelumnya push campuran yang memuat ref baru lolos tanpa isi ref barunya pernah dipindai kait — hanya gerbang PR/CI yang tersisa sebagai jaringnya.

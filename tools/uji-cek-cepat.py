@@ -104,6 +104,22 @@ def _bagian_awal(tmp):
             rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(tokenjeda, ignore_errors=True)
 
+    ghpalsu = "gh" + "p_" + "A1" * 18
+    for nama_belah, sela in (
+            ("belahpetik", '\"'), ("belahkurung", "("),
+            ("belahtutup", ")"), ("belahbacktick", "`"),
+            ("belahtitikdua", ":"), ("belahstrip", "-"),
+            ("belahgarisbawah", "_")):
+        belah = klon(tmp, nama_belah)
+        tanam(belah, "catatan-" + nama_belah + ".txt",
+              "token uji: " + ghpalsu[:20] + sela
+              + ghpalsu[20:] + "\n", "w")
+        rc, out = jalan(belah, ["bash", SKRIP])
+        periksa("token gh dibelah " + repr(sela)
+                + " tertangkap (Audit 2891)",
+                rc != 0 and rc != 124 and "pola rahasia" in out)
+        shutil.rmtree(belah, ignore_errors=True)
+
     readme = klon(tmp, "readme")
     berkas_rm = os.path.join(readme, "README.id.md")
     with open(berkas_rm, encoding="utf-8") as f:
