@@ -15574,6 +15574,55 @@ def _bagian_awal(tmp):
             rc == 0, "" if rc == 0 else out[-400:])
     shutil.rmtree(selaras0, ignore_errors=True)
 
+    naik2907a = klon(tmp, "naik2907a")
+    berkas_main = os.path.join(
+        naik2907a, "app", "src", "main", "java", "com",
+        "tasirin", "vaultwardenhost", "Util.java")
+    with open(berkas_main, encoding="utf-8") as f:
+        isi_main = f.read()
+    with open(berkas_main, "w", encoding="utf-8") as f:
+        f.write(isi_main + "\n")
+    git(naik2907a, "add", "-A")
+    git(naik2907a, "commit", "-qm", "sentuh sumber tanpa changelog")
+    rc, out = jalan(naik2907a,
+                    [sys.executable, GERBANG,
+                     "--rentang", "HEAD~1..HEAD"])
+    periksa("sumber berubah tanpa CHANGELOG: gerbang gagal "
+            "(Audit 2907)",
+            rc != 0 and rc != 124 and "CHANGELOG" in out)
+    shutil.rmtree(naik2907a, ignore_errors=True)
+
+    naik2907b = klon(tmp, "naik2907b")
+    berkas_memo = None
+    for akar_b, _, berkas_b in os.walk(
+            os.path.join(naik2907b, "app", "src", "main", "java")):
+        if "MemoVersiCocok.java" in berkas_b:
+            berkas_memo = os.path.join(akar_b, "MemoVersiCocok.java")
+    assert berkas_memo, "MemoVersiCocok.java tak ditemukan"
+    with open(berkas_memo, encoding="utf-8") as f:
+        baris_memo = f.read().splitlines(keepends=True)
+    awal_m = next(i for i, l in enumerate(baris_memo)
+                  if "boolean cocokTahap1(" in l)
+    akhir_m = next(i for i in range(awal_m + 1, len(baris_memo))
+                   if baris_memo[i].rstrip() == "    }")
+    with open(berkas_memo, "w", encoding="utf-8") as f:
+        f.write("".join(baris_memo[:awal_m]
+                        + baris_memo[akhir_m + 1:]))
+    berkas_cl = os.path.join(naik2907b, "CHANGELOG.md")
+    with open(berkas_cl, encoding="utf-8") as f:
+        isi_cl = f.read()
+    with open(berkas_cl, "w", encoding="utf-8") as f:
+        f.write(isi_cl + "\n")
+    git(naik2907b, "add", "-A")
+    git(naik2907b, "commit", "-qm", "hapus metode tanpa catatan")
+    rc, out = jalan(naik2907b,
+                    [sys.executable, GERBANG,
+                     "--rentang", "HEAD~1..HEAD"])
+    periksa("metode terhapus tanpa bekas-hapusan: gerbang "
+            "gagal (Audit 2907)",
+            rc != 0 and rc != 124 and "bekas" in out.lower())
+    shutil.rmtree(naik2907b, ignore_errors=True)
+
     pohon2900 = klon(tmp, "pohon2900")
     kepala = "-----BEGIN RSA " + "PRIVATE" + " KEY-----"
     with open(os.path.join(pohon2900, "kunci-bocor.txt"),

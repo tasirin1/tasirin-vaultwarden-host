@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pengingat CHANGELOG dan catatan hapusan metode naik jadi kegagalan gerbang (Audit 2907)
+
+- Perubahan kode aplikasi tanpa entri CHANGELOG kini menggagalkan gerbang (sebelumnya hanya peringatan yang bisa diabaikan), begitu juga metode yang dihapus tanpa dicatat ke daftar bekas-hapusan. Izin berbahaya baru sudah lebih dulu menggagalkan; cek heuristik lain tetap peringatan.
+
+
 ## [Belum rilis] — Mode --semua kini memindai isi seluruh pohon untuk header kunci (Audit 2900)
 
 - Gerbang mode --semua sekarang memeriksa literal header kunci privat di isi semua berkas teks di pohon, bukan hanya baris diff terakhir — pelanggaran yang sudah ter-commit beberapa commit lalu tidak lagi lolos dari mode yang mengklaim memeriksa seluruh repo.

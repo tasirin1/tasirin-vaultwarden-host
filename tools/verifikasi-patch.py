@@ -24538,12 +24538,21 @@ def cek_definisi_baru(peringatan, diff):
                 peringatan.append("Definisi baru %s/%s tanpa acuan - hapus bila tak jadi dipakai"
                                   % (kunci, nama))
 
-def cek_pengingat_changelog(peringatan, berubah):
+def cek_pengingat_changelog(gagal, peringatan, berubah):
     if not berubah or "CHANGELOG.md" in berubah:
         return
+    # Audit 2907: perubahan sumber aplikasi (app/src/main
+    # atau shim) tanpa CHANGELOG kini GAGAL - aturan repo
+    # mewajibkan catatan per perubahan penting dan
+    # peringatan terbukti diabaikan. Perubahan yang hanya
+    # menyentuh build.gradle.kts tetap peringatan agar PR
+    # Dependabot (naik versi dependensi) tak tersandera.
     if any(b.startswith(("app/src/main/java/", "app/src/main/res/",
-                          "app/src/main/AndroidManifest.xml", "shim/",
-                          "app/build.gradle.kts")) for b in berubah):
+                          "app/src/main/AndroidManifest.xml", "shim/"))
+           for b in berubah):
+        gagal.append("Kode aplikasi berubah tanpa CHANGELOG.md "
+                     "- catat per rilis (aturan repo, Audit 2907)")
+    elif any(b.startswith("app/build.gradle.kts") for b in berubah):
         peringatan.append("Kode aplikasi berubah tanpa CHANGELOG.md — catat per rilis (aturan repo)")
 
 def cek_sinkron_terjemah(gagal):
@@ -26000,13 +26009,12 @@ def utama():
         # kali (bentuk union lama) membuang separuh panggilan git (Audit 777).
         hapus = berkas_dihapus("")
     cek_berkas_java_dihapus(gagal, hapus)
-    if not args.semua:
-        cek_pengingat_changelog(peringatan, berubah)
+    cek_pengingat_changelog(gagal, peringatan, berubah)
     if diff:
         cek_panggil_bekas_hapusan(gagal, diff)
         cek_locale_baru(gagal, diff)
         cek_metode_hilang(gagal, peringatan, diff, hapus)
-        cek_hapusan_belum_tercatat(peringatan, diff)
+        cek_hapusan_belum_tercatat(gagal, diff)
         cek_uji_baru(peringatan, diff)
         cek_uji_ubah(peringatan, diff)
         cek_pola_berisiko(peringatan, diff, berubah, rentang_cek)
