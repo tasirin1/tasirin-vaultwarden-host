@@ -2693,23 +2693,26 @@ public final class TgBot {
         }
     }
 
-    static void simpanLogin(Context ctx, long idRuang, String hash) {
+    static boolean simpanLogin(Context ctx, long idRuang, String hash) {
         if (ctx == null || idRuang <= 0 || hash == null || hash.isEmpty()) {
-            return;
+            return false;
         }
         try {
-            ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
+            // Audit 2961: commit() agar hasil tulisnya bisa
+            // dilaporkan jujur ke pemanggil (apply() gagal sunyi).
+            return ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .edit().putString(kunciSesiLogin(idRuang),
-                            nilaiSesiLogin(hash, System.currentTimeMillis())).apply();
+                            nilaiSesiLogin(hash, System.currentTimeMillis())).commit();
         } catch (Exception ignored) {
+            return false;
         }
     }
 
-    static void simpanLoginBilaHashTetap(Context ctx, long idRuang,
+    static boolean simpanLoginBilaHashTetap(Context ctx, long idRuang,
             String hashTerbukti) {
         if (ctx == null || idRuang < 0 || hashTerbukti == null
                 || hashTerbukti.isEmpty()) {
-            return;
+            return false;
         }
         synchronized (PinGate.KUNCI_PERCOBAAN) {
             try {
@@ -2717,9 +2720,11 @@ public final class TgBot {
                         ServerService.PREFS, Context.MODE_PRIVATE);
                 String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
                 if (hashTerbukti.equals(kini)) {
-                    simpanLogin(ctx, idRuang, kini);
+                    return simpanLogin(ctx, idRuang, kini);
                 }
+                return false;
             } catch (Exception ignored) {
+                return false;
             }
         }
     }
@@ -3229,7 +3234,15 @@ public final class TgBot {
             } catch (Exception ignored) {
             }
         }
-        simpanLoginBilaHashTetap(ctx, idRuang, hashTerbukti);
+        // Audit 2961: keberhasilan hanya dinyatakan bila
+        // sesi benar tersimpan - dulu balasan sukses dikirim
+        // juga saat penyimpanan diam-diam tak terjadi.
+        if (!simpanLoginBilaHashTetap(ctx, idRuang, hashTerbukti)) {
+            balas(ctx, idRuang, "PIN benar, tapi sesi login gagal disimpan"
+                    + " (PIN mungkin baru diganti atau penyimpanan"
+                    + " bermasalah). Coba /login lagi.");
+            return true;
+        }
         balas(ctx, idRuang, "Login berhasil. Semua perintah sekarang bisa"
                 + " langsung dipakai tanpa PIN selama 7 hari (atau sampai"
                 + " kamu /logout atau PIN diganti).");

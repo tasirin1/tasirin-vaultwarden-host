@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Balasan login bot kini hanya menyatakan berhasil bila sesi benar tersimpan (Audit 2961)
+
+- `TgBot`: balasan "Login berhasil" dulu dikirim tanpa syarat, padahal penyimpanan sesi bisa diam-diam tidak terjadi (hash PIN berubah di antara verifikasi dan penyimpanan, atau penulisan preferensi gagal tertelan) — pengguna mengira sudah login tetapi perintah berikutnya tetap meminta PIN. Penyimpanan sesi kini memakai `commit()` dan mengembalikan hasilnya, dan penangan login membalas jujur meminta `/login` lagi bila sesi gagal tersimpan.
+
+
 ## [Belum rilis] — Urutan kunci pemasangan unduhan diselaraskan agar tak bisa saling menunggu (Audit 2960)
 
 - `Updater.pasangHasilUnduh`: kunci berkas tujuan dulu diambil sebelum kunci berkas sementara, sedangkan jalur unduh binary memegang kunci sementara saat memanggil metode ini — urutan yang terbalik untuk pasangan kunci yang sama (pola deadlock laten). Urutan kini diselaraskan: kunci sementara selalu sebelum kunci tujuan, sama di semua jalur; isi pemasangan di dalam kedua kunci tidak berubah.
