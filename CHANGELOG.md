@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Isi README antar-terjemahan kini ikut diperiksa cek-cepat (Audit 2914)
+
+- Selain urutan level judul, cek-cepat kini membandingkan ukuran badan tiap seksi di ketiga README — seksi yang menyusut atau membengkak jauh di satu bahasa (drift terjemahan) menggagalkan gerbang.
+
+
 ## [Belum rilis] — Kontrak mode --hanya-workflow kini dipaku skenario (Audit 2894)
 
 - Satu skenario membuktikan pada klon yang sama: mode --hanya-workflow memang hanya menilai YAML .github (racun diff Java lolos di mode itu) sementara mode --semua menangkap racun yang sama — batas kedua mode kini terdokumentasi uji, bukan asumsi.

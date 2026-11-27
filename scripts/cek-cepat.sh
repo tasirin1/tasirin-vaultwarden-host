@@ -72,6 +72,28 @@ b=$(struktur_judul README.id.md || true)
 c=$(struktur_judul README.ru.md || true)
 if [ "$a" != "$b" ]; then gagal_msg "struktur judul README.md ($a) != README.id.md ($b)"; fi
 if [ "$a" != "$c" ]; then gagal_msg "struktur judul README.md ($a) != README.ru.md ($c)"; fi
+# Audit 2914: struktur judul sama belum berarti isi
+# sejajar - badan seksi bisa terhapus/drift total.
+# Ketiga README terjemahan dipertahankan sejajar
+# baris-demi-baris, jadi ukuran badan per seksi
+# dibandingkan: selisih > 3 baris antar-terjemahan
+# pada seksi yang sama = drift, gerbang gagal.
+ukuran_seksi() {
+  awk '/^```/ { f = !f; next } !f && /^#{1,6} / { if (n) printf "%d ", c; c = 0; n = 1; next } { c++ } END { if (n) printf "%d ", c }' "$1"
+}
+ua="$(ukuran_seksi README.md)"; ub="$(ukuran_seksi README.id.md)"; uc="$(ukuran_seksi README.ru.md)"
+read -ra A_UK <<< "$ua"; read -ra B_UK <<< "$ub"; read -ra C_UK <<< "$uc"
+if [ "${#A_UK[@]}" -eq "${#B_UK[@]}" ] && [ "${#A_UK[@]}" -eq "${#C_UK[@]}" ]; then
+  for i in "${!A_UK[@]}"; do
+    for pasangan in "B_UK" "C_UK"; do
+      eval "lain=\${${pasangan}[$i]}"
+      selisih=$(( A_UK[i] > lain ? A_UK[i] - lain : lain - A_UK[i] ))
+      if [ "$selisih" -gt 3 ]; then
+        gagal_msg "isi README tak sejajar: seksi ke-$((i + 1)) README.md ${A_UK[i]} baris vs ${pasangan} ${lain} baris - sinkronkan ketiga terjemahan"
+      fi
+    done
+  done
+fi
 
 POLA_TOKEN='gh[pousr]_[A-Za-z0-9_:-]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[abp]-[0-9A-Za-z-]{10,}|[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}'
 POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Za-z0-9[:blank:]]*PRIVATE KEY-----|$POLA_TOKEN"

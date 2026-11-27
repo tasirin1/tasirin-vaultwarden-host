@@ -142,6 +142,28 @@ def _bagian_awal(tmp):
             "(Audit 2931)", rc == 0, "" if rc == 0 else out[-400:])
     shutil.rmtree(readmepagar, ignore_errors=True)
 
+    readmeisi = klon(tmp, "readmeisi")
+    berkas_ri = os.path.join(readmeisi, "README.id.md")
+    with open(berkas_ri, encoding="utf-8") as f:
+        baris_ri = f.read().splitlines(keepends=True)
+    judul_ri = [i for i, l in enumerate(baris_ri)
+                if l.startswith("#")]
+    spans_ri = [(judul_ri[k] + 1,
+                 judul_ri[k + 1] if k + 1 < len(judul_ri)
+                 else len(baris_ri))
+                for k in range(len(judul_ri))]
+    awal_ri, akhir_ri = max(spans_ri,
+                            key=lambda sp: sp[1] - sp[0])
+    assert akhir_ri - awal_ri >= 10
+    with open(berkas_ri, "w", encoding="utf-8") as f:
+        f.write("".join(baris_ri[:awal_ri + 1]
+                        + baris_ri[awal_ri + 9:]))
+    rc, out = jalan(readmeisi, ["bash", SKRIP])
+    periksa("badan seksi README menyusut jauh: cek-cepat "
+            "gagal (Audit 2914)",
+            rc != 0 and rc != 124 and "isi README" in out)
+    shutil.rmtree(readmeisi, ignore_errors=True)
+
     vektor = klon(tmp, "vektor")
     tanam(vektor, "app/src/main/res/drawable/ic_uji_vektor.xml",
           "<vector xmlns:android="
