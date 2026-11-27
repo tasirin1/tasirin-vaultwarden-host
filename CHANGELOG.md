@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Klasifikasi crash kini membaca ekor log 200 baris, bukan 18 (Audit 2873)
+
+- `ServerService` (penangan proses keluar): penggolongan kernel-panic dan port-direbut dulu membaca 18 baris terakhir log — penanda dari binary bisa terdorong lebih jauh oleh baris-baris terakhirnya sendiri ditambah baris aplikasi, sehingga kasus yang seharusnya berhenti bersih dengan saran (ganti port / shim kernel) salah digolongkan sebagai crash biasa dan dikejar restart-loop sampai gerbang menghentikannya dengan pesan yang keliru. Jendela klasifikasi kini 200 baris; ekor pendek untuk pesan status tidak berubah.
+
+
 ## [Belum rilis] — Pagar restart per jam kini selamat dari start manual dan kematian proses (Audit 2872)
 
 - `ServerService`: gerbang restart-loop per jam (Audit 2760) bertumpu pada riwayat di memori yang terhapus dua jalan — setiap Start manual membersihkan seluruh riwayat lewat `lupakanRiwayatRestart`, dan kematian proses mengosongkannya sama sekali — sehingga loop crash yang diselingi start/proses-baru tak pernah memicu pagar. Kini `lupakanRiwayatRestart` hanya membersihkan jendela episode 5 menit dan penghitung percobaan (start manual memang awal episode baru), sedangkan stempel jendela 1 jam dipersistensikan ke prefs dan dimuat sekali per proses di `recordRestart`; stempel basi dan stempel dari boot sebelumnya tersaring oleh pengurai murni baru `uraiRiwayatRestartJam`/`gabungRiwayatRestartJam`. Ditambah uji JVM. Bagian laporan soal flap IP tidak ada di pohon ini; dua jalan reset yang nyata di sini keduanya ditutup.

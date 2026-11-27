@@ -2674,7 +2674,12 @@ public class ServerService extends Service {
             if (lepasProses(p, this::releaseWakeLockBilaBerhenti)) {
 
                 appendLog("[app] process exit: " + code);
-                String tail = tailLog(18);
+                // Audit 2873: klasifikasi membaca jendela
+                // lebar (200 baris) - penanda kernel-panic /
+                // port-direbut bisa terdorong jauh oleh
+                // baris terakhir binary; 18 baris membuat
+                // salah golong jadi crash biasa.
+                String tail = tailLog(200);
                 if (isKernelRandomPanic(tail)) {
 
                     autoRestart = false;
