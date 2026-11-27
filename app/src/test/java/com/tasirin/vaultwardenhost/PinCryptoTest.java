@@ -34,7 +34,7 @@ public class PinCryptoTest {
         assertTrue(PinCrypto.semuaAscii("123456"));
         assertTrue(PinCrypto.semuaAscii("deadbeef0123"));
         assertTrue(PinCrypto.semuaAscii(""));
-        assertTrue(PinCrypto.semuaAscii(null));
+        assertTrue(PinCrypto.semuaAscii((String) null));
         assertFalse(PinCrypto.semuaAscii("piné"));
         assertFalse(PinCrypto.semuaAscii("１２３"));
     }
@@ -346,7 +346,7 @@ public class PinCryptoTest {
     public void inputRusakDitolak() {
         assertFalse(PinCrypto.verify(null, "1"));
         assertFalse(PinCrypto.verify("", "1"));
-        assertFalse(PinCrypto.verify(PinCrypto.hash("1"), null));
+        assertFalse(PinCrypto.verify(PinCrypto.hash("1"), (String) null));
         assertFalse(PinCrypto.verify("PBKDF2$xxx", "1"));
         assertFalse(PinCrypto.verify("PBKDF2$0$zz$zz", "1"));
     }
