@@ -825,6 +825,12 @@ public class SettingsActivity extends Activity {
                                 pinGantiKandidat = null;
                                 bersihkanPin(pinInput);
                             })
+                            // Audit 2956: batal lewat Back / sentuhan
+                            // di luar dialog juga wajib membersihkan
+                            // kandidat - tanpa ini kandidat basi
+                            // menelan upaya ganti PIN yang sama
+                            // selama sisa sesi.
+                            .setOnCancelListener(d -> pinGantiKandidat = null)
                             .create());
                 };
                 ui.postDelayed(pinTunda, 800);

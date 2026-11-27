@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Dialog ganti PIN yang dibatalkan lewat Back tak lagi meninggalkan kandidat basi (Audit 2956)
+
+- `SettingsActivity`: kandidat PIN baru disetel sebelum dialog konfirmasi tampil dan hanya dibersihkan oleh tombol Batal — membatalkan dialog lewat tombol Back atau sentuhan di luar tidak membersihkan apa pun, sehingga penjaga kesamaan kandidat menelan semua upaya berikutnya untuk PIN yang sama dan dialog tidak pernah tampil lagi selama sesi itu. Dialog kini memasang `OnCancelListener` yang membersihkan kandidat.
+
+
 ## [Belum rilis] — Alur build di AGENTS.md dikoreksi: CI menjalankan paruh suite, bukan berkas utama (Audit 2953)
 
 - `AGENTS.md`: langkah gerbang bersama dulu menyebut `python3 tools/uji-verifikasi.py` sebagai yang dijalankan CI dan daftar struktur menandainya "langkah tetap CI" — padahal workflow hanya menjalankan paruhnya (`uji-verifikasi-1.py` + `uji-verifikasi-2.py`); berkas utama hanya memuat definisi skenario, persis seperti `uji-cek-cepat.py` yang sudah tertulis benar di dokumen yang sama. Ketiga sebutan kini selaras dengan workflow.
