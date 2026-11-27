@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Fallback TLS tidak lagi memakai kunci privat dari storage publik
+
+Bila penyiapan sertifikat di storage internal gagal, server selama ini boleh jalan memakai ca-key.pem/key.pem lama dari folder data di storage publik (FAT, bisa dibaca aplikasi lain berizin storage) — hanya diperingatkan di log. Kini fallback ke folder publik ditolak mentah-mentah: Start gagal dengan pesan jelas agar pengguna memeriksa ruang/izin internal lalu Start ulang. Fallback ke folder non-publik tidak berubah. Predikat bolehFallbackTls kini satu argumen (bukan penghapusan metode); uji JVM-nya diperbarui.
+
+Closes #2761
+
+
 ## [Belum rilis] — Restart lambat kini ikut dihentikan permanen (maks 10x per jam)
 
 Penahan restart berulang selama ini hanya jendela geser 5 menit (maks 3x) plus cacah percobaan yang ter-reset tiap server hidup >60 detik — server yang crash tiap ~3 menit lolos dari keduanya dan restart selamanya. recordRestart kini juga menghitung restart dalam jendela absolut 1 jam (maks 10x, tidak direset uptime); melewati batas itu auto-restart dimatikan permanen dengan status, log, dan pemberitahuan Telegram yang sama seperti jalur 5 menit. Riwayat per jam ikut dilupakan saat Start manual. Helper murni baru hitungRestartJendela teruji JVM; hitungRestartBaru kini membungkusnya agar uji lama tetap berlaku.

@@ -4561,8 +4561,8 @@ public class ServerService extends Service {
                 || kanon.equals("/mnt/media_rw") || kanon.startsWith("/mnt/media_rw/");
     }
 
-    static boolean bolehFallbackTls(boolean publik, boolean siapPakai) {
-        return !publik || siapPakai;
+    static boolean bolehFallbackTls(boolean publik) {
+        return !publik;
     }
 
     private File prepareTls(File dataFolder) {
@@ -4582,16 +4582,9 @@ public class ServerService extends Service {
 
                 File lama = new File(dataFolder, "tls");
                 boolean publik = diStoragePublik(kanonAman(lama));
-                boolean siap = TlsCert.siapPakaiTanpaTulis(lama);
-                if (bolehFallbackTls(publik, siap)) {
-                    if (publik) {
-                        appendLog("[app] PERINGATAN: internal gagal, memakai TLS lama"
-                                + " di storage publik apa adanya (tanpa menulis kunci).");
-                        dir = lama;
-                    } else {
-                        dir = ensureCertWithIps(lama, new File(lama, "ips.txt"),
-                                ips, cur);
-                    }
+                if (bolehFallbackTls(publik)) {
+                    dir = ensureCertWithIps(lama, new File(lama, "ips.txt"),
+                            ips, cur);
                 } else {
                     appendLog("[app] Gagal siapkan TLS di internal; kunci privat TIDAK"
                             + " dibuat di storage publik (" + lama.getAbsolutePath()

@@ -841,9 +841,8 @@ public class ServerServiceTest {
         assertTrue(ServerService.diStoragePublik(null));
         assertFalse(ServerService.diStoragePublik("/data/data/com.tasirin.vaultwardenhost/files/tls"));
         assertFalse(ServerService.diStoragePublik("/data/user/0/com.tasirin.vaultwardenhost/files/tls"));
-        assertFalse(ServerService.bolehFallbackTls(true, false));
-        assertTrue(ServerService.bolehFallbackTls(true, true));
-        assertTrue(ServerService.bolehFallbackTls(false, false));
+        assertFalse(ServerService.bolehFallbackTls(true));
+        assertTrue(ServerService.bolehFallbackTls(false));
     }
 
     private static final class ProsesPalsu extends Process {
