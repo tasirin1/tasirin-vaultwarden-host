@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Rollback restore kini memasang kembali pendamping -wal/-shm pre-backup (Audit 2817)
+
+- `TgBackup.pasangDbDariSalinan`: sesudah berkas utama salinan pengaman terpasang, pendamping `-wal`/`-shm` salinan itu (bila ada) kini ikut disalin ke sisi database hasil rollback. Pendamping tersebut ditulis `salinPendampingWal` persis untuk keadaan database yang transaksi terbarunya hanya hidup di WAL — sebelumnya pendamping tidak pernah dibaca kembali, sementara WAL live sudah dihapus, sehingga rollback membuang transaksi itu secara permanen. Salinan tanpa pendamping tidak berubah perilakunya.
+
+
 ## [Belum rilis] — Pesan restore membedakan WAL yang tergabung vs gagal tergabung (Audit 2818)
 
 - `TgBackup.pasangDbRestoreAtomik`: hasil `checkpointWal` pada DB staging tidak lagi dibuang — kegagalannya dicatat di log dan disimpan sebagai keadaan restore terakhir. Pesan hasil restore kini jujur dua arah: bila checkpoint berhasil, pesan menyebut entri `-wal`/`-shm` backup berhasil digabungkan ke database; bila gagal, barulah peringatan transaksi hilang ditampilkan. Sebelumnya pesan selalu mengklaim transaksi WAL tidak ikut dipulihkan — salah saat checkpoint berhasil, dan tak terbedakan dari keberhasilan saat checkpoint benar-benar gagal.

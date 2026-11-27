@@ -4831,6 +4831,24 @@ public final class TgBackup {
         if (!staging.renameTo(new File(dataFolder, "db.sqlite3"))) {
             throw new IOException("Gagal memasang database pengaman");
         }
+        // Audit 2817: pendamping -wal/-shm salinan (bila ada)
+        // ikut dipasang di sisi DB hasil rollback. Pendamping
+        // itu ditulis salinPendampingWal persis untuk keadaan
+        // transaksi terbaru hanya hidup di WAL; dulu ia tak
+        // pernah dibaca kembali sehingga rollback membuang
+        // transaksi itu permanen (WAL live sudah dihapus).
+        if (sumber.getParentFile() != null) {
+            File walSalinan = new File(sumber.getParentFile(),
+                    sumber.getName() + "-wal");
+            if (walSalinan.isFile()) {
+                copyFile(walSalinan, new File(dataFolder, "db.sqlite3-wal"));
+            }
+            File shmSalinan = new File(sumber.getParentFile(),
+                    sumber.getName() + "-shm");
+            if (shmSalinan.isFile()) {
+                copyFile(shmSalinan, new File(dataFolder, "db.sqlite3-shm"));
+            }
+        }
     }
 
     private static void sinkronBerkas(File f) {
