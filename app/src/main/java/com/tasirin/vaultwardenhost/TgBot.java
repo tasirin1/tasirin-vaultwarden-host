@@ -4137,9 +4137,22 @@ public final class TgBot {
         return maks > 0 && kini < maks - TOLERANSI_JAM_MS;
     }
 
+    // Audit 2970: menaiki kembali sampai setinggi
+    // penanda tersimpan bukan lompatan mencurigakan -
+    // perangkat sungguh pernah mencapai waktu itu.
+    static boolean wallBolehCatat(long maksKini, long tersimpan, long kini) {
+        if (wallBolehMaju(maksKini, kini)) {
+            return true;
+        }
+        return kini >= 1_000_000_000_000L && kini > maksKini
+                && tersimpan > 0 && kini <= tersimpan;
+    }
+
     static void catatWall(long kini) {
         synchronized (KUNCI_WALL) {
-            if (wallBolehMaju(wallMaksTelegram, kini)) {
+            long tersimpan = wallMaksTersimpan == Long.MIN_VALUE
+                    ? 0 : wallMaksTersimpan;
+            if (wallBolehCatat(wallMaksTelegram, tersimpan, kini)) {
                 wallMaksTelegram = kini;
             }
         }
@@ -4155,16 +4168,17 @@ public final class TgBot {
                     ServerService.PREFS, Context.MODE_PRIVATE);
             long s = TgBackup.amanLong(sp, KEY_TG_WALL_MAKS, 0);
 
-            if (s - System.currentTimeMillis() > BATAS_LOMPATAN_JAM_MS) {
-                s = 0;
-                try {
-                    sp.edit().remove(KEY_TG_WALL_MAKS).apply();
-                } catch (Exception ignored) {
-                }
-            }
+            // Audit 2970: penanda tersimpan TIDAK lagi
+            // dihapus walau jauh di depan jam sekarang -
+            // jam sekarang bisa jadi yang salah (boot
+            // tertinggal). Ia hanya tidak ditanamkan ke
+            // jangkar ingatan; catatWall boleh menaiki
+            // kembali sampai setingginya (wallBolehCatat).
             wallMaksTersimpan = s;
             synchronized (KUNCI_WALL) {
-                if (s > wallMaksTelegram) {
+                if (s > wallMaksTelegram
+                        && s - System.currentTimeMillis()
+                                <= BATAS_LOMPATAN_JAM_MS) {
                     wallMaksTelegram = s;
                 }
             }

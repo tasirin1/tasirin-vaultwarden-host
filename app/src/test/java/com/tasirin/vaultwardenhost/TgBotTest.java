@@ -835,6 +835,22 @@ public class TgBotTest {
     }
 
     @Test
+    public void wallBolehCatat_naikKembaliKePenandaTersimpan() {
+        // Audit 2970: boot tertinggal (jangkar 2020) +
+        // penanda tersimpan 2026 -> sesudah NTP, naik
+        // kembali ke 2026 wajib boleh; melampaui penanda
+        // tetap tunduk batas lompatan biasa.
+        long t2020 = 1577836800000L;
+        long t2026 = 1767225600000L;
+        long t2030 = 1893456000000L;
+        assertTrue(TgBot.wallBolehCatat(t2020, t2026, t2026));
+        assertTrue(TgBot.wallBolehCatat(t2020, t2026, t2020 + 1000));
+        assertFalse(TgBot.wallBolehCatat(t2020, t2026, t2030));
+        assertFalse(TgBot.wallBolehCatat(t2020, 0, t2026));
+        assertFalse(TgBot.wallBolehCatat(0, t2026, 1000));
+    }
+
+    @Test
     public void wakelockTugasBeratCukupUntukUnduhanLambat() {
 
         long menit = TgBot.WAKELOCK_TUGAS_BERAT_MS / 60_000L;

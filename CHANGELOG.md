@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penanda jam tertinggi bot tak lagi dihapus saat boot tertinggal (Audit 2970)
+
+- `TgBot`: penanda waktu tertinggi tersimpan dulu dihapus bila terlihat lebih dari 30 hari di depan jam sekarang — padahal pada STB yang boot dengan jam tertinggal, penanda itulah yang benar; sesudah terhapus dan tertambat ulang ke jam boot, lompatan kembali sesudah sinkronisasi ditolak batas lompatan dan deteksi jam mundur mati permanen. Penanda kini dipertahankan: tidak ditanamkan ke jangkar ingatan bila jauh di masa depan, tetapi pencatatan waktu boleh menaiki kembali sampai setingginya karena waktu itu sungguh pernah dicapai perangkat. Keputusan pencatatannya fungsi murni yang diuji JVM.
+
+
 ## [Belum rilis] — Keberhasilan coba-ulang hapus pesan kini ikut membersihkan bendera peringatan (Audit 2969)
 
 - `TgBot.cobaHapusTertunda`: saat penghapusan tertunda akhirnya berhasil, entri dicoret tetapi bendera peringatan hapus tidak pernah dibersihkan — jalur segar melakukannya lewat penanda sukses, jalur coba-ulang tidak, sehingga status peringatan lama bertahan walau kemampuan hapus bot sudah pulih. Cabang sukses jalur milik-sendiri kini memanggil penanda sukses yang sama.
