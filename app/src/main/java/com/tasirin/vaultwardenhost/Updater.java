@@ -1597,8 +1597,15 @@ public final class Updater {
                     .remove(KEY_BIN_FALLBACK_AT)
                     .remove(KEY_CEK_GANGGUAN_AT).apply();
         }
-        String current = versiSaatIni(ctx, realJalan);
-        if (!paksa && !butuhRefresh && versiMelebihiAtauPersis(current, latest)) {
+        // Audit 2853: keputusan "sudah terbaru" di sini wajib
+        // berdasar berkas di disk (realBerkas), BUKAN
+        // versiSaatIni() yang jatuh ke penanda pref
+        // KEY_UPDATE_VERSION / versi bundel - penanda itu bisa
+        // menyamai latest padahal binary belum ada sama sekali
+        // (instalasi baru) atau sudah diganti manual dengan
+        // versi lebih lama/rusak, dan cek update berbohong
+        // "sudah terbaru" tanpa mengunduh apa pun.
+        if (!paksa && !butuhRefresh && versiMelebihiAtauPersis(realBerkas, latest)) {
             return sebutan + latest;
         }
 

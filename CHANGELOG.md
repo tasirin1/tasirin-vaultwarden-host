@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cek update tak lagi percaya penanda versi tanpa binary di disk (Audit 2853)
+
+- `Updater.tryUpdateVersi`: keputusan terakhir "Sudah versi terbaru" dulu memakai `versiSaatIni()`, yang bila server berhenti jatuh ke penanda pref `KEY_UPDATE_VERSION` atau versi bundel di APK — keduanya tidak membuktikan binary benar-benar ada di disk. Pada instalasi baru (penanda = versi bundel = versi terbaru) cek update mengklaim sudah terbaru padahal binary belum diunduh sama sekali; hal yang sama terjadi bila binary diganti manual dengan versi lebih lama/rusak sementara penanda tetap baru. Cek itu kini memakai `realBerkas` — versi berkas binary di disk yang terikat sidik berkas (Audit 1604) — sehingga penanda sendirian tidak bisa lagi membatalkan unduhan; jalur Start tetap memulihkan lewat `ensureBinary` seperti sebelumnya.
+
+
 ## [Belum rilis] — Penanda versi terumumkan tak lagi ditulis bila kedua kanal pengumuman mustahil (Audit 2859)
 
 - `AutoUpdate`: penanda `tg_notified_version` dulu ditulis tanpa syarat sesudah pengumuman "dicoba" — termasuk bila izin notifikasi belum diberikan DAN Telegram belum dikonfigurasi, sehingga versi itu tidak pernah diumumkan lagi selamanya. Argumen `pengumumanDicoba` kini dihitung jujur: notifikasi benar-benar tampil, atau Telegram siap (token dan chat terisi). Bila kedua kanal mustahil, penanda tidak ditulis dan pengumuman diulang pada cek berikutnya sesudah ada kanal yang hidup. Pelajaran lama tetap dijaga: izin notifikasi mati tetapi Telegram terkonfigurasi tetap menulis penanda, jadi tidak ada pesan Telegram terkirim ulang tiap aplikasi dibuka (Audit 599/609).
