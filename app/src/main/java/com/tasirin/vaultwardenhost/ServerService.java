@@ -503,6 +503,13 @@ public class ServerService extends Service {
     private static final java.util.concurrent.atomic.AtomicInteger startTertundaJam =
             new java.util.concurrent.atomic.AtomicInteger(0);
 
+    // Audit 2874: penghitung coba-lagi start saat
+    // antrean tugas penuh.
+    private static final java.util.concurrent.atomic.AtomicInteger startTertundaAntre =
+            new java.util.concurrent.atomic.AtomicInteger(0);
+
+    static final int BATAS_START_TERTUNDA_ANTRE = 12;
+
     static final int BATAS_START_TERTUNDA_JAM = 30;
 
     static final long TUNDA_START_JAM_MS = 60_000;
@@ -1515,6 +1522,7 @@ public class ServerService extends Service {
         batalStart = false;
         startTertundaData.set(0);
         startTertundaJam.set(0);
+        startTertundaAntre.set(0);
         healthActive = true;
         simpanNiatJalan(true);
 
@@ -2023,8 +2031,29 @@ public class ServerService extends Service {
         if (!masuk) {
 
             starting.set(false);
-            appendLog("[app] Antrean tugas penuh - Start ditunda, coba lagi.");
-            setStatus("Antrean penuh - Start ditunda. Tekan Start lagi.");
+            // Audit 2874: dulu start menyerah di sini -
+            // perintah /start dari bot berhenti dalam
+            // diam sesudah "Perintah diterima". Kini
+            // dicoba lagi otomatis lewat jalur tunda
+            // yang sama seperti kunci-data/jam.
+            int nAntre = startTertundaAntre.getAndIncrement();
+            if (nAntre < BATAS_START_TERTUNDA_ANTRE) {
+                appendLog("[app] Antrean tugas penuh - Start dicoba lagi otomatis.");
+                setStatus("Antrean penuh - Start dicoba lagi otomatis.");
+                batalUtama(startTunda);
+                posUtama(startTunda, 5000);
+            } else {
+                startTertundaAntre.set(0);
+                appendLog("[app] Antrean tugas penuh terus - Start menyerah"
+                        + " sesudah " + BATAS_START_TERTUNDA_ANTRE
+                        + " percobaan; tekan Start lagi.");
+                setStatus("Antrean penuh - Start gagal. Tekan Start lagi.");
+                TgBackup.sendMessage(this, "Start server gagal: antrean tugas"
+                        + " aplikasi penuh terus. Tekan Start lagi dari"
+                        + " aplikasi atau kirim /start sesaat lagi.");
+            }
+        } else {
+            startTertundaAntre.set(0);
         }
     }
 

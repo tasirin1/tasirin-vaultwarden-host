@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Start saat antrean penuh kini mencoba lagi otomatis, bukan menyerah diam (Audit 2874)
+
+- `ServerService.startServerAsync`: bila antrean tugas latar penuh, start dulu hanya mencatat log dan status lalu berhenti — perintah `/start` dari bot mati dalam diam sesudah balasan "Perintah diterima", padahal jalur penundaan lain (kunci data, jam TLS) mencoba lagi otomatis. Kini antrean-penuh menjadwalkan coba-lagi lewat mekanisme tunda yang sama (maksimal 12 kali jeda 5 detik), penghitungnya ter-reset saat start berhasil masuk antrean atau ada Start manual baru, dan kehabisan percobaan mengirim kabar Telegram beserta status yang jelas.
+
+
 ## [Belum rilis] — Klasifikasi crash kini membaca ekor log 200 baris, bukan 18 (Audit 2873)
 
 - `ServerService` (penangan proses keluar): penggolongan kernel-panic dan port-direbut dulu membaca 18 baris terakhir log — penanda dari binary bisa terdorong lebih jauh oleh baris-baris terakhirnya sendiri ditambah baris aplikasi, sehingga kasus yang seharusnya berhenti bersih dengan saran (ganti port / shim kernel) salah digolongkan sebagai crash biasa dan dikejar restart-loop sampai gerbang menghentikannya dengan pesan yang keliru. Jendela klasifikasi kini 200 baris; ekor pendek untuk pesan status tidak berubah.
