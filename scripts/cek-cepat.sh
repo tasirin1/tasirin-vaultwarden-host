@@ -399,6 +399,21 @@ function celahBersih(s, n,   i) {
   }
   return 1
 }
+function celahUnit(s, n,   i, c) {
+  # Audit 2892: celah 1-2 pola lama berbentuk unit
+  # ([A-Za-z0-9_]|--+) - tanda minus WAJIB beruntun
+  # minimal dua; minus tunggal di tengah celah membuat
+  # pola lama tak cocok. Tanpa aturan ini dokumen contoh
+  # header teredaksi (Audit 1554: 'CONTOH-' ber-minus
+  # tunggal) ikut terflag - terbukti di suite.
+  for (i = 1; i <= n; i++) {
+    c = substr(s, i, 1)
+    if (c ~ /[A-Za-z0-9_]/) continue
+    if (c == "-" && (substr(s, i - 1, 1) == "-" || substr(s, i + 1, 1) == "-")) continue
+    return 0
+  }
+  return 1
+}
 function kenaHeader(b,   sisa, p, s2, q, s3, r, s4, t, ekor, i, c) {
   # Audit 2892: header kunci dicari dengan hitungan
   # posisi antar penanda, TANPA regex bercelah besar
@@ -415,10 +430,10 @@ function kenaHeader(b,   sisa, p, s2, q, s3, r, s4, t, ekor, i, c) {
   while ((p = index(sisa, "-----BEGIN")) > 0) {
     s2 = substr(sisa, p + 10)
     while ((q = index(s2, "PRIVATE")) > 0 && q <= 601) {
-      if (celahBersih(s2, q - 1)) {
+      if (celahUnit(s2, q - 1)) {
         s3 = substr(s2, q + 7)
         while ((r = index(s3, "KEY")) > 0 && r <= 601) {
-          if (celahBersih(s3, r - 1)) {
+          if (celahUnit(s3, r - 1)) {
             s4 = substr(s3, r + 3)
             t = index(s4, "-----")
             if (t > 0 && t <= 601 && celahBersih(s4, t - 1)) {
