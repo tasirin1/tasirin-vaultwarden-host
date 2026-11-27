@@ -2817,6 +2817,18 @@ public final class Updater {
             }
         }
         String capWv = versiWvUntukCap(latest, wvFallback);
+        if (capWv == null && wvFallback) {
+            // Audit 3010: fallback memasang zip versi
+            // lain dari yang diminta - cap versi diambil
+            // dari berkas versi yang baru terpasang di
+            // disk, agar penanda versi konsisten dengan
+            // penanda SHA yang juga diperbarui di bawah.
+            String diDisk = readWvVersion(new File(
+                    dataFolder, "web-vault/vw-version.json"));
+            if (diDisk != null && !diDisk.isEmpty()) {
+                capWv = normVersion(diDisk);
+            }
+        }
         if (capWv != null) {
             sp.edit().putString(KEY_WV_FROM, capWv).commit();
         }

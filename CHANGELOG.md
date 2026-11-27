@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penanda versi web-vault konsisten sesudah pemasangan fallback (Audit 3010)
+
+- `Updater`: pemasangan web-vault lewat jalur cadangan (zip fallback, bukan rilis yang diminta) dulu tidak menulis penanda versi tetapi tetap memperbarui penanda SHA — akibatnya tawaran update otomatis, layar utama, dan /info menampilkan versi lama (dan bisa menawarkan update yang tidak bisa dipasang) sementara About dan /versi yang membaca dari disk benar. Cap versi pada jalur fallback kini diambil dari berkas versi yang baru terpasang di disk.
+
+
 ## [Belum rilis] — Salinan berkas restore dari penyedia cloud kini bertenggat 10 menit (Audit 3007)
 
 - `SettingsActivity`: menyalin berkas backup pilihan dari penyedia dokumen (mis. Drive) dulu tanpa batas waktu — penyedia yang macet di tengah kirim membuat salinan menggantung selamanya dan semua tugas Settings terkunci sampai aplikasi dimatikan paksa. Salinan kini bertenggat total 10 menit: pemeriksaan tenggat tiap blok plus thread penjaga yang menutup aliran saat tenggat lewat agar baca yang menggantung ikut putus, dengan pesan galat yang jelas.
