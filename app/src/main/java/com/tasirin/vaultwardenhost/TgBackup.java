@@ -2961,8 +2961,29 @@ public final class TgBackup {
         }
         for (int percobaan = 0; percobaan < 2; percobaan++) {
             HttpURLConnection conn = null;
+            // Audit 2880: pengawas tenggat unggah - putus
+            // koneksi dari benang lain adalah satu-satunya
+            // cara menghentikan tulis yang macet total.
+            final boolean[] unggahSelesai = {false};
+            Thread pengawas = null;
             try {
                 conn = (HttpURLConnection) tujuanKirim.openConnection();
+                final HttpURLConnection connAwasi = conn;
+                pengawas = new Thread(() -> {
+                    try {
+                        Thread.sleep(batasUnggahMs(file.length()));
+                    } catch (InterruptedException ie) {
+                        return;
+                    }
+                    if (!unggahSelesai[0]) {
+                        try {
+                            connAwasi.disconnect();
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }, "vw-tg-unggah-anjing");
+                pengawas.setDaemon(true);
+                pengawas.start();
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
                 conn.setConnectTimeout(20000);
@@ -3042,12 +3063,24 @@ public final class TgBackup {
                 throw new IOException("Telegram "
                         + TgBot.ringkasGalatTelegram(sb, code));
             } finally {
+                unggahSelesai[0] = true;
+                if (pengawas != null) {
+                    pengawas.interrupt();
+                }
                 if (conn != null) {
                     conn.disconnect();
                 }
             }
         }
         throw new IOException("Telegram tetap membatasi unggahan.");
+    }
+
+    // Audit 2880: tenggat total satu percobaan unggah -
+    // dasar 120 detik + jatah alir 16 KB/detik dari
+    // ukuran berkas, dibatasi 30 menit.
+    static long batasUnggahMs(long ukuran) {
+        long ms = 120_000L + Math.max(0L, ukuran) / 16L;
+        return Math.min(ms, 30L * 60_000L);
     }
 
     // Audit 793: file_id yang dipakai untuk chat berikutnya — hasil ekstrak

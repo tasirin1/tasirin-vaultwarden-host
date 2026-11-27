@@ -1771,6 +1771,14 @@ public class TgBackupTest {
     }
 
     @Test
+    public void batasUnggahMs_dasarPlusJatahUkuran() {
+        // Audit 2880.
+        assertEquals(120_000L, TgBackup.batasUnggahMs(0));
+        assertEquals(120_000L + 62_500L, TgBackup.batasUnggahMs(1_000_000L));
+        assertEquals(30L * 60_000L, TgBackup.batasUnggahMs(1_000_000_000L));
+    }
+
+    @Test
     public void labelPesan_cuplikSatuBarisMaks60() {
         // Audit 2879.
         assertEquals("(pesan kosong)", TgBackup.labelPesan(null));

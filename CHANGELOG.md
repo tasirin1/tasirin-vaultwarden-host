@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Unggahan backup kini bertenggat total — koneksi macet tak lagi menahan kunci backup (Audit 2880)
+
+- `TgBackup` (unggah multipart dokumen): `HttpURLConnection` tidak menyediakan batas waktu tulis, jadi koneksi yang macet di tengah unggah menahan kunci backup tanpa batas waktu. Tiap percobaan kini dipasangi benang pengawas yang memutus koneksi bila tenggat total lewat — dasar 120 detik ditambah jatah alir 16 KB/detik dari ukuran berkas, maksimal 30 menit (helper murni `batasUnggahMs`); unggahan yang selesai normal membongkar pengawasnya. Ditambah uji JVM.
+
+
 ## [Belum rilis] — Pesan yang gugur dari antrean penuh kini teridentifikasi isinya di log (Audit 2879)
 
 - `TgBackup`: penangan penolakan antrean pesan dulu membuang pesan tertua dan hanya mencatat "pesan tertua dibuang" — pesan penting yang hilang tak bisa dilacak isinya. Semua tugas kirim (tiga eksekutor pesan) kini dibungkus `TugasPesan` berlabel cuplikan isi pesan yang tersamar (satu baris, maksimal 60 aksara, helper murni `labelPesan`), dan penangan penolakan mencatat label tugas yang terbuang. Ditambah uji JVM.
