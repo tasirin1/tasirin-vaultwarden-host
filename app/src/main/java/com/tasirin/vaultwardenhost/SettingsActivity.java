@@ -2333,6 +2333,29 @@ public class SettingsActivity extends Activity {
         boolean zipCfgAda = false;
         try {
 
+            // Audit 3018: cek ruang di depan seperti jalur
+            // bot - dulu jalur picker langsung mematikan
+            // server dan membuat pre-backup walau ruang
+            // jelas tak cukup, kegagalannya baru muncul di
+            // tengah jalan sebagai downtime yang sia-sia.
+            long sisaRuang = TgBackup.freeBytes(
+                    SettingsActivity.this, dataDir);
+            if (sisaRuang < 0) {
+                appendUiLog("[app] Cek ruang restore tak bisa"
+                        + " dilakukan (ruang bebas tak terbaca)"
+                        + " - cek dilewati.");
+            } else if (berkas.length() + 5L * 1024 * 1024 > sisaRuang) {
+                toast(getString(R.string.restore_gagal,
+                        "storage tidak cukup (butuh "
+                                + TgBackup.humanBytes(berkas.length()
+                                        + 5L * 1024 * 1024)
+                                + ", sisa "
+                                + TgBackup.humanBytes(sisaRuang) + ")"));
+                appendUiLog("[app] Restore dibatalkan: ruang bebas"
+                        + " tak cukup.");
+                return;
+            }
+
             if (!ServerService.stopAndWait(SettingsActivity.this,
                     ServerService.ANGGARAN_STOP_MIN_MS)) {
                 toast(getString(R.string.restore_server_gagal_stop));

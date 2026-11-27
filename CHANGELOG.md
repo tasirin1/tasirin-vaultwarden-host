@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Restore via pemilih berkas kini mengecek ruang bebas sebelum server berhenti (Audit 3018)
+
+- Jalur restore dari pemilih berkas di Settings kini menolak di depan bila ruang bebas jelas tak cukup (ukuran berkas ditambah margin), sama seperti jalur bot — sebelumnya server terlanjur dimatikan dan pre-backup terlanjur dibuat sebelum kegagalan ruang muncul di tengah proses.
+
+
 ## [Belum rilis] — Restore-dari-Telegram di Settings kini menahan kunci sejak sebelum unduh (Audit 3017)
 
 - Alur restore dari Telegram di Settings kini mengambil kunci tugas data sebelum mengunduh backup dan menahannya selama dialog konfirmasi tampil, sama seperti jalur bot. Sebelumnya backup yang baru tiba selama dialog tampil bisa membuat pengguna tanpa sadar memulihkan berkas yang lebih lama dari yang ia kira. Kunci dilepas pada semua jalan keluar: batal, gagal unduh, aktivitas ditutup, atau restore selesai.
