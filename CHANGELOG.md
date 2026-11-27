@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Skenario gagal suite verifikasi kini kebal timeout dan crash gerbang (Audit 2909)
+
+- Semua asersi 'gerbang gagal' di suite verifikasi kini menolak kode keluar timeout (124) dan, yang sebelumnya hanya memeriksa kode keluar, juga menolak keluaran berisi Traceback — gerbang yang menggantung atau crash tidak lagi tercatat sebagai kegagalan yang benar.
+
+
 ## [Belum rilis] — Pengingat CHANGELOG dan catatan hapusan metode naik jadi kegagalan gerbang (Audit 2907)
 
 - Perubahan kode aplikasi tanpa entri CHANGELOG kini menggagalkan gerbang (sebelumnya hanya peringatan yang bisa diabaikan), begitu juga metode yang dihapus tanpa dicatat ke daftar bekas-hapusan. Izin berbahaya baru sudah lebih dulu menggagalkan; cek heuristik lain tetap peringatan.
