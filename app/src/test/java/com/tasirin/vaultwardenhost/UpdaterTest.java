@@ -13,6 +13,27 @@ import org.junit.Test;
 public class UpdaterTest {
 
 
+
+    @Test
+    public void parseTerbitMsMemilihObjekYangBenar() {
+        // Audit 2792: published_at diambil dari objek
+        // rilis yang tag-nya cocok, bukan objek tetangga.
+        String body = "[{\"tag_name\": \"v1.36.0\","
+                + "\"published_at\": \"2026-11-20T01:00:00Z\"},"
+                + "{\"tag_name\": \"v1.35.0\","
+                + "\"published_at\": \"2026-10-01T01:00:00Z\"}]";
+        assertEquals(Updater.parseIsoUtcMs("2026-11-20T01:00:00Z"),
+                Updater.parseTerbitMs(body, "1.36.0"));
+        assertEquals(Updater.parseIsoUtcMs("2026-10-01T01:00:00Z"),
+                Updater.parseTerbitMs(body, "1.35.0"));
+        assertEquals(-1, Updater.parseTerbitMs(body, "1.34.0"));
+        assertEquals(-1, Updater.parseTerbitMs(null, "1.36.0"));
+        assertEquals(-1, Updater.parseTerbitMs(body, null));
+        assertEquals(-1, Updater.parseIsoUtcMs("bukan-tanggal"));
+        assertEquals(-1, Updater.parseIsoUtcMs(null));
+        assertTrue(Updater.parseIsoUtcMs("2026-11-20T01:00:00Z") > 0);
+    }
+
     @Test
     public void lantaiVersiDanDowngrade2788() {
         // Audit 2788: lantai keras + deteksi downgrade.

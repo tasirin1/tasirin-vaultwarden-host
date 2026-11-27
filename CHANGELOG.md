@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Auto-update kini menunggu masa soak 48 jam (Audit 2792)
+
+- Rilis baru tidak lagi dipasang otomatis seketika terbit: pemasangan otomatis binary dan web vault menunggu rilis berumur 48 jam, memberi waktu regresi upstream ketahuan lebih dulu.
+
+
 ## [Belum rilis] — Downgrade versi kini berlantai dan wajib konfirmasi (Audit 2788)
 
 - Update eksplisit ke versi di bawah 1.33.0 ditolak (versi setua itu memuat kerentanan yang sudah ditambal upstream), dan perintah /update atau /webvault jarak jauh yang menurunkan versi kini wajib diulang dengan akhiran YA.

@@ -8,6 +8,21 @@ import org.junit.Test;
 public class AutoUpdateTest {
 
 
+
+    @Test
+    public void soakTerlewatiBatas48Jam() {
+        // Audit 2792: batas soak + gagal-baca lolos.
+        long terbit = 1_700_000_000_000L;
+        org.junit.Assert.assertFalse(AutoUpdate.soakTerlewati(
+                terbit, terbit + 47L * 3600 * 1000));
+        org.junit.Assert.assertTrue(AutoUpdate.soakTerlewati(
+                terbit, terbit + 48L * 3600 * 1000));
+        org.junit.Assert.assertTrue(AutoUpdate.soakTerlewati(
+                terbit, terbit + 72L * 3600 * 1000));
+        org.junit.Assert.assertTrue(AutoUpdate.soakTerlewati(
+                -1, terbit));
+    }
+
     @Test
     public void cekBerkalaAktifMengikutiSakelar() {
         // Audit 2858: alarm cek harian hanya hidup bila

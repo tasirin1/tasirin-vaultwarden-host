@@ -285,6 +285,90 @@ public final class Updater {
         return keluar.isEmpty() ? null : keluar;
     }
 
+    // Audit 2792: waktu terbit (published_at, ms
+    // epoch) rilis berversi tertentu dari badan JSON
+    // daftar rilis GitHub; -1 bila tak ketemu/tak
+    // terurai. published_at yang dipakai = yang
+    // pertama sesudah tag_name versi itu dan sebelum
+    // tag_name berikutnya (objek rilis yang sama).
+    static long parseTerbitMs(String body, String versi) {
+        if (body == null || versi == null || versi.isEmpty()) {
+            return -1;
+        }
+        String[] polaTag = {"\"tag_name\": \"" + versi + "\"",
+                "\"tag_name\": \"v" + versi + "\"",
+                "\"tag_name\":\"" + versi + "\"",
+                "\"tag_name\":\"v" + versi + "\""};
+        int awal = -1;
+        for (String p : polaTag) {
+            awal = body.indexOf(p);
+            if (awal >= 0) {
+                break;
+            }
+        }
+        if (awal < 0) {
+            return -1;
+        }
+        int tagBerikut = body.indexOf("\"tag_name\"", awal + 10);
+        int batas = tagBerikut >= 0 ? tagBerikut : body.length();
+        int ip = body.indexOf("\"published_at\"", awal);
+        if (ip < 0 || ip > batas) {
+            return -1;
+        }
+        int titikDua = body.indexOf(':', ip);
+        if (titikDua < 0) {
+            return -1;
+        }
+        int q1 = body.indexOf('"', titikDua);
+        int q2 = q1 < 0 ? -1 : body.indexOf('"', q1 + 1);
+        if (q1 < 0 || q2 < 0) {
+            return -1;
+        }
+        return parseIsoUtcMs(body.substring(q1 + 1, q2));
+    }
+
+    // Audit 2792: urai stempel ISO-8601 UTC GitHub
+    // (yyyy-MM-ddTHH:mm:ssZ) ke ms epoch; -1 bila
+    // formatnya tak dikenal.
+    static long parseIsoUtcMs(String iso) {
+        if (iso == null) {
+            return -1;
+        }
+        try {
+            java.text.SimpleDateFormat f = new java.text.SimpleDateFormat(
+                    "yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US);
+            f.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            f.setLenient(false);
+            java.util.Date d = f.parse(iso.trim());
+            return d == null ? -1 : d.getTime();
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    // Audit 2792: waktu terbit rilis binary di repo
+    // rilis aplikasi ini; -1 bila tak terbaca.
+    static long rilisTerbitMs(Context ctx, String versi) {
+        HttpURLConnection c = null;
+        try {
+            c = open(ctx, RELEASE_LIST_API, 10000, 15000);
+            if (c.getResponseCode() != 200) {
+                return -1;
+            }
+            String body;
+            try (InputStream is = c.getInputStream()) {
+                body = TgBackup.bacaResponsBatas(is);
+            }
+            return parseTerbitMs(body, versi);
+        } catch (Exception ignored) {
+            return -1;
+        } finally {
+            if (c != null) {
+                c.disconnect();
+            }
+        }
+    }
+
     private static final long MIN_FREE_FOR_WEBVAULT = 150L * 1024 * 1024;
 
     private static final String KEY_WV_FROM = "wv_from_version";

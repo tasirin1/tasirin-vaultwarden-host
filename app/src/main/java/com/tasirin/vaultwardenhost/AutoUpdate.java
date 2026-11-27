@@ -137,6 +137,21 @@ public final class AutoUpdate {
         return !ServerService.bolehCobaUnduhLagi(gagalAt, sekarang);
     }
 
+    static final long SOAK_UPDATE_MS = 48L * 3600 * 1000;
+
+    // Audit 2792: soak auto-update - rilis hanya
+    // dipasang otomatis sesudah berumur 48 jam, memberi
+    // waktu regresi upstream ketahuan lebih dulu. Waktu
+    // terbit tak terbaca (-1) = soak dianggap terlewati:
+    // soak penunda keselamatan, bukan gerbang keamanan,
+    // dan gagal baca tak boleh mematikan auto-update.
+    static boolean soakTerlewati(long terbitMs, long sekarang) {
+        if (terbitMs < 0) {
+            return true;
+        }
+        return sekarang - terbitMs >= SOAK_UPDATE_MS;
+    }
+
     public static void cek(Context ctx, Aksi aksi, AturPending pending, boolean lengkap) {
         // Audit 1473: tryLock — cek berkala yang menumpuk antre di
         // belakang cek lain yang sedang berjalan (unduh bisa
@@ -214,7 +229,15 @@ public final class AutoUpdate {
                 if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false) && tanpaKuota(ctx)) {
 
                     long gagalAt = TgBackup.amanLong(sp, ServerService.KEY_BIN_DL_GAGAL_AT, 0);
-                    if (bolehLewatiCobaLagi(gagalAt, System.currentTimeMillis())) {
+                    // Audit 2792: masa soak 48 jam sebelum
+                    // pemasangan otomatis (lihat
+                    // soakTerlewati).
+                    if (!soakTerlewati(Updater.rilisTerbitMs(ctx, latest),
+                            System.currentTimeMillis())) {
+                        aksi.catat("[app] Auto-update v" + latest + " ditunda:"
+                                + " rilis belum berumur 48 jam (masa soak).");
+                        pending.atur(latest);
+                    } else if (bolehLewatiCobaLagi(gagalAt, System.currentTimeMillis())) {
 
                         pending.atur(latest);
                     } else {
@@ -323,7 +346,15 @@ public final class AutoUpdate {
                                     terkunciWv)) {
                                 long gagalWvAt = TgBackup.amanLong(sp,
                                         ServerService.KEY_WV_DL_GAGAL_AT, 0);
-                                if (ServerService.bolehCobaUnduhLagi(gagalWvAt,
+                                // Audit 2792: soak yang sama
+                                // untuk web vault (rilis yang
+                                // sama dengan binary).
+                                if (!soakTerlewati(Updater.rilisTerbitMs(ctx, targetWv),
+                                        System.currentTimeMillis())) {
+                                    aksi.catat("[app] Auto-update web-vault v"
+                                            + targetWv + " ditunda: rilis belum"
+                                            + " berumur 48 jam (masa soak).");
+                                } else if (ServerService.bolehCobaUnduhLagi(gagalWvAt,
                                         System.currentTimeMillis())) {
                                     msgWv = Updater.updateWebVault(ctx);
                                     if (TgBot.webVaultBerubah(msgWv)) {
