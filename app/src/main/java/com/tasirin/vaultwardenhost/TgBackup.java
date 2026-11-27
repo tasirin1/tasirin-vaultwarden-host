@@ -2939,6 +2939,15 @@ public final class TgBackup {
             String dirTls = amanString(sp, ServerService.KEY_TLS_DIR, "");
             int hapus = TlsCert.resetTls(new File(ctx.getFilesDir(), "tls"))
                     + TlsCert.resetTls(new File(dataDir, "tls"));
+            // Audit 2885: sisa sinkron (bak/tmp) ikut
+            // dibersihkan - tanpa ini rekonsiliasi start
+            // membangkitkan lagi CA yang baru direset.
+            File bakSinkron = new File(ctx.getFilesDir(), "tls-sinkron-bak");
+            File tmpSinkron = new File(ctx.getFilesDir(), "tls-sinkron-tmp");
+            hapus += TlsCert.resetTls(bakSinkron)
+                    + TlsCert.resetTls(tmpSinkron);
+            hapusPohon(bakSinkron);
+            hapusPohon(tmpSinkron);
             if (dirTls != null && !dirTls.trim().isEmpty()) {
                 hapus += TlsCert.resetTls(new File(dirTls));
             }

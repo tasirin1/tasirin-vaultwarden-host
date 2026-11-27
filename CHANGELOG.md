@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Reset sertifikat kini ikut menyapu sisa folder sinkron TLS (Audit 2885)
+
+- `TgBackup.resetSertifikat`: folder sisa sinkron `tls-sinkron-bak` dan `tls-sinkron-tmp` di folder internal dulu tak disentuh reset — pada Start berikutnya rekonsiliasi sisa sinkron menilai "bak tanpa folder tls = tukar terputus" dan mengembalikan bak menjadi folder tls, sehingga CA yang baru saja direset bangkit lagi. Reset kini membersihkan kedua folder itu juga (berkas TLS di dalamnya terhitung dalam jumlah terhapus).
+
+
 ## [Belum rilis] — Sinkron TLS internal kini memverifikasi kelengkapan staging sebelum menukar (Audit 2884)
 
 - `TgBackup.sinkronTlsKeInternal`: folder staging dulu ditukar menjadi folder TLS internal hanya dengan memeriksa `ca.pem` — salinan parsial (mis. `cert.pem`/`key.pem` gagal tersalin) ikut tertukar masuk dan HTTPS rusak dengan folder campuran. Kini kelengkapan staging diverifikasi terhadap asal untuk seluruh daftar berkas TLS (helper murni `tlsLengkap`); tak lengkap berarti tukar dibatalkan, staging dihapus, kegagalan dicatat dan dikembalikan agar pemanggil memperingatkan pengguna. Ditambah uji JVM.
