@@ -796,9 +796,7 @@ public class SettingsActivity extends Activity {
 
                     final boolean pinAktif = pinEnabledCheck != null
                             && pinEnabledCheck.isChecked();
-                    final boolean ganti = perluKonfirmasiGantiPin(pinAktif, adaHashPinTersimpan());
-                    if (!ganti) {
-                        tulisHashPin(pin, seq, pinAktif, false);
+                    if (!pinAktif) {
                         return;
                     }
 
@@ -4483,10 +4481,6 @@ public class SettingsActivity extends Activity {
                 ui, refreshLoop);
     }
 
-    static boolean perluKonfirmasiGantiPin(boolean pinAktif, boolean adaHash) {
-        return pinAktif && adaHash;
-    }
-
     static boolean aktivasiPinMasihBerlaku(int epPermintaan, int epTerbaru) {
         return epPermintaan == epTerbaru;
     }
@@ -4494,17 +4488,6 @@ public class SettingsActivity extends Activity {
     static boolean bolehDialogPin(boolean dialogBoleh, boolean finishing,
                                   boolean destroyed) {
         return dialogBoleh && !finishing && !destroyed;
-    }
-
-    private boolean adaHashPinTersimpan() {
-        try {
-            String h = TgBackup.amanString(getSharedPreferences(
-                    ServerService.PREFS, MODE_PRIVATE), PinGate.KEY_PIN_HASH, "");
-            return h != null && !h.trim().isEmpty();
-        } catch (Exception e) {
-
-            return true;
-        }
     }
 
     private void tulisHashPin(final String pin, final int seq,
@@ -4715,15 +4698,13 @@ public class SettingsActivity extends Activity {
             if (!isChangingConfigurations()) {
                 boolean pinAktif = pinEnabledCheck != null
                         && pinEnabledCheck.isChecked();
-                if (perluKonfirmasiGantiPin(pinAktif, adaHashPinTersimpan())) {
+                if (pinAktif) {
                     try {
                         android.widget.Toast.makeText(getApplicationContext(),
                                 R.string.pin_ganti_batal_tutup,
                                 android.widget.Toast.LENGTH_LONG).show();
                     } catch (Exception ignored) {
                     }
-                } else {
-                    tundaPin.run();
                 }
             }
         }

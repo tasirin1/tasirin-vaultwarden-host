@@ -277,17 +277,6 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void gantiPinButuhKonfirmasiHanyaSaatPinAktifDanHashAda() {
-
-        assertTrue(SettingsActivity.perluKonfirmasiGantiPin(true, true));
-
-        assertFalse(SettingsActivity.perluKonfirmasiGantiPin(true, false));
-
-        assertFalse(SettingsActivity.perluKonfirmasiGantiPin(false, true));
-        assertFalse(SettingsActivity.perluKonfirmasiGantiPin(false, false));
-    }
-
-    @Test
     public void aktivasiPinBasiTidakBolehMenyalakanPin() {
 
         assertTrue(SettingsActivity.aktivasiPinMasihBerlaku(3, 3));

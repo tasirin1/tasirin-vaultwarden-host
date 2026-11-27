@@ -132,3 +132,6 @@ simpanThrottleBoot
 simpanThrottleBootWall
 simpanThrottleBootCount
 simpanStempelThrottle
+perluKonfirmasiGantiPin
+adaHashPinTersimpan
+gantiPinButuhKonfirmasiHanyaSaatPinAktifDanHashAda

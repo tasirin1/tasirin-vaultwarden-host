@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — PIN tidak lagi tersimpan otomatis saat mengetik (cegah PIN kepotong)
+
+Watcher kolom PIN selama ini menulis hash langsung sesudah jeda ketik 800 ms bila konfirmasi dianggap tak perlu — nilai yang tersimpan bisa berupa awalan PIN yang dimaksud pengguna (mis. "1234" dari "123456"), dan flush onDestroy menjalankan simpanan tertunda yang sama. Kini mengetik tidak pernah menyimpan: perubahan PIN hanya lewat dialog konfirmasi eksplisit (OK) atau aktivasi centang; suntingan tertunda saat layar ditutup dibuang dengan toast "tidak disimpan". Metode perluKonfirmasiGantiPin dan adaHashPinTersimpan dihapus (dicatat di bekas-hapusan) beserta uji khususnya.
+
+Closes #2766
+
+
 ## [Belum rilis] — Iterasi PBKDF2 PIN naik ke 600.000 (standar OWASP)
 
 Hash PIN baru selama ini hanya 30.000 iterasi PBKDF2-HMAC-SHA256 — 20x di bawah rekomendasi OWASP; hash yang bocor membuat seluruh ruang PIN 4 digit murah di-brute-force. Iterasi standar kini 600.000, plafon verifikasi naik ke 1.000.000, dan jalur cadangan tanpa pabrik (PBKDF2 manual) naik dari 12.000 ke 100.000. Hash lama tetap terverifikasi (iterasi terbaca dari hash tersimpan) dan otomatis ter-upgrade saat verifikasi sukses berikutnya lewat perluUpgradeHash. Uji JVM yang mengunci angka lama diperbarui di commit yang sama.
