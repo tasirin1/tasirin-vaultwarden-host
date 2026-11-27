@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pemulihan EBADF shim tak lagi menutup fd milik berkas lain (Audit 2943)
+
+- `shim/getrandom_shim.c`: jalur pemulihan galat EBADF dulu memanggil close() pada fd yang justru sudah tidak valid — bila nomor fd itu sudah dipakai ulang oleh berkas lain, close() menutup berkas orang lain. Fd kini langsung direset dan dibuka ulang tanpa close.
+
+
 ## [Belum rilis] — Daftar kata penyorot galat log kini teruji (Audit 2939)
 
 - `LogActivity`: pemindai kata galat yang mewarnai baris log (GAGAL/ERROR/FAILED) dulu privat dan tanpa satu pun uji — daftar katanya bisa bertambah atau berkurang diam-diam tanpa ada yang merah. Predikatnya kini terlihat sebatas paket dan perilakunya dipaku uji, termasuk semantik awalannya (kata kunci cocok di awal kata yang lebih panjang) dan ketidakpekaan hurufnya. Perilaku produksi tidak berubah.

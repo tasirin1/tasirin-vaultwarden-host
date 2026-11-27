@@ -108,7 +108,9 @@ static ssize_t isi_dari_inti(void *buf, size_t len, int pakai_random,
                         errno = EIO;
                         return -1;
                     }
-                    close(*wadah_fd);
+                    /* Audit 2943: JANGAN close() - EBADF
+                     * berarti fd sudah tidak valid; nomornya
+                     * bisa sudah dipakai ulang berkas lain. */
                     *wadah_fd = -1;
                     pulih = 1;
                     break;
