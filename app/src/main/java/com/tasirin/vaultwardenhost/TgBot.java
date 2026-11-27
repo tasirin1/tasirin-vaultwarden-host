@@ -172,9 +172,44 @@ public final class TgBot {
         }
         long trigger = SystemClock.elapsedRealtime() + 10_000;
 
-        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger,
-                POLL_INTERVAL_MS, pi);
+        // Audit 2842: alarm satu-tembak AllowWhileIdle -
+        // rantainya dipasang ulang oleh TgBotReceiver
+        // tiap poll berbunyi, jadi Doze tak lagi menunda
+        // poll berjam-jam seperti setInexactRepeating.
+        // API < 23 belum punya AllowWhileIdle: pola lama.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            am.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    trigger, pi);
+        } else {
+            am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigger,
+                    POLL_INTERVAL_MS, pi);
+        }
         refreshMenuAsync(ctx);
+    }
+
+    // Audit 2842: pasang ulang alarm poll berikutnya
+    // (rantai AllowWhileIdle) - dipanggil penerima tiap
+    // alarm poll berbunyi, sebelum pollOnce berjalan.
+    static void jadwalUlangPoll(Context ctx) {
+        try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                return;
+            }
+            AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) {
+                return;
+            }
+            SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
+            String token = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
+            String chat = Util.amanTrim(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));
+            if (token.isEmpty() || chat.isEmpty()) {
+                return;
+            }
+            am.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + POLL_INTERVAL_MS,
+                    pendingIntent(ctx));
+        } catch (Exception ignored) {
+        }
     }
 
     static String[][] daftarPerintahMenu() {

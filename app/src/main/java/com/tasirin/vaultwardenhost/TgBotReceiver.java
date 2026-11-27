@@ -29,6 +29,10 @@ public class TgBotReceiver extends BroadcastReceiver {
             return;
         }
 
+        // Audit 2842: pasang rantai alarm poll
+        // berikutnya sebelum poll ini berjalan.
+        TgBot.jadwalUlangPoll(context);
+
         final PendingResult pr;
         try {
             pr = goAsync();

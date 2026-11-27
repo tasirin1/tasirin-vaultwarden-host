@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Poll bot Telegram kini rantai alarm AllowWhileIdle (Audit 2842)
+
+- Bot Telegram tidak lagi menunggu jendela perawatan Doze: alarm poll kini berbunyi tepat waktu dan memasang alarm berikutnya sendiri, jadi perintah seperti /start tetap dibalas cepat walau server mati dan perangkat lama menganggur.
+
+
 ## [Belum rilis] — Cache versi binary diikat hash penuh, bukan sidik (Audit 2978)
 
 - Versi binary yang tersimpan tidak lagi dipercaya hanya dari ukuran + waktu berkas: penggantian berkas dengan ukuran dan waktu yang disamakan kini tetap terdeteksi karena kunci cache-nya SHA-256 penuh.
