@@ -53,6 +53,10 @@ public final class TgBot {
     // berubah — hanya koneksi diam yang berkurang ±3x.
     private static final long POLL_INTERVAL_MS = 60_000;
     private static final long STALE_MSG_MS = 5 * 60_000;
+
+    // Audit 2967: cap waktu kabar perintah-basi terakhir
+    // (jatah balasan kedaluwarsa, sekali per 10 menit).
+    private static volatile long kabarBasiTerakhir = 0;
     private static final AtomicBoolean POLLING = new AtomicBoolean(false);
 
     private static volatile String grupDiperingatkan = "";
@@ -721,6 +725,21 @@ public final class TgBot {
                                             namaBerkasDokumen(msg),
                                             teksPoll(msg),
                                             idPesanBasi, kiniPoll);
+                                    // Audit 2967: jangan buang diam-diam -
+                                    // kabari (dijatah sekali per 10 menit
+                                    // agar tumpukan pesan lama sesudah bot
+                                    // lama mati tak membanjiri chat).
+                                    long kiniBasi = System.currentTimeMillis();
+                                    if (kiniBasi - kabarBasiTerakhir
+                                            >= 10 * 60_000L) {
+                                        kabarBasiTerakhir = kiniBasi;
+                                        balas(ctx, idRuang, "Pesanmu sampai"
+                                                + " terlalu lama (>5 menit)"
+                                                + " - perintah lama tidak"
+                                                + " dijalankan demi keamanan."
+                                                + " Kirim ulang perintahnya"
+                                                + " bila masih perlu.");
+                                    }
                                     continue;
                                 }
                                 String text = msg.optString("text", "").trim();

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perintah Telegram basi kini dibalas, bukan dibuang diam-diam (Audit 2967)
+
+- `TgBot.pollOnce`: pesan dari chat pemilik yang umurnya melewati batas segar 5 menit dulu hanya dihapus bila berisi PIN lalu dibuang tanpa balasan apa pun — pengguna mengira bot mati, padahal perintahnya ditolak karena basi. Cabang basi kini membalas singkat bahwa perintah lama tidak dijalankan demi keamanan dan mempersilakan mengirim ulang. Balasan dijatah sekali per 10 menit (cap statik) agar tumpukan pesan lama yang tiba sekaligus sesudah bot lama mati tidak membanjiri chat dengan balasan kedaluwarsa. Penolakan perintah basinya sendiri tidak berubah.
+
+
 ## [Belum rilis] — Uji fail-closed PabrikTls12.nyalakan ditambahkan (Audit 2935)
 
 - `HttpsCompatTest`: penegak fail-closed TLS (`PabrikTls12.nyalakan` — soket tanpa TLS 1.2+/cipher kuat harus digagalkan dengan `IOException`, bukan dipakai dengan bawaan platform; jaminan Audit 2763) dulu tidak punya satu pun pengujian, jadi regresi yang mengembalikan fallback diam-diam tidak akan ketahuan suite mana pun. Ditambah soket dan pabrik palsu tulisan tangan (harness hanya JUnit, tanpa Mockito/Robolectric) dan dua pengujian lewat jalur produksi `bungkusTls12(...).createSocket()`: soket yang hanya mendukung TLS ≤1.1 digagalkan, dan soket berkemampuan penuh menerima tepat protokol/cipher hasil saringan. Cache statis `HttpsCompat` direset via refleksi di awal tiap pengujian agar urutan jalan pengujian tidak saling mengotori.
