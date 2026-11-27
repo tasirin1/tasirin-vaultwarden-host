@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cache versi binary diikat hash penuh, bukan sidik (Audit 2978)
+
+- Versi binary yang tersimpan tidak lagi dipercaya hanya dari ukuran + waktu berkas: penggantian berkas dengan ukuran dan waktu yang disamakan kini tetap terdeteksi karena kunci cache-nya SHA-256 penuh.
+
+
 ## [Belum rilis] — Pin shim offline kini sementara dan diverifikasi ulang (Audit 2857)
 
 - Bila hash shim pertama kali dicatat saat perangkat offline (tanpa cek ke rilis resmi), pin itu kini ditandai sementara: pada Start berikutnya yang online, hash-nya dicocokkan ulang ke rilis - tidak cocok, shim diunduh ulang terverifikasi.

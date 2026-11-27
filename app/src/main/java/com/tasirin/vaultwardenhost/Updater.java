@@ -1666,12 +1666,16 @@ public final class Updater {
     }
 
     // Audit 1604: versi hasil deteksi di-cache berdasar sidik
-    // berkas (ukuran+mtime) — spawn binary 35 MB hanya untuk
-    // membaca versinya tak lagi dibayar pada tiap cek saat
-    // server berhenti. Sidik berubah (binary diganti) → deteksi
-    // ulang; gerbang ini tidak melemahkan Audit 648 karena
-    // yang dipercaya bukan pref mentah, melainkan pref yang
-    // terikat sidik berkas saat ini.
+    // berkas — spawn binary 35 MB hanya untuk membaca versinya
+    // tak lagi dibayar pada tiap cek saat server berhenti.
+    // Audit 2978: sidik cache kini SHA-256 PENUH berkas,
+    // bukan ukuran+mtime - berkas yang diganti dengan ukuran
+    // dan mtime yang disamakan tidak lagi terbaca sebagai
+    // versi lama. Nilai versi_fp lama (format sidik) otomatis
+    // tak cocok, cache terbangun ulang sekali. Gerbang ini
+    // tidak melemahkan Audit 648 karena yang dipercaya bukan
+    // pref mentah, melainkan pref yang terikat isi berkas
+    // saat ini.
     static final String KEY_VERSI_FP = "versi_fp";
     static final String KEY_VERSI_FILE = "versi_file";
 
@@ -1683,7 +1687,10 @@ public final class Updater {
                 return null;
             }
             android.content.SharedPreferences sp = null;
-            String sidik = ServerService.sidikManualFile(berkas);
+            String sidik = sha256Hex(berkas);
+            if (sidik == null) {
+                sidik = "";
+            }
             try {
                 sp = ctx.getSharedPreferences(ServerService.PREFS,
                         Context.MODE_PRIVATE);
