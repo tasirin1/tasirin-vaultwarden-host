@@ -393,6 +393,11 @@ public final class Util {
         return url.substring(0, potong);
     }
 
+    // Audit 2986: batas probe --version bersama -
+    // dulu literal 10000 terpisah di dua berkas dan
+    // terlalu ketat untuk STB lambat sesudah reboot.
+    public static final long BATAS_PROBE_VERSI_MS = 30_000;
+
     public static Thread pasangWatchdogProses(final Process proc,
             final java.util.concurrent.atomic.AtomicBoolean selesai,
             final long timeoutMs, final String nama) {

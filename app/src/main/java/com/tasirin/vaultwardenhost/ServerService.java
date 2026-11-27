@@ -4694,7 +4694,8 @@ public class ServerService extends Service {
             }
             p = pb.start();
 
-            versiWatchdog = Util.pasangWatchdogProses(p, versiSelesai, 10000,
+            versiWatchdog = Util.pasangWatchdogProses(p, versiSelesai,
+                    Util.BATAS_PROBE_VERSI_MS,
                     "vw-version-watchdog");
             r = new BufferedReader(
                     new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));

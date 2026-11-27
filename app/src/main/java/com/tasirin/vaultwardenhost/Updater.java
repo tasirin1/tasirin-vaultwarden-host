@@ -3132,7 +3132,8 @@ public final class Updater {
             }
             p = pb.start();
 
-            versiWatchdog = Util.pasangWatchdogProses(p, versiSelesai, 10000,
+            versiWatchdog = Util.pasangWatchdogProses(p, versiSelesai,
+                    Util.BATAS_PROBE_VERSI_MS,
                     "vw-detect-watchdog");
 
             String first = null;

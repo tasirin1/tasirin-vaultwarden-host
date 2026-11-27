@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Batas probe versi binary disatukan dan dilonggarkan untuk STB lambat (Audit 2986)
+
+- `Util` + `ServerService` + `Updater`: batas waktu pemeriksaan versi binary dulu berupa angka mentah 10 detik yang terpisah di dua berkas (harus diubah berpasangan agar tidak pincang) dan terlalu ketat untuk STB lambat sesudah reboot — binary yang sehat bisa dianggap rusak, diunduh ulang puluhan MB, bahkan dihapus. Kini satu konstanta bernama bersama, 30 detik, dipakai kedua pemeriksa versi.
+
+
 ## [Belum rilis] — Jendela fallback binary tak lagi batal karena rollback jam (Audit 2984)
 
 - `Updater`: jendela 6 jam untuk mulai unduhan dari URL fallback dulu satu-satunya jendela yang batal total bila stempelnya berada di masa depan sesudah jam dikoreksi mundur — dua jendela tetangganya justru menganggap stempel masa depan sebagai berlaku. Akibatnya unduhan mulai dari URL latest yang belum terbit (404) dan membuang satu percobaan per putaran. Arahnya kini selaras: stempel masa depan berarti jendela berlaku; uji pengunci perilaku lamanya diperbarui di commit yang sama.
