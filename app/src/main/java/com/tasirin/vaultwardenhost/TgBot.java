@@ -4316,8 +4316,14 @@ public final class TgBot {
         if (dataDir == null || dataDir.trim().isEmpty()) {
             dataDir = ServerService.dataDirBawaanSegar();
         }
-        String version = ServerService.binaryVersion.isEmpty()
-                ? "?" : ServerService.binaryVersion;
+        // Audit 3002: satu pintu versi yang sama
+        // dengan /versi - dulu /status membaca field
+        // mentah dan menjawab "?" saat /versi menjawab
+        // versi penanda/bundel.
+        String version = Updater.currentServerVersion(ctx);
+        if (version == null || version.isEmpty()) {
+            version = "?";
+        }
         File db = new File(dataDir, "db.sqlite3");
         String dbInfo = db.exists() ? TgBackup.humanBytes(db.length()) : "belum ada";
         // Audit 2998: stempel backup hanya berlaku

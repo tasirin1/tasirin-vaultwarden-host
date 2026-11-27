@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — /status dan /versi kini menjawab versi dari pintu yang sama (Audit 3002)
+
+- `TgBot.statusText`: versi di /status dulu dibaca dari field versi binary mentah, yang kosong sesudah update terpasang, reset binary, atau probe gagal — /status menjawab "Versi: ?" sementara /versi menjawab versi penanda atau bundel untuk keadaan yang sama, dua jawaban bertentangan bagi pengguna. /status kini memakai pintu tunggal versi yang sama dengan /versi (yang berjalan, lalu catatan update, lalu bundel).
+
+
 ## [Belum rilis] — Teks menu Status & diagnostik tak lagi salah menggambarkan /log dan /crashlog (Audit 3003)
 
 - `TgBot`: teks panel menu Status & diagnostik dulu mengklaim /status, /log, dan /crashlog semuanya memuat folder data, port, dan URL LAN — padahal hanya /status yang memuatnya; /log hanya menampilkan baris log terakhir dan /crashlog catatan crash terakhir. Pengguna yang mencari port lewat /log tidak menemukannya. Teks menu kini menjelaskan isi tiap perintah dengan benar.
