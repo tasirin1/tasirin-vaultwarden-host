@@ -4208,6 +4208,17 @@ public final class TgBackup {
             }
         }
 
+        // Audit 2825: verifikasi penuh (CRC tiap entri +
+        // magic SQLite) SEBELUM server berhenti - dulu zip
+        // korup baru ketahuan di tengah ekstraksi, sesudah
+        // server berhenti dan pre-backup dibuat.
+        String galatZip = verifikasiZip(zip);
+        if (galatZip != null) {
+            throw new IOException("Zip backup tidak lolos verifikasi ("
+                    + galatZip + ") - restore dibatalkan sebelum"
+                    + " server berhenti.");
+        }
+
         if (!ServerService.stopAndWait(ctx, ServerService.ANGGARAN_STOP_MIN_MS)) {
             throw new IOException("Server gagal berhenti - restore dibatalkan"
                     + " agar database tidak korup. Stop manual lalu ulangi.");

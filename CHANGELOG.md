@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Restore bot kini memverifikasi zip penuh sebelum server berhenti (Audit 2825)
+
+- `TgBackup.restoreFromZipIsi`: `verifikasiZip` (membaca penuh semua entri, memeriksa CRC dan magic SQLite) dulu hanya dipakai jalur pembuatan backup — jalur restore hanya memindai ukuran deklarasi, sehingga zip korup baru ketahuan sesudah server dihentikan, pre-backup dibuat, dan ekstraksi berjalan. Verifikasi kini berjalan sesudah pindai ukuran dan sebelum server dihentikan: zip buruk ditolak di muka dan server tidak pernah berhenti untuk restore yang pasti gagal. Biaya tambahan satu kali baca penuh memang ada, tapi ekstraksi toh membaca berkas yang sama.
+
+
 ## [Belum rilis] — app-config.json ganda kini pertama-menang di semua jalur restore (Audit 2824)
 
 - Restore ZIP yang memuat dua `app-config.json` berbeda dulu diterapkan berbeda tergantung jalur: jalur bot memakai yang pertama, jalur pemilih berkas menimpa tiap entri sehingga yang terakhir menang — satu berkas, dua hasil. Jalur pemilih kini juga pertama-menang dan menulis peringatan di log UI saat menemukan config kedua; perilaku kedua jalur sama dan tentu. Backup sah tidak pernah memuat config ganda, jadi tak ada perubahan untuk berkas normal.
