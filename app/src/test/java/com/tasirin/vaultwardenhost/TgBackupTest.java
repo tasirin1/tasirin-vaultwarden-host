@@ -1778,6 +1778,31 @@ public class TgBackupTest {
     }
 
     @Test
+    public void sapuSnapshotBasiUmur_hanyaYangTua() throws Exception {
+        // Audit 2882.
+        java.io.File dir = java.nio.file.Files.createTempDirectory(
+                "sapu-snap").toFile();
+        try {
+            java.io.File tua = new java.io.File(dir, "vwsnap-tua");
+            java.io.File muda = new java.io.File(dir, "vwsnap-muda");
+            java.io.File lain = new java.io.File(dir, "bukan-snap");
+            assertTrue(tua.mkdir());
+            assertTrue(muda.mkdir());
+            assertTrue(lain.mkdir());
+            long kini = System.currentTimeMillis();
+            assertTrue(tua.setLastModified(kini - 20 * 60_000L));
+            assertTrue(muda.setLastModified(kini));
+            assertTrue(lain.setLastModified(kini - 20 * 60_000L));
+            TgBackup.sapuSnapshotBasiUmur(dir, 10 * 60_000L, kini);
+            assertFalse(tua.exists());
+            assertTrue(muda.exists());
+            assertTrue(lain.exists());
+        } finally {
+            TgBackup.hapusPohon(dir);
+        }
+    }
+
+    @Test
     public void labelPesan_cuplikSatuBarisMaks60() {
         // Audit 2879.
         assertEquals("(pesan kosong)", TgBackup.labelPesan(null));

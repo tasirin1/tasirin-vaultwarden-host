@@ -1253,6 +1253,12 @@ public class ServerService extends Service {
             Util.jalankanBg(() -> {
                 TgBackup.sapuTmpPlainBasi(cacheSapu);
                 TgBackup.sapuZipPlainCacheBasi(cacheSapu);
+                // Audit 2882: snapshot plaintext vwsnap-*
+                // yatim ikut disapu saat mulai (berpenjaga
+                // umur) - dulu hanya saat backup berikutnya.
+                TgBackup.sapuSnapshotBasiUmur(cacheSapu,
+                        TgBackup.UMUR_DEC_TMP_MS,
+                        System.currentTimeMillis());
                 // Audit 2832: plaintext ekspor config yatim
                 // ikut disapu di start - dulu hanya Settings
                 // yang menyapunya.

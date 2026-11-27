@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Snapshot plaintext yatim kini ikut disapu saat layanan mulai (Audit 2882)
+
+- `ServerService.onCreate` + `TgBackup.sapuSnapshotBasiUmur`: folder snapshot `vwsnap-*` (salinan plaintext vault lengkap di cache) dulu hanya disapu saat backup berikutnya dibuat, jadi snapshot dari backup yang mati di tengah jalan bisa tertinggal berminggu-minggu. Sapuan start kini mencakup snapshot yang berumur ≥10 menit; penjaga umur melindungi snapshot yang sedang dibangun benang backup dari instans layanan sebelumnya di proses yang sama. Bagian laporan soal zip polos `backup-telegram-*` sudah tertutup lebih dulu oleh sapuan start Audit 2821. Ditambah uji JVM.
+
+
 ## [Belum rilis] — Perbaikan build: anotasi @Test ganda di TgBackupTest (dari Audit 2820)
 
 - `TgBackupTest`: penyisipan uji pada Audit 2820 meninggalkan dua anotasi `@Test` bertumpuk pada satu metode — kompilasi uji CI gagal ("Test is not a repeatable annotation type", run Build APK untuk `d194dfeb`). Satu anotasi duplikat dihapus; seluruh berkas uji lain sudah dipindai dan bersih dari pola yang sama.

@@ -1800,6 +1800,27 @@ public final class TgBackup {
         }
     }
 
+    // Audit 2882: varian berpenjaga umur untuk sapuan
+    // saat layanan mulai - snapshot yang lebih muda
+    // dari ambang bisa sedang dibangun benang backup
+    // dari instans layanan sebelumnya di proses yang
+    // sama, jangan disentuh.
+    static void sapuSnapshotBasiUmur(File cacheDir, long umurMinMs, long kini) {
+        if (cacheDir == null) {
+            return;
+        }
+        File[] isi = cacheDir.listFiles();
+        if (isi == null) {
+            return;
+        }
+        for (File f : isi) {
+            if (f != null && f.isDirectory() && f.getName().startsWith("vwsnap-")
+                    && kini - f.lastModified() >= umurMinMs) {
+                hapusPohon(f);
+            }
+        }
+    }
+
     static void hapusIsiFolder(File folder) {
         if (folder == null) {
             return;
