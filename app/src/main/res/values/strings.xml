@@ -206,6 +206,7 @@
     <string name="pin_aktif">PIN is active.</string>
     <string name="masih_bekerja">Still working, please wait.</string>
     <string name="folder_bawaan">Invalid data folder, using default.</string>
+    <string name="folder_storage_bersama">Warning: this folder is on shared storage. Other apps with storage permission can read the Vaultwarden database as-is - the app PIN only locks the app screen, it does not encrypt the database.</string>
     <string name="port_kecil_bawaan">Port &lt;1024 needs root — using default %1$s.</string>
     <string name="port_root_pesan_setelan">Main port (%1$d) below 1024 can only be used with root access.\nChange the port to &gt;= 1024 (e.g. 8088) above.</string>
     <string name="port_dipakai_pesan_setelan">Main port (%1$d) is already used by another process.\nStop the other app using it, change the port above, or restart the phone first.</string>

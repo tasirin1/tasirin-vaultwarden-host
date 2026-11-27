@@ -205,6 +205,7 @@
     <string name="pin_aktif">PIN aktif.</string>
     <string name="masih_bekerja">Masih bekerja, mohon tunggu.</string>
     <string name="folder_bawaan">Folder data tidak valid, memakai bawaan.</string>
+    <string name="folder_storage_bersama">Peringatan: folder ini di penyimpanan bersama. Aplikasi lain yang punya izin penyimpanan bisa membaca database Vaultwarden apa adanya - PIN aplikasi hanya mengunci layar aplikasi, bukan mengenkripsi database.</string>
     <string name="port_kecil_bawaan">Port &lt;1024 butuh root — memakai bawaan %1$s.</string>
     <string name="port_root_pesan_setelan">Port utama (%1$d) di bawah 1024 hanya bisa dipakai dengan akses root.\nGanti port ke &gt;= 1024 (mis. 8088) di atas.</string>
     <string name="port_dipakai_pesan_setelan">Port utama (%1$d) sudah dipakai proses lain.\nHentikan aplikasi lain itu, ganti port di atas, atau restart HP lebih dulu.</string>

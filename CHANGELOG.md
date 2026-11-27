@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Peringatan folder storage bersama kini tampil di Settings, bukan cuma log (Audit 2781)
+
+- Predikat folder bersama dipusatkan jadi `ServerService.folderDiStorageBersama` (ada uji JVM) dan dipakai peringatan log Start. Predikat kini mengecualikan area khusus aplikasi `Android/data`/`Android/media` yang dilindungi sistem — peringatan log Start sebelumnya ikut berbunyi untuk folder bawaan yang sebenarnya area aplikasi sendiri. `SettingsActivity` kini menampilkan peringatan yang sama secara inline begitu folder di penyimpanan bersama dipilih — database Vaultwarden di sana bisa dibaca aplikasi lain berizin penyimpanan karena PIN hanya mengunci layar aplikasi, bukan mengenkripsi database. Sifatnya peringatan, bukan blokir: pilihan folder tetap di tangan pengguna.
+
+
 ## [Belum rilis] — Penyamaran log kini juga menangkap rahasia yang muncul telanjang (Audit 2783)
 
 - `LogActivity`: ditambah jalur penyamaran berbasis nilai — nilai rahasia yang tersimpan (token admin, token bot, sandi backup, hash PIN) didaftarkan dari prefs oleh `ServerService` dan `LogActivity`, lalu kemunculan persisnya di teks log disamarkan oleh `samarkanLog` dan memicu `butuhSamaran`. Sebelumnya token admin bawaan (24 aksara alfanumerik) yang tercetak sendirian tanpa kata kunci di sekitarnya lolos mentah ke layar/ekspor log. Ada uji JVM untuk helper nilainya.

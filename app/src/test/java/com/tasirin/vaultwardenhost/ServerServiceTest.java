@@ -645,6 +645,19 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void folderDiStorageBersama_klasifikasi() {
+        // Audit 2781: volume bersama dikenali, area privat tidak.
+        assertTrue(ServerService.folderDiStorageBersama("/sdcard/vaultwarden"));
+        assertTrue(ServerService.folderDiStorageBersama("/sdcard"));
+        assertTrue(ServerService.folderDiStorageBersama("/storage/emulated/0/vw"));
+        assertTrue(!ServerService.folderDiStorageBersama(
+                "/storage/emulated/0/Android/data/com.tasirin.vaultwardenhost/files/vaultwarden"));
+        assertTrue(!ServerService.folderDiStorageBersama("/data/data/com.tasirin.vaultwardenhost/files"));
+        assertTrue(!ServerService.folderDiStorageBersama(null));
+        assertTrue(!ServerService.folderDiStorageBersama(""));
+    }
+
+    @Test
     public void portTakValid_dianggapSibuk() {
         assertTrue(ServerService.isPortBusy(0));
         assertTrue(ServerService.isPortBusy(-1));

@@ -2161,8 +2161,7 @@ public class ServerService extends Service {
                     + " - beri izin Storage/Semua file di Pengaturan HP, lalu Start ulang.");
             return false;
         }
-        if (sesi.dataDir.startsWith("/sdcard/")
-                || sesi.dataDir.startsWith("/storage/") || sesi.dataDir.equals("/sdcard")) {
+        if (folderDiStorageBersama(sesi.dataDir)) {
             appendLog("[app] PERINGATAN: folder data di storage bersama - DB plaintext"
                     + " bisa dibaca app lain berizin storage. PIN hanya mengunci UI/bot,"
                     + " bukan mengenkripsi database.");
@@ -5414,6 +5413,26 @@ public class ServerService extends Service {
         } catch (Exception ignored) {
         }
         return -1;
+    }
+
+    // Audit 2781: satu definisi "folder di storage bersama"
+    // untuk peringatan log Start dan peringatan inline di
+    // Settings - jalur di volume bersama (/sdcard atau
+    // /storage/...) DI LUAR area khusus aplikasi Android/data
+    // atau Android/media, yang dilindungi sistem dari aplikasi
+    // lain. (Di Android lama area itu perlindungannya lebih
+    // lemah; peringatan ini menyasar folder yang sungguh
+    // terbuka seperti /sdcard/vaultwarden.)
+    static boolean folderDiStorageBersama(String path) {
+        if (path == null) {
+            return false;
+        }
+        boolean diVolume = path.startsWith("/sdcard/") || path.startsWith("/storage/")
+                || path.equals("/sdcard");
+        if (!diVolume) {
+            return false;
+        }
+        return !path.contains("/Android/data/") && !path.contains("/Android/media/");
     }
 
     public static boolean isPortBusy(int port) {

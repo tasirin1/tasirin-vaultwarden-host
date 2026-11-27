@@ -3991,6 +3991,15 @@ public class SettingsActivity extends Activity {
 
     private void validasiInline() {
         String gData = galatFolder(dataDirInput.getText().toString(), msgFolderSalah);
+        // Audit 2781: folder valid tapi di storage bersama tetap
+        // diperingatkan keras di UI (bukan cuma log saat Start):
+        // database terbaca app lain berizin storage, PIN tidak
+        // mengenkripsinya. Peringatan saja, tidak memblokir.
+        if (gData == null
+                && ServerService.folderDiStorageBersama(
+                        dataDirInput.getText().toString().trim())) {
+            gData = getString(R.string.folder_storage_bersama);
+        }
         setTeksGalat(dataDirError, gData);
         String gPort = galatPort(portInput.getText().toString(), msgPortSalah);
         setTeksGalat(portError, gPort);
