@@ -220,6 +220,7 @@ public final class PinGate {
                 sp.edit().putString(KEY_PIN_HASH, bungkus).apply();
             }
         } catch (Exception ignored) {
-        }
+    ServerService.catatLog("[app] Penguatan hash PIN gagal: " + ignored);
+}
     }
 }

@@ -676,7 +676,8 @@ public class ServerService extends Service {
                     context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                             .edit().remove(KEY_START_TERTUNDA).apply();
                 } catch (Exception ignored) {
-                }
+    catatLog("[app] Gagal menghapus penanda start tertunda: " + ignored);
+}
             }
             return true;
         } catch (Exception e) {
@@ -699,7 +700,8 @@ public class ServerService extends Service {
                     context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                             .edit().putBoolean(KEY_START_TERTUNDA, true).commit();
                 } catch (Exception ignored) {
-                }
+    catatLog("[app] Gagal mencatat penanda start tertunda: " + ignored);
+}
             }
             return false;
         }
@@ -1307,7 +1309,8 @@ public class ServerService extends Service {
             LogActivity.catatNilaiRahasiaDariPrefs(
                     getSharedPreferences(PREFS, MODE_PRIVATE));
         } catch (Exception ignored) {
-        }
+    catatLog("[app] Penyiapan prefs awal service gagal: " + ignored);
+}
         createChannel();
 
         try {
@@ -1603,7 +1606,8 @@ public class ServerService extends Service {
             getSharedPreferences(PREFS, MODE_PRIVATE).edit()
                     .putBoolean(KEY_SERVER_DIMINTA, jalan).commit();
         } catch (Exception ignored) {
-        }
+    catatLog("[app] Gagal menyimpan niat jalan server: " + ignored);
+}
     }
 
     private boolean niatJalanTersimpan() {
@@ -1941,7 +1945,8 @@ public class ServerService extends Service {
             }
             sp.edit().putBoolean(KEY_PORT_MIGRATED, true).apply();
         } catch (Exception ignored) {
-        }
+    catatLog("[app] Migrasi port gagal: " + ignored);
+}
     }
 
     private String currentPort() {
@@ -2211,7 +2216,8 @@ public class ServerService extends Service {
         try {
             TgBackup.healkanStringPrefs(this);
         } catch (Exception ignored) {
-        }
+    catatLog("[app] Penyembuhan prefs saat start gagal: " + ignored);
+}
         SesiStart sesi = new SesiStart();
         try {
             if (!siapkanFolderData(sp, sesi)) {
@@ -2379,7 +2385,8 @@ public class ServerService extends Service {
             getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                     .edit().putBoolean(KEY_PANIC_RUNTIME, true).commit();
         } catch (Exception ignored) {
-        }
+    catatLog("[app] Gagal mencatat bukti panic runtime: " + ignored);
+}
     }
 
     private void bersihPanicRuntime() {
@@ -2387,7 +2394,8 @@ public class ServerService extends Service {
             getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                     .edit().remove(KEY_PANIC_RUNTIME).commit();
         } catch (Exception ignored) {
-        }
+    catatLog("[app] Gagal membersihkan bukti panic runtime: " + ignored);
+}
     }
 
     private boolean siapkanShim(SesiStart sesi) {
@@ -2678,7 +2686,8 @@ public class ServerService extends Service {
         try {
             TgBackup.maybeAutoBackup(this, uiBackupLayanan);
         } catch (Exception ignored) {
-        }
+    catatLog("[app] Pemicu backup otomatis sesudah start gagal: " + ignored);
+}
 
         final Process p = lahir;
         Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
@@ -3082,7 +3091,8 @@ public class ServerService extends Service {
                             gabungRiwayatRestartJam(salinan))
                     .apply();
         } catch (Exception ignored) {
-        }
+    catatLog("[app] Gagal menyimpan riwayat restart per jam: " + ignored);
+}
     }
 
     private void scheduleRestart() {
@@ -4694,7 +4704,8 @@ public class ServerService extends Service {
                             .remove(Updater.KEY_BIN_SHA_PIN)
                             .commit();
                 } catch (Exception ignored) {
-                }
+    catatLog("[app] Gagal membersihkan penanda versi sesudah pasang gagal: " + ignored);
+}
                 return null;
             }
             return out;
@@ -6188,7 +6199,8 @@ public class ServerService extends Service {
                     try {
                         p.waitFor();
                     } catch (Exception ignored) {
-                    } finally {
+    catatLog("[app] Penunggu proses terganggu: " + ignored);
+} finally {
                         pegangan.mati.set(true);
                     }
                 }, "vw-wait");

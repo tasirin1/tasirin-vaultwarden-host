@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Catch kosong di jalur kritis kini mencatat log (Audit 2772)
+
+Sembilan belas badan catch yang tadinya kosong pada jalur yang mengubah keadaan kini mencatat kegagalannya ke log aplikasi: penanda start tertunda, niat jalan server, migrasi port, penyembuhan prefs, bukti panic runtime, riwayat restart per jam, pemicu backup otomatis, penanda versi, penunggu proses, migrasi pref auto-backup, tanda mulai/selesai restore, tanda backup tertunda, jadwal backup harian cadangan, dan penguatan hash PIN. Catch best-effort yang memang sengaja diam (menutup berkas, menghapus berkas sementara, apply UI, tebakan parse) tidak diubah agar log tidak banjir.
+
+
 ## [Belum rilis] — Auto-update kini menunggu masa soak 48 jam (Audit 2792)
 
 - Rilis baru tidak lagi dipasang otomatis seketika terbit: pemasangan otomatis binary dan web vault menunggu rilis berumur 48 jam, memberi waktu regresi upstream ketahuan lebih dulu.

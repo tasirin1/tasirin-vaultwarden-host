@@ -88,7 +88,8 @@ public final class TgBackup {
                 sp.edit().remove("tg_full").apply();
             }
         } catch (Exception ignored) {
-        }
+    ServerService.catatLog("[tg] Migrasi pref auto-backup gagal: " + ignored);
+}
     }
 
     private static final long LOW_STORAGE_BYTES = 500L * 1024 * 1024;
@@ -4469,7 +4470,8 @@ public final class TgBackup {
                     .edit().putLong(KEY_RESTORE_TANDA,
                             System.currentTimeMillis()).commit();
         } catch (Exception ignored) {
-        }
+    ServerService.catatLog("[tg] Gagal mencatat tanda mulai restore: " + ignored);
+}
     }
 
     @android.annotation.SuppressLint("ApplySharedPref")
@@ -4478,7 +4480,8 @@ public final class TgBackup {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .edit().remove(KEY_RESTORE_TANDA).commit();
         } catch (Exception ignored) {
-        }
+    ServerService.catatLog("[tg] Gagal menghapus tanda selesai restore: " + ignored);
+}
     }
 
     @android.annotation.SuppressLint("ApplySharedPref")
@@ -4487,7 +4490,8 @@ public final class TgBackup {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .edit().putBoolean(KEY_BACKUP_TERTUNDA, true).commit();
         } catch (Exception ignored) {
-        }
+    ServerService.catatLog("[tg] Gagal mencatat tanda backup tertunda: " + ignored);
+}
     }
 
     static long tandaRestoreTersisa(Context ctx) {
@@ -5778,7 +5782,8 @@ public final class TgBackup {
                 ed.apply();
             }
         } catch (Exception ignored) {
-        }
+    ServerService.catatLog("[tg] Penyembuhan prefs string gagal: " + ignored);
+}
     }
 
     static void applyPrefsFromJson(Context ctx, JSONObject prefs) throws Exception {
@@ -6513,7 +6518,8 @@ public final class TgBackup {
                     am.setInexactRepeating(AlarmManager.RTC_WAKEUP, trigger,
                             AlarmManager.INTERVAL_DAY, pi);
                 } catch (Exception ignored) {
-                }
+    ServerService.catatLog("[tg] Jadwal backup harian cadangan gagal dipasang: " + ignored);
+}
             }
         } else {
             am.cancel(pi);
