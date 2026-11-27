@@ -2658,6 +2658,18 @@ public class ServerService extends Service {
 
         pindahLogFile(new File(sesi.dataFolder, "vaultwarden.log"));
         umumkanJalan(sesi, lahir);
+        // Audit 3019: backup otomatis saat Start dulu
+        // hanya terpicu dari layar (MainActivity dan
+        // Settings) - Start lewat bot dan autostart
+        // boot tak pernah memicunya, sehingga backup
+        // susulan hari itu bisa terlewat selamanya.
+        // maybeAutoBackup bergating sendiri (saklar,
+        // token/chat, cap hari ini, sandi, tugas lain)
+        // jadi aman dipanggil dari pintu tunggal ini.
+        try {
+            TgBackup.maybeAutoBackup(this, uiBackupLayanan);
+        } catch (Exception ignored) {
+        }
 
         final Process p = lahir;
         Thread reader = new Thread(() -> pumpOutput(p), "vw-output");
@@ -2689,6 +2701,27 @@ public class ServerService extends Service {
         }
         return "\nURL jaringan (dari PC/laptop): " + domain;
     }
+
+    // Audit 3019: jembatan UI backup otomatis untuk
+    // konteks layanan - tak ada layar di sini, jadi
+    // pesan toast diarahkan ke log server.
+    private final TgBackup.BackupStartUi uiBackupLayanan =
+            new TgBackup.BackupStartUi() {
+                @Override
+                public void toast(String s) {
+                    appendLog(s);
+                }
+
+                @Override
+                public void catat(String s) {
+                    appendLog(s);
+                }
+
+                @Override
+                public void jalankanUi(Runnable r) {
+                    r.run();
+                }
+            };
 
     private void umumkanJalan(SesiStart sesi, Process lahir) {
         boolean bolehUmumkan;

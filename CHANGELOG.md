@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Backup otomatis saat Start kini terpicu juga dari bot dan autostart boot (Audit 3019)
+
+- Pemicu backup otomatis harian dipindah ke ServerService, satu-satunya pintu semua Start. Sebelumnya hanya Start dari layar aplikasi yang memicunya — pengguna yang menyalakan server lewat bot Telegram atau autostart boot tak pernah mendapat backup susulan hari itu. Pengecekan syaratnya tetap yang lama (saklar aktif, token/chat terisi, belum backup hari ini, sandi terisi), jadi tak ada backup ganda.
+
+
 ## [Belum rilis] — Restore via pemilih berkas kini mengecek ruang bebas sebelum server berhenti (Audit 3018)
 
 - Jalur restore dari pemilih berkas di Settings kini menolak di depan bila ruang bebas jelas tak cukup (ukuran berkas ditambah margin), sama seperti jalur bot — sebelumnya server terlanjur dimatikan dan pre-backup terlanjur dibuat sebelum kegagalan ruang muncul di tengah proses.
