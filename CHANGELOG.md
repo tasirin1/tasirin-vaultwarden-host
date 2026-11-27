@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Restart untuk DB tak terjangkau kini sesudah 3 tick, bukan 10 (Audit 2871)
+
+- `ServerService.BATAS_CONFIG_SAJA_BERUNTUN`: 10 → 3. Keadaan yang dijaga penghitung ini sudah terdiagnosis jelas — `/alive` membalas 5xx (server tidak bisa mencapai database, login dan akses vault gagal) sementara `/api/config` tetap 200 — bukan gejolak jaringan sesaat (itu cabang pemeriksaan TCP sendiri). Dengan interval health 2 menit, ambang lama berarti vault tidak bisa dipakai ±20 menit sebelum restart otomatis dicoba. Ambang 3 tick tetap memberi peredam ±1,5 menit (jendela tick 30 detik sesudah start) sampai ±6 menit untuk gejolak sesaat seperti checkpoint database.
+
+
 ## [Belum rilis] — Kabar Telegram sebelum auto-restart sesudah auto-update (Audit 2792, sebagian)
 
 - `AutoUpdate`: bila update otomatis terpasang dan auto-restart aktif, pemilik kini dikabari lewat Telegram SEBELUM server di-restart — sebelumnya restart terjadi tanpa pemberitahuan apa pun di kanal yang dipantau pemilik, sehingga vault yang tak terjangkau sebentar tampak seperti kerusakan. Pesan menyebut sebabnya dan langkah bila server tak kembali (`/start`). Separuh saran lain dari temuan ini — jeda rendam (soak time) sebelum rilis baru dipasang otomatis — belum dikerjakan: butuh menyalurkan tanggal terbit rilis dari API GitHub ke jalur cek update dan keputusan pemilik soal lama jedanya; issue tetap terbuka untuk bagian itu.

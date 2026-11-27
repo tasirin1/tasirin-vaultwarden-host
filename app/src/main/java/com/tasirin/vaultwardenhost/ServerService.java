@@ -545,7 +545,13 @@ public class ServerService extends Service {
     private static final java.util.concurrent.atomic.AtomicInteger configSajaBeruntun =
             new java.util.concurrent.atomic.AtomicInteger(0);
 
-    static final int BATAS_CONFIG_SAJA_BERUNTUN = 10;
+    // Audit 2871: 3 (bukan 10) - keadaan config-saja berarti
+    // /alive 5xx (DB tak terjangkau, sudah terdiagnosis) tapi
+    // /api/config 200; menunggu 10 tick x 2 menit membuat vault
+    // tak bisa dipakai ~20 menit sebelum restart dicoba. Tiga
+    // tick beruntun tetap peredam 1,5-6 menit untuk gejolak
+    // sesaat (checkpoint DB dsb.).
+    static final int BATAS_CONFIG_SAJA_BERUNTUN = 3;
 
     private static volatile boolean healthActive = false;
 
