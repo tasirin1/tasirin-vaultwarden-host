@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Iterasi KDF backup baru naik ke 600.000 (Audit 2791)
+
+- `TgBackup.iterasiKdfBackup`: backup terenkripsi baru kini diturunkan kuncinya dengan 600.000 iterasi PBKDF2-HMAC-SHA256 (dari 100.000), mengikuti patokan OWASP dan menyamai kekuatan PIN aplikasi sejak Audit 2765 — berkas `.enc` yang bocor jauh lebih lambat di-brute-force bila sandi backup lemah. Jalur cadangan tanpa pabrik SHA-256 naik dari 30.000 ke 100.000. Backup lama tidak berubah: format VWB3 menyimpan jumlah iterasinya di header dan dekripsi membaca nilai itu (validasi tetap 10.000–1.000.000), sedangkan berkas V1/V2 tetap dibuka dengan 100.000 seperti saat dibuat. Konsekuensi jujur: membuat backup baru di perangkat lambat (STB) kini butuh waktu turunkan-kunci yang lebih lama, satu kali per backup.
+
+
 ## [Belum rilis] — Jatuh ke trust bawaan selama jeda bangun trust kini tercatat (Audit 2848)
 
 - `HttpsCompat.apply`: cabang `JedaBangunTrust` (jendela 60 detik sesudah satu kegagalan membangun factory trust tambahan) dulu menelan keadaan itu tanpa catatan apa pun — semua koneksi pada jendela itu memakai trust bawaan platform (pin rantai GitHub dan pengecualian CA user hilang) secara diam-diam dan berulang. Galat bangun terakhir kini disimpan (`galatBangunTerakhir`) dan cabang jeda melaporkannya lewat `catatGagalTrust`, tercatat di log aplikasi sekali per pesan berbeda seperti jalur galat biasa. Perilaku cadangannya sendiri tidak diubah: koneksi tetap jalan dengan trust bawaan Android daripada putus total di perangkat yang store CA-nya memang tak bisa dibangun.

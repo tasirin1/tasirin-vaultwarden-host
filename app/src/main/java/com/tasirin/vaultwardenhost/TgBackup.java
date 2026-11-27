@@ -164,8 +164,14 @@ public final class TgBackup {
         return ENC_MAGIC.equals(m) || ENC_MAGIC_V2.equals(m) || ENC_MAGIC_V3.equals(m);
     }
 
+    // Audit 2791: backup BARU memakai 600.000 iterasi
+    // (patokan OWASP PBKDF2-HMAC-SHA256; sama seperti PIN
+    // sejak Audit 2765). Jumlah iterasi tertulis di header
+    // VWB3, jadi backup lama tetap terbaca dengan iterasi
+    // aslinya; jalur tanpa pabrik SHA-256 memakai tingkat
+    // legasi 100.000.
     static int iterasiKdfBackup() {
-        return PinCrypto.pabrikTersedia() ? 100_000 : 30_000;
+        return PinCrypto.pabrikTersedia() ? 600_000 : 100_000;
     }
 
     static byte[] iterKeByte(int v) {
