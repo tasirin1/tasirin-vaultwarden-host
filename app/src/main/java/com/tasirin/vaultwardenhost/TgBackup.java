@@ -604,8 +604,13 @@ public final class TgBackup {
     static String pesanTolakPlainOtomatis() {
         return "Backup otomatis dilewati: isi password backup di"
                 + " Pengaturan agar backup ke Telegram terenkripsi. Tanpa password,"
-                + " database vault terkirim tanpa enkripsi — pakai tombol Backup"
-                + " manual bila memang mau tanpa enkripsi.";
+                + " database vault terkirim tanpa enkripsi.";
+    }
+
+    static String pesanTolakPlainManual() {
+        return "Backup dibatalkan: isi password backup di"
+                + " Pengaturan agar backup ke Telegram terenkripsi. Tanpa password,"
+                + " database vault terkirim tanpa enkripsi.";
     }
 
     public static String backupOtomatis(Context ctx) throws Exception {
@@ -650,7 +655,10 @@ public final class TgBackup {
         }
 
         String pass = amanString(sp, KEY_TG_PASS, "");
-        boolean terenkripsi = pass != null && !pass.trim().isEmpty();
+        boolean terenkripsi = bolehBackupOtomatis(pass);
+        if (!terenkripsi) {
+            throw new IOException(pesanTolakPlainManual());
+        }
 
         String cachePath = "";
         try {

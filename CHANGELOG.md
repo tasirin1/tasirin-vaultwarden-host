@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Backup manual ke Telegram kini wajib password (tak ada lagi plaintext)
+
+Jalur otomatis sudah menolak backup tanpa password, tapi /backup manual via bot dan tombol Backup tetap mengirim db.sqlite3 + attachments + sends plaintext ke Telegram bila tg_pass kosong — bertentangan dengan janji README "encrypted backups". backupNowIsi kini menolak sejak awal dengan aturan yang sama persis (bolehBackupOtomatis) dan pesan jelas; kalimat celah "pakai tombol manual" di pesan penolakan otomatis dihapus. Uji JVM ditambah.
+
+Closes #2768
+
+
 ## [Belum rilis] — Hash PIN legasi kini pasti bermigrasi (jalur /login + pool khusus PIN)
 
 Hash legasi SHA-256 tanpa salt selama ini hanya bermigrasi lewat kuatkanHashDini yang diantrekan ke pool latar umum (bisa tertolak diam-diam saat antrean penuh), dan jalur /login bot tidak meng-upgrade hash sesudah verifikasi sukses — tidak seperti PinActivity dan authDangerous. Kini: (1) /login yang cocok langsung menulis ulang hash ke PBKDF2 penuh (terjaga cek hash-tak-berubah, stempel sesi mengikuti hash baru); (2) kuatkanHashDini diantrekan ke pool khusus PIN (jalankanPin) di ketiga titik awal (MainActivity, ServerService, SettingsActivity). Penerimaan format legasi dipertahankan hanya sebagai jembatan migrasi saat verifikasi sukses — penghapusan total akan mengunci perangkat yang hash-nya belum sempat bermigrasi.

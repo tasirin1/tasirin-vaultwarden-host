@@ -2540,6 +2540,12 @@ public class TgBackupTest {
     }
 
     @Test
+    public void backupManualJugaWajibPassword() {
+        assertTrue(TgBackup.pesanTolakPlainManual().contains("password"));
+        assertFalse(TgBackup.pesanTolakPlainOtomatis().contains("manual"));
+    }
+
+    @Test
     public void semuaChatAmanTerimaDaftarMultiAkun() {
         assertTrue(TgBackup.semuaChatAman("123456789"));
         assertTrue(TgBackup.semuaChatAman("123,456"));
