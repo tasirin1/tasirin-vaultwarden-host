@@ -322,7 +322,7 @@ public final class TgBackup {
             boolean tersimpan = false;
             try {
 
-                tersimpan = sp.edit().putString(KEY_ALARM_SECRET, buat).commit();
+                tersimpan = sp.edit().putString(KEY_ALARM_SECRET, simpanUntuk(KEY_ALARM_SECRET, buat)).commit();
             } catch (Exception ignored) {
             }
             if (!tersimpan) {
@@ -5562,13 +5562,124 @@ public final class TgBackup {
         return null;
     }
 
+    // Audit 2764: nilai rahasia di prefs disimpan terenkripsi
+    // AES-GCM; kunci di AndroidKeyStore (API 23+). Di bawah
+    // itu atau bila KeyStore gagal, nilai polos seperti
+    // sebelumnya (tanpa regresi). Hash PIN tidak ikut:
+    // ia sudah hash PBKDF2 tersaltir, dan kunci KeyStore
+    // yang hilang akan membuatnya tak terbaca (gerbang
+    // PIN bisa terbuka / pengguna terkunci).
+    static final String[] KUNCI_RAHASIA = { KEY_TG_TOKEN, KEY_TG_PASS,
+            KEY_ALARM_SECRET, ServerService.KEY_ADMIN_TOKEN,
+            ServerService.KEY_DATABASE_URL };
+
+    static boolean kunciRahasia(String kunci) {
+        if (kunci == null) {
+            return false;
+        }
+        for (String k : KUNCI_RAHASIA) {
+            if (k.equals(kunci)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static javax.crypto.SecretKey kunciEnkripsiCache;
+    private static boolean kunciEnkripsiGagal;
+
+    private static javax.crypto.SecretKey kunciEnkripsi() {
+        if (kunciEnkripsiCache != null || kunciEnkripsiGagal) {
+            return kunciEnkripsiCache;
+        }
+        synchronized (TgBackup.class) {
+            if (kunciEnkripsiCache != null || kunciEnkripsiGagal) {
+                return kunciEnkripsiCache;
+            }
+            try {
+                if (android.os.Build.VERSION.SDK_INT < 23) {
+                    kunciEnkripsiGagal = true;
+                    return null;
+                }
+                java.security.KeyStore ks =
+                        java.security.KeyStore.getInstance("AndroidKeyStore");
+                ks.load(null);
+                java.security.Key ada = ks.getKey("vw_rahasia", null);
+                if (ada instanceof javax.crypto.SecretKey) {
+                    kunciEnkripsiCache = (javax.crypto.SecretKey) ada;
+                    return kunciEnkripsiCache;
+                }
+                javax.crypto.KeyGenerator kg = javax.crypto.KeyGenerator
+                        .getInstance("AES", "AndroidKeyStore");
+                kg.init(new android.security.keystore.KeyGenParameterSpec
+                        .Builder("vw_rahasia",
+                        android.security.keystore.KeyProperties.PURPOSE_ENCRYPT
+                                | android.security.keystore.KeyProperties
+                                        .PURPOSE_DECRYPT)
+                        .setBlockModes(android.security.keystore.KeyProperties
+                                .BLOCK_MODE_GCM)
+                        .setEncryptionPaddings(android.security.keystore
+                                .KeyProperties.ENCRYPTION_PADDING_NONE)
+                        .build());
+                kunciEnkripsiCache = kg.generateKey();
+                return kunciEnkripsiCache;
+            } catch (Exception e) {
+                kunciEnkripsiGagal = true;
+                ServerService.catatLog("[tg] Kunci enkripsi prefs tak"
+                        + " tersedia: " + e);
+                return null;
+            }
+        }
+    }
+
+    static String simpanUntuk(String kunci, String nilai) {
+        if (nilai == null || nilai.isEmpty() || !kunciRahasia(kunci)) {
+            return nilai;
+        }
+        javax.crypto.SecretKey k = kunciEnkripsi();
+        if (k == null) {
+            return nilai;
+        }
+        try {
+            byte[] gab = RahasiaKripto.enkripsi(k,
+                    nilai.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return RahasiaKripto.AWALAN + android.util.Base64.encodeToString(
+                    gab, android.util.Base64.NO_WRAP);
+        } catch (Exception e) {
+            ServerService.catatLog("[tg] Enkripsi nilai prefs gagal: " + e);
+            return nilai;
+        }
+    }
+
+    static String bukaUntuk(String kunci, String tersimpan, String bawaan) {
+        if (tersimpan == null || !kunciRahasia(kunci)
+                || !tersimpan.startsWith(RahasiaKripto.AWALAN)) {
+            return tersimpan;
+        }
+        javax.crypto.SecretKey k = kunciEnkripsi();
+        if (k == null) {
+            return bawaan;
+        }
+        try {
+            byte[] gab = android.util.Base64.decode(
+                    tersimpan.substring(RahasiaKripto.AWALAN.length()),
+                    android.util.Base64.NO_WRAP);
+            return new String(RahasiaKripto.dekripsi(k, gab),
+                    java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            ServerService.catatLog("[tg] Nilai prefs terenkripsi tak"
+                    + " terbaca - dianggap kosong.");
+            return bawaan;
+        }
+    }
+
     static String amanString(SharedPreferences sp, String kunci, String bawaan) {
         if (sp == null) {
             return bawaan;
         }
         try {
             String v = sp.getString(kunci, bawaan);
-            return v == null ? bawaan : v;
+            return v == null ? bawaan : bukaUntuk(kunci, v, bawaan);
         } catch (ClassCastException e) {
             String sembuh = null;
             try {
@@ -5778,6 +5889,17 @@ public final class TgBackup {
                     }
                 }
             }
+            for (String k : KUNCI_RAHASIA) {
+                Object sv = semua.get(k);
+                if (sv instanceof String) {
+                    String svs = (String) sv;
+                    if (!svs.isEmpty()
+                            && !svs.startsWith(RahasiaKripto.AWALAN)) {
+                        ed.putString(k, simpanUntuk(k, svs));
+                        ubah = true;
+                    }
+                }
+            }
             if (ubah) {
                 ed.apply();
             }
@@ -5854,11 +5976,11 @@ public final class TgBackup {
             }
 
         }
-        ed.putString(KEY_TG_TOKEN, keepToken);
-        ed.putString(KEY_TG_CHAT, keepChat);
-        ed.putString(KEY_TG_PASS, keepPass);
+        ed.putString(KEY_TG_TOKEN, simpanUntuk(KEY_TG_TOKEN, keepToken));
+        ed.putString(KEY_TG_CHAT, simpanUntuk(KEY_TG_CHAT, keepChat));
+        ed.putString(KEY_TG_PASS, simpanUntuk(KEY_TG_PASS, keepPass));
         if (!keepAdmin.isEmpty()) {
-            ed.putString(ServerService.KEY_ADMIN_TOKEN, keepAdmin);
+            ed.putString(ServerService.KEY_ADMIN_TOKEN, simpanUntuk(ServerService.KEY_ADMIN_TOKEN, keepAdmin));
         } else {
             ed.remove(ServerService.KEY_ADMIN_TOKEN);
         }

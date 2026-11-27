@@ -1201,7 +1201,7 @@ public class SettingsActivity extends Activity {
         if (ed == null) {
             ed = sp.edit();
         }
-        ed.putString(kunci, nilai);
+        ed.putString(kunci, TgBackup.simpanUntuk(kunci, nilai));
         return ed;
     }
 
@@ -1289,13 +1289,16 @@ public class SettingsActivity extends Activity {
         SharedPreferences.Editor ed = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit();
         ed.putString(ServerService.KEY_DATA_DIR, dataDirEfektif);
         ed.putString(ServerService.KEY_PORT, portEfektif);
-        ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
-        ed.putString(ServerService.KEY_DATABASE_URL, databaseUrl);
+        ed.putString(ServerService.KEY_ADMIN_TOKEN, TgBackup.simpanUntuk(
+                ServerService.KEY_ADMIN_TOKEN, adminToken));
+        ed.putString(ServerService.KEY_DATABASE_URL, TgBackup.simpanUntuk(
+                ServerService.KEY_DATABASE_URL, databaseUrl));
         // Audit 2826: sandi backup dari field saat Start ditekan
         // (momen sengaja) - bukan lagi dari watcher per ketikan.
         ed.putString(TgBackup.KEY_TG_PASS,
-                backupPassInput.getText() == null
-                        ? "" : backupPassInput.getText().toString());
+                TgBackup.simpanUntuk(TgBackup.KEY_TG_PASS,
+                        backupPassInput.getText() == null
+                                ? "" : backupPassInput.getText().toString()));
         ed.apply();
         paksaCacheUbah = true;
 
@@ -5040,7 +5043,8 @@ public class SettingsActivity extends Activity {
             SharedPreferences.Editor ed = getSharedPreferences(
                     ServerService.PREFS, MODE_PRIVATE).edit();
             for (java.util.Map.Entry<String, String> e : salin.entrySet()) {
-                ed.putString(e.getKey(), e.getValue());
+                ed.putString(e.getKey(),
+                        TgBackup.simpanUntuk(e.getKey(), e.getValue()));
             }
             ed.apply();
         } catch (Exception ignored) {

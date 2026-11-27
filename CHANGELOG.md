@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Nilai rahasia SharedPreferences kini terenkripsi (Audit 2764)
+
+Token bot Telegram, sandi backup, rahasia alarm, token admin, dan URL database kini disimpan terenkripsi AES-GCM di SharedPreferences; kuncinya dibuat dan disimpan AndroidKeyStore (Android 6+). Nilai lama yang masih polos dibaca seperti biasa dan otomatis ditulis ulang terenkripsi saat pemeriksaan prefs berikutnya. Di Android 5 atau bila KeyStore tidak tersedia, nilai disimpan polos seperti sebelumnya. Hash PIN tidak ikut dienkripsi: ia sudah hash PBKDF2 tersaltir, dan kunci KeyStore yang hilang akan membuatnya tak terbaca.
+
+
 ## [Belum rilis] — Catch kosong di jalur kritis kini mencatat log (Audit 2772)
 
 Sembilan belas badan catch yang tadinya kosong pada jalur yang mengubah keadaan kini mencatat kegagalannya ke log aplikasi: penanda start tertunda, niat jalan server, migrasi port, penyembuhan prefs, bukti panic runtime, riwayat restart per jam, pemicu backup otomatis, penanda versi, penunggu proses, migrasi pref auto-backup, tanda mulai/selesai restore, tanda backup tertunda, jadwal backup harian cadangan, dan penguatan hash PIN. Catch best-effort yang memang sengaja diam (menutup berkas, menghapus berkas sementara, apply UI, tebakan parse) tidak diubah agar log tidak banjir.

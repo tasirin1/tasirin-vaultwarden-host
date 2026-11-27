@@ -18,6 +18,28 @@ import java.util.zip.ZipOutputStream;
 public class TgBackupTest {
 
     @Test
+    public void kunciRahasiaMengenaliLimaKunci() {
+        assertTrue(TgBackup.kunciRahasia(TgBackup.KEY_TG_TOKEN));
+        assertTrue(TgBackup.kunciRahasia(TgBackup.KEY_TG_PASS));
+        assertTrue(TgBackup.kunciRahasia(TgBackup.KEY_ALARM_SECRET));
+        assertTrue(TgBackup.kunciRahasia(ServerService.KEY_ADMIN_TOKEN));
+        assertTrue(TgBackup.kunciRahasia(ServerService.KEY_DATABASE_URL));
+        assertFalse(TgBackup.kunciRahasia(TgBackup.KEY_TG_CHAT));
+        assertFalse(TgBackup.kunciRahasia(PinGate.KEY_PIN_HASH));
+        assertFalse(TgBackup.kunciRahasia(null));
+    }
+
+    @Test
+    public void simpanBukaRahasiaLolosUntukNilaiPolos() {
+        assertEquals("halo", TgBackup.simpanUntuk(
+                TgBackup.KEY_TG_CHAT, "halo"));
+        assertEquals("halo", TgBackup.bukaUntuk(
+                TgBackup.KEY_TG_TOKEN, "halo", ""));
+        assertEquals("", TgBackup.simpanUntuk(TgBackup.KEY_TG_TOKEN, ""));
+        assertNull(TgBackup.simpanUntuk(TgBackup.KEY_TG_TOKEN, null));
+    }
+
+    @Test
     public void kodeTrampolinCadanganSlotSendiri() {
         // Audit 2847: slot cadangan per aksi memetakan
         // seperti slot utama tetapi tak pernah sama -
