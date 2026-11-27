@@ -15574,6 +15574,25 @@ def _bagian_awal(tmp):
             rc == 0, "" if rc == 0 else out[-400:])
     shutil.rmtree(selaras0, ignore_errors=True)
 
+    pohon2900 = klon(tmp, "pohon2900")
+    kepala = "-----BEGIN RSA " + "PRIVATE" + " KEY-----"
+    with open(os.path.join(pohon2900, "kunci-bocor.txt"),
+              "w", encoding="utf-8") as f:
+        f.write(kepala + "\n")
+    git(pohon2900, "add", "-A")
+    git(pohon2900, "commit", "-qm", "tanam kunci uji")
+    with open(os.path.join(pohon2900, "sepele.txt"),
+              "w", encoding="utf-8") as f:
+        f.write("sepele\n")
+    git(pohon2900, "add", "-A")
+    git(pohon2900, "commit", "-qm", "commit sepele")
+    rc, out = jalan(pohon2900,
+                    [sys.executable, GERBANG, "--semua"])
+    periksa("header kunci ter-commit lama: --semua gagal "
+            "(Audit 2900)",
+            rc != 0 and rc != 124 and "kunci" in out)
+    shutil.rmtree(pohon2900, ignore_errors=True)
+
     selaras2 = klon(tmp, "selaras2")
     berkas_cw2 = os.path.join(
         selaras2, ".github", "workflows", "cek-wajib.yml")

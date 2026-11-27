@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Mode --semua kini memindai isi seluruh pohon untuk header kunci (Audit 2900)
+
+- Gerbang mode --semua sekarang memeriksa literal header kunci privat di isi semua berkas teks di pohon, bukan hanya baris diff terakhir — pelanggaran yang sudah ter-commit beberapa commit lalu tidak lagi lolos dari mode yang mengklaim memeriksa seluruh repo.
+
+
 ## [Belum rilis] — Token terbelah tanda petik/kurung/backtick kini tertangkap cek-cepat (Audit 2891)
 
 - Fase bungkus cek-cepat kini mengupas juga aksara " ( ) dan backtick, menutup sisa celah token terbelah yang terbukti lolos. Belahan ':'/'-'/'_' untuk token GitHub ternyata sudah tertangkap charset badan polanya; tujuh skenario baru mengunci ketujuh pemisah itu ujung-ke-ujung di suite.

@@ -24484,6 +24484,33 @@ def cek_literal_rahasia_utuh(gagal, diff, berubah=()):
                 + path)
             return
 
+def cek_literal_rahasia_pohon(gagal, berubah):
+    # Audit 2900: mode --semua memeriksa seluruh pohon,
+    # jadi literal header kunci di berkas teks mana pun
+    # di pohon ikut dipindai - bukan hanya baris diff.
+    # Tanpa ini, pelanggaran yang sudah ter-commit dua
+    # commit atau lebih tak pernah diperiksa lagi walau
+    # --semua mengklaim memeriksa seluruh repo.
+    pola = re.compile(
+        r"-----BEGIN[ A-Z0-9_-]{0,100}PRIVATE KEY"
+        r"( BLOCK)?-----", re.IGNORECASE)
+    for path in berubah:
+        try:
+            if not berkas_teks(path):
+                continue
+            with open(os.path.join(AKAR, path),
+                      encoding="utf-8", errors="replace") as f:
+                isi = f.read(16 * 1024 * 1024)
+        except OSError:
+            continue
+        if pola.search(isi):
+            gagal.append(
+                "Berkas memuat literal header kunci utuh "
+                "di pohon (mode --semua memindai seluruh "
+                "isi) - rakit dari potongan literal agar "
+                "Gitleaks CI tidak menandainya: " + path)
+            return
+
 def cek_definisi_baru(peringatan, diff):
     # Audit 2906: atribut name= bisa jatuh di baris berikut
     # tag-nya - nilai teks tergabung per berkas res.
@@ -25987,6 +26014,8 @@ def utama():
         cek_izin_baru(gagal, peringatan, diff)
         cek_literal_rahasia_utuh(gagal, diff, berubah)
         cek_definisi_baru(peringatan, diff)
+    if args.semua:
+        cek_literal_rahasia_pohon(gagal, berubah)
     if diff_gagal:
 
         gagal.append(
