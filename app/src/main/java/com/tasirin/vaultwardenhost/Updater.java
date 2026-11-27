@@ -860,7 +860,8 @@ public final class Updater {
 
     public static final Object KUNCI_WEBVAULT = new Object();
 
-    private static final Object KUNCI_UPDATE_WV = new Object();
+    private static final java.util.concurrent.locks.ReentrantLock KUNCI_UPDATE_WV =
+            new java.util.concurrent.locks.ReentrantLock();
 
     private static final java.util.Set<String> STAGING_AKTIF =
             java.util.Collections.synchronizedSet(new java.util.HashSet<String>());
@@ -2341,13 +2342,35 @@ public final class Updater {
     }
 
     public static String updateWebVaultVersi(Context ctx, String versi) throws Exception {
-        synchronized (KUNCI_UPDATE_WV) {
+        // Audit 2856: pola kunci yang sama dengan jalur
+        // binary (Audit 2601) - dulu synchronized tanpa
+        // batas: pemanggil kedua menggantung tanpa teks
+        // tunggu sampai unduh pertama selesai.
+        if (!KUNCI_UPDATE_WV.tryLock()) {
+            statusMesin = ctx.getString(R.string.dl_status_waiting);
+            boolean terkunci;
+            try {
+                terkunci = KUNCI_UPDATE_WV.tryLock(75,
+                        java.util.concurrent.TimeUnit.MINUTES);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                terkunci = false;
+            }
+            if (!terkunci) {
+                throw new java.io.IOException("Update web-vault lain tak"
+                        + " kunjung selesai (lebih dari 75 menit)"
+                        + " - update dibatalkan.");
+            }
+        }
+        try {
             mulaiUnduhan("web vault");
             try {
                 return updateWebVaultInner(ctx, versi);
             } finally {
                 selesaiUnduhan("web vault");
             }
+        } finally {
+            KUNCI_UPDATE_WV.unlock();
         }
     }
 

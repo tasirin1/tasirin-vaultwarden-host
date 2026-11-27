@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kunci update web-vault kini berbatas 75 menit + teks tunggu (Audit 2856)
+
+- `Updater.updateWebVaultVersi`: kunci update web-vault dulu monitor `synchronized` tanpa batas waktu — pemanggil kedua (tombol/perintah lain) tampak mati total sampai unduh + ekstrak pertama selesai, bisa satu jam pada koneksi yang menetes, tanpa pesan menunggu seperti jalur binary. Kini memakai pola yang sama dengan kunci pasang binary (Audit 2601): `ReentrantLock`, teks status tunggu dipasang selama menunggu, batas 75 menit, lalu gagal keras yang terlihat.
+
+
 ## [Belum rilis] — Cek ruang storage yang gagal kini tercatat, tak lagi dilewati diam-diam (Audit 2855)
 
 - `Updater`: pemeriksaan ruang kosong 50 MB sebelum unduh binary dulu terlewat tanpa jejak bila `freeBytes` gagal mengukur (StatFs gagal → -1) — di perangkat yang storage-nya bermasalah pengguna hanya melihat gagal unduh generik berulang tanpa petunjuk sebabnya. Kegagalan ukur itu kini dicatat di log aplikasi. Perilaku tidak berubah: cek yang tidak bisa dilakukan tidak memblokir unduhan, karena ruang sebenarnya bisa saja cukup.
