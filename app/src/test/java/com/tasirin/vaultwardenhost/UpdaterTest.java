@@ -12,6 +12,23 @@ import org.junit.Test;
 
 public class UpdaterTest {
 
+
+    @Test
+    public void lantaiVersiDanDowngrade2788() {
+        // Audit 2788: lantai keras + deteksi downgrade.
+        assertTrue(Updater.versiDiBawahLantai("1.29.0"));
+        assertTrue(Updater.versiDiBawahLantai("1.32.9"));
+        assertFalse(Updater.versiDiBawahLantai("1.33.0"));
+        assertFalse(Updater.versiDiBawahLantai("1.36.0"));
+        assertFalse(Updater.versiDiBawahLantai(""));
+        assertFalse(Updater.versiDiBawahLantai(null));
+        assertTrue(Updater.versiDowngrade("1.36.0", "1.35.0"));
+        assertFalse(Updater.versiDowngrade("1.36.0", "1.36.0"));
+        assertFalse(Updater.versiDowngrade("1.36.0", "1.37.0"));
+        assertFalse(Updater.versiDowngrade(null, "1.35.0"));
+        assertFalse(Updater.versiDowngrade("1.36.0", null));
+    }
+
     @Test
     public void pesanGalatUnduh_intiTeredaksi() {
         // Audit 3014: URL lengkap di pesan exception

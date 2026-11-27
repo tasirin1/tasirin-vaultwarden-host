@@ -3482,6 +3482,17 @@ public final class TgBot {
         if (bersih == null) {
             return false;
         }
+        // Audit 2788: akhiran " YA" = konfirmasi
+        // eksplisit downgrade (dicek di bawah); kupas
+        // lebih dulu agar validasi versi tetap bersih.
+        boolean konfirmasiYa = false;
+        String bersihTrim = bersih.trim();
+        if (bersihTrim.length() > 3
+                && bersihTrim.regionMatches(true,
+                        bersihTrim.length() - 3, " YA", 0, 3)) {
+            konfirmasiYa = true;
+            bersih = bersihTrim.substring(0, bersihTrim.length() - 3).trim();
+        }
         if (!argumenVersiValid(bersih)) {
             balas(ctx, idRuang, "Versi tidak valid."
                     + " Contoh: " + cmd + " 1.32.0 atau " + cmd + " terbaru");
@@ -3489,6 +3500,23 @@ public final class TgBot {
         }
         boolean kunci = !bersih.isEmpty();
         String versi = Updater.normalisasiPinVersi(bersih);
+        // Audit 2788: downgrade jarak jauh wajib
+        // konfirmasi eksplisit - perintah pertama hanya
+        // dibalas peringatan + cara mengulanginya.
+        if (kunci && versi != null && !konfirmasiYa) {
+            String terpasang = "/update".equals(cmd)
+                    ? Updater.versiSaatIni(ctx, ServerService.running
+                            ? Updater.parseBinaryVersion(ServerService.binaryVersion)
+                            : null)
+                    : Updater.webVaultFromVersion(ctx);
+            if (Updater.versiDowngrade(terpasang, versi)) {
+                balas(ctx, idRuang, "Itu downgrade: dari v" + terpasang
+                        + " ke v" + versi + ". Versi lama bisa mengandung"
+                        + " kerentanan yang sudah ditambal upstream."
+                        + " Bila yakin, ulangi: " + cmd + " " + versi + " YA");
+                return true;
+            }
+        }
         if ("/update".equals(cmd)) {
             unduhBinerDariBot(ctx, idRuang, bersih, kunci, versi);
         } else {

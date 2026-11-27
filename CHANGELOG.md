@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Downgrade versi kini berlantai dan wajib konfirmasi (Audit 2788)
+
+- Update eksplisit ke versi di bawah 1.33.0 ditolak (versi setua itu memuat kerentanan yang sudah ditambal upstream), dan perintah /update atau /webvault jarak jauh yang menurunkan versi kini wajib diulang dengan akhiran YA.
+
+
 ## [Belum rilis] — Baris satu-ketuk untuk izin alarm tepat waktu (Audit 2846)
 
 - Bila izin alarm tepat waktu dicabut di Android 12+, Pengaturan kini menampilkan tombol Izinkan yang membuka langsung halaman izinnya - backup harian tidak lagi diam-diam telat berjam-jam.

@@ -1586,6 +1586,13 @@ public final class Updater {
         if (latest == null) {
             throw new IOException("Tidak bisa baca versi terbaru. " + saranKoneksi(null));
         }
+        // Audit 2788: lantai versi keras (lihat
+        // VERSI_MINIMUM_BINARY).
+        if (paksa && versiDiBawahLantai(latest)) {
+            throw new IOException("Versi v" + latest + " ditolak: di bawah versi"
+                    + " minimum v" + VERSI_MINIMUM_BINARY + ". Versi setua itu"
+                    + " mengandung kerentanan yang sudah ditambal upstream.");
+        }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
 
         boolean butuhRefresh = ServerService.perluRefreshPatch(
@@ -3132,6 +3139,31 @@ public final class Updater {
 
     static boolean versiMelebihiAtauPersis(String a, String b) {
         return bandingVersi(a, b) > 0 || versiSamaPersis(a, b);
+    }
+
+    // Audit 2788: lantai versi keras jalur update
+    // eksplisit. Di bawah 1.33.0: RCE panel admin
+    // CVE-2025-24364 (ditambal di 1.33.0) dan kebocoran
+    // data organisasi CVE-2024-39925 (ditambal di
+    // 1.32.0) - diverifikasi dari advisory upstream.
+    static final String VERSI_MINIMUM_BINARY = "1.33.0";
+
+    // Audit 2788: true bila versi di bawah lantai.
+    static boolean versiDiBawahLantai(String versi) {
+        if (versi == null || versi.isEmpty()) {
+            return false;
+        }
+        return bandingVersi(versi, VERSI_MINIMUM_BINARY) < 0;
+    }
+
+    // Audit 2788: true bila target lebih lama dari
+    // yang terpasang (downgrade).
+    static boolean versiDowngrade(String terpasang, String target) {
+        if (terpasang == null || terpasang.isEmpty()
+                || target == null || target.isEmpty()) {
+            return false;
+        }
+        return bandingVersi(target, terpasang) < 0;
     }
 
     static int bandingVersi(String a, String b) {
