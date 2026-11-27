@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Shim getrandom jalur blokir kini menunggu CRNG siap (Audit 2942)
+
+- `shim/getrandom_shim.c`: syscall getrandom asli dengan bendera nol memblokir sampai generator acak kernel selesai terinisialisasi, tetapi shim melayani jalur itu langsung dari /dev/urandom — pada kernel tua yang menjadi target shim, sumber itu mengembalikan data dari pool yang belum terinisialisasi bila dipanggil pada detik pertama sesudah boot, sehingga kunci pertama (mis. CA TLS) bisa lemah secara permanen. Jalur blokir kini menunggu kesiapan CRNG sekali (memantau entropy_avail, dengan cadangan membaca /dev/random) sebelum melayani; jalur nonblok dan insecure tidak disentuh karena semantik kernel di sana memang best-effort.
+
+
 ## [Belum rilis] — Pemulihan EBADF shim tak lagi menutup fd milik berkas lain (Audit 2943)
 
 - `shim/getrandom_shim.c`: jalur pemulihan galat EBADF dulu memanggil close() pada fd yang justru sudah tidak valid — bila nomor fd itu sudah dipakai ulang oleh berkas lain, close() menutup berkas orang lain. Fd kini langsung direset dan dibuka ulang tanpa close.

@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <stddef.h>
 #include <unistd.h>
@@ -152,6 +153,47 @@ static ssize_t isi_dari_nonblok(void *buf, size_t len, int pakai_random) {
     return isi_dari_inti(buf, len, pakai_random, 1);
 }
 
+static pthread_once_t sekali_crng = PTHREAD_ONCE_INIT;
+static int crng_siap = 0;
+
+/* Audit 2942: menunggu CRNG terinisialisasi, sekali
+ * saja, meniru semantik blokir getrandom(0) kernel.
+ * Tanpa ini /dev/urandom di kernel tua target shim
+ * melayani dari pool yang belum terinisialisasi. */
+static void cek_crng_siap(void) {
+    for (;;) {
+        int fd = open("/proc/sys/kernel/random/entropy_avail",
+                O_RDONLY | O_CLOEXEC);
+        if (fd < 0) {
+            /* Tanpa proc: 1 byte dari /dev/random -
+             * sumber itu sendiri memblokir sampai
+             * pool terinisialisasi. */
+            int fr = open("/dev/random", O_RDONLY | O_CLOEXEC);
+            if (fr >= 0) {
+                char b;
+                ssize_t n = read(fr, &b, 1);
+                close(fr);
+                if (n == 1) {
+                    crng_siap = 1;
+                }
+            }
+            return;
+        }
+        char buf[16];
+        ssize_t n = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        if (n <= 0) {
+            return;
+        }
+        buf[n] = '\0';
+        if (strtol(buf, 0, 10) > 0) {
+            crng_siap = 1;
+            return;
+        }
+        usleep(100000);
+    }
+}
+
 static ssize_t getrandom_bendera(void *buf, size_t buflen, unsigned int flags) {
     if (flags & ~GRND_DIKENAL_SHIM) {
         errno = EINVAL;
@@ -172,6 +214,11 @@ static ssize_t getrandom_bendera(void *buf, size_t buflen, unsigned int flags) {
             && (flags & GRND_INSECURE_SHIM) == 0;
     if (flags & (GRND_NONBLOCK_SHIM | GRND_INSECURE_SHIM)) {
         return isi_dari_nonblok(buf, buflen, pakai_random);
+    }
+    /* Audit 2942: jalur blokir urandom menunggu CRNG
+     * siap dulu, seperti getrandom(0) kernel. */
+    if (!pakai_random) {
+        pthread_once(&sekali_crng, cek_crng_siap);
     }
     return isi_dari(buf, buflen, pakai_random);
 }
