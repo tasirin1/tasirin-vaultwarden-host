@@ -10,6 +10,18 @@ import org.junit.Test;
 
 public class SettingsActivityTest {
 
+
+    @Test
+    public void barisIzinExactAlarmHanyaSaatPerlu() {
+        // Audit 2846: baris satu-ketuk hanya tampil di
+        // Android 12+ saat izin exact alarm belum ada.
+        assertTrue(SettingsActivity.barisIzinExactAlarmTampil(31, false));
+        assertTrue(SettingsActivity.barisIzinExactAlarmTampil(35, false));
+        assertFalse(SettingsActivity.barisIzinExactAlarmTampil(31, true));
+        assertFalse(SettingsActivity.barisIzinExactAlarmTampil(30, false));
+        assertFalse(SettingsActivity.barisIzinExactAlarmTampil(23, false));
+    }
+
     @Test
     public void salinRestoreKedaluwarsa_lewatSepuluhMenit() {
         // Audit 3007: tenggat total salinan restore.

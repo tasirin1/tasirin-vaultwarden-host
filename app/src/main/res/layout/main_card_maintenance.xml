@@ -55,6 +55,33 @@
                         android:text="@string/allow" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/exactAlarmRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/exact_alarm_not_allowed"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/exactAlarmBtn"
+                        android:drawableStart="@drawable/ic_check"
+                        android:drawablePadding="8dp"
+                        style="@style/TasirinBtnSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/allow" />
+                </LinearLayout>
+
                 <View style="@style/TasirinDivider" />
 
                 <TextView

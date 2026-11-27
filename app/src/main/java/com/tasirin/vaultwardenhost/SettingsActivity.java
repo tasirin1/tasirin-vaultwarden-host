@@ -1,6 +1,7 @@
 package com.tasirin.vaultwardenhost;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -121,7 +122,9 @@ public class SettingsActivity extends Activity {
     private Button logOpenBtn;
     private android.widget.ScrollView settingsScroll;
     private LinearLayout batteryRow;
+    private LinearLayout exactAlarmRow;
     private Button batteryBtn;
+    private Button exactAlarmBtn;
     private Button copyUrlBtn;
     private Button exportCfgBtn;
     private Button importCfgBtn;
@@ -524,6 +527,7 @@ public class SettingsActivity extends Activity {
         logOpenBtn = findViewById(R.id.logOpen);
         settingsScroll = findViewById(R.id.settingsScroll);
         batteryRow = findViewById(R.id.batteryRow);
+        exactAlarmRow = findViewById(R.id.exactAlarmRow);
 
         updateBtn = findViewById(R.id.update);
         revertBtn = findViewById(R.id.revert);
@@ -539,6 +543,7 @@ public class SettingsActivity extends Activity {
         backupDbBtn = findViewById(R.id.backupDb);
         restoreDbBtn = findViewById(R.id.restoreDb);
         batteryBtn = findViewById(R.id.batteryBtn);
+        exactAlarmBtn = findViewById(R.id.exactAlarmBtn);
         backupTgBtn = findViewById(R.id.backupTg);
         restoreTgBtn = findViewById(R.id.restoreTg);
         copyUrlBtn = findViewById(R.id.copyUrl);
@@ -622,6 +627,7 @@ public class SettingsActivity extends Activity {
         });
         restoreDbBtn.setOnClickListener(v -> pickRestoreFile());
         batteryBtn.setOnClickListener(v -> requestBatteryExemption());
+        exactAlarmBtn.setOnClickListener(v -> requestExactAlarmPermission());
         backupTgBtn.setOnClickListener(v -> runBusy(() -> {
             try {
                 String msg = TgBackup.backupNow(SettingsActivity.this);
@@ -1702,6 +1708,25 @@ public class SettingsActivity extends Activity {
         boolean tampilBaterai = needBatteryCached;
         batteryRow.setVisibility(tampilBaterai ? View.VISIBLE : View.GONE);
 
+        // Audit 2846: baris izin alarm tepat waktu -
+        // tampil hanya di Android 12+ saat izin belum
+        // diberikan, agar backup harian tak diam-diam
+        // jatuh ke alarm inexact yang telat berjam-jam.
+        if (exactAlarmRow != null) {
+            boolean exact = true;
+            if (Build.VERSION.SDK_INT >= 31) {
+                try {
+                    AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+                    exact = am != null && am.canScheduleExactAlarms();
+                } catch (Exception ignored) {
+                    exact = true;
+                }
+            }
+            exactAlarmRow.setVisibility(
+                    barisIzinExactAlarmTampil(Build.VERSION.SDK_INT, exact)
+                            ? View.VISIBLE : View.GONE);
+        }
+
         if (lastBatteryTampil == null || lastBatteryTampil != tampilBaterai) {
             lastBatteryTampil = tampilBaterai;
             perbaikiFokusBaterai(tampilBaterai);
@@ -1919,6 +1944,28 @@ public class SettingsActivity extends Activity {
         } else {
             autoStartCheck.setNextFocusDownId(R.id.autoUpdate);
             autoUpdateCb.setNextFocusUpId(R.id.autoStart);
+        }
+    }
+
+    // Audit 2846: keputusan murni baris izin alarm
+    // tepat waktu - hanya relevan di Android 12+
+    // (SCHEDULE_EXACT_ALARM lahir di API 31) dan hanya
+    // saat izin belum diberikan.
+    static boolean barisIzinExactAlarmTampil(int sdk, boolean exactDiizinkan) {
+        return sdk >= 31 && !exactDiizinkan;
+    }
+
+    private void requestExactAlarmPermission() {
+        if (Build.VERSION.SDK_INT < 31) {
+            return;
+        }
+        try {
+            Intent intent = new Intent(
+                    android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+            intent.setData(Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        } catch (Exception e) {
+            toast(getString(R.string.setelan_buka_gagal, String.valueOf(e.getMessage())));
         }
     }
 

@@ -56,6 +56,7 @@
     <string name="pin_label">App lock PIN</string>
     <string name="pin_hint">PIN min. 4 characters (letters/digits)</string>
     <string name="battery_not_allowed">Full access not allowed yet</string>
+    <string name="exact_alarm_not_allowed">Exact alarms off - daily backups may be late</string>
     <string name="izin_storage_belum">Storage permission not granted yet — Start cancelled.</string>
     <string name="izin_semua_file_panduan">Turn on All files access for this app, then come back and press Start again — Android 11+ requires it for a custom data folder.</string>
     <string name="izin_storage_ditolak">Storage permission denied — the data folder cannot be written. Allow it in Phone Settings → Apps → Permissions.</string>

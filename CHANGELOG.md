@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Baris satu-ketuk untuk izin alarm tepat waktu (Audit 2846)
+
+- Bila izin alarm tepat waktu dicabut di Android 12+, Pengaturan kini menampilkan tombol Izinkan yang membuka langsung halaman izinnya - backup harian tidak lagi diam-diam telat berjam-jam.
+
+
 ## [Belum rilis] — Cek update kini berjalan harian walau aplikasi tak dibuka (Audit 2858)
 
 - Alarm harian baru memeriksa update binary dan web vault tiap hari (dan memasangnya bila auto-update aktif), tanpa menunggu aplikasi dibuka lebih dulu.
