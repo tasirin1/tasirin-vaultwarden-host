@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Sisa pembersihan clipboard tak lagi membengkak karena rollback jam (Audit 2983)
+
+- `LogActivity`: jalur pemulihan pembersihan clipboard otomatis menghitung sisa dari stempel jam dinding tanpa batas — salinan yang dibuat saat jam sedang maju, lalu aplikasi mati dan jam dikoreksi mundur, menjadwalkan pembersihan 30 detik ditambah seluruh selisih rollback ke depan, sehingga teks log bertahan di clipboard jauh melewati janji 30 detiknya. Sisa jalur dinding kini dibatasi jendela aslinya; sisa yang sah memang tidak mungkin melebihinya.
+
+
 ## [Belum rilis] — Sapuan berkas sementara tak lagi melewatkan berkas berstempel masa depan (Audit 2982)
 
 - `TgBackup` + `SettingsActivity`: sapuan berkas sementara berbatas umur (ekspor config plaintext, zip restore, salinan backup pilihan, sisa salinan) dulu menganggap berkas yang stempel waktunya di masa depan sebagai berumur nol — berkas yang dibuat saat jam STB sedang maju lalu jamnya dikoreksi mundur tidak pernah tersapu selama selisih rollback itu, melewati batas umurnya jauh. Umur sapuan kini satu fungsi murni bersama yang diuji: stempel masa depan dihitung basi.

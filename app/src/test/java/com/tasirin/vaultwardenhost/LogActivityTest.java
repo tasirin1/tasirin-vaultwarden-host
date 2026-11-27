@@ -359,6 +359,19 @@ public class LogActivityTest {
     }
 
     @Test
+    public void sisaClipWall_stempelMasaDepanDibatasiJendela() {
+        // Audit 2983: stempel wall jauh di masa depan
+        // (jam dikoreksi mundur) -> sisa maksimal
+        // jendela asli 30 detik, bukan bertahun-tahun.
+        long jauh = System.currentTimeMillis() + 10L * 365 * 24 * 3600_000L;
+        long sisa = LogActivity.sisaClipMs(jauh);
+        assertTrue(sisa > 0);
+        assertTrue(sisa <= LogActivity.CLIP_BERSIH_MS);
+        assertEquals(0, LogActivity.sisaClipMs(
+                System.currentTimeMillis() - 1000));
+    }
+
+    @Test
     public void sisaClip_hitungElapsedMurni() {
         assertEquals(5000, LogActivity.sisaClipMs(35000, 30000));
         assertEquals(0, LogActivity.sisaClipMs(30000, 30000));

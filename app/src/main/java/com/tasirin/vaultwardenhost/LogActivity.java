@@ -1265,7 +1265,11 @@ public class LogActivity extends Activity {
             return 0;
         }
         if (clipPakaiWallClock(kedaluwarsa)) {
-            return Math.max(0, kedaluwarsa - System.currentTimeMillis());
+            // Audit 2983: sisa dibatasi jendela aslinya -
+            // stempel dari jam yang maju lalu dikoreksi
+            // mundur dulu menghasilkan sisa bertahun-tahun.
+            return Math.min(CLIP_BERSIH_MS,
+                    Math.max(0, kedaluwarsa - System.currentTimeMillis()));
         }
         try {
             return sisaClipMs(kedaluwarsa, System.currentTimeMillis());
