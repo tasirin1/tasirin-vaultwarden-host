@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Paruh suite verifikasi kini tahan mati di tengah — ringkasan selalu tercetak (Audit 2910)
+
+- Kegagalan infrastruktur di tengah satu paruh suite verifikasi (git gagal, berkas hilang) kini dicatat sebagai skenario gagal bernama dan tidak lagi membunuh paruh lainnya; laporan ringkasan suite selalu tercetak, bukan hanya traceback.
+
+
 ## [Belum rilis] — Skenario gagal suite verifikasi kini kebal timeout dan crash gerbang (Audit 2909)
 
 - Semua asersi 'gerbang gagal' di suite verifikasi kini menolak kode keluar timeout (124) dan, yang sebelumnya hanya memeriksa kode keluar, juga menolak keluaran berisi Traceback — gerbang yang menggantung atau crash tidak lagi tercatat sebagai kegagalan yang benar.

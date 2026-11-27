@@ -83,6 +83,23 @@ def klon(tmp, nama, akar, nama_uji, snapshot):
     return tujuan
 
 
+def paruh_aman(bagian, tmp):
+    # Audit 2910/2944: paruh suite adalah deretan skenario
+    # sekuensial tanpa isolasi per skenario; satu
+    # pengecualian infrastruktur (git gagal, berkas
+    # hilang) dulu membunuh sisa paruh DAN membuat
+    # lapor() tak pernah jalan, jadi CI hanya menampilkan
+    # traceback tanpa ringkasan. Kini pengecualian itu
+    # dicatat sebagai skenario gagal bernama, paruh lain
+    # tetap berjalan, dan ringkasan selalu tercetak.
+    try:
+        bagian(tmp)
+    except Exception as e:
+        periksa("paruh %s mati di tengah: %s: %s"
+                % (getattr(bagian, "__name__", "paruh"),
+                   type(e).__name__, e), False)
+
+
 def periksa(nama, ok, detail=""):
     # Audit 1628: flush per vonis — keluaran suite yang ter-buffer
     # penuh membuat lari yang mati di tengah meninggalkan log
