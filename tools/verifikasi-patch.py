@@ -25031,7 +25031,14 @@ def cek_panggil_bekas_hapusan(gagal, diff):
     for nama in sorted(bekas_hapusan()):
         pola = re.compile(r"\b%s\s*\(|::\s*%s\b"
                           % (re.escape(nama), re.escape(nama)))
+        # Audit 2905: panggilan lewat refleksi menyembunyikan
+        # nama di dalam literal string yang dibuang kupas_java
+        # - nilai juga baris MENTAH: nama terkutip + penanda
+        # refleksi pada baris yang sama / sambungannya.
+        pola_refleksi = re.compile(
+            r"[\"']%s[\"']" % re.escape(nama))
         sebelumnya = {}
+        sebelumnya_mentah = {}
         for path, baris in baris_tambah:
             kode = kupas_java(baris)
             gabung = sebelumnya.get(path, "").rstrip() + kode.lstrip()
@@ -25040,8 +25047,21 @@ def cek_panggil_bekas_hapusan(gagal, diff):
                     "Baris baru memanggil %s() yang sudah dihapus: %s"
                     % (nama, baris.strip()[:80]))
                 break
+            gabung_mentah = (sebelumnya_mentah.get(path, "").rstrip()
+                             + " " + baris.strip())
+            if pola_refleksi.search(baris) or pola_refleksi.search(gabung_mentah):
+                if any(tanda in gabung_mentah for tanda in
+                       ("getMethod", "getDeclaredMethod", "forName",
+                        "getField", "getDeclaredField")):
+                    gagal.append(
+                        "Baris baru memanggil %s() yang sudah dihapus "
+                        "(lewat refleksi/string): %s"
+                        % (nama, baris.strip()[:80]))
+                    break
             if kode.strip():
                 sebelumnya[path] = kode
+            if baris.strip():
+                sebelumnya_mentah[path] = baris
 
 _POLA_SIGNATUR_METODE = re.compile(
     r"\s*(?:(?:public|protected|private)\s+)?(?:static\s+)?"

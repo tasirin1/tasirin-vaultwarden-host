@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Panggilan metode terhapus lewat refleksi kini tertangkap gerbang (Audit 2905)
+
+- `tools/verifikasi-patch.py` (`cek_panggil_bekas_hapusan`): panggilan langsung dinilai dari teks terkupas, sehingga nama metode terhapus yang disembunyikan di literal string — `getMethod("batalTunda")` dan kawan-kawannya — lolos total (dan lolos kompilasi CI juga, karena refleksi baru gagal di runtime sebagai `NoSuchMethodException`). Baris mentah kini ikut dinilai: nama terhapus dalam kutip yang disertai penanda refleksi (`getMethod`/`getDeclaredMethod`/`forName`/`getField`/`getDeclaredField`) pada baris yang sama atau sambungannya dengan baris sebelumnya = GAGAL, setara panggilan langsung.
+
+
 ## [Belum rilis] — cek_uji_baru kini menangkap metode baru bersignatur terbelah dan beranotasi sebaris (Audit 2904)
 
 - `tools/verifikasi-patch.py` (`cek_uji_baru`): peringatan "metode baru tanpa jejak di app/src/test" dulu lolos untuk dua bentuk penulisan sah: signatur yang namanya jatuh di baris kedua (`static String` lalu `metodeDuaBaris(...)` di baris berikut) dan anotasi yang sebaris dengan signatur (`@Deprecated static void metode() ...`). Pola kini menerima awalan anotasi, dan bila satu baris tidak cocok, sambungannya dengan baris sebelumnya ikut dinilai dengan penjaga yang sama (kelas, kata kunci, `@Override`, dan himpunan baris terhapus). Sifat cek tetap PERINGATAN.
