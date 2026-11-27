@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Wake lock server disegarkan proaktif sebelum batas 12 jam (Audit 3013)
+
+- `ServerService`: kunci bangun server dipegang dengan batas 12 jam, tetapi penjaga per pemeriksaannya hanya mengambil ulang bila kunci sudah lepas — selama dipegang tidak pernah disegarkan, jadi tiap 12 jam ada jendela sampai 2 menit tanpa kunci bangun di mana STB bisa tidur dan server membeku sampai ada yang membangunkan perangkat. Waktu pengambilan kini dicatat dan kunci diambil ulang lebih dulu sesudah 11 jam; batas 12 jam tetap menjadi jaring pengaman.
+
+
 ## [Belum rilis] — Pesan galat unduh kini teredaksi seperti pesan galat backup (Audit 3014)
 
 - `Updater` + `TgBot` + `ServerService`: pesan kesalahan unduhan dulu menampilkan pesan exception mentah ke balasan bot dan status layar — memuat URL lengkap, path berkas lokal, dan IP tujuan — sementara jalur backup sudah lama menyamarkannya. Pesan unduh kini melewati penyamaran yang sama (URL, token, dan path disamarkan, pesan dibatasi), termasuk cabang pesan yang kebetulan sudah mengandung kata saran, status gagal start, dan baris log gagal unduh.

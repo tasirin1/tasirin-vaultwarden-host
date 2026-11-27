@@ -547,6 +547,15 @@ public class ServerService extends Service {
 
     private static PowerManager.WakeLock wakeLock;
 
+    // Audit 3013: cap waktu (elapsed) akuisisi wake
+    // lock terakhir, untuk penyegaran proaktif.
+    private static volatile long wakeLockSejakElapsed = 0;
+
+    static boolean wakeLockPerluSegar(long sejakElapsed, long kiniElapsed) {
+        return sejakElapsed > 0
+                && kiniElapsed - sejakElapsed >= 11L * 3600 * 1000L;
+    }
+
     private static final Object KUNCI_WAKELOCK = new Object();
     private static volatile File logFile;
 
@@ -6143,7 +6152,13 @@ public class ServerService extends Service {
         try {
             boolean perlu;
             synchronized (KUNCI_WAKELOCK) {
-                perlu = running && autoRestart && (wakeLock == null || !wakeLock.isHeld());
+                // Audit 3013: lock yang dipegang pun
+                // disegarkan proaktif sesudah 11 jam,
+                // sebelum batas sistem 12 jam melepasnya.
+                perlu = running && autoRestart
+                        && (wakeLock == null || !wakeLock.isHeld()
+                                || wakeLockPerluSegar(wakeLockSejakElapsed,
+                                        SystemClock.elapsedRealtime()));
             }
             if (perlu) {
                 acquireWakeLock();
@@ -6163,8 +6178,11 @@ public class ServerService extends Service {
 
                     try {
                         wakeLock.acquire(12L * 3600 * 1000L);
+                        wakeLockSejakElapsed =
+                                SystemClock.elapsedRealtime();
                     } catch (Exception e) {
                         wakeLock = null;
+                        wakeLockSejakElapsed = 0;
                     }
                 }
             } catch (Exception ignored) {
@@ -6180,6 +6198,7 @@ public class ServerService extends Service {
             }
         }
         wakeLock = null;
+        wakeLockSejakElapsed = 0;
     }
 
     private void releaseWakeLock() {

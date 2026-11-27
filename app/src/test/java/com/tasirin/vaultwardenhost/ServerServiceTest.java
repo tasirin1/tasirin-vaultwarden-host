@@ -893,6 +893,17 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void wakeLockPerluSegar_sesudahSebelasJam() {
+        // Audit 3013: penyegaran proaktif pada 11 jam,
+        // sebelum batas sistem 12 jam melepas lock.
+        long jam = 3600_000L;
+        org.junit.Assert.assertFalse(ServerService.wakeLockPerluSegar(0, 20 * jam));
+        org.junit.Assert.assertFalse(ServerService.wakeLockPerluSegar(1000, 1000 + 11 * jam - 1));
+        org.junit.Assert.assertTrue(ServerService.wakeLockPerluSegar(1000, 1000 + 11 * jam));
+        org.junit.Assert.assertTrue(ServerService.wakeLockPerluSegar(1000, 1000 + 12 * jam));
+    }
+
+    @Test
     public void bolehLogNoiseTls_sepuluhMenitSekali() {
         // Audit 3000: ringkasan handshake TLS lolos
         // pertama kali lalu paling sering 10 menit.
