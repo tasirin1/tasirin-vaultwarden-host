@@ -502,4 +502,11 @@ RAHASIA="$(printf '%s\n%s\n' "$RAHASIA" "$BUNGKUS" | sed '/^$/d' | sort -u || tr
 if [ -n "$RAHASIA" ]; then
   gagal_msg "isi berkas memuat pola rahasia (private key/token): $(printf '%s' "$RAHASIA" | tr '\n' ' ')"
 fi
+# Audit 2927: nama berkas ikut diperiksa - token yang
+# hanya hidup sebagai nama berkas dulu lolos semua
+# fase karena semua fase memindai isi.
+NAMA_RAHASIA="$( { git -c core.quotepath=false ls-files 2>/dev/null; git -c core.quotepath=false ls-files --others --exclude-standard 2>/dev/null; git -c core.quotepath=false ls-files --others --ignored --exclude-standard 2>/dev/null; } | sort -u | grep -E -- "$POLA_TOKEN" || true)"
+if [ -n "$NAMA_RAHASIA" ]; then
+  gagal_msg "nama berkas memuat pola rahasia/token: $(printf '%s' "$NAMA_RAHASIA" | tr '\n' ' ')"
+fi
 exit $gagal

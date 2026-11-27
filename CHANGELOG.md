@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — cek-cepat kini ikut memeriksa nama berkas terhadap pola token (Audit 2927)
+
+- `scripts/cek-cepat.sh`: semua fase dulu memindai isi berkas saja — token yang hanya hidup sebagai nama berkas (mis. berkas bernama token GitHub) ter-commit tanpa hambatan dan tampil di daftar repo. Fase baru di akhir skrip mencocokkan daftar nama berkas (terlacak, tak terlacak, dan terabaikan — sumber yang sama seperti fase bungkus) ke pola token yang sama; kecocokan menggagalkan dengan pesan khusus nama berkas. Ditambah satu skenario suite.
+
+
 ## [Belum rilis] — Docstring suite tak lagi menyebut hitungan skenario yang basi (Audit 2925)
 
 - `tools/uji-verifikasi-1.py` + `tools/uji-verifikasi-2.py`: docstring menyebut "2.040 skenario" padahal hitungan `periksa()` aktual sudah bergeser (2.041 saat diaudit, dan bertambah tiap skenario baru) — angka persis di docstring pasti basi lagi. Diganti sebutan tak-berangka ("ribuan skenario") agar tak bisa basi.

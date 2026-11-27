@@ -76,6 +76,14 @@ def _bagian_awal(tmp):
             rc != 0 and "pola rahasia" in out)
     shutil.rmtree(rahasia, ignore_errors=True)
 
+    namatoken = klon(tmp, "namatoken")
+    tanam(namatoken, token_palsu + ".txt",
+          "teks jinak biasa saja.\n", "w")
+    rc, out = jalan(namatoken, ["bash", SKRIP])
+    periksa("token hanya di nama berkas tertangkap (Audit 2927)",
+            rc != 0 and "nama berkas" in out)
+    shutil.rmtree(namatoken, ignore_errors=True)
+
     terbelah = klon(tmp, "terbelah")
     tanam(terbelah, "catatan-token-terbelah.txt",
           "token uji: " + token_palsu[:paruh] + "\n"
