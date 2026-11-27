@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Sinkron terjemahan kini mencakup string-array + kutip tunggal; drift about_icons diperbaiki (Audit 2901)
+
+- `tools/verifikasi-patch.py` (`cek_sinkron_terjemah`): perbandingan paritas `values` vs `values-in` kini mencakup `string-array` (dulu hanya `string` dan `plurals`) dan pola `name=` menerima kutip tunggal maupun ganda (kutip tunggal sah XML tapi dulu tak terlihat sebagai definisi). Drift nyata yang disembunyikan celah itu langsung diperbaiki: `about_icons` ada di `values/arrays.xml` tapi hilang dari `values-in/arrays.xml` — kini ditambahkan dengan isi ikon yang sama persis (ikon emoji netral bahasa). Batasan yang disadari dan dibiarkan: cek ini membandingkan paritas NAMA, bukan isi teks — kesegaran terjemahan (teks Inggris berubah, padanan Indonesianya basi) tidak bisa dinilai mekanis lintas bahasa dan tetap urusan peninjauan manusia.
+
+
 ## [Belum rilis] — cek_uji_ubah hidup lagi: nama metode dari peta rentang berkas, bukan konteks git (Audit 2899)
 
 - `tools/verifikasi-patch.py` (`hunk_fungsi`): nama metode yang diubah dulu dibaca dari ekor header `@@` (konteks funcname git) yang untuk Java hampir selalu menunjuk baris deklarasi kelas — pada diff nyata fungsi itu menghasilkan 0 nama, sehingga pengingat "metode diubah tapi tanpa jejak di app/src/test" (aturan uji menyertai perubahan perilaku) tidak pernah berbunyi sama sekali. Kini posisi baris-baru tiap hunk dipetakan ke metode yang memuatnya di berkas saat ini: peta rentang metode dibangun dari pola signatur + hitung kurung pada isi yang sudah dikupas komentar/string, di-cache per berkas. Sifatnya tetap PERINGATAN, bukan kegagalan.

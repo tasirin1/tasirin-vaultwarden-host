@@ -24211,8 +24211,12 @@ def cek_sinkron_terjemah(gagal):
                     hasil.update(re.findall(pola, isi))
         return hasil
 
-    pola_string = r'<string(?=[\s/>])[^>]*?\bname="([^"]+)"'
-    pola_plurals = r'<plurals(?=[\s/>])[^>]*?\bname="([^"]+)"'
+    # Audit 2901: kutip tunggal sah XML dan kini ikut terbaca
+    # (dulu hanya kutip ganda), dan string-array ikut
+    # dibandingkan (dulu hanya string + plurals).
+    pola_string = r'<string(?=[\s/>])[^>]*?\bname=["\']([^"\']+)["\']'
+    pola_plurals = r'<plurals(?=[\s/>])[^>]*?\bname=["\']([^"\']+)["\']'
+    pola_array = r'<string-array(?=[\s/>])[^>]*?\bname=["\']([^"\']+)["\']'
 
     inggris = himpun("values", pola_string)
     indonesia = himpun("values-in", pola_string)
@@ -24240,6 +24244,18 @@ def cek_sinkron_terjemah(gagal):
             gagal.append("values-in kurang plurals: " + ", ".join(kurang[:10]))
         if lebih:
             gagal.append("values-in berlebih plurals: " + ", ".join(lebih[:10]))
+
+    ar_inggris = himpun("values", pola_array)
+    ar_indonesia = himpun("values-in", pola_array)
+    if ar_inggris or ar_indonesia:
+        kurang = sorted(ar_inggris - ar_indonesia)
+        lebih = sorted(ar_indonesia - ar_inggris)
+        if kurang:
+            gagal.append("values-in kurang string-array: "
+                         + ", ".join(kurang[:10]))
+        if lebih:
+            gagal.append("values-in berlebih string-array: "
+                         + ", ".join(lebih[:10]))
 
 _CACHE_BERKAS_TEKS = {}
 

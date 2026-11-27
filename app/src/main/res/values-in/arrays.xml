@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
+    <string-array name="about_icons">
+        <item>&#128100;</item>
+        <item>&#127919;</item>
+        <item>&#128241;</item>
+        <item>&#127760;</item>
+        <item>&#128274;</item>
+        <item>&#9889;</item>
+        <item>&#128190;</item>
+        <item>&#9878;&#65039;</item>
+    </string-array>
     <string-array name="about_rows">
         <item>Pengembang: Julius Rudi Tasirin</item>
         <item>Tujuan: server Vaultwarden di Android 5+ / TV dan STB</item>
