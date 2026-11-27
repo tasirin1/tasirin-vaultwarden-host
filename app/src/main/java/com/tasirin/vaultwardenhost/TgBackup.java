@@ -2633,12 +2633,18 @@ public final class TgBackup {
         for (File f : pre) {
             waktuUbah.put(f, f.lastModified());
         }
+        // Audit 2820: urutan retensi dari NAMA berkas (memuat
+        // stempel pembuatan yang tetap), bukan lastModified -
+        // jam STB yang mundur membuat backup baru bercap lama
+        // dan terhapus sebagai "tertua". lastModified hanya
+        // pemecah seri untuk nama yang sama.
         Comparator<File> terbaruDulu = new Comparator<File>() {
             @Override
             public int compare(File a, File b) {
                 Long wa = waktuUbah.get(a);
                 Long wb = waktuUbah.get(b);
-                return Long.compare(wb == null ? 0 : wb, wa == null ? 0 : wa);
+                return bandingBackupTerbaru(a.getName(), wa == null ? 0 : wa,
+                        b.getName(), wb == null ? 0 : wb);
             }
         };
         File[] rutin = biasa.toArray(new File[0]);
@@ -2651,6 +2657,17 @@ public final class TgBackup {
         for (int i = KEEP_PRE_RESTORE; i < pengaman.length; i++) {
             pengaman[i].delete();
         }
+    }
+
+    // Audit 2820: nama yang lebih besar (stempel pembuatan
+    // lebih baru) = lebih dulu dipertahankan.
+    static int bandingBackupTerbaru(String namaA, long ubahA,
+            String namaB, long ubahB) {
+        int byNama = namaB.compareTo(namaA);
+        if (byNama != 0) {
+            return byNama;
+        }
+        return Long.compare(ubahB, ubahA);
     }
 
     static File caAktif(File internal, File lama) {

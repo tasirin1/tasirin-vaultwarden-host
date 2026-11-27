@@ -42,6 +42,27 @@ public class TgBackupTest {
     }
 
     @Test
+    @Test
+    public void cleanupBackupBaruBercapMundurTetapDipertahankan() throws Exception {
+        // Audit 2820: backup bernama paling baru tapi
+        // lastModified-nya paling lama (jam STB mundur) tidak
+        // boleh terhapus sebagai "tertua".
+        java.io.File dir = java.nio.file.Files.createTempDirectory("vwretensi2").toFile();
+        for (int i = 0; i < 12; i++) {
+            java.io.File f = new java.io.File(dir,
+                    "backup-telegram-20260101-0000" + (10 + i) + "-000.zip");
+            f.createNewFile();
+            // Nama naik, mtime justru turun (berlawanan).
+            f.setLastModified(900000L - i * 5000L);
+        }
+        TgBackup.cleanupOldBackups(dir);
+        assertTrue(new java.io.File(dir,
+                "backup-telegram-20260101-000021-000.zip").isFile());
+        assertTrue(!new java.io.File(dir,
+                "backup-telegram-20260101-000010-000.zip").isFile());
+        assertEquals(10, dir.listFiles().length);
+    }
+
     public void cleanupPreTakMengusirBackupRutin() throws Exception {
         java.io.File dir = java.nio.file.Files.createTempDirectory("vwretensi").toFile();
         for (int i = 0; i < 10; i++) {

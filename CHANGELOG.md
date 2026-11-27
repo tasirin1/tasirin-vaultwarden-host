@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Retensi backup diurutkan dari nama berkas, bukan cap waktu berkas (Audit 2820)
+
+- `TgBackup.cleanupOldBackups`: urutan pertahankan/hapus kini mengikuti nama berkas yang memuat stempel pembuatan (`yyyyMMdd-HHmmss-SSS`), dengan `lastModified` hanya sebagai pemecah seri. Sebelumnya pengurutan memakai `lastModified` (jam dinding berkas) — di STB yang jamnya mundur, backup yang baru dibuat bisa bercap paling lama dan terhapus sebagai "tertua" sementara backup lama bercap lebih baru dipertahankan. Ada uji JVM dengan nama naik tapi cap waktu turun.
+
+
 ## [Belum rilis] — Pesan backup jujur saat unggahan tak terkonfirmasi (Audit 2787)
 
 - `TgBackup.backupNowIsi`: bila tak ada satu pun chat yang mengonfirmasi unggahan (respons Telegram tak terbaca sesudah unggah penuh), pesan hasil kini berbunyi "terkirim, TAPI belum terkonfirmasi" dan menyebut penanda restore masih menunjuk backup sebelumnya — sebelumnya keadaan itu tetap dilaporkan "Backup terkirim ✓", sehingga pengguna bisa yakin backup terbaru aman padahal `/restore` akan mengambil backup lama. Perilaku penanda sendiri tidak berubah (penanda lama memang dipertahankan, Audit 1680); yang berubah kejujuran pesannya.
