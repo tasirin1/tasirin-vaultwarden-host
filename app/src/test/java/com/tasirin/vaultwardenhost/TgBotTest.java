@@ -822,9 +822,22 @@ public class TgBotTest {
     }
 
     @Test
-    public void pesanAliveMembedakanSehatDanTidak() {
-        assertEquals("Server sehat (HTTPS 200 /alive).", TgBot.pesanAlive(true));
-        assertEquals("Server TIDAK merespon /alive!", TgBot.pesanAlive(false));
+    public void pesanAliveRinciMembedakanSumberSehat() {
+        // Audit 2992: alive 200 = sehat penuh; config-saja
+        // disebut apa adanya; tak sehat membawa rincian.
+        assertEquals("Server sehat (HTTPS 200 /alive).",
+                TgBot.pesanAliveRinci(new ServerService.HasilPing(
+                        true, 200, -2, "alive 200")));
+        String configSaja = TgBot.pesanAliveRinci(
+                new ServerService.HasilPing(
+                        true, 503, 200, "config 200 (alive 503)"));
+        assertTrue(configSaja.contains("/api/config"));
+        assertTrue(configSaja.contains("503"));
+        assertTrue(TgBot.pesanAliveRinci(new ServerService.HasilPing(
+                false, -1, -1, "port tertutup"))
+                .contains("port tertutup"));
+        assertEquals("Server TIDAK merespon /alive!",
+                TgBot.pesanAliveRinci(null));
     }
 
     @Test

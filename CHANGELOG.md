@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — /alive kini jujur soal sumber sehatnya (Audit 2992)
+
+- `TgBot`: jawaban `/alive` dulu dibangun dari boolean sehat yang bisa datang dari `/api/config` 200 saja sementara `/alive` memberi 5xx (pola database rusak) — tapi pesannya selalu mengklaim "Server sehat (HTTPS 200 /alive)". Kedua situs kini memakai `ServerService.pingRinci` dan pembentuk pesan baru: alive 200 disebut sehat penuh; config-saja disebut apa adanya ("/alive memberi 503 — pola database bermasalah, cek /log"); tak sehat membawa rincian kode. `pesanAlive(boolean)` dan pembungkus `pingAlive` yang tak terpakai lagi dihapus dan dicatat di `tools/bekas-hapusan.txt`; uji lama diganti uji tiga keadaan pesan baru.
+
+
 ## [Belum rilis] — Batas waktu unduhan tak lagi membuang parsial dan kini dicoba lagi (Audit 2985)
 
 - `Updater`: pesan batas-waktu 20 menit dan pesan batas-ukuran sama-sama memuat frasa "melebihi batas", jadi `buangParsialRusak` ikut menghapus parsial yang sebenarnya utuh setiap unduhan melewati 20 menit, dan `bolehCobaLagiUnduh` tak mengenal frasa batas-waktu sehingga tak pernah mencoba lagi — koneksi lambat mengunduh dari nol selamanya. Kini yang dibuang hanya parsial "melebihi batas ukuran", dan "batas waktu" masuk kelompok boleh-coba-lagi sehingga percobaan berikut melanjutkan dari parsial yang disimpan. Diuji: pesan batas-waktu persis produksi boleh lanjut, pesan batas-ukuran tetap tidak.

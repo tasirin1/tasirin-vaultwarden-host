@@ -189,9 +189,23 @@ public final class TgBot {
         };
     }
 
-    static String pesanAlive(boolean sehat) {
-        return sehat ? "Server sehat (HTTPS 200 /alive)."
-                : "Server TIDAK merespon /alive!";
+    // Audit 2992: pesan /alive membedakan sumber sehatnya -
+    // dulu boolean sehat (yang bisa datang dari /api/config
+    // 200 saja saat /alive 5xx = database rusak) selalu
+    // dijawab "Server sehat (HTTPS 200 /alive)".
+    static String pesanAliveRinci(ServerService.HasilPing h) {
+        if (h == null) {
+            return "Server TIDAK merespon /alive!";
+        }
+        if (h.aliveCode == 200) {
+            return "Server sehat (HTTPS 200 /alive).";
+        }
+        if (h.sehat) {
+            return "Server merespon lewat /api/config (200), tapi /alive "
+                    + "memberi " + h.aliveCode + " - pola database "
+                    + "bermasalah. Cek /log untuk rincian.";
+        }
+        return "Server TIDAK merespon /alive! (" + h.rincian + ")";
     }
 
     static boolean webVaultBerubah(String msg) {
@@ -3437,7 +3451,7 @@ public final class TgBot {
         String kb = keyboardSegarkan(cmd);
         if ("/alive".equals(cmd)) {
             if (!Util.jalankanBg(() -> TgBackup.editMessageKb(ctx, idRuang, idPesan,
-                    pesanAlive(ServerService.pingAlive(ctx)), kb))) {
+                    pesanAliveRinci(ServerService.pingRinci(ctx)), kb))) {
                 balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
             }
             return;
@@ -3487,7 +3501,7 @@ public final class TgBot {
         }
         if ("/alive".equals(cmd)) {
             if (!Util.jalankanBg(() -> balasLaporan(ctx, idRuang,
-                    pesanAlive(ServerService.pingAlive(ctx)), "/alive"))) {
+                    pesanAliveRinci(ServerService.pingRinci(ctx)), "/alive"))) {
                 balas(ctx, idRuang, "Sistem sibuk, coba lagi sebentar.");
             }
             return perluPin;

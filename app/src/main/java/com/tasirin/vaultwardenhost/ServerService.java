@@ -1029,10 +1029,6 @@ public class ServerService extends Service {
         return t == 0 ? 0 : Math.max(0, SystemClock.elapsedRealtime() - t);
     }
 
-    public static boolean pingAlive(Context ctx) {
-        return pingRinci(ctx).sehat;
-    }
-
     static final class HasilPing {
         final boolean sehat;
         final int aliveCode;

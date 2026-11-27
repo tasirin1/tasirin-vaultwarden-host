@@ -140,3 +140,6 @@ simpanStempelThrottle
 perluKonfirmasiGantiPin
 adaHashPinTersimpan
 gantiPinButuhKonfirmasiHanyaSaatPinAktifDanHashAda
+pesanAlive
+pingAlive
+pesanAliveMembedakanSehatDanTidak
