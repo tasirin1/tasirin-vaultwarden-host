@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cabang versi-lebih-baru kini ikut menulis penanda versi (Audit 2861)
+
+- `AutoUpdate.cek`: cabang "versi yang berjalan sama persis dengan target" menulis penanda `KEY_UPDATE_VERSION`, tetapi cabang "versi berjalan lebih baru dari target" tidak — penanda bisa tertinggal basi padahal penanda itu sumber "versi saat ini" saat server mati (`Updater.versiSaatIni`), sehingga cek berikutnya bisa salah menilai versi terpasang dan memicu pemberitahuan/upaya update yang tidak perlu. Cabang itu kini menulis penanda dari versi nyata yang berjalan.
+
+
 ## [Belum rilis] — Kunci update web-vault kini berbatas 75 menit + teks tunggu (Audit 2856)
 
 - `Updater.updateWebVaultVersi`: kunci update web-vault dulu monitor `synchronized` tanpa batas waktu — pemanggil kedua (tombol/perintah lain) tampak mati total sampai unduh + ekstrak pertama selesai, bisa satu jam pada koneksi yang menetes, tanpa pesan menunggu seperti jalur binary. Kini memakai pola yang sama dengan kunci pasang binary (Audit 2601): `ReentrantLock`, teks status tunggu dipasang selama menunggu, batas 75 menit, lalu gagal keras yang terlihat.

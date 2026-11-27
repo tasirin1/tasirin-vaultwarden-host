@@ -112,6 +112,12 @@ public final class AutoUpdate {
                 batalkanNotifikasiUpdate(ctx);
             } else if (latest != null && bandingReal > 0) {
 
+                // Audit 2861: samakan cabang sama-persis -
+                // penanda versi ditulis dari versi NYATA
+                // yang berjalan, agar tak basi dan
+                // versiSaatIni tak salah menilai saat
+                // server mati.
+                sp.edit().putString(ServerService.KEY_UPDATE_VERSION, real).apply();
                 pending.atur(null);
                 batalkanNotifikasiUpdate(ctx);
             } else if (!pinTakTerbukti && Updater.bandingVersi(current, latest) < 0) {
