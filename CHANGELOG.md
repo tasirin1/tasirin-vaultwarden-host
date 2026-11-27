@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cek ruang storage yang gagal kini tercatat, tak lagi dilewati diam-diam (Audit 2855)
+
+- `Updater`: pemeriksaan ruang kosong 50 MB sebelum unduh binary dulu terlewat tanpa jejak bila `freeBytes` gagal mengukur (StatFs gagal → -1) — di perangkat yang storage-nya bermasalah pengguna hanya melihat gagal unduh generik berulang tanpa petunjuk sebabnya. Kegagalan ukur itu kini dicatat di log aplikasi. Perilaku tidak berubah: cek yang tidak bisa dilakukan tidak memblokir unduhan, karena ruang sebenarnya bisa saja cukup.
+
+
 ## [Belum rilis] — Gagal ambil checksum sesaat kini memicu coba-lagi unduhan (Audit 2854)
 
 - `Updater.bolehCobaLagiUnduh`: kegagalan mengambil `.sha256` karena gangguan jaringan/rate-limit dulu tidak cocok pola boleh-coba-lagi mana pun, jadi unduhan binary besar yang sudah selesai terpasang gagal hanya karena berkas checksum sesaat tak terambil — pengguna harus menekan update manual lagi. Frasa khas varian sesaatnya ("gangguan jaringan") kini termasuk kelas boleh-coba-lagi; varian permanen ("aset belum terbit di rilis") tetap tidak diulang. Ditambah uji JVM memakai kedua pesan produksi persis.

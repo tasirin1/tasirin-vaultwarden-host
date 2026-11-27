@@ -1840,6 +1840,14 @@ public final class Updater {
         try {
             File cekDir = (binDir != null && binDir.exists()) ? binDir : ctx.getFilesDir();
             long bebas = TgBackup.freeBytes(ctx, cekDir.getAbsolutePath());
+            if (bebas < 0) {
+                // Audit 2855: dulu dilewati diam-diam -
+                // kegagalan mengukur ruang harus terlihat
+                // agar gagal unduh di storage bermasalah
+                // tak tampak seperti gagal jaringan biasa.
+                ServerService.catatLog("[app] Cek ruang storage dilewati:"
+                        + " sisa ruang tak bisa diukur (StatFs gagal).");
+            }
             if (bebas > 0 && bebas < 50L * 1024 * 1024) {
                 throw new IOException("Ruang storage kurang dari 50 MB"
                         + " - kosongkan dulu lalu tekan Start lagi.");
