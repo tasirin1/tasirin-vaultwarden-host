@@ -1760,6 +1760,13 @@ public final class TgBot {
         if (pinTebakan(text) != null) {
             return true;
         }
+        // Audit 2868: PIN telanjang (teks utuh berbentuk
+        // PIN) ikut dihapus walau tanpa pending - jalur
+        // asing/suntingan sudah begitu lewat predikat
+        // yang sama; chat resmi tak boleh kalah aman.
+        if (pinDariBalasan(text) != null) {
+            return true;
+        }
         return terotorisasi && (pinPending || pesanPinWajibHapus(text));
     }
 

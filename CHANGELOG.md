@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pesan PIN telanjang tanpa pending kini ikut dihapus (Audit 2868)
+
+- `TgBot.wajibHapusPesanPin`: PIN yang diketik telanjang (seluruh pesan berbentuk PIN) tanpa aksi pending dulu tidak pernah dihapus dari riwayat chat — `pinTebakan` hanya mengenali PIN di dalam perintah dan cabang terakhir mensyaratkan pending/terotorisasi, padahal jalur chat asing dan suntingan justru menghapus PIN telanjang. Predikat `pinDariBalasan` yang sama kini ikut menentukan: teks utuh berbentuk PIN selalu dihapus di chat resmi, pending atau bukan. Ditambah kasus uji pada uji predikat yang ada.
+
+
 ## [Belum rilis] — Auto-update web-vault kini jalan juga dari layar utama (Audit 2865)
 
 - `MainActivity`: cek update dipanggil dengan `lengkap=false` dan `webVaultSiap` berupa stub `false`, jadi blok auto-update web-vault tidak pernah berjalan dari layar utama — pengguna yang tidak pernah membuka Settings tidak pernah menerima auto-update web-vault walau pengaturannya menyala. Layar utama kini meneruskan `lengkap=true` dan `webVaultSiap` mendelegasi ke `Updater.webVaultReady` yang sama seperti Settings (pemeriksaan tingkat konteks, bukan khas layar pengaturan). Dialog tawaran web-vault tetap khas Settings; yang dibetulkan di sini substansinya — update otomatisnya sendiri, yang tetap digerbang pref `auto_update_webvault` dan `tanpaKuota`.

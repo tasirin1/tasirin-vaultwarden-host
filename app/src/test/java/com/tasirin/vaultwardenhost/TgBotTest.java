@@ -647,6 +647,9 @@ public class TgBotTest {
         assertTrue(TgBot.wajibHapusPesanPin(false, false, false, false, true, "/stop"));
         assertTrue(TgBot.wajibHapusPesanPin(true, false, false, false, false, "apa pun"));
         assertFalse(TgBot.wajibHapusPesanPin(false, false, false, false, false, "/status"));
+        // Audit 2868: PIN telanjang tanpa pending pun dihapus.
+        assertTrue(TgBot.wajibHapusPesanPin(false, false, false, false, false, "123456"));
+        assertFalse(TgBot.wajibHapusPesanPin(false, false, false, false, false, "halo"));
     }
 
     @Test
