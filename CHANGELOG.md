@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Restore dibatalkan bila WAL backup gagal digabungkan (Audit 2818)
+
+Saat memulihkan backup, transaksi terbaru biasanya masih berada di berkas pendamping -wal dan harus digabungkan dulu ke database. Bila penggabungan itu gagal, restore dulu tetap dilanjutkan sehingga database yang terpasang lebih lama dari seharusnya tanpa terasa. Sekarang restore dibatalkan pada kegagalan itu dan database lama dipertahankan, dengan pesan penyebab yang jelas.
+
+
 ## [Belum rilis] — Langkah wajib workflow yang dikomentari kini terdeteksi hilang (Audit 2889)
 
 Pemeriksaan langkah wajib di workflow dulu hanya mencari teks perintahnya di berkas, jadi langkah yang dimatikan dengan cara dikomentari tetap terhitung ada padahal tidak dijalankan. Sekarang teks yang dicari hanya baris aktif yang bukan komentar, dengan skenario uji baru yang mengomentari langkah verifikasi dan memastikan gerbang menolaknya.

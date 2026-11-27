@@ -5315,13 +5315,20 @@ public final class TgBackup {
         // staging yang gagal digabungkan berarti transaksi di
         // dalamnya hilang saat swap; itu harus tercatat dan
         // terbedakan di pesan hasil, bukan diam.
+        // Pelengkap Audit 2818: kini restore DIBATALKAN pada
+        // kegagalan itu (alasan dikembalikan ke pemanggil,
+        // yang mempertahankan database lama) - memasang
+        // database yang lebih lama secara diam-diam lebih
+        // buruk daripada restore gagal yang jelas.
         File walStaging = new File(dataFolder, namaStagingRestore("db.sqlite3-wal"));
         boolean adaWal = walStaging.isFile() && walStaging.length() > 0;
         boolean walOk = checkpointWal(staging);
         walRestoreTerakhirTergabung = !adaWal || walOk;
         if (adaWal && !walOk) {
             ServerService.catatLog("[restore] checkpoint WAL staging GAGAL"
-                    + " - transaksi di -wal backup tidak ikut tergabung.");
+                    + " - restore dibatalkan, database lama dipertahankan.");
+            return "checkpoint WAL backup gagal - transaksi di berkas"
+                    + " -wal backup tidak bisa digabungkan ke database";
         }
         sinkronBerkas(staging);
         if (!isSqliteFile(staging)) {
