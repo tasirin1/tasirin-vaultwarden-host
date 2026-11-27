@@ -153,6 +153,24 @@ def _bagian_awal(tmp):
             rc != 0 and "tak diizinkan" in out)
     shutil.rmtree(gradle3, ignore_errors=True)
 
+    lok = klon(tmp, "lok")
+    berkas_lok = os.path.join(lok, "app", "src", "main", "java", "com",
+                              "tasirin", "vaultwardenhost",
+                              "MemoLocaleUji.java")
+    with open(berkas_lok, "w", encoding="utf-8") as f:
+        f.write("package com.tasirin.vaultwardenhost;\n\n"
+                "final class MemoLocaleUji {\n"
+                "    static String kecil(String s) {\n"
+                "        return s.toLowerCase(java.util.Locale.getDefault());\n"
+                "    }\n}\n")
+    git(lok, "add", "-A")
+    git(lok, "commit", "-q", "-m", "tanam locale getDefault uji")
+    rc, out = jalan(lok, [sys.executable, GERBANG, "--semua"])
+    periksa("toLowerCase(Locale.getDefault()) ter-commit: gerbang gagal "
+            "(Audit 2902)",
+            rc != 0 and "Locale" in out)
+    shutil.rmtree(lok, ignore_errors=True)
+
     umpan = klon(tmp, "umpan")
     berkas_ump = os.path.join(umpan, ".github", "actions",
                               "resolve-vw", "action.yml")

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cek locale gerbang kini menilai argumen, bukan kurung kosong (Audit 2902)
+
+- `tools/verifikasi-patch.py` (`cek_locale_baru`): pola lama hanya menangkap `toLowerCase()` berkurung kosong, sehingga bentuk yang justru paling berbahaya — `toLowerCase(Locale.getDefault())`, bug locale Turki utuh — lolos, begitu pula bentuk pecah baris dan method-reference `::toLowerCase`. Cek kini menggabungkan baris tambah per berkas, mengupasnya, dan menilai argumen setiap panggilan: hanya `Locale.US` / `Locale.ROOT` yang lolos; method-reference selalu gagal karena bentuk itu tidak bisa membawa Locale. Satu skenario suite baru mengunci bentuk `getDefault` yang ter-commit.
+
+
 ## [Belum rilis] — Allowlist repositori Gradle menutup bentuk tanpa kurung + memindai build.gradle.kts akar (Audit 2898)
 
 - `tools/verifikasi-patch.py`: penilaian blok `repositories` diekstrak ke `cek_blok_repositories` dan diperluas — entri tanpa kurung seperti `maven { url = "https://…" }` (juga `ivy`/`flatDir`/`jcenter`) dulu tidak terlihat regex entri sama sekali dan lolos allowlist rantai pasok; kini langsung GAGAL. Blok `repositories` di `build.gradle.kts` akar (termasuk `buildscript`) yang dulu tidak pernah dibaca gerbang kini dinilai dengan allowlist yang sama (`google()`/`mavenCentral()`/`gradlePluginPortal()`). Dua skenario suite baru mengunci kedua celah itu.

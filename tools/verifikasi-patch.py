@@ -25040,16 +25040,31 @@ def cek_hapusan_belum_tercatat(peringatan, diff):
             "tambahkan agar push berikut tetap terjaga" % nama)
 
 def cek_locale_baru(gagal, diff):
-    for _, isi in tambah_java(diff):
-
-        rapih = isi.strip()
-        if not rapih or rapih.startswith(("*", "//", "/*", "*/")):
-            continue
-        kode = kupas_java(isi)
-        if re.search(r"\.to(Lower|Upper)Case\s*\(\s*\)", kode):
-            gagal.append("Baris baru toLower/UpperCase() tanpa Locale — bug locale "
-                         "Turki + alokasi sia-sia; pakai varian Locale.US: %s"
-                         % kode.strip()[:80])
+    # Audit 2902: penilaian per baris + regex kurung kosong
+    # meloloskan toLowerCase(Locale.getDefault()) (bug Turki
+    # utuh), bentuk pecah baris (nama dan kurung beda baris),
+    # dan method-ref ::toLowerCase. Kini baris tambah digabung
+    # per berkas lalu dikupas; setiap panggilan dinilai
+    # argumennya - hanya Locale.US/Locale.ROOT yang lolos -
+    # dan method-ref selalu gagal (bentuk itu tak bisa
+    # membawa Locale sama sekali).
+    per_berkas = {}
+    for path, isi in tambah_java(diff):
+        per_berkas.setdefault(path, []).append(isi)
+    for path, daftar in per_berkas.items():
+        kode = kupas_java("\n".join(daftar))
+        for m in re.finditer(r"\.to(Lower|Upper)Case\s*\(\s*([^)]*)\)",
+                             kode):
+            arg = m.group(2)
+            if "Locale.US" in arg or "Locale.ROOT" in arg:
+                continue
+            gagal.append("Baris baru toLower/UpperCase tanpa Locale.US/"
+                         "Locale.ROOT - bug locale Turki mengintai; pakai "
+                         "varian Locale.US: %s" % m.group(0)[:80])
+        if re.search(r"::\s*to(Lower|Upper)Case\b", kode):
+            gagal.append("Baris baru method-ref ::toLowerCase/"
+                         "::toUpperCase - bentuk ini tak bisa membawa "
+                         "Locale; bungkus dengan lambda Locale.US")
 
 def teks_xml_bersih(path):
     return re.sub(r"<!--.*?-->", "", baca(path), flags=re.S)
