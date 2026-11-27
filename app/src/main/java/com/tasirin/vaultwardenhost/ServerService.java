@@ -3509,6 +3509,69 @@ public class ServerService extends Service {
             }
             logFile = baru;
         }
+        // Audit 2999: buffer kosong (proses aplikasi
+        // baru) disemaikan dari ekor berkas log sesi
+        // lalu agar bukti lintas-restart terjangkau
+        // dari layar log//log/ekspor.
+        if (baru != null) {
+            semaikanLogDariBerkas(baru);
+        }
+    }
+
+    static String ekorTeksLog(String isi, int maks) {
+        if (isi == null || isi.isEmpty() || maks <= 0) {
+            return "";
+        }
+        if (isi.length() <= maks) {
+            return isi;
+        }
+        int mulai = isi.length() - maks;
+        int nl = isi.indexOf('\n', mulai);
+        if (nl >= 0 && nl + 1 < isi.length()) {
+            mulai = nl + 1;
+        }
+        return isi.substring(mulai);
+    }
+
+    private static void semaikanLogDariBerkas(File f) {
+        try {
+            synchronized (logBuffer) {
+                if (logBuffer.length() > 0) {
+                    return;
+                }
+            }
+            if (f == null || !f.isFile() || f.length() == 0) {
+                return;
+            }
+            long len = f.length();
+            int ambil = (int) Math.min(len, 120_000L);
+            byte[] buf = new byte[ambil];
+            try (java.io.RandomAccessFile raf =
+                    new java.io.RandomAccessFile(f, "r")) {
+                raf.seek(len - ambil);
+                raf.readFully(buf);
+            }
+            String ekor = ekorTeksLog(
+                    new String(buf, StandardCharsets.UTF_8), 100_000);
+            if (ekor.isEmpty()) {
+                return;
+            }
+            synchronized (logBuffer) {
+                if (logBuffer.length() > 0) {
+                    return;
+                }
+                logBuffer.append("[app] ==== Log sesi sebelumnya"
+                        + " (dari berkas vaultwarden.log) ====\n");
+                logBuffer.append(ekor);
+                if (!ekor.endsWith("\n")) {
+                    logBuffer.append('\n');
+                }
+                logBuffer.append("[app] ==== Akhir log sesi"
+                        + " sebelumnya ====\n");
+                logVer++;
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private static void flushLogFileLocked() {

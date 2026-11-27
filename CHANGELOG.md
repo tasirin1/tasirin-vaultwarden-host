@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Log sesi sebelumnya kini terbaca sesudah aplikasi restart (Audit 2999)
+
+- `ServerService`: berkas vaultwarden.log di folder data dulu hanya ditulis dan tidak pernah dibaca — semua permukaan log (layar log, /log, ekspor) membaca buffer ingatan yang kosong setiap aplikasi dimulai ulang, jadi bukti crash sesi lalu tidak terjangkau padahal berkasnya tersimpan. Saat server start dan buffer masih kosong, ekor berkas log sesi lalu kini disemaikan ke buffer dengan penanda yang jelas (langsung ke buffer agar tidak tertulis ulang ke berkas).
+
+
 ## [Belum rilis] — Mode DB diduga rusak kini tampil di /status (Audit 3001)
 
 - `TgBot` + `ServerService`: keadaan server hidup tetapi pemeriksaan /alive gagal sementara /api/config tetap menjawab — tanda khas database rusak — dulu hanya terlihat sebagai baris log [health]; /status melaporkan Running, ukuran DB, dan uptime yang semuanya tampak normal, sehingga pengguna menyimpulkan server sehat dan menyalahkan klien atau jaringan. /status kini menambah baris Kesehatan selama keadaan itu berlangsung, mengarahkan ke baris log yang relevan.

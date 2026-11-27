@@ -893,6 +893,20 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void ekorTeksLog_potongDiBatasBaris() {
+        // Audit 2999: ekor berkas log dipotong pada
+        // batas baris, teks pendek apa adanya.
+        org.junit.Assert.assertEquals("abc\ndef\n",
+                ServerService.ekorTeksLog("abc\ndef\n", 100));
+        org.junit.Assert.assertEquals("def\n",
+                ServerService.ekorTeksLog("abc\ndef\n", 5));
+        org.junit.Assert.assertEquals("",
+                ServerService.ekorTeksLog("", 5));
+        org.junit.Assert.assertEquals("",
+                ServerService.ekorTeksLog(null, 5));
+    }
+
+    @Test
     public void barisUrlJaringan_loopbackJujurTidakTersedia() {
         // Audit 2991: host loopback = LAN belum
         // tersambung; baris jaringan tak boleh
