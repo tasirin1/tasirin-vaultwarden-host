@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Celah pola header kunci di cek-cepat disamakan dan dinaikkan (Audit 2892)
+
+Pemeriksaan kunci privat yang tersembunyi di balik baris pengisi panjang dulu bisa lolos: batas sela antar tahap pemeriksaan tidak sama (200 berbanding 400 aksara) dan sela 450 aksara lolos dari semuanya. Kini celah antar penanda header diperiksa sampai 600 aksara dengan hitungan posisi yang tetap cepat, jadi sela panjang tertangkap tanpa membuat pemeriksaan jadi lambat. Ada skenario uji baru untuk sela 450 aksara di kedua celah header.
+
+
 ## [Belum rilis] — Hash PIN legasi mentah tidak lagi diterima (Audit 2767)
 
 Hash PIN format lama (SHA-256 polos tanpa garam) dulu bisa dipakai masuk selamanya karena migrasi otomatisnya berjalan di latar dan bisa tidak sempat jalan. Sekarang setiap jalur masuk (layar PIN dan bot) membungkus hash lama itu ke format kuat secara langsung sebelum memeriksa PIN, dan format mentahnya sendiri ditolak. Hash lama yang sudah terbungkus tetap bisa dipakai dan otomatis naik ke format terkuat sesudah masuk berhasil.

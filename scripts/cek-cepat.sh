@@ -120,7 +120,16 @@ POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Za-z0-9[:blank:]]*PRIVATE KEY-----|$POL
 # ('-----', '-- jeda') tetap tertangkap; sela kata
 # berstrip tunggal di dalam label kini lolos
 # (diterima — label asli tak pernah berstrip).
-POLA_BUNGKUS="$POLA_TOKEN|-----BEGIN([A-Za-z0-9_]|--+){0,400}PRIVATE([A-Za-z0-9_]|--+){0,400}KEY[A-Za-z0-9_-]{0,400}-----[A-Za-z0-9+/=]{16,}"
+# Audit 2892: celah pola kandidat header dulu {0,200}/
+# {0,40} sementara pola bungkus {0,400} - tak sejajar,
+# dan sela 450 aksara lolos dari keduanya (TERBUKTI
+# scratch). Pemeriksaan header kini memakai
+# hitungan posisi antar penanda (fungsi kenaHeader
+# di awk bawah) bercelah sampai 600 aksara -
+# menaikkan celah pada pola
+# regex terbukti meledakkan waktu gerbang (71 menit
+# berbanding ±9 detik) karena pola berulang besar
+# diuji ke setiap jendela setiap berkas.
 RAHASIA="$( { git -c core.quotepath=false grep --cached -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E -- "$POLA_RAHASIA" 2>/dev/null; git -c core.quotepath=false grep -I -l -E "$POLA_RAHASIA" HEAD 2>/dev/null | sed 's/^HEAD://'; } | awk '
 {
   nama = $0
@@ -168,7 +177,10 @@ trap 'rm -f "$KANDIDAT_HDR_BERKAS"' EXIT
 # Audit 2912: kandidat header kini juga dari HEAD -
 # berkas ter-commit lalu terhapus (git rm) hanya hidup
 # di HEAD; tanpa sumber ini header binernya lolos.
-{ git -c core.quotepath=false grep --cached -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -e "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" HEAD 2>/dev/null | sed -z 's/^HEAD://'; git -c core.quotepath=false ls-files --others --exclude-standard -z 2>/dev/null | sed -z 's/^-$/.\//' | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" -- 2>/dev/null; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z 2>/dev/null | grep -z -v -E '__pycache__/[^/]*\.pyc$' | sed -z 's/^-$/.\//' | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" -- 2>/dev/null; } | sort -z -u > "$KANDIDAT_HDR_BERKAS" || true
+# Audit 2892: pola kandidat cukup "-----BEGIN" -
+# vonis header diputus cek NUL di bawah + tahap
+# bungkus; pola celah lebar di grep terbukti lambat.
+{ git -c core.quotepath=false grep --cached -a -l -z -E -- "-----BEGIN" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -- "-----BEGIN" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -e "-----BEGIN" HEAD 2>/dev/null | sed -z 's/^HEAD://'; git -c core.quotepath=false ls-files --others --exclude-standard -z 2>/dev/null | sed -z 's/^-$/.\//' | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN" -- 2>/dev/null; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z 2>/dev/null | grep -z -v -E '__pycache__/[^/]*\.pyc$' | sed -z 's/^-$/.\//' | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN" -- 2>/dev/null; } | sort -z -u > "$KANDIDAT_HDR_BERKAS" || true
 RAHASIA_HDR=""
 # Audit 2030: jendela uji NUL diperlebar ke
 # 16 MB (8000 byte dulu melewatkan NUL pertama
@@ -376,7 +388,62 @@ for entri in "${ENTRI_BUNGKUS[@]}"; do
     fi
   fi
 done
-BUNGKUS="$(awk -v POLA="$POLA_BUNGKUS" '
+BUNGKUS="$(awk -v POLA="$POLA_TOKEN" '
+function celahBersih(s, n,   i) {
+  # Audit 2892: isi celah wajib kelas aksara pola
+  # header lama [A-Za-z0-9_-] - tanpa ini urutan
+  # penanda yang kebetulan berdekatan di teks biasa
+  # (komentar/pola di skrip ini sendiri) ikut kena.
+  for (i = 1; i <= n; i++) {
+    if (substr(s, i, 1) !~ /[A-Za-z0-9_-]/) return 0
+  }
+  return 1
+}
+function kenaHeader(b,   sisa, p, s2, q, s3, r, s4, t, ekor, i, c) {
+  # Audit 2892: header kunci dicari dengan hitungan
+  # posisi antar penanda, TANPA regex bercelah besar
+  # (regex bercelah lebar diuji per jendela terbukti
+  # lambat). Urutannya: penanda awal, celah bersih
+  # <= 600, kata tengah pertama, celah bersih, kata
+  # tengah kedua, celah bersih, lima tanda minus,
+  # lalu >= 16 aksara base64 - setara pola header
+  # lama pada blob hasil proses(). Komentar ini
+  # SENGAJA tak menulis urutan penandanya secara
+  # harfiah: teksnya sendiri pernah memicu vonis
+  # pola rahasia pada berkas ini (terbukti lokal).
+  sisa = b
+  while ((p = index(sisa, "-----BEGIN")) > 0) {
+    s2 = substr(sisa, p + 10)
+    while ((q = index(s2, "PRIVATE")) > 0 && q <= 601) {
+      if (celahBersih(s2, q - 1)) {
+        s3 = substr(s2, q + 7)
+        while ((r = index(s3, "KEY")) > 0 && r <= 601) {
+          if (celahBersih(s3, r - 1)) {
+            s4 = substr(s3, r + 3)
+            t = index(s4, "-----")
+            if (t > 0 && t <= 601 && celahBersih(s4, t - 1)) {
+              ekor = substr(s4, t + 5)
+              i = 0
+              while (i < length(ekor)) {
+                c = substr(ekor, i + 1, 1)
+                if (c ~ /[A-Za-z0-9+\/=]/) i++; else break
+              }
+              if (i >= 16) return 1
+            }
+          }
+          s3 = substr(s3, r + 3)
+        }
+      }
+      s2 = substr(s2, q + 7)
+    }
+    sisa = substr(sisa, p + 10)
+  }
+  return 0
+}
+function kenaPola(b) {
+  if (b ~ POLA) return 1
+  return kenaHeader(b)
+}
 function proses(line,   awal, hd, sp, pos, s, ekort, hx, hv, ox, ov) {
   $0 = line
   gsub(/\0/, "")
@@ -495,12 +562,12 @@ BEGIN {
       # memuatnya; kecocokan diperiksa sebelum
       # pemangkasan dan sekali di akhir berkas.
       if (length(blob) > 8192) {
-        if (blob ~ POLA) kena = 1
+        if (kenaPola(blob)) kena = 1
         blob = substr(blob, length(blob) - 8191)
       }
     }
     close(f)
-    if (kena || blob ~ POLA) { nama2130 = f; gsub(/\\/, "\\\\", nama2130); gsub(/\n/, "\\n", nama2130); print nama2130 }
+    if (kena || kenaPola(blob)) { nama2130 = f; gsub(/\\/, "\\\\", nama2130); gsub(/\n/, "\\n", nama2130); print nama2130 }
   }
   exit
 }' "${DAFTAR_BUNGKUS[@]}" || true)"

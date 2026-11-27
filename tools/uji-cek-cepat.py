@@ -260,6 +260,28 @@ def _bagian_awal(tmp):
             and "kunci-panjang.txt" in out)
     shutil.rmtree(kuncipanjang, ignore_errors=True)
 
+    kuncisela450 = klon(tmp, "kuncisela450")
+    tanam(kuncisela450, "kunci-sela450.txt",
+          "-----BEGIN FOO\n" + "x" * 450 + "\nPRIVATE KEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncisela450, ["bash", SKRIP])
+    periksa("header tersela 450 aksara di celah pertama tertangkap "
+            "(Audit 2892)",
+            rc != 0 and rc != 124 and "pola rahasia" in out
+            and "kunci-sela450.txt" in out)
+    shutil.rmtree(kuncisela450, ignore_errors=True)
+
+    kuncisela450b = klon(tmp, "kuncisela450b")
+    tanam(kuncisela450b, "kunci-sela450b.txt",
+          "-----BEGIN PRIVATE\n" + "x" * 450 + "\nKEY-----\n"
+          "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
+    rc, out = jalan(kuncisela450b, ["bash", SKRIP])
+    periksa("header tersela 450 aksara di celah kedua tertangkap "
+            "(Audit 2892)",
+            rc != 0 and rc != 124 and "pola rahasia" in out
+            and "kunci-sela450b.txt" in out)
+    shutil.rmtree(kuncisela450b, ignore_errors=True)
+
     kuncitab = klon(tmp, "kuncitab")
     tanam(kuncitab, "kunci-tab.txt",
           "-----BEGIN OPENSSH\tPRIVATE KEY-----\n"
