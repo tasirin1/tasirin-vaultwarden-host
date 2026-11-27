@@ -2989,7 +2989,7 @@ public class TgBackupTest {
         java.nio.file.Files.write(salinan.toPath(),
                 "DB-LAMA".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         try {
-            TgBackup.pulihkanDbLama(dir, db, salinan);
+            TgBackup.pulihkanDbLama(dir, db, salinan, true);
             org.junit.Assert.fail("salinan tak valid wajib ditolak");
         } catch (java.io.IOException diharapkan) {
         }
@@ -2997,7 +2997,12 @@ public class TgBackupTest {
         assertEquals("DB-BARU", new String(java.nio.file.Files.readAllBytes(db.toPath()),
                 java.nio.charset.StandardCharsets.UTF_8));
 
-        TgBackup.pulihkanDbLama(dir, db, null);
+        // Audit 2888: DB live yang ada sebelum restore
+        // tak boleh terhapus saat preBackup null.
+        TgBackup.pulihkanDbLama(dir, db, null, true);
+        assertTrue(db.exists());
+
+        TgBackup.pulihkanDbLama(dir, db, null, false);
         assertFalse(db.exists());
     }
 

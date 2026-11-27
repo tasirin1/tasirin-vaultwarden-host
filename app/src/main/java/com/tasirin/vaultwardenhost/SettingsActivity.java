@@ -2210,6 +2210,9 @@ public class SettingsActivity extends Activity {
         }
         File dbFile = new File(dataDir, "db.sqlite3");
         File preBackup = null;
+        // Audit 2888: dideklarasikan di luar try agar
+        // terbaca blok catch pemulih.
+        boolean dbAdaSebelum = false;
         boolean tandaRestoreSendiri = false;
 
         java.util.Map<String, byte[]> tlsAsal = null;
@@ -2244,7 +2247,11 @@ public class SettingsActivity extends Activity {
             TgBackup.hapusStagingRestore(new File(dataDir));
             TgBackup.hapusStagingTls(new File(dataDir));
             TgBackup.hapusStagingLampiranYatim(new File(dataDir));
-            if (dbFile.exists()) {
+            // Audit 2888: fakta "DB ada sebelum restore"
+            // ditangkap di sini, sebelum apa pun diubah -
+            // jadi dasar putusan rollback di pulihkanDbLama.
+            dbAdaSebelum = dbFile.exists();
+            if (dbAdaSebelum) {
                 File backupDir = new File(dataDir, "backups");
                 if (!backupDir.exists()) {
                     backupDir.mkdirs();
@@ -2635,7 +2642,8 @@ public class SettingsActivity extends Activity {
                 TgBackup.hapusStagingLampiran(new File(dataDir),
                         lampTerStaging);
                 TgBackup.kembalikanTls(new File(dataDir, "tls"), tlsAsal);
-                TgBackup.pulihkanDbLama(new File(dataDir), dbFile, preBackup);
+                TgBackup.pulihkanDbLama(new File(dataDir), dbFile, preBackup,
+                        dbAdaSebelum);
                 if (tandaRestoreSendiri) {
                     TgBackup.tandaiRestoreSelesai(SettingsActivity.this);
                 }

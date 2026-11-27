@@ -5073,8 +5073,8 @@ public final class TgBackup {
         }
     }
 
-    static void pulihkanDbLama(File dataFolder, File dbFile, File preBackup)
-            throws Exception {
+    static void pulihkanDbLama(File dataFolder, File dbFile, File preBackup,
+            boolean dbAdaSebelum) throws Exception {
         if (preBackup != null && preBackup.exists()) {
 
             pasangDbDariSalinan(dataFolder, preBackup);
@@ -5085,10 +5085,18 @@ public final class TgBackup {
             // restore, jadi biarkan DB live apa adanya; jangan jatuh ke
             // cabang hapus di bawah.
             hapusStagingRestore(dataFolder);
-        } else {
+        } else if (!dbAdaSebelum) {
+            // Audit 2888: hapus hanya bila memang belum
+            // ada DB sebelum restore (parsial restore
+            // pada pemasangan segar). preBackup null juga
+            // bisa berarti fase pre-backup gagal sebelum
+            // penugasan padahal DB live ada - kasus itu
+            // jatuh ke cabang bawah dan DB live dibiarkan.
             hapusStagingRestore(dataFolder);
             hapusWalShm(dataFolder);
             dbFile.delete();
+        } else {
+            hapusStagingRestore(dataFolder);
         }
     }
 

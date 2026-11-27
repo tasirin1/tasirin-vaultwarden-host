@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Rollback restore tak lagi bisa menghapus DB live yang belum disentuh (Audit 2888)
+
+- `TgBackup.pulihkanDbLama` + `SettingsActivity`: cabang `preBackup == null` dulu menghapus berkas DB berdasar asumsi "belum ada DB sebelum restore" — padahal `preBackup` juga null bila fase pre-backup sendiri gagal sebelum penugasannya (mis. pemeriksaan checkpoint melempar) sementara DB live ada dan belum disentuh; rollback lalu menghapus DB live yang sehat. Pemanggil kini menangkap fakta keberadaan DB sebelum restore mengubah apa pun dan meneruskannya; cabang hapus hanya berjalan bila memang belum ada DB sebelumnya, selain itu DB live dibiarkan apa adanya. Uji JVM penguncinya diperbarui di commit yang sama.
+
+
 ## [Belum rilis] — Rollback database kini dipasang lewat gantiAtomik, bukan renameTo polos (Audit 2887)
 
 - `TgBackup.pasangDbDariSalinan`: pemasangan DB pengaman hasil rollback dulu memakai `renameTo` polos, tidak seperti jalur pasang restore biasa yang memakai `ServerService.gantiAtomik` (penanda `.bak` + swap tertata yang bisa direkonsiliasi sesudah kematian proses). Jalur rollback kini memakai `gantiAtomik` yang sama, sehingga kematian proses di tengah pemasangan rollback tertangani jaring pengaman yang sama.
