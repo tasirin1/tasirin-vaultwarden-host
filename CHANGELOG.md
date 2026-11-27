@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pagar restart per jam kini selamat dari start manual dan kematian proses (Audit 2872)
+
+- `ServerService`: gerbang restart-loop per jam (Audit 2760) bertumpu pada riwayat di memori yang terhapus dua jalan — setiap Start manual membersihkan seluruh riwayat lewat `lupakanRiwayatRestart`, dan kematian proses mengosongkannya sama sekali — sehingga loop crash yang diselingi start/proses-baru tak pernah memicu pagar. Kini `lupakanRiwayatRestart` hanya membersihkan jendela episode 5 menit dan penghitung percobaan (start manual memang awal episode baru), sedangkan stempel jendela 1 jam dipersistensikan ke prefs dan dimuat sekali per proses di `recordRestart`; stempel basi dan stempel dari boot sebelumnya tersaring oleh pengurai murni baru `uraiRiwayatRestartJam`/`gabungRiwayatRestartJam`. Ditambah uji JVM. Bagian laporan soal flap IP tidak ada di pohon ini; dua jalan reset yang nyata di sini keduanya ditutup.
+
+
 ## [Belum rilis] — Penghapusan webhook otomatis kini dikabari ke pemilik (Audit 2870)
 
 - `TgBot.tanganiKonflikPoll`: konflik polling HTTP 409 memicu penghapusan webhook yang dulu hanya tercatat di log aplikasi — webhook yang sengaja dipasang pemilik untuk integrasi lain hilang tanpa ia tahu dan integrasinya rusak dalam diam. Penghapusan yang berhasil kini juga dikabari ke chat pemilik lewat Telegram, dengan penjelasan sebabnya dan petunjuk memasang kembali; penjepit 10 menit yang sudah ada membatasi kabar itu juga.

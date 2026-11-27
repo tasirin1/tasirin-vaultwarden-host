@@ -2782,9 +2782,87 @@ public class ServerService extends Service {
         synchronized (RESTART_TIMES) {
             RESTART_TIMES.clear();
             RESTART_REASONS.clear();
-            RESTART_JAM_TIMES.clear();
+            // Audit 2872: jendela 1 jam SENGAJA tak
+            // dibersihkan - start manual tak boleh
+            // menghapus pagar loop per jam.
         }
         restartAttempt.set(0);
+    }
+
+    static final String KEY_RESTART_JAM_RIWAYAT = "restart_jam_riwayat";
+
+    private static boolean riwayatJamDimuat = false;
+
+    // Audit 2872: urai stempel restart per jam dari
+    // prefs - buang yang basi (>1 jam), yang dari boot
+    // sebelumnya (lebih besar dari jam boot kini), dan
+    // yang rusak; batasi 32.
+    static java.util.List<Long> uraiRiwayatRestartJam(String teks, long kini) {
+        java.util.List<Long> hasil = new java.util.ArrayList<>();
+        if (teks == null) {
+            return hasil;
+        }
+        for (String potong : teks.split(",")) {
+            try {
+                long t = Long.parseLong(potong.trim());
+                if (t <= 0 || t > kini || kini - t > RESTART_JAM_MS) {
+                    continue;
+                }
+                hasil.add(t);
+            } catch (Exception ignored) {
+            }
+        }
+        java.util.Collections.sort(hasil);
+        while (hasil.size() > 32) {
+            hasil.remove(0);
+        }
+        return hasil;
+    }
+
+    static String gabungRiwayatRestartJam(java.util.List<Long> riwayat) {
+        StringBuilder sb = new StringBuilder();
+        for (Long t : riwayat) {
+            if (sb.length() > 0) {
+                sb.append(',');
+            }
+            sb.append(t.longValue());
+        }
+        return sb.toString();
+    }
+
+    private void muatRiwayatRestartJamBilaPerlu(long now) {
+        synchronized (RESTART_TIMES) {
+            if (riwayatJamDimuat) {
+                return;
+            }
+            riwayatJamDimuat = true;
+            try {
+                SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
+                java.util.List<Long> lama = uraiRiwayatRestartJam(
+                        TgBackup.amanString(sp, KEY_RESTART_JAM_RIWAYAT, ""), now);
+                for (Long t : lama) {
+                    if (!RESTART_JAM_TIMES.contains(t)) {
+                        RESTART_JAM_TIMES.add(t);
+                    }
+                }
+                java.util.Collections.sort(RESTART_JAM_TIMES);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private void simpanRiwayatRestartJam() {
+        try {
+            java.util.List<Long> salinan;
+            synchronized (RESTART_TIMES) {
+                salinan = new java.util.ArrayList<>(RESTART_JAM_TIMES);
+            }
+            getSharedPreferences(PREFS, MODE_PRIVATE).edit()
+                    .putString(KEY_RESTART_JAM_RIWAYAT,
+                            gabungRiwayatRestartJam(salinan))
+                    .apply();
+        } catch (Exception ignored) {
+        }
     }
 
     private void scheduleRestart() {
@@ -3013,6 +3091,9 @@ public class ServerService extends Service {
     private boolean recordRestart(String reason) {
 
         long now = SystemClock.elapsedRealtime();
+        // Audit 2872: pagar per jam harus selamat dari
+        // kematian proses - muat riwayat tersimpan dulu.
+        muatRiwayatRestartJamBilaPerlu(now);
         String stamp;
         stamp = LOG_TS.get().format(tanggalLog());
         int n;
@@ -3041,6 +3122,7 @@ public class ServerService extends Service {
             }
             nj = hitungRestartJendela(RESTART_JAM_TIMES, now, RESTART_JAM_MS);
         }
+        simpanRiwayatRestartJam();
         boolean perJam = n < RESTART_WINDOW_MAX && nj >= RESTART_JAM_MAX;
         if (n >= RESTART_WINDOW_MAX || perJam) {
             int j = perJam ? nj : n;

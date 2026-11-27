@@ -734,6 +734,21 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void uraiRiwayatRestartJam_saringBasiDanBootLain() {
+        // Audit 2872.
+        long kini = 10_000_000L;
+        java.util.List<Long> r = ServerService.uraiRiwayatRestartJam(
+                "9990000,2000,abc,,10000001,9500000", kini);
+        assertEquals(2, r.size());
+        assertEquals(9500000L, (long) r.get(0));
+        assertEquals(9990000L, (long) r.get(1));
+        assertEquals("", ServerService.gabungRiwayatRestartJam(
+                new java.util.ArrayList<Long>()));
+        assertEquals("9500000,9990000",
+                ServerService.gabungRiwayatRestartJam(r));
+        assertTrue(ServerService.uraiRiwayatRestartJam(null, kini).isEmpty());
+    }
+
     public void hitungRestartBaru_jendelaLimaMenit() {
         java.util.List<Long> riwayat = new java.util.ArrayList<Long>();
         long kini = 10_000_000L;
