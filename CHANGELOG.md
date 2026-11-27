@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Iterasi KDF backup kini dipin persis oleh uji (Audit 2937)
+
+- `TgBackup.iterasiKdfBackup()`: jumlah iterasi backup baru (600.000 dengan pabrik SHA-256, 100.000 legasi) dulu tidak dipin uji apa pun — penurunan diam-diam tidak akan ketahuan karena round-trip enkripsi tetap lolos (iterasi tersimpan di header berkas). Mengikuti pola `PinCrypto.iterasiStandar(boolean)`, logika nilainya kini berparameter boolean dan dipin persis oleh uji JVM untuk kedua cabang.
+
+
 ## [Belum rilis] — Cabang cadangan cek vektor cek-cepat diselaraskan ke berkas XML saja (Audit 2932)
 
 - `scripts/cek-cepat.sh`: cabang cadangan terakhir pemeriksaan path vektor (hanya terjangkau bila `rg` dan `grep -P` sama-sama tidak ada) dulu memindai semua berkas di `app/src/main/res` tanpa `--include='*.xml'` seperti dua cabang lainnya — berkas biner yang kebetulan memuat byte `.9` bisa menggagalkan secara palsu. Cabang itu kini memakai pembatasan yang sama. Cabang ini tidak terjangkau di mesin yang memiliki rg/grep -P, jadi verifikasinya pada perintah cabangnya langsung di scratch, bukan skenario suite.

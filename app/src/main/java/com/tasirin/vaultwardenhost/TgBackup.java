@@ -209,8 +209,12 @@ public final class TgBackup {
     // VWB3, jadi backup lama tetap terbaca dengan iterasi
     // aslinya; jalur tanpa pabrik SHA-256 memakai tingkat
     // legasi 100.000.
+    static int iterasiKdfBackup(boolean pabrik) {
+        return pabrik ? 600_000 : 100_000;
+    }
+
     static int iterasiKdfBackup() {
-        return PinCrypto.pabrikTersedia() ? 600_000 : 100_000;
+        return iterasiKdfBackup(PinCrypto.pabrikTersedia());
     }
 
     static byte[] iterKeByte(int v) {

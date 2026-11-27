@@ -1028,6 +1028,17 @@ public class TgBackupTest {
     }
 
     @Test
+    public void iterasiKdfBackup_terpinPersis() {
+        // Audit 2937: nilai dipin persis - penurunan diam-diam
+        // iterasi backup wajib menggagalkan uji ini.
+        org.junit.Assert.assertEquals(600000, TgBackup.iterasiKdfBackup(true));
+        org.junit.Assert.assertEquals(100000, TgBackup.iterasiKdfBackup(false));
+        org.junit.Assert.assertEquals(
+                TgBackup.iterasiKdfBackup(PinCrypto.pabrikTersedia()),
+                TgBackup.iterasiKdfBackup());
+    }
+
+    @Test
     public void iterByte_rondtrip() {
         org.junit.Assert.assertEquals(30000,
                 TgBackup.byteKeIter(TgBackup.iterKeByte(30000)));
