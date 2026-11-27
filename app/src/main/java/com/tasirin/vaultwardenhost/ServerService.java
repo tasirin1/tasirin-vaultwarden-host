@@ -3052,6 +3052,13 @@ public class ServerService extends Service {
             String line;
             while ((line = reader.readLine()) != null) {
 
+                // Audit 2780: keluaran proses tak lagi disimpan
+                // mentah - baris yang memuat pola rahasia disamarkan
+                // dulu (gerbang yang sama seperti crash-log dan ekor
+                // Telegram). Klasifikasi di bawah tetap membaca baris
+                // mentah; yang masuk log selalu versi aman.
+                String aman = LogActivity.butuhSamaran(line)
+                        ? LogActivity.samarkanLog(line) : line;
                 long kini = SystemClock.elapsedRealtime();
                 String hintLogin = null;
                 if (bolehHintLogin(kini, loginHintTerakhirElapsed)
@@ -3070,7 +3077,7 @@ public class ServerService extends Service {
                     if (noise) {
                         appendLog(hintLogin);
                     } else {
-                        appendLog(line);
+                        appendLog(aman);
                         appendLog(hintLogin);
                     }
                     continue;
@@ -3079,7 +3086,7 @@ public class ServerService extends Service {
                 if (noise) {
                     continue;
                 }
-                appendLog(line);
+                appendLog(aman);
             }
         } catch (Exception ignored) {
         } finally {

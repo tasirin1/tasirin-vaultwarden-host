@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Keluaran proses Vaultwarden disamarkan sebelum masuk log (Audit 2780)
+
+- `ServerService.pumpOutput`: baris keluaran proses kini melewati gerbang `LogActivity.butuhSamaran`/`samarkanLog` yang sama seperti crash-log dan ekor log Telegram, sebelum ditulis ke buffer log dan `vaultwarden.log`. Sebelumnya keluaran mentah tersimpan apa adanya — bila binary suatu saat mencetak kredensial (panic/dump konfigurasi), rahasia itu akan ikut tersimpan dan terekspor. Klasifikasi noise dan petunjuk login tetap membaca baris asli; yang disimpan selalu versi tersamar.
+
+
 ## [Belum rilis] — Pin SHA binary tidak lagi dicatat dari berkas yang sedang dipakai (Audit 2777)
 
 - `ServerService.ensureBinary`: auto-pin SHA-256 pada cabang cache dihapus. Sebelumnya, bila pin belum tercatat, SHA dihitung dari berkas binary yang sedang terpasang lalu disimpan sebagai pin tepercaya — berkas yang tertukar sebelum pin pertama ada akan lolos verifikasi selamanya. Pin kini hanya lahir dari jalur unduh (SHA rilis yang terverifikasi) atau pemasangan manual yang SHA-nya cocok; keadaan tanpa pin dicatat terbuka di log.
