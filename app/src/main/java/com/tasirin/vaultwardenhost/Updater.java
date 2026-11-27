@@ -1056,8 +1056,13 @@ public final class Updater {
         Object kunciOut = kunciUnduh(out);
         Object kunciTmp = kunciUnduh(tmp);
         try {
-            synchronized (kunciOut) {
-                synchronized (kunciTmp) {
+            // Audit 2960: urutan kunci diselaraskan tmp -> out.
+            // Jalur unduh binary memegang kunci tmp saat
+            // memanggil metode ini; urutan lama (out -> tmp)
+            // membuka saling-tunggu untuk pasangan kunci
+            // yang sama.
+            synchronized (kunciTmp) {
+                synchronized (kunciOut) {
                     if (!tmp.isFile()) {
 
                         if (expectedHexEquals(expectedSha, sha256Hex(out))) {

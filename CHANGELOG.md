@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Urutan kunci pemasangan unduhan diselaraskan agar tak bisa saling menunggu (Audit 2960)
+
+- `Updater.pasangHasilUnduh`: kunci berkas tujuan dulu diambil sebelum kunci berkas sementara, sedangkan jalur unduh binary memegang kunci sementara saat memanggil metode ini — urutan yang terbalik untuk pasangan kunci yang sama (pola deadlock laten). Urutan kini diselaraskan: kunci sementara selalu sebelum kunci tujuan, sama di semua jalur; isi pemasangan di dalam kedua kunci tidak berubah.
+
+
 ## [Belum rilis] — Mengubah field PIN saat aktivasi berjalan kini membatalkan aktivasi basi itu (Audit 2957)
 
 - `SettingsActivity`: aktivasi PIN menghitung hash di latar (PBKDF2, sekitar sedetik) dan penyelesaiannya hanya dijaga epoch aktivasi — tetapi perubahan field selama penghitungan hanya menaikkan penomoran jalur tunda, bukan epoch itu, jadi hash PIN lama tetap terpasang dan dinyatakan aktif walau field sudah berisi PIN lain. Pengamat teks field kini ikut menaikkan epoch aktivasi, sehingga penyelesaian yang basi gugur lewat penjaga yang sudah ada dan centang kembali lepas.
