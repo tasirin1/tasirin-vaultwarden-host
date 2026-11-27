@@ -38,7 +38,10 @@ final class AboutDialog {
     }
 
     @SuppressLint("InflateParams")
-    static void tampil(Activity a) {
+    // Audit 2807: tersinkron - cek-lalu-tampil atas
+    // tampilTerakhir statik dulu bisa balapan jadi dialog
+    // ganda di pemanggil beda thread.
+    static synchronized void tampil(Activity a) {
         if (a == null || a.isFinishing() || a.isDestroyed()) {
             return;
         }
@@ -180,7 +183,10 @@ final class AboutDialog {
             String teksVersi = a.getString(R.string.about_version,
                     rangkaianVersi(versiApp, bin, wv));
             versiView.post(() -> {
-                if (!a.isFinishing() && !a.isDestroyed()) {
+                // Audit 2807: dialog yang sudah ditutup tak
+                // perlu (dan tak boleh) diperbarui teksnya.
+                if (!a.isFinishing() && !a.isDestroyed()
+                        && dialog.isShowing()) {
                     versiView.setText(teksVersi);
                 }
             });

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — AboutDialog: tampil tersinkron + pembaruan versi cek isShowing (Audit 2807)
+
+- `AboutDialog.tampil` kini `synchronized` — cek-lalu-tampil atas WeakReference statik dulu bisa balapan menjadi dialog ganda. Pembaruan teks versi dari kerja latar kini juga memeriksa `dialog.isShowing()` (dulu hanya `isFinishing`/`isDestroyed`), jadi dialog yang sudah ditutup tidak diperbarui. Keduanya laten/kosmetik — pengerasan murah tanpa perubahan perilaku normal.
+
+
 ## [Belum rilis] — Entri zip web-vault yang dilewati kini diperingatkan di hasil update (Audit 2806)
 
 - `Updater`: entri zip web-vault yang ditolak filter nama/kanonis dulu hanya dicatat di log — instalasi bisa "berhasil" secara diam-diam dalam keadaan parsial (aset JS/CSS hilang, vault tampil rusak tanpa penjelasan). Pesan hasil akhir kini menempelkan "PERINGATAN: N entri zip dilewati filter keamanan — sebagian aset bisa hilang dari tampilan vault" bila ada yang dilewati (ditempel sesudah penanda pembaruan, jadi deteksi perubahan tidak terganggu). Instalasi sendiri sengaja tidak digagalkan: satu entri aneh dari upstream tidak boleh memblokir update, tapi pengguna wajib tahu.
