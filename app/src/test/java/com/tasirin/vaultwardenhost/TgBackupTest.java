@@ -2166,6 +2166,40 @@ public class TgBackupTest {
     }
 
     @Test
+    public void eksporAllowListMenjagaHimpunanHariIni() {
+        // Audit 2828: 18 kunci yang diekspor model
+        // deny-list lama tetap diekspor model allow-list.
+        String[] kunciSah = {
+            ServerService.KEY_PORT, ServerService.KEY_AUTO_START,
+            ServerService.KEY_HTTPS, ServerService.KEY_AUTO_UPDATE,
+            ServerService.KEY_AUTO_UPDATE_WV,
+            ServerService.KEY_AUTO_RESTART_UPDATE,
+            ServerService.KEY_PORT_MIGRATED,
+            ServerService.KEY_UPDATE_VERSION,
+            ServerService.KEY_BIN_PILIH, ServerService.KEY_WV_PILIH,
+            ServerService.KEY_BIN_SHA, ServerService.KEY_PANIC_RUNTIME,
+            ServerService.KEY_RESTART_JAM_RIWAYAT,
+            TgBackup.KEY_TG_AUTO, "tg_backup_on_start", "tg_full",
+            TgBot.KEY_TG_BOT_USER_AT, TgBot.KEY_TG_HAPUS_WARN_AT};
+        for (String k : kunciSah) {
+            assertTrue("harus diekspor: " + k,
+                    TgBackup.kunciDiekspor(k));
+        }
+        assertTrue(TgBackup.BOLEH_DIEKSPOR.size() == 18);
+    }
+
+    @Test
+    public void eksporAllowListMenolakKunciAsing() {
+        // Audit 2828: inti perbaikan - kunci yang belum
+        // dikenal (termasuk kunci fitur masa depan)
+        // default TIDAK diekspor.
+        assertFalse(TgBackup.kunciDiekspor("kunci_fitur_baru_apapun"));
+        assertFalse(TgBackup.kunciDiekspor("data_dir"));
+        assertFalse(TgBackup.kunciDiekspor("wizard_selesai"));
+        assertFalse(TgBackup.kunciDiekspor(null));
+    }
+
+    @Test
     public void secretTakIkutBackup() {
         assertFalse(TgBackup.kunciDiekspor("tg_pending_aksi_123456"));
         assertFalse(TgBackup.kunciDiekspor("tg_warn_pin_asing_123456"));

@@ -2778,8 +2778,34 @@ public final class TgBackup {
                     ServerService.KEY_SERVER_DIMINTA,
                     PinGate.KEY_PIN_ON));
 
+    // Audit 2828: ekspor kini allow-list - daftar ini
+    // memuat persis kunci yang diekspor sebelum aturan
+    // berbalik (sensus seluruh kunci vw_prefs). Kunci
+    // baru di masa depan TIDAK ikut diekspor sampai
+    // ditambahkan ke sini dengan sadar; veto
+    // SECRET/TAK/prefiks di kunciDiekspor tetap berlaku
+    // sebagai lapis kedua.
+    static final java.util.Set<String> BOLEH_DIEKSPOR = new java.util.HashSet<>(
+            java.util.Arrays.asList(ServerService.KEY_PORT,
+                    ServerService.KEY_AUTO_START,
+                    ServerService.KEY_HTTPS,
+                    ServerService.KEY_AUTO_UPDATE,
+                    ServerService.KEY_AUTO_UPDATE_WV,
+                    ServerService.KEY_AUTO_RESTART_UPDATE,
+                    ServerService.KEY_PORT_MIGRATED,
+                    ServerService.KEY_UPDATE_VERSION,
+                    ServerService.KEY_BIN_PILIH,
+                    ServerService.KEY_WV_PILIH,
+                    ServerService.KEY_BIN_SHA,
+                    ServerService.KEY_PANIC_RUNTIME,
+                    ServerService.KEY_RESTART_JAM_RIWAYAT,
+                    KEY_TG_AUTO, "tg_backup_on_start", "tg_full",
+                    TgBot.KEY_TG_BOT_USER_AT,
+                    TgBot.KEY_TG_HAPUS_WARN_AT));
+
     static boolean kunciDiekspor(String kunci) {
         return kunci != null
+                && BOLEH_DIEKSPOR.contains(kunci)
                 && !SECRET_PREF_KEYS.contains(kunci)
                 && !TAK_DIEKSPOR_KEYS.contains(kunci)
                 && !kunci.startsWith("wv_notified_")

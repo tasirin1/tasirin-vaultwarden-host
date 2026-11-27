@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Ekspor config berbalik dari deny-list ke allow-list (Audit 2828)
+
+- config.json backup kini hanya memuat 18 kunci yang terdaftar eksplisit di allow-list ekspor (persis himpunan yang diekspor sebelumnya); kunci prefs baru di masa depan tidak lagi otomatis ikut terbawa backup.
+
+
 ## [Belum rilis] — PIN kini ditangani sebagai char[] yang di-nol-kan sesudah pakai (Audit 2801, parsial)
 
 - PinCrypto punya varian hash/verify berbasis char[]; layar kunci PIN membacanya sebagai char[] dan menolkannya sesudah verifikasi, dan jalur aktifkan-PIN di Settings meneruskan char[] ke thread latar. Jalur dialog ganti-PIN Settings belum dikonversi (PIN teranyam status dialog).
