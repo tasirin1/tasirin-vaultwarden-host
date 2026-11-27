@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang menjaga langkah penegakannya sendiri di workflow (Audit 2889)
+
+- `tools/verifikasi-patch.py`: `cek_workflow_yaml` kini juga memeriksa bahwa `build-apk.yml` dan `cek-wajib.yml` tetap memuat langkah wajibnya (verifikasi patch --rentang, cek-cepat, uji-verifikasi 1/2, uji-cek-cepat 1/2). Menghapus satu langkah penegakan dari workflow kini GAGAL di gerbang, bukan lolos diam-diam.
+
+
 ## [Belum rilis] — Gerbang membaca targetSdk/minSdk dari penugasan terakhir (Audit 2890)
 
 - `tools/verifikasi-patch.py`: `nilai_target_sdk` dan `nilai_min_sdk` kini menilai kemunculan TERAKHIR di `app/build.gradle.kts` (last-wins, sama seperti Gradle dan pola nilai efektif gradle.properties), bukan kemunculan pertama. Baris `targetSdk = 34` atau `minSdk = 24` yang ditambahkan sesudah baris sah kini tertangkap GAGAL, bukan lolos.

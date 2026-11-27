@@ -103,6 +103,29 @@ WORKFLOW_WAJIB = ("auto-merge.yml", "build-apk.yml", "build-binary.yml",
 
 BERKAS_CI_WAJIB = (".github/actions/resolve-vw/action.yml",)
 
+# Audit 2889: gerbang wajib menjaga dirinya sendiri. Workflow di daftar ini
+# harus tetap memuat langkah-langkah penegakannya; menghapus satu langkah
+# saja (mis. "Verifikasi patch") dari workflow harus GAGAL di gerbang,
+# bukan lolos diam-diam. Penanda dicari di teks mentah workflow.
+LANGKAH_WAJIB_WORKFLOW = {
+    "build-apk.yml": (
+        "tools/verifikasi-patch.py --rentang",
+        "bash scripts/cek-cepat.sh",
+        "python3 tools/uji-verifikasi-1.py",
+        "python3 tools/uji-verifikasi-2.py",
+        "python3 tools/uji-cek-cepat-1.py",
+        "python3 tools/uji-cek-cepat-2.py",
+    ),
+    "cek-wajib.yml": (
+        "tools/verifikasi-patch.py --rentang",
+        "bash scripts/cek-cepat.sh",
+        "python3 tools/uji-verifikasi-1.py",
+        "python3 tools/uji-verifikasi-2.py",
+        "python3 tools/uji-cek-cepat-1.py",
+        "python3 tools/uji-cek-cepat-2.py",
+    ),
+}
+
 
 def cek_workflow_yaml(gagal, peringatan):
     folder = os.path.join(AKAR, ".github", "workflows")
@@ -118,6 +141,18 @@ def cek_workflow_yaml(gagal, peringatan):
     for rel in BERKAS_CI_WAJIB:
         if not os.path.isfile(os.path.join(AKAR, rel)):
             gagal.append("Berkas CI wajib hilang: %s" % rel)
+    for nama, penanda in LANGKAH_WAJIB_WORKFLOW.items():
+        path_wf = os.path.join(folder, nama)
+        if not os.path.isfile(path_wf):
+            continue
+        with open(path_wf, encoding="utf-8") as f:
+            teks_wf = f.read()
+        for langkah in penanda:
+            if langkah not in teks_wf:
+                gagal.append("Workflow %s kehilangan langkah wajib "
+                             "\"%s\" — penegakan gerbang tak boleh "
+                             "dimatikan lewat workflow (Audit 2889)"
+                             % (nama, langkah))
     yaml = _impor_yaml(gagal)
     if yaml is None:
         return
