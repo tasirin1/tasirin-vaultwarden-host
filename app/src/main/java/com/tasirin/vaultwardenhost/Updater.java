@@ -2331,6 +2331,44 @@ public final class Updater {
     public static String webVaultFromVersion(Context ctx) {
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE);
         String v = TgBackup.amanString(sp, KEY_WV_FROM, "");
+        // Audit 3022: penanda di prefs bersifat global
+        // sedangkan folder web-vault per-folder-data -
+        // sesudah folder data berganti, penanda lama
+        // berbohong ke /status, peringatan beda versi,
+        // dan penawaran update. Disk adalah kebenaran
+        // dasar dengan prioritas yang sama seperti
+        // webVaultReady: folder data dulu, lalu salinan
+        // internal. Payload ada -> versi dari
+        // vw-version.json di dalamnya yang menang; tak
+        // ada payload di mana pun -> belum terpasang
+        // (null); payload ada tapi versi tak terbaca ->
+        // penanda lama sebagai perkiraan terbaik.
+        try {
+            String dataDir = TgBackup.amanString(
+                    sp, ServerService.KEY_DATA_DIR, "");
+            if (dataDir == null || dataDir.trim().isEmpty()) {
+                dataDir = ServerService.dataDirBawaanSegar();
+            }
+            File[] calon = new File[] {
+                    new File(dataDir, "web-vault"),
+                    new File(ctx.getFilesDir(), "web-vault")};
+            boolean adaPayload = false;
+            for (File folder : calon) {
+                if (wvPayloadAda(folder)) {
+                    adaPayload = true;
+                    String diDisk = readWvVersion(
+                            new File(folder, "vw-version.json"));
+                    if (diDisk != null && !diDisk.isEmpty()) {
+                        return diDisk;
+                    }
+                    break;
+                }
+            }
+            if (!adaPayload) {
+                return null;
+            }
+        } catch (Exception ignored) {
+        }
         return (v == null || v.isEmpty()) ? null : v;
     }
 

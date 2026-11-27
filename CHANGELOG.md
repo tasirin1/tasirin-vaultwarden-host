@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Versi web vault kini dibaca dari disk folder aktif, bukan penanda lama (Audit 3022)
+
+- Penentu versi web vault sekarang memeriksa folder web vault yang benar-benar dipakai (folder data aktif, lalu salinan internal) dan membaca versi dari berkas penanda di dalamnya. Sebelumnya ia hanya membaca satu penanda global yang tidak pernah diperbarui saat folder data berganti, sehingga status, peringatan beda versi, dan penawaran update bisa menampilkan versi yang salah.
+
+
 ## [Belum rilis] — Pengumuman server jalan kini menyebut bila web vault belum terpasang (Audit 3021)
 
 - Pesan "Server jalan" ke Telegram kini menambahkan satu baris bila web vault belum terpasang: halaman web belum bisa dibuka dan cara memasangnya. Sebelumnya Start lewat bot diam saja soal itu sehingga server terasa jalan normal padahal web tak bisa diakses.
