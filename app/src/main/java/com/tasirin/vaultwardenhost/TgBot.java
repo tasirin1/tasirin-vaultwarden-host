@@ -4345,6 +4345,18 @@ public final class TgBot {
                     : "[tg] Penghapusan webhook gagal; konflik mungkin dari"
                             + " konsumen getUpdates lain — matikan aplikasi"
                             + " lain yang memakai bot ini.");
+            // Audit 2870: penghapusan webhook tak lagi
+            // diam-diam - pemilik bisa saja memasangnya
+            // sengaja untuk integrasi lain dan berhak
+            // tahu integrasinya baru saja diputus.
+            if (hasil != null) {
+                TgBackup.sendMessage(ctx, "Webhook Telegram terhapus"
+                        + " otomatis (konflik polling HTTP 409) agar bot"
+                        + " aplikasi ini bisa menerima perintah lagi."
+                        + " Bila kamu memasang webhook itu sengaja untuk"
+                        + " keperluan lain, pasang kembali sesudah bot ini"
+                        + " berhenti.");
+            }
         } catch (Exception ignored) {
         }
     }

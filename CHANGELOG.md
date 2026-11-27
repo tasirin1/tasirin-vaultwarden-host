@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penghapusan webhook otomatis kini dikabari ke pemilik (Audit 2870)
+
+- `TgBot.tanganiKonflikPoll`: konflik polling HTTP 409 memicu penghapusan webhook yang dulu hanya tercatat di log aplikasi — webhook yang sengaja dipasang pemilik untuk integrasi lain hilang tanpa ia tahu dan integrasinya rusak dalam diam. Penghapusan yang berhasil kini juga dikabari ke chat pemilik lewat Telegram, dengan penjelasan sebabnya dan petunjuk memasang kembali; penjepit 10 menit yang sudah ada membatasi kabar itu juga.
+
+
 ## [Belum rilis] — Nama bot kini disegarkan berkala; perintah ber-sufiks tak lagi hilang diam-diam (Audit 2869)
 
 - `TgBot`: username bot tersimpan dulu hanya diisi bila kosong dan tidak pernah disegarkan — bot yang berganti username (token sama) membuat semua perintah ber-`@namabot` dibuang diam-diam selamanya. Kini pengambilan nama berstempel waktu (`tg_bot_user_at`) dan disegarkan bila kosong atau lewat 7 hari (predikat murni `namaBotPerluSegar`). Selain itu, di chat pribadi saat nama bot belum diketahui, perintah ber-sufiks kini diterima sebagai milik bot ini (chat pribadi hanya berisi satu bot); di grup perilaku membuang perintah bot lain tidak berubah. Ditambah uji JVM untuk predikat kesegarannya.
