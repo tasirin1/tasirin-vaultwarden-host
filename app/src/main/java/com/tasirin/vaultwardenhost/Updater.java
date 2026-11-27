@@ -813,7 +813,12 @@ public final class Updater {
                 || rendah.contains("content-range") || rendah.contains("416")
                 || rendah.contains("checksum") || rendah.contains("tidak cocok")
                 || rendah.contains("mismatch") || rendah.contains("corrupt")
-                || rendah.contains("rusak")) {
+                || rendah.contains("rusak")
+                // Audit 2854: gagal ambil checksum karena
+                // gangguan jaringan/rate-limit itu sesaat -
+                // pesan produksinya khas dan tak tertukar
+                // varian permanen "aset belum terbit".
+                || rendah.contains("gangguan jaringan")) {
             return true;
         }
 

@@ -702,6 +702,19 @@ public class UpdaterTest {
     }
 
     @Test
+    public void bolehCobaLagiUnduh_gagalChecksumSesaatBolehLagi() {
+        // Audit 2854: pesan produksi persis dari shaDariRilis.
+        assertTrue(Updater.bolehCobaLagiUnduh(new java.io.IOException(
+                "Verifikasi SHA-256 tidak bisa diambil dari release"
+                        + " karena gangguan jaringan/rate-limit - coba lagi"
+                        + " nanti. Update dibatalkan demi keamanan.")));
+        assertFalse(Updater.bolehCobaLagiUnduh(new java.io.IOException(
+                "Verifikasi SHA-256 tidak bisa diambil dari release"
+                        + " (aset belum terbit di rilis)."
+                        + " Update dibatalkan demi keamanan.")));
+    }
+
+    @Test
     public void bolehCobaLagiUnduh_angkaByteBukanKode404() {
         // Audit 1699: hitungan byte yang memuat "404" bukan
         // kode HTTP 404 - unduhan terputus tetap boleh lanjut.

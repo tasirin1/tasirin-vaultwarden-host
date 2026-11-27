@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gagal ambil checksum sesaat kini memicu coba-lagi unduhan (Audit 2854)
+
+- `Updater.bolehCobaLagiUnduh`: kegagalan mengambil `.sha256` karena gangguan jaringan/rate-limit dulu tidak cocok pola boleh-coba-lagi mana pun, jadi unduhan binary besar yang sudah selesai terpasang gagal hanya karena berkas checksum sesaat tak terambil — pengguna harus menekan update manual lagi. Frasa khas varian sesaatnya ("gangguan jaringan") kini termasuk kelas boleh-coba-lagi; varian permanen ("aset belum terbit di rilis") tetap tidak diulang. Ditambah uji JVM memakai kedua pesan produksi persis.
+
+
 ## [Belum rilis] — Daftar cipher yang diumumkan factory TLS kini ikut disaring (Audit 2852)
 
 - `HttpsCompat.PabrikTls12`: `getDefaultCipherSuites()` dan `getSupportedCipherSuites()` dulu meneruskan daftar bawaan platform tanpa saringan, padahal soketnya sendiri dipasang hanya cipher kuat oleh `nyalakan()`. Pemakai factory yang memilih suite dari daftar resmi itu (framework/perpustakaan) bisa memilih cipher lemah seperti RC4/DES. Kedua daftar kini melewati `saringCipher` yang sama, jadi yang diumumkan factory persis yang boleh dipakai.
