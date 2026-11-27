@@ -4716,6 +4716,19 @@ public class ServerService extends Service {
                             + "). Periksa ruang/izin penyimpanan internal, lalu Start ulang.");
                 }
             }
+            if (dir == null) {
+                // Audit 2850: gagal total pun kunci privat
+                // lama di storage publik harus dibersihkan -
+                // server tak berjalan memakainya, jadi kunci
+                // itu murni paparan tanpa batas waktu.
+                try {
+                    String kanonLamaGagal = kanonAman(tlsLama);
+                    if (!kanonLamaGagal.equals(kanonAman(internal))) {
+                        hapusKunciPrivatDari(tlsLama);
+                    }
+                } catch (Exception ignored) {
+                }
+            }
             if (dir != null) {
                 bersihKunciTlsLama(tlsLama, dir, internal);
                 appendLog("[app] Sertifikat HTTPS: " + new File(dir, "cert.pem").getAbsolutePath());
@@ -4816,17 +4829,26 @@ public class ServerService extends Service {
             if (kanonLama.equals(kanonInternal)) {
                 return;
             }
-            for (String nama : new String[]{"ca-key.pem", "key.pem"}) {
-                try {
-                    File kunci = new File(lama, nama);
-                    if (kunci.isFile() && !kunci.delete()) {
-                        appendLog("[app] PERINGATAN: kunci lama " + nama
-                                + " tak terhapus dari storage publik - hapus manual.");
-                    }
-                } catch (Exception ignored) {
-                }
-            }
+            hapusKunciPrivatDari(lama);
         } catch (Exception ignored) {
+        }
+    }
+
+    // Audit 2850: satu pintu penghapusan kunci privat
+    // dari folder tls lama di storage publik.
+    private void hapusKunciPrivatDari(File folderTls) {
+        if (folderTls == null) {
+            return;
+        }
+        for (String nama : new String[]{"ca-key.pem", "key.pem"}) {
+            try {
+                File kunci = new File(folderTls, nama);
+                if (kunci.isFile() && !kunci.delete()) {
+                    appendLog("[app] PERINGATAN: kunci lama " + nama
+                            + " tak terhapus dari storage publik - hapus manual.");
+                }
+            } catch (Exception ignored) {
+            }
         }
     }
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kunci privat lama di storage publik kini dibersihkan juga saat setup TLS gagal (Audit 2850)
+
+- `ServerService.prepareTls`: perbaikan Audit 2761 menutup pembuatan kunci baru di storage publik, tetapi `ca-key.pem`/`key.pem` lama di folder `tls/` publik hanya dibersihkan pada jalur sukses — bila setup internal gagal total (penyimpanan penuh/rusak) dan fallback publik ditolak, server memang tidak start, namun kunci lama tertinggal di `/sdcard` dan bisa dibaca aplikasi apa pun berizin storage tanpa batas waktu (pemegang `ca-key.pem` bisa menerbitkan sertifikat untuk IP vault; pemegang `key.pem` bisa menyamar sebagai server). Penghapusan kunci privat kini diekstrak ke satu pintu `hapusKunciPrivatDari` dan jalur gagal total ikut memanggilnya untuk folder lama non-internal; kunci akan dibuat ulang pada Start sukses berikutnya.
+
+
 ## [Belum rilis] — Berkas rantai sertifikat GitHub kini diperiksa masa berlakunya (Audit 2849)
 
 - `HttpsCompat`: bundel `certs/github-chain.pem` dulu hanya diperiksa tidak kosong — sertifikat yang kedaluwarsa di dalamnya akan membuat koneksi GitHub gagal total tanpa peringatan dini apa pun. Saat trust dibangun, masa berlaku tiap sertifikat bundel kini dikumpulkan dan predikat murni baru `peringatanRantaiBerkas` memberi peringatan Logcat yang jelas bila ada yang sudah kedaluwarsa atau akan kedaluwarsa dalam 180 hari, agar aplikasi diperbarui sebelum putus. Ditambah uji JVM untuk predikatnya.
