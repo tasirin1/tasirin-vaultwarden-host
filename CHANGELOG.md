@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pesan backup jujur saat unggahan tak terkonfirmasi (Audit 2787)
+
+- `TgBackup.backupNowIsi`: bila tak ada satu pun chat yang mengonfirmasi unggahan (respons Telegram tak terbaca sesudah unggah penuh), pesan hasil kini berbunyi "terkirim, TAPI belum terkonfirmasi" dan menyebut penanda restore masih menunjuk backup sebelumnya — sebelumnya keadaan itu tetap dilaporkan "Backup terkirim ✓", sehingga pengguna bisa yakin backup terbaru aman padahal `/restore` akan mengambil backup lama. Perilaku penanda sendiri tidak berubah (penanda lama memang dipertahankan, Audit 1680); yang berubah kejujuran pesannya.
+
+
 ## [Belum rilis] — Validasi token admin, token bot, dan URL database diperketat (Audit 2785)
 
 - Token admin: minimal 16 karakter (dulu 8 — "password" lolos), kata umum dan satu aksara berulang ditolak; token yang sudah tersimpan dan tak lagi memenuhi syarat harus diganti sebelum Start, pesan galatnya diperbarui. Token bot Telegram: harus berbentuk token bot sungguhan (id digit + 30–45 aksara), bukan sekadar mengandung ':' dan panjang 20. URL database: wajib memuat pengguna, host, dan nama database — potongan seperti `postgres://abc` yang dulu lolos dan baru gagal saat server start kini ditolak di Settings. Uji JVM yang mengunci perilaku lama diperbarui di commit yang sama.

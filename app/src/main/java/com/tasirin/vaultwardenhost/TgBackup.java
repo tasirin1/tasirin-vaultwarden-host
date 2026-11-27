@@ -899,6 +899,19 @@ public final class TgBackup {
                 ? " (CATATAN: >20 MB sehingga tak bisa direstore via bot"
                         + " - unduh manual dari chat bila perlu restore)"
                 : "";
+        // Audit 2787: file_id kosong berarti tak ada satu pun
+        // chat yang mengonfirmasi unggahan (respons ambigu) -
+        // jangan klaim sukses penuh: penanda restore masih
+        // menunjuk backup sebelumnya (Audit 1680).
+        if (fileId == null || fileId.isEmpty()) {
+            return "Backup terkirim ke Telegram, TAPI belum terkonfirmasi ("
+                    + upload.getName() + ", " + upload.length() + " bytes ke "
+                    + (tujuan.size() - gagalChat.size()) + "/" + tujuan.size()
+                    + " chat): respons Telegram tidak terbaca, jadi penanda"
+                    + " restore masih menunjuk backup sebelumnya. Kirim /backup"
+                    + " lagi untuk memastikan." + peringatanChat + peringatan
+                    + batas;
+        }
         return "Backup terkirim ke Telegram \u2713 (" + upload.getName() + ", "
                 + upload.length() + " bytes ke " + (tujuan.size() - gagalChat.size())
                 + "/" + tujuan.size() + " chat)" + peringatanChat + peringatan + batas;
