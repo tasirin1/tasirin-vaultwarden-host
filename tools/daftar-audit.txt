@@ -1,5 +1,5 @@
 # Daftar Audit -> commit (Audit 2836)
-# Dibangkitkan tools/daftar-audit.py pada 2d1da2037e01 - jalankan ulang skrip itu untuk menyegarkan.
+# Dibangkitkan tools/daftar-audit.py pada 95013943e54c - jalankan ulang skrip itu untuk menyegarkan.
 # Catatan: nomor bisa bermakna ganda - rangkaian internal lama dan nomor issue GitHub tumpang tindih; yang dicatat di sini selalu penambah TERTUA di riwayat.
 # Format: nomor | commit penambah tertua | rujukan issue di subjek | subjek | jumlah berkas memuat nomor itu hari ini.
 Audit 136 | 9c73fe5f14d4 | - | fix: xsv join kini bercabang sadar stdin (membalik vonis Audit 136) (Audit 144) | 1
@@ -44,6 +44,7 @@ Audit 612 | 2b0ded9019a5 | #368 | fix: killStale gagal-aman saat anak tak teride
 Audit 622 | b12e8c7bd9bb | #378 | fix: koreksi gerbang killStale, anak basi sesudah Stop dibersihkan (Closes #378) | 1
 Audit 623 | b2b8ff71aaed | #379 | fix: ekspansi kurawal gerbang selaras brace-expansion (Closes #379) | 1
 Audit 625 | bd04923e48d2 | #381 | fix: penanda label audit berjangkar dan bisa dicabut (Closes #381) | 1
+Audit 633 | 01d2b5a5645f | - | feat(gerbang): daftar Audit->commit + peringatan nomor baru | 1
 Audit 635 | e9036266f8c0 | #391 | fix: batas rentang kurawal gerbang 512 (Closes #391) | 1
 Audit 638 | 0208ed0b8933 | #394 | fix: workflow cek wajib untuk semua PR (Closes #394) | 1
 Audit 644 | 0821b2db1b46 | #400 | fix: bukti panic getrandom kalahkan klasifikasi kernel (Closes #400) | 1
@@ -821,7 +822,7 @@ Audit 1588 | 6a996936d5ba | - | fix: gerbang menambahkan opsi pendek -N gpg (Aud
 Audit 1589 | 2deaf73e226f | - | fix: gerbang menambahkan 4 alias bernilai gpg (Audit 1589) | 2
 Audit 1590 | 204580895def | - | fix: gerbang menambahkan 5 opsi bernilai gpg lain (Audit 1590) | 2
 Audit 1591 | 5b4bce289285 | - | fix: deteksi modus gpg di gerbang sadar nilai (Audit 1591) | 2
-Audit 1592 | 4056a7ea1067 | - | fix: hash pin binary digerbang sidik berkas (Audit 1592) | 2
+Audit 1592 | 4056a7ea1067 | - | fix: hash pin binary digerbang sidik berkas (Audit 1592) | 1
 Audit 1593 | ac97d783fde2 | - | fix: kunci data dilepas sebelum pemulihan .bak dan bersih temp (Audit 1593) | 1
 Audit 1594 | d66f8eb77369 | - | ci: pisah suite cek-cepat ke job paralel verifikasi-cek (Audit 1594) | 1
 Audit 1595 | 8c14a2d66ee0 | - | perf: cek-cepat satu proses awk untuk semua berkas (Audit 1595, 1625) | 1
@@ -1877,10 +1878,10 @@ Audit 2760 | 5042dd4489b9 | - | fix(gerbang): nilai sinyal env divalidasi (Audit
 Audit 2761 | 1b49036a5a79 | - | fix(gerbang): masa hidup ssh-agent -t divalidasi (Audit 2761) | 2
 Audit 2762 | e66cd039fbfb | - | fix(gerbang): prioritas systemd-cat divalidasi (Audit 2762) | 2
 Audit 2763 | 3eca8e657975 | - | fix(gerbang): penerima unshare divalidasi (Audit 2763) | 4
-Audit 2764 | 83bb4bcd3477 | - | fix(gerbang): nama securebit dan capability setpriv divalidasi (Audit 2764) | 2
+Audit 2764 | 83bb4bcd3477 | - | fix(gerbang): nama securebit dan capability setpriv divalidasi (Audit 2764) | 4
 Audit 2765 | bacb30b06574 | - | fix(gerbang): nilai -1/-2 dan -o join divalidasi (Audit 2765) | 3
 Audit 2766 | c5bc462c06e4 | - | fix(gerbang): tata bahasa pola csplit divalidasi (Audit 2766) | 2
-Audit 2767 | 7cb079f9a1aa | - | fix(gerbang): nilai -n dan --ignore-initial cmp divalidasi (Audit 2767) | 2
+Audit 2767 | 7cb079f9a1aa | - | fix(gerbang): nilai -n dan --ignore-initial cmp divalidasi (Audit 2767) | 3
 Audit 2768 | b310a7187edf | - | fix(gerbang): nilai --width dan --tabsize diff divalidasi (Audit 2768) | 2
 Audit 2769 | 8630d12c495f | - | fix(gerbang): nilai --max-depth dan --threshold du divalidasi (Audit 2769) | 2
 Audit 2770 | a0b6e08e16b4 | - | fix(gerbang): nilai -b dan --record-size tar divalidasi (Audit 2770) | 2
@@ -1890,8 +1891,8 @@ Audit 2773 | b2970ccfb87c | - | fix(gerbang): hitungan -j merekat make divalidas
 Audit 2774 | 58208473d7de | - | fix(gerbang): level -L tree divalidasi (Audit 2774) | 3
 Audit 2775 | 348b721fe6b0 | - | fix(gerbang): nilai --max-time curl divalidasi (Audit 2775) | 4
 Audit 2776 | d9117aa3ab2a | - | fix(tls): migrasi terputus tetap membawa cadangan versi yatim (Audit 2776) | 3
-Audit 2777 | 11457bc88dd4 | - | fix(tls): salinan cadangan versi yatim memilih yang terbaru (Audit 2777) | 3
-Audit 2778 | 39b4f0a50d96 | - | fix(izin): folder pribadi aplikasi di /mnt/media_rw dikenali (Audit 2778) | 2
+Audit 2777 | 11457bc88dd4 | - | fix(tls): salinan cadangan versi yatim memilih yang terbaru (Audit 2777) | 4
+Audit 2778 | 39b4f0a50d96 | - | fix(izin): folder pribadi aplikasi di /mnt/media_rw dikenali (Audit 2778) | 6
 Audit 2779 | c5afc168b945 | - | fix(tls): sertifikat CA/leaf kini membawa SKID dan AKID | 2
 Audit 2780 | e9a7aa689b7f | - | fix(gerbang): flock -E ++5 tak lagi meruntuhkan penilai gerbang (Audit 2780) | 3
 Audit 2781 | be031d3459ad | - | fix(gerbang): ssh -p sesudah tujuan tak lagi divalidasi sebagai port (Audit 2781) | 5
@@ -1899,13 +1900,13 @@ Audit 2782 | 6719de12b0a3 | - | fix(gerbang): pre-walk level tree kini sadar nil
 Audit 2783 | d900bdd61bf6 | - | fix(gerbang): walk lebar diff kini melewati nilai opsi lain (Audit 2783) | 5
 Audit 2784 | e389f9554264 | - | fix(gerbang): huruf b di bundel tar hanya -b bila tak didahului huruf bernilai (Audit 2784) | 2
 Audit 2785 | f522a82fb6fd | - | fix(gerbang): tata bahasa -b/--record-size tar diselaraskan ke biner (Audit 2785) | 6
-Audit 2786 | 632559619409 | - | fix(gerbang): tata bahasa byte cmp diselaraskan ke xstrtoumax basis 0 (Audit 2786) | 2
+Audit 2786 | 632559619409 | - | fix(gerbang): tata bahasa byte cmp diselaraskan ke xstrtoumax basis 0 (Audit 2786) | 4
 Audit 2787 | 85ac95913cad | - | fix(gerbang): pola csplit - offset tanpa tanda sah, pengulangan berurutan ditolak (Audit 2787) | 3
-Audit 2788 | ff1a0e54903e | - | fix(gerbang): anggota kosong daftar sinyal env kini dilewati (Audit 2788) | 2
+Audit 2788 | ff1a0e54903e | - | fix(gerbang): anggota kosong daftar sinyal env kini dilewati (Audit 2788) | 5
 Audit 2789 | 5bae0268d5d5 | - | fix(gerbang): desimal-positif tail kini tata bahasa xstrtod penuh (Audit 2789) | 4
 Audit 2790 | 8077cc4eef37 | - | fix(gerbang): prioritas logger kini tak peka huruf (Audit 2790) | 3
 Audit 2791 | ffdb76f33ed2 | - | fix(gerbang): landlock dicabut dari daftar capability setpriv (Audit 2791) | 3
-Audit 2792 | 0fdf968c3292 | - | fix(gerbang): join - --output mati dan walk sadar nilai opsi lain (Audit 2792) | 3
+Audit 2792 | 0fdf968c3292 | - | fix(gerbang): join - --output mati dan walk sadar nilai opsi lain (Audit 2792) | 6
 Audit 2793 | e32d6515ce7c | - | fix(gerbang): durasi ffmpeg dua ruas kini membatasi komponen pertama (Audit 2793) | 2
 Audit 2794 | 8aaa7bf40918 | - | fix(gerbang): angka penerima coreutils kini menerima tanda + (Audit 2794) | 7
 Audit 2795 | 0213870916c7 | - | fix(gerbang): walk penerima operand kini kenal singkatan getopt_long (Audit 2795) | 3
@@ -1914,7 +1915,7 @@ Audit 2797 | 4b91d66bfb28 | - | fix(gerbang): python --check-hash-based-pycs kin
 Audit 2798 | 6be20db330cc | - | fix(gerbang): python -X kini divalidasi per-kunci (Audit 2798) | 2
 Audit 2799 | 10d152a8b16e | - | fix(gerbang): node --input-type kini divalidasi enum (Audit 2799) | 5
 Audit 2800 | b2f9914dca85 | - | fix(gerbang): node opsi ukuran V8 bentuk = kini divalidasi numerik (Audit 2800) | 2
-Audit 2801 | ca976c134af6 | - | fix(gerbang): keluarga awalan node kini keanggotaan tertutup (Audit 2801) | 2
+Audit 2801 | ca976c134af6 | - | fix(gerbang): keluarga awalan node kini keanggotaan tertutup (Audit 2801) | 5
 Audit 2802 | ea067cee19de | - | fix(gerbang): node --use-largepages kini divalidasi {off, on} (Audit 2802) | 2
 Audit 2803 | 204b75b60c86 | - | fix(gerbang): node --stack-size kini dikenal gerbang (Audit 2803) | 4
 Audit 2804 | a92a191a9b8d | - | fix(gerbang): awk -v kini divalidasi penugasan nama=nilai (Audit 2804) | 2
@@ -1938,7 +1939,7 @@ Audit 2824 | 3ae349a44f99 | - | fix(gerbang): betulkan pola inf di _durasi_timeo
 Audit 2825 | 257964dac777 | - | fix(gerbang): tolak 44 nama terlarang mawk pada -v/penetapan awk (Audit 2825) | 3
 Audit 2826 | 5c272c61ae07 | - | fix(gerbang): saklar informasional perl -V/-v/-h tak menguras stdin (Audit 2826) | 3
 Audit 2827 | d648deec4547 | - | fix(gerbang): selesaikan singkatan getopt_long di penjaga informasional (Audit 2827) | 2
-Audit 2828 | f1c41d0dcf0d | - | fix(gerbang): lingkar --max-time curl sadar nilai opsi lain (Audit 2828) | 2
+Audit 2828 | f1c41d0dcf0d | - | fix(gerbang): lingkar --max-time curl sadar nilai opsi lain (Audit 2828) | 4
 Audit 2829 | c884f61d2937 | - | fix(gerbang): validasi bentuk merekat -n/-i cmp (Audit 2829) | 4
 Audit 2830 | 2e6bbfb01c16 | - | fix(bot): catat persisten penghapusan pesan ber-PIN tertunda + coba lagi tiap poll (Audit 2830) | 2
 Audit 2831 | 1cc34f3b4076 | - | fix(settings): chat ID mirip nomor telepon ditolak dengan pesan khusus | 4
@@ -1952,12 +1953,12 @@ Audit 2838 | 60bf2e83eafc | - | fix: gerbang - validasi port -P sftp cermin ssh 
 Audit 2839 | 2eb38d4f55f5 | - | fix: gerbang - mode --test node tak membaca stdin (Audit 2839) | 2
 Audit 2840 | 38a5049a1b67 | - | fix: cadangan - sapu sisa salin hanya pola temp persis (Audit 2840) | 1
 Audit 2841 | a0e06dc116c4 | - | fix: server - ips.txt ikut daftar pra-bersih migrasi TLS (Audit 2841) | 1
-Audit 2842 | 68ca89721f5c | - | fix: gerbang - token digit asing join ditolak (Audit 2842) | 2
+Audit 2842 | 68ca89721f5c | - | fix: gerbang - token digit asing join ditolak (Audit 2842) | 4
 Audit 2843 | 3ae4ec74970f | - | fix: gerbang - tree --fromtabfile mode stdin (Audit 2843) | 2
 Audit 2844 | 27bcbf932c95 | - | fix: gerbang - operand --fromfile tree menentukan sumber (Audit 2844) | 3
 Audit 2845 | 4688b036cd9a | - | fix: gerbang - kosakata opsi panjang tree dari --help biner (Audit 2845) | 2
-Audit 2846 | 8456a7b32f61 | - | fix: gerbang - keluarga [=] tree ikut himpunan bernilai (Audit 2846) | 2
-Audit 2847 | d2c1ce5dcb29 | - | fix: gerbang - diff3 -A bendera, bukan bernilai (Audit 2847) | 2
+Audit 2846 | 8456a7b32f61 | - | fix: gerbang - keluarga [=] tree ikut himpunan bernilai (Audit 2846) | 4
+Audit 2847 | d2c1ce5dcb29 | - | fix: gerbang - diff3 -A bendera, bukan bernilai (Audit 2847) | 4
 Audit 2848 | 9885f72436ac | - | fix: gerbang - opsi khas-diff ditolak untuk diff3 (Audit 2848) | 3
 Audit 2849 | 62f2aab7c7cc | - | fix: gerbang - validasi nilai -W diff (Audit 2849) | 4
 Audit 2850 | 24cf0f900f1c | - | fix: gerbang - cabut opsi hantu diff -A/konteks (Audit 2850) | 3
@@ -1967,8 +1968,8 @@ Audit 2853 | 0c6baba55304 | - | fix: gerbang - walk kedua curl urai bundel pende
 Audit 2854 | e6760a02a68b | - | fix: gerbang - walk kedua curl lewati nilai opsi lain (Audit 2854) | 4
 Audit 2855 | 9d87285e494a | - | fix: gerbang - walk kedua curl hormati terminator -- (Audit 2855) | 3
 Audit 2856 | 1e487f1cc0d7 | - | fix: gerbang - validasi nilai seluruh _MAX_V8 node (Audit 2856) | 3
-Audit 2857 | e90195904611 | - | fix: kunci tg_hapus_tertunda dari ekspor cadangan (Audit 2857) | 1
-Audit 2858 | 38d29251cf01 | - | fix: selesaikan singkatan opsi panjang diff/diff3 di walk matriks gerbang | 2
+Audit 2857 | e90195904611 | - | fix: kunci tg_hapus_tertunda dari ekspor cadangan (Audit 2857) | 2
+Audit 2858 | 38d29251cf01 | - | fix: selesaikan singkatan opsi panjang diff/diff3 di walk matriks gerbang | 5
 Audit 2859 | fd7c1f4c37ff | - | fix: tolak negasi boolean V8/trace node yang diberi =nilai di gerbang | 3
 Audit 2860 | 3c3193b4be2e | - | fix: hormati mode --test node pada cabang terminator -- | 3
 Audit 2861 | 5c618afd3ccf | - | fix: validasi huruf opsi pendek tree di walk fromfile gerbang | 3
@@ -2023,6 +2024,7 @@ Audit 2909 | b178f5beaf90 | - | fix: nilai waktu curl kini menerima heksadesimal
 Audit 2910 | a5a21d1c7b94 | - | fix: urutan samarkanLog dibalik, IPv6 terpetakan penuh tak lagi bocor | 3
 Audit 2911 | 9c4e1c7d17a8 | - | fix(cek-cepat): tangkap angka kedua tanpa nol depan di pathData | 2
 Audit 2912 | 5a4dce776282 | - | fix: postingan kanal berisi PIN kini ikut terhapus | 3
+Audit 2913 | 01d2b5a5645f | - | feat(gerbang): daftar Audit->commit + peringatan nomor baru | 1
 Audit 2914 | 70fa0d1be119 | - | fix: pesan media baru berisi PIN di caption kini ikut disaring hapus | 3
 Audit 2915 | fb265b426d2d | - | fix: gantiAtomik pulihkan .bak yatim dulu, jangan langsung dihapus | 4
 Audit 2916 | 9bb9040efbdb | - | fix: konflik metode HTTP curl membunuh vonis kuras gerbang | 3
@@ -2086,7 +2088,7 @@ Audit 2974 | 76839618060d | - | perf(server): factory SSL health-check dipakai u
 Audit 2975 | da60712c58fb | - | fix(backup): penanda tertunda dihapus hanya sesudah susulan berhasil | 1
 Audit 2976 | cb3079399eb1 | - | fix(telegram): teks poll ikut disaring PIN di semua jalur hapus | 4
 Audit 2977 | c1caa5e32cfb | - | perf(pengaturan): tulis KEY_HTTPS hanya bila belum true | 2
-Audit 2978 | ef227a3eb039 | - | fix(izin): dialog izin tulis pasif hanya sekali, jalur aksi tetap bebas | 2
+Audit 2978 | ef227a3eb039 | - | fix(izin): dialog izin tulis pasif hanya sekali, jalur aksi tetap bebas | 3
 Audit 2979 | 5cc1a77b47ce | - | perf(ci): belah suite uji-verifikasi jadi dua job paralel | 5
 Audit 2980 | 6c496e9b72bd | - | fix(gerbang): -F type= tak sah dinilai mati saat urai, bukan sumber | 4
 Audit 2981 | 560324b9c7a3 | - | fix(bot): stempel masa depan membolehkan peringatan PIN asing | 2
@@ -2132,4 +2134,4 @@ Audit 3033 | a0a55b6d6f56 | - | fix(update): penanda versi dibersihkan saat bina
 Audit 3035 | ce0ec711eeba | - | fix(tls): kunci publik hanya dihapus bila salinan internal terbukti lengkap | 2
 Audit 3036 | 1f35a52ae2f5 | - | fix(backup): retensi bandingkan stempel di nama, bukan awalan nama | 2
 
-# Tak terlacak di riwayat (kerja belum ter-commit / netral pickaxe): Audit 633, Audit 2913, Audit 9999
+# Tak terlacak di riwayat (kerja belum ter-commit / netral pickaxe): -

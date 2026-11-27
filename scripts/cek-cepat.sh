@@ -79,9 +79,9 @@ if [ "$a" != "$c" ]; then gagal_msg "struktur judul README.md ($a) != README.ru.
 # dibandingkan: selisih > 3 baris antar-terjemahan
 # pada seksi yang sama = drift, gerbang gagal.
 ukuran_seksi() {
-  awk '/^```/ { f = !f; next } !f && /^#{1,6} / { if (n) printf "%d ", c; c = 0; n = 1; next } { c++ } END { if (n) printf "%d ", c }' "$1"
+  awk '/^```/ { f = !f; next } !f && /^#{1,6} / { if (n) printf "%d ", c; c = 0; n = 1; next } { c++ } END { if (n) printf "%d ", c }' "$1" 2>/dev/null
 }
-ua="$(ukuran_seksi README.md)"; ub="$(ukuran_seksi README.id.md)"; uc="$(ukuran_seksi README.ru.md)"
+ua="$(ukuran_seksi README.md || true)"; ub="$(ukuran_seksi README.id.md || true)"; uc="$(ukuran_seksi README.ru.md || true)"
 read -ra A_UK <<< "$ua"; read -ra B_UK <<< "$ub"; read -ra C_UK <<< "$uc"
 if [ "${#A_UK[@]}" -eq "${#B_UK[@]}" ] && [ "${#A_UK[@]}" -eq "${#C_UK[@]}" ]; then
   for i in "${!A_UK[@]}"; do

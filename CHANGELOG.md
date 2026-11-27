@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perbaiki dua regresi gerbang dari batch sebelumnya
+
+Cek paritas isi README di cek-cepat kini tahan berkas hilang (kegagalan membaca satu README tidak lagi mematikan skrip sebelum pemindaian rahasia berjalan), dan skenario uji peringatan nomor Audit baru tidak lagi menodai pohon dasar dengan nomor racunnya sendiri. Keduanya tertangkap CI dan diperbaiki sebelum build APK berikutnya.
+
+
 ## [Belum rilis] — Nilai rahasia SharedPreferences kini terenkripsi (Audit 2764)
 
 Token bot Telegram, sandi backup, rahasia alarm, token admin, dan URL database kini disimpan terenkripsi AES-GCM di SharedPreferences; kuncinya dibuat dan disimpan AndroidKeyStore (Android 6+). Nilai lama yang masih polos dibaca seperti biasa dan otomatis ditulis ulang terenkripsi saat pemeriksaan prefs berikutnya. Di Android 5 atau bila KeyStore tidak tersedia, nilai disimpan polos seperti sebelumnya. Hash PIN tidak ikut dienkripsi: ia sudah hash PBKDF2 tersaltir, dan kunci KeyStore yang hilang akan membuatnya tak terbaca.

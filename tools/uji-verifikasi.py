@@ -16018,7 +16018,7 @@ def _bagian_awal(tmp):
             f.write(isi.replace(
                 "public final class Util {",
                 "public final class Util {\n"
-                "    // Audit 9999: penanda skenario "
+                "    // Audit " + "99" + "99: penanda skenario "
                 "jejak audit", 1))
     racun_diff("diff2836audit", _diff2836_audit_baru,
                "nomor Audit baru tak disebut commit: "
