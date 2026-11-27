@@ -2539,6 +2539,14 @@ public final class TgBot {
                     if (terhapus) {
                         selesaikanHapusTertundaUntuk(ctx,
                                 idRuang, idPesan, asing);
+                        // Audit 2969: keberhasilan coba-ulang
+                        // juga membersihkan bendera peringatan
+                        // hapus, seperti jalur segar - dulu
+                        // cabang sukses ini melewatkannya.
+                        if (!asing) {
+                            peringatkanBilaTakBisaHapus(
+                                    ctx, true, idRuang);
+                        }
                     } else if (asing) {
                         peringatkanPinChatAsing(ctx, idRuang);
                     } else {

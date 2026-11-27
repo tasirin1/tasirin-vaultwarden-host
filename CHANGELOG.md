@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Keberhasilan coba-ulang hapus pesan kini ikut membersihkan bendera peringatan (Audit 2969)
+
+- `TgBot.cobaHapusTertunda`: saat penghapusan tertunda akhirnya berhasil, entri dicoret tetapi bendera peringatan hapus tidak pernah dibersihkan — jalur segar melakukannya lewat penanda sukses, jalur coba-ulang tidak, sehingga status peringatan lama bertahan walau kemampuan hapus bot sudah pulih. Cabang sukses jalur milik-sendiri kini memanggil penanda sukses yang sama.
+
+
 ## [Belum rilis] — Perbaikan build: satu panggilan uji bertanda tangan lama bolehLewatiCobaLagi (Refs #2863)
 
 - `AutoUpdateTest`: satu uji (`tetapCobaBilaBelumPernahGagal`) masih memanggil bentuk lama tiga argumen dari `bolehLewatiCobaLagi` yang diubah Audit 2863 — dua uji lain di berkas yang sama sudah diperbarui saat itu, yang ini terlewat dan menggagalkan kompilasi uji di CI. Dipindah ke bentuk dua argumen dengan maksud yang sama (belum pernah gagal = stempel 0 = tidak boleh melewati coba lagi).
