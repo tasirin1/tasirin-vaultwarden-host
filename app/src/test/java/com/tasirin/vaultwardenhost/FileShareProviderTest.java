@@ -9,6 +9,17 @@ import org.junit.Test;
 public class FileShareProviderTest {
 
     @Test
+    public void identitasSama_hanyaBilaDevDanInodeSama() {
+        // Audit 2829: rename swap mengganti inode di path sama.
+        org.junit.Assert.assertTrue(
+                FileShareProvider.identitasSama(7L, 42L, 7L, 42L));
+        org.junit.Assert.assertFalse(
+                FileShareProvider.identitasSama(7L, 42L, 7L, 43L));
+        org.junit.Assert.assertFalse(
+                FileShareProvider.identitasSama(7L, 42L, 8L, 42L));
+    }
+
+    @Test
     public void akhiranAwalanAbaikanHurufTanpaAlokasi() {
         assertTrue(FileShareProvider.berakhirAbaikanHuruf("CA.PEM", ".pem"));
         assertTrue(FileShareProvider.mulaiAbaikanHuruf("Key.PEM.zip", "key.pem."));

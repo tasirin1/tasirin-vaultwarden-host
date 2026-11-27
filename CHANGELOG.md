@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — FileShareProvider kini membandingkan inode, bukan hanya jalur fd (Audit 2829)
+
+- `FileShareProvider.openFile`: pemeriksaan sesudah buka dulu hanya membandingkan jalur kanonik hasil readlink `/proc/self/fd` — penukaran isi lewat `rename()` atomik di path yang sama lolos karena jalurnya tidak berubah. Kini identitas berkas (device + inode) dari path terverifikasi (`Os.stat`, dicatat sebelum buka) dibandingkan dengan identitas fd yang terbuka (`Os.fstat`); tidak sama berarti berkas ditukar di antara verifikasi dan buka → ditolak fail-closed seperti penolakan lainnya. Ditambah uji JVM untuk predikat identitasnya.
+
+
 ## [Belum rilis] — Restore bot kini memverifikasi zip penuh sebelum server berhenti (Audit 2825)
 
 - `TgBackup.restoreFromZipIsi`: `verifikasiZip` (membaca penuh semua entri, memeriksa CRC dan magic SQLite) dulu hanya dipakai jalur pembuatan backup — jalur restore hanya memindai ukuran deklarasi, sehingga zip korup baru ketahuan sesudah server dihentikan, pre-backup dibuat, dan ekstraksi berjalan. Verifikasi kini berjalan sesudah pindai ukuran dan sebelum server dihentikan: zip buruk ditolak di muka dan server tidak pernah berhenti untuk restore yang pasti gagal. Biaya tambahan satu kali baca penuh memang ada, tapi ekstraksi toh membaca berkas yang sama.

@@ -173,10 +173,30 @@ public class FileShareProvider extends ContentProvider {
 
         try {
             String canonUlang = buka.getCanonicalPath();
+            // Audit 2829: identitas (device + inode) path
+            // terverifikasi dicatat SEBELUM buka - cek jalur
+            // fd saja tak menutup penukaran rename() atomik
+            // di path yang sama (jalur tetap, inode berubah).
+            android.system.StructStat statJalur = null;
+            try {
+                statJalur = android.system.Os.stat(canonUlang);
+            } catch (Exception ignored) {
+            }
             ParcelFileDescriptor pfd = ParcelFileDescriptor.open(buka,
                     ParcelFileDescriptor.MODE_READ_ONLY);
             String jalurFd = jalurFdTerbuka(pfd.getFd());
-            if (!jalurFdCocok(jalurFd, canonUlang)) {
+            boolean inodeCocok = true;
+            if (statJalur != null) {
+                try {
+                    android.system.StructStat statFd =
+                            android.system.Os.fstat(pfd.getFileDescriptor());
+                    inodeCocok = identitasSama(statJalur.st_dev,
+                            statJalur.st_ino, statFd.st_dev, statFd.st_ino);
+                } catch (Exception e) {
+                    inodeCocok = false;
+                }
+            }
+            if (!jalurFdCocok(jalurFd, canonUlang) || !inodeCocok) {
                 try {
                     pfd.close();
                 } catch (Exception ignored) {
@@ -218,6 +238,10 @@ public class FileShareProvider extends ContentProvider {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    static boolean identitasSama(long devA, long inoA, long devB, long inoB) {
+        return devA == devB && inoA == inoB;
     }
 
     static boolean jalurFdCocok(String jalurFd, String canon) {
