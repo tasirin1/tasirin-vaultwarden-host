@@ -217,7 +217,7 @@ public class MainActivity extends Activity {
         Util.jalankanCek(this::autoUpdateCheck);
 
         final android.content.Context appPin = getApplicationContext();
-        Util.jalankanBg(() -> PinGate.kuatkanHashDini(appPin));
+        Util.jalankanPin(() -> PinGate.kuatkanHashDini(appPin));
 
         TgBackup.schedule(this, TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false));
 

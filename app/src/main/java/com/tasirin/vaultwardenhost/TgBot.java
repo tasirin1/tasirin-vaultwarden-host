@@ -2961,6 +2961,19 @@ public final class TgBot {
             balas(ctx, idRuang, "PIN salah, login ditolak.");
             return true;
         }
+        if (PinCrypto.perluUpgradeHash(hashTerbukti)) {
+            try {
+                String hashBaru = PinCrypto.hash(pin);
+                synchronized (PinGate.KUNCI_PERCOBAAN) {
+                    String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
+                    if (hashTerbukti.equals(kini)) {
+                        sp.edit().putString(PinGate.KEY_PIN_HASH, hashBaru).apply();
+                        hashTerbukti = hashBaru;
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
         simpanLoginBilaHashTetap(ctx, idRuang, hashTerbukti);
         balas(ctx, idRuang, "Login berhasil. Semua perintah sekarang bisa"
                 + " langsung dipakai tanpa PIN, sampai kamu /logout atau"

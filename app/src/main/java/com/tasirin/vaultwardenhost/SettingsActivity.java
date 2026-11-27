@@ -697,7 +697,7 @@ public class SettingsActivity extends Activity {
 
         try {
             final android.content.Context appPin = getApplicationContext();
-            Util.jalankanBg(() -> PinGate.kuatkanHashDini(appPin));
+            Util.jalankanPin(() -> PinGate.kuatkanHashDini(appPin));
         } catch (Exception ignored) {
         }
         bersihkanPin(pinInput);

@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Hash PIN legasi kini pasti bermigrasi (jalur /login + pool khusus PIN)
+
+Hash legasi SHA-256 tanpa salt selama ini hanya bermigrasi lewat kuatkanHashDini yang diantrekan ke pool latar umum (bisa tertolak diam-diam saat antrean penuh), dan jalur /login bot tidak meng-upgrade hash sesudah verifikasi sukses — tidak seperti PinActivity dan authDangerous. Kini: (1) /login yang cocok langsung menulis ulang hash ke PBKDF2 penuh (terjaga cek hash-tak-berubah, stempel sesi mengikuti hash baru); (2) kuatkanHashDini diantrekan ke pool khusus PIN (jalankanPin) di ketiga titik awal (MainActivity, ServerService, SettingsActivity). Penerimaan format legasi dipertahankan hanya sebagai jembatan migrasi saat verifikasi sukses — penghapusan total akan mengunci perangkat yang hash-nya belum sempat bermigrasi.
+
+Closes #2767
+
+
 ## [Belum rilis] — PIN tidak lagi tersimpan otomatis saat mengetik (cegah PIN kepotong)
 
 Watcher kolom PIN selama ini menulis hash langsung sesudah jeda ketik 800 ms bila konfirmasi dianggap tak perlu — nilai yang tersimpan bisa berupa awalan PIN yang dimaksud pengguna (mis. "1234" dari "123456"), dan flush onDestroy menjalankan simpanan tertunda yang sama. Kini mengetik tidak pernah menyimpan: perubahan PIN hanya lewat dialog konfirmasi eksplisit (OK) atau aktivasi centang; suntingan tertunda saat layar ditutup dibuang dengan toast "tidak disimpan". Metode perluKonfirmasiGantiPin dan adaHashPinTersimpan dihapus (dicatat di bekas-hapusan) beserta uji khususnya.

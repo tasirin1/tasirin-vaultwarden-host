@@ -1208,7 +1208,7 @@ public class ServerService extends Service {
 
         try {
             final android.content.Context appPin = getApplicationContext();
-            Util.jalankanBg(() -> PinGate.kuatkanHashDini(appPin));
+            Util.jalankanPin(() -> PinGate.kuatkanHashDini(appPin));
         } catch (Exception ignored) {
         }
 
