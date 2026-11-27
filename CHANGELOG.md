@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Uji fail-closed PabrikTls12.nyalakan ditambahkan (Audit 2935)
+
+- `HttpsCompatTest`: penegak fail-closed TLS (`PabrikTls12.nyalakan` — soket tanpa TLS 1.2+/cipher kuat harus digagalkan dengan `IOException`, bukan dipakai dengan bawaan platform; jaminan Audit 2763) dulu tidak punya satu pun pengujian, jadi regresi yang mengembalikan fallback diam-diam tidak akan ketahuan suite mana pun. Ditambah soket dan pabrik palsu tulisan tangan (harness hanya JUnit, tanpa Mockito/Robolectric) dan dua pengujian lewat jalur produksi `bungkusTls12(...).createSocket()`: soket yang hanya mendukung TLS ≤1.1 digagalkan, dan soket berkemampuan penuh menerima tepat protokol/cipher hasil saringan. Cache statis `HttpsCompat` direset via refleksi di awal tiap pengujian agar urutan jalan pengujian tidak saling mengotori.
+
+
 ## [Belum rilis] — Uji kasus positif perintah ber-@namabot sendiri ditambahkan (Audit 2934)
 
 - `TgBotTest`: `namaPerintahUntukBot` dulu hanya diuji untuk sufiks bot LAIN (ditolak) dan tanpa sufiks — kasus positif yang justru paling kritis di produksi, perintah grup yang menyebut bot sendiri (`/start@BotKu` dengan username `BotKu` → `start`), tidak punya satu pun assert. Kini ditambah kasus positif persis, varian huruf kecil pada sufiks, dan perintah lain (`/backup`) dengan spasi di sekeliling.

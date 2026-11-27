@@ -156,4 +156,200 @@ public class HttpsCompatTest {
             fail("bungkusTls12 melempar: " + e);
         }
     }
+
+    // Audit 2935: nyalakan() fail-closed (Audit 2763) dulu
+    // tanpa test sama sekali. Soket palsu tulisan tangan -
+    // harness hanya JUnit, tanpa Mockito/Robolectric.
+    static final class SoketPalsu extends javax.net.ssl.SSLSocket {
+        final String[] protokolDukung;
+        final String[] cipherDukung;
+        String[] protokolAktif;
+        String[] cipherAktif;
+
+        SoketPalsu(String[] protokol, String[] cipher) {
+            this.protokolDukung = protokol;
+            this.cipherDukung = cipher;
+        }
+
+        @Override
+        public String[] getSupportedCipherSuites() {
+            return cipherDukung;
+        }
+
+        @Override
+        public String[] getEnabledCipherSuites() {
+            return cipherAktif;
+        }
+
+        @Override
+        public void setEnabledCipherSuites(String[] suites) {
+            cipherAktif = suites;
+        }
+
+        @Override
+        public String[] getSupportedProtocols() {
+            return protokolDukung;
+        }
+
+        @Override
+        public String[] getEnabledProtocols() {
+            return protokolAktif;
+        }
+
+        @Override
+        public void setEnabledProtocols(String[] protocols) {
+            protokolAktif = protocols;
+        }
+
+        @Override
+        public javax.net.ssl.SSLSession getSession() {
+            return null;
+        }
+
+        @Override
+        public void addHandshakeCompletedListener(
+                javax.net.ssl.HandshakeCompletedListener listener) {
+        }
+
+        @Override
+        public void removeHandshakeCompletedListener(
+                javax.net.ssl.HandshakeCompletedListener listener) {
+        }
+
+        @Override
+        public void startHandshake() {
+        }
+
+        @Override
+        public void setUseClientMode(boolean mode) {
+        }
+
+        @Override
+        public boolean getUseClientMode() {
+            return true;
+        }
+
+        @Override
+        public void setNeedClientAuth(boolean need) {
+        }
+
+        @Override
+        public boolean getNeedClientAuth() {
+            return false;
+        }
+
+        @Override
+        public void setWantClientAuth(boolean want) {
+        }
+
+        @Override
+        public boolean getWantClientAuth() {
+            return false;
+        }
+
+        @Override
+        public void setEnableSessionCreation(boolean flag) {
+        }
+
+        @Override
+        public boolean getEnableSessionCreation() {
+            return true;
+        }
+    }
+
+    static final class PabrikPalsu extends javax.net.ssl.SSLSocketFactory {
+        private final SoketPalsu soket;
+
+        PabrikPalsu(SoketPalsu soket) {
+            this.soket = soket;
+        }
+
+        @Override
+        public String[] getDefaultCipherSuites() {
+            return new String[0];
+        }
+
+        @Override
+        public String[] getSupportedCipherSuites() {
+            return new String[0];
+        }
+
+        @Override
+        public java.net.Socket createSocket() {
+            return soket;
+        }
+
+        @Override
+        public java.net.Socket createSocket(String host, int port) {
+            return soket;
+        }
+
+        @Override
+        public java.net.Socket createSocket(String host, int port,
+                java.net.InetAddress localHost, int localPort) {
+            return soket;
+        }
+
+        @Override
+        public java.net.Socket createSocket(java.net.InetAddress host,
+                int port) {
+            return soket;
+        }
+
+        @Override
+        public java.net.Socket createSocket(java.net.InetAddress address,
+                int port, java.net.InetAddress localAddress,
+                int localPort) {
+            return soket;
+        }
+
+        @Override
+        public java.net.Socket createSocket(java.net.Socket s, String host,
+                int port, boolean autoClose) {
+            return soket;
+        }
+    }
+
+    private static void resetCacheTls() throws Exception {
+        for (String nama : new String[]{"protokolCache", "cipherCache",
+                "mentahProtokol", "mentahCipher"}) {
+            java.lang.reflect.Field f =
+                    HttpsCompat.class.getDeclaredField(nama);
+            f.setAccessible(true);
+            f.set(null, null);
+        }
+    }
+
+    @Test
+    public void nyalakan_gagalTertutupBilaTakAdaTls12() throws Exception {
+        resetCacheTls();
+        SoketPalsu soket = new SoketPalsu(
+                new String[]{"TLSv1.1", "TLSv1"},
+                new String[]{"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"});
+        javax.net.ssl.SSLSocketFactory bungkus =
+                HttpsCompat.bungkusTls12(new PabrikPalsu(soket));
+        try {
+            bungkus.createSocket();
+            fail("nyalakan harus menggagalkan soket tanpa TLS 1.2+");
+        } catch (java.io.IOException e) {
+            assertTrue(e.getMessage().contains("TLS 1.2"));
+        }
+    }
+
+    @Test
+    public void nyalakan_menerapkanProtokolDanCipherSaringan()
+            throws Exception {
+        resetCacheTls();
+        SoketPalsu soket = new SoketPalsu(
+                new String[]{"TLSv1.2", "TLSv1.1"},
+                new String[]{"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                        "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA"});
+        javax.net.ssl.SSLSocketFactory bungkus =
+                HttpsCompat.bungkusTls12(new PabrikPalsu(soket));
+        assertTrue(bungkus.createSocket() == soket);
+        assertArrayEquals(new String[]{"TLSv1.2"}, soket.protokolAktif);
+        assertArrayEquals(
+                new String[]{"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"},
+                soket.cipherAktif);
+    }
 }
