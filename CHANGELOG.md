@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Hook pre-push kini memindai cek-cepat untuk ref bukan-HEAD juga (Audit 2965)
+
+- Ujung tiap ref yang di-push dan bukan HEAD checkout kini dipindai cek-cepat di worktree sementara pada commit itu — pola eksklusif cek-cepat (rahasia terbelah, vektor, README) tidak lagi bisa lolos lewat push branch sampingan.
+
+
 ## [Belum rilis] — Empat titik-masuk suite disatukan ke pelari bersama lari-paruh.py (Audit 2794)
 
 - Logika muat + lari paruh suite yang dulu tersalin di empat berkas titik-masuk kini satu pintu di tools/lari-paruh.py; keempat berkas tetap ada dengan nama yang sama (dipanggil workflow CI) tetapi hanya mendelegasikan.

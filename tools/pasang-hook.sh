@@ -16,6 +16,7 @@ if [ "$1" = "--self-test" ]; then
 fi
 rentang_semua=""
 perlu_fallback=0
+sha_cek=""
 while read -r ref_lokal sha_lokal ref_remote sha_remote; do
     # Audit 2928: sha_lokal nol semua = penghapusan
     # branch - tak ada konten baru; membentuk rentang
@@ -23,6 +24,7 @@ while read -r ref_lokal sha_lokal ref_remote sha_remote; do
     case "$sha_lokal" in
         ""|0000000000000000000000000000000000000000) continue ;;
     esac
+    sha_cek="$sha_cek $sha_lokal"
     case "$sha_remote" in
         ""|0000000000000000000000000000000000000000)
             # Audit 3030: ref BARU (branch/tag yang belum
@@ -54,6 +56,31 @@ if [ -n "$rentang_semua" ]; then
 else
     if ! python3 tools/verifikasi-patch.py; then exit 1; fi
 fi
+# Audit 2965: cek-cepat tanpa argumen hanya memindai
+# HEAD + pohon kerja tempat berdiri - commit di ref
+# bukan-HEAD yang ikut di-push tak pernah ia lihat.
+# Tiap ujung ref bukan-HEAD kini dipindai juga, di
+# worktree sementara pada commit itu (memakai
+# cek-cepat versi ref itu sendiri).
+kepala=$(git rev-parse HEAD 2>/dev/null) || kepala=""
+sudah=""
+for sha in $sha_cek; do
+    if [ "$sha" = "$kepala" ]; then continue; fi
+    case " $sudah " in *" $sha "*) continue ;; esac
+    sudah="$sudah $sha"
+    tmp_w=$(mktemp -d) || exit 1
+    if ! git worktree add -q --detach "$tmp_w/w" "$sha"; then
+        rm -rf "$tmp_w"
+        exit 1
+    fi
+    if ! (cd "$tmp_w/w" && bash scripts/cek-cepat.sh); then
+        git worktree remove --force "$tmp_w/w" 2>/dev/null
+        rm -rf "$tmp_w"
+        exit 1
+    fi
+    git worktree remove --force "$tmp_w/w" 2>/dev/null
+    rm -rf "$tmp_w"
+done
 exec bash scripts/cek-cepat.sh
 HOOK
 if [ -f "$HOOK" ] && ! cmp -s "$sementara" "$HOOK"; then
