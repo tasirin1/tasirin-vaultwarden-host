@@ -15533,6 +15533,24 @@ def _bagian_awal(tmp):
             rc != 0 and "metodeHantu" in out)
     shutil.rmtree(acu, ignore_errors=True)
 
+    bekasuji = klon(tmp, "bekasuji")
+    berkas_uji_baru = os.path.join(
+        bekasuji, "app", "src", "test", "java", "com", "tasirin",
+        "vaultwardenhost", "BekasNamaTest.java")
+    os.makedirs(os.path.dirname(berkas_uji_baru), exist_ok=True)
+    with open(berkas_uji_baru, "w", encoding="utf-8") as f:
+        f.write("package com.tasirin.vaultwardenhost;\n\n"
+                "public class BekasNamaTest {\n"
+                "    static boolean batalTunda() { return true; }\n"
+                "    @org.junit.Test public void pakai() {\n"
+                "        org.junit.Assert.assertTrue(batalTunda());\n"
+                "    }\n}\n")
+    rc, out = jalan(bekasuji, [sys.executable, GERBANG, "--semua"])
+    periksa("helper uji bernama bekas-hapusan tak lagi GAGAL palsu "
+            "(Audit 2930)", rc == 0 and "bekas-hapusan" not in out,
+            "" if rc == 0 else out[-400:])
+    shutil.rmtree(bekasuji, ignore_errors=True)
+
 def _bagian_akhir(tmp):
     sub716 = klon(tmp, "sub716")
     berkas_aksi716 = os.path.join(

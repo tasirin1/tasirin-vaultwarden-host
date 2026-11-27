@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang tak lagi gagal-palsu oleh helper uji bernama sama dengan bekas hapusan (Audit 2930)
+
+- `tools/verifikasi-patch.py`: gabungan nama terdeklarasi dulu memindai seluruh `app/src` termasuk `app/src/test`, sehingga helper uji yang kebetulan bernama sama dengan entri `tools/bekas-hapusan.txt` memicu GAGAL dan menuntut nama itu dikeluarkan dari daftar — padahal aturan 15 hanya melarang definisi di kode produksi. Pindai definisi kini dipersempit ke `app/src/main`, dan pindai pemanggil di fungsi yang sama kini membedakan situs produksi (selalu gagal) dari situs uji (gagal hanya bila nama itu tidak terdeklarasi di pohon uji, artinya memanggil metode produksi yang sudah dihapus). Pindai definisi dipersempit ke `app/src/main`; semua pemanggil pemeriksaan ini memang bermakna produksi (daftar hapusan, metode hilang, acuan AGENTS.md). Ditambah satu skenario suite.
+
+
 ## [Belum rilis] — Gerbang memeriksa acuan metode di AGENTS.md tanpa () dan tanpa backtick (Audit 2929)
 
 - `tools/verifikasi-patch.py` (`cek_acuan_agents`): dulu hanya bentuk `` `nama()` `` yang diperiksa — penyebutan seperti `Util.postTunda` (tanpa kurung) atau nama polos tanpa backtick tak pernah diperiksa, jadi acuan basi lolos diam-diam. Kini bentuk `Kelas.metode` di dalam maupun luar backtick dan `nama()` polos di luar backtick ikut diperiksa; segmen pendek, ekstensi berkas, dan metode JDK yang sengaja disebut sebagai acuan (`Collections.sort`) dikecualikan. Teruji probe: nol positif palsu pada AGENTS.md saat ini. Ditambah satu skenario suite.

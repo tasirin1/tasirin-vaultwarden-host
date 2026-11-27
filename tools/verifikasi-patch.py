@@ -147,17 +147,36 @@ def cek_daftar_hapusan(gagal):
         # regex per nama dan memindai ulang seluruh berkas untuk
         # tiap nama (90 nama x 46 berkas).
         pola_kandidat = re.compile(r"(\w+)\s*\(|::\s*(\w+)")
-        berkas_pertama = {}
+        # Audit 2930: situs panggil dipisah produksi vs uji.
+        # Uji yang memanggil helper-nya sendiri (nama
+        # terdeklarasi di pohon uji) bukan regresi; uji yang
+        # memanggil nama yang tak terdeklarasi di uji berarti
+        # memanggil metode produksi yang sudah dihapus.
+        terdeklarasi_uji = set()
+        for path_uji in jalan_repo(os.path.join("app", "src", "test")):
+            terdeklarasi_uji |= nama_terdeklarasi(path_uji)
+        pertama_prod = {}
+        pertama_uji = {}
         for p, isi in isi_java:
+            di_uji = p.startswith(os.path.join("app", "src", "test"))
             for cocok in pola_kandidat.finditer(isi):
                 nama = cocok.group(1) or cocok.group(2)
-                if nama in BEKAS_HAPUSAN and nama not in berkas_pertama:
-                    berkas_pertama[nama] = p
+                if nama not in BEKAS_HAPUSAN:
+                    continue
+                if di_uji:
+                    if nama not in pertama_uji:
+                        pertama_uji[nama] = p
+                elif nama not in pertama_prod:
+                    pertama_prod[nama] = p
         for nama in sorted(BEKAS_HAPUSAN):
-            if nama in berkas_pertama:
+            if nama in pertama_prod:
                 gagal.append("Pohon masih memanggil %s() yang sudah "
                              "dihapus (di %s) — regresi hapusan di luar "
-                             "rentang diff" % (nama, berkas_pertama[nama]))
+                             "rentang diff" % (nama, pertama_prod[nama]))
+            elif nama in pertama_uji and nama not in terdeklarasi_uji:
+                gagal.append("Pohon masih memanggil %s() yang sudah "
+                             "dihapus (di %s) — regresi hapusan di luar "
+                             "rentang diff" % (nama, pertama_uji[nama]))
         # Audit 2915: entri berjenis field:/konstanta:/python:
         if JENIS_HAPUSAN["field"] or JENIS_HAPUSAN["python"]:
             _cek_bekas_berjenis(gagal, JENIS_HAPUSAN, isi_java)
@@ -24870,7 +24889,11 @@ def _semua_nama_terdeklarasi():
     global _CACHE_SEMUA_DEKLARASI
     if _CACHE_SEMUA_DEKLARASI is None:
         semua = set()
-        for path in jalan_repo(os.path.join("app", "src")):
+        # Audit 2930: hanya kode produksi (app/src/main) -
+        # helper di app/src/test bernama sama dengan entri
+        # bekas-hapusan dulu memicu GAGAL palsu; aturan 15
+        # hanya melarang definisi di kode produksi.
+        for path in jalan_repo(os.path.join("app", "src", "main")):
             semua |= nama_terdeklarasi(path)
         _CACHE_SEMUA_DEKLARASI = semua
     return _CACHE_SEMUA_DEKLARASI
