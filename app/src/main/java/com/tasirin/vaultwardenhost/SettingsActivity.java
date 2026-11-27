@@ -2183,18 +2183,56 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    static final long BATAS_SALIN_RESTORE_MS = 10L * 60 * 1000;
+
+    static boolean salinRestoreKedaluwarsa(long mulaiMs, long kiniMs) {
+        return kiniMs - mulaiMs > BATAS_SALIN_RESTORE_MS;
+    }
+
     private File salinUriKeCacheRestore(Uri uri) throws Exception {
         File tujuan = new File(getCacheDir(),
                 "restore-pilih-" + TgBackup.stempelUnik() + ".bin");
-        try (InputStream in = getContentResolver().openInputStream(uri);
-                java.io.FileOutputStream out = new java.io.FileOutputStream(tujuan)) {
-            if (in == null) {
-                throw new Exception("stream penyedia null");
+        InputStream inMentah = getContentResolver().openInputStream(uri);
+        if (inMentah == null) {
+            throw new Exception("stream penyedia null");
+        }
+        // Audit 3007: penyedia dokumen (cloud/jaringan)
+        // bisa berhenti mengirim tanpa batas waktu -
+        // salinan kini bertenggat total: loop memeriksa
+        // tenggat tiap blok dan thread penjaga menutup
+        // stream saat tenggat lewat agar baca yang
+        // menggantung ikut putus, bukan mengunci
+        // seluruh tugas Settings selamanya.
+        final InputStream aliran = inMentah;
+        final java.util.concurrent.atomic.AtomicBoolean putusPenjaga =
+                new java.util.concurrent.atomic.AtomicBoolean(false);
+        Thread penjaga = new Thread(() -> {
+            try {
+                Thread.sleep(BATAS_SALIN_RESTORE_MS);
+            } catch (InterruptedException e) {
+                return;
             }
+            putusPenjaga.set(true);
+            try {
+                aliran.close();
+            } catch (Exception ignored) {
+            }
+        }, "vw-salin-restore-penjaga");
+        penjaga.setDaemon(true);
+        penjaga.start();
+        long mulai = System.currentTimeMillis();
+        try (InputStream in = aliran;
+                java.io.FileOutputStream out = new java.io.FileOutputStream(tujuan)) {
             byte[] buf = new byte[64 * 1024];
             long total = 0;
             int n;
             while ((n = in.read(buf)) != -1) {
+                if (putusPenjaga.get()
+                        || salinRestoreKedaluwarsa(
+                                mulai, System.currentTimeMillis())) {
+                    throw new Exception("penyedia berkas terlalu lama"
+                            + " mengirim (>10 menit) - salinan dibatalkan");
+                }
                 total += n;
                 if (total > Util.BATAS_UNZIP_RESTORE) {
                     throw new Exception("berkas pilihan melebihi batas "
@@ -2205,7 +2243,13 @@ public class SettingsActivity extends Activity {
             out.flush();
         } catch (Exception e) {
             tujuan.delete();
+            if (putusPenjaga.get()) {
+                throw new Exception("penyedia berkas terlalu lama"
+                        + " mengirim (>10 menit) - salinan dibatalkan");
+            }
             throw e;
+        } finally {
+            penjaga.interrupt();
         }
         return tujuan;
     }

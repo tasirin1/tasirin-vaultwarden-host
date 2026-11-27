@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Salinan berkas restore dari penyedia cloud kini bertenggat 10 menit (Audit 3007)
+
+- `SettingsActivity`: menyalin berkas backup pilihan dari penyedia dokumen (mis. Drive) dulu tanpa batas waktu — penyedia yang macet di tengah kirim membuat salinan menggantung selamanya dan semua tugas Settings terkunci sampai aplikasi dimatikan paksa. Salinan kini bertenggat total 10 menit: pemeriksaan tenggat tiap blok plus thread penjaga yang menutup aliran saat tenggat lewat agar baca yang menggantung ikut putus, dengan pesan galat yang jelas.
+
+
 ## [Belum rilis] — Wake lock server disegarkan proaktif sebelum batas 12 jam (Audit 3013)
 
 - `ServerService`: kunci bangun server dipegang dengan batas 12 jam, tetapi penjaga per pemeriksaannya hanya mengambil ulang bila kunci sudah lepas — selama dipegang tidak pernah disegarkan, jadi tiap 12 jam ada jendela sampai 2 menit tanpa kunci bangun di mana STB bisa tidur dan server membeku sampai ada yang membangunkan perangkat. Waktu pengambilan kini dicatat dan kunci diambil ulang lebih dulu sesudah 11 jam; batas 12 jam tetap menjadi jaring pengaman.

@@ -11,6 +11,14 @@ import org.junit.Test;
 public class SettingsActivityTest {
 
     @Test
+    public void salinRestoreKedaluwarsa_lewatSepuluhMenit() {
+        // Audit 3007: tenggat total salinan restore.
+        assertFalse(SettingsActivity.salinRestoreKedaluwarsa(1000, 1000 + 599_999));
+        assertFalse(SettingsActivity.salinRestoreKedaluwarsa(1000, 1000 + 600_000));
+        assertTrue(SettingsActivity.salinRestoreKedaluwarsa(1000, 1000 + 600_001));
+    }
+
+    @Test
     public void berubahDariDasarHanyaBilaUserMengubah() {
         // Audit 588: teks sama dengan dasar = user tak menyentuh field,
         // jangan tulis (perubahan eksternal menang); dasar null = anggap
