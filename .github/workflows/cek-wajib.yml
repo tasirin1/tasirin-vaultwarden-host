@@ -58,6 +58,15 @@ on:
       - '.editorconfig'
       - 'LICENSE'
       - 'LICENSE.vaultwarden'
+      # Audit 2916: tiga README ditambahkan -
+      # cek sinkron struktur judul README dan
+      # deteksi token terbelah di cek-cepat tak
+      # pernah jalan untuk push yang justru
+      # mengedit README, karena tak ada workflow
+      # yang terpicu oleh berkas .md saja.
+      - 'README.md'
+      - 'README.id.md'
+      - 'README.ru.md'
 
 permissions:
   contents: read
@@ -100,7 +109,7 @@ jobs:
             if [ -n "$BERKAS" ]; then
               while IFS= read -r b; do
                 case "$b" in
-                  .github/dependabot.yml|.gitignore|.github/workflows/auto-merge.yml|.github/workflows/cek-wajib.yml|.github/workflows/codeql.yml|.github/workflows/gitleaks.yml|.github/workflows/label-audit.yml|.github/workflows/labeler.yml|.github/workflows/stale.yml|tools/pasang-hook.sh|.github/labeler.yml|.github/CODEOWNERS|.editorconfig|LICENSE|LICENSE.vaultwarden) ;;
+                  .github/dependabot.yml|.gitignore|.github/workflows/auto-merge.yml|.github/workflows/cek-wajib.yml|.github/workflows/codeql.yml|.github/workflows/gitleaks.yml|.github/workflows/label-audit.yml|.github/workflows/labeler.yml|.github/workflows/stale.yml|tools/pasang-hook.sh|.github/labeler.yml|.github/CODEOWNERS|.editorconfig|LICENSE|LICENSE.vaultwarden|README.md|README.id.md|README.ru.md) ;;
                   *) LANJUT=false ;;
                 esac
               done <<EOF

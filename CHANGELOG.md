@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Push khusus README kini memicu gerbang cek-wajib (Audit 2916)
+
+- `.github/workflows/cek-wajib.yml`: tiga berkas README ditambahkan ke daftar `paths` push dan ke daftar saring-push di berkas yang sama. Sebelumnya push yang hanya menyentuh README tidak memicu workflow apa pun yang menjalankan `cek-cepat` — padahal cek sinkron struktur judul README dan deteksi token terbelah justru hidup di sana, jadi suntingan README adalah satu-satunya suntingan yang tak pernah diperiksa oleh cek yang menjaganya. Push campuran tetap disaring seperti sebelumnya (gerbang penuh di `build-apk` bila ada berkas di luar daftar).
+
+
 ## [Belum rilis] — Cek vektor cek-cepat menangkap angka kedua tanpa nol depan di pathData (Audit 2911)
 
 - `scripts/cek-cepat.sh`: pola lama menuntut bukan-digit sebelum titik, sehingga `M10.9.5` di `pathData` lolos — angka itu terbaca `10.9` lalu `.5`, dan `.5` adalah bilangan baru tanpa nol depan yang dilarang aturan repo. Blok baru khusus baris `pathData` menggagalkan pola digit–titik–digit–titik–digit; pembatasan ke `pathData` menjaga teks biasa yang sah (nomor versi `1.32.0`, IP `127.0.0.1`) dari positif palsu. Satu skenario suite baru menguncinya.
