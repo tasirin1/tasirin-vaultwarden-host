@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cek vektor cek-cepat menangkap angka kedua tanpa nol depan di pathData (Audit 2911)
+
+- `scripts/cek-cepat.sh`: pola lama menuntut bukan-digit sebelum titik, sehingga `M10.9.5` di `pathData` lolos — angka itu terbaca `10.9` lalu `.5`, dan `.5` adalah bilangan baru tanpa nol depan yang dilarang aturan repo. Blok baru khusus baris `pathData` menggagalkan pola digit–titik–digit–titik–digit; pembatasan ke `pathData` menjaga teks biasa yang sah (nomor versi `1.32.0`, IP `127.0.0.1`) dari positif palsu. Satu skenario suite baru menguncinya.
+
+
 ## [Belum rilis] — Izin berbahaya baru di manifest kini menggagalkan gerbang (Audit 2907, sebagian)
 
 - `tools/verifikasi-patch.py` (`cek_izin_baru`): izin baru di `AndroidManifest.xml` dulu selalu hanya PERINGATAN — termasuk izin berbahaya seperti `READ_SMS`, `CAMERA`, atau `RECORD_AUDIO` yang tidak pernah dibutuhkan aplikasi vault ini, dan tidak ada cek lain yang menjaga deklarasi izin. Kini 13 izin berbahaya yang terdaftar (`IZIN_BERBAHAYA`) menggagalkan gerbang bila muncul sebagai izin baru; izin baru biasa tetap peringatan seperti sebelumnya. Sisa kelas peringatan lain pada temuan yang sama (pengingat changelog, catatan hapusan, pola boros/berisiko, definisi/uji baru) sengaja tetap peringatan — itu alat bantu proses selama pekerjaan berjalan, dan menguncinya jadi kegagalan adalah keputusan kebijakan pemilik; issue tetap terbuka untuk bagian itu.

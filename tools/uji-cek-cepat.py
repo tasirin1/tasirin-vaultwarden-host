@@ -120,6 +120,20 @@ def _bagian_awal(tmp):
             rc != 0 and "tanpa nol depan" in out)
     shutil.rmtree(vektor, ignore_errors=True)
 
+    vektor2 = klon(tmp, "vektor2")
+    tanam(vektor2, "app/src/main/res/drawable/ic_uji_vektor2.xml",
+          "<vector xmlns:android="
+          "\"http://schemas.android.com/apk/res/android\""
+          " android:width=\"24dp\" android:height=\"24dp\""
+          " android:viewportWidth=\"24\" android:viewportHeight=\"24\">"
+          "<path android:fillColor=\"#000000\""
+          " android:pathData=\"M10.9.5 h5 v5 z\" /></vector>\n", "w")
+    rc, out = jalan(vektor2, ["bash", SKRIP])
+    periksa("path vektor angka kedua tanpa nol depan tertangkap "
+            "(Audit 2911)",
+            rc != 0 and "tanpa nol depan" in out)
+    shutil.rmtree(vektor2, ignore_errors=True)
+
     terabaikan = klon(tmp, "terabaikan")
     tanam(terabaikan, ".gitignore", "rahasia-terabaikan.txt\n", "w")
     with open(os.path.join(terabaikan, "rahasia-terabaikan.txt"),

@@ -44,6 +44,17 @@ else
   fi
 fi
 
+# Audit 2911: angka KEDUA tanpa nol depan di dalam nilai
+# pathData - "M10.9.5" terbaca 10.9 lalu .5, dan titik
+# keduanya didahului digit sehingga pola di atas (yang
+# menuntut bukan-digit sebelum titik) tak melihatnya.
+# Dibatasi ke baris pathData: pola yang sama di teks biasa
+# adalah versi/IP yang sah (mis. 1.32.0, 127.0.0.1).
+TEMUAN_GANDA="$(grep -R -E -n --include='*.xml' 'pathData' app/src/main/res 2>/dev/null | grep -E '[0-9]\.[0-9]+\.[0-9]' || true)"
+if [ -n "$TEMUAN_GANDA" ]; then
+  gagal_msg "path vektor tanpa nol depan (angka kedua sesudah titik, mis. 10.9.5 - pakai 0.5)";
+fi
+
 struktur_judul() {
   awk '/^#{1,6} / { n = 0; while (substr($0, n + 1, 1) == "#") n++; printf "%d,", n }' "$1" 2>/dev/null
 }
