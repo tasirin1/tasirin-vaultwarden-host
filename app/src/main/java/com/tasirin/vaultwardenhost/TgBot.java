@@ -110,6 +110,18 @@ public final class TgBot {
 
     static final String KEY_TG_HAPUS_WARN = "tg_hapus_warn";
 
+    static final String KEY_TG_HAPUS_WARN_AT = "tg_hapus_warn_at";
+
+    static final long JEDA_PERINGATAN_HAPUS_MS = 24L * 3600_000L;
+
+    // Audit 2878: peringatan gagal-hapus berulang
+    // berkala selama kegagalan berlanjut, bukan
+    // sekali seumur kegagalan.
+    static boolean bolehPeringatkanHapusLagi(long terakhirMs, long kiniMs) {
+        return terakhirMs <= 0 || kiniMs < terakhirMs
+                || kiniMs - terakhirMs >= JEDA_PERINGATAN_HAPUS_MS;
+    }
+
     static final String KEY_TG_HAPUS_OK = "tg_hapus_ok";
 
     static final String KEY_TG_HAPUS_TERTUNDA = "tg_hapus_tertunda";
@@ -2874,7 +2886,8 @@ public final class TgBot {
                     if (!TgBackup.amanBoolean(sp, KEY_TG_HAPUS_OK, false)
                             || TgBackup.amanBoolean(sp, KEY_TG_HAPUS_WARN, false)) {
                         sp.edit().putBoolean(KEY_TG_HAPUS_OK, true)
-                                .remove(KEY_TG_HAPUS_WARN).apply();
+                                .remove(KEY_TG_HAPUS_WARN)
+                                .remove(KEY_TG_HAPUS_WARN_AT).apply();
                     }
                 } catch (Exception ignored) {
                 }
@@ -2887,10 +2900,17 @@ public final class TgBot {
             try {
                 SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
                         Context.MODE_PRIVATE);
-                if (TgBackup.amanBoolean(sp, KEY_TG_HAPUS_WARN, false)) {
+                // Audit 2878: gerbangnya stempel waktu,
+                // bukan boolean sekali seumur kegagalan.
+                if (!bolehPeringatkanHapusLagi(
+                        TgBackup.amanLong(sp, KEY_TG_HAPUS_WARN_AT, 0),
+                        System.currentTimeMillis())) {
                     return;
                 }
-                sp.edit().putBoolean(KEY_TG_HAPUS_WARN, true).apply();
+                sp.edit().putBoolean(KEY_TG_HAPUS_WARN, true)
+                        .putLong(KEY_TG_HAPUS_WARN_AT,
+                                System.currentTimeMillis())
+                        .apply();
             } catch (Exception ignored) {
                 return;
             }

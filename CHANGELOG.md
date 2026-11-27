@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Peringatan gagal-hapus pesan ber-PIN kini berulang sehari sekali (Audit 2878)
+
+- `TgBot.peringatkanBilaTakBisaHapus`: peringatan bahwa bot tak bisa menghapus pesan ber-PIN dulu terkirim sekali seumur kegagalan (bendera boolean global) — kegagalan yang berlanjut berminggu-minggu, misalnya bot kehilangan hak hapus di grup, tak pernah diperingatkan lagi dan pesan ber-PIN terus menumpuk di riwayat. Gerbangnya kini stempel waktu: peringatan berulang maksimal sekali per 24 jam selama kegagalan berlanjut (predikat murni `bolehPeringatkanHapusLagi`), dan ter-reset seperti sebelumnya saat ada penghapusan yang berhasil. Ditambah uji JVM.
+
+
 ## [Belum rilis] — Penghapusan pesan perintah kini menghormati retry_after Telegram (Audit 2877)
 
 - `TgBot.hapusPesanPerintah`: jeda antar-percobaan hapus dulu tetap 1 lalu 2 detik tanpa membaca `retry_after` pada balasan 429 — penghapusan pesan ber-PIN yang sensitif waktu gagal sia-sia saat Telegram meminta jeda lebih lama. Kini badan galat 429 dibaca dan jeda tidur menjadi yang lebih besar antara backoff lama dan `retry_after`; bila jeda yang diminta tidak muat di sisa anggaran 60 detik, fungsi menyerah secara jujur dan jalur peringatan pemilik yang sudah ada yang berbicara.

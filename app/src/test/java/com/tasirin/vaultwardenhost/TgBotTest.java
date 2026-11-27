@@ -728,6 +728,16 @@ public class TgBotTest {
     }
 
     @Test
+    public void bolehPeringatkanHapusLagi_sehariSekali() {
+        // Audit 2878.
+        long kini = 100L * 24 * 3600_000L;
+        assertTrue(TgBot.bolehPeringatkanHapusLagi(0, kini));
+        assertTrue(TgBot.bolehPeringatkanHapusLagi(
+                kini - TgBot.JEDA_PERINGATAN_HAPUS_MS, kini));
+        assertFalse(TgBot.bolehPeringatkanHapusLagi(kini - 1000, kini));
+    }
+
+    @Test
     public void rapikanSpasiManual() {
         assertEquals("a b c", TgBot.rapikanSpasi("a   b\t\nc"));
         assertEquals("", TgBot.rapikanSpasi(null));
