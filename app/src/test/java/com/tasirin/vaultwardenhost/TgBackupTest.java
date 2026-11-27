@@ -1353,6 +1353,23 @@ public class TgBackupTest {
     }
 
     @Test
+    public void pindaiZipRestore_entriBerlebihDitandaiKurangDua() throws Exception {
+        // Audit 2823: batas jumlah entri ditegakkan di pindai.
+        java.io.File zip = java.io.File.createTempFile("vw-entri-", ".zip");
+        try {
+            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+                for (int i = 0; i <= Util.BATAS_JUMLAH_ENTRI; i++) {
+                    zos.putNextEntry(new ZipEntry("e" + i + ".txt"));
+                    zos.closeEntry();
+                }
+            }
+            assertEquals(-2L, TgBackup.pindaiZipRestore(zip).ukuran);
+        } finally {
+            zip.delete();
+        }
+    }
+
+    @Test
     public void pindaiZipRestore_sekaliJalanAmbilConfigDanUkuran() throws Exception {
         java.io.File zip = java.io.File.createTempFile("vw-pindai-", ".zip");
         try {

@@ -4114,10 +4114,19 @@ public final class TgBackup {
         }
         String config = null;
         long total = 0;
+        int jumlahEntri = 0;
         try (ZipFile zf = new ZipFile(zip)) {
             java.util.Enumeration<? extends ZipEntry> en = zf.entries();
             while (en.hasMoreElements()) {
                 ZipEntry e = en.nextElement();
+                // Audit 2823: tegakkan batas jumlah entri di
+                // pindai juga - dulu hanya ekstraksi yang
+                // menegakkannya, jadi zip ratusan ribu entri
+                // memutar pindai lama sebelum ditolak.
+                jumlahEntri++;
+                if (jumlahEntri > Util.BATAS_JUMLAH_ENTRI) {
+                    return new PindaiZip(config, -2);
+                }
                 if (e.isDirectory()) {
                     continue;
                 }
@@ -4181,6 +4190,10 @@ public final class TgBackup {
         File dbFile = new File(dataFolder, "db.sqlite3");
 
         long isiZip = pindai.ukuran;
+        if (isiZip == -2) {
+            throw new IOException("Zip berisi terlalu banyak entri (batas "
+                    + Util.BATAS_JUMLAH_ENTRI + ") - restore dibatalkan.");
+        }
         if (isiZip > Util.BATAS_UNZIP_RESTORE) {
             throw new IOException("Isi zip melebihi batas aman restore ("
                     + Util.BATAS_UNZIP_RESTORE + " byte) - restore dibatalkan.");

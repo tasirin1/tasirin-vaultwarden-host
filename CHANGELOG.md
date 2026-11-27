@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pindai zip restore kini menegakkan batas jumlah entri (Audit 2823)
+
+- `TgBackup.pindaiZipRestore`: loop pindai dulu memutar seluruh entri tanpa batas — ZIP rekayasa berisi ratusan ribu entri (berkas hanya ±25 MB) membuat pindai berputar lama sebelum penjaga ekstraksi berjalan. Jumlah entri kini ditegakkan di pindai juga memakai batas yang sama dengan ekstraksi (`Util.BATAS_JUMLAH_ENTRI`); pelanggar ditandai `-2` dan `restoreFromZipIsi` menolaknya dengan pesan jelas sebelum server dihentikan. Ditambah uji JVM zip berisi batas+1 entri.
+
+
 ## [Belum rilis] — Restore berkas DB mentah kini memperingatkan soal -wal yang tak terbawa (Audit 2822)
 
 - `SettingsActivity` (restore dari pemilih berkas): jalur berkas mentah (bukan ZIP) hanya menyalin berkas yang dipilih — berkas `-wal` pendamping di folder asal tidak ikut, dan transaksi yang masih tinggal di dalamnya hilang tanpa peringatan apa pun. Berkas dipilih lewat SAF sebagai satu aliran dokumen sehingga `-wal` saudara memang tidak terjangkau untuk disalin; jalur ini kini menulis peringatan jelas di log UI bahwa restore mentah bisa tidak lengkap dan backup ZIP adalah jalur restore lengkap — setara peringatan `-wal` yang sudah ada di jalur ZIP/bot.
