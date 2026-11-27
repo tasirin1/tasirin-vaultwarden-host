@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kontrak mode --hanya-workflow kini dipaku skenario (Audit 2894)
+
+- Satu skenario membuktikan pada klon yang sama: mode --hanya-workflow memang hanya menilai YAML .github (racun diff Java lolos di mode itu) sementara mode --semua menangkap racun yang sama — batas kedua mode kini terdokumentasi uji, bukan asumsi.
+
+
 ## [Belum rilis] — Mode --rentang (mode produksi CI) kini punya skenario cabangnya (Audit 2893)
 
 - Suite verifikasi kini memaku perilaku mode --rentang: rentang tak valid jatuh ke cadangan yang tetap memeriksa, rentang sah di pohon bersih lolos, dan repo satu commit gagal terang — bukan lolos diam-diam.

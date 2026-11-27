@@ -15625,6 +15625,24 @@ def _bagian_awal(tmp):
             rc != 0 and rc != 124 and "tak terbaca" in out)
     shutil.rmtree(rentang2893c, ignore_errors=True)
 
+    mode2894 = klon(tmp, "mode2894")
+    _rentang2893_racun(mode2894)
+    git(mode2894, "add", "-A")
+    git(mode2894, "commit", "-qm", "racun mode uji")
+    rc, out = jalan(mode2894,
+                    [sys.executable, GERBANG,
+                     "--hanya-workflow"])
+    periksa("kontrak mode: --hanya-workflow buta racun "
+            "diff Java (Audit 2894)", rc == 0,
+            "" if rc == 0 else out[-400:])
+    rc, out = jalan(mode2894,
+                    [sys.executable, GERBANG, "--semua"])
+    periksa("klon sama di --semua: racun diff tertangkap "
+            "(Audit 2894)",
+            rc != 0 and rc != 124 and "tanpa Locale.US/"
+            in out)
+    shutil.rmtree(mode2894, ignore_errors=True)
+
     def racun_workflow(nama, ubah, label, frag):
         klon_w = klon(tmp, nama)
         ubah(klon_w)
