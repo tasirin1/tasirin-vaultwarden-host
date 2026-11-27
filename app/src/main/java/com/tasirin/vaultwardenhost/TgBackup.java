@@ -3144,6 +3144,12 @@ public final class TgBackup {
 
     public static String resetSertifikat(Context ctx) throws Exception {
 
+        // Audit 2778: tolak saat Start berjalan (lihat
+        // ServerService.startSedangBerjalan).
+        if (ServerService.startSedangBerjalan()) {
+            throw new IOException("Start sedang berjalan - tunggu sampai"
+                    + " selesai, lalu reset sertifikat.");
+        }
         ServerService.kunciData();
         try {
 
@@ -4549,6 +4555,12 @@ public final class TgBackup {
 
     public static String restoreFromZip(Context ctx, File zip) throws Exception {
 
+        // Audit 2778: tolak saat Start berjalan (lihat
+        // ServerService.startSedangBerjalan).
+        if (ServerService.startSedangBerjalan()) {
+            throw new IOException("Start sedang berjalan - restore ditolak,"
+                    + " coba lagi sesudah Start selesai.");
+        }
         ServerService.kunciData();
         try {
             return restoreFromZipIsi(ctx, zip);

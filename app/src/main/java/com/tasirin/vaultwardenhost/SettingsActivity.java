@@ -2225,6 +2225,14 @@ public class SettingsActivity extends Activity {
             return;
         }
         try {
+            // Audit 2778: tolak saat Start berjalan
+            // (lihat ServerService.startSedangBerjalan);
+            // finally luar tetap membersihkan salinan.
+            if (ServerService.startSedangBerjalan()) {
+                toast(getString(R.string.tugas_lain_jalan));
+                appendUiLog("[app] Restore ditolak: Start sedang berjalan.");
+                return;
+            }
 
             ServerService.kunciData();
             try {

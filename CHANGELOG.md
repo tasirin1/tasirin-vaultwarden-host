@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Restore/reset menolak jalan selama Start berjalan (Audit 2778)
+
+- Jendela balapan ditutup: Start melepas kunci data selama mengunduh binary, dan restore/reset kini menolak mulai selama episode Start berjalan (sebelumnya keduanya bisa mengutak-atik folder data bersamaan dengan pertukaran binary).
+
+
 ## [Belum rilis] — Ekspor config berbalik dari deny-list ke allow-list (Audit 2828)
 
 - config.json backup kini hanya memuat 18 kunci yang terdaftar eksplisit di allow-list ekspor (persis himpunan yang diekspor sebelumnya); kunci prefs baru di masa depan tidak lagi otomatis ikut terbawa backup.

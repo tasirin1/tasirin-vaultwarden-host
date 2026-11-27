@@ -10,6 +10,27 @@ import org.junit.Test;
 
 public class ServerServiceTest {
 
+
+    @Test
+    public void startSedangBerjalanMengikutiBendera() throws Exception {
+        // Audit 2778: aksesor penolakan restore/reset
+        // membaca bendera episode Start yang benar.
+        java.lang.reflect.Field f =
+                ServerService.class.getDeclaredField("starting");
+        f.setAccessible(true);
+        java.util.concurrent.atomic.AtomicBoolean b =
+                (java.util.concurrent.atomic.AtomicBoolean) f.get(null);
+        boolean awal = b.get();
+        try {
+            b.set(true);
+            assertTrue(ServerService.startSedangBerjalan());
+            b.set(false);
+            assertFalse(ServerService.startSedangBerjalan());
+        } finally {
+            b.set(awal);
+        }
+    }
+
     @Test
     public void perluBacaIsiCa_statSamaHanyaSebentarDipercaya() {
         assertFalse(ServerService.perluBacaIsiCa(true, 0));

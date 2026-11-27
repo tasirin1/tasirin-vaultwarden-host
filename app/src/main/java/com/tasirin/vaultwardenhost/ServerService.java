@@ -497,6 +497,15 @@ public class ServerService extends Service {
             mulaiSetelahProsesMati = new java.util.concurrent.atomic.AtomicBoolean(false);
     private static final java.util.concurrent.atomic.AtomicBoolean starting = new java.util.concurrent.atomic.AtomicBoolean(false);
 
+    // Audit 2778: penanda episode Start dipakai
+    // restore/reset untuk menolak jalan bersamaan -
+    // Start melepas kunci data selama unduh binary
+    // (pilihBiner), dan jendela itu tak boleh dipakai
+    // jalur data lain mengutak-atik data dir.
+    static boolean startSedangBerjalan() {
+        return starting.get();
+    }
+
     private static volatile boolean startSusulanDiminta = false;
 
     private static final Object KUNCI_PROSET = new Object();
