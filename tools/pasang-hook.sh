@@ -16,6 +16,12 @@ if [ "$1" = "--self-test" ]; then
 fi
 rentang_semua=""
 while read -r ref_lokal sha_lokal ref_remote sha_remote; do
+    # Audit 2928: sha_lokal nol semua = penghapusan
+    # branch - tak ada konten baru; membentuk rentang
+    # ke sha nol hanya memicu fallback tak terkait.
+    case "$sha_lokal" in
+        ""|0000000000000000000000000000000000000000) continue ;;
+    esac
     case "$sha_remote" in
         ""|0000000000000000000000000000000000000000) ;;
         *) rentang_semua="$rentang_semua $sha_remote..$sha_lokal" ;;

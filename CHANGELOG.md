@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Hook pre-push tak lagi membentuk rentang tak sah untuk penghapusan branch (Audit 2928)
+
+- `tools/pasang-hook.sh` (isi hook pre-push): baris ref penghapusan branch (`sha_lokal` nol semua) dulu tetap membentuk rentang `sha_remote..0000...` yang tak sah, sehingga gerbang membuang satu lari verifikasi ke fallback `HEAD~1...HEAD` yang tak terkait dan bisa gagal-palsu. Baris hapusan kini dilewati sejak awal — tak ada konten baru untuk diverifikasi; bila semua baris adalah hapusan, jalur mode lokal yang berjalan seperti biasa.
+
+
 ## [Belum rilis] — cek-cepat kini ikut memeriksa nama berkas terhadap pola token (Audit 2927)
 
 - `scripts/cek-cepat.sh`: semua fase dulu memindai isi berkas saja — token yang hanya hidup sebagai nama berkas (mis. berkas bernama token GitHub) ter-commit tanpa hambatan dan tampil di daftar repo. Fase baru di akhir skrip mencocokkan daftar nama berkas (terlacak, tak terlacak, dan terabaikan — sumber yang sama seperti fase bungkus) ke pola token yang sama; kecocokan menggagalkan dengan pesan khusus nama berkas. Ditambah satu skenario suite.
