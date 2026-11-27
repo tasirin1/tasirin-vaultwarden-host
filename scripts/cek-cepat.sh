@@ -137,7 +137,10 @@ KANDIDAT_HDR_BERKAS="$(mktemp 2>/dev/null)" || { echo "${ANO_ERR}GAGAL: berkas s
 # Audit 2065: bersihkan artefak sementara juga
 # saat skrip dibunuh sinyal di tengah jalan.
 trap 'rm -f "$KANDIDAT_HDR_BERKAS"' EXIT
-{ git -c core.quotepath=false grep --cached -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false ls-files --others --exclude-standard -z 2>/dev/null | sed -z 's/^-$/.\//' | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" -- 2>/dev/null; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z 2>/dev/null | grep -z -v -E '__pycache__/[^/]*\.pyc$' | sed -z 's/^-$/.\//' | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" -- 2>/dev/null; } | sort -z -u > "$KANDIDAT_HDR_BERKAS" || true
+# Audit 2912: kandidat header kini juga dari HEAD -
+# berkas ter-commit lalu terhapus (git rm) hanya hidup
+# di HEAD; tanpa sumber ini header binernya lolos.
+{ git -c core.quotepath=false grep --cached -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" 2>/dev/null; git -c core.quotepath=false grep -a -l -z -E -e "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" HEAD 2>/dev/null | sed -z 's/^HEAD://'; git -c core.quotepath=false ls-files --others --exclude-standard -z 2>/dev/null | sed -z 's/^-$/.\//' | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" -- 2>/dev/null; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z 2>/dev/null | grep -z -v -E '__pycache__/[^/]*\.pyc$' | sed -z 's/^-$/.\//' | xargs -0 -r grep -a -l -Z -E -- "-----BEGIN.{0,200}PRIVATE.{0,200}KEY.{0,40}-----" -- 2>/dev/null; } | sort -z -u > "$KANDIDAT_HDR_BERKAS" || true
 RAHASIA_HDR=""
 # Audit 2030: jendela uji NUL diperlebar ke
 # 16 MB (8000 byte dulu melewatkan NUL pertama
@@ -162,6 +165,11 @@ while IFS= read -r -d '' f_hdr; do
     kena_hdr=1
   fi
   if [ "$kena_hdr" = 0 ] && git show ":$f_hdr" 2>/dev/null | biner_atau_tak_teruji; then
+    kena_hdr=1
+  fi
+  # Audit 2912: isi di HEAD ikut diuji - kandidat dari
+  # HEAD bisa tak punya wujud di indeks/pohon kerja.
+  if [ "$kena_hdr" = 0 ] && git show "HEAD:$f_hdr" 2>/dev/null | biner_atau_tak_teruji; then
     kena_hdr=1
   fi
   if [ "$kena_hdr" = 1 ]; then
@@ -275,7 +283,10 @@ fi
 # Audit 1626: pengukuran ekordgt hanya membayar salinan ekort
 # bila baris memuat digit — baris tanpa digit pasti berakhir
 # ekordgt 0 di kedua cabang lama, jadi pintasannya setara.
-mapfile -d '' ENTRI_BUNGKUS < <({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c core.quotepath=false ls-files --others --exclude-standard -z | sed -z 's/^/u:/'; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z | sed -z 's/^/u:/'; } | sort -zu)
+# Audit 2912: entri h: = berkas yang ada di HEAD tapi
+# terhapus dari indeks (git rm) - isinya hanya hidup di
+# blob HEAD dan diwujudkan dari sana di loop bawah.
+mapfile -d '' ENTRI_BUNGKUS < <({ git -c core.quotepath=false ls-files -z | sed -z 's/^/t:/'; git -c core.quotepath=false ls-files --others --exclude-standard -z | sed -z 's/^/u:/'; git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z | sed -z 's/^/u:/'; git -c core.quotepath=false diff --cached --name-only -z --diff-filter=D HEAD 2>/dev/null | sed -z 's/^/h:/'; } | sort -zu)
 DAFTAR_BUNGKUS=()
 # Audit 1886: berkas terlacak yang hanya ada di indeks
 # (terhapus dari pohon kerja) diwujudkan dari indeks ke
@@ -322,6 +333,18 @@ for entri in "${ENTRI_BUNGKUS[@]}"; do
       PETA_ASAL1886+=("$f")
     else
       rm -f "$wujud1886"
+    fi
+  fi
+  # Audit 2912: entri h: diwujudkan dari blob HEAD
+  # (mekanisme sama seperti wujud indeks Audit 1886).
+  if [ "${entri%%:*}" = "h" ]; then
+    wujud2912="$TMPBUNGKUS/${#PETA_TMP1886[@]}"
+    if git show "HEAD:$f" > "$wujud2912" 2>/dev/null; then
+      DAFTAR_BUNGKUS+=("$wujud2912")
+      PETA_TMP1886+=("$wujud2912")
+      PETA_ASAL1886+=("$f")
+    else
+      rm -f "$wujud2912"
     fi
   fi
 done

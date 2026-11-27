@@ -944,6 +944,26 @@ def _bagian_akhir(tmp):
             "jinak tertangkap (Audit 1925)",
             rc != 0 and "pola rahasia" in out)
     shutil.rmtree(komit_ganti, ignore_errors=True)
+    komit_hapus = klon(tmp, "komithapus")
+    tanam(komit_hapus, "token-komit-hapus.txt",
+          "token: " + token_palsu[:paruh] + "\n"
+          + token_palsu[paruh:] + "\n", "w")
+    git(komit_hapus, "rm", "-q", "token-komit-hapus.txt")
+    rc, out = jalan(komit_hapus, ["bash", SKRIP])
+    periksa("token terbelah ter-commit lalu git rm "
+            "tertangkap dari HEAD (Audit 2912)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(komit_hapus, ignore_errors=True)
+    hdr_hapus = klon(tmp, "hdrhapus")
+    tanam(hdr_hapus, "kunci-biner.bin",
+          b"-----BEGIN " + b"PRIVATE KEY-----\n"
+          + b"isi biner \x00\x01\x02 sesudah header\n")
+    git(hdr_hapus, "rm", "-q", "kunci-biner.bin")
+    rc, out = jalan(hdr_hapus, ["bash", SKRIP])
+    periksa("header kunci biner ter-commit lalu git rm "
+            "tertangkap dari HEAD (Audit 2912)",
+            rc != 0 and "pola rahasia" in out)
+    shutil.rmtree(hdr_hapus, ignore_errors=True)
     jendela_besar = klon(tmp, "jendelabesar")
     tanam(jendela_besar, "besar-jendela.txt",
           ("pengisi jinak baris biasa\n" * 900)

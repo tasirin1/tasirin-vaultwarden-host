@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — cek-cepat kini memindai rahasia yang hanya ada di HEAD (Audit 2912)
+
+- `scripts/cek-cepat.sh`: rahasia yang ter-commit lalu dihapus dari pohon kerja dan indeks (`git rm`, riwayat belum ditulis ulang) dulu lolos fase bungkus dan fase header — hanya pola satu-baris yang menengok HEAD. Kini kandidat header juga dikumpulkan dari `git grep HEAD` dan isi blob HEAD ikut diuji biner; fase bungkus menambah entri untuk berkas yang ada di HEAD tapi terhapus dari indeks (`git diff --cached --diff-filter=D HEAD`), diwujudkan dari blob HEAD ke berkas sementara dengan mekanisme yang sama seperti wujud indeks, lalu ikut diratakan. Dua skenario suite baru membuktikannya: token terbelah ter-commit lalu `git rm`, dan header kunci di berkas biner ter-commit lalu `git rm` — keduanya kini tertangkap.
+
+
 ## [Belum rilis] — Kegagalan start kini ikut mesin restart, bukan langsung mati total (Audit 2971)
 
 - `ServerService.startServerAsync` (blok `finally`): kegagalan start yang dinyatakan permanen dulu langsung mengakhiri episode — niat jalan terhapus dan service berhenti tanpa satu pun percobaan ulang, sehingga kegagalan sesaat (unduh binary gagal saat jaringan berkedip, TLS, port, folder data) membunuh server sampai intervensi manual, padahal mesin restart ber-backoff dan gerbang loop hanya pernah dipanggil jalur crash/health. Kini, bila auto-restart aktif, kegagalan start dicatat lewat `recordRestart` (gerbang 3x/5 menit dan 10x/jam tetap menghentikan loop, memberi tahu lewat Telegram, dan mengakhiri episode dari dalamnya bila trip) dan dijadwalkan ulang lewat `scheduleRestart` (backoff 2/5/10/20/40 detik, menyerah sendiri sesudah 5x dengan pemberitahuan). Bila auto-restart tidak aktif, perilaku lama utuh: episode langsung diakhiri.
