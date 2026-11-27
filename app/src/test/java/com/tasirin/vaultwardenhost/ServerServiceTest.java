@@ -893,6 +893,21 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void barisUrlJaringan_loopbackJujurTidakTersedia() {
+        // Audit 2991: host loopback = LAN belum
+        // tersambung; baris jaringan tak boleh
+        // mengklaim 127.0.0.1 bisa dibuka dari laptop.
+        org.junit.Assert.assertTrue(ServerService.barisUrlJaringan(
+                "127.0.0.1", "https://127.0.0.1:8080").contains("tidak tersedia"));
+        org.junit.Assert.assertTrue(ServerService.barisUrlJaringan(
+                null, "https://127.0.0.1:8080").contains("tidak tersedia"));
+        org.junit.Assert.assertEquals(
+                "\nURL jaringan (dari PC/laptop): https://192.168.1.5:8080",
+                ServerService.barisUrlJaringan(
+                        "192.168.1.5", "https://192.168.1.5:8080"));
+    }
+
+    @Test
     public void bolehUmumkanJalanHanyaBilaProsesMasihMilikEpisode() {
 
         assertTrue(ServerService.bolehUmumkanJalan(true, true, true, true));

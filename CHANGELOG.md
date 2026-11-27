@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pengumuman server jalan tak lagi menawarkan 127.0.0.1 sebagai URL jaringan (Audit 2991)
+
+- `ServerService`: pesan "Server jalan" dulu selalu mencetak baris "URL jaringan (dari PC/laptop)" dari alamat yang dipakai server — padahal bila WiFi/LAN belum tersambung alamat itu jatuh ke 127.0.0.1, yang dari laptop pasti gagal tersambung dan membuat pengguna mengira servernya rusak. Baris jaringan kini berkata jujur "tidak tersedia (WiFi/LAN belum tersambung)" untuk alamat loopback; penyusun barisnya fungsi murni yang diuji.
+
+
 ## [Belum rilis] — Pesan "sudah login" kini menyebut masa berlaku sesi (Audit 2990)
 
 - `TgBot`: pesan balasan "Kamu sudah login" dulu tidak menyebut kedaluwarsa sesi, sementara pesan login-berhasil, petunjuk pemakaian /login, dan teks /help semuanya menyebut berlaku 7 hari — pengguna bisa mengira sesinya berlaku sampai ia /logout sendiri, lalu bingung saat perintah ditolak sesudah sesi berakhir. Pesan itu kini menyebut masa berlakunya juga.

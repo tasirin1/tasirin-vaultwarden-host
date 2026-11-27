@@ -2652,6 +2652,18 @@ public class ServerService extends Service {
         }
     }
 
+    // Audit 2991: baris URL jaringan jujur - host
+    // loopback berarti LAN tak tersambung, bukan URL
+    // yang bisa dibuka dari PC/laptop.
+    static String barisUrlJaringan(String hostSegar, String domain) {
+        if (hostSegar == null || "127.0.0.1".equals(hostSegar)
+                || "::1".equals(hostSegar)) {
+            return "\nURL jaringan: tidak tersedia"
+                    + " (WiFi/LAN belum tersambung)";
+        }
+        return "\nURL jaringan (dari PC/laptop): " + domain;
+    }
+
     private void umumkanJalan(SesiStart sesi, Process lahir) {
         boolean bolehUmumkan;
         synchronized (KUNCI_PROSET) {
@@ -2661,7 +2673,7 @@ public class ServerService extends Service {
         if (bolehUmumkan) {
             setStatus("Running (PID " + getPid(lahir) + ")\nData: " + sesi.dataDir
                     + "\nURL lokal (di HP): https://127.0.0.1:" + sesi.port
-                    + "\nURL jaringan (dari PC/laptop): " + sesi.domain);
+                    + barisUrlJaringan(sesi.hostSegar, sesi.domain));
             TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
         } else {
             appendLog("[app] Stop sudah diminta - status dan pesan"
