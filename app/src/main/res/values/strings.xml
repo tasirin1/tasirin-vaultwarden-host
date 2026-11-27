@@ -315,6 +315,7 @@
     <string name="shim_siap">Shim getrandom ready.</string>
     <string name="shim_gagal">Shim failed: %1$s</string>
     <string name="update_press_start">Press Start to use it.</string>
+    <string name="update_press_restart">Restart the server to use it.</string>
     <string name="galat_backup_ganti">Failed to replace the old backup.</string>
     <string name="galat_backup_pasang">Failed to install the backup.</string>
     <string name="galat_db_besar">Database file exceeds %1$s.</string>

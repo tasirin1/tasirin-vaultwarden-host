@@ -3661,8 +3661,16 @@ public class SettingsActivity extends Activity {
                 AutoUpdate.batalkanNotifikasiUpdate(app);
             }
             appendUiLog("[app] " + msg + imbuhShimLog);
+            // Audit 3009: saran sesudah update wajib cocok
+            // keadaan - server yang sedang jalan TIDAK memuat
+            // binary baru lewat Start (Start hanya menyalakan
+            // proses mati); yang benar Restart.
+            boolean jalan3009 = ServerService.running
+                    || ServerService.isProcessAlive();
             toast(Updater.binaryBerubah(msg)
-                    ? msg + imbuhShimUi + " " + getString(R.string.update_press_start)
+                    ? msg + imbuhShimUi + " " + getString(jalan3009
+                            ? R.string.update_press_restart
+                            : R.string.update_press_start)
                     : msg + imbuhShimUi);
         } catch (Exception e) {
             toast(getString(R.string.cek_update_gagal, String.valueOf(e.getMessage())));
@@ -3827,8 +3835,13 @@ public class SettingsActivity extends Activity {
                         AutoUpdate.batalkanNotifikasiUpdate(this);
                     }
                     appendUiLog("[app] " + msg);
+                    // Audit 3009: pola sama seperti situs Cek Update.
+                    boolean jalan3009b = ServerService.running
+                            || ServerService.isProcessAlive();
                     toast(Updater.binaryBerubah(msg)
-                            ? msg + " " + getString(R.string.update_press_start) : msg);
+                            ? msg + " " + getString(jalan3009b
+                                    ? R.string.update_press_restart
+                                    : R.string.update_press_start) : msg);
                 } else {
                     appendUiLog("[app] Mengunduh web-vault v"
                             + (target == null ? "terbaru" : target) + "...");

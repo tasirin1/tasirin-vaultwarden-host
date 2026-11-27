@@ -312,6 +312,7 @@
     <string name="shim_siap">Shim getrandom siap.</string>
     <string name="shim_gagal">Shim gagal: %1$s</string>
     <string name="update_press_start">Tekan Start untuk memakainya.</string>
+    <string name="update_press_restart">Restart server untuk memakainya.</string>
     <string name="galat_backup_ganti">Gagal mengganti backup lama.</string>
     <string name="galat_backup_pasang">Gagal memasang backup.</string>
     <string name="galat_db_besar">Berkas database melebihi %1$s.</string>

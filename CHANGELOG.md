@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Toast sesudah update manual kini cocok keadaan server (Audit 3009)
+
+- `SettingsActivity`: sesudah update binary manual (Cek Update maupun pasang versi pilihan), toast selalu menyuruh "Tekan Start untuk memakainya" — padahal bila server sedang jalan, Start tidak me-restart dan tidak memuat binary baru, jadi pengguna menekan Start berulang tanpa hasil. Toast kini dibedakan menurut keadaan: server jalan → "Restart server untuk memakainya" (string baru `update_press_restart`, Inggris + Indonesia); server mati → teks lama. Jalur bot sudah lama jujur dengan pola yang sama; ini menyamakan sisi Settings.
+
+
 ## [Belum rilis] — Pin versi tak lagi hilang permanen bila /update terbaru gagal (Audit 3008)
 
 - `TgBot.unduhBinerDariBot` + `unduhWebVaultDariBot`: menyimpan pin "terbaru" menerjemahkannya menjadi string kosong dan menulisnya ke preferensi sebelum update dicoba, sedangkan rollback di blok catch bersyarat `versi != null` — padahal normalisasi "terbaru" selalu `null`, jadi rollback tak pernah berjalan untuk perintah itu. Akibatnya satu update "terbaru" yang gagal menghapus pin versi pengguna secara permanen dan diam-diam mengubah kebijakan update jangka panjangnya. Rollback kini berjalan untuk semua pin yang sempat ditimpa (nilai lama memang ditangkap sebelum ditimpa); pin hanya berubah bila update berhasil.
