@@ -15574,6 +15574,51 @@ def _bagian_awal(tmp):
             rc == 0, "" if rc == 0 else out[-400:])
     shutil.rmtree(selaras0, ignore_errors=True)
 
+    def racun_workflow(nama, ubah, label, frag):
+        klon_w = klon(tmp, nama)
+        ubah(klon_w)
+        git(klon_w, "add", "-A")
+        git(klon_w, "commit", "-qm", "racun workflow uji")
+        rc, out = jalan(klon_w,
+                        [sys.executable, GERBANG,
+                         "--hanya-workflow"])
+        periksa(label, rc != 0 and rc != 124 and frag in out)
+        shutil.rmtree(klon_w, ignore_errors=True)
+
+    def _wf2908_labeler(klon_w):
+        p = os.path.join(klon_w, ".github", "labeler.yml")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace("app/src/main/**",
+                                "app/src/ngawur2896/**", 1))
+    racun_workflow("wf2908labeler", _wf2908_labeler,
+                   "glob labeler tak cocok berkas apa pun: "
+                   "gerbang gagal (Audit 2908)",
+                   "tak mencocokkan satu pun")
+
+    def _wf2908_dependabot(klon_w):
+        p = os.path.join(klon_w, ".github", "dependabot.yml")
+        with open(p, encoding="utf-8") as f:
+            baris_w = f.read().splitlines(keepends=True)
+        with open(p, "w", encoding="utf-8") as f:
+            f.write("".join(l for l in baris_w
+                            if "directory:" not in l))
+    racun_workflow("wf2908dependabot", _wf2908_dependabot,
+                   "dependabot tanpa directory: gerbang "
+                   "gagal (Audit 2908)", "tanpa directory")
+
+    def _wf2908_jobs(klon_w):
+        p = os.path.join(klon_w, ".github", "workflows",
+                         "gitleaks.yml")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace("\njobs:", "\njobx:", 1))
+    racun_workflow("wf2908jobs", _wf2908_jobs,
+                   "workflow tanpa kunci jobs: gerbang "
+                   "gagal (Audit 2908)", "tanpa kunci on/jobs")
+
     def racun_diff(nama, ubah, label, frag, harus_rc=1):
         klon_d = klon(tmp, nama)
         ubah(klon_d)

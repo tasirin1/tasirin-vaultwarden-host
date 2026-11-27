@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cabang labeler, dependabot, dan kunci jobs workflow kini punya skenario (Audit 2908)
+
+- Suite verifikasi kini meracuni labeler.yml, dependabot.yml, dan kunci jobs sebuah workflow secara bergantian dan membuktikan gerbang gagal untuk ketiganya — cabang-cabang itu sebelumnya tanpa skenario sama sekali.
+
+
 ## [Belum rilis] — Peringatan gerbang kini diasersikan suite (Audit 2895)
 
 - Enam skenario baru membuktikan cek peringatan benar-benar terbit tulisannya sambil gerbang tetap lolos: pola berisiko, metode baru/diubah tanpa uji, definisi tanpa acuan, pola boros, dan izin baru. Sebelumnya tak satu pun skenario memeriksa keluaran peringatan.
