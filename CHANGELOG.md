@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Hapus berkas sampah ./-d di akar repo
+
+Berkas kosong bernama -d di akar repo adalah artefak kecelakaan perintah shell pada commit d695fd7e (2026-11-24) yang ikut ter-commit. Dihapus; tidak ada fungsi apa pun.
+
+Closes #2811
+
+
 ## [Belum rilis] — Mematikan PIN kini menghapus pin_hash
 
 Konfirmasi matikan PIN selama ini hanya menulis pin_on=false — hash PBKDF2 + salt tertinggal selamanya di vw_prefs dan bisa di-brute-force offline dari prefs/backup yang bocor, padahal pengguna mengira kredensialnya sudah hilang. matikanPinTerkonfirmasi kini menghapus pin_hash dalam edit yang sama; sesi login Telegram ikut mati karena hash pembandingnya hilang.
