@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Restore via pemilih berkas bisa memulihkan backup terenkripsi (Audit 3016)
+
+- Settings > Restore: berkas backup terenkripsi (.enc) — format bawaan aplikasi sendiri — kini didekripsi dulu dengan sandi backup tersimpan sebelum dipulihkan, sama seperti jalur restore-dari-Telegram dan bot. Sebelumnya berkas sah itu ditolak mentah-mentah sebagai "bukan database SQLite". Bila sandi backup belum diisi, pesan yang benar kini tampil: backup terenkripsi, isi sandi backup dulu.
+
+
 ## [Belum rilis] — Empat uji diselaraskan dengan perilaku baru maraton (Audit 2976, 2831, 2852)
 
 - Uji JVM: empat uji masih mengunci perilaku lama yang sengaja diubah tiga perbaikan — nilai balik penundaan backup sesudah boot (kini hasil penjadwalan alarm, bukan asal masa tunggu), penolakan nomor telepon sebagai chat ID (kini pesan khusus), dan daftar cipher pabrik TLS (kini tersaring kuat). Asersi ujinya kini memeriksa perilaku baru yang dimaksud; kode produksi tidak berubah.

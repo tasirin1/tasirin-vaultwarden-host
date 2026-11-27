@@ -2161,6 +2161,44 @@ public class SettingsActivity extends Activity {
             return;
         }
         salinanRestorePilihAktif = salinan;
+        File polos = null;
+        if (TgBackup.isEncrypted(salinan)) {
+            // Audit 3016: backup terenkripsi (.enc) adalah
+            // format bawaan aplikasi - jalur picker dulu
+            // tak pernah mendekripsinya sehingga berkas
+            // sah ditolak sebagai "bukan SQLite". Dekripsi
+            // di sini dengan sandi backup tersimpan, sama
+            // seperti jalur restore-dari-Telegram.
+            String passRestore = TgBackup.amanString(
+                    getSharedPreferences(ServerService.PREFS,
+                            MODE_PRIVATE),
+                    TgBackup.KEY_TG_PASS, "");
+            if (passRestore == null || passRestore.trim().isEmpty()) {
+                salinanRestorePilihAktif = null;
+                salinan.delete();
+                toast(getString(R.string.backup_terenkripsi));
+                appendUiLog("[app] Restore dibatalkan: berkas"
+                        + " terenkripsi, sandi backup belum diisi.");
+                return;
+            }
+            polos = new File(getCacheDir(), salinan.getName() + ".dec");
+            try {
+                TgBackup.decryptFile(salinan, polos, passRestore.trim());
+            } catch (Exception e) {
+                try {
+                    polos.delete();
+                } catch (Exception ignored) {
+                }
+                polos = null;
+                salinanRestorePilihAktif = null;
+                salinan.delete();
+                toast(getString(R.string.restore_gagal,
+                        String.valueOf(e.getMessage())));
+                appendUiLog("[app] Restore dibatalkan: dekripsi"
+                        + " berkas gagal: " + e);
+                return;
+            }
+        }
         if (!TgBackup.kunciRestore()) {
             salinanRestorePilihAktif = null;
             salinan.delete();
@@ -2172,13 +2210,20 @@ public class SettingsActivity extends Activity {
 
             ServerService.kunciData();
             try {
-                restoreDatabaseIsi(salinan, dataDirMentah);
+                restoreDatabaseIsi(polos != null ? polos : salinan,
+                        dataDirMentah);
             } finally {
                 ServerService.lepasKunciData();
             }
         } finally {
             TgBackup.lepasRestore();
             salinan.delete();
+            if (polos != null) {
+                try {
+                    polos.delete();
+                } catch (Exception ignored) {
+                }
+            }
             salinanRestorePilihAktif = null;
         }
     }
