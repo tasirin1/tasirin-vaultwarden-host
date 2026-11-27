@@ -4358,6 +4358,16 @@ public final class TgBackup {
         return new PindaiZip(config, total);
     }
 
+    // Audit 2996: pendeteksi peringatan TLS di pesan
+    // hasil restore - pemanggil (toast) memakainya
+    // untuk memilih kabar yang jujur.
+    static boolean pesanRestoreAdaPeringatanTls(String msg) {
+        return msg != null
+                && (msg.contains("tidak dipasang karena")
+                        || msg.contains("gagal dipasang")
+                        || msg.contains("sinkron sertifikat ke salinan internal gagal"));
+    }
+
     public static String restoreFromZip(Context ctx, File zip) throws Exception {
 
         ServerService.kunciData();

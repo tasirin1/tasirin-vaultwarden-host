@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Toast restore file-picker kini mengabarkan kegagalan sertifikat juga (Audit 2996)
+
+- `SettingsActivity` + `TgBackup`: restore lewat pemilih berkas dulu selalu menampilkan toast "Restore done" walau hasil restorenya memuat peringatan bahwa sertifikat dari backup gagal dipasang dan TLS perangkat dipertahankan — peringatan itu hanya masuk layar log, sehingga pengguna menekan Start lalu kliennya gagal terhubung tanpa tahu sebabnya. Toast kini memilih varian peringatan TLS bila pesan hasil memuatnya (pendeteksinya fungsi murni yang diuji), sama seperti jalur restore satunya.
+
+
 ## [Belum rilis] — Kabar "Server dihentikan" kini menunggu kematian proses terkonfirmasi (Audit 2994)
 
 - `ServerService`: pesan Telegram "Server dihentikan." dulu dikirim segera saat Stop ditekan, sementara pembunuhan prosesnya berjalan di latar dan pada Android lama tidak ada bunuh paksa — proses yang mengabaikan sinyal berhenti hidup terus memegang port sementara pengguna percaya server sudah berhenti (dan Start berikutnya gagal "port sudah dipakai"). Pembunuh proses kini melaporkan kematian yang terkonfirmasi, dan kabar berhenti dikirim sesudah hasil itu: mati berarti "Server dihentikan.", belum mati berarti peringatan jujur plus catatan log.

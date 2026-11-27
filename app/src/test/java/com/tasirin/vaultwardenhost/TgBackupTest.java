@@ -1405,6 +1405,20 @@ public class TgBackupTest {
     }
 
     @Test
+    public void pesanRestoreAdaPeringatanTls_kenaliTigaBentuk() {
+        // Audit 2996: tiga bentuk peringatan TLS di
+        // pesan restore terdeteksi; pesan bersih tidak.
+        assertTrue(TgBackup.pesanRestoreAdaPeringatanTls(
+                "OK. Sertifikat dari backup tidak dipasang karena pasangan"));
+        assertTrue(TgBackup.pesanRestoreAdaPeringatanTls(
+                "Database SUDAH dipulihkan, tetapi sertifikat dari backup gagal dipasang (x)"));
+        assertTrue(TgBackup.pesanRestoreAdaPeringatanTls(
+                "tetapi sinkron sertifikat ke salinan internal gagal - salinan"));
+        assertFalse(TgBackup.pesanRestoreAdaPeringatanTls("Restore selesai."));
+        assertFalse(TgBackup.pesanRestoreAdaPeringatanTls(null));
+    }
+
+    @Test
     public void unduhRestoreKedaluwarsa_lewatTigaPuluhMenit() {
         // Audit 2987: tenggat total unduh restore.
         assertFalse(TgBackup.unduhRestoreKedaluwarsa(1000, 1000

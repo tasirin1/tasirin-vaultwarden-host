@@ -2785,9 +2785,16 @@ public class SettingsActivity extends Activity {
             appendUiLog("[app] Menghentikan server sebelum restore...");
 
             String msg = TgBackup.restoreFromZip(getApplicationContext(), zip);
+            // Audit 2996: toast memilih varian jujur -
+            // peringatan TLS di pesan hasil tak lagi
+            // hanya masuk log seperti dulu.
+            boolean adaPeringatanTls =
+                    TgBackup.pesanRestoreAdaPeringatanTls(msg);
             uiPost(() -> {
                 reloadSettingsFromPrefs();
-                toast(getString(R.string.restore_selesai_mulai));
+                toast(getString(adaPeringatanTls
+                        ? R.string.restore_selesai_tls_gagal
+                        : R.string.restore_selesai_mulai));
             });
             appendUiLog("[app] " + msg);
         } catch (Exception e) {
