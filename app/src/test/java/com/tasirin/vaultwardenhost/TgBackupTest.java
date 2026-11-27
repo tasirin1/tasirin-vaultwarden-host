@@ -1527,13 +1527,20 @@ public class TgBackupTest {
         } catch (RuntimeException e) {
             hasil = TgBackup.tundaBilaBootBaruPada(null, "uji", 0);
         }
-        assertTrue(hasil);
+        // Audit 2976: tanpa konteks penjadwalan alarm
+        // pasti gagal, jadi nilai balik false (pemanggil
+        // jatuh ke backup langsung) - dulu true asal
+        // masih masa tunggu, walau alarm gagal.
+        assertFalse(hasil);
     }
 
     @Test
     public void tundaBilaBootBaru_tundaBilaBootBaru() {
 
-        assertTrue(TgBackup.tundaBilaBootBaruPada(null, "uji", 0));
+        // Audit 2976: masa tunggu boot masih berlaku
+        // (elapsed 0), tetapi penjadwalan tanpa konteks
+        // gagal sehingga hasilnya false.
+        assertFalse(TgBackup.tundaBilaBootBaruPada(null, "uji", 0));
     }
 
     @Test

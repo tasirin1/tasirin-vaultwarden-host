@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Empat uji diselaraskan dengan perilaku baru maraton (Audit 2976, 2831, 2852)
+
+- Uji JVM: empat uji masih mengunci perilaku lama yang sengaja diubah tiga perbaikan — nilai balik penundaan backup sesudah boot (kini hasil penjadwalan alarm, bukan asal masa tunggu), penolakan nomor telepon sebagai chat ID (kini pesan khusus), dan daftar cipher pabrik TLS (kini tersaring kuat). Asersi ujinya kini memeriksa perilaku baru yang dimaksud; kode produksi tidak berubah.
+
+
 ## [Belum rilis] — Suite cek-cepat: skenario vektor ter-gitignore tak lagi roboh (lanjutan Audit 2947)
 
 - `tools/uji-cek-cepat.py`: skenario berkas vektor yang diabaikan .gitignore menanam berkasnya lewat helper yang menjalankan git add + commit — berkas terabaikan tidak pernah ter-add sehingga commit-nya kosong dan suite roboh di CI. Berkas itu sekarang ditulis langsung ke pohon kerja tanpa dilacak git, sesuai maksud skenarionya (cek-cepat harus tetap menangkap vektor di berkas yang tidak terlacak).

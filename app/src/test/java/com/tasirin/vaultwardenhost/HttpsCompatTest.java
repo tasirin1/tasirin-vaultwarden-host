@@ -175,7 +175,10 @@ public class HttpsCompatTest {
                     javax.net.ssl.SSLContext.getDefault().getSocketFactory();
             javax.net.ssl.SSLSocketFactory bungkus = HttpsCompat.bungkusTls12(bawaan);
             assertNotNull(bungkus);
-            assertArrayEquals(bawaan.getDefaultCipherSuites(),
+            // Audit 2852: daftar yang diumumkan kini
+            // tersaring kuat, bukan daftar bawaan mentah.
+            assertArrayEquals(
+                    HttpsCompat.saringCipher(bawaan.getDefaultCipherSuites()),
                     bungkus.getDefaultCipherSuites());
         } catch (Exception e) {
             fail("bungkusTls12 melempar: " + e);

@@ -208,7 +208,12 @@ public class SettingsActivityTest {
         assertNull(SettingsActivity.galatChat("123,456", "SALAH"));
         assertNull(SettingsActivity.galatChat("123; @namabot", "SALAH"));
         assertNull(SettingsActivity.galatChat("123 456", "SALAH"));
-        assertNull(SettingsActivity.galatChat("+628123456789", "SALAH"));
+        // Audit 2831: nomor telepon (+62...) bukan
+        // chat ID - ditolak; bentuk dua-argumen memakai
+        // pesan salah sebagai pesan khususnya.
+        assertEquals("SALAH", SettingsActivity.galatChat("+628123456789", "SALAH"));
+        assertEquals("TELEPON", SettingsActivity.galatChat(
+                "+628123456789", "SALAH", "TELEPON"));
         assertEquals("SALAH", SettingsActivity.galatChat("0123", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatChat("123, abc", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatChat("1,2,3,4,5,6", "SALAH"));
