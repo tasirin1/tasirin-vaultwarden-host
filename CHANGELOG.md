@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Tiga aturan repo kini ditegakkan gerbang: format commit, komentar Audit, API di atas 21 (Audit 2922)
+
+- Gerbang kini membaca subjek commit pada mode --rentang (wajib berawalan feat:/fix:/docs:/chore:/perf:/test:), menggagalkan komentar Java baru di luar gaya blok // Audit NNNN:, dan menggagalkan baris baru app/src/main yang memakai API di atas 21 dari daftar sempit (List.sort, List/Map/Set.of, Path.of, Files.read/writeString, String.join, String.repeat).
+
+
 ## [Belum rilis] — Dua asersi hitungan teks suite diganti vonis perilaku (Audit 2923)
 
 - Skenario yang dulu hanya menghitung teks sumber gerbang (definisi helper tunggal, komentar tunggal) kini membuktikan perilaku: mematikan panggilan helper substitusi atau membalik posisi-awal rekursi env -S di klon membalik vonis gerbang atas suntikan yang sama.

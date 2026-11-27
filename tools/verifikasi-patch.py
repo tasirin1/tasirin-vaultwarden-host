@@ -25577,6 +25577,140 @@ def cek_locale_baru(gagal, diff):
                          "::toUpperCase - bentuk ini tak bisa membawa "
                          "Locale; bungkus dengan lambda Locale.US")
 
+def cek_format_commit(gagal, rentang):
+    # Audit 2922: aturan repo #3 (subjek feat:/fix:/...)
+    # dulu tak pernah dibaca gerbang - utama() tak
+    # menyentuh git log sama sekali. Kini pada mode
+    # --rentang eksplisit (CI + hook) subjek tiap commit
+    # non-merge di rentang wajib berawalan jenis yang
+    # dikenal; di luar mode itu rentang tak terdefinisi
+    # bersih, jadi cek ini tak dipasang di sana.
+    out = jalan("git", "log", "--no-merges",
+                "--format=%s", rentang)
+    if out is None:
+        return
+    pola = re.compile(
+        r"^(feat|fix|docs|chore|perf|test|build|ci|"
+        r"refactor|style)(\([^)]*\))?!?:\s")
+    for subjek in out.splitlines():
+        subjek = subjek.strip()
+        if not subjek:
+            continue
+        if pola.match(subjek) or subjek.startswith(
+                ("Revert ", "Merge ")):
+            continue
+        gagal.append("Subjek commit tak mengikuti format "
+                     "aturan repo #3 (feat:/fix:/docs:/"
+                     "chore:/perf:/test: ...): %r "
+                     "(Audit 2922)" % subjek[:90])
+
+
+def _awal_komentar_java(baris):
+    # Posisi // atau /* pertama di luar literal
+    # string/char baris ini; -1 bila tak ada.
+    i, n = 0, len(baris)
+    while i < n:
+        c = baris[i]
+        if c in ("\"", "'"):
+            i += 1
+            while i < n:
+                if baris[i] == "\\":
+                    i += 2
+                    continue
+                if baris[i] == c:
+                    i += 1
+                    break
+                i += 1
+            continue
+        if c == "/" and i + 1 < n and baris[i + 1] in "/*":
+            return i
+        i += 1
+    return -1
+
+
+def cek_komentar_java_baru(gagal, diff):
+    # Audit 2922: aturan repo #2 - berkas kode tanpa
+    # komentar kecuali blok // Audit NNNN:. Baris
+    # lanjutan blok (// polos sesudah kepala Audit)
+    # sah: keanggotaan blok dibuktikan dengan berjalan
+    # ke atas dari baris sungguhan di berkasnya.
+    per_berkas = {}
+    for path, isi in tambah_java(diff):
+        per_berkas.setdefault(path, []).append(isi)
+    for path, daftar in per_berkas.items():
+        baris_berkas = baca(path).splitlines()
+        if not baris_berkas:
+            continue
+        lapor = 0
+        for isi in daftar:
+            if _awal_komentar_java(isi) < 0:
+                continue
+            if re.search(r"//\s*Audit\s+\d+", isi):
+                continue
+            lolos = False
+            for idx, bb in enumerate(baris_berkas):
+                if bb != isi:
+                    continue
+                j = idx
+                while j >= 0 and re.match(
+                        r"\s*//", baris_berkas[j]):
+                    if re.search(r"//\s*Audit\s+\d+",
+                                  baris_berkas[j]):
+                        lolos = True
+                        break
+                    j -= 1
+                if lolos:
+                    break
+            if not lolos and lapor < 3:
+                lapor += 1
+                gagal.append(
+                    "Komentar baru di %s di luar gaya "
+                    "// Audit NNNN: yang diizinkan aturan "
+                    "repo #2 (Audit 2922): %s"
+                    % (path, isi.strip()[:70]))
+
+
+POLA_API_BARU_2922 = [
+    (re.compile(r"\bList\.sort\s*\("),
+     "List.sort (API 24 - pakai Collections.sort)"),
+    (re.compile(r"\bList\.of\s*\("), "List.of (Java 9)"),
+    (re.compile(r"\bMap\.of\s*\("), "Map.of (Java 9)"),
+    (re.compile(r"\bSet\.of\s*\("), "Set.of (Java 9)"),
+    (re.compile(r"\bPath\.of\s*\("), "Path.of (Java 11)"),
+    (re.compile(r"\bFiles\.readString\s*\("),
+     "Files.readString (Java 11)"),
+    (re.compile(r"\bFiles\.writeString\s*\("),
+     "Files.writeString (Java 11)"),
+    (re.compile(r"\bString\.join\s*\("),
+     "String.join (API 26)"),
+    (re.compile(r"\.repeat\s*\("),
+     "String.repeat (Java 11)"),
+]
+
+
+def cek_api_baru(gagal, diff):
+    # Audit 2922: aturan repo #7 - API di atas 21 tanpa
+    # fallback. Lint NewApi CI adalah backstop parsial;
+    # daftar sempit ini menangkap jebakan yang sudah
+    # terbukti (List.sort) dan keluarga of()/String
+    # modern di baris baru app/src/main sebelum CI.
+    # Berkas uji dikecualikan: ia berjalan di JVM host.
+    sudah = set()
+    for path, isi in tambah_java(diff):
+        if not path.startswith("app/src/main/"):
+            continue
+        kode = kupas_java(isi)
+        for pola, nama in POLA_API_BARU_2922:
+            if (path, nama) in sudah:
+                continue
+            if pola.search(kode):
+                sudah.add((path, nama))
+                gagal.append(
+                    "Baris baru di %s memakai %s - API "
+                    "di atas 21 tanpa fallback (aturan "
+                    "repo #7, Audit 2922)" % (path, nama))
+
+
 def teks_xml_bersih(path):
     return re.sub(r"<!--.*?-->", "", baca(path), flags=re.S)
 
@@ -26032,6 +26166,8 @@ def utama():
     if diff:
         cek_panggil_bekas_hapusan(gagal, diff)
         cek_locale_baru(gagal, diff)
+        cek_komentar_java_baru(gagal, diff)
+        cek_api_baru(gagal, diff)
         cek_metode_hilang(gagal, peringatan, diff, hapus)
         cek_hapusan_belum_tercatat(gagal, diff)
         cek_uji_baru(peringatan, diff)
@@ -26041,6 +26177,8 @@ def utama():
         cek_izin_baru(gagal, peringatan, diff)
         cek_literal_rahasia_utuh(gagal, diff, berubah)
         cek_definisi_baru(peringatan, diff)
+    if args.rentang and rentang_cek:
+        cek_format_commit(gagal, rentang_cek)
     if args.semua:
         cek_literal_rahasia_pohon(gagal, berubah)
     if diff_gagal:

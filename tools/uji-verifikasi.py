@@ -15661,7 +15661,7 @@ def _bagian_awal(tmp):
     rentang2893a = klon(tmp, "rentang2893a")
     _rentang2893_racun(rentang2893a)
     git(rentang2893a, "add", "-A")
-    git(rentang2893a, "commit", "-qm", "racun rentang uji")
+    git(rentang2893a, "commit", "-qm", "test: racun rentang uji")
     rc, out = jalan(rentang2893a,
                     [sys.executable, GERBANG,
                      "--rentang", "ngawur..banget"])
@@ -15775,7 +15775,7 @@ def _bagian_awal(tmp):
         klon_d = klon(tmp, nama)
         ubah(klon_d)
         git(klon_d, "add", "-A")
-        git(klon_d, "commit", "-qm", "racun diff uji")
+        git(klon_d, "commit", "-qm", "test: racun diff uji")
         rc, out = jalan(klon_d,
                         [sys.executable, GERBANG,
                          "--rentang", "HEAD~1..HEAD"])
@@ -15943,6 +15943,71 @@ def _bagian_awal(tmp):
                "izin baru tak berbahaya di diff: "
                "PERINGATAN terbit, gerbang lolos "
                "(Audit 2895)", "Izin baru", harus_rc=0)
+
+    format2922 = klon(tmp, "format2922")
+    p_fmt = os.path.join(format2922, "CHANGELOG.md")
+    with open(p_fmt, "a", encoding="utf-8") as f:
+        f.write("\n")
+    git(format2922, "add", "-A")
+    git(format2922, "commit", "-qm",
+        "ubah sembarang tanpa awalan jenis")
+    rc, out = jalan(format2922,
+                    [sys.executable, GERBANG,
+                     "--rentang", "HEAD~1..HEAD"])
+    periksa("subjek commit tanpa awalan jenis: gerbang "
+            "gagal (Audit 2922)",
+            rc != 0 and rc != 124
+            and "format aturan repo #3" in out)
+    shutil.rmtree(format2922, ignore_errors=True)
+
+    def _diff2922_komentar(klon_d):
+        _sentuh_changelog(klon_d)
+        p = _jalur_util(klon_d)
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "public final class Util {",
+                "public final class Util {\n"
+                "    // komentar bebas tanpa nomor audit",
+                1))
+    racun_diff("diff2922komentar", _diff2922_komentar,
+               "komentar Java di luar gaya Audit: gerbang "
+               "gagal (Audit 2922)", "di luar gaya")
+
+    def _diff2922_komentar_sah(klon_d):
+        _sentuh_changelog(klon_d)
+        p = _jalur_util(klon_d)
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "public final class Util {",
+                "public final class Util {\n"
+                "    // Audit 2922: metode penanda skenario\n"
+                "    // lanjutan bloknya ikut sah.\n"
+                "    static int ujiKomentar2922() "
+                "{ return 29; }", 1))
+    racun_diff("diff2922sah", _diff2922_komentar_sah,
+               "blok komentar // Audit NNNN: beserta "
+               "lanjutannya: gerbang lolos (Audit 2922)",
+               "Hasil: LOLOS", harus_rc=0)
+
+    def _diff2922_api(klon_d):
+        _sentuh_changelog(klon_d)
+        p = _jalur_util(klon_d)
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "public final class Util {",
+                "public final class Util {\n"
+                "    static java.util.List<String> "
+                "ujiApi2922() { return "
+                "java.util.List.of(\"a\"); }", 1))
+    racun_diff("diff2922api", _diff2922_api,
+               "List.of di baris baru main: gerbang gagal "
+               "(Audit 2922)", "API di atas 21")
 
     def racun_pohon(nama, ubah, label, frag):
         klon_p = klon(tmp, nama)

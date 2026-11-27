@@ -71,9 +71,9 @@ def klon(tmp, nama, akar, nama_uji, snapshot):
         git(asal, "config", "user.email", "uji@lokal")
         git(asal, "config", "user.name", nama_uji)
         git(asal, "add", "-A")
-        git(asal, "commit", "-q", "-m", "snapshot uji")
+        git(asal, "commit", "-q", "-m", "test: snapshot uji")
         git(asal, "commit", "-q", "--allow-empty", "-m",
-            "riwayat cadangan")
+            "test: riwayat cadangan")
         snapshot.asal = asal
     tujuan = os.path.join(tmp, nama)
     git(tmp, "clone", "-q", "--local", snapshot.asal, tujuan)
