@@ -281,6 +281,66 @@ def cek_workflow_yaml(gagal, peringatan):
             gagal.append("YAML workflow %s tanpa kunci on/jobs — workflow "
                          "tak akan jalan" % nama)
 
+
+def cek_selarasan_workflow(gagal, peringatan):
+    # Audit 3029: pola HARUS_BUILD di auto-merge.yml
+    # wajib mencakup setiap path pemicu build-apk.yml.
+    # Dua daftar itu pernah drift (tools/uji-verifikasi-1
+    # dan -2 tak tercakup) sehingga PR yang hanya
+    # menyentuh berkas suite bisa auto-merge tanpa
+    # menunggu Build APK yang sebenarnya terpicu.
+    import re
+    folder = os.path.join(AKAR, ".github", "workflows")
+    path_ba = os.path.join(folder, "build-apk.yml")
+    path_am = os.path.join(folder, "auto-merge.yml")
+    if not (os.path.isfile(path_ba) and os.path.isfile(path_am)):
+        return
+    yaml = _impor_yaml(gagal)
+    if yaml is None:
+        return
+    try:
+        with open(path_ba, encoding="utf-8") as f:
+            data_ba = yaml.safe_load(f)
+    except Exception:
+        return
+    if not isinstance(data_ba, dict):
+        return
+    on_ba = data_ba.get("on", data_ba.get(True))
+    paths = []
+    if isinstance(on_ba, dict):
+        for acara in ("push", "pull_request"):
+            node = on_ba.get(acara)
+            if isinstance(node, dict):
+                for p in node.get("paths") or []:
+                    if isinstance(p, str) and p not in paths:
+                        paths.append(p)
+    with open(path_am, encoding="utf-8") as f:
+        teks_am = f.read()
+    pola = None
+    for m in re.finditer(r"grep -qE '([^']+)'", teks_am):
+        if "uji_bersama" in m.group(1):
+            pola = m.group(1)
+            break
+    if pola is None:
+        gagal.append("Pola HARUS_BUILD tak ditemukan di "
+                     ".github/workflows/auto-merge.yml - paritas "
+                     "dengan build-apk.yml tak bisa dibuktikan "
+                     "(Audit 3029)")
+        return
+    try:
+        rx = re.compile(pola)
+    except Exception as e:
+        gagal.append("Pola HARUS_BUILD di auto-merge.yml tak "
+                     "bisa dibaca: %s (Audit 3029)" % e)
+        return
+    for p in paths:
+        uji = p[:-3] + "/x" if p.endswith("/**") else p
+        if not rx.search(uji):
+            gagal.append("Path build-apk.yml '%s' tak tercakup "
+                         "pola HARUS_BUILD di auto-merge.yml - PR "
+                         "yang hanya menyentuhnya bisa auto-merge "
+                         "tanpa menunggu Build APK (Audit 3029)" % p)
+
 def _kumpul_glob_labeler(node, kumpul):
     if isinstance(node, str):
         kumpul.append(node)
@@ -25727,6 +25787,7 @@ def utama():
         gagal = []
         peringatan = []
         cek_workflow_yaml(gagal, peringatan)
+        cek_selarasan_workflow(gagal, peringatan)
         cek_yaml_github_lain(gagal, peringatan)
         for w in peringatan:
             print("PERINGATAN: " + w)
@@ -25843,6 +25904,7 @@ def utama():
     cek_paritas_resource(gagal)
     cek_daftar_hapusan(gagal)
     cek_workflow_yaml(gagal, peringatan)
+    cek_selarasan_workflow(gagal, peringatan)
     cek_gradle_akar(gagal)
     cek_yaml_github_lain(gagal, peringatan)
     cek_aturan_repo(gagal, berubah)

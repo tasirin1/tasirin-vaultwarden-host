@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pola HARUS_BUILD kini mencakup berkas suite verifikasi + gerbang paritas (Audit 3029)
+
+- Daftar berkas yang mewajibkan menunggu Build APK sebelum auto-merge kini mencakup tools/uji-verifikasi-1.py dan tools/uji-verifikasi-2.py — dua berkas pemicu build yang sebelumnya lewat, sehingga PR yang hanya menyentuhnya bisa tergabung tanpa menunggu build. Gerbang kini juga memeriksa keselarasan itu secara mekanis agar tak drift lagi.
+
+
 ## [Belum rilis] — Penanda versi ikut dibersihkan saat binary unduhan gagal uji (Audit 3033)
 
 - Bila binary hasil unduhan gagal uji jalan dan dibuang, penanda versinya (dan pin SHA-nya) kini ikut dihapus. Sebelumnya penanda itu tertinggal: status mengklaim versi baru padahal binary lama yang berjalan, dan update otomatis diam karena mengira server sudah mutakhir.

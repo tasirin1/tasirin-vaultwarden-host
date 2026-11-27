@@ -15551,6 +15551,29 @@ def _bagian_awal(tmp):
             "" if rc == 0 else out[-400:])
     shutil.rmtree(bekasuji, ignore_errors=True)
 
+    selaras1 = klon(tmp, "selaras1")
+    berkas_am1 = os.path.join(
+        selaras1, ".github", "workflows", "auto-merge.yml")
+    with open(berkas_am1, encoding="utf-8") as f:
+        isi_am1 = f.read()
+    isi_am1b = isi_am1.replace("tools/uji-cek-cepat-1\\.py$|", "", 1)
+    assert isi_am1b != isi_am1, "racun selaras1 tidak menembak"
+    with open(berkas_am1, "w", encoding="utf-8") as f:
+        f.write(isi_am1b)
+    rc, out = jalan(selaras1,
+                    [sys.executable, GERBANG, "--hanya-workflow"])
+    periksa("pola HARUS_BUILD kurang satu path: gerbang gagal "
+            "(Audit 3029)",
+            rc != 0 and rc != 124 and "HARUS_BUILD" in out)
+    shutil.rmtree(selaras1, ignore_errors=True)
+
+    selaras0 = klon(tmp, "selaras0")
+    rc, out = jalan(selaras0,
+                    [sys.executable, GERBANG, "--hanya-workflow"])
+    periksa("workflow bersih: cek selarasan lolos (Audit 3029)",
+            rc == 0, "" if rc == 0 else out[-400:])
+    shutil.rmtree(selaras0, ignore_errors=True)
+
 def _bagian_akhir(tmp):
     sub716 = klon(tmp, "sub716")
     berkas_aksi716 = os.path.join(
