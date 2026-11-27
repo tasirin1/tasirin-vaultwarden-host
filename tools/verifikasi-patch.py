@@ -24099,31 +24099,69 @@ POLA_BOROS = [
     (".printStackTrace()", "telan/abaikan eksplisit + catat log"),
 ]
 
+def _teks_boros_normal(daftar_baris):
+    """Teks tergabung per berkas untuk cek pola boros: dikupas
+    (komentar/string hilang), spasi di sekitar titik dibuang,
+    kualifikasi paket pada `new a.b.C(` dilucuti. Audit 2906."""
+    teks = kupas_java("\n".join(daftar_baris))
+    teks = re.sub(r"\s*\.\s*", ".", teks)
+    teks = re.sub(r"\s+", " ", teks)
+    teks = re.sub(r"new\s+(?:\w+\.)+", "new ", teks)
+    return teks
+
+
 def cek_pola_boros(peringatan, diff):
     tampil = set()
-    for _, isi in tambah_java(diff):
+    per_berkas = {}
+    for path, isi in tambah_java(diff):
+        per_berkas.setdefault(path, []).append(isi)
+    for path, daftar in per_berkas.items():
+        teks = _teks_boros_normal(daftar)
         for pola, saran in POLA_BOROS:
-            if pola in isi and pola not in tampil:
-                if pola == ".split(" and "matcher" in isi.lower():
-                    continue
+            if pola in teks and pola not in tampil:
+                if pola == ".split(":
+                    # Pengecualian lama (split yang memang untuk
+                    # matcher) dinilai dari jendela sekitar
+                    # kemunculan, bukan komentar sebaris.
+                    i = teks.find(pola)
+                    jendela = teks[max(0, i - 200):i + 200].lower()
+                    if "matcher" in jendela:
+                        continue
                 tampil.add(pola)
-                peringatan.append("Pola boros di baris baru %s — %s: %s"
-                                  % (pola.strip(), saran, isi.strip()[:70]))
-    for _, isi in tambah_java(diff):
-        if ".matches(" in isi and "matcher" not in isi.lower() \
-                and ".matches(" not in tampil:
-            tampil.add(".matches(")
-            peringatan.append("Pola boros di baris baru .matches( — "
-                              "kompilasi regex tiap panggil; pakai Pattern statis: %s"
-                              % isi.strip()[:70])
+                i = teks.find(pola)
+                peringatan.append("Pola boros di baris baru %s - %s: %s"
+                                  % (pola.strip(), saran,
+                                     teks[max(0, i - 30):i + 40].strip()))
+        if ".matches(" in teks and ".matches(" not in tampil:
+            i = teks.find(".matches(")
+            jendela = teks[max(0, i - 200):i + 200].lower()
+            if "matcher" not in jendela:
+                tampil.add(".matches(")
+                peringatan.append("Pola boros di baris baru .matches( - "
+                                  "kompilasi regex tiap panggil; pakai "
+                                  "Pattern statis: %s"
+                                  % teks[max(0, i - 30):i + 40].strip())
 
 def cek_izin_baru(peringatan, diff):
+    # Audit 2906: atribut android:name bisa jatuh di baris
+    # berikut tag uses-permission - nilai teks tergabung per
+    # berkas manifest, bukan per baris.
+    per_berkas = {}
+    path = ""
     for baris in diff.splitlines():
-        if baris.startswith("+") and "uses-permission" in baris:
-            cocok = re.search(r'android:name="([^"]+)"', baris)
-            if cocok:
-                peringatan.append("Izin baru %s — pastikan perlu di TV/STB + tercatat README"
-                                  % cocok.group(1))
+        if baris.startswith("diff --git "):
+            bagian = baris.split()
+            path = bagian[-1][2:] if len(bagian) >= 4 else ""
+        elif baris.startswith("+") and not baris.startswith("+++") \
+                and path.endswith("AndroidManifest.xml"):
+            per_berkas.setdefault(path, []).append(baris[1:])
+    for path, daftar in per_berkas.items():
+        teks = "\n".join(daftar)
+        for cocok in re.finditer(
+                r"uses-permission[^>]*?android:name=[\"']([^\"']+)[\"']",
+                teks):
+            peringatan.append("Izin baru %s - pastikan perlu di TV/STB "
+                              "+ tercatat README" % cocok.group(1))
 
 def cek_literal_rahasia_utuh(gagal, diff, berubah=()):
     # Audit 1571: literal header kunci UTUH pada baris
@@ -24177,17 +24215,30 @@ def cek_literal_rahasia_utuh(gagal, diff, berubah=()):
             return
 
 def cek_definisi_baru(peringatan, diff):
-    pola = re.compile(r'\+\s*<(style|string|color|dimen|plurals|string-array|integer-array|array)(?=[\s/>])[^>]*?\bname="([^"]+)"')
+    # Audit 2906: atribut name= bisa jatuh di baris berikut
+    # tag-nya - nilai teks tergabung per berkas res.
+    pola = re.compile(r'<(style|string|color|dimen|plurals|string-array|integer-array|array)(?=[\s/>])[^>]*?\bname=["\']([^"\']+)["\']')
     _, acuan = himpun_definisi()
     sudah = set()
+    per_berkas = {}
+    path = ""
     for baris in diff.splitlines():
-        cocok = pola.match(baris)
-        if cocok and (cocok.group(1), cocok.group(2)) not in sudah:
+        if baris.startswith("diff --git "):
+            bagian = baris.split()
+            path = bagian[-1][2:] if len(bagian) >= 4 else ""
+        elif baris.startswith("+") and not baris.startswith("+++") \
+                and "/res/" in path.replace("\\", "/"):
+            per_berkas.setdefault(path, []).append(baris[1:])
+    for path, daftar in per_berkas.items():
+        teks = "\n".join(daftar)
+        for cocok in pola.finditer(teks):
+            if (cocok.group(1), cocok.group(2)) in sudah:
+                continue
             sudah.add((cocok.group(1), cocok.group(2)))
             jenis, nama = cocok.group(1), cocok.group(2)
             kunci = "array" if "array" in jenis else jenis
             if nama not in acuan.get(kunci, set()):
-                peringatan.append("Definisi baru %s/%s tanpa acuan — hapus bila tak jadi dipakai"
+                peringatan.append("Definisi baru %s/%s tanpa acuan - hapus bila tak jadi dipakai"
                                   % (kunci, nama))
 
 def cek_pengingat_changelog(peringatan, berubah):

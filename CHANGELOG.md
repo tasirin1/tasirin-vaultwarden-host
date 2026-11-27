@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Rumpun cek baris-tunggal gerbang kini menilai teks tergabung ternormalkan (Audit 2906)
+
+- `tools/verifikasi-patch.py`: tiga cek yang dulu menilai satu baris diff pada satu waktu kini menilai teks tergabung per berkas. `cek_pola_boros` mengupas komentar/string lalu menormalkan (spasi di sekitar titik dibuang, kualifikasi paket `new java.lang.Thread(` dilucuti): bentuk terkualifikasi penuh, `System . out . println`, pola terbelah dua baris, dan kata "matcher" di komentar sebaris yang dulu menonaktifkan pengecualian `.split(` kini tertangkap/tertangani; pengecualian matcher dinilai dari jendela ±200 aksara di sekitar kemunculan. `cek_izin_baru` dan `cek_definisi_baru` kini menemukan atribut `name=` yang jatuh di baris berikut tag-nya (tag XML terbelah), dan menerima kutip tunggal. Sifat ketiganya tetap PERINGATAN.
+
+
 ## [Belum rilis] — Panggilan metode terhapus lewat refleksi kini tertangkap gerbang (Audit 2905)
 
 - `tools/verifikasi-patch.py` (`cek_panggil_bekas_hapusan`): panggilan langsung dinilai dari teks terkupas, sehingga nama metode terhapus yang disembunyikan di literal string — `getMethod("batalTunda")` dan kawan-kawannya — lolos total (dan lolos kompilasi CI juga, karena refleksi baru gagal di runtime sebagai `NoSuchMethodException`). Baris mentah kini ikut dinilai: nama terhapus dalam kutip yang disertai penanda refleksi (`getMethod`/`getDeclaredMethod`/`forName`/`getField`/`getDeclaredField`) pada baris yang sama atau sambungannya dengan baris sebelumnya = GAGAL, setara panggilan langsung.
