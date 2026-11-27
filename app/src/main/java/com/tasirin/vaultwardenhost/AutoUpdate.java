@@ -330,20 +330,32 @@ public final class AutoUpdate {
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
+                android.net.Network aktif;
                 try {
-                    android.net.Network aktif = cm.getActiveNetwork();
-                    if (aktif == null) {
-                        return false;
-                    }
-                    try {
-                        android.net.NetworkCapabilities cap = cm.getNetworkCapabilities(aktif);
-                        if (cap != null && cap.hasTransport(
-                                android.net.NetworkCapabilities.TRANSPORT_VPN)) {
-                            return false;
-                        }
-                    } catch (Exception ignored) {
-                    }
-                } catch (Exception ignored) {
+                    aktif = cm.getActiveNetwork();
+                } catch (Exception e) {
+                    return false;
+                }
+                if (aktif == null) {
+                    return false;
+                }
+                // Audit 2864: kapabilitas yang tak bisa
+                // dibaca (null/lempar) dulu ditelan dan cek
+                // VPN terlewat diam-diam - kini gagal-
+                // tertutup: tanpa bukti bukan-VPN, unduhan
+                // otomatis tak jalan putaran ini.
+                android.net.NetworkCapabilities cap;
+                try {
+                    cap = cm.getNetworkCapabilities(aktif);
+                } catch (Exception e) {
+                    return false;
+                }
+                if (cap == null) {
+                    return false;
+                }
+                if (cap.hasTransport(
+                        android.net.NetworkCapabilities.TRANSPORT_VPN)) {
+                    return false;
                 }
                 return !cm.isActiveNetworkMetered();
             }

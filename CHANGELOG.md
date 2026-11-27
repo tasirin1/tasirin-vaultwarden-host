@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cek VPN tanpaKuota kini gagal-tertutup bila kapabilitas tak terbaca (Audit 2864)
+
+- `AutoUpdate.tanpaKuota`: pemeriksaan VPN dulu bisa terlewat diam-diam — bila `getNetworkCapabilities` mengembalikan null atau melempar, pengecualian ditelan dan alur jatuh ke pemeriksaan metered saja, sehingga unduhan binary/web-vault puluhan MB bisa berjalan lewat VPN padahal desainnya sengaja menolak VPN. Ketidakmampuan memeriksa kini gagal-tertutup: auto-update dilewati putaran ini dan dicoba lagi pada putaran berikut, bukan diloloskan tanpa bukti.
+
+
 ## [Belum rilis] — Backoff gagal unduh kini berlaku juga tanpa cache (Audit 2863)
 
 - `AutoUpdate.bolehLewatiCobaLagi`: jeda 6 jam sesudah kegagalan unduh dulu hanya berlaku bila sudah ada berkas cache binary ≥1 MB — tepat pada kasus termahal (instalasi pertama, belum ada cache) kegagalan tidak mendapat jeda sama sekali, sehingga tiap membuka aplikasi mengulang unduhan puluhan MB di jaringan yang sedang fluktuatif. Syarat cache dihapus; predikat kini murni soal stempel waktu gagal. Uji pengunci lama diperbarui di commit yang sama.
