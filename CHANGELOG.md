@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Chat ID mirip nomor telepon kini ditolak dengan pesan khusus (Audit 2831)
+
+- Validasi chat ID dulu meloloskan nomor telepon format internasional (`62812…`) sebagai chat ID yang sah — kegagalannya baru ketahuan dari API Telegram ("chat not found") saat bot pertama mengirim. `SettingsActivity.galatChat` kini mengenali pola nomor telepon Indonesia lewat predikat murni baru `Util.miripNomorTelepon` (digit, awalan 62, 11–15 digit, `+` opsional) dan mengembalikan pesan khusus (string baru `chat_mirip_telepon`, EN + ID) yang menjelaskan chat ID yang benar dan cara mendapatkannya. Validasi umum dan tanda tangan lama `galatChat` tidak berubah.
+
+
 ## [Belum rilis] — Folder data tak valid kini benar-benar diganti bawaan di prefs dan field (Audit 2830)
 
 - `SettingsActivity.saveAndStart`: bila folder data pilihan pengguna tidak aman (mis. symlink), aplikasi mencatat "pakai bawaan" tetapi dulu tetap menyimpan jalur symlink itu ke prefs dan field tetap menampilkannya — pengguna yakin vault-nya di folder pilihan padahal server berjalan di folder bawaan (runtime memang menulis balik prefs, tapi field tidak pernah disegarkan). Cabang fallback kini menjadikan folder bawaan sebagai nilai efektif yang disimpan, dan field + baseline-nya diperbarui saat itu juga: yang tampil = yang disimpan = yang dipakai server.

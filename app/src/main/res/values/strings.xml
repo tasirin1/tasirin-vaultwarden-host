@@ -90,6 +90,7 @@
     <string name="bot_token">Bot token</string>
     <string name="bot_token_hint">from @BotFather</string>
     <string name="chat_id">Chat ID</string>
+    <string name="chat_mirip_telepon">That looks like a phone number, not a chat ID. A chat ID is a plain number (groups start with -100); get yours from a bot like @userinfobot.</string>
     <string name="chat_id_hint">destination chat IDs, comma-separated (max 5)</string>
     <string name="backup_pass_label">Encryption password (optional)</string>
     <string name="backup_pass_hint">Enter encryption password</string>

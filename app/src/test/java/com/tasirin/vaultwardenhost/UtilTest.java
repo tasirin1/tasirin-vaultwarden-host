@@ -6,6 +6,17 @@ import java.io.File;
 
 public class UtilTest {
     @Test
+    public void miripNomorTelepon_kenaliFormatIndonesia() {
+        // Audit 2831.
+        org.junit.Assert.assertTrue(Util.miripNomorTelepon("628123456789"));
+        org.junit.Assert.assertTrue(Util.miripNomorTelepon("+6281234567890"));
+        org.junit.Assert.assertFalse(Util.miripNomorTelepon("123456789"));
+        org.junit.Assert.assertFalse(Util.miripNomorTelepon("-1001234567890"));
+        org.junit.Assert.assertFalse(Util.miripNomorTelepon("62812345"));
+        org.junit.Assert.assertFalse(Util.miripNomorTelepon(null));
+    }
+
+    @Test
     public void hex12DuaBelasDigitNolDepan() {
         assertEquals("000000000000", Util.hex12(0L));
         assertEquals("00000000000f", Util.hex12(15L));

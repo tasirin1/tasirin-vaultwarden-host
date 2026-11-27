@@ -4078,7 +4078,7 @@ public class SettingsActivity extends Activity {
                 msgTokenSalah) : null;
         samakanVisibilitas(tokenError, gTok == null ? View.GONE : View.VISIBLE);
         String gChat = tgChatInput != null ? galatChat(tgChatInput.getText().toString(),
-                msgChatSalah) : null;
+                msgChatSalah, getString(R.string.chat_mirip_telepon)) : null;
         samakanVisibilitas(chatError, gChat == null ? View.GONE : View.VISIBLE);
         String gSha = binShaInput != null ? galatBinSha(binShaInput.getText().toString(),
                 msgBinShaSalah) : null;
@@ -4212,7 +4212,7 @@ public class SettingsActivity extends Activity {
         return POLA_TOKEN_BOT.matcher(isi).matches() ? null : msgSalah;
     }
 
-    static String galatChat(String chat, String msgSalah) {
+    static String galatChat(String chat, String msgSalah, String msgTelepon) {
 
         if (chat != null) {
             String rapi = chat.trim();
@@ -4229,6 +4229,11 @@ public class SettingsActivity extends Activity {
                 }
             }
             if (!adaPisah) {
+                // Audit 2831: nomor telepon diberi pesan
+                // khusus, bukan sekadar "salah".
+                if (Util.miripNomorTelepon(rapi)) {
+                    return msgTelepon;
+                }
                 return Util.chatTunggalValid(rapi) ? null : msgSalah;
             }
         }
@@ -4240,11 +4245,18 @@ public class SettingsActivity extends Activity {
             return msgSalah;
         }
         for (int i = 0; i < daftar.size(); i++) {
+            if (Util.miripNomorTelepon(daftar.get(i))) {
+                return msgTelepon;
+            }
             if (!Util.chatTunggalValid(daftar.get(i))) {
                 return msgSalah;
             }
         }
         return null;
+    }
+
+    static String galatChat(String chat, String msgSalah) {
+        return galatChat(chat, msgSalah, msgSalah);
     }
 
     static String buatTokenAcak(java.util.Random rnd) {

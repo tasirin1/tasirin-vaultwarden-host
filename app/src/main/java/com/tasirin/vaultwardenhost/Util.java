@@ -688,6 +688,23 @@ public final class Util {
         return a.length() < b.length() ? -1 : 1;
     }
 
+    // Audit 2831: nomor telepon Indonesia format
+    // internasional (62 + 9..13 digit) lolos sebagai chat
+    // ID padahal pasti "chat not found" di API Telegram.
+    public static boolean miripNomorTelepon(String entri) {
+        if (entri == null) {
+            return false;
+        }
+        String t = entri.trim();
+        if (t.startsWith("+")) {
+            t = t.substring(1);
+        }
+        if (t.length() < 11 || t.length() > 15 || !t.startsWith("62")) {
+            return false;
+        }
+        return semuaDigit(t);
+    }
+
     public static boolean chatTunggalValid(String entri) {
         if (entri == null) {
             return false;
