@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kegagalan start dan restart yang dilewati kini berkabar ke Telegram (Audit 2988)
+
+- `ServerService`: balasan bot "Perintah diterima: server start..." dulu bisa jadi kabar terakhir — kelas kegagalan start folder data, unduh binary, shim, dan exception tak pernah mengirim Telegram sama sekali, dan restart yang dilewati karena persiapan start sedang berjalan hanya tercatat di log. Kini cabang kegagalan start permanen mengirim satu kabar per paling cepat 10 menit ("Start server gagal — mencoba lagi otomatis / server berhenti. Cek /log untuk sebabnya."; kabar penutup gerbang loop dan menyerah 5x yang sudah ada tetap berlaku), dan kedua sebab restart dilewati kini mengirim kabar juga. Antrean start penuh tetap hanya status layar — sifatnya sesaat dan pesannya memang menyuruh mencoba lagi.
+
+
 ## [Belum rilis] — Toast sesudah update manual kini cocok keadaan server (Audit 3009)
 
 - `SettingsActivity`: sesudah update binary manual (Cek Update maupun pasang versi pilihan), toast selalu menyuruh "Tekan Start untuk memakainya" — padahal bila server sedang jalan, Start tidak me-restart dan tidak memuat binary baru, jadi pengguna menekan Start berulang tanpa hasil. Toast kini dibedakan menurut keadaan: server jalan → "Restart server untuk memakainya" (string baru `update_press_restart`, Inggris + Indonesia); server mati → teks lama. Jalur bot sudah lama jujur dengan pola yang sama; ini menyamakan sisi Settings.

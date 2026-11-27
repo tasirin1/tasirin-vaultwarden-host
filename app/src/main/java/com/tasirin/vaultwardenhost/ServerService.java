@@ -532,6 +532,9 @@ public class ServerService extends Service {
 
     private static volatile boolean autoRestart = false;
 
+    // Audit 2988: stempel kabar gagal-start terakhir agar
+    // kontrak balasan bot utuh tanpa membanjiri chat.
+    private static volatile long kabarStartGagalTerakhir;
     private static final java.util.concurrent.atomic.AtomicInteger restartAttempt =
             new java.util.concurrent.atomic.AtomicInteger(0);
 
@@ -1347,8 +1350,14 @@ public class ServerService extends Service {
                         appendLog("[app] Restart dilewati: persiapan start"
                                 + " sedang berjalan; penanda IP dibersihkan"
                                 + " agar pemantau kesehatan meminta lagi.");
+                        // Audit 2988: dulu hanya log - pengirim
+                        // /restart menunggu tanpa kabar.
+                        TgBackup.sendMessage(this, "Restart dilewati: "
+                                + "persiapan start sedang berjalan.");
                     } else {
                         appendLog("[app] Restart dilewati: server tidak berjalan.");
+                        TgBackup.sendMessage(this, "Restart dilewati: "
+                                + "server tidak berjalan.");
                         turunkanForegroundBilaTakDiminta(startId);
                     }
                     return;
@@ -1960,6 +1969,22 @@ public class ServerService extends Service {
                     // dalamnya; scheduleRestart menyerah sendiri
                     // sesudah 5x. autoRestart mati = akhiri
                     // seperti dulu.
+                    // Audit 2988: kelas kegagalan start yang
+                    // lewat sini (folder data, unduh binary,
+                    // shim, exception) dulu tak pernah mengirim
+                    // Telegram - pengguna yang menerima
+                    // "Perintah diterima" menunggu tanpa kabar.
+                    // Satu kabar per <=10 menit; kata penutup
+                    // tetap kabar gerbang loop / menyerah 5x.
+                    long kiniGagal = SystemClock.elapsedRealtime();
+                    if (kiniGagal - kabarStartGagalTerakhir >= 10 * 60_000L) {
+                        kabarStartGagalTerakhir = kiniGagal;
+                        TgBackup.sendMessage(this, autoRestart
+                                ? "Start server gagal - mencoba lagi "
+                                        + "otomatis. Cek /log untuk sebabnya."
+                                : "Start server gagal - server berhenti. "
+                                        + "Cek /log untuk sebabnya.");
+                    }
                     if (autoRestart && !recordRestart("start gagal")) {
                         scheduleRestart();
                     } else if (!autoRestart) {
