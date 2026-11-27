@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pin versi tak lagi hilang permanen bila /update terbaru gagal (Audit 3008)
+
+- `TgBot.unduhBinerDariBot` + `unduhWebVaultDariBot`: menyimpan pin "terbaru" menerjemahkannya menjadi string kosong dan menulisnya ke preferensi sebelum update dicoba, sedangkan rollback di blok catch bersyarat `versi != null` — padahal normalisasi "terbaru" selalu `null`, jadi rollback tak pernah berjalan untuk perintah itu. Akibatnya satu update "terbaru" yang gagal menghapus pin versi pengguna secara permanen dan diam-diam mengubah kebijakan update jangka panjangnya. Rollback kini berjalan untuk semua pin yang sempat ditimpa (nilai lama memang ditangkap sebelum ditimpa); pin hanya berubah bila update berhasil.
+
+
 ## [Belum rilis] — /alive kini jujur soal sumber sehatnya (Audit 2992)
 
 - `TgBot`: jawaban `/alive` dulu dibangun dari boolean sehat yang bisa datang dari `/api/config` 200 saja sementara `/alive` memberi 5xx (pola database rusak) — tapi pesannya selalu mengklaim "Server sehat (HTTPS 200 /alive)". Kedua situs kini memakai `ServerService.pingRinci` dan pembentuk pesan baru: alive 200 disebut sehat penuh; config-saja disebut apa adanya ("/alive memberi 503 — pola database bermasalah, cek /log"); tak sehat membawa rincian kode. `pesanAlive(boolean)` dan pembungkus `pingAlive` yang tak terpakai lagi dihapus dan dicatat di `tools/bekas-hapusan.txt`; uji lama diganti uji tiga keadaan pesan baru.

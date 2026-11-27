@@ -3365,8 +3365,13 @@ public final class TgBot {
                 }
                 balasHasilUnduh(ctx, idRuang, msg, Updater.binaryBerubah(msg), was);
             } catch (Exception e) {
-
-                if (kunci && versi != null) {
+                // Audit 3008: rollback pin untuk SEMUA kunci -
+                // syarat versi != null dulu membuat "terbaru"
+                // (normalisasinya null) tak pernah di-rollback,
+                // jadi pin lama hilang permanen walau update
+                // gagal, padahal pin baru sudah terlanjur
+                // ditulis sebelum update dicoba.
+                if (kunci) {
                     Updater.simpanKuncianBinary(ctx,
                             pinLama == null ? "" : pinLama);
                 }
@@ -3392,7 +3397,8 @@ public final class TgBot {
                 String msg = Updater.updateWebVaultVersi(ctx, versi);
                 balasHasilUnduh(ctx, idRuang, msg, webVaultBerubah(msg), was);
             } catch (Exception e) {
-                if (kunci && versi != null) {
+                // Audit 3008: pola sama seperti unduhBinerDariBot.
+                if (kunci) {
                     Updater.simpanKuncianWebVault(ctx,
                             pinLama == null ? "" : pinLama);
                 }
