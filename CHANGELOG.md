@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — /help tak lagi membocorkan status server/login ke yang belum login (Audit 2809)
+
+- `TgBot.teksMenu` (menu utama): baris "Server: jalan/berhenti" dan "Login: sudah" dulu tampil untuk siapa pun yang mengirim /help di chat terkonfigurasi, termasuk anggota grup — tak konsisten dengan perintah info lain yang ber-PIN. Kini kedua baris hanya tampil bila PIN tidak aktif atau chat sudah login; selain itu menu tampil tanpa status sama sekali (baris "Login: belum" pun disembunyikan karena ikut membenarkan adanya rezim PIN dan keadaan server).
+
+
 ## [Belum rilis] — Kirim pesan Telegram kini mengulang sekali pada galat 5xx (Audit 2808)
 
 - `TgBackup.kirimSatuPesan`: dulu hanya HTTP 429 yang diulang; galat 5xx dari Telegram (mis. 500 tepat saat pengguna mengirim /stop) hanya dicatat di log lalu menyerah, jadi konfirmasi perintah hilang diam-diam padahal perintahnya jalan. Kini 5xx pada percobaan pertama ditunggu 1 detik lalu diulang sekali, mengikuti pola cabang 429 yang sudah ada. Galat 4xx tetap langsung menyerah — mengulang tidak menolong.

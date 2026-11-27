@@ -1034,16 +1034,25 @@ public final class TgBot {
                     + " Cara lama tetap bisa: /stop 123456.\n"
                     + "Pesan berisi PIN dihapus otomatis bila bot punya izin hapus.";
         }
-        String status = (ServerService.running || ServerService.isProcessAlive())
-                ? "jalan" : "berhenti";
+        // Audit 2809: status server + status login hanya
+        // untuk yang berhak tahu - PIN aktif dan chat belum
+        // login berarti /help tak membocorkan apa pun soal
+        // keadaan server (perintah info lain pun ber-PIN).
+        boolean pinAktif = pinPerangkatAktif(ctx);
+        boolean bolehStatus = !pinAktif
+                || (chatId != 0 && sudahLogin(ctx, chatId));
+        String status = "";
+        if (bolehStatus) {
+            status = "Server: " + ((ServerService.running
+                    || ServerService.isProcessAlive())
+                    ? "jalan" : "berhenti") + "\n";
+        }
         String login = "";
-        if (chatId != 0 && pinPerangkatAktif(ctx)) {
-            login = sudahLogin(ctx, chatId)
-                    ? "Login: sudah \u2705\n"
-                    : "Login: belum \u2014 kirim /login <PIN>\n";
+        if (chatId != 0 && pinAktif && bolehStatus) {
+            login = "Login: sudah \u2705\n";
         }
         return "\uD83E\uDD16 Vaultwarden Host\n"
-                + "Server: " + status + "\n"
+                + status
                 + login
                 + "Pilih tombol di bawah. Tombol berlaku 24 jam, kirim /help"
                 + " lagi bila kedaluwarsa. Catatan: pesan /help pertamamu bisa"
