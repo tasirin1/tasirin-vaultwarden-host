@@ -31,9 +31,11 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
 ├── .github/workflows/ (lainnya)        # codeql.yml, gitleaks.yml (pindai), cek-wajib.yml (gerbang untuk semua PR), labeler.yml + label-audit.yml (label), stale.yml (tutup tak aktif), auto-merge.yml (Dependabot non-Gradle)
 ├── .github/actions/resolve-vw/         # action komposit penentu versi Vaultwarden (dipakai kedua build)
 ├── tools/verifikasi-patch.py            # Verifikator patch murni-Python (boleh jalan lokal, tanpa toolchain)
-├── tools/uji-verifikasi.py              # Uji-diri gerbang: skenario cabang langka verifikasi-patch pada salinan buang (langkah tetap CI)
+├── tools/uji-verifikasi.py              # Uji-diri gerbang: definisi skenario verifikasi-patch pada salinan buang (CI menjalankan paruhnya, lihat dua baris berikut)
+├── tools/uji-verifikasi-1.py            # Paruh awal skenario uji-verifikasi.py (titik masuk yang benar-benar dijalankan job verifikasi CI)
+├── tools/uji-verifikasi-2.py            # Paruh akhir skenario uji-verifikasi.py (job CI paralel; definisi skenario tetap di berkas utama)
 ├── tools/uji_bersama.py                 # Helper bersama uji-diri (clone scratch, suntikan, penolong skenario)
-├── tools/uji-cek-cepat.py               # Uji-diri cek-cepat: skenario pola rahasia (termasuk token terbelah) & vektor pada salinan buang (langkah tetap CI)
+├── tools/uji-cek-cepat.py               # Uji-diri cek-cepat: definisi skenario pola rahasia (termasuk token terbelah) & vektor pada salinan buang (CI menjalankan paruhnya -1/-2)
 ├── tools/uji-cek-cepat-1.py             # Paruh awal skenario uji-cek-cepat.py (Audit 2559: titik masuk yang benar-benar dijalankan job verifikasi-cek)
 ├── tools/uji-cek-cepat-2.py             # Paruh akhir skenario uji-cek-cepat.py (Audit 2557: job CI paralel; definisi skenario tetap di berkas utama)
 ├── tools/bekas-hapusan.txt              # Daftar nama metode yang dihapus (jangan dipakai lagi, lihat aturan #15)
@@ -283,10 +285,14 @@ sebelum PR bisa digabungkan (termasuk auto-merge Dependabot). Isinya:
    (murni-Python: acuan yatim, XML, aturan repo, hapusan salah, paritas
    resource, locale tanpa Locale, cakupan uji, acuan metode di `AGENTS.md`).
 2. `bash scripts/cek-cepat.sh` (vektor `0.x`, README, pola rahasia — cek layout/ID kini milik verifikasi-patch, Audit 831).
-3. `python3 tools/uji-verifikasi.py` (uji-diri gerbang pada salinan buang:
+3. `python3 tools/uji-verifikasi-1.py` + `python3 tools/uji-verifikasi-2.py`
+   (uji-diri gerbang pada salinan buang:
    fail-keras tanpa PyYAML, sumber lokal daftar hapus pada mode lokal dan
    `--semua <jalur>`, kedua `strings.xml` kosong — hanya di `cek-wajib.yml`
-   dan job verifikasi `build-apk.yml`, bukan di `build-binary.yml`).
+   dan job verifikasi `build-apk.yml`, bukan di `build-binary.yml`;
+   berkas utama `uji-verifikasi.py` sendiri tak lagi dijalankan CI —
+   ia hanya memuat definisi skenario bersama, sama seperti
+   `uji-cek-cepat.py` di bawah).
    `python3 tools/uji-cek-cepat-1.py` berjalan di tempat yang sama
    (paruh awal skenario `tools/uji-cek-cepat.py`), disusul
    `python3 tools/uji-cek-cepat-2.py` (paruh akhirnya, Audit 2557/2559);
