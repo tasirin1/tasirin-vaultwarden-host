@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Paruh suite cek-cepat kini tahan mati di tengah — ringkasan selalu tercetak (Audit 2944)
+
+- Sama seperti suite verifikasi: kegagalan infrastruktur di tengah satu paruh suite cek-cepat kini dicatat sebagai skenario gagal bernama, paruh lain tetap berjalan, dan laporan ringkasan selalu tercetak.
+
+
 ## [Belum rilis] — Paruh suite verifikasi kini tahan mati di tengah — ringkasan selalu tercetak (Audit 2910)
 
 - Kegagalan infrastruktur di tengah satu paruh suite verifikasi (git gagal, berkas hilang) kini dicatat sebagai skenario gagal bernama dan tidak lagi membunuh paruh lainnya; laporan ringkasan suite selalu tercetak, bukan hanya traceback.

@@ -28,7 +28,7 @@ _SPES.loader.exec_module(_U)
 
 def main():
     with tempfile.TemporaryDirectory(prefix="uji-cek-cepat-1-") as tmp:
-        _U._bagian_awal(tmp)
+        _U.uji_bersama.paruh_aman(_U._bagian_awal, tmp)
     return _U.lapor()
 
 

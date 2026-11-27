@@ -1362,8 +1362,8 @@ def lapor():
 
 def main():
     with tempfile.TemporaryDirectory(prefix="uji-cek-cepat-") as tmp:
-        _bagian_awal(tmp)
-        _bagian_akhir(tmp)
+        uji_bersama.paruh_aman(_bagian_awal, tmp)
+        uji_bersama.paruh_aman(_bagian_akhir, tmp)
     return lapor()
 
 
