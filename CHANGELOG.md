@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Teks menu Status & diagnostik tak lagi salah menggambarkan /log dan /crashlog (Audit 3003)
+
+- `TgBot`: teks panel menu Status & diagnostik dulu mengklaim /status, /log, dan /crashlog semuanya memuat folder data, port, dan URL LAN — padahal hanya /status yang memuatnya; /log hanya menampilkan baris log terakhir dan /crashlog catatan crash terakhir. Pengguna yang mencari port lewat /log tidak menemukannya. Teks menu kini menjelaskan isi tiap perintah dengan benar.
+
+
 ## [Belum rilis] — Kegagalan handshake TLS loopback tak lagi dibuang semua (Audit 3000)
 
 - `ServerService`: penyaring derau keluaran server dulu membuang setiap baris kegagalan handshake TLS loopback — padahal bentuk baris itu sama persis untuk derau pemeriksaan kesehatan sendiri dan untuk kegagalan klien lokal sungguhan (aplikasi lain di STB dengan CA salah), sehingga yang kedua hilang tanpa jejak dan tak bisa didiagnosis. Dua pola TLS itu kini ditahan berjenjang: baris pertama masuk log, sisanya diringkas berkala dengan hitungan yang disembunyikan. Tiga pola banner murni tetap dibuang seperti dulu.

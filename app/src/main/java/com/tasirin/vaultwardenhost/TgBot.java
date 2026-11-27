@@ -1008,8 +1008,9 @@ public final class TgBot {
         String p = panelMenuValid(panel) ? panel.trim() : MENU_UTAMA;
         if (MENU_STATUS.equals(p)) {
             return "\uD83D\uDCCB Status & diagnostik\n"
-                    + "/status, /log, dan /crashlog memuat folder data, port,"
-                    + " dan URL LAN \u2014 butuh login bila PIN aktif.";
+                    + "/status memuat folder data, port, dan URL LAN;"
+                    + " /log menampilkan baris log terakhir; /crashlog"
+                    + " catatan crash terakhir \u2014 butuh login bila PIN aktif.";
         }
         if (MENU_KONTROL.equals(p)) {
             return "\uD83C\uDF9B Kontrol server\n"
