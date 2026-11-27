@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Intent tunda tanpa rahasia tak lagi menyetel flag backup tertunda (Audit 2949)
+
+- `AlarmReceiver`: cabang rahasia-tak-cocok untuk alarm tunda boot dulu menyetel flag backup-tertunda persisten — karena receiver ini exported dan string aksinya publik, aplikasi mana pun bisa menyetel state itu tanpa tahu rahasia dan memicu satu backup susulan plus pesan Telegram di luar jadwal. Semua pengirim sah kini membawa rahasia alarm, jadi cabang itu disamakan dengan cabang harian di atasnya: cukup catat log dan jadwal ulang rantai harian, tanpa menyetel flag dari intent yang tak terotentikasi.
+
+
 ## [Belum rilis] — Suite cek-cepat kini mengunci cabang cadangan grep dan vektor terabaikan (Audit 2947)
 
 - `tools/uji-cek-cepat.py`: dua skenario baru. (1) Cabang cadangan `grep -E` pada pemeriksaan vektor (hanya terjangkau bila `rg` dan `grep -P` sama-sama tidak ada) dulu tidak pernah dijalankan suite, sehingga regresi di cabang itu — seperti Audit 2932 — tak tertangkap; skenario baru men-stub `rg` dan `grep -P` lalu membuktikan vektor `.9` tetap tertangkap. (2) Vektor `.9` di berkas yang ter-`.gitignore` kini dikunci skenario, bukan hanya perilaku kebetulan.

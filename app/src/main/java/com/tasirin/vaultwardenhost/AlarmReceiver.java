@@ -190,9 +190,15 @@ public class AlarmReceiver extends BroadcastReceiver {
             if (ACTION_HARIAN.equals(action)) {
                 jadwalUlangBilaOtomatis(context);
             } else if (ACTION_TUNDA.equals(action)) {
-                TgBackup.tandaiBackupTertunda(context);
+                // Audit 2949: dulu menyetel flag backup tertunda -
+                // intent tak terotentikasi (receiver exported)
+                // bisa menyetel state persisten itu. Semua
+                // pengirim sah membawa rahasia; sikapnya kini
+                // sama seperti cabang HARIAN: jadwal ulang
+                // rantai harian, tanpa flag.
+                jadwalUlangBilaOtomatis(context);
                 ServerService.catatLog("[tg] Alarm tunda boot gugur: rahasia alarm"
-                        + " tak cocok - backup ditandai tertunda.");
+                        + " tak cocok - rantai harian dijadwal ulang.");
             }
             return;
         }
