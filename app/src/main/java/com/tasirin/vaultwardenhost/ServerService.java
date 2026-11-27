@@ -1978,6 +1978,15 @@ public class ServerService extends Service {
                         setStatus("Jam STB belum benar - Start dicoba lagi otomatis.");
                     } else {
                         startTertundaJam.set(0);
+                        // Audit 2972: kehabisan jatah dulu
+                        // sunyi total - kini berjejak seperti
+                        // cabang data di atasnya.
+                        appendLog("[app] Start menyerah menunggu jam STB"
+                                + " sesudah " + BATAS_START_TERTUNDA_JAM
+                                + " percobaan - perbaiki jam STB lalu"
+                                + " tekan Start.");
+                        setStatus("Jam STB masih salah - Start berhenti"
+                                + " mencoba. Perbaiki jam STB, lalu tekan Start.");
                     }
                 }
             } finally {

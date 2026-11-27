@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Start yang menyerah menunggu jam STB kini meninggalkan jejak (Audit 2972)
+
+- `ServerService`: jatah coba-ulang Start karena jam STB salah (30 kali, semenit sekali) dulu habis tanpa jejak — cabang kehabisannya hanya mengosongkan penghitung, tanpa log, status, atau pesan, lalu episode ditutup sebagai gagal permanen. Pengguna hanya melihat server berhenti mencoba. Cabang itu kini mencatat log dan status yang menyuruh memperbaiki jam lalu menekan Start, sama seperti cabang kehabisan jatah data.
+
+
 ## [Belum rilis] — Penanda jam tertinggi bot tak lagi dihapus saat boot tertinggal (Audit 2970)
 
 - `TgBot`: penanda waktu tertinggi tersimpan dulu dihapus bila terlihat lebih dari 30 hari di depan jam sekarang — padahal pada STB yang boot dengan jam tertinggal, penanda itulah yang benar; sesudah terhapus dan tertambat ulang ke jam boot, lompatan kembali sesudah sinkronisasi ditolak batas lompatan dan deteksi jam mundur mati permanen. Penanda kini dipertahankan: tidak ditanamkan ke jangkar ingatan bila jauh di masa depan, tetapi pencatatan waktu boleh menaiki kembali sampai setingginya karena waktu itu sungguh pernah dicapai perangkat. Keputusan pencatatannya fungsi murni yang diuji JVM.
