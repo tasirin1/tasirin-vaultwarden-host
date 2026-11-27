@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Jeda retry_after Telegram kini dihormati sampai 60 detik (Audit 2876)
+
+- `TgBackup.jedaRetryAfterMs`: jeda yang diminta Telegram lewat `retry_after` dulu dipangkas menjadi maksimal 5 detik — bila Telegram meminta lebih lama (umum saat flood), percobaan kedua hampir pasti ditolak 429 lagi dan pesan menyerah. Batas atas kini 60 detik; tidur terjadi di thread latar sehingga tidak mengganggu tampilan. Uji JVM penguncinya diperbarui di commit yang sama.
+
+
 ## [Belum rilis] — Start saat antrean penuh kini mencoba lagi otomatis, bukan menyerah diam (Audit 2874)
 
 - `ServerService.startServerAsync`: bila antrean tugas latar penuh, start dulu hanya mencatat log dan status lalu berhenti — perintah `/start` dari bot mati dalam diam sesudah balasan "Perintah diterima", padahal jalur penundaan lain (kunci data, jam TLS) mencoba lagi otomatis. Kini antrean-penuh menjadwalkan coba-lagi lewat mekanisme tunda yang sama (maksimal 12 kali jeda 5 detik), penghitungnya ter-reset saat start berhasil masuk antrean atau ada Start manual baru, dan kehabisan percobaan mengirim kabar Telegram beserta status yang jelas.

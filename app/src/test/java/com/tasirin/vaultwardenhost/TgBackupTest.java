@@ -1755,13 +1755,15 @@ public class TgBackupTest {
     }
 
     @Test
-    public void jedaRetryAfterMsDibatasiSatuSampaiLimaDetik() {
+    public void jedaRetryAfterMsDibatasiSatuSampaiEnamPuluhDetik() {
 
         assertEquals(3000L, TgBackup.jedaRetryAfterMs(
                 "{\"ok\":false,\"error_code\":429,\"parameters\":{\"retry_after\":3}}"));
         assertEquals(1000L, TgBackup.jedaRetryAfterMs(
                 "{\"ok\":false,\"error_code\":429,\"parameters\":{\"retry_after\":0}}"));
-        assertEquals(5000L, TgBackup.jedaRetryAfterMs(
+        assertEquals(30000L, TgBackup.jedaRetryAfterMs(
+                "{\"ok\":false,\"parameters\":{\"retry_after\":30}}"));
+        assertEquals(60000L, TgBackup.jedaRetryAfterMs(
                 "{\"ok\":false,\"parameters\":{\"retry_after\":120}}"));
 
         assertEquals(1000L, TgBackup.jedaRetryAfterMs("{\"ok\":false}"));

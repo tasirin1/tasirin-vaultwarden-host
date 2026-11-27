@@ -143,3 +143,4 @@ gantiPinButuhKonfirmasiHanyaSaatPinAktifDanHashAda
 pesanAlive
 pingAlive
 pesanAliveMembedakanSehatDanTidak
+jedaRetryAfterMsDibatasiSatuSampaiLimaDetik

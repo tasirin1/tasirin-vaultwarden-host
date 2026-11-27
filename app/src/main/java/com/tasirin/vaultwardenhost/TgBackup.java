@@ -1431,7 +1431,11 @@ public final class TgBackup {
         if (ms < 1000L) {
             return 1000L;
         }
-        return Math.min(ms, 5000L);
+        // Audit 2876: batas atas 5 detik membuat
+        // percobaan kedua hampir pasti kena 429 lagi
+        // bila Telegram meminta jeda lebih lama - kini
+        // 60 detik (tidur di thread latar, bukan UI).
+        return Math.min(ms, 60_000L);
     }
 
     private static int ubahSinkron(Context app, long chatId, int messageId,
