@@ -42,7 +42,6 @@ public class TgBackupTest {
     }
 
     @Test
-    @Test
     public void cleanupBackupBaruBercapMundurTetapDipertahankan() throws Exception {
         // Audit 2820: backup bernama paling baru tapi
         // lastModified-nya paling lama (jam STB mundur) tidak

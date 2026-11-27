@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan build: anotasi @Test ganda di TgBackupTest (dari Audit 2820)
+
+- `TgBackupTest`: penyisipan uji pada Audit 2820 meninggalkan dua anotasi `@Test` bertumpuk pada satu metode — kompilasi uji CI gagal ("Test is not a repeatable annotation type", run Build APK untuk `d194dfeb`). Satu anotasi duplikat dihapus; seluruh berkas uji lain sudah dipindai dan bersih dari pola yang sama.
+
+
 ## [Belum rilis] — Cek ruang yang tak bisa dilakukan kini tercatat, bukan dilewati diam-diam (Audit 2881)
 
 - `TgBackup`: tiga cek ruang (backup, unduhan ke cache, restore) dulu dilewati tanpa jejak bila pembacaan ruang bebas gagal (-1) — kegagalan baca yang menetap membuat semua cek mati dalam diam. Kini tiap situs mencatat peringatan ke log aplikasi bahwa cek tak bisa dilakukan dan dilewati; perilaku keputusannya tidak berubah (cek yang tak terukur tidak boleh memblokir operasi yang mungkin muat), sejalan dengan perlakuan yang sama di unduh binary (Audit 2855).
