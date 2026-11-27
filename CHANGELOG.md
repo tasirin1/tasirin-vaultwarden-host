@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penanda backup tertunda tak lagi dihapus sebelum susulan jalan (Audit 2975)
+
+- `MainActivity`: penanda backup tertunda dulu dihapus di awal, sebelum backup susulan dijalankan — setiap kegagalan sesudahnya (jaringan mati, sandi belum diisi, penundaan boot) membuang satu-satunya kesempatan kejar dan membuka aplikasi lagi tidak mengulanginya. Penanda kini hanya dihapus bila auto-backup dimatikan (susulan memang tidak berlaku) atau sesudah susulan berhasil, sejalan dengan filosofi hapus-hanya-bila-sukses di jalur backup lain.
+
+
 ## [Belum rilis] — Backup terjadwal yang gagal di dalam service kini menandai tertunda (Audit 2974)
 
 - `ServerService`: penanda backup tertunda dulu hanya disetel bila memulai service-nya gagal; kegagalan sesudah service jalan — antrean tugas penuh atau backup melempar di tengah — hanya berakhir di log dan pesan gagal, sehingga backup susulan saat aplikasi dibuka (satu-satunya konsumen penanda itu) tidak pernah terpicu oleh kegagalan tengah malam. Kedua jalur gagal di dalam service kini ikut menandai tertunda.

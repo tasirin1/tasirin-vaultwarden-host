@@ -225,12 +225,14 @@ public class MainActivity extends Activity {
 
         if (TgBackup.amanBoolean(sp, TgBackup.KEY_BACKUP_TERTUNDA, false)) {
 
-            try {
-                sp.edit().remove(TgBackup.KEY_BACKUP_TERTUNDA).commit();
-            } catch (Exception ignored) {
-            }
-
             if (!TgBackup.amanBoolean(sp, TgBackup.KEY_TG_AUTO, false)) {
+                // Audit 2975: hanya cabang ini yang boleh
+                // menghapus penanda lebih dulu - auto-backup
+                // mati berarti susulan memang tak berlaku.
+                try {
+                    sp.edit().remove(TgBackup.KEY_BACKUP_TERTUNDA).commit();
+                } catch (Exception ignored) {
+                }
                 ServerService.catatLog("[tg] Backup susulan boot dilewati:"
                         + " auto-backup sudah dimatikan.");
             } else {
@@ -250,6 +252,14 @@ public class MainActivity extends Activity {
                     }
 
                     String msg = TgBackup.backupOtomatis(app);
+                    // Audit 2975: penanda dihapus HANYA
+                    // sesudah susulan berhasil - kegagalan
+                    // membiarkannya agar buka berikutnya
+                    // mengulangi susulan.
+                    try {
+                        sp.edit().remove(TgBackup.KEY_BACKUP_TERTUNDA).commit();
+                    } catch (Exception ignored) {
+                    }
                     ServerService.catatLog("[tg] " + msg + " (susulan boot).");
                 } catch (InterruptedException ignored) {
                     Thread.currentThread().interrupt();
