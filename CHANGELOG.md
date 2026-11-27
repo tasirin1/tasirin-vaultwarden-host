@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penyamaran log kini juga menangkap rahasia yang muncul telanjang (Audit 2783)
+
+- `LogActivity`: ditambah jalur penyamaran berbasis nilai — nilai rahasia yang tersimpan (token admin, token bot, sandi backup, hash PIN) didaftarkan dari prefs oleh `ServerService` dan `LogActivity`, lalu kemunculan persisnya di teks log disamarkan oleh `samarkanLog` dan memicu `butuhSamaran`. Sebelumnya token admin bawaan (24 aksara alfanumerik) yang tercetak sendirian tanpa kata kunci di sekitarnya lolos mentah ke layar/ekspor log. Ada uji JVM untuk helper nilainya.
+
+
 ## [Belum rilis] — Keluaran proses Vaultwarden disamarkan sebelum masuk log (Audit 2780)
 
 - `ServerService.pumpOutput`: baris keluaran proses kini melewati gerbang `LogActivity.butuhSamaran`/`samarkanLog` yang sama seperti crash-log dan ekor log Telegram, sebelum ditulis ke buffer log dan `vaultwarden.log`. Sebelumnya keluaran mentah tersimpan apa adanya — bila binary suatu saat mencetak kredensial (panic/dump konfigurasi), rahasia itu akan ikut tersimpan dan terekspor. Klasifikasi noise dan petunjuk login tetap membaca baris asli; yang disimpan selalu versi tersamar.

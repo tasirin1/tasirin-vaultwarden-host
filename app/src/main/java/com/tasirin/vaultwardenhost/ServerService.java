@@ -1213,6 +1213,10 @@ public class ServerService extends Service {
         try {
             TgBackup.healkanStringPrefs(this);
             migrasiPortSekali(getSharedPreferences(PREFS, MODE_PRIVATE));
+            // Audit 2783: daftarkan nilai rahasia tersimpan agar
+            // penyamaran log berbasis nilai aktif di proses ini.
+            LogActivity.catatNilaiRahasiaDariPrefs(
+                    getSharedPreferences(PREFS, MODE_PRIVATE));
         } catch (Exception ignored) {
         }
         createChannel();

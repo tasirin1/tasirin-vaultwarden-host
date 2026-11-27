@@ -103,6 +103,10 @@ public class LogActivity extends Activity {
         }
 
         bersihkanClipBasiJikaAda();
+        // Audit 2783: daftarkan nilai rahasia tersimpan agar
+        // penyamaran berbasis nilai aktif di layar log ini.
+        catatNilaiRahasiaDariPrefs(
+                getSharedPreferences(ServerService.PREFS, MODE_PRIVATE));
         setContentView(R.layout.activity_log);
 
         logView = findViewById(R.id.log);
@@ -651,6 +655,9 @@ public class LogActivity extends Activity {
             return false;
         }
 
+        if (mengandungNilaiTersimpan(t, nilaiRahasiaAktif)) {
+            return true;
+        }
         if (pindaiKunciRahasia(t)) {
             return true;
         }
@@ -799,6 +806,62 @@ public class LogActivity extends Activity {
         return Util.cocokAsciiPada(t, pos, kunci);
     }
 
+    // Audit 2783: penyamaran berbasis pola tak bisa menangkap
+    // rahasia yang muncul telanjang tanpa kata kunci (token admin
+    // bawaan 24 aksara alfanumerik). Jalur berbasis nilai: daftar
+    // nilai rahasia tersimpan diisi dari prefs oleh pemilik proses
+    // (ServerService/LogActivity); kemunculan persisnya disamarkan
+    // di semua jalur samarkanLog/butuhSamaran yang sudah ada.
+    private static volatile String[] nilaiRahasiaAktif = new String[0];
+
+    static void catatNilaiRahasia(String... nilai) {
+        java.util.ArrayList<String> bersih = new java.util.ArrayList<>();
+        if (nilai != null) {
+            for (String v : nilai) {
+                if (v != null && v.length() >= 8) {
+                    bersih.add(v);
+                }
+            }
+        }
+        nilaiRahasiaAktif = bersih.toArray(new String[0]);
+    }
+
+    static void catatNilaiRahasiaDariPrefs(android.content.SharedPreferences sp) {
+        if (sp == null) {
+            return;
+        }
+        catatNilaiRahasia(
+                TgBackup.amanString(sp, ServerService.KEY_ADMIN_TOKEN, ""),
+                TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""),
+                TgBackup.amanString(sp, TgBackup.KEY_TG_PASS, ""),
+                TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, ""));
+    }
+
+    static boolean mengandungNilaiTersimpan(String teks, String[] nilai) {
+        if (teks == null || nilai == null) {
+            return false;
+        }
+        for (String v : nilai) {
+            if (v != null && v.length() >= 8 && teks.contains(v)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static String samarkanNilaiTersimpan(String teks, String[] nilai) {
+        if (teks == null || nilai == null) {
+            return teks;
+        }
+        String hasil = teks;
+        for (String v : nilai) {
+            if (v != null && v.length() >= 8) {
+                hasil = hasil.replace(v, "***");
+            }
+        }
+        return hasil;
+    }
+
     static String samarkanLog(String log) {
         if (log == null) {
             return "";
@@ -877,6 +940,9 @@ public class LogActivity extends Activity {
         if (adaPathAbsolut(r)) {
             r = POLA_PATH_ABSOLUT.matcher(r).replaceAll("[path]");
         }
+        // Audit 2783: samarkan juga kemunculan telanjang nilai
+        // rahasia yang tersimpan (tanpa kata kunci di sekitar).
+        r = samarkanNilaiTersimpan(r, nilaiRahasiaAktif);
         return r;
     }
 

@@ -17,6 +17,20 @@ public class LogActivityTest {
     }
 
     @Test
+    public void samarkanNilaiTersimpan_tokenTelanjangTersamar() {
+        // Audit 2783: token 24 aksara tanpa kata kunci di sekitar
+        // tetap tersamar lewat jalur nilai; nilai pendek diabaikan.
+        String[] nilai = new String[]{"Ab3dEf5hIjKlMnOpQrStUvWx", "pendek"};
+        assertEquals("mulai *** selesai",
+                LogActivity.samarkanNilaiTersimpan(
+                        "mulai Ab3dEf5hIjKlMnOpQrStUvWx selesai", nilai));
+        assertEquals("pendek tetap tampil",
+                LogActivity.samarkanNilaiTersimpan("pendek tetap tampil", nilai));
+        assertTrue(LogActivity.mengandungNilaiTersimpan(
+                "x Ab3dEf5hIjKlMnOpQrStUvWx y", nilai));
+        assertFalse(LogActivity.mengandungNilaiTersimpan("bersih", nilai));
+    }
+
     public void samarkanLog_ipv6Tersamar() {
         String r = LogActivity.samarkanLog(
                 "koneksi dari 2401:1700:1a2b:3c4d:5e6f:7a8b:9c0d:1e2f gagal");
