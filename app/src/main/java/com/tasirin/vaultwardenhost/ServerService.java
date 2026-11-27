@@ -2733,7 +2733,19 @@ public class ServerService extends Service {
             setStatus("Running (PID " + getPid(lahir) + ")\nData: " + sesi.dataDir
                     + "\nURL lokal (di HP): https://127.0.0.1:" + sesi.port
                     + barisUrlJaringan(sesi.hostSegar, sesi.domain));
-            TgBackup.sendMessage(this, "Server jalan:\n" + statusLine);
+            String kabarJalan = "Server jalan:\n" + statusLine;
+            // Audit 3021: Start lewat bot dulu diam saja
+            // bila web vault belum terpasang - server
+            // jalan tetapi halaman web tak bisa dibuka
+            // dan pemilik tak tahu sebabnya. Kini
+            // pengumumannya menyebut itu terus terang,
+            // seperti dialog peringatan di jalur UI.
+            if (!Updater.webVaultReady(this, sesi.dataDir)) {
+                kabarJalan += "\nWeb vault belum terpasang - halaman"
+                        + " web belum bisa dibuka. Pasang lewat"
+                        + " aplikasi agar web bisa diakses.";
+            }
+            TgBackup.sendMessage(this, kabarJalan);
         } else {
             appendLog("[app] Stop sudah diminta - status dan pesan"
                     + " \"Server jalan\" dilewati.");

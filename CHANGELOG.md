@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pengumuman server jalan kini menyebut bila web vault belum terpasang (Audit 3021)
+
+- Pesan "Server jalan" ke Telegram kini menambahkan satu baris bila web vault belum terpasang: halaman web belum bisa dibuka dan cara memasangnya. Sebelumnya Start lewat bot diam saja soal itu sehingga server terasa jalan normal padahal web tak bisa diakses.
+
+
 ## [Belum rilis] — Settings kini membagikan CA dari folder TLS yang benar-benar aktif (Audit 3020)
 
 - Tombol pasang/bagikan CA di Settings kini memilih berkas CA lewat penentu yang sama dengan bot: folder TLS aktif yang tercatat didahulukan, baru internal, baru folder data. Sebelumnya Settings hanya menebak dua tempat terakhir, sehingga dalam keadaan fallback TLS pengguna bisa memasang CA lama yang sudah tidak menandatangani sertifikat server — HTTPS di perangkat lain pun gagal tanpa penjelasan.
