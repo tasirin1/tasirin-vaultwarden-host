@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Peringatan gerbang kini diasersikan suite (Audit 2895)
+
+- Enam skenario baru membuktikan cek peringatan benar-benar terbit tulisannya sambil gerbang tetap lolos: pola berisiko, metode baru/diubah tanpa uji, definisi tanpa acuan, pola boros, dan izin baru. Sebelumnya tak satu pun skenario memeriksa keluaran peringatan.
+
+
 ## [Belum rilis] — Cek diff yang menggagalkan kini punya skenario racun (Audit 2897)
 
 - Suite verifikasi kini menguji ujung-ke-ujung cek locale tanpa Locale, pemanggilan metode yang sudah dihapus, dan izin berbahaya baru — ketiganya dulu tanpa skenario nyata walau menggagalkan push.

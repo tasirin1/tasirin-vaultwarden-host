@@ -15646,6 +15646,107 @@ def _bagian_awal(tmp):
                "izin berbahaya baru di diff: gerbang "
                "gagal (Audit 2897)", "Izin berbahaya baru")
 
+    def _diff2895_print(klon_d):
+        p = _jalur_util(klon_d)
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "public final class Util {",
+                "public final class Util {\n"
+                "    static void ujiPrint2895() "
+                "{ System.out.println(\"x\"); }", 1))
+        _sentuh_changelog(klon_d)
+    racun_diff("diff2895print", _diff2895_print,
+               "System.out.println di diff: PERINGATAN "
+               "terbit, gerbang lolos (Audit 2895)",
+               "System.out.println di diff", harus_rc=0)
+
+    def _diff2895_ujibaru(klon_d):
+        p = _jalur_util(klon_d)
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "public final class Util {",
+                "public final class Util {\n"
+                "    static int ujiBaru2895(int x) "
+                "{ return x + 1; }", 1))
+        _sentuh_changelog(klon_d)
+    racun_diff("diff2895ujibaru", _diff2895_ujibaru,
+               "metode baru tanpa uji: PERINGATAN terbit, "
+               "gerbang lolos (Audit 2895)",
+               "tanpa jejak di app/src/test", harus_rc=0)
+
+    def _diff2895_ujiubah(klon_d):
+        p = _jalur_util(klon_d)
+        with open(p, encoding="utf-8") as f:
+            baris_u = f.read().splitlines(keepends=True)
+        awal_u = next(i for i, l in enumerate(baris_u)
+                      if "samaHurufAscii(char" in l)
+        for i in range(awal_u, len(baris_u)):
+            if "a + 32" in baris_u[i]:
+                baris_u[i] = baris_u[i].replace(
+                    "a + 32", "a + 33", 1)
+                break
+        with open(p, "w", encoding="utf-8") as f:
+            f.write("".join(baris_u))
+        _sentuh_changelog(klon_d)
+    racun_diff("diff2895ujiubah", _diff2895_ujiubah,
+               "metode diubah tanpa uji: PERINGATAN "
+               "terbit, gerbang lolos (Audit 2895)",
+               "diubah tapi tanpa jejak", harus_rc=0)
+
+    def _diff2895_definisi(klon_d):
+        for folder in ("values", "values-in"):
+            p = os.path.join(klon_d, "app", "src", "main",
+                             "res", folder, "strings.xml")
+            with open(p, encoding="utf-8") as f:
+                isi = f.read()
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(isi.replace(
+                    "</resources>",
+                    "    <string name=\"yatim_2895\">"
+                    "x</string>\n</resources>", 1))
+        _sentuh_changelog(klon_d)
+    racun_diff("diff2895definisi", _diff2895_definisi,
+               "definisi string baru tanpa acuan: "
+               "PERINGATAN terbit, gerbang lolos "
+               "(Audit 2895)", "tanpa acuan", harus_rc=0)
+
+    def _diff2895_boros(klon_d):
+        p = _jalur_util(klon_d)
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "public final class Util {",
+                "public final class Util {\n"
+                "    static boolean ujiBoros2895(String s) "
+                "{ return s.matches(\"[0-9]+\"); }", 1))
+        _sentuh_changelog(klon_d)
+    racun_diff("diff2895boros", _diff2895_boros,
+               ".matches( di diff: PERINGATAN pola boros "
+               "terbit, gerbang lolos (Audit 2895)",
+               "Pola boros di baris baru", harus_rc=0)
+
+    def _diff2895_izin(klon_d):
+        p = os.path.join(klon_d, "app", "src", "main",
+                         "AndroidManifest.xml")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "</manifest>",
+                "    <uses-permission android:name="
+                "\"android.permission.VIBRATE\" />\n"
+                "</manifest>", 1))
+        _sentuh_changelog(klon_d)
+    racun_diff("diff2895izin", _diff2895_izin,
+               "izin baru tak berbahaya di diff: "
+               "PERINGATAN terbit, gerbang lolos "
+               "(Audit 2895)", "Izin baru", harus_rc=0)
+
     def racun_pohon(nama, ubah, label, frag):
         klon_p = klon(tmp, nama)
         ubah(klon_p)
