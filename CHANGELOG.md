@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pembukaan backup format lama kini tercatat di log (Audit 2791)
+
+Backup paling lama (format pertama) masih bisa dibuka dengan cara penurunan kunci lama yang lebih lemah, khusus untuk format itu saja. Pembukaan lewat jalur lama ini sekarang dicatat di log aplikasi supaya terlihat, dengan anjuran membuat backup baru yang memakai cara penurunan kunci kuat saat ini.
+
+
 ## [Belum rilis] — Koneksi keluar kini batal bila trust tambahan gagal dibangun (Audit 2848)
 
 Aplikasi memasang pengaman tambahan pada koneksi ke GitHub dan Telegram (daftar CA yang diperketat dan pin sertifikat). Bila pengaman itu gagal dibangun, koneksi dulu tetap jalan dengan pengaman bawaan Android yang lebih longgar, hanya dicatat di log. Sekarang koneksi dibatalkan dengan pesan galat yang jelas - pengaman yang gagal tidak lagi dilewati diam-diam.

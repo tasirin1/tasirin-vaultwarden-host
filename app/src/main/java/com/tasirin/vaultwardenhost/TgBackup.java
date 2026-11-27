@@ -4186,6 +4186,16 @@ public final class TgBackup {
                     tmp.delete();
                 } catch (Exception ignored) {
                 }
+                // Audit 2791: jalur legasi ini hanya terjangkau
+                // untuk format VWB1 (gerbang 'baru' di atas) -
+                // dan kini TERCATAT, tak diam: KDF SHA1 100rb
+                // iterasi jauh lebih lemah daripada standar
+                // kini (SHA-256 600rb), pemilik layak tahu
+                // backup lamanya yang sedang dibuka.
+                ServerService.catatLog("[restore] Backup format lama"
+                        + " (VWB1) dibuka dengan KDF legasi PBKDF2-SHA1"
+                        + " - buat backup baru agar berpindah ke"
+                        + " PBKDF2-SHA256 600rb iterasi.");
                 decryptWithKdf(in, tmp, pass, false);
             }
             fsyncFile(tmp);
