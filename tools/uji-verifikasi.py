@@ -15574,6 +15574,78 @@ def _bagian_awal(tmp):
             rc == 0, "" if rc == 0 else out[-400:])
     shutil.rmtree(selaras0, ignore_errors=True)
 
+    def racun_diff(nama, ubah, label, frag, harus_rc=1):
+        klon_d = klon(tmp, nama)
+        ubah(klon_d)
+        git(klon_d, "add", "-A")
+        git(klon_d, "commit", "-qm", "racun diff uji")
+        rc, out = jalan(klon_d,
+                        [sys.executable, GERBANG,
+                         "--rentang", "HEAD~1..HEAD"])
+        if harus_rc:
+            ok = rc != 0 and rc != 124 and frag in out
+        else:
+            ok = rc == 0 and frag in out
+        periksa(label, ok)
+        shutil.rmtree(klon_d, ignore_errors=True)
+
+    def _sentuh_changelog(klon_d):
+        p = os.path.join(klon_d, "CHANGELOG.md")
+        with open(p, "a", encoding="utf-8") as f:
+            f.write("\n")
+
+    def _jalur_util(klon_d):
+        return os.path.join(
+            klon_d, "app", "src", "main", "java", "com",
+            "tasirin", "vaultwardenhost", "Util.java")
+
+    def _diff2897_locale(klon_d):
+        p = _jalur_util(klon_d)
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "public final class Util {",
+                "public final class Util {\n"
+                "    static String ujiLocale2897(String s) "
+                "{ return s.toLowerCase(); }", 1))
+        _sentuh_changelog(klon_d)
+    racun_diff("diff2897locale", _diff2897_locale,
+               "toLowerCase tanpa Locale di diff: gerbang "
+               "gagal (Audit 2897)", "tanpa Locale.US/")
+
+    def _diff2897_bekas(klon_d):
+        p = _jalur_util(klon_d)
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "public final class Util {",
+                "public final class Util {\n"
+                "    static void ujiBekas2897() "
+                "{ batalTunda(); }", 1))
+        _sentuh_changelog(klon_d)
+    racun_diff("diff2897bekas", _diff2897_bekas,
+               "memanggil metode bekas hapusan di diff: "
+               "gerbang gagal (Audit 2897)",
+               "yang sudah dihapus")
+
+    def _diff2897_izin(klon_d):
+        p = os.path.join(klon_d, "app", "src", "main",
+                         "AndroidManifest.xml")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "</manifest>",
+                "    <uses-permission android:name="
+                "\"android.permission.CAMERA\" />\n"
+                "</manifest>", 1))
+        _sentuh_changelog(klon_d)
+    racun_diff("diff2897izin", _diff2897_izin,
+               "izin berbahaya baru di diff: gerbang "
+               "gagal (Audit 2897)", "Izin berbahaya baru")
+
     def racun_pohon(nama, ubah, label, frag):
         klon_p = klon(tmp, nama)
         ubah(klon_p)

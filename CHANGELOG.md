@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cek diff yang menggagalkan kini punya skenario racun (Audit 2897)
+
+- Suite verifikasi kini menguji ujung-ke-ujung cek locale tanpa Locale, pemanggilan metode yang sudah dihapus, dan izin berbahaya baru — ketiganya dulu tanpa skenario nyata walau menggagalkan push.
+
+
 ## [Belum rilis] — Delapan cek pohon gerbang kini punya skenario racun (Audit 2896)
 
 - Suite verifikasi kini menguji ujung-ke-ujung cek izin wajib, targetSdk, XML rusak, sinkron terjemah satu sisi, definisi ganda, import mati, acuan metode di AGENTS.md, dan komponen manifest tanpa kelas — sebelumnya kedelapan cek itu tanpa skenario sama sekali sehingga regresinya lolos diam-diam.
