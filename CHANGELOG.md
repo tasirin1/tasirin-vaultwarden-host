@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pembaca versi JSON tak lagi tertipu kunci bersarang (Audit 2940)
+
+- `Updater.ambilNilaiJson`: pembaca nilai JSON sederhana untuk berkas penanda versi dulu mengambil kecocokan pertama nama kunci di mana pun ia muncul — berkas berbentuk {"meta":{"version":"0.1"},"version":"1.32.0"} akan dibaca sebagai versi 0.1. Pemindaiannya kini sadar kedalaman dan posisi: hanya kunci tingkat atas yang diikuti titik dua yang diakui, dan string nilai yang menyamai nama kunci tidak dianggap kunci. Semantik barunya dikunci uji.
+
+
 ## [Belum rilis] — Cabang verifikasi PIN lawas non-ASCII kini teruji (Audit 2938)
 
 - Uji JVM: verifikasi PIN punya jalur cadangan khusus untuk hash lawas milik PIN non-ASCII (dibuat dari byte rendah tiap karakter, berbeda dari jalur utama) — jalur itu dulu tidak punya satu pun uji, jadi kerusakannya tidak akan ketahuan sampai pemilik PIN lama terkunci. Uji baru membangun fixture hash lawas persis lewat jalur cadangan itu dan memverifikasi PIN yang benar lolos dan yang salah tertolak.

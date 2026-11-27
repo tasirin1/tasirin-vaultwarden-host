@@ -1390,6 +1390,24 @@ public class UpdaterTest {
     }
 
     @Test
+    public void ambilNilaiJson_hanyaKunciTingkatAtas() {
+        // Audit 2940: kunci bersarang tak lagi menang
+        // atas kunci tingkat atas; string NILAI yang
+        // menyamai nama kunci juga bukan kunci.
+        org.junit.Assert.assertEquals("1.32.0", Updater.ambilNilaiJson(
+                "{\"meta\":{\"version\":\"0.1\"},\"version\":\"1.32.0\"}",
+                "version"));
+        org.junit.Assert.assertEquals("1.32.0", Updater.ambilNilaiJson(
+                "{\"a\":\"version\",\"version\":\"1.32.0\"}", "version"));
+        org.junit.Assert.assertEquals("1.32.0", Updater.ambilNilaiJson(
+                "{\"version\": \"1.32.0\"}", "version"));
+        org.junit.Assert.assertNull(Updater.ambilNilaiJson(
+                "{\"meta\":{\"version\":\"0.1\"}}", "version"));
+        org.junit.Assert.assertNull(Updater.ambilNilaiJson(
+                "{\"lain\":\"x\"}", "version"));
+    }
+
+    @Test
     public void readWvVersion_bacaNormalDanTolakJumbo() throws Exception {
         java.io.File kecil = java.io.File.createTempFile("vw-ver-", ".json");
         try {

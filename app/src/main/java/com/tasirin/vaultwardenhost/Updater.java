@@ -2894,7 +2894,10 @@ public final class Updater {
             return null;
         }
         String cari = "\"" + kunci + "\"";
-        int i = json.indexOf(cari);
+        // Audit 2940: hanya kunci TINGKAT ATAS yang
+        // diakui - dulu kecocokan pertama menang walau
+        // bersarang di objek anak.
+        int i = indeksKunciAtas(json, cari);
         if (i < 0) {
             return null;
         }
@@ -2927,6 +2930,49 @@ public final class Updater {
             }
         }
         return null;
+    }
+
+    private static int indeksKunciAtas(String json, String cari) {
+        int kedalaman = 0;
+        int n = json.length();
+        int i = 0;
+        while (i < n) {
+            char c = json.charAt(i);
+            if (c == '"') {
+                int akhir = i + 1;
+                while (akhir < n) {
+                    char d = json.charAt(akhir);
+                    if (d == '\\') {
+                        akhir += 2;
+                        continue;
+                    }
+                    if (d == '"') {
+                        break;
+                    }
+                    akhir++;
+                }
+                if (kedalaman == 1 && akhir < n
+                        && akhir - i + 1 == cari.length()
+                        && json.startsWith(cari, i)) {
+                    int k = akhir + 1;
+                    while (k < n && Character.isWhitespace(json.charAt(k))) {
+                        k++;
+                    }
+                    if (k < n && json.charAt(k) == ':') {
+                        return i;
+                    }
+                }
+                i = akhir + 1;
+                continue;
+            }
+            if (c == '{' || c == '[') {
+                kedalaman++;
+            } else if (c == '}' || c == ']') {
+                kedalaman--;
+            }
+            i++;
+        }
+        return -1;
     }
 
     public static String normVersion(String v) {
