@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pesan gagal restart dari bot tak lagi menyalahkan server yang berhenti (Audit 2989)
+
+- `TgBot`: balasan perintah /restart saat pengiriman perintahnya gagal dulu berbunyi "Restart hanya bisa saat server berjalan" — padahal pemeriksaan berjalan sudah lolos dan server justru sedang jalan; yang gagal adalah pengiriman dari latar (batasan Android). Pesan itu bertentangan dengan jawaban /start sesudahnya ("Server sudah jalan"). Cabang gagal dan cabang pengecualiannya kini berkata jujur seperti /stop: gagal dari background, buka aplikasi untuk restart.
+
+
 ## [Belum rilis] — Unduh backup restore kini punya tenggat total (Audit 2987)
 
 - `TgBackup.downloadLastBackup`: unduhan berkas backup untuk restore dulu hanya dibatasi timeout per baca (120 detik) tanpa batas total — koneksi yang merayap bisa mengunduh berjam-jam sambil menahan kunci restore sehingga semua backup/restore lain tertolak. Kini ada tenggat total 30 menit (keputusan murninya diuji); melewatinya membatalkan unduhan dengan pesan yang jelas.

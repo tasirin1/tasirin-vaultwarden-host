@@ -3337,10 +3337,16 @@ public final class TgBot {
                 restartManualTerakhirMs = kiniRestart;
                 balas(ctx, idRuang, "Perintah diterima: server restart...");
             } else {
-                balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
+                // Audit 2989: server terbukti berjalan
+                // (pemeriksaan di atas lolos) - yang gagal
+                // dispatch background-nya; pesan lama
+                // mengklaim sebaliknya.
+                balas(ctx, idRuang, "Gagal restart dari background (batasan Android). "
+                        + "Buka app untuk restart.");
             }
         } catch (Throwable t) {
-            balas(ctx, idRuang, "Restart hanya bisa saat server berjalan.");
+            balas(ctx, idRuang, "Gagal restart dari background (batasan Android). "
+                    + "Buka app untuk restart.");
         }
         return true;
     }
