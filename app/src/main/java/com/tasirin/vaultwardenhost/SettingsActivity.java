@@ -706,6 +706,7 @@ public class SettingsActivity extends Activity {
         dasarPort = portInput.getText().toString();
         dasarAdmin = adminTokenInput.getText().toString();
         dasarDatabaseUrl = databaseUrlInput.getText().toString();
+        dasarSandiBackup = backupPassInput.getText().toString();
         return sp;
     }
 
@@ -753,7 +754,11 @@ public class SettingsActivity extends Activity {
 
         tgTokenInput.addTextChangedListener(onTextChanged(this::scheduleBotDebounced));
         tgChatInput.addTextChangedListener(onTextChanged(this::scheduleBotDebounced));
-        backupPassInput.addTextChangedListener(new SimpleTextWatcher(TgBackup.KEY_TG_PASS));
+        // Audit 2826: sandi backup TIDAK ikut watcher tulis
+        // tertunda - jeda ketik >400 ms akan menyimpan awalan
+        // sandi ke prefs dan backup otomatis bisa terenkripsi
+        // dengan awalan itu. Sandi disimpan hanya pada momen
+        // sengaja lewat simpanPengaturanValid/blok simpan Start.
         binShaInput.addTextChangedListener(new SimpleTextWatcher(ServerService.KEY_BIN_SHA));
         binShaInput.addTextChangedListener(onTextChanged(this::validasiInline));
         dataDirInput.addTextChangedListener(onTextChanged(this::validasiInline));
@@ -1104,6 +1109,7 @@ public class SettingsActivity extends Activity {
     // boleh menimpa perubahan eksternal (mis. prefs hasil restore bot)
     // dengan nilai tampilan yang sudah basi (Audit 588).
     private String dasarDataDir, dasarPort, dasarAdmin, dasarDatabaseUrl;
+    private String dasarSandiBackup;
 
     static boolean berubahDariDasar(String teks, String dasar) {
         return dasar == null || !teks.equals(dasar);
@@ -1138,6 +1144,12 @@ public class SettingsActivity extends Activity {
                 && galatDatabaseUrl(databaseUrl, msgDatabaseUrlSalah) == null) {
             ed = tulisBilaBeda(ed, sp, ServerService.KEY_DATABASE_URL, databaseUrl.trim());
         }
+        // Audit 2826: sandi backup disimpan di momen sengaja
+        // ini (keluar Settings / Start), bukan per ketikan.
+        String sandiBackup = backupPassInput.getText().toString();
+        if (berubahDariDasar(sandiBackup, dasarSandiBackup)) {
+            ed = tulisBilaBeda(ed, sp, TgBackup.KEY_TG_PASS, sandiBackup);
+        }
         if (ed != null) {
             ed.apply();
             paksaCacheUbah = true;
@@ -1146,6 +1158,7 @@ public class SettingsActivity extends Activity {
         dasarPort = port;
         dasarAdmin = admin;
         dasarDatabaseUrl = databaseUrl;
+        dasarSandiBackup = sandiBackup;
     }
 
     private SharedPreferences.Editor tulisBilaBeda(SharedPreferences.Editor ed,
@@ -1239,6 +1252,11 @@ public class SettingsActivity extends Activity {
         ed.putString(ServerService.KEY_PORT, portEfektif);
         ed.putString(ServerService.KEY_ADMIN_TOKEN, adminToken);
         ed.putString(ServerService.KEY_DATABASE_URL, databaseUrl);
+        // Audit 2826: sandi backup dari field saat Start ditekan
+        // (momen sengaja) - bukan lagi dari watcher per ketikan.
+        ed.putString(TgBackup.KEY_TG_PASS,
+                backupPassInput.getText() == null
+                        ? "" : backupPassInput.getText().toString());
         ed.apply();
         paksaCacheUbah = true;
 
@@ -3339,6 +3357,7 @@ public class SettingsActivity extends Activity {
         dasarPort = portInput.getText().toString();
         dasarAdmin = adminTokenInput.getText().toString();
         dasarDatabaseUrl = databaseUrlInput.getText().toString();
+        dasarSandiBackup = backupPassInput.getText().toString();
         autoStartCheck.setChecked(TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false));
         tgTokenInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, ""));
         tgChatInput.setText(TgBackup.amanString(sp, TgBackup.KEY_TG_CHAT, ""));

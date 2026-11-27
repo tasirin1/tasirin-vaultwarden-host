@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Sandi backup tidak lagi tersimpan per ketikan (Audit 2826)
+
+- `SettingsActivity`: field sandi backup dikeluarkan dari watcher tulis tertunda (debounce 400 ms). Sebelumnya jeda berpikir di tengah mengetik sandi membuat AWALAN sandi tersimpan ke prefs, dan backup otomatis yang jalan pada jendela itu terenkripsi dengan awalan tersebut — restore dengan sandi penuh lalu gagal tanpa penjelasan. Sandi kini disimpan hanya pada momen sengaja: `simpanPengaturanValid` saat keluar Settings (mengikuti pola baseline field lain) dan blok simpan saat Start ditekan.
+
+
 ## [Belum rilis] — Restore tidak lagi mengimpor metadata era binary dari config backup (Audit 2819/3011)
 
 - `TgBackup.BOLEH_IMPOR`: `KEY_UPDATE_VERSION`, `KEY_BIN_SHA`, `KEY_BIN_PILIH`, dan `KEY_WV_PILIH` dikeluarkan dari daftar kunci yang boleh diterapkan dari `app-config.json` hasil restore; cabang impor dan blok pembersih cache era yang menjadi mati ikut dihapus. Backup memang tidak berisi binary — nilai era dari config membuat penanda versi mengklaim versi yang tidak ada di disk (auto-update diam total dan `/versi` berbohong sampai Start berikutnya), dan lebih buruknya Start bisa mengunduh binary lama lalu memverifikasinya terhadap SHA yang datang dari backup itu sendiri. Era kini hanya ditentukan berkas di disk dan unduhan terverifikasi; pin versi pilihan dapat diatur ulang lewat bot/Settings sesudah restore. Ada uji JVM yang mengunci keempat kunci tetap di luar daftar impor.
