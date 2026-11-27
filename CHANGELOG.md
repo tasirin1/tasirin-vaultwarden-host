@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Substitusi proses di workflow kini menggagalkan gerbang (Audit 2917)
+
+- Analisis penguras-stdin gerbang hanya menilai action resolve-vw; kemunculan substitusi proses '<(' di berkas workflow mana pun kini gagal terang agar konstruksi penguras tidak masuk lewat blok run: tanpa dinilai.
+
+
 ## [Belum rilis] — Isi README antar-terjemahan kini ikut diperiksa cek-cepat (Audit 2914)
 
 - Selain urutan level judul, cek-cepat kini membandingkan ukuran badan tiap seksi di ketiga README — seksi yang menyusut atau membengkak jauh di satu bahasa (drift terjemahan) menggagalkan gerbang.

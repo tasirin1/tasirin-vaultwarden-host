@@ -15661,6 +15661,21 @@ def _bagian_awal(tmp):
         with open(p, "w", encoding="utf-8") as f:
             f.write(isi.replace("app/src/main/**",
                                 "app/src/ngawur2896/**", 1))
+    def _wf2917_kuras(klon_w):
+        p = os.path.join(klon_w, ".github", "workflows",
+                         "label-audit.yml")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "dipercaya=0",
+                "dipercaya=0\n          "
+                "x=$(cat <(echo uji))", 1))
+    racun_workflow("wf2917kuras", _wf2917_kuras,
+                   "substitusi proses di run: workflow: "
+                   "gerbang gagal (Audit 2917)",
+                   "substitusi proses")
+
     racun_workflow("wf2908labeler", _wf2908_labeler,
                    "glob labeler tak cocok berkas apa pun: "
                    "gerbang gagal (Audit 2908)",

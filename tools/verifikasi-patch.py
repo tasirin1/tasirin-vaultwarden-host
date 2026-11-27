@@ -280,6 +280,25 @@ def cek_workflow_yaml(gagal, peringatan):
         if not (("on" in data) or (True in data)) or "jobs" not in data:
             gagal.append("YAML workflow %s tanpa kunci on/jobs — workflow "
                          "tak akan jalan" % nama)
+        # Audit 2917: analisis penguras-stdin gerbang
+        # hanya menilai kontrak action resolve-vw; blok
+        # run: workflow tak dinilai. Substitusi proses
+        # adalah konstruksi penguras klasik - kemunculan
+        # '<(' di workflow mana pun digagalkan terang
+        # agar polanya dipindah ke action yang dinilai
+        # atau ditinjau manual, bukan lolos diam-diam.
+        try:
+            with open(path_wf, encoding="utf-8") as f:
+                teks_wf2 = f.read()
+        except OSError:
+            teks_wf2 = ""
+        if "<(" in teks_wf2:
+            gagal.append("Workflow %s memuat substitusi "
+                         "proses '<(' - analisis penguras "
+                         "gerbang tak menilai blok run: "
+                         "workflow (Audit 2917); pindahkan "
+                         "ke action resolve-vw atau tinjau "
+                         "manual" % nama)
 
 
 def cek_selarasan_workflow(gagal, peringatan):
