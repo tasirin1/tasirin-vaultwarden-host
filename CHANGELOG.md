@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Server ikut auto-start sesudah update aplikasi (Audit 2843)
+
+- `BootReceiver`: blok auto-start tidak lagi dikecualikan untuk `MY_PACKAGE_REPLACED`. Sebelumnya, sesudah APK diperbarui sistem membunuh proses aplikasi dan server Vaultwarden, tetapi receiver melewati seluruh blok auto-start untuk aksi itu — vault mati sampai pengguna membuka aplikasi atau mengirim `/start`, padahal auto-start aktif. Kini update paket diperlakukan sama seperti boot; bila sistem menolak start dari latar, jalur penundaan yang sudah ada (start susulan saat aplikasi dibuka) tetap berlaku.
+
+
 ## [Belum rilis] — Sandi backup tidak lagi tersimpan per ketikan (Audit 2826)
 
 - `SettingsActivity`: field sandi backup dikeluarkan dari watcher tulis tertunda (debounce 400 ms). Sebelumnya jeda berpikir di tengah mengetik sandi membuat AWALAN sandi tersimpan ke prefs, dan backup otomatis yang jalan pada jendela itu terenkripsi dengan awalan tersebut — restore dengan sandi penuh lalu gagal tanpa penjelasan. Sandi kini disimpan hanya pada momen sengaja: `simpanPengaturanValid` saat keluar Settings (mengikuti pola baseline field lain) dan blok simpan saat Start ditekan.

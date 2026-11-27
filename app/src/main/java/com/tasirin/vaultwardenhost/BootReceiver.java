@@ -79,8 +79,6 @@ public class BootReceiver extends BroadcastReceiver {
         }
         final Context ctx = context.getApplicationContext();
 
-        final boolean gantiPaket = Intent.ACTION_MY_PACKAGE_REPLACED.equals(action);
-
         final PendingResult pending = goAsync();
         Runnable kerja = () -> {
             final long[] capBoot = new long[3];
@@ -145,7 +143,12 @@ public class BootReceiver extends BroadcastReceiver {
                             + ePersiapan.getClass().getSimpleName()
                             + " - langkah boot lain tetap dicoba.");
                 }
-                if (!gantiPaket && TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {
+                // Audit 2843: auto-start berlaku juga sesudah
+                // update aplikasi (MY_PACKAGE_REPLACED), bukan
+                // hanya boot - dulu aksi itu dikecualikan tanpa
+                // catatan alasan sehingga vault mati sampai
+                // pengguna membuka aplikasi lagi.
+                if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_START, false)) {
 
                     try {
                         String dataDirBoot = TgBackup.amanString(sp,
