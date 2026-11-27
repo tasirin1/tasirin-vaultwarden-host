@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pin shim offline kini sementara dan diverifikasi ulang (Audit 2857)
+
+- Bila hash shim pertama kali dicatat saat perangkat offline (tanpa cek ke rilis resmi), pin itu kini ditandai sementara: pada Start berikutnya yang online, hash-nya dicocokkan ulang ke rilis - tidak cocok, shim diunduh ulang terverifikasi.
+
+
 ## [Belum rilis] — Integritas binary selalu dari SHA-256 penuh, sidik tak lagi dipercaya (Audit 2786)
 
 - Pemeriksaan binary saat Start tidak lagi melewati hash penuh hanya karena ukuran + waktu berkas cocok: berkas yang diganti dengan ukuran dan waktu yang disamakan kini tetap ketahuan karena SHA-256 selalu dihitung penuh.

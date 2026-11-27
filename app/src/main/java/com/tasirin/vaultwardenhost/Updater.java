@@ -2065,6 +2065,13 @@ public final class Updater {
 
     static final String KEY_SHIM_SHA = "shim_sha256";
 
+    // Audit 2857: penanda pin shim yang dicatat TANPA
+    // verifikasi rilis (perangkat offline saat pin
+    // pertama lahir) - pin begitu berstatus sementara
+    // dan wajib diverifikasi ulang begitu hash rilis
+    // bisa diambil.
+    static final String KEY_SHIM_PIN_SEMENTARA = "shim_pin_sementara";
+
     static final String KEY_BIN_SHA_PIN = "bin_sha_pin";
 
     // Audit 2786: sidik ukuran+mtime TIDAK lagi
@@ -2105,6 +2112,25 @@ public final class Updater {
         return expectedHexEquals(shaTersimpan, sha256Hex(f));
     }
 
+    // Audit 2857: ambil SHA-256 shim dari rilis
+    // resmi; null bila versi terbaru tak diketahui
+    // atau hash tak terjangkau (offline).
+    private static String shaRilisShim(Context ctx) {
+        try {
+            String latest = latestVersion(ctx);
+            if (latest == null || latest.isEmpty()) {
+                return null;
+            }
+            String[] wadah = {null};
+            shaDariRilis(ctx, 8000, 8000,
+                    "Verifikasi SHA-256 tidak bisa diambil dari release",
+                    wadah).ambil(shimAssetUrl(latest));
+            return wadah[0];
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     public static File ensureShimFile(Context ctx) throws Exception {
         File out = new File(ctx.getFilesDir(), "bin/" + KernelCompat.SHIM_ASSET);
         SharedPreferences sp = ctx.getSharedPreferences(
@@ -2112,25 +2138,17 @@ public final class Updater {
         String shaTersimpan = sp.getString(KEY_SHIM_SHA, "");
         if (shimUtuh(out, shaTersimpan)) {
             if (shaTersimpan == null || shaTersimpan.isEmpty()) {
-                // Pasangan lama sebelum pencatatan hash: pin pertama
-                // TIDAK boleh memberkati berkas yang ternyata sudah
-                // rusak dari era sebelum pencatatan (Audit 633). Bila
-                // hash rilis resmi bisa diambil, berkas wajib cocok
-                // dengannya; tak cocok -> unduh ulang terverifikasi.
-                // Bila hash rilis tak terjangkau (offline), pin berkas
-                // saat ini seperti semula agar Start tak terkunci.
-                String shaRilis = null;
-                try {
-                    String latest = latestVersion(ctx);
-                    if (latest != null && !latest.isEmpty()) {
-                        String[] wadah = {null};
-                        shaDariRilis(ctx, 8000, 8000,
-                                "Verifikasi SHA-256 tidak bisa diambil dari release",
-                                wadah).ambil(shimAssetUrl(latest));
-                        shaRilis = wadah[0];
-                    }
-                } catch (Exception ignored) {
-                }
+                // Audit 2857: pasangan lama sebelum pencatatan
+                // hash - pin pertama TIDAK boleh memberkati berkas
+                // yang ternyata sudah rusak dari era sebelum
+                // pencatatan (Audit 633). Bila hash rilis resmi bisa
+                // diambil, berkas wajib cocok dengannya; tak cocok
+                // -> unduh ulang terverifikasi. Bila hash rilis tak
+                // terjangkau (offline), pin berkas saat ini agar
+                // Start tak terkunci - TETAPI sebagai pin SEMENTARA:
+                // pin itu wajib diverifikasi ulang begitu hash
+                // rilis terjangkau.
+                String shaRilis = shaRilisShim(ctx);
                 if (shaRilis != null && !expectedHexEquals(shaRilis, sha256Hex(out))) {
                     downloadShim(ctx, out);
                     if (!shimValid(out)) {
@@ -2140,8 +2158,35 @@ public final class Updater {
                     return out;
                 }
                 try {
-                    sp.edit().putString(KEY_SHIM_SHA, sha256Hex(out)).apply();
+                    android.content.SharedPreferences.Editor ed =
+                            sp.edit().putString(KEY_SHIM_SHA, sha256Hex(out));
+                    if (shaRilis == null) {
+                        ed.putBoolean(KEY_SHIM_PIN_SEMENTARA, true);
+                    } else {
+                        ed.remove(KEY_SHIM_PIN_SEMENTARA);
+                    }
+                    ed.apply();
                 } catch (Exception ignored) {
+                }
+            } else if (TgBackup.amanBoolean(sp, KEY_SHIM_PIN_SEMENTARA, false)) {
+                // Audit 2857: pin sementara dari era offline -
+                // verifikasi ulang sekarang bila hash rilis
+                // bisa diambil; cocok -> penanda dicabut, tak
+                // cocok -> unduh ulang terverifikasi.
+                String shaRilis = shaRilisShim(ctx);
+                if (shaRilis != null) {
+                    if (!expectedHexEquals(shaRilis, sha256Hex(out))) {
+                        downloadShim(ctx, out);
+                        if (!shimValid(out)) {
+                            throw new IOException("File shim tidak valid (ukuran "
+                                    + (out.exists() ? out.length() : 0) + " byte).");
+                        }
+                        return out;
+                    }
+                    try {
+                        sp.edit().remove(KEY_SHIM_PIN_SEMENTARA).apply();
+                    } catch (Exception ignored) {
+                    }
                 }
             }
             return out;
@@ -2232,7 +2277,8 @@ public final class Updater {
         out.setExecutable(true, true);
         try {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putString(KEY_SHIM_SHA, sha256Hex(out)).apply();
+                    .edit().putString(KEY_SHIM_SHA, sha256Hex(out))
+                    .remove(KEY_SHIM_PIN_SEMENTARA).apply();
         } catch (Exception ignored) {
         }
         return "Shim getrandom terpasang.";
