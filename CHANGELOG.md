@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Rollback database kini dipasang lewat gantiAtomik, bukan renameTo polos (Audit 2887)
+
+- `TgBackup.pasangDbDariSalinan`: pemasangan DB pengaman hasil rollback dulu memakai `renameTo` polos, tidak seperti jalur pasang restore biasa yang memakai `ServerService.gantiAtomik` (penanda `.bak` + swap tertata yang bisa direkonsiliasi sesudah kematian proses). Jalur rollback kini memakai `gantiAtomik` yang sama, sehingga kematian proses di tengah pemasangan rollback tertangani jaring pengaman yang sama.
+
+
 ## [Belum rilis] — Pemulihan sisa sinkron TLS tak lagi memusnahkan salinan terakhir saat rename gagal (Audit 2886)
 
 - `TgBackup.pulihkanSisaSinkronTls`: bila folder cadangan sinkron (`tls-sinkron-bak`) tak bisa di-rename menjadi folder tls, kode lama langsung menghapusnya — satu-satunya salinan TLS lama, termasuk kunci privat CA, musnah permanen. Kini rename yang gagal beralih ke pemulihan lewat penyalinan; cadangan hanya dihapus sesudah folder tls terisi lagi, dan bila penyalinan pun gagal cadangan dibiarkan di tempat (tercatat di log) untuk dicoba lagi pada rekonsiliasi berikutnya.

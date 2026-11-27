@@ -5042,9 +5042,10 @@ public final class TgBackup {
             throw new IOException("Skema salinan database pengaman tidak cocok: "
                     + skema);
         }
-        if (!staging.renameTo(new File(dataFolder, "db.sqlite3"))) {
-            throw new IOException("Gagal memasang database pengaman");
-        }
+        // Audit 2887: pasang lewat gantiAtomik seperti
+        // jalur restore biasa (penanda .bak + swap
+        // tertata), bukan renameTo polos.
+        ServerService.gantiAtomik(staging, new File(dataFolder, "db.sqlite3"));
         // Audit 2817: pendamping -wal/-shm salinan (bila ada)
         // ikut dipasang di sisi DB hasil rollback. Pendamping
         // itu ditulis salinPendampingWal persis untuk keadaan
