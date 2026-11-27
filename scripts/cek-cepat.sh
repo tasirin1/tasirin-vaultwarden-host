@@ -56,7 +56,10 @@ if [ -n "$TEMUAN_GANDA" ]; then
 fi
 
 struktur_judul() {
-  awk '/^#{1,6} / { n = 0; while (substr($0, n + 1, 1) == "#") n++; printf "%d,", n }' "$1" 2>/dev/null
+  # Audit 2931: baris di dalam pagar kode ``` bukan
+  # judul - komentar # di blok kode dulu terhitung dan
+  # membuat struktur antar-terjemahan "beda" palsu.
+  awk '/^```/ { f = !f; next } !f && /^#{1,6} / { n = 0; while (substr($0, n + 1, 1) == "#") n++; printf "%d,", n }' "$1" 2>/dev/null
 }
 for r in README.md README.id.md README.ru.md; do
   if [ ! -f "$r" ]; then gagal_msg "berkas wajib hilang: $r"; fi

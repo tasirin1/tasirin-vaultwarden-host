@@ -115,6 +115,17 @@ def _bagian_awal(tmp):
             rc != 0 and "struktur judul" in out)
     shutil.rmtree(readme, ignore_errors=True)
 
+    readmepagar = klon(tmp, "readmepagar")
+    berkas_rp = os.path.join(readmepagar, "README.md")
+    with open(berkas_rp, encoding="utf-8") as f:
+        isi_rp = f.read()
+    with open(berkas_rp, "w", encoding="utf-8") as f:
+        f.write(isi_rp + "\n```\n# bukan judul, komentar kode\n```\n")
+    rc, out = jalan(readmepagar, ["bash", SKRIP])
+    periksa("# di dalam pagar kode bukan judul: cek-cepat lolos "
+            "(Audit 2931)", rc == 0, "" if rc == 0 else out[-400:])
+    shutil.rmtree(readmepagar, ignore_errors=True)
+
     vektor = klon(tmp, "vektor")
     tanam(vektor, "app/src/main/res/drawable/ic_uji_vektor.xml",
           "<vector xmlns:android="

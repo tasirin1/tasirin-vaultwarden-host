@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — cek-cepat tak lagi menghitung komentar di blok kode sebagai judul README (Audit 2931)
+
+- `scripts/cek-cepat.sh` (`struktur_judul`): penghitung judul dulu membaca semua baris `# ...` termasuk yang berada di dalam pagar kode — blok kode berisi komentar `#` di satu README saja membuat struktur judul antar-terjemahan dianggap beda dan gerbang gagal palsu. Penghitung kini sadar pagar kode dan melewati isinya. Struktur ketiga README saat ini terverifikasi identik dengan dan tanpa kesadaran pagar. Ditambah satu skenario suite.
+
+
 ## [Belum rilis] — Gerbang tak lagi gagal-palsu oleh helper uji bernama sama dengan bekas hapusan (Audit 2930)
 
 - `tools/verifikasi-patch.py`: gabungan nama terdeklarasi dulu memindai seluruh `app/src` termasuk `app/src/test`, sehingga helper uji yang kebetulan bernama sama dengan entri `tools/bekas-hapusan.txt` memicu GAGAL dan menuntut nama itu dikeluarkan dari daftar — padahal aturan 15 hanya melarang definisi di kode produksi. Pindai definisi kini dipersempit ke `app/src/main`, dan pindai pemanggil di fungsi yang sama kini membedakan situs produksi (selalu gagal) dari situs uji (gagal hanya bila nama itu tidak terdeklarasi di pohon uji, artinya memanggil metode produksi yang sudah dihapus). Pindai definisi dipersempit ke `app/src/main`; semua pemanggil pemeriksaan ini memang bermakna produksi (daftar hapusan, metode hilang, acuan AGENTS.md). Ditambah satu skenario suite.
