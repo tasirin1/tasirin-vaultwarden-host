@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kunci privat publik tak lagi dihapus sebelum salinan internal terbukti (Audit 3035)
+
+- Perbaikan lanjutan Audit 2850: saat penyiapan TLS gagal total, kunci privat lama di penyimpanan publik kini hanya dihapus bila salinan internal kedua kunci (CA dan server) terbukti ada. Sebelumnya kunci itu dihapus walau penyalinan ke internal gagal (mis. penyimpanan penuh) — satu-satunya salinan hilang dan sertifikat CA berganti diam-diam pada Start berikutnya sehingga semua perangkat klien terputus. Bila salinan internal belum lengkap, kunci dipertahankan dan peringatan tercatat di log.
+
+
 ## [Belum rilis] — Label audit kini terpasang juga untuk issue berjudul [audit] (Audit 3027)
 
 - Workflow label-otomatis kini mengenali format issue audit terbaru (judul berawalan [audit]) di samping penanda lama di badan issue. Sebelumnya format baru itu tak pernah mendapat label audit, sehingga pengecualian bot stale untuk label audit tak berlaku dan antrean issue bisa tertutup massal sesudah 45+14 hari tanpa aktivitas.

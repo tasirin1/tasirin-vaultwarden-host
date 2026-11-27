@@ -1118,6 +1118,15 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void kunciPublikBolehDihapus_hanyaBilaInternalLengkap() {
+        // Audit 3035: kedua kunci internal wajib ada.
+        assertTrue(ServerService.kunciPublikBolehDihapus(true, true));
+        assertFalse(ServerService.kunciPublikBolehDihapus(true, false));
+        assertFalse(ServerService.kunciPublikBolehDihapus(false, true));
+        assertFalse(ServerService.kunciPublikBolehDihapus(false, false));
+    }
+
+    @Test
     public void buktiPanicShim_gabunganBukti() {
         // Audit 2964: bukti runtime persisten setara bukti probe.
         org.junit.Assert.assertTrue(ServerService.buktiPanicShim(true, false));

@@ -5038,6 +5038,19 @@ public class ServerService extends Service {
         return !publik;
     }
 
+    // Audit 3035: kunci privat di storage publik hanya
+    // boleh dihapus pada kegagalan total setup TLS bila
+    // salinan internal KEDUA kunci terbukti ada. Migrasi
+    // ke internal hanya copyFile tanpa verifikasi hasil -
+    // bila salinan gagal (mis. storage internal penuh),
+    // kunci publik adalah satu-satunya salinan dan
+    // menghapusnya membuat CA berganti diam-diam pada
+    // Start berikutnya (regresi cara perbaikan 2850).
+    static boolean kunciPublikBolehDihapus(boolean internalPunyaCaKey,
+            boolean internalPunyaKey) {
+        return internalPunyaCaKey && internalPunyaKey;
+    }
+
     private File prepareTls(File dataFolder) {
         try {
             List<String> ips = new ArrayList<>(collectIps());
@@ -5072,7 +5085,25 @@ public class ServerService extends Service {
                 try {
                     String kanonLamaGagal = kanonAman(tlsLama);
                     if (!kanonLamaGagal.equals(kanonAman(internal))) {
-                        hapusKunciPrivatDari(tlsLama);
+                        // Audit 3035: hapus hanya bila salinan
+                        // internal kedua kunci terbukti ada;
+                        // selain itu kunci publik dipertahankan
+                        // walau terpapar - kehilangan kunci
+                        // lebih buruk (rotasi CA diam-diam).
+                        if (kunciPublikBolehDihapus(
+                                new File(internal, "ca-key.pem").isFile(),
+                                new File(internal, "key.pem").isFile())) {
+                            hapusKunciPrivatDari(tlsLama);
+                        } else {
+                            appendLog("[app] PERINGATAN: kunci privat"
+                                    + " lama di storage publik TIDAK"
+                                    + " dihapus - salinan internalnya"
+                                    + " belum terbukti lengkap, jadi"
+                                    + " kunci itu satu-satunya salinan."
+                                    + " Bebaskan ruang internal lalu"
+                                    + " Start ulang agar migrasinya"
+                                    + " selesai.");
+                        }
                     }
                 } catch (Exception ignored) {
                 }
