@@ -1951,7 +1951,24 @@ public class ServerService extends Service {
                 if (startGagalPermanen(running,
                         process != null && alive(process), tunda,
                         idAwal == startIdTerakhir, idEpisodaProses >= 0)) {
-                    akhiriEpisodeGagal(idAwal);
+                    // Audit 2971: kegagalan start dulu langsung
+                    // mengakhiri episode - satu kegagalan sesaat
+                    // (unduh binary gagal saat jaringan berkedip,
+                    // TLS, folder) membunuh server sampai
+                    // intervensi manual, padahal mesin restart
+                    // (backoff + gerbang loop) ada persis untuk
+                    // ini tapi hanya dipanggil jalur crash/health.
+                    // Kini jalur start ikut lewat mesin itu:
+                    // recordRestart true berarti gerbang loop
+                    // trip dan episode sudah diakhiri dari
+                    // dalamnya; scheduleRestart menyerah sendiri
+                    // sesudah 5x. autoRestart mati = akhiri
+                    // seperti dulu.
+                    if (autoRestart && !recordRestart("start gagal")) {
+                        scheduleRestart();
+                    } else if (!autoRestart) {
+                        akhiriEpisodeGagal(idAwal);
+                    }
                 }
                 starting.set(false);
 

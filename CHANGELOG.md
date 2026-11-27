@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kegagalan start kini ikut mesin restart, bukan langsung mati total (Audit 2971)
+
+- `ServerService.startServerAsync` (blok `finally`): kegagalan start yang dinyatakan permanen dulu langsung mengakhiri episode — niat jalan terhapus dan service berhenti tanpa satu pun percobaan ulang, sehingga kegagalan sesaat (unduh binary gagal saat jaringan berkedip, TLS, port, folder data) membunuh server sampai intervensi manual, padahal mesin restart ber-backoff dan gerbang loop hanya pernah dipanggil jalur crash/health. Kini, bila auto-restart aktif, kegagalan start dicatat lewat `recordRestart` (gerbang 3x/5 menit dan 10x/jam tetap menghentikan loop, memberi tahu lewat Telegram, dan mengakhiri episode dari dalamnya bila trip) dan dijadwalkan ulang lewat `scheduleRestart` (backoff 2/5/10/20/40 detik, menyerah sendiri sesudah 5x dengan pemberitahuan). Bila auto-restart tidak aktif, perilaku lama utuh: episode langsung diakhiri.
+
+
 ## [Belum rilis] — Prompt PIN lama kini ditandai digantikan saat pending berganti (Audit 2968)
 
 - `TgBot`: pending PIN tersimpan per-chat dan ditimpa begitu saja — pesan prompt lama tetap menampilkan "Aksi: X — balas pesan ini dengan PIN" padahal PIN yang diketik sesudahnya menjalankan aksi BARU, bukan X. Nilai pending kini menyimpan id pesan prompt (format `waktu|cmd|idPrompt`, nilai lama tetap terbaca), dan `mulaiAksiPin` mengedit prompt lama menjadi pemberitahuan bahwa ia digantikan dan PIN berlaku untuk aksi terbaru, lengkap dengan tombol Batal/Menu. Pengurai `cmdDariIsiPending`/`idPromptDariIsiPending` diekstrak sebagai fungsi murni dan diuji (format baru, format lama, id 0 eksplisit, null/kosong). Yang sengaja tidak diubah: PIN tetap diterima sebagai pesan teks berikutnya tanpa wajib membalas prompt tertentu — itu alur pakai yang sudah berjalan; yang diperbaiki adalah prompt lama yang berbohong.
