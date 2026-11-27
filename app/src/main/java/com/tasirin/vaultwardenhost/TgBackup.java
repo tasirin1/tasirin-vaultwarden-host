@@ -4499,10 +4499,13 @@ public final class TgBackup {
                                 + " di folder backups."
                         : "")
                 + (adaWalZip
-                        ? " Peringatan: backup memuat entri -wal/-shm yang"
-                                + " diabaikan - transaksi yang belum sempat"
-                                + " ter-checkpoint ke berkas utama TIDAK ikut"
-                                + " dipulihkan."
+                        ? (walRestoreTerakhirTergabung
+                                ? " Entri -wal/-shm pada backup berhasil"
+                                        + " digabungkan ke database."
+                                : " Peringatan: backup memuat entri -wal/-shm yang"
+                                        + " GAGAL digabungkan - transaksi yang belum"
+                                        + " sempat ter-checkpoint ke berkas utama"
+                                        + " TIDAK ikut dipulihkan.")
                         : "")
                 + peringatanTls + peringatan + peringatanLamp;
     }
@@ -4758,13 +4761,29 @@ public final class TgBackup {
         }
     }
 
+    // Audit 2818: hasil checkpoint WAL staging restore
+    // terakhir - dibaca penyusun pesan restore agar bisa
+    // membedakan "WAL tergabung" dari "WAL gagal tergabung".
+    static volatile boolean walRestoreTerakhirTergabung = true;
+
     static String pasangDbRestoreAtomik(File dataFolder) throws Exception {
         File staging = new File(dataFolder, namaStagingRestore("db.sqlite3"));
         if (!staging.isFile()) {
             return "tidak berisi db.sqlite3";
         }
 
-        checkpointWal(staging);
+        // Audit 2818: hasil checkpoint tak lagi dibuang - WAL
+        // staging yang gagal digabungkan berarti transaksi di
+        // dalamnya hilang saat swap; itu harus tercatat dan
+        // terbedakan di pesan hasil, bukan diam.
+        File walStaging = new File(dataFolder, namaStagingRestore("db.sqlite3-wal"));
+        boolean adaWal = walStaging.isFile() && walStaging.length() > 0;
+        boolean walOk = checkpointWal(staging);
+        walRestoreTerakhirTergabung = !adaWal || walOk;
+        if (adaWal && !walOk) {
+            ServerService.catatLog("[restore] checkpoint WAL staging GAGAL"
+                    + " - transaksi di -wal backup tidak ikut tergabung.");
+        }
         sinkronBerkas(staging);
         if (!isSqliteFile(staging)) {
             return "bukan SQLite";

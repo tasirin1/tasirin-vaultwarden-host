@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pesan restore membedakan WAL yang tergabung vs gagal tergabung (Audit 2818)
+
+- `TgBackup.pasangDbRestoreAtomik`: hasil `checkpointWal` pada DB staging tidak lagi dibuang — kegagalannya dicatat di log dan disimpan sebagai keadaan restore terakhir. Pesan hasil restore kini jujur dua arah: bila checkpoint berhasil, pesan menyebut entri `-wal`/`-shm` backup berhasil digabungkan ke database; bila gagal, barulah peringatan transaksi hilang ditampilkan. Sebelumnya pesan selalu mengklaim transaksi WAL tidak ikut dipulihkan — salah saat checkpoint berhasil, dan tak terbedakan dari keberhasilan saat checkpoint benar-benar gagal.
+
+
 ## [Belum rilis] — Retensi backup diurutkan dari nama berkas, bukan cap waktu berkas (Audit 2820)
 
 - `TgBackup.cleanupOldBackups`: urutan pertahankan/hapus kini mengikuti nama berkas yang memuat stempel pembuatan (`yyyyMMdd-HHmmss-SSS`), dengan `lastModified` hanya sebagai pemecah seri. Sebelumnya pengurutan memakai `lastModified` (jam dinding berkas) — di STB yang jamnya mundur, backup yang baru dibuat bisa bercap paling lama dan terhapus sebagai "tertua" sementara backup lama bercap lebih baru dipertahankan. Ada uji JVM dengan nama naik tapi cap waktu turun.
