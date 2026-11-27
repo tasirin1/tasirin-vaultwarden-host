@@ -846,7 +846,7 @@ def _bagian_akhir(tmp):
             "(Audit 1884)",
             rc != 0 and "pola rahasia" in out)
     shutil.rmtree(sela_vt, ignore_errors=True)
-    token_escape = klon(tmp, "tokenescape")
+    token_escape = klon(tmp, "tokenescape2")
     tanam(token_escape, "token-escape.sh",
           "TOKEN=$'" + token_palsu.replace(":", "\\x3a")
           + "'\n", "w")
@@ -1158,7 +1158,7 @@ def _bagian_akhir(tmp):
             "(Audit 2097)", rc == 0)
     shutil.rmtree(stripjinak, ignore_errors=True)
 
-    pautan = klon(tmp, "pautan")
+    pautan = klon(tmp, "pautan2")
     sasaran_pautan = os.path.join(tmp, "sasaran-pautan.xml")
     with open(sasaran_pautan, "w") as fh:
         fh.write("<vector><path android:pathData="

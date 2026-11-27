@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Nama klon scratch ganda di suite cek-cepat diganti unik (Audit 2945)
+
+- `tools/uji-cek-cepat.py`: dua nama klon scratch dipakai dua kali di paruh yang sama (`tokenescape`, `pautan`) — kelas temuan yang sama dengan Audit 2924 di suite gerbang: skenario yang berhenti sebelum pembersihannya membuat klon berikutnya bernama sama gagal dan mematikan sisa paruh. Kemunculan kedua tiap nama kini unik (`tokenescape2`, `pautan2`).
+
+
 ## [Belum rilis] — Batas join tungguPembacaOutput kini diuji sebagai perilaku (Audit 2936)
 
 - `ServerServiceTest`: uji `tungguPembacaOutput` dulu hanya membuktikan tidak-throw untuk null/thread-sendiri/thread-selesai. Uji baru memverifikasi batas join 2 detiknya sebagai perilaku: thread yang tidur 30 detik membuat metode kembali dalam rentang yang membuktikan join benar berjalan dan batasnya dihormati. Bagian lain temuan ini (metode ber-Context yang hanya bisa diuji null di harness JVM murni) tetap seperti semula — cakupan perilakunya butuh Robolectric yang dilarang aturan repo; tercatat di issue.
