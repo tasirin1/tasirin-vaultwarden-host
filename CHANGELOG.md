@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Alarm tunda warisan kini ikut menjadwal ulang rantai harian (Audit 2844)
+
+- `AlarmReceiver`: cabang `ACTION_TUNDA` tanpa `EXTRA_TUNDA_BOOT` (hanya terjangkau alarm warisan versi lama) dulu hanya menandai backup tertunda lalu kembali — satu-satunya cabang penggugur yang tidak memanggil `jadwalUlangBilaOtomatis`, sehingga rantai alarm harian putus dan backup susulan hari itu hilang tanpa ada alarm berikutnya. Cabang itu kini menjadwal ulang seperti cabang penggugur lainnya bila mode otomatis aktif.
+
+
 ## [Belum rilis] — Plaintext ekspor config yatim kini disapu juga saat service dibuat (Audit 2832)
 
 - Berkas ekspor config plaintext (`app-config-*.json`) di cache dulu hanya disapu dari `SettingsActivity` — bila proses mati atau pengguna tidak membuka Settings lagi, plaintext itu bertahan sampai Settings dibuka berikutnya. Varian statis kebijakan sapu yang sama (`SettingsActivity.sapuExportPlainCacheStatis`: berkas enkrip-sementara langsung, plaintext hanya bila melewati TTL 2 menit) kini ikut berjalan di latar pada `ServerService.onCreate`, bersama sapuan plaintext dekripsi Audit 2821. Zip restore yang tertunda konfirmasinya sengaja tidak disentuh jalur ini — tetap urusan sapuan Settings yang tahu berkas tertundanya.

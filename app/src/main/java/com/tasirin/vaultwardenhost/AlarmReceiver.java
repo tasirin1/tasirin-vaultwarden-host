@@ -272,6 +272,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             TgBackup.tandaiBackupTertunda(context);
             ServerService.catatLog("[tg] Alarm tunda tanpa penanda boot"
                     + " - backup ditandai tertunda, tak dijalankan.");
+            // Audit 2844: cabang ini dulu satu-satunya
+            // penggugur yang tak menjadwal ulang - rantai
+            // alarm harian putus untuk alarm warisan.
+            jadwalUlangBilaOtomatis(context);
             return;
         }
 
