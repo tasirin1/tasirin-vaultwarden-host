@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Izin berbahaya baru di manifest kini menggagalkan gerbang (Audit 2907, sebagian)
+
+- `tools/verifikasi-patch.py` (`cek_izin_baru`): izin baru di `AndroidManifest.xml` dulu selalu hanya PERINGATAN — termasuk izin berbahaya seperti `READ_SMS`, `CAMERA`, atau `RECORD_AUDIO` yang tidak pernah dibutuhkan aplikasi vault ini, dan tidak ada cek lain yang menjaga deklarasi izin. Kini 13 izin berbahaya yang terdaftar (`IZIN_BERBAHAYA`) menggagalkan gerbang bila muncul sebagai izin baru; izin baru biasa tetap peringatan seperti sebelumnya. Sisa kelas peringatan lain pada temuan yang sama (pengingat changelog, catatan hapusan, pola boros/berisiko, definisi/uji baru) sengaja tetap peringatan — itu alat bantu proses selama pekerjaan berjalan, dan menguncinya jadi kegagalan adalah keputusan kebijakan pemilik; issue tetap terbuka untuk bagian itu.
+
+
 ## [Belum rilis] — Rumpun cek baris-tunggal gerbang kini menilai teks tergabung ternormalkan (Audit 2906)
 
 - `tools/verifikasi-patch.py`: tiga cek yang dulu menilai satu baris diff pada satu waktu kini menilai teks tergabung per berkas. `cek_pola_boros` mengupas komentar/string lalu menormalkan (spasi di sekitar titik dibuang, kualifikasi paket `new java.lang.Thread(` dilucuti): bentuk terkualifikasi penuh, `System . out . println`, pola terbelah dua baris, dan kata "matcher" di komentar sebaris yang dulu menonaktifkan pengecualian `.split(` kini tertangkap/tertangani; pengecualian matcher dinilai dari jendela ±200 aksara di sekitar kemunculan. `cek_izin_baru` dan `cek_definisi_baru` kini menemukan atribut `name=` yang jatuh di baris berikut tag-nya (tag XML terbelah), dan menerima kutip tunggal. Sifat ketiganya tetap PERINGATAN.

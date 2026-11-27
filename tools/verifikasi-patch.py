@@ -24142,7 +24142,28 @@ def cek_pola_boros(peringatan, diff):
                                   "Pattern statis: %s"
                                   % teks[max(0, i - 30):i + 40].strip())
 
-def cek_izin_baru(peringatan, diff):
+# Audit 2907: izin perlindungan-dangerous yang tak pernah
+# dibutuhkan aplikasi vault di STB/HP - kemunculan BARU-nya
+# di manifest adalah GAGAL, bukan peringatan, karena tak
+# ada cek lain atas deklarasi izin.
+IZIN_BERBAHAYA = {
+    "android.permission.READ_SMS",
+    "android.permission.SEND_SMS",
+    "android.permission.RECEIVE_SMS",
+    "android.permission.READ_CALL_LOG",
+    "android.permission.WRITE_CALL_LOG",
+    "android.permission.READ_CONTACTS",
+    "android.permission.WRITE_CONTACTS",
+    "android.permission.RECORD_AUDIO",
+    "android.permission.CAMERA",
+    "android.permission.ACCESS_FINE_LOCATION",
+    "android.permission.ACCESS_COARSE_LOCATION",
+    "android.permission.CALL_PHONE",
+    "android.permission.READ_PHONE_NUMBERS",
+}
+
+
+def cek_izin_baru(gagal, peringatan, diff):
     # Audit 2906: atribut android:name bisa jatuh di baris
     # berikut tag uses-permission - nilai teks tergabung per
     # berkas manifest, bukan per baris.
@@ -24160,8 +24181,15 @@ def cek_izin_baru(peringatan, diff):
         for cocok in re.finditer(
                 r"uses-permission[^>]*?android:name=[\"']([^\"']+)[\"']",
                 teks):
-            peringatan.append("Izin baru %s - pastikan perlu di TV/STB "
-                              "+ tercatat README" % cocok.group(1))
+            nama_izin = cocok.group(1)
+            if nama_izin in IZIN_BERBAHAYA:
+                gagal.append("Izin berbahaya baru %s - aplikasi vault "
+                             "tidak membutuhkannya; cabut, atau minta "
+                             "keputusan pemilik dulu (Audit 2907)"
+                             % nama_izin)
+            else:
+                peringatan.append("Izin baru %s - pastikan perlu di TV/STB "
+                                  "+ tercatat README" % nama_izin)
 
 def cek_literal_rahasia_utuh(gagal, diff, berubah=()):
     # Audit 1571: literal header kunci UTUH pada baris
@@ -25650,7 +25678,7 @@ def utama():
         cek_uji_ubah(peringatan, diff)
         cek_pola_berisiko(peringatan, diff, berubah, rentang_cek)
         cek_pola_boros(peringatan, diff)
-        cek_izin_baru(peringatan, diff)
+        cek_izin_baru(gagal, peringatan, diff)
         cek_literal_rahasia_utuh(gagal, diff, berubah)
         cek_definisi_baru(peringatan, diff)
     if diff_gagal:
