@@ -4365,7 +4365,23 @@ public class ServerService extends Service {
         return detectBinaryVersionMode(binary, PROBE_OTOMATIS);
     }
 
+    // Audit 2776: probe --version mahal (spawn proses + watchdog
+    // 10 detik) dan dulu diulang di banyak cabang pada berkas yang
+    // sama. Hasil probe sukses diingat lewat cap sidik berkas +
+    // shim; bila cap tak berubah, probe boleh dilewati. Kegagalan
+    // tak pernah diingat (cap terakhir dinolkan saat gagal), dan
+    // mode probe paksa/tanpa shim tak pernah dilewati karena
+    // lingkungan LD_PRELOAD-nya berbeda.
+    static boolean probeBolehDilewati(String cap, String capTerakhir) {
+        return cap != null && !cap.isEmpty() && cap.equals(capTerakhir);
+    }
+
     private boolean detectBinaryVersionMode(File binary, int modeProbe) {
+        if (modeProbe == PROBE_OTOMATIS
+                && probeBolehDilewati(capProbeOtomatis(binary),
+                        capProbeOtomatisTerakhir)) {
+            return true;
+        }
         Process p = null;
         BufferedReader r = null;
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Probe --version diingat per sidik berkas, tidak diulang tiap Start (Audit 2776)
+
+- `ServerService.detectBinaryVersionMode`: probe otomatis kini dilewati bila sidik berkas binary + shim (jalur, ukuran, mtime) sama persis dengan probe sukses terakhir — predikat murni `probeBolehDilewati`, ada uji JVM. Start berulang pada binary yang tak berubah tidak lagi men-spawn proses `--version` di tiap cabang. Probe yang gagal tidak pernah diingat, dan probe paksa/tanpa shim tetap selalu dijalankan.
+
+
 ## [Belum rilis] — Deteksi IPv6 untuk cek port diganti cek struktural (Audit 2775)
 
 - `ServerService.bisaBind`: ketersediaan IPv6 kini dicek dari daftar antarmuka jaringan (`ipv6Tersedia`), bukan ditebak dari substring pesan exception yang tergantung JVM/OS — pesan yang berbeda dulu bisa membuat Start ditolak salah sebagai "port sibuk" di perangkat tanpa IPv6. Catatan TOCTOU: jeda antara probe port dan peluncuran proses memang bawaan desain probe-lalu-luncurkan; bila perlombaan kalah, kegagalan bind proses anak sudah ditangkap klasifikasi `portDirebut` (auto-restart mati, pesan jelas ke pengguna). Ada uji JVM baru.

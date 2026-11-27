@@ -634,6 +634,17 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void probeBolehDilewati_hanyaCapSamaPersisDanTakKosong() {
+        // Audit 2776: lewati probe hanya bila cap berkas sama
+        // persis dengan cap probe sukses terakhir.
+        assertTrue(ServerService.probeBolehDilewati("a|1|2|-", "a|1|2|-"));
+        assertTrue(!ServerService.probeBolehDilewati("a|1|3|-", "a|1|2|-"));
+        assertTrue(!ServerService.probeBolehDilewati("", ""));
+        assertTrue(!ServerService.probeBolehDilewati(null, "a|1|2|-"));
+        assertTrue(!ServerService.probeBolehDilewati("a|1|2|-", null));
+    }
+
+    @Test
     public void portTakValid_dianggapSibuk() {
         assertTrue(ServerService.isPortBusy(0));
         assertTrue(ServerService.isPortBusy(-1));
