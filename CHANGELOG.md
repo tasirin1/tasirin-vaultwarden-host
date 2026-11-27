@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Celah header kunci di cek-cepat diperlebar ke 400 aksara (Audit 2892)
+
+- `scripts/cek-cepat.sh`: tiga celah `POLA_BUNGKUS` naik dari `{0,200}` ke `{0,400}` — baris pengisi 250 aksara di antara BEGIN–PRIVATE atau PRIVATE–KEY kini tertangkap. Angka lebih besar (1000/4096) terbukti membuat fase bungkus gawk sangat lambat, jadi 400 adalah titik aman yang menutup skenario terbukti.
+
+
 ## [Belum rilis] — Gerbang menjaga langkah penegakannya sendiri di workflow (Audit 2889)
 
 - `tools/verifikasi-patch.py`: `cek_workflow_yaml` kini juga memeriksa bahwa `build-apk.yml` dan `cek-wajib.yml` tetap memuat langkah wajibnya (verifikasi patch --rentang, cek-cepat, uji-verifikasi 1/2, uji-cek-cepat 1/2). Menghapus satu langkah penegakan dari workflow kini GAGAL di gerbang, bukan lolos diam-diam.
