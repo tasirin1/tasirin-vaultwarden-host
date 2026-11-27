@@ -1771,6 +1771,18 @@ public class TgBackupTest {
     }
 
     @Test
+    public void labelPesan_cuplikSatuBarisMaks60() {
+        // Audit 2879.
+        assertEquals("(pesan kosong)", TgBackup.labelPesan(null));
+        assertEquals("(pesan kosong)", TgBackup.labelPesan(""));
+        assertEquals("halo dunia", TgBackup.labelPesan("halo\ndunia"));
+        String panjang = TgBackup.labelPesan(
+                "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
+                        + "abcdefghijklmnopEKSTRA");
+        assertEquals(60, panjang.length());
+    }
+
+    @Test
     public void kunciIntLongTerdaftar() {
         assertTrue(TgBackup.KUNCI_INT.contains("pin_gagal"));
         // Audit 2570: kunci penghitung batas tunda jam (Audit

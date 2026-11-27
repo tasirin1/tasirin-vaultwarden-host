@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pesan yang gugur dari antrean penuh kini teridentifikasi isinya di log (Audit 2879)
+
+- `TgBackup`: penangan penolakan antrean pesan dulu membuang pesan tertua dan hanya mencatat "pesan tertua dibuang" — pesan penting yang hilang tak bisa dilacak isinya. Semua tugas kirim (tiga eksekutor pesan) kini dibungkus `TugasPesan` berlabel cuplikan isi pesan yang tersamar (satu baris, maksimal 60 aksara, helper murni `labelPesan`), dan penangan penolakan mencatat label tugas yang terbuang. Ditambah uji JVM.
+
+
 ## [Belum rilis] — Peringatan gagal-hapus pesan ber-PIN kini berulang sehari sekali (Audit 2878)
 
 - `TgBot.peringatkanBilaTakBisaHapus`: peringatan bahwa bot tak bisa menghapus pesan ber-PIN dulu terkirim sekali seumur kegagalan (bendera boolean global) — kegagalan yang berlanjut berminggu-minggu, misalnya bot kehilangan hak hapus di grup, tak pernah diperingatkan lagi dan pesan ber-PIN terus menumpuk di riwayat. Gerbangnya kini stempel waktu: peringatan berulang maksimal sekali per 24 jam selama kegagalan berlanjut (predikat murni `bolehPeringatkanHapusLagi`), dan ter-reset seperti sebelumnya saat ada penghapusan yang berhasil. Ditambah uji JVM.

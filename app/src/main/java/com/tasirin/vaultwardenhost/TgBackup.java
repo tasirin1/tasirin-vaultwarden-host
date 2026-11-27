@@ -104,12 +104,47 @@ public final class TgBackup {
         };
     }
 
+    // Audit 2879: tugas kirim berlabel cuplikan isi
+    // (tersamar) agar pesan yang gugur dari antrean
+    // penuh teridentifikasi di log, bukan anonim.
+    private static final class TugasPesan implements Runnable {
+        private final Runnable isi;
+        private final String label;
+
+        TugasPesan(Runnable isi, String label) {
+            this.isi = isi;
+            this.label = label;
+        }
+
+        @Override
+        public void run() {
+            isi.run();
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
+    }
+
+    static String labelPesan(String msg) {
+        if (msg == null || msg.isEmpty()) {
+            return "(pesan kosong)";
+        }
+        String satu = msg.replace('\n', ' ').replace('\r', ' ');
+        if (satu.length() > 60) {
+            satu = satu.substring(0, 60);
+        }
+        return ServerService.samarkanLog(satu);
+    }
+
     private static java.util.concurrent.RejectedExecutionHandler tolakPesan(
             final String gugur, final String penuh, final String catat) {
         return (tugas, eksekutor) -> {
+            Runnable terbuang = null;
             try {
                 if (!eksekutor.isShutdown()) {
-                    eksekutor.getQueue().poll();
+                    terbuang = eksekutor.getQueue().poll();
                     if (!eksekutor.getQueue().offer(tugas)) {
                         try {
                             android.util.Log.w("TgBackup", gugur);
@@ -124,7 +159,10 @@ public final class TgBackup {
             } catch (Exception ignored) {
             }
             try {
-                ServerService.catatLog(catat);
+                // Audit 2879: sebut isi pesan yang terbuang.
+                ServerService.catatLog(terbuang != null
+                        ? catat + " Terbuang: " + terbuang
+                        : catat);
             } catch (Exception ignored) {
             }
         };
@@ -1035,7 +1073,8 @@ public final class TgBackup {
         }
         final String msg = text == null ? "" : text;
         try {
-            TG_PENTING_EXEC.execute(() -> kirimSinkron(app, msg, null));
+            TG_PENTING_EXEC.execute(new TugasPesan(
+                    () -> kirimSinkron(app, msg, null), labelPesan(msg)));
         } catch (Exception ignored) {
         }
     }
@@ -1071,7 +1110,8 @@ public final class TgBackup {
         final String msg = text == null ? "" : text;
         final String markup = markupJson;
         try {
-            TG_INTERAKTIF_EXEC.execute(() -> kirimSinkronKe(app, id, msg, markup));
+            TG_INTERAKTIF_EXEC.execute(new TugasPesan(
+                    () -> kirimSinkronKe(app, id, msg, markup), labelPesan(msg)));
             return true;
         } catch (Exception ignored) {
             return false;
@@ -1094,9 +1134,11 @@ public final class TgBackup {
         final String markup = markupJson;
         try {
             if (penting) {
-                TG_PENTING_EXEC.execute(() -> kirimSinkronKe(app, id, msg, null));
+                TG_PENTING_EXEC.execute(new TugasPesan(
+                        () -> kirimSinkronKe(app, id, msg, null), labelPesan(msg)));
             } else {
-                TG_MSG_EXEC.execute(() -> kirimSinkronKe(app, id, msg, markup));
+                TG_MSG_EXEC.execute(new TugasPesan(
+                        () -> kirimSinkronKe(app, id, msg, markup), labelPesan(msg)));
             }
             return true;
         } catch (Exception ignored) {
@@ -1132,13 +1174,13 @@ public final class TgBackup {
         final String msg = text == null ? "" : text;
         final String markup = markupJson;
         try {
-            TG_INTERAKTIF_EXEC.execute(() -> {
+            TG_INTERAKTIF_EXEC.execute(new TugasPesan(() -> {
                 if (editPerluFallbackKirim(
                         ubahSinkron(app, chatId, messageId, msg, markup))) {
 
                     kirimSinkronKe(app, String.valueOf(chatId), msg, markup);
                 }
-            });
+            }, labelPesan(msg)));
             return true;
         } catch (Exception ignored) {
             return false;
@@ -1156,9 +1198,11 @@ public final class TgBackup {
         final String markup = markupJson;
         try {
             if (markup == null && pesanPenting(msg)) {
-                TG_PENTING_EXEC.execute(() -> kirimSinkron(app, msg, null));
+                TG_PENTING_EXEC.execute(new TugasPesan(
+                    () -> kirimSinkron(app, msg, null), labelPesan(msg)));
             } else {
-                TG_MSG_EXEC.execute(() -> kirimSinkron(app, msg, markup));
+                TG_MSG_EXEC.execute(new TugasPesan(
+                    () -> kirimSinkron(app, msg, markup), labelPesan(msg)));
             }
         } catch (Exception ignored) {
         }
