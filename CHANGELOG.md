@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — app-config.json ganda kini pertama-menang di semua jalur restore (Audit 2824)
+
+- Restore ZIP yang memuat dua `app-config.json` berbeda dulu diterapkan berbeda tergantung jalur: jalur bot memakai yang pertama, jalur pemilih berkas menimpa tiap entri sehingga yang terakhir menang — satu berkas, dua hasil. Jalur pemilih kini juga pertama-menang dan menulis peringatan di log UI saat menemukan config kedua; perilaku kedua jalur sama dan tentu. Backup sah tidak pernah memuat config ganda, jadi tak ada perubahan untuk berkas normal.
+
+
 ## [Belum rilis] — Pindai zip restore kini menegakkan batas jumlah entri (Audit 2823)
 
 - `TgBackup.pindaiZipRestore`: loop pindai dulu memutar seluruh entri tanpa batas — ZIP rekayasa berisi ratusan ribu entri (berkas hanya ±25 MB) membuat pindai berputar lama sebelum penjaga ekstraksi berjalan. Jumlah entri kini ditegakkan di pindai juga memakai batas yang sama dengan ekstraksi (`Util.BATAS_JUMLAH_ENTRI`); pelanggar ditandai `-2` dan `restoreFromZipIsi` menolaknya dengan pesan jelas sebelum server dihentikan. Ditambah uji JVM zip berisi batas+1 entri.

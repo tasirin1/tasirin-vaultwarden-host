@@ -2213,6 +2213,7 @@ public class SettingsActivity extends Activity {
                 new java.util.ArrayList<>();
         JSONObject zipCfg = null;
         boolean zipCfgRusak = false;
+        boolean zipCfgAda = false;
         try {
 
             if (!ServerService.stopAndWait(SettingsActivity.this,
@@ -2317,6 +2318,18 @@ public class SettingsActivity extends Activity {
                             continue;
                         }
                         if ("app-config.json".equals(name)) {
+                            // Audit 2824: config ganda - yang
+                            // pertama menang, samakan jalur bot
+                            // (dulu jalur ini menimpa tiap entri
+                            // sehingga yang terakhir menang).
+                            if (zipCfgAda) {
+                                appendUiLog("[app] Peringatan: app-config.json"
+                                        + " ganda di dalam zip - yang pertama"
+                                        + " dipakai, sisanya diabaikan.");
+                                zis.closeEntry();
+                                continue;
+                            }
+                            zipCfgAda = true;
                             // Audit 981: config rusak tidak boleh
                             // menggagalkan seluruh restore — samakan
                             // jalur bot: DB tetap direstore, config
