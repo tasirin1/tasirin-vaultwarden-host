@@ -817,7 +817,12 @@ public final class Updater {
             return true;
         }
 
-        return rendah.contains("timed out") || rendah.contains("timeout")
+        // Audit 2985: batas WAKTU 20 menit boleh coba lagi -
+        // parsialnya kini disimpan (buangParsialRusak hanya
+        // membuang batas UKURAN), jadi percobaan berikut
+        // melanjutkan dari titik terakhir, bukan dari nol.
+        return rendah.contains("batas waktu")
+                || rendah.contains("timed out") || rendah.contains("timeout")
                 || rendah.contains("failed to connect") || rendah.contains("econn")
                 || rendah.contains("unreachable") || rendah.contains("reset")
                 || rendah.contains("terputus")
@@ -1230,7 +1235,7 @@ public final class Updater {
                     || pesan.contains("content-range") || pesan.contains("416")
                     || pesan.contains("checksum") || pesan.contains("tidak cocok")
                     || pesan.contains("mismatch") || pesan.contains("corrupt")
-                    || pesan.contains("rusak") || pesan.contains("melebihi batas")) {
+                    || pesan.contains("rusak") || pesan.contains("melebihi batas ukuran")) {
                 tmp.delete();
             }
         } catch (Exception ignored) {

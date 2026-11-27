@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Batas waktu unduhan tak lagi membuang parsial dan kini dicoba lagi (Audit 2985)
+
+- `Updater`: pesan batas-waktu 20 menit dan pesan batas-ukuran sama-sama memuat frasa "melebihi batas", jadi `buangParsialRusak` ikut menghapus parsial yang sebenarnya utuh setiap unduhan melewati 20 menit, dan `bolehCobaLagiUnduh` tak mengenal frasa batas-waktu sehingga tak pernah mencoba lagi — koneksi lambat mengunduh dari nol selamanya. Kini yang dibuang hanya parsial "melebihi batas ukuran", dan "batas waktu" masuk kelompok boleh-coba-lagi sehingga percobaan berikut melanjutkan dari parsial yang disimpan. Diuji: pesan batas-waktu persis produksi boleh lanjut, pesan batas-ukuran tetap tidak.
+
+
 ## [Belum rilis] — bekas-hapusan kini menegakkan nama field/konstanta dan fungsi Python (Audit 2915)
 
 - `tools/verifikasi-patch.py`: penegakan `tools/bekas-hapusan.txt` dulu hanya mengenali deklarasi dan pemanggilan metode Java — nama yang tercatat untuk konstanta/field atau fungsi Python di `tools/` tak pernah bisa terdeteksi bila didefinisikan ulang. Daftar kini menerima entri berjenis `field:<nama>`/`konstanta:<nama>` (definisi field Java atau rujukan telanjangnya di teks ter-kupas = GAGAL) dan `python:<nama>` (`def`/penetapan modul atau pemanggilan di `tools/*.py` = GAGAL). Nama polos tetap berarti metode saja — disengaja: `gagalTrustTerakhir` adalah metode getter yang terhapus sementara field bernama sama hidup sah, jadi cek field atas nama polos akan positif palsu permanen. Format didokumentasikan di kepala daftar dan aturan #15 `AGENTS.md`; satu skenario suite baru menanam entri `field:` + `python:` beserta definisinya dan menuntut gerbang gagal menyebut keduanya.

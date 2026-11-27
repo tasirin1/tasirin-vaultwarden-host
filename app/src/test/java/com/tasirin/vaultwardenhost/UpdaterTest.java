@@ -1097,6 +1097,18 @@ public class UpdaterTest {
     }
 
     @Test
+    public void bolehCobaLagiUnduh_batasWaktuBolehLanjut() {
+        // Audit 2985: batas waktu boleh coba lagi (parsial
+        // disimpan untuk dilanjutkan); batas ukuran tidak.
+        assertTrue(Updater.bolehCobaLagiUnduh(new java.io.IOException(
+                "Unduhan binary melebihi batas waktu 20 menit"
+                        + " - dihentikan.")));
+        assertFalse(Updater.bolehCobaLagiUnduh(new java.io.IOException(
+                "Unduhan binary melebihi batas ukuran 134217728"
+                        + " byte - unduhan dibatalkan.")));
+    }
+
+    @Test
     public void bolehCobaLagiUnduh_parsialDiulangDariNol() {
         assertTrue(Updater.bolehCobaLagiUnduh(
                 new java.io.IOException("File parsial rusak (kurang 10 byte) - unduh ulang dari nol.")));
