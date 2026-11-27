@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Daftar kata penyorot galat log kini teruji (Audit 2939)
+
+- `LogActivity`: pemindai kata galat yang mewarnai baris log (GAGAL/ERROR/FAILED) dulu privat dan tanpa satu pun uji — daftar katanya bisa bertambah atau berkurang diam-diam tanpa ada yang merah. Predikatnya kini terlihat sebatas paket dan perilakunya dipaku uji, termasuk semantik awalannya (kata kunci cocok di awal kata yang lebih panjang) dan ketidakpekaan hurufnya. Perilaku produksi tidak berubah.
+
+
 ## [Belum rilis] — Pembaca versi JSON tak lagi tertipu kunci bersarang (Audit 2940)
 
 - `Updater.ambilNilaiJson`: pembaca nilai JSON sederhana untuk berkas penanda versi dulu mengambil kecocokan pertama nama kunci di mana pun ia muncul — berkas berbentuk {"meta":{"version":"0.1"},"version":"1.32.0"} akan dibaca sebagai versi 0.1. Pemindaiannya kini sadar kedalaman dan posisi: hanya kunci tingkat atas yang diikuti titik dua yang diakui, dan string nilai yang menyamai nama kunci tidak dianggap kunci. Semantik barunya dikunci uji.

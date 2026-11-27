@@ -372,6 +372,25 @@ public class LogActivityTest {
     }
 
     @Test
+    public void pindaiGalatBaris_kataKunciTerpaku() {
+        // Audit 2939: daftar kata penyorot galat
+        // (GAGAL/ERROR/FAILED, tak peka huruf, cocok
+        // sebagai awalan) kini terjaga uji.
+        String g = "[tg] Backup GAGAL total";
+        assertTrue(LogActivity.pindaiGalatBaris(g, 0, g.length()));
+        String e1 = "error kecil di tengah";
+        assertTrue(LogActivity.pindaiGalatBaris(e1, 0, e1.length()));
+        String f = "request FAILED ya";
+        assertTrue(LogActivity.pindaiGalatBaris(f, 0, f.length()));
+        String awalan = "KEGAGALAN tercatat";
+        assertTrue(LogActivity.pindaiGalatBaris(awalan, 0, awalan.length()));
+        String bersih = "server jalan normal";
+        assertFalse(LogActivity.pindaiGalatBaris(bersih, 0, bersih.length()));
+        String potong = "GAGA";
+        assertFalse(LogActivity.pindaiGalatBaris(potong, 0, potong.length()));
+    }
+
+    @Test
     public void sisaClip_hitungElapsedMurni() {
         assertEquals(5000, LogActivity.sisaClipMs(35000, 30000));
         assertEquals(0, LogActivity.sisaClipMs(30000, 30000));

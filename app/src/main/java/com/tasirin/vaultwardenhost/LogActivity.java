@@ -381,7 +381,9 @@ public class LogActivity extends Activity {
         return sb != null ? sb : text;
     }
 
-    private static boolean pindaiGalatBaris(String text, int s, int e) {
+    // Audit 2939: visibilitas paket agar teruji -
+    // daftar kata galatnya dulu tak terjaga uji.
+    static boolean pindaiGalatBaris(String text, int s, int e) {
         for (int j = s; j < e; j++) {
             if (awalGalatAt(text, j, e)) {
                 return true;
@@ -390,7 +392,7 @@ public class LogActivity extends Activity {
         return false;
     }
 
-    private static boolean awalGalatAt(String text, int pos, int e) {
+    static boolean awalGalatAt(String text, int pos, int e) {
         char c = text.charAt(pos);
         if (c >= 'a' && c <= 'z') {
             c = (char) (c - 32);
