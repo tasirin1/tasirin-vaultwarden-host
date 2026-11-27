@@ -1069,6 +1069,32 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void tungguPembacaOutput_batasDuaDetik() throws Exception {
+        // Audit 2936: batas join diverifikasi sebagai perilaku,
+        // bukan sekadar tidak-throw. Thread tidur jauh lebih
+        // lama dari batas; metode wajib kembali sekitar 2 detik.
+        Thread tidur = new Thread(() -> {
+            try {
+                Thread.sleep(30000);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        tidur.setDaemon(true);
+        tidur.start();
+        long mulai = System.nanoTime();
+        ServerService.tungguPembacaOutput(tidur);
+        long ms = (System.nanoTime() - mulai) / 1000000L;
+        org.junit.Assert.assertTrue(
+                "kembali terlalu cepat (" + ms + " ms) - join tak berjalan",
+                ms >= 1500);
+        org.junit.Assert.assertTrue(
+                "kembali terlalu lama (" + ms + " ms) - batas 2 dtk dilanggar",
+                ms <= 8000);
+        tidur.interrupt();
+    }
+
+    @Test
     public void tungguPembacaOutput_penjagaAman() throws Exception {
         ServerService.tungguPembacaOutput(null);
         ServerService.tungguPembacaOutput(Thread.currentThread());

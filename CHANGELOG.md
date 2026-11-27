@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Batas join tungguPembacaOutput kini diuji sebagai perilaku (Audit 2936)
+
+- `ServerServiceTest`: uji `tungguPembacaOutput` dulu hanya membuktikan tidak-throw untuk null/thread-sendiri/thread-selesai. Uji baru memverifikasi batas join 2 detiknya sebagai perilaku: thread yang tidur 30 detik membuat metode kembali dalam rentang yang membuktikan join benar berjalan dan batasnya dihormati. Bagian lain temuan ini (metode ber-Context yang hanya bisa diuji null di harness JVM murni) tetap seperti semula — cakupan perilakunya butuh Robolectric yang dilarang aturan repo; tercatat di issue.
+
+
 ## [Belum rilis] — Iterasi KDF backup kini dipin persis oleh uji (Audit 2937)
 
 - `TgBackup.iterasiKdfBackup()`: jumlah iterasi backup baru (600.000 dengan pabrik SHA-256, 100.000 legasi) dulu tidak dipin uji apa pun — penurunan diam-diam tidak akan ketahuan karena round-trip enkripsi tetap lolos (iterasi tersimpan di header berkas). Mengikuti pola `PinCrypto.iterasiStandar(boolean)`, logika nilainya kini berparameter boolean dan dipin persis oleh uji JVM untuk kedua cabang.
