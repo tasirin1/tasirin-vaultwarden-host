@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Settings kini membagikan CA dari folder TLS yang benar-benar aktif (Audit 3020)
+
+- Tombol pasang/bagikan CA di Settings kini memilih berkas CA lewat penentu yang sama dengan bot: folder TLS aktif yang tercatat didahulukan, baru internal, baru folder data. Sebelumnya Settings hanya menebak dua tempat terakhir, sehingga dalam keadaan fallback TLS pengguna bisa memasang CA lama yang sudah tidak menandatangani sertifikat server — HTTPS di perangkat lain pun gagal tanpa penjelasan.
+
+
 ## [Belum rilis] — Backup otomatis saat Start kini terpicu juga dari bot dan autostart boot (Audit 3019)
 
 - Pemicu backup otomatis harian dipindah ke ServerService, satu-satunya pintu semua Start. Sebelumnya hanya Start dari layar aplikasi yang memicunya — pengguna yang menyalakan server lewat bot Telegram atau autostart boot tak pernah mendapat backup susulan hari itu. Pengecekan syaratnya tetap yang lama (saklar aktif, token/chat terisi, belum backup hari ini, sandi terisi), jadi tak ada backup ganda.

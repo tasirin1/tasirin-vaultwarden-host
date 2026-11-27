@@ -1708,18 +1708,33 @@ public class SettingsActivity extends Activity {
         AboutDialog.tampil(this);
     }
 
+    // Audit 3020: pemilihan CA satu pintu seperti
+    // jalur bot (TgBackup.pilihCaKirim) - folder TLS
+    // aktif yang tercatat (KEY_TLS_DIR) didahulukan,
+    // lalu internal, lalu folder data. Dulu Settings
+    // hanya menebak dua tempat terakhir sehingga saat
+    // fallback TLS aktif, CA basi bisa ikut terbagi.
+    private File caUntukBagikan() {
+        SharedPreferences sp = getSharedPreferences(
+                ServerService.PREFS, MODE_PRIVATE);
+        String dirTls = TgBackup.amanString(
+                sp, ServerService.KEY_TLS_DIR, "");
+        File tercatat = (dirTls == null || dirTls.trim().isEmpty())
+                ? null : new File(dirTls, "ca.pem");
+        String dataDir = dataDirInput.getText().toString().trim();
+        if (TextUtils.isEmpty(dataDir)) {
+            dataDir = ServerService.dataDirBawaanSegar();
+        }
+        return TgBackup.pilihCaKirim(tercatat,
+                new File(getFilesDir(), "tls/ca.pem"),
+                new File(dataDir, "tls/ca.pem"));
+    }
+
     private void installCertificate() {
         try {
 
-            File cert = new File(getFilesDir(), "tls/ca.pem");
-            if (!cert.exists()) {
-                String dataDir = dataDirInput.getText().toString().trim();
-                if (TextUtils.isEmpty(dataDir)) {
-                    dataDir = ServerService.dataDirBawaanSegar();
-                }
-                cert = new File(dataDir, "tls/ca.pem");
-            }
-            if (!cert.exists()) {
+            File cert = caUntukBagikan();
+            if (cert == null || !cert.exists()) {
                 toast(getString(R.string.ca_belum));
                 return;
             }
@@ -1736,15 +1751,8 @@ public class SettingsActivity extends Activity {
 
     private void bagikanCa() {
         try {
-            File cert = new File(getFilesDir(), "tls/ca.pem");
-            if (!cert.exists()) {
-                String dataDir = dataDirInput.getText().toString().trim();
-                if (TextUtils.isEmpty(dataDir)) {
-                    dataDir = ServerService.dataDirBawaanSegar();
-                }
-                cert = new File(dataDir, "tls/ca.pem");
-            }
-            if (!cert.exists()) {
+            File cert = caUntukBagikan();
+            if (cert == null || !cert.exists()) {
                 toast(getString(R.string.ca_belum));
                 return;
             }
