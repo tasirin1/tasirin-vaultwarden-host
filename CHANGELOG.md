@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Server gantung di-restart lebih cepat: kesempatan TCP dibatasi satu tick (Audit 2773)
+
+- `ServerService`: gerbang kesempatan-kedua pada `healthFail` kini memakai predikat murni `beriKesempatanTcp` dengan `BATAS_KESEMPATAN_TCP = 1` — TCP yang masih tersambung (bukti lemah; kernel tetap menerima koneksi walau proses gantung) hanya membeli satu tick tambahan, bukan dua. Server yang /alive-nya mati kini di-restart sesudah 4 tick (paling lama ±6 menit pada interval 2 menit), bukan 5 tick (±10 menit). Ada uji JVM baru untuk predikatnya.
+
+
 ## [Belum rilis] — Daftar kupas cek-cepat ditambah aksara kontrol dan keluarga GitHub (Audit 2891, sebagian)
 
 - `scripts/cek-cepat.sh`: fase bungkus kini mengupas aksara kontrol C0/DEL (termasuk ESC pada urutan ANSI), NEL (U+0085), kontrol bidi (U+202A–202E), dan isolate (U+2066–2069); charset token GitHub klasik dilebarkan dengan `_`, `-`, `:` agar belahan di aksara itu menyatu kembali dan tertangkap. Belahan dengan `"`, `(`, `)`, dan backtick SENGAJA belum ditutup: kupas aksara itu terbukti positif palsu di berkas repo sendiri (fixture uji Java dan CHANGELOG markdown) — dicatat di issue #2891.

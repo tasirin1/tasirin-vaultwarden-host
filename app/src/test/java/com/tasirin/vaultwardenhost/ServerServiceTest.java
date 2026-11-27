@@ -225,6 +225,17 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void beriKesempatanTcp_hanyaSatuTick() {
+        // Audit 2773: TCP tersambung hanya membeli satu tick
+        // kesempatan kedua; tick berikutnya restart berjalan.
+        org.junit.Assert.assertTrue(ServerService.beriKesempatanTcp(0));
+        org.junit.Assert.assertTrue(ServerService.beriKesempatanTcp(1));
+        org.junit.Assert.assertFalse(ServerService.beriKesempatanTcp(2));
+        org.junit.Assert.assertFalse(ServerService.beriKesempatanTcp(3));
+        org.junit.Assert.assertEquals(1, ServerService.BATAS_KESEMPATAN_TCP);
+    }
+
+@Test
     public void perbaruiPenghitungHealth_berselangSelingTidakSalingMenolkan() {
         // Audit 1698: urutan mode tak-sehat bergantian tidak
         // boleh menghapus hitungan mode sebelahnya.

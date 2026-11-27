@@ -443,6 +443,17 @@ public class ServerService extends Service {
     private static final java.util.concurrent.atomic.AtomicInteger healthTcpLolos =
             new java.util.concurrent.atomic.AtomicInteger(0);
 
+    // Audit 2773: TCP yang masih tersambung hanya bukti lemah
+    // (kernel tetap menerima koneksi walau proses gantung),
+    // jadi kesempatan kedua sebelum restart dibatasi satu
+    // tick saja - dulu dua tick ekstra membuat server gantung
+    // melayani error ~10 menit sebelum di-restart.
+    static final int BATAS_KESEMPATAN_TCP = 1;
+
+    static boolean beriKesempatanTcp(int lolos) {
+        return lolos <= BATAS_KESEMPATAN_TCP;
+    }
+
     private static volatile boolean batalStart = false;
 
     private static final java.util.concurrent.atomic.AtomicLong nomorStop =
@@ -3530,9 +3541,10 @@ public class ServerService extends Service {
             boolean tcpOk = tcpTersambung(portLoopback());
             if (prosesHidup && tcpOk) {
                 int lolos = healthTcpLolos.incrementAndGet();
-                if (lolos < 3) {
+                if (beriKesempatanTcp(lolos)) {
                     appendLog("[health] 3x gagal tapi port masih tersambung"
-                            + " - server TIDAK dihentikan, coba lagi (" + lolos + "/3).");
+                            + " - server TIDAK dihentikan, coba lagi (" + lolos + "/"
+                            + BATAS_KESEMPATAN_TCP + ").");
                     healthFails.set(2);
                     return;
                 }
