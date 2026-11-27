@@ -89,6 +89,10 @@ public class ServerService extends Service {
 
     static final String KEY_SERVER_DIMINTA = "server_diminta";
     public static final String KEY_UPDATE_VERSION = "update_version";
+    // Audit 2964: bukti panic getrandom yang terlihat
+    // saat server BERJALAN (bukan saat probe) - dicatat
+    // persisten agar Start berikutnya bisa memakainya.
+    static final String KEY_PANIC_RUNTIME = "kernel_panic_runtime";
 
     public static final String KEY_HTTPS = "https";
     public static final String KEY_ADMIN_TOKEN = "admin_token";
@@ -2303,6 +2307,38 @@ public class ServerService extends Service {
         return true;
     }
 
+    // Audit 2964: bukti panic dari probe ATAU dari
+    // catatan runtime persisten sama-sama cukup untuk
+    // mencoba shim di perangkat terklasifikasi modern.
+    static boolean buktiPanicShim(boolean probePanic, boolean runtimeTercatat) {
+        return probePanic || runtimeTercatat;
+    }
+
+    private boolean panicRuntimeTercatat() {
+        try {
+            return TgBackup.amanBoolean(getSharedPreferences(PREFS,
+                    Context.MODE_PRIVATE), KEY_PANIC_RUNTIME, false);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void catatPanicRuntime() {
+        try {
+            getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                    .edit().putBoolean(KEY_PANIC_RUNTIME, true).commit();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void bersihPanicRuntime() {
+        try {
+            getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                    .edit().remove(KEY_PANIC_RUNTIME).commit();
+        } catch (Exception ignored) {
+        }
+    }
+
     private boolean siapkanShim(SesiStart sesi) {
         boolean legacy = KernelCompat.legacyPerangkat();
         sesi.shim = null;
@@ -2332,7 +2368,8 @@ public class ServerService extends Service {
             }
         }
 
-        if (!legacy && isKernelRandomPanic(lastVersionOutput)) {
+        if (!legacy && buktiPanicShim(
+                isKernelRandomPanic(lastVersionOutput), panicRuntimeTercatat())) {
             // Bukti panic getrandom dari probe mengalahkan klasifikasi:
             // perangkat yang os.version-nya tak terparse dianggap modern
             // sehingga shim tak pernah dipasang, dan saran lama (tekan
@@ -2347,6 +2384,10 @@ public class ServerService extends Service {
                 if (detectBinaryVersionMode(sesi.binary, PROBE_PAKSA_SHIM)) {
                     appendLog("[app] Shim getrandom dipasang berdasar bukti panic"
                             + " - start dengan LD_PRELOAD.");
+                    // Audit 2964: bukti runtime terpakai -
+                    // dibersihkan agar tak memicu cabang ini
+                    // selamanya sesudah konfigurasi terbukti.
+                    bersihPanicRuntime();
                     return true;
                 }
                 sesi.shim = null;
@@ -2716,6 +2757,11 @@ public class ServerService extends Service {
                 // salah golong jadi crash biasa.
                 String tail = tailLog(200);
                 if (isKernelRandomPanic(tail)) {
+                    // Audit 2964: catat bukti panic runtime
+                    // secara persisten - Start berikutnya
+                    // memakainya di siapkanShim walau probe
+                    // --version saat itu bersih.
+                    catatPanicRuntime();
 
                     autoRestart = false;
                     String kernel2 = KernelCompat.kernelSekarang();

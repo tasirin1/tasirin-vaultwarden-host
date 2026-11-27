@@ -1069,6 +1069,15 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void buktiPanicShim_gabunganBukti() {
+        // Audit 2964: bukti runtime persisten setara bukti probe.
+        org.junit.Assert.assertTrue(ServerService.buktiPanicShim(true, false));
+        org.junit.Assert.assertTrue(ServerService.buktiPanicShim(false, true));
+        org.junit.Assert.assertTrue(ServerService.buktiPanicShim(true, true));
+        org.junit.Assert.assertFalse(ServerService.buktiPanicShim(false, false));
+    }
+
+    @Test
     public void tungguPembacaOutput_batasDuaDetik() throws Exception {
         // Audit 2936: batas join diverifikasi sebagai perilaku,
         // bukan sekadar tidak-throw. Thread tidur jauh lebih

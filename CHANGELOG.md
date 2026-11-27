@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Bukti panic getrandom saat server berjalan kini dicatat dan dipakai Start berikutnya (Audit 2964)
+
+- `ServerService`: perangkat yang terklasifikasi modern tetapi binary-nya hanya panic getrandom saat berjalan (bukan saat probe `--version`) dulu masuk lingkaran buntu — klasifikasi runtime mendeteksi panic tetapi tidak mencatat bukti apa pun, Start berikutnya mulai lagi tanpa shim dan crash lagi, dan saran Cek Update tergerbang klasifikasi yang sama. Deteksi panic runtime kini dicatat ke preferensi persisten dan persiapan shim membacanya sebagai bukti yang setara dengan hasil probe; bukti dibersihkan sesudah start terbukti jalan dengan shim. Keputusan gabungan buktinya fungsi murni yang diuji JVM.
+
+
 ## [Belum rilis] — Penolakan antrean backup otomatis kini tercatat di log aplikasi (Audit 2962)
 
 - `TgBackup.maybeAutoBackup`: sesudah mencatat "akan dijalankan", tugas diserahkan ke antrean latar tanpa memeriksa hasil penyerahannya — bila antrean penuh tugas dibuang dan satu-satunya jejak ada di logcat, bukan log aplikasi yang dilihat pengguna. Hasil penyerahan kini diperiksa dan penolakannya dicatat ke log aplikasi, sama seperti jalur lewati lain di metode yang sama.
