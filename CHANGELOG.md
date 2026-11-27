@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Hook pre-push kini ikut memindai branch/tag baru (Audit 3030)
+
+- Kait pre-push sekarang memverifikasi juga isi ref baru (branch atau tag yang belum ada di remote) dengan rentang dari titik temunya dengan main. Sebelumnya push campuran yang memuat ref baru lolos tanpa isi ref barunya pernah dipindai kait — hanya gerbang PR/CI yang tersisa sebagai jaringnya.
+
+
 ## [Belum rilis] — Gerbang kini memeriksa kesamaan dua daftar di cek-wajib (Audit 3028)
 
 - Workflow cek-wajib menyimpan daftar berkas yang sama di dua tempat (pemicu push dan saringan push campuran) tanpa penjaga kesamaan. Gerbang kini membandingkan keduanya secara mekanis dan gagal bila berbeda, agar suntingan berikutnya tak bisa membuat saringan salah menilai push.
