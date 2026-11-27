@@ -15468,6 +15468,16 @@ def _bagian_awal(tmp):
             rc != 0 and "urutannya rusak" in out)
     shutil.rmtree(kurungjava, ignore_errors=True)
 
+    indukstyle = klon(tmp, "indukstyle")
+    berkas_is = os.path.join(
+        indukstyle, "app", "src", "main", "res", "values", "styles.xml")
+    with open(berkas_is, "a", encoding="utf-8") as f:
+        f.write('\n<style name="GayaUji2919" parent="TidakAdaSamaSekali2919" />\n')
+    rc, out = jalan(indukstyle, [sys.executable, GERBANG, "--semua"])
+    periksa("parent style telanjang yatim: gerbang gagal (Audit 2919)",
+            rc != 0 and "TidakAdaSamaSekali2919" in out)
+    shutil.rmtree(indukstyle, ignore_errors=True)
+
     kurungkts = klon(tmp, "kurungkts")
     berkas_kk = os.path.join(kurungkts, "build.gradle.kts")
     with open(berkas_kk, "a", encoding="utf-8") as f:

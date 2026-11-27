@@ -23764,6 +23764,16 @@ def _himpun_definisi_mentah():
                     acuan[tipe].add(nama_pendek)
         for tipe, nama in pola_generik_r.findall(isi):
             acuan.setdefault(tipe, set()).add(rapikan(tipe, nama))
+        if path.endswith(".xml"):
+            # Audit 2919: parent style telanjang
+            # (parent="NamaStyle") adalah acuan style
+            # juga - bentuk @style/ sudah tertangkap
+            # pola gabung di atas.
+            for induk in re.findall(
+                    r'<style(?=[\s/>])[^>]*?\bparent="([^"]+)"', isi):
+                if induk.startswith("@") or induk.startswith("android:"):
+                    continue
+                acuan.setdefault("style", set()).add(rapikan("style", induk))
     return definisi, acuan
 
 def parse_xml_aman(path):

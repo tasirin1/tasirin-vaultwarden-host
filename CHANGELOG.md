@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang acuan yatim kini membaca parent style telanjang (Audit 2919)
+
+- `tools/verifikasi-patch.py` (`himpun_definisi`): acuan resource dulu hanya dihimpun dari bentuk `@jenis/nama` dan `R.jenis.nama` — atribut `parent="NamaStyle"` telanjang pada tag `<style>` (bentuk yang dipakai `styles.xml` repo ini) tidak pernah dibaca, jadi style berinduk salah ketik atau sudah terhapus lolos gerbang dan baru gagal di AAPT CI. Bentuk parent telanjang kini dihimpun sebagai acuan style dengan perapian yang sama seperti definisinya; terverifikasi 0 yatim palsu di pohon kini. Ditambah satu skenario suite.
+
+
 ## [Belum rilis] — Gerbang kurung kini sadar urutan dan mencakup berkas .kts (Audit 2918)
 
 - `tools/verifikasi-patch.py` (`cek_kurung_java`): pemeriksaan kurung dulu menghitung selisih neto per jenis — urutan rusak yang seimbang-neto seperti `)()(` lolos — dan berkas `.kts` tidak dicek sama sekali. Kini pemindaian tumpukan sadar-urutan atas teks terkupas yang sama (menangkap ketidakseimbangan neto, urutan rusak, dan silang jenis) untuk `.java` dan `.kts`; terverifikasi 0 positif palsu di seluruh pohon. Ditambah dua skenario suite.
