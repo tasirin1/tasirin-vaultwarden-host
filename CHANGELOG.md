@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Deteksi metode hilang kini membaca signatur terbelah antarbaris (Audit 2903)
+
+- `tools/verifikasi-patch.py` (`nama_metode_hilang`): penilaian tiap baris terhapus sendirian meloloskan penghapusan metode yang signaturnya terbelah — tipe balik di baris sendiri, nama metode di baris berikut (bentuk umum metode berparameter panjang) — sehingga cek "dihapus tapi masih dipanggil" dan peringatan catatan hapusan sama-sama buta. Baris terhapus kini dikelompokkan per berkas dan dinilai juga sebagai sambungan 2–3 baris berurutan, dengan saringan dan regex yang sama persis seperti penilaian per baris sebelumnya (diekstrak ke `_nama_dari_kandidat_signatur` agar tak ada dua salinan aturan).
+
+
 ## [Belum rilis] — Sinkron terjemahan kini mencakup string-array + kutip tunggal; drift about_icons diperbaiki (Audit 2901)
 
 - `tools/verifikasi-patch.py` (`cek_sinkron_terjemah`): perbandingan paritas `values` vs `values-in` kini mencakup `string-array` (dulu hanya `string` dan `plurals`) dan pola `name=` menerima kutip tunggal maupun ganda (kutip tunggal sah XML tapi dulu tak terlihat sebagai definisi). Drift nyata yang disembunyikan celah itu langsung diperbaiki: `about_icons` ada di `values/arrays.xml` tapi hilang dari `values-in/arrays.xml` — kini ditambahkan dengan isi ikon yang sama persis (ikon emoji netral bahasa). Batasan yang disadari dan dibiarkan: cek ini membandingkan paritas NAMA, bukan isi teks — kesegaran terjemahan (teks Inggris berubah, padanan Indonesianya basi) tidak bisa dinilai mekanis lintas bahasa dan tetap urusan peninjauan manusia.

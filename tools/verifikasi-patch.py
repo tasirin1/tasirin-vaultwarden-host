@@ -24521,28 +24521,53 @@ def cek_aturan_repo(gagal, berubah):
             gagal.append("Berkas biner format tak dikenal tak boleh masuk repo: "
                          + path)
 
+def _nama_dari_kandidat_signatur(baris):
+    """Nama metode dari satu kandidat teks signatur, atau None.
+
+    Saringan + regex yang sama seperti penilaian per baris
+    lama; dipakai juga untuk kandidat sambungan antarbaris.
+    """
+    rapi = baris.rstrip()
+    if not re.search(r"\b(public|protected|private|static)\b", baris) \
+            and not rapi.endswith("{") \
+            and (rapi.endswith(";")
+                 or not re.match(r"\s*\w[\w<>\[\].,? ]*\s+\w+\s*\(", baris)):
+        return None
+    cocok = re.match(
+        r"\s*(?:(?:public|protected|private)\s+)?(?:static\s+)?"
+        r"[\w<>\[\].,? ]+\s+(\w+)\s*\(", baris)
+    if not cocok or cocok.group(1) in KATA_KUNCI_JAVA:
+        return None
+    if re.search(r"\bnew\s+" + re.escape(cocok.group(1)) + r"\b", baris):
+        return None
+    return cocok.group(1)
+
+
 def nama_metode_hilang(diff, lewati_berkas=()):
     hilang = []
+    # Audit 2903: nilai juga sambungan 2-3 baris berurutan -
+    # signatur terbelah (tipe balik di baris sendiri, nama di
+    # baris berikut) dulu tak terlihat penilaian per baris.
+    per_berkas = {}
     for path, baris in hapus_java(diff):
-
-        rapi = baris.rstrip()
-        if not re.search(r"\b(public|protected|private|static)\b", baris) \
-                and not rapi.endswith("{") \
-                and (rapi.endswith(";")
-                     or not re.match(r"\s*\w[\w<>\[\].,? ]*\s+\w+\s*\(", baris)):
-            continue
-
+        per_berkas.setdefault(path, []).append(baris)
+    for path, daftar in per_berkas.items():
         if path in lewati_berkas or not os.path.isfile(os.path.join(AKAR, path)):
             continue
-        cocok = re.match(
-            r"\s*(?:(?:public|protected|private)\s+)?(?:static\s+)?"
-            r"[\w<>\[\].,? ]+\s+(\w+)\s*\(", baris)
-        if not cocok or cocok.group(1) in KATA_KUNCI_JAVA:
-            continue
-
-        if re.search(r"\bnew\s+" + re.escape(cocok.group(1)) + r"\b", baris):
-            continue
-        hilang.append(cocok.group(1))
+        for i, baris in enumerate(daftar):
+            kandidat = [baris]
+            if i + 1 < len(daftar):
+                kandidat.append(baris.rstrip() + " "
+                                + daftar[i + 1].strip())
+            if i + 2 < len(daftar):
+                kandidat.append(baris.rstrip() + " "
+                                + daftar[i + 1].strip() + " "
+                                + daftar[i + 2].strip())
+            for teks in kandidat:
+                nama = _nama_dari_kandidat_signatur(teks)
+                if nama and nama not in hilang:
+                    hilang.append(nama)
+                    break
     return hilang
 
 _CACHE_BARIS = {}
