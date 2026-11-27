@@ -1908,7 +1908,15 @@ public class UpdaterTest {
             selesai.countDown();
         });
         assertTrue(mulai.await(5, java.util.concurrent.TimeUnit.SECONDS));
-        Thread.sleep(300);
+        // Audit 2814: dulu Thread.sleep(300) - kini tunggu
+        // sinyal parkir yang deterministik (statusMesin
+        // hanya diisi penunggu) dengan tenggat.
+        long tenggat1 = System.currentTimeMillis() + 5000;
+        while (!"menunggu uji".equals(Updater.statusMesin)
+                && System.currentTimeMillis() < tenggat1) {
+            Thread.sleep(20);
+        }
+        assertEquals("menunggu uji", Updater.statusMesin);
         assertFalse(dapat.get());
         // Reentrant: thread yang sama boleh mengunci lagi.
         Updater.pasangKunciGlobal("menunggu uji");
@@ -1935,7 +1943,13 @@ public class UpdaterTest {
             Updater.lepasKunciGlobal();
             selesai.countDown();
         });
-        Thread.sleep(300);
+        // Audit 2814: pola sama - tunggu sinyal parkir,
+        // bukan tidur buta 300 mdtk.
+        long tenggat2 = System.currentTimeMillis() + 5000;
+        while (!"menunggu uji".equals(Updater.statusMesin)
+                && System.currentTimeMillis() < tenggat2) {
+            Thread.sleep(20);
+        }
         assertEquals("menunggu uji", Updater.statusMesin);
         Updater.lepasKunciGlobal();
         assertTrue(selesai.await(5,

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Uji kunci pasang global tak lagi tidur buta 300 mdtk (Audit 2814)
+
+- `UpdaterTest`: dua skenario kunci pasang global dulu memakai `Thread.sleep(300)` untuk memberi waktu thread penunggu parkir — penanda waktu rapuh di runner CI yang lambat. Keduanya kini menunggu sinyal yang deterministik: `statusMesin` hanya diisi oleh penunggu yang parkir (pemegang kunci tidak mengisinya), dipolling dengan tenggat 5 detik sebelum asersi. Cakupan ujinya sama, kerapuhannya hilang.
+
+
 ## [Belum rilis] — Wake lock poll bot dipangkas 10 menit menjadi 90 detik (Audit 2810)
 
 - `TgBotReceiver`: wake lock per alarm dulu 10 menit padahal satu siklus poll hanya satu long-poll 50 detik dengan timeout baca 65 detik — rantai poll yang tersangkut menahan STB/HP bangun 10 menit per alarm. Kini 90 detik (cukup untuk timeout baca + memproses maks. 10 update); pelepasan di `finally` tidak berubah.
