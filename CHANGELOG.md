@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Restart lambat kini ikut dihentikan permanen (maks 10x per jam)
+
+Penahan restart berulang selama ini hanya jendela geser 5 menit (maks 3x) plus cacah percobaan yang ter-reset tiap server hidup >60 detik — server yang crash tiap ~3 menit lolos dari keduanya dan restart selamanya. recordRestart kini juga menghitung restart dalam jendela absolut 1 jam (maks 10x, tidak direset uptime); melewati batas itu auto-restart dimatikan permanen dengan status, log, dan pemberitahuan Telegram yang sama seperti jalur 5 menit. Riwayat per jam ikut dilupakan saat Start manual. Helper murni baru hitungRestartJendela teruji JVM; hitungRestartBaru kini membungkusnya agar uji lama tetap berlaku.
+
+Closes #2760
+
+
 ## [Belum rilis] — Uji JVM untuk penandaBakPohon dan gantiAtomikInti
 
 Dua helper swap berkas murni (java.io) yang

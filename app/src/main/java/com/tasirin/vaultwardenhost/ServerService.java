@@ -357,10 +357,13 @@ public class ServerService extends Service {
 
     private static final long RESTART_WINDOW_MS = 5 * 60 * 1000L;
     private static final int RESTART_WINDOW_MAX = 3;
+    private static final long RESTART_JAM_MS = 60 * 60 * 1000L;
+    private static final int RESTART_JAM_MAX = 10;
     private static final int RESTART_HISTORY_MAX = 10;
     private static final String CRASH_LOG_NAME = "crash-last.log";
     private static final List<Long> RESTART_TIMES = new ArrayList<>();
     private static final List<String> RESTART_REASONS = new ArrayList<>();
+    private static final List<Long> RESTART_JAM_TIMES = new ArrayList<>();
 
     private static void posUtama(Runnable r, long tundaMs) {
         Util.postTunda(r, tundaMs);
@@ -2683,6 +2686,7 @@ public class ServerService extends Service {
         synchronized (RESTART_TIMES) {
             RESTART_TIMES.clear();
             RESTART_REASONS.clear();
+            RESTART_JAM_TIMES.clear();
         }
         restartAttempt.set(0);
     }
@@ -2916,6 +2920,7 @@ public class ServerService extends Service {
         String stamp;
         stamp = LOG_TS.get().format(tanggalLog());
         int n;
+        int nj;
         synchronized (RESTART_TIMES) {
 
             while (!RESTART_TIMES.isEmpty()
@@ -2930,17 +2935,32 @@ public class ServerService extends Service {
                 RESTART_REASONS.remove(0);
             }
             n = hitungRestartBaru(RESTART_TIMES, now);
+            while (!RESTART_JAM_TIMES.isEmpty()
+                    && now - RESTART_JAM_TIMES.get(0) > RESTART_JAM_MS) {
+                RESTART_JAM_TIMES.remove(0);
+            }
+            RESTART_JAM_TIMES.add(now);
+            while (RESTART_JAM_TIMES.size() > 32) {
+                RESTART_JAM_TIMES.remove(0);
+            }
+            nj = hitungRestartJendela(RESTART_JAM_TIMES, now, RESTART_JAM_MS);
         }
-        if (n >= RESTART_WINDOW_MAX) {
+        boolean perJam = n < RESTART_WINDOW_MAX && nj >= RESTART_JAM_MAX;
+        if (n >= RESTART_WINDOW_MAX || perJam) {
+            int j = perJam ? nj : n;
             autoRestart = false;
             String tail = tailLog(14);
-            setStatus("Restart berulang (" + n + "x dalam 5 mnt) - dihentikan.\n"
+            setStatus("Restart berulang (" + j + "x dalam "
+                    + (perJam ? "1 jam" : "5 mnt") + ") - dihentikan.\n"
                     + shorten(tail, 300));
-            appendLog("[app] Restart berulang (" + n
-                    + "x dalam 5 mnt) - auto-restart dimatikan.");
-            writeCrashLog("restart loop (" + n + "x/5mnt)");
-            TgBackup.sendPenting(this, "Server restart berulang (" + n
-                    + "x dalam 5 menit) - auto-restart dimatikan.\n"
+            appendLog("[app] Restart berulang (" + j
+                    + "x dalam " + (perJam ? "1 jam" : "5 mnt")
+                    + ") - auto-restart dimatikan.");
+            writeCrashLog("restart loop (" + j
+                    + (perJam ? "x/1jam" : "x/5mnt") + ")");
+            TgBackup.sendPenting(this, "Server restart berulang (" + j
+                    + "x dalam " + (perJam ? "1 jam" : "5 menit")
+                    + ") - auto-restart dimatikan.\n"
                     + ekorLogTelegram(tail, 600));
 
             akhiriEpisodeGagal(idEpisodaProsesAktif());
@@ -2950,9 +2970,14 @@ public class ServerService extends Service {
     }
 
     static int hitungRestartBaru(java.util.List<Long> riwayat, long kini) {
+        return hitungRestartJendela(riwayat, kini, RESTART_WINDOW_MS);
+    }
+
+    static int hitungRestartJendela(java.util.List<Long> riwayat, long kini,
+            long jendelaMs) {
         int n = 0;
         for (long t : riwayat) {
-            if (kini - t <= RESTART_WINDOW_MS) {
+            if (kini - t <= jendelaMs) {
                 n++;
             }
         }

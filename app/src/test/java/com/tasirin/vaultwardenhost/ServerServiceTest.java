@@ -690,6 +690,22 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void hitungRestartJendela_satuJamTangkapSiklusLambat() {
+        java.util.List<Long> riwayat = new java.util.ArrayList<Long>();
+        long kini = 100_000_000L;
+        for (int i = 9; i >= 1; i--) {
+            riwayat.add(kini - i * 200_000L);
+        }
+        riwayat.add(kini - 3_700_000L);
+        assertEquals(9, ServerService.hitungRestartJendela(
+                riwayat, kini, 60L * 60 * 1000));
+        riwayat.add(kini);
+        assertEquals(10, ServerService.hitungRestartJendela(
+                riwayat, kini, 60L * 60 * 1000));
+        assertEquals(2, ServerService.hitungRestartBaru(riwayat, kini));
+    }
+
+    @Test
     public void cmdlineServer_ketatBukanSmokeTest() {
         assertTrue(ServerService.cmdlineServer(
                 "/data/user/0/com.tasirin.vaultwardenhost/files/bin/vaultwarden-armeabi-v7a"));
