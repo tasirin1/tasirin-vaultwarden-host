@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pesan "sudah login" kini menyebut masa berlaku sesi (Audit 2990)
+
+- `TgBot`: pesan balasan "Kamu sudah login" dulu tidak menyebut kedaluwarsa sesi, sementara pesan login-berhasil, petunjuk pemakaian /login, dan teks /help semuanya menyebut berlaku 7 hari — pengguna bisa mengira sesinya berlaku sampai ia /logout sendiri, lalu bingung saat perintah ditolak sesudah sesi berakhir. Pesan itu kini menyebut masa berlakunya juga.
+
+
 ## [Belum rilis] — Pesan gagal restart dari bot tak lagi menyalahkan server yang berhenti (Audit 2989)
 
 - `TgBot`: balasan perintah /restart saat pengiriman perintahnya gagal dulu berbunyi "Restart hanya bisa saat server berjalan" — padahal pemeriksaan berjalan sudah lolos dan server justru sedang jalan; yang gagal adalah pengiriman dari latar (batasan Android). Pesan itu bertentangan dengan jawaban /start sesudahnya ("Server sudah jalan"). Cabang gagal dan cabang pengecualiannya kini berkata jujur seperti /stop: gagal dari background, buka aplikasi untuk restart.

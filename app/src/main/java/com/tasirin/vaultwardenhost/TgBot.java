@@ -3189,8 +3189,11 @@ public final class TgBot {
             return false;
         }
         if (sudahLogin(ctx, idRuang)) {
+            // Audit 2990: sebut masa berlaku sesi juga -
+            // pesan bot lain (login berhasil, petunjuk,
+            // /help) semuanya menyebut 7 hari.
             balas(ctx, idRuang, "Kamu sudah login. Semua perintah bisa langsung"
-                    + " dipakai; kirim /logout untuk keluar.");
+                    + " dipakai; login berlaku 7 hari, kirim /logout untuk keluar.");
             return false;
         }
         String pin = pinTebakanArgumen(arg);
