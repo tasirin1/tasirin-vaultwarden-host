@@ -13,6 +13,16 @@ import org.junit.Test;
 public class HttpsCompatTest {
 
     @Test
+    public void cacheFactorySegar_batas24Jam() {
+        // Audit 2851.
+        long jam = 3600_000L;
+        org.junit.Assert.assertTrue(HttpsCompat.cacheFactorySegar(1000L, 1000L + 23 * jam));
+        org.junit.Assert.assertFalse(HttpsCompat.cacheFactorySegar(1000L, 1000L + 24 * jam));
+        org.junit.Assert.assertFalse(HttpsCompat.cacheFactorySegar(0L, 1000L));
+        org.junit.Assert.assertFalse(HttpsCompat.cacheFactorySegar(2000L, 1000L));
+    }
+
+    @Test
     public void peringatanRantaiBerkas_kedaluwarsaDanMenua() {
         // Audit 2849.
         long kini = 1_700_000_000_000L;

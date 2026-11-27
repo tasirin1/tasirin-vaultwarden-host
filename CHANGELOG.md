@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Factory SSL kini dibangun ulang tiap 24 jam, tak lagi abadi (Audit 2851)
+
+- `HttpsCompat`: factory SSL dulu di-cache selamanya — proses `ServerService` yang berumur berminggu-minggu tetap mempercayai root CA yang sudah dicabut/didistrust di store sistem sampai aplikasi di-restart. Cache kini berumur maksimal 24 jam (predikat murni `cacheFactorySegar`, penanda waktu dicatat saat bangun); lewat itu `socketFactory` membangun ulang dari store sistem terkini lewat jalur bangun + jeda-gagal yang sudah ada. Ditambah uji JVM untuk batas umurnya.
+
+
 ## [Belum rilis] — Kunci privat lama di storage publik kini dibersihkan juga saat setup TLS gagal (Audit 2850)
 
 - `ServerService.prepareTls`: perbaikan Audit 2761 menutup pembuatan kunci baru di storage publik, tetapi `ca-key.pem`/`key.pem` lama di folder `tls/` publik hanya dibersihkan pada jalur sukses — bila setup internal gagal total (penyimpanan penuh/rusak) dan fallback publik ditolak, server memang tidak start, namun kunci lama tertinggal di `/sdcard` dan bisa dibaca aplikasi apa pun berizin storage tanpa batas waktu (pemegang `ca-key.pem` bisa menerbitkan sertifikat untuk IP vault; pemegang `key.pem` bisa menyamar sebagai server). Penghapusan kunci privat kini diekstrak ke satu pintu `hapusKunciPrivatDari` dan jalur gagal total ikut memanggilnya untuk folder lama non-internal; kunci akan dibuat ulang pada Start sukses berikutnya.

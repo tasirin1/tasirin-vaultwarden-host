@@ -21,6 +21,18 @@ public final class HttpsCompat {
 
     private static volatile SSLSocketFactory cached;
 
+    private static volatile long cachedPada = 0;
+
+    // Audit 2851: factory tak lagi abadi - sesudah 24 jam
+    // dibangun ulang agar pencabutan/distrust root CA di
+    // store sistem ikut berlaku tanpa restart aplikasi.
+    static final long UMUR_MAKS_CACHE_MS = 24L * 3600 * 1000;
+
+    static boolean cacheFactorySegar(long dibangunPada, long kini) {
+        return dibangunPada > 0 && kini >= dibangunPada
+                && kini - dibangunPada < UMUR_MAKS_CACHE_MS;
+    }
+
     private static volatile long bangunGagalAt = 0;
 
     static final long JEDA_BANGUN_GAGAL_MS = 60_000;
@@ -250,12 +262,14 @@ public final class HttpsCompat {
 
     private static SSLSocketFactory socketFactory(Context ctx) throws Exception {
         SSLSocketFactory f = cached;
-        if (f != null) {
+        if (f != null && cacheFactorySegar(cachedPada,
+                android.os.SystemClock.elapsedRealtime())) {
             return f;
         }
         synchronized (HttpsCompat.class) {
 
-            if (cached != null) {
+            if (cached != null && cacheFactorySegar(cachedPada,
+                    android.os.SystemClock.elapsedRealtime())) {
                 return cached;
             }
             if (!bolehBangunTrust(bangunGagalAt,
@@ -366,6 +380,7 @@ public final class HttpsCompat {
             }
             sc.init(null, tmf.getTrustManagers(), acakBersama());
             cached = new PabrikTls12(sc.getSocketFactory());
+            cachedPada = android.os.SystemClock.elapsedRealtime();
             bangunGagalAt = 0;
 
             protokolCache = null;
