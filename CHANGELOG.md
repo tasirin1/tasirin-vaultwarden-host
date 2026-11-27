@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perbaikan build: satu panggilan uji bertanda tangan lama bolehLewatiCobaLagi (Refs #2863)
+
+- `AutoUpdateTest`: satu uji (`tetapCobaBilaBelumPernahGagal`) masih memanggil bentuk lama tiga argumen dari `bolehLewatiCobaLagi` yang diubah Audit 2863 — dua uji lain di berkas yang sama sudah diperbarui saat itu, yang ini terlewat dan menggagalkan kompilasi uji di CI. Dipindah ke bentuk dua argumen dengan maksud yang sama (belum pernah gagal = stempel 0 = tidak boleh melewati coba lagi).
+
+
 ## [Belum rilis] — Bukti panic getrandom saat server berjalan kini dicatat dan dipakai Start berikutnya (Audit 2964)
 
 - `ServerService`: perangkat yang terklasifikasi modern tetapi binary-nya hanya panic getrandom saat berjalan (bukan saat probe `--version`) dulu masuk lingkaran buntu — klasifikasi runtime mendeteksi panic tetapi tidak mencatat bukti apa pun, Start berikutnya mulai lagi tanpa shim dan crash lagi, dan saran Cek Update tergerbang klasifikasi yang sama. Deteksi panic runtime kini dicatat ke preferensi persisten dan persiapan shim membacanya sebagai bukti yang setara dengan hasil probe; bukti dibersihkan sesudah start terbukti jalan dengan shim. Keputusan gabungan buktinya fungsi murni yang diuji JVM.

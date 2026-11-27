@@ -63,6 +63,9 @@ public class AutoUpdateTest {
 
     @Test
     public void tetapCobaBilaBelumPernahGagal() {
-        assertFalse(AutoUpdate.bolehLewatiCobaLagi(true, 0, 10_000_000L));
+        // Audit 2863: tanda tangan menyusut (syarat cache
+        // >= 1 MB dibuang) - belum pernah gagal berarti
+        // stempel 0, dan lewati-coba-lagi selalu false.
+        assertFalse(AutoUpdate.bolehLewatiCobaLagi(0, 10_000_000L));
     }
 }
