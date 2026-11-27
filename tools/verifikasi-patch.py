@@ -23814,7 +23814,10 @@ def cek_acuan_yatim(gagal):
                          % (jenis, ", ".join(yatim[:10])))
 
 def namespace_aplikasi():
-    tetap = baca("app/build.gradle.kts")
+    # Audit 2921: baca dari teks terupas komentar -
+    # baris namespace yang tinggal di komentar tak
+    # boleh tertukar namespace asli.
+    tetap = kupas_komentar_saja(baca("app/build.gradle.kts"))
     cocok = re.search(r'namespace\s*=\s*"([^"]+)"', tetap)
     return cocok.group(1) if cocok else ""
 
@@ -24003,7 +24006,12 @@ def disebut_kata(nama, lewat=()):
 
 def cek_berkas_java_dihapus(gagal, hapus):
     for path in hapus:
-        if not (path.startswith("app/src/main/java/") and path.endswith(".java")):
+        # Audit 2921: berkas uji ikut diperiksa - helper
+        # uji yang terhapus tapi masih dirujuk uji lain
+        # sama putusnya dengan kelas utama.
+        if not ((path.startswith("app/src/main/java/")
+                 or path.startswith("app/src/test/java/"))
+                and path.endswith(".java")):
             continue
         kelas = os.path.splitext(os.path.basename(path))[0]
         siapa = disebut_kata(kelas, lewat=[path])
@@ -25245,13 +25253,18 @@ def cek_panggil_bekas_hapusan(gagal, diff):
         sebelumnya_mentah = {}
         for path, baris in baris_tambah:
             kode = kupas_java(baris)
-            gabung = sebelumnya.get(path, "").rstrip() + kode.lstrip()
+            # Audit 2921: sambungan dinilai sampai 3 baris
+            # (2 baris sebelumnya), bukan 2 baris saja.
+            gabung = (sebelumnya.get(path, ["", ""])[0].rstrip()
+                      + sebelumnya.get(path, ["", ""])[1].rstrip()
+                      + kode.lstrip())
             if pola.search(kode) or pola.search(gabung):
                 gagal.append(
                     "Baris baru memanggil %s() yang sudah dihapus: %s"
                     % (nama, baris.strip()[:80]))
                 break
-            gabung_mentah = (sebelumnya_mentah.get(path, "").rstrip()
+            gabung_mentah = (sebelumnya_mentah.get(path, ["", ""])[0].rstrip()
+                             + " " + sebelumnya_mentah.get(path, ["", ""])[1].rstrip()
                              + " " + baris.strip())
             if pola_refleksi.search(baris) or pola_refleksi.search(gabung_mentah):
                 if any(tanda in gabung_mentah for tanda in
@@ -25263,9 +25276,11 @@ def cek_panggil_bekas_hapusan(gagal, diff):
                         % (nama, baris.strip()[:80]))
                     break
             if kode.strip():
-                sebelumnya[path] = kode
+                antri = sebelumnya.get(path, ["", ""])
+                sebelumnya[path] = [antri[1], kode]
             if baris.strip():
-                sebelumnya_mentah[path] = baris
+                antri_m = sebelumnya_mentah.get(path, ["", ""])
+                sebelumnya_mentah[path] = [antri_m[1], baris]
 
 _POLA_SIGNATUR_METODE = re.compile(
     r"\s*(?:(?:public|protected|private)\s+)?(?:static\s+)?"
@@ -25502,6 +25517,10 @@ def cek_import_mati(gagal):
                              bersih, flags=re.M):
             jalan_imp = m.group(2)
             if jalan_imp.endswith(".*"):
+                # Audit 2921: impor wildcard dilewati
+                # sadar - "tak terpakai" tak bisa dibuktikan
+                # murah (kelas mana pun dari paketnya bisa
+                # sedang dipakai). Keterbatasan tercatat.
                 continue
             nama = jalan_imp.split(".")[-1]
 
@@ -25622,6 +25641,11 @@ def cek_pola_berisiko(peringatan, diff, berubah, rentang=""):
         cek = jalan_longgar("git", "diff", "--check", r[0] + "..." + r[2])
     else:
         cek = jalan_longgar("git", "diff", "--check")
+        # Audit 2921: perubahan yang sudah di-staged
+        # tak terlihat diff --check polos di mode lokal.
+        cek2 = jalan_longgar("git", "diff", "--cached", "--check")
+        if cek2:
+            cek = (cek + "\n" + cek2) if cek else cek2
     if cek:
         peringatan.append("Rapikan spasi diff --check: " + cek.strip().splitlines()[0][:100])
 

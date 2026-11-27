@@ -15478,6 +15478,21 @@ def _bagian_awal(tmp):
             rc != 0 and "TidakAdaSamaSekali2919" in out)
     shutil.rmtree(indukstyle, ignore_errors=True)
 
+    hapusuji = klon(tmp, "hapusuji")
+    berkas_hu = os.path.join(
+        hapusuji, "app", "src", "test", "java", "com", "tasirin",
+        "vaultwardenhost", "TgBotTest.java")
+    with open(berkas_hu, "a", encoding="utf-8") as f:
+        f.write("\n// PinGateTest\n")
+    git(hapusuji, "rm", "-q", os.path.join(
+        "app", "src", "test", "java", "com", "tasirin",
+        "vaultwardenhost", "PinGateTest.java"))
+    git(hapusuji, "add", "-A")
+    rc, out = jalan(hapusuji, [sys.executable, GERBANG])
+    periksa("berkas uji dihapus tapi masih disebut: gerbang gagal (Audit 2921)",
+            rc != 0 and "PinGateTest" in out and "masih disebut" in out)
+    shutil.rmtree(hapusuji, ignore_errors=True)
+
     berkasbesar = klon(tmp, "berkasbesar")
     with open(os.path.join(berkasbesar, "catatan-besar.txt"), "w",
               encoding="utf-8") as f:

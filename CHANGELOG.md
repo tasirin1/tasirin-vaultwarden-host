@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kumpulan celah kecil gerbang ditutup (Audit 2921)
+
+- `tools/verifikasi-patch.py`: (1) `cek_berkas_java_dihapus` kini mencakup berkas uji di `app/src/test/java/`, bukan hanya sumber utama; (2) pemeriksaan spasi mode lokal kini juga menjalankan `git diff --cached --check` agar perubahan yang sudah di-staged terlihat; (3) `namespace_aplikasi` membaca teks terupas komentar agar baris namespace di komentar tak tertukar yang asli; (5) sambungan lintas-baris di `cek_panggil_bekas_hapusan` diperluas dari 2 menjadi 3 baris; (6) pelewatan impor wildcard kini didokumentasikan sebagai keterbatasan sadar di titiknya. Butir (4) soal `OVERRIDE_AMAN` dipertahankan sebagai peringatan — panggilan `super.` bisa berarti induk framework (sah) atau induk serepo (putus) dan gerbang tak punya resolusi tipe untuk membedakannya; kompilasi CI tetap penegaknya. Ditambah satu skenario suite.
+
+
 ## [Belum rilis] — Gerbang aturan repo: batas 1 MB kini berlaku untuk teks; varian nama .env terblokir (Audit 2920)
 
 - `tools/verifikasi-patch.py` (`cek_aturan_repo`): batas ukuran 1 MB dulu hanya berlaku untuk berkas bukan-teks, jadi blob teks raksasa (mis. base64) bisa masuk repo tanpa hambatan; kini batas berlaku untuk semua berkas kecuali dua berkas perkakas gerbang yang memang intrinsik besar (gerbang dan suite-nya, disebut namanya). Blokir berkas env juga diperluas dari nama persis `.env`/`.env.*` ke varian berakhiran `.env`, mengandung `.env.`, dan `.envrc` (mis. `config.env`). Ditambah dua skenario suite.
