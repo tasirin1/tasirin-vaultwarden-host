@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cabang cadangan cek vektor cek-cepat diselaraskan ke berkas XML saja (Audit 2932)
+
+- `scripts/cek-cepat.sh`: cabang cadangan terakhir pemeriksaan path vektor (hanya terjangkau bila `rg` dan `grep -P` sama-sama tidak ada) dulu memindai semua berkas di `app/src/main/res` tanpa `--include='*.xml'` seperti dua cabang lainnya — berkas biner yang kebetulan memuat byte `.9` bisa menggagalkan secara palsu. Cabang itu kini memakai pembatasan yang sama. Cabang ini tidak terjangkau di mesin yang memiliki rg/grep -P, jadi verifikasinya pada perintah cabangnya langsung di scratch, bukan skenario suite.
+
+
 ## [Belum rilis] — cek-cepat tak lagi menghitung komentar di blok kode sebagai judul README (Audit 2931)
 
 - `scripts/cek-cepat.sh` (`struktur_judul`): penghitung judul dulu membaca semua baris `# ...` termasuk yang berada di dalam pagar kode — blok kode berisi komentar `#` di satu README saja membuat struktur judul antar-terjemahan dianggap beda dan gerbang gagal palsu. Penghitung kini sadar pagar kode dan melewati isinya. Struktur ketiga README saat ini terverifikasi identik dengan dan tanpa kesadaran pagar. Ditambah satu skenario suite.

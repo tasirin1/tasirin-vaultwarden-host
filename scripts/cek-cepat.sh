@@ -38,7 +38,10 @@ elif grep -R -P '' . >/dev/null 2>&1; then
     gagal_msg "path vektor tanpa nol depan (pakai 0.9 bukan .9)";
   fi
 else
-  TEMUAN="$(grep -R -E -n '(^|[^0-9])\.-?[0-9]' app/src/main/res 2>/dev/null || true)"
+  # Audit 2932: cabang cadangan diselaraskan - dulu tanpa
+  # --include, berkas biner di res/ ikut terpindai dan bisa
+  # gagal-palsu oleh byte .9 di dalamnya.
+  TEMUAN="$(grep -R -E -n --include='*.xml' '(^|[^0-9])\.-?[0-9]' app/src/main/res 2>/dev/null || true)"
   if [ -n "$TEMUAN" ]; then
     gagal_msg "path vektor tanpa nol depan (pakai 0.9 bukan .9)";
   fi
