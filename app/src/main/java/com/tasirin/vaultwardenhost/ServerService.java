@@ -2690,7 +2690,16 @@ public class ServerService extends Service {
                     matikanProsesTegas(p, 5000);
                 } finally {
 
-                    lepasProses(p, this::efekProsesBerhenti);
+                    if (!lepasProses(p, this::efekProsesBerhenti)) {
+                        // Audit 2973: proses sudah dilepas
+                        // jalur lain (healthFail, efek null) -
+                        // efek berhenti tetap wajib jalan agar
+                        // status tak beku di "restart otomatis"
+                        // padahal Stop membatalkan restart itu.
+                        // Isi efeknya tergerbang keadaan, jadi
+                        // aman bila start baru sungguh berjalan.
+                        efekProsesBerhenti();
+                    }
                     hapusTandaStop(p);
 
                     jalankanStartTertundaStop();

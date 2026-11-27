@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Status berhenti tak lagi beku bila Stop berbarengan dengan restart kesehatan (Audit 2973)
+
+- `ServerService`: bila pemeriksaan kesehatan sedang membunuh server yang gantung tepat saat pengguna menekan Stop, jalur kesehatan melepas proses tanpa efek dan thread Stop kalah perebutan lepas-proses — efek berhentinya (status "Stopped") tidak pernah jalan, sehingga status membeku di "restart otomatis" padahal Stop sudah membatalkan restart itu. Thread Stop kini tetap menjalankan efek berhenti bila perebutan kalah; isi efeknya sendiri tergerbang keadaan sehingga aman bila start baru sungguh sedang berjalan.
+
+
 ## [Belum rilis] — Start yang menyerah menunggu jam STB kini meninggalkan jejak (Audit 2972)
 
 - `ServerService`: jatah coba-ulang Start karena jam STB salah (30 kali, semenit sekali) dulu habis tanpa jejak — cabang kehabisannya hanya mengosongkan penghitung, tanpa log, status, atau pesan, lalu episode ditutup sebagai gagal permanen. Pengguna hanya melihat server berhenti mencoba. Cabang itu kini mencatat log dan status yang menyuruh memperbaiki jam lalu menekan Start, sama seperti cabang kehabisan jatah data.
