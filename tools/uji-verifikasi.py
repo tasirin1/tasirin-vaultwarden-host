@@ -15521,6 +15521,18 @@ def _bagian_awal(tmp):
     shutil.rmtree(kurungkts, ignore_errors=True)
 
 
+    acu = klon(tmp, "acuhantu")
+    berkas_agen = os.path.join(acu, "AGENTS.md")
+    with open(berkas_agen, encoding="utf-8") as f:
+        isi_agen = f.read()
+    with open(berkas_agen, "w", encoding="utf-8") as f:
+        f.write(isi_agen + "\nAcuan hantu: `KelasHantu.metodeHantu` dan "
+                "metodeHantuPolos() polos.\n")
+    rc, out = jalan(acu, [sys.executable, GERBANG])
+    periksa("acuan AGENTS tanpa () / tanpa backtick tertangkap (Audit 2929)",
+            rc != 0 and "metodeHantu" in out)
+    shutil.rmtree(acu, ignore_errors=True)
+
 def _bagian_akhir(tmp):
     sub716 = klon(tmp, "sub716")
     berkas_aksi716 = os.path.join(

@@ -25492,12 +25492,40 @@ def cek_paritas_resource(gagal):
     except OSError as e:
         gagal.append("Paritas resource tak terbaca: %s" % e)
 
+_EKST_ACUAN = frozenset((
+    "java", "md", "xml", "yaml", "yml", "txt", "py", "sh", "kts",
+    "json", "properties", "gradle", "toml", "cfg", "ini", "html",
+    "css", "js", "rs", "c", "h", "so", "a", "zip", "apk", "db",
+    "sql", "png", "jpg", "svg", "webp", "lock", "gitignore", "env"))
+
 def cek_acuan_agents(gagal):
     teks = baca("AGENTS.md")
     if not teks.strip():
         gagal.append("AGENTS.md tak terbaca — panduan agen wajib ada")
         return
     for nama in sorted(set(re.findall(r"`([A-Za-z_]\w*)\(\)`", teks))):
+        if not masih_didefinisikan(nama):
+            gagal.append("AGENTS.md menyebut metode %s() yang tak ada di app/src"
+                         " — perbarui dokumen (atau kode)" % nama)
+    # Audit 2929: penyebutan tanpa () dan tanpa backtick
+    # ikut diperiksa. Kelas.metode: segmen kedua yang
+    # pendek (<3 aksara, mis. MM.dd / README.id), ekstensi
+    # berkas (ServerService.java), dan metode JDK yang
+    # sengaja disebut sebagai acuan (Collections.sort /
+    # List.sort) dikecualikan agar tak gagal-palsu.
+    dalam = " ".join(re.findall(r"`([^`]*)`", teks))
+    luar = re.sub(r"`[^`]*`", " ", teks)
+    for sumber in (dalam, luar):
+        for kelas, metode in sorted(set(
+                re.findall(r"\b([A-Z]\w*)\.([a-z]\w*)", sumber))):
+            if len(metode) < 3 or metode in _EKST_ACUAN or metode == "sort":
+                continue
+            if not masih_didefinisikan(metode):
+                gagal.append("AGENTS.md menyebut metode %s.%s yang tak ada"
+                             " di app/src — perbarui dokumen (atau kode)"
+                             % (kelas, metode))
+    for nama in sorted(set(re.findall(
+            r"(?<![\w.])([A-Za-z_]\w*)\(\)", luar))):
         if not masih_didefinisikan(nama):
             gagal.append("AGENTS.md menyebut metode %s() yang tak ada di app/src"
                          " — perbarui dokumen (atau kode)" % nama)

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang memeriksa acuan metode di AGENTS.md tanpa () dan tanpa backtick (Audit 2929)
+
+- `tools/verifikasi-patch.py` (`cek_acuan_agents`): dulu hanya bentuk `` `nama()` `` yang diperiksa — penyebutan seperti `Util.postTunda` (tanpa kurung) atau nama polos tanpa backtick tak pernah diperiksa, jadi acuan basi lolos diam-diam. Kini bentuk `Kelas.metode` di dalam maupun luar backtick dan `nama()` polos di luar backtick ikut diperiksa; segmen pendek, ekstensi berkas, dan metode JDK yang sengaja disebut sebagai acuan (`Collections.sort`) dikecualikan. Teruji probe: nol positif palsu pada AGENTS.md saat ini. Ditambah satu skenario suite.
+
+
 ## [Belum rilis] — Hook pre-push tak lagi membentuk rentang tak sah untuk penghapusan branch (Audit 2928)
 
 - `tools/pasang-hook.sh` (isi hook pre-push): baris ref penghapusan branch (`sha_lokal` nol semua) dulu tetap membentuk rentang `sha_remote..0000...` yang tak sah, sehingga gerbang membuang satu lari verifikasi ke fallback `HEAD~1...HEAD` yang tak terkait dan bisa gagal-palsu. Baris hapusan kini dilewati sejak awal — tak ada konten baru untuk diverifikasi; bila semua baris adalah hapusan, jalur mode lokal yang berjalan seperti biasa.
