@@ -4898,14 +4898,19 @@ public final class TgBackup {
                     "wv_fallback_for",
                     PinGate.KEY_PIN_HASH, "clip_hash"));
 
+    // Audit 2819/3011: metadata era binary (versi terpasang,
+    // SHA binary, pin pilihan binary/web-vault) TIDAK boleh
+    // diimpor - backup tidak berisi binary-nya, jadi nilai dari
+    // config hanya membuat penanda berbohong dan bisa mem-pin
+    // ulang binary lama + SHA-nya. Era ditentukan berkas di
+    // disk dan unduhan terverifikasi, bukan isi backup.
     static final java.util.Set<String> BOLEH_IMPOR = new java.util.HashSet<>(
             java.util.Arrays.asList(ServerService.KEY_PORT,
-                    ServerService.KEY_AUTO_START, ServerService.KEY_UPDATE_VERSION,
+                    ServerService.KEY_AUTO_START,
                     ServerService.KEY_HTTPS, ServerService.KEY_AUTO_UPDATE,
                     ServerService.KEY_AUTO_UPDATE_WV,
                     ServerService.KEY_AUTO_RESTART_UPDATE,
-                    ServerService.KEY_BIN_SHA, ServerService.KEY_PORT_MIGRATED,
-                    ServerService.KEY_BIN_PILIH, ServerService.KEY_WV_PILIH,
+                    ServerService.KEY_PORT_MIGRATED,
                     KEY_TG_AUTO));
 
     static final java.util.Set<String> KUNCI_BOOLEAN = new java.util.HashSet<>(
@@ -5258,7 +5263,6 @@ public final class TgBackup {
         }
 
         SharedPreferences.Editor ed = cur.edit();
-        boolean eraBinaryBerubah = false;
 
         Iterator<String> keys = prefs.keys();
         while (keys.hasNext()) {
@@ -5282,27 +5286,6 @@ public final class TgBackup {
                     if (ServerService.KEY_PORT.equals(k)) {
 
                         ed.putString(k, ServerService.normalisasiPort(teks));
-                    } else if (ServerService.KEY_UPDATE_VERSION.equals(k)) {
-
-                        String normal = Updater.normVersion(teks);
-                        ed.putString(k, normal == null ? "" : normal);
-                        eraBinaryBerubah = true;
-                    } else if (ServerService.KEY_BIN_PILIH.equals(k)) {
-
-                        String normal = Updater.normalisasiPinVersi(teks);
-                        ed.putString(k, normal == null ? "" : normal);
-                        eraBinaryBerubah = true;
-                    } else if (ServerService.KEY_WV_PILIH.equals(k)) {
-
-                        String normal = Updater.normalisasiPinVersi(teks);
-                        ed.putString(k, normal == null ? "" : normal);
-                    } else if (ServerService.KEY_BIN_SHA.equals(k)) {
-
-                        if (shaHexValid(teks)) {
-                            ed.putString(k, teks.trim().toLowerCase(
-                                    java.util.Locale.US));
-                            eraBinaryBerubah = true;
-                        }
                     } else {
                         ed.putString(k, teks);
                     }
@@ -5353,13 +5336,6 @@ public final class TgBackup {
             if (!prefs.has(e.getKey())) {
                 ed.putBoolean(e.getKey(), e.getValue());
             }
-        }
-        if (eraBinaryBerubah) {
-            ed.remove(Updater.KEY_BIN_SHA_PIN);
-            ed.remove(Updater.KEY_BIN_SHA_FP);
-            ed.remove(Updater.KEY_VERSI_FP);
-            ed.remove(Updater.KEY_VERSI_FILE);
-            ed.remove(ServerService.KEY_BIN_MANUAL_FP);
         }
         ed.apply();
     }

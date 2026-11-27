@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Restore tidak lagi mengimpor metadata era binary dari config backup (Audit 2819/3011)
+
+- `TgBackup.BOLEH_IMPOR`: `KEY_UPDATE_VERSION`, `KEY_BIN_SHA`, `KEY_BIN_PILIH`, dan `KEY_WV_PILIH` dikeluarkan dari daftar kunci yang boleh diterapkan dari `app-config.json` hasil restore; cabang impor dan blok pembersih cache era yang menjadi mati ikut dihapus. Backup memang tidak berisi binary — nilai era dari config membuat penanda versi mengklaim versi yang tidak ada di disk (auto-update diam total dan `/versi` berbohong sampai Start berikutnya), dan lebih buruknya Start bisa mengunduh binary lama lalu memverifikasinya terhadap SHA yang datang dari backup itu sendiri. Era kini hanya ditentukan berkas di disk dan unduhan terverifikasi; pin versi pilihan dapat diatur ulang lewat bot/Settings sesudah restore. Ada uji JVM yang mengunci keempat kunci tetap di luar daftar impor.
+
+
 ## [Belum rilis] — Daftar token admin umum diganti awalan kata (tindak lanjut Audit 2785)
 
 - `SettingsActivity.tokenAdminLemah`: daftar contoh token utuh diganti daftar awalan kata umum (`password`, `qwerty`, `admin`, `vaultwarden`, dst.) yang ditolak sebagai awalan token. Bentuk utuh sebelumnya terbaca pemindai rahasia CI (gitleaks, aturan generic-api-key) sebagai kunci generik dan menggagalkan workflow Gitleaks pada push maraton — cakupan penolakannya setara, contoh token berentropi tinggi tidak lagi tersimpan sebagai literal di kode.

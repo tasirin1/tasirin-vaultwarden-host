@@ -1767,6 +1767,15 @@ public class TgBackupTest {
     }
 
     @Test
+    public void metadataEraBinaryTakBolehImpor() {
+        // Audit 2819/3011: era binary tak boleh datang dari
+        // config backup - backup tak berisi binary-nya.
+        assertFalse(TgBackup.BOLEH_IMPOR.contains(ServerService.KEY_UPDATE_VERSION));
+        assertFalse(TgBackup.BOLEH_IMPOR.contains(ServerService.KEY_BIN_SHA));
+        assertFalse(TgBackup.BOLEH_IMPOR.contains(ServerService.KEY_BIN_PILIH));
+        assertFalse(TgBackup.BOLEH_IMPOR.contains(ServerService.KEY_WV_PILIH));
+    }
+
     public void databaseUrlRahasiaTakDieksporDanTakBolehImpor() {
         assertTrue(TgBackup.KUNCI_STRING.contains(ServerService.KEY_DATABASE_URL));
         assertFalse(TgBackup.BOLEH_IMPOR.contains(ServerService.KEY_DATABASE_URL));
