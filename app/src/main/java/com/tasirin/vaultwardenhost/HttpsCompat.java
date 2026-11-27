@@ -160,11 +160,23 @@ public final class HttpsCompat {
     private HttpsCompat() {
     }
 
+    // Audit 2848: galat bangun trust terakhir, agar cabang
+    // jeda di apply() bisa melaporkan degradasi (dulu diam).
+    static volatile Exception galatBangunTerakhir;
+
     public static void apply(HttpURLConnection c, Context ctx) {
         if (c instanceof HttpsURLConnection) {
             try {
                 ((HttpsURLConnection) c).setSSLSocketFactory(socketFactory(ctx));
-            } catch (JedaBangunTrust ignored) {
+            } catch (JedaBangunTrust jeda) {
+                // Audit 2848: jangan diam - selama jeda bangun
+                // ulang, koneksi memakai trust bawaan platform
+                // dan itu harus tercatat (sekali per pesan
+                // berbeda, dijaga catatGagalTrust).
+                Exception sebab = galatBangunTerakhir;
+                catatGagalTrust(new Exception("Trust tambahan belum"
+                        + " terbangun (jeda bangun ulang); koneksi memakai"
+                        + " trust bawaan Android. Sebab: " + sebab));
             } catch (Exception e) {
                 bangunGagalAt = android.os.SystemClock.elapsedRealtime();
                 catatGagalTrust(e);
@@ -226,6 +238,7 @@ public final class HttpsCompat {
                 return bangunFactory(ctx);
             } catch (Exception e) {
                 bangunGagalAt = android.os.SystemClock.elapsedRealtime();
+                galatBangunTerakhir = e;
                 throw e;
             }
         }

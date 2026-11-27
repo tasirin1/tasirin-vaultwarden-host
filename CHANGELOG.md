@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Jatuh ke trust bawaan selama jeda bangun trust kini tercatat (Audit 2848)
+
+- `HttpsCompat.apply`: cabang `JedaBangunTrust` (jendela 60 detik sesudah satu kegagalan membangun factory trust tambahan) dulu menelan keadaan itu tanpa catatan apa pun — semua koneksi pada jendela itu memakai trust bawaan platform (pin rantai GitHub dan pengecualian CA user hilang) secara diam-diam dan berulang. Galat bangun terakhir kini disimpan (`galatBangunTerakhir`) dan cabang jeda melaporkannya lewat `catatGagalTrust`, tercatat di log aplikasi sekali per pesan berbeda seperti jalur galat biasa. Perilaku cadangannya sendiri tidak diubah: koneksi tetap jalan dengan trust bawaan Android daripada putus total di perangkat yang store CA-nya memang tak bisa dibangun.
+
+
 ## [Belum rilis] — Server ikut auto-start sesudah update aplikasi (Audit 2843)
 
 - `BootReceiver`: blok auto-start tidak lagi dikecualikan untuk `MY_PACKAGE_REPLACED`. Sebelumnya, sesudah APK diperbarui sistem membunuh proses aplikasi dan server Vaultwarden, tetapi receiver melewati seluruh blok auto-start untuk aksi itu — vault mati sampai pengguna membuka aplikasi atau mengirim `/start`, padahal auto-start aktif. Kini update paket diperlakukan sama seperti boot; bila sistem menolak start dari latar, jalur penundaan yang sudah ada (start susulan saat aplikasi dibuka) tetap berlaku.
