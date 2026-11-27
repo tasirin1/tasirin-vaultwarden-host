@@ -2256,31 +2256,129 @@ public final class TgBackup {
         if (tlsDir == null || potret == null) {
             return;
         }
-        for (String nama : BERKAS_TLS) {
-            try {
-                File f = new File(tlsDir, nama);
+        // Audit 3004: rollback tak lagi menulis langsung
+        // ke berkas live. Semua isi potret ditulis dulu
+        // ke staging; gagal staging berarti berkas live
+        // tidak disentuh sama sekali.
+        java.util.Map<String, File> staging =
+                new java.util.HashMap<>();
+        try {
+            for (String nama : BERKAS_TLS) {
                 byte[] isi = potret.get(nama);
                 if (isi == null) {
-                    try {
-                        f.delete();
-                    } catch (Exception ignored) {
+                    continue;
+                }
+                File tmp = new File(tlsDir, nama + ".rollback-tmp");
+                tulisStagingRollback(tmp, isi);
+                staging.put(nama, tmp);
+            }
+        } catch (Exception e) {
+            ServerService.catatLog("[tls] Rollback TLS dibatalkan:"
+                    + " staging gagal (" + e.getClass().getSimpleName()
+                    + ") - berkas live tidak diubah.");
+            for (File tmp : staging.values()) {
+                try {
+                    tmp.delete();
+                } catch (Exception ignored) {
+                }
+            }
+            return;
+        }
+        java.util.Set<String> selesai = new java.util.HashSet<>();
+        kembalikanPasanganTls(tlsDir, potret, staging, selesai,
+                "ca.pem", "ca-key.pem");
+        kembalikanPasanganTls(tlsDir, potret, staging, selesai,
+                "cert.pem", "key.pem");
+        for (String nama : BERKAS_TLS) {
+            if (selesai.contains(nama)) {
+                continue;
+            }
+            File f = new File(tlsDir, nama);
+            byte[] isi = potret.get(nama);
+            if (isi == null) {
+                try {
+                    if (f.exists() && !f.delete()) {
+                        ServerService.catatLog("[tls] Rollback TLS:"
+                                + " gagal menghapus " + nama + ".");
                     }
-                } else {
-                    java.io.FileOutputStream fos = null;
-                    try {
-                        fos = new java.io.FileOutputStream(f);
-                        fos.write(isi);
-                        fos.getFD().sync();
-                    } finally {
-                        if (fos != null) {
-                            try {
-                                fos.close();
-                            } catch (Exception ignored2) {
-                            }
-                        }
-                    }
+                } catch (Exception e) {
+                    ServerService.catatLog("[tls] Rollback TLS:"
+                            + " gagal menghapus " + nama + " ("
+                            + e.getClass().getSimpleName() + ").");
+                }
+            } else {
+                try {
+                    ServerService.gantiAtomik(staging.get(nama), f);
+                } catch (Exception e) {
+                    ServerService.catatLog("[tls] Rollback TLS:"
+                            + " gagal mengembalikan " + nama + " ("
+                            + e.getClass().getSimpleName() + ").");
+                }
+            }
+        }
+        for (File tmp : staging.values()) {
+            try {
+                if (tmp.exists()) {
+                    tmp.delete();
                 }
             } catch (Exception ignored) {
+            }
+        }
+        TlsCert.fsyncDirektori(tlsDir);
+    }
+
+    private static void tulisStagingRollback(File tmp, byte[] isi)
+            throws java.io.IOException {
+        try (java.io.FileOutputStream fos =
+                new java.io.FileOutputStream(tmp)) {
+            fos.write(isi);
+            fos.getFD().sync();
+        }
+    }
+
+    private static void kembalikanPasanganTls(File tlsDir,
+            java.util.Map<String, byte[]> potret,
+            java.util.Map<String, File> staging,
+            java.util.Set<String> selesai,
+            String namaCert, String namaKey) {
+        boolean adaCert = potret.get(namaCert) != null;
+        boolean adaKey = potret.get(namaKey) != null;
+        if (adaCert != adaKey) {
+            return;
+        }
+        selesai.add(namaCert);
+        selesai.add(namaKey);
+        if (!adaCert) {
+            for (String nama : new String[]{namaCert, namaKey}) {
+                try {
+                    File f = new File(tlsDir, nama);
+                    if (f.exists() && !f.delete()) {
+                        ServerService.catatLog("[tls] Rollback TLS:"
+                                + " gagal menghapus " + nama + ".");
+                    }
+                } catch (Exception e) {
+                    ServerService.catatLog("[tls] Rollback TLS:"
+                            + " gagal menghapus " + nama + " ("
+                            + e.getClass().getSimpleName() + ").");
+                }
+            }
+            return;
+        }
+        boolean ok = TlsCert.tukarPasanganAtomik(tlsDir, namaCert,
+                namaKey, staging.get(namaCert), staging.get(namaKey));
+        if (ok) {
+            return;
+        }
+        ServerService.catatLog("[tls] Rollback TLS: tukar pasangan "
+                + namaCert + " gagal - coba pasang satu per satu.");
+        for (String nama : new String[]{namaCert, namaKey}) {
+            try {
+                ServerService.gantiAtomik(staging.get(nama),
+                        new File(tlsDir, nama));
+            } catch (Exception e) {
+                ServerService.catatLog("[tls] Rollback TLS:"
+                        + " gagal mengembalikan " + nama + " ("
+                        + e.getClass().getSimpleName() + ").");
             }
         }
     }

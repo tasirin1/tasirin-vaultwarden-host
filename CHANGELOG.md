@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Rollback TLS kini atomik per berkas dan per pasangan (Audit 3004)
+
+- `TgBackup.kembalikanTls`: pengembalian sertifikat saat restore gagal dulu menulis tiap berkas langsung ke tujuannya — proses mati di tengah jalan meninggalkan folder sertifikat campuran dan berkas yang terpotong, dan kegagalannya ditelan diam-diam. Kini isi lama ditulis dulu ke berkas sementara (gagal di tahap ini berarti berkas asli tidak disentuh), pasangan sertifikat dan kuncinya ditukar kembali sebagai satu pasangan, berkas lain dipasang lewat jalur atomik yang sama seperti pemasangan biasa, dan setiap kegagalan dicatat di log.
+
+
 ## [Belum rilis] — /status dan /versi kini menjawab versi dari pintu yang sama (Audit 3002)
 
 - `TgBot.statusText`: versi di /status dulu dibaca dari field versi binary mentah, yang kosong sesudah update terpasang, reset binary, atau probe gagal — /status menjawab "Versi: ?" sementara /versi menjawab versi penanda atau bundel untuk keadaan yang sama, dua jawaban bertentangan bagi pengguna. /status kini memakai pintu tunggal versi yang sama dengan /versi (yang berjalan, lalu catatan update, lalu bundel).
