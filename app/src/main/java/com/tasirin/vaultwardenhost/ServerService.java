@@ -4676,6 +4676,19 @@ public class ServerService extends Service {
                     verFile.delete();
                 } catch (Exception ignored) {
                 }
+                // Audit 3033: penanda versi dan pin SHA ikut
+                // dibersihkan - binary-nya sudah dibuang,
+                // jadi penanda yang tertinggal membuat
+                // /status mengklaim versi baru padahal
+                // binary lama yang berjalan, dan
+                // auto-update diam mengira sudah mutakhir.
+                try {
+                    sp.edit().remove(KEY_UPDATE_VERSION)
+                            .remove(Updater.KEY_BIN_SHA_PIN)
+                            .remove(Updater.KEY_BIN_SHA_FP)
+                            .commit();
+                } catch (Exception ignored) {
+                }
                 return null;
             }
             return out;

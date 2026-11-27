@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penanda versi ikut dibersihkan saat binary unduhan gagal uji (Audit 3033)
+
+- Bila binary hasil unduhan gagal uji jalan dan dibuang, penanda versinya (dan pin SHA-nya) kini ikut dihapus. Sebelumnya penanda itu tertinggal: status mengklaim versi baru padahal binary lama yang berjalan, dan update otomatis diam karena mengira server sudah mutakhir.
+
+
 ## [Belum rilis] — Retensi backup kini membandingkan stempel di nama, bukan awalan nama (Audit 3036)
 
 - Perbaikan lanjutan Audit 2820: urutan simpan backup kini ditentukan stempel waktu pembuatan di dalam nama berkas, bukan nama utuhnya. Sebelumnya semua backup lokal (db-backup-…) selalu menang atas salinan backup Telegram (backup-telegram-…) hanya karena huruf awalnya, sehingga begitu backup lokal mencapai 10, semua salinan lokal backup Telegram — termasuk yang paling baru — ikut terhapus. Ketahanan terhadap jam STB yang mundur tetap terjaga.
