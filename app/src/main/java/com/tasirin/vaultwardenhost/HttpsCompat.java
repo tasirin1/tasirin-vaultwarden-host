@@ -201,25 +201,40 @@ public final class HttpsCompat {
     }
 
     // Audit 2848: galat bangun trust terakhir, agar cabang
-    // jeda di apply() bisa melaporkan degradasi (dulu diam).
+    // jeda di apply() bisa melaporkan sebab saat membatalkan
+    // koneksi (dulu koneksi jalan diam-diam dengan trust bawaan).
     static volatile Exception galatBangunTerakhir;
 
-    public static void apply(HttpURLConnection c, Context ctx) {
+    // Audit 2848: apply kini GAGAL TERTUTUP. Dulu kegagalan
+    // membangun trust tambahan hanya dicatat lalu koneksi
+    // jalan dengan trust bawaan platform - seluruh pertahanan
+    // tambahan (pengecualian CA user + pin rantai GitHub)
+    // hilang diam-diam, persis celah issue ini. Kini apply
+    // melempar IOException; keempat pemanggil (Updater +
+    // tiga jalur TgBackup) berada di metode throws Exception
+    // atau menangkap-lalu-melempar-ulang, jadi koneksi batal
+    // dengan pesan jelas, bukan terdegradasi diam-diam.
+    public static void apply(HttpURLConnection c, Context ctx)
+            throws java.io.IOException {
         if (c instanceof HttpsURLConnection) {
             try {
                 ((HttpsURLConnection) c).setSSLSocketFactory(socketFactory(ctx));
             } catch (JedaBangunTrust jeda) {
-                // Audit 2848: jangan diam - selama jeda bangun
-                // ulang, koneksi memakai trust bawaan platform
-                // dan itu harus tercatat (sekali per pesan
-                // berbeda, dijaga catatGagalTrust).
                 Exception sebab = galatBangunTerakhir;
                 catatGagalTrust(new Exception("Trust tambahan belum"
-                        + " terbangun (jeda bangun ulang); koneksi memakai"
-                        + " trust bawaan Android. Sebab: " + sebab));
+                        + " terbangun (jeda bangun ulang); koneksi"
+                        + " DIBATALKAN agar tidak memakai trust bawaan"
+                        + " Android. Sebab: " + sebab));
+                throw new java.io.IOException("Trust tambahan belum"
+                        + " terbangun (jeda bangun ulang) - koneksi"
+                        + " dibatalkan agar tidak memakai trust bawaan"
+                        + " Android.", sebab);
             } catch (Exception e) {
                 bangunGagalAt = android.os.SystemClock.elapsedRealtime();
                 catatGagalTrust(e);
+                throw new java.io.IOException("Trust tambahan gagal"
+                        + " dibangun - koneksi dibatalkan agar tidak"
+                        + " memakai trust bawaan Android.", e);
             }
         }
     }

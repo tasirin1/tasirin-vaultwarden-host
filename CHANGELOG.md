@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Koneksi keluar kini batal bila trust tambahan gagal dibangun (Audit 2848)
+
+Aplikasi memasang pengaman tambahan pada koneksi ke GitHub dan Telegram (daftar CA yang diperketat dan pin sertifikat). Bila pengaman itu gagal dibangun, koneksi dulu tetap jalan dengan pengaman bawaan Android yang lebih longgar, hanya dicatat di log. Sekarang koneksi dibatalkan dengan pesan galat yang jelas - pengaman yang gagal tidak lagi dilewati diam-diam.
+
+
 ## [Belum rilis] — Restore dibatalkan bila WAL backup gagal digabungkan (Audit 2818)
 
 Saat memulihkan backup, transaksi terbaru biasanya masih berada di berkas pendamping -wal dan harus digabungkan dulu ke database. Bila penggabungan itu gagal, restore dulu tetap dilanjutkan sehingga database yang terpasang lebih lama dari seharusnya tanpa terasa. Sekarang restore dibatalkan pada kegagalan itu dan database lama dipertahankan, dengan pesan penyebab yang jelas.
