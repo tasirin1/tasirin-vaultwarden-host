@@ -16009,6 +16009,23 @@ def _bagian_awal(tmp):
                "List.of di baris baru main: gerbang gagal "
                "(Audit 2922)", "API di atas 21")
 
+    def _diff2836_audit_baru(klon_d):
+        _sentuh_changelog(klon_d)
+        p = _jalur_util(klon_d)
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "public final class Util {",
+                "public final class Util {\n"
+                "    // Audit 9999: penanda skenario "
+                "jejak audit", 1))
+    racun_diff("diff2836audit", _diff2836_audit_baru,
+               "nomor Audit baru tak disebut commit: "
+               "PERINGATAN terbit, gerbang tetap lolos "
+               "(Audit 2836)", "tak disebut di pesan commit",
+               harus_rc=0)
+
     def racun_pohon(nama, ubah, label, frag):
         klon_p = klon(tmp, nama)
         ubah(klon_p)

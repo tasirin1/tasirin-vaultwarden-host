@@ -25605,6 +25605,47 @@ def cek_format_commit(gagal, rentang):
                      "(Audit 2922)" % subjek[:90])
 
 
+def cek_audit_disebut(peringatan, diff, rentang):
+    # Audit 2836: nomor Audit baru yang diperkenalkan
+    # diff wajib disebut pesan commit mana pun di
+    # rentang, agar jejak nomor -> commit tertaut dari
+    # awal (bukan hanya bisa ditemukan via git log -S).
+    # Sifatnya PERINGATAN: rujukan silang ke nomor lama
+    # sah dan tak mungkin dibedakan mekanis dari
+    # perkenalan, jadi yang dinilai hanya nomor yang
+    # belum ada di pohon dasar rentang.
+    r = rentang_normal(rentang)
+    if r is None:
+        return
+    dasar = r[0]
+    out_dasar = jalan("git", "grep", "-h", "-o", "-E",
+                      "Audit [0-9]+", dasar, "--",
+                      "app", "tools", "scripts", ".github")
+    if out_dasar is None:
+        return
+    nomor_dasar = set(re.findall(r"(\d+)", out_dasar))
+    nomor_baru = set()
+    for baris in diff.splitlines():
+        if baris.startswith("+") and not baris.startswith(
+                "+++"):
+            nomor_baru.update(re.findall(
+                r"Audit\s+(\d{3,})", baris[1:]))
+    nomor_baru -= nomor_dasar
+    if not nomor_baru:
+        return
+    pesan = jalan("git", "log", "--format=%B", rentang)
+    if pesan is None:
+        return
+    disebut = set(re.findall(r"Audit\s+(\d{3,})", pesan))
+    for nomor in sorted(nomor_baru - disebut, key=int)[:5]:
+        peringatan.append(
+            "Nomor Audit %s baru di diff tak disebut di "
+            "pesan commit mana pun dalam rentang "
+            "(Audit 2836) - sebutkan di badan commit "
+            "agar jejaknya tertaut tanpa git log -S"
+            % nomor)
+
+
 def _awal_komentar_java(baris):
     # Posisi // atau /* pertama di luar literal
     # string/char baris ini; -1 bila tak ada.
@@ -26179,6 +26220,7 @@ def utama():
         cek_definisi_baru(peringatan, diff)
     if args.rentang and rentang_cek:
         cek_format_commit(gagal, rentang_cek)
+        cek_audit_disebut(peringatan, diff, rentang_cek)
     if args.semua:
         cek_literal_rahasia_pohon(gagal, berubah)
     if diff_gagal:

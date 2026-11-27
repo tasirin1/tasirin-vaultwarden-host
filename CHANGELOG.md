@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Jejak Audit ke commit kini terdaftar dan dijaga gerbang (Audit 2836)
+
+- tools/daftar-audit.py membangkitkan tools/daftar-audit.txt: tiap nomor Audit di pohon dipetakan ke commit penambah tertuanya beserta rujukan issue-nya. Gerbang kini memperingatkan bila diff memperkenalkan nomor Audit baru yang tak disebut pesan commit mana pun dalam rentang.
+
+
 ## [Belum rilis] — Hook pre-push kini memindai cek-cepat untuk ref bukan-HEAD juga (Audit 2965)
 
 - Ujung tiap ref yang di-push dan bukan HEAD checkout kini dipindai cek-cepat di worktree sementara pada commit itu — pola eksklusif cek-cepat (rahasia terbelah, vektor, README) tidak lagi bisa lolos lewat push branch sampingan.
