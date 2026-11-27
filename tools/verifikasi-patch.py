@@ -25326,8 +25326,12 @@ def disebut_di_uji(nama, kelas=None):
     return False
 
 def cek_uji_baru(peringatan, diff):
+    # Audit 2904: pola menerima awalan anotasi sebaris
+    # (@Deprecated static void ...) - dulu baris yang diawali
+    # @ tak pernah cocok.
     pola = re.compile(
-        r"\s*(?:(?:public|private|protected|static|final|synchronized|"
+        r"\s*(?:@\w+(?:\s*\([^)]*\))?\s+)*"
+        r"(?:(?:public|private|protected|static|final|synchronized|"
         r"default)\s+)*[\w<>\[\].,?][\w<>\[\].,? ]*?\s+(\w+)\s*\(")
 
     def inti(baris):
@@ -25348,6 +25352,15 @@ def cek_uji_baru(peringatan, diff):
         for cocok_kelas in pola_kelas.finditer(baris):
             kelas[path].add(cocok_kelas.group(1))
         cocok = pola.match(baris)
+        if not cocok and sebelumnya.get(path):
+            # Audit 2904: signatur terbelah - nama metode di
+            # baris kedua; nilai sambungan dengan baris
+            # sebelumnya (teks gabungan dipakai penilaian
+            # selanjutnya agar konsisten).
+            gabung = sebelumnya[path].rstrip() + " " + baris.strip()
+            cocok = pola.match(gabung)
+            if cocok:
+                baris = gabung
         if cocok and cocok.group(1) in kelas[path]:
             sebelumnya[path] = baris
             continue

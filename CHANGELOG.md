@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — cek_uji_baru kini menangkap metode baru bersignatur terbelah dan beranotasi sebaris (Audit 2904)
+
+- `tools/verifikasi-patch.py` (`cek_uji_baru`): peringatan "metode baru tanpa jejak di app/src/test" dulu lolos untuk dua bentuk penulisan sah: signatur yang namanya jatuh di baris kedua (`static String` lalu `metodeDuaBaris(...)` di baris berikut) dan anotasi yang sebaris dengan signatur (`@Deprecated static void metode() ...`). Pola kini menerima awalan anotasi, dan bila satu baris tidak cocok, sambungannya dengan baris sebelumnya ikut dinilai dengan penjaga yang sama (kelas, kata kunci, `@Override`, dan himpunan baris terhapus). Sifat cek tetap PERINGATAN.
+
+
 ## [Belum rilis] — Deteksi metode hilang kini membaca signatur terbelah antarbaris (Audit 2903)
 
 - `tools/verifikasi-patch.py` (`nama_metode_hilang`): penilaian tiap baris terhapus sendirian meloloskan penghapusan metode yang signaturnya terbelah — tipe balik di baris sendiri, nama metode di baris berikut (bentuk umum metode berparameter panjang) — sehingga cek "dihapus tapi masih dipanggil" dan peringatan catatan hapusan sama-sama buta. Baris terhapus kini dikelompokkan per berkas dan dinilai juga sebagai sambungan 2–3 baris berurutan, dengan saringan dan regex yang sama persis seperti penilaian per baris sebelumnya (diekstrak ke `_nama_dari_kandidat_signatur` agar tak ada dua salinan aturan).
