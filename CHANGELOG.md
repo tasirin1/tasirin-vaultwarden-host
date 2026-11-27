@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — /status tak lagi menampilkan tanggal backup milik bot lain (Audit 2998)
+
+- `TgBot.statusText`: tanggal backup terakhir di /status dulu dibaca mentah — sesudah pengguna mengganti token ke bot baru, /status dari bot baru menampilkan tanggal backup bot lama seolah miliknya, bertentangan dengan /restore di bot yang sama yang menjawab belum ada backup dari bot ini. Pembacaan kini memakai penjaga penanda bot yang sama seperti jalur backup otomatis: stempel bot lain dianggap belum pernah backup.
+
+
 ## [Belum rilis] — Cek kurung memakai pengupas Kotlin untuk berkas .kts (susulan Audit 2918)
 
 - `tools/verifikasi-patch.py`: cek kurung sadar-urutan dari Audit 2918 memakai pengupas Java untuk semua berkas termasuk .kts — pengupas itu tidak memahami string templat Kotlin dan string mentah, sehingga kode Gradle yang sehat (templat berisi komentar berpetik, string mentah berpetik) dinilai rusak urutannya dan build CI merah pada dua skenario lama. Berkas .kts kini dikupas dengan pengupas Kotlin (isi string dikosongkan) sebelum dipindai; kontrol negatifnya — urutan rusak dan kurung tak seimbang — tetap tertangkap.

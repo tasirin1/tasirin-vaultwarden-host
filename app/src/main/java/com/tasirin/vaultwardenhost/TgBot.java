@@ -4319,7 +4319,13 @@ public final class TgBot {
                 ? "?" : ServerService.binaryVersion;
         File db = new File(dataDir, "db.sqlite3");
         String dbInfo = db.exists() ? TgBackup.humanBytes(db.length()) : "belum ada";
-        long lastBackup = TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0);
+        // Audit 2998: stempel backup hanya berlaku
+        // bagi bot yang membuatnya - bot baru tak boleh
+        // menampilkan tanggal backup bot lama.
+        long lastBackup = TgBackup.stempelEfektif(
+                TgBackup.amanLong(sp, TgBackup.KEY_TG_LAST, 0),
+                TgBackup.amanString(sp, TgBackup.KEY_TG_LAST_BOT_ID, null),
+                idBotDariToken(TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, "")));
         String backupInfo = lastBackup > 0
                 ? Util.formatTanggal("yyyy-MM-dd HH:mm", new Date(lastBackup))
                 : "belum pernah";
