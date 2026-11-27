@@ -1779,6 +1779,12 @@ public class UpdaterTest {
         String u = Updater.binaryFallbackUrl();
         assertTrue(u.contains("/releases/latest/download/"));
         assertTrue(u.endsWith("/vaultwarden-" + ServerService.ABI));
+        // Audit 2941: host + repo dipaku literal - dulu
+        // perubahan host lolos karena uji hanya memeriksa
+        // struktur dan membandingkan produksi dengan
+        // produksi.
+        assertEquals("https://github.com/tasirin1/tasirin-vaultwarden-host"
+                + "/releases/latest/download/vaultwarden-" + ServerService.ABI, u);
     }
 
     @Test
