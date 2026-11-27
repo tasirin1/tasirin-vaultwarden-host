@@ -1405,6 +1405,16 @@ public class TgBackupTest {
     }
 
     @Test
+    public void unduhRestoreKedaluwarsa_lewatTigaPuluhMenit() {
+        // Audit 2987: tenggat total unduh restore.
+        assertFalse(TgBackup.unduhRestoreKedaluwarsa(1000, 1000
+                + TgBackup.BATAS_UNDUH_RESTORE_MS));
+        assertTrue(TgBackup.unduhRestoreKedaluwarsa(1000, 1000
+                + TgBackup.BATAS_UNDUH_RESTORE_MS + 1));
+        assertFalse(TgBackup.unduhRestoreKedaluwarsa(0, Long.MAX_VALUE / 2));
+    }
+
+    @Test
     public void umurBerkasSapu_stempelMasaDepanBasi() {
         // Audit 2982: berkas berstempel masa depan
         // dihitung basi; umur biasa apa adanya.

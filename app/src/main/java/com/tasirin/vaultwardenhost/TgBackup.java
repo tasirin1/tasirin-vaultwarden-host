@@ -3374,9 +3374,18 @@ public final class TgBackup {
                 byte[] buf = new byte[64 * 1024];
                 int n;
                 long total = 0;
+                long mulaiUnduh = android.os.SystemClock.elapsedRealtime();
                 while ((n = in.read(buf)) != -1) {
                     total += n;
 
+                    // Audit 2987: tenggat TOTAL - timeout
+                    // per baca saja tak menghentikan koneksi
+                    // merayap yang menetes < 120 dtk sekali.
+                    if (unduhRestoreKedaluwarsa(mulaiUnduh,
+                            android.os.SystemClock.elapsedRealtime())) {
+                        throw new IOException("Unduh backup terlalu lama"
+                                + " (>30 menit) - dibatalkan.");
+                    }
                     if (total > Util.BATAS_UNZIP_RESTORE) {
                         throw new IOException("Backup terlalu besar (>200 MB)"
                                 + " - unduhan dibatalkan.");
@@ -3411,6 +3420,13 @@ public final class TgBackup {
             }
         }
         return name;
+    }
+
+    // Audit 2987: tenggat total unduh restore.
+    static final long BATAS_UNDUH_RESTORE_MS = 30L * 60 * 1000;
+
+    static boolean unduhRestoreKedaluwarsa(long mulaiElapsed, long kiniElapsed) {
+        return mulaiElapsed > 0 && kiniElapsed - mulaiElapsed > BATAS_UNDUH_RESTORE_MS;
     }
 
     private static String getFilePath(Context ctx, String token, String fileId) throws Exception {

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Unduh backup restore kini punya tenggat total (Audit 2987)
+
+- `TgBackup.downloadLastBackup`: unduhan berkas backup untuk restore dulu hanya dibatasi timeout per baca (120 detik) tanpa batas total — koneksi yang merayap bisa mengunduh berjam-jam sambil menahan kunci restore sehingga semua backup/restore lain tertolak. Kini ada tenggat total 30 menit (keputusan murninya diuji); melewatinya membatalkan unduhan dengan pesan yang jelas.
+
+
 ## [Belum rilis] — Batas probe versi binary disatukan dan dilonggarkan untuk STB lambat (Audit 2986)
 
 - `Util` + `ServerService` + `Updater`: batas waktu pemeriksaan versi binary dulu berupa angka mentah 10 detik yang terpisah di dua berkas (harus diubah berpasangan agar tidak pincang) dan terlalu ketat untuk STB lambat sesudah reboot — binary yang sehat bisa dianggap rusak, diunduh ulang puluhan MB, bahkan dihapus. Kini satu konstanta bernama bersama, 30 detik, dipakai kedua pemeriksa versi.
