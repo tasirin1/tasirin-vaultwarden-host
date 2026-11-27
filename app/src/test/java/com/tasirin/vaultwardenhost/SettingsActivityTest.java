@@ -150,6 +150,9 @@ public class SettingsActivityTest {
         assertEquals("SALAH", SettingsActivity.galatAdmin("password", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatAdmin("aaaaaaaaaaaaaaaa", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatAdmin("Password123", "SALAH"));
+        // Awalan kata umum tetap ditolak walau panjangnya cukup.
+        assertEquals("SALAH", SettingsActivity.galatAdmin("password123456789", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatAdmin("Vaultwarden12345", "SALAH"));
     }
 
     @Test

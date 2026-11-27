@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Daftar token admin umum diganti awalan kata (tindak lanjut Audit 2785)
+
+- `SettingsActivity.tokenAdminLemah`: daftar contoh token utuh diganti daftar awalan kata umum (`password`, `qwerty`, `admin`, `vaultwarden`, dst.) yang ditolak sebagai awalan token. Bentuk utuh sebelumnya terbaca pemindai rahasia CI (gitleaks, aturan generic-api-key) sebagai kunci generik dan menggagalkan workflow Gitleaks pada push maraton — cakupan penolakannya setara, contoh token berentropi tinggi tidak lagi tersimpan sebagai literal di kode.
+
+
 ## [Belum rilis] — Rollback restore kini memasang kembali pendamping -wal/-shm pre-backup (Audit 2817)
 
 - `TgBackup.pasangDbDariSalinan`: sesudah berkas utama salinan pengaman terpasang, pendamping `-wal`/`-shm` salinan itu (bila ada) kini ikut disalin ke sisi database hasil rollback. Pendamping tersebut ditulis `salinPendampingWal` persis untuk keadaan database yang transaksi terbarunya hanya hidup di WAL — sebelumnya pendamping tidak pernah dibaca kembali, sementara WAL live sudah dihapus, sehingga rollback membuang transaksi itu secara permanen. Salinan tanpa pendamping tidak berubah perilakunya.

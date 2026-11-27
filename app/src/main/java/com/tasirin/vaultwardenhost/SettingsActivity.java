@@ -4076,12 +4076,14 @@ public class SettingsActivity extends Activity {
     }
 
     // Audit 2785: token admin adalah kunci panel admin - 8
-    // aksara ("password") terlalu lemah. Minimal 16, bukan kata
-    // yang umum dipakai, bukan satu aksara yang diulang.
-    private static final String[] TOKEN_ADMIN_UMUM = {
-            "password", "password1", "password123", "1234567890123456",
-            "admin1234567890", "qwertyuiop123456", "vaultwarden12345",
-            "changeme12345678", "tokenadmin123456", "rahasia123456789",
+    // aksara ("password") terlalu lemah. Minimal 16, tidak
+    // diawali kata yang umum dipakai, bukan satu aksara yang
+    // diulang. Daftarnya awalan kata saja (bukan contoh token
+    // utuh) - bentuk utuh berentropi tinggi terbaca pemindai
+    // rahasia CI sebagai kunci generik.
+    private static final String[] AWALAN_TOKEN_UMUM = {
+            "password", "qwerty", "admin", "vaultwarden",
+            "changeme", "rahasia", "tasirin", "letmein",
     };
 
     static boolean tokenAdminLemah(String isi) {
@@ -4089,8 +4091,8 @@ public class SettingsActivity extends Activity {
             return true;
         }
         String rendah = isi.toLowerCase(java.util.Locale.US);
-        for (String umum : TOKEN_ADMIN_UMUM) {
-            if (rendah.equals(umum)) {
+        for (String awal : AWALAN_TOKEN_UMUM) {
+            if (rendah.startsWith(awal)) {
                 return true;
             }
         }
