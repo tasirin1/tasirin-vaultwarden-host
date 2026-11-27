@@ -3310,6 +3310,10 @@ public class ServerService extends Service {
             }
             return sb.toString();
         } catch (Exception e) {
+            // Audit 2995: gagal baca dibedakan dari
+            // tak-ada-berkas lewat jejak di log.
+            catatLog("[app] Gagal membaca crash log: "
+                    + e.getClass().getSimpleName());
             return null;
         }
     }
@@ -3327,7 +3331,17 @@ public class ServerService extends Service {
                     StandardCharsets.UTF_8)) {
                 w.write(body);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // Audit 2995: kegagalan menulis crash log
+            // tak lagi senyap - crash-nya nyata, yang
+            // gagal hanya pencatatannya, dan itu wajib
+            // berjejak agar /crashlog yang kosong tak
+            // dibaca sebagai "tidak pernah crash".
+            try {
+                appendLog("[app] Gagal menulis crash log (" + reason + "): "
+                        + e.getClass().getSimpleName());
+            } catch (Exception ignored) {
+            }
         }
     }
 

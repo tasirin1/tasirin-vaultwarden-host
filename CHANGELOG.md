@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kegagalan menulis crash log tak lagi senyap (Audit 2995)
+
+- `ServerService`: penulisan crash log dulu menelan semua pengecualian tanpa jejak, dan pembacaannya menyamakan gagal baca dengan tidak ada berkas — crash yang catatannya gagal ditulis (mis. disk penuh) membuat perintah /crashlog menjawab "belum ada crash log" dan pengguna menyimpulkan tidak pernah ada crash. Kegagalan menulis maupun membaca crash log kini dicatat ke log aplikasi, jadi keduanya bisa dibedakan.
+
+
 ## [Belum rilis] — Pesan build belum tersedia tak lagi menjanjikan cek otomatis (Audit 2993)
 
 - `Updater`: pesan "build Android belum tersedia" dan "web vault belum tersedia" dulu ditutup janji "(dicek ulang otomatis nanti)" — padahal tidak ada jadwal berkala apa pun; cek ulang hanya terjadi saat aplikasi atau Pengaturan dibuka atau perintah /update dijalankan, sehingga pengguna bisa menunggu pembaruan yang tak akan datang sendiri. Kedua pesan kini berkata jujur: dicek ulang saat aplikasi dibuka lagi.
