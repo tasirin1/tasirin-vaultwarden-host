@@ -100,6 +100,11 @@ public final class HttpsCompat {
         return protokolCadangan(dipilih, didukung);
     }
 
+    static boolean saringanSiap(String[] protokol, String[] cipher) {
+        return protokol != null && protokol.length > 0
+                && cipher != null && cipher.length > 0;
+    }
+
     static boolean cipherKuat(String c) {
         if (c == null) {
             return false;
@@ -115,8 +120,9 @@ public final class HttpsCompat {
         // Cara lama menerima SALAH SATU penanda enkripsi saja,
         // jadi cipher RSA statis (TLS_RSA_WITH_AES_256_CBC_SHA,
         // TLS_RSA_WITH_AES_128_GCM_SHA256) lolos tanpa FS.
-        // Hasil saringan kosong aman: pemanggil membiarkan
-        // bawaan platform apa adanya.
+        // Hasil saringan kosong menggagalkan koneksi di
+        // nyalakan (Audit 2763): bawaan platform tidak lagi
+        // dipakai diam-diam.
         if (c.contains("ECDHE") || c.contains("_DHE_")) {
             return true;
         }
@@ -316,7 +322,7 @@ public final class HttpsCompat {
             this.bawaan = bawaan;
         }
 
-        private Socket nyalakan(Socket s) {
+        private Socket nyalakan(Socket s) throws java.io.IOException {
             if (s instanceof SSLSocket) {
                 SSLSocket ssl = (SSLSocket) s;
 
@@ -418,6 +424,17 @@ public final class HttpsCompat {
                         }
                     }
 
+                }
+                if (!saringanSiap(protokol, kuat)) {
+                    try {
+                        android.util.Log.e("HttpsCompat",
+                                "TLS 1.2+/cipher kuat tidak tersedia"
+                                        + " - koneksi digagalkan.");
+                    } catch (Exception ignored) {
+                    }
+                    throw new java.io.IOException("HttpsCompat: perangkat"
+                            + " tidak mendukung TLS 1.2+ dengan cipher"
+                            + " kuat - koneksi digagalkan demi keamanan.");
                 }
             }
             return s;

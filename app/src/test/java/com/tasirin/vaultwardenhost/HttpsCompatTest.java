@@ -74,6 +74,19 @@ public class HttpsCompatTest {
     }
 
     @Test
+    public void saringanSiap_hanyaBilaKeduanyaTerisi() {
+        org.junit.Assert.assertTrue(HttpsCompat.saringanSiap(
+                new String[]{"TLSv1.2"},
+                new String[]{"TLS_AES_128_GCM_SHA256"}));
+        org.junit.Assert.assertFalse(HttpsCompat.saringanSiap(
+                new String[0],
+                new String[]{"TLS_AES_128_GCM_SHA256"}));
+        org.junit.Assert.assertFalse(HttpsCompat.saringanSiap(
+                new String[]{"TLSv1.2"}, new String[0]));
+        org.junit.Assert.assertFalse(HttpsCompat.saringanSiap(null, null));
+    }
+
+    @Test
     public void saringCipher_buangLemahPertahankanUrutan() {
         String[] masuk = {
                 "TLS_RSA_WITH_RC4_128_SHA",

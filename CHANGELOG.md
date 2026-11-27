@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — HttpsCompat gagal-tertutup bila TLS kuat tidak tersedia
+
+Bila saringan protokol/cipher HttpsCompat menghasilkan daftar kosong (perangkat hanya mendukung TLS <1.2 atau tanpa cipher forward-secrecy), soket selama ini dibiarkan memakai bawaan platform diam-diam — koneksi GitHub/Telegram bisa menegosiasi TLS 1.0/cipher RSA statis tanpa peringatan. Kini nyalakan() menggagalkan koneksi dengan IOException berpesan jelas dan log error. Predikat murni baru saringanSiap teruji JVM; helper saringan lama tidak berubah.
+
+Closes #2763
+
+
 ## [Belum rilis] — Fallback TLS tidak lagi memakai kunci privat dari storage publik
 
 Bila penyiapan sertifikat di storage internal gagal, server selama ini boleh jalan memakai ca-key.pem/key.pem lama dari folder data di storage publik (FAT, bisa dibaca aplikasi lain berizin storage) — hanya diperingatkan di log. Kini fallback ke folder publik ditolak mentah-mentah: Start gagal dengan pesan jelas agar pengguna memeriksa ruang/izin internal lalu Start ulang. Fallback ke folder non-publik tidak berubah. Predikat bolehFallbackTls kini satu argumen (bukan penghapusan metode); uji JVM-nya diperbarui.
