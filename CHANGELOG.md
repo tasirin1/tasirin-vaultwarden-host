@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Sapuan berkas sementara tak lagi melewatkan berkas berstempel masa depan (Audit 2982)
+
+- `TgBackup` + `SettingsActivity`: sapuan berkas sementara berbatas umur (ekspor config plaintext, zip restore, salinan backup pilihan, sisa salinan) dulu menganggap berkas yang stempel waktunya di masa depan sebagai berumur nol — berkas yang dibuat saat jam STB sedang maju lalu jamnya dikoreksi mundur tidak pernah tersapu selama selisih rollback itu, melewati batas umurnya jauh. Umur sapuan kini satu fungsi murni bersama yang diuji: stempel masa depan dihitung basi.
+
+
 ## [Belum rilis] — Peringatan PIN di chat asing tak lagi tertahan stempel masa depan (Audit 2981)
 
 - `TgBot`: jeda satu jam antar peringatan "PIN diketik di chat asing" memakai selisih jam dinding tanpa penjaga — peringatan yang terkirim saat jam sedang maju lalu dikoreksi mundur menahan peringatan berikutnya selama bertahun-tahun, padahal peringatan itulah satu-satunya pemberitahuan ke pemilik bahwa PIN-nya terlihat orang lain. Stempel di masa depan kini membolehkan peringatan; uji pengunci perilaku lamanya diperbarui di commit yang sama.

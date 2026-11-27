@@ -2906,10 +2906,9 @@ public class SettingsActivity extends Activity {
                             continue;
                         }
 
-                        long umur = System.currentTimeMillis() - f.lastModified();
-                        if (umur < 0) {
-                            umur = 0;
-                        }
+                        long umur = TgBackup.umurBerkasSapu(
+                                f.lastModified(), System.currentTimeMillis(),
+                                EXPORT_PLAIN_TTL_MS);
                         if (umur > EXPORT_PLAIN_TTL_MS) {
                             f.delete();
                         }
@@ -2926,10 +2925,9 @@ public class SettingsActivity extends Activity {
                                         restoreTgTertundaFile.getAbsolutePath())) {
                             continue;
                         }
-                        long umur = System.currentTimeMillis() - f.lastModified();
-                        if (umur < 0) {
-                            umur = 0;
-                        }
+                        long umur = TgBackup.umurBerkasSapu(
+                                f.lastModified(), System.currentTimeMillis(),
+                                RESTORE_TG_TTL_MS);
                         if (umur > RESTORE_TG_TTL_MS) {
                             f.delete();
                         }
@@ -2945,10 +2943,9 @@ public class SettingsActivity extends Activity {
                         // dikecualikan (restore pemilih tak punya
                         // keadaan dialog tertunda, jadi hanya itu
                         // pengecualiannya).
-                        long umur = System.currentTimeMillis() - f.lastModified();
-                        if (umur < 0) {
-                            umur = 0;
-                        }
+                        long umur = TgBackup.umurBerkasSapu(
+                                f.lastModified(), System.currentTimeMillis(),
+                                RESTORE_TG_TTL_MS);
                         // Audit 1013: pengecualian salinan aktif
                         // dibatasi TTL yang sama — pengecualian yang
                         // dipulihkan dari Bundle bisa basi (proses
@@ -2969,10 +2966,9 @@ public class SettingsActivity extends Activity {
                     }
                     if (n.startsWith(TgBackup.PREFIX_PLAIN_TMP)) {
 
-                        long umur = System.currentTimeMillis() - f.lastModified();
-                        if (umur < 0) {
-                            umur = 0;
-                        }
+                        long umur = TgBackup.umurBerkasSapu(
+                                f.lastModified(), System.currentTimeMillis(),
+                                TgBackup.UMUR_DEC_TMP_MS);
                         if (umur > TgBackup.UMUR_DEC_TMP_MS) {
                             f.delete();
                         }

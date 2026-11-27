@@ -1405,6 +1405,15 @@ public class TgBackupTest {
     }
 
     @Test
+    public void umurBerkasSapu_stempelMasaDepanBasi() {
+        // Audit 2982: berkas berstempel masa depan
+        // dihitung basi; umur biasa apa adanya.
+        assertEquals(101L, TgBackup.umurBerkasSapu(5000, 4000, 100));
+        assertEquals(50L, TgBackup.umurBerkasSapu(3950, 4000, 100));
+        assertEquals(0L, TgBackup.umurBerkasSapu(4000, 4000, 100));
+    }
+
+    @Test
     public void folderBytesWalk_symlinkMelingkarTakMeledak() throws Exception {
         java.nio.file.Path dasar = java.nio.file.Files.createTempDirectory("vw-walk-");
         java.nio.file.Path sub = java.nio.file.Files.createDirectory(dasar.resolve("sub"));

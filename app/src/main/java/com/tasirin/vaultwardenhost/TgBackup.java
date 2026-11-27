@@ -5699,6 +5699,18 @@ public final class TgBackup {
         return true;
     }
 
+    // Audit 2982: umur efektif berkas untuk sapuan
+    // TTL. Stempel di masa depan (berkas dibuat saat
+    // jam STB maju, lalu jam dikoreksi mundur) dihitung
+    // BASI - dulu umur negatif di-clamp ke 0 sehingga
+    // artefak sensitif lolos sapuan selama rollback.
+    static long umurBerkasSapu(long mtimeMs, long kiniMs, long ttlMs) {
+        if (mtimeMs > kiniMs) {
+            return ttlMs + 1;
+        }
+        return kiniMs - mtimeMs;
+    }
+
     static int bersihkanSisaSalin(File dir, long kiniMs) {
         if (dir == null) {
             return 0;
@@ -5711,8 +5723,8 @@ public final class TgBackup {
         for (File f : daftar) {
             if (f.isFile()
                     && namaSisaSalin(f.getName())
-                    && kiniMs - f.lastModified()
-                            > 3600_000L) {
+                    && umurBerkasSapu(f.lastModified(), kiniMs,
+                            3600_000L) > 3600_000L) {
                 if (f.delete()) {
                     terhapus++;
                 }
