@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Penghapusan pesan perintah kini menghormati retry_after Telegram (Audit 2877)
+
+- `TgBot.hapusPesanPerintah`: jeda antar-percobaan hapus dulu tetap 1 lalu 2 detik tanpa membaca `retry_after` pada balasan 429 — penghapusan pesan ber-PIN yang sensitif waktu gagal sia-sia saat Telegram meminta jeda lebih lama. Kini badan galat 429 dibaca dan jeda tidur menjadi yang lebih besar antara backoff lama dan `retry_after`; bila jeda yang diminta tidak muat di sisa anggaran 60 detik, fungsi menyerah secara jujur dan jalur peringatan pemilik yang sudah ada yang berbicara.
+
+
 ## [Belum rilis] — Jeda retry_after Telegram kini dihormati sampai 60 detik (Audit 2876)
 
 - `TgBackup.jedaRetryAfterMs`: jeda yang diminta Telegram lewat `retry_after` dulu dipangkas menjadi maksimal 5 detik — bila Telegram meminta lebih lama (umum saat flood), percobaan kedua hampir pasti ditolak 429 lagi dan pesan menyerah. Batas atas kini 60 detik; tidur terjadi di thread latar sehingga tidak mengganggu tampilan. Uji JVM penguncinya diperbarui di commit yang sama.

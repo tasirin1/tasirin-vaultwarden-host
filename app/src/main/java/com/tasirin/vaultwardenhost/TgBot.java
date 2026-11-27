@@ -2776,6 +2776,7 @@ public final class TgBot {
         long mulaiMs = System.currentTimeMillis();
         for (int coba = 1; ; coba++) {
             boolean sesaat = false;
+            long jeda429Ms = 0;
             HttpURLConnection c = null;
             try {
                 SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
@@ -2812,6 +2813,18 @@ public final class TgBot {
                     if (!sesaat) {
                         return false;
                     }
+                    if (kode == 429) {
+                        // Audit 2877: hormati retry_after
+                        // Telegram - badan galatnya memuat
+                        // jeda yang diminta.
+                        try (InputStream ein = c.getErrorStream()) {
+                            if (ein != null) {
+                                jeda429Ms = TgBackup.jedaRetryAfterMs(
+                                        bacaResponsHapus(ein, mulaiMs));
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
                 } else {
                     try (InputStream in = c.getInputStream()) {
 
@@ -2832,8 +2845,17 @@ public final class TgBot {
                     || System.currentTimeMillis() - mulaiMs >= BATAS_HAPUS_PESAN_MS) {
                 return false;
             }
+            // Audit 2877: tidur = yang lebih besar antara
+            // backoff lama dan retry_after; bila jeda yang
+            // diminta tak muat di sisa anggaran, menyerah
+            // jujur (pemanggil memperingatkan pemilik).
+            long tidurMs = Math.max(coba * 1000L, jeda429Ms);
+            if (System.currentTimeMillis() - mulaiMs + tidurMs
+                    >= BATAS_HAPUS_PESAN_MS) {
+                return false;
+            }
             try {
-                Thread.sleep(coba * 1000L);
+                Thread.sleep(tidurMs);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
                 return false;
