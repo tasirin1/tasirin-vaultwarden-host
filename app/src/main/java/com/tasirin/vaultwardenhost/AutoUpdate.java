@@ -56,8 +56,11 @@ public final class AutoUpdate {
                         && msg.contains("belum tersedia"));
     }
 
-    static boolean bolehLewatiCobaLagi(boolean adaCache, long gagalAt, long sekarang) {
-        return adaCache && !ServerService.bolehCobaUnduhLagi(gagalAt, sekarang);
+    // Audit 2863: syarat cache dihapus - backoff sesudah
+    // gagal unduh berlaku juga untuk instalasi pertama,
+    // kasus termahal yang dulu justru tanpa jeda.
+    static boolean bolehLewatiCobaLagi(long gagalAt, long sekarang) {
+        return !ServerService.bolehCobaUnduhLagi(gagalAt, sekarang);
     }
 
     public static void cek(Context ctx, Aksi aksi, AturPending pending, boolean lengkap) {
@@ -137,10 +140,7 @@ public final class AutoUpdate {
                 if (TgBackup.amanBoolean(sp, ServerService.KEY_AUTO_UPDATE, false) && tanpaKuota(ctx)) {
 
                     long gagalAt = TgBackup.amanLong(sp, ServerService.KEY_BIN_DL_GAGAL_AT, 0);
-                    java.io.File berkasBin = new java.io.File(ctx.getFilesDir(),
-                            "bin/vaultwarden-" + ServerService.ABI);
-                    boolean adaCache = berkasBin.isFile() && berkasBin.length() >= 1000000;
-                    if (bolehLewatiCobaLagi(adaCache, gagalAt, System.currentTimeMillis())) {
+                    if (bolehLewatiCobaLagi(gagalAt, System.currentTimeMillis())) {
 
                         pending.atur(latest);
                     } else {

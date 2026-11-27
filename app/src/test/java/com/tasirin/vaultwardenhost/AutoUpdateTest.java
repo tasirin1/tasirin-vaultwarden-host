@@ -26,21 +26,22 @@ public class AutoUpdateTest {
     @Test
     public void lewatiBilaBaruGagalDanCacheAda() {
         long sekarang = 10_000_000L;
-        assertTrue(AutoUpdate.bolehLewatiCobaLagi(true, sekarang - 1000, sekarang));
+        assertTrue(AutoUpdate.bolehLewatiCobaLagi(sekarang - 1000, sekarang));
     }
 
     @Test
     public void cobaLagiBilaJedaTerlampaui() {
         long sekarang = 10_000_000L;
-        assertFalse(AutoUpdate.bolehLewatiCobaLagi(true,
+        assertFalse(AutoUpdate.bolehLewatiCobaLagi(
                 sekarang - ServerService.TUNDA_ULANG_UNDUH_MS - 1, sekarang));
     }
 
     @Test
     public void tetapCobaBilaTanpaCache() {
         long sekarang = 10_000_000L;
-        assertFalse(AutoUpdate.bolehLewatiCobaLagi(false, sekarang - 1000, sekarang));
-        assertFalse(AutoUpdate.bolehLewatiCobaLagi(false, 0, sekarang));
+        // Audit 2863: tanpa cache pun backoff berlaku.
+        assertTrue(AutoUpdate.bolehLewatiCobaLagi(sekarang - 1000, sekarang));
+        assertFalse(AutoUpdate.bolehLewatiCobaLagi(0, sekarang));
     }
 
     @Test

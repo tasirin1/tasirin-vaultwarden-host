@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Backoff gagal unduh kini berlaku juga tanpa cache (Audit 2863)
+
+- `AutoUpdate.bolehLewatiCobaLagi`: jeda 6 jam sesudah kegagalan unduh dulu hanya berlaku bila sudah ada berkas cache binary ≥1 MB — tepat pada kasus termahal (instalasi pertama, belum ada cache) kegagalan tidak mendapat jeda sama sekali, sehingga tiap membuka aplikasi mengulang unduhan puluhan MB di jaringan yang sedang fluktuatif. Syarat cache dihapus; predikat kini murni soal stempel waktu gagal. Uji pengunci lama diperbarui di commit yang sama.
+
+
 ## [Belum rilis] — Hasil update 'tertunda' tak lagi dinilai sukses oleh AutoUpdate (Audit 2862)
 
 - `AutoUpdate.cek`: `Updater.tryUpdateVersi` melaporkan jaringan terganggu dan build belum terbit lewat string hasil (bukan lemparan), dan semua hasil non-lemparan dulu diperlakukan sebagai sukses — stempel gagal 6 jam dihapus, notifikasi update dibatalkan, dan pending dibersihkan padahal tidak ada yang terpasang. Hasil tertunda kini dikenali predikat murni `hasilUpdateTertunda` (tiga bentuk pesan produksi) dan diperlakukan seperti kegagalan untuk urusan stempel dan pending; pesannya tetap diteruskan ke pengguna seperti biasa. Ditambah uji JVM untuk predikatnya.
