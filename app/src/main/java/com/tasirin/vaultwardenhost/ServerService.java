@@ -4018,13 +4018,18 @@ public class ServerService extends Service {
                                         + " binary terpasang v" + realTerpasang + ".");
                             }
                             if (pinShaBin == null || pinShaBin.isEmpty()) {
-                                try {
-                                    sp.edit().putString(Updater.KEY_BIN_SHA_PIN,
-                                                    Updater.sha256Hex(out))
-                                            .putString(Updater.KEY_BIN_SHA_FP,
-                                                    sidikManualFile(out)).apply();
-                                } catch (Exception ignored) {
-                                }
+                                // Audit 2777: pin SHA TIDAK lagi
+                                // dicatat dari berkas yang sedang
+                                // dipakai - berkas yang tertukar
+                                // sebelum pin pertama ada akan
+                                // "diberkati" selamanya. Pin hanya
+                                // lahir dari jalur unduh (SHA rilis
+                                // terverifikasi) atau jalur manual
+                                // (SHA cocok dengan yang diminta).
+                                appendLog("[app] Binary dipakai tanpa pin"
+                                        + " SHA-256 tercatat (pin hanya"
+                                        + " dicatat dari unduhan/manual"
+                                        + " yang terverifikasi).");
                             }
 
                             if (isValidBinary(userBin)) {

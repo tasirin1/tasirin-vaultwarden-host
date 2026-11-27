@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pin SHA binary tidak lagi dicatat dari berkas yang sedang dipakai (Audit 2777)
+
+- `ServerService.ensureBinary`: auto-pin SHA-256 pada cabang cache dihapus. Sebelumnya, bila pin belum tercatat, SHA dihitung dari berkas binary yang sedang terpasang lalu disimpan sebagai pin tepercaya — berkas yang tertukar sebelum pin pertama ada akan lolos verifikasi selamanya. Pin kini hanya lahir dari jalur unduh (SHA rilis yang terverifikasi) atau pemasangan manual yang SHA-nya cocok; keadaan tanpa pin dicatat terbuka di log.
+
+
 ## [Belum rilis] — Probe --version diingat per sidik berkas, tidak diulang tiap Start (Audit 2776)
 
 - `ServerService.detectBinaryVersionMode`: probe otomatis kini dilewati bila sidik berkas binary + shim (jalur, ukuran, mtime) sama persis dengan probe sukses terakhir — predikat murni `probeBolehDilewati`, ada uji JVM. Start berulang pada binary yang tak berubah tidak lagi men-spawn proses `--version` di tiap cabang. Probe yang gagal tidak pernah diingat, dan probe paksa/tanpa shim tetap selalu dijalankan.
