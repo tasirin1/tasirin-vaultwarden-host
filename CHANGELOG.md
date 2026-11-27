@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Berkas rantai sertifikat GitHub kini diperiksa masa berlakunya (Audit 2849)
+
+- `HttpsCompat`: bundel `certs/github-chain.pem` dulu hanya diperiksa tidak kosong — sertifikat yang kedaluwarsa di dalamnya akan membuat koneksi GitHub gagal total tanpa peringatan dini apa pun. Saat trust dibangun, masa berlaku tiap sertifikat bundel kini dikumpulkan dan predikat murni baru `peringatanRantaiBerkas` memberi peringatan Logcat yang jelas bila ada yang sudah kedaluwarsa atau akan kedaluwarsa dalam 180 hari, agar aplikasi diperbarui sebelum putus. Ditambah uji JVM untuk predikatnya.
+
+
 ## [Belum rilis] — Alarm tunda warisan kini ikut menjadwal ulang rantai harian (Audit 2844)
 
 - `AlarmReceiver`: cabang `ACTION_TUNDA` tanpa `EXTRA_TUNDA_BOOT` (hanya terjangkau alarm warisan versi lama) dulu hanya menandai backup tertunda lalu kembali — satu-satunya cabang penggugur yang tidak memanggil `jadwalUlangBilaOtomatis`, sehingga rantai alarm harian putus dan backup susulan hari itu hilang tanpa ada alarm berikutnya. Cabang itu kini menjadwal ulang seperti cabang penggugur lainnya bila mode otomatis aktif.

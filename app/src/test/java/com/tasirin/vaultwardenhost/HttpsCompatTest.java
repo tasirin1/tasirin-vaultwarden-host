@@ -13,6 +13,21 @@ import org.junit.Test;
 public class HttpsCompatTest {
 
     @Test
+    public void peringatanRantaiBerkas_kedaluwarsaDanMenua() {
+        // Audit 2849.
+        long kini = 1_700_000_000_000L;
+        long hari = 24L * 3600 * 1000;
+        org.junit.Assert.assertNull(HttpsCompat.peringatanRantaiBerkas(
+                new long[]{kini + 365 * hari}, kini));
+        org.junit.Assert.assertNull(HttpsCompat.peringatanRantaiBerkas(
+                new long[]{-1}, kini));
+        org.junit.Assert.assertNotNull(HttpsCompat.peringatanRantaiBerkas(
+                new long[]{kini - hari}, kini));
+        org.junit.Assert.assertNotNull(HttpsCompat.peringatanRantaiBerkas(
+                new long[]{kini + 365 * hari, kini + 30 * hari}, kini));
+    }
+
+    @Test
     public void trustSistemCukup_hanyaBilaAdaCaSistem() {
         assertFalse(HttpsCompat.trustSistemCukup(0));
         assertFalse(HttpsCompat.trustSistemCukup(-1));

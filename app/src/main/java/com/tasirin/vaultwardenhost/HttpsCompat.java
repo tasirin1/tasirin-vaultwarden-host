@@ -25,6 +25,34 @@ public final class HttpsCompat {
 
     static final long JEDA_BANGUN_GAGAL_MS = 60_000;
 
+    // Audit 2849: teks peringatan (atau null) untuk masa
+    // berlaku sertifikat bundel rantai GitHub.
+    static String peringatanRantaiBerkas(long[] notAfterMs, long kiniMs) {
+        if (notAfterMs == null) {
+            return null;
+        }
+        long terdekat = Long.MAX_VALUE;
+        for (long na : notAfterMs) {
+            if (na < 0) {
+                continue;
+            }
+            if (na <= kiniMs) {
+                return "Berkas rantai sertifikat GitHub memuat sertifikat"
+                        + " yang SUDAH kedaluwarsa - perbarui aplikasi agar"
+                        + " cek update/unduh binary tetap bisa jalan.";
+            }
+            if (na < terdekat) {
+                terdekat = na;
+            }
+        }
+        if (terdekat != Long.MAX_VALUE
+                && terdekat - kiniMs < 180L * 24 * 3600 * 1000) {
+            return "Sertifikat di berkas rantai GitHub ada yang"
+                    + " kedaluwarsa dalam 180 hari - perbarui aplikasi.";
+        }
+        return null;
+    }
+
     private static final class JedaBangunTrust extends Exception {
     }
 
@@ -302,8 +330,28 @@ public final class HttpsCompat {
                     throw new Exception("chain kosong");
                 }
                 int i = 0;
+                long[] masaBerlaku = new long[chain.size()];
                 for (Certificate cert : chain) {
-                    ks.setCertificateEntry("extra-" + (i++), cert);
+                    ks.setCertificateEntry("extra-" + (i), cert);
+                    long na = -1;
+                    if (cert instanceof java.security.cert.X509Certificate) {
+                        try {
+                            na = ((java.security.cert.X509Certificate) cert)
+                                    .getNotAfter().getTime();
+                        } catch (Exception ignored) {
+                        }
+                    }
+                    masaBerlaku[i] = na;
+                    i++;
+                }
+                // Audit 2849: peringatan dini rantai berkas
+                // yang menua - dulu bundel hanya dicek tak
+                // kosong, kedaluwarsanya senyap sampai
+                // koneksi GitHub gagal total.
+                String peringatanRantai = peringatanRantaiBerkas(
+                        masaBerlaku, System.currentTimeMillis());
+                if (peringatanRantai != null) {
+                    android.util.Log.w("HttpsCompat", peringatanRantai);
                 }
             }
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(
