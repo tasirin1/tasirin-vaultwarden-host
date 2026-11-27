@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Aserti suite cek-cepat kini menolak timeout sebagai kegagalan yang sah (Audit 2946)
+
+- `tools/uji-cek-cepat.py`: sebagian besar asersi negatif dulu hanya menuntut `rc != 0` — bila skrip menggantung sampai batas 300 detik sesudah mencetak pesan yang diharapkan, asersi tetap lolos sia-sia karena timeout juga menghasilkan rc 124. Semua asersi negatif kini menuntut `rc != 0 and rc != 124`, menyelaraskan seluruh suite dengan lima skenario yang sudah memakai pola itu.
+
+
 ## [Belum rilis] — Nama klon scratch ganda di suite cek-cepat diganti unik (Audit 2945)
 
 - `tools/uji-cek-cepat.py`: dua nama klon scratch dipakai dua kali di paruh yang sama (`tokenescape`, `pautan`) — kelas temuan yang sama dengan Audit 2924 di suite gerbang: skenario yang berhenti sebelum pembersihannya membuat klon berikutnya bernama sama gagal dan mematikan sisa paruh. Kemunculan kedua tiap nama kini unik (`tokenescape2`, `pautan2`).

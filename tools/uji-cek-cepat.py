@@ -73,7 +73,7 @@ def _bagian_awal(tmp):
           "token uji: " + token_palsu + "\n", "w")
     rc, out = jalan(rahasia, ["bash", SKRIP])
     periksa("pola token rahasia tertangkap",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(rahasia, ignore_errors=True)
 
     namatoken = klon(tmp, "namatoken")
@@ -81,7 +81,7 @@ def _bagian_awal(tmp):
           "teks jinak biasa saja.\n", "w")
     rc, out = jalan(namatoken, ["bash", SKRIP])
     periksa("token hanya di nama berkas tertangkap (Audit 2927)",
-            rc != 0 and "nama berkas" in out)
+            rc != 0 and rc != 124 and "nama berkas" in out)
     shutil.rmtree(namatoken, ignore_errors=True)
 
     terbelah = klon(tmp, "terbelah")
@@ -90,7 +90,7 @@ def _bagian_awal(tmp):
           + token_palsu[paruh:] + "\n", "w")
     rc, out = jalan(terbelah, ["bash", SKRIP])
     periksa("token terbelah dua baris tertangkap (cabang bungkus)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(terbelah, ignore_errors=True)
 
     tokenjeda = klon(tmp, "tokenjeda")
@@ -101,7 +101,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenjeda, ["bash", SKRIP])
     periksa("token terbelah tersela baris komentar tertangkap "
             "(Audit 1506)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(tokenjeda, ignore_errors=True)
 
     readme = klon(tmp, "readme")
@@ -112,7 +112,7 @@ def _bagian_awal(tmp):
         f.write(isi_rm.replace("\n## ", "\n### ", 1))
     rc, out = jalan(readme, ["bash", SKRIP])
     periksa("struktur judul README beda: cek-cepat gagal (Audit 868)",
-            rc != 0 and "struktur judul" in out)
+            rc != 0 and rc != 124 and "struktur judul" in out)
     shutil.rmtree(readme, ignore_errors=True)
 
     readmepagar = klon(tmp, "readmepagar")
@@ -136,7 +136,7 @@ def _bagian_awal(tmp):
           " android:pathData=\"M.9,5 h5 v5 z\" /></vector>\n", "w")
     rc, out = jalan(vektor, ["bash", SKRIP])
     periksa("path vektor tanpa nol depan tertangkap",
-            rc != 0 and "tanpa nol depan" in out)
+            rc != 0 and rc != 124 and "tanpa nol depan" in out)
     shutil.rmtree(vektor, ignore_errors=True)
 
     vektor2 = klon(tmp, "vektor2")
@@ -150,7 +150,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(vektor2, ["bash", SKRIP])
     periksa("path vektor angka kedua tanpa nol depan tertangkap "
             "(Audit 2911)",
-            rc != 0 and "tanpa nol depan" in out)
+            rc != 0 and rc != 124 and "tanpa nol depan" in out)
     shutil.rmtree(vektor2, ignore_errors=True)
 
     terabaikan = klon(tmp, "terabaikan")
@@ -160,7 +160,7 @@ def _bagian_awal(tmp):
         f.write("token uji: " + token_palsu + "\n")
     rc, out = jalan(terabaikan, ["bash", SKRIP])
     periksa("token di berkas ter-.gitignore tertangkap (Audit 1436)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "rahasia-terabaikan.txt" in out)
     shutil.rmtree(terabaikan, ignore_errors=True)
 
@@ -171,7 +171,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kunciterbelah, ["bash", SKRIP])
     periksa("header private key terbelah tertangkap "
             "(cabang bungkus) (Audit 1437)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-terbelah.txt" in out)
     shutil.rmtree(kunciterbelah, ignore_errors=True)
 
@@ -183,7 +183,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kuncitersela, ["bash", SKRIP])
     periksa("header terbelah tersela baris lain tertangkap "
             "(Audit 1456)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-tersela.txt" in out)
     shutil.rmtree(kuncitersela, ignore_errors=True)
 
@@ -195,7 +195,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kuncikomentar, ["bash", SKRIP])
     periksa("header tersela baris komentar tertangkap "
             "(Audit 1505)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-komentar.txt" in out)
     shutil.rmtree(kuncikomentar, ignore_errors=True)
 
@@ -207,7 +207,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kuncitengah, ["bash", SKRIP])
     periksa("header terbelah di tengah frasa tertangkap "
             "(Audit 1505)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-tengah.txt" in out)
     shutil.rmtree(kuncitengah, ignore_errors=True)
 
@@ -218,7 +218,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kuncipanjang, ["bash", SKRIP])
     periksa("header label huruf kecil panjang tertangkap "
             "(Audit 1505)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-panjang.txt" in out)
     shutil.rmtree(kuncipanjang, ignore_errors=True)
 
@@ -228,7 +228,7 @@ def _bagian_awal(tmp):
           "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
     rc, out = jalan(kuncitab, ["bash", SKRIP])
     periksa("header private key ber-TAB tertangkap (Audit 1455)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-tab.txt" in out)
     shutil.rmtree(kuncitab, ignore_errors=True)
 
@@ -240,7 +240,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(namabarisbaru, ["bash", SKRIP])
     periksa("token terbelah di berkas bernama newline tertangkap "
             "(Audit 1454)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(namabarisbaru, ignore_errors=True)
 
     readmehilang = klon(tmp, "readmehilang")
@@ -260,7 +260,7 @@ def _bagian_awal(tmp):
         f.write("token uji: " + token_palsu + "\n")
     rc, out = jalan(takterlacak, ["bash", SKRIP])
     periksa("token di berkas tak terlacak tertangkap (Audit 1439)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "catatan-baru.txt" in out)
     shutil.rmtree(takterlacak, ignore_errors=True)
 
@@ -271,7 +271,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenparuhpagar, ["bash", SKRIP])
     periksa("token terbelah dengan paruh sesudah '#' sebaris "
             "tertangkap (Audit 1526)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-paruh-pagar.txt" in out)
     shutil.rmtree(tokenparuhpagar, ignore_errors=True)
 
@@ -282,7 +282,7 @@ def _bagian_awal(tmp):
           "AAAAB3NzaC1yc2EAAAADAQABAAABAQC7uji\n", "w")
     rc, out = jalan(kuncimulaipagar, ["bash", SKRIP])
     periksa("header diawali baris '#' tertangkap (Audit 1526)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-mulai-pagar.txt" in out)
     shutil.rmtree(kuncimulaipagar, ignore_errors=True)
 
@@ -293,7 +293,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenparuhkomentar, ["bash", SKRIP])
     periksa("paruh token di dalam baris komentar tertangkap "
             "(Audit 1527)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-paruh-komentar.txt" in out)
     shutil.rmtree(tokenparuhkomentar, ignore_errors=True)
 
@@ -304,7 +304,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenparuhjarak, ["bash", SKRIP])
     periksa("paruh token di baris komentar berindentasi "
             "tertangkap (Audit 1527)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-paruh-jarak.txt" in out)
     shutil.rmtree(tokenparuhjarak, ignore_errors=True)
 
@@ -315,7 +315,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokentergabung, ["bash", SKRIP])
     periksa("token tergabung '#' sebaris tertangkap "
             "(Audit 1527)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-tergabung-pagar.txt" in out)
     shutil.rmtree(tokentergabung, ignore_errors=True)
 
@@ -327,7 +327,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselabintang, ["bash", SKRIP])
     periksa("token tersela baris tanda bintang tertangkap "
             "(Audit 1528)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-bintang.txt" in out)
     shutil.rmtree(tokenselabintang, ignore_errors=True)
 
@@ -339,7 +339,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kunciselaat, ["bash", SKRIP])
     periksa("header tersela komentar beraksara '@' tertangkap "
             "(Audit 1733)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-sela-at.txt" in out)
     shutil.rmtree(kunciselaat, ignore_errors=True)
 
@@ -351,7 +351,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselaat, ["bash", SKRIP])
     periksa("token tersela komentar beraksara '@' tertangkap "
             "(Audit 1733)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-at.txt" in out)
     shutil.rmtree(tokenselaat, ignore_errors=True)
 
@@ -362,7 +362,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(contohsela, ["bash", SKRIP])
     periksa("contoh header berperedaksi simbol + ekor panjang "
             "tertangkap - residu diterima (Audit 1742)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "contoh-header.md" in out)
     shutil.rmtree(contohsela, ignore_errors=True)
 
@@ -374,7 +374,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kunciselatitik, ["bash", SKRIP])
     periksa("header tersela baris titik-titik tertangkap "
             "(Audit 1528)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-sela-titik.txt" in out)
     shutil.rmtree(kunciselatitik, ignore_errors=True)
 
@@ -386,7 +386,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kunciselamiring, ["bash", SKRIP])
     periksa("header tersela komentar '//' tertangkap "
             "(Audit 1528)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-sela-miring.txt" in out)
     shutil.rmtree(kunciselamiring, ignore_errors=True)
 
@@ -398,7 +398,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselamiring, ["bash", SKRIP])
     periksa("token tersela komentar '//' tertangkap "
             "(Audit 1528)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-miring.txt" in out)
     shutil.rmtree(tokenselamiring, ignore_errors=True)
 
@@ -410,7 +410,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kunciselaakhir, ["bash", SKRIP])
     periksa("header tersela antara KEY dan '-----' tertangkap "
             "(Audit 1529)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-sela-akhir.txt" in out)
     shutil.rmtree(kunciselaakhir, ignore_errors=True)
 
@@ -422,7 +422,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselaseru, ["bash", SKRIP])
     periksa("token tersela '# hati-hati!' tertangkap "
             "(Audit 1543)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-seru.txt" in out)
     shutil.rmtree(tokenselaseru, ignore_errors=True)
 
@@ -434,7 +434,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselakolon, ["bash", SKRIP])
     periksa("token tersela '# catatan: penting' tertangkap "
             "(Audit 1543)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-kolon.txt" in out)
     shutil.rmtree(tokenselakolon, ignore_errors=True)
 
@@ -446,7 +446,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselablok, ["bash", SKRIP])
     periksa("token tersela komentar blok tertangkap "
             "(Audit 1543)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-blok.txt" in out)
     shutil.rmtree(tokenselablok, ignore_errors=True)
 
@@ -458,7 +458,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselakoma, ["bash", SKRIP])
     periksa("token tersela '; jeda' tertangkap "
             "(Audit 1543)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-koma.txt" in out)
     shutil.rmtree(tokenselakoma, ignore_errors=True)
 
@@ -469,7 +469,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenparuhseru, ["bash", SKRIP])
     periksa("token paruh-1 diakhiri komentar sebaris tertangkap "
             "(Audit 1543)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-paruh-seru.txt" in out)
     shutil.rmtree(tokenparuhseru, ignore_errors=True)
 
@@ -480,7 +480,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokensebarisbintang, ["bash", SKRIP])
     periksa("token dua paruh sebaris dipisah ' *** ' tertangkap "
             "(Audit 1543)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sebaris-bintang.txt" in out)
     shutil.rmtree(tokensebarisbintang, ignore_errors=True)
 
@@ -492,7 +492,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kunciselastrip, ["bash", SKRIP])
     periksa("header tersela baris '-----' persis tertangkap "
             "(Audit 1544)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-sela-strip.txt" in out)
     shutil.rmtree(kunciselastrip, ignore_errors=True)
 
@@ -504,7 +504,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kunciselastrip2, ["bash", SKRIP])
     periksa("header tersela baris ' ----- ' berspasi tertangkap "
             "(Audit 1544)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-sela-strip2.txt" in out)
     shutil.rmtree(kunciselastrip2, ignore_errors=True)
 
@@ -516,7 +516,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kunciselagarisbawah, ["bash", SKRIP])
     periksa("header tersela kata bergaris bawah tertangkap "
             "(Audit 1544)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-sela-garisbawah.txt" in out)
     shutil.rmtree(kunciselagarisbawah, ignore_errors=True)
 
@@ -528,7 +528,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kunciseladuastrip, ["bash", SKRIP])
     periksa("header tersela baris '-- jeda' tertangkap "
             "(Audit 1544)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-sela-duastrip.txt" in out)
     shutil.rmtree(kunciseladuastrip, ignore_errors=True)
 
@@ -539,7 +539,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kuncisebaristik, ["bash", SKRIP])
     periksa("header tersela ' ... ' sebaris tertangkap "
             "(Audit 1543)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-sebaris-titik.txt" in out)
     shutil.rmtree(kuncisebaristik, ignore_errors=True)
 
@@ -550,7 +550,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kuncibullet, ["bash", SKRIP])
     periksa("header utuh di baris bullet '*' tertangkap "
             "(Audit 1547)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-bullet.txt" in out)
     shutil.rmtree(kuncibullet, ignore_errors=True)
 
@@ -561,7 +561,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kunciblok, ["bash", SKRIP])
     periksa("header utuh di baris lanjutan komentar blok "
             "tertangkap (Audit 1547)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-blok.txt" in out)
     shutil.rmtree(kunciblok, ignore_errors=True)
 
@@ -572,7 +572,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kuncibloksebaris, ["bash", SKRIP])
     periksa("header utuh sebaris sesudah '/*' tertangkap "
             "(Audit 1547)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-blok-sebaris.txt" in out)
     shutil.rmtree(kuncibloksebaris, ignore_errors=True)
 
@@ -583,7 +583,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenbelahduaa, ["bash", SKRIP])
     periksa("token terbelah persis sesudah ':' tertangkap "
             "(Audit 1552)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-belah-dua-a.txt" in out)
     shutil.rmtree(tokenbelahduaa, ignore_errors=True)
 
@@ -595,7 +595,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenbelahduab, ["bash", SKRIP])
     periksa("token terbelah dengan ':' di awal baris kedua "
             "tertangkap (Audit 1552)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-belah-dua-b.txt" in out)
     shutil.rmtree(tokenbelahduab, ignore_errors=True)
 
@@ -606,7 +606,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselaapos, ["bash", SKRIP])
     periksa("token tersela baris apostrof tertangkap "
             "(Audit 1553)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-apostrof.txt" in out)
     shutil.rmtree(tokenselaapos, ignore_errors=True)
 
@@ -617,7 +617,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselahtml, ["bash", SKRIP])
     periksa("token tersela komentar HTML tertangkap "
             "(Audit 1553)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-html.txt" in out)
     shutil.rmtree(tokenselahtml, ignore_errors=True)
 
@@ -628,7 +628,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselapipa, ["bash", SKRIP])
     periksa("token dua paruh sebaris dipisah ' | ' tertangkap "
             "(Audit 1553)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-pipa.txt" in out)
     shutil.rmtree(tokenselapipa, ignore_errors=True)
 
@@ -651,7 +651,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(kuncimiringsela, ["bash", SKRIP])
     periksa("header utuh di baris komentar '//' tertangkap "
             "(Audit 1567)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-baris-miring.txt" in out)
     shutil.rmtree(kuncimiringsela, ignore_errors=True)
 
@@ -676,7 +676,7 @@ def _bagian_awal(tmp):
     rc, out = jalan(tokenselasubsep, ["bash", SKRIP])
     periksa("token tersela baris berisi byte SUBSEP "
             "tertangkap (Audit 1566)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-subsep.txt" in out)
     shutil.rmtree(tokenselasubsep, ignore_errors=True)
 
@@ -691,7 +691,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokenbelahduac, ["bash", SKRIP])
     periksa("token terbelah dengan ':' persis di awal baris "
             "kedua tertangkap (Audit 1565)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-belah-dua-c.txt" in out)
     shutil.rmtree(tokenbelahduac, ignore_errors=True)
 
@@ -702,7 +702,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokenbelahduad, ["bash", SKRIP])
     periksa("token dengan TAB sesudah ':' tertangkap "
             "(Audit 1565)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-belah-dua-d.txt" in out)
     shutil.rmtree(tokenbelahduad, ignore_errors=True)
 
@@ -713,7 +713,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokenselajam, ["bash", SKRIP])
     periksa("token tersela baris jam '12: 30' tertangkap "
             "(Audit 1560)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-jam.txt" in out)
     shutil.rmtree(tokenselajam, ignore_errors=True)
 
@@ -725,7 +725,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(kunciselajam, ["bash", SKRIP])
     periksa("header tersela baris versi '2: final' tertangkap "
             "(Audit 1560)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "kunci-sela-versi.txt" in out)
     shutil.rmtree(kunciselajam, ignore_errors=True)
 
@@ -737,7 +737,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokencrlf, ["bash", SKRIP])
     periksa("token terbelah dua baris di berkas CRLF "
             "tertangkap (Audit 1584)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-crlf.txt" in out)
     shutil.rmtree(tokencrlf, ignore_errors=True)
 
@@ -750,7 +750,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokentigabaris, ["bash", SKRIP])
     periksa("token terbelah tiga baris lewat baris digit "
             "murni tertangkap (Audit 1585)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-tiga-baris.txt" in out)
     shutil.rmtree(tokentigabaris, ignore_errors=True)
 
@@ -763,7 +763,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokenakumulasi, ["bash", SKRIP])
     periksa("deret digit token diakumulasi lintas baris "
             "digit murni (Audit 1585)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-akumulasi.txt" in out)
     shutil.rmtree(tokenakumulasi, ignore_errors=True)
 
@@ -775,7 +775,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokenselakosong, ["bash", SKRIP])
     periksa("token terbelah dengan sela baris kosong "
             "sebelum ':' tertangkap (Audit 1586)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-sela-kosong.txt" in out)
     shutil.rmtree(tokenselakosong, ignore_errors=True)
 
@@ -786,7 +786,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokennbsp, ["bash", SKRIP])
     periksa("token tersela spasi unicode NBSP tertangkap "
             "(Audit 1776)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-unicode.txt" in out)
     shutil.rmtree(tokennbsp, ignore_errors=True)
     tokenescape = klon(tmp, "tokenescape")
@@ -795,7 +795,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokenescape, ["bash", SKRIP])
     periksa("token tersela escape harfiah backslash-t "
             "tertangkap (Audit 1777)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-escape.txt" in out)
     shutil.rmtree(tokenescape, ignore_errors=True)
     tokenbom = klon(tmp, "tokenbom")
@@ -806,7 +806,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokenbom, ["bash", SKRIP])
     periksa("token terbelah dengan BOM di awal baris "
             "lanjutan tertangkap (Audit 1778)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-bom.txt" in out)
     shutil.rmtree(tokenbom, ignore_errors=True)
     tokennul = klon(tmp, "tokennul")
@@ -816,7 +816,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(tokennul, ["bash", SKRIP])
     periksa("token tersisipi byte NUL di rentangnya "
             "tertangkap (Audit 1795)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-nul.txt" in out)
     shutil.rmtree(tokennul, ignore_errors=True)
     sela_taklihat = klon(tmp, "selataklihat")
@@ -826,7 +826,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(sela_taklihat, ["bash", SKRIP])
     periksa("token tersela aksara tak terlihat U+200B "
             "tertangkap (Audit 1882)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(sela_taklihat, ignore_errors=True)
     sela_spasi = klon(tmp, "selaspasi")
     tanam(sela_spasi, "token-sela-spasi.txt",
@@ -835,7 +835,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(sela_spasi, ["bash", SKRIP])
     periksa("token tersela spasi tipis U+2009 tertangkap "
             "(Audit 1883)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(sela_spasi, ignore_errors=True)
     sela_vt = klon(tmp, "selavt")
     tanam(sela_vt, "token-sela-vt.txt",
@@ -844,7 +844,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(sela_vt, ["bash", SKRIP])
     periksa("token tersela tab vertikal tertangkap "
             "(Audit 1884)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(sela_vt, ignore_errors=True)
     token_escape = klon(tmp, "tokenescape2")
     tanam(token_escape, "token-escape.sh",
@@ -853,7 +853,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(token_escape, ["bash", SKRIP])
     periksa("token ter-encode escape heksa tertangkap "
             "(Audit 1885)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(token_escape, ignore_errors=True)
 
     token_oktal = klon(tmp, "tokenoktal")
@@ -863,7 +863,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(token_oktal, ["bash", SKRIP])
     periksa("token ter-encode escape oktal tertangkap "
             "(Audit 1885)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(token_oktal, ignore_errors=True)
     indeks_saja = klon(tmp, "indekssaja")
     berkas_indeks = os.path.join(
@@ -877,7 +877,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(indeks_saja, ["bash", SKRIP])
     periksa("token terbelah hanya di indeks tertangkap "
             "(Audit 1886)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(indeks_saja, ignore_errors=True)
     oktal_dua = klon(tmp, "oktaldua")
     tanam(oktal_dua, "token-oktal-dua.sh",
@@ -886,7 +886,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(oktal_dua, ["bash", SKRIP])
     periksa("token ter-encode oktal dua digit tertangkap "
             "(Audit 1889)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(oktal_dua, ignore_errors=True)
     escape_unicode = klon(tmp, "escapeunicode")
     tanam(escape_unicode, "token-unicode.sh",
@@ -895,7 +895,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(escape_unicode, ["bash", SKRIP])
     periksa("token ter-encode escape unicode tertangkap "
             "(Audit 1890)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(escape_unicode, ignore_errors=True)
     staged_ganti = klon(tmp, "stagedganti")
     berkas_ganti = os.path.join(
@@ -910,7 +910,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(staged_ganti, ["bash", SKRIP])
     periksa("token terbelah staged lalu diganti jinak "
             "tertangkap (Audit 1891)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(staged_ganti, ignore_errors=True)
     nama_amp = klon(tmp, "namaamp")
     berkas_amp = os.path.join(nama_amp, "a&b.txt")
@@ -923,7 +923,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(nama_amp, ["bash", SKRIP])
     periksa("token terbelah indeks bernama '&' tertangkap "
             "dengan nama benar (Audit 1892)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "a&b.txt" in out)
     shutil.rmtree(nama_amp, ignore_errors=True)
     nama_pipa = klon(tmp, "namapipa")
@@ -938,7 +938,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(nama_pipa, ["bash", SKRIP])
     periksa("nama '|' tak membungkam temuan berkas lain "
             "(Audit 1893)",
-            rc != 0 and "pola rahasia" in out
+            rc != 0 and rc != 124 and "pola rahasia" in out
             and "token-lain.txt" in out)
     shutil.rmtree(nama_pipa, ignore_errors=True)
     escape_umodal = klon(tmp, "escapeumodal")
@@ -948,7 +948,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(escape_umodal, ["bash", SKRIP])
     periksa("token ter-encode escape \\U tertangkap "
             "(Audit 1924)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(escape_umodal, ignore_errors=True)
     komit_ganti = klon(tmp, "komitganti")
     tanam(komit_ganti, "token-komit-ganti.txt",
@@ -961,7 +961,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(komit_ganti, ["bash", SKRIP])
     periksa("token terbelah ter-commit lalu ditimpa "
             "jinak tertangkap (Audit 1925)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(komit_ganti, ignore_errors=True)
     komit_hapus = klon(tmp, "komithapus")
     tanam(komit_hapus, "token-komit-hapus.txt",
@@ -971,7 +971,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(komit_hapus, ["bash", SKRIP])
     periksa("token terbelah ter-commit lalu git rm "
             "tertangkap dari HEAD (Audit 2912)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(komit_hapus, ignore_errors=True)
     hdr_hapus = klon(tmp, "hdrhapus")
     tanam(hdr_hapus, "kunci-biner.bin",
@@ -981,7 +981,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(hdr_hapus, ["bash", SKRIP])
     periksa("header kunci biner ter-commit lalu git rm "
             "tertangkap dari HEAD (Audit 2912)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(hdr_hapus, ignore_errors=True)
     jendela_besar = klon(tmp, "jendelabesar")
     tanam(jendela_besar, "besar-jendela.txt",
@@ -991,7 +991,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(jendela_besar, ["bash", SKRIP])
     periksa("token terbelah di berkas besar tertangkap "
             "jendela geser (Audit 1967)",
-            rc != 0 and "pola rahasia" in out)
+            rc != 0 and rc != 124 and "pola rahasia" in out)
     shutil.rmtree(jendela_besar, ignore_errors=True)
     subdir_lari = klon(tmp, "subdirlari")
     rc, out = jalan(subdir_lari + "/tools",
@@ -1008,7 +1008,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(biner_hdr, ["bash", SKRIP])
     periksa("header kunci tunggal di biner terlacak "
             "tertangkap (Audit 2002)",
-            rc != 0 and "biner-hdr.bin" in out)
+            rc != 0 and rc != 124 and "biner-hdr.bin" in out)
     shutil.rmtree(biner_hdr, ignore_errors=True)
     nodpi = klon(tmp, "nodpi")
     os.makedirs(nodpi + "/app/src/main/res/drawable-nodpi",
@@ -1018,7 +1018,7 @@ def _bagian_akhir(tmp):
           '<vector android:pathData="M.9,2"/>', "w")
     rc, out = jalan(nodpi, ["bash", SKRIP])
     periksa("vektor .9 di drawable-nodpi tertangkap "
-            "(Audit 2003)", rc != 0 and "vektor" in out)
+            "(Audit 2003)", rc != 0 and rc != 124 and "vektor" in out)
     shutil.rmtree(nodpi, ignore_errors=True)
     sarang = klon(tmp, "sarang")
     dalam = os.path.join(sarang, "sarang", "dalam")
@@ -1033,14 +1033,14 @@ def _bagian_akhir(tmp):
                             "../../scripts/cek-cepat.sh"])
     periksa("lari dari repo bersarang menilai repo "
             "pemilik skrip (Audit 2028)",
-            rc != 0 and "vektor" in out)
+            rc != 0 and rc != 124 and "vektor" in out)
     shutil.rmtree(sarang, ignore_errors=True)
     darigit = klon(tmp, "darigit")
     rc, out = jalan(darigit + "/.git",
                     ["bash", os.path.join(darigit, SKRIP)])
     periksa("lari dari dalam .git memicu pesan git tak "
             "bisa dipercaya (Audit 2029)",
-            rc != 0 and "tak bisa dipercaya" in out)
+            rc != 0 and rc != 124 and "tak bisa dipercaya" in out)
     shutil.rmtree(darigit, ignore_errors=True)
     nuljauh = klon(tmp, "nuljauh")
     hdr126 = (b"-----BEGIN " + b"PRIVATE"
@@ -1051,7 +1051,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(nuljauh, ["bash", SKRIP])
     periksa("header biner dengan NUL pertama jauh "
             "tertangkap (Audit 2030)",
-            rc != 0 and "biner-jauh.bin" in out)
+            rc != 0 and rc != 124 and "biner-jauh.bin" in out)
     shutil.rmtree(nuljauh, ignore_errors=True)
     idxvs = klon(tmp, "idxvs")
     with open(idxvs + "/biner-idx.bin", "wb") as fh:
@@ -1062,7 +1062,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(idxvs, ["bash", SKRIP])
     periksa("kandidat indeks diuji dari isi indeks "
             "(Audit 2031)",
-            rc != 0 and "biner-idx.bin" in out)
+            rc != 0 and rc != 124 and "biner-idx.bin" in out)
     shutil.rmtree(idxvs, ignore_errors=True)
     odlumpuh = klon(tmp, "odlumpuh")
     stubbin = os.path.join(odlumpuh, "stubbin")
@@ -1076,7 +1076,7 @@ def _bagian_akhir(tmp):
                     env={"PATH": stubbin + ":/usr/bin:/bin"})
     periksa("od lumpuh membuat kandidat dianggap biner "
             "(Audit 2032)",
-            rc != 0 and "biner-od.bin" in out)
+            rc != 0 and rc != 124 and "biner-od.bin" in out)
     shutil.rmtree(odlumpuh, ignore_errors=True)
     pautan = klon(tmp, "pautan")
     os.symlink("scripts/cek-cepat.sh", pautan + "/cek-link")
@@ -1093,7 +1093,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(longgar, ["bash", SKRIP])
     periksa("header tak di awal baris pada biner tak "
             "terlacak tertangkap (Audit 2049)",
-            rc != 0 and "longgar.bin" in out)
+            rc != 0 and rc != 124 and "longgar.bin" in out)
     shutil.rmtree(longgar, ignore_errors=True)
     nl = klon(tmp, "nl")
     with open(nl + "/nama\nbaru.bin", "wb") as fh:
@@ -1102,7 +1102,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(nl, ["bash", SKRIP])
     periksa("nama berkas ber-newline utuh sebagai "
             "kandidat (Audit 2050)",
-            rc != 0 and "baru.bin" in out)
+            rc != 0 and rc != 124 and "baru.bin" in out)
     shutil.rmtree(nl, ignore_errors=True)
     besar = klon(tmp, "besar")
     with open(besar + "/besar.bin", "wb") as fh:
@@ -1113,7 +1113,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(besar, ["bash", SKRIP])
     periksa("NUL pertama jauh di berkas besar "
             "tertangkap (Audit 2051)",
-            rc != 0 and "besar.bin" in out)
+            rc != 0 and rc != 124 and "besar.bin" in out)
     shutil.rmtree(besar, ignore_errors=True)
     import signal as _signal128
     import subprocess as _sp128
@@ -1123,7 +1123,7 @@ def _bagian_akhir(tmp):
                     env={"TMPDIR": "/proc/tak-ada-128"})
     periksa("TMPDIR rusak: vonis rancangan menyebut "
             "TMPDIR (Audit 2066)",
-            rc != 0 and "GAGAL:" in out
+            rc != 0 and rc != 124 and "GAGAL:" in out
             and "TMPDIR" in out)
     shutil.rmtree(tmpd_rusak, ignore_errors=True)
 
@@ -1148,7 +1148,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(stripnama, ["bash", SKRIP])
     periksa("berkas bernama '-' tak terlacak: token "
             "terbelah tertangkap (Audit 2097)",
-            rc != 0 and "./-" in out)
+            rc != 0 and rc != 124 and "./-" in out)
     shutil.rmtree(stripnama, ignore_errors=True)
     stripjinak = klon(tmp, "stripjinak")
     with open(stripjinak + "/-", "w") as fh:
@@ -1179,7 +1179,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(stripganda, ["bash", SKRIP])
     periksa("berkas '-' token utuh dilaporkan tepat "
             "satu kali (Audit 2129)",
-            rc != 0 and out.count("./-") == 1)
+            rc != 0 and rc != 124 and out.count("./-") == 1)
     shutil.rmtree(stripganda, ignore_errors=True)
     namabaris = klon(tmp, "namabaris")
     with open(namabaris + "/pecah\nbaris.txt", "w") as fh:
@@ -1187,7 +1187,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(namabaris, ["bash", SKRIP])
     periksa("nama berkas ber-newline tampil utuh "
             "ter-escape (Audit 2130)",
-            rc != 0 and "pecah\\nbaris.txt" in out)
+            rc != 0 and rc != 124 and "pecah\\nbaris.txt" in out)
     shutil.rmtree(namabaris, ignore_errors=True)
 
     namakutip = klon(tmp, "namakutip")
@@ -1198,7 +1198,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(namakutip, ["bash", SKRIP])
     periksa("nama ber-newline terlacak tampil satu "
             "ejaan utuh (Audit 2137)",
-            rc != 0 and out.count("pecah\\nbaris.txt") == 1
+            rc != 0 and rc != 124 and out.count("pecah\\nbaris.txt") == 1
             and '"pecah' not in out)
     shutil.rmtree(namakutip, ignore_errors=True)
 
@@ -1210,7 +1210,7 @@ def _bagian_akhir(tmp):
     rc, out = jalan(namamin, ["bash", SKRIP])
     periksa("berkas terlacak '-' tampil satu kali "
             "sebagai ./- (Audit 2158)",
-            rc != 0 and out.count("./-") == 1)
+            rc != 0 and rc != 124 and out.count("./-") == 1)
     shutil.rmtree(namamin, ignore_errors=True)
 
     belahnl = klon(tmp, "belahnl")
@@ -1271,7 +1271,7 @@ def _bagian_akhir(tmp):
     git(kepalah, "commit", "-qm", "tanam")
     rc, out = jalan(kepalah, ["bash", SKRIP])
     periksa("nama berkas HEAD: utuh satu ejaan "
-            "(Audit 2233)", rc != 0
+            "(Audit 2233)", rc != 0 and rc != 124
             and out.count("HEAD:probe.txt") == 1)
     shutil.rmtree(kepalah, ignore_errors=True)
 
