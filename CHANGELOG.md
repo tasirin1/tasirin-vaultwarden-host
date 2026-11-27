@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Perintah info bot kini punya jeda per chat (Audit 2789)
+
+- `TgBot.perintahInfo`: perintah info ringan (`/status`, `/log`, `/uptime`, `/alive`, `/versi`, `/crashlog`) kini dibatasi satu kali per 10 detik per chat sesudah lolos gerbang PIN — sebelumnya anggota grup terkonfigurasi bisa membanjiri antrean bot dengan `/log` berulang (tiap balasan sampai 3.500 aksara) sampai baterai/kuota terkuras atau kena batas Telegram. Predikat murninya `dalamJedaInfo` meniru pola jeda tugas berat, ada uji JVM.
+
+
 ## [Belum rilis] — Sertifikat TLS kini membawa SKID/AKID (Audit 2779)
 
 - `TlsCert`: sertifikat CA dan leaf baru kini menyertakan Subject Key Identifier (SHA-1 bit kunci publik, RFC 5280) dan leaf juga Authority Key Identifier yang menunjuk SKID CA — klien ketat yang membangun rantai lewat AKID/SKID tak lagi kekurangan petunjuk. CA lama yang sudah terpasang tetap cocok: AKID dihitung dari kunci publik sertifikat CA yang ada. Sertifikat lama tidak dibuat ulang paksa; ekstensi muncul saat CA/leaf berikutnya dibuat. Bagian SAN hostname tidak ditambah — aplikasi tidak punya pengaturan hostname dan akses berjalan via IP/localhost yang sudah tercakup SAN. Ada uji JVM yang memeriksa SKID pada CA hasil buatCa.

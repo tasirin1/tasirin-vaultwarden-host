@@ -21,6 +21,16 @@ public class TgBotTest {
     }
 
     @Test
+    public void dalamJedaInfo_batasSepuluhDetik() {
+        // Audit 2789: di dalam 10 detik sejak info terakhir =
+        // masih jeda; jam mundur gagal-terbuka.
+        assertTrue(TgBot.dalamJedaInfo(1_000L, 5_000L));
+        assertTrue(!TgBot.dalamJedaInfo(1_000L, 11_000L));
+        assertTrue(!TgBot.dalamJedaInfo(0L, 5_000L));
+        assertTrue(!TgBot.dalamJedaInfo(9_000L, 5_000L));
+    }
+
+    @Test
     public void dalamJedaBerat_batasDanJamMundur() {
         // Audit 589: jeda 30 dtk sesudah stempel berakhir; belum pernah
         // ada tugas (0) dan jam mundur selalu gagal-terbuka.

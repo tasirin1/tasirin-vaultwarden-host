@@ -81,6 +81,19 @@ public final class TgBot {
                 && kiniMs - berakhirMs < JEDA_BERAT_MS;
     }
 
+    // Audit 2789: perintah info ringan dulu tanpa jeda sama
+    // sekali - satu anggota grup bisa membanjiri antrean dengan
+    // /log berulang. Jeda per chat 10 detik, pola yang sama
+    // seperti jeda tugas berat (jam mundur = gagal-terbuka).
+    static final long JEDA_INFO_MS = 10_000L;
+    private static final java.util.concurrent.ConcurrentHashMap<Long, Long>
+            infoTerakhirPerChat = new java.util.concurrent.ConcurrentHashMap<>();
+
+    static boolean dalamJedaInfo(long terakhirMs, long kiniMs) {
+        return terakhirMs > 0 && kiniMs >= terakhirMs
+                && kiniMs - terakhirMs < JEDA_INFO_MS;
+    }
+
     private static volatile long wallMaksTelegram = 0;
 
     private static volatile long wallMaksTersimpan = Long.MIN_VALUE;
@@ -3346,6 +3359,16 @@ public final class TgBot {
         if (perluPin && authDangerous(ctx, arg, cmd.substring(1), idRuang) == null) {
             return false;
         }
+        // Audit 2789: jeda info per chat - perintah yang lolos
+        // gerbang tetap dibatasi agar tak membanjiri antrean.
+        long kiniInfo = SystemClock.elapsedRealtime();
+        Long infoSebelumnya = infoTerakhirPerChat.get(idRuang);
+        if (infoSebelumnya != null && dalamJedaInfo(infoSebelumnya, kiniInfo)) {
+            balas(ctx, idRuang, "Terlalu cepat - tunggu beberapa detik"
+                    + " lalu coba lagi.");
+            return perluPin;
+        }
+        infoTerakhirPerChat.put(idRuang, kiniInfo);
         if ("/uptime".equals(cmd)) {
             long up = ServerService.uptimeMs();
             if (up <= 0) {
