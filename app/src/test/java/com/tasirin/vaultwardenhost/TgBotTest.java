@@ -717,6 +717,17 @@ public class TgBotTest {
     }
 
     @Test
+    public void namaBotPerluSegar_kosongAtauLewatSeminggu() {
+        // Audit 2869.
+        long kini = 100L * 24 * 3600 * 1000L;
+        assertTrue(TgBot.namaBotPerluSegar("", 0, kini));
+        assertTrue(TgBot.namaBotPerluSegar("botku", 0, kini));
+        assertTrue(TgBot.namaBotPerluSegar("botku",
+                kini - TgBot.SEGAR_NAMA_BOT_MS, kini));
+        assertFalse(TgBot.namaBotPerluSegar("botku", kini - 1000, kini));
+    }
+
+    @Test
     public void rapikanSpasiManual() {
         assertEquals("a b c", TgBot.rapikanSpasi("a   b\t\nc"));
         assertEquals("", TgBot.rapikanSpasi(null));

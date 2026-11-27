@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Nama bot kini disegarkan berkala; perintah ber-sufiks tak lagi hilang diam-diam (Audit 2869)
+
+- `TgBot`: username bot tersimpan dulu hanya diisi bila kosong dan tidak pernah disegarkan — bot yang berganti username (token sama) membuat semua perintah ber-`@namabot` dibuang diam-diam selamanya. Kini pengambilan nama berstempel waktu (`tg_bot_user_at`) dan disegarkan bila kosong atau lewat 7 hari (predikat murni `namaBotPerluSegar`). Selain itu, di chat pribadi saat nama bot belum diketahui, perintah ber-sufiks kini diterima sebagai milik bot ini (chat pribadi hanya berisi satu bot); di grup perilaku membuang perintah bot lain tidak berubah. Ditambah uji JVM untuk predikat kesegarannya.
+
+
 ## [Belum rilis] — Pesan PIN telanjang tanpa pending kini ikut dihapus (Audit 2868)
 
 - `TgBot.wajibHapusPesanPin`: PIN yang diketik telanjang (seluruh pesan berbentuk PIN) tanpa aksi pending dulu tidak pernah dihapus dari riwayat chat — `pinTebakan` hanya mengenali PIN di dalam perintah dan cabang terakhir mensyaratkan pending/terotorisasi, padahal jalur chat asing dan suntingan justru menghapus PIN telanjang. Predikat `pinDariBalasan` yang sama kini ikut menentukan: teks utuh berbentuk PIN selalu dihapus di chat resmi, pending atau bukan. Ditambah kasus uji pada uji predikat yang ada.

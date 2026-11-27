@@ -1126,6 +1126,24 @@ public final class TgBot {
 
     static final String KEY_TG_BOT_USER = "tg_bot_user";
 
+    static final String KEY_TG_BOT_USER_AT = "tg_bot_user_at";
+
+    static final long SEGAR_NAMA_BOT_MS = 7L * 24 * 3600 * 1000;
+
+    // Audit 2869: nama bot disegarkan berkala - dulu
+    // hanya diisi bila kosong, jadi username yang
+    // berganti membuat semua perintah ber-sufiks
+    // dibuang diam-diam selamanya.
+    static boolean namaBotPerluSegar(String tersimpan, long diambilAt, long kini) {
+        if (tersimpan == null || tersimpan.trim().isEmpty()) {
+            return true;
+        }
+        if (diambilAt <= 0) {
+            return true;
+        }
+        return kini < diambilAt || kini - diambilAt >= SEGAR_NAMA_BOT_MS;
+    }
+
     static final String KEY_TG_BOT_ID = "tg_bot_id";
 
     // Keputusan murni reset offset (Audit 779): reset HANYA pada perubahan
@@ -1196,6 +1214,7 @@ public final class TgBot {
                 sp.edit().putString(KEY_TG_BOT_USER, bersih)
                         .putString(KEY_TG_BOT_ID, idBotDariToken(
                                 TgBackup.amanString(sp, TgBackup.KEY_TG_TOKEN, "")))
+                        .putLong(KEY_TG_BOT_USER_AT, System.currentTimeMillis())
                         .apply();
             }
         } catch (Exception ignored) {
@@ -1221,7 +1240,11 @@ public final class TgBot {
             return;
         }
         try {
-            if (!namaBotTersimpan(ctx).isEmpty()) {
+            SharedPreferences spSegar = ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            if (!namaBotPerluSegar(namaBotTersimpan(ctx),
+                    TgBackup.amanLong(spSegar, KEY_TG_BOT_USER_AT, 0),
+                    System.currentTimeMillis())) {
                 return;
             }
         } catch (Exception ignored) {
@@ -1242,13 +1265,10 @@ public final class TgBot {
         if (ctx == null || token == null || token.trim().isEmpty()) {
             return;
         }
-        try {
-            if (!namaBotTersimpan(ctx).isEmpty()) {
-                return;
-            }
-        } catch (Exception ignored) {
-            return;
-        }
+        // Audit 2869: gerbang kesegaran ada di pemanggil
+        // (+ throttle getMe) - di sini tak lagi menolak
+        // hanya karena nama lama masih tersimpan, agar
+        // penyegaran berkala benar-benar mengambil.
         String tokRapi = token.trim();
         getMeCobaToken = tokRapi;
         getMeCobaAt = SystemClock.elapsedRealtime();
@@ -3049,7 +3069,16 @@ public final class TgBot {
         String dasar = namaPerintah(text);
         String verifikasi = namaPerintahUntukBot(text, namaBotTersimpan(ctx));
         if (text.contains("@") && !dasar.equals(verifikasi)) {
-            return false;
+            // Audit 2869: nama bot belum diketahui dan ini
+            // chat pribadi - sufiks pasti tertuju ke bot
+            // ini (chat pribadi hanya berisi satu bot),
+            // jangan buang diam-diam. Grup tetap dibuang:
+            // di sana banyak bot dan sufiks memang penapis.
+            if (idRuang > 0 && namaBotTersimpan(ctx).isEmpty()) {
+                verifikasi = dasar;
+            } else {
+                return false;
+            }
         }
         String cmd = "/" + verifikasi;
         String arg = ambilArgumen(text);
