@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Iterasi PBKDF2 PIN naik ke 600.000 (standar OWASP)
+
+Hash PIN baru selama ini hanya 30.000 iterasi PBKDF2-HMAC-SHA256 — 20x di bawah rekomendasi OWASP; hash yang bocor membuat seluruh ruang PIN 4 digit murah di-brute-force. Iterasi standar kini 600.000, plafon verifikasi naik ke 1.000.000, dan jalur cadangan tanpa pabrik (PBKDF2 manual) naik dari 12.000 ke 100.000. Hash lama tetap terverifikasi (iterasi terbaca dari hash tersimpan) dan otomatis ter-upgrade saat verifikasi sukses berikutnya lewat perluUpgradeHash. Uji JVM yang mengunci angka lama diperbarui di commit yang sama.
+
+Closes #2765
+
+
 ## [Belum rilis] — HttpsCompat gagal-tertutup bila TLS kuat tidak tersedia
 
 Bila saringan protokol/cipher HttpsCompat menghasilkan daftar kosong (perangkat hanya mendukung TLS <1.2 atau tanpa cipher forward-secrecy), soket selama ini dibiarkan memakai bawaan platform diam-diam — koneksi GitHub/Telegram bisa menegosiasi TLS 1.0/cipher RSA statis tanpa peringatan. Kini nyalakan() menggagalkan koneksi dengan IOException berpesan jelas dan log error. Predikat murni baru saringanSiap teruji JVM; helper saringan lama tidak berubah.

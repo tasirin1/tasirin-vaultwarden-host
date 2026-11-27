@@ -32,9 +32,9 @@ public final class PinCrypto {
 
     static final String PREFIX_BUNGKUS = "PBKDF2W$";
 
-    private static final int ITERATIONS = 30_000;
+    private static final int ITERATIONS = 600_000;
 
-    static final int ITERASI_LEGASI = 12_000;
+    static final int ITERASI_LEGASI = 100_000;
 
     private static final class Acak {
         static final java.security.SecureRandom ISI = new java.security.SecureRandom();
@@ -44,7 +44,7 @@ public final class PinCrypto {
 
     static final int ITERASI_MINIMAL = 10_000;
 
-    static final int MAKS_VERIFIKASI = 120_000;
+    static final int MAKS_VERIFIKASI = 1_000_000;
 
     static final int HEKS_MAKSIMAL = 128;
     private static final int SALT_BYTES = 16;

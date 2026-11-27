@@ -52,7 +52,7 @@ public class PinCryptoTest {
         int modern = PinCrypto.iterasiStandar(true);
         org.junit.Assert.assertTrue(legasi >= 10000);
         org.junit.Assert.assertTrue(legasi < modern);
-        org.junit.Assert.assertTrue(modern <= 120000);
+        org.junit.Assert.assertTrue(modern >= 600000);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class PinCryptoTest {
     @Test
     public void iterasiRaksasaDitolak() {
 
-        String raksasa = "PBKDF2$1000000$"
+        String raksasa = "PBKDF2$2000000$"
                 + "00112233445566778899aabbccddeeff"
                 + "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
         assertFalse(PinCrypto.verify(raksasa, "1234"));
@@ -170,7 +170,8 @@ public class PinCryptoTest {
     public void bungkusDiniKuatkanHashLegasi() {
         String lama = PinCrypto.sha256("9999");
         String bungkus = PinCrypto.bungkusLegasi(lama);
-        assertTrue(bungkus.startsWith("PBKDF2W$30000$"));
+        assertTrue(bungkus.startsWith("PBKDF2W$"
+                + PinCrypto.iterasiStandar(true) + "$"));
 
         assertTrue(PinCrypto.verify(bungkus, "9999"));
         assertFalse(PinCrypto.verify(bungkus, "0000"));
@@ -189,10 +190,11 @@ public class PinCryptoTest {
     public void bungkusDiniTolakUtakAtik() {
         String bungkus = PinCrypto.bungkusLegasi(PinCrypto.sha256("9999"));
 
+        String awalan = "PBKDF2W$" + PinCrypto.iterasiStandar(true) + "$";
         assertFalse(PinCrypto.verify(
-                bungkus.replace("PBKDF2W$30000$", "PBKDF2W$1000000$"), "9999"));
+                bungkus.replace(awalan, "PBKDF2W$2000000$"), "9999"));
         assertFalse(PinCrypto.verify(
-                bungkus.replace("PBKDF2W$30000$", "PBKDF2W$100$"), "9999"));
+                bungkus.replace(awalan, "PBKDF2W$100$"), "9999"));
         assertFalse(PinCrypto.verify("PBKDF2W$xxx", "9999"));
     }
 
@@ -200,13 +202,13 @@ public class PinCryptoTest {
     public void normalisasiIterasiLama() {
 
         String kini = PinCrypto.hash("1234");
-        assertTrue(kini.startsWith("PBKDF2$30000$"));
+        assertTrue(kini.startsWith("PBKDF2$600000$"));
         assertFalse(PinCrypto.perluUpgradeHash(kini));
 
-        String berat = kini.replace("PBKDF2$30000$", "PBKDF2$120000$");
+        String berat = kini.replace("PBKDF2$600000$", "PBKDF2$700000$");
         assertFalse(PinCrypto.perluUpgradeHash(berat));
 
-        String lemah = kini.replace("PBKDF2$30000$", "PBKDF2$10000$");
+        String lemah = kini.replace("PBKDF2$600000$", "PBKDF2$10000$");
         assertTrue(PinCrypto.perluUpgradeHash(lemah));
     }
 
