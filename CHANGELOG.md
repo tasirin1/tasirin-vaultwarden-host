@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Folder data tak valid kini benar-benar diganti bawaan di prefs dan field (Audit 2830)
+
+- `SettingsActivity.saveAndStart`: bila folder data pilihan pengguna tidak aman (mis. symlink), aplikasi mencatat "pakai bawaan" tetapi dulu tetap menyimpan jalur symlink itu ke prefs dan field tetap menampilkannya — pengguna yakin vault-nya di folder pilihan padahal server berjalan di folder bawaan (runtime memang menulis balik prefs, tapi field tidak pernah disegarkan). Cabang fallback kini menjadikan folder bawaan sebagai nilai efektif yang disimpan, dan field + baseline-nya diperbarui saat itu juga: yang tampil = yang disimpan = yang dipakai server.
+
+
 ## [Belum rilis] — FileShareProvider kini membandingkan inode, bukan hanya jalur fd (Audit 2829)
 
 - `FileShareProvider.openFile`: pemeriksaan sesudah buka dulu hanya membandingkan jalur kanonik hasil readlink `/proc/self/fd` — penukaran isi lewat `rename()` atomik di path yang sama lolos karena jalurnya tidak berubah. Kini identitas berkas (device + inode) dari path terverifikasi (`Os.stat`, dicatat sebelum buka) dibandingkan dengan identitas fd yang terbuka (`Os.fstat`); tidak sama berarti berkas ditukar di antara verifikasi dan buka → ditolak fail-closed seperti penolakan lainnya. Ditambah uji JVM untuk predikat identitasnya.

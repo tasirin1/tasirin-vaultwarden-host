@@ -1219,6 +1219,13 @@ public class SettingsActivity extends Activity {
                 && !TextUtils.isEmpty(dataDir)) {
             toast(getString(R.string.folder_bawaan));
             appendUiLog("[app] Folder data tidak valid, pakai bawaan: " + ServerService.dataDirBawaanSegar());
+            // Audit 2830: bawaan harus jadi nilai efektif
+            // yang disimpan + tampil - dulu prefs tetap
+            // menyimpan jalur symlink dan field tetap
+            // menampilkannya, seolah vault di folder itu.
+            dataDirEfektif = ServerService.dataDirBawaanSegar();
+            dataDirInput.setText(dataDirEfektif);
+            dasarDataDir = dataDirEfektif;
         }
 
         if (!StoragePerm.siapStart(this, dataDirEfektif, REQ_WRITE)) {
