@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Prompt PIN lama kini ditandai digantikan saat pending berganti (Audit 2968)
+
+- `TgBot`: pending PIN tersimpan per-chat dan ditimpa begitu saja — pesan prompt lama tetap menampilkan "Aksi: X — balas pesan ini dengan PIN" padahal PIN yang diketik sesudahnya menjalankan aksi BARU, bukan X. Nilai pending kini menyimpan id pesan prompt (format `waktu|cmd|idPrompt`, nilai lama tetap terbaca), dan `mulaiAksiPin` mengedit prompt lama menjadi pemberitahuan bahwa ia digantikan dan PIN berlaku untuk aksi terbaru, lengkap dengan tombol Batal/Menu. Pengurai `cmdDariIsiPending`/`idPromptDariIsiPending` diekstrak sebagai fungsi murni dan diuji (format baru, format lama, id 0 eksplisit, null/kosong). Yang sengaja tidak diubah: PIN tetap diterima sebagai pesan teks berikutnya tanpa wajib membalas prompt tertentu — itu alur pakai yang sudah berjalan; yang diperbaiki adalah prompt lama yang berbohong.
+
+
 ## [Belum rilis] — Perintah Telegram basi kini dibalas, bukan dibuang diam-diam (Audit 2967)
 
 - `TgBot.pollOnce`: pesan dari chat pemilik yang umurnya melewati batas segar 5 menit dulu hanya dihapus bila berisi PIN lalu dibuang tanpa balasan apa pun — pengguna mengira bot mati, padahal perintahnya ditolak karena basi. Cabang basi kini membalas singkat bahwa perintah lama tidak dijalankan demi keamanan dan mempersilakan mengirim ulang. Balasan dijatah sekali per 10 menit (cap statik) agar tumpukan pesan lama yang tiba sekaligus sesudah bot lama mati tidak membanjiri chat dengan balasan kedaluwarsa. Penolakan perintah basinya sendiri tidak berubah.

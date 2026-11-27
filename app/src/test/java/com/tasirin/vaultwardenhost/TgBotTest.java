@@ -689,6 +689,31 @@ public class TgBotTest {
         assertEquals("", TgBot.parseUsernameBot("bukan json"));
     }
     @Test
+    public void isiPending_uraiCmdDanIdPrompt() {
+        // Format baru waktu|cmd|idPrompt.
+        org.junit.Assert.assertEquals("/backup",
+                TgBot.cmdDariIsiPending("1700000000000|/backup|123"));
+        org.junit.Assert.assertEquals(123,
+                TgBot.idPromptDariIsiPending("1700000000000|/backup|123"));
+        // Format lama waktu|cmd tetap terbaca utuh.
+        org.junit.Assert.assertEquals("/backup",
+                TgBot.cmdDariIsiPending("1700000000000|/backup"));
+        org.junit.Assert.assertEquals(0,
+                TgBot.idPromptDariIsiPending("1700000000000|/backup"));
+        // idPrompt 0 tertulis eksplisit: cmd tetap terpotong benar.
+        org.junit.Assert.assertEquals("/restart",
+                TgBot.cmdDariIsiPending("1700000000000|/restart|0"));
+        org.junit.Assert.assertEquals(0,
+                TgBot.idPromptDariIsiPending("1700000000000|/restart|0"));
+        org.junit.Assert.assertEquals("",
+                TgBot.cmdDariIsiPending(null));
+        org.junit.Assert.assertEquals(0,
+                TgBot.idPromptDariIsiPending(null));
+        org.junit.Assert.assertEquals(0,
+                TgBot.idPromptDariIsiPending(""));
+    }
+
+    @Test
     public void rapikanSpasiManual() {
         assertEquals("a b c", TgBot.rapikanSpasi("a   b\t\nc"));
         assertEquals("", TgBot.rapikanSpasi(null));

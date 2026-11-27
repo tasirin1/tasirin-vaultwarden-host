@@ -1497,13 +1497,59 @@ public final class TgBot {
         }
     }
 
-    private static void simpanPending(Context ctx, long chatId, String cmd, long waktu) {
+    private static void simpanPending(Context ctx, long chatId, String cmd,
+            long waktu, int idPrompt) {
         try {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
                     .edit().putString(KEY_TG_PENDING_PREFIX + chatId,
-                            waktu + "|" + cmd).apply();
+                            waktu + "|" + cmd + "|" + idPrompt).apply();
         } catch (Exception ignored) {
         }
+    }
+
+    // Audit 2968: pengurai nilai pending. Format kini
+    // waktu|cmd|idPrompt; nilai lama waktu|cmd tetap terbaca
+    // (idPrompt 0). Ekor id hanya diakui bila ada >= 2 pemisah
+    // dan ekornya semua digit, agar cmd lama tak terpotong.
+    static int idPromptDariIsiPending(String isi) {
+        if (isi == null) {
+            return 0;
+        }
+        int pertama = isi.indexOf('|');
+        int terakhir = isi.lastIndexOf('|');
+        if (pertama < 0 || terakhir <= pertama
+                || terakhir == isi.length() - 1) {
+            return 0;
+        }
+        String ekor = isi.substring(terakhir + 1).trim();
+        for (int i = 0; i < ekor.length(); i++) {
+            if (!Character.isDigit(ekor.charAt(i))) {
+                return 0;
+            }
+        }
+        try {
+            return Integer.parseInt(ekor);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    static String cmdDariIsiPending(String isi) {
+        if (isi == null) {
+            return "";
+        }
+        int pisah = isi.indexOf('|');
+        if (pisah < 0) {
+            return "";
+        }
+        String sisa = isi.substring(pisah + 1);
+        if (idPromptDariIsiPending(isi) != 0
+                || (sisa.contains("|") && isi.lastIndexOf('|') > pisah
+                        && isi.substring(isi.lastIndexOf('|') + 1)
+                                .trim().matches("\\d+"))) {
+            return sisa.substring(0, sisa.lastIndexOf('|'));
+        }
+        return sisa;
     }
 
     private static AksiPending ambilPending(Context ctx, long chatId, long kini) {
@@ -1524,7 +1570,7 @@ public final class TgBot {
                     waktu = 0;
                 }
             }
-            String cmd = pisah > 0 ? isi.substring(pisah + 1) : "";
+            String cmd = pisah > 0 ? cmdDariIsiPending(isi) : "";
             boolean basi = !pendingMasihBerlaku(waktu, kini);
             if (basi || !perintahPerluPin(cmd)) {
                 sp.edit().remove(kunci).apply();
@@ -1553,7 +1599,31 @@ public final class TgBot {
             handleCommand(ctx, data, chatId);
             return;
         }
-        simpanPending(ctx, chatId, data, System.currentTimeMillis());
+        // Audit 2968: prompt lama (bila ada dan beda pesan)
+        // diedit jadi pemberitahuan digantikan - dulu ia tetap
+        // menampilkan aksi lama padahal PIN berikutnya
+        // menjalankan aksi baru ini.
+        int idPromptLama = 0;
+        try {
+            SharedPreferences spLama = ctx.getSharedPreferences(
+                    ServerService.PREFS, Context.MODE_PRIVATE);
+            idPromptLama = idPromptDariIsiPending(
+                    TgBackup.amanString(spLama,
+                            KEY_TG_PENDING_PREFIX + chatId, ""));
+        } catch (Exception ignored) {
+        }
+        simpanPending(ctx, chatId, data, System.currentTimeMillis(), messageId);
+        if (idPromptLama != 0 && idPromptLama != messageId) {
+            String kbBatal = rakitKeyboard(new String[][]{
+                    {"Batal", "m:batal"}, {"Menu utama", "m:" + MENU_UTAMA},
+            });
+            TgBackup.editMessageKb(ctx, chatId, idPromptLama,
+                    "Prompt PIN ini digantikan prompt yang lebih baru.\n"
+                            + "PIN yang kamu ketik berlaku untuk aksi"
+                            + " terbaru: " + data + "\n"
+                            + "Prompt lama ini tidak lagi berlaku.",
+                    kbBatal);
+        }
         String teks = "Login diperlukan\n"
                 + "Aksi: " + data + "\n"
                 + "Balas pesan ini dengan PIN aplikasi (berlaku 5 menit)."
