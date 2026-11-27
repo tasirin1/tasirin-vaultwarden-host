@@ -121,6 +121,15 @@ public class ServerService extends Service {
     static final long TUNDA_ULANG_UNDUH_MS = 6L * 60 * 60 * 1000;
 
     private static volatile long loginHintTerakhirElapsed = 0;
+
+    // Audit 3000: penahan baris handshake TLS loopback.
+    private static volatile long tlsNoiseTerakhirElapsed = 0;
+    private static volatile int tlsNoiseTertahan = 0;
+
+    static boolean bolehLogNoiseTls(long kiniElapsed, long terakhirElapsed) {
+        return terakhirElapsed == 0
+                || kiniElapsed - terakhirElapsed >= 600_000;
+    }
     static final long LOGIN_HINT_JEDA_MS = 60 * 1000;
 
     private static volatile long loginPindaiTerakhirElapsed = 0;
@@ -3389,8 +3398,14 @@ public class ServerService extends Service {
                     loginPindaiTerakhirElapsed = kini;
                     hintLogin = saranLoginUntukBaris(line);
                 }
-                boolean noise = line.contains("CertificateUnknown")
-                        || line.contains("tls handshake with 127.0.0.1")
+                // Audit 3000: dua pola TLS dipisah dari
+                // noise mutlak - bentuk barisnya sama
+                // untuk derau probe sendiri dan kegagalan
+                // klien lokal sungguhan, jadi ditahan
+                // berjenjang, bukan dibuang semua.
+                boolean noiseTls = line.contains("CertificateUnknown")
+                        || line.contains("tls handshake with 127.0.0.1");
+                boolean noise = noiseTls
                         || line.contains("Detected TLS-enabled liftoff")
                         || line.contains("unsupported flags DT_FLAGS_1")
                         || line.contains("Shield has enabled a default HSTS policy");
@@ -3406,6 +3421,21 @@ public class ServerService extends Service {
                     continue;
                 }
 
+                if (noiseTls) {
+                    if (bolehLogNoiseTls(kini, tlsNoiseTerakhirElapsed)) {
+                        tlsNoiseTerakhirElapsed = kini;
+                        int tertahan = tlsNoiseTertahan;
+                        tlsNoiseTertahan = 0;
+                        appendLog(tertahan > 0
+                                ? aman + " (" + tertahan + " baris handshake"
+                                        + " TLS serupa disembunyikan sejak"
+                                        + " catatan terakhir)"
+                                : aman);
+                    } else {
+                        tlsNoiseTertahan++;
+                    }
+                    continue;
+                }
                 if (noise) {
                     continue;
                 }

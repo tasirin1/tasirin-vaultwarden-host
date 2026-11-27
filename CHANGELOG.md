@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kegagalan handshake TLS loopback tak lagi dibuang semua (Audit 3000)
+
+- `ServerService`: penyaring derau keluaran server dulu membuang setiap baris kegagalan handshake TLS loopback — padahal bentuk baris itu sama persis untuk derau pemeriksaan kesehatan sendiri dan untuk kegagalan klien lokal sungguhan (aplikasi lain di STB dengan CA salah), sehingga yang kedua hilang tanpa jejak dan tak bisa didiagnosis. Dua pola TLS itu kini ditahan berjenjang: baris pertama masuk log, sisanya diringkas berkala dengan hitungan yang disembunyikan. Tiga pola banner murni tetap dibuang seperti dulu.
+
+
 ## [Belum rilis] — Log sesi sebelumnya kini terbaca sesudah aplikasi restart (Audit 2999)
 
 - `ServerService`: berkas vaultwarden.log di folder data dulu hanya ditulis dan tidak pernah dibaca — semua permukaan log (layar log, /log, ekspor) membaca buffer ingatan yang kosong setiap aplikasi dimulai ulang, jadi bukti crash sesi lalu tidak terjangkau padahal berkasnya tersimpan. Saat server start dan buffer masih kosong, ekor berkas log sesi lalu kini disemaikan ke buffer dengan penanda yang jelas (langsung ke buffer agar tidak tertulis ulang ke berkas).

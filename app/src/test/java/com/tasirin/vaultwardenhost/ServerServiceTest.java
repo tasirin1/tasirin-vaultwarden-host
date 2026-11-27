@@ -893,6 +893,15 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void bolehLogNoiseTls_sepuluhMenitSekali() {
+        // Audit 3000: ringkasan handshake TLS lolos
+        // pertama kali lalu paling sering 10 menit.
+        org.junit.Assert.assertTrue(ServerService.bolehLogNoiseTls(1000, 0));
+        org.junit.Assert.assertFalse(ServerService.bolehLogNoiseTls(1000 + 599_999, 1000));
+        org.junit.Assert.assertTrue(ServerService.bolehLogNoiseTls(1000 + 600_000, 1000));
+    }
+
+    @Test
     public void ekorTeksLog_potongDiBatasBaris() {
         // Audit 2999: ekor berkas log dipotong pada
         // batas baris, teks pendek apa adanya.
