@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Suite cek-cepat kini mengunci cabang cadangan grep dan vektor terabaikan (Audit 2947)
+
+- `tools/uji-cek-cepat.py`: dua skenario baru. (1) Cabang cadangan `grep -E` pada pemeriksaan vektor (hanya terjangkau bila `rg` dan `grep -P` sama-sama tidak ada) dulu tidak pernah dijalankan suite, sehingga regresi di cabang itu — seperti Audit 2932 — tak tertangkap; skenario baru men-stub `rg` dan `grep -P` lalu membuktikan vektor `.9` tetap tertangkap. (2) Vektor `.9` di berkas yang ter-`.gitignore` kini dikunci skenario, bukan hanya perilaku kebetulan.
+
+
 ## [Belum rilis] — Aserti suite cek-cepat kini menolak timeout sebagai kegagalan yang sah (Audit 2946)
 
 - `tools/uji-cek-cepat.py`: sebagian besar asersi negatif dulu hanya menuntut `rc != 0` — bila skrip menggantung sampai batas 300 detik sesudah mencetak pesan yang diharapkan, asersi tetap lolos sia-sia karena timeout juga menghasilkan rc 124. Semua asersi negatif kini menuntut `rc != 0 and rc != 124`, menyelaraskan seluruh suite dengan lima skenario yang sudah memakai pola itu.

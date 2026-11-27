@@ -1078,6 +1078,40 @@ def _bagian_akhir(tmp):
             "(Audit 2032)",
             rc != 0 and rc != 124 and "biner-od.bin" in out)
     shutil.rmtree(odlumpuh, ignore_errors=True)
+    cabangcad = klon(tmp, "cabangcad")
+    stubbin_c = os.path.join(cabangcad, "stubbin")
+    os.makedirs(stubbin_c, exist_ok=True)
+    tanam(cabangcad, "stubbin/rg", "#!/bin/sh\nexit 1\n", "w")
+    os.chmod(stubbin_c + "/rg", 0o755)
+    grep_asli = shutil.which("grep") or "/usr/bin/grep"
+    tanam(cabangcad, "stubbin/grep",
+          "#!/bin/sh\n"
+          "for a in \"$@\"; do\n"
+          "  case \"$a\" in\n"
+          "    --*) ;;\n"
+          "    -*P*) exit 1 ;;\n"
+          "  esac\n"
+          "done\n"
+          "exec " + grep_asli + " \"$@\"\n", "w")
+    os.chmod(stubbin_c + "/grep", 0o755)
+    tanam(cabangcad, "app/src/main/res/drawable/ic_cadangan.xml",
+          "<vector xmlns:android=\"http://schemas.android.com/apk/res/android\">"
+          "<path android:pathData=\"M.9,1\"/></vector>\n", "w")
+    rc, out = jalan(cabangcad, ["bash", SKRIP],
+                    env={"PATH": stubbin_c + ":/usr/bin:/bin"})
+    periksa("cabang cadangan grep -E menangkap vektor .9 (Audit 2947)",
+            rc != 0 and rc != 124 and "path vektor" in out)
+    shutil.rmtree(cabangcad, ignore_errors=True)
+    vektorabaikan = klon(tmp, "vektorabaikan")
+    tanam(vektorabaikan, "app/src/main/res/drawable/.gitignore",
+          "ic_abaikan.xml\n", "w")
+    tanam(vektorabaikan, "app/src/main/res/drawable/ic_abaikan.xml",
+          "<vector xmlns:android=\"http://schemas.android.com/apk/res/android\">"
+          "<path android:pathData=\"M.9,1\"/></vector>\n", "w")
+    rc, out = jalan(vektorabaikan, ["bash", SKRIP])
+    periksa("vektor .9 di berkas ter-.gitignore tertangkap (Audit 2947)",
+            rc != 0 and rc != 124 and "path vektor" in out)
+    shutil.rmtree(vektorabaikan, ignore_errors=True)
     pautan = klon(tmp, "pautan")
     os.symlink("scripts/cek-cepat.sh", pautan + "/cek-link")
     rc, out = jalan(pautan,
