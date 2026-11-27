@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Kirim pesan Telegram kini mengulang sekali pada galat 5xx (Audit 2808)
+
+- `TgBackup.kirimSatuPesan`: dulu hanya HTTP 429 yang diulang; galat 5xx dari Telegram (mis. 500 tepat saat pengguna mengirim /stop) hanya dicatat di log lalu menyerah, jadi konfirmasi perintah hilang diam-diam padahal perintahnya jalan. Kini 5xx pada percobaan pertama ditunggu 1 detik lalu diulang sekali, mengikuti pola cabang 429 yang sudah ada. Galat 4xx tetap langsung menyerah — mengulang tidak menolong.
+
+
 ## [Belum rilis] — AboutDialog: tampil tersinkron + pembaruan versi cek isShowing (Audit 2807)
 
 - `AboutDialog.tampil` kini `synchronized` — cek-lalu-tampil atas WeakReference statik dulu bisa balapan menjadi dialog ganda. Pembaruan teks versi dari kerja latar kini juga memeriksa `dialog.isShowing()` (dulu hanya `isFinishing`/`isDestroyed`), jadi dialog yang sudah ditutup tidak diperbarui. Keduanya laten/kosmetik — pengerasan murah tanpa perubahan perilaku normal.

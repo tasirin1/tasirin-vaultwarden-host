@@ -1375,6 +1375,19 @@ public final class TgBackup {
                     tungguLimitTelegram("Kena limit Telegram", balasan);
                     continue;
                 }
+                // Audit 2808: 5xx Telegram dulu langsung
+                // menyerah sesudah di-log - konfirmasi
+                // perintah (mis. /stop) hilang diam-diam.
+                // Tunggu sebentar lalu ulang sekali.
+                if (code >= 500 && percobaan == 0) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                    continue;
+                }
 
                 if (code != 200 || !TgBot.responsOk(balasan)) {
                     logTgFailure("kirim pesan " + (bi + 1) + "/" + total,
