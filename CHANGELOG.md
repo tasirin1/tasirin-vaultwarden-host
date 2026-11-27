@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Delapan cek pohon gerbang kini punya skenario racun (Audit 2896)
+
+- Suite verifikasi kini menguji ujung-ke-ujung cek izin wajib, targetSdk, XML rusak, sinkron terjemah satu sisi, definisi ganda, import mati, acuan metode di AGENTS.md, dan komponen manifest tanpa kelas — sebelumnya kedelapan cek itu tanpa skenario sama sekali sehingga regresinya lolos diam-diam.
+
+
 ## [Belum rilis] — Paruh suite cek-cepat kini tahan mati di tengah — ringkasan selalu tercetak (Audit 2944)
 
 - Sama seperti suite verifikasi: kegagalan infrastruktur di tengah satu paruh suite cek-cepat kini dicatat sebagai skenario gagal bernama, paruh lain tetap berjalan, dan laporan ringkasan selalu tercetak.

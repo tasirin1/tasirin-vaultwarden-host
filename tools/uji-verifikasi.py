@@ -15574,6 +15574,122 @@ def _bagian_awal(tmp):
             rc == 0, "" if rc == 0 else out[-400:])
     shutil.rmtree(selaras0, ignore_errors=True)
 
+    def racun_pohon(nama, ubah, label, frag):
+        klon_p = klon(tmp, nama)
+        ubah(klon_p)
+        git(klon_p, "add", "-A")
+        git(klon_p, "commit", "-qm", "racun pohon uji")
+        rc, out = jalan(klon_p,
+                        [sys.executable, GERBANG, "--semua"])
+        periksa(label, rc != 0 and rc != 124 and frag in out)
+        shutil.rmtree(klon_p, ignore_errors=True)
+
+    def _pohon2896_izin(klon_p):
+        p = os.path.join(klon_p, "app", "src", "main",
+                         "AndroidManifest.xml")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "android.permission.RECEIVE_BOOT_COMPLETED",
+                "android.permission.VIBRATE", 1))
+    racun_pohon("pohon2896izin", _pohon2896_izin,
+                "izin wajib hilang dari manifest: gerbang "
+                "gagal (Audit 2896)", "Izin wajib")
+
+    def _pohon2896_target(klon_p):
+        p = os.path.join(klon_p, "app", "build.gradle.kts")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace("targetSdk = 28",
+                                "targetSdk = 29", 1))
+    racun_pohon("pohon2896target", _pohon2896_target,
+                "targetSdk naik ke 29: gerbang gagal "
+                "(Audit 2896)", "targetSdk")
+
+    def _pohon2896_xml(klon_p):
+        p = os.path.join(klon_p, "app", "src", "main",
+                         "res", "values", "strings.xml")
+        with open(p, "a", encoding="utf-8") as f:
+            f.write("<string name=\"rusak2896\">tak ditutup\n")
+    racun_pohon("pohon2896xml", _pohon2896_xml,
+                "strings.xml rusak: gerbang gagal "
+                "(Audit 2896)", "XML")
+
+    def _pohon2896_terjemah(klon_p):
+        p = os.path.join(klon_p, "app", "src", "main",
+                         "res", "values", "strings.xml")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "</resources>",
+                "    <string name=\"hanya_values_2896\">"
+                "x</string>\n</resources>", 1))
+    racun_pohon("pohon2896terjemah", _pohon2896_terjemah,
+                "string hanya di values: gerbang gagal "
+                "(Audit 2896)", "values-in kurang string")
+
+    def _pohon2896_ganda(klon_p):
+        for folder in ("values", "values-in"):
+            p = os.path.join(klon_p, "app", "src", "main",
+                             "res", folder, "strings.xml")
+            with open(p, encoding="utf-8") as f:
+                isi = f.read()
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(isi.replace(
+                    "</resources>",
+                    "    <string name=\"app_name\">"
+                    "ganda</string>\n</resources>", 1))
+    racun_pohon("pohon2896ganda", _pohon2896_ganda,
+                "definisi string ganda: gerbang gagal "
+                "(Audit 2896)", "Definisi ganda")
+
+    def _pohon2896_impor(klon_p):
+        p = os.path.join(klon_p, "app", "src", "main",
+                         "java", "com", "tasirin",
+                         "vaultwardenhost", "Util.java")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        kandidat = "java.util.LinkedList"
+        assert "LinkedList" not in isi
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "package com.tasirin.vaultwardenhost;",
+                "package com.tasirin.vaultwardenhost;\n\n"
+                "import " + kandidat + ";", 1))
+    racun_pohon("pohon2896impor", _pohon2896_impor,
+                "import mati di Java: gerbang gagal "
+                "(Audit 2896)", "Import mati")
+
+    def _pohon2896_agents(klon_p):
+        p = os.path.join(klon_p, "AGENTS.md")
+        with open(p, "a", encoding="utf-8") as f:
+            f.write("\nGunakan metodeNgawur2896() untuk "
+                    "semua hal.\n")
+    racun_pohon("pohon2896agents", _pohon2896_agents,
+                "AGENTS menyebut metode tak ada: gerbang "
+                "gagal (Audit 2896)",
+                "AGENTS.md menyebut metode")
+
+    def _pohon2896_manifest(klon_p):
+        p = os.path.join(klon_p, "app", "src", "main",
+                         "AndroidManifest.xml")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "</application>",
+                "        <activity android:name="
+                "\".KelasNgawur2896\" "
+                "android:exported=\"false\" />\n"
+                "    </application>", 1))
+    racun_pohon("pohon2896manifest", _pohon2896_manifest,
+                "komponen manifest tanpa kelas: gerbang "
+                "gagal (Audit 2896)",
+                "Komponen manifest tanpa kelas")
+
     naik2907a = klon(tmp, "naik2907a")
     berkas_main = os.path.join(
         naik2907a, "app", "src", "main", "java", "com",
