@@ -111,8 +111,9 @@ Riwayat perubahan dicatat di `CHANGELOG.md` (update manual per commit penting).
   ServerService + Updater), `Util.jalankanPin` (hash/verifikasi PIN, pool
   sendiri agar tak mengantre di belakang unduhan/backup),
   `ServerService.waitForOrKill` (tunggu proses),
-  `TgBackup.bacaStempelThrottle`/`simpanStempelThrottle` (throttle
-  AlarmReceiver + BootReceiver). Duplikat yang dihapus dicatat di
+  `TgBackup.bacaStempelThrottle`/`simpanPasanganStempelThrottle`/
+  `simpanTigaStempelThrottle` (throttle AlarmReceiver + BootReceiver;
+  `simpanStempelThrottle` sudah dihapus - jangan dibuat ulang). Duplikat yang dihapus dicatat di
   `tools/bekas-hapusan.txt` (lihat aturan #15).
 - **Kunci SharedPreferences** (`vw_prefs`): `data_dir`, `port`, `https` (selalu true, HTTPS-only),
   `wizard_selesai` (UI lokal, tak diimpor),

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — AGENTS.md tak lagi menyebut metode throttle yang sudah dihapus (Audit 2793)
+
+- `AGENTS.md` (daftar satu pintu): `simpanStempelThrottle` sudah lama dihapus dan tercatat di `tools/bekas-hapusan.txt`, tetapi dokumen masih menyebutnya sebagai pintu throttle — agen/perbaikan berikutnya yang mengikuti dokumen bisa memanggil metode yang tidak ada atau membuat ulang nama terlarang itu dan menabrak gerbang daftar hapusan. Dokumen kini menyebut penggantinya yang hidup: `simpanPasanganStempelThrottle` dan `simpanTigaStempelThrottle` (tulis atomik satu `edit()`), dengan catatan nama lama jangan dibuat ulang.
+
+
 ## [Belum rilis] — Iterasi KDF backup baru naik ke 600.000 (Audit 2791)
 
 - `TgBackup.iterasiKdfBackup`: backup terenkripsi baru kini diturunkan kuncinya dengan 600.000 iterasi PBKDF2-HMAC-SHA256 (dari 100.000), mengikuti patokan OWASP dan menyamai kekuatan PIN aplikasi sejak Audit 2765 — berkas `.enc` yang bocor jauh lebih lambat di-brute-force bila sandi backup lemah. Jalur cadangan tanpa pabrik SHA-256 naik dari 30.000 ke 100.000. Backup lama tidak berubah: format VWB3 menyimpan jumlah iterasinya di header dan dekripsi membaca nilai itu (validasi tetap 10.000–1.000.000), sedangkan berkas V1/V2 tetap dibuka dengan 100.000 seperti saat dibuat. Konsekuensi jujur: membuat backup baru di perangkat lambat (STB) kini butuh waktu turunkan-kunci yang lebih lama, satu kali per backup.
