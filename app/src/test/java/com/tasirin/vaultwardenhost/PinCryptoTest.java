@@ -8,6 +8,28 @@ import org.junit.Test;
 public class PinCryptoTest {
 
     @Test
+    public void hashCharsDiverifikasiKeduaVarian() {
+        char[] pin = "123456".toCharArray();
+        String h = PinCrypto.hash(pin);
+        assertTrue(PinCrypto.verify(h, "123456".toCharArray()));
+        assertTrue(PinCrypto.verify(h, "123456"));
+        assertTrue(PinCrypto.verify(PinCrypto.hash("123456"),
+                "123456".toCharArray()));
+        assertFalse(PinCrypto.verify(h, "123457".toCharArray()));
+        assertFalse(PinCrypto.verify(h, new char[0]));
+    }
+
+    @Test
+    public void verifyCharsMenolakPinKosongDanHashRusak() {
+        String h = PinCrypto.hash("123456".toCharArray());
+        assertFalse(PinCrypto.verify(h, (char[]) null));
+        assertFalse(PinCrypto.verify("bukan-hash",
+                "123456".toCharArray()));
+        assertFalse(PinCrypto.verify("",
+                "123456".toCharArray()));
+    }
+
+    @Test
     public void semuaAsciiKenaliBatas() {
         assertTrue(PinCrypto.semuaAscii("123456"));
         assertTrue(PinCrypto.semuaAscii("deadbeef0123"));

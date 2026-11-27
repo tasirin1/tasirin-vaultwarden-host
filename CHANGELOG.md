@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — PIN kini ditangani sebagai char[] yang di-nol-kan sesudah pakai (Audit 2801, parsial)
+
+- PinCrypto punya varian hash/verify berbasis char[]; layar kunci PIN membacanya sebagai char[] dan menolkannya sesudah verifikasi, dan jalur aktifkan-PIN di Settings meneruskan char[] ke thread latar. Jalur dialog ganti-PIN Settings belum dikonversi (PIN teranyam status dialog).
+
+
 ## [Belum rilis] — Jejak Audit ke commit kini terdaftar dan dijaga gerbang (Audit 2836)
 
 - tools/daftar-audit.py membangkitkan tools/daftar-audit.txt: tiap nomor Audit di pohon dipetakan ke commit penambah tertuanya beserta rujukan issue-nya. Gerbang kini memperingatkan bila diff memperkenalkan nomor Audit baru yang tak disebut pesan commit mana pun dalam rentang.

@@ -899,7 +899,10 @@ public class SettingsActivity extends Activity {
             pinSeq++;
 
             pinGantiKandidat = null;
-            final String pinBaru = fieldPin;
+            // Audit 2801: yang menyeberang ke thread
+            // latar adalah char[] yang di-nol-kan
+            // sesudah hash, bukan String abadi.
+            final char[] pinBaru = fieldPin.toCharArray();
             final int epAktif;
             synchronized (kunciAktifPin) {
                 epAktif = ++epAktifPin;
@@ -913,6 +916,7 @@ public class SettingsActivity extends Activity {
                 } catch (Exception e) {
                     hasil = null;
                 }
+                java.util.Arrays.fill(pinBaru, '\0');
                 if (hasil == null) {
                     pinAktifJalan = false;
                     ui.post(() -> {
@@ -973,6 +977,7 @@ public class SettingsActivity extends Activity {
             });
 
             if (!masuk) {
+                java.util.Arrays.fill(pinBaru, '\0');
                 pinAktifJalan = false;
                 pinCentangProgram = true;
                 pinEnabledCheck.setChecked(false);

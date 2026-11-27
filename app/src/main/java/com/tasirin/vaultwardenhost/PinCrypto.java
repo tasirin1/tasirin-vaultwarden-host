@@ -64,6 +64,19 @@ public final class PinCrypto {
         return PREFIX + iter + "$" + hex(salt) + "$" + hex(dk);
     }
 
+    // Audit 2801: varian char[] - pemanggil bisa
+    // menolkan PIN-nya sesudah pakai; String tak bisa.
+    public static String hash(char[] pin) {
+        if (pin == null) {
+            pin = new char[0];
+        }
+        byte[] salt = new byte[SALT_BYTES];
+        Acak.ISI.nextBytes(salt);
+        int iter = iterasiStandar();
+        byte[] dk = deriveChars(pin, salt, iter);
+        return PREFIX + iter + "$" + hex(salt) + "$" + hex(dk);
+    }
+
     public static boolean isNewFormat(String stored) {
         return stored != null && stored.startsWith(PREFIX);
     }
@@ -161,6 +174,69 @@ public final class PinCrypto {
         }
     }
 
+    // Audit 2801: varian char[] dari verify - jalur
+    // format baru murni char[] sampai PBKDF2; jalur
+    // bungkus/legasi sesaat mematerialkan String untuk
+    // sha256 (jembatan migrasi, pola Audit 2767).
+    public static boolean verify(String stored, char[] pin) {
+        if (stored == null || stored.length() > 512) {
+            return false;
+        }
+        if (stored.isEmpty() || pin == null || pin.length == 0) {
+            return false;
+        }
+        try {
+            if (isNewFormat(stored)) {
+                String[] parts = Util.pecahPin(stored);
+                if (parts == null || parts.length != 4) {
+                    return false;
+                }
+                return verifikasiPbkdf2Chars(parts, pin);
+            }
+            String pinStr = new String(pin);
+            if (isFormatBungkus(stored)) {
+                String[] parts = Util.pecahPin(stored);
+                if (parts == null || parts.length != 4) {
+                    return false;
+                }
+                return verifikasiPbkdf2(parts, sha256(pinStr));
+            }
+            return samakanHexLegasi(sha256(pinStr), stored);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean verifikasiPbkdf2Chars(String[] parts, char[] input) {
+        int iter;
+        try {
+            iter = Integer.parseInt(parts[1]);
+        } catch (Exception e) {
+            return false;
+        }
+        if (iter < ITERASI_MINIMAL || iter > MAKS_VERIFIKASI) {
+            return false;
+        }
+        if (parts[2].length() > HEKS_MAKSIMAL || parts[3].length() > HEKS_MAKSIMAL) {
+            return false;
+        }
+        byte[] salt = unhex(parts[2]);
+        byte[] want = unhex(parts[3]);
+        if (salt == null || want == null || salt.length != 16
+                || want.length != 32) {
+            return false;
+        }
+        byte[] got = deriveChars(input, salt, iter);
+        if (MessageDigest.isEqual(got, want)) {
+            return true;
+        }
+        if (semuaAscii(input)) {
+            return false;
+        }
+        byte[] cadangan = deriveCadanganChars(input, salt, iter);
+        return cadangan != null && MessageDigest.isEqual(cadangan, want);
+    }
+
     private static boolean verifikasiPbkdf2(String[] parts, String input) {
         int iter;
         try {
@@ -200,6 +276,18 @@ public final class PinCrypto {
         }
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) > 0x7F) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static boolean semuaAscii(char[] s) {
+        if (s == null) {
+            return true;
+        }
+        for (int i = 0; i < s.length; i++) {
+            if (s[i] > 0x7F) {
                 return false;
             }
         }
@@ -342,6 +430,51 @@ public final class PinCrypto {
         byte[] hasil = new byte[pin.length()];
         for (int i = 0; i < pin.length(); i++) {
             hasil[i] = (byte) pin.charAt(i);
+        }
+        return hasil;
+    }
+
+    // Audit 2801: derive dari char[] - PBEKeySpec
+    // menyalin array-nya sendiri, jadi array pemanggil
+    // tak diubah di sini (pemanggil yang menolkan).
+    // Jalur manual tanpa pabrik sesaat mematerialkan
+    // String, sama seperti jalur legasi.
+    private static byte[] deriveChars(char[] pin, byte[] salt, int iter) {
+        if (pin == null) {
+            pin = new char[0];
+        }
+        PBEKeySpec spec = new PBEKeySpec(pin, salt, iter, HASH_BITS);
+        try {
+            if (pabrikTersedia()) {
+                try {
+                    SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+                    return f.generateSecret(spec).getEncoded();
+                } catch (Exception e) {
+                    if (pabrikHilangPermanen(e)) {
+                        pabrikAda = Boolean.FALSE;
+                    }
+                }
+            }
+            return pbkdf2Manual(new String(pin), salt, iter);
+        } finally {
+            spec.clearPassword();
+        }
+    }
+
+    static byte[] deriveCadanganChars(char[] pin, byte[] salt, int iter) {
+        if (pabrikTersedia()) {
+            return pbkdf2Manual(new String(pin), salt, iter);
+        }
+        return pbkdf2ManualByte(byteRendahChars(pin), salt, iter);
+    }
+
+    static byte[] byteRendahChars(char[] pin) {
+        if (pin == null) {
+            return new byte[0];
+        }
+        byte[] hasil = new byte[pin.length];
+        for (int i = 0; i < pin.length; i++) {
+            hasil[i] = (byte) pin[i];
         }
         return hasil;
     }

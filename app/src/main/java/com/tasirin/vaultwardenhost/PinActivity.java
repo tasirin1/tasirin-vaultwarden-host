@@ -148,8 +148,19 @@ public class PinActivity extends Activity {
         bukaBtn.setEnabled(false);
         tampilInfo(getString(R.string.pin_memeriksa));
 
-        final String entered = pinInput.getText() == null
-                ? "" : pinInput.getText().toString();
+        // Audit 2801: PIN dibaca sebagai char[] agar
+        // bisa di-nol-kan sesudah verifikasi - salinan
+        // String tak bisa dibersihkan dari heap.
+        final char[] entered;
+        CharSequence teksPin = pinInput.getText();
+        if (teksPin == null) {
+            entered = new char[0];
+        } else {
+            entered = new char[teksPin.length()];
+            for (int i = 0; i < teksPin.length(); i++) {
+                entered[i] = teksPin.charAt(i);
+            }
+        }
         bersihkanInput();
         final android.content.Context appCtx = getApplicationContext();
 
@@ -198,6 +209,7 @@ public class PinActivity extends Activity {
                     }
                 }
             } finally {
+                java.util.Arrays.fill(entered, '\0');
                 final boolean hasil = cocok;
                 final boolean kalah = terkunci;
                 final long sisaFinal = sisaKalah;
@@ -221,7 +233,7 @@ public class PinActivity extends Activity {
             }
         });
         if (!masuk) {
-
+            java.util.Arrays.fill(entered, '\0');
             sedangPeriksa = false;
             bukaBtn.setEnabled(true);
             tampilGalat(getString(R.string.pin_sibuk));
