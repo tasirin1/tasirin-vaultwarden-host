@@ -982,8 +982,9 @@ public final class TgBot {
                     + "Perintah teks: /status /log /uptime /alive /versi /crashlog"
                     + " /backup /restore /ca /cabackup /careset /update /webvault"
                     + " /start /stop /restart /login /logout /help\n"
-                    + "Login: /login <PIN> sekali, berlaku sampai /logout atau PIN"
-                    + " diganti; sesudah login semua perintah jalan tanpa PIN."
+                    + "Login: /login <PIN> sekali, berlaku 7 hari (atau sampai"
+                    + " /logout atau PIN diganti); sesudah login semua perintah"
+                    + " jalan tanpa PIN."
                     + " Cara lama tetap bisa: /stop 123456.\n"
                     + "Pesan berisi PIN dihapus otomatis bila bot punya izin hapus.";
         }
@@ -2456,6 +2457,38 @@ public final class TgBot {
     static final String KEY_TG_LOGIN_HASH = "tg_login_hash";
     static final String KEY_TG_LOGIN_PREFIX = "tg_login_";
 
+    static final long LOGIN_TTL_MS = 7L * 24 * 3600 * 1000;
+
+    static String nilaiSesiLogin(String hash, long kiniMs) {
+        return hash + "|" + kiniMs;
+    }
+
+    static String hashDariNilaiSesi(String nilai) {
+        if (nilai == null) {
+            return "";
+        }
+        int p = nilai.lastIndexOf('|');
+        return p < 0 ? nilai : nilai.substring(0, p);
+    }
+
+    static boolean sesiLoginSegar(String nilai, String hashKini, long kiniMs) {
+        if (nilai == null || hashKini == null || hashKini.isEmpty()) {
+            return false;
+        }
+        int p = nilai.lastIndexOf('|');
+        if (p < 0 || !nilai.substring(0, p).equals(hashKini)) {
+            return false;
+        }
+        long ts;
+        try {
+            ts = Long.parseLong(nilai.substring(p + 1).trim());
+        } catch (Exception e) {
+            return false;
+        }
+        long umur = kiniMs - ts;
+        return umur >= 0 && umur <= LOGIN_TTL_MS;
+    }
+
     static boolean loginBerlaku(long chatTersimpan, long idRuang, String hashTersimpan,
             String hashKini, boolean pinOn) {
         return pinOn && idRuang > 0 && chatTersimpan == idRuang
@@ -2478,11 +2511,12 @@ public final class TgBot {
             boolean pinOn = TgBackup.amanBoolean(sp, PinGate.KEY_PIN_ON, false);
             String perChat = TgBackup.amanString(sp, kunciSesiLogin(idRuang), "");
             if (perChat != null && !perChat.isEmpty()) {
-                return loginBerlaku(idRuang, idRuang, perChat, hashKini, pinOn);
+                return loginBerlaku(idRuang, idRuang, hashDariNilaiSesi(perChat),
+                        hashKini, pinOn)
+                        && sesiLoginSegar(perChat, hashKini,
+                                System.currentTimeMillis());
             }
-            return loginBerlaku(TgBackup.amanLong(sp, KEY_TG_LOGIN_CHAT, 0), idRuang,
-                    TgBackup.amanString(sp, KEY_TG_LOGIN_HASH, ""),
-                    hashKini, pinOn);
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -2494,7 +2528,8 @@ public final class TgBot {
         }
         try {
             ctx.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE)
-                    .edit().putString(kunciSesiLogin(idRuang), hash).apply();
+                    .edit().putString(kunciSesiLogin(idRuang),
+                            nilaiSesiLogin(hash, System.currentTimeMillis())).apply();
         } catch (Exception ignored) {
         }
     }
@@ -2924,7 +2959,7 @@ public final class TgBot {
         if (pin == null) {
             balas(ctx, idRuang, "Kirim /login <PIN> dari chat pribadi, mis."
                     + " /login 123456 (PIN ber-spasi: /login PIN:\"kunci saya\")."
-                    + " Login berlaku sampai /logout atau PIN diganti.");
+                    + " Login berlaku 7 hari, atau sampai /logout atau PIN diganti.");
             return false;
         }
         SharedPreferences sp = ctx.getSharedPreferences(ServerService.PREFS,
@@ -2976,8 +3011,8 @@ public final class TgBot {
         }
         simpanLoginBilaHashTetap(ctx, idRuang, hashTerbukti);
         balas(ctx, idRuang, "Login berhasil. Semua perintah sekarang bisa"
-                + " langsung dipakai tanpa PIN, sampai kamu /logout atau"
-                + " PIN diganti.");
+                + " langsung dipakai tanpa PIN selama 7 hari (atau sampai"
+                + " kamu /logout atau PIN diganti).");
         TgBackup.sendMessageKbKe(ctx, String.valueOf(idRuang),
                 teksMenu(ctx, MENU_UTAMA, idRuang), keyboardMenu(MENU_UTAMA));
         return true;
@@ -3541,23 +3576,17 @@ public final class TgBot {
             return null;
         }
         if (cocok) {
-            String hashStempel = hash;
             if (PinCrypto.perluUpgradeHash(hash)) {
-                hashStempel = null;
                 try {
                     String hashBaru = PinCrypto.hash(pin);
                     synchronized (PinGate.KUNCI_PERCOBAAN) {
                         String kini = TgBackup.amanString(sp, PinGate.KEY_PIN_HASH, "");
                         if (hash.equals(kini)) {
                             sp.edit().putString(PinGate.KEY_PIN_HASH, hashBaru).apply();
-                            hashStempel = hashBaru;
                         }
                     }
                 } catch (Exception ignored) {
                 }
-            }
-            if (hashStempel != null) {
-                simpanLoginBilaHashTetap(ctx, idRuang, hashStempel);
             }
             return rest;
         }

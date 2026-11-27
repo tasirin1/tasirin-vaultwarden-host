@@ -1042,6 +1042,24 @@ public class TgBotTest {
     }
 
     @Test
+    public void sesiLoginSegar_tujuhHariDanHashSama() {
+        long kini = 1_700_000_000_000L;
+        String nilai = TgBot.nilaiSesiLogin("hashA", kini);
+        assertTrue(TgBot.sesiLoginSegar(nilai, "hashA", kini + 1000));
+        assertTrue(TgBot.sesiLoginSegar(nilai, "hashA",
+                kini + TgBot.LOGIN_TTL_MS));
+        assertFalse(TgBot.sesiLoginSegar(nilai, "hashA",
+                kini + TgBot.LOGIN_TTL_MS + 1));
+        assertFalse(TgBot.sesiLoginSegar(nilai, "hashB", kini + 1000));
+        assertFalse(TgBot.sesiLoginSegar("hashA", "hashA", kini + 1000));
+        assertFalse(TgBot.sesiLoginSegar(nilai, "hashA", kini - 1000));
+        assertFalse(TgBot.sesiLoginSegar(null, "hashA", kini));
+        assertTrue("hashA".equals(TgBot.hashDariNilaiSesi(nilai)));
+        assertTrue("hashA".equals(TgBot.hashDariNilaiSesi("hashA")));
+        assertTrue("".equals(TgBot.hashDariNilaiSesi(null)));
+    }
+
+    @Test
     public void loginBerlaku_hanyaChatDanHashYangSama() {
         assertTrue(TgBot.loginBerlaku(123L, 123L, "hashA", "hashA", true));
         assertFalse(TgBot.loginBerlaku(123L, 456L, "hashA", "hashA", true));

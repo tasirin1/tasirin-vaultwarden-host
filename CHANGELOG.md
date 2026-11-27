@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Sesi login Telegram kini kedaluwarsa 7 hari dan hanya dari /login
+
+Sesi login bot selama ini permanen (sampai /logout atau PIN diganti) dan diam-diam tercipta oleh perintah ber-PIN apa pun yang berhasil — sekali /stop 123456 membuat chat itu bisa /restore berminggu-minggu kemudian tanpa PIN. Kini: (1) sesi hanya dibuat oleh /login eksplisit (authDangerous tidak lagi menyimpan sesi; upgrade hash saat verifikasi tetap berjalan); (2) nilai sesi menyimpan stempel waktu dan hanya berlaku 7 hari (LOGIN_TTL_MS) — sesi format lama tanpa stempel dianggap kedaluwarsa dan pengguna login ulang sekali. Teks bantuan/pesan login dan ketiga README diselaraskan. Helper murni nilaiSesiLogin/ hashDariNilaiSesi/sesiLoginSegar teruji JVM.
+
+Closes #2769
+
+
 ## [Belum rilis] — Backup manual ke Telegram kini wajib password (tak ada lagi plaintext)
 
 Jalur otomatis sudah menolak backup tanpa password, tapi /backup manual via bot dan tombol Backup tetap mengirim db.sqlite3 + attachments + sends plaintext ke Telegram bila tg_pass kosong — bertentangan dengan janji README "encrypted backups". backupNowIsi kini menolak sejak awal dengan aturan yang sama persis (bolehBackupOtomatis) dan pesan jelas; kalimat celah "pakai tombol manual" di pesan penolakan otomatis dihapus. Uji JVM ditambah.
