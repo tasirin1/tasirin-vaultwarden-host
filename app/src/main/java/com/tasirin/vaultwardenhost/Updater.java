@@ -2571,10 +2571,12 @@ public final class Updater {
         java.util.List<File> berkasSiap = new java.util.ArrayList<>();
 
         boolean terpasang = false;
+        // Audit 2806: hitungan entri terlewat diangkat ke
+        // luar try agar bisa ditempel ke pesan hasil akhir.
+        int entriTerlewat = 0;
         try {
             long totalUnzip = 0;
             int jumlahEntri = 0;
-            int entriTerlewat = 0;
             try {
                 try (ZipInputStream zis = new ZipInputStream(new java.io.FileInputStream(tmpZip))) {
                     ZipEntry entry;
@@ -2754,7 +2756,12 @@ public final class Updater {
         } else if (latest != null && wvFallback) {
             sp.edit().putString(KEY_WV_FALLBACK_FOR, latest).commit();
         }
-        return "Web vault updated di " + targetDir.getAbsolutePath() + " " + WV_UPDATED_MARKER;
+        return "Web vault updated di " + targetDir.getAbsolutePath() + " " + WV_UPDATED_MARKER
+                + (entriTerlewat > 0
+                        ? " PERINGATAN: " + entriTerlewat + " entri zip dilewati"
+                                + " filter keamanan - sebagian aset bisa hilang"
+                                + " dari tampilan vault."
+                        : "");
     }
 
     private static volatile String sBundledVersion;

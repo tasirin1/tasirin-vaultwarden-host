@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Entri zip web-vault yang dilewati kini diperingatkan di hasil update (Audit 2806)
+
+- `Updater`: entri zip web-vault yang ditolak filter nama/kanonis dulu hanya dicatat di log — instalasi bisa "berhasil" secara diam-diam dalam keadaan parsial (aset JS/CSS hilang, vault tampil rusak tanpa penjelasan). Pesan hasil akhir kini menempelkan "PERINGATAN: N entri zip dilewati filter keamanan — sebagian aset bisa hilang dari tampilan vault" bila ada yang dilewati (ditempel sesudah penanda pembaruan, jadi deteksi perubahan tidak terganggu). Instalasi sendiri sengaja tidak digagalkan: satu entri aneh dari upstream tidak boleh memblokir update, tapi pengguna wajib tahu.
+
+
 ## [Belum rilis] — MemoVersiCocok tak lagi bisa NPE oleh pend null (Audit 2805)
 
 - `MemoVersiCocok.cocokTahap1/2`: argumen `pend` kini dinormalkan ke "" bila null, sama seperti `versi` — dulu `pend.equals(...)` meledak NPE laten bagi pemanggil mana pun yang mengoper null (pemanggil hari ini mengawal null, jadi ini pengerasan, bukan perbaikan crash yang terjadi). Diuji dengan pend null dua tahap. Field memo tetap tidak tersinkron — kedua pemanggilnya activity di UI thread.
