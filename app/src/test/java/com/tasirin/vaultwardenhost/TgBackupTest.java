@@ -1444,6 +1444,18 @@ public class TgBackupTest {
         }
     }
 
+@Test
+    public void peringatanStorageJatuhTempo_stempelMasaDepan() {
+        // Audit 2980: stempel dari jam yang maju lalu
+        // dikoreksi mundur wajib dianggap jatuh tempo.
+        long kini = 1767225600000L;
+        long sehari = 24L * 60 * 60 * 1000;
+        assertTrue(TgBackup.peringatanStorageJatuhTempo(0, kini));
+        assertTrue(TgBackup.peringatanStorageJatuhTempo(kini + sehari, kini));
+        assertTrue(TgBackup.peringatanStorageJatuhTempo(kini - sehari, kini));
+        assertFalse(TgBackup.peringatanStorageJatuhTempo(kini - sehari + 1, kini));
+    }
+
     @Test
     public void sisaTungguBootMs_limaMenitSetelahHidup() {
         assertEquals(5L * 60 * 1000, TgBackup.sisaTungguBootMs(0));

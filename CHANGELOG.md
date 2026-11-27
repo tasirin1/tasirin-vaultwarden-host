@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Peringatan storage rendah tak lagi tertahan stempel masa depan (Audit 2980)
+
+- `TgBackup`: pengulangan peringatan storage rendah memakai selisih jam dinding tanpa penjaga — peringatan yang terkirim saat jam STB sedang maju lalu dikoreksi mundur membuat selisihnya negatif bertahun-tahun, dan peringatan tidak pernah diulang walau storage makin penuh sampai server mati kehabisan disk. Keputusan jatuh temponya kini fungsi murni yang diuji: stempel di masa depan dianggap jatuh tempo.
+
+
 ## [Belum rilis] — Penghitung coba-ulang jam-salah direset saat jam kembali benar (Audit 2977)
 
 - `AlarmReceiver`: penghitung coba-ulang backup per jam saat jam STB salah dulu hanya bertambah dan hanya terhapus oleh backup yang sukses penuh — jam yang kembali benar tidak meresetnya, sehingga episode jam-salah berikutnya bisa kebagian nol coba-ulang karena jatahnya habis di episode lama. Jalur susulan yang sama kini mereset penghitung itu begitu jam terbaca wajar lagi: episode berakhir, episode berikutnya mulai dari jatah penuh.

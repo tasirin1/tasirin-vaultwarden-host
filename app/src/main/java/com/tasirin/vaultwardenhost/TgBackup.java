@@ -2038,8 +2038,7 @@ public final class TgBackup {
                 sp.edit().putLong(KEY_TG_LOW_STORAGE_MS, kiniMs).apply();
             }
             if (low) {
-                if (warnedMs == 0
-                        || kiniMs - warnedMs >= 24L * 60 * 60 * 1000) {
+                if (peringatanStorageJatuhTempo(warnedMs, kiniMs)) {
                     sp.edit().putLong(KEY_TG_LOW_STORAGE_MS, kiniMs)
                             .putBoolean(KEY_TG_LOW_STORAGE, true).apply();
                     sendMessage(ctx, "Peringatan storage: sisa " + humanBytes(free)
@@ -2051,6 +2050,15 @@ public final class TgBackup {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    // Audit 2980: stempel peringatan di masa depan
+    // (jam STB dikoreksi mundur) = jatuh tempo - dulu
+    // selisih negatifnya menekan peringatan ulang
+    // selama bertahun-tahun waktu dinding.
+    static boolean peringatanStorageJatuhTempo(long warnedMs, long kiniMs) {
+        return warnedMs == 0 || warnedMs > kiniMs
+                || kiniMs - warnedMs >= 24L * 60 * 60 * 1000;
     }
 
     static String verifikasiZip(File zip) {
