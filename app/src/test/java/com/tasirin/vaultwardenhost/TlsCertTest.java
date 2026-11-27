@@ -572,6 +572,27 @@ public class TlsCertTest {
     }
 
     @Test
+    public void buatCa_sertifikatMembawaSkidYangBenar() throws Exception {
+        // Audit 2779: CA baru membawa SKID = SHA-1 bit kunci
+        // publiknya, dan helper menolak masukan rusak dengan null.
+        java.nio.file.Path dir = Files.createTempDirectory("tlsskid");
+        File d = dir.toFile();
+        File certF = new File(d, "cert.pem");
+        assertTrue(TlsCert.buatCa(certF, new File(d, "key.pem")));
+        java.security.cert.X509Certificate cert;
+        try (java.io.FileInputStream in = new java.io.FileInputStream(certF)) {
+            cert = (java.security.cert.X509Certificate) java.security.cert
+                    .CertificateFactory.getInstance("X.509").generateCertificate(in);
+        }
+        byte[] ext = cert.getExtensionValue("2.5.29.14");
+        assertTrue(ext != null && ext.length == 24);
+        byte[] skidTersimpan = java.util.Arrays.copyOfRange(ext, 4, 24);
+        assertTrue(java.util.Arrays.equals(
+                skidTersimpan, TlsCert.skidDariKunci(cert.getPublicKey())));
+        assertTrue(TlsCert.bitsKunciPublik(new byte[]{1, 2, 3}) == null);
+        assertTrue(TlsCert.skidDariKunci(null) == null);
+    }
+
     public void pasanganCertKeyCocok_stabilUntukPasanganSilang() throws Exception {
         // Audit 1468: hasil tak cocok kini ikut dimemoisasi —
         // putusan untuk berkas yang sama harus stabil antar

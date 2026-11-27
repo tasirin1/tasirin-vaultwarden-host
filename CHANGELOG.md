@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Sertifikat TLS kini membawa SKID/AKID (Audit 2779)
+
+- `TlsCert`: sertifikat CA dan leaf baru kini menyertakan Subject Key Identifier (SHA-1 bit kunci publik, RFC 5280) dan leaf juga Authority Key Identifier yang menunjuk SKID CA — klien ketat yang membangun rantai lewat AKID/SKID tak lagi kekurangan petunjuk. CA lama yang sudah terpasang tetap cocok: AKID dihitung dari kunci publik sertifikat CA yang ada. Sertifikat lama tidak dibuat ulang paksa; ekstensi muncul saat CA/leaf berikutnya dibuat. Bagian SAN hostname tidak ditambah — aplikasi tidak punya pengaturan hostname dan akses berjalan via IP/localhost yang sudah tercakup SAN. Ada uji JVM yang memeriksa SKID pada CA hasil buatCa.
+
+
 ## [Belum rilis] — Peringatan folder storage bersama kini tampil di Settings, bukan cuma log (Audit 2781)
 
 - Predikat folder bersama dipusatkan jadi `ServerService.folderDiStorageBersama` (ada uji JVM) dan dipakai peringatan log Start. Predikat kini mengecualikan area khusus aplikasi `Android/data`/`Android/media` yang dilindungi sistem — peringatan log Start sebelumnya ikut berbunyi untuk folder bawaan yang sebenarnya area aplikasi sendiri. `SettingsActivity` kini menampilkan peringatan yang sama secara inline begitu folder di penyimpanan bersama dipilih — database Vaultwarden di sana bisa dibaca aplikasi lain berizin penyimpanan karena PIN hanya mengunci layar aplikasi, bukan mengenkripsi database. Sifatnya peringatan, bukan blokir: pilihan folder tetap di tangan pengguna.

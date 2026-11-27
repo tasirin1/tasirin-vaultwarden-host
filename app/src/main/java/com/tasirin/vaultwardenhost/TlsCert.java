@@ -294,7 +294,7 @@ public final class TlsCert {
             File keyBaru = new File(dir, LEAF_KEY_FILE + ".baru");
             certBaru.delete();
             keyBaru.delete();
-            if (!buatLeaf(caKey, certBaru, keyBaru, ips)) {
+            if (!buatLeaf(caCert, caKey, certBaru, keyBaru, ips)) {
                 certBaru.delete();
                 keyBaru.delete();
                 return null;
@@ -517,7 +517,7 @@ public final class TlsCert {
         try {
             KeyPair kp = buatRsa2048();
             byte[] tbs = buildTbs(kp.getPublic(), CA_CN, CA_CN,
-                    caExtensionsBlock(), 365 * 10);
+                    caExtensionsBlock(skidDariKunci(kp.getPublic())), 365 * 10);
             writePem(caCert, "CERTIFICATE", tandatangani(tbs, kp.getPrivate()));
             writePem(caKey, "PRIVATE KEY", kp.getPrivate().getEncoded());
             return true;
@@ -556,16 +556,23 @@ public final class TlsCert {
     }
 
 
-    private static boolean buatLeaf(File caKeyFile, File certFile, File keyFile,
-            List<String> ips) {
+    private static boolean buatLeaf(File caCertFile, File caKeyFile, File certFile,
+            File keyFile, List<String> ips) {
         try {
             PrivateKey caPriv = bacaPrivateKey(caKeyFile);
             if (caPriv == null) {
                 return false;
             }
+            // Audit 2779: AKID leaf = SKID CA, dari kunci publik
+            // sertifikat CA yang ada (gagal baca -> AKID dilewati).
+            byte[] skidCa = null;
+            X509Certificate caCert = bacaCert(caCertFile);
+            if (caCert != null) {
+                skidCa = skidDariKunci(caCert.getPublicKey());
+            }
             KeyPair kp = buatRsa2048();
             byte[] tbs = buildTbs(kp.getPublic(), CA_CN, LEAF_CN,
-                    extensionsBlock(ips), 397);
+                    extensionsBlock(ips, skidDariKunci(kp.getPublic()), skidCa), 397);
             writePem(certFile, "CERTIFICATE", tandatangani(tbs, caPriv));
             writePem(keyFile, "PRIVATE KEY", kp.getPrivate().getEncoded());
             return true;
@@ -842,21 +849,100 @@ public final class TlsCert {
         }, 0x30);
     }
 
-    private static byte[] caExtensionsBlock() throws Exception {
+    // Audit 2779: ekstrak bit kunci publik dari SPKI DER
+    // (SEQUENCE { SEQUENCE alg, BIT STRING kunci }) untuk SKID.
+    // Setiap langkah dicek batasnya; bentuk tak dikenal -> null
+    // (ekstensi dilewati, sertifikat tetap dibuat).
+    static byte[] bitsKunciPublik(byte[] spki) {
+        try {
+            if (spki == null || spki.length < 4 || spki[0] != 0x30) {
+                return null;
+            }
+            int[] luar = bacaPanjangDer(spki, 1);
+            if (luar == null) {
+                return null;
+            }
+            int pos = luar[1];
+            if (pos >= spki.length || spki[pos] != 0x30) {
+                return null;
+            }
+            int[] alg = bacaPanjangDer(spki, pos + 1);
+            if (alg == null) {
+                return null;
+            }
+            pos = alg[1] + alg[0];
+            if (pos >= spki.length || spki[pos] != 0x03) {
+                return null;
+            }
+            int[] bit = bacaPanjangDer(spki, pos + 1);
+            if (bit == null || bit[0] < 1 || bit[1] + bit[0] > spki.length) {
+                return null;
+            }
+            return java.util.Arrays.copyOfRange(spki, bit[1] + 1, bit[1] + bit[0]);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // Baca panjang DER mulai di idx; hasil {panjangIsi, idxIsi}.
+    private static int[] bacaPanjangDer(byte[] der, int idx) {
+        if (idx >= der.length) {
+            return null;
+        }
+        int b0 = der[idx] & 0xFF;
+        if (b0 < 0x80) {
+            return new int[]{b0, idx + 1};
+        }
+        int n = b0 & 0x7F;
+        if (n == 0 || n > 2 || idx + 1 + n > der.length) {
+            return null;
+        }
+        int len = 0;
+        for (int i = 0; i < n; i++) {
+            len = (len << 8) | (der[idx + 1 + i] & 0xFF);
+        }
+        return new int[]{len, idx + 1 + n};
+    }
+
+    // SKID menurut RFC 5280 metode 1: SHA-1 atas bit kunci publik.
+    static byte[] skidDariKunci(java.security.PublicKey kunci) {
+        try {
+            if (kunci == null) {
+                return null;
+            }
+            byte[] bits = bitsKunciPublik(kunci.getEncoded());
+            if (bits == null) {
+                return null;
+            }
+            return java.security.MessageDigest.getInstance("SHA-1").digest(bits);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static byte[] caExtensionsBlock(byte[] skid) throws Exception {
         byte[] basicConstraints = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x13}, true,
                 octetString(der(b -> b.raw(new byte[]{0x01, 0x01, (byte) 0xFF}), 0x30)));
 
         byte[] keyUsage = extension(new byte[]{0x06, 0x03, 0x55, 0x1D, 0x0F}, true,
                 octetString(new byte[]{0x03, 0x02, 0x01, (byte) 0x86}));
+        // Audit 2779: SKID agar rantai bisa dibangun klien ketat.
+        byte[] skidExt = skid == null ? null : extension(
+                new byte[]{0x06, 0x03, 0x55, 0x1D, 0x0E}, false,
+                octetString(octetString(skid)));
         byte[] extensions = der(b -> {
             b.raw(basicConstraints);
             b.raw(keyUsage);
+            if (skidExt != null) {
+                b.raw(skidExt);
+            }
         }, 0x30);
 
         return der(b -> b.raw(extensions), 0xA3);
     }
 
-    private static byte[] extensionsBlock(List<String> ips) throws Exception {
+    private static byte[] extensionsBlock(List<String> ips, byte[] skidLeaf,
+            byte[] skidCa) throws Exception {
         byte[] generalNames = der(b -> {
             for (String ip : ips) {
                 byte[] octets = ipv4(ip);
@@ -885,11 +971,28 @@ public final class TlsCert {
                 octetString(der(b -> b.raw(new byte[]{0x06, 0x08, 0x2B, 0x06,
                         0x01, 0x05, 0x05, 0x07, 0x03, 0x01}), 0x30)));
 
+        // Audit 2779: SKID leaf + AKID menunjuk SKID CA.
+        byte[] skidExt = skidLeaf == null ? null : extension(
+                new byte[]{0x06, 0x03, 0x55, 0x1D, 0x0E}, false,
+                octetString(octetString(skidLeaf)));
+        byte[] akidExt = skidCa == null ? null : extension(
+                new byte[]{0x06, 0x03, 0x55, 0x1D, 0x23}, false,
+                octetString(der(b -> {
+                    b.raw(new byte[]{(byte) 0x80, (byte) skidCa.length});
+                    b.raw(skidCa);
+                }, 0x30)));
+
         byte[] extensions = der(b -> {
             b.raw(san);
             b.raw(basicConstraints);
             b.raw(keyUsage);
             b.raw(eku);
+            if (skidExt != null) {
+                b.raw(skidExt);
+            }
+            if (akidExt != null) {
+                b.raw(akidExt);
+            }
         }, 0x30);
 
         return der(b -> b.raw(extensions), 0xA3);
