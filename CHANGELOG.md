@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — PIN lemah seperti 0000 dan 1234 kini ditolak saat memasang PIN (Audit 2799)
+
+Saat memasang atau mengganti PIN aplikasi, pola yang paling gampang ditebak sekarang ditolak: semua angka sama (0000, 1111), urutan naik atau turun (1234, 4321), dan blok yang berulang persis (1212, 123123). Dialog ganti PIN juga tidak lagi ditawarkan untuk PIN lemah. PIN lama yang sudah terpasang tetap bisa dipakai membuka seperti biasa.
+
+
 ## [Belum rilis] — Pembukaan backup format lama kini tercatat di log (Audit 2791)
 
 Backup paling lama (format pertama) masih bisa dibuka dengan cara penurunan kunci lama yang lebih lemah, khusus untuk format itu saja. Pembukaan lewat jalur lama ini sekarang dicatat di log aplikasi supaya terlihat, dengan anjuran membuat backup baru yang memakai cara penurunan kunci kuat saat ini.

@@ -804,7 +804,11 @@ public class SettingsActivity extends Activity {
                     basi.cancel(false);
                 }
 
-                if (s.length() < 4) {
+                // Audit 2799: dialog ganti PIN hanya ditawarkan
+                // untuk kandidat yang lolos aturan pasang baru
+                // (dulu panjang >= 4 saja, jadi PIN lemah seperti
+                // 1234 tetap ditawari dialog konfirmasi).
+                if (!Util.pinBaruValid(s.toString())) {
 
                     return;
                 }

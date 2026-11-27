@@ -88,6 +88,25 @@ public class UtilTest {
     }
 
     @Test
+    public void pinLemahPolaUmumDitolak() {
+        // Audit 2799 (pelengkap): pola lemah struktural -
+        // sama semua, urutan digit, blok berulang.
+        assertTrue(Util.pinLemah("0000"));
+        assertTrue(Util.pinLemah("1111"));
+        assertTrue(Util.pinLemah("1234"));
+        assertTrue(Util.pinLemah("4321"));
+        assertTrue(Util.pinLemah("98765"));
+        assertTrue(Util.pinLemah("1212"));
+        assertTrue(Util.pinLemah("123123"));
+        assertTrue(!Util.pinLemah("1357"));
+        assertTrue(!Util.pinLemah("2580"));
+        assertTrue(!Util.pinLemah("1122"));
+        assertTrue(!Util.pinBaruValid("1234"));
+        assertTrue(!Util.pinBaruValid("0000"));
+        assertTrue(Util.pinBaruValid("1357"));
+    }
+
+    @Test
     public void pinKataValidAturanDigitAtauSimbol() {
         // Audit 1116: min 4 char, tanpa char <= spasi, dan wajib
         // digit ATAU simbol (huruf murni ditolak).

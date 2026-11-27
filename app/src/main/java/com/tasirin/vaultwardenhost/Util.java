@@ -242,13 +242,56 @@ public final class Util {
         return digit || simbol;
     }
 
+    // Audit 2799: pola PIN lemah yang paling umum ditebak -
+    // struktural, tanpa daftar hafalan: semua aksara sama
+    // (0000/1111), urutan digit naik/turun selangkah penuh
+    // (1234/4321/98765), dan blok separuh berulang persis
+    // (1212/123123). Hanya untuk PASANG PIN baru.
+    static boolean pinLemah(String s) {
+        if (s == null || s.length() < 4) {
+            return false;
+        }
+        boolean sama = true;
+        boolean naik = true;
+        boolean turun = true;
+        boolean digitSemua = true;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c != s.charAt(0)) {
+                sama = false;
+            }
+            if (c < '0' || c > '9') {
+                digitSemua = false;
+            }
+            if (i > 0) {
+                int selisih = c - s.charAt(i - 1);
+                if (selisih != 1) {
+                    naik = false;
+                }
+                if (selisih != -1) {
+                    turun = false;
+                }
+            }
+        }
+        if (sama) {
+            return true;
+        }
+        if (digitSemua && (naik || turun)) {
+            return true;
+        }
+        int tengah = s.length() / 2;
+        return s.length() % 2 == 0
+                && s.substring(0, tengah).equals(s.substring(tengah));
+    }
+
     // Audit 2799: aturan PASANG PIN baru - sama seperti
     // pinKataValid (yang dipakai jalur bot) ditambah batas
-    // atas 64 aksara. Hanya untuk memasang/mengganti PIN;
-    // verifikasi PIN lama tidak memakai ini agar PIN yang
-    // terpasang sebelum aturan ada tetap bisa membuka.
+    // atas 64 aksara dan penolakan pola lemah pinLemah.
+    // Hanya untuk memasang/mengganti PIN; verifikasi PIN
+    // lama tidak memakai ini agar PIN yang terpasang
+    // sebelum aturan ada tetap bisa membuka.
     static boolean pinBaruValid(String s) {
-        return pinKataValid(s) && s.length() <= 64;
+        return pinKataValid(s) && s.length() <= 64 && !pinLemah(s);
     }
 
     private static final java.util.concurrent.ConcurrentHashMap<String, ThreadLocal<java.text.SimpleDateFormat>> FMT_CACHE =
