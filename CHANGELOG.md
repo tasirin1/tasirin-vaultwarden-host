@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Daftar kupas cek-cepat ditambah aksara kontrol dan keluarga GitHub (Audit 2891, sebagian)
+
+- `scripts/cek-cepat.sh`: fase bungkus kini mengupas aksara kontrol C0/DEL (termasuk ESC pada urutan ANSI), NEL (U+0085), kontrol bidi (U+202A–202E), dan isolate (U+2066–2069); charset token GitHub klasik dilebarkan dengan `_`, `-`, `:` agar belahan di aksara itu menyatu kembali dan tertangkap. Belahan dengan `"`, `(`, `)`, dan backtick SENGAJA belum ditutup: kupas aksara itu terbukti positif palsu di berkas repo sendiri (fixture uji Java dan CHANGELOG markdown) — dicatat di issue #2891.
+
+
 ## [Belum rilis] — Celah header kunci di cek-cepat diperlebar ke 400 aksara (Audit 2892)
 
 - `scripts/cek-cepat.sh`: tiga celah `POLA_BUNGKUS` naik dari `{0,200}` ke `{0,400}` — baris pengisi 250 aksara di antara BEGIN–PRIVATE atau PRIVATE–KEY kini tertangkap. Angka lebih besar (1000/4096) terbukti membuat fase bungkus gawk sangat lambat, jadi 400 adalah titik aman yang menutup skenario terbukti.

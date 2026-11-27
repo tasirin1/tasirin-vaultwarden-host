@@ -56,7 +56,7 @@ c=$(struktur_judul README.ru.md || true)
 if [ "$a" != "$b" ]; then gagal_msg "struktur judul README.md ($a) != README.id.md ($b)"; fi
 if [ "$a" != "$c" ]; then gagal_msg "struktur judul README.md ($a) != README.ru.md ($c)"; fi
 
-POLA_TOKEN='gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[abp]-[0-9A-Za-z-]{10,}|[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}'
+POLA_TOKEN='gh[pousr]_[A-Za-z0-9_:-]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[abp]-[0-9A-Za-z-]{10,}|[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}'
 POLA_RAHASIA="^[[:space:]]*-----BEGIN [A-Za-z0-9[:blank:]]*PRIVATE KEY-----|$POLA_TOKEN"
 # Audit 1505: pola bungkus juga menoleransi sisipan di TENGAH
 # frasa (PRIVATE ... KEY), bukan hanya di antara BEGIN dan
@@ -363,6 +363,7 @@ function proses(line,   awal, hd, sp, pos, s, ekort, hx, hv, ox, ov) {
   sub(/^[[:space:]]*\/\*/, ""); sub(/^[[:space:]]*\*+/, ""); sub(/\*\/[[:space:]]*$/, "")
   gsub(/\\[tnr]/, "")
   gsub(/#/, ""); gsub(/[!;*.,\/<>|\\]/, ""); gsub("\047", ""); gsub(SUBSEP, "")
+  gsub(/[\001-\010\016-\037\177]/, "")
   gsub(/[@=+%&~$^?{}\[\]]/, "")
   gsub("\357\273\277", "")
   gsub("\302\240", ""); gsub("\342\200\203", "")
@@ -381,6 +382,14 @@ function proses(line,   awal, hd, sp, pos, s, ekort, hx, hv, ox, ov) {
   gsub("\342\200\250", ""); gsub("\342\200\251", "")
   gsub("\342\200\257", ""); gsub("\342\201\237", "")
   gsub("\343\200\200", "")
+  # Audit 2891: NEL (U+0085), kontrol bidi (U+202A-202E),
+  # dan isolate (U+2066-2069) yang menyela token ikut dikupas.
+  gsub("\302\205", "")
+  gsub("\342\200\252", ""); gsub("\342\200\253", "")
+  gsub("\342\200\254", ""); gsub("\342\200\255", "")
+  gsub("\342\200\256", "")
+  gsub("\342\201\246", ""); gsub("\342\201\247", "")
+  gsub("\342\201\250", ""); gsub("\342\201\251", "")
   awal = $0; sub(/^[[:space:]]*/, "", awal); hd = 0
   if (match(awal, /^[0-9]+/)) hd = RLENGTH
   if (ekordgt + hd >= 5 && substr(awal, hd + 1, 1) == ":" && substr(awal, hd + 2, 1) ~ /[[:space:]]/) {
