@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Deteksi IPv6 untuk cek port diganti cek struktural (Audit 2775)
+
+- `ServerService.bisaBind`: ketersediaan IPv6 kini dicek dari daftar antarmuka jaringan (`ipv6Tersedia`), bukan ditebak dari substring pesan exception yang tergantung JVM/OS — pesan yang berbeda dulu bisa membuat Start ditolak salah sebagai "port sibuk" di perangkat tanpa IPv6. Catatan TOCTOU: jeda antara probe port dan peluncuran proses memang bawaan desain probe-lalu-luncurkan; bila perlombaan kalah, kegagalan bind proses anak sudah ditangkap klasifikasi `portDirebut` (auto-restart mati, pesan jelas ke pengguna). Ada uji JVM baru.
+
+
 ## [Belum rilis] — Service berhenti bersih sesudah gagal permanen, juga saat auto-backup aktif (Audit 2774)
 
 - `ServerService.akhiriEpisodeGagal`: notifikasi foreground kini selalu diturunkan dan service dihentikan sesudah episode start gagal permanen, termasuk bila auto-backup Telegram aktif. Backup terjadwal dan poll bot digerakkan alarm dan tetap bisa menyalakan service saat waktunya tiba; sebelumnya service menumpang hidup tanpa proses dengan notifikasi "Stopped" yang menetap sampai aplikasi dibuka.

@@ -622,6 +622,18 @@ public class ServerServiceTest {
     }
 
     @Test
+    public void ipv6Tersedia_tidakMelemparDanPortBebasBisaBind() throws Exception {
+        // Audit 2775: cek struktural tak boleh melempar, dan
+        // port yang baru dilepas harus terbaca bisa di-bind.
+        ServerService.ipv6Tersedia();
+        int bebas;
+        try (java.net.ServerSocket s = new java.net.ServerSocket(0)) {
+            bebas = s.getLocalPort();
+        }
+        assertTrue(ServerService.bisaBind("0.0.0.0", bebas));
+    }
+
+    @Test
     public void portTakValid_dianggapSibuk() {
         assertTrue(ServerService.isPortBusy(0));
         assertTrue(ServerService.isPortBusy(-1));

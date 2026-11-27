@@ -5392,7 +5392,34 @@ public class ServerService extends Service {
         return !bisaBind("0.0.0.0", port) || !bisaBind("::", port);
     }
 
+    // Audit 2775: ketersediaan IPv6 dicek struktural dari
+    // daftar antarmuka, bukan ditebak dari substring pesan
+    // exception (pesannya tergantung JVM/OS dan bisa membuat
+    // Start ditolak salah sebagai "port sibuk"). Bila enumerasi
+    // gagal, anggap tersedia - bind sungguhan yang memutuskan.
+    static boolean ipv6Tersedia() {
+        try {
+            java.util.Enumeration<java.net.NetworkInterface> daftar =
+                    java.net.NetworkInterface.getNetworkInterfaces();
+            while (daftar != null && daftar.hasMoreElements()) {
+                java.util.Enumeration<java.net.InetAddress> alamat =
+                        daftar.nextElement().getInetAddresses();
+                while (alamat.hasMoreElements()) {
+                    if (alamat.nextElement() instanceof java.net.Inet6Address) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            return true;
+        }
+        return false;
+    }
+
     static boolean bisaBind(String host, int port) {
+        if (host.contains(":") && !ipv6Tersedia()) {
+            return true;
+        }
         try (ServerSocket s = new ServerSocket()) {
 
             try {
@@ -5402,14 +5429,6 @@ public class ServerService extends Service {
             s.bind(new InetSocketAddress(host, port));
             return true;
         } catch (Exception e) {
-
-            if (host.contains(":")) {
-                String rendah = String.valueOf(e.getMessage()).toLowerCase(java.util.Locale.US);
-                if (rendah.contains("family") || rendah.contains("protonosupport")
-                        || rendah.contains("eafnosupport") || rendah.contains("not supported")) {
-                    return true;
-                }
-            }
             return false;
         }
     }
