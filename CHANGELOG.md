@@ -1,5 +1,12 @@
 # Changelog
 
+## [Belum rilis] — Restore kini menolak database SQLite yang bukan Vaultwarden
+
+Pemasangan DB restore selama ini hanya memeriksa magic SQLite dan PRAGMA quick_check — berkas SQLite valid apa pun (DB kosong, DB aplikasi lain, DB versi jauh lebih baru) lolos dan tertukar menjadi DB live dengan pesan sukses. pasangDbRestoreAtomik kini juga memeriksa skema: tabel inti users/ciphers/folders/devices wajib ada (query sqlite_master baca-saja, pola sama seperti cekIntegritasDb); jalur salinan pengaman (pasangDbDariSalinan) memakai penjaga yang sama sesuai prinsipnya sendiri. Predikat murni skemaVaultwardenCocok teruji JVM.
+
+Closes #2816
+
+
 ## [Belum rilis] — Sesi login Telegram kini kedaluwarsa 7 hari dan hanya dari /login
 
 Sesi login bot selama ini permanen (sampai /logout atau PIN diganti) dan diam-diam tercipta oleh perintah ber-PIN apa pun yang berhasil — sekali /stop 123456 membuat chat itu bisa /restore berminggu-minggu kemudian tanpa PIN. Kini: (1) sesi hanya dibuat oleh /login eksplisit (authDangerous tidak lagi menyimpan sesi; upgrade hash saat verifikasi tetap berjalan); (2) nilai sesi menyimpan stempel waktu dan hanya berlaku 7 hari (LOGIN_TTL_MS) — sesi format lama tanpa stempel dianggap kedaluwarsa dan pengguna login ulang sekali. Teks bantuan/pesan login dan ketiga README diselaraskan. Helper murni nilaiSesiLogin/ hashDariNilaiSesi/sesiLoginSegar teruji JVM.

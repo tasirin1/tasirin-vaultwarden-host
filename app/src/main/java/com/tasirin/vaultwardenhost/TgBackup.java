@@ -1785,6 +1785,51 @@ public final class TgBackup {
         }
     }
 
+    static boolean skemaVaultwardenCocok(java.util.Set<String> tabel) {
+        if (tabel == null) {
+            return false;
+        }
+        String[] inti = {"users", "ciphers", "folders", "devices"};
+        for (String t : inti) {
+            if (!tabel.contains(t)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static String cekSkemaDb(File dbFile) {
+        SQLiteDatabase db = null;
+        android.database.Cursor c = null;
+        try {
+            db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null,
+                    SQLiteDatabase.OPEN_READONLY);
+            c = db.rawQuery("SELECT name FROM sqlite_master"
+                    + " WHERE type='table'", null);
+            java.util.Set<String> tabel = new java.util.HashSet<>();
+            if (c != null) {
+                while (c.moveToNext()) {
+                    String nama = c.getString(0);
+                    if (nama != null) {
+                        tabel.add(nama.toLowerCase(java.util.Locale.US));
+                    }
+                }
+            }
+            return skemaVaultwardenCocok(tabel) ? null
+                    : "tabel inti Vaultwarden tidak lengkap";
+        } catch (Exception e) {
+            String m = e.getMessage();
+            return m == null || m.isEmpty() ? e.toString() : m;
+        } finally {
+            if (c != null) {
+                try { c.close(); } catch (Exception ignored) {}
+            }
+            if (db != null && db.isOpen()) {
+                try { db.close(); } catch (Exception ignored) {}
+            }
+        }
+    }
+
     static boolean dbSibuk(String hasilCek) {
         return hasilCek != null && hasilCek.startsWith("SIBUK:");
     }
@@ -4698,6 +4743,10 @@ public final class TgBackup {
         if (rusak != null) {
             return "DB korup: " + rusak;
         }
+        String skema = cekSkemaDb(staging);
+        if (skema != null) {
+            return "skema DB tidak cocok: " + skema;
+        }
 
         ServerService.gantiAtomik(staging, new File(dataFolder, "db.sqlite3"));
         hapusWalShm(dataFolder);
@@ -4723,6 +4772,12 @@ public final class TgBackup {
         if (rusak != null) {
             hapusStagingRestore(dataFolder);
             throw new IOException("Salinan database pengaman korup: " + rusak);
+        }
+        String skema = cekSkemaDb(staging);
+        if (skema != null) {
+            hapusStagingRestore(dataFolder);
+            throw new IOException("Skema salinan database pengaman tidak cocok: "
+                    + skema);
         }
         if (!staging.renameTo(new File(dataFolder, "db.sqlite3"))) {
             throw new IOException("Gagal memasang database pengaman");

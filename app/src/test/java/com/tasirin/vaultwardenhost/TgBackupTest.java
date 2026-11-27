@@ -2540,6 +2540,20 @@ public class TgBackupTest {
     }
 
     @Test
+    public void skemaVaultwardenCocok_wajibTabelInti() {
+        java.util.Set<String> lengkap = new java.util.HashSet<>(
+                java.util.Arrays.asList("users", "ciphers", "folders",
+                        "devices", "attachments", "sends"));
+        org.junit.Assert.assertTrue(TgBackup.skemaVaultwardenCocok(lengkap));
+        java.util.Set<String> kurang = new java.util.HashSet<>(
+                java.util.Arrays.asList("users", "ciphers", "folders"));
+        org.junit.Assert.assertFalse(TgBackup.skemaVaultwardenCocok(kurang));
+        org.junit.Assert.assertFalse(TgBackup.skemaVaultwardenCocok(
+                new java.util.HashSet<String>()));
+        org.junit.Assert.assertFalse(TgBackup.skemaVaultwardenCocok(null));
+    }
+
+    @Test
     public void backupManualJugaWajibPassword() {
         assertTrue(TgBackup.pesanTolakPlainManual().contains("password"));
         assertFalse(TgBackup.pesanTolakPlainOtomatis().contains("manual"));
