@@ -946,7 +946,8 @@ public class TgBotTest {
         assertTrue(TgBot.bolehPeringatkanPinAsing(-5, 1_000_000L));
         assertFalse(TgBot.bolehPeringatkanPinAsing(1_000_000L, 1_000_000L + 3599_000L));
         assertTrue(TgBot.bolehPeringatkanPinAsing(1_000_000L, 1_000_000L + 3600_000L));
-        assertFalse(TgBot.bolehPeringatkanPinAsing(2_000_000L, 1_000_000L));
+        // Audit 2981: stempel masa depan kini membolehkan.
+        assertTrue(TgBot.bolehPeringatkanPinAsing(2_000_000L, 1_000_000L));
     }
 
     @Test

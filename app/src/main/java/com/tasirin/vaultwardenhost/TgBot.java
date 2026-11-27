@@ -2939,7 +2939,12 @@ public final class TgBot {
     }
 
     static boolean bolehPeringatkanPinAsing(long terakhirMs, long kiniMs) {
-        return terakhirMs <= 0 || kiniMs - terakhirMs >= 3600_000L;
+        // Audit 2981: stempel di masa depan (jam
+        // dikoreksi mundur) ikut membolehkan - dulu
+        // selisih negatifnya menahan peringatan
+        // keamanan ini selama durasi rollback.
+        return terakhirMs <= 0 || terakhirMs > kiniMs
+                || kiniMs - terakhirMs >= 3600_000L;
     }
 
     // Audit 2633: cap peringatan per chat asing

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Peringatan PIN di chat asing tak lagi tertahan stempel masa depan (Audit 2981)
+
+- `TgBot`: jeda satu jam antar peringatan "PIN diketik di chat asing" memakai selisih jam dinding tanpa penjaga — peringatan yang terkirim saat jam sedang maju lalu dikoreksi mundur menahan peringatan berikutnya selama bertahun-tahun, padahal peringatan itulah satu-satunya pemberitahuan ke pemilik bahwa PIN-nya terlihat orang lain. Stempel di masa depan kini membolehkan peringatan; uji pengunci perilaku lamanya diperbarui di commit yang sama.
+
+
 ## [Belum rilis] — Peringatan storage rendah tak lagi tertahan stempel masa depan (Audit 2980)
 
 - `TgBackup`: pengulangan peringatan storage rendah memakai selisih jam dinding tanpa penjaga — peringatan yang terkirim saat jam STB sedang maju lalu dikoreksi mundur membuat selisihnya negatif bertahun-tahun, dan peringatan tidak pernah diulang walau storage makin penuh sampai server mati kehabisan disk. Keputusan jatuh temponya kini fungsi murni yang diuji: stempel di masa depan dianggap jatuh tempo.
