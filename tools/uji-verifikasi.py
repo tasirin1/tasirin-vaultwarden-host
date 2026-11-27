@@ -15478,6 +15478,24 @@ def _bagian_awal(tmp):
             rc != 0 and "TidakAdaSamaSekali2919" in out)
     shutil.rmtree(indukstyle, ignore_errors=True)
 
+    berkasbesar = klon(tmp, "berkasbesar")
+    with open(os.path.join(berkasbesar, "catatan-besar.txt"), "w",
+              encoding="utf-8") as f:
+        f.write("x" * 1_200_000)
+    rc, out = jalan(berkasbesar, [sys.executable, GERBANG, "--semua"])
+    periksa("berkas teks >1 MB: gerbang gagal (Audit 2920)",
+            rc != 0 and "catatan-besar.txt" in out)
+    shutil.rmtree(berkasbesar, ignore_errors=True)
+
+    varianenv = klon(tmp, "varianenv")
+    with open(os.path.join(varianenv, "config.env"), "w",
+              encoding="utf-8") as f:
+        f.write("TOKEN=contoh\n")
+    rc, out = jalan(varianenv, [sys.executable, GERBANG, "--semua"])
+    periksa("varian nama config.env: gerbang gagal (Audit 2920)",
+            rc != 0 and "config.env" in out)
+    shutil.rmtree(varianenv, ignore_errors=True)
+
     kurungkts = klon(tmp, "kurungkts")
     berkas_kk = os.path.join(kurungkts, "build.gradle.kts")
     with open(berkas_kk, "a", encoding="utf-8") as f:

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang aturan repo: batas 1 MB kini berlaku untuk teks; varian nama .env terblokir (Audit 2920)
+
+- `tools/verifikasi-patch.py` (`cek_aturan_repo`): batas ukuran 1 MB dulu hanya berlaku untuk berkas bukan-teks, jadi blob teks raksasa (mis. base64) bisa masuk repo tanpa hambatan; kini batas berlaku untuk semua berkas kecuali dua berkas perkakas gerbang yang memang intrinsik besar (gerbang dan suite-nya, disebut namanya). Blokir berkas env juga diperluas dari nama persis `.env`/`.env.*` ke varian berakhiran `.env`, mengandung `.env.`, dan `.envrc` (mis. `config.env`). Ditambah dua skenario suite.
+
+
 ## [Belum rilis] — Gerbang acuan yatim kini membaca parent style telanjang (Audit 2919)
 
 - `tools/verifikasi-patch.py` (`himpun_definisi`): acuan resource dulu hanya dihimpun dari bentuk `@jenis/nama` dan `R.jenis.nama` — atribut `parent="NamaStyle"` telanjang pada tag `<style>` (bentuk yang dipakai `styles.xml` repo ini) tidak pernah dibaca, jadi style berinduk salah ketik atau sudah terhapus lolos gerbang dan baru gagal di AAPT CI. Bentuk parent telanjang kini dihimpun sebagai acuan style dengan perapian yang sama seperti definisinya; terverifikasi 0 yatim palsu di pohon kini. Ditambah satu skenario suite.

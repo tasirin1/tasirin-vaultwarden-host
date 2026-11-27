@@ -24516,6 +24516,12 @@ def jenis_biner(path):
 BINER_DIIZINKAN = {"gradle/wrapper/gradle-wrapper.jar"}
 BATAS_UKURAN_BERKAS = 1024 * 1024
 
+# Audit 2920: berkas teks yang sah melebihi batas
+# karena intrinsik (gerbang + suite gerbang).
+BERKAS_TEKS_BESAR_SAH = {"tools/verifikasi-patch.py",
+                         "tools/uji-verifikasi.py",
+                         "CHANGELOG.md"}
+
 EKSTENSI_PASIF = {"PNG": {".png"}, "JPEG": {".jpg", ".jpeg"}, "GIF": {".gif"},
                   "WebP": {".webp"}, "PDF": {".pdf"}, "ICO": {".ico"}}
 TANDA_BUNGKUS_BAHAYA = (b"\x7fELF", b"PK\x03\x04", b"dex\n",
@@ -24689,6 +24695,8 @@ def cek_aturan_repo(gagal, berubah):
         if ("/vaultwarden-armeabi" in rendah or "/libgetrandom-shim-" in rendah
                 or "keystore" in rendah.split("/")
                 or nama_dasar == ".env" or nama_dasar.startswith(".env.")
+                or nama_dasar.endswith(".env") or ".env." in nama_dasar
+                or nama_dasar == ".envrc"
                 or nama_dasar == "vw_version.txt"):
             gagal.append("Berkas terlarang masuk repo: " + path)
             continue
@@ -24703,7 +24711,13 @@ def cek_aturan_repo(gagal, berubah):
             gagal.append("Berkas biner (%s) tak boleh masuk repo: %s" % (jenis, path))
             continue
         ukuran = os.path.getsize(os.path.join(AKAR, path))
-        if ukuran > BATAS_UKURAN_BERKAS and not berkas_teks(path):
+        # Audit 2920: batas ukuran berlaku juga untuk
+        # berkas teks (blob base64 menyamar teks dulu
+        # lolos) - kecuali perkakas gerbang yang memang
+        # intrinsik besar (gerbang + suite-nya sendiri).
+        if ukuran > BATAS_UKURAN_BERKAS and (
+                not berkas_teks(path)
+                or path not in BERKAS_TEKS_BESAR_SAH):
             gagal.append("Berkas >1 MB tak boleh masuk repo"
                          " (binary/web-vault diunduh CI): " + path)
             continue
