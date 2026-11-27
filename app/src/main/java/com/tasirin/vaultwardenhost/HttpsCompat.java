@@ -335,35 +335,81 @@ public final class HttpsCompat {
             this.bawaan = bawaan;
         }
 
+        // Audit 2797: akses cache TLS statik tersinkron -
+        // dulu ditulis dari banyak soket tanpa kunci (data
+        // race formal). Semantik dipertahankan persis,
+        // termasuk cabang hitung-ulang per soket yang memang
+        // tidak di-cache.
+        private static synchronized String[] dukunganProtokol(SSLSocket ssl) {
+            String[] d = mentahProtokol;
+            if (d == null) {
+                try {
+                    d = ssl.getSupportedProtocols();
+                } catch (Exception ignored) {
+                    d = null;
+                }
+                if (d != null) {
+                    mentahProtokol = d;
+                }
+            }
+            return d;
+        }
+
+        private static synchronized String[] protokolUntuk(String[] dukungIni) {
+            String[] protokol = protokolCache;
+            if (protokol == null) {
+                protokol = pilihProtokol(dukungIni);
+                if (dukungIni != null) {
+                    protokolCache = protokol;
+                }
+            } else if (dukungIni != null
+                    && !semuaProtokolDidukung(protokol, dukungIni)) {
+                protokol = protokolCadangan(protokol, dukungIni);
+                if (protokol.length == 0) {
+                    protokol = pilihProtokol(dukungIni);
+                }
+            }
+            return protokol;
+        }
+
+        private static synchronized String[] dukunganCipher(SSLSocket ssl) {
+            String[] d = mentahCipher;
+            if (d == null) {
+                try {
+                    d = ssl.getSupportedCipherSuites();
+                } catch (Exception ignored) {
+                    d = null;
+                }
+                if (d != null) {
+                    mentahCipher = d;
+                }
+            }
+            return d;
+        }
+
+        private static synchronized String[] cipherUntuk(String[] dukungCipher) {
+            String[] kuat = cipherCache;
+            if (kuat == null) {
+                kuat = saringCipher(dukungCipher);
+                if (dukungCipher != null) {
+                    cipherCache = kuat;
+                }
+            } else if (dukungCipher != null) {
+                String[] irisan = cipherCadangan(kuat, dukungCipher);
+                if (irisan.length < kuat.length) {
+                    kuat = irisan.length > 0
+                            ? irisan : saringCipher(dukungCipher);
+                }
+            }
+            return kuat;
+        }
+
         private Socket nyalakan(Socket s) throws java.io.IOException {
             if (s instanceof SSLSocket) {
                 SSLSocket ssl = (SSLSocket) s;
 
-                String[] dukungIni = mentahProtokol;
-                if (dukungIni == null) {
-                    try {
-                        dukungIni = ssl.getSupportedProtocols();
-                    } catch (Exception ignored) {
-                        dukungIni = null;
-                    }
-                    if (dukungIni != null) {
-                        mentahProtokol = dukungIni;
-                    }
-                }
-                String[] protokol = protokolCache;
-                if (protokol == null) {
-                    protokol = pilihProtokol(dukungIni);
-
-                    if (dukungIni != null) {
-                        protokolCache = protokol;
-                    }
-                } else if (dukungIni != null
-                        && !semuaProtokolDidukung(protokol, dukungIni)) {
-                    protokol = protokolCadangan(protokol, dukungIni);
-                    if (protokol.length == 0) {
-                        protokol = pilihProtokol(dukungIni);
-                    }
-                }
+                String[] dukungIni = dukunganProtokol(ssl);
+                String[] protokol = protokolUntuk(dukungIni);
 
                 if (protokol.length > 0) {
 
@@ -390,30 +436,8 @@ public final class HttpsCompat {
                     }
                 }
 
-                String[] dukungCipher = mentahCipher;
-                if (dukungCipher == null) {
-                    try {
-                        dukungCipher = ssl.getSupportedCipherSuites();
-                    } catch (Exception ignored) {
-                        dukungCipher = null;
-                    }
-                    if (dukungCipher != null) {
-                        mentahCipher = dukungCipher;
-                    }
-                }
-                String[] kuat = cipherCache;
-                if (kuat == null) {
-                    kuat = saringCipher(dukungCipher);
-                    if (dukungCipher != null) {
-                        cipherCache = kuat;
-                    }
-                } else if (dukungCipher != null) {
-                    String[] irisan = cipherCadangan(kuat, dukungCipher);
-                    if (irisan.length < kuat.length) {
-                        kuat = irisan.length > 0
-                                ? irisan : saringCipher(dukungCipher);
-                    }
-                }
+                String[] dukungCipher = dukunganCipher(ssl);
+                String[] kuat = cipherUntuk(dukungCipher);
                 try {
                     if (kuat.length > 0) {
                         ssl.setEnabledCipherSuites(kuat);

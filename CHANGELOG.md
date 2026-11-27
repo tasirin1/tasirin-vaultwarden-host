@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Cache TLS HttpsCompat kini tersinkron (Audit 2797)
+
+- `HttpsCompat.PabrikTls12`: empat cache statik TLS (protokol/cipher mentah dan hasil saringan) dulu ditulis dari banyak soket tanpa kunci — data race formal, dampak praktis hampir nol karena nilainya deterministik per perangkat, tapi polanya salah. Pengisian dan pemakaian cache kini lewat empat helper `synchronized`; logika pemilihan dan cabang hitung-ulang per soket (yang memang tidak di-cache) dipertahankan persis, dan uji soket palsu yang ada tetap melatih jalur ini.
+
+
 ## [Belum rilis] — Peringatan folder bersama kini mencakup /mnt/sdcard dan /mnt/media_rw (Audit 2796)
 
 - `ServerService.folderDiStorageBersama`: daftar awalan volume bersama disamakan dengan `diStoragePublik` — folder data yang ditulis lewat `/mnt/sdcard/...` atau `/mnt/media_rw/...` dulu lolos dari peringatan folder publik (log Start dan validasi Settings) padahal keputusan fallback TLS menganggapnya publik. Pengecualian area khusus aplikasi (`Android/data`, `Android/media`) tetap berlaku di semua awalan. Diuji pada klasifikasi yang sama.
