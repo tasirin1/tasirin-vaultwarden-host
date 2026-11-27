@@ -1613,7 +1613,7 @@ public final class Updater {
                             + " tetap dipakai (dicek ulang nanti).";
                 }
                 return "Build Android v" + latest + " belum tersedia; binary rilis"
-                        + " sebelumnya tetap dipakai (dicek ulang otomatis nanti).";
+                        + " sebelumnya tetap dipakai (dicek ulang saat aplikasi dibuka lagi).";
             }
             checksumSiap = probe;
             urlChecksumSiap = urlProbe;
@@ -2504,7 +2504,7 @@ public final class Updater {
                             + " dipakai (dicek ulang nanti).";
                 }
                 return "Web vault v" + latest + " belum tersedia; versi terpasang"
-                        + " tetap dipakai (dicek ulang otomatis nanti).";
+                        + " tetap dipakai (dicek ulang saat aplikasi dibuka lagi).";
             }
             shaSiap = probe;
             sp.edit().remove(KEY_WV_FALLBACK_FOR).remove(KEY_CEK_GANGGUAN_AT).apply();

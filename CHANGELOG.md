@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Pesan build belum tersedia tak lagi menjanjikan cek otomatis (Audit 2993)
+
+- `Updater`: pesan "build Android belum tersedia" dan "web vault belum tersedia" dulu ditutup janji "(dicek ulang otomatis nanti)" — padahal tidak ada jadwal berkala apa pun; cek ulang hanya terjadi saat aplikasi atau Pengaturan dibuka atau perintah /update dijalankan, sehingga pengguna bisa menunggu pembaruan yang tak akan datang sendiri. Kedua pesan kini berkata jujur: dicek ulang saat aplikasi dibuka lagi.
+
+
 ## [Belum rilis] — Shim getrandom jalur blokir kini menunggu CRNG siap (Audit 2942)
 
 - `shim/getrandom_shim.c`: syscall getrandom asli dengan bendera nol memblokir sampai generator acak kernel selesai terinisialisasi, tetapi shim melayani jalur itu langsung dari /dev/urandom — pada kernel tua yang menjadi target shim, sumber itu mengembalikan data dari pool yang belum terinisialisasi bila dipanggil pada detik pertama sesudah boot, sehingga kunci pertama (mis. CA TLS) bisa lemah secara permanen. Jalur blokir kini menunggu kesiapan CRNG sekali (memantau entropy_avail, dengan cadangan membaca /dev/random) sebelum melayani; jalur nonblok dan insecure tidak disentuh karena semantik kernel di sana memang best-effort.
