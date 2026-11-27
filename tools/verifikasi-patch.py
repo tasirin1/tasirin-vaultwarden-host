@@ -341,6 +341,42 @@ def cek_selarasan_workflow(gagal, peringatan):
                          "yang hanya menyentuhnya bisa auto-merge "
                          "tanpa menunggu Build APK (Audit 3029)" % p)
 
+    # Audit 3028: daftar paths push cek-wajib.yml dan
+    # daftar case di job saring-push-nya adalah dua
+    # salinan tangan dari daftar yang sama - wajib
+    # identik, kalau tidak saringan salah menilai push
+    # campuran (gerbang penuh terlewat atau terbuang).
+    path_cw = os.path.join(folder, "cek-wajib.yml")
+    if os.path.isfile(path_cw):
+        try:
+            with open(path_cw, encoding="utf-8") as f:
+                data_cw = yaml.safe_load(f)
+            with open(path_cw, encoding="utf-8") as f:
+                teks_cw = f.read()
+        except Exception:
+            data_cw = None
+            teks_cw = ""
+        on_cw = (data_cw.get("on", data_cw.get(True))
+                 if isinstance(data_cw, dict) else None)
+        paths_cw = []
+        if isinstance(on_cw, dict):
+            node_cw = on_cw.get("push")
+            if isinstance(node_cw, dict):
+                paths_cw = [p for p in node_cw.get("paths") or []
+                            if isinstance(p, str)]
+        m_case = re.search(r'case "\$b" in\s*\n?\s*([^)]+)\)',
+                           teks_cw)
+        case_cw = []
+        if m_case:
+            case_cw = [x.strip() for x in m_case.group(1).split("|")
+                       if x.strip()]
+        if set(paths_cw) != set(case_cw):
+            gagal.append("Daftar paths push cek-wajib.yml tak "
+                         "identik dengan daftar case saring-push "
+                         "(selisih: %s) - samakan kedua daftar "
+                         "(Audit 3028)"
+                         % sorted(set(paths_cw) ^ set(case_cw)))
+
 def _kumpul_glob_labeler(node, kumpul):
     if isinstance(node, str):
         kumpul.append(node)

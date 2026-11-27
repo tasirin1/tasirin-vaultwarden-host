@@ -15574,6 +15574,22 @@ def _bagian_awal(tmp):
             rc == 0, "" if rc == 0 else out[-400:])
     shutil.rmtree(selaras0, ignore_errors=True)
 
+    selaras2 = klon(tmp, "selaras2")
+    berkas_cw2 = os.path.join(
+        selaras2, ".github", "workflows", "cek-wajib.yml")
+    with open(berkas_cw2, encoding="utf-8") as f:
+        isi_cw2 = f.read()
+    isi_cw2b = isi_cw2.replace("|.editorconfig", "", 1)
+    assert isi_cw2b != isi_cw2, "racun selaras2 tidak menembak"
+    with open(berkas_cw2, "w", encoding="utf-8") as f:
+        f.write(isi_cw2b)
+    rc, out = jalan(selaras2,
+                    [sys.executable, GERBANG, "--hanya-workflow"])
+    periksa("daftar case cek-wajib kurang satu: gerbang gagal "
+            "(Audit 3028)",
+            rc != 0 and rc != 124 and "cek-wajib" in out)
+    shutil.rmtree(selaras2, ignore_errors=True)
+
 def _bagian_akhir(tmp):
     sub716 = klon(tmp, "sub716")
     berkas_aksi716 = os.path.join(

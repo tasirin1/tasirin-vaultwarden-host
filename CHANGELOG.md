@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang kini memeriksa kesamaan dua daftar di cek-wajib (Audit 3028)
+
+- Workflow cek-wajib menyimpan daftar berkas yang sama di dua tempat (pemicu push dan saringan push campuran) tanpa penjaga kesamaan. Gerbang kini membandingkan keduanya secara mekanis dan gagal bila berbeda, agar suntingan berikutnya tak bisa membuat saringan salah menilai push.
+
+
 ## [Belum rilis] — Pola HARUS_BUILD kini mencakup berkas suite verifikasi + gerbang paritas (Audit 3029)
 
 - Daftar berkas yang mewajibkan menunggu Build APK sebelum auto-merge kini mencakup tools/uji-verifikasi-1.py dan tools/uji-verifikasi-2.py — dua berkas pemicu build yang sebelumnya lewat, sehingga PR yang hanya menyentuhnya bisa tergabung tanpa menunggu build. Gerbang kini juga memeriksa keselarasan itu secara mekanis agar tak drift lagi.
