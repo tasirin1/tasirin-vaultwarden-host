@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Backup terjadwal yang gagal di dalam service kini menandai tertunda (Audit 2974)
+
+- `ServerService`: penanda backup tertunda dulu hanya disetel bila memulai service-nya gagal; kegagalan sesudah service jalan — antrean tugas penuh atau backup melempar di tengah — hanya berakhir di log dan pesan gagal, sehingga backup susulan saat aplikasi dibuka (satu-satunya konsumen penanda itu) tidak pernah terpicu oleh kegagalan tengah malam. Kedua jalur gagal di dalam service kini ikut menandai tertunda.
+
+
 ## [Belum rilis] — Penundaan backup saat boot baru kini jujur soal alarmnya (Audit 2976)
 
 - `TgBackup.tundaBilaBootBaru`: nilai baliknya dulu selalu "tertunda" selama masih masa tunggu boot, membuang hasil pemasangan alarm tunda — ketiga pemanggilnya bertindak seolah backup pasti jalan nanti walau alarmnya gagal dipasang, dan backup hilang diam-diam dengan pesan sukses. Nilai baliknya kini hasil penjadwalan itu sendiri: benar hanya bila alarm sungguh terpasang; bila gagal, pemanggil melanjutkan backup sekarang (atau menandai tertunda lewat jalur gagalnya).

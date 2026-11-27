@@ -1490,6 +1490,9 @@ public class ServerService extends Service {
                             + TgBackup.redaksiDetailGalat(
                                     String.valueOf(e)) + ")");
                     TgBackup.sendMessage(this, "Backup otomatis GAGAL: " + ramah);
+                    // Audit 2974: gagal di tengah jalan juga
+                    // tertunda - bukan hanya gagal start.
+                    TgBackup.tandaiBackupTertunda(this);
                 } finally {
                     selesaikanBackupTerjadwal(startId);
                 }
@@ -1498,6 +1501,10 @@ public class ServerService extends Service {
 
                 appendLog("[tg] Backup terjadwal digeser: antrean tugas penuh"
                         + " - jadwal berikutnya tetap dipasang.");
+                // Audit 2974: kegagalan di dalam service
+                // juga menandai tertunda agar susulan
+                // saat aplikasi dibuka terpicu.
+                TgBackup.tandaiBackupTertunda(this);
                 selesaikanBackupTerjadwal(startId);
             }
             return START_NOT_STICKY;
