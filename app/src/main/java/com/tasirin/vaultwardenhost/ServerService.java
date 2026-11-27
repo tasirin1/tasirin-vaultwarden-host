@@ -159,7 +159,24 @@ public class ServerService extends Service {
                 return false;
             }
         }
-        return true;
+        // Audit 2785: struktur wajib ada pengguna, host, dan nama db -
+        // potongan seperti "abc" saja dulu lolos dan baru gagal
+        // belakangan saat server start.
+        int at = sisa.indexOf('@');
+        if (at <= 0) {
+            return false;
+        }
+        String sesudahAt = sisa.substring(at + 1);
+        int garis = sesudahAt.indexOf('/');
+        if (garis <= 0) {
+            return false;
+        }
+        String db = sesudahAt.substring(garis + 1);
+        int tanya = db.indexOf('?');
+        if (tanya >= 0) {
+            db = db.substring(0, tanya);
+        }
+        return !db.isEmpty();
     }
 
     static boolean perluRefreshPatch(String tersimpan) {

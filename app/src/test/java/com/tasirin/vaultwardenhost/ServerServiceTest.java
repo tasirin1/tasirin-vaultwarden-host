@@ -395,6 +395,12 @@ public class ServerServiceTest {
         assertFalse(ServerService.databaseUrlValid("postgres://"));
         assertFalse(ServerService.databaseUrlValid("postgres://a b"));
         assertFalse(ServerService.databaseUrlValid("https://host/db"));
+        // Audit 2785: tanpa pengguna, host, dan nama db harus ditolak.
+        assertFalse(ServerService.databaseUrlValid("postgres://abc"));
+        assertFalse(ServerService.databaseUrlValid("postgres://host/db"));
+        assertFalse(ServerService.databaseUrlValid("postgres://user@host"));
+        assertFalse(ServerService.databaseUrlValid("postgres://user@host/"));
+        assertTrue(ServerService.databaseUrlValid("postgres://user@host:5432/db?sslmode=require"));
     }
 
     @Test
@@ -402,8 +408,8 @@ public class ServerServiceTest {
         assertFalse(ServerService.databaseUrlValid("postgres://a"));
         assertFalse(ServerService.databaseUrlValid("postgres://ab"));
         assertFalse(ServerService.databaseUrlValid("mysql://ab"));
-        assertTrue(ServerService.databaseUrlValid("postgres://abc"));
-        assertTrue(ServerService.databaseUrlValid("  postgres://abc  "));
+        assertTrue(ServerService.databaseUrlValid("postgres://a@b:1/c"));
+        assertTrue(ServerService.databaseUrlValid("  postgres://a@b:1/c  "));
     }
 
     @Test

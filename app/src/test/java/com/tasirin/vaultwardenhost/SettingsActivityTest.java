@@ -139,11 +139,17 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void galatAdminKosongBolehIsiMinimal8() {
+    public void galatAdminKosongBolehIsiMinimal16DanTakUmum() {
+        // Audit 2785: minimal naik 8 -> 16, kata umum dan satu
+        // aksara berulang ditolak; token acak 24 aksara lolos.
         assertNull(SettingsActivity.galatAdmin(null, "SALAH"));
         assertNull(SettingsActivity.galatAdmin("", "SALAH"));
-        assertNull(SettingsActivity.galatAdmin("12345678", "SALAH"));
+        assertNull(SettingsActivity.galatAdmin("Ab3dEf5hIjKlMnOpQrStUvWx", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatAdmin("12345678", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatAdmin("pendek", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatAdmin("password", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatAdmin("aaaaaaaaaaaaaaaa", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatAdmin("Password123", "SALAH"));
     }
 
     @Test
@@ -165,6 +171,9 @@ public class SettingsActivityTest {
         assertNull(SettingsActivity.galatTgToken("", "SALAH"));
         assertNull(SettingsActivity.galatTgToken("123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatTgToken("tanpa-kolon", "SALAH"));
+        // Audit 2785: ekor token terlalu pendek / id bukan digit ditolak.
+        assertEquals("SALAH", SettingsActivity.galatTgToken("123456:pendek", "SALAH"));
+        assertEquals("SALAH", SettingsActivity.galatTgToken("bukanangka:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "SALAH"));
         assertEquals("SALAH", SettingsActivity.galatTgToken("123:pendek", "SALAH"));
     }
 

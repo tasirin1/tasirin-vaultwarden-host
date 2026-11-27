@@ -4075,13 +4075,42 @@ public class SettingsActivity extends Activity {
         return ServerService.dataDirAman(isi) ? null : msgSalah;
     }
 
+    // Audit 2785: token admin adalah kunci panel admin - 8
+    // aksara ("password") terlalu lemah. Minimal 16, bukan kata
+    // yang umum dipakai, bukan satu aksara yang diulang.
+    private static final String[] TOKEN_ADMIN_UMUM = {
+            "password", "password1", "password123", "1234567890123456",
+            "admin1234567890", "qwertyuiop123456", "vaultwarden12345",
+            "changeme12345678", "tokenadmin123456", "rahasia123456789",
+    };
+
+    static boolean tokenAdminLemah(String isi) {
+        if (isi.length() < 16) {
+            return true;
+        }
+        String rendah = isi.toLowerCase(java.util.Locale.US);
+        for (String umum : TOKEN_ADMIN_UMUM) {
+            if (rendah.equals(umum)) {
+                return true;
+            }
+        }
+        boolean semuaSama = true;
+        for (int i = 1; i < isi.length(); i++) {
+            if (isi.charAt(i) != isi.charAt(0)) {
+                semuaSama = false;
+                break;
+            }
+        }
+        return semuaSama;
+    }
+
     static String galatAdmin(String token, String msgSalah) {
 
         String isi = token == null ? "" : token.trim();
         if (isi.isEmpty()) {
             return null;
         }
-        return isi.length() >= 8 ? null : msgSalah;
+        return tokenAdminLemah(isi) ? msgSalah : null;
     }
 
     static String galatDatabaseUrl(String url, String msgSalah) {
@@ -4100,13 +4129,20 @@ public class SettingsActivity extends Activity {
         return TgBackup.shaHexValid(isi) ? null : msgSalah;
     }
 
+    // Audit 2785: bentuk token bot sungguhan - id bot digit,
+    // titik dua, lalu 30-45 aksara token. Pola lama (cukup ada
+    // ':' dan panjang 20) meloloskan token palsu.
+    private static final java.util.regex.Pattern POLA_TOKEN_BOT =
+            java.util.regex.Pattern.compile(
+                    "^[0-9]{5,16}:[A-Za-z0-9_-]{30,45}$");
+
     static String galatTgToken(String token, String msgSalah) {
 
         String isi = token == null ? "" : token.trim();
         if (isi.isEmpty()) {
             return null;
         }
-        return isi.contains(":") && isi.length() >= 20 ? null : msgSalah;
+        return POLA_TOKEN_BOT.matcher(isi).matches() ? null : msgSalah;
     }
 
     static String galatChat(String chat, String msgSalah) {

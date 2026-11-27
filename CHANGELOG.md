@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Validasi token admin, token bot, dan URL database diperketat (Audit 2785)
+
+- Token admin: minimal 16 karakter (dulu 8 — "password" lolos), kata umum dan satu aksara berulang ditolak; token yang sudah tersimpan dan tak lagi memenuhi syarat harus diganti sebelum Start, pesan galatnya diperbarui. Token bot Telegram: harus berbentuk token bot sungguhan (id digit + 30–45 aksara), bukan sekadar mengandung ':' dan panjang 20. URL database: wajib memuat pengguna, host, dan nama database — potongan seperti `postgres://abc` yang dulu lolos dan baru gagal saat server start kini ditolak di Settings. Uji JVM yang mengunci perilaku lama diperbarui di commit yang sama.
+
+
 ## [Belum rilis] — Tombol bot di grup kini menjelaskan kenapa tidak aktif untuk bukan pemilik (Audit 2790)
 
 - `TgBot.tanganiCallback`: penolakan tombol untuk anggota grup yang bukan pemilik kini dijawab dengan teks penjelasan lewat `answerCallbackQuery` (`show_alert`), bukan callback kosong. Sebelumnya, pada konfigurasi `tg_chat` yang hanya berisi grup, menu tampil untuk semua orang tetapi tombol yang ditekan bukan-pemilik terlihat mati — pengguna bisa mengira perintahnya (mis. Stop/Backup) berhasil padahal tidak ada aksi apa pun. Perilaku keamanannya tidak berubah: tombol tetap hanya aktif untuk pemilik terdaftar.
