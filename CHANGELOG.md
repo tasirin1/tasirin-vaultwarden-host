@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Gerbang membaca targetSdk/minSdk dari penugasan terakhir (Audit 2890)
+
+- `tools/verifikasi-patch.py`: `nilai_target_sdk` dan `nilai_min_sdk` kini menilai kemunculan TERAKHIR di `app/build.gradle.kts` (last-wins, sama seperti Gradle dan pola nilai efektif gradle.properties), bukan kemunculan pertama. Baris `targetSdk = 34` atau `minSdk = 24` yang ditambahkan sesudah baris sah kini tertangkap GAGAL, bukan lolos.
+
+
 ## [Belum rilis] — Hapus berkas sampah ./-d di akar repo
 
 Berkas kosong bernama -d di akar repo adalah artefak kecelakaan perintah shell pada commit d695fd7e (2026-11-24) yang ikut ter-commit. Dihapus; tidak ada fungsi apa pun.

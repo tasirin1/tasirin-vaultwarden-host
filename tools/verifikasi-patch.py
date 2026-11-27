@@ -24317,10 +24317,15 @@ def jenis_pasif(path):
 
 def nilai_target_sdk(tetap):
     tetap = kupas_java(tetap)
-    m = re.search(r"targetSdk\s*=\s*([^\n]+)", tetap)
-    if not m:
+    # Audit 2890: Gradle memakai penugasan TERAKHIR, jadi gerbang wajib
+    # menilai kemunculan terakhir juga (last-wins, pola yang sama dengan
+    # nilai efektif gradle.properties sejak Audit 854). Membaca kemunculan
+    # pertama membuat baris "targetSdk = 34" yang ditambahkan sesudah
+    # "targetSdk = 28" lolos tanpa GAGAL.
+    semua = re.findall(r"targetSdk\s*=\s*([^\n]+)", tetap)
+    if not semua:
         return None
-    rhs = m.group(1).split("//", 1)[0].strip()
+    rhs = semua[-1].split("//", 1)[0].strip()
     if re.fullmatch(r"\d+", rhs):
         return int(rhs)
     if not re.fullmatch(r"[\d\s+\-*/()%]+", rhs):
@@ -24362,10 +24367,11 @@ def nilai_target_sdk(tetap):
 
 def nilai_min_sdk(tetap):
     tetap = kupas_java(tetap)
-    m = re.search(r"minSdk\s*=\s*([^\n]+)", tetap)
-    if not m:
+    # Audit 2890: last-wins seperti nilai_target_sdk di atas.
+    semua = re.findall(r"minSdk\s*=\s*([^\n]+)", tetap)
+    if not semua:
         return None
-    rhs = m.group(1).split("//", 1)[0].strip()
+    rhs = semua[-1].split("//", 1)[0].strip()
     if re.fullmatch(r"\d+", rhs):
         return int(rhs)
     return -1
