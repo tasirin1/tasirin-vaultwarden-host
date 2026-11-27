@@ -95,7 +95,11 @@ public class TgBotReceiver extends BroadcastReceiver {
             PowerManager.WakeLock wl = pm.newWakeLock(
                     PowerManager.PARTIAL_WAKE_LOCK, "vaultwarden:tgbot");
 
-            wl.acquire(10L * 60L * 1000L);
+            // Audit 2810: 90 detik cukup untuk satu siklus
+            // poll (long-poll 50 dtk + timeout baca 65 dtk +
+            // proses update) - dulu 10 menit menahan
+            // perangkat bangun jauh sesudah poll tersangkut.
+            wl.acquire(90L * 1000L);
             return wl;
         } catch (Exception e) {
             return null;

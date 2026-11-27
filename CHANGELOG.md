@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Wake lock poll bot dipangkas 10 menit menjadi 90 detik (Audit 2810)
+
+- `TgBotReceiver`: wake lock per alarm dulu 10 menit padahal satu siklus poll hanya satu long-poll 50 detik dengan timeout baca 65 detik — rantai poll yang tersangkut menahan STB/HP bangun 10 menit per alarm. Kini 90 detik (cukup untuk timeout baca + memproses maks. 10 update); pelepasan di `finally` tidak berubah.
+
+
 ## [Belum rilis] — /help tak lagi membocorkan status server/login ke yang belum login (Audit 2809)
 
 - `TgBot.teksMenu` (menu utama): baris "Server: jalan/berhenti" dan "Login: sudah" dulu tampil untuk siapa pun yang mengirim /help di chat terkonfigurasi, termasuk anggota grup — tak konsisten dengan perintah info lain yang ber-PIN. Kini kedua baris hanya tampil bila PIN tidak aktif atau chat sudah login; selain itu menu tampil tanpa status sama sekali (baris "Login: belum" pun disembunyikan karena ikut membenarkan adanya rezim PIN dan keadaan server).
