@@ -1105,9 +1105,16 @@ def _bagian_akhir(tmp):
     vektorabaikan = klon(tmp, "vektorabaikan")
     tanam(vektorabaikan, "app/src/main/res/drawable/.gitignore",
           "ic_abaikan.xml\n", "w")
-    tanam(vektorabaikan, "app/src/main/res/drawable/ic_abaikan.xml",
-          "<vector xmlns:android=\"http://schemas.android.com/apk/res/android\">"
-          "<path android:pathData=\"M.9,1\"/></vector>\n", "w")
+    # Audit 2947 (lanjutan): berkas vektor SENGAJA
+    # tidak ditanam lewat git - ia harus berstatus
+    # ter-.gitignore/tak terlacak di pohon kerja;
+    # tanam() akan git add -A + commit dan roboh
+    # "nothing to commit" karena berkas terabaikan
+    # tidak pernah ter-add.
+    with open(os.path.join(vektorabaikan,
+            "app/src/main/res/drawable/ic_abaikan.xml"), "w") as f:
+        f.write("<vector xmlns:android=\"http://schemas.android.com/apk/res/android\">"
+                "<path android:pathData=\"M.9,1\"/></vector>\n")
     rc, out = jalan(vektorabaikan, ["bash", SKRIP])
     periksa("vektor .9 di berkas ter-.gitignore tertangkap (Audit 2947)",
             rc != 0 and rc != 124 and "path vektor" in out)

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Suite cek-cepat: skenario vektor ter-gitignore tak lagi roboh (lanjutan Audit 2947)
+
+- `tools/uji-cek-cepat.py`: skenario berkas vektor yang diabaikan .gitignore menanam berkasnya lewat helper yang menjalankan git add + commit — berkas terabaikan tidak pernah ter-add sehingga commit-nya kosong dan suite roboh di CI. Berkas itu sekarang ditulis langsung ke pohon kerja tanpa dilacak git, sesuai maksud skenarionya (cek-cepat harus tetap menangkap vektor di berkas yang tidak terlacak).
+
+
 ## [Belum rilis] — Penanda versi web-vault konsisten sesudah pemasangan fallback (Audit 3010)
 
 - `Updater`: pemasangan web-vault lewat jalur cadangan (zip fallback, bukan rilis yang diminta) dulu tidak menulis penanda versi tetapi tetap memperbarui penanda SHA — akibatnya tawaran update otomatis, layar utama, dan /info menampilkan versi lama (dan bisa menawarkan update yang tidak bisa dipasang) sementara About dan /versi yang membaca dari disk benar. Cap versi pada jalur fallback kini diambil dari berkas versi yang baru terpasang di disk.
