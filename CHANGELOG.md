@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Mode DB diduga rusak kini tampil di /status (Audit 3001)
+
+- `TgBot` + `ServerService`: keadaan server hidup tetapi pemeriksaan /alive gagal sementara /api/config tetap menjawab — tanda khas database rusak — dulu hanya terlihat sebagai baris log [health]; /status melaporkan Running, ukuran DB, dan uptime yang semuanya tampak normal, sehingga pengguna menyimpulkan server sehat dan menyalahkan klien atau jaringan. /status kini menambah baris Kesehatan selama keadaan itu berlangsung, mengarahkan ke baris log yang relevan.
+
+
 ## [Belum rilis] — /status tak lagi menampilkan tanggal backup milik bot lain (Audit 2998)
 
 - `TgBot.statusText`: tanggal backup terakhir di /status dulu dibaca mentah — sesudah pengguna mengganti token ke bot baru, /status dari bot baru menampilkan tanggal backup bot lama seolah miliknya, bertentangan dengan /restore di bot yang sama yang menjawab belum ada backup dari bot ini. Pembacaan kini memakai penjaga penanda bot yang sama seperti jalur backup otomatis: stempel bot lain dianggap belum pernah backup.

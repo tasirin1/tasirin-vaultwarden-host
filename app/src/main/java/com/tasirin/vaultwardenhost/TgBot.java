@@ -4352,7 +4352,23 @@ public final class TgBot {
         if (!restarts.isEmpty()) {
             sb.append("\n").append(restarts);
         }
+        // Audit 3001: mode config-saja tampil di
+        // /status, bukan hanya di baris log [health].
+        String barisKes = barisKesehatanStatus(
+                ServerService.configSajaBeruntunKini());
+        if (!barisKes.isEmpty()) {
+            sb.append("\n").append(barisKes);
+        }
         return sb.toString();
+    }
+
+    static String barisKesehatanStatus(int configSaja) {
+        if (configSaja <= 0) {
+            return "";
+        }
+        return "Kesehatan: /alive gagal tapi /api/config menjawab ("
+                + configSaja + "x beruntun) - DB mungkin rusak;"
+                + " cek /log baris [health].";
     }
 
     static final int REQ_POLL = 3;

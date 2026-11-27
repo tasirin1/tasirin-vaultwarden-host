@@ -835,6 +835,16 @@ public class TgBotTest {
     }
 
     @Test
+    public void barisKesehatanStatus_hanyaSaatConfigSaja() {
+        // Audit 3001: baris kesehatan /status hanya
+        // muncul selama mode config-saja aktif.
+        assertEquals("", TgBot.barisKesehatanStatus(0));
+        assertEquals("", TgBot.barisKesehatanStatus(-1));
+        assertTrue(TgBot.barisKesehatanStatus(2).contains("DB mungkin rusak"));
+        assertTrue(TgBot.barisKesehatanStatus(2).contains("2x beruntun"));
+    }
+
+    @Test
     public void wallBolehCatat_naikKembaliKePenandaTersimpan() {
         // Audit 2970: boot tertinggal (jangkar 2020) +
         // penanda tersimpan 2026 -> sesudah NTP, naik

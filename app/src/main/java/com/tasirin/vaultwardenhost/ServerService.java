@@ -567,6 +567,13 @@ public class ServerService extends Service {
     // sesaat (checkpoint DB dsb.).
     static final int BATAS_CONFIG_SAJA_BERUNTUN = 3;
 
+    // Audit 3001: penghitung mode config-saja dibaca
+    // permukaan diagnosis (/status) - dulu mode DB-
+    // diduga-rusak ini hanya terlihat di baris log.
+    static int configSajaBeruntunKini() {
+        return configSajaBeruntun.get();
+    }
+
     private static volatile boolean healthActive = false;
 
     private static final java.util.concurrent.atomic.AtomicBoolean healthBerjalan =
