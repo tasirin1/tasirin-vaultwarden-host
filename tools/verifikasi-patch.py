@@ -249,8 +249,16 @@ def cek_workflow_yaml(gagal, peringatan):
             continue
         with open(path_wf, encoding="utf-8") as f:
             teks_wf = f.read()
+        # Audit 2889: penanda dicari hanya di baris AKTIF -
+        # langkah yang dikomentari utuh (semua barisnya
+        # berawalan #) dulu tetap terhitung ada karena
+        # teksnya masih di berkas, padahal workflow tak
+        # menjalankannya. Baris komentar dibuang dulu.
+        teks_aktif = "\n".join(
+            baris for baris in teks_wf.splitlines()
+            if not baris.lstrip().startswith("#"))
         for langkah in penanda:
-            if langkah not in teks_wf:
+            if langkah not in teks_aktif:
                 gagal.append("Workflow %s kehilangan langkah wajib "
                              "\"%s\" — penegakan gerbang tak boleh "
                              "dimatikan lewat workflow (Audit 2889)"

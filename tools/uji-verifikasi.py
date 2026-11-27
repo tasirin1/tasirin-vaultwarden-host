@@ -15743,6 +15743,19 @@ def _bagian_awal(tmp):
                    "substitusi proses di run: workflow: "
                    "gerbang gagal (Audit 2917)",
                    "substitusi proses")
+    def _wf2889_komentar(klon_w):
+        p = os.path.join(klon_w, ".github", "workflows",
+                         "build-apk.yml")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "python3 tools/verifikasi-patch.py --rentang",
+                "# python3 tools/verifikasi-patch.py --rentang"))
+    racun_workflow("wf2889komentar", _wf2889_komentar,
+                   "langkah wajib dikomentari utuh: gerbang "
+                   "gagal (Audit 2889)",
+                   "kehilangan langkah wajib")
 
     racun_workflow("wf2908labeler", _wf2908_labeler,
                    "glob labeler tak cocok berkas apa pun: "

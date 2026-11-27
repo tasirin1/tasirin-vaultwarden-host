@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Langkah wajib workflow yang dikomentari kini terdeteksi hilang (Audit 2889)
+
+Pemeriksaan langkah wajib di workflow dulu hanya mencari teks perintahnya di berkas, jadi langkah yang dimatikan dengan cara dikomentari tetap terhitung ada padahal tidak dijalankan. Sekarang teks yang dicari hanya baris aktif yang bukan komentar, dengan skenario uji baru yang mengomentari langkah verifikasi dan memastikan gerbang menolaknya.
+
+
 ## [Belum rilis] — Celah pola header kunci di cek-cepat disamakan dan dinaikkan (Audit 2892)
 
 Pemeriksaan kunci privat yang tersembunyi di balik baris pengisi panjang dulu bisa lolos: batas sela antar tahap pemeriksaan tidak sama (200 berbanding 400 aksara) dan sela 450 aksara lolos dari semuanya. Kini celah antar penanda header diperiksa sampai 600 aksara dengan hitungan posisi yang tetap cepat, jadi sela panjang tertangkap tanpa membuat pemeriksaan jadi lambat. Ada skenario uji baru untuk sela 450 aksara di kedua celah header.
