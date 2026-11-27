@@ -693,6 +693,12 @@ public class TgBotTest {
         assertEquals("a b c", TgBot.rapikanSpasi("a   b\t\nc"));
         assertEquals("", TgBot.rapikanSpasi(null));
         assertEquals("", TgBot.namaPerintahUntukBot("  /start@BotLain  ", "BotKu"));
+        // Audit 2934: kasus positif sufiks bot SENDIRI -
+        // jalur produksi perintah grup ber-@namabot; dulu
+        // hanya kasus bot lain + tanpa sufiks yang diuji.
+        assertEquals("start", TgBot.namaPerintahUntukBot("/start@BotKu", "BotKu"));
+        assertEquals("start", TgBot.namaPerintahUntukBot("/start@botku", "BotKu"));
+        assertEquals("backup", TgBot.namaPerintahUntukBot("  /backup@BotKu  ", "BotKu"));
         assertEquals("start", TgBot.namaPerintahUntukBot("  /start  ", "BotKu"));
     }
 

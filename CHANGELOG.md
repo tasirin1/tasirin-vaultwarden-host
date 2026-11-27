@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Uji kasus positif perintah ber-@namabot sendiri ditambahkan (Audit 2934)
+
+- `TgBotTest`: `namaPerintahUntukBot` dulu hanya diuji untuk sufiks bot LAIN (ditolak) dan tanpa sufiks — kasus positif yang justru paling kritis di produksi, perintah grup yang menyebut bot sendiri (`/start@BotKu` dengan username `BotKu` → `start`), tidak punya satu pun assert. Kini ditambah kasus positif persis, varian huruf kecil pada sufiks, dan perintah lain (`/backup`) dengan spasi di sekeliling.
+
+
 ## [Belum rilis] — Push khusus README kini memicu gerbang cek-wajib (Audit 2916)
 
 - `.github/workflows/cek-wajib.yml`: tiga berkas README ditambahkan ke daftar `paths` push dan ke daftar saring-push di berkas yang sama. Sebelumnya push yang hanya menyentuh README tidak memicu workflow apa pun yang menjalankan `cek-cepat` — padahal cek sinkron struktur judul README dan deteksi token terbelah justru hidup di sana, jadi suntingan README adalah satu-satunya suntingan yang tak pernah diperiksa oleh cek yang menjaganya. Push campuran tetap disaring seperti sebelumnya (gerbang penuh di `build-apk` bila ada berkas di luar daftar).
