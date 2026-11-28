@@ -34,7 +34,7 @@ public class TgBotTest {
     }
 
     @Test
-    public void kunciPeringatanUntukDihapus_diLuarBatasYang TertuaDibuang() {
+    public void kunciPeringatanUntukDihapus_diLuarBatasYangTertuaDibuang() {
         String awalan = TgBot.KEY_TG_WARN_ASING_PREFIX;
         long kini = 40L * 24 * 3600_000L;
         java.util.Map<String, Object> semua =
