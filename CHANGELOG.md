@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 16: wilayah w15 keluar dari _menguras_khusus
+
+- Blok tsv-join/csvformat/sql2csv/tsv-uniq/tsv-sample/tsv-pretty/tsv-split/csv2tsv/number-lines/keep-header/csvsql dipindah verbatim ke `_menguras_khusus_w15`. Pembanding diferensial: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 15: wilayah w14 (xsv/tsv) keluar dari _menguras_khusus
 
 - Blok xsv/tsv-filter/tsv-append/csvsort/tsv-summarize/csvjoin/csvstack dipindah verbatim ke `_menguras_khusus_w14`. Pembanding diferensial: identik 100%.
