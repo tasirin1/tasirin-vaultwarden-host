@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 14: wilayah w13 (csvkit) keluar dari _menguras_khusus
+
+- Blok csvpy/csvjson/csvclean/csvlook/tsv-select/csvcut/csvgrep/csvstat beserta `_SEMESTA_CSVKIT_46` dipindah verbatim ke `_menguras_khusus_w13`. Pembanding diferensial: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 13: wilayah w12 (qsv) keluar dari _menguras_khusus
 
 - Blok qsv (wilayah tunggal terbesar sesudah curl, ±1.578 baris) dipindah verbatim ke `_menguras_khusus_w12`. Pembanding diferensial: identik 100%.
