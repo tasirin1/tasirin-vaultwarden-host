@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 9: wilayah w8 keluar dari _menguras_khusus
+
+- Blok mosquitto/grpcurl/kubectl/docker/podman/terraform/websocat/redis/psql/mysql/mariadb/nerdctl/oc/consul/vault/etcdctl/glab/clickhouse/aws/gsutil/gcloud dipindah verbatim ke `_menguras_khusus_w8`. Diferensial: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 8: wilayah w7 keluar dari _menguras_khusus
 
 - Blok pdftotext/nft/dpkg/file/date/sysctl/sftp/bc/dc/ed/xxd/cpio/pax/pg/lzip/recode/cpan/ssh dipindah verbatim ke `_menguras_khusus_w7`. Pembanding diferensial: identik 100%.
