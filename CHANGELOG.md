@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 7: wilayah w6 keluar dari _menguras_khusus
+
+- Blok wget/nc/make/visudo/patch/more/less/vi/basenc/du/find/addr2line/dig dipindah verbatim ke `_menguras_khusus_w6`. Pembanding diferensial korpus semua perintah: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 6: wilayah w5 (curl) keluar dari _menguras_khusus
 
 - Blok curl (wilayah terbesar, ±1.480 baris) dipindah verbatim ke `_menguras_khusus_w5`. Pembanding diferensial korpus semua perintah: identik 100%.
