@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 6: wilayah w5 (curl) keluar dari _menguras_khusus
+
+- Blok curl (wilayah terbesar, ±1.480 baris) dipindah verbatim ke `_menguras_khusus_w5`. Pembanding diferensial korpus semua perintah: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 5: wilayah w4 keluar dari _menguras_khusus
 
 - Blok csplit/pdf/gm/zip/rsync/socat/gpg/gpgsm dipindah verbatim ke `_menguras_khusus_w4`. Pembanding diferensial korpus semua perintah: identik 100%.
