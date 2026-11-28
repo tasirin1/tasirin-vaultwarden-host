@@ -73,7 +73,7 @@ public class SettingsActivity extends Activity {
 
     private boolean pinDialogBoleh = true;
 
-    private String pinGantiKandidat = null;
+    private char[] pinGantiKandidat = null;
 
     private volatile boolean pinAktifJalan = false;
 
@@ -812,28 +812,34 @@ public class SettingsActivity extends Activity {
 
                     return;
                 }
-                final String pin = s.toString();
+                // Audit 2801: kandidat menyeberang sebagai
+                // char[] yang bisa di-nol-kan sesudah pakai,
+                // bukan String abadi di heap.
+                final char[] pin = s.toString().toCharArray();
                 final int seq = pinSeq;
                 pinTunda = () -> {
 
                     pinTunda = null;
                     if (seq != pinSeq) {
+                        java.util.Arrays.fill(pin, '\0');
                         return;
                     }
 
                     final boolean pinAktif = pinEnabledCheck != null
                             && pinEnabledCheck.isChecked();
                     if (!pinAktif) {
+                        java.util.Arrays.fill(pin, '\0');
                         return;
                     }
 
-                    if (pin.equals(pinGantiKandidat)) {
+                    if (java.util.Arrays.equals(pin, pinGantiKandidat)) {
+                        java.util.Arrays.fill(pin, '\0');
                         return;
                     }
                     pinGantiKandidat = pin;
                     if (!bolehDialogPin(pinDialogBoleh, isFinishing(), isDestroyed())) {
 
-                        pinGantiKandidat = null;
+                        buangKandidatPin();
                         return;
                     }
 
@@ -844,7 +850,7 @@ public class SettingsActivity extends Activity {
                             .setPositiveButton(android.R.string.ok,
                                     (d, w) -> tulisHashPin(pin, seq, true, true))
                             .setNegativeButton(getString(R.string.batal), (d, w) -> {
-                                pinGantiKandidat = null;
+                                buangKandidatPin();
                                 bersihkanPin(pinInput);
                             })
                             // Audit 2956: batal lewat Back / sentuhan
@@ -852,7 +858,7 @@ public class SettingsActivity extends Activity {
                             // kandidat - tanpa ini kandidat basi
                             // menelan upaya ganti PIN yang sama
                             // selama sisa sesi.
-                            .setOnCancelListener(d -> pinGantiKandidat = null)
+                            .setOnCancelListener(d -> buangKandidatPin())
                             .create());
                 };
                 ui.postDelayed(pinTunda, 800);
@@ -908,7 +914,7 @@ public class SettingsActivity extends Activity {
 
             pinSeq++;
 
-            pinGantiKandidat = null;
+            buangKandidatPin();
             // Audit 2801: yang menyeberang ke thread
             // latar adalah char[] yang di-nol-kan
             // sesudah hash, bukan String abadi.
@@ -4914,13 +4920,24 @@ public class SettingsActivity extends Activity {
         return dialogBoleh && !finishing && !destroyed;
     }
 
-    private void tulisHashPin(final String pin, final int seq,
+    // Audit 2801: membuang kandidat = menolkan isinya dulu,
+    // bukan sekadar melepas rujukan; String lama tak pernah
+    // bisa dibersihkan dari heap.
+    private void buangKandidatPin() {
+        if (pinGantiKandidat != null) {
+            java.util.Arrays.fill(pinGantiKandidat, '\0');
+            pinGantiKandidat = null;
+        }
+    }
+
+    private void tulisHashPin(final char[] pin, final int seq,
             final boolean pinAktif, final boolean beriKabar) {
         pinPending = Util.kirimPin(() -> {
             // Audit 1477: PIN tak aktif → kedua cabang simpan di
             // bawah sama-sama mensyaratkan pinAktif, jadi hash
             // PBKDF2 yang mahal pasti terbuang; lewati dari awal.
             if (!pinAktif) {
+                java.util.Arrays.fill(pin, '\0');
                 return;
             }
             String h;
@@ -4929,6 +4946,10 @@ public class SettingsActivity extends Activity {
             } catch (Exception e) {
                 h = null;
             }
+            // Audit 2801: hash() menyalin isi ke PBEKeySpec;
+            // array asal dinolkan segera sesudahnya, sebelum
+            // cabang pulang mana pun di bawah.
+            java.util.Arrays.fill(pin, '\0');
             if (seq != pinSeq) {
                 return;
             }

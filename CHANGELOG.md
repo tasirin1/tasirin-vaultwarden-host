@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Sisa #2801 tuntas: dialog ganti PIN jalur char[]
+
+- Kandidat PIN di dialog ganti PIN Pengaturan kini disimpan dan diteruskan sebagai `char[]` yang di-nol-kan sesudah dipakai/diabaikan (`buangKandidatPin`, `tulisHashPin(char[])`), bukan String abadi di heap; jalur verifikasi dan aktifkan sudah lebih dulu char[] di perbaikan #2801 awal.
+
+
 ## [Belum rilis] — PIN lemah seperti 0000 dan 1234 kini ditolak saat memasang PIN (Audit 2799)
 
 Saat memasang atau mengganti PIN aplikasi, pola yang paling gampang ditebak sekarang ditolak: semua angka sama (0000, 1111), urutan naik atau turun (1234, 4321), dan blok yang berulang persis (1212, 123123). Dialog ganti PIN juga tidak lagi ditawarkan untuk PIN lemah. PIN lama yang sudah terpasang tetap bisa dipakai membuka seperti biasa.
