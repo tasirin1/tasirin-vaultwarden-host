@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2770 tahap 2: keluarga substitusi bermigrasi ke skenario_substitusi
+
+- Helper `skenario_substitusi` memikul keluarga skenario substitusi proses resolve-vw: 553 skenario paruh awal + 1.285 paruh akhir bermigrasi dari blok salinan 22 baris menjadi panggilan data. Struktur tiap blok terbukti identik dengan templat via pembanding AST; semua label utuh. Sisa 15 skenario menyimpang dibiarkan apa adanya.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 19 (terakhir): wilayah w18 keluar — _menguras_khusus tuntas dipecah
 
 - Blok gio/debugfs/xauth/systemd-run/gh/npm/certutil/cmsutil/apt-key dipindah verbatim ke `_menguras_khusus_w18`. `_menguras_khusus` kini 399 baris (dari 12.661): pembuka bersama + 19 dispatch wilayah + return False penutup. Diferensial TOTAL vs versi pra-proyek (korpus ±7.700 masukan, 259 perintah): identik 100%.
