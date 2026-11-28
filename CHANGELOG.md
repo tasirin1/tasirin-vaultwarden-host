@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 2: wilayah w1 keluar dari _menguras_khusus
+
+- Blok openssl/sqlite3/qsv/xsv (514 baris) dipindah verbatim ke `_menguras_khusus_w1`. Pembanding diferensial korpus 6.400 masukan (256 perintah): identik 100%, termasuk perilaku pengecualiannya.
+
+
 ## [Belum rilis] — Proyek #2770 tahap 1: rangka skenario_ganti_gagal
 
 - Helper `skenario_ganti_gagal` di `tools/uji-verifikasi.py` memikul rangka bersama keluarga skenario 'satu berkas diganti teksnya lalu gerbang --semua wajib GAGAL menyebut fragmen' — 7 skenario pertama bermigrasi (kontrak, gradle, gradle2, umpan, umpankomen, umpanmajemuk, umpankutip). Jumlah `periksa` dan semua label dijaga identik; vonis akhir suite penuh di CI.
