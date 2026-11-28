@@ -14931,163 +14931,12 @@ def _menguras_khusus_w13(perintah, toks, awal, _ada_informatif):
     return None
 
 
-def _menguras_khusus(perintah, toks, awal):
-    """Audit 1059-1072: penilai perintah yang pengurasannya
-    bergantung pada subcommand / bentuk opsi khas — tak bisa
-    dinilai aturan operand generik."""
+def _menguras_khusus_w14(perintah, toks, awal, _ada_informatif):
+    """Audit 2771: wilayah w14 dipindah verbatim dari
+    _menguras_khusus - perilaku identik, dibuktikan
+    pembanding diferensial korpus semua perintah."""
     sisa = toks[awal + 1:]
     mentah = [t.strip("\"'") for t in sisa]
-    # Audit 1136: panggilan informasional juga tak membaca pada
-    # penilai khusus (celah 1102; untuk vi ini regresi dari 1108).
-    # Audit 1147: token informasional yang menjadi NILAI opsi
-    # perintah itu sendiri (mis. label diff '--help') bukan
-    # panggilan bantuan — lewati yang didahului opsi bernilai
-    # khas penilai khusus.
-    def _ada_informatif(tanda):
-        # Audit 1180: himpunan pendahulu wajib sadar perintah —
-        # '-t' bagi tar adalah MODE dan '-f' bagi more bendera
-        # polos, bukan opsi bernilai.
-        # Audit 1181: -init bernilai hanya untuk sqlite3.
-        pendahulu = {"--label", "--output-delimiter", "-f",
-                     "--prefix", "--suffix-format", "-o",
-                     "--output", "--homedir", "-t",
-                     "--separator", "-in"}
-        if perintah == "tar":
-            pendahulu.discard("-t")
-        if perintah == "more":
-            pendahulu.discard("-f")
-        if perintah == "less":
-            # Audit 1216: -f bagi less juga bendera polos.
-            pendahulu.discard("-f")
-        if perintah == "patch":
-            # Audit 1217: -t bagi patch bendera mode batch.
-            pendahulu.discard("-t")
-            # Audit 1275: -f bagi patch juga bendera polos
-            # (paksa) — bukan opsi bernilai.
-            pendahulu.discard("-f")
-        if perintah == "sqlite3":
-            # Audit 1181: -init. Audit 2592: opsi bernilai
-            # lain dari --help resmi sqlite3 (-cmd terbukti
-            # menelan --help lalu stdin tetap dieksekusi).
-            pendahulu.update(("-init", "-cmd", "-separator",
-                              "-nullvalue", "-newline", "-nonce",
-                              "-vfs", "-mmap", "-maxsize",
-                              "-lookaside", "-pagecache"))
-        # Audit 2453: pendahulu khas docopt -
-        # nilai opsi bernilai qsv/xsv dimakan
-        # verbatim, termasuk -h/-V.
-        # Audit 2455/2456: pendahulu PER
-        # SUBPERINTAH (mentah[0]) - token bool
-        # atau asing bagi subperintah yang
-        # berjalan tidak lagi melindungi.
-        # Audit 2467: untuk qsv/xsv himpunan per
-        # subperintah MENGGANTIKAN pendahulu
-        # dasar bersama (bukan digabung) - token
-        # dasar yang asing bagi subperintah
-        # (mis. -f di select) tak lagi melindungi.
-        if perintah == "qsv":
-            pendahulu = set(
-                _PENDAHULU_QSV_PER_SUB.get(
-                    mentah[0], frozenset()))
-        if perintah == "xsv":
-            pendahulu = set(
-                _PENDAHULU_XSV_PER_SUB.get(
-                    mentah[0], frozenset()))
-        # Audit 2575: pendahulu khas tsv-summarize -
-        # opsi bernilai dan operator (callback dua-
-        # parameter) memakan token berikutnya
-        # sebagai nilai, jadi --help/--version di
-        # posisi itu bukan panggilan informasional.
-        # Nama dilipat (zona caseInsensitive
-        # sumber); perbandingan pendahulunya ikut
-        # dilipat khusus perintah ini.
-        lipat_pendahulu = perintah == "tsv-summarize"
-        if lipat_pendahulu:
-            pendahulu = pendahulu | {
-                "--group-by", "-d", "--delimiter",
-                "--sum", "--mean", "--median", "--min",
-                "--max", "--mode", "--first", "--last",
-                "--stdev", "--var", "--range",
-                "--quantile", "--retain", "--values",
-                "--unique-values", "--unique-count",
-                "--mode-count", "--missing-count",
-                "--not-missing-count", "--count-header",
-                "--mad", "-g", "-v",
-                "--values-delimiter", "-p",
-                "--float-precision", "-r",
-                "--replace-missing"}
-        # Audit 2623: sqlite3 -lookaside/-pagecache
-        # mengambil DUA nilai (N SZ) - tanda di
-        # posisi nilai kedua pun tertelan, bukan
-        # informasional (probe biner: stdin tetap
-        # dieksekusi). Tandai kedua posisi nilainya.
-        tertelan2 = set()
-        if perintah == "sqlite3":
-            lewati2 = 0
-            for k_i2, t_i2 in enumerate(mentah):
-                if lewati2 > 0:
-                    tertelan2.add(k_i2)
-                    lewati2 -= 1
-                    continue
-                if t_i2 in ("-lookaside", "-pagecache"):
-                    lewati2 = 2
-        for k_i, t_i in enumerate(mentah):
-            if t_i in tanda:
-                if k_i in tertelan2:
-                    continue
-                if k_i > 0:
-                    sebelum = mentah[k_i - 1]
-                    if lipat_pendahulu:
-                        sebelum = sebelum.lower()
-                    if sebelum in pendahulu:
-                        continue
-                return True
-        return False
-
-    if _ada_informatif(("--help", "--version")):
-        return False
-    hasil = _menguras_khusus_w1(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w2(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_join(perintah, toks, awal)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w3(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w4(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w5(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w6(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w7(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w8(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w9(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w10(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w11(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w12(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
-    hasil = _menguras_khusus_w13(perintah, toks, awal, _ada_informatif)
-    if hasil is not None:
-        return hasil
     if perintah == "xsv":
         # Audit 2117: sumber xsv - daftar masukan
         # kosong diganti '-' (stdin); cat
@@ -16029,6 +15878,169 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_cst:
             return False
         return not ops_cst or "-" in ops_cst
+    return None
+
+
+def _menguras_khusus(perintah, toks, awal):
+    """Audit 1059-1072: penilai perintah yang pengurasannya
+    bergantung pada subcommand / bentuk opsi khas — tak bisa
+    dinilai aturan operand generik."""
+    sisa = toks[awal + 1:]
+    mentah = [t.strip("\"'") for t in sisa]
+    # Audit 1136: panggilan informasional juga tak membaca pada
+    # penilai khusus (celah 1102; untuk vi ini regresi dari 1108).
+    # Audit 1147: token informasional yang menjadi NILAI opsi
+    # perintah itu sendiri (mis. label diff '--help') bukan
+    # panggilan bantuan — lewati yang didahului opsi bernilai
+    # khas penilai khusus.
+    def _ada_informatif(tanda):
+        # Audit 1180: himpunan pendahulu wajib sadar perintah —
+        # '-t' bagi tar adalah MODE dan '-f' bagi more bendera
+        # polos, bukan opsi bernilai.
+        # Audit 1181: -init bernilai hanya untuk sqlite3.
+        pendahulu = {"--label", "--output-delimiter", "-f",
+                     "--prefix", "--suffix-format", "-o",
+                     "--output", "--homedir", "-t",
+                     "--separator", "-in"}
+        if perintah == "tar":
+            pendahulu.discard("-t")
+        if perintah == "more":
+            pendahulu.discard("-f")
+        if perintah == "less":
+            # Audit 1216: -f bagi less juga bendera polos.
+            pendahulu.discard("-f")
+        if perintah == "patch":
+            # Audit 1217: -t bagi patch bendera mode batch.
+            pendahulu.discard("-t")
+            # Audit 1275: -f bagi patch juga bendera polos
+            # (paksa) — bukan opsi bernilai.
+            pendahulu.discard("-f")
+        if perintah == "sqlite3":
+            # Audit 1181: -init. Audit 2592: opsi bernilai
+            # lain dari --help resmi sqlite3 (-cmd terbukti
+            # menelan --help lalu stdin tetap dieksekusi).
+            pendahulu.update(("-init", "-cmd", "-separator",
+                              "-nullvalue", "-newline", "-nonce",
+                              "-vfs", "-mmap", "-maxsize",
+                              "-lookaside", "-pagecache"))
+        # Audit 2453: pendahulu khas docopt -
+        # nilai opsi bernilai qsv/xsv dimakan
+        # verbatim, termasuk -h/-V.
+        # Audit 2455/2456: pendahulu PER
+        # SUBPERINTAH (mentah[0]) - token bool
+        # atau asing bagi subperintah yang
+        # berjalan tidak lagi melindungi.
+        # Audit 2467: untuk qsv/xsv himpunan per
+        # subperintah MENGGANTIKAN pendahulu
+        # dasar bersama (bukan digabung) - token
+        # dasar yang asing bagi subperintah
+        # (mis. -f di select) tak lagi melindungi.
+        if perintah == "qsv":
+            pendahulu = set(
+                _PENDAHULU_QSV_PER_SUB.get(
+                    mentah[0], frozenset()))
+        if perintah == "xsv":
+            pendahulu = set(
+                _PENDAHULU_XSV_PER_SUB.get(
+                    mentah[0], frozenset()))
+        # Audit 2575: pendahulu khas tsv-summarize -
+        # opsi bernilai dan operator (callback dua-
+        # parameter) memakan token berikutnya
+        # sebagai nilai, jadi --help/--version di
+        # posisi itu bukan panggilan informasional.
+        # Nama dilipat (zona caseInsensitive
+        # sumber); perbandingan pendahulunya ikut
+        # dilipat khusus perintah ini.
+        lipat_pendahulu = perintah == "tsv-summarize"
+        if lipat_pendahulu:
+            pendahulu = pendahulu | {
+                "--group-by", "-d", "--delimiter",
+                "--sum", "--mean", "--median", "--min",
+                "--max", "--mode", "--first", "--last",
+                "--stdev", "--var", "--range",
+                "--quantile", "--retain", "--values",
+                "--unique-values", "--unique-count",
+                "--mode-count", "--missing-count",
+                "--not-missing-count", "--count-header",
+                "--mad", "-g", "-v",
+                "--values-delimiter", "-p",
+                "--float-precision", "-r",
+                "--replace-missing"}
+        # Audit 2623: sqlite3 -lookaside/-pagecache
+        # mengambil DUA nilai (N SZ) - tanda di
+        # posisi nilai kedua pun tertelan, bukan
+        # informasional (probe biner: stdin tetap
+        # dieksekusi). Tandai kedua posisi nilainya.
+        tertelan2 = set()
+        if perintah == "sqlite3":
+            lewati2 = 0
+            for k_i2, t_i2 in enumerate(mentah):
+                if lewati2 > 0:
+                    tertelan2.add(k_i2)
+                    lewati2 -= 1
+                    continue
+                if t_i2 in ("-lookaside", "-pagecache"):
+                    lewati2 = 2
+        for k_i, t_i in enumerate(mentah):
+            if t_i in tanda:
+                if k_i in tertelan2:
+                    continue
+                if k_i > 0:
+                    sebelum = mentah[k_i - 1]
+                    if lipat_pendahulu:
+                        sebelum = sebelum.lower()
+                    if sebelum in pendahulu:
+                        continue
+                return True
+        return False
+
+    if _ada_informatif(("--help", "--version")):
+        return False
+    hasil = _menguras_khusus_w1(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w2(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_join(perintah, toks, awal)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w3(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w4(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w5(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w6(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w7(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w8(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w9(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w10(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w11(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w12(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w13(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
+    hasil = _menguras_khusus_w14(perintah, toks, awal, _ada_informatif)
+    if hasil is not None:
+        return hasil
     if perintah == "tsv-join":
         # Audit 2391: getopt alat ini
         # caseInsensitive (pulau caseSensitive
