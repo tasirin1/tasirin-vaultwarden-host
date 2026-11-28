@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Koreksi perbaikan warning (Audit 3039)
+
+- Daftar warning sebenarnya dari log CI: dua ApplySharedPref terakhir ada di PinGate.catatHasil (kini ditekan dengan alasan) — sedangkan downloadBinaryInner ternyata SUDAH ditekan sejak pembersihan lama, jadi anotasi ganda dari commit sebelumnya (penyebab error kompilasi 'SuppressLint is not a repeatable annotation type') dibuang.
+
+
 ## [Belum rilis] — Warning lint CI dibersihkan (7 -> 0)
 
 - 5 ApplySharedPref dari maraton-maraton sesudah pembersihan 2026-11-26 ditekan dengan alasan tertulis (Audit 3039): bukti panic ServerService, penghapusan penanda di ensureBinary, cap versi + pin SHA di downloadBinaryInner - semuanya tulisan yang memang wajib seketika sampai disk. 2 TypographyDashes: rentang `4-64` di string pin_lemah (values + values-in) kini en dash.

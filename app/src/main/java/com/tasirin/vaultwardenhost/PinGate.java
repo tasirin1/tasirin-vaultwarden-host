@@ -158,6 +158,12 @@ public final class PinGate {
         return gagalKini >= 10_000 ? 10_000 : gagalKini + 1;
     }
 
+    // Audit 3039: commit() disengaja - catatan hasil
+    // PIN + cap lockout wajib sinkron (lihat Audit
+    // 1362 di badan metode); apply() yang tertunda
+    // bisa menghilangkan hitungan gagal sebelum
+    // tercatat dan lockout terlewat.
+    @SuppressLint("ApplySharedPref")
     public static void catatHasil(Context ctx, boolean cocok, long sekarang) {
         if (ctx == null) {
             return;
