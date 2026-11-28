@@ -1,5 +1,9 @@
 # Changelog
 
+## [Belum rilis] — Koreksi regresi Audit 3039: anotasi ApplySharedPref kembali ke catatHasil
+
+- Ekstraksi `catatanHasilBaru` pada solusi #2936 menyisipkan metode baru di antara anotasi `@SuppressLint` Audit 3039 dan `catatHasil`, sehingga anotasi itu kini menempel ke helper murni dan dua warning ApplySharedPref di `catatHasil` muncul lagi di build. Anotasi + komentar alasannya dipindah menempel langsung di atas `catatHasil`; perilaku tak berubah.
+
 ## [Belum rilis] — Proyek #2770 tahap 2: keluarga substitusi bermigrasi ke skenario_substitusi
 
 - Helper `skenario_substitusi` memikul keluarga skenario substitusi proses resolve-vw: 553 skenario paruh awal + 1.285 paruh akhir bermigrasi dari blok salinan 22 baris menjadi panggilan data. Struktur tiap blok terbukti identik dengan templat via pembanding AST; semua label utuh. Sisa 15 skenario menyimpang dibiarkan apa adanya.
