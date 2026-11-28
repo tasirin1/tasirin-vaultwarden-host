@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2770 tahap 1: rangka skenario_ganti_gagal
+
+- Helper `skenario_ganti_gagal` di `tools/uji-verifikasi.py` memikul rangka bersama keluarga skenario 'satu berkas diganti teksnya lalu gerbang --semua wajib GAGAL menyebut fragmen' — 7 skenario pertama bermigrasi (kontrak, gradle, gradle2, umpan, umpankomen, umpanmajemuk, umpankutip). Jumlah `periksa` dan semua label dijaga identik; vonis akhir suite penuh di CI.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 1: blok join keluar dari _menguras_khusus
 
 - Blok penilaian perintah `join` (±180 baris) dipindah verbatim ke `_menguras_khusus_join`; fungsi raksasa menyusut dan bloknya kini bisa dibaca/dites sendiri. Kesetaraan perilaku dibuktikan pembanding diferensial lokal (korpus token join + perintah tetangga: keluaran lama vs baru identik) dan suite gerbang penuh di CI.

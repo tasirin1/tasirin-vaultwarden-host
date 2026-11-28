@@ -99,46 +99,47 @@ def _bagian_awal(tmp):
             rc != 0 and rc != 124 and "gitleaks.yml" in out)
     shutil.rmtree(hilang, ignore_errors=True)
 
-    kontrak = klon(tmp, "kontrak")
-    berkas_action = os.path.join(kontrak, ".github", "actions",
-                                 "resolve-vw", "action.yml")
-    with open(berkas_action, encoding="utf-8") as f:
-        isi_action = f.read()
-    with open(berkas_action, "w", encoding="utf-8") as f:
-        f.write(isi_action.replace("\n  tag_mentah:\n",
-                                   "\n  tagmentah:\n"))
-    rc, out = jalan(kontrak, [sys.executable, GERBANG, "--semua"])
-    periksa("keluaran resolve-vw diganti nama: gerbang gagal (Audit 814)",
-            rc != 0 and rc != 124 and "tag_mentah" in out)
-    shutil.rmtree(kontrak, ignore_errors=True)
+    def skenario_ganti_gagal(nama, rel, lama, baru, label,
+                             frags, hitung=0):
+        # Audit 2770 (tahap 1): rangka bersama keluarga
+        # skenario "satu berkas diganti teksnya lalu
+        # gerbang --semua wajib GAGAL menyebut frags" -
+        # dulu rangka ini disalin utuh per skenario.
+        k = klon(tmp, nama)
+        berkas = os.path.join(k, *rel)
+        with open(berkas, encoding="utf-8") as f:
+            isi = f.read()
+        if hitung:
+            isi = isi.replace(lama, baru, hitung)
+        else:
+            isi = isi.replace(lama, baru)
+        with open(berkas, "w", encoding="utf-8") as f:
+            f.write(isi)
+        rc, out = jalan(k, [sys.executable, GERBANG, "--semua"])
+        periksa(label,
+                rc != 0 and rc != 124
+                and all(x in out for x in frags))
+        shutil.rmtree(k, ignore_errors=True)
 
-    gradle = klon(tmp, "gradle")
-    berkas_settings = os.path.join(gradle, "settings.gradle.kts")
-    with open(berkas_settings, encoding="utf-8") as f:
-        isi_settings = f.read()
-    with open(berkas_settings, "w", encoding="utf-8") as f:
-        f.write(isi_settings.replace("FAIL_ON_PROJECT_REPOS",
-                                     "PREFER_PROJECT"))
-    rc, out = jalan(gradle, [sys.executable, GERBANG, "--semua"])
-    periksa("repositoriesMode dilonggarkan: gerbang gagal (Audit 815)",
-            rc != 0 and rc != 124 and "FAIL_ON_PROJECT_REPOS" in out)
-    shutil.rmtree(gradle, ignore_errors=True)
-
-    gradle2 = klon(tmp, "gradle2")
-    berkas_settings2 = os.path.join(gradle2, "settings.gradle.kts")
-    with open(berkas_settings2, encoding="utf-8") as f:
-        isi_settings2 = f.read()
-    with open(berkas_settings2, "w", encoding="utf-8") as f:
-        f.write(isi_settings2.replace(
-            "        google()\n        mavenCentral()\n    }",
-            "        google()\n        mavenCentral()\n"
-            "        maven { url = \"https://evil.example.com/maven\" }\n    }", 1))
-    rc, out = jalan(gradle2, [sys.executable, GERBANG, "--semua"])
-    periksa("repositori maven tanpa kurung di settings: gerbang gagal "
-            "(Audit 2898)",
-            rc != 0 and rc != 124 and "tak diizinkan" in out)
-    shutil.rmtree(gradle2, ignore_errors=True)
-
+    skenario_ganti_gagal(
+        "kontrak",
+        (".github", "actions", "resolve-vw", "action.yml"),
+        "\n  tag_mentah:\n", "\n  tagmentah:\n",
+        "keluaran resolve-vw diganti nama: gerbang gagal (Audit 814)",
+        ("tag_mentah",))
+    skenario_ganti_gagal(
+        "gradle", ("settings.gradle.kts",),
+        "FAIL_ON_PROJECT_REPOS", "PREFER_PROJECT",
+        "repositoriesMode dilonggarkan: gerbang gagal (Audit 815)",
+        ("FAIL_ON_PROJECT_REPOS",))
+    skenario_ganti_gagal(
+        "gradle2", ("settings.gradle.kts",),
+        "        google()\n        mavenCentral()\n    }",
+        "        google()\n        mavenCentral()\n"
+        "        maven { url = \"https://evil.example.com/maven\" }\n    }",
+        "repositori maven tanpa kurung di settings: gerbang gagal "
+        "(Audit 2898)",
+        ("tak diizinkan",), hitung=1)
     gradle3 = klon(tmp, "gradle3")
     berkas_akar3 = os.path.join(gradle3, "build.gradle.kts")
     with open(berkas_akar3, encoding="utf-8") as f:
@@ -195,66 +196,38 @@ def _bagian_awal(tmp):
             and "_cap_uji_hapus_2915" in out)
     shutil.rmtree(jenis, ignore_errors=True)
 
-    umpan = klon(tmp, "umpan")
-    berkas_ump = os.path.join(umpan, ".github", "actions",
-                              "resolve-vw", "action.yml")
-    with open(berkas_ump, encoding="utf-8") as f:
-        isi_ump = f.read()
-    with open(berkas_ump, "w", encoding="utf-8") as f:
-        f.write(isi_ump.replace(
-            'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
-            'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"\n'
-            '        echo "tag_mentah=$TAG"'))
-    rc, out = jalan(umpan, [sys.executable, GERBANG, "--semua"])
-    periksa("echo log umpan nama produsen: gerbang gagal (Audit 867)",
-            rc != 0 and rc != 124 and "tag_mentah" in out)
-    shutil.rmtree(umpan, ignore_errors=True)
-
-    umpankomen = klon(tmp, "umpankomen")
-    berkas_uk = os.path.join(umpankomen, ".github", "actions",
-                             "resolve-vw", "action.yml")
-    with open(berkas_uk, encoding="utf-8") as f:
-        isi_uk = f.read()
-    with open(berkas_uk, "w", encoding="utf-8") as f:
-        f.write(isi_uk.replace(
-            'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
-            'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"\n'
-            '        # echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"'))
-    rc, out = jalan(umpankomen, [sys.executable, GERBANG, "--semua"])
-    periksa("baris komentar shell nama produsen: gerbang gagal (Audit 872)",
-            rc != 0 and rc != 124 and "tag_mentah" in out)
-    shutil.rmtree(umpankomen, ignore_errors=True)
-
-    umpanmajemuk = klon(tmp, "umpanmajemuk")
-    berkas_um = os.path.join(umpanmajemuk, ".github", "actions",
-                             "resolve-vw", "action.yml")
-    with open(berkas_um, encoding="utf-8") as f:
-        isi_um = f.read()
-    with open(berkas_um, "w", encoding="utf-8") as f:
-        f.write(isi_um.replace(
-            'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
-            'echo "tag_mentah=umpan"; '
-            'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"'))
-    rc, out = jalan(umpanmajemuk, [sys.executable, GERBANG, "--semua"])
-    periksa("echo umpan baris majemuk nama produsen: gerbang gagal (Audit 872)",
-            rc != 0 and rc != 124 and "tag_mentah" in out)
-    shutil.rmtree(umpanmajemuk, ignore_errors=True)
-
-    umpankutip = klon(tmp, "umpankutip")
-    berkas_uq = os.path.join(umpankutip, ".github", "actions",
-                             "resolve-vw", "action.yml")
-    with open(berkas_uq, encoding="utf-8") as f:
-        isi_uq = f.read()
-    with open(berkas_uq, "w", encoding="utf-8") as f:
-        f.write(isi_uq.replace(
-            'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
-            'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"\n'
-            '        echo "catatan; echo tag_mentah=x >> $GITHUB_OUTPUT"'))
-    rc, out = jalan(umpankutip, [sys.executable, GERBANG, "--semua"])
-    periksa("titik koma dalam kutip nama produsen: gerbang gagal (Audit 874)",
-            rc != 0 and rc != 124 and "tag_mentah" in out)
-    shutil.rmtree(umpankutip, ignore_errors=True)
-
+    skenario_ganti_gagal(
+        "umpan",
+        (".github", "actions", "resolve-vw", "action.yml"),
+        'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+        'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"\n'
+        '        echo "tag_mentah=$TAG"',
+        "echo log umpan nama produsen: gerbang gagal (Audit 867)",
+        ("tag_mentah",))
+    skenario_ganti_gagal(
+        "umpankomen",
+        (".github", "actions", "resolve-vw", "action.yml"),
+        'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+        'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"\n'
+        '        # echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+        "baris komentar shell nama produsen: gerbang gagal (Audit 872)",
+        ("tag_mentah",))
+    skenario_ganti_gagal(
+        "umpanmajemuk",
+        (".github", "actions", "resolve-vw", "action.yml"),
+        'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+        'echo "tag_mentah=umpan"; '
+        'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"',
+        "echo umpan baris majemuk nama produsen: gerbang gagal (Audit 872)",
+        ("tag_mentah",))
+    skenario_ganti_gagal(
+        "umpankutip",
+        (".github", "actions", "resolve-vw", "action.yml"),
+        'echo "tag_mentah=$TAG" >> "$GITHUB_OUTPUT"',
+        'echo "tagmentah=$TAG" >> "$GITHUB_OUTPUT"\n'
+        '        echo "catatan; echo tag_mentah=x >> $GITHUB_OUTPUT"',
+        "titik koma dalam kutip nama produsen: gerbang gagal (Audit 874)",
+        ("tag_mentah",))
     prodtrue = klon(tmp, "prodtrue")
     berkas_pt = os.path.join(prodtrue, ".github", "actions",
                              "resolve-vw", "action.yml")
