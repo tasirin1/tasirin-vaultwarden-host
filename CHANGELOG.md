@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 17: wilayah w16 keluar dari _menguras_khusus
+
+- Blok derdump/dasel/mlr/sd/choose/aria2c/envsubst/write/rpm2cpio/bun/cpp/as dipindah verbatim ke `_menguras_khusus_w16`. Pembanding diferensial: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 16: wilayah w15 keluar dari _menguras_khusus
 
 - Blok tsv-join/csvformat/sql2csv/tsv-uniq/tsv-sample/tsv-pretty/tsv-split/csv2tsv/number-lines/keep-header/csvsql dipindah verbatim ke `_menguras_khusus_w15`. Pembanding diferensial: identik 100%.
