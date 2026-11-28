@@ -2297,7 +2297,10 @@ public class TgBackupTest {
         assertFalse(TgBackup.kunciDiekspor("bin_sha_fp"));
         assertFalse(TgBackup.kunciDiekspor("versi_fp"));
         assertFalse(TgBackup.kunciDiekspor("versi_file"));
-        assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains("bin_sha_fp"));
+        // Audit 2786: bin_sha_fp dihapus dari semua situs -
+        // tak lagi di himpunan tolak; ekspor tetap tertahan
+        // daftar boleh-ekspor Audit 2828.
+        assertFalse(TgBackup.TAK_DIEKSPOR_KEYS.contains("bin_sha_fp"));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains("versi_fp"));
         assertTrue(TgBackup.TAK_DIEKSPOR_KEYS.contains("versi_file"));
         // Audit 2570: bendera backup tertunda dan penghitung
