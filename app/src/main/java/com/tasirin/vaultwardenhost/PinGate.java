@@ -164,6 +164,23 @@ public final class PinGate {
     // bisa menghilangkan hitungan gagal sebelum
     // tercatat dan lockout terlewat.
     @SuppressLint("ApplySharedPref")
+    // Audit 2936: komposisi catatan hasil dipisah
+    // murni agar bisa diuji perilaku - null berarti
+    // cocok (semua cap dibersihkan); selain itu
+    // {gagalBaru, kunciSampaiMs, kunciElapsedMs} yang
+    // dihitung dari hitungan gagal BARU, bukan lama.
+    static long[] catatanHasilBaru(int gagalKini,
+            boolean cocok, long sekarang, long elapsedKini) {
+        if (cocok) {
+            return null;
+        }
+        int gagal = gagalBerikutnya(gagalKini);
+        return new long[]{gagal,
+                PinCrypto.kunciBerikutnyaMs(gagal, sekarang),
+                PinCrypto.kunciElapsedBerikutnyaMs(
+                        gagal, elapsedKini)};
+    }
+
     public static void catatHasil(Context ctx, boolean cocok, long sekarang) {
         if (ctx == null) {
             return;
@@ -182,19 +199,19 @@ public final class PinGate {
         synchronized (KUNCI_PERCOBAAN) {
             SharedPreferences sp = ctx.getSharedPreferences(
                     ServerService.PREFS, Context.MODE_PRIVATE);
-            if (cocok) {
+            long[] hasil = catatanHasilBaru(
+                    TgBackup.amanInt(sp, KEY_GAGAL, 0), cocok,
+                    sekarang, SystemClock.elapsedRealtime());
+            if (hasil == null) {
 
                 sp.edit().remove(KEY_GAGAL).remove(KEY_KUNCI_SAMPAI)
                         .remove(KEY_KUNCI_ELAPSED).commit();
                 return;
             }
 
-            int gagal = gagalBerikutnya(TgBackup.amanInt(sp, KEY_GAGAL, 0));
-            sp.edit().putInt(KEY_GAGAL, gagal)
-                    .putLong(KEY_KUNCI_SAMPAI,
-                            PinCrypto.kunciBerikutnyaMs(gagal, sekarang))
-                    .putLong(KEY_KUNCI_ELAPSED, PinCrypto.kunciElapsedBerikutnyaMs(
-                            gagal, SystemClock.elapsedRealtime()))
+            sp.edit().putInt(KEY_GAGAL, (int) hasil[0])
+                    .putLong(KEY_KUNCI_SAMPAI, hasil[1])
+                    .putLong(KEY_KUNCI_ELAPSED, hasil[2])
                     .commit();
         }
     }

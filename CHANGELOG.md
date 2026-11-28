@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Solusi #2936 (1/4): komposisi catatHasil PinGate diuji perilaku
+
+- `PinGate.catatanHasilBaru` diekstrak murni dari `catatHasil`: cocok -> bersihkan, gagal -> hitungan baru + cap kunci dihitung dari hitungan BARU. Tiga uji JVM baru mengunci komposisinya (dulu jalur non-null catatHasil hanya diuji tak-throw via ctx null).
+
+
 ## [Belum rilis] — Koreksi perbaikan warning (Audit 3039)
 
 - Daftar warning sebenarnya dari log CI: dua ApplySharedPref terakhir ada di PinGate.catatHasil (kini ditekan dengan alasan) — sedangkan downloadBinaryInner ternyata SUDAH ditekan sejak pembersihan lama, jadi anotasi ganda dari commit sebelumnya (penyebab error kompilasi 'SuppressLint is not a repeatable annotation type') dibuang.

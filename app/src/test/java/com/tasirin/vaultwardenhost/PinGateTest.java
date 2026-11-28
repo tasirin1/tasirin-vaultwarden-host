@@ -2,11 +2,31 @@ package com.tasirin.vaultwardenhost;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 public class PinGateTest {
+
+    @Test
+    public void catatanHasilBaru_cocokBerartiBersihkan() {
+        assertNull(PinGate.catatanHasilBaru(3, true, 1000L, 500L));
+    }
+
+    @Test
+    public void catatanHasilBaru_gagalDariHitunganBaru() {
+        long[] h = PinGate.catatanHasilBaru(0, false, 10_000L, 2_000L);
+        assertEquals(1L, h[0]);
+        assertEquals(PinCrypto.kunciBerikutnyaMs(1, 10_000L), h[1]);
+        assertEquals(PinCrypto.kunciElapsedBerikutnyaMs(1, 2_000L), h[2]);
+    }
+
+    @Test
+    public void catatanHasilBaru_plafonGagalDijaga() {
+        long[] h = PinGate.catatanHasilBaru(10_000, false, 0L, 0L);
+        assertEquals(10_000L, h[0]);
+    }
 
     @Test
     public void catatHasilKonteksNullAman() {
