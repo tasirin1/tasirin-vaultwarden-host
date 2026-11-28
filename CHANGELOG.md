@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 11: wilayah w10 keluar dari _menguras_khusus
+
+- Blok duckdb/pg_restore/nats/cypher/cqlsh/snowsql/az/vagrant/minikube/mpv/tesseract/guix/nix/gst/irb/litecli/mycli/usql/helm/sbcl/racket/parallel dipindah verbatim ke `_menguras_khusus_w10`. Diferensial: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 10: wilayah w9 keluar dari _menguras_khusus
 
 - Blok buildah/skopeo/crictl/rclone/restic/borg/ipfs/nano/gnuplot/kak/micro/pandoc/sendmail/R dipindah verbatim ke `_menguras_khusus_w9`. Pembanding diferensial: identik 100%.
