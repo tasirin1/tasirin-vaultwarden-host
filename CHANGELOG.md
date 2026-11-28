@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 10: wilayah w9 keluar dari _menguras_khusus
+
+- Blok buildah/skopeo/crictl/rclone/restic/borg/ipfs/nano/gnuplot/kak/micro/pandoc/sendmail/R dipindah verbatim ke `_menguras_khusus_w9`. Pembanding diferensial: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 9: wilayah w8 keluar dari _menguras_khusus
 
 - Blok mosquitto/grpcurl/kubectl/docker/podman/terraform/websocat/redis/psql/mysql/mariadb/nerdctl/oc/consul/vault/etcdctl/glab/clickhouse/aws/gsutil/gcloud dipindah verbatim ke `_menguras_khusus_w8`. Diferensial: identik 100%.
