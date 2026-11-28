@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 4: wilayah w3 (diff) keluar dari _menguras_khusus
+
+- Wilayah diff/diff3/sdiff beserta definisi bersama `_PANJANG_DIFF`/`_PANJANG_DIFF3` (hanya dipakai wilayah ini) dipindah verbatim ke `_menguras_khusus_w3`. Pembanding diferensial korpus ±6.400 masukan: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 3: wilayah w2 keluar dari _menguras_khusus
 
 - Blok tar/git/comm (sesudah blok join) dipindah verbatim ke `_menguras_khusus_w2`. Pembanding diferensial korpus 6.400 masukan: identik 100%.
