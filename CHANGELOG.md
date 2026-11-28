@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 8: wilayah w7 keluar dari _menguras_khusus
+
+- Blok pdftotext/nft/dpkg/file/date/sysctl/sftp/bc/dc/ed/xxd/cpio/pax/pg/lzip/recode/cpan/ssh dipindah verbatim ke `_menguras_khusus_w7`. Pembanding diferensial: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 7: wilayah w6 keluar dari _menguras_khusus
 
 - Blok wget/nc/make/visudo/patch/more/less/vi/basenc/du/find/addr2line/dig dipindah verbatim ke `_menguras_khusus_w6`. Pembanding diferensial korpus semua perintah: identik 100%.
