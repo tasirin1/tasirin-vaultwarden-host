@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 3: wilayah w2 keluar dari _menguras_khusus
+
+- Blok tar/git/comm (sesudah blok join) dipindah verbatim ke `_menguras_khusus_w2`. Pembanding diferensial korpus 6.400 masukan: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 2: wilayah w1 keluar dari _menguras_khusus
 
 - Blok openssl/sqlite3/qsv/xsv (514 baris) dipindah verbatim ke `_menguras_khusus_w1`. Pembanding diferensial korpus 6.400 masukan (256 perintah): identik 100%, termasuk perilaku pengecualiannya.
