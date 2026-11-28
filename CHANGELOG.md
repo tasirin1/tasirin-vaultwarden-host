@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Solusi #2936 (3/4): transformasi selesaikan hapus tertunda diuji perilaku
+
+- `TgBot.himpunanSesudahSelesai` diekstrak murni dari `selesaikanHapusTertundaUntuk`. Dua uji JVM baru: hanya identitas persis (ruang+pesan+jenis) yang hilang, tak cocok -> null (tanpa tulis), semua cocok -> himpunan kosong.
+
+
 ## [Belum rilis] — Solusi #2936 (2/4): transformasi catat hapus tertunda diuji perilaku
 
 - `TgBot.tambahEntriHapus` diekstrak murni dari `catatHapusTertunda` (dedup identitas, pangkasan batas, klasifikasi ruang terbuang milik/asing). Tiga uji JVM baru: himpunan kosong jadi satu entri utuh, duplikat identitas ditolak (jenis beda bukan duplikat), pangkasan himpunan penuh membuang entri asing tertua dan melaporkannya ke set yang benar.

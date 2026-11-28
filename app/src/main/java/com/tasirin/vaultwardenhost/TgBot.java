@@ -2454,6 +2454,29 @@ public final class TgBot {
     // dasarnya (id ruang + id pesan + jenis),
     // apa pun cap waktu yang tersimpan - jalur
     // async tak memegang untaian entri persisnya.
+    // Audit 2936: transformasi penyelesaian dipisah
+    // murni agar bisa diuji perilaku - mengembalikan
+    // himpunan tanpa entri yang identitasnya cocok,
+    // atau null bila tak ada yang cocok (tak ada yang
+    // perlu ditulis).
+    static java.util.Set<String> himpunanSesudahSelesai(
+            java.util.Set<String> lama, long idRuang,
+            int idPesan, boolean asing) {
+        java.util.Set<String> kini =
+                new java.util.HashSet<>();
+        boolean berubah = false;
+        for (String e : lama) {
+            if (samaIdentitasHapus(
+                    uraiEntriHapusTertunda(e),
+                    idRuang, idPesan, asing)) {
+                berubah = true;
+                continue;
+            }
+            kini.add(e);
+        }
+        return berubah ? kini : null;
+    }
+
     static void selesaikanHapusTertundaUntuk(Context ctx,
             long idRuang, int idPesan, boolean asing) {
         if (ctx == null) {
@@ -2469,18 +2492,9 @@ public final class TgBot {
                     return;
                 }
                 java.util.Set<String> kini =
-                        new java.util.HashSet<>();
-                boolean berubah = false;
-                for (String e : lama) {
-                    if (samaIdentitasHapus(
-                            uraiEntriHapusTertunda(e),
-                            idRuang, idPesan, asing)) {
-                        berubah = true;
-                        continue;
-                    }
-                    kini.add(e);
-                }
-                if (berubah) {
+                        himpunanSesudahSelesai(lama,
+                                idRuang, idPesan, asing);
+                if (kini != null) {
                     sp.edit().putStringSet(
                             KEY_TG_HAPUS_TERTUNDA, kini).apply();
                 }

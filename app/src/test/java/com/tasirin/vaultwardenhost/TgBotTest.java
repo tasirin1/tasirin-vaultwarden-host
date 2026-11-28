@@ -12,6 +12,43 @@ import org.junit.Test;
 public class TgBotTest {
 
     @Test
+    public void himpunanSesudahSelesai_hanyaIdentitasPersisYangHilang() {
+        java.util.Set<String> lama = new java.util.HashSet<>(
+                java.util.Arrays.asList(
+                        TgBot.entriHapusTertundaPenuh(
+                                111L, 22, false, 1L, 1L),
+                        TgBot.entriHapusTertundaPenuh(
+                                111L, 22, true, 1L, 1L),
+                        TgBot.entriHapusTertundaPenuh(
+                                111L, 23, false, 1L, 1L)));
+        java.util.Set<String> hasil =
+                TgBot.himpunanSesudahSelesai(
+                        lama, 111L, 22, false);
+        assertEquals(2, hasil.size());
+        assertFalse(TgBot.entriHapusMasihAda(
+                hasil, 111L, 22, false));
+        assertTrue(TgBot.entriHapusMasihAda(
+                hasil, 111L, 22, true));
+        assertTrue(TgBot.entriHapusMasihAda(
+                hasil, 111L, 23, false));
+    }
+
+    @Test
+    public void himpunanSesudahSelesai_takCocokNullDanSemuaCocokKosong() {
+        java.util.Set<String> lama = new java.util.HashSet<>(
+                java.util.Collections.singleton(
+                        TgBot.entriHapusTertundaPenuh(
+                                111L, 22, false, 1L, 1L)));
+        assertNull(TgBot.himpunanSesudahSelesai(
+                lama, 999L, 22, false));
+        java.util.Set<String> hasil =
+                TgBot.himpunanSesudahSelesai(
+                        lama, 111L, 22, false);
+        assertNotNull(hasil);
+        assertTrue(hasil.isEmpty());
+    }
+
+    @Test
     public void tambahEntriHapus_himpunanKosongJadiSatuEntri() {
         java.util.Set<Long> milik = new java.util.HashSet<>();
         java.util.Set<Long> asingS = new java.util.HashSet<>();
