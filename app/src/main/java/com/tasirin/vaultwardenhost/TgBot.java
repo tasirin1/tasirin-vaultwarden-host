@@ -3070,6 +3070,41 @@ public final class TgBot {
     // dedupnya di jalur kedaluwarsa (2936).
     // Cap tetap ditulis agar jalur biasa
     // sesudahnya tetap ter-throttle.
+    // Audit 2936: komposisi sapuan cap peringatan
+    // dipisah murni agar bisa diuji perilaku - dari
+    // peta prefs apa adanya, kunci lain berawalan
+    // peringatan yang kedaluwarsa atau di luar batas
+    // jumlah. Kunci yang sedang ditulis dikecualikan
+    // dari sapuan kedaluwarsa dan ikut dihitung
+    // dalam batas; nilai bukan Long dianggap 0
+    // (kedaluwarsa) seperti sebelumnya.
+    static java.util.Set<String> kunciPeringatanUntukDihapus(
+            java.util.Map<String, ?> semua,
+            String kunciIni, long kiniMs) {
+        java.util.Set<String> buang =
+                new java.util.HashSet<>();
+        java.util.Map<String, Long> cap =
+                new java.util.HashMap<>();
+        for (java.util.Map.Entry<String, ?> e
+                : semua.entrySet()) {
+            if (!e.getKey().startsWith(KEY_TG_WARN_ASING_PREFIX)
+                    || e.getKey().equals(kunciIni)) {
+                continue;
+            }
+            long nilai = e.getValue() instanceof Long
+                    ? (Long) e.getValue() : 0;
+            if (capPeringatanKedaluwarsa(nilai, kiniMs)) {
+                buang.add(e.getKey());
+            } else {
+                cap.put(e.getKey(), nilai);
+            }
+        }
+        cap.put(kunciIni, kiniMs);
+        buang.addAll(kunciPeringatanDiLuarBatas(
+                cap, BATAS_KUNCI_PERINGATAN_ASING));
+        return buang;
+    }
+
     static void peringatkanPinChatAsing(Context ctx, long idRuang,
             boolean lewatiThrottle) {
         if (ctx == null || idRuang == 0) {
@@ -3091,25 +3126,8 @@ public final class TgBot {
                 // Audit 2633: satu edit untuk cap baru
                 // + sapuan kedaluwarsa + batas jumlah.
                 SharedPreferences.Editor ed = sp.edit().putLong(kunci, kini);
-                java.util.Map<String, Long> cap =
-                        new java.util.HashMap<>();
-                for (java.util.Map.Entry<String, ?> e
-                        : sp.getAll().entrySet()) {
-                    if (!e.getKey().startsWith(KEY_TG_WARN_ASING_PREFIX)
-                            || e.getKey().equals(kunci)) {
-                        continue;
-                    }
-                    long nilai = e.getValue() instanceof Long
-                            ? (Long) e.getValue() : 0;
-                    if (capPeringatanKedaluwarsa(nilai, kini)) {
-                        ed.remove(e.getKey());
-                    } else {
-                        cap.put(e.getKey(), nilai);
-                    }
-                }
-                cap.put(kunci, kini);
-                for (String buang : kunciPeringatanDiLuarBatas(
-                        cap, BATAS_KUNCI_PERINGATAN_ASING)) {
+                for (String buang : kunciPeringatanUntukDihapus(
+                        sp.getAll(), kunci, kini)) {
                     ed.remove(buang);
                 }
                 ed.apply();

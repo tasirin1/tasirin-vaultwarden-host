@@ -12,6 +12,47 @@ import org.junit.Test;
 public class TgBotTest {
 
     @Test
+    public void kunciPeringatanUntukDihapus_sapuanKedaluwarsaDanPengecualian() {
+        String awalan = TgBot.KEY_TG_WARN_ASING_PREFIX;
+        long kini = 40L * 24 * 3600_000L;
+        java.util.Map<String, Object> semua =
+                new java.util.HashMap<>();
+        semua.put(awalan + "1", kini - 1000L);
+        semua.put(awalan + "2", kini
+                - TgBot.MASA_CAP_PERINGATAN_ASING_MS - 1L);
+        semua.put(awalan + "3", "bukan-angka");
+        semua.put("kunci_lain", 123L);
+        semua.put(awalan + "9", 1L);
+        java.util.Set<String> buang =
+                TgBot.kunciPeringatanUntukDihapus(
+                        semua, awalan + "9", kini);
+        assertEquals(2, buang.size());
+        assertTrue(buang.contains(awalan + "2"));
+        assertTrue(buang.contains(awalan + "3"));
+        assertFalse(buang.contains(awalan + "9"));
+        assertFalse(buang.contains(awalan + "1"));
+    }
+
+    @Test
+    public void kunciPeringatanUntukDihapus_diLuarBatasYang TertuaDibuang() {
+        String awalan = TgBot.KEY_TG_WARN_ASING_PREFIX;
+        long kini = 40L * 24 * 3600_000L;
+        java.util.Map<String, Object> semua =
+                new java.util.HashMap<>();
+        for (int i = 0; i < 70; i++) {
+            semua.put(awalan + i, kini - 70_000L + i * 1000L);
+        }
+        java.util.Set<String> buang =
+                TgBot.kunciPeringatanUntukDihapus(
+                        semua, awalan + "baru", kini);
+        assertEquals(7, buang.size());
+        assertTrue(buang.contains(awalan + "0"));
+        assertTrue(buang.contains(awalan + "6"));
+        assertFalse(buang.contains(awalan + "7"));
+        assertFalse(buang.contains(awalan + "baru"));
+    }
+
+    @Test
     public void himpunanSesudahSelesai_hanyaIdentitasPersisYangHilang() {
         java.util.Set<String> lama = new java.util.HashSet<>(
                 java.util.Arrays.asList(

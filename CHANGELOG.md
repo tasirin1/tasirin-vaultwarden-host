@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Solusi #2936 (4/4): komposisi sapuan cap peringatan asing diuji perilaku
+
+- `TgBot.kunciPeringatanUntukDihapus` diekstrak murni dari `peringatkanPinChatAsing` (saring awalan, kecualikan kunci berjalan, sapu kedaluwarsa, pangkas di luar batas 64). Dua uji JVM baru mengunci komposisinya, termasuk nilai bukan-Long yang dianggap kedaluwarsa.
+
+
 ## [Belum rilis] — Solusi #2936 (3/4): transformasi selesaikan hapus tertunda diuji perilaku
 
 - `TgBot.himpunanSesudahSelesai` diekstrak murni dari `selesaikanHapusTertundaUntuk`. Dua uji JVM baru: hanya identitas persis (ruang+pesan+jenis) yang hilang, tak cocok -> null (tanpa tulis), semua cocok -> himpunan kosong.
