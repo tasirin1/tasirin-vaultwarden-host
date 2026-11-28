@@ -2380,6 +2380,11 @@ public class ServerService extends Service {
         }
     }
 
+    // Audit 3039: commit() disengaja - bukti panic
+    // adalah catatan untuk loop crash; apply() bisa
+    // hilang bersama proses yang justru sedang crash,
+    // jadi tulisan ini wajib sampai disk seketika.
+    @SuppressLint("ApplySharedPref")
     private void catatPanicRuntime() {
         try {
             getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -2389,6 +2394,10 @@ public class ServerService extends Service {
 }
     }
 
+    // Audit 3039: commit() disengaja - pasangan
+    // catatPanicRuntime; penghapusan buktinya juga
+    // wajib seketika agar tak basi sesudah crash.
+    @SuppressLint("ApplySharedPref")
     private void bersihPanicRuntime() {
         try {
             getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -4441,6 +4450,12 @@ public class ServerService extends Service {
         }
     }
 
+    // Audit 3039: commit() disengaja di penghapusan
+    // penanda versi + pin SHA (Audit 3033) di dalam
+    // metode ini - penanda basi yang selamat dari
+    // apply() tertunda membuat /status mengklaim
+    // versi yang salah.
+    @SuppressLint("ApplySharedPref")
     private File ensureBinary(long stopAwal) {
         File binDir = new File(getFilesDir(), "bin");
         if (!binDir.exists() && !binDir.mkdirs()) {

@@ -204,7 +204,7 @@
     </plurals>
     <string name="acak_dibuat">Random token created — press Start to apply.</string>
     <string name="pin_min">Enter a PIN first (min. 4 letters/digits).</string>
-    <string name="pin_lemah">PIN must be 4-64 characters, no spaces, with at least one digit or symbol.</string>
+    <string name="pin_lemah">PIN must be 4–64 characters, no spaces, with at least one digit or symbol.</string>
     <string name="pin_diproses">Processing PIN…</string>
     <string name="pin_aktif">PIN is active.</string>
     <string name="masih_bekerja">Still working, please wait.</string>

@@ -203,7 +203,7 @@
     </plurals>
     <string name="acak_dibuat">Token acak dibuat — tekan Start untuk menerapkan.</string>
     <string name="pin_min">Isi PIN dulu (min. 4 huruf/angka).</string>
-    <string name="pin_lemah">PIN harus 4-64 karakter, tanpa spasi, minimal satu angka atau simbol.</string>
+    <string name="pin_lemah">PIN harus 4–64 karakter, tanpa spasi, minimal satu angka atau simbol.</string>
     <string name="pin_diproses">Memproses PIN…</string>
     <string name="pin_aktif">PIN aktif.</string>
     <string name="masih_bekerja">Masih bekerja, mohon tunggu.</string>

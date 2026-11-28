@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Warning lint CI dibersihkan (7 -> 0)
+
+- 5 ApplySharedPref dari maraton-maraton sesudah pembersihan 2026-11-26 ditekan dengan alasan tertulis (Audit 3039): bukti panic ServerService, penghapusan penanda di ensureBinary, cap versi + pin SHA di downloadBinaryInner - semuanya tulisan yang memang wajib seketika sampai disk. 2 TypographyDashes: rentang `4-64` di string pin_lemah (values + values-in) kini en dash.
+
+
 ## [Belum rilis] — Sisa #2922: cek bahasa string UI baru (PERINGATAN)
 
 - Gerbang kini menandai (PERINGATAN, tak pernah gagal) string UI BARU di `values/strings.xml` yang terindikasi Bahasa Indonesia dan sebaliknya di `values-in/` — ambang >= 2 kata penanda khas, `translatable="false"` dikecualikan. Bahasa identifier tetap tak dicek mesin (positif palsu nama Android/library tak terkendali).

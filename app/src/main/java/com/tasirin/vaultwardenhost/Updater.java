@@ -1949,6 +1949,11 @@ public final class Updater {
     }
 
     @android.annotation.SuppressLint("ApplySharedPref")
+    // Audit 3039: commit() disengaja di metode ini -
+    // cap versi + pin SHA binary unduhan wajib awet
+    // di disk sebelum binary dipakai; apply() yang
+    // tertunda bisa meninggalkan pin basi.
+    @android.annotation.SuppressLint("ApplySharedPref")
     private static String downloadBinaryInner(Context ctx, File out, String diminta,
                                               CekBatal batal, String urlChecksumSiap,
                                               HasilChecksum checksumSiap) throws Exception {
