@@ -3,12 +3,70 @@ package com.tasirin.vaultwardenhost;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 public class TgBotTest {
+
+    @Test
+    public void tambahEntriHapus_himpunanKosongJadiSatuEntri() {
+        java.util.Set<Long> milik = new java.util.HashSet<>();
+        java.util.Set<Long> asingS = new java.util.HashSet<>();
+        int[] jumlah = new int[1];
+        java.util.Set<String> hasil = TgBot.tambahEntriHapus(
+                null, 111L, 22, false, 1000L, 500L,
+                milik, asingS, jumlah);
+        assertEquals(1, hasil.size());
+        long[] u = TgBot.uraiEntriHapusTertunda(
+                hasil.iterator().next());
+        assertEquals(111L, u[0]);
+        assertEquals(22L, u[1]);
+        assertEquals(0L, u[2]);
+        assertEquals(1000L, u[3]);
+        assertTrue(milik.isEmpty());
+        assertTrue(asingS.isEmpty());
+        assertEquals(0, jumlah[0]);
+    }
+
+    @Test
+    public void tambahEntriHapus_duplikatIdentitasDitolak() {
+        java.util.Set<String> lama = new java.util.HashSet<>(
+                java.util.Collections.singleton(
+                        TgBot.entriHapusTertundaPenuh(
+                                111L, 22, false, 1L, 1L)));
+        assertNull(TgBot.tambahEntriHapus(
+                lama, 111L, 22, false, 2000L, 900L,
+                new java.util.HashSet<>(),
+                new java.util.HashSet<>(), new int[1]));
+        assertNotNull(TgBot.tambahEntriHapus(
+                lama, 111L, 22, true, 2000L, 900L,
+                new java.util.HashSet<>(),
+                new java.util.HashSet<>(), new int[1]));
+    }
+
+    @Test
+    public void tambahEntriHapus_pangkasanMengklasifikasiRuangTerbuang() {
+        java.util.Set<String> lama = new java.util.HashSet<>();
+        for (int i = 0; i < TgBot.BATAS_ENTRI_HAPUS_TERTUNDA; i++) {
+            lama.add(TgBot.entriHapusTertundaPenuh(
+                    5000L + i, 7, true, 100L + i, 50L));
+        }
+        java.util.Set<Long> milik = new java.util.HashSet<>();
+        java.util.Set<Long> asingS = new java.util.HashSet<>();
+        int[] jumlah = new int[1];
+        java.util.Set<String> hasil = TgBot.tambahEntriHapus(
+                lama, 999L, 1, false, 9_999L, 9_999L,
+                milik, asingS, jumlah);
+        assertEquals(TgBot.BATAS_ENTRI_HAPUS_TERTUNDA,
+                hasil.size());
+        assertTrue(TgBot.entriHapusMasihAda(hasil, 999L, 1, false));
+        assertTrue(asingS.contains(5000L));
+        assertTrue(milik.isEmpty());
+        assertEquals(0, jumlah[0]);
+    }
 
     @Test
     public void pollPerluLanjutan_hanyaBilaAdaUpdate() {

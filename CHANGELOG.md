@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Solusi #2936 (2/4): transformasi catat hapus tertunda diuji perilaku
+
+- `TgBot.tambahEntriHapus` diekstrak murni dari `catatHapusTertunda` (dedup identitas, pangkasan batas, klasifikasi ruang terbuang milik/asing). Tiga uji JVM baru: himpunan kosong jadi satu entri utuh, duplikat identitas ditolak (jenis beda bukan duplikat), pangkasan himpunan penuh membuang entri asing tertua dan melaporkannya ke set yang benar.
+
+
 ## [Belum rilis] — Solusi #2936 (1/4): komposisi catatHasil PinGate diuji perilaku
 
 - `PinGate.catatanHasilBaru` diekstrak murni dari `catatHasil`: cocok -> bersihkan, gagal -> hitungan baru + cap kunci dihitung dari hitungan BARU. Tiga uji JVM baru mengunci komposisinya (dulu jalur non-null catatHasil hanya diuji tak-throw via ctx null).

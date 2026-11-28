@@ -2275,6 +2275,55 @@ public final class TgBot {
         }
     }
 
+    // Audit 2936: transformasi himpunan catat dipisah
+    // murni agar bisa diuji perilaku - mengembalikan
+    // himpunan baru, atau null bila identitasnya sudah
+    // tercatat (tak ada yang perlu ditulis). Ruang yang
+    // entrinya terbuang pangkasan dikumpulkan ke dua
+    // set keluaran untuk diperingatkan pemanggil;
+    // entri tak terurai terbuang senyap seperti
+    // sebelumnya; jumlah entri milik terbuang keluar
+    // lewat milikTerbuang[0].
+    static java.util.Set<String> tambahEntriHapus(
+            java.util.Set<String> lama, long idRuang,
+            int idPesan, boolean asing, long kiniMs,
+            long elapsedMs,
+            java.util.Set<Long> ruangMilikTerbuang,
+            java.util.Set<Long> ruangAsingTerbuang,
+            int[] milikTerbuang) {
+        java.util.Set<String> kini =
+                new java.util.HashSet<>();
+        if (lama != null) {
+            kini.addAll(lama);
+        }
+        for (String e : kini) {
+            if (samaIdentitasHapus(
+                    uraiEntriHapusTertunda(e),
+                    idRuang, idPesan, asing)) {
+                return null;
+            }
+        }
+        for (String buang
+                : pangkasHapusTertunda(
+                        kini,
+                        BATAS_ENTRI_HAPUS_TERTUNDA
+                                - 1)) {
+            long[] ub = uraiEntriHapusTertunda(
+                    buang);
+            if (ub != null && ub[2] == 0) {
+                milikTerbuang[0]++;
+                ruangMilikTerbuang.add(ub[0]);
+            } else if (ub != null) {
+                ruangAsingTerbuang.add(ub[0]);
+            }
+            kini.remove(buang);
+        }
+        kini.add(entriHapusTertundaPenuh(
+                idRuang, idPesan, asing,
+                kiniMs, elapsedMs));
+        return kini;
+    }
+
     static void catatHapusTertunda(Context ctx, long idRuang,
             int idPesan, boolean asing) {
         if (ctx == null || idRuang == 0 || idPesan == 0) {
@@ -2294,55 +2343,30 @@ public final class TgBot {
             try {
                 SharedPreferences sp = ctx.getSharedPreferences(
                         ServerService.PREFS, Context.MODE_PRIVATE);
-                java.util.Set<String> kini =
-                        new java.util.HashSet<>();
                 java.util.Set<String> lama = sp.getStringSet(
                         KEY_TG_HAPUS_TERTUNDA, null);
-                if (lama != null) {
-                    kini.addAll(lama);
-                }
-                boolean sudahAda = false;
-                for (String e : kini) {
-                    if (samaIdentitasHapus(
-                            uraiEntriHapusTertunda(e),
-                            idRuang, idPesan, asing)) {
-                        sudahAda = true;
-                        break;
-                    }
-                }
-                if (!sudahAda) {
-                    int milikTerbuang = 0;
-                    for (String buang
-                            : pangkasHapusTertunda(
-                                    kini,
-                                    BATAS_ENTRI_HAPUS_TERTUNDA
-                                            - 1)) {
-                        long[] ub = uraiEntriHapusTertunda(
-                                buang);
-                        if (ub != null && ub[2] == 0) {
-                            milikTerbuang++;
-                            ruangMilikTerbuang.add(ub[0]);
-                        } else if (ub != null) {
-                            ruangAsingTerbuang.add(ub[0]);
-                        }
-                        kini.remove(buang);
-                    }
+                int[] milikTerbuang = new int[1];
+                java.util.Set<String> kini =
+                        tambahEntriHapus(lama, idRuang,
+                                idPesan, asing,
+                                System.currentTimeMillis(),
+                                SystemClock
+                                        .elapsedRealtime(),
+                                ruangMilikTerbuang,
+                                ruangAsingTerbuang,
+                                milikTerbuang);
+                if (kini != null) {
                     // Audit 2890: pengorbanan entri milik
                     // sendiri (kasus terburuk: antrean
                     // seluruhnya milik) tak lagi senyap.
-                    if (milikTerbuang > 0) {
+                    if (milikTerbuang[0] > 0) {
                         ServerService.catatLog("[tg] Antrean hapus"
                                 + " tertunda penuh: "
-                                + milikTerbuang
+                                + milikTerbuang[0]
                                 + " entri hapus milik sendiri"
                                 + " terbuang - pesan ber-PIN itu"
                                 + " mungkin tak terhapus otomatis.");
                     }
-                    kini.add(entriHapusTertundaPenuh(
-                            idRuang, idPesan, asing,
-                            System.currentTimeMillis(),
-                            SystemClock
-                                    .elapsedRealtime()));
                     sp.edit().putStringSet(
                             KEY_TG_HAPUS_TERTUNDA, kini).apply();
                 }
