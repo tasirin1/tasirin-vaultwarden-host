@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 5: wilayah w4 keluar dari _menguras_khusus
+
+- Blok csplit/pdf/gm/zip/rsync/socat/gpg/gpgsm dipindah verbatim ke `_menguras_khusus_w4`. Pembanding diferensial korpus semua perintah: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 4: wilayah w3 (diff) keluar dari _menguras_khusus
 
 - Wilayah diff/diff3/sdiff beserta definisi bersama `_PANJANG_DIFF`/`_PANJANG_DIFF3` (hanya dipakai wilayah ini) dipindah verbatim ke `_menguras_khusus_w3`. Pembanding diferensial korpus ±6.400 masukan: identik 100%.
