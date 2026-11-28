@@ -16022,18 +16022,29 @@ def _bagian_awal(tmp):
                "List.of di baris baru main: gerbang gagal "
                "(Audit 2922)", "API di atas 21")
 
+    def _tanam_string2922(klon_d, nama, teks_values,
+                          teks_in):
+        # Nama wajib ditanam di KEDUA strings.xml - gerbang
+        # paritas nama (Audit 765) menggagalkan nama yang
+        # cuma ada di satu sisi.
+        for folder, teks in (("values", teks_values),
+                             ("values-in", teks_in)):
+            p = os.path.join(klon_d, "app", "src", "main",
+                             "res", folder, "strings.xml")
+            with open(p, encoding="utf-8") as f:
+                isi = f.read()
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(isi.replace(
+                    "</resources>",
+                    '    <string name="' + nama + '">'
+                    + teks + "</string>\n</resources>", 1))
+
     def _diff2922_bahasa(klon_d):
         _sentuh_changelog(klon_d)
-        p = os.path.join(klon_d, "app", "src", "main", "res",
-                         "values", "strings.xml")
-        with open(p, encoding="utf-8") as f:
-            isi = f.read()
-        with open(p, "w", encoding="utf-8") as f:
-            f.write(isi.replace(
-                "</resources>",
-                '    <string name="uji_bahasa2922">Silakan '
-                'periksa koneksi anda dan coba lagi</string>\n'
-                "</resources>", 1))
+        _tanam_string2922(
+            klon_d, "uji_bahasa2922",
+            "Silakan periksa koneksi anda dan coba lagi",
+            "Silakan periksa koneksi anda dan coba lagi")
     racun_diff("diff2922bahasa", _diff2922_bahasa,
                "string UI Indonesia baru di values/: "
                "PERINGATAN bahasa terbit, gerbang lolos "
@@ -16042,16 +16053,10 @@ def _bagian_awal(tmp):
 
     bahasa2922ok = klon(tmp, "bahasa2922ok")
     _sentuh_changelog(bahasa2922ok)
-    p_ok = os.path.join(bahasa2922ok, "app", "src", "main",
-                        "res", "values", "strings.xml")
-    with open(p_ok, encoding="utf-8") as f:
-        isi_ok = f.read()
-    with open(p_ok, "w", encoding="utf-8") as f:
-        f.write(isi_ok.replace(
-            "</resources>",
-            '    <string name="uji_bahasa2922ok">Please '
-            'check your connection and try again</string>\n'
-            "</resources>", 1))
+    _tanam_string2922(
+        bahasa2922ok, "uji_bahasa2922ok",
+        "Please check your connection and try again",
+        "Silakan periksa koneksi anda dan coba lagi")
     git(bahasa2922ok, "add", "-A")
     git(bahasa2922ok, "commit", "-qm", "test: string Inggris")
     rc, out = jalan(bahasa2922ok,
