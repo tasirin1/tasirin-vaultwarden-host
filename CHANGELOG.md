@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 19 (terakhir): wilayah w18 keluar — _menguras_khusus tuntas dipecah
+
+- Blok gio/debugfs/xauth/systemd-run/gh/npm/certutil/cmsutil/apt-key dipindah verbatim ke `_menguras_khusus_w18`. `_menguras_khusus` kini 399 baris (dari 12.661): pembuka bersama + 19 dispatch wilayah + return False penutup. Diferensial TOTAL vs versi pra-proyek (korpus ±7.700 masukan, 259 perintah): identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 18: wilayah w17 keluar dari _menguras_khusus
 
 - Blok ptar/script/tmux/systemd-creds/debconf/dpkg-deb/dpkg-parsechangelog/cvtsudoers/tic/lesskey/xkbcomp/wayland-scanner/localedef/glib-genmarshal/genrb/pygettext3/nsupdate/ssh-keygen/tree dipindah verbatim ke `_menguras_khusus_w17`. Diferensial: identik 100%.
