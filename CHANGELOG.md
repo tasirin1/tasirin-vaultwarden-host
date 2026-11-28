@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 18: wilayah w17 keluar dari _menguras_khusus
+
+- Blok ptar/script/tmux/systemd-creds/debconf/dpkg-deb/dpkg-parsechangelog/cvtsudoers/tic/lesskey/xkbcomp/wayland-scanner/localedef/glib-genmarshal/genrb/pygettext3/nsupdate/ssh-keygen/tree dipindah verbatim ke `_menguras_khusus_w17`. Diferensial: identik 100%.
+
+
 ## [Belum rilis] — Proyek #2771 tahap 17: wilayah w16 keluar dari _menguras_khusus
 
 - Blok derdump/dasel/mlr/sd/choose/aria2c/envsubst/write/rpm2cpio/bun/cpp/as dipindah verbatim ke `_menguras_khusus_w16`. Pembanding diferensial: identik 100%.
