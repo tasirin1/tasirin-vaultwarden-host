@@ -25760,6 +25760,75 @@ def cek_api_baru(gagal, diff):
                     "repo #7, Audit 2922)" % (path, nama))
 
 
+# Audit 2922: kata penanda bahasa untuk cek string UI -
+# kata fungsi khas satu bahasa. "data"/"server" sengaja
+# absen (sama di kedua bahasa).
+KATA_ID_PENANDA = {
+    "yang", "dan", "untuk", "tidak", "dengan", "adalah",
+    "anda", "kamu", "silakan", "harap", "sudah", "belum",
+    "atau", "dari", "pada", "saat", "ketika", "agar",
+    "bisa", "akan", "dalam", "ini", "itu",
+}
+KATA_EN_PENANDA = {
+    "the", "and", "for", "with", "please", "your", "you",
+    "are", "this", "that", "from", "will", "when", "while",
+}
+
+
+def _kata_string_ui(isi):
+    teks = re.sub(r"<[^>]+>", " ", isi)
+    teks = re.sub(r"&[a-z]+;", " ", teks)
+    teks = re.sub(r"%[0-9]*\$?[a-z]", " ", teks)
+    return set(re.findall(r"[a-z]+", teks.lower()))
+
+
+def cek_bahasa_string_ui(peringatan, diff):
+    # Audit 2922 (sisa): aturan repo #2 - string UI di
+    # values/ Bahasa Inggris, di values-in/ Bahasa
+    # Indonesia. Bahasa alami tak bisa dibuktikan mesin,
+    # jadi cek ini PERINGATAN saja (tak pernah GAGAL):
+    # string BARU yang memuat >= 2 kata penanda khas
+    # bahasa seberang ditandai untuk ditinjau manusia.
+    # translatable="false" dikecualikan. Bahasa
+    # identifier TIDAK ikut dicek: nama Android/library
+    # memang Inggris, positif palsunya tak terkendali.
+    sasaran = {
+        "app/src/main/res/values/strings.xml":
+            (KATA_ID_PENANDA, "Indonesia", "Inggris"),
+        "app/src/main/res/values-in/strings.xml":
+            (KATA_EN_PENANDA, "Inggris", "Indonesia"),
+    }
+    path = ""
+    sudah = set()
+    for baris in diff.splitlines():
+        if baris.startswith("diff --git "):
+            bagian = baris.split()
+            path = bagian[-1][2:] if len(bagian) >= 4 else ""
+            continue
+        if path not in sasaran:
+            continue
+        if not baris.startswith("+") or baris.startswith("+++"):
+            continue
+        if 'translatable="false"' in baris:
+            continue
+        m = re.search(
+            r'<string\b[^>]*\bname="([^"]+)"[^>]*>'
+            r"(.*)</string>", baris[1:])
+        if not m:
+            continue
+        penanda, bahasa, seharusnya = sasaran[path]
+        kena = _kata_string_ui(m.group(2)) & penanda
+        if len(kena) >= 2 and (path, m.group(1)) not in sudah:
+            sudah.add((path, m.group(1)))
+            peringatan.append(
+                "String UI baru '%s' di %s terindikasi "
+                "Bahasa %s (kata penanda: %s) - aturan "
+                "repo #2: berkas itu seharusnya Bahasa %s "
+                "(Audit 2922)" % (m.group(1), path, bahasa,
+                                  ", ".join(sorted(kena)),
+                                  seharusnya))
+
+
 def teks_xml_bersih(path):
     return re.sub(r"<!--.*?-->", "", baca(path), flags=re.S)
 
@@ -26217,6 +26286,7 @@ def utama():
         cek_locale_baru(gagal, diff)
         cek_komentar_java_baru(gagal, diff)
         cek_api_baru(gagal, diff)
+        cek_bahasa_string_ui(peringatan, diff)
         cek_metode_hilang(gagal, peringatan, diff, hapus)
         cek_hapusan_belum_tercatat(gagal, diff)
         cek_uji_baru(peringatan, diff)

@@ -1,5 +1,10 @@
 # Changelog
 
+## [Belum rilis] — Sisa #2922: cek bahasa string UI baru (PERINGATAN)
+
+- Gerbang kini menandai (PERINGATAN, tak pernah gagal) string UI BARU di `values/strings.xml` yang terindikasi Bahasa Indonesia dan sebaliknya di `values-in/` — ambang >= 2 kata penanda khas, `translatable="false"` dikecualikan. Bahasa identifier tetap tak dicek mesin (positif palsu nama Android/library tak terkendali).
+
+
 ## [Belum rilis] — Sisa #2801 tuntas: dialog ganti PIN jalur char[]
 
 - Kandidat PIN di dialog ganti PIN Pengaturan kini disimpan dan diteruskan sebagai `char[]` yang di-nol-kan sesudah dipakai/diabaikan (`buangKandidatPin`, `tulisHashPin(char[])`), bukan String abadi di heap; jalur verifikasi dan aktifkan sudah lebih dulu char[] di perbaikan #2801 awal.

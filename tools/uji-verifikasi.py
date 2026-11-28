@@ -16022,6 +16022,47 @@ def _bagian_awal(tmp):
                "List.of di baris baru main: gerbang gagal "
                "(Audit 2922)", "API di atas 21")
 
+    def _diff2922_bahasa(klon_d):
+        _sentuh_changelog(klon_d)
+        p = os.path.join(klon_d, "app", "src", "main", "res",
+                         "values", "strings.xml")
+        with open(p, encoding="utf-8") as f:
+            isi = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(isi.replace(
+                "</resources>",
+                '    <string name="uji_bahasa2922">Silakan '
+                'periksa koneksi anda dan coba lagi</string>\n'
+                "</resources>", 1))
+    racun_diff("diff2922bahasa", _diff2922_bahasa,
+               "string UI Indonesia baru di values/: "
+               "PERINGATAN bahasa terbit, gerbang lolos "
+               "(Audit 2922)", "terindikasi Bahasa Indonesia",
+               harus_rc=0)
+
+    bahasa2922ok = klon(tmp, "bahasa2922ok")
+    _sentuh_changelog(bahasa2922ok)
+    p_ok = os.path.join(bahasa2922ok, "app", "src", "main",
+                        "res", "values", "strings.xml")
+    with open(p_ok, encoding="utf-8") as f:
+        isi_ok = f.read()
+    with open(p_ok, "w", encoding="utf-8") as f:
+        f.write(isi_ok.replace(
+            "</resources>",
+            '    <string name="uji_bahasa2922ok">Please '
+            'check your connection and try again</string>\n'
+            "</resources>", 1))
+    git(bahasa2922ok, "add", "-A")
+    git(bahasa2922ok, "commit", "-qm", "test: string Inggris")
+    rc, out = jalan(bahasa2922ok,
+                    [sys.executable, GERBANG,
+                     "--rentang", "HEAD~1..HEAD"])
+    periksa("string UI Inggris baru di values/: tanpa "
+            "PERINGATAN bahasa (Audit 2922)",
+            rc == 0 and rc != 124
+            and "terindikasi Bahasa" not in out)
+    shutil.rmtree(bahasa2922ok, ignore_errors=True)
+
     def _diff2836_audit_baru(klon_d):
         _sentuh_changelog(klon_d)
         p = _jalur_util(klon_d)
