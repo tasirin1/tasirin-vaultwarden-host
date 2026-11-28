@@ -5651,6 +5651,196 @@ def _jumlah_head_sah(nilai):
         nilai) is not None
 
 
+def _menguras_khusus_join(perintah, toks, awal):
+    """Audit 2771 (tahap 1): blok penilaian join dipindah
+    verbatim dari _menguras_khusus - perilaku identik,
+    dibuktikan pembanding diferensial atas korpus token
+    join + perintah tetangga sebelum commit."""
+    sisa = toks[awal + 1:]
+    mentah = [t.strip("\"'") for t in sisa]
+    if perintah == "join":
+        # Audit 2765: nilai -1/-2 (nomor
+        # bidang >= 1) dan -o (spesifikasi
+        # bidang: 0 atau F.N dengan F 1/2
+        # dan N >= 1) divalidasi - nilai
+        # asing membunuh join saat urai.
+        # Audit 2864: -j (gabungan -1/-2
+        # satu nomor) ikut divalidasi -
+        # dulu tak dimodelkan sama sekali
+        # (terprobe: -j abc mati "invalid
+        # field number", -j1 merekat sah,
+        # nomor raksasa diterima).
+        def _spec_join_sah(v_j):
+            # Audit 2868: kata kunci "auto"
+            # (format mengikuti berkas
+            # pertama) sah sebagai SELURUH
+            # spek - terprobe biner: -o auto
+            # dan -oauto jalan; campuran
+            # "auto,1.1"/"auto 0" dan "AUTO"
+            # mati "invalid file number".
+            if v_j == "auto":
+                return True
+            butir_j = [x for x in
+                       re.split(r"[,\s]+", v_j) if x]
+            if not butir_j:
+                return False
+            for x_j in butir_j:
+                if x_j == "0":
+                    continue
+                m_j = re.fullmatch(
+                    r"([12])\.(\d{1,18})", x_j)
+                if (not m_j
+                        or int(m_j.group(2)) < 1):
+                    return False
+            return True
+        k_j = awal + 1
+        while k_j < len(toks):
+            t_j = toks[k_j].strip("\"'")
+            if t_j == "--":
+                break
+            if (t_j == "--output"
+                    or t_j.startswith(
+                        "--output=")):
+                # Audit 2792: join tak
+                # mengenal --output (yang
+                # ada hanya -o); biner mati
+                # unrecognized option.
+                return False
+            if t_j.startswith("--"):
+                # Audit 2865: kosakata opsi
+                # panjang join persis biner
+                # (dari --help coreutils
+                # 9.4) - di luar ini biner
+                # mati "unrecognized option"
+                # (terprobe --bogus dan
+                # --separator: --separator
+                # HANTU yang dulu dimodelkan
+                # 2792 sebagai opsi bernilai
+                # sah, padahal pemisah join
+                # hanya -t). Singkatan unik
+                # diselesaikan getopt_long
+                # (terprobe --head/--zero/
+                # --c jalan); ambigu mati.
+                # --help/--version informatif:
+                # cetak lalu keluar.
+                kosa_j = ("--ignore-case",
+                          "--check-order",
+                          "--nocheck-order",
+                          "--header",
+                          "--zero-terminated",
+                          "--help", "--version")
+                nama_j = t_j.split("=", 1)[0]
+                if nama_j not in kosa_j:
+                    cocok_j = [p for p in kosa_j
+                               if p.startswith(
+                                       nama_j)]
+                    if len(cocok_j) != 1:
+                        return False
+                    nama_j = cocok_j[0]
+                # Audit 2866: seluruh opsi
+                # panjang join adalah
+                # bendera murni - bentuk
+                # =argumen membunuh biner
+                # ("doesn't allow an
+                # argument", terprobe
+                # --header=x/--check-
+                # order=x/--ignore-case=x).
+                if "=" in t_j:
+                    return False
+                if nama_j in ("--help",
+                              "--version"):
+                    return False
+            if t_j in ("-e", "-t", "-a",
+                       "-v"):
+                # Audit 2792: nilai opsi
+                # bernilai lain ditelan
+                # (dulu -1 sebagai nilai -e
+                # disalahartikan opsi
+                # bidang); -a/-v wajib nomor
+                # berkas 1/2 dan -t wajib
+                # satu karakter di biner.
+                if k_j + 1 < len(toks):
+                    v_j = toks[k_j + 1].strip(
+                        "\"'")
+                    if t_j in ("-a", "-v"):
+                        if v_j not in (
+                                "1", "2"):
+                            return False
+                    elif t_j == "-t":
+                        if len(v_j) != 1:
+                            return False
+                    k_j += 1
+                k_j += 1
+                continue
+            if (t_j.startswith(("-a", "-v"))
+                    and len(t_j) > 2):
+                if t_j[2:] not in ("1", "2"):
+                    return False
+                k_j += 1
+                continue
+            if (t_j.startswith("-t")
+                    and len(t_j) > 2):
+                if len(t_j) != 3:
+                    return False
+                k_j += 1
+                continue
+            if t_j in ("-1", "-2", "-j", "-o"):
+                if k_j + 1 < len(toks):
+                    v_j = toks[k_j + 1].strip(
+                        "\"'")
+                    if t_j in ("-1", "-2", "-j"):
+                        # Audit 2833: cek >= 1
+                        # tanpa int() - digit
+                        # ribuan meledakkan
+                        # int() Python 3.11+
+                        # padahal biner menerima
+                        # nomor field raksasa
+                        # (terprobe rc=0).
+                        if not (v_j.isdigit()
+                                and v_j.strip("0") != ""):
+                            return False
+                    elif not _spec_join_sah(v_j):
+                        return False
+                    k_j += 1
+                k_j += 1
+                continue
+            if (t_j.startswith(("-1", "-2", "-j"))
+                    and len(t_j) > 2):
+                if not (t_j[2:].isdigit()
+                        and t_j[2:].strip("0") != ""):
+                    return False
+            elif t_j.startswith("-o") \
+                    and len(t_j) > 2:
+                if not _spec_join_sah(t_j[2:]):
+                    return False
+            elif (len(t_j) > 1 and t_j[0] == "-"
+                    and t_j[1].isdigit()):
+                # Audit 2842: token berawalan
+                # digit selain -1/-2 (yang
+                # tertangani di atas) bukan opsi
+                # join - biner mati
+                # "invalid option" (terprobe -0).
+                return False
+            k_j += 1
+        # Audit 1063: '-' di posisi operand mana pun = stdin
+        # (di join -1/-2 memang bernilai nomor field).
+        ops_j = _operand_sesudah_opsi(
+            toks, awal, {"-1", "-2", "-j", "-o", "-t", "-e", "-a", "-v",
+                         "--output"})
+        # Audit 1135: opsi menggantung = program galat.
+        if "\x00gantung" in ops_j:
+            return False
+        # Audit 2867: join menolak dua
+        # berkas stdin sekaligus - biner
+        # mati "both files cannot be
+        # standard input" (terprobe)
+        # sebelum membaca apa pun.
+        if ops_j.count("-") >= 2:
+            return False
+        return "-" in ops_j
+    return None
+
+
 def _menguras_khusus(perintah, toks, awal):
     """Audit 1059-1072: penilai perintah yang pengurasannya
     bergantung pada subcommand / bentuk opsi khas — tak bisa
@@ -6973,186 +7163,9 @@ def _menguras_khusus(perintah, toks, awal):
         if "\x00gantung" in ops_c:
             return False
         return "-" in ops_c
-    if perintah == "join":
-        # Audit 2765: nilai -1/-2 (nomor
-        # bidang >= 1) dan -o (spesifikasi
-        # bidang: 0 atau F.N dengan F 1/2
-        # dan N >= 1) divalidasi - nilai
-        # asing membunuh join saat urai.
-        # Audit 2864: -j (gabungan -1/-2
-        # satu nomor) ikut divalidasi -
-        # dulu tak dimodelkan sama sekali
-        # (terprobe: -j abc mati "invalid
-        # field number", -j1 merekat sah,
-        # nomor raksasa diterima).
-        def _spec_join_sah(v_j):
-            # Audit 2868: kata kunci "auto"
-            # (format mengikuti berkas
-            # pertama) sah sebagai SELURUH
-            # spek - terprobe biner: -o auto
-            # dan -oauto jalan; campuran
-            # "auto,1.1"/"auto 0" dan "AUTO"
-            # mati "invalid file number".
-            if v_j == "auto":
-                return True
-            butir_j = [x for x in
-                       re.split(r"[,\s]+", v_j) if x]
-            if not butir_j:
-                return False
-            for x_j in butir_j:
-                if x_j == "0":
-                    continue
-                m_j = re.fullmatch(
-                    r"([12])\.(\d{1,18})", x_j)
-                if (not m_j
-                        or int(m_j.group(2)) < 1):
-                    return False
-            return True
-        k_j = awal + 1
-        while k_j < len(toks):
-            t_j = toks[k_j].strip("\"'")
-            if t_j == "--":
-                break
-            if (t_j == "--output"
-                    or t_j.startswith(
-                        "--output=")):
-                # Audit 2792: join tak
-                # mengenal --output (yang
-                # ada hanya -o); biner mati
-                # unrecognized option.
-                return False
-            if t_j.startswith("--"):
-                # Audit 2865: kosakata opsi
-                # panjang join persis biner
-                # (dari --help coreutils
-                # 9.4) - di luar ini biner
-                # mati "unrecognized option"
-                # (terprobe --bogus dan
-                # --separator: --separator
-                # HANTU yang dulu dimodelkan
-                # 2792 sebagai opsi bernilai
-                # sah, padahal pemisah join
-                # hanya -t). Singkatan unik
-                # diselesaikan getopt_long
-                # (terprobe --head/--zero/
-                # --c jalan); ambigu mati.
-                # --help/--version informatif:
-                # cetak lalu keluar.
-                kosa_j = ("--ignore-case",
-                          "--check-order",
-                          "--nocheck-order",
-                          "--header",
-                          "--zero-terminated",
-                          "--help", "--version")
-                nama_j = t_j.split("=", 1)[0]
-                if nama_j not in kosa_j:
-                    cocok_j = [p for p in kosa_j
-                               if p.startswith(
-                                       nama_j)]
-                    if len(cocok_j) != 1:
-                        return False
-                    nama_j = cocok_j[0]
-                # Audit 2866: seluruh opsi
-                # panjang join adalah
-                # bendera murni - bentuk
-                # =argumen membunuh biner
-                # ("doesn't allow an
-                # argument", terprobe
-                # --header=x/--check-
-                # order=x/--ignore-case=x).
-                if "=" in t_j:
-                    return False
-                if nama_j in ("--help",
-                              "--version"):
-                    return False
-            if t_j in ("-e", "-t", "-a",
-                       "-v"):
-                # Audit 2792: nilai opsi
-                # bernilai lain ditelan
-                # (dulu -1 sebagai nilai -e
-                # disalahartikan opsi
-                # bidang); -a/-v wajib nomor
-                # berkas 1/2 dan -t wajib
-                # satu karakter di biner.
-                if k_j + 1 < len(toks):
-                    v_j = toks[k_j + 1].strip(
-                        "\"'")
-                    if t_j in ("-a", "-v"):
-                        if v_j not in (
-                                "1", "2"):
-                            return False
-                    elif t_j == "-t":
-                        if len(v_j) != 1:
-                            return False
-                    k_j += 1
-                k_j += 1
-                continue
-            if (t_j.startswith(("-a", "-v"))
-                    and len(t_j) > 2):
-                if t_j[2:] not in ("1", "2"):
-                    return False
-                k_j += 1
-                continue
-            if (t_j.startswith("-t")
-                    and len(t_j) > 2):
-                if len(t_j) != 3:
-                    return False
-                k_j += 1
-                continue
-            if t_j in ("-1", "-2", "-j", "-o"):
-                if k_j + 1 < len(toks):
-                    v_j = toks[k_j + 1].strip(
-                        "\"'")
-                    if t_j in ("-1", "-2", "-j"):
-                        # Audit 2833: cek >= 1
-                        # tanpa int() - digit
-                        # ribuan meledakkan
-                        # int() Python 3.11+
-                        # padahal biner menerima
-                        # nomor field raksasa
-                        # (terprobe rc=0).
-                        if not (v_j.isdigit()
-                                and v_j.strip("0") != ""):
-                            return False
-                    elif not _spec_join_sah(v_j):
-                        return False
-                    k_j += 1
-                k_j += 1
-                continue
-            if (t_j.startswith(("-1", "-2", "-j"))
-                    and len(t_j) > 2):
-                if not (t_j[2:].isdigit()
-                        and t_j[2:].strip("0") != ""):
-                    return False
-            elif t_j.startswith("-o") \
-                    and len(t_j) > 2:
-                if not _spec_join_sah(t_j[2:]):
-                    return False
-            elif (len(t_j) > 1 and t_j[0] == "-"
-                    and t_j[1].isdigit()):
-                # Audit 2842: token berawalan
-                # digit selain -1/-2 (yang
-                # tertangani di atas) bukan opsi
-                # join - biner mati
-                # "invalid option" (terprobe -0).
-                return False
-            k_j += 1
-        # Audit 1063: '-' di posisi operand mana pun = stdin
-        # (di join -1/-2 memang bernilai nomor field).
-        ops_j = _operand_sesudah_opsi(
-            toks, awal, {"-1", "-2", "-j", "-o", "-t", "-e", "-a", "-v",
-                         "--output"})
-        # Audit 1135: opsi menggantung = program galat.
-        if "\x00gantung" in ops_j:
-            return False
-        # Audit 2867: join menolak dua
-        # berkas stdin sekaligus - biner
-        # mati "both files cannot be
-        # standard input" (terprobe)
-        # sebelum membaca apa pun.
-        if ops_j.count("-") >= 2:
-            return False
-        return "-" in ops_j
+    hasil = _menguras_khusus_join(perintah, toks, awal)
+    if hasil is not None:
+        return hasil
     # Audit 2858: kosakata opsi panjang
     # persis biner (dari --help diff 3.10
     # dan diff3 3.10) untuk menyelesaikan

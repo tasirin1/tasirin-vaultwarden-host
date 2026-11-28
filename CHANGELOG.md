@@ -1,5 +1,15 @@
 # Changelog
 
+## [Belum rilis] — Proyek #2771 tahap 1: blok join keluar dari _menguras_khusus
+
+- Blok penilaian perintah `join` (±180 baris) dipindah verbatim ke `_menguras_khusus_join`; fungsi raksasa menyusut dan bloknya kini bisa dibaca/dites sendiri. Kesetaraan perilaku dibuktikan pembanding diferensial lokal (korpus token join + perintah tetangga: keluaran lama vs baru identik) dan suite gerbang penuh di CI.
+
+
+## [Belum rilis] — Proyek #2771 tahap 1: blok join keluar dari _menguras_khusus
+
+- Blok penilaian perintah `join` (±237 baris) dipindah verbatim ke `_menguras_khusus_join`; fungsi raksasa menyusut dan bloknya kini bisa dibaca/dites sendiri. Kesetaraan perilaku dibuktikan pembanding diferensial lokal (korpus token join + perintah tetangga: keluaran lama vs baru identik) dan suite gerbang penuh di CI.
+
+
 ## [Belum rilis] — Solusi #2936 (4/4): komposisi sapuan cap peringatan asing diuji perilaku
 
 - `TgBot.kunciPeringatanUntukDihapus` diekstrak murni dari `peringatkanPinChatAsing` (saring awalan, kecualikan kunci berjalan, sapu kedaluwarsa, pangkas di luar batas 64). Dua uji JVM baru mengunci komposisinya, termasuk nilai bukan-Long yang dianggap kedaluwarsa.
